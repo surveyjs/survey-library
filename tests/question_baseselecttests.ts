@@ -1814,3 +1814,63 @@ QUnit.test("Do not show show choices in designer", function(assert) {
   assert.equal(question.visibleChoices.length, 5 + 1 + 3, "Show choices in designer, #1");
   settings.supportCreatorV2 = false;
 });
+QUnit.test("question checkbox displayValue() with other and comment", (assert) => {
+  const q1 = new QuestionCheckboxModel("q1");
+  q1.fromJSON({
+    "type": "checkbox",
+    "name": "q1",
+    "showCommentArea": true,
+    "commentText": "Comment",
+    "choices": [
+      "Item 1",
+      "Item 2",
+      "Item 3"
+    ],
+    "showOtherItem": true
+  });
+  q1.value = ["Item 1", "Item 2", "Other Value"];
+  assert.deepEqual(q1.displayValue, "Item 1, Item 2, Other Value", "Other value should be kept");
+});
+
+QUnit.test("checkbox with incorrect defaultValue, other & survey.data Bug#7943", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "defaultValue": [
+          "101"
+        ],
+        "choices": [1, 2],
+        "showOtherItem": true,
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q.value, ["other"], "q.value");
+  assert.equal(q.comment, "101", "q.comment");
+  assert.deepEqual(survey.data, { q1: ["other"], "q1-Comment": "101" }, "survey.data");
+  survey.doComplete(false);
+  assert.deepEqual(survey.data, { q1: ["other"], "q1-Comment": "101" }, "survey.data");
+});
+QUnit.test("radiogroup with incorrect defaultValue, other & survey.data Bug#7943", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "defaultValue": [
+          "101"
+        ],
+        "choices": [1, 2],
+        "showOtherItem": true,
+      }
+    ]
+  });
+  const q = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q.value, "other", "q.value");
+  assert.equal(q.comment, "101", "q.comment");
+  assert.deepEqual(survey.data, { q1: "other", "q1-Comment": "101" }, "survey.data");
+  survey.doComplete(false);
+  assert.deepEqual(survey.data, { q1: "other", "q1-Comment": "101" }, "survey.data on complete");
+});

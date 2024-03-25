@@ -458,6 +458,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return this._component;
   }
   public dispose(): void {
+    this.updateCallback = undefined;
     this.action = undefined;
     super.dispose();
     if (this.popupModel) {

@@ -1,9 +1,11 @@
+import { DomDocumentHelper } from "./global_variables_utils";
+
 export class ElementHelper {
   static focusElement(element: Element) {
     element && (<HTMLElement>element).focus();
   }
   static visibility(node: Element): boolean {
-    var style = window.getComputedStyle(node);
+    var style = DomDocumentHelper.getComputedStyle(node);
     if (style.display === "none" || style.visibility === "hidden") return false;
     return node.parentElement ? this.visibility(node.parentElement) : true;
   }

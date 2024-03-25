@@ -95,7 +95,7 @@ export class MatrixDropdownCellComp extends Vue {
     this.cell.question.registerPropertyChangedHandlers(["isVisible"], () => {
       this.onVisibilityChanged();
     });
-    const cQ = this.cell.question; 
+    const cQ = this.cell.question;
     const el: any = this.$el;
     const options = {
       cell: this.cell.cell,

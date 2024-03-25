@@ -1,5 +1,6 @@
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
+import { DomDocumentHelper } from "./global_variables_utils";
 import { ListModel } from "./list";
 import { PageModel } from "./page";
 import { PanelModelBase } from "./panel";
@@ -21,9 +22,7 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
       locTitle: (page as PageModel).locNavigationTitle?.text ? (page as PageModel).locNavigationTitle : (page.locTitle?.text ? page.locTitle : undefined),
       title: page.renderedNavigationTitle,
       action: () => {
-        if (typeof document !== undefined && !!document.activeElement) {
-          !!(<any>document.activeElement).blur && (<any>document.activeElement).blur();
-        }
+        DomDocumentHelper.activeElementBlur();
         !!onAction && onAction();
         if (page instanceof PageModel) {
           return survey.tryNavigateToPage(page);

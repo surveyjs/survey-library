@@ -139,6 +139,7 @@ export var defaultV2Css = {
   progressText: "sd-progress__text",
   progressButtonsRoot: "sd-progress-buttons",
   progressButtonsNumbered: "sd-progress-buttons--numbered",
+  progressButtonsFitSurveyWidth: "sd-progress-buttons--fit-survey-width",
   progressButtonsContainerCenter: "sd-progress-buttons__container-center",
   progressButtonsContainer: "sd-progress-buttons__container",
   progressButtonsConnector: "sd-progress-buttons__connector",
@@ -242,7 +243,8 @@ export var defaultV2Css = {
   html: {
     mainRoot: "sd-question sd-row__question sd-question--html",
     root: "sd-html",
-    withFrame: ""
+    withFrame: "",
+    nested: "sd-element--nested sd-html--nested"
   },
   error: {
     root: "sd-error",
@@ -426,6 +428,7 @@ export var defaultV2Css = {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     tableWrapper: "sd-matrix sd-table-wrapper",
     root: "sd-table sd-matrix__table",
+    columnsAutoWidth: "sd-table--columnsautowidth",
     noHeader: "sd-table--no-header",
     rootVerticalAlignTop: "sd-table--align-top",
     rootVerticalAlignMiddle: "sd-table--align-middle",
@@ -454,6 +457,7 @@ export var defaultV2Css = {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     rootScroll: "sd-question--scroll",
     root: "sd-table sd-matrixdropdown",
+    columnsAutoWidth: "sd-table--columnsautowidth",
     noHeader: "sd-table--no-header",
     hasFooter: "sd-table--has-footer",
     rootVerticalAlignTop: "sd-table--align-top",
@@ -496,6 +500,7 @@ export var defaultV2Css = {
     rootScroll: "sd-question--scroll",
     empty: "sd-question--empty",
     root: "sd-table sd-matrixdynamic",
+    columnsAutoWidth: "sd-table--columnsautowidth",
     noHeader: "sd-table--no-header",
     hasFooter: "sd-table--has-footer",
     tableWrapper: "sd-table-wrapper",
@@ -621,6 +626,7 @@ export var defaultV2Css = {
     chooseFileAsIcon: "sd-file__choose-btn--icon",
     chooseFileIconId: "icon-choosefile",
     disabled: "sd-file__choose-btn--disabled",
+    controlDisabled: "sd-file__choose-file-btn--disabled",
     //todo: remove it in v2
     removeButton: "sd-context-btn--negative",
     removeButtonBottom: "",

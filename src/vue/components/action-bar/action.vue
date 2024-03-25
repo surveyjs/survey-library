@@ -1,5 +1,5 @@
 <template>
-  <div v-bind:class="item.getActionRootCss()" 
+  <div v-bind:class="item.getActionRootCss()"
       :id="item.id">
     <div class="sv-action__content">
       <sv-action-bar-separator

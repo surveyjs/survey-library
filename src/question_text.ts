@@ -1,5 +1,5 @@
 import { QuestionFactory } from "./questionfactory";
-import { Serializer } from "./jsonobject";
+import { Serializer, property } from "./jsonobject";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable } from "./helpers";
 import { EmailValidator } from "./validator";
@@ -10,6 +10,9 @@ import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { InputElementAdapter } from "./mask/input_element_adapter";
+import { InputMaskBase } from "./mask/mask_base";
+import { IInputMask } from "./mask/mask_utils";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -20,10 +23,91 @@ export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
   private minValueRunner: ExpressionRunner;
   private maxValueRunner: ExpressionRunner;
+  private maskInputAdapter: InputElementAdapter;
+
+  private createMaskAdapter() {
+    if (!!this.input && !this.maskTypeIsEmpty) {
+      this.maskInputAdapter = new InputElementAdapter(this.maskInstance as InputMaskBase, this.input, this.value);
+    }
+  }
+  private deleteMaskAdapter() {
+    if (this.maskInputAdapter) {
+      this.maskInputAdapter.dispose();
+      this.maskInputAdapter = undefined;
+    }
+  }
+  private updateMaskAdapter() {
+    this.deleteMaskAdapter();
+    this.createMaskAdapter();
+  }
+  onSetMaskType(newValue: string) {
+    this.setNewMaskSettingsProperty();
+    this.updateMaskAdapter();
+  }
+
+  /**
+   * Specifies the type of a mask applied to the input.
+   *
+   * Possible values:
+   *
+   * - `"none"` (default)
+   * - `"numeric"`
+   * - `"currency"`
+   * - `"datetime"`
+   * - `"pattern"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   * @see maskSettings
+   */
+  @property({
+    onSet: (newValue: string, target: QuestionTextModel) => { target.onSetMaskType(newValue); }
+  }) maskType: string;
+  @property() inputTextAlignment: "left" | "right" | "auto" ;
+
+  get maskTypeIsEmpty(): boolean {
+    return this.maskType === "none";
+  }
+
+  /**
+   * An object with properties that configure the mask applied to the input.
+   *
+   * Available properties depend on the specified [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType) and belong to corresponding classes. Refer to the class APIs for a full list of properties:
+   *
+   * | `maskType` | Class |
+   * | ---------- | ----- |
+   * | `"numeric"` | [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric) |
+   * | `"currency"` | [`InputMaskCurrency`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskcurrency) |
+   * | `"datetime"` | [`InputMaskDateTime`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskdatetime) |
+   * | `"pattern"` | [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern) |
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   */
+  public get maskSettings(): InputMaskBase {
+    return this.getPropertyValue("maskSettings");
+  }
+  public set maskSettings(val: InputMaskBase) {
+    if (!val) return;
+    this.setNewMaskSettingsProperty();
+    this.maskSettings.fromJSON(val.toJSON());
+    this.updateMaskAdapter();
+  }
+  private setNewMaskSettingsProperty() {
+    this.setPropertyValue("maskSettings", this.createMaskSettings());
+  }
+  protected createMaskSettings(): InputMaskBase {
+    let maskClassName = (!this.maskType || this.maskType === "none") ? "masksettings" : (this.maskType + "mask");
+    if(!Serializer.findClass(maskClassName)) {
+      maskClassName = "masksettings";
+    }
+    const inputMask = Serializer.createClass(maskClassName);
+    return inputMask;
+  }
+
   constructor(name: string) {
     super(name);
     this.createLocalizableString("minErrorText", this, true, "minError");
     this.createLocalizableString("maxErrorText", this, true, "maxError");
+    this.setNewMaskSettingsProperty();
     this.locDataListValue = new LocalizableStrings(this);
     this.locDataListValue.onValueChanged = (oldValue: any, newValue: any) => {
       this.propertyValueChanged("dataList", oldValue, newValue);
@@ -219,6 +303,42 @@ export class QuestionTextModel extends QuestionTextBase {
   public get isMinMaxType(): boolean {
     return isMinMaxType(this);
   }
+
+  @property() _inputValue: string;
+  public get maskInstance(): IInputMask {
+    return this.maskSettings;
+  }
+  public get inputValue(): string {
+    return this._inputValue;
+  }
+  public set inputValue(val: string) {
+    let value = val;
+    this._inputValue = val;
+    if(!this.maskTypeIsEmpty) {
+      value = this.maskInstance.getUnmaskedValue(val);
+      this._inputValue = this.maskInstance.getMaskedValue(value);
+      if(!!value && this.maskSettings.saveMaskedValue) {
+        value = this.maskInstance.getMaskedValue(value);
+      }
+    }
+    this.value = value;
+  }
+
+  protected onChangeQuestionValue(newValue: any): void {
+    super.onChangeQuestionValue(newValue);
+    this.updateInputValue();
+  }
+
+  private updateInputValue() {
+    if (this.maskTypeIsEmpty) {
+      this._inputValue = this.value;
+    } else if (this.maskSettings.saveMaskedValue) {
+      this._inputValue = !!this.value ? this.value : this.maskInstance.getMaskedValue("");
+    } else {
+      this._inputValue = this.maskInstance.getMaskedValue(this.value);
+    }
+  }
+
   protected onCheckForErrors(
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
@@ -411,14 +531,23 @@ export class QuestionTextModel extends QuestionTextBase {
   get inputStyle(): any {
     var style: any = {};
     style.width = this.inputWidth;
+    this.updateTextAlign(style);
     return style;
+  }
+  private updateTextAlign(style: any) {
+    if (this.inputTextAlignment !== "auto") {
+      style.textAlign = this.inputTextAlignment;
+    } else if (this.maskType === "numeric" || this.maskType === "currency") {
+      style.textAlign = "right";
+    }
   }
   //web-based methods
   private _isWaitingForEnter = false;
+
   private updateValueOnEvent(event: any) {
     const newValue = event.target.value;
     if (!this.isTwoValueEquals(this.value, newValue)) {
-      this.value = newValue;
+      this.inputValue = newValue;
     }
   }
   onCompositionUpdate = (event: any) => {
@@ -450,7 +579,8 @@ export class QuestionTextModel extends QuestionTextBase {
     this.onTextKeyDownHandler(event);
   }
   public onChange = (event: any): void => {
-    if (event.target === settings.environment.root.activeElement) {
+    const elementIsFocused = event.target === settings.environment.root.activeElement;
+    if (elementIsFocused) {
       if (this.isInputTextUpdate) {
         this.updateValueOnEvent(event);
       }
@@ -465,6 +595,17 @@ export class QuestionTextModel extends QuestionTextBase {
   };
   public onFocus = (event: any): void => {
     this.updateRemainingCharacterCounter(event.target.value);
+  }
+
+  public afterRenderQuestionElement(el: HTMLElement) {
+    if (!!el) {
+      this.input = el instanceof HTMLInputElement ? el : el.querySelector("input");
+      this.createMaskAdapter();
+    }
+    super.afterRenderQuestionElement(el);
+  }
+  public beforeDestroyQuestionElement(el: HTMLElement) {
+    this.deleteMaskAdapter();
   }
 }
 
@@ -616,6 +757,31 @@ Serializer.addClass(
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
+      },
+    },
+    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"], visible: false },
+    {
+      name: "maskType:masktype",
+      default: "none",
+      visibleIndex: 0,
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => {
+        return obj.inputType === "text";
+      }
+    },
+    {
+      name: "maskSettings:masksettings",
+      className: "masksettings",
+      visibleIndex: 1,
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => {
+        return obj.inputType === "text";
+      },
+      onGetValue: function (obj: any) {
+        return obj.maskSettings.getData();
+      },
+      onSetValue: function (obj: any, value: any) {
+        obj.maskSettings.setData(value);
       },
     },
     {

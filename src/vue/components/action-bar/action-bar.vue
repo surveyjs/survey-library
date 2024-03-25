@@ -39,7 +39,7 @@ export class ActionBarViewModel extends BaseVue {
   getModel(): ActionContainer<Action> {
     return this.model;
   }
-  
+
   mounted() {
     if (!this.model.hasActions) return;
     const container: HTMLDivElement = <HTMLDivElement>this.$el;

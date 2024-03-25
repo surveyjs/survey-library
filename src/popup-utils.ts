@@ -1,9 +1,8 @@
+import { DomDocumentHelper } from "./global_variables_utils";
 import { IDialogOptions, PopupModel } from "./popup";
 import { PopupDropdownViewModel } from "./popup-dropdown-view-model";
 import { PopupModalViewModel } from "./popup-modal-view-model";
 import { PopupBaseViewModel } from "./popup-view-model";
-import { settings } from "./settings";
-import { getElement } from "./utils/utils";
 
 export function createPopupModalViewModel(options: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
   const popupModel = new PopupModel(
@@ -24,7 +23,7 @@ export function createPopupModalViewModel(options: IDialogOptions, rootElement?:
   popupModel.isFocusedContent = options.isFocusedContent ?? true;
   const popupViewModel: PopupBaseViewModel = new PopupModalViewModel(popupModel);
   if(!!rootElement && !!rootElement.appendChild) {
-    var container: HTMLElement = document.createElement("div");
+    var container: HTMLElement = DomDocumentHelper.createElement("div");
     rootElement.appendChild(container);
     popupViewModel.setComponentElement(container);
   }

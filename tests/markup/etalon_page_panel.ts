@@ -247,7 +247,36 @@ registerMarkupTest(
     after: () => StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "panel-question-headers",
-  });
+  }
+);
+registerMarkupTest(
+  {
+    name: "Test Panel - Required panel's title",
+    json: {
+      "elements": [
+        {
+          type: "panel",
+          name: "name",
+          isRequired: true,
+          title: "panel_title",
+          showQuestionNumbers: "off",
+          startWithNewLine: false,
+          elements: [
+            {
+              type: "text",
+              name: "question1",
+              titleLocation: "hidden",
+            }
+          ]
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    event: "onAfterRenderPage",
+    snapshot: "panel-required-header",
+  }
+);
 registerMarkupTest(
   {
     name: "Test Panel - Panel title with number",

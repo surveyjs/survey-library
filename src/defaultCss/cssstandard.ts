@@ -208,6 +208,7 @@ export var defaultStandardCss = {
     headerCell: "sv_matrix_cell_header",
     row: "sv_matrix_row",
     rowAdditional: "sv-matrix__row--additional",
+    rowTextCell: "sv-table__cell--row-text",
     detailRow: "sv_matrix_detail_row",
     detailRowText: "sv_matrix_cell_detail_rowtext",
     detailCell: "sv_matrix_cell_detail",

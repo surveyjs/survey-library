@@ -6897,7 +6897,7 @@ QUnit.test("Detail panel, rendered table and className", function (assert) {
 
   assert.equal(
     rows[1].cells[1].className,
-    "sv_matrix_cell sv_matrix_cell_detail_rowtext",
+    "sv_matrix_cell sv-table__cell--row-text sv_matrix_cell_detail_rowtext",
     "row text css"
   );
   assert.equal(
@@ -7211,8 +7211,8 @@ QUnit.test("Row actions, rendered table and className", function (assert) {
     leftActions[0] instanceof Action,
     "actions in cell are instances of Action"
   );
-  assert.equal(rows[1].cells[1].className, "sv_matrix_cell", "text cell");
-  assert.equal(rows[1].cells[1].className, "sv_matrix_cell", "ordinary cell");
+  assert.equal(rows[1].cells[1].className, "sv_matrix_cell sv-table__cell--row-text", "text cell");
+  assert.equal(rows[1].cells[2].className, "sv_matrix_cell", "ordinary cell");
   assert.equal(
     rows[1].cells[3].className,
     "sv_matrix_cell sv_matrix_cell_actions",

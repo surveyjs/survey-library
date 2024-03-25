@@ -15,7 +15,7 @@ import { BaseVue } from "../../base";
 @Component
 export class RatingItem extends BaseVue {
   @Prop() item: any;
-  
+
   constructor() {
     super();
   }

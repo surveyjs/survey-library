@@ -6,7 +6,9 @@ import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
 import { settings } from "./settings";
 import { getElement } from "./utils/utils";
+
 import { AnimationBoolean, AnimationOptions, IAnimationConsumer } from "./utils/animation";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
@@ -279,8 +281,8 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     this.resetComponentElement();
   }
   public initializePopupContainer(): void {
-    if (!this.container && ("undefined" !== typeof document)) {
-      const container: HTMLElement = document.createElement("div");
+    if (!this.container) {
+      const container: HTMLElement = DomDocumentHelper.createElement("div");
       this.createdContainer = container;
       getElement(settings.environment.popupMountContainer).appendChild(container);
     }
@@ -297,7 +299,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   protected preventScrollOuside(event: any, deltaY: number): void {
     let currentElement = event.target;
     while (currentElement !== this.container) {
-      if (window.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
+      if (DomDocumentHelper.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
         const { scrollHeight, scrollTop, clientHeight } = currentElement;
         if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
           return;

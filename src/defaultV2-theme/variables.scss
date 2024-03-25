@@ -119,8 +119,6 @@ $sd-panel-medium-min-width: 176px;
   --sjs-transition-duration: 150ms;
 }
 
-$transition-duration: var(--sjs-transition-duration, 1s);
-
 $row-fade-in-duration: var(--sjs-row-fade-in-duration, 100ms);
 $row-move-in-duration: var(--sjs-row-move-in-duration, 200ms);
 $row-fade-in-delay: var(--sjs-row-fade-in-delay, 150ms);
@@ -148,7 +146,6 @@ $element-fade-in-delay: var(--sjs-element-fade-in-delay, 0ms);
 $element-fade-out-duration: var(--sjs-element-fade-out-duration, 100ms);
 $element-move-out-duration: var(--sjs-element-move-out-duration, 250ms);
 $element-move-out-delay: var(--sjs-element-move-out-delay, 0ms);
-
 
 $transition-duration: var(--sjs-transition-duration, 150ms);
 

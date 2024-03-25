@@ -1,6 +1,6 @@
 <template>
-  <label :key="item.value" @mousedown="question.onMouseDown()" :class="question.getItemClass(item.itemValue)" 
-  @mouseover="(e) => question.onItemMouseIn(item)" 
+  <label :key="item.value" @mousedown="question.onMouseDown()" :class="question.getItemClass(item.itemValue)"
+  @mouseover="(e) => question.onItemMouseIn(item)"
   @mouseleave="(e) => question.onItemMouseOut(item)">
     <input type="radio" class="sv-visuallyhidden" :name="question.name" :id="question.getInputId(index)"
       :value="item.value" :disabled="question.isInputReadOnly" @click="(e) => question.setValueFromClick(e.target.value)"
@@ -16,7 +16,6 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { RenderedRatingItem, QuestionRatingModel, Action } from "survey-core";
 import { BaseVue } from "../../base";
-
 
 @Component
 export class RatingItemStar extends BaseVue {

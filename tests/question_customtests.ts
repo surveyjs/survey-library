@@ -3016,3 +3016,19 @@ QUnit.test("Composite + Ranking", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: showPreviewBeforeComplete Bug#8005", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3] },
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "question1" }],
+    showPreviewBeforeComplete: "showAllQuestions"
+  });
+  survey.getQuestionByName("question1").value = 1;
+  survey.showPreview();
+  assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
+  survey.completeLastPage();
+  assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
+  ComponentCollection.Instance.clear();
+});

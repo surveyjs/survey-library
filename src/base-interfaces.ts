@@ -201,11 +201,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   }): any;
   matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
   matrixRowRemoving(question: IQuestion, rowIndex: number, row: any): boolean;
-  matrixAllowRemoveRow(
-    question: IQuestion,
-    rowIndex: number,
-    row: any
-  ): boolean;
+  matrixAllowRemoveRow(question: IQuestion, rowIndex: number, row: any): boolean;
+  matrixDetailPanelVisibleChanged(question: IQuestion, rowIndex: number, row: any, visible: boolean): void;
   matrixCellCreating(question: IQuestion, options: any): any;
   matrixCellCreated(question: IQuestion, options: any): any;
   matrixAfterCellRender(question: IQuestion, options: any): any;
@@ -234,7 +231,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   elementContentVisibilityChanged(element: ISurveyElement): void;
   onCorrectQuestionAnswer(question: IQuestion, options: any): void;
   processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
-  chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: ISurveyElement, item?: any }): void;
+  chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: Base, item?: any, elementType?: string, propertyName?: string }): void;
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;

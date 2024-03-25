@@ -2,6 +2,7 @@ import { Base, EventBase } from "./base";
 import { IAction } from "./actions/action";
 import { property } from "./jsonobject";
 import { VerticalPosition, HorizontalPosition, PositionMode } from "./utils/popup";
+import { ConsoleWarnings } from "./console-warnings";
 
 export interface IPopupOptionsBase {
   onHide?: () => void;
@@ -130,6 +131,8 @@ export function createDialogOptions(
   cssClass?: string,
   title?: string,
   displayMode: "popup" | "overlay" = "popup"): IDialogOptions {
+  ConsoleWarnings.warn("The `showModal()` and `createDialogOptions()` methods are obsolete. Use the `showDialog()` method instead.");
+
   return <IDialogOptions>{
     componentName: componentName,
     data: data,

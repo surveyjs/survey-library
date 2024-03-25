@@ -47,7 +47,6 @@ export class PopupSurvey extends BaseVue {
   @Prop() allowFullScreen: boolean;
   @Prop() allowfullscreen: boolean;
   @Prop() closeOnCompleteTimeout: number;
-  
 
   surveyWindow: PopupSurveyModel;
   constructor() {

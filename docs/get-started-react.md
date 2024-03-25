@@ -24,6 +24,12 @@ As a result, you will create a form displayed below:
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/react (linkStyle))
 
+If you are looking for a quick-start application that includes all SurveyJS components, refer to the following GitHub repositories:
+
+- <a href="https://github.com/surveyjs/surveyjs_react_quickstart" target="_blank">SurveyJS + React Quickstart Template</a>
+- <a href="https://github.com/surveyjs/surveyjs-nextjs" target="_blank">SurveyJS + Next.js Quickstart Template</a>
+- <a href="https://github.com/surveyjs/surveyjs-remix" target="_blank">SurveyJS + Remix Quickstart Template</a>
+
 ## Install the `survey-react-ui` npm Package
 
 SurveyJS Form Library for React consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) (rendering code). Run the following command to install `survey-react-ui`. The `survey-core` package will be installed automatically as a dependency.
@@ -113,9 +119,14 @@ export default App;
 
 ## Render the Form
 
-To render a form, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute:
+To render a form, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute, as shown below.
+
+> If you are using [Next.js](https://nextjs.org) or another framework that [has adopted React Server Components](https://react.dev/learn/start-a-new-react-project#bleeding-edge-react-frameworks), you need to explicitly mark the React component that renders a SurveyJS component as client code using the ['use client'](https://react.dev/reference/react/use-client) directive.
 
 ```js
+// Uncomment the following line if you are using Next.js:
+// 'use client'
+
 import { Survey } from 'survey-react-ui';
 // ...
 const surveyJson = { ... };
@@ -135,6 +146,9 @@ If you replicate the code correctly, you should see the following form:
     <summary>View Full Code</summary>  
 
 ```js
+// Uncomment the following line if you are using Next.js:
+// 'use client'
+
 import 'survey-core/defaultV2.min.css';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
@@ -235,6 +249,9 @@ To view the application, run `npm run start` in a command line and open [http://
     <summary>View Full Code</summary>  
 
 ```js
+// Uncomment the following line if you are using Next.js:
+// 'use client'
+
 import { useCallback } from 'react';
 
 import 'survey-core/defaultV2.min.css';

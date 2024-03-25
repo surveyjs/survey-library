@@ -850,11 +850,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
   }
   protected convertDataName(name: string): string {
-    if (!this.contentQuestion) return super.convertDataName(name);
-    var newName = name.replace(
-      this.contentQuestion.getValueName(),
-      this.getValueName()
-    );
+    const q = this.contentQuestion;
+    if (!q || name === this.getValueName()) return super.convertDataName(name);
+    var newName = name.replace(q.getValueName(), this.getValueName());
     return newName.indexOf(this.getValueName()) == 0
       ? newName
       : super.convertDataName(name);

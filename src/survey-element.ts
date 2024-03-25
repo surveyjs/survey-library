@@ -23,6 +23,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/utils";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */
@@ -167,12 +168,24 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const { root } = settings.environment;
     if (!elementId || typeof root === "undefined") return false;
     const el = root.getElementById(elementId);
+    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible);
+  }
+  private static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean): boolean {
     if (!el || !el.scrollIntoView) return false;
-    const elemTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
-    let needScroll = elemTop < 0;
-    if(!needScroll && !!window) {
-      const height = window.innerHeight;
-      needScroll = height > 0 && height < elemTop;
+    const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
+    let needScroll = elTop < 0;
+    let elLeft: number = -1;
+    if(!needScroll && checkLeft) {
+      elLeft = el.getBoundingClientRect().left;
+      needScroll = elLeft < 0;
+    }
+    if(!needScroll && DomWindowHelper.isAvailable()) {
+      const height = DomWindowHelper.getInnerHeight();
+      needScroll = height > 0 && height < elTop;
+      if(!needScroll && checkLeft) {
+        const width = DomWindowHelper.getInnerWidth();
+        needScroll = width > 0 && width < elLeft;
+      }
     }
     if (needScroll) {
       el.scrollIntoView();
@@ -194,7 +207,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return null;
   }
   public static FocusElement(elementId: string): boolean {
-    if (!elementId || typeof document === "undefined") return false;
+    if (!elementId || !DomDocumentHelper.isAvailable()) return false;
     const res: boolean = SurveyElement.focusElementCore(elementId);
     if (!res) {
       setTimeout(() => {
@@ -209,6 +222,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const el = root.getElementById(elementId);
     // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
     if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
+      SurveyElement.ScrollElementToViewCore(el, true, false);
       el.focus();
       return true;
     }
@@ -942,12 +956,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   private isContainsSelection(el: any) {
     let elementWithSelection: any = undefined;
-    if ((typeof document !== "undefined") && (document as any)["selection"]) {
-      elementWithSelection = (document as any)["selection"].createRange().parentElement();
+    const _document = DomDocumentHelper.getDocument();
+    if (DomDocumentHelper.isAvailable() && !!_document && (_document as any)["selection"]) {
+      elementWithSelection = (_document as any)["selection"].createRange().parentElement();
     }
     else {
-      var selection = window.getSelection();
-      if (selection.rangeCount > 0) {
+      var selection = DomWindowHelper.getSelection();
+      if (!!selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         if (range.startOffset !== range.endOffset) {
           elementWithSelection = range.startContainer.parentNode;

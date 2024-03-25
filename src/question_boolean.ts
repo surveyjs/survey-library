@@ -6,6 +6,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/utils";
 import { ActionContainer } from "./actions/container";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 /**
  * A class that describes the Yes/No (Boolean) question type.
@@ -248,8 +249,8 @@ export class QuestionBooleanModel extends Question {
   }
   private calculateBooleanValueByEvent(event: any, isRightClick: boolean) {
     let isRtl = false;
-    if ("undefined" !== typeof document) {
-      isRtl = document.defaultView.getComputedStyle(event.target).direction == "rtl";
+    if (DomDocumentHelper.isAvailable()) {
+      isRtl = DomDocumentHelper.getComputedStyle(event.target).direction == "rtl";
     }
     this.booleanValue = isRtl ? !isRightClick : isRightClick;
   }

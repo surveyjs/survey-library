@@ -194,4 +194,63 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("preview-rating-stars-matrix.png", Selector(".sd-table__cell .sd-rating").nth(1), t, comparer);
     });
   });
+  test("Dropdown ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "question1",
+            "defaultValue": "Item 2",
+            "readOnly": true,
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+        ]
+      });
+      await takeElementScreenshot("readonly-dropdown.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-dropdown.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
+  test("Tagbox ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "tagbox",
+            "name": "question2",
+            "defaultValue": [
+              "Item 2",
+              "Item 3"
+            ],
+            "readOnly": true,
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+        ]
+      });
+      await takeElementScreenshot("readonly-tagbox.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-tagbox.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
 });

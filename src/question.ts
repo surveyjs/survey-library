@@ -1099,7 +1099,9 @@ export class Question extends SurveyElement<Question>
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssRoot)
-      .append(this.cssClasses.readOnly, this.isReadOnly)
+      .append(this.cssClasses.readOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.disabled, this.isDisabledStyle)
+      .append(this.cssClasses.preview, this.isPreviewStyle)
       .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }

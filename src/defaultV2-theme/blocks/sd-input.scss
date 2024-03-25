@@ -52,8 +52,7 @@ textarea {
   user-select: none;
 }
 
-.sd-input--preview {
-  background-color: tomato;
+.sd-input.sd-input--preview {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;

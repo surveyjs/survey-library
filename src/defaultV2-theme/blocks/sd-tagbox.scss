@@ -1,4 +1,4 @@
-.sd-input.sd-tagbox:not(.sd-tagbox--empty):not(.sd-input--disabled) {
+.sd-input.sd-tagbox:not(.sd-tagbox--empty).sd-input--editable {
   height: auto;
   padding: calcSize(0.5);
   padding-inline-end: calcSize(6); //padding-right

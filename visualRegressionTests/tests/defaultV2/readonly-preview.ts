@@ -90,6 +90,40 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Multiple text Input ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "multipletext",
+            "name": "question1",
+            "defaultValue": {
+              "text1": "item1",
+              "text2": "item2"
+            },
+            "readOnly": true,
+            "items": [
+              {
+                "name": "text1"
+              },
+              {
+                "name": "text2"
+              }
+            ]
+          },
+        ]
+      });
+      await takeElementScreenshot("readonly-multiple.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-multiple.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
   test("Rating ReadOnly and Preview", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);

@@ -16,8 +16,6 @@
     position: relative;
     background: $border-light;
     bottom: 0;
-    transition-property: opacity;
-    transition-duration: $transition-duration;
   }
 }
 
@@ -85,7 +83,7 @@
 
 .sd-element--collapsed.sd-element--complex > .sd-element__header--location-top {
   &:after {
-    opacity: 0;
+    display: none;
   }
 }
 

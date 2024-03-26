@@ -79,7 +79,7 @@
   white-space: nowrap;
   flex-shrink: 0;
 
-  &+span {
+  & + span {
     float: left;
     width: 0;
   }
@@ -121,7 +121,6 @@
 .sd-element__title--expandable.sd-element__title--expanded:before {
   transform: rotate(90deg);
 }
-
 
 //with borders styles
 .sd-element--with-frame {
@@ -172,7 +171,6 @@
   animation-duration: $element-move-in-duration, $element-fade-in-duration;
   animation-delay: 0s, $element-fade-in-delay;
   opacity: 0;
-
 }
 
 .sd-element-wrapper--fade-out {
@@ -183,7 +181,6 @@
   animation-duration: $element-move-out-duration, $element-fade-out-duration;
   animation-delay: $element-move-out-delay, 0s;
 }
-
 
 @keyframes paddingFadeIn {
   from {
@@ -220,9 +217,8 @@
 }
 
 .sd-element--expandable.sd-elemenet--expandable--animating {
-
-  &>.sd-element__header:focus-within,
-  &>.sd-element__header:hover {
+  & > .sd-element__header:focus-within,
+  & > .sd-element__header:hover {
     background-color: transparent;
   }
 }
@@ -230,7 +226,7 @@
 .sd-elemenet--expandable--animating.sd-element--expandable {
   transition-property: padding-top, padding-bottom;
 
-  &>.sd-element__header {
+  & > .sd-element__header {
     transition-property: padding-top, padding-bottom;
   }
 
@@ -238,14 +234,12 @@
     transition-timing-function: $ease-out;
     transition-duration: $expand-move-in-duration;
 
-    &>.sd-element__header {
-
+    & > .sd-element__header {
       transition-timing-function: $ease-out;
       transition-duration: $expand-move-in-duration;
 
       .sd-element__title:before {
-        transition-duration:
-          $expand-move-in-duration;
+        transition-duration: $expand-move-in-duration;
       }
     }
   }
@@ -255,18 +249,28 @@
     transition-duration: $collapse-move-out-duration;
     transition-delay: $collapse-move-out-delay;
 
-    &>.sd-element__header {
+    & > .sd-element__header {
       transition-timing-function: $ease-out;
-      transition-duration:
-        $collapse-move-out-duration;
-      transition-delay:
-        $collapse-move-out-delay;
+      transition-duration: $collapse-move-out-duration;
+      transition-delay: $collapse-move-out-delay;
 
       .sd-element__title:before {
-        transition-duration:
-          $collapse-move-out-duration;
+        transition-duration: $collapse-move-out-duration;
         transition-delay: $collapse-move-out-delay;
       }
+    }
+  }
+
+  &.sd-element--complex {
+    & > .sd-element__header--location-top:after {
+      display: block;
+      animation-name: fadeIn;
+      animation-fill-mode: forwards;
+      animation-duration: $transition-duration;
+    }
+
+    &.sd-element--collapsed .sd-element__header--location-top:after {
+      animation-direction: reverse;
     }
   }
 }

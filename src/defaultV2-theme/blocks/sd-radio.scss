@@ -11,7 +11,6 @@
     transition: background-color $transition-duration;
   }
 }
-
 .sd-radio--checked .sd-radio__decorator:after {
   content: " ";
   display: block;
@@ -20,13 +19,12 @@
   border-radius: 50%;
   background-color: $primary-foreground;
 }
-
 .sd-radio--checked.sd-radio--disabled .sd-radio__decorator:after {
   background-color: $border;
 }
 
 .sd-radio--checked.sd-radio--readonly .sd-radio__decorator:after {
-  background-color: $foreground-dim;
+  background-color: $foreground;
 }
 
 .sd-radio--checked.sd-radio--preview .sd-radio__decorator {
@@ -44,7 +42,6 @@
 .sd-radio--checked .sd-radio__control:focus+.sd-radio__decorator:after {
   background-color: $primary;
 }
-
 .sd-radio__svg {
   display: none;
 }

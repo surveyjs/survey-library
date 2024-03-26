@@ -32,15 +32,13 @@
     fieldset {
       padding-top: calcSize(4.5);
       position: relative;
-
       .sd-rating__min-text {
         position: absolute;
         margin: 0;
         left: 0;
         top: 0;
         border: 0;
-      }
-
+      
       .sd-rating__max-text {
         position: absolute;
         margin: 0;
@@ -50,20 +48,18 @@
       }
     }
   }
-
+  
   &.sd-rating--labels-bottom {
     fieldset {
       padding-bottom: calcSize(4.5);
       position: relative;
-
       .sd-rating__min-text {
         position: absolute;
         margin: 0;
         left: 0;
         bottom: 0;
         border: 0;
-      }
-
+      
       .sd-rating__max-text {
         position: absolute;
         margin: 0;
@@ -72,22 +68,19 @@
         border: 0;
       }
     }
-  }
-
+    }
   &.sd-rating--labels-diagonal {
     fieldset {
       padding-top: calcSize(4.5);
       padding-bottom: calcSize(4.5);
       position: relative;
-
       .sd-rating__min-text {
         position: absolute;
         margin: 0;
         left: 0;
         top: 0;
         border: 0;
-      }
-
+      
       .sd-rating__max-text {
         position: absolute;
         margin: 0;
@@ -167,15 +160,15 @@ legend+sv-ng-rating-item+.sd-rating__item {
   transform: none;
 
   .sd-rating__item-text.sd-rating__item-text {
-    color: $foreground-dim-light;
+    color: $foreground-light;
   }
 }
 
 .sd-rating__item.sd-rating__item--selected.sd-rating__item--readonly {
-  border-color: $foreground-dim;
+  border-color: $foreground;
 
   .sd-rating__item-text.sd-rating__item-text {
-    color: $foreground-dim;
+    color: $foreground;
   }
 }
 
@@ -187,16 +180,16 @@ legend+sv-ng-rating-item+.sd-rating__item {
   transform: none;
 
   .sd-rating__item-text.sd-rating__item-text {
-    color: $foreground-dim;
+    color: $foreground;
   }
 }
 
 .sd-rating__item.sd-rating__item--selected.sd-rating__item--preview {
-  border-color: $foreground-dim;
+  border-color: $foreground;
   border-width: 1px;
 
   .sd-rating__item-text.sd-rating__item-text {
-    color: $foreground-dim;
+    color: $foreground;
   }
 }
 

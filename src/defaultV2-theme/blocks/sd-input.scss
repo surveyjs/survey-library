@@ -60,7 +60,7 @@ textarea {
   background: none;
   box-shadow: none;
   transition: none;
-  border-bottom: 1px solid $foreground-dim;
+  border-bottom: 1px solid $foreground;
   border-radius: 0;
   padding-left: 0;
   padding-right: 0;
@@ -81,13 +81,13 @@ textarea {
 }
 
 .sd-input.sd-input--readonly {
-  color: $foreground-dim;
+  color: $foreground;
   box-shadow: none;
   transition: none;
 }
 
 .sd-input.sd-input--readonly::placeholder {
-  color: $foreground-dim-light;
+  color: $foreground-light;
 }
 
 .sd-root--readonly .sd-input--disabled,

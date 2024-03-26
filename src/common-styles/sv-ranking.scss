@@ -59,7 +59,8 @@
 
 .sv-ranking-item--disabled.sv-ranking-item--disabled,
 .sv-ranking-item--readonly.sv-ranking-item--readonly,
-.sv-ranking-item--preview, .sv-ranking-item--preview {
+.sv-ranking-item--preview,
+.sv-ranking-item--preview {
   cursor: initial;
 
   .sv-ranking-item__icon-container.sv-ranking-item__icon-container {
@@ -132,9 +133,12 @@
     background-color: $background-dark;
   }
 }
+
 .sv-ranking-item--preview {
   .sv-ranking-item__index {
     background-color: transparent;
+    border: 1px solid $foreground-dim;
+    box-sizing: border-box;
   }
 }
 

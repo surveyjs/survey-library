@@ -249,7 +249,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.showPreview();
       })();
       await t.expect(Selector(".sd-rating__item-smiley--preview").visible).ok();
-      await t.expect(Selector(".sd-rating__item-smiley--star").visible).ok();
+      await t.expect(Selector(".sd-rating__item-star--preview").visible).ok();
       await takeElementScreenshot("preview-rating-smileys-matrix.png", Selector(".sd-table__cell .sd-rating").nth(0), t, comparer);
       await takeElementScreenshot("preview-rating-stars-matrix.png", Selector(".sd-table__cell .sd-rating").nth(1), t, comparer);
     });

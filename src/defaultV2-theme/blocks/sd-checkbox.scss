@@ -24,3 +24,12 @@
 .sd-checkbox--checked .sd-checkbox__control:focus + .sd-checkbox__decorator .sd-checkbox__svg use {
   fill: $primary;
 }
+
+
+.sd-checkbox--checked.sd-checkbox--readonly .sd-checkbox__svg use {
+  fill: $foreground-dim;
+}
+
+.sd-checkbox--checked.sd-checkbox--preview .sd-checkbox__svg use{
+  fill: $foreground-dim;
+}

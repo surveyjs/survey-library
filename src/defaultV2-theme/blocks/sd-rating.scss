@@ -393,6 +393,11 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     width: calcSize(3);
     height: calcSize(3);
   }
+  &.sd-rating__item-star--selected {
+    svg {
+      stroke-width: 1px;
+    }
+  }
 }
 
 .sd-rating__item-star--selected {

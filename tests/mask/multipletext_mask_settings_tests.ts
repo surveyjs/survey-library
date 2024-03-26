@@ -2,8 +2,53 @@ import { InputMaskBase } from "../../src/mask/mask_base";
 import { InputMaskPattern } from "../../src/mask/mask_pattern";
 import { InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { QuestionMultipleTextModel } from "../../src/question_multipletext";
+import { SurveyModel } from "../../src/survey";
 
 export default QUnit.module("Multiple text: Input mask");
+
+QUnit.test("Deserialize/serialize mutltiple text with input mask", function (assert) {
+  const json = {
+    pages: [{
+      name: "page1",
+      elements: [{
+        "type": "multipletext",
+        "name": "question1",
+        "items": [
+          {
+            "name": "text1",
+            "maskType": "numeric",
+          },
+          {
+            "name": "text2",
+            "maskType": "pattern",
+            "maskSettings": {
+              pattern: "+\\1(999)-999-99-99"
+            }
+          },
+          {
+            "name": "text3",
+            "maskType": "datetime",
+            "maskSettings": {
+              "pattern": "mm/dd/yyyy"
+            }
+          }
+        ]
+      }]
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const multipletext = survey.getQuestionByName("question1") as QuestionMultipleTextModel;
+  assert.equal(multipletext.items[0].maskType, "numeric");
+  assert.equal(multipletext.items[0].maskSettings.getType(), "numericmask");
+
+  assert.equal(multipletext.items[1].maskType, "pattern");
+  assert.equal(multipletext.items[1].maskSettings.getType(), "patternmask");
+
+  assert.equal(multipletext.items[2].maskType, "datetime");
+  assert.equal(multipletext.items[2].maskSettings.getType(), "datetimemask");
+
+  assert.deepEqual(survey.toJSON(), json);
+});
 
 QUnit.test("Initial mask settings", function (assert) {
   const testInput = document.createElement("input");
@@ -40,19 +85,6 @@ QUnit.test("Apply mask", function (assert) {
   itemEditor.inputValue = "+78-68";
   assert.equal(item.value, "7868");
   assert.equal(itemEditor.inputValue, "+78-68");
-
-  assert.deepEqual(multipletext.toJSON(), {
-    "name": "q1",
-    "items": [
-      {
-        "name": "item1",
-        "maskType": "pattern",
-        "maskSettings": {
-          pattern: "+99-99"
-        }
-      }
-    ]
-  });
 });
 
 QUnit.test("Switch mask type", function (assert) {

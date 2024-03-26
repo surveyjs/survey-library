@@ -60,6 +60,7 @@ export class MultipleTextItemModel extends Base
   constructor(name: any = null, title: string = null) {
     super();
     this.editorValue = this.createEditor(name);
+    this.maskSettings = this.editorValue.maskSettings;
     this.editor.questionTitleTemplateCallback = function () {
       return "";
     };
@@ -252,45 +253,23 @@ export class MultipleTextItemModel extends Base
   public getValidators(): Array<SurveyValidator> {
     return this.validators;
   }
-  /**
-   * Specifies the type of a mask applied to the input.
-   *
-   * Possible values:
-   *
-   * - `"none"` (default)
-   * - `"numeric"`
-   * - `"currency"`
-   * - `"datetime"`
-   * - `"pattern"`
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
-   * @see maskSettings
-   */
+
   public get maskType(): string {
     return this.editor.maskType;
   }
   public set maskType(val: string) {
     this.editor.maskType = val;
+    this.maskSettings = this.editor.maskSettings;
   }
-  /**
-   * An object with properties that configure the mask applied to the input.
-   *
-   * Available properties depend on the specified [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType) and belong to corresponding classes. Refer to the class APIs for a full list of properties:
-   *
-   * | `maskType` | Class |
-   * | ---------- | ----- |
-   * | `"numeric"` | [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric) |
-   * | `"currency"` | [`InputMaskCurrency`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskcurrency) |
-   * | `"datetime"` | [`InputMaskDateTime`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskdatetime) |
-   * | `"pattern"` | [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern) |
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
-   */
+
   public get maskSettings(): InputMaskBase {
-    return this.editor.maskSettings;
+    return this.getPropertyValue("maskSettings");
   }
   public set maskSettings(val: InputMaskBase) {
-    this.editor.maskSettings = val;
+    this.setPropertyValue("maskSettings", val);
+    if(this.editor.maskSettings !== val) {
+      this.editor.maskSettings = val;
+    }
   }
   public get inputTextAlignment(): "left" | "right" | "auto" {
     return this.editor.inputTextAlignment;

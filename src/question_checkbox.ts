@@ -461,6 +461,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (item == this.selectAllItem) return this.hasSelectAll;
     return super.isItemInList(item);
   }
+  protected getDisplayValueEmpty(): string {
+    return ItemValue.getTextOrHtmlByValue(this.visibleChoices.filter(choice => choice != this.selectAllItemValue), undefined);
+  }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!Array.isArray(value))
       return super.getDisplayValueCore(keysAsText, value);

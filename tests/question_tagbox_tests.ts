@@ -1542,3 +1542,21 @@ QUnit.test("Tagbox searchmode filter options", (assert) => {
   assert.equal(list.renderedActions.length, 4);
   assert.equal(getfilteredItems().length, 3);
 });
+
+QUnit.test("Tagbox readonly", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      readOnly: true,
+      choices: [
+        "1",
+        "2",
+        "3"
+      ],
+      "showSelectAllItem": true
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.readOnlyText, "Select...");
+});

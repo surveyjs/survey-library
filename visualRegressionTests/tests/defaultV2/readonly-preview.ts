@@ -337,4 +337,28 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Ranking ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "ranking",
+            "name": "car",
+            "choices": ["Ford", "Vauxhall", "BMW", "Peugeot"],
+            "readOnly": true,
+            "defaultValue": ["BMW", "Ford", "Vauxhall", "Peugeot"]
+          },
+        ]
+      });
+      await takeElementScreenshot("readonly-ranking.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-ranking.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
 });

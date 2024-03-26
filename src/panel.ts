@@ -140,7 +140,7 @@ export class QuestionRowModel extends Base {
       }
     };
   }
-  private visibleElementsAnimation: AnimationGroup<IElement> = new AnimationGroup(this.getVisibleElementsAnimationOptions(), (value) => {
+  public visibleElementsAnimation: AnimationGroup<IElement> = new AnimationGroup(this.getVisibleElementsAnimationOptions(), (value) => {
     this.setPropertyValue("visibleElements", value);
     this.setWidth();
   }, () => this.visibleElements);
@@ -331,6 +331,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
 
   public onRemoveRow(row: QuestionRowModel): void {
+    row.visibleElementsAnimation.cancel();
     this.visibleRows = this.rows.filter(row => row.visible);
     row.onVisibleChangedCallback = undefined;
   }

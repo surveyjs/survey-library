@@ -60,34 +60,32 @@
   box-shadow: $shadow-small;
   border-radius: calcSize(12.5);
   transition-duration: 0.2s;
-  transition-property: margin-left, transform;
+  transition-property: margin-left;
   transition-timing-function: linear;
   color: $primary;
   font-weight: 600;
   margin-left: 0%;
-  transform: translateX(0);
+
   .sv-string-viewer {
     &.sv-string-viewer--multiline {
-        white-space: nowrap;
+      white-space: nowrap;
     }
   }
+
   z-index: 2;
 }
 
 .sd-boolean--checked .sd-boolean__thumb {
-  margin-left: 100%;
-  transform: translateX(-100%);
+  margin-left: 50%;
 }
 
 .sd-boolean--exchanged {
   .sd-boolean__thumb {
-    margin-left: 100%;
-    transform: translateX(-100%);
+    margin-left: calc(50% + calcSize(0.5));
   }
 
   &.sd-boolean--checked .sd-boolean__thumb {
     margin-left: 0%;
-    transform: translateX(0);
   }
 
   &.sd-boolean:not(.sd-boolean--checked):not(sd-boolean--indeterminate) .sd-boolean__label--false,

@@ -5,29 +5,14 @@
       :css="css"
       :element="element"
       v-for="element in row.visibleElements"
-      :key="element.id"
+      :key="(element as any).id"
     ></survey-element>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {
-  AnimationCollection,
-  type IElement,
-  type QuestionRowModel,
-  type SurveyElement,
-  type SurveyModel,
-} from "survey-core";
-import {
-  computed,
-  onMounted,
-  onUnmounted,
-  onUpdated,
-  ref,
-  shallowRef,
-  toRaw,
-  triggerRef,
-} from "vue";
+import type { QuestionRowModel, SurveyElement, SurveyModel } from "survey-core";
+import { onMounted, ref } from "vue";
 import { useBase } from "./base";
 
 const props = defineProps<{

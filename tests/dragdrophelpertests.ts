@@ -318,7 +318,7 @@ QUnit.test("DragDropRankingSelectToRank reorderRankedItem", function (assert) {
   assert.equal(questionModel.rankingChoices.length, 2, "rankingChoices count");
 });
 
-QUnit.only("DragDropRankingSelectToRank getIndixies", function (assert) {
+QUnit.test("DragDropRankingSelectToRank getIndixies", function (assert) {
   const withDefaultValue = true;
   const dndModel = new DragDropRankingSelectToRank();
   const questionModel = createRankingQuestionModel(withDefaultValue);

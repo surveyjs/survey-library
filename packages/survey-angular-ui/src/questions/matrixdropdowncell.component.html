@@ -1,5 +1,5 @@
 <ng-template #template>
-  <td [class]="cell.className" [attr.data-responsive-title]="getHeaders()" [title]="cell.getTitle()"
+  <td [class]="cell.className" [attr.data-responsive-title]="getHeaders()" *ngIf="canRender" [title]="cell.getTitle()"
     [style]="getCellStyle()" [attr.colspan]="cell.colSpans" (focusin)="cell.focusIn()" #cellContainer>
     <sv-ng-matrix-drag-drop-icon *ngIf="cell.isDragHandlerCell"
       [model]="$any({ data: { row: row, question: question } })"></sv-ng-matrix-drag-drop-icon>

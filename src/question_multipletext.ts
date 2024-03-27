@@ -20,6 +20,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { HashTable, Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
+import { InputMaskBase } from "./mask/mask_base";
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
@@ -59,6 +60,7 @@ export class MultipleTextItemModel extends Base
   constructor(name: any = null, title: string = null) {
     super();
     this.editorValue = this.createEditor(name);
+    this.maskSettings = this.editorValue.maskSettings;
     this.editor.questionTitleTemplateCallback = function () {
       return "";
     };
@@ -250,6 +252,30 @@ export class MultipleTextItemModel extends Base
   }
   public getValidators(): Array<SurveyValidator> {
     return this.validators;
+  }
+
+  public get maskType(): string {
+    return this.editor.maskType;
+  }
+  public set maskType(val: string) {
+    this.editor.maskType = val;
+    this.maskSettings = this.editor.maskSettings;
+  }
+
+  public get maskSettings(): InputMaskBase {
+    return this.getPropertyValue("maskSettings");
+  }
+  public set maskSettings(val: InputMaskBase) {
+    this.setPropertyValue("maskSettings", val);
+    if(this.editor.maskSettings !== val) {
+      this.editor.maskSettings = val;
+    }
+  }
+  public get inputTextAlignment(): "left" | "right" | "auto" {
+    return this.editor.inputTextAlignment;
+  }
+  public set inputTextAlignment(val: "left" | "right" | "auto") {
+    this.editor.inputTextAlignment = val;
   }
   /**
    * The item value.
@@ -447,6 +473,11 @@ export class QuestionMultipleTextModel extends Question
       if (this.items[i].name == name) return this.items[i];
     }
     return null;
+  }
+  public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
+    let elements: Array<IElement>;
+    elements = super.getElementsInDesign(includeHidden);
+    return elements.concat(this.items as any);
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     for (var i = 0; i < this.items.length; i++) {
@@ -828,6 +859,31 @@ Serializer.addClass(
       default: "text",
       choices: settings.questions.inputTypes,
     },
+    {
+      name: "maskType:masktype",
+      default: "none",
+      visibleIndex: 0,
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => {
+        return obj.inputType === "text";
+      }
+    },
+    {
+      name: "maskSettings:masksettings",
+      className: "masksettings",
+      visibleIndex: 1,
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => {
+        return obj.inputType === "text";
+      },
+      onGetValue: function (obj: any) {
+        return obj.maskSettings.getData();
+      },
+      onSetValue: function (obj: any, value: any) {
+        obj.maskSettings.setData(value);
+      },
+    },
+    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"], visible: false },
     { name: "title", serializationProperty: "locTitle" },
     { name: "maxLength:number", default: -1 },
     { name: "size:number", minValue: 0 },

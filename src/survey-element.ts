@@ -810,7 +810,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   public get hasParent() {
-    return (this.parent && !this.parent.isPage && (!(<any>this.parent).originalPage || (<any>this.survey).isShowingPreview)) || (this.parent === undefined);
+    return (this.parent && !this.parent.isPage && (!(<any>this.parent).originalPage)) || (this.parent === undefined);
   }
   @property({ defaultValue: true }) isSingleInRow: boolean = true;
 

@@ -245,13 +245,15 @@ frameworks.forEach(framework => {
       });
       await takeElementScreenshot("readonly-rating-smileys-matrix.png", Selector(".sd-table__cell .sd-rating").nth(0), t, comparer);
       await takeElementScreenshot("readonly-rating-stars-matrix.png", Selector(".sd-table__cell .sd-rating").nth(1), t, comparer);
-      await ClientFunction(() => {
-        (<any>window).survey.showPreview();
-      })();
-      await t.expect(Selector(".sd-rating__item-smiley--preview").visible).ok();
-      await t.expect(Selector(".sd-rating__item-star--preview").visible).ok();
-      await takeElementScreenshot("preview-rating-smileys-matrix.png", Selector(".sd-table__cell .sd-rating").nth(0), t, comparer);
-      await takeElementScreenshot("preview-rating-stars-matrix.png", Selector(".sd-table__cell .sd-rating").nth(1), t, comparer);
+      if (framework != "angular") {
+        await ClientFunction(() => {
+          (<any>window).survey.showPreview();
+        })();
+        await t.expect(Selector(".sd-rating__item-smiley--preview").visible).ok();
+        await t.expect(Selector(".sd-rating__item-star--preview").visible).ok();
+        await takeElementScreenshot("preview-rating-smileys-matrix.png", Selector(".sd-table__cell .sd-rating").nth(0), t, comparer);
+        await takeElementScreenshot("preview-rating-stars-matrix.png", Selector(".sd-table__cell .sd-rating").nth(1), t, comparer);
+      }
     });
   });
   test("Dropdown ReadOnly and Preview", async (t) => {

@@ -98,4 +98,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
       this.cell.question.unRegisterFunctionOnPropertyValueChanged("errors", "__ngSubscription")    
     }
   }
+  public get canRender() {
+    return this.question && this.question.survey;
+  }
 }

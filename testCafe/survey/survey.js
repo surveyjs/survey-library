@@ -84,4 +84,79 @@ frameworks.forEach((framework) => {
     })();
     await t.expect(Selector("span").withText("question1").visible).ok();
   });
+  test("Check matrix fail when showing preview", async (t) => {
+    await initSurvey(framework, {
+      showPreviewBeforeComplete: "showAnsweredQuestions",
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "framework-ratings",
+          title: "Please leave your feedback about JavaScript frameworks",
+          columnMinWidth: "130px",
+          columns: [
+            {
+              name: "usage",
+              title: "Do you use the framework?",
+              cellType: "radiogroup",
+              choices: ["Yes", "No"],
+              defaultValue: "Yes",
+            },
+            {
+              name: "experience",
+              title: "How long have you used it?",
+              choices: [
+                { text: "3-5 years", value: 4 },
+                { text: "1-2 years", value: 1.5 },
+                { text: "Less than a year", value: 0.5 },
+              ],
+              enableIf: "{row.usage} = 'Yes'",
+            },
+            {
+              name: "strengths",
+              title: "Which are the framework's main strengths?",
+              cellType: "checkbox",
+              choices: [
+                "Scalability",
+                "Performance",
+                "Complete functionality",
+                "Learning materials",
+                "Strong community",
+              ],
+              colCount: 1,
+              enableIf: "{row.usage} = 'Yes'",
+            },
+            {
+              name: "free-form-feedback",
+              title: "Describe what you like and dislike about the framework",
+              cellType: "comment",
+              enableIf: "{row.usage} = 'Yes'",
+            },
+            {
+              name: "rating",
+              title: "Rate your experience with the framework",
+              cellType: "rating",
+              rateValues: [
+                { text: "Excelent", value: 5 },
+                { text: "Good", value: 4 },
+                { text: "Average", value: 3 },
+                { text: "Fair", value: 2 },
+                { text: "Poor", value: 1 },
+              ],
+              displayMode: "dropdown",
+              enableIf: "{row.usage} = 'Yes'",
+            },
+          ],
+          rows: [
+            { text: "Angular", value: "angular" },
+            { text: "React", value: "react" },
+            { text: "Vue.js", value: "vue" },
+          ],
+          transposeData: true,
+        },
+      ],
+      showQuestionNumbers: false,
+    });
+    await t.click("#sv-nav-preview input");
+    await t.click("#sv-nav-complete input");
+  });
 });

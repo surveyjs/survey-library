@@ -183,7 +183,9 @@ export class QuestionBooleanModel extends Question {
     return new CssClassBuilder()
       .append(css.item)
       .append(css.itemOnError, this.hasCssError())
-      .append(css.itemDisabled, this.isReadOnly)
+      .append(css.itemDisabled, this.isDisabledStyle)
+      .append(css.itemReadOnly, this.isReadOnlyStyle)
+      .append(css.itemPreview, this.isPreviewStyle)
       .append(css.itemHover, !this.isDesignMode)
       .append(css.itemChecked, !!this.booleanValue)
       .append(css.itemExchanged, !!this.swapOrder)
@@ -200,6 +202,9 @@ export class QuestionBooleanModel extends Question {
         item: this.cssClasses.checkboxItem,
         itemOnError: this.cssClasses.checkboxItemOnError,
         itemDisabled: this.cssClasses.checkboxItemDisabled,
+        itemDisable: this.cssClasses.checkboxItemDisabled,
+        itemReadOnly: this.cssClasses.checkboxItemReadOnly,
+        itemPreview: this.cssClasses.checkboxItemPreview,
         itemChecked: this.cssClasses.checkboxItemChecked,
         itemIndeterminate: this.cssClasses.checkboxItemIndeterminate
       }
@@ -209,7 +214,9 @@ export class QuestionBooleanModel extends Question {
   public getLabelCss(checked: boolean): string {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
-      .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isReadOnly)
+      .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isDisabledStyle)
+      .append(this.cssClasses.labelReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.labelPreview, this.isPreviewStyle)
       .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === !this.swapOrder)
       .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === this.swapOrder)
       .toString();
@@ -220,6 +227,13 @@ export class QuestionBooleanModel extends Question {
     if (!this.isDeterminated && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
     if (!this.booleanValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
     return this.cssClasses.svgIconId;
+  }
+
+  public get itemSvgIcon(): string {
+    if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
+      return this.cssClasses.itemPreviewSvgIconId;
+    }
+    return this.cssClasses.itemSvgIconId;
   }
 
   public get allowClick(): boolean {
@@ -280,6 +294,15 @@ export class QuestionBooleanModel extends Question {
     }
     if (css.radioItemChecked && value === this.booleanValue) {
       className = (className ? className + " " : "") + css.radioItemChecked;
+    }
+    if (this.isDisabledStyle) {
+      className += " " + css.radioItemDisabled;
+    }
+    if (this.isReadOnlyStyle) {
+      className += " " + css.radioItemReadOnly;
+    }
+    if (this.isPreviewStyle) {
+      className += " " + css.radioItemPreview;
     }
     return className;
   }

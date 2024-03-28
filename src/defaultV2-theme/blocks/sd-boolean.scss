@@ -104,6 +104,38 @@
   }
 }
 
+.sd-boolean--readonly {
+  pointer-events: none;
+  box-shadow: none;
+  transition: none;
+
+  &.sd-boolean--checked .sd-boolean__thumb {
+    border: 2px solid $foreground;
+    box-shadow: none;
+    transition: none;
+    color: $foreground;
+  }
+}
+
+.sd-boolean--preview {
+  pointer-events: none;
+  box-shadow: none;
+  transition: none;
+  background: transparent;
+
+  &.sd-boolean--checked .sd-boolean__thumb {
+    border: 1px solid $foreground;
+    box-shadow: none;
+    transition: none;
+    color: $foreground;
+  }
+
+  .sd-checkbox__label--preview {
+    color: $foreground;
+  }
+}
+
+
 .sd-boolean__thumb-ghost {
   z-index: 1;
   border-radius: calcSize(12.5);

@@ -3243,6 +3243,26 @@ QUnit.test(
 );
 
 QUnit.test(
+  "Boolean Radiogroup Mode itemSvgIcon property",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionBooleanModel("q1");
+    question.renderAs = "radio";
+    page.addQuestion(question);
+
+    survey.setCss({ boolean: { itemSvgIconId: "icon-id", itemPreviewSvgIconId: undefined } });
+    assert.equal(question.itemSvgIcon, "icon-id");
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.itemSvgIcon, "icon-id", "preview mode");
+    survey.setCss({ boolean: { itemPreviewSvgIconId: "preview-icon-id" } });
+    assert.equal(questionPreview.itemSvgIcon, "preview-icon-id");
+  }
+);
+
+QUnit.test(
   "Multipletext, item isRequired, 0 is a valid value, bug #1225",
   function (assert) {
     var question = new QuestionMultipleTextModel("q1");

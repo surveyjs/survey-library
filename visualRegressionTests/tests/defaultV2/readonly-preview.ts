@@ -361,4 +361,84 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Boolean ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "boolean",
+            "name": "boolean1",
+            "valueTrue": "Yes",
+            "valueFalse": "No",
+            "readOnly": true,
+            "defaultValue": "Yes",
+          }
+        ]
+      });
+      await takeElementScreenshot("readonly-boolean.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-boolean.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
+  test("Boolean:Radio ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "boolean",
+            "name": "boolean1",
+            "valueTrue": "Yes",
+            "valueFalse": "No",
+            "renderAs": "radio",
+            "readOnly": true,
+            "defaultValue": "Yes",
+          }
+        ]
+      });
+      await takeElementScreenshot("readonly-boolean-radio.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-boolean-radio.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
+  test("Boolean:Checkbox ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "boolean",
+            "name": "boolean2",
+            "valueTrue": "Yes",
+            "valueFalse": "No",
+            "renderAs": "checkbox",
+            "label": "I am 21 or older",
+            "titleLocation": "hidden",
+            "readOnly": true,
+            "defaultValue": "Yes",
+          }
+        ]
+      });
+
+      await takeElementScreenshot("readonly-boolean-checkbox.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-boolean-checkbox.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
 });

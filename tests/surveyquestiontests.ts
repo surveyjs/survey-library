@@ -3187,6 +3187,82 @@ QUnit.test(
 );
 
 QUnit.test(
+  "isDisabledStyle isReadOnlyStyle properties",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionMultipleTextModel("q1");
+    assert.equal(question.isDisabledStyle, false);
+
+    page.addQuestion(question);
+    assert.equal(question.isReadOnlyStyle, false);
+    question.readOnly = true;
+    assert.equal(question.isReadOnlyStyle, true);
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.isReadOnlyStyle, false);
+  }
+);
+
+QUnit.test(
+  "isPreviewStyle property",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionMultipleTextModel("q1");
+    assert.equal(question.isPreviewStyle, false, "false if survey doesn't exist");
+
+    page.addQuestion(question);
+    assert.equal(question.isPreviewStyle, false, "false in not preview mode");
+
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.isPreviewStyle, true, "true in preview mode");
+  }
+);
+
+QUnit.test(
+  "itemSvgIcon property",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionRadiogroupModel("q1");
+    page.addQuestion(question);
+
+    survey.setCss({ radiogroup: { itemSvgIconId: "icon-id", itemPreviewSvgIconId: undefined } });
+    assert.equal(question.itemSvgIcon, "icon-id");
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.itemSvgIcon, "icon-id", "preview mode");
+    survey.setCss({ radiogroup: { itemPreviewSvgIconId: "preview-icon-id" } });
+    assert.equal(questionPreview.itemSvgIcon, "preview-icon-id");
+  }
+);
+
+QUnit.test(
+  "Boolean Radiogroup Mode itemSvgIcon property",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionBooleanModel("q1");
+    question.renderAs = "radio";
+    page.addQuestion(question);
+
+    survey.setCss({ boolean: { itemSvgIconId: "icon-id", itemPreviewSvgIconId: undefined } });
+    assert.equal(question.itemSvgIcon, "icon-id");
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.itemSvgIcon, "icon-id", "preview mode");
+    survey.setCss({ boolean: { itemPreviewSvgIconId: "preview-icon-id" } });
+    assert.equal(questionPreview.itemSvgIcon, "preview-icon-id");
+  }
+);
+
+QUnit.test(
   "Multipletext, item isRequired, 0 is a valid value, bug #1225",
   function (assert) {
     var question = new QuestionMultipleTextModel("q1");
@@ -7034,9 +7110,9 @@ QUnit.test("question.getRootCss apply disable css correctly", function (assert) 
       }]
   });
   const q = survey.getQuestionByName("q1");
-  survey.setCss({ question: { titleDisabled: "css-disabled" } });
+  survey.setCss({ question: { titleReadOnly: "css-disabled" } });
   q.updateElementCss(true);
-  const disableCss = q.cssClasses.titleDisabled;
+  const disableCss = q.cssClasses.titleReadOnly;
   assert.equal(disableCss, "css-disabled", "#1");
   assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #2");
   q.readOnly = true;

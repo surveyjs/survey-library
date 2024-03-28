@@ -1722,7 +1722,10 @@ export class QuestionSelectBase extends Question {
     options.isChecked = isChecked;
     options.isNone = isNone;
 
-    return builder.append(this.cssClasses.itemDisabled, isDisabled)
+    return builder
+      .append(this.cssClasses.itemDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.itemReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.itemPreview, this.isPreviewStyle)
       .append(this.cssClasses.itemChecked, isChecked)
       .append(this.cssClasses.itemHover, allowHover)
       .append(this.cssClasses.itemNone, isNone)
@@ -1848,6 +1851,9 @@ export class QuestionSelectBase extends Question {
     return this.hasOther && item.value == this.otherItem.value;
   }
   public get itemSvgIcon(): string {
+    if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
+      return this.cssClasses.itemPreviewSvgIconId;
+    }
     return this.cssClasses.itemSvgIconId;
   }
   public getSelectBaseRootCss(): string {

@@ -240,13 +240,14 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see SurveyModel.onChoicesLazyLoad
    */
   @property() choicesLazyLoadPageSize: number;
-
   public getControlClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
       .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
       .append(this.cssClasses.controlInputFieldComponent, !!this.inputFieldComponentName)
       .toString();
   }

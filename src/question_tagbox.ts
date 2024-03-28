@@ -153,7 +153,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
       .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .append(this.cssClasses.controlEditable, !this.isDisabledStyle && !this.isReadOnlyStyle && !this.isPreviewStyle)
+      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
       .toString();
   }
   public onOpened: EventBase<QuestionTagboxModel> = this.addEvent<QuestionTagboxModel>();

@@ -61,6 +61,9 @@
   color: $font-editorfont-placeholdercolor;
 }
 
+.sd-question--preview .sd-multipletext__item-title {
+  border: none;
+}
 .sd-multipletext__item {
   flex-grow: 1;
 }

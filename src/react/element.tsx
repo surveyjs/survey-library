@@ -36,7 +36,9 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
 
   componentDidMount(): void {
     super.componentDidMount();
-    (this.element).setWrapperElement(this.rootRef.current);
+    if(this.rootRef.current) {
+      (this.element).setWrapperElement(this.rootRef.current);
+    }
   }
 
   componentWillUnmount(): void {

@@ -67,7 +67,9 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   componentDidMount() {
     super.componentDidMount();
     var el = this.rootRef.current;
-    this.row.setRootElement(this.rootRef.current);
+    if(this.rootRef.current) {
+      this.row.setRootElement(this.rootRef.current);
+    }
     if (!!el && !this.row.isNeedRender) {
       var rowContainerDiv = el;
       setTimeout(() => {

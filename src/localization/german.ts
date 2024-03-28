@@ -19,7 +19,7 @@ export var germanSurveyStrings = {
   questionsProgressText: "{0}/{1} Fragen beantwortet",
   emptySurvey: "Es sind keine Fragen vorhanden.",
   completingSurvey: "Vielen Dank, dass Sie die Umfrage abgeschlossen haben!",
-  completingSurveyBefore: "Wir haben festgestellt, dass Sie diese Umfrage bereits abgeschlossen haben.",
+  completingSurveyBefore: "Aus unseren Unterlagen geht hervor, dass Sie diese Umfrage bereits abgeschlossen haben.",
   loadingSurvey: "Umfrage wird geladen...",
   placeholder: "Bitte auswählen...",
   ratingOptionsCaption: "Tippen Sie hier, um zu bewerten...",

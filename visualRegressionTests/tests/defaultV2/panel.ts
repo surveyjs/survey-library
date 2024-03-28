@@ -207,6 +207,51 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page0",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ]
+          },
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "panel",
+                "name": "panel1",
+                "elements": [
+                  {
+                    "type": "text",
+                    "name": "question1"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+
+      await ClientFunction(() => {
+        var panel = window["survey"].getAllPanels()[0];
+        var locstr = new window["Survey"].LocalizableString(panel);
+        locstr.text = "Edit";
+        panel.footerActions.push({ id: "test", locTitle: locstr });
+      })();
+
+      await t.click(Selector("input[title=Next]"));
+      const panelRoot = Selector(".sd-panel");
+      await takeElementScreenshot("panel-with-actions.png", panelRoot, t, comparer);
+    });
+  });
+
+  test("Check preview mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
         "elements": [
           {
             type: "text",
@@ -221,11 +266,11 @@ frameworks.forEach(framework => {
         (<any>window).survey.showPreview();
       })();
       const panelRoot = Selector(".sd-panel");
-      await takeElementScreenshot("panel-with-actions.png", panelRoot, t, comparer);
+      await takeElementScreenshot("panel-preview-mode.png", panelRoot, t, comparer);
     });
   });
 
-  test("Check panel with actions", async (t) => {
+  test("Two panels - one row, small screen", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(722, 1000);
       await initSurvey(framework, {

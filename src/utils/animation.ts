@@ -69,7 +69,7 @@ export class AnimationUtils {
     }
   }
   protected runLeaveAnimation(element: HTMLElement, options: AnimationOptions, callback: () => void): void {
-    if(element) {
+    if(element && options.cssClass) {
       element.classList.add(options.cssClass);
       const onAnimationEndCallback = (isCancel?: boolean) => {
         callback();
@@ -89,7 +89,7 @@ export class AnimationUtils {
     }
   }
   protected runEnterAnimation(element: HTMLElement, options: AnimationOptions): void {
-    if(element) {
+    if(element && options.cssClass) {
       element.classList.add(options.cssClass);
       this.onAnimationEnd(element, () => {
         element.classList.remove(options.cssClass);

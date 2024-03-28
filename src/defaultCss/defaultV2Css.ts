@@ -53,7 +53,7 @@ export var defaultV2Css = {
     next: "sd-navigation__next-btn",
     start: "sd-navigation__start-btn",
     preview: "sd-navigation__preview-btn",
-    edit: "",
+    edit: "sd-btn sd-btn--small",
   },
   panel: {
     asPage: "sd-panel--as-page",

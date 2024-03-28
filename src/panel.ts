@@ -232,7 +232,7 @@ export class QuestionRowModel extends Base {
     return new CssClassBuilder()
       .append(this.panel.cssClasses.row)
       .append(this.panel.cssClasses.rowCompact, this.panel["isCompact"])
-      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (!!(<any>this.panel).originalPage && !(<any>this.panel.survey).isShowingPreview))
+      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (!!(<any>this.panel).originalPage))
       .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
       .toString();
 
@@ -1907,6 +1907,7 @@ export class PanelModel extends PanelModelBase implements IElement {
           id: "cancel-preview",
           locTitle: this.survey.locEditText,
           innerCss: this.survey.cssNavigationEdit,
+          component: "sv-nav-btn",
           action: () => { this.cancelPreview(); }
         });
       }
@@ -1970,7 +1971,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return super.getIsNested() && this.parent !== undefined;
   }
   private get showPanelAsPage() {
-    return !!(<any>this).originalPage && !(<any>this.survey).isShowingPreview;
+    return !!(<any>this).originalPage;
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()

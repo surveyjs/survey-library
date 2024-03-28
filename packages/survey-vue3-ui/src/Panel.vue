@@ -19,15 +19,14 @@
       v-if="element.renderedIsExpanded"
       :class="element.cssClasses.panel.content"
     >
-      <template v-for="row in element.rows" :key="row.id">
+      <template v-for="row in element.visibleRows" :key="row.id">
         <component
           :is="(element.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
           v-bind="{
             componentData: (element.getSurvey() as SurveyModel).getRowWrapperComponentData(row),
           }"
         >
-          <survey-row v-if="row.visible" :row="row" :survey="survey" :css="css">
-          </survey-row>
+          <survey-row :row="row" :survey="survey" :css="css"> </survey-row>
         </component>
       </template>
       <sv-action-bar :model="element.getFooterToolbar()"></sv-action-bar>

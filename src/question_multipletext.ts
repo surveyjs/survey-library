@@ -46,9 +46,9 @@ export class MultipleTextEditorModel extends QuestionTextModel {
 }
 
 /**
- * A class that describes an item in a [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model) question.
+ * A class that describes an [item](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#items) in a Multiple Textboxes question.
  *
- * [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/)
+ * [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
  */
 export class MultipleTextItemModel extends Base
   implements IValidatorOwner, ISurveyData, ISurveyImpl {
@@ -79,7 +79,10 @@ export class MultipleTextItemModel extends Base
     return this.editor;
   }
   /**
-   * The item name.
+   * An item ID that is not visible to respondents.
+   *
+   * > Item IDs must be unique.
+   * @see title
    */
   public get name(): string {
     return this.editor.name;
@@ -121,7 +124,7 @@ export class MultipleTextItemModel extends Base
     this.editor.focusIn();
   }
   /**
-   * Set this property to true, to make the item a required. If a user doesn't fill the item then a validation error will be generated.
+   * Marks the item as required. If a respondent leaves this item empty, the question displays a [validation error](#requiredErrorText).
    */
   public get isRequired(): boolean {
     return this.editor.isRequired;
@@ -130,7 +133,9 @@ export class MultipleTextItemModel extends Base
     this.editor.isRequired = val;
   }
   /**
-   * Use this property to change the default input type.
+   * A value passed on to the [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) attribute of the underlying `<input>` element.
+   *
+   * Default value: `"text"`
    */
   public get inputType(): string {
     return this.editor.inputType;
@@ -139,8 +144,7 @@ export class MultipleTextItemModel extends Base
     this.editor.inputType = val;
   }
   /**
-   * Item title. If it is empty, the item name is rendered as title. This property supports markdown.
-   * @see name
+   * A user-friendly item label to display. If `title` is undefined, [`name`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel#name) is displayed instead.
    */
   public get title(): string {
     return this.editor.title;
@@ -155,9 +159,9 @@ export class MultipleTextItemModel extends Base
     return this.editor.fullTitle;
   }
   /**
-   * The maximum text length. If it is -1, defaul value, then the survey maxTextLength property will be used.
-   * If it is 0, then the value is unlimited
-   * @see SurveyModel.maxTextLength
+   * The maximum text length measured in characters. Assign 0 if the length should be unlimited.
+   *
+   * Default value: -1 (inherits the actual value from the `SurveyModel`'s [`maxTextLength`](https://surveyjs.io/form-library/documentation/surveymodel#maxTextLength) property).
    */
   public get maxLength(): number {
     return this.editor.maxLength;
@@ -173,7 +177,7 @@ export class MultipleTextItemModel extends Base
     );
   }
   /**
-   * The input place holder.
+   * A placeholder for the input field.
    */
   public get placeholder(): string {
     return this.editor.placeholder;
@@ -194,7 +198,7 @@ export class MultipleTextItemModel extends Base
     return this.locPlaceholder;
   }
   /**
-   * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
+   * Specifies a custom error message for a [required item](#isRequired).
    */
   public get requiredErrorText(): string {
     return this.editor.requiredErrorText;
@@ -206,7 +210,9 @@ export class MultipleTextItemModel extends Base
     return this.editor.locRequiredErrorText;
   }
   /**
-   * The input size.
+   * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
+   *
+   * If you want to set a uniform `size` for all text box items, use the [`itemSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#itemSize) within the Multiple Textboxes configuration.
    */
   public get size(): number {
     return this.editor.size;
@@ -215,7 +221,9 @@ export class MultipleTextItemModel extends Base
     this.editor.size = val;
   }
   /**
-   * An expression used to calculate the [defaultValue](https://surveyjs.io/form-library/documentation/question#defaultValue).
+   * An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the default item value.
+   * @see minValueExpression
+   * @see maxValueExpression
    */
   public get defaultValueExpression(): string {
     return this.editor.defaultValueExpression;
@@ -224,7 +232,9 @@ export class MultipleTextItemModel extends Base
     this.editor.defaultValueExpression = val;
   }
   /**
-   * The minimum value specified as an expression. For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
+   * An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the minimum item value.
+   * @see maxValueExpression
+   * @see defaultValueExpression
    */
   public get minValueExpression(): string {
     return this.editor.minValueExpression;
@@ -233,7 +243,9 @@ export class MultipleTextItemModel extends Base
     this.editor.minValueExpression = val;
   }
   /**
-   * The maximum value specified as an expression. For example, `"maxValueExpression": "today(1)"` sets the maximum value to tomorrow.
+   * An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the maximum item value.
+   * @see minValueExpression
+   * @see defaultValueExpression
    */
   public get maxValueExpression(): string {
     return this.editor.maxValueExpression;
@@ -242,7 +254,9 @@ export class MultipleTextItemModel extends Base
     this.editor.maxValueExpression = val;
   }
   /**
-   * The list of question validators.
+   * Item validators.
+   *
+   * [Data Validation](https://surveyjs.io/form-library/documentation/data-validation (linkStyle))
    */
   public get validators(): Array<SurveyValidator> {
     return this.editor.validators;
@@ -254,6 +268,20 @@ export class MultipleTextItemModel extends Base
     return this.validators;
   }
 
+  /**
+   * Specifies the type of a mask applied to the input.
+   *
+   * Possible values:
+   *
+   * - `"none"` (default)
+   * - `"numeric"`
+   * - `"currency"`
+   * - `"datetime"`
+   * - `"pattern"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   * @see maskSettings
+   */
   public get maskType(): string {
     return this.editor.maskType;
   }
@@ -261,7 +289,20 @@ export class MultipleTextItemModel extends Base
     this.editor.maskType = val;
     this.maskSettings = this.editor.maskSettings;
   }
-
+  /**
+   * An object with properties that configure the mask applied to the input.
+   *
+   * Available properties depend on the specified [`maskType`](#maskType) and belong to corresponding classes. Refer to the class APIs for a full list of properties:
+   *
+   * | `maskType` | Class |
+   * | ---------- | ----- |
+   * | `"numeric"` | [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric) |
+   * | `"currency"` | [`InputMaskCurrency`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskcurrency) |
+   * | `"datetime"` | [`InputMaskDateTime`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskdatetime) |
+   * | `"pattern"` | [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern) |
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   */
   public get maskSettings(): InputMaskBase {
     return this.getPropertyValue("maskSettings");
   }
@@ -278,7 +319,7 @@ export class MultipleTextItemModel extends Base
     this.editor.inputTextAlignment = val;
   }
   /**
-   * The item value.
+   * An item value.
    */
   public get value() {
     return this.data ? this.data.getMultipleTextValue(this.name) : null;
@@ -436,9 +477,9 @@ export class QuestionMultipleTextModel extends Question
     }
   }
   /**
-   * Gets or sets an array of `MultipleTextItemModel` objects that represent input items.
+   * Gets or sets an array of [`MultipleTextItemModel`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel) objects that represent input items.
    *
-   * This property accepts an array of objects with the following structure:
+   * Each object in this array should have at least the following properties:
    *
    * ```js
    * {

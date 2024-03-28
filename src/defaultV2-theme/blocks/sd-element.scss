@@ -159,7 +159,7 @@
     flex-basis: var(--animation-width);
     width: var(--animation-width);
     min-width: var(--animation-width);
-    padding-left: calcSize(2);
+    padding-left: var(--animation-padding-left);
     overflow: visible;
   }
 }

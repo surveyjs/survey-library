@@ -25,10 +25,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.createNewArray("unRankingChoices");
     this.registerFunctionOnPropertyValueChanged("selectToRankEnabled", () => {
       this.clearValue();
-      this.animationAllowed = false;
       this.setDragDropRankingChoices();
-      this.updateRankingChoices();
-      this.animationAllowed = true;
+      this.updateRankingChoicesSync();
     });
   }
 
@@ -132,10 +130,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return this.isEmpty() ? "" : index + 1 + "";
   }
 
+  private updateRankingChoicesSync() {
+    this.animationAllowed = false;
+    this.updateRankingChoices();
+    this.animationAllowed = true;
+  }
+
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
     this.setDragDropRankingChoices();
-    this.updateRankingChoices();
+    this.updateRankingChoicesSync();
   }
   public isAnswerCorrect(): boolean {
     return Helpers.isArraysEqual(this.value, this.correctAnswer, false);
@@ -144,7 +148,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
     if (this.isLoadingFromJson) return;
-    this.updateRankingChoices();
+    this.updateRankingChoicesSync();
   }
 
   protected onVisibleChoicesChanged = (): void => {
@@ -158,17 +162,17 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     if (this.visibleChoices.length === 1 && !this.selectToRankEnabled) {
       this.value = [];
       this.value.push(this.visibleChoices[0].value);
-      this.updateRankingChoices();
+      this.updateRankingChoicesSync();
       return;
     }
 
     if (this.isEmpty()) {
-      this.updateRankingChoices();
+      this.updateRankingChoicesSync();
       return;
     }
 
     if (this.selectToRankEnabled) {
-      this.updateRankingChoices();
+      this.updateRankingChoicesSync();
       return;
     }
 
@@ -176,12 +180,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.addToValueByVisibleChoices();
     if (this.visibleChoices.length < this.value.length)
       this.removeFromValueByVisibleChoices();
-    this.updateRankingChoices();
+    this.updateRankingChoicesSync();
   };
 
   public localeChanged = (): void => {
     super.localeChanged();
-    this.updateRankingChoices();
+    this.updateRankingChoicesSync();
   };
 
   private addToValueByVisibleChoices() {

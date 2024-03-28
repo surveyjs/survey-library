@@ -233,6 +233,10 @@
           "Title": "Multiple Text"
         },
         {
+          "Name": "multipletextitemmodel",
+          "title": "MultipleTextItemModel"
+        },
+        {
           "Name": "panelmodel",
           "Title": "Panel"
         },

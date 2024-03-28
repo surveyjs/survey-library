@@ -136,6 +136,8 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   /**
    * A value passed on to the [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) attribute of the underlying `<input>` element.
+   *
+   * Default value: `"text"`
    */
   public get inputType(): string {
     return this.getPropertyValue("inputType");

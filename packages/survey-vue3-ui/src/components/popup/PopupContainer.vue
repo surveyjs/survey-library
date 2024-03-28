@@ -54,7 +54,7 @@
 </template>
 <script lang="ts" setup>
 import { useBase } from "@/base";
-import { Model, type PopupBaseViewModel } from "survey-core";
+import type { PopupBaseViewModel } from "survey-core";
 import { onMounted, onUpdated } from "vue";
 
 const props = defineProps<{ model: PopupBaseViewModel }>();

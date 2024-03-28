@@ -1,4 +1,4 @@
-import { _setIsTouch, Question } from "survey-core";
+import { _setIsTouch, Question, settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -383,7 +383,8 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => { Question["questionCounter"] = 100; },
+      before: () => {
+        Question["questionCounter"] = 100; },
       initSurvey: (survey) => {
         const dropdown = survey.getQuestionByName("name");
         dropdown["popupModel"].isVisible = true;

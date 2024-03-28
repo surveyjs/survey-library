@@ -13,7 +13,7 @@ const initPopupSurvey = ClientFunction(
     };
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
-
+    window["Survey"].settings.animationEnabled = false;
     const model = new window["Survey"].Model(json);
     const surveyComplete = function (model) {
       window["SurveyResult"] = model.data;

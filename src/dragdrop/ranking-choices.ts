@@ -94,7 +94,6 @@ export class DragDropRankingChoices extends DragDropChoices {
 
     return true;
   }
-
   protected calculateIsBottom(clientY: number): boolean {
     const choices = this.parentElement.rankingChoices;
     return (
@@ -158,10 +157,10 @@ export class DragDropRankingChoices extends DragDropChoices {
     node.style.cursor = "not-allowed";
   };
 
-  protected doDrop = (): any => {
+  protected doDrop(): any {
     this.parentElement.setValue();
     return this.parentElement;
-  };
+  }
 
   public clear(): void {
     if(!!this.parentElement) {

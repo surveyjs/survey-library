@@ -1,6 +1,6 @@
 import { property, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
 import {
   ISurveyImpl,
   IPage,
@@ -17,21 +17,19 @@ import {
 } from "./base-interfaces";
 import { DragTypeOverMeEnum, SurveyElement } from "./survey-element";
 import { Question } from "./question";
-import { ConditionRunner } from "./conditions";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
-import { PageModel } from "./page";
 import { settings } from "./settings";
-import { findScrollableParent, isElementVisible } from "./utils/utils";
+import { findScrollableParent, getElementWidth, isElementVisible } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
-import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
 import { DragDropInfo } from "./drag-drop-helper-v1";
+import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
 export class QuestionRowModel extends Base {
@@ -110,17 +108,63 @@ export class QuestionRowModel extends Base {
   public get id(): string {
     return this.idValue;
   }
+  protected equalsCore(obj: Base): boolean {
+    return this == obj;
+  }
   public get elements(): Array<IElement> {
     return this.getPropertyValue("elements");
+  }
+  private getVisibleElementsAnimationOptions(): IAnimationConsumer<[IElement]> {
+    const beforeRunAnimation = (el: HTMLElement) => {
+      el.style.setProperty("--animation-height", el.offsetHeight + "px");
+      el.style.setProperty("--animation-width", getElementWidth(el) + "px");
+    };
+    return {
+      isAnimationEnabled: () => settings.animationEnabled && this.panel?.animationAllowed && this.visible,
+      getAnimatedElement: (element: IElement) => (element as any as SurveyElement).getWrapperElement(),
+      getLeaveOptions: (element: IElement) => {
+        const surveyElement = element as unknown as SurveyElement;
+        const cssClasses = element.isPanel ? surveyElement.cssClasses.panel : surveyElement.cssClasses;
+        return {
+          cssClass: cssClasses.fadeOut,
+          onBeforeRunAnimation: beforeRunAnimation
+        };
+      },
+      getEnterOptions: (element: IElement) => {
+        const surveyElement = element as unknown as SurveyElement;
+        const cssClasses = element.isPanel ? surveyElement.cssClasses.panel : surveyElement.cssClasses;
+        return {
+          cssClass: cssClasses.fadeIn,
+          onBeforeRunAnimation: beforeRunAnimation
+        };
+      }
+    };
+  }
+  public visibleElementsAnimation: AnimationGroup<IElement> = new AnimationGroup(this.getVisibleElementsAnimationOptions(), (value) => {
+    this.setPropertyValue("visibleElements", value);
+    this.setWidth();
+  }, () => this.visibleElements);
+  public set visibleElements(val: Array<IElement>) {
+    if(!val.length) {
+      this.visible = false;
+      this.visibleElementsAnimation.cancel();
+      return;
+    } else {
+      this.visible = true;
+    }
+    this.visibleElementsAnimation.sync(val);
   }
   public get visibleElements(): Array<IElement> {
     return this.getPropertyValue("visibleElements");
   }
+
+  public onVisibleChangedCallback: () => void;
   public get visible(): boolean {
     return this.getPropertyValue("visible", true);
   }
   public set visible(val: boolean) {
     this.setPropertyValue("visible", val);
+    this.onVisibleChangedCallback && this.onVisibleChangedCallback();
   }
   public get isNeedRender(): boolean {
     return this.getPropertyValue("isneedrender", true);
@@ -128,10 +172,16 @@ export class QuestionRowModel extends Base {
   public set isNeedRender(val: boolean) {
     this.setPropertyValue("isneedrender", val);
   }
+
   public updateVisible() {
-    const isVisible = this.calcVisible();
-    this.setWidth();
-    this.visible = isVisible;
+    var visElements: Array<IElement> = [];
+    for (var i = 0; i < this.elements.length; i++) {
+      if (this.elements[i].isVisible) {
+        visElements.push(this.elements[i]);
+      }
+    }
+    this.visibleElements = visElements;
+    return;
   }
   public addElement(q: IElement) {
     this.elements.push(q);
@@ -204,25 +254,6 @@ export class QuestionRowModel extends Base {
   private getRenderedWidthFromWidth(width: string): string {
     return Helpers.isNumber(width) ? width + "px" : width;
   }
-  private calcVisible(): boolean {
-    var visElements: Array<IElement> = [];
-    for (var i = 0; i < this.elements.length; i++) {
-      if (this.elements[i].isVisible) {
-        visElements.push(this.elements[i]);
-      }
-    }
-    if (this.needToUpdateVisibleElements(visElements)) {
-      this.setPropertyValue("visibleElements", visElements);
-    }
-    return visElements.length > 0;
-  }
-  private needToUpdateVisibleElements(visElements: Array<IElement>): boolean {
-    if (visElements.length !== this.visibleElements.length) return true;
-    for (var i = 0; i < visElements.length; i++) {
-      if (visElements[i] !== this.visibleElements[i]) return true;
-    }
-    return false;
-  }
   @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
   public dispose(): void {
     super.dispose();
@@ -236,6 +267,13 @@ export class QuestionRowModel extends Base {
       .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
       .toString();
 
+  }
+  private rootElement?: HTMLElement;
+  public setRootElement(element?: HTMLElement) {
+    this.rootElement = element;
+  }
+  public getRootElement(): HTMLElement {
+    return this.rootElement;
   }
 }
 
@@ -258,9 +296,53 @@ export class PanelModelBase extends SurveyElement<Question>
 
   private dragDropPanelHelper: DragDropPanelHelperV1;
 
+  public onAddRow(row: QuestionRowModel): void {
+    this.onRowVisibleChanged();
+    row.onVisibleChangedCallback = () => this.onRowVisibleChanged();
+  }
+  private getRowsAnimationOptions(): IAnimationConsumer<[QuestionRowModel]> {
+    const beforeRunAnimation = (el: HTMLElement) => {
+      el.style.setProperty("--animation-height", el.offsetHeight + "px");
+    };
+    return {
+      isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed,
+      getAnimatedElement: (row: QuestionRowModel) => row.getRootElement(),
+      getLeaveOptions: (_: QuestionRowModel) => {
+        return { cssClass: this.cssClasses.rowFadeOut,
+          onBeforeRunAnimation: beforeRunAnimation
+        };
+      },
+      getEnterOptions: (_: QuestionRowModel) => {
+        return {
+          cssClass: this.cssClasses.rowFadeIn,
+          onBeforeRunAnimation: beforeRunAnimation
+        };
+      }
+    };
+  }
+  private rowsAnimation: AnimationGroup<QuestionRowModel> = new AnimationGroup(this.getRowsAnimationOptions(), (value) => {
+    this.setPropertyValue("visibleRows", value);
+  }, () => this.visibleRows)
+  get visibleRows(): Array<QuestionRowModel> {
+    return this.getPropertyValue("visibleRows");
+  }
+  set visibleRows(val: Array<QuestionRowModel>) {
+    this.rowsAnimation.sync(val);
+  }
+
+  public onRemoveRow(row: QuestionRowModel): void {
+    row.visibleElementsAnimation.cancel();
+    this.visibleRows = this.rows.filter(row => row.visible);
+    row.onVisibleChangedCallback = undefined;
+  }
+  onRowVisibleChanged() {
+    this.visibleRows = this.rows.filter(row => row.visible);
+  }
   constructor(name: string = "") {
     super(name);
-    this.createNewArray("rows");
+    this.createNewArray("rows", (el: QuestionRowModel, index: number) => { this.onAddRow(el); }, (el: QuestionRowModel) => { this.onRemoveRow(el); });
+    this.createNewArray("visibleRows");
+
     this.elementsValue = this.createNewArray(
       "elements",
       this.onAddElement.bind(this),
@@ -292,11 +374,13 @@ export class PanelModelBase extends SurveyElement<Question>
     return "panelbase";
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    this.animationAllowed = false;
     super.setSurveyImpl(value, isLight);
     if (this.isDesignMode) this.onVisibleChanged();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].setSurveyImpl(value, isLight);
     }
+    this.animationAllowed = true;
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
@@ -304,6 +388,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.markQuestionListDirty();
     this.onRowsChanged();
   }
+
   @property({ defaultValue: true }) showTitle: boolean;
   get hasTitle(): boolean {
     return (
@@ -454,7 +539,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("visibleIf", val);
   }
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "", rowMultiple: "", pageRow: "", rowCompact: "" };
+    var classes = { panel: {}, error: {}, row: "", rowFadeIn: "", rowFadeOut: "", rowFadeOutActive: "", rowMultiple: "", pageRow: "", rowCompact: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageRow) {
@@ -465,6 +550,15 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     if (!!css.row) {
       classes.row = css.row;
+    }
+    if (!!css.rowFadeIn) {
+      classes.rowFadeIn = css.rowFadeIn;
+    }
+    if (!!css.rowFadeOut) {
+      classes.rowFadeOut = css.rowFadeOut;
+    }
+    if (!!css.rowFadeOutActive) {
+      classes.rowFadeOutActive = css.rowFadeOutActive;
     }
     if (!!css.rowMultiple) {
       classes.rowMultiple = css.rowMultiple;
@@ -1015,10 +1109,13 @@ export class PanelModelBase extends SurveyElement<Question>
     return new QuestionRowModel(this);
   }
   public onSurveyLoad(): void {
+    this.animationAllowed = false;
+    super.onSurveyLoad();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onSurveyLoad();
     }
     this.onElementVisibilityChanged(this);
+    this.animationAllowed = true;
   }
   public onFirstRendering(): void {
     super.onFirstRendering();
@@ -1048,7 +1145,9 @@ export class PanelModelBase extends SurveyElement<Question>
 
   protected onRowsChanged() {
     if (this.isLoadingFromJson) return;
+    this.animationAllowed = false;
     this.setArrayPropertyDirectly("rows", this.buildRows());
+    this.animationAllowed = true;
   }
 
   private locCountRowUpdates = 0;
@@ -1335,13 +1434,16 @@ export class PanelModelBase extends SurveyElement<Question>
   public get isVisible(): boolean {
     return this.areInvisibleElementsShowing || this.getIsPageVisible(null);
   }
-  getIsPageVisible(exceptionQuestion: IQuestion): boolean {
-    if (!this.visible) return false;
+  getIsContentVisible(exceptionQuestion?: IQuestion) {
+    if(this.areInvisibleElementsShowing) return true;
     for (var i = 0; i < this.elements.length; i++) {
       if (this.elements[i] == exceptionQuestion) continue;
       if (this.elements[i].isVisible) return true;
     }
     return false;
+  }
+  getIsPageVisible(exceptionQuestion?: IQuestion): boolean {
+    return this.visible && this.getIsContentVisible(exceptionQuestion);
   }
   private lastVisibleIndex: number;
   public setVisibleIndex(index: number): number {
@@ -1646,7 +1748,6 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     this.elements.splice(0, this.elements.length);
   }
-
 }
 
 /**

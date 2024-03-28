@@ -1,18 +1,18 @@
-import { Base } from "./base";
+import { Base, EventBase } from "./base";
 import { property } from "./jsonobject";
 import { PopupModel } from "./popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
-import { settings, ISurveyEnvironment } from "./settings";
+import { settings } from "./settings";
 import { getElement } from "./utils/utils";
+
+import { AnimationBoolean, AnimationOptions, IAnimationConsumer } from "./utils/animation";
 import { DomDocumentHelper } from "./global_variables_utils";
 
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
-export class PopupBaseViewModel extends Base {
-  private static SubscriptionId = 0;
-  private subscriptionId = PopupBaseViewModel.SubscriptionId++;
+export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   protected popupSelector = ".sv-popup";
   protected fixedPopupContainer = ".sv-popup";
   protected containerSelector = ".sv-popup__container";
@@ -25,8 +25,51 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: "auto" }) height: string;
   @property({ defaultValue: "auto" }) width: string;
   @property({ defaultValue: "auto" }) minWidth: string;
-  @property({ defaultValue: false }) isVisible: boolean;
+  @property({ defaultValue: false }) _isVisible: boolean;
   @property() locale: string;
+
+  private updateIsVisible(val: boolean) {
+    this._isVisible = val;
+    this.onVisibilityChanged.fire(this, { isVisible: val });
+  }
+
+  private visibilityAnimation: AnimationBoolean = new AnimationBoolean(this, (val) => {
+    if(this._isVisible !== val) {
+      if(!val) {
+        this.updateOnHiding();
+        this.updateIsVisible(val);
+      }
+      else {
+        this.updateIsVisible(val);
+      }
+    }
+  }, () => this._isVisible);
+
+  getLeaveOptions(): AnimationOptions {
+    return { cssClass: "sv-popup--animate-leave" };
+  }
+  getEnterOptions(): AnimationOptions {
+    return { cssClass: "sv-popup--animate-enter" };
+  }
+  getAnimatedElement(): HTMLElement {
+    return this.getAnimationContainer();
+  }
+  isAnimationEnabled (): boolean {
+    return this.model.displayMode !== "overlay" && settings.animationEnabled;
+  }
+
+  private getAnimationContainer(): HTMLElement {
+    return <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);
+  }
+
+  public set isVisible(val: boolean) {
+    this.visibilityAnimation.sync(val);
+  }
+  public get isVisible(): boolean {
+    return this._isVisible;
+  }
+
+  public onVisibilityChanged = new EventBase<PopupBaseViewModel, any>();
 
   public get container(): HTMLElement {
     return this.containerElement || this.createdContainer;
@@ -85,24 +128,22 @@ export class PopupBaseViewModel extends Base {
   protected onModelChanging(newModel: PopupModel) {
   }
 
+  private onModelIsVisibleChangedCallback = () => {
+    this.isVisible = this.model.isVisible;
+  }
+
   private setupModel(model: PopupModel) {
     if (!!this.model) {
-      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel" + this.subscriptionId);
+      this.model.onVisibilityChanged.remove(this.onModelIsVisibleChangedCallback);
     }
     this.onModelChanging(model);
     this._model = model;
-    const onIsVisibleChangedHandler = () => {
-      if (!model.isVisible) {
-        this.updateOnHiding();
-      }
-      this.isVisible = model.isVisible;
-    };
-    model.registerPropertyChangedHandlers(["isVisible"], onIsVisibleChangedHandler, "PopupBaseViewModel" + this.subscriptionId);
-    onIsVisibleChangedHandler();
+    model.onVisibilityChanged.add(this.onModelIsVisibleChangedCallback);
+    this.onModelIsVisibleChangedCallback();
   }
 
   private _model: PopupModel;
-  public get model() {
+  public get model(): PopupModel {
     return this._model;
   }
   public set model(model: PopupModel) {
@@ -228,7 +269,7 @@ export class PopupBaseViewModel extends Base {
   public dispose(): void {
     super.dispose();
     if (this.model) {
-      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel" + this.subscriptionId);
+      this.model.onVisibilityChanged.remove(this.onModelIsVisibleChangedCallback);
     }
     if (!!this.createdContainer) {
       this.createdContainer.remove();

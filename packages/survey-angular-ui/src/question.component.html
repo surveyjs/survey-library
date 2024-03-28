@@ -3,7 +3,7 @@
     <div *ngIf="model.showErrorsAboveQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <div [element]="model" *ngIf="model.hasTitleOnLeftTop" sv-ng-element-header></div>
     <ng-template [component]="{ name: getQuestionContentWrapperComponentName(), data: getQuestionContentWrapperComponentData() }">
-      <div [class]="model.cssContent" role="presentation" [visible]="!model.isCollapsed">
+      <div [class]="model.cssContent" role="presentation" [visible]="model.renderedIsExpanded">
         <div *ngIf="model.showErrorOnTop && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
         <ng-template [component]="{ name: getComponentName(), data: { model: model }, default: 'skeleton-question' }"></ng-template>
         <div *ngIf="model.hasComment" [class]="model.getCommentAreaCss(false)">

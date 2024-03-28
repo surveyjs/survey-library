@@ -80,8 +80,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
 
     let { fromIndex, toIndex } = this.getIndixies(questionModel, fromChoicesArray, toChoicesArray);
 
-    rankFunction(questionModel, fromIndex, toIndex);
-    this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+    rankFunction(questionModel, fromIndex, toIndex, dropTargetNode);
   }
 
   public getIndixies(model: any, fromChoicesArray: Array<ItemValue>, toChoicesArray: Array<ItemValue>) {
@@ -90,10 +89,22 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
 
     if (toIndex === -1) {
       const length = model.value.length;
-      toIndex = fromChoicesArray === toChoicesArray ? length - 1 : length;
+      toIndex = length;
+    } else if(fromChoicesArray == toChoicesArray) {
+      if(!this.isBottom && fromIndex < toIndex) toIndex--;
+      if(this.isBottom && fromIndex > toIndex) toIndex ++;
+    } else if(fromChoicesArray != toChoicesArray) {
+      if(this.isBottom) toIndex++;
     }
 
     return { fromIndex, toIndex };
+  }
+  protected calculateIsBottom(clientY: number, dropTargetNode?: HTMLElement): boolean {
+    if(this.dropTarget instanceof ItemValue && this.draggedElement !== this.dropTarget) {
+      const rect = dropTargetNode.getBoundingClientRect();
+      return clientY >= rect.y + rect.height / 2;
+    }
+    return super.calculateIsBottom(clientY);
   }
 
   private doUIEffects(dropTargetNode: HTMLElement, fromIndex: number, toIndex: number) {
@@ -136,30 +147,46 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     return !this.isDropTargetRanked;
   }
 
-  public selectToRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
-    const rankingChoices = questionModel.rankingChoices;
+  private updateChoices(questionModel: QuestionRankingModel, rankingChoices: Array<ItemValue>) {
+    questionModel.isValueSetByUser = true;
+    questionModel.rankingChoices = rankingChoices;
+    questionModel.updateUnRankingChoices(rankingChoices);
+  }
+
+  public selectToRank = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void => {
+    const rankingChoices = [].concat(questionModel.rankingChoices);
     const unRankingChoices = questionModel.unRankingChoices;
     const item = unRankingChoices[fromIndex];
-
-    questionModel.isValueSetByUser = true;
     rankingChoices.splice(toIndex, 0, item);
-    questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    this.updateChoices(questionModel, rankingChoices);
   }
 
-  public unselectFromRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void {
-    const rankingChoices = questionModel.rankingChoices;
-    questionModel.isValueSetByUser = true;
+  public unselectFromRank = (questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void => {
+    const rankingChoices = [].concat(questionModel.rankingChoices);
     rankingChoices.splice(fromIndex, 1);
-    questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    this.updateChoices(questionModel, rankingChoices);
   }
 
-  public reorderRankedItem(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
+  public reorderRankedItem = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number, dropTargetNode?: HTMLElement): void => {
     const rankingChoices = questionModel.rankingChoices;
     const item = rankingChoices[fromIndex];
+    if(fromIndex == toIndex) return;
 
     questionModel.isValueSetByUser = true;
     rankingChoices.splice(fromIndex, 1);
     rankingChoices.splice(toIndex, 0, item);
     questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    if(dropTargetNode) {
+      this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+    }
+
+  }
+  public clear(): void {
+    const questionModel = <QuestionRankingModel>this.parentElement;
+    if(!!questionModel) {
+      questionModel.rankingChoicesAnimation.cancel();
+      questionModel.unRankingChoicesAnimation.cancel();
+    }
+    super.clear();
   }
 }

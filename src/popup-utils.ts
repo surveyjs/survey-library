@@ -14,12 +14,7 @@ export function createPopupModalViewModel(options: IDialogOptions, rootElement?:
     true,
     options.onCancel,
     options.onApply,
-    () => {
-      options.onHide();
-      if(!!container) {
-        popupViewModel.resetComponentElement();
-      }
-    },
+    options.onHide,
     options.onShow,
     options.cssClass,
     options.title
@@ -35,6 +30,15 @@ export function createPopupModalViewModel(options: IDialogOptions, rootElement?:
   if(!popupViewModel.container) {
     popupViewModel.initializePopupContainer();
   }
+  const onVisibilityChangedCallback = (sender: PopupBaseViewModel, options: { isVisible: boolean }) => {
+    if(!options.isVisible) {
+      if(!!container) {
+        popupViewModel.resetComponentElement();
+      }
+    }
+    popupViewModel.onVisibilityChanged.remove(onVisibilityChangedCallback);
+  };
+  popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);
   return popupViewModel;
 }
 

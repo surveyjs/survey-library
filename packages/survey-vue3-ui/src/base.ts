@@ -12,6 +12,7 @@ import {
   type Ref,
   onBeforeUnmount,
   watchEffect,
+  toRaw,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});

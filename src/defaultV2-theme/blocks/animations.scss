@@ -1,0 +1,19 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes moveIn {
+  from {
+    height: 0
+  }
+
+  to {
+    height: var(--animation-height)
+  }
+}

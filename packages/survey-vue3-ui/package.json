@@ -11,8 +11,8 @@
     "build:dev": "vite build --mode development",
     "build:types": "vue-tsc --project tsconfig.types.json --emitDeclarationOnly",
     "type-check": "vue-tsc --project tsconfig.types.json --noEmit",
-    "test": "vitest --no-threads tests/test.spec.ts",
-    "test:single": "vitest --no-watch --no-threads tests/test.spec.ts",
+    "test": "vitest --no-threads tests/*.spec.ts",
+    "test:single": "vitest --no-watch --no-threads tests/*.spec.ts",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },

@@ -437,6 +437,8 @@ export var defaultV2Css = {
     itemInline: "sd-imagepicker__item--inline",
     itemChecked: "sd-imagepicker__item--checked",
     itemDisabled: "sd-imagepicker__item--disabled",
+    itemReadOnly: "sd-imagepicker__item--readonly",
+    itemPreview: "sd-imagepicker__item--preview",
     itemHover: "sd-imagepicker__item--allowhover",
     label: "sd-imagepicker__label",
     itemDecorator: "sd-imagepicker__item-decorator",

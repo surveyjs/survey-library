@@ -134,3 +134,29 @@
 .sd-selectbase__column.sd-imagepicker__column:not(:last-child) {
   padding-right: 0;
 }
+
+.sd-imagepicker__item--readonly {
+  .sd-imagepicker__check-icon {
+    fill: $foreground;
+  }
+}
+
+.sd-imagepicker__item--preview {
+  .sd-imagepicker__check-decorator {
+    display: none;
+  }
+
+  .sd-imagepicker__image {
+    /* Safari 6.0 - 9.0 */
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+  }
+
+  &.sd-imagepicker__item--checked {
+    .sd-imagepicker__image {
+      /* Safari 6.0 - 9.0 */
+      -webkit-filter: grayscale(0%);
+      filter: grayscale(0%);
+    }
+  }
+}

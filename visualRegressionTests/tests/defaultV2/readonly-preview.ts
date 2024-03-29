@@ -441,4 +441,41 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("ImagePicker ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "imagepicker",
+            "name": "animals",
+            "titleLocation": "hidden",
+            "choices": [
+              {
+                "value": "lion",
+                "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+                "text": "Lion"
+              },
+              {
+                "value": "giraffe",
+                "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg",
+                "text": "Giraffe"
+              }
+            ],
+            "readOnly": true,
+            "defaultValue": "lion"
+          }
+        ]
+      });
+
+      await takeElementScreenshot("readonly-imagepicker.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-imagepicker.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
 });

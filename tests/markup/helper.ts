@@ -1,4 +1,4 @@
-import { StylesManager, Model, SurveyModel, PanelModel } from "survey-core";
+import { StylesManager, Model, SurveyModel, PanelModel, settings } from "survey-core";
 export interface MarkupTestDescriptor {
   name: string;
   json: any;
@@ -103,6 +103,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   }
   StylesManager.applyTheme("default");
   var done = assert.async();
+  settings.animationEnabled = false;
   if (test.before)
     test.before();
   platform.survey = platform.surveyFactory(test.json);
@@ -183,6 +184,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         newstr == oldStr ?
           platform.name + " " + test.name + " rendered correctly" :
           platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#" + test.snapshot);
+      settings.animationEnabled = true;
       if (test.after) { test.after(); }
       if (platform.finish)
         platform.finish(surveyElement);
@@ -280,6 +282,9 @@ function clearClasses(el: Element) {
   if(el.className !== "") {
     el.classList.forEach((className: string) => {
       if(className.search(/^ng-/) > -1) {
+        classesToRemove.push(className);
+      }
+      if(["top", "bottom"].filter(direction => className == `sv-popup--${direction}`).length > 0) {
         classesToRemove.push(className);
       }
     });

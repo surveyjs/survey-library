@@ -5,15 +5,14 @@
       <survey-string :locString="page.locDescription" />
     </div>
     <survey-errors :element="page" />
-    <template v-for="row in page.rows" :key="row.id">
+    <template v-for="row in page.visibleRows" :key="row.id">
       <component
         :is="(page.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
         v-bind="{
             componentData: (page.getSurvey() as SurveyModel).getRowWrapperComponentData(row),
           }"
       >
-        <survey-row v-if="row.visible" :row="row" :survey="survey" :css="css">
-        </survey-row>
+        <survey-row :row="row" :survey="survey" :css="css"> </survey-row>
       </component>
     </template>
   </div>
@@ -22,8 +21,8 @@
 <script lang="ts" setup>
 import type { SurveyModel } from "survey-core";
 import type { PageModel } from "survey-core";
+import { computed, onMounted, ref } from "vue";
 import { useBase } from "./base";
-import { computed, onMounted, onUpdated, ref } from "vue";
 
 const props = defineProps<{
   survey: SurveyModel;
@@ -39,6 +38,10 @@ const onAfterRender = () => {
   }
 };
 
+const showDescription = computed(() => {
+  return props.page._showDescription;
+});
+
 useBase(
   () => props.page,
   () => {
@@ -46,9 +49,6 @@ useBase(
   }
 );
 
-const showDescription = computed(() => {
-  return props.page._showDescription;
-});
 onMounted(() => {
   onAfterRender();
 });

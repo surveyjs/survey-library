@@ -9,6 +9,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
 import { settings } from "../src/settings";
+import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
 
 /**
  * A class that describes the Ranking question type.
@@ -21,10 +22,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createNewArray("rankingChoices");
+    this.createNewArray("unRankingChoices");
     this.registerFunctionOnPropertyValueChanged("selectToRankEnabled", () => {
       this.clearValue();
       this.setDragDropRankingChoices();
-      this.updateRankingChoices();
+      this.updateRankingChoicesSync();
     });
   }
 
@@ -61,11 +63,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   protected getItemClassCore(item: ItemValue, options: any): string {
     const itemIndex = this.rankingChoices.indexOf(item);
+    const unrankedItemIndex = this.unRankingChoices.indexOf(item);
     const dropTargetIndex = this.rankingChoices.indexOf(this.currentDropTarget);
+
+    let isDrop = (this.selectToRankEnabled && itemIndex > -1 && unrankedItemIndex > -1) || this.currentDropTarget === item;
 
     return new CssClassBuilder()
       .append(super.getItemClassCore(item, options))
-      .append(this.cssClasses.itemGhostMod, this.currentDropTarget === item)
+      .append(this.cssClasses.itemGhostMod, isDrop)
       .append(
         "sv-dragdrop-movedown",
         itemIndex === dropTargetIndex + 1 && this.dropTargetNodeMove === "down"
@@ -127,10 +132,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return this.isEmpty() ? "" : index + 1 + "";
   }
 
+  private updateRankingChoicesSync() {
+    this.animationAllowed = false;
+    this.updateRankingChoices();
+    this.animationAllowed = true;
+  }
+
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
     this.setDragDropRankingChoices();
-    this.updateRankingChoices();
+    this.updateRankingChoicesSync();
   }
   public isAnswerCorrect(): boolean {
     return Helpers.isArraysEqual(this.value, this.correctAnswer, false);
@@ -139,7 +150,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
     if (this.isLoadingFromJson) return;
-    this.updateRankingChoices();
+    this.updateRankingChoicesSync();
   }
 
   protected onVisibleChoicesChanged = (): void => {
@@ -153,17 +164,17 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     if (this.visibleChoices.length === 1 && !this.selectToRankEnabled) {
       this.value = [];
       this.value.push(this.visibleChoices[0].value);
-      this.updateRankingChoices();
+      this.updateRankingChoicesSync();
       return;
     }
 
     if (this.isEmpty()) {
-      this.updateRankingChoices();
+      this.updateRankingChoicesSync();
       return;
     }
 
     if (this.selectToRankEnabled) {
-      this.updateRankingChoices();
+      this.updateRankingChoicesSync();
       return;
     }
 
@@ -171,12 +182,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.addToValueByVisibleChoices();
     if (this.visibleChoices.length < this.value.length)
       this.removeFromValueByVisibleChoices();
-    this.updateRankingChoices();
+    this.updateRankingChoicesSync();
   };
 
   public localeChanged = (): void => {
     super.localeChanged();
-    this.updateRankingChoices();
+    this.updateRankingChoicesSync();
   };
 
   private addToValueByVisibleChoices() {
@@ -201,25 +212,54 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.value = newValue;
   }
 
+  private getChoicesAnimation(isRankingChoices: boolean): IAnimationConsumer<[ItemValue]> {
+    return {
+      isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed,
+      getLeaveOptions: (item: ItemValue) => {
+        const choices = isRankingChoices ? this.rankingChoices : this.unRankingChoices;
+        if(this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {
+          return { cssClass: "sv-ranking-item--animate-item-removing-empty" };
+        }
+        return { cssClass: "sv-ranking-item--animate-item-removing" };
+      },
+      getEnterOptions: (item: ItemValue) => {
+        const choices = isRankingChoices ? this.rankingChoices : this.unRankingChoices;
+        if(this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {
+          return { cssClass: "sv-ranking-item--animate-item-adding-empty" };
+        }
+        return { cssClass: "sv-ranking-item--animate-item-adding" };
+      },
+      getAnimatedElement: (item: ItemValue) => {
+        const containerSelector = isRankingChoices ? ".sv-ranking__container--to" : ".sv-ranking__container--from";
+        return this.getWrapperElement()?.querySelector(`${containerSelector} .sv-ranking-item--ghost`);
+      }
+    };
+  }
+
+  private _rankingChoicesAnimation = new AnimationGroup(this.getChoicesAnimation(true), (val) => {
+    this.setPropertyValue("rankingChoices", val);
+  }, () => this.rankingChoices)
+  public get rankingChoicesAnimation(): AnimationGroup<ItemValue> {
+    return this._rankingChoicesAnimation;
+  }
+  private _unRankingChoicesAnimation = new AnimationGroup(this.getChoicesAnimation(false), (val) => {
+    this.setPropertyValue("unRankingChoices", val);
+  }, () => this.unRankingChoices)
+  public get unRankingChoicesAnimation(): AnimationGroup<ItemValue> {
+    return this._unRankingChoicesAnimation;
+  }
+
   public get rankingChoices(): Array<ItemValue> {
     return this.getPropertyValue("rankingChoices", []);
   }
-
+  public set rankingChoices(val) {
+    this._rankingChoicesAnimation.sync(val);
+  }
   public get unRankingChoices(): Array<ItemValue> {
-    const unRankingChoices: ItemValue[] = [];
-    const rankingChoices = this.rankingChoices;
-
-    this.visibleChoices.forEach((choice) => {
-      unRankingChoices.push(choice);
-    });
-
-    rankingChoices.forEach((rankingChoice: ItemValue) => {
-      unRankingChoices.forEach((choice, index) => {
-        if (choice.value === rankingChoice.value) unRankingChoices.splice(index, 1);
-      });
-    });
-
-    return unRankingChoices;
+    return this.getPropertyValue("unRankingChoices", []);
+  }
+  public set unRankingChoices(val) {
+    this._unRankingChoicesAnimation.sync(val);
   }
 
   private updateRankingChoices(forceUpdate = false): ItemValue[] {
@@ -250,21 +290,29 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     });
     this.setPropertyValue("rankingChoices", newRankingChoices);
   }
-
-  private updateRankingChoicesSelectToRankMode(forceUpdate:boolean) {
-    if (this.isEmpty()) {
-      this.setPropertyValue("rankingChoices", []);
-      return;
-    }
-
-    const newRankingChoices: ItemValue[] = [];
-
-    this.value.forEach((valueItem: string) => {
-      this.visibleChoices.forEach((choice) => {
-        if (choice.value === valueItem) newRankingChoices.push(choice);
+  public updateUnRankingChoices(newRankingChoices: Array<ItemValue>) {
+    const unRankingChoices: ItemValue[] = [];
+    this.visibleChoices.forEach((choice) => {
+      unRankingChoices.push(choice);
+    });
+    newRankingChoices.forEach((rankingChoice: ItemValue) => {
+      unRankingChoices.forEach((choice, index) => {
+        if (choice.value === rankingChoice.value) unRankingChoices.splice(index, 1);
       });
     });
-    this.setPropertyValue("rankingChoices", newRankingChoices);
+    this.unRankingChoices = unRankingChoices;
+  }
+  private updateRankingChoicesSelectToRankMode(forceUpdate:boolean) {
+    const newRankingChoices: ItemValue[] = [];
+    if(!this.isEmpty()) {
+      this.value.forEach((valueItem: string) => {
+        this.visibleChoices.forEach((choice) => {
+          if (choice.value === valueItem) newRankingChoices.push(choice);
+        });
+      });
+    }
+    this.updateUnRankingChoices(newRankingChoices);
+    this.rankingChoices = newRankingChoices;
   }
 
   public dragDropRankingChoices: DragDropRankingChoices;
@@ -447,6 +495,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public isValueSetByUser = false;
   public setValue = (): void => {
     const value: string[] = [];
+    this.rankingChoicesAnimation.cancel();
+    this.unRankingChoicesAnimation.cancel();
     this.rankingChoices.forEach((choice: ItemValue) => {
       value.push(choice.value);
     });

@@ -2,20 +2,26 @@
 import { defineComponent } from "vue";
 import { SurveyModel, StylesManager } from "survey-core";
 import Survey from "./Survey.vue";
+import "./index.css"
 
 const json = {
-  showProgressBar: "both",
-  description: "Survey Description",
-  title: "Survey New Design Test",
-  logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
-  logoPosition: "left",
-  questions: [
+ "logoPosition": "right",
+ "pages": [
+  {
+   "name": "page1",
+   "elements": [
     {
-      type: "file",
-      name: "q1",
-      mode: "both"
+     "type": "text",
+     "name": "question1"
+    },
+    {
+     "type": "text",
+     "name": "question2",
+     "visibleIf": "{question1} notempty"
     }
-  ]
+   ]
+  }
+ ]
 };
 
 StylesManager.applyTheme("defaultV2");

@@ -197,6 +197,28 @@
   }
 }
 
+.sv-dropdown-popup.sv-single-select-list.sv-popup--animate-leave {
+  .sd-list__item.sv-list__item--selected {
+    .sv-list__item-body {
+      font-weight: normal;
+      color: $font-questiontitle-color;
+      background-color: transparent;
+    }
+  }
+}
+
+.sv-dropdown-popup.sv-popup--dropdown.sv-popup--top {
+  .sv-popup__container {
+    transform: translateY(-2px);
+  }
+}
+
+.sv-dropdown-popup.sv-popup--dropdown.sv-popup--bottom {
+  .sv-popup__container {
+    transform: translateY(2px);
+  }
+}
+
 [dir="rtl"],
 [style*="direction:rtl"],
 [style*="direction: rtl"] {

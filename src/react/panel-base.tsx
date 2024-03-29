@@ -71,14 +71,18 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
       }
     }
   }
+
+  protected getIsVisible() {
+    return this.panelBase.isVisible;
+  }
+
   protected canRender(): boolean {
     return (
-      super.canRender() && !!this.survey && !!this.panelBase
-      && this.panelBase.isVisible && !!this.panelBase.survey
+      super.canRender() && !!this.survey && !!this.panelBase && !!this.panelBase.survey && this.getIsVisible()
     );
   }
   protected renderRows(css: any): Array<JSX.Element> {
-    return this.panelBase.rows.map((row) => this.createRow(row, css));
+    return this.panelBase.visibleRows.map((row) => this.createRow(row, css));
   }
   protected createRow(row: QuestionRowModel, css: any): JSX.Element {
     return (

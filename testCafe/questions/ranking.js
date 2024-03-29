@@ -119,8 +119,11 @@ frameworks.forEach((framework) => {
         "Processor power",
       ],
     });
-
-    await t.dragToElement(PriceItem, BatteryItem);
+    await t.dragToElement(PriceItem, BatteryItem, {
+      destinationOffsetY: 0,
+      offsetY: 0,
+      speed: 0.1
+    });
     await t.wait(300);
     let data = await getData();
     await t.expect(data["smartphone-features"]).eql([
@@ -134,7 +137,6 @@ frameworks.forEach((framework) => {
     ]);
 
     await setData(null);
-
     await t.dragToElement(PriceItem, BatteryItem);
     await t.wait(300);
     data = await getData();
@@ -192,7 +194,7 @@ frameworks.forEach((framework) => {
     await t.expect(typeof data.bestcar).ok();
 
     await t.hover(rankAudiItem);
-    await t.dragToElement(rankAudiItem, rankMercedesBenzItem);
+    await t.dragToElement(rankAudiItem, rankMercedesBenzItem, { offsetY: 0, destinationOffsetY: 0, speed: 0.1 });
     data = await getData();
 
     await t.expect(data.bestcar).eql(["Mercedes-Benz", "Audi", "Toyota"]);

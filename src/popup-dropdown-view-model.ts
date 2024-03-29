@@ -160,7 +160,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       .append("sv-popup--dropdown-overlay", this.isOverlay && this.model.overlayDisplayMode !== "overlay")
       .append("sv-popup--tablet", this.isTablet && this.isOverlay)
       .append("sv-popup--show-pointer", !this.isOverlay && this.showHeader)
-      .append(`sv-popup--${this.popupDirection}`, !this.isOverlay && this.showHeader);
+      .append(`sv-popup--${this.popupDirection}`, !this.isOverlay && (this.showHeader || this.popupDirection == "top" || this.popupDirection == "bottom"));
   }
   protected getShowHeader(): boolean {
     return this.model.showPointer && !this.isOverlay;

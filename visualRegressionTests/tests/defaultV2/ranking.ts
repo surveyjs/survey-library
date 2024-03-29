@@ -189,7 +189,7 @@ frameworks.forEach(framework => {
       });
 
       await patchDragDropToShowGhostElementAfterDrop();
-      await t.dragToElement(item1, qustion);
+      await t.dragToElement(item1, qustion, { speed: 0.1 });
       await takeElementScreenshot("question-ranking-shortcut-position-container-layout.png", Selector(".sd-question"), t, comparer);
     });
   });
@@ -230,7 +230,7 @@ frameworks.forEach(framework => {
       });
 
       await patchDragDropToShowGhostElementAfterDrop();
-      await t.dragToElement(item1, qustion);
+      await t.dragToElement(item1, qustion, { speed: 0.1 });
       await takeElementScreenshot("question-ranking-shortcut-position-container-relative-layout.png", Selector(".sd-question"), t, comparer);
     });
   });

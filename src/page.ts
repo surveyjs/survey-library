@@ -118,7 +118,7 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isStarted(): boolean { return this.isStartPage; }
   protected calcCssClasses(css: any): any {
-    const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "" };
+    const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "", rowFadeIn: "", rowFadeOut: "", rowFadeOutActive: "" };
     this.copyCssClasses(classes.page, css.page);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageTitle) {
@@ -138,6 +138,15 @@ export class PageModel extends PanelModelBase implements IPage {
     }
     if (!!css.rowCompact) {
       classes.rowCompact = css.rowCompact;
+    }
+    if (!!css.rowFadeIn) {
+      classes.rowFadeIn = css.rowFadeIn;
+    }
+    if (!!css.rowFadeOut) {
+      classes.rowFadeOut = css.rowFadeOut;
+    }
+    if (!!css.rowFadeOutActive) {
+      classes.rowFadeOutActive = css.rowFadeOutActive;
     }
     if (this.survey) {
       this.survey.updatePageCssClasses(this, classes);

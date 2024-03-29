@@ -21,6 +21,8 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
+import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
+import { classesToSelector } from "./utils/utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
@@ -291,6 +293,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public set state(val: string) {
     this.setPropertyValue("state", val);
+    this.renderedIsExpanded = !(this.state === "collapsed" && !this.isDesignMode);
   }
   protected notifyStateChanged(prevState: string): void {
     if (this.survey) {
@@ -649,7 +652,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public updateCustomWidgets(): void { }
 
-  public onSurveyLoad(): void { }
+  public onSurveyLoad(): void {}
   private wasRenderedValue: boolean;
   public get wasRendered(): boolean { return !!this.wasRenderedValue; }
   public onFirstRendering(): void {
@@ -810,7 +813,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   public get hasParent() {
-    return (this.parent && !this.parent.isPage && (!(<any>this.parent).originalPage || (<any>this.survey).isShowingPreview)) || (this.parent === undefined);
+    return (this.parent && !this.parent.isPage && (!(<any>this.parent).originalPage)) || (this.parent === undefined);
   }
   @property({ defaultValue: true }) isSingleInRow: boolean = true;
 
@@ -829,11 +832,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.shouldAddRunnerStyles() && (this.hasParent);
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
+    const isExpanadable = !!this.isCollapsed || !!this.isExpanded;
     return new CssClassBuilder()
       .append(cssClasses.withFrame, this.getHasFrameV2() && !this.isCompact)
       .append(cssClasses.compact, this.isCompact && this.getHasFrameV2())
       .append(cssClasses.collapsed, !!this.isCollapsed)
-      .append(cssClasses.expanded, !!this.isExpanded)
+      .append(cssClasses.expandableAnimating, isExpanadable && this.isAnimatingCollapseExpand)
+      .append(cssClasses.expanded, !!this.isExpanded && this.renderedIsExpanded)
+      .append(cssClasses.expandable, isExpanadable)
       .append(cssClasses.nested, this.getIsNested())
       .toString();
   }
@@ -1021,6 +1027,86 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       });
     }
   }
+
+  private wrapperElement?: HTMLElement;
+  public setWrapperElement(element?: HTMLElement) {
+    this.wrapperElement = element;
+  }
+  public getWrapperElement(): HTMLElement {
+    return this.wrapperElement;
+  }
+
+  @property() private _renderedIsExpanded: boolean = true;
+  private _isAnimatingCollapseExpand: boolean = false;
+  private set isAnimatingCollapseExpand(val: boolean) {
+    if(val !== this._isAnimatingCollapseExpand) {
+      this._isAnimatingCollapseExpand = val;
+      this.updateElementCss(false);
+    }
+  }
+  private get isAnimatingCollapseExpand() {
+    return this._isAnimatingCollapseExpand || this._renderedIsExpanded != this.isExpanded;
+  }
+
+  private getExpandCollapseAnimationOptions(): IAnimationConsumer {
+    const beforeRunAnimation = (el: HTMLElement) => {
+      this.isAnimatingCollapseExpand = true;
+      el.style.setProperty("--animation-height", el.offsetHeight + "px");
+    };
+    const afterRunAnimation = (el: HTMLElement) => {
+      this.isAnimatingCollapseExpand = false;
+    };
+    return {
+      getEnterOptions: () => {
+        const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
+        return {
+          cssClass: cssClasses.contentFadeIn,
+          onBeforeRunAnimation: beforeRunAnimation,
+          onAfterRunAnimation: afterRunAnimation,
+        };
+      },
+      getLeaveOptions: () => {
+        const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
+        return { cssClass: cssClasses.contentFadeOut,
+          onBeforeRunAnimation: beforeRunAnimation,
+          onAfterRunAnimation: afterRunAnimation
+        };
+      },
+      getAnimatedElement: () => {
+        const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
+        return this.getWrapperElement()?.querySelector(classesToSelector(cssClasses.content));
+      },
+      isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed && !this.isDesignMode
+    };
+  }
+
+  private animationCollapsed = new AnimationBoolean(this.getExpandCollapseAnimationOptions(), (val) => {
+    this._renderedIsExpanded = val;
+    if(this.animationAllowed) {
+      if(val) {
+        this.isAnimatingCollapseExpand = true;
+      } else {
+        this.updateElementCss(false);
+      }
+    }
+  }, () => this.renderedIsExpanded);
+  public set renderedIsExpanded(val: boolean) {
+    this.animationCollapsed.sync(val);
+  }
+
+  public get renderedIsExpanded(): boolean {
+    return !!this._renderedIsExpanded;
+  }
+
+  private animationAllowedValue: boolean = true;
+  public get animationAllowed(): boolean {
+    return !this.isLoadingFromJson && !this.isDisposed && !!this.survey && this.animationAllowedValue;
+  }
+
+  public set animationAllowed(val: boolean) {
+    this.animationAllowedValue = val;
+  }
+
   public dispose(): void {
     super.dispose();
     if (this.titleToolbarValue) {

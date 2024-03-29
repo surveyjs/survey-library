@@ -3032,3 +3032,80 @@ QUnit.test("Single: showPreviewBeforeComplete Bug#8005", function (assert) {
   assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: validate", function (assert) {
+  let errorText = "";
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3] },
+    validate: (question): string => {
+      if(question.value !== 1) {
+        errorText = "val";
+        return "value should be 1";
+      }
+      return "";
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "question1" }],
+    showPreviewBeforeComplete: "showAllQuestions"
+  });
+  const q = survey.getQuestionByName("question1");
+  q.value = 2;
+  survey.validate();
+  assert.equal(errorText, "val", "errorText");
+  assert.equal(q.errors.length, 1, "Errors length #1");
+  assert.equal(q.errors[0].text, "value should be 1", "Error text");
+  q.value = 1;
+  assert.equal(q.errors.length, 0, "Errors length #2");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: validate", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3], visibleIf: "{composite.q1} notempty" },
+      { type: "text", name: "q3", choices: [1, 2, 3], visibleIf: "{composite.q2} notempty" }
+    ],
+    onValueChanged(question, name, newValue) {
+      if (name === "q1") {
+        question.contentPanel.getQuestionByName("q2").clearValue();
+      }
+      if (name === "q2") {
+        question.contentPanel.getQuestionByName("q3").value = newValue;
+      }
+    },
+    validate: (question): string => {
+      const q1 = question.contentPanel.getQuestionByName("q1");
+      const q3 = question.contentPanel.getQuestionByName("q3");
+      if(!q1.isEmpty() && q3.isEmpty()) return "Select q2";
+      return "";
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" },
+      { type: "test", name: "q2", isRequired: true }
+    ]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCompositeModel>survey.getQuestionByName("q2");
+  survey.validate();
+  assert.equal(q1.errors.length, 0, "q1 errors #1");
+  assert.equal(q2.errors.length, 1, "q2 errors #1");
+  q1.contentPanel.getQuestionByName("q1").value = "val";
+  q2.contentPanel.getQuestionByName("q1").value = "val";
+  survey.validate();
+  assert.equal(q1.errors.length, 1, "q1 errors #2");
+  assert.equal(q1.errors[0].text, "Select q2", "q1 errors text #2");
+  assert.equal(q2.errors.length, 1, "q2 errors #2");
+  assert.equal(q2.errors[0].text, "Select q2", "q2 errors text #2");
+  q1.contentPanel.getQuestionByName("q2").value = 1;
+  q2.contentPanel.getQuestionByName("q2").value = 2;
+  assert.equal(q1.contentPanel.getQuestionByName("q3").value, 1, "q1.q3 value");
+  assert.equal(q2.contentPanel.getQuestionByName("q3").value, 2, "q2.q3 value");
+  survey.validate();
+  assert.equal(q1.errors.length, 0, "q1 errors #3");
+  assert.equal(q2.errors.length, 0, "q2 errors #3");
+  ComponentCollection.Instance.clear();
+});

@@ -78,7 +78,7 @@ export var hebrewSurveyStrings = {
   timerLimitAll: "הוצאת {0} מתוך {1} בדף זה ו- {2} מתוך {3} בסך הכל.",
   timerLimitPage: "הוצאת {0} מתוך {1} בדף זה.",
   timerLimitSurvey: "הוצאת סכום כולל של {0} מתוך {1}.",
-  clearCaption: "ברור",
+  clearCaption: "לנקות",
   signaturePlaceHolder: "חתום כאן",
   chooseFileCaption: "בחר קובץ",
   takePhotoCaption: "צלם תמונה",

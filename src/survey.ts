@@ -7587,7 +7587,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (isStrCiEqual(layoutElement.id, "advanced-header")) {
-        if (this.state === "running" && layoutElement.container === container) {
+        if ((this.state === "running" || this.state === "starting") && layoutElement.container === container) {
           containerLayoutElements.push(layoutElement);
         }
       } else {

@@ -4,7 +4,6 @@ import {
   ref,
   isRef,
   watch,
-  onUnmounted,
   shallowRef,
   triggerRef,
   unref,
@@ -12,60 +11,66 @@ import {
   type Ref,
   onBeforeUnmount,
   watchEffect,
-  toRaw,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});
-  // markRaw(res);
   return res;
 };
-function makeReactive(surveyElement: Base) {
-  if (!surveyElement || (surveyElement as any).__vueImplemented) return false;
-  surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
-    const arr: any = [];
-    const arrayRef = shallowRef(arr);
+export function makeReactive(surveyElement: Base) {
+  if (!surveyElement) return;
+  (surveyElement as any).__vueImplemented =
+    (surveyElement as any).__vueImplemented ?? 0;
+  if ((surveyElement as any).__vueImplemented <= 0) {
+    surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
+      const arr: any = [];
+      const arrayRef = shallowRef(arr);
 
-    arr.onArrayChanged = () => {
-      triggerRef(arrayRef);
-    };
-    hash[key] = arrayRef;
-    return unref(hash[key]);
-  };
-  surveyElement.iteratePropertiesHash((hash, key) => {
-    if (Array.isArray(hash[key])) {
-      const arrayRef = shallowRef(hash[key]);
-      hash[key]["onArrayChanged"] = () => {
+      arr.onArrayChanged = () => {
         triggerRef(arrayRef);
       };
       hash[key] = arrayRef;
-    }
-  });
-  surveyElement.getPropertyValueCoreHandler = (hash, key) => {
-    return unref(hash[key]);
-  };
-  surveyElement.setPropertyValueCoreHandler = (hash, key, val) => {
-    if (isRef(hash[key])) {
-      hash[key].value = val;
-    } else {
-      hash[key] = val;
-    }
-  };
-  (surveyElement as any).__vueImplemented = true;
-  return true;
+      return unref(hash[key]);
+    };
+    surveyElement.iteratePropertiesHash((hash, key) => {
+      if (Array.isArray(hash[key])) {
+        const arrayRef = shallowRef(hash[key]);
+        hash[key]["onArrayChanged"] = () => {
+          triggerRef(arrayRef);
+        };
+        hash[key] = arrayRef;
+      }
+    });
+    surveyElement.getPropertyValueCoreHandler = (hash, key) => {
+      return unref(hash[key]);
+    };
+    surveyElement.setPropertyValueCoreHandler = (hash, key, val) => {
+      if (isRef(hash[key])) {
+        hash[key].value = val;
+      } else {
+        hash[key] = val;
+      }
+    };
+  }
+  (surveyElement as any).__vueImplemented++;
 }
 
-function unMakeReactive(surveyElement: Base, isModelSubsribed: boolean) {
-  if (!surveyElement || !isModelSubsribed) return;
-  surveyElement.iteratePropertiesHash((hash, key) => {
-    hash[key] = unref(hash[key]);
-    if (Array.isArray(hash[key])) {
-      hash[key]["onArrayChanged"] = undefined;
-    }
-  });
-  delete (surveyElement as any).__vueImplemented;
-  surveyElement.createArrayCoreHandler = undefined as any;
-  surveyElement.getPropertyValueCoreHandler = undefined as any;
-  surveyElement.setPropertyValueCoreHandler = undefined as any;
+export function unMakeReactive(surveyElement?: Base) {
+  if (!surveyElement) return;
+  (surveyElement as any).__vueImplemented =
+    (surveyElement as any).__vueImplemented ?? 0;
+  (surveyElement as any).__vueImplemented--;
+  if ((surveyElement as any).__vueImplemented <= 0) {
+    surveyElement.iteratePropertiesHash((hash, key) => {
+      hash[key] = unref(hash[key]);
+      if (Array.isArray(hash[key])) {
+        hash[key]["onArrayChanged"] = undefined;
+      }
+    });
+    delete (surveyElement as any).__vueImplemented;
+    surveyElement.createArrayCoreHandler = undefined as any;
+    surveyElement.getPropertyValueCoreHandler = undefined as any;
+    surveyElement.setPropertyValueCoreHandler = undefined as any;
+  }
 }
 
 // by convention, composable function names start with "use"
@@ -74,17 +79,16 @@ export function useBase<T extends Base>(
   onModelChanged?: (newValue: T, oldValue?: T) => void,
   clean?: (model: T) => void
 ) {
-  let isModelSubsribed = false;
   const stopWatch = watch(
     getModel,
     (value, oldValue) => {
       if (value && onModelChanged) onModelChanged(value, oldValue);
       if (oldValue) {
-        unMakeReactive(oldValue, isModelSubsribed);
+        unMakeReactive(oldValue);
         if (clean) clean(oldValue);
       }
 
-      isModelSubsribed = makeReactive(value);
+      makeReactive(value);
     },
     {
       immediate: true,
@@ -93,7 +97,7 @@ export function useBase<T extends Base>(
   onBeforeUnmount(() => {
     const model = getModel();
     if (model) {
-      unMakeReactive(model, isModelSubsribed);
+      unMakeReactive(model);
       if (clean) clean(model);
       stopWatch();
     }

@@ -19213,6 +19213,59 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
   }], "topBottom pages center");
 });
 
+QUnit.test("getContainerContent - show advinced hader on start page", function (assert) {
+  surveyCss.currentType = "defaultV2";
+  const json = {
+    showNavigationButtons: "none",
+    "firstPageIsStarted": true,
+    title: "My title",
+    pages: [
+      {
+        "elements": [
+          {
+            required: true,
+            "type": "rating",
+            "name": "satisfaction",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  const getContainerContent = getContainerContentFunction(survey);
+
+  assert.deepEqual(getContainerContent("header"), [], "empty header");
+  assert.deepEqual(getContainerContent("footer"), [], "empty footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "empty contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "empty contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "empty left");
+  assert.deepEqual(getContainerContent("right"), [], "empty right");
+  assert.deepEqual(getContainerContent("center"), [], "empty center");
+
+  survey.headerView = "advanced";
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header",
+    "index": -100
+  }], "advanced header");
+  assert.deepEqual(getContainerContent("footer"), [], "advanced footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "advanced contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "advanced contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "advanced left");
+  assert.deepEqual(getContainerContent("right"), [], "advanced right");
+  assert.deepEqual(getContainerContent("center"), [], "advanced center");
+});
+
 QUnit.test("survey.runExpressions(), #7694", function (assert) {
   function func1(params: any[]): any {
     return 1;

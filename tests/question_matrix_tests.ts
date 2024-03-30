@@ -226,8 +226,8 @@ QUnit.test("rows, ItemValue.enableIf", (assert) => {
 });
 QUnit.test("rows.class, ItemValue.enableIf", (assert) => {
   const survey = new SurveyModel();
-  const prevCssValue = survey.css.matrix.rowDisabled;
-  survey.css.matrix.rowDisabled = "disable_val";
+  const prevCssValue = survey.css.matrix.rowReadOnly;
+  survey.css.matrix.rowReadOnly = "disable_val";
   survey.fromJSON({
     elements: [
       { type: "matrix", name: "q1", columns: ["col1", "col2"], rows: [{ value: "row1", enableIf: "{q2} = 1" }, "row2"] },
@@ -265,7 +265,7 @@ QUnit.test("rows.class, ItemValue.enableIf", (assert) => {
   assert.equal(secondRow.rowClasses.indexOf("disable_val") === -1, false, "Second row css #2");
 
   if(prevCssValue) {
-    survey.css.matrix.rowDisabled = prevCssValue;
+    survey.css.matrix.rowReadOnly = prevCssValue;
   }
 });
 QUnit.test("matirix isAllRowRequired & getItemClass #7963", function (assert) {

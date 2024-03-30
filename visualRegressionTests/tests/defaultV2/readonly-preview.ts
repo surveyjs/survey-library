@@ -478,4 +478,40 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Matrix ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "matrix",
+            "name": "question1",
+            "readOnly": true,
+            "defaultValue": {
+              "Row 1": "Column 1",
+              "Row 2": "Column 2"
+            },
+            "columns": [
+              "Column 1",
+              "Column 2",
+              "Column 3"
+            ],
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }
+        ]
+      });
+
+      await takeElementScreenshot("readonly-matrix-single.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-matrix-single.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
 });

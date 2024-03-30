@@ -1010,7 +1010,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       .append(cssClasses.titleOnError, this.containsErrors).toString();
   }
   public get isDisabledStyle(): boolean {
-    return false;
+    return !this.isDefaultV2Theme && (this.isReadOnlyStyle || this.isPreviewStyle);
   }
   public get isReadOnlyStyle(): boolean {
     return this.isReadOnly && !this.isPreviewStyle;

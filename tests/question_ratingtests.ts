@@ -510,7 +510,7 @@ QUnit.test("check stars styles", (assert) => {
   q1.cssClasses.itemStarHighlighted = "sv_q_high";
   q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
   q1.cssClasses.itemStarSelected = "sv_q_selected";
-  q1.cssClasses.itemStarDisabled = "sv_q_disabled";
+  q1.cssClasses.itemStarDisabled = "";
   q1.cssClasses.itemStarReadOnly = "sv_q_readonly";
   q1.value = 2;
   assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected");
@@ -544,7 +544,7 @@ QUnit.test("check smiley styles", (assert) => {
   q1.cssClasses.itemSmileyHover = "";
   q1.cssClasses.itemSmileyHighlighted = "sv_q_high";
   q1.cssClasses.itemSmileySelected = "sv_q_selected";
-  q1.cssClasses.itemSmileyDisabled = "sv_q_disabled";
+  q1.cssClasses.itemSmileyDisabled = "";
   q1.cssClasses.itemSmileyScaleColored = "sv_q_sc";
   q1.cssClasses.itemSmileyRateColored = "sv_q_rc";
 
@@ -596,7 +596,7 @@ QUnit.test("check stars for rateValues", (assert) => {
   q1.cssClasses.itemStarHighlighted = "sv_q_high";
   q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
   q1.cssClasses.itemStarSelected = "sv_q_selected";
-  q1.cssClasses.itemStarDisabled = "sv_q_disabled";
+  q1.cssClasses.itemStarDisabled = "";
   q1.cssClasses.itemStarReadOnly = "sv_q_readonly";
   q1.value = "a_little_bit";
   assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected");
@@ -687,7 +687,7 @@ QUnit.test("check smileys styles", (assert) => {
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.cssClasses.itemSmiley = "";
   q1.cssClasses.itemSmileySelected = "sv_q_selected";
-  q1.cssClasses.itemSmileyDisabled = "sv_q_disabled";
+  q1.cssClasses.itemSmileyDisabled = "";
   q1.cssClasses.itemSmileyReadOnly = "sv_q_readonly";
   q1.cssClasses.itemSmileyHover = "sv_q_allowhover";
   q1.value = 2;

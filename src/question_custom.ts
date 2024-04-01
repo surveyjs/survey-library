@@ -245,6 +245,11 @@ export interface ICustomQuestionTypeConfiguration {
    * @see questionJSON
    */
   createQuestion?: any;
+  /**
+   * A function that allows you to display different error texts based on conditions.
+   * @param question A custom question. Use the `question.value` property to access the question's value.
+   * @returns An error text.
+   */
   validate?: (question: Question) => string;
   valueToQuestion?: (val: any) => any;
   valueFromQuestion?: (val: any) => any;

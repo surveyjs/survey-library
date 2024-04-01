@@ -2,7 +2,7 @@
     <ng-container *ngIf="question.showPreviewContainer">
         <div [class]="question.cssClasses.fileList || undefined">
             <span *ngFor="let val of question.previewValue; index as index; trackBy: trackFilesFn"
-                [visible]="val && question.isPreviewVisible(index)" [class]="question.cssClasses.preview">
+                [visible]="val && question.isPreviewVisible(index)" [class]="question.cssClasses.previewItem">
                 <div *ngIf="val.name && question.cssClasses.fileSign" [class]="question.cssClasses.fileSign">
                     <a (click)="question.doDownloadFile($event, val)" [attr.href]="val.content | safeUrl"
                         [attr.title]="val.name" [attr.download]="val.name" [style.width]="question.imageWidth">{{

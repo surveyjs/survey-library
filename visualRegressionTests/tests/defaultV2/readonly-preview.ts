@@ -514,4 +514,40 @@ frameworks.forEach(framework => {
     });
   });
 
+  test.only("File ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "file",
+            "titleLocation": "hidden",
+            "name": "files",
+            "storeDataAsText": false,
+            "waitForUpload": true,
+            "allowMultiple": true,
+            "maxSize": 102400,
+            "hideNumber": true,
+            "readOnly": true,
+            defaultValue: [
+              {
+                "name": "File.png",
+                "type": "image/png",
+                "content": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+              }
+            ],
+          }
+        ]
+      });
+
+      await takeElementScreenshot("readonly-file.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-file.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
 });

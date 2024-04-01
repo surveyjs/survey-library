@@ -186,7 +186,7 @@
   width: 100%;
 }
 
-.sd-file__preview {
+.sd-file__preview-item {
   position: relative;
   display: flex;
   align-items: stretch;
@@ -412,4 +412,28 @@
 .sd-file__choose-file-btn--disabled {
   opacity: 0.25;
   cursor: default;
+}
+
+.sd-file--readonly {
+  .sd-context-btn {
+    display: none;
+  }
+
+  .sd-file__decorator {
+    border-color: transparent;
+  }
+}
+
+.sd-file--preview {
+  .sd-context-btn {
+    display: none;
+  }
+
+  .sd-file__decorator {
+    border-color: transparent;
+  }
+
+  .sd-file__image-wrapper {
+    background: transparent;
+  }
 }

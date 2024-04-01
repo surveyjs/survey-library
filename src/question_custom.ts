@@ -250,7 +250,7 @@ export interface ICustomQuestionTypeConfiguration {
    * @param question A custom question. Use the `question.value` property to access the question's value.
    * @returns An error text.
    */
-  validate?: (question: Question) => string;
+  getErrorText?: (question: Question) => string;
   valueToQuestion?: (val: any) => any;
   valueFromQuestion?: (val: any) => any;
   getValue?: (val: any) => any;
@@ -318,9 +318,9 @@ export class ComponentQuestionJSON {
     if (!this.json.onValueChanging) return newValue;
     return this.json.onValueChanging(question, name, newValue);
   }
-  public onValidate(question: Question): string {
-    if (!this.json.validate) return undefined;
-    return this.json.validate(question);
+  public onGetErrorText(question: Question): string {
+    if (!this.json.getErrorText) return undefined;
+    return this.json.getErrorText(question);
   }
   public onItemValuePropertyChanged(
     question: Question,
@@ -614,7 +614,7 @@ export abstract class QuestionCustomModelBase extends Question
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged);
     if (!!this.customQuestion) {
-      const text = this.customQuestion.onValidate(this);
+      const text = this.customQuestion.onGetErrorText(this);
       if(!!text) {
         errors.push(new CustomError(text, this));
       }

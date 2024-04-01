@@ -3037,7 +3037,7 @@ QUnit.test("Single: validate", function (assert) {
   ComponentCollection.Instance.add({
     name: "test",
     questionJSON: { type: "dropdown", choices: [1, 2, 3] },
-    validate: (question): string => {
+    getErrorText: (question): string => {
       if(question.value !== 1) {
         errorText = "val";
         return "value should be 1";
@@ -3075,7 +3075,7 @@ QUnit.test("Composite: validate", function (assert) {
         question.contentPanel.getQuestionByName("q3").value = newValue;
       }
     },
-    validate: (question): string => {
+    getErrorText: (question): string => {
       const q1 = question.contentPanel.getQuestionByName("q1");
       const q3 = question.contentPanel.getQuestionByName("q3");
       if(!q1.isEmpty() && q3.isEmpty()) return "Select q2";

@@ -1,4 +1,4 @@
-import { _setIsTouch, Question } from "survey-core";
+import { _setIsTouch, Question, settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -313,6 +313,33 @@ registerMarkupTests(
       snapshot: "dropdown-input-string",
     },
     {
+      name: "Test Dropdown question without textWrapEnabled",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "textWrapEnabled": false,
+            "choices": [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+            ],
+            titleLocation: "hidden",
+          }
+        ]
+      },
+      initSurvey: (survey) => {
+        survey.focusFirstQuestionAutomatic = false;
+        survey.getQuestionByName("name")["popupModel"];
+        survey.getQuestionByName("name")["dropdownListModel"].inputStringRendered = "o";
+      },
+      timeout: 300,
+      removeIds: true,
+      snapshot: "dropdown-without-textWrapEnabled",
+    },
+    {
       name: "Test Dropdown question input focused",
       json: {
         questions: [
@@ -356,7 +383,8 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => { Question["questionCounter"] = 100; },
+      before: () => {
+        Question["questionCounter"] = 100; },
       initSurvey: (survey) => {
         const dropdown = survey.getQuestionByName("name");
         dropdown["popupModel"].isVisible = true;

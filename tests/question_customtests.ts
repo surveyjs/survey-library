@@ -15,6 +15,8 @@ import { ItemValue } from "../src/itemvalue";
 import { LocalizableString } from "../src/localizablestring";
 import { PanelModel } from "../src/panel";
 import { StylesManager } from "../src/stylesmanager";
+import { ArrayChanges, Base } from "../src/base";
+import { QuestionFileModel } from "../src/question_file";
 
 export default QUnit.module("custom questions");
 
@@ -25,12 +27,17 @@ QUnit.test("Single: Register and load from json", function (assert) {
   };
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
-    elements: [{ type: "newquestion", name: "q1" }],
+    elements: [{ type: "newquestion", name: "q1", title: "my title" }],
   });
   assert.equal(survey.getAllQuestions().length, 1, "Question is created");
   var q = <QuestionCustomModel>survey.getAllQuestions()[0];
   assert.equal(q.getType(), "newquestion", "type is correct");
   assert.equal(q.name, "q1", "name is correct");
+  const propName = Serializer.findProperty("newquestion", "name");
+  assert.equal(propName.getValue(q), "q1", "prop.name is correct");
+  assert.equal(q.getPropertyValue("name"), "q1", "getPropertyValue is correct");
+  assert.equal(Serializer.getObjPropertyValue(q, "name"), "q1", "getObjPropertyValue is correct, #name");
+  assert.equal(Serializer.getObjPropertyValue(q, "title"), "my title", "getObjPropertyValue is correct, #title");
   assert.equal(
     q.contentQuestion.getType(),
     "dropdown",
@@ -41,7 +48,7 @@ QUnit.test("Single: Register and load from json", function (assert) {
     survey.toJSON(),
     {
       pages: [
-        { name: "page1", elements: [{ type: "newquestion", name: "q1" }] },
+        { name: "page1", elements: [{ type: "newquestion", name: "q1", title: "my title" }] },
       ],
     },
     "Seralized correctly"
@@ -1790,6 +1797,35 @@ QUnit.test("Composite: change locale, Bug#2730", function (assert) {
   survey.locale = "";
   ComponentCollection.Instance.clear();
 });
+QUnit.test("getUsedLocale, Bug#7510", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "comp1",
+    questionJSON: {
+      type: "text",
+      title: { en: "Title en", de: "Title de" }
+    }
+  });
+  ComponentCollection.Instance.add({
+    name: "comp2",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "q1",
+        title: { en: "Title en", fr: "Title fr" }
+      },
+      {
+        type: "text",
+        name: "q2",
+        title: { en: "Title en", it: "Title it" }
+      },
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "comp1", name: "q1" }, { type: "comp2", name: "q2" }],
+  });
+  assert.deepEqual(survey.getUsedLocales(), ["en", "de", "fr", "it"], "Pick-up locales from components");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("getDisplayValue from component JSON function", function (assert) {
   var json = {
     name: "fullname",
@@ -2229,6 +2265,38 @@ QUnit.test("Composite: with expression", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: with setValueIf & setValueExpression, bug#7888", function (assert) {
+  const json = {
+    name: "comp1",
+    elementsJSON: [
+      {
+        "type": "text",
+        "name": "q1"
+      },
+      {
+        "type": "text",
+        "name": "q2",
+        "enableIf": "{composite.q1} notempty",
+        "setValueIf": "{composite.q1} notempty",
+        "setValueExpression": "{composite.q1} + {composite.q1}"
+      }
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({ elements: [{ type: "comp1", name: "question1" }] });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const q1 = q.contentPanel.getQuestionByName("q1");
+  const q2 = q.contentPanel.getQuestionByName("q2");
+  assert.equal(q2.isEmpty(), true, "#1");
+  q1.value = 1;
+  assert.equal(q2.value, 2, "#2");
+  q1.value = 3;
+  assert.equal(q2.value, 6, "#3");
+  q1.clearValue();
+  assert.equal(q2.value, 6, "#4");
+
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: check valueToData and valueFromData callbacks", function (assert) {
   const json = {
     name: "test",
@@ -2388,6 +2456,38 @@ QUnit.test("Composite & valueToQuestion/valueFromQuestion, #6475", function (ass
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("needResponsiveWidth", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "comp1",
+    internal: true,
+    questionJSON: { type: "matrixdropdown" },
+  });
+  ComponentCollection.Instance.add({
+    name: "comp2",
+    questionJSON: { type: "text" },
+  });
+  ComponentCollection.Instance.add({
+    name: "comp3",
+    elementsJSON: [{ type: "text", name: "q1" }]
+  });
+  ComponentCollection.Instance.add({
+    name: "comp4",
+    elementsJSON: [{ type: "matrixdropdown", name: "q1" }]
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "comp1", name: "q1" },
+      { type: "comp2", name: "q2" },
+      { type: "comp3", name: "q3" },
+      { type: "comp4", name: "q4" }
+    ]
+  });
+  assert.equal(survey.getQuestionByName("q1").needResponsiveWidth(), true, "single - matrix");
+  assert.equal(survey.getQuestionByName("q2").needResponsiveWidth(), false, "single - text");
+  assert.equal(survey.getQuestionByName("q3").needResponsiveWidth(), false, "complex - text");
+  assert.equal(survey.getQuestionByName("q4").needResponsiveWidth(), true, "single - matrix");
+  ComponentCollection.Instance.clear(true);
+});
 QUnit.test("Single & getValue/setValue, #6475", function (assert) {
   ComponentCollection.Instance.add({
     name: "singleq",
@@ -2543,5 +2643,469 @@ QUnit.test("Allow to add question via addNewQuestion for component, but not for 
   const q3 = survey.pages[0].addNewQuestion("matrixdropdownbase", "q3");
   assert.ok(q2, "component created");
   assert.notOk(q3, "matrixdropdownbase is not created");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("text placeholder is not updated on changing locale", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    questionJSON: {
+      type: "text",
+      placeholder: { en: "en-TextPH", de: "de-TextPH" },
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const contentQuestion = <QuestionTextModel>q1.contentQuestion;
+  assert.equal(contentQuestion.renderedPlaceholder, "en-TextPH", "en placeholder");
+  survey.locale = "de";
+  assert.equal(contentQuestion.renderedPlaceholder, "de-TextPH", "de placeholder");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("showPreview & default value, #7508", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    questionJSON: {
+      type: "text",
+      defaultValue: "abc"
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const contentQuestion = <QuestionTextModel>q1.contentQuestion;
+  assert.equal(q1.value, "abc", "q1.value #1");
+  assert.equal(contentQuestion.value, "abc", "contentQuestion.value #1");
+  contentQuestion.value = "edf";
+  assert.equal(q1.value, "edf", "q1.value #2");
+  assert.equal(contentQuestion.value, "edf", "contentQuestion.value #2");
+  survey.showPreview();
+  assert.equal(q1.value, "edf", "q1.value #3");
+  assert.equal(contentQuestion.value, "edf", "contentQuestion.value #3");
+  const q1Preview = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const contentQuestionPreview = <QuestionTextModel>q1.contentQuestion;
+  assert.equal(q1Preview.value, "edf", "q1Preview.value #3");
+  assert.equal(contentQuestionPreview.value, "edf", "contentQuestionPreview.value #3");
+  survey.cancelPreview();
+  assert.equal(q1.value, "edf", "q1.value #4");
+  assert.equal(contentQuestion.value, "edf", "contentQuestion.value #4");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("showPreview & default value, #7640", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    questionJSON: {
+      type: "text",
+      title: "abc={abc}"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const contentQuestion = <QuestionTextModel>q1.contentQuestion;
+  survey.setVariable("abc", 123);
+  assert.equal(contentQuestion.locTitle.renderedHtml, "abc=123", "contentQuestion.title");
+  assert.equal(q1.locTitle.renderedHtml, "abc=123", "q1.title");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("single component: defaultQuestionTitle", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    defaultQuestionTitle: {
+      en: "abc={abc} en",
+      de: "abc={abc} de",
+    },
+    questionJSON: {
+      type: "text"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  survey.setVariable("abc", 123);
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 en", "q1.title en");
+  survey.locale = "de";
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 de", "q1.title de");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("composite component: defaultQuestionTitle", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    defaultQuestionTitle: {
+      en: "abc={abc} en",
+      de: "abc={abc} de",
+    },
+    elementsJSON: {
+      type: "text"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  survey.setVariable("abc", 123);
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 en", "q1.title en");
+  survey.locale = "de";
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 de", "q1.title de");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("single component: inheritBaseProps: array<string>", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customdropdown",
+    inheritBaseProps: ["allowClear", "showOtherItem"],
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3]
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customdropdown", name: "q1", allowClear: false, showOtherItem: true }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const content = <QuestionDropdownModel>q1.contentQuestion;
+  assert.equal(q1.allowClear, false, "q1.allowClear #1");
+  assert.equal(content.allowClear, false, "content.allowClear #1");
+  q1.allowClear = true;
+  assert.equal(q1.allowClear, true, "q1.allowClear #2");
+  assert.equal(content.allowClear, true, "content.allowClear #2");
+  content.allowClear = false;
+  assert.equal(q1.allowClear, false, "q1.allowClear #3");
+  assert.equal(content.allowClear, false, "content.allowClear #3");
+
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #1");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #1");
+  q1.showOtherItem = false;
+  assert.equal(q1.showOtherItem, false, "q1.showOtherItem #2");
+  assert.equal(content.showOtherItem, false, "content.showOtherItem #2");
+  content.showOtherItem = true;
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #3");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #3");
+  const json = q1.toJSON();
+  assert.equal(json.allowClear, false, "json.allowClear");
+  assert.equal(json.showOtherItem, true, "json.showOtherItem");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("single component: inheritBaseProps: array<string> #2 + check property change notification #", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    inheritBaseProps: ["placeholder"],
+    questionJSON: {
+      type: "text",
+      placeholder: "abc"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  let propertyName = "";
+  let counter = 0;
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const content = <QuestionTextModel>q1.contentQuestion;
+  assert.equal(q1.placeholder, "abc", "q1.placeholder #1");
+  assert.equal(content.placeholder, "abc", "content.placeholder #1");
+  survey.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges): void => {
+    propertyName = name;
+    counter ++;
+  };
+  q1.placeholder = "bcd";
+  assert.equal(propertyName, "placeholder", "send notification, propertyname");
+  assert.equal(counter, 1, "send notification, counter");
+  assert.equal(q1.placeholder, "bcd", "q1.placeholder #2");
+  assert.equal(content.placeholder, "bcd", "content.placeholder #2");
+  content.placeholder = "cde";
+  assert.equal(q1.placeholder, "cde", "q1.placeholder #3");
+  assert.equal(content.placeholder, "cde", "content.placeholder #3");
+
+  const prop = Serializer.getOriginalProperty(q1, "placeholder");
+  assert.equal(prop.name, "placeholder", "prop.className is correct");
+  assert.equal(prop.isVisible("form", q1), true, "it is visible");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("single component: inheritBaseProps: true", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customdropdown",
+    inheritBaseProps: true,
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3]
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customdropdown", name: "q1", title: "my title", allowClear: false, showOtherItem: true }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  assert.equal(Serializer.getObjPropertyValue(q1, "name"), "q1", "getObjPropertyValue is correct, #name");
+  assert.equal(Serializer.getObjPropertyValue(q1, "title"), "my title", "getObjPropertyValue is correct, #title");
+  assert.equal(Serializer.getObjPropertyValue(q1, "showOtherItem"), true, "getObjPropertyValue is correct, #showOtherItem");
+  const content = <QuestionDropdownModel>q1.contentQuestion;
+  assert.equal(q1.getDynamicType(), "dropdown", "q1.getDynamicType()");
+  assert.equal(content.choices.length, 3, "content.choices");
+  assert.notOk(q1.choices, "q1.choices");
+  assert.equal(q1.allowClear, false, "q1.allowClear #1");
+  assert.equal(content.allowClear, false, "content.allowClear #1");
+  q1.allowClear = true;
+  assert.equal(q1.allowClear, true, "q1.allowClear #2");
+  assert.equal(content.allowClear, true, "content.allowClear #2");
+  content.allowClear = false;
+  assert.equal(q1.allowClear, false, "q1.allowClear #3");
+  assert.equal(content.allowClear, false, "content.allowClear #3");
+
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #1");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #1");
+  q1.showOtherItem = false;
+  assert.equal(q1.showOtherItem, false, "q1.showOtherItem #2");
+  assert.equal(content.showOtherItem, false, "content.showOtherItem #2");
+  content.showOtherItem = true;
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #3");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #3");
+  const json = q1.toJSON();
+  assert.equal(json.allowClear, false, "json.allowClear");
+  assert.equal(json.showOtherItem, true, "json.showOtherItem");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Bug with visibleIf with composite.question and panel dynamic. Bug#7771", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        "name": "q1",
+        "type": "boolean",
+      },
+      {
+        "name": "q2",
+        "type": "paneldynamic",
+        "visibleIf": "{composite.q1} = true",
+        "minPanelCount": 1,
+        "templateElements": [
+          {
+            "name": "q3",
+            "type": "text"
+          }
+        ]
+      }
+    ]
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" }
+    ]
+  });
+  const compQuestion = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const q1 = <QuestionPanelDynamicModel>compQuestion.contentPanel.getQuestionByName("q1");
+  const q2 = <QuestionPanelDynamicModel>compQuestion.contentPanel.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "isVisible #1");
+  q1.value = true;
+  assert.equal(q2.isVisible, true, "isVisible #2");
+  q2.addPanel();
+  assert.equal(q2.isVisible, true, "isVisible #3");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("file question in composite component doesn't show preview in preview mode. Bug#7826", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "file",
+        name: "file_q",
+        allowMultiple: true,
+        storeDataAsText: false
+      },
+    ]
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" },
+      { type: "file", name: "q2", storeDataAsText: false }
+    ]
+  });
+  survey.onUploadFiles.add((survey, options) => {
+    options.callback(
+      "success",
+      options.files.map((file) => {
+        return { file: file, content: file.name + "_url" };
+      })
+    );
+  });
+
+  const compQuestion = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const file_q1 = <QuestionFileModel>compQuestion.contentPanel.getQuestionByName("file_q");
+  const file_q2 = <QuestionFileModel>survey.getQuestionByName("q2");
+  file_q1.loadFiles([{ name: "f1", type: "t1" } as any]);
+  file_q2.loadFiles([{ name: "f1", type: "t1" } as any]);
+  assert.equal(file_q1.showPreviewContainer, true, "file_q1 #1");
+  assert.equal(file_q2.showPreviewContainer, true, "file_q2 #1");
+
+  survey.showPreview();
+  assert.equal(survey.state, "preview", "state #1");
+  const compQuestion_preview = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const file_q1_preview = <QuestionFileModel>compQuestion_preview.contentPanel.getQuestionByName("file_q");
+  const file_q2_preview = <QuestionFileModel>survey.getQuestionByName("q2");
+  assert.equal(file_q1_preview.showPreviewContainer, true, "file_q1_preview #1");
+  assert.equal(file_q2_preview.showPreviewContainer, true, "file_q2_preview #1");
+
+  survey.cancelPreview();
+  assert.equal(survey.state, "running", "state #2");
+  assert.equal(file_q1.showPreviewContainer, true, "file_q1 #1");
+  assert.equal(file_q2.showPreviewContainer, true, "file_q2 #1");
+
+  ComponentCollection.Instance.clear();
+});
+
+QUnit.test("Composite + Ranking", function (assert) {
+  const json = {
+    "elements": [{
+      "name": "q_composite",
+      "type": "compostite_witn_ranking"
+    }]
+  };
+  const comp_json = {
+    name: "compostite_witn_ranking",
+    showInToolbox: false,
+    internal: true,
+    elementsJSON: [
+      {
+        name: "q_ranking",
+        type: "ranking",
+        selectToRankEnabled: true,
+      }
+    ]
+  };
+  ComponentCollection.Instance.add(comp_json);
+
+  const survey = new SurveyModel(json);
+  const q_composite = survey.getQuestionByName("q_composite");
+  const q_ranking = q_composite.contentPanel.getQuestionByName("q_ranking");
+  q_ranking.choices = ["a", "b", "c", "d", "e"];
+  q_ranking.value = ["a", "b", "c"];
+
+  assert.equal(q_ranking.unRankingChoices.length, 2, "ranking value is correct (unrank list length) ['d', 'e']");
+  assert.equal(q_ranking.rankingChoices.length, 3, "ranking value is correct (rank list length) ['a', 'b', 'c'");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: showPreviewBeforeComplete Bug#8005", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3] },
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "question1" }],
+    showPreviewBeforeComplete: "showAllQuestions"
+  });
+  survey.getQuestionByName("question1").value = 1;
+  survey.showPreview();
+  assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
+  survey.completeLastPage();
+  assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: validate", function (assert) {
+  let errorText = "";
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3] },
+    getErrorText: (question): string => {
+      if(question.value !== 1) {
+        errorText = "val";
+        return "value should be 1";
+      }
+      return "";
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "question1" }],
+    showPreviewBeforeComplete: "showAllQuestions"
+  });
+  const q = survey.getQuestionByName("question1");
+  q.value = 2;
+  survey.validate();
+  assert.equal(errorText, "val", "errorText");
+  assert.equal(q.errors.length, 1, "Errors length #1");
+  assert.equal(q.errors[0].text, "value should be 1", "Error text");
+  q.value = 1;
+  assert.equal(q.errors.length, 0, "Errors length #2");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: validate", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3], visibleIf: "{composite.q1} notempty" },
+      { type: "text", name: "q3", choices: [1, 2, 3], visibleIf: "{composite.q2} notempty" }
+    ],
+    onValueChanged(question, name, newValue) {
+      if (name === "q1") {
+        question.contentPanel.getQuestionByName("q2").clearValue();
+      }
+      if (name === "q2") {
+        question.contentPanel.getQuestionByName("q3").value = newValue;
+      }
+    },
+    getErrorText: (question): string => {
+      const q1 = question.contentPanel.getQuestionByName("q1");
+      const q3 = question.contentPanel.getQuestionByName("q3");
+      if(!q1.isEmpty() && q3.isEmpty()) return "Select q2";
+      return "";
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" },
+      { type: "test", name: "q2", isRequired: true }
+    ]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCompositeModel>survey.getQuestionByName("q2");
+  survey.validate();
+  assert.equal(q1.errors.length, 0, "q1 errors #1");
+  assert.equal(q2.errors.length, 1, "q2 errors #1");
+  q1.contentPanel.getQuestionByName("q1").value = "val";
+  q2.contentPanel.getQuestionByName("q1").value = "val";
+  survey.validate();
+  assert.equal(q1.errors.length, 1, "q1 errors #2");
+  assert.equal(q1.errors[0].text, "Select q2", "q1 errors text #2");
+  assert.equal(q2.errors.length, 1, "q2 errors #2");
+  assert.equal(q2.errors[0].text, "Select q2", "q2 errors text #2");
+  q1.contentPanel.getQuestionByName("q2").value = 1;
+  q2.contentPanel.getQuestionByName("q2").value = 2;
+  assert.equal(q1.contentPanel.getQuestionByName("q3").value, 1, "q1.q3 value");
+  assert.equal(q2.contentPanel.getQuestionByName("q3").value, 2, "q2.q3 value");
+  survey.validate();
+  assert.equal(q1.errors.length, 0, "q1 errors #3");
+  assert.equal(q2.errors.length, 0, "q2 errors #3");
   ComponentCollection.Instance.clear();
 });

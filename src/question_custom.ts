@@ -1,5 +1,6 @@
 import { Question, IConditionObject } from "./question";
-import { Serializer, CustomPropertiesCollection } from "./jsonobject";
+import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
+import { Base, ArrayChanges } from "./base";
 import {
   ISurveyImpl,
   ISurveyData,
@@ -16,6 +17,9 @@ import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { LocalizableString } from "./localizablestring";
+import { SurveyError } from "./survey-error";
+import { CustomError } from "./error";
 
 /**
  * An interface used to create custom question types.
@@ -50,13 +54,47 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onInit?(): void;
   /**
-   * Specifies whether the custom question type is available in the Toolbox and the Add Question menu.
+   * Specifies whether the custom question type is available in the Toolbox and the Add Question menu in Survey Creator.
    *
    * Default value: `true`
    *
    * Set this property to `false` if your custom question type is used only to customize Property Grid content and is not meant for a survey.
    */
   showInToolbox?: boolean;
+  /**
+   * A default title for questions created with this question type. Survey authors can change the default title in the JSON object or in Survey Creator's Property Grid.
+   *
+   * You can specify the question title with a string value or with an object that defines different titles for different locales:
+   *
+   * ```js
+   * import { ComponentCollection } from "survey-core";
+   *
+   * ComponentCollection.Instance.add({
+   *   // ...
+   *   defaultQuestionTitle: "Default title"
+   * });
+   * // ===== OR =====
+   * ComponentCollection.Instance.add({
+   *   // ...
+   *   defaultQuestionTitle: {
+   *     en: "Default title",
+   *     de: "Standardtitel",
+   *     fr: "Titre par défaut"
+   *   }
+   * });
+   * ```
+   */
+  defaultQuestionTitle?: any;
+  /**
+   * An array of property names to inherit from a base question or a Boolean value that specifies whether or not to inherit all properties.
+   *
+   * Default value: `false`
+   *
+   * When you create a [custom specialized question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types), you base it on another question type configured within the [`questionJSON`](#questionJSON) object. If the custom question type should inherit all properties from the base type, set the `inheritBaseProps` property to `true`. If you want to inherit only certain properties, set the `inheritBaseProps` property to an array of their names.
+   *
+   * [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types (linkStyle))
+   */
+  inheritBaseProps?: false | true | Array<string>;
   /**
    * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
    *
@@ -207,6 +245,12 @@ export interface ICustomQuestionTypeConfiguration {
    * @see questionJSON
    */
   createQuestion?: any;
+  /**
+   * A function that allows you to display different error texts based on conditions.
+   * @param question A custom question. Use the `question.value` property to access the question's value.
+   * @returns An error text.
+   */
+  getErrorText?: (question: Question) => string;
   valueToQuestion?: (val: any) => any;
   valueFromQuestion?: (val: any) => any;
   getValue?: (val: any) => any;
@@ -214,6 +258,7 @@ export interface ICustomQuestionTypeConfiguration {
 }
 
 export class ComponentQuestionJSON {
+  private dynamicProperties: Array<JsonObjectProperty>;
   public constructor(public name: string, public json: ICustomQuestionTypeConfiguration) {
     var self = this;
     Serializer.addClass(
@@ -273,6 +318,10 @@ export class ComponentQuestionJSON {
     if (!this.json.onValueChanging) return newValue;
     return this.json.onValueChanging(question, name, newValue);
   }
+  public onGetErrorText(question: Question): string {
+    if (!this.json.getErrorText) return undefined;
+    return this.json.getErrorText(question);
+  }
   public onItemValuePropertyChanged(
     question: Question,
     item: ItemValue,
@@ -292,6 +341,9 @@ export class ComponentQuestionJSON {
     if (!this.json.getDisplayValue) return question.getDisplayValue(keyAsText, value);
     return (this.json as any).getDisplayValue(question);
   }
+  public get defaultQuestionTitle(): any {
+    return this.json.defaultQuestionTitle;
+  }
   public setValueToQuestion(val: any): any {
     const converter = this.json.valueToQuestion || this.json.setValue;
     return !!converter ? converter(val): val;
@@ -302,6 +354,33 @@ export class ComponentQuestionJSON {
   }
   public get isComposite(): boolean {
     return !!this.json.elementsJSON || !!this.json.createElements;
+  }
+  public getDynamicProperties(): Array<JsonObjectProperty> {
+    if(!Array.isArray(this.dynamicProperties)) {
+      this.dynamicProperties = this.calcDynamicProperties();
+    }
+    return this.dynamicProperties;
+  }
+  private calcDynamicProperties(): Array<JsonObjectProperty> {
+    const baseProps = this.json.inheritBaseProps;
+    if(!baseProps || !this.json.questionJSON) return [];
+    const type = this.json.questionJSON.type;
+    if(!type) return [];
+    if(Array.isArray(baseProps)) {
+      const props: Array<JsonObjectProperty> = [];
+      baseProps.forEach(name => {
+        const prop = Serializer.findProperty(type, name);
+        if(prop) {
+          props.push(prop);
+        }
+      });
+      return props;
+    }
+    const invalidNames = [];
+    for(let key in this.json.questionJSON) {
+      invalidNames.push(key);
+    }
+    return Serializer.getDynamicPropertiesByTypes(this.name, type, invalidNames);
   }
 }
 
@@ -395,10 +474,13 @@ export class ComponentCollection {
 
 export abstract class QuestionCustomModelBase extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
+  private locQuestionTitle: LocalizableString;
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name);
     CustomPropertiesCollection.createProperties(this);
     SurveyElement.CreateDisabledDesignElements = true;
+    this.locQuestionTitle = this.createLocalizableString("questionTitle", this);
+    this.locQuestionTitle.setJson(this.customQuestion.defaultQuestionTitle);
     this.createWrapper();
     SurveyElement.CreateDisabledDesignElements = false;
     if (!!this.customQuestion) {
@@ -414,8 +496,30 @@ export abstract class QuestionCustomModelBase extends Question
       this.getElement().locStrsChanged();
     }
   }
-  protected createWrapper() { }
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+  public localeChanged(): void {
+    super.locStrsChanged();
+    if(!!this.getElement()) {
+      this.getElement().localeChanged();
+    }
+  }
+  protected getDefaultTitle(): string {
+    if(!this.locQuestionTitle.isEmpty) {
+      return this.getProcessedText(this.locQuestionTitle.textOrHtml);
+    }
+    return super.getDefaultTitle();
+  }
+  public addUsedLocales(locales: Array<string>): void {
+    super.addUsedLocales(locales);
+    if(!!this.getElement()) {
+      this.getElement().addUsedLocales(locales);
+    }
+  }
+  public needResponsiveWidth(): boolean {
+    const el: any = this.getElement();
+    return !!el ? el.needResponsiveWidth() : false;
+  }
+  protected createWrapper(): void { }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (!!this.customQuestion && !this.isLoadingFromJson) {
       this.customQuestion.onPropertyChanged(this, name, newValue);
@@ -506,6 +610,15 @@ export abstract class QuestionCustomModelBase extends Question
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);
     this.updateElementCss();
+  }
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged);
+    if (!!this.customQuestion) {
+      const text = this.customQuestion.onGetErrorText(this);
+      if(!!text) {
+        errors.push(new CustomError(text, this));
+      }
+    }
   }
   //ISurveyImpl
   getSurveyData(): ISurveyData {
@@ -628,8 +741,33 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public getTemplate(): string {
     return "custom";
   }
-  protected createWrapper() {
+  public getDynamicProperties(): Array<JsonObjectProperty> {
+    return this.customQuestion.getDynamicProperties() || [];
+  }
+  public getDynamicType(): string {
+    return this.questionWrapper ? this.questionWrapper.getType() : "question";
+  }
+  public getOriginalObj(): Base {
+    return this.questionWrapper;
+  }
+  protected createWrapper(): void {
     this.questionWrapper = this.createQuestion();
+    this.createDynamicProperties(this.questionWrapper);
+    if(this.getDynamicProperties().length > 0) {
+      this.questionWrapper.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges): void => {
+        const prop = this.getDynamicProperty(name);
+        if(prop) {
+          this.propertyValueChanged(name, oldValue, newValue, arrayChanges);
+        }
+      };
+    }
+  }
+  private getDynamicProperty(name: string): JsonObjectProperty {
+    const props = this.getDynamicProperties();
+    for(let i = 0; i < props.length; i ++) {
+      if(props[i].name === name) return props[i];
+    }
+    return null;
   }
   protected getElement(): SurveyElement {
     return this.contentQuestion;
@@ -644,7 +782,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     return this.contentQuestion;
   }
   protected getDefaultTitle(): string {
-    if(this.hasJSONTitle && this.contentQuestion) return this.contentQuestion.title;
+    if(this.hasJSONTitle && this.contentQuestion) {
+      return this.getProcessedText(this.contentQuestion.title);
+    }
     return super.getDefaultTitle();
   }
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
@@ -731,11 +871,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
   }
   protected convertDataName(name: string): string {
-    if (!this.contentQuestion) return super.convertDataName(name);
-    var newName = name.replace(
-      this.contentQuestion.getValueName(),
-      this.getValueName()
-    );
+    const q = this.contentQuestion;
+    if (!q || name === this.getValueName()) return super.convertDataName(name);
+    var newName = name.replace(q.getValueName(), this.getValueName());
     return newName.indexOf(this.getValueName()) == 0
       ? newName
       : super.convertDataName(name);
@@ -786,6 +924,13 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       (<any>this.contentQuestion).setValueChangedDirectly(val);
     }
     this.isSettingValueChanged = false;
+  }
+  private createDynamicProperties(el: SurveyElement): void {
+    if(!el) return;
+    const props = this.getDynamicProperties();
+    if(Array.isArray(props)) {
+      Serializer.addDynamicPropertiesIntoObj(this, el, props);
+    }
   }
   protected initElement(el: SurveyElement): void {
     super.initElement(el);
@@ -971,6 +1116,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       }
     }
   }
+  onSurveyValueChanged(newValue: any): void {
+    super.onSurveyValueChanged(newValue);
+    const val = !!newValue ? newValue : {};
+    if (!!this.contentPanel) {
+      this.contentPanel.questions.forEach(q => {
+        q.onSurveyValueChanged(val[q.getValueName()]);
+      });
+    }
+  }
   getValue(name: string): any {
     var val = this.value;
     return !!val ? val[name] : null;
@@ -994,6 +1148,23 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.setNewValueIntoQuestion(name, newValue);
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
+    this.runPanelTriggers(QuestionCompositeModel.ItemVariableName + "." + name, newValue);
+  }
+  private runPanelTriggers(name: string, value: any): void {
+    if(!!this.contentPanel) {
+      this.contentPanel.questions.forEach(q => {
+        q.runTriggers(name, value);
+      });
+    }
+  }
+  getFilteredValues(): any {
+    const values = !!this.data ? this.data.getFilteredValues() : {};
+    if (!!this.contentPanel) {
+      values[
+        QuestionCompositeModel.ItemVariableName
+      ] = this.contentPanel.getValue();
+    }
+    return values;
   }
   private updateValueCoreWithPanelValue(): boolean {
     const panelValue = this.getContentPanelValue();

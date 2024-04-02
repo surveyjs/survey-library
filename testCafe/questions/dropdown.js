@@ -696,21 +696,20 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, jsonWithDropDown);
 
     await t
-      .pressKey("enter")
+      .pressKey("down")
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
       .expect(questionValueInput.value).eql("Nissan")
 
-      .pressKey("enter")
+      .pressKey("down")
       .expect(popupContainer.visible).ok()
       .pressKey("up")
       .pressKey("enter")
       .expect(popupContainer.visible).notOk()
       .expect(questionValueInput.value).eql("Volkswagen")
 
-      .pressKey("tab")
       .pressKey("tab")
       .pressKey("2")
       .pressKey("down")
@@ -836,7 +835,7 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, jsonWithDropDown);
 
     await t
-      .pressKey("enter")
+      .pressKey("down")
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
@@ -850,7 +849,6 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk()
       .expect(questionValueText.textContent).eql("Volkswagen")
 
-      .pressKey("tab")
       .pressKey("tab")
       .pressKey("down")
       .pressKey("down")
@@ -1283,7 +1281,7 @@ frameworks.forEach((framework) => {
     await t
       .resizeWindow(1280, 600)
 
-      .pressKey("enter")
+      .pressKey("down")
       .expect(focusedItem.exists).ok()
       .expect(focusedItem.textContent).eql("item1")
       .expect(popupContainer.nth(0).visible).ok()
@@ -1434,7 +1432,7 @@ frameworks.forEach((framework) => {
     await t
       .resizeWindow(1280, 900)
 
-      .pressKey("enter")
+      .pressKey("down")
       .expect(dropdown1.find(".sv-list__empty-container").visible).ok()
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
       .expect(listItems.filterVisible().count).eql(0)
@@ -1698,7 +1696,7 @@ frameworks.forEach((framework) => {
 
     await t
       .expect(popupContainer.visible).notOk()
-      .pressKey("enter")
+      .pressKey("down")
       .expect(popupContainer.visible).ok()
       .expect(input.value).eql("item1")
       .expect(str.visible).notOk()
@@ -2068,6 +2066,69 @@ frameworks.forEach((framework) => {
 
       .click(Selector(".sd-boolean__label").withText("Yes"))
       .expect(Selector(".sd-boolean__thumb-text").withText("Yes").visible).ok()
+      .expect(popupContainer.visible).notOk();
+  });
+
+  test.page(`${url_test}${theme}/${framework}`)("focusOnFirstError bricks dropdown popup if any errors are on the same page", async (t) => {
+    await t.resizeWindow(800, 600);
+    const json = {
+      pages: [
+        {
+          name: "Seite1",
+          elements: [
+            {
+              type: "dropdown",
+              name: "Anrede",
+              title: "Anrede",
+              choices: [
+                {
+                  value: "Item 1",
+                  text: "Frau",
+                },
+                {
+                  value: "Item 2",
+                  text: "Herr",
+                },
+                {
+                  value: "Item 3",
+                  text: "keine Angabe",
+                },
+                {
+                  value: "Item 4",
+                  text: "Divers",
+                },
+                {
+                  value: "Item 5",
+                  text: "Firma",
+                },
+              ],
+            },
+            {
+              type: "text",
+              name: "Nachname",
+              title: "Nachname",
+              isRequired: true,
+            },
+          ],
+        },
+      ],
+      focusOnFirstError: true,
+    };
+    await initSurvey(framework, json, {
+      "onValueChanged": (surveyModel) => { surveyModel.hasErrors(false, true); }
+    });
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const textQuestion = Selector(".sd-input.sd-text");
+    await t
+      .expect(textQuestion.focused).notOk()
+
+      .click(questionDropdownV2Select)
+      .expect(popupContainer.visible).ok()
+
+      .click(getListItemByText("Herr"))
+      .expect(textQuestion.focused).ok()
       .expect(popupContainer.visible).notOk();
   });
 });

@@ -28,7 +28,7 @@ export class RatingItemSmiley extends RatingItemBase {
           aria-required={this.question.ariaRequired}
           aria-label={this.question.ariaLabel}
           aria-invalid={this.question.ariaInvalid}
-          aria-describedby={this.question.ariaDescribedBy}
+          aria-errormessage={this.question.ariaErrormessage}
         />
         <SvgIcon
           size={"auto"}

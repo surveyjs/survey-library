@@ -9,6 +9,8 @@ export var norwegianSurveyStrings = {
   startSurveyText: "Start",
   otherItemText: "Annet (beskriv)",
   noneItemText: "Ingen",
+  refuseItemText: "Nekter å svare",
+  dontKnowItemText: "Vet ikke",
   selectAllItemText: "Velg alle",
   progressText: "Side {0} av {1}",
   indexText: "{0} av {1}",
@@ -25,6 +27,7 @@ export var norwegianSurveyStrings = {
   requiredError: "Vennligst svar på spørsmålet.",
   requiredErrorInPanel: "Vennligst svar på minst ett spørsmål.",
   requiredInAllRowsError: "Vennligst svar på spørsmål i alle rader.",
+  eachRowUniqueError: "Hver rad må ha en unik verdi.",
   numericError: "Verdien skal være numerisk.",
   minError: "Verdien bør ikke være mindre enn {0}",
   maxError: "Verdien bør ikke være større enn {0}",
@@ -42,6 +45,7 @@ export var norwegianSurveyStrings = {
   urlRequestError: "Forespørselen returnerte feilen '{0}'. {1}",
   urlGetChoicesError: "Forespørselen returnerte tomme data, eller 'sti' -egenskapen er feil",
   exceedMaxSize: "Filstørrelsen bør ikke overstige {0}.",
+  noUploadFilesHandler: "Filer kan ikke lastes opp. Legg til et behandlingsprogram for onUploadFiles-hendelsen.",
   otherRequiredError: "Vennligst skriv inn den andre verdien.",
   uploadingFile: "Filen din lastes opp. Vennligst vent noen sekunder og prøv igjen.",
   loadingFile: "Laster inn ...",
@@ -56,6 +60,8 @@ export var norwegianSurveyStrings = {
   emptyRowsText: "Det er ingen rader.",
   addPanel: "Legg til ny",
   removePanel: "Fjerne",
+  showDetails: "Vis detaljer",
+  hideDetails: "Skjul detaljer",
   choices_Item: "element",
   matrix_column: "Kolonne",
   matrix_row: "Rad",
@@ -94,7 +100,9 @@ export var norwegianSurveyStrings = {
   more: "Mer",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Alle valg er rangert",
-  selectToRankEmptyUnrankedAreaText: "Dra og slipp valg her for å rangere dem"
+  selectToRankEmptyUnrankedAreaText: "Dra og slipp valg her for å rangere dem",
+  ok: "OK",
+  cancel: "Annullere"
 };
 
 surveyLocalization.locales["no"] = norwegianSurveyStrings;
@@ -123,4 +131,11 @@ surveyLocalization.localeNames["no"] = "norsk";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra og slipp valg her for å rangere dem"// takePhotoCaption: "Take Photo" => "Ta bilde"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Klikk på knappen nedenfor for å ta et bilde med kameraet."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dra og slipp eller velg en fil for å laste opp eller ta et bilde med kameraet."
-// replaceFileCaption: "Replace file" => "Erstatt fil"
+// replaceFileCaption: "Replace file" => "Erstatt fil"// eachRowUniqueError: "Each row must have a unique value." => "Hver rad må ha en unik verdi."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Filer kan ikke lastes opp. Legg til et behandlingsprogram for onUploadFiles-hendelsen."
+// showDetails: "Show Details" => "Vis detaljer"
+// hideDetails: "Hide Details" => "Skjul detaljer"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Annullere"
+// refuseItemText: "Refuse to answer" => "Nekter å svare"
+// dontKnowItemText: "Don't know" => "Vet ikke"

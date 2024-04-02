@@ -37,13 +37,26 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     if (!this.model.hasActions) return;
     const container: HTMLDivElement | null = this.rootRef.current;
     if(!!container) {
-      this.model.initResponsivityManager(container);
+      this.model.initResponsivityManager(container, (callback) => { setTimeout(callback); });
     }
   }
   componentWillUnmount() {
     super.componentWillUnmount();
     if (!!this.model.hasActions) {
       this.model.resetResponsivityManager();
+    }
+  }
+  componentDidUpdate(prevProps: IActionBarProps, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    if(prevProps.model == this.props.model) {
+      return;
+    }
+    if (!!this.model.hasActions) {
+      this.model.resetResponsivityManager();
+      const container: HTMLDivElement | null = this.rootRef.current;
+      if(!!container) {
+        this.model.initResponsivityManager(container, (callback) => { setTimeout(callback); });
+      }
     }
   }
 

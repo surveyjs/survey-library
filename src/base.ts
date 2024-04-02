@@ -9,7 +9,7 @@ import {
 } from "./jsonobject";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
-import { IElement, IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
+import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
 import { surveyLocalization } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
@@ -19,7 +19,6 @@ interface IExpressionRunnerInfo {
   canRun?: (obj: Base) => boolean;
   runner?: ExpressionRunner;
 }
-
 export class Bindings {
   private properties: Array<JsonObjectProperty> = null;
   private values: any = null;
@@ -211,13 +210,23 @@ export class Base {
    * Returns `true` if a passed `value` is an empty string, array, or object or if it equals to `undefined` or `null`.
    *
    * @param value A value to be checked.
-   * @param trimString (Optional) When this parameter is `true`, the method ignores whitespace characters at the beginning and end of a string value. Pass `false` to disable this functionality.
+   * @param trimString *(Optional)* When this parameter is `true`, the method ignores whitespace characters at the beginning and end of a string value. Pass `false` to disable this functionality.
    */
   public isValueEmpty(value: any, trimString: boolean = true): boolean {
     if (trimString) {
       value = this.trimValue(value);
     }
     return Helpers.isValueEmpty(value);
+  }
+  public equals(obj: Base): boolean {
+    if(!obj) return false;
+    if (this.isDisposed || obj.isDisposed) return false;
+    if(this.getType() != obj.getType()) return false;
+    return this.equalsCore(obj);
+  }
+  protected equalsCore(obj: Base): boolean {
+    if((<any>this).name !== (<any>obj).name) return false;
+    return Helpers.isTwoValueEquals(this.toJSON(), obj.toJSON(), false, true, false);
   }
   protected trimValue(value: any): any {
     if (!!value && (typeof value === "string" || value instanceof String))
@@ -346,6 +355,9 @@ export class Base {
     const survey = this.getSurvey();
     return !!survey && survey.isDesignMode;
   }
+  public get isDesignModeV2(): boolean {
+    return settings.supportCreatorV2 && this.isDesignMode;
+  }
   /**
    * Returns `true` if the object is included in a survey.
    *
@@ -378,20 +390,20 @@ export class Base {
     if (!!this.loadingOwner && this.loadingOwner.isLoadingFromJson) return true;
     return this.isLoadingFromJsonValue;
   }
-
-  startLoadingFromJson(json?: any) {
+  startLoadingFromJson(json?: any): void {
     this.isLoadingFromJsonValue = true;
     this.jsonObj = json;
   }
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
   }
+
   /**
    * Returns a JSON object that corresponds to the current SurveyJS object.
    * @see fromJSON
    */
-  public toJSON(): any {
-    return new JsonObject().toJsonObject(this);
+  public toJSON(options?: ISaveToJSONOptions): any {
+    return new JsonObject().toJsonObject(this, options);
   }
   /**
    * Assigns a new configuration to the current SurveyJS object. This configuration is taken from a passed JSON object.
@@ -399,10 +411,12 @@ export class Base {
    * The JSON object should contain only serializable properties of this SurveyJS object. Event handlers and properties that do not belong to the SurveyJS object are ignored.
    *
    * @param json A JSON object with properties that you want to apply to the current SurveyJS object.
+   * @param options An object with configuration options.
+   * @param {boolean} options.validatePropertyValues Pass `true` if you want to validate property values. Use the [`jsonErrors`](#jsonErrors) array to access validation errors.
    * @see toJSON
    */
-  public fromJSON(json: any): void {
-    new JsonObject().toObject(json, this);
+  public fromJSON(json: any, options?: ILoadFromJSONOptions): void {
+    new JsonObject().toObject(json, this, options);
     this.onSurveyLoad();
   }
   public onSurveyLoad() { }
@@ -467,7 +481,7 @@ export class Base {
    * If the property is not found or does not have a value, this method returns either `undefined`, `defaultValue` specified in the property configuration, or a value passed as the `defaultValue` parameter.
    *
    * @param name A property name.
-   * @param defaultValue (Optional) A value to return if the property is not found or does not have a value.
+   * @param defaultValue *(Optional)* A value to return if the property is not found or does not have a value.
    */
   public getPropertyValue(name: string, defaultValue: any = null): any {
     const res = this.getPropertyValueWithoutDefault(name);
@@ -497,6 +511,7 @@ export class Base {
   public resetPropertyValue(name: string): void {
     const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
     if(locStr) {
+      this.setLocalizableStringText(name, undefined);
       locStr.clear();
     }
     else {
@@ -531,8 +546,8 @@ export class Base {
     var survey = this.getSurvey();
     return !!survey && survey.isEditingSurveyElement;
   }
-  public iteratePropertiesHash(func: (hash: any, key: any) => void) {
-    var keys: any[] = [];
+  public iteratePropertiesHash(func: (hash: any, key: string) => void) {
+    var keys: string[] = [];
     for (var key in this.propertyHash) {
       if (
         key === "value" &&
@@ -551,6 +566,9 @@ export class Base {
    * @param val A new value for the property.
    */
   public setPropertyValue(name: string, val: any): void {
+    if(name) {
+
+    }
     if(!this.isLoadingFromJson) {
       const prop = this.getPropertyByName(name);
       if(!!prop) {
@@ -644,7 +662,7 @@ export class Base {
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       if (this.onPropChangeFunctions[i].name == name)
-        this.onPropChangeFunctions[i].func(newValue);
+        this.onPropChangeFunctions[i].func(newValue, arrayChanges);
     }
   }
   public onBindingChanged(oldValue: any, newValue: any): void {
@@ -661,27 +679,21 @@ export class Base {
     arrayChanges?: ArrayChanges,
     target?: Base
   ) {
-    if (this.isInternal) return;
+    const fireCallback = (obj: Base): void => {
+      if (!!obj && !!obj.onPropertyValueChangedCallback) {
+        obj.onPropertyValueChangedCallback(name, oldValue, newValue, target, arrayChanges);
+      }
+    };
+    if (this.isInternal) {
+      fireCallback(this);
+      return;
+    }
     if (!target) target = this;
     var notifier: any = this.getSurvey();
     if (!notifier) notifier = this;
-    if (!!notifier.onPropertyValueChangedCallback) {
-      notifier.onPropertyValueChangedCallback(
-        name,
-        oldValue,
-        newValue,
-        target,
-        arrayChanges
-      );
-    }
-    if (notifier !== this && !!this.onPropertyValueChangedCallback) {
-      this.onPropertyValueChangedCallback(
-        name,
-        oldValue,
-        newValue,
-        target,
-        arrayChanges
-      );
+    fireCallback(notifier);
+    if (notifier !== this) {
+      fireCallback(this);
     }
   }
   public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean): void {
@@ -755,7 +767,7 @@ export class Base {
    * Registers a function to call when a property value changes.
    * @param propertyNames An array of one or multiple property names.
    * @param handler A function to call when one of the listed properties change.
-   * @param key (Optional) A key that identifies the current registration. If a function for one of the properties is already registered with the same key, the function will be overwritten. You can also use the key to subsequently unregister handlers.
+   * @param key *(Optional)* A key that identifies the current registration. If a function for one of the properties is already registered with the same key, the function will be overwritten. You can also use the key to subsequently unregister handlers.
    * @see unregisterPropertyChangedHandlers
    */
   public registerPropertyChangedHandlers(propertyNames: Array<string>, handler: any, key: string = null): void {
@@ -766,7 +778,7 @@ export class Base {
   /**
    * Unregisters value change event handlers for the specified properties.
    * @param propertyNames An array of one or multiple property names.
-   * @param key (Optional) A key of the registration that you want to cancel.
+   * @param key *(Optional)* A key of the registration that you want to cancel.
    * @see registerPropertyChangedHandlers
    */
   public unregisterPropertyChangedHandlers(propertyNames: Array<string>, key: string = null): void {
@@ -805,10 +817,10 @@ export class Base {
   public unRegisterFunctionOnPropertiesValueChanged(names: Array<string>, key: string = null): void {
     this.unregisterPropertyChangedHandlers(names, key);
   }
-  public createCustomLocalizableObj(name: string) {
-    var locStr = this.getLocalizableString(name);
-    if (locStr) return;
-    this.createLocalizableString(name, <ILocalizableOwner>(<any>this), false, true);
+  public createCustomLocalizableObj(name: string): LocalizableString {
+    const locStr = this.getLocalizableString(name);
+    if(locStr) return locStr;
+    return this.createLocalizableString(name, <ILocalizableOwner>(<any>this), false, true);
   }
   public getLocale(): string {
     const locOwner = this.getSurvey();
@@ -865,7 +877,7 @@ export class Base {
       // this.propertyValueChanged(name, oldValue, value);
     }
   }
-  public addUsedLocales(locales: Array<string>) {
+  public addUsedLocales(locales: Array<string>): void {
     if (!!this.localizableStrings) {
       for (let key in this.localizableStrings) {
         let item = this.getLocalizableString(key);
@@ -1134,12 +1146,12 @@ export class Base {
   }
 }
 
-export class ArrayChanges {
+export class ArrayChanges<T = any> {
   constructor(
     public index: number,
     public deleteCount: number,
-    public itemsToAdd: any[],
-    public deletedItems: any[]
+    public itemsToAdd: T[],
+    public deletedItems: T[]
   ) { }
 }
 

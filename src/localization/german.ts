@@ -9,6 +9,8 @@ export var germanSurveyStrings = {
   startSurveyText: "Start",
   otherItemText: "Sonstiges (Bitte angeben)",
   noneItemText: "Nichts trifft zu",
+  refuseItemText: "Verweigern Sie die Antwort",
+  dontKnowItemText: "Weiß ich nicht",
   selectAllItemText: "Alles auswählen",
   progressText: "Seite {0} von {1}",
   indexText: "{0} von {1}",
@@ -17,7 +19,7 @@ export var germanSurveyStrings = {
   questionsProgressText: "{0}/{1} Fragen beantwortet",
   emptySurvey: "Es sind keine Fragen vorhanden.",
   completingSurvey: "Vielen Dank, dass Sie die Umfrage abgeschlossen haben!",
-  completingSurveyBefore: "Wir haben festgestellt, dass Sie diese Umfrage bereits abgeschlossen haben.",
+  completingSurveyBefore: "Aus unseren Unterlagen geht hervor, dass Sie diese Umfrage bereits abgeschlossen haben.",
   loadingSurvey: "Umfrage wird geladen...",
   placeholder: "Bitte auswählen...",
   ratingOptionsCaption: "Tippen Sie hier, um zu bewerten...",
@@ -25,6 +27,7 @@ export var germanSurveyStrings = {
   requiredError: "Bitte beantworten Sie diese Frage.",
   requiredErrorInPanel: "Bitte beantworten Sie mindestens eine Frage.",
   requiredInAllRowsError: "Bitte beantworten Sie alle Fragen.",
+  eachRowUniqueError: "Jede Zeile muss einen eindeutigen Wert haben.",
   numericError: "Der Wert muss eine Zahl sein.",
   minError: "Der Wert sollte nicht kleiner als {0} sein",
   maxError: "Der Wert sollte nicht größer als {0} sein",
@@ -42,6 +45,7 @@ export var germanSurveyStrings = {
   urlRequestError: "Ein Netzwerkdienst hat folgenden Fehler zurückgegeben '{0}'. {1}",
   urlGetChoicesError: "Eine Netzwerkdienst hat ungültige Daten zurückgegeben",
   exceedMaxSize: "Die Datei darf nicht größer als {0} sein.",
+  noUploadFilesHandler: "Dateien können nicht hochgeladen werden. Fügen Sie einen Handler für das Ereignis 'onUploadFiles' hinzu.",
   otherRequiredError: "Bitte geben Sie einen Wert an.",
   uploadingFile: "Bitte warten Sie bis der Upload Ihrer Dateien abgeschlossen ist.",
   loadingFile: "Wird hochgeladen...",
@@ -56,6 +60,8 @@ export var germanSurveyStrings = {
   emptyRowsText: "Es gibt keine Reihen.",
   addPanel: "Neu hinzufügen",
   removePanel: "Entfernen",
+  showDetails: "Details anzeigen",
+  hideDetails: "Details ausblenden",
   choices_Item: "Element",
   matrix_column: "Spalte",
   matrix_row: "Zeile",
@@ -94,7 +100,9 @@ export var germanSurveyStrings = {
   more: "Mehr",
   tagboxDoneButtonCaption: "OKAY",
   selectToRankEmptyRankedAreaText: "Alle Auswahlmöglichkeiten sind in einer Rangfolge angeordnet",
-  selectToRankEmptyUnrankedAreaText: "Ziehen Sie die Auswahl hierher, um sie zu ordnen"
+  selectToRankEmptyUnrankedAreaText: "Ziehen Sie die Auswahl hierher, um sie zu ordnen",
+  ok: "OKAY",
+  cancel: "Abbrechen"
 };
 
 surveyLocalization.locales["de"] = germanSurveyStrings;
@@ -109,4 +117,11 @@ surveyLocalization.localeNames["de"] = "deutsch";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Ziehen Sie die Auswahl hierher, um sie zu ordnen"// takePhotoCaption: "Take Photo" => "Foto machen"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Klicken Sie auf die Schaltfläche unten, um ein Foto mit der Kamera aufzunehmen."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Ziehen Sie eine Datei per Drag & Drop oder wählen Sie sie aus, um sie hochzuladen oder ein Foto mit der Kamera aufzunehmen."
-// replaceFileCaption: "Replace file" => "Datei ersetzen"
+// replaceFileCaption: "Replace file" => "Datei ersetzen"// eachRowUniqueError: "Each row must have a unique value." => "Jede Zeile muss einen eindeutigen Wert haben."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Dateien können nicht hochgeladen werden. Fügen Sie einen Handler für das Ereignis 'onUploadFiles' hinzu."
+// showDetails: "Show Details" => "Details anzeigen"
+// hideDetails: "Hide Details" => "Details ausblenden"
+// ok: "OK" => "OKAY"
+// cancel: "Cancel" => "Abbrechen"
+// refuseItemText: "Refuse to answer" => "Verweigern Sie die Antwort"
+// dontKnowItemText: "Don't know" => "Weiß ich nicht"

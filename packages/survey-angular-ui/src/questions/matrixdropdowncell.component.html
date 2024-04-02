@@ -1,0 +1,41 @@
+<ng-template #template>
+  <td [class]="cell.className" [attr.data-responsive-title]="getHeaders()" *ngIf="canRender" [title]="cell.getTitle()"
+    [style]="getCellStyle()" [attr.colspan]="cell.colSpans" (focusin)="cell.focusIn()" #cellContainer>
+    <sv-ng-matrix-drag-drop-icon *ngIf="cell.isDragHandlerCell"
+      [model]="$any({ data: { row: row, question: question } })"></sv-ng-matrix-drag-drop-icon>
+    <sv-action-bar *ngIf="cell.isActionsCell" [model]="cell.item.getData()" [handleClick]="false"></sv-action-bar>
+    <ng-container *ngIf="cell.hasPanel">
+      <ng-template [component]="{ name: panelComponentName, data: panelComponentData }"></ng-template>
+    </ng-container>
+    <div *ngIf="cell.isErrorsCell && cell.question?.hasVisibleErrors" [element]="cell.question" sv-ng-errors></div>
+    <div *ngIf="cell.hasQuestion" [class]="cell.cellQuestionWrapperClassName"
+      [visible]="cell.question.isVisible">
+      <ng-container *ngIf="!cell.isChoice && cell.question.isDefaultRendering()">
+        <ng-template
+          [component]="{ name: question.getCellWrapperComponentName(cell.cell), data: { componentData: question.getCellWrapperComponentData(cell.cell)} }">
+          <ng-template
+            [component]="{ name: getComponentName(cell.question), data: { model: cell.question } }"></ng-template>
+        </ng-template>
+      </ng-container>
+      <ng-template *ngIf="!cell.isChoice && !cell.question.isDefaultRendering()"
+        [component]="{ name: cell.question.getComponentName(), data: { model: cell.question } }">
+      </ng-template>
+      <ng-container *ngIf="cell.isItemChoice">
+        <ng-template
+          [component]="{ name: question.getCellWrapperComponentName(cell.cell), data: { componentData: question.getCellWrapperComponentData(cell.cell)} }">
+          <sv-ng-selebase-item [showLabel]="false" [inputType]="cell.isCheckbox ? 'checkbox': 'radio'"
+            [question]="cell.question" [model]="cell.item"></sv-ng-selebase-item>
+        </ng-template>
+      </ng-container>
+      <div *ngIf="cell.isOtherChoice" [class]="cell.question.getCommentAreaCss(true)" [question]="cell.question"
+        sv-ng-comment-other></div>
+    </div>
+    <ng-container *ngIf="cell.hasTitle">
+      <ng-template
+        [component]="{ name: question.getCellWrapperComponentName($any(cell)), data: { componentData: question.getCellWrapperComponentData($any(cell))} }">
+        <sv-ng-string [model]="cell.locTitle"></sv-ng-string>
+        <span *ngIf="isRequiredCell" [class]="question.cssClasses.cellRequiredText">{{ cell.requiredText }}</span>
+      </ng-template>
+    </ng-container>
+  </td>
+</ng-template>

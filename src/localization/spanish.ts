@@ -9,6 +9,8 @@ export var spanishSurveyStrings = {
   startSurveyText: "Comienza",
   otherItemText: "Otro (describa)",
   noneItemText: "Ninguno",
+  refuseItemText: "Negarse a responder",
+  dontKnowItemText: "No sé",
   selectAllItemText: "Seleccionar todo",
   progressText: "Página {0} de {1}",
   indexText: "{0} de {1}",
@@ -25,6 +27,7 @@ export var spanishSurveyStrings = {
   requiredError: "Por favor conteste la pregunta.",
   requiredErrorInPanel: "Por favor, responda al menos una pregunta.",
   requiredInAllRowsError: "Por favor conteste las preguntas en cada hilera.",
+  eachRowUniqueError: "Cada fila debe tener un valor único.",
   numericError: "La estimación debe ser numérica.",
   minError: "La estimación no debe ser menor que {0}",
   maxError: "La estimación no debe ser mayor que {0}",
@@ -42,6 +45,7 @@ export var spanishSurveyStrings = {
   urlRequestError: "La solicitud regresó error '{0}'. {1}",
   urlGetChoicesError: "La solicitud regresó vacío de data o la propiedad 'trayectoria' no es correcta",
   exceedMaxSize: "El tamaño del archivo no debe de exceder {0}.",
+  noUploadFilesHandler: "Los archivos no se pueden cargar. Agregue un controlador para el evento 'onUploadFiles'.",
   otherRequiredError: "Por favor agregue la otra estimación.",
   uploadingFile: "Su archivo se está subiendo. Por favor espere unos segundos e intente de nuevo.",
   loadingFile: "Cargando...",
@@ -56,6 +60,8 @@ export var spanishSurveyStrings = {
   emptyRowsText: "No hay hileras.",
   addPanel: "Añadir nuevo",
   removePanel: "Retire",
+  showDetails: "Mostrar detalles",
+  hideDetails: "Ocultar detalles",
   choices_Item: "artículo",
   matrix_column: "Columna",
   matrix_row: "Hilera",
@@ -72,7 +78,7 @@ export var spanishSurveyStrings = {
   timerLimitAll: "Has gastado {0} de {1} en esta página y {2} de {3} en total.",
   timerLimitPage: "Has gastado {0} de {1} en esta página.",
   timerLimitSurvey: "Usted ha gastado {0} de {1} en total.",
-  clearCaption: "Despejen",
+  clearCaption: "Borrar",
   signaturePlaceHolder: "Firma aqui",
   chooseFileCaption: "Elija el archivo",
   takePhotoCaption: "Tomar foto",
@@ -94,7 +100,9 @@ export var spanishSurveyStrings = {
   more: "Más",
   tagboxDoneButtonCaption: "De acuerdo",
   selectToRankEmptyRankedAreaText: "Todas las opciones están clasificadas",
-  selectToRankEmptyUnrankedAreaText: "Arrastra y suelta opciones aquí para clasificarlas"
+  selectToRankEmptyUnrankedAreaText: "Arrastra y suelta opciones aquí para clasificarlas",
+  ok: "De acuerdo",
+  cancel: "Cancelar"
 };
 
 surveyLocalization.locales["es"] = spanishSurveyStrings;
@@ -111,4 +119,11 @@ surveyLocalization.localeNames["es"] = "español";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrastra y suelta opciones aquí para clasificarlas"// takePhotoCaption: "Take Photo" => "Tomar foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Haga clic en el botón de abajo para tomar una foto con la cámara."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrastre y suelte o seleccione un archivo para cargar o tomar una foto con la cámara."
-// replaceFileCaption: "Replace file" => "Reemplazar archivo"
+// replaceFileCaption: "Replace file" => "Reemplazar archivo"// eachRowUniqueError: "Each row must have a unique value." => "Cada fila debe tener un valor único."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Los archivos no se pueden cargar. Agregue un controlador para el evento 'onUploadFiles'."
+// showDetails: "Show Details" => "Mostrar detalles"
+// hideDetails: "Hide Details" => "Ocultar detalles"
+// ok: "OK" => "De acuerdo"
+// cancel: "Cancel" => "Cancelar"
+// refuseItemText: "Refuse to answer" => "Negarse a responder"
+// dontKnowItemText: "Don't know" => "No sé"

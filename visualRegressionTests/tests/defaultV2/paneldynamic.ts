@@ -395,6 +395,7 @@ frameworks.forEach(framework => {
 
 frameworks.forEach(framework => {
   const json = {
+    "focusFirstQuestionAutomatic": true,
     "pages": [
       {
         "name": "page1",
@@ -421,8 +422,79 @@ frameworks.forEach(framework => {
   test("Paneldynamic confirm dialog", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);
+      await t.pressKey(" a b c tab");
       await t.click(Selector(".sd-paneldynamic__remove-btn"));
       await takeElementScreenshot("paneldynamic-confirm-dialog", Selector(".sv-popup--confirm-delete .sv-popup__body-content"), t, comparer);
+
+      await ClientFunction(() => {
+        const applyButton = document.querySelector("#apply");
+        const spanText = applyButton?.querySelector("span");
+        spanText && (spanText.innerText = "A very long long long long long text");
+      })();
+      await takeElementScreenshot("paneldynamic-confirm-dialog--long-button-text", Selector(".sv-popup--confirm-delete .sv-popup__body-content"), t, comparer);
     });
   });
+  test("tab focused state for panel dynamic", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 900);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "paneldynamic",
+                "name": "question1",
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  }
+                ],
+                "panelCount": 4,
+                "minPanelCount": 4,
+                "renderMode": "tab"
+              }
+            ]
+          }
+        ]
+      });
+      await t
+        .click(Selector("button[title='Panel 1']"))
+        .pressKey("tab");
+      await takeElementScreenshot("paneldynamic-focused-tab", Selector(".sd-question--paneldynamic"), t, comparer);
+    });
+  });
+  test("Comment bottom padding in dynamic panel", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      const json = {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "paneldynamic",
+                "name": "question1",
+                "showCommentArea": true,
+                "panelCount": 1,
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off"
+      };
+
+      await initSurvey(framework, json);
+      await t.wait(100);
+      await takeElementScreenshot("panel-dynamic-comment.png", ".sd-question--paneldynamic", t, comparer);
+    });
+  });
+
 });

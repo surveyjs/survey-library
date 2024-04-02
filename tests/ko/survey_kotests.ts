@@ -25,6 +25,7 @@ import * as ko from "knockout";
 import { ItemValue } from "../../src/itemvalue";
 import { StylesManager } from "../../src/stylesmanager";
 import { settings } from "../../src/settings";
+import { ProgressButtons } from "../../src/progress-buttons";
 
 export default QUnit.module("koTests");
 
@@ -1408,25 +1409,6 @@ QUnit.test("Could not assign value into mutlipletext question, #1229", function 
   );
 });
 
-QUnit.test("Checkbox Select All Test", function (assert) {
-  var survey = new Survey();
-  var page = survey.addNewPage("page1");
-  var question = new QuestionCheckbox("q1");
-  page.addElement(question);
-  question.choices = [1, 2, 3];
-  question.hasSelectAll = true;
-  assert.equal(question.isAllSelected, false, "items are not selected");
-  assert.equal(question.koAllSelected(), false, "ko: items are not selected");
-  question.selectAll();
-  assert.equal(question.koAllSelected(), true, "they are all selected");
-  question.value = [1];
-  assert.equal(question.koAllSelected(), false, "Only one value is selected");
-  question.koAllSelected(true);
-  assert.deepEqual(question.value, [1, 2, 3], "All are selected");
-  question.koAllSelected(false);
-  assert.deepEqual(question.isEmpty(), true, "None is selected");
-});
-
 QUnit.test(
   "Changing isRequired doesn't update title for questions in dynamic panel, Bug in Editor #385",
   function (assert) {
@@ -1918,23 +1900,26 @@ QUnit.test("ProgressButtonsViewModel component scroll button", function (
   StylesManager.applyTheme("default");
   let survey: Survey = new Survey(json);
   let progress: ProgressButtonsViewModel = new ProgressButtonsViewModel(
-    survey,
+    new ProgressButtons(survey as any),
     {
       querySelector: function () {
         return undefined;
       },
-    }
+      querySelectorAll: function () {
+        return [] as any;
+      },
+    } as any, "center", survey
   );
   progress.dispose();
   assert.equal(
-    progress.getScrollButtonCss(true)(),
+    progress.getScrollButtonCss(true),
     survey.css.progressButtonsImageButtonLeft +
     " " +
     survey.css.progressButtonsImageButtonHidden,
     "1) Scroll button left style is hidden"
   );
   assert.equal(
-    progress.getScrollButtonCss(false)(),
+    progress.getScrollButtonCss(false),
     survey.css.progressButtonsImageButtonRight +
     " " +
     survey.css.progressButtonsImageButtonHidden,
@@ -1943,12 +1928,12 @@ QUnit.test("ProgressButtonsViewModel component scroll button", function (
 
   progress["hasScroller"](true);
   assert.equal(
-    progress.getScrollButtonCss(true)(),
+    progress.getScrollButtonCss(true),
     survey.css.progressButtonsImageButtonLeft,
     "2) Scroll button left style is visible"
   );
   assert.equal(
-    progress.getScrollButtonCss(false)(),
+    progress.getScrollButtonCss(false),
     survey.css.progressButtonsImageButtonRight,
     "2) Scroll button right style is visible"
   );

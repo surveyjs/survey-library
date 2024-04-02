@@ -8,27 +8,34 @@
             .sv-row__question {
               display: block;
               width: 100% !important;
+
               .sv-question__header--location--left {
                 float: none;
               }
+
               .sv-selectbase__item--inline,
               .sv-imagepicker__item--inline {
                 display: block;
               }
+
               table.sv-table {
                 display: block;
+
                 thead {
                   display: none;
                 }
+
                 td.sv-table__cell--choice {
                   text-align: initial;
                 }
+
                 tbody,
                 tr,
                 td {
                   display: block;
                 }
               }
+
               table.sv-matrixdropdown,
               table.sv-matrixdynamic {
                 td {
@@ -36,16 +43,20 @@
                     content: attr(data-responsive-title);
                   }
                 }
+                .sv-table__cell--row-text {
+                  &:before {
+                    content: none;
+                  }
+                }
               }
+
               table.sv-matrix-root {
                 td {
                   label.sv-matrix__label {
                     display: inline;
                   }
-                  &:after {
-                    content: attr(data-responsive-title);
-                  }
                 }
+
                 .sv-matrix__cell {
                   text-align: initial;
                 }

@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import { findScrollableParent, isShadowDOM } from "../utils/utils";
 import { IsMobile, IsTouch } from "../utils/devices";
 import { settings, ISurveyEnvironment } from "../settings";
@@ -24,6 +25,7 @@ export interface IDragDropDOMAdapter {
   startDrag(event: PointerEvent, draggedElement: any, parentElement: any, draggedElementNode: HTMLElement, preventSaveTargetNode: boolean): void;
   draggedElementShortcut: HTMLElement;
   rootContainer: HTMLElement;
+  documentOrShadowRoot: Document | ShadowRoot;
 }
 
 export class DragDropDOMAdapter implements IDragDropDOMAdapter {
@@ -40,11 +42,14 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private savedTargetNodeIndex: any;
   private scrollIntervalId: number = null;
 
-  constructor(private dd: IDragDropEngine, private longTap: boolean = true) {}
+  constructor(private dd: IDragDropEngine, private longTap: boolean = true, private fitToContainer:boolean = false) {}
 
+  public get documentOrShadowRoot(): Document | ShadowRoot {
+    return settings.environment.root;
+  }
   private get rootElement() {
     if(isShadowDOM(settings.environment.root)) {
-      return settings.environment.root.host;
+      return this.rootContainer || settings.environment.root.host;
     } else {
       return this.rootContainer || settings.environment.root.documentElement || document.body;
     }
@@ -124,8 +129,11 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     event.stopPropagation();
   }
   private moveShortcutElement(event: PointerEvent) {
-    const rootElementX= this.rootElement.getBoundingClientRect().x;
-    const rootElementY = this.rootElement.getBoundingClientRect().y;
+    let rootElementX = this.rootElement.getBoundingClientRect().x;
+    let rootElementY = this.rootElement.getBoundingClientRect().y;
+
+    let rootElementScrollLeft = this.rootElement.scrollLeft;
+    let rootElementScrollTop = this.rootElement.scrollTop;
 
     this.doScroll(event.clientY, event.clientX);
 
@@ -148,6 +156,11 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
 
     const clientX = event.clientX;
     const clientY = event.clientY;
+
+    if (!!this.fitToContainer) {
+      rootElementX -= rootElementScrollLeft;
+      rootElementY -= rootElementScrollTop;
+    }
 
     const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(clientY, shortcutHeight, shortcutYOffset);
     const shortcutRightCoordinate = this.getShortcutRightCoordinate(clientX, shortcutWidth, shortcutXOffset);
@@ -212,7 +225,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     const displayProp = this.draggedElementShortcut.style.display;
     //this.draggedElementShortcut.hidden = true;
     this.draggedElementShortcut.style.display = "none";
-    let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
+    let dragOverNode = <HTMLElement>this.documentOrShadowRoot.elementFromPoint(clientX, clientY);
     //this.draggedElementShortcut.hidden = false;
     this.draggedElementShortcut.style.display = displayProp || "block";
 
@@ -249,6 +262,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     };
     this.scrollIntervalId = requestAnimationFrame(repeat);
   }
+
   private dragOver = (event: PointerEvent) => {
     this.moveShortcutElement(event);
     this.draggedElementShortcut.style.cursor = "grabbing";

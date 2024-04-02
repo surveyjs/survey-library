@@ -1,11 +1,11 @@
-import { Helpers } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject, Serializer } from "./jsonobject";
 import { Base } from "./base";
 import { SurveyError } from "./survey-error";
 import { surveyLocalization } from "./surveyStrings";
-import { RequiredInAllRowsError } from "./error";
+import { RequiredInAllRowsError, EachRowUniqueError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
@@ -18,23 +18,24 @@ import { IPlainDataOptions } from "./base-interfaces";
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
   getCorrectedRowValue(value: any): any;
+  cssClasses: any;
+  isInputReadOnly: boolean;
+  hasErrorInRow(row: MatrixRowModel): boolean;
 }
 
 export class MatrixRowModel extends Base {
   private data: IMatrixData;
-  private item: ItemValue;
   public cellClick: any;
 
   constructor(
-    item: ItemValue,
+    public item: ItemValue,
     public fullName: string,
     data: IMatrixData,
     value: any
   ) {
     super();
-    this.item = item;
     this.data = data;
-    this.value = value;
+    this.setValueDirectly(value);
     this.cellClick = (column: any) => {
       this.value = column.value;
     };
@@ -51,18 +52,26 @@ export class MatrixRowModel extends Base {
   public get locText(): LocalizableString {
     return this.item.locText;
   }
-  public get value() {
+  public get value(): any {
     return this.getPropertyValue("value");
   }
-  public set value(newValue: any) {
-    newValue = this.data.getCorrectedRowValue(newValue);
-    this.setPropertyValue("value", newValue);
+  public set value(val: any) {
+    if(!this.isReadOnly) {
+      this.setValueDirectly(this.data.getCorrectedRowValue(val));
+    }
+  }
+  public setValueDirectly(val: any): void {
+    this.setPropertyValue("value", val);
+  }
+  public get isReadOnly(): boolean { return !this.item.enabled || this.data.isInputReadOnly; }
+  public get rowTextClasses(): string {
+    return new CssClassBuilder().append(this.data.cssClasses.rowTextCell).toString();
   }
   public get rowClasses(): string {
     const cssClasses = (<any>this.data).cssClasses;
-    const hasError = !!(<any>this.data).getErrorByType("requiredinallrowserror");
     return new CssClassBuilder().append(cssClasses.row)
-      .append(cssClasses.rowError, hasError && this.isValueEmpty(this.value))
+      .append(cssClasses.rowError, this.data.hasErrorInRow(this))
+      .append(cssClasses.rowDisabled, this.isReadOnly)
       .toString();
   }
 }
@@ -239,18 +248,40 @@ export class QuestionMatrixModel
   public getType(): string {
     return "matrix";
   }
+  /**
+   * The name of a component used to render cells.
+   */
+  public get cellComponent(): string {
+    return this.getPropertyValue("cellComponent");
+  }
+  public set itemComponent(value: string) {
+    this.setPropertyValue("cellComponent", value);
+  }
   public get hasSingleInput(): boolean {
     return false;
   }
   /**
    * Specifies whether each row requires an answer. If a respondent skips a row, the question displays a validation error.
    * @see isRequired
+   * @see eachRowUnique
+   * @see validators
    */
   public get isAllRowRequired(): boolean {
     return this.getPropertyValue("isAllRowRequired");
   }
   public set isAllRowRequired(val: boolean) {
     this.setPropertyValue("isAllRowRequired", val);
+  }
+  /**
+   * Specifies whether answers in all rows should be unique. If any answers duplicate, the question displays a validation error.
+   * @see isAllRowRequired
+   * @see validators
+   */
+  public get eachRowUnique(): boolean {
+    return this.getPropertyValue("eachRowUnique");
+  }
+  public set eachRowUnique(val: boolean) {
+    this.setPropertyValue("eachRowUnique", val);
   }
   public get hasRows(): boolean {
     return this.rows.length > 0;
@@ -294,18 +325,19 @@ export class QuestionMatrixModel
     this.columns.push(col);
     return col;
   }
-  public getItemClass(row: any, column: any) {
+  public getItemClass(row: any, column: any): string {
     const isChecked = row.value == column.value;
     const isDisabled = this.isReadOnly;
     const allowHover = !isChecked && !isDisabled;
-
+    const hasCellText = this.hasCellText;
+    const css = this.cssClasses;
     return new CssClassBuilder()
-      .append(this.cssClasses.cell, this.hasCellText)
-      .append(this.hasCellText ? this.cssClasses.cellText : this.cssClasses.label)
-      .append(this.cssClasses.itemOnError, !this.hasCellText && this.hasCssError())
-      .append(this.hasCellText ? this.cssClasses.cellTextSelected : this.cssClasses.itemChecked, isChecked)
-      .append(this.hasCellText ? this.cssClasses.cellTextDisabled : this.cssClasses.itemDisabled, isDisabled)
-      .append(this.cssClasses.itemHover, allowHover && !this.hasCellText)
+      .append(css.cell, hasCellText)
+      .append(hasCellText ? css.cellText : css.label)
+      .append(css.itemOnError, !hasCellText && (this.isAllRowRequired ? this.hasErrorInRow(row) : this.hasCssError()))
+      .append(hasCellText ? css.cellTextSelected : css.itemChecked, isChecked)
+      .append(hasCellText ? css.cellTextDisabled : css.itemDisabled, isDisabled)
+      .append(css.itemHover, allowHover && !hasCellText)
       .toString();
   }
   public get itemSvgIcon(): string {
@@ -335,7 +367,10 @@ export class QuestionMatrixModel
     }
     return res;
   }
-
+  protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): boolean {
+    ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
+    return super.runItemsCondition(values, properties);
+  }
   protected getVisibleRows(): Array<MatrixRowModel> {
     var result = new Array<MatrixRowModel>();
     var val = this.value;
@@ -378,6 +413,11 @@ export class QuestionMatrixModel
   public get visibleRows(): Array<MatrixRowModel> {
     return this.getVisibleRows();
   }
+  /**
+   * An array of matrix cells. Use this array to get or set cell values.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrix-rubric/ (linkStyle))
+   */
   public get cells(): MatrixCells {
     return this.cellsValue;
   }
@@ -411,35 +451,68 @@ export class QuestionMatrixModel
     return loc ? loc : this.emptyLocalizableString;
   }
   supportGoNextPageAutomatic(): boolean {
-    return this.isMouseDown === true && this.hasValuesInAllRows();
+    return this.isMouseDown === true && this.hasValuesInAllRows(false);
   }
-  protected onCheckForErrors(
-    errors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ) {
+  private errorsInRow: HashTable<boolean>;
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged);
-    if (
-      (!isOnValueChanged || this.hasCssError()) &&
-      this.hasErrorInRows()
-    ) {
-      errors.push(new RequiredInAllRowsError(null, this));
+    this.errorsInRow = undefined;
+    if (!isOnValueChanged || this.hasCssError()) {
+      if(this.hasErrorAllRowsRequired()) {
+        errors.push(new RequiredInAllRowsError(null, this));
+      }
+      if(this.hasErrorEachRowUnique()) {
+        errors.push(new EachRowUniqueError(null, this));
+      }
     }
   }
-  private hasErrorInRows(): boolean {
-    if (!this.isAllRowRequired) return false;
-    return !this.hasValuesInAllRows();
+  private hasErrorAllRowsRequired(): boolean {
+    return this.isAllRowRequired && !this.hasValuesInAllRows(true);
   }
-  private hasValuesInAllRows(): boolean {
+  private hasErrorEachRowUnique(): boolean {
+    return this.eachRowUnique && this.hasNonUniqueValueInRow();
+  }
+  private hasValuesInAllRows(addError: boolean): boolean {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;
+    let res = true;
     for (var i = 0; i < rows.length; i++) {
-      if (this.isValueEmpty(rows[i].value)) return false;
+      const row = rows[i];
+      const hasValue = !this.isValueEmpty(row.value);
+      if(addError && !hasValue) {
+        this.addErrorIntoRow(row);
+      }
+      res = res && hasValue;
     }
-    return true;
+    return res;
+  }
+  private hasNonUniqueValueInRow(): boolean {
+    var rows = this.generatedVisibleRows;
+    if (!rows) rows = this.visibleRows;
+    if (!rows) return false;
+    const hash: HashTable<any> = {};
+    let res = true;
+    for (var i = 0; i < rows.length; i++) {
+      const val = rows[i].value;
+      const isEmpty = this.isValueEmpty(val);
+      const isUnique = isEmpty || hash[val] !== true;
+      if(!isUnique) {
+        this.addErrorIntoRow(rows[i]);
+      }
+      res = res && isUnique;
+      if(!isEmpty) {
+        hash[val] = true;
+      }
+    }
+    return !res;
+  }
+  private addErrorIntoRow(row: MatrixRowModel): void {
+    if(!this.errorsInRow) this.errorsInRow = {};
+    this.errorsInRow[row.name] = true;
   }
   protected getIsAnswered(): boolean {
-    return super.getIsAnswered() && this.hasValuesInAllRows();
+    return super.getIsAnswered() && this.hasValuesInAllRows(false);
   }
   private createMatrixRow(
     item: ItemValue,
@@ -459,13 +532,13 @@ export class QuestionMatrixModel
     var val = this.value;
     if (!val) val = {};
     if (this.rows.length == 0) {
-      this.generatedVisibleRows[0].value = val;
+      this.generatedVisibleRows[0].setValueDirectly(val);
     } else {
       for (var i = 0; i < this.generatedVisibleRows.length; i++) {
         var row = this.generatedVisibleRows[i];
         var rowVal = val[row.name];
         if (this.isValueEmpty(rowVal)) rowVal = null;
-        this.generatedVisibleRows[i].value = rowVal;
+        this.generatedVisibleRows[i].setValueDirectly(rowVal);
       }
     }
     this.updateIsAnswered();
@@ -587,6 +660,9 @@ export class QuestionMatrixModel
     }
     return value;
   }
+  hasErrorInRow(row: MatrixRowModel): boolean {
+    return !!this.errorsInRow && !!this.errorsInRow[row.name];
+  }
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("columns");
     keys.push("rows");
@@ -644,7 +720,9 @@ Serializer.addClass(
       choices: ["initial", "random"],
     },
     "isAllRowRequired:boolean",
+    { name: "eachRowUnique:boolean", category: "validation" },
     "hideIfRowsEmpty:boolean",
+    { name: "cellComponent", visible: false, default: "survey-matrix-cell" }
   ],
   function() {
     return new QuestionMatrixModel("");

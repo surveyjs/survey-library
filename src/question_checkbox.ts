@@ -20,11 +20,13 @@ import { settings } from "./settings";
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-checkbox/ (linkStyle))
  */
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
-  private selectAllItemValue: ItemValue = new ItemValue("selectall");
+  private selectAllItemValue: ItemValue;
   private invisibleOldValues: any = {};
   protected defaultSelectedItemValues: Array<ItemValue>;
   constructor(name: string) {
     super(name);
+    this.selectAllItemValue = new ItemValue("");
+    this.selectAllItemValue.id = "selectall";
     var selectAllItemText = this.createLocalizableString(
       "selectAllText", this.selectAllItem, true, "selectAllItemText");
     this.selectAllItem.locOwner = this;
@@ -113,17 +115,23 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see showSelectAllItem
    */
   public get isAllSelected(): boolean {
-    var val = this.value;
-    if (!val || !Array.isArray(val)) return false;
-    if (this.isItemSelected(this.noneItem)) return false;
-    var allItemCount = this.visibleChoices.length;
-    const order = settings.specialChoicesOrder;
-    if (this.hasOther) allItemCount -= order.otherItem.length;
-    if (this.hasNone) allItemCount -= order.noneItem.length;
-    if (this.hasSelectAll) allItemCount -= order.selectAllItem.length;
-    var selectedCount = val.length;
-    if (this.isOtherSelected) selectedCount--;
-    return selectedCount === allItemCount;
+    const noneItems = this.getNoneItems();
+    for(let i = 0; i < noneItems.length; i ++) {
+      if(this.isItemSelected(noneItems[i])) return false;
+    }
+    const items = this.getVisibleEnableItems();
+    if(items.length === 0) return false;
+    const val = this.value;
+    if (!val || !Array.isArray(val) || val.length === 0) return false;
+    if(val.length < items.length) return false;
+    const rVal = [];
+    for(let i = 0; i < val.length; i ++) {
+      rVal.push(this.getRealValue(val[i]));
+    }
+    for(let i = 0; i < items.length; i ++) {
+      if(rVal.indexOf(items[i].value) < 0) return false;
+    }
+    return true;
   }
   public set isAllSelected(val: boolean) {
     if (val) {
@@ -132,7 +140,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this.clearValue();
     }
   }
-  public toggleSelectAll() {
+  public toggleSelectAll(): void {
     this.isAllSelected = !this.isAllSelected;
   }
   /**
@@ -142,18 +150,38 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see clearValue
    */
   public selectAll(): void {
-    var val: Array<any> = [];
-    for (var i = 0; i < this.visibleChoices.length; i++) {
-      var item = this.visibleChoices[i];
-      if (
-        item === this.noneItem ||
-        item === this.otherItem ||
-        item === this.selectAllItem
-      )
-        continue;
-      val.push(item.value);
+    const val: Array<any> = [];
+    const items = this.getVisibleEnableItems();
+    for (let i = 0; i < items.length; i++) {
+      val.push(items[i].value);
     }
     this.renderedValue = val;
+  }
+  public clickItemHandler(item: ItemValue, checked?: boolean): void {
+    if(item === this.selectAllItem) {
+      if(checked === true || checked === false) {
+        this.isAllSelected = checked;
+      } else {
+        this.toggleSelectAll();
+      }
+    } else {
+      if(this.isNoneItem(item)) {
+        this.renderedValue = [item.value];
+      } else {
+        const newValue: Array<any> = [].concat(this.renderedValue || []);
+        const index = newValue.indexOf(item.value);
+        if (checked) {
+          if (index < 0) {
+            newValue.push(item.value);
+          }
+        } else {
+          if (index > -1) {
+            newValue.splice(index, 1);
+          }
+        }
+        this.renderedValue = newValue;
+      }
+    }
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
     if (item === this.selectAllItem) return this.isAllSelected;
@@ -245,7 +273,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected onCheckForErrors(
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
-  ):void {
+  ): void {
     super.onCheckForErrors(errors, isOnValueChanged);
     if (isOnValueChanged) return;
 
@@ -257,27 +285,48 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       errors.push(minError);
     }
   }
-
+  protected onVisibleChoicesChanged(): void {
+    super.onVisibleChoicesChanged();
+    this.updateSelectAllItemProps();
+  }
   protected onEnableItemCallBack(item: ItemValue): boolean {
     if (!this.shouldCheckMaxSelectedChoices()) return true;
     return this.isItemSelected(item);
   }
-  protected onAfterRunItemsEnableCondition() {
+  protected onAfterRunItemsEnableCondition(): void {
+    this.updateSelectAllItemProps();
     if (this.maxSelectedChoices < 1) {
-      this.selectAllItem.setIsEnabled(true);
       this.otherItem.setIsEnabled(true);
       return;
-    }
-    if (this.hasSelectAll) {
-      this.selectAllItem.setIsEnabled(
-        this.maxSelectedChoices >= this.activeChoices.length
-      );
     }
     if (this.hasOther) {
       this.otherItem.setIsEnabled(
         !this.shouldCheckMaxSelectedChoices() || this.isOtherSelected
       );
     }
+  }
+  private updateSelectAllItemProps(): void {
+    if (!this.hasSelectAll) return;
+    this.selectAllItem.setIsEnabled(this.getSelectAllEnabled());
+  }
+  private getSelectAllEnabled(): boolean {
+    if (!this.hasSelectAll) return true;
+    const items = this.activeChoices;
+    let visCount = this.getVisibleEnableItems().length;
+    const max = this.maxSelectedChoices;
+    if(max > 0 && max < visCount) return false;
+    return visCount > 0;
+  }
+  private getVisibleEnableItems(): Array<ItemValue> {
+    const res = new Array<ItemValue>();
+    const items = this.activeChoices;
+    for(let i = 0; i < items.length; i ++) {
+      const item = items[i];
+      if(item.isEnabled && item.isVisible) {
+        res.push(item);
+      }
+    }
+    return res;
   }
   private shouldCheckMaxSelectedChoices(): boolean {
     if (this.maxSelectedChoices < 1) return false;
@@ -301,8 +350,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       .append(this.cssClasses.itemSelectAll, options.isSelectAllItem)
       .toString();
   }
-  updateValueFromSurvey(newValue: any): void {
-    super.updateValueFromSurvey(newValue);
+  updateValueFromSurvey(newValue: any, clearData: boolean): void {
+    super.updateValueFromSurvey(newValue, clearData);
     this.invisibleOldValues = {};
   }
   protected setDefaultValue() {
@@ -332,20 +381,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!newValue) newValue = [];
     if (!value) value = [];
     if (this.isTwoValueEquals(value, newValue)) return;
-    if (this.hasNone) {
-      var prevNoneIndex = this.noneIndexInArray(value);
-      var newNoneIndex = this.noneIndexInArray(newValue);
-      if (prevNoneIndex > -1) {
-        if (newNoneIndex > -1 && newValue.length > 1) {
-          newValue.splice(newNoneIndex, 1);
-        }
-      } else {
-        if (newNoneIndex > -1) {
-          newValue.splice(0, newValue.length);
-          newValue.push(this.noneItem.value);
-        }
-      }
-    }
+    this.removeNoneItemsValues(value, newValue);
     super.setNewValue(newValue);
   }
   protected getIsMultipleValue(): boolean {
@@ -365,39 +401,68 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private getFirstUnknownIndex(newValue: any): number {
     if (!Array.isArray(newValue)) return -1;
     for (var i = 0; i < newValue.length; i++) {
-      if (this.hasUnknownValue(newValue[i], false, false)) return i;
+      if (this.hasUnknownValueItem(newValue[i], false, false)) return i;
     }
     return -1;
   }
-  private noneIndexInArray(val: any) {
-    if (!val || !Array.isArray(val)) return -1;
-    var noneValue = this.noneItem.value;
-    for (var i = 0; i < val.length; i++) {
-      if (val[i] == noneValue) return i;
+  protected removeNoneItemsValues(value: Array<any>, newValue: Array<any>): void {
+    const noneValues: Array<any> = [];
+    if(this.showNoneItem) noneValues.push(this.noneItem.value);
+    if(this.showRefuseItem) noneValues.push(this.refuseItem.value);
+    if(this.showDontKnowItem) noneValues.push(this.dontKnowItem.value);
+    if (noneValues.length > 0) {
+      const prevNone = this.noneIndexInArray(value, noneValues);
+      const newNone = this.noneIndexInArray(newValue, noneValues);
+      if(prevNone.index > -1) {
+        if(prevNone.val === newNone.val) {
+          if(newValue.length > 0) {
+            newValue.splice(newNone.index, 1);
+          }
+        } else {
+          const prevNewNone = this.noneIndexInArray(newValue, [prevNone.val]);
+          if(prevNewNone.index > -1 && prevNewNone.index < newValue.length - 1) {
+            newValue.splice(prevNewNone.index, 1);
+          }
+        }
+      } else {
+        if (newNone.index > -1 && newValue.length > 1) {
+          const itemVal = this.convertValueToObject([newNone.val])[0];
+          newValue.splice(0, newValue.length, itemVal);
+        }
+      }
     }
-    return -1;
+  }
+
+  private noneIndexInArray(val: any, noneValues: Array<any>): { index: number, val: any } {
+    if (!Array.isArray(val)) return { index: -1, val: undefined };
+    for (var i = val.length - 1; i >= 0; i--) {
+      const index = noneValues.indexOf(this.getRealValue(val[i]));
+      if (index > -1) return { index: i, val: noneValues[index] };
+    }
+    return { index: -1, val: undefined };
   }
   protected canUseFilteredChoices(): boolean {
     return !this.hasSelectAll && super.canUseFilteredChoices();
   }
-  protected supportSelectAll() {
+  protected supportSelectAll(): boolean {
     return this.isSupportProperty("showSelectAllItem");
   }
   protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
     super.addNonChoicesItems(dict, isAddAll);
-    if (
-      this.supportSelectAll() && this.canShowOptionItem(this.selectAllItem, isAddAll, this.hasSelectAll)
-    ) {
-      this.addNonChoiceItem(dict, this.selectAllItem, settings.specialChoicesOrder.selectAllItem);
+    if (this.supportSelectAll()) {
+      this.addNonChoiceItem(dict, this.selectAllItem, isAddAll, this.hasSelectAll, settings.specialChoicesOrder.selectAllItem);
     }
   }
-  protected isBuiltInChoice(item: ItemValue, question: QuestionSelectBase): boolean {
-    return item === (<QuestionCheckboxBase>question).selectAllItem || super.isBuiltInChoice(item, question);
+  protected isBuiltInChoice(item: ItemValue): boolean {
+    return item === this.selectAllItem || super.isBuiltInChoice(item);
   }
 
   public isItemInList(item: ItemValue): boolean {
     if (item == this.selectAllItem) return this.hasSelectAll;
     return super.isItemInList(item);
+  }
+  protected getDisplayValueEmpty(): string {
+    return ItemValue.getTextOrHtmlByValue(this.visibleChoices.filter(choice => choice != this.selectAllItemValue), undefined);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!Array.isArray(value))
@@ -470,9 +535,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var res = [];
     var visItems = this.visibleChoices;
     for (var i = 0; i < visItems.length; i++) {
+      const item = visItems[i];
+      if(item === this.selectAllItem) continue;
       var val = visItems[i].value;
       if (Helpers.isTwoValueEquals(val, this.invisibleOldValues[val])) {
-        if (!this.isItemSelected(visItems[i])) {
+        if (!this.isItemSelected(item)) {
           res.push(val);
         }
         delete this.invisibleOldValues[val];
@@ -538,7 +605,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!this.hasActiveChoices) return val;
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) return val;
-      if (this.hasUnknownValue(val[i], true, false)) {
+      if (this.hasUnknownValueItem(val[i], true, false)) {
         this.otherValue = val[i];
         var newVal = val.slice();
         newVal[i] = this.otherItem.value;
@@ -593,8 +660,20 @@ Serializer.addClass(
   [
     { name: "showSelectAllItem:boolean", alternativeName: "hasSelectAll" },
     { name: "separateSpecialChoices", visible: true },
-    { name: "maxSelectedChoices:number", default: 0 },
-    { name: "minSelectedChoices:number", default: 0 },
+    { name: "maxSelectedChoices:number", default: 0,
+      onSettingValue: (obj: any, val: any): any => {
+        if(val <= 0) return 0;
+        const min = obj.minSelectedChoices;
+        return min > 0 && val < min ? min : val;
+      }
+    },
+    { name: "minSelectedChoices:number", default: 0,
+      onSettingValue: (obj: any, val: any): any => {
+        if(val <= 0) return 0;
+        const max = obj.maxSelectedChoices;
+        return max > 0 && val > max ? max : val;
+      }
+    },
     {
       name: "selectAllText",
       serializationProperty: "locSelectAllText",

@@ -15,7 +15,7 @@
     <ng-container *ngIf="!element.isTitleRenderedAsString">
       <span
         *ngIf="element.isRequireTextOnStart"
-        [class]="element.cssClasses.requiredText"
+        [class]="cssClasses.requiredText"
         [attr.aria-hidden]="true"
         >{{ element.requiredText }}</span>
       <span
@@ -27,7 +27,7 @@
       <span *ngIf="element.no">&nbsp;</span>
       <span
         *ngIf="element.isRequireTextBeforeTitle"
-        [class]="element.cssClasses.requiredText"
+        [class]="cssClasses.requiredText"
         [attr.aria-hidden]="true"
         >{{ element.requiredText }}</span>
       <span *ngIf="element.isRequireTextBeforeTitle">&nbsp;</span>
@@ -35,7 +35,7 @@
       <span *ngIf="element.isRequireTextAfterTitle">&nbsp;</span>
       <span
         *ngIf=" element.isRequireTextAfterTitle"
-        [class]="element.cssClasses.requiredText"
+        [class]="cssClasses.requiredText"
         [attr.aria-hidden]="true"
         >{{ element.requiredText }}</span> 
   </ng-container>

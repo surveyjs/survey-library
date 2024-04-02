@@ -5,10 +5,9 @@ import { DragDropRankingSelectToRank } from "../src/dragdrop/ranking-select-to-r
 import { SurveyModel } from "../src/survey";
 import { ItemValue } from "../src/itemvalue";
 import { ImageItemValue } from "../src/question_imagepicker";
-import { Question } from "../src/question";
 import { QuestionSelectBase } from "../src/question_baseselect";
-import { DragDropCore } from "../src/dragdrop/core";
 import { DragDropDOMAdapter } from "../src/dragdrop/dom-adapter";
+import { settings } from "../src/settings";
 import { QuestionRankingModel } from "../src/question_ranking";
 import { DragDropMatrixRows } from "../src/dragdrop/matrix-rows";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
@@ -234,6 +233,20 @@ QUnit.test("DragDrop shortcutCoordinates", function (assert) {
   assert.equal(shortcutBottomCoordinate, 10 + 10 - 5);
 });
 
+QUnit.test("DragDropDOMAdapter documentOrShadowRoot", function (assert) {
+  let dndDomAdapter: any = new DragDropDOMAdapter(<any>null);
+  assert.equal(dndDomAdapter.documentOrShadowRoot, document);
+
+  let node = document.createElement("div");
+  node.attachShadow({ mode: "open" });
+  document.body.appendChild(node);
+  let shadowRoot = <Document | ShadowRoot>node.shadowRoot;
+  settings.environment.root = shadowRoot;
+  assert.equal(dndDomAdapter.documentOrShadowRoot, shadowRoot);
+  settings.environment.root = document;
+  document.body.removeChild(node);
+});
+
 QUnit.test("createImagePickerShortcut", function (assert) {
   let ddHelper = new DragDropChoices();
   let item = new ImageItemValue("a");
@@ -297,6 +310,7 @@ QUnit.test("DragDropRankingSelectToRank reorderRankedItem", function (assert) {
   const withDefaultValue = true;
   const dndModel = new DragDropRankingSelectToRank();
   const questionModel = createRankingQuestionModel(withDefaultValue);
+  dndModel["parentElement"] = questionModel;
 
   dndModel.reorderRankedItem(questionModel, 0, 1);
   assert.equal(questionModel.rankingChoices[0].value, "22", "item 1 is correct");
@@ -308,9 +322,53 @@ QUnit.test("DragDropRankingSelectToRank getIndixies", function (assert) {
   const withDefaultValue = true;
   const dndModel = new DragDropRankingSelectToRank();
   const questionModel = createRankingQuestionModel(withDefaultValue);
-
-  let { toIndex } = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices);
+  let toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices).toIndex;
   assert.equal(toIndex, 2);
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 2);
+
+  dndModel.draggedElement = questionModel.rankingChoices[0];
+  dndModel.dropTarget = questionModel.rankingChoices[1];
+  dndModel["_isBottom"] = false;
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 0);
+
+  dndModel.draggedElement = questionModel.rankingChoices[0];
+  dndModel.dropTarget = questionModel.rankingChoices[1];
+  dndModel["_isBottom"] = true;
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 1);
+
+  dndModel.draggedElement = questionModel.rankingChoices[1];
+  dndModel.dropTarget = questionModel.rankingChoices[0];
+  dndModel["_isBottom"] = false;
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 0);
+
+  dndModel.draggedElement = questionModel.rankingChoices[1];
+  dndModel.dropTarget = questionModel.rankingChoices[0];
+  dndModel["_isBottom"] = true;
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 1);
+
+  dndModel.dropTarget = questionModel.unRankingChoices[0];
+  dndModel.draggedElement = questionModel.rankingChoices[1];
+  dndModel["_isBottom"] = true;
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices).toIndex;
+  assert.equal(toIndex, 1);
+
+  dndModel["_isBottom"] = false;
+  dndModel.dropTarget = questionModel.unRankingChoices[0];
+  dndModel.draggedElement = questionModel.rankingChoices[1];
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices).toIndex;
+  assert.equal(toIndex, 0);
+
+  questionModel.value = ["11", "22", "33"];
+  dndModel.draggedElement = questionModel.rankingChoices[0];
+  dndModel.dropTarget = questionModel.rankingChoices[1];
+  dndModel["_isBottom"] = true;
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 1);
 });
 // EO selectToRankEnabled
 
@@ -421,4 +479,14 @@ QUnit.test("DragDropDOMAdapter: insertNodeToParentAtIndex", function (assert) {
 
   assert.equal(domAdapter.getNodeIndexInParent(child2), 0);
   assert.equal(domAdapter.getNodeIndexInParent(child1), 1);
+});
+
+QUnit.test("check rootContainer", function (assert) {
+  let h1 = document.createElement("h1");
+  let h2 = document.createElement("h2");
+  let survey:any = { rootElement: h1 };
+  let creator:any = { rootElement: h2 };
+  let dd: any = new DragDropChoices(survey);
+  assert.equal(dd.getRootElement(survey), h1);
+  assert.equal(dd.getRootElement(survey, creator), h2);
 });

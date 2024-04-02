@@ -10,6 +10,7 @@ import { settings } from "../src/settings";
 import { surveyLocalization } from "../src/surveyStrings";
 import { englishStrings } from "../src/localization/english";
 import { Base } from "../src/base";
+import { SurveyElement, SurveyElementCore } from "../src/survey-element";
 
 export default QUnit.module("LocalizableString");
 
@@ -77,8 +78,41 @@ class LocalizableObjectTester {
   }
 }
 
+class LocalizableStringObjectTester extends SurveyElement {
+  private locString: LocalizableString;
+  constructor() {
+    super("locstringtester");
+    this.locString = new LocalizableString(this);
+  }
+  public get locText(): LocalizableString {
+    return this.locString;
+  }
+  public getType(): string {
+    return "locstringobjecttester";
+  }
+}
+class LocalizableTextObjectTester extends SurveyElement {
+  private locString: LocalizableString;
+  constructor() {
+    super("locstringtester");
+    this.locString = new LocalizableString(this);
+  }
+  public get locText(): LocalizableString {
+    return this.locString;
+  }
+  public getType(): string {
+    return "loctextobjecttester";
+  }
+}
+
 Serializer.addClass("locstringtester", [
   { name: "text", serializationProperty: "locText" },
+]);
+Serializer.addClass("locstringobjecttester", [
+  { name: "text", serializationProperty: "locText" },
+]);
+Serializer.addClass("loctextobjecttester", [
+  { name: "text:text", serializationProperty: "locText" },
 ]);
 
 QUnit.test("Simple get/set tests", function (assert) {
@@ -834,4 +868,40 @@ QUnit.test("Fire onStringChanged when localizationName is set", function (assert
   assert.equal(callCount, 0, "no calls");
   locString.localizationName = "completeText";
   assert.equal(callCount, 1, "onStringChanged is called");
+});
+QUnit.test("Support defaultValue for localizable strings", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locStr1 = new LocalizableString(owner, true);
+  locStr1.defaultValue = "str1";
+  const locStr2 = new LocalizableString(owner, true, "locStr2");
+  locStr2.defaultValue = "str2";
+  const locStr3 = new LocalizableString(owner, true);
+  locStr3.localizationName = "completeText";
+  locStr3.defaultValue = "str3";
+  assert.equal(locStr1.text, "str1", "str1 #1");
+  assert.equal(locStr2.text, "str2", "str2 #1");
+  assert.equal(locStr3.text, "Complete", "str3 #1");
+
+  locStr1.text = "new str1";
+  assert.equal(locStr1.text, "new str1", "str1 #2");
+
+  owner.locale = "de";
+  assert.equal(locStr1.text, "new str1", "str1 #3");
+  assert.equal(locStr2.text, "str2", "str2 #3");
+  assert.equal(locStr3.text, "Abschließen", "str3 #3");
+});
+QUnit.test("getJSON should copy values", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locStr = new LocalizableString(owner, true);
+  locStr.setJson({ default: "str", de: "de: str" });
+  assert.deepEqual(locStr.getJson(), { default: "str", de: "de: str" }, "getJson #1");
+  const json = locStr.getJson();
+  json["fr"] = "fr: str";
+  assert.deepEqual(locStr.getJson(), { default: "str", de: "de: str" }, "getJson #2");
+});
+QUnit.test("allowLineBreaks check", function (assert) {
+  var tester = new LocalizableStringObjectTester();
+  const testerText = new LocalizableTextObjectTester();
+  assert.notOk(tester.locText.allowLineBreaks);
+  assert.ok(testerText.locText.allowLineBreaks);
 });

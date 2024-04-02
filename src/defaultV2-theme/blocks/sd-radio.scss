@@ -1,5 +1,15 @@
 .sd-radio__decorator {
   border-radius: 50%;
+
+  &:after {
+    content: " ";
+    display: block;
+    width: calcSize(1);
+    height: calcSize(1);
+    border-radius: 50%;
+    background-color: transparent;
+    transition: background-color $transition-duration;
+  }
 }
 .sd-radio--checked .sd-radio__decorator:after {
   content: " ";

@@ -38,9 +38,11 @@ $border-light: var(--sjs-border-light, var(--border-light, #eaeaea));
 $border-inside: var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
 
 $shadow-small: var(--sjs-shadow-small, 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
+$shadow-small-reset: var(--sjs-shadow-small-reset, 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
 $shadow-medium: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
 $shadow-large: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
 $shadow-inner: var(--sjs-shadow-inner, inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
+$shadow-inner-reset: var(--sjs-shadow-inner-reset, inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
 
 $red: var(--sjs-special-red, var(--red, #e60a3e));
 $red-light: var(--sjs-special-red-light, var(--red-light, rgba(230, 10, 62, 0.1)));
@@ -101,10 +103,57 @@ $font-questionplaceholder-color: var(--sjs-font-questiondescription-color,
 $font-editorfont-family: var(--sjs-font-editorfont-family, #{$font-family});
 $font-editorfont-weight: var(--sjs-font-editorfont-weight, 400);
 $font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-forecolor, rgba(0, 0, 0, 0.91)));
-$font-editorfont-placeholdercolor: var(--sjs-font-editorfont-placeholdercolor, var(--sjs-general-forecolor-light, var(--foreground-light, #909090)));
+$font-editorfont-placeholdercolor: var(--sjs-font-editorfont-placeholdercolor,
+    var(--sjs-general-forecolor-light, var(--foreground-light, #909090)));
 $font-default-editorfont-size: var(--sjs-font-editorfont-size, $font-size);
-$font-editorfont-size: var(--sjs-mobile-font-editorfont-size, #{$font-default-editorfont-size});
 $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
+
+//call  @include useEditorFontSize before using this variable;
+$font-editorfont-size: var(--sjs-internal-font-editorfont-size);
+
+$sd-panel-normal-min-width: 496px;
+$sd-panel-medium-min-width: 176px;
+
+:root {
+  --sjs-transition-duration: 150ms;
+}
+
+$row-fade-in-duration: var(--sjs-row-fade-in-duration, 100ms);
+$row-move-in-duration: var(--sjs-row-move-in-duration, 200ms);
+$row-fade-in-delay: var(--sjs-row-fade-in-delay, 150ms);
+$row-fade-out-duration: var(--sjs-row-fade-out-duration, 100ms);
+$row-move-out-duration: var(--sjs-row-move-out-duration, 250ms);
+$row-move-out-delay: var(--sjs-row-move-out-delay, 0ms);
+
+$expand-fade-in-duration: var(--sjs-expand-fade-in-duration, 100ms);
+$expand-move-in-duration: var(--sjs-expand-move-in-duration, 200ms);
+$expand-fade-in-delay: var(--sjs-collapse-fade-in-delay, 150ms);
+$collapse-fade-out-duration: var(--sjs-collapse-fade-out-duration, 100ms);
+$collapse-move-out-duration: var(--sjs-collapse-move-out-duration, 250ms);
+$collapse-move-out-delay: var(--sjs-collapse-move-out-delay, 0ms);
+
+$ranking-fade-in-duration: var(--sjs-ranking-fade-in-duration, 100ms);
+$ranking-move-in-duration: var(--sjs-ranking-move-in-duration, 150ms);
+$ranking-fade-in-delay: var(--sjs-ranking-fade-in-delay, 150ms);
+$ranking-fade-out-duration: var(--sjs-ranking-fade-out-duration, 100ms);
+$ranking-move-out-duration: var(--sjs-ranking-move-out-duration, 150ms);
+$ranking-move-out-delay: var(--sjs-ranking-move-out-delay, 0ms);
+
+$element-fade-in-duration: var(--sjs-element-fade-in-duration, 250ms);
+$element-move-in-duration: var(--sjs-element-move-in-duration, 250ms);
+$element-fade-in-delay: var(--sjs-element-fade-in-delay, 0ms);
+$element-fade-out-duration: var(--sjs-element-fade-out-duration, 100ms);
+$element-move-out-duration: var(--sjs-element-move-out-duration, 250ms);
+$element-move-out-delay: var(--sjs-element-move-out-delay, 0ms);
+
+$transition-duration: var(--sjs-transition-duration, 150ms);
+
+$ease-out: cubic-bezier(0, 0, 0.58, 1);
+$reverse-ease-out: cubic-bezier(0.42, 0, 1, 1);
+
+@mixin useEditorFontSize {
+  --sjs-internal-font-editorfont-size: var(--sjs-mobile-font-editorfont-size, #{$font-default-editorfont-size});
+}
 
 @function multiply($a, $b) {
   @if $a ==1 {

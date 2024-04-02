@@ -3,7 +3,7 @@
         [attr.disabled]="model.isInputReadOnly ? true : null" (blur)="blur($event)"
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
-        [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole"
+        [attr.aria-errormessage]="model.ariaErrormessage" [attr.role]="model.ariaRole"
         [attr.aria-controls]="dropdownModel.listElementId"
         [attr.aria-expanded]="model.ariaExpanded"
         [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant">
@@ -28,14 +28,15 @@
             [attr.aria-controls]="dropdownModel.listElementId"
             [attr.aria-label]="model.a11y_input_ariaLabel"
             [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
+            [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
             [attr.aria-expanded]="model.ariaExpanded"
             [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant"
             [attr.placeholder]="dropdownModel.placeholderRendered" 
             [attr.readonly]="dropdownModel.filterReadOnly ? true : null" 
             (change)="inputChange($event)" (blur)="blur($event)" (focus)="focus($event)"/>
         </div>
-        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"
-            [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="model.showClearButton" [attr.tabindex]="model.showClearButton ? 0 : -1">
+        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" aria-hidden="true"
+            [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="model.showClearButton">
             <!-- ko component: { name: 'sv-svg-icon', params: { css: model.cssClasses.cleanButtonSvg, iconName: model.cssClasses.cleanButtonIconId, size: 'auto' } } -->
             <!-- /ko -->
             <svg [iconName]="model.cssClasses.cleanButtonIconId" [partCss]="model.cssClasses.cleanButtonSvg" [title]="model.clearCaption"

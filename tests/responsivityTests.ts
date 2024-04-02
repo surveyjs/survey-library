@@ -22,7 +22,7 @@ class SimpleContainer {
 
   }
   querySelectorAll(query: string) {
-
+    return [];
   }
 }
 class ResizeObserver {
@@ -313,6 +313,7 @@ QUnit.test("ResponsivityManager process test", function (assert) {
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
   };
+  manager["getRenderedVisibleActionsCount"] = () => model.actions.length;
   manager["calcItemsSizes"] = () => {
     model.actions.forEach(action => {
       action.minDimension = 20;
@@ -402,8 +403,8 @@ QUnit.test("ResponsivityManager - vertical process", function (assert) {
     },
     querySelectorAll: (query: string) => {
       if(query == ".sv-action") {
-        let items = [];
-        for(var i = 0; i < 10; i++) items.push(<any>{ offsetWidth: 20, offsetHeight: 20 });
+        let items: Array<{ offsetWidth: number, offsetHeight: number }> = [];
+        for(var i = 0; i < 10; i++) items.push({ offsetWidth: 20, offsetHeight: 20 });
         return items;
       }
     }

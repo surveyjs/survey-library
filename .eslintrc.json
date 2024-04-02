@@ -2,24 +2,16 @@
 	"root": true,
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
-		"ecmaFeatures": {
-			"jsx": true
-		},
 		"ecmaVersion": 12,
 		"sourceType": "module"
 	},
 	"plugins": [
-		"vue",
-		"react",
 		"@typescript-eslint",
 		"surveyjs"
 	],
 	"extends": [
 		"eslint:recommended",
-		"plugin:@typescript-eslint/eslint-recommended",
-		"plugin:@typescript-eslint/recommended",
-		"plugin:react/recommended",
-		"plugin:vue/essential"
+		"plugin:@typescript-eslint/recommended"
 	],
 	"rules": {
 		"surveyjs/no-test-only": 2,
@@ -156,5 +148,83 @@
 			"off",
 			"windows"
 		]
-	}
+	},
+	"overrides": [
+		{
+			"files": [
+				"src/*.ts"
+			],
+			"rules": {
+				"no-restricted-properties": [
+					"error",
+					{
+						"object": "window",
+						"property": "document"
+					}
+				],
+				"no-restricted-globals": [
+					"error",
+					{
+						"name": "document",
+						"message": "Do not use document into survey-core. Use methods from DomDocumentHelper"
+					},
+					{
+						"name": "window",
+						"message": "Do not use window into survey-core. Use method from DomWindowHelper"
+					}
+				]
+			}
+		},
+		{
+			"files": [
+				"*.jsx"
+			],
+			"parserOptions": {
+				"ecmaFeatures": {
+					"jsx": true
+				}
+			},
+			"plugins": [
+				"@typescript-eslint",
+				"react"
+			],
+			"extends": [
+				"eslint:recommended",
+				"plugin:@typescript-eslint/recommended",
+				"plugin:react/recommended"
+			]
+		},
+		{
+			"files": [
+				"*.vue"
+			],
+			"parserOptions": {
+				"ecmaFeatures": {
+					"jsx": false
+				}
+			},
+			"plugins": [
+				"@typescript-eslint",
+				"vue"
+			],
+			"extends": [
+				"plugin:vue/essential",
+				"eslint:recommended",
+				"@vue/eslint-config-typescript"
+			],
+			"rules": {
+				"no-extra-boolean-cast": "off",
+				"vue/no-use-v-if-with-v-for": "off",
+				"vue/multi-word-component-names": "off"
+			}
+		},
+		{
+			"files": [
+				"*.js"
+			],
+			"rules": {
+				"no-undef": "off"
+			}
+		}
+	]
 }

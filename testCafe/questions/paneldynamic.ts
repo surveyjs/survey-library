@@ -1,6 +1,6 @@
 import { applyTheme, frameworks, url, url_test, initSurvey, getSurveyResult, getQuestionJson,
   getDynamicPanelRemoveButton, getListItemByText, completeButton, setData } from "../helper";
-import { Selector } from "testcafe";
+import { Selector, ClientFunction } from "testcafe";
 const title = "paneldynamic";
 
 const json = {
@@ -324,7 +324,7 @@ frameworks.forEach((framework) => {
   );
 
   test("templateVisibleIf", async (t) => {
-    const addNewSelector = Selector("span").withText("Add new");
+    const addNewSelector = Selector("button").withText("Add new");
     await t
       .expect(addNewSelector.count).eql(1)
       .expect(Selector("span").withText("#1-2").visible).notOk()
@@ -434,6 +434,94 @@ frameworks.forEach((framework) => {
           name: "1 name"
         }
       ]
+    });
+  });
+  test("Reactive panelAddText/panelRemoveText - #7658", async (t) => {
+    const changeButtonsText = ClientFunction(
+      () => {
+        const q = window["survey"].getQuestionByName("panel1");
+        q.panelAddText = "#Add#";
+        q.panelRemoveText = "#Remove#";
+      }
+    );
+    await initSurvey(framework, {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 2,
+          renderMode: "tab",
+          newPanelPosition: "next",
+          templateElements: [
+            {
+              type: "text",
+              name: "name"
+            },
+          ],
+        }
+      ]
+    });
+    await changeButtonsText();
+    await t.expect(Selector("button").withText("#Add#").exists).ok();
+    await t.expect(Selector("button").withText("#Remove#").exists).ok();
+  });
+  test("Focus first input on adding a new panel", async (t) => {
+    await initSurvey(framework, {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 0,
+          newPanelPosition: "next",
+          templateElements: [
+            {
+              type: "text",
+              name: "name"
+            },
+          ],
+        }
+      ]
+    });
+    await t.click(Selector("button").withText("Add"))
+      .pressKey("1 2 3")
+      .click(Selector("button").withText("Add"))
+      .pressKey("4 5 6")
+      .click(Selector("button").withText("Add"))
+      .pressKey("7 8 9")
+      .click(Selector(".sd-navigation__complete-btn"));
+
+    await t.expect(await getSurveyResult()).eql({
+      panel1: [{ name: "123" }, { name: "456" }, { name: "789" }]
+    });
+  });
+  test("Focus first input on adding a new panel, renderMode='tab'", async (t) => {
+    await initSurvey(framework, {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 0,
+          renderMode: "tab",
+          newPanelPosition: "next",
+          templateElements: [
+            {
+              type: "text",
+              name: "name"
+            },
+          ],
+        }
+      ]
+    });
+    await t.click(Selector("button").withText("Add"))
+      .pressKey("1 2 3")
+      .click(Selector("button").withText("Add"))
+      .pressKey("4 5 6")
+      .click(Selector("button").withText("Add"))
+      .pressKey("7 8 9")
+      .click(Selector(".sd-navigation__complete-btn"));
+
+    await t.expect(await getSurveyResult()).eql({
+      panel1: [{ name: "123" }, { name: "456" }, { name: "789" }]
     });
   });
 });

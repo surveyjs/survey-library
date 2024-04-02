@@ -37,9 +37,9 @@ export class HeaderMobile extends React.Component<any, any> {
         <TitleElement element={this.model.survey}/>
       </div>) : null}
       {this.model.survey.renderedHasDescription ? (<div className="sv-header__description" style={{ maxWidth: this.model.textAreaWidth }}>
-        <h5 className={this.model.survey.css.description}>
+        <div className={this.model.survey.css.description}>
           {SurveyElementBase.renderLocString(this.model.survey.locDescription)}
-        </h5>
+        </div>
       </div>) : null}
     </div>);
   }
@@ -74,9 +74,9 @@ export class HeaderCell extends React.Component<any, any> {
           <TitleElement element={this.model.survey}/>
         </div>) : null}
         {this.model.showDescription ? (<div className="sv-header__description" style={{ maxWidth: this.model.textAreaWidth }}>
-          <h5 className={this.model.survey.css.description}>
+          <div className={this.model.survey.css.description}>
             {SurveyElementBase.renderLocString(this.model.survey.locDescription)}
-          </h5>
+          </div>
         </div>) : null}
       </div>
     </div>);
@@ -94,7 +94,7 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
   renderElement(): JSX.Element | null {
     this.model.survey = this.props.survey;
 
-    if(!(this.props.survey.headerView === "advanced" && this.props.survey.renderedHasHeader)) {
+    if(!(this.props.survey.headerView === "advanced")) {
       return null;
     }
 

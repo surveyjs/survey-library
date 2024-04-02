@@ -96,6 +96,7 @@ export * from "./element.component";
 export * from "./template-renderer.component";
 export * from "./questions/customwidget.component";
 export * from "./questions/matrixcell.component";
+export * from "./questions/matrixdropdowncell.component";
 export * from "./questions/matrixtable.component";
 export * from "./questions/matrixdropdown.component";
 export * from "./questions/matrixdynamic.component";
@@ -113,6 +114,7 @@ export * from "./components/loading-indicator/loading-indicator.component";
 export * from "./components/header/header.component";
 export * from "./components/header/header-cell.component";
 export * from "./components/header/header-mobile.component";
+export * from "./svgbundle.component";
 
 export * from "./component-factory";
 export * from "./angular-ui.module";

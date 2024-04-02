@@ -10,18 +10,21 @@
         :id="question.inputId"
         :indeterminate.prop="question.isIndeterminate"
         :disabled="question.isInputReadOnly"
-        :aria-required="question.ariaRequired"
-        :aria-label="question.ariaLabel"
-        :aria-invalid="question.ariaInvalid"
-        :aria-describedby="question.ariaDescribedBy"
+        :role="question.a11y_input_ariaRole"
+        :aria-required="question.a11y_input_ariaRequired"
+        :aria-label="question.a11y_input_ariaLabel"
+        :aria-labelledby="question.a11y_input_ariaLabelledBy"
+        :aria-describedby="question.a11y_input_ariaDescribedBy"
+        :aria-invalid="question.a11y_input_ariaInvalid"
+        :aria-errormessage="question.a11y_input_ariaErrormessage"
       />
       <div
         :class="question.cssClasses.sliderGhost"
-        v-on:click="onLabelClick($event, false)"
+        v-on:click="onLabelClick($event, question.swapOrder)"
       >
       <span
-        :class="question.getLabelCss(false)"
-        ><survey-string :locString="question.locLabelFalse"></survey-string
+        :class="question.getLabelCss(question.swapOrder)"
+        ><survey-string :locString="question.locLabelLeft"></survey-string
       ></span>
       </div>
       <div
@@ -36,9 +39,9 @@
       </div>
       <div
         :class="question.cssClasses.sliderGhost"
-        v-on:click="onLabelClick($event, true)"
-      ><span :class="question.getLabelCss(true)"
-        ><survey-string :locString="question.locLabelTrue"></survey-string
+        v-on:click="onLabelClick($event, !question.swapOrder)"
+      ><span :class="question.getLabelCss(!question.swapOrder)"
+        ><survey-string :locString="question.locLabelRight"></survey-string
       ></span>
       </div>
     </label>

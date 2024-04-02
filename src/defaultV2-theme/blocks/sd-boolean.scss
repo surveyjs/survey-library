@@ -6,15 +6,17 @@
   padding: calcSize(0.5);
   background-color: $editor-background;
   border-radius: calcSize(12.5);
-  box-shadow: $shadow-inner;
+  box-shadow: $shadow-inner, 0 0 0 0px $primary;
+  transition: box-shadow $transition-duration;
 
   &.sd-boolean--allowhover:focus-within {
-    box-shadow: 0 0 0 2px $primary;
+    box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
   }
 }
 
 .sd-boolean__thumb,
 .sd-boolean__label {
+  @include useEditorFontSize;
   display: block;
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
@@ -58,19 +60,38 @@
   box-shadow: $shadow-small;
   border-radius: calcSize(12.5);
   transition-duration: 0.2s;
-  transition-property: margin-left, transform;
+  transition-property: margin-left;
   transition-timing-function: linear;
   color: $primary;
   font-weight: 600;
   margin-left: 0%;
-  transform: translateX(0);
-  white-space: nowrap;
+
+  .sv-string-viewer {
+    &.sv-string-viewer--multiline {
+      white-space: nowrap;
+    }
+  }
+
   z-index: 2;
 }
 
 .sd-boolean--checked .sd-boolean__thumb {
-  margin-left: 100%;
-  transform: translateX(-100%);
+  margin-left: 50%;
+}
+
+.sd-boolean--exchanged {
+  .sd-boolean__thumb {
+    margin-left: calc(50% + calcSize(0.5));
+  }
+
+  &.sd-boolean--checked .sd-boolean__thumb {
+    margin-left: 0%;
+  }
+
+  &.sd-boolean:not(.sd-boolean--checked):not(sd-boolean--indeterminate) .sd-boolean__label--false,
+  &.sd-boolean.sd-boolean--checked .sd-boolean__label--true {
+    color: $font-editorfont-placeholdercolor;
+  }
 }
 
 .sd-boolean--disabled {
@@ -85,11 +106,13 @@
 
 .sd-boolean__thumb-ghost {
   z-index: 1;
+  border-radius: calcSize(12.5);
+  background-color: transparent;
+  transition: background-color $transition-duration;
 }
 
 .sd-boolean.sd-boolean--allowhover .sd-boolean__thumb-ghost:hover {
   background-color: $background-dim-dark;
-  border-radius: calcSize(12.5);
 }
 
 .sd-boolean--error {

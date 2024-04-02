@@ -18,11 +18,14 @@ export class ModalComponent {
   constructor(private popupService: PopupService) {
   }
   showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
-    this.model = createPopupModalViewModel(dialogOptions, rootElement);
-    this.model.model.onHide = () => {
-      this.portalHost.detach();
-      this.model.dispose();
+    const popupViewModel = this.model = createPopupModalViewModel(dialogOptions, rootElement);
+    const onVisibilityChangedCallback = (_: PopupBaseViewModel, options: { isVisible: boolean }) => {
+      if(!options.isVisible) {
+        this.portalHost.detach();
+        this.model.dispose();
+      }
     };
+    popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);
     this.portalHost = this.popupService.createComponent(this.model);
     this.model.model.isVisible = true;
     return this.model;

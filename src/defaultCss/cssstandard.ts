@@ -5,7 +5,7 @@ export var defaultStandardCss = {
   container: "sv_container",
   header: "sv_header",
   bodyContainer: "sv-components-row",
-  body: "sv-components-column sv-components-column--expandable sv_body",
+  body: "sv_body",
   bodyEmpty: "sv_body sv_body_empty",
   footer: "sv_nav",
   title: "",
@@ -200,7 +200,7 @@ export var defaultStandardCss = {
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
     cellLabel: "sv_q_m_cell_label",
-    cellResponsiveTitle: "sv-hidden"
+    cellResponsiveTitle: "sv_q_m_cell_responsive_title"
   },
   matrixdropdown: {
     root: "sv_q_matrix_dropdown",
@@ -208,6 +208,7 @@ export var defaultStandardCss = {
     headerCell: "sv_matrix_cell_header",
     row: "sv_matrix_row",
     rowAdditional: "sv-matrix__row--additional",
+    rowTextCell: "sv-table__cell--row-text",
     detailRow: "sv_matrix_detail_row",
     detailRowText: "sv_matrix_cell_detail_rowtext",
     detailCell: "sv_matrix_cell_detail",
@@ -365,14 +366,21 @@ export var defaultStandardCss = {
   },
   window: {
     root: "sv_window",
+    rootCollapsedMod: "sv_window--collapsed",
+    rootFullScreenMode: "sv_window--full-screen",
+    rootContent: "sv_window_root-content",
     body: "sv_window_content",
     header: {
-      root: "sv_window_title",
-      title: "",
-      button: "",
+      root: "sv_window_header",
+      titleCollapsed: "sv_window_header_title_collapsed",
+      buttonsContainer: "sv_window_buttons_container",
+      button: "sv_window_button",
       buttonExpanded: "",
       buttonCollapsed: "",
-    },
+      collapseButton: "sv_window_button sv_window_button_collapse",
+      closeButton: "sv_window_button sv_window_button_close",
+      fullScreenButton: "sv_window_button sv_window_button_full_screen"
+    }
   },
   variables: {
     mobileWidth: "--sv-mobile-width",

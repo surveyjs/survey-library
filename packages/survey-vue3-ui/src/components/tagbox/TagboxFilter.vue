@@ -30,6 +30,7 @@
         :aria-controls="model.listElementId"
         :aria-label="question.a11y_input_ariaLabel"
         :aria-labelledby="question.a11y_input_ariaLabelledBy"
+        :aria-describedby="question.a11y_input_ariaDescribedBy"
         :aria-activedescendant="model.ariaActivedescendant"
         :id="question.getInputId()"
         :readonly="model.filterReadOnly ? true : undefined"

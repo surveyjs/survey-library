@@ -13,7 +13,7 @@ const initPopupSurvey = ClientFunction(
     };
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
-
+    window["Survey"].settings.animationEnabled = false;
     const model = new window["Survey"].Model(json);
     const surveyComplete = function (model) {
       window["SurveyResult"] = model.data;
@@ -43,7 +43,7 @@ const initPopupSurvey = ClientFunction(
         data: { survey: model },
       });
     } else if (framework === "angular" || framework == "vue3") {
-      window.setSurvey(model, true);
+      window.setSurvey(model, true, false);
     }
     window["survey"] = model;
   }
@@ -84,28 +84,28 @@ frameworks.forEach(framework => {
 
   test("Show Popup", async t => {
     let surveyResult;
-    const titleSelector = Selector("span").withText("Car survey");
+    const expandCollapseButton = Selector(".sv_window_button_collapse");
     await t
-      .expect(titleSelector.visible).ok()
-      .click(titleSelector)
+      .expect(expandCollapseButton.visible).ok()
+      .click(expandCollapseButton)
       .click(Selector(".sv_q_checkbox_control_label").withText("Nissan"))
       .click(Selector(".sv_q_checkbox_control_label").withText("Audi"))
       .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult.car).eql(["Nissan", "Audi"]);
-    await t.expect(titleSelector.exists).notOk();
+    await t.expect(expandCollapseButton.exists).notOk();
   });
 
   test("Check popup styles", async t => {
     await t.resizeWindow(1000, 600);
-    const titleSelector = Selector("span").withText("Car survey");
+    const expandCollapseButton = Selector(".sv_window_button_collapse");
     const getStyleWidthInPercents = ClientFunction((prop) => {
       return document.querySelector(".sv_window").style[prop];
     });
     await t
-      .expect(titleSelector.visible).ok()
-      .click(titleSelector);
+      .expect(expandCollapseButton.visible).ok()
+      .click(expandCollapseButton);
 
     await t
       .expect(getStyleWidthInPercents("width")).eql("60%")
@@ -121,7 +121,7 @@ frameworks.forEach(framework => {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
-  test("Check popup scrolling hides all popups inside survey", async t => {
+  test("Check dropdown-popups hiding during parent survey popup scrolling", async t => {
     await t.resizeWindow(1000, 500);
     await initPopupSurvey(framework, {
       title: "Survey title",
@@ -148,11 +148,11 @@ frameworks.forEach(framework => {
         }
       ]
     });
-    const titleSelector = Selector("span").withText("Survey title");
-    await t.click(titleSelector)
+    const expandCollapseButton = Selector(".sv_window_button_collapse");
+    await t.click(expandCollapseButton)
       .click(Selector(".sv_q_dropdown__filter-string-input"))
       .expect(Selector(".sv-popup__container").filterVisible().exists).ok()
-      .scroll(Selector(".sv_window_content").filterVisible(), "bottom")
+      .scroll(Selector(".sv_window").filterVisible(), "bottom")
       .expect(Selector(".sv-popup__container").filterVisible().exists).notOk();
   });
 });

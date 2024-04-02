@@ -5,6 +5,10 @@
   padding-inline-start: calcSize(0.5); //padding-left
 }
 
+.sd-tagbox.sd-input--disabled {
+  white-space: normal;
+}
+
 .sd-tagbox.sd-tagbox--empty {
   // padding: calcSize(0.5) calcSize(6) calcSize(0.5) calcSize(2);
   // padding-block: calcSize(0.5);
@@ -13,13 +17,14 @@
 }
 
 .sd-tagbox_clean-button {
+  @include useEditorFontSize;
   height: multiply(1.5, $font-editorfont-size);
   padding: multiply(0.5, $font-editorfont-size);
   margin: auto 0;
 }
 
 .sd-input.sd-tagbox:focus-within {
-  box-shadow: 0 0 0 2px $primary;
+  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
 
 .sv-tagbox__item {
@@ -29,6 +34,9 @@
   padding: calcSize(1) calcSize(1.5);
   background-color: $primary;
   border-radius: calcCornerRadius(0.5);
+
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .sv-tagbox__item-text {
@@ -36,27 +44,36 @@
   min-width: calcSize(5.5);
   text-align: center;
   font-weight: 600;
+
+  span {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
 }
 
 .sv-tagbox__item:hover,
 .sv-tagbox__item:focus,
 .sv-tagbox__item:focus-within {
   .sd-tagbox-item_clean-button {
-    display: flex;
     align-self: center;
+    opacity: 1;
   }
 }
 
 .sd-tagbox-item_clean-button {
-  display: none;
+  display: flex;
   position: absolute;
   inset-inline-end: calcSize(1.5);
   padding: 0;
   padding-inline-start: calcSize(4);
   background: linear-gradient(270deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
+  opacity: 0;
+  transition: opacity $transition-duration;
 }
 
 .sd-tagbox-item_clean-button-svg {
+  @include useEditorFontSize;
   display: block;
   padding: multiply(0.25, $font-editorfont-size);
   width: multiply(1, $font-editorfont-size);
@@ -112,7 +129,6 @@
 }
 
 .sd-tagbox.sd-tagbox--empty {
-
   .sd-tagbox__hint,
   .sd-tagbox__hint-suffix-wrapper,
   .sd-tagbox__filter-string-input {
@@ -131,6 +147,7 @@
 }
 
 .sd-dropdown__hint-suffix.sd-tagbox__hint-suffix {
+  @include useEditorFontSize;
   line-height: multiply(1.5, $font-editorfont-size);
   height: 100%;
   display: flex;
@@ -138,6 +155,7 @@
 }
 
 .sd-dropdown__hint-prefix.sd-tagbox__hint-prefix {
+  @include useEditorFontSize;
   line-height: multiply(1.5, $font-editorfont-size);
   height: 100%;
   display: flex;

@@ -9,6 +9,8 @@ export var turkishSurveyStrings = {
   startSurveyText: "Başlat",
   otherItemText: "Diğer (açıklayınız)",
   noneItemText: "Hiçbiri",
+  refuseItemText: "Cevap vermeyi reddet",
+  dontKnowItemText: "Bilmiyorum",
   selectAllItemText: "Tümünü Seç",
   progressText: "Sayfa {0}/{1}",
   indexText: "{0}/{1}",
@@ -25,6 +27,7 @@ export var turkishSurveyStrings = {
   requiredError: "Lütfen soruya cevap verin.",
   requiredErrorInPanel: "Lütfen en az bir soruyu yanıtlayın.",
   requiredInAllRowsError: "Lütfen tüm satırlardaki soruları cevaplayın.",
+  eachRowUniqueError: "Her satırın benzersiz bir değeri olmalıdır.",
   numericError: "Değer sayısal olmalıdır.",
   minError: "Değer {0}'den küçük olmamalıdır",
   maxError: "Değer {0}'dan büyük olmamalıdır",
@@ -42,6 +45,7 @@ export var turkishSurveyStrings = {
   urlRequestError: "İstek '{0}' hatasını döndürdü. {1}",
   urlGetChoicesError: "İstek boş veri döndürdü veya 'path' özelliği yanlış",
   exceedMaxSize: "Dosya boyutu {0} değerini geçemez.",
+  noUploadFilesHandler: "Dosyalar yüklenemiyor. Lütfen 'onUploadFiles' olayı için bir işleyici ekleyin.",
   otherRequiredError: "Lütfen diğer değerleri girin.",
   uploadingFile: "Dosyanız yükleniyor. Lütfen birkaç saniye bekleyin ve tekrar deneyin.",
   loadingFile: "Yükleniyor...",
@@ -56,6 +60,8 @@ export var turkishSurveyStrings = {
   emptyRowsText: "Satır yok.",
   addPanel: "Yeni ekle",
   removePanel: "Kaldır",
+  showDetails: "Detayları göster",
+  hideDetails: "Detayları Gizle",
   choices_Item: "öğe",
   matrix_column: "Sütun",
   matrix_row: "Satır",
@@ -94,7 +100,9 @@ export var turkishSurveyStrings = {
   more: "Daha fazla",
   tagboxDoneButtonCaption: "TAMAM",
   selectToRankEmptyRankedAreaText: "Tüm seçenekler sıralanmıştır",
-  selectToRankEmptyUnrankedAreaText: "Seçimleri sıralamak için buraya sürükleyip bırakın"
+  selectToRankEmptyUnrankedAreaText: "Seçimleri sıralamak için buraya sürükleyip bırakın",
+  ok: "TAMAM",
+  cancel: "İptal"
 };
 
 surveyLocalization.locales["tr"] = turkishSurveyStrings;
@@ -105,4 +113,10 @@ surveyLocalization.localeNames["tr"] = "türkçe";
 // takePhotoCaption: "Take Photo" => "Fotoğraf Çekin"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Kamerayı kullanarak fotoğraf çekmek için aşağıdaki düğmeyi tıklayın."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Kamerayı kullanarak fotoğraf yüklemek veya fotoğraf çekmek için bir dosyayı sürükleyip bırakın veya seçin."
-// replaceFileCaption: "Replace file" => "Dosyayı değiştir"
+// replaceFileCaption: "Replace file" => "Dosyayı değiştir"// eachRowUniqueError: "Each row must have a unique value." => "Her satırın benzersiz bir değeri olmalıdır."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Dosyalar yüklenemiyor. Lütfen 'onUploadFiles' olayı için bir işleyici ekleyin."
+// showDetails: "Show Details" => "Detayları göster"
+// hideDetails: "Hide Details" => "Detayları Gizle"
+// ok: "OK" => "TAMAM"
+// cancel: "Cancel" => "İptal"// refuseItemText: "Refuse to answer" => "Cevap vermeyi reddet"
+// dontKnowItemText: "Don't know" => "Bilmiyorum"

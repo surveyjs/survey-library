@@ -99,7 +99,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
   }
   supportGoNextPageAutomatic(): boolean {
-    return true;
+    return !this.isOtherSelected;
   }
   private minMaxChoices = <Array<ItemValue>>[];
   protected getChoices(): Array<ItemValue> {
@@ -194,6 +194,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   @property() allowClear: boolean;
   /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/ (linkStyle))
+   * @see searchMode
+   * @see [SurveyModel.onChoicesSearch](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesSearch)
    */
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
@@ -203,6 +207,25 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
   }) searchEnabled: boolean;
 
+  /**
+   * Specifies a comparison operation used to filter the drop-down list. Applies only if [`searchEnabled`](#searchEnabled) is `true`.
+   *
+   * Possible values:
+   *
+   * - `"contains"` (default)
+   * - `"startsWith"`
+   * @see [SurveyModel.onChoicesSearch](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesSearch)
+   */
+  @property() searchMode: "contains" | "startsWith";
+
+  /**
+   * Specifies whether to wrap long texts in choice options onto a new line.
+   *
+   * Default value: `true`
+   *
+   * Disable this property if you want the texts to be truncated with ellipsis.
+   */
+  @property() textWrapEnabled: boolean;
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;
   /**
@@ -295,7 +318,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
-    if (this.popupModel) {
+    if (!this.isLoadingFromJson && this.popupModel) {
       this.dropdownListModel.updateItems();
     }
   }
@@ -341,8 +364,10 @@ Serializer.addClass(
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },
     { name: "autocomplete", alternativeName: "autoComplete", choices: settings.questions.dataList, },
+    { name: "textWrapEnabled:boolean", default: true },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
+    { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "inputFieldComponent", visible: false },

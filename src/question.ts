@@ -21,6 +21,7 @@ import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
 import { ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
+import { DomWindowHelper } from "./global_variables_utils";
 
 export interface IConditionObject {
   name: string;
@@ -375,8 +376,8 @@ export class Question extends SurveyElement<Question>
       this.errors = [];
     }
   }
-  protected notifyStateChanged(): void {
-    super.notifyStateChanged();
+  protected notifyStateChanged(prevState: string): void {
+    super.notifyStateChanged(prevState);
     if(this.isCollapsed) {
       this.onHidingContent();
     }
@@ -417,7 +418,7 @@ export class Question extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see visible
    * @see isVisible
    */
@@ -1011,6 +1012,9 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.headerBottom, this.hasTitleOnBottom)
       .toString();
   }
+  protected supportContainerQueries() {
+    return false;
+  }
   public get cssContent(): string {
     this.ensureElementCss();
     return this.getPropertyValue("cssContent", "");
@@ -1021,6 +1025,7 @@ export class Question extends SurveyElement<Question>
   protected getCssContent(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.content)
+      .append(cssClasses.contentSupportContainerQueries, this.supportContainerQueries())
       .append(cssClasses.contentLeft, this.hasTitleOnLeft)
       .toString();
   }
@@ -1257,7 +1262,7 @@ export class Question extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see isRequired
    */
   public get requiredIf(): string {
@@ -1298,6 +1303,9 @@ export class Question extends SurveyElement<Question>
   }
   public get ariaTitleId(): string {
     return this.id + "_ariaTitle";
+  }
+  public get ariaDescriptionId(): string {
+    return this.id + "_ariaDescription";
   }
   public get commentId(): string {
     return this.id + "_comment";
@@ -1341,8 +1349,7 @@ export class Question extends SurveyElement<Question>
     if (this.forceIsInputReadOnly !== undefined) {
       return this.forceIsInputReadOnly;
     }
-    var isDesignModeV2 = settings.supportCreatorV2 && this.isDesignMode;
-    return this.isReadOnly || isDesignModeV2;
+    return this.isReadOnly || this.isDesignModeV2;
   }
   public get renderedInputReadOnly() {
     return this.isInputReadOnly ? "" : undefined;
@@ -1364,7 +1371,7 @@ export class Question extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
    * @see isReadOnly
    */
@@ -1548,8 +1555,8 @@ export class Question extends SurveyElement<Question>
     if (reason === "onHiddenContainer" && !this.isParentVisible) return true;
     if (this.isVisibleInSurvey) return false;
     if (!!this.page && this.page.isStartPage) return false;
-    if (!this.survey || !this.valueName) return true;
-    return !this.survey.hasVisibleQuestionByValueName(this.valueName);
+    if (!this.survey) return true;
+    return !this.survey.hasVisibleQuestionByValueName(this.getValueName());
   }
   /**
    * Returns `true` if a parent element (page or panel) is visible.
@@ -2040,13 +2047,12 @@ export class Question extends SurveyElement<Question>
     questions.push(this);
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    var json = new JsonObject().toJsonObject(this);
+    const json = new JsonObject().toJsonObject(this);
     json["type"] = this.getType();
     return json;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    var oldHasErrors = this.errors.length > 0;
-    var errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
+    const errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
     if (fireCallback) {
       if (!!this.survey) {
         this.survey.beforeSettingQuestionErrors(this, errors);
@@ -2092,11 +2098,14 @@ export class Question extends SurveyElement<Question>
     if (!error) return;
     let newError: SurveyError = null;
     if (typeof error === "string" || error instanceof String) {
-      newError = new CustomError(<string>error, this.survey);
+      newError = this.addCustomError(<string>error);
     } else {
       newError = <SurveyError>error;
     }
     this.errors.push(newError);
+  }
+  private addCustomError(error: string): SurveyError {
+    return new CustomError(error, this.survey);
   }
   public removeError(error: SurveyError): void {
     var errors = this.errors;
@@ -2146,6 +2155,12 @@ export class Question extends SurveyElement<Question>
       const err = new AnswerRequiredError(this.requiredErrorText, this);
       err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
       errors.push(err);
+    }
+    if(!this.isEmpty() && this.customWidget) {
+      const text = this.customWidget.validate(this);
+      if(!!text) {
+        errors.push(this.addCustomError(text));
+      }
     }
   }
   protected hasRequiredError(): boolean {
@@ -2268,6 +2283,9 @@ export class Question extends SurveyElement<Question>
   protected setNewComment(newValue: string): void {
     if (this.questionComment === newValue) return;
     this.questionComment = newValue;
+    this.setCommentIntoData(newValue);
+  }
+  protected setCommentIntoData(newValue: string): void {
     if (this.data != null) {
       this.data.setComment(
         this.getValueName(),
@@ -2280,7 +2298,7 @@ export class Question extends SurveyElement<Question>
     return makeNameValid(name);
   }
   //IQuestion
-  updateValueFromSurvey(newValue: any): void {
+  updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     newValue = this.getUnbindValue(newValue);
     if (!!this.valueFromDataCallback) {
       newValue = this.valueFromDataCallback(newValue);
@@ -2293,6 +2311,9 @@ export class Question extends SurveyElement<Question>
       });
     } else {
       this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
+      if(clearData && isEmpty) {
+        this.isValueChangedDirectly = false;
+      }
     }
     this.updateDependedQuestions();
     this.updateIsAnswered();
@@ -2508,7 +2529,7 @@ export class Question extends SurveyElement<Question>
 
       };
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-        window.requestAnimationFrame((): void | undefined => {
+        DomWindowHelper.requestAnimationFrame((): void | undefined => {
           this.triggerResponsiveness(false);
         });
       });
@@ -2593,10 +2614,19 @@ export class Question extends SurveyElement<Question>
       return null;
     }
   }
+  public get ariaDescribedBy(): string {
+    if (this.isNewA11yStructure) return null;
+
+    if (this.hasTitle) {
+      return this.ariaDescriptionId;
+    } else {
+      return null;
+    }
+  }
   public get ariaExpanded(): string {
     return null;
   }
-  public get ariaDescribedBy(): string {
+  public get ariaErrormessage(): string {
     if (this.isNewA11yStructure) return null;
 
     return this.hasCssError() ? this.id + "_errors" : null;
@@ -2628,6 +2658,13 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
+    if (this.hasTitle && !this.parentQuestion) {
+      return this.ariaDescriptionId;
+    } else {
+      return null;
+    }
+  }
+  public get a11y_input_ariaErrormessage(): string {
     return this.hasCssError() ? this.id + "_errors" : null;
   }
   //EO new a11y

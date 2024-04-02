@@ -2,6 +2,8 @@
 // import "../../main.scss";
 //import "../../modern.scss";
 
+import { DomWindowHelper } from "../../global_variables_utils";
+
 export var Version: string;
 export var ReleaseDate: string;
 Version = `${process.env.VERSION}`;
@@ -41,7 +43,7 @@ function _slk(k: any, lh: any, rd: any) {
   if (!v) return;
   let index = v.indexOf(";");
   if (index < 0) return;
-  if(!checkPrefix(v.substring(0, index))) return;
+  if (!checkPrefix(v.substring(0, index))) return;
   v = v.substring(index + 1);
   v.split(",").forEach(s => {
     let i = s.indexOf("=");
@@ -51,17 +53,18 @@ function _slk(k: any, lh: any, rd: any) {
   });
 }
 function checkPrefix(prefix: string): boolean {
-  if(!prefix) return true;
+  if (!prefix) return true;
   const s = "domains:";
   const index = prefix.indexOf(s);
-  if(index < 0) return true;
+  if (index < 0) return true;
   const ds = prefix.substring(index + s.length).toLowerCase().split(",");
-  if(!Array.isArray(ds) || ds.length === 0) return true;
-  if(typeof window !== "undefined" && !!window.location && !!window.location.hostname) {
-    const hn = window.location.hostname.toLowerCase();
+  if (!Array.isArray(ds) || ds.length === 0) return true;
+  const location = DomWindowHelper.getLocation();
+  if (!!location && !!location.hostname) {
+    const hn = location.hostname.toLowerCase();
     ds.push("localhost");
-    for(let i = 0; i < ds.length; i ++) {
-      if(hn.indexOf(ds[i]) > -1) return true;
+    for (let i = 0; i < ds.length; i++) {
+      if (hn.indexOf(ds[i]) > -1) return true;
     }
     return false;
   }
@@ -94,7 +97,8 @@ export {
   ITitleOwner,
   ISurveyLayoutElement,
   IPlainDataOptions as IPlainData,
-  IShortcutText
+  IShortcutText,
+  ILoadFromJSONOptions
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
 export { SurveyElementCore, SurveyElement, DragTypeOverMeEnum } from "../../survey-element";
@@ -135,6 +139,7 @@ export {
   JsonMissingTypeError,
   JsonMissingTypeErrorBase,
   JsonObject,
+  IJsonPropertyInfo,
   JsonObjectProperty,
   JsonRequiredPropertyError,
   JsonUnknownPropertyError,
@@ -149,7 +154,7 @@ export {
   QuestionMatrixDropdownModelBase
 } from "../../question_matrixdropdownbase";
 export { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../../question_matrixdropdowncolumn";
-export { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "../../question_matrixdropdownrendered";
+export { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedErrorRow, QuestionMatrixDropdownRenderedTable } from "../../question_matrixdropdownrendered";
 export {
   MatrixDropdownRowModel,
   QuestionMatrixDropdownModel
@@ -214,7 +219,7 @@ export { SurveyTimer } from "../../surveytimer";
 export { SurveyTimerModel } from "../../surveyTimerModel";
 export * from "../../surveyToc";
 export { SurveyProgressModel } from "../../surveyProgress";
-export { SurveyProgressButtonsModel } from "../../surveyProgressButtons";
+export { ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "../../progress-buttons";
 export * from "../../themes";
 export { SurveyModel } from "../../survey";
 export * from "../../survey-events-api";
@@ -275,9 +280,15 @@ export {
   loadFileFromBase64,
   increaseHeightByContent,
   createSvg,
+  chooseFiles,
   sanitizeEditableContent,
   IAttachKey2clickOptions
 } from "../../utils/utils";
+export { InputMaskBase } from "../../mask/mask_base";
+export { InputMaskPattern } from "../../mask/mask_pattern";
+export { InputMaskNumeric } from "../../mask/mask_numeric";
+export { InputMaskDateTime } from "../../mask/mask_datetime";
+export { InputMaskCurrency } from "../../mask/mask_currency";
 export * from "../../utils/cssClassBuilder";
 
 export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../defaultCss/defaultV2Css";

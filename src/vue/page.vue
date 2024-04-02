@@ -6,15 +6,14 @@
     </div>
     <survey-errors :element="page" />
     <template v-for="(row, index) in rows">
-      <survey-row  
+      <survey-row
       v-if="row.visible"
       :key="page.id + '_' + index"
-      :row="row" 
-      :survey="survey" 
+      :row="row"
+      :survey="survey"
       :css="css">
       </survey-row>
     </template>
-    </div>
   </div>
 </template>
 

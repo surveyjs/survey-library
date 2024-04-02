@@ -6,11 +6,12 @@ import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
-import { QuestionFileModel } from "./question_file";
+import { QuestionFileModel, QuestionFileModelBase } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
+import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { Trigger } from "./trigger";
@@ -23,9 +24,9 @@ export interface QuestionEventMixin {
 }
 export interface FileQuestionEventMixin {
   /**
-   * A File Upload question instance for which the event is raised.
+   * A File Upload or Signature Pad question instance for which the event is raised.
    */
-  question: QuestionFileModel;
+  question: QuestionFileModel | QuestionSignaturePadModel;
 }
 export interface PanelDynamicQuestionEventMixin {
   /**
@@ -503,6 +504,34 @@ export interface UploadFilesEvent extends LoadFilesEvent {
    */
   files: Array<File>;
 }
+export interface OpenFileChooserEvent {
+  /**
+   * A file input HTML element.
+   */
+  input: HTMLInputElement;
+  /**
+   * A survey element (question, panel, page, or survey) or a theme JSON schema for which this event is raised.
+   */
+  element: Base;
+  /**
+   * The type of the element passed as the `options.element` parameter.\
+   * Possible values: `"theme"`, `"header"`, or any value returned from the [`getType()`](https://surveyjs.io/form-library/documentation/api-reference/question#getType) method.
+   */
+  elementType: String;
+  /**
+   * The name of the survey element property or theme property for which files are being selected.
+   */
+  propertyName: String;
+  /**
+   * A choice item for which the event is raised. This parameter has a value only when the dialog window is opened to select images for an [Image Picker](https://surveyjs.io/form-library/documentation/api-reference/image-picker-question-model) question.
+   */
+  item: ItemValue;
+  /**
+   * A callback function to which you should pass selected files.
+   * @param files An array of selected files.
+   */
+  callback: (files: Array<File>) => void;
+}
 export interface DownloadFileEvent extends LoadFilesEvent {
   /**
    * A callback function that you should call when a file is downloaded successfully or when deletion fails. Pass `"success"` or `"error"` as the first argument to indicate the operation status. As the second argument, you can pass the downloaded file's data as a Base64 string if file download was successful or an error message if file download failed.
@@ -609,6 +638,22 @@ export interface ChoicesLazyLoadEvent extends QuestionEventMixin {
    */
   skip: number;
 }
+
+export interface ChoicesSearchEvent extends QuestionEventMixin {
+  /**
+   * A search string used to filter choice options.
+   */
+  filter: string;
+  /**
+   * An array of all choice options.
+   */
+  choices: Array<ItemValue>;
+  /**
+   * A filtered array of choice options. Apply `options.filter` to the `options.choices` array and assign the result to this parameter.
+   */
+  filteredChoices: Array<ItemValue>;
+}
+
 export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {
   /**
    * A method that you should call to assign display texts to the question.
@@ -673,10 +718,28 @@ export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMix
    */
   allow: boolean;
 }
+export interface MatrixDetailPanelVisibleChangedEvent extends MatrixDropdownQuestionEventMixin {
+  /**
+   * A matrix row to which the detail section belongs.
+   */
+  row: MatrixDropdownRowModelBase;
+  /**
+   * A zero-based row index.
+   */
+  rowIndex: number;
+  /**
+   * A [PanelModel](https://surveyjs.io/form-library/documentation/panelmodel) that represents the detail section.
+   */
+  detailPanel: PanelModel;
+  /**
+   * Indicates whether the detail section is visible now.
+   */
+  visible: boolean;
+}
 
 export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEventMixin {
   /**
-   * A matrix column to which the cell belongs.
+   * A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
    */
   column: MatrixDropdownColumn;
   /**
@@ -723,7 +786,7 @@ export interface MatrixAfterCellRenderEvent extends QuestionEventMixin, AfterRen
    */
   row: MatrixDropdownRowModelBase;
   /**
-   * A matrix column to which the cell belongs.
+   * A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
    */
   column: MatrixDropdownColumn | MatrixDropdownCell;
 }
@@ -734,7 +797,7 @@ export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMix
    */
   row: MatrixDropdownRowModelBase;
   /**
-   * A matrix column to which the cell belongs.
+   * A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
    */
   column: MatrixDropdownColumn;
   /**
@@ -809,15 +872,17 @@ export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionE
    */
   panel: PanelModel;
 }
-export interface DynamicPanelGetTabTitleEvent extends PanelDynamicQuestionEventMixin {
+export interface DynamicPanelCurrentIndexChangedEvent extends PanelDynamicQuestionEventMixin {
   /**
-   * A panel whose tab title is being rendered.
+   * A panel for which the event is raised.
    */
   panel: PanelModel;
   /**
    * The panel's index in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array of the Dynamic Panel.
    */
   visiblePanelIndex: number;
+}
+export interface DynamicPanelGetTabTitleEvent extends DynamicPanelCurrentIndexChangedEvent {
   /**
    * A tab title. You can change this parameter's value.
    */

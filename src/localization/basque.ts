@@ -9,6 +9,8 @@ export var basqueSurveyStrings = {
   startSurveyText: "Hasi",
   otherItemText: "Beste bat (zehaztu)",
   noneItemText: "Bat ere ez",
+  refuseItemText: "Erantzuteari uko egin",
+  dontKnowItemText: "Ez dakit",
   selectAllItemText: "Guztia hautatu",
   progressText: "{1}-(e)tik {0} orrialde",
   indexText: "{1} {0}",
@@ -25,6 +27,7 @@ export var basqueSurveyStrings = {
   requiredError: "Mesedez, galdera erantzun.",
   requiredErrorInPanel: "Mesedez, gutxienez galdera bat erantzun.",
   requiredInAllRowsError: "Mesedez, errenkadako galdera guztiak erantzun.",
+  eachRowUniqueError: "Ilara bakoitzak balio bakarra izan behar du.",
   numericError: "Estimazioa zenbakizkoa izan behar du.",
   minError: "Balioa ez da {0} baino txikiagoa izan behar",
   maxError: "Balioa ez da {0} baino handiagoa izan behar",
@@ -42,6 +45,7 @@ export var basqueSurveyStrings = {
   urlRequestError: "Eskaerak '{0}' errorea itzuli du. {1}",
   urlGetChoicesError: "La solicitud regresó vacío de data o la propiedad 'trayectoria' no es correcta",
   exceedMaxSize: "Fitxategiaren tamaina ez da {0} baino handiagoa izan behar.",
+  noUploadFilesHandler: "Artxiboak ezin dira kargatu. Gaineratu kontrolatzaile bat 'onUploadFiles' ekitaldirako.",
   otherRequiredError: "Mesedez, beste estimazioa gehitu.",
   uploadingFile: "Zure fitxategia igotzen ari da. Mesedez, segundo batzuk itxaron eta saiatu berriro.",
   loadingFile: "Kargatzen...",
@@ -56,6 +60,8 @@ export var basqueSurveyStrings = {
   emptyRowsText: "Ez dago errenkadarik.",
   addPanel: "Berria gehitu",
   removePanel: "Kendu",
+  showDetails: "Xehetasunak erakutsi",
+  hideDetails: "Xehetasunak ezkutatu",
   choices_Item: "artikulua",
   matrix_column: "Zutabea",
   matrix_row: "Errenkada",
@@ -94,7 +100,9 @@ export var basqueSurveyStrings = {
   more: "Gehiago",
   tagboxDoneButtonCaption: "Ados",
   selectToRankEmptyRankedAreaText: "Aukera guztiak sailkatuta daude",
-  selectToRankEmptyUnrankedAreaText: "Arrastaka eta askatzen ditu hemen sailkatzeko"
+  selectToRankEmptyUnrankedAreaText: "Arrastaka eta askatzen ditu hemen sailkatzeko",
+  ok: "Ados",
+  cancel: "Ezeztatu"
 };
 
 surveyLocalization.locales["eu"] = basqueSurveyStrings;
@@ -116,4 +124,11 @@ surveyLocalization.localeNames["eu"] = "Euskara";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrastaka eta askatzen ditu hemen sailkatzeko"// takePhotoCaption: "Take Photo" => "Argazkia hartu"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Egin klik beheko botoian, kamerarekin argazki bat hartzeko."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrastatu eta askatu artxibo bat kamerarekin argazki bat kargatzeko edo hartzeko."
-// replaceFileCaption: "Replace file" => "Artxiboa ordeztu"
+// replaceFileCaption: "Replace file" => "Artxiboa ordeztu"// eachRowUniqueError: "Each row must have a unique value." => "Ilara bakoitzak balio bakarra izan behar du."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Artxiboak ezin dira kargatu. Gaineratu kontrolatzaile bat 'onUploadFiles' ekitaldirako."
+// showDetails: "Show Details" => "Xehetasunak erakutsi"
+// hideDetails: "Hide Details" => "Xehetasunak ezkutatu"
+// ok: "OK" => "Ados"
+// cancel: "Cancel" => "Ezeztatu"
+// refuseItemText: "Refuse to answer" => "Erantzuteari uko egin"
+// dontKnowItemText: "Don't know" => "Ez dakit"

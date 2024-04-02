@@ -116,15 +116,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
 
   protected beforeUpdate(): void {
-    if (this.getShouldReattachChangeDetector()) {
-      this.getChangeDetectorRef().detach();
-    }
     this.setIsRendering(true);
   }
   protected afterUpdate(isSync: boolean = false): void {
-    if (this.getShouldReattachChangeDetector()) {
-      this.getChangeDetectorRef().reattach();
-    }
     this.setIsRendering(false);
   }
   ngAfterViewChecked(): void {

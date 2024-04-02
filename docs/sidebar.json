@@ -121,6 +121,10 @@
         {
           "Name": "customize-question-types-third-party-component-integration-react",
           "Title": "Integrate Third-Party React Components"
+        },
+        {
+          "Name": "customize-question-types-third-party-component-integration-vue",
+          "Title": "Integrate Third-Party Vue 3 Components"
         }
       ]
     },
@@ -130,7 +134,7 @@
     },
     {
       "Name": "api",
-      "Title": "API",
+      "Title": "Form Library API",
       "Items": [
         {
           "Name": "surveymodel",
@@ -221,8 +225,16 @@
           "Title": "Matrix Dynamic"
         },
         {
+          "Name": "matrixdropdowncolumn",
+          "title": "MatrixDropdownColumn"
+        },
+        {
           "Name": "questionmultipletextmodel",
           "Title": "Multiple Text"
+        },
+        {
+          "Name": "multipletextitemmodel",
+          "title": "MultipleTextItemModel"
         },
         {
           "Name": "panelmodel",
@@ -247,6 +259,22 @@
         {
           "Name": "ICustomQuestionTypeConfiguration",
           "Title": "ICustomQuestionTypeConfiguration"
+        },
+        {
+          "Name": "inputmasknumeric",
+          "Title": "InputMaskNumeric"
+        },
+        {
+          "Name": "inputmaskcurrency",
+          "Title": "InputMaskCurrency"
+        },
+        {
+          "Name": "inputmaskdatetime",
+          "Title": "InputMaskDateTime"
+        },
+        {
+          "Name": "inputmaskpattern",
+          "Title": "InputMaskPattern"
         },
         {
           "Name": "settings",

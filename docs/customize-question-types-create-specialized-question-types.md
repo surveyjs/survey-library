@@ -26,7 +26,7 @@ If you [add this question to the Toolbox](/Documentation/Survey-Creator?id=toolb
 - If the question needs modifications (for example, if the server URL has changed), end users have to modify every created instance of this question individually.
 - In the JSON schema, your custom question looks like a regular Dropdown question.
 
-To avoid these drawbacks, use a different approach: add your custom question type to the survey's `ComponentCollection`:
+To avoid these drawbacks, use a different approach: add your [custom question type](https://surveyjs.io/form-library/documentation/api-reference/icustomquestiontypeconfiguration) to the survey's `ComponentCollection`:
 
 ```js
 Survey.ComponentCollection.Instance.add({
@@ -34,6 +34,8 @@ Survey.ComponentCollection.Instance.add({
   name: "country", 
   // A display name used in the Toolbox
   title: "Country", 
+  // A default title for questions created with this question type
+  defaultQuestionTitle: "Country",
   // A JSON schema for the base question type (Dropdown in this case)
   questionJSON: {
     "type": "dropdown",
@@ -41,7 +43,9 @@ Survey.ComponentCollection.Instance.add({
     "choicesByUrl": {
       "url": "https://surveyjs.io/api/CountriesExample",
     }
-  }
+  },
+  // Inherit all or individual properties from the base question type
+  inheritBaseProps: true // or [ "allowClear" ]
 });
 ```
 
@@ -65,3 +69,4 @@ This approach gives you the following advantages:
 - [Create Composite Question Types](/form-library/documentation/customize-question-types/create-composite-question-types)
 - [Integrate Third-Party React Components](/form-library/documentation/customize-question-types/third-party-component-integration-react)
 - [Integrate Third-Party Angular Components](/form-library/documentation/customize-question-types/third-party-component-integration-angular)
+- [Integrate Third-Party Vue 3 Components](/form-library/documentation/customize-question-types/third-party-component-integration-vue)

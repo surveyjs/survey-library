@@ -12,7 +12,7 @@
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
-      :aria-describedby="question.ariaDescribedBy"
+      :aria-errormessage="question.ariaErrormessage"
       :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
@@ -52,6 +52,7 @@
       :aria-expanded="question.ariaExpanded"
       :aria-label="question.a11y_input_ariaLabel"
       :aria-labelledby="question.a11y_input_ariaLabelledBy"
+      :aria-describedby="question.a11y_input_ariaDescribedBy"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
       :placeholder="model.placeholderRendered"
@@ -65,7 +66,7 @@
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
         v-show="question.showClearButton"
         @click="clear"
-          :tabindex="question.showClearButton ? 0 : -1"
+        aria-hidden="true"
       >
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"

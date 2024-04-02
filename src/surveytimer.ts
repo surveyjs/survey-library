@@ -5,15 +5,14 @@ export var surveyTimerFunctions = {
     return surveyTimerFunctions.safeTimeOut(func, 1000);
   },
   clearTimeout: (timerId: number): void => {
-    if (typeof window === "undefined") return;
-    window.clearTimeout(timerId);
+    clearTimeout(timerId);
   },
-  safeTimeOut: (func:() => any, delay: number): number => {
-    if (typeof window === "undefined" || delay <= 0) {
+  safeTimeOut: (func:() => any, delay: number): number | any => {
+    if (delay <= 0) {
       func();
       return 0;
     } else {
-      return window.setTimeout(func, delay);
+      return setTimeout(func, delay);
     }
   }
 };

@@ -165,18 +165,21 @@ QUnit.test("Showing prev button, showTimerInfo='all'", function(assert) {
     "You have spent 0 sec on this page and 0 sec in total.",
     "Timer is not started"
   );
+  assert.deepEqual(survey.timerClock, { majorText: "0:00", minorText: "0:00" }, "timerClock #1");
   survey.startTimer();
   assert.equal(
     survey.timerInfoText,
     "You have spent 0 sec on this page and 0 sec in total.",
     "Timer just started"
   );
+  assert.deepEqual(survey.timerClock, { majorText: "0:00", minorText: "0:00" }, "timerClock #2");
   doTimer(62);
   assert.equal(
     survey.timerInfoText,
     "You have spent 1 min 2 sec on this page and 1 min 2 sec in total.",
     "62 sec passed"
   );
+  assert.deepEqual(survey.timerClock, { majorText: "1:02", minorText: "1:02" }, "timerClock #3");
   survey.nextPage();
   doTimer(3);
   assert.equal(
@@ -184,18 +187,21 @@ QUnit.test("Showing prev button, showTimerInfo='all'", function(assert) {
     "You have spent 3 sec on this page and 1 min 5 sec in total.",
     "next page 65 sec passed"
   );
+  assert.deepEqual(survey.timerClock, { majorText: "0:03", minorText: "1:05" }, "timerClock #4");
   survey.maxTimeToFinish = 120;
   assert.equal(
     survey.timerInfoText,
     "You have spent 3 sec on this page. You have spent 1 min 5 sec of 2 min in total.",
     "survey limit, next page 65 sec passed"
   );
+  assert.deepEqual(survey.timerClock, { majorText: "0:55", minorText: "0:03" }, "timerClock #5");
   survey.maxTimeToFinishPage = 60;
   assert.equal(
     survey.timerInfoText,
     "You have spent 3 sec of 1 min on this page and 1 min 5 sec of 2 min in total.",
     "survey and page limit, next page 65 sec passed"
   );
+  assert.deepEqual(survey.timerClock, { majorText: "0:57", minorText: "0:55" }, "timerClock #6");
   survey.maxTimeToFinish = 0;
   assert.equal(
     survey.timerInfoText,
@@ -210,6 +216,25 @@ QUnit.test("Showing prev button, showTimerInfo='all'", function(assert) {
     options.html = options.text.replace("*", "!").replace("*", "!");
   });
   assert.equal(survey.timerInfoText, "!65!", "use onTextMarkdown event.");
+  survey.stopTimer();
+});
+QUnit.test("syrvey.timerClock, no negative value", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("p1");
+  survey.pages[0].addNewQuestion("text");
+  survey.maxTimeToFinish = 60;
+  survey.maxTimeToFinishPage = 50;
+  survey.startTimer();
+  assert.deepEqual(survey.timerClock, { majorText: "0:50", minorText: "1:00" }, "timerClock #1");
+  survey.timeSpent = 20;
+  survey.currentPage.timeSpent = 20;
+  assert.deepEqual(survey.timerClock, { majorText: "0:30", minorText: "0:40" }, "timerClock #2");
+  survey.timeSpent = 60;
+  survey.currentPage.timeSpent = 60;
+  assert.deepEqual(survey.timerClock, { majorText: "0:00", minorText: "0:00" }, "timerClock #3");
+  survey.timeSpent = 600;
+  survey.currentPage.timeSpent = 600;
+  assert.deepEqual(survey.timerClock, { majorText: "0:00", minorText: "0:00" }, "timerClock #4");
   survey.stopTimer();
 });
 
@@ -408,4 +433,49 @@ QUnit.test("Check timer when limits are not specified", function(assert) {
   assert.strictEqual(timerModel.clockMajorText, "0:01");
   assert.strictEqual(timerModel.clockMinorText, undefined);
   survey.stopTimer();
+});
+
+QUnit.test("Progress shouldn't be more than 1", function (assert) {
+  const createSurvey = (maxTimeToFinish: number, maxTimeToFinishPage: number): SurveyModel => {
+    var survey = new SurveyModel();
+    survey.maxTimeToFinish = maxTimeToFinish;
+    survey.maxTimeToFinishPage = maxTimeToFinishPage;
+    survey.addNewPage("p1");
+    survey.pages[0].addNewQuestion("text");
+    return survey;
+  };
+  var survey = createSurvey(3, 3);
+  const timerModel = survey.timerModel;
+  survey.startTimer();
+  assert.equal(survey.timerInfo.limit, 3);
+  assert.equal(survey.timerInfo.spent, 0, "initial spent");
+  assert.equal(timerModel.progress, 0, "initial progress");
+  doTimer(1);
+  assert.equal(survey.timerInfo.limit, 3);
+  assert.equal(survey.timerInfo.spent, 1, "spent 1");
+  assert.equal(timerModel.progress, 0.66, "progress 1");
+  doTimer(1);
+  assert.equal(survey.timerInfo.limit, 3);
+  assert.equal(survey.timerInfo.spent, 2, "spent 2");
+  assert.equal(timerModel.progress, 1, "progress 2");
+  doTimer(1);
+  assert.equal(survey.timerInfo.limit, 3);
+  assert.equal(survey.timerInfo.spent, 3, "spent 3");
+  assert.equal(timerModel.progress, undefined, "progress 3");
+  doTimer(1);
+  assert.equal(survey.timerInfo.limit, 3);
+  assert.equal(survey.timerInfo.spent, 3, "spent 4");
+  assert.equal(timerModel.progress, undefined, "progress 4");
+});
+
+QUnit.test("Do not start timer if the survey in the display mode", function (assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("p1");
+  survey.pages[0].addNewQuestion("text");
+  survey.maxTimeToFinish = 10;
+  survey.maxTimeToFinishPage = 7;
+  survey.mode = "display";
+  survey.startTimer();
+  doTimer(5);
+  assert.equal(survey.timeSpent, 0, "Timmer is not started");
 });

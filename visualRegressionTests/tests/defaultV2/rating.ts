@@ -578,6 +578,7 @@ frameworks.forEach(framework => {
         const themeJson = {
           "cssVariables": {
             "--sjs-shadow-small": "inset 0px 2px 0px 0px rgba(0, 0, 0, 1)",
+            "--sjs-shadow-small-reset": "inset 0px 0px 0px 0px rgba(0, 0, 0, 1)"
           },
           "isPanelless": false
         };
@@ -746,4 +747,49 @@ frameworks.forEach(framework => {
 
     });
   });
+  test("Check rating rate descriptions position", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        width: "900px",
+        questions: [
+          {
+            "type": "rating",
+            "name": "question2",
+            "title": "How likely are you to recommend us to a friend or colleague?",
+            "rateMax": 10,
+            "minRateDescription": "Not at all likely",
+            "maxRateDescription": "Extremely likely",
+            "rateDescriptionLocation": "top"
+          },
+          {
+            "type": "rating",
+            "name": "question3",
+            "title": "How likely are you to recommend us to a friend or colleague?",
+            "rateMax": 10,
+            "minRateDescription": "Not at all likely",
+            "maxRateDescription": "Extremely likely",
+            "rateDescriptionLocation": "bottom"
+          },
+          {
+            "type": "rating",
+            "name": "question4",
+            "title": "How likely are you to recommend us to a friend or colleague?",
+            "rateMax": 10,
+            "minRateDescription": "Not at all likely",
+            "maxRateDescription": "Extremely likely",
+            "rateDescriptionLocation": "topBottom"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await takeElementScreenshot("question-rating-labels-top.png", questionRoot.nth(0), t, comparer);
+      await takeElementScreenshot("question-rating-labels-bottom.png", questionRoot.nth(1), t, comparer);
+      await takeElementScreenshot("question-rating-labels-diagonal.png", questionRoot.nth(2), t, comparer);
+    });
+  });
+
 });

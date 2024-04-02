@@ -37,6 +37,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   protected getValueCore(): any {
     return this.questionBase.renderedValue;
   }
+  protected renderReadOnlyElement(): JSX.Element | null {
+    return <div>{this.question.readOnlyText}</div>;
+  }
   protected renderSelect(cssClasses: any): JSX.Element {
     let selectElement: JSX.Element | null = null;
     if (this.question.isReadOnly) {
@@ -45,7 +48,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       // @ts-ignore
       selectElement = <div id={this.question.inputId} className={this.question.getControlClass()} disabled>
         {text}
-        <div>{this.question.readOnlyText}</div>
+        {this.renderReadOnlyElement()}
       </div>;
     } else {
       if (!(this.question as any)["dropdownListModel"]) {
@@ -97,7 +100,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       aria-required={this.question.ariaRequired}
       aria-label={this.question.ariaLabel}
       aria-invalid={this.question.ariaInvalid}
-      aria-describedby={this.question.ariaDescribedBy}
+      aria-errormessage={this.question.ariaErrormessage}
       aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
       aria-controls={dropdownListModel.listElementId}
       aria-activedescendant={dropdownListModel.ariaActivedescendant}
@@ -121,6 +124,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
           aria-label={this.question.a11y_input_ariaLabel}
           aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+          aria-describedby={this.question.a11y_input_ariaDescribedBy}
           aria-controls={dropdownListModel.listElementId}
           aria-activedescendant={dropdownListModel.ariaActivedescendant}
           placeholder={dropdownListModel.placeholderRendered}
@@ -146,7 +150,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         className={this.question.cssClasses.cleanButton}
         style={style}
         onClick={this.clear}
-        tabIndex={this.question.showClearButton ? 0 : -1}
+        aria-hidden="true"
       >
         <SvgIcon
           className={this.question.cssClasses.cleanButtonSvg}

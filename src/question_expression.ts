@@ -134,8 +134,8 @@ export class QuestionExpressionModel extends Question {
   protected onValueChanged() {
     this.updateFormatedValue();
   }
-  updateValueFromSurvey(newValue: any): void {
-    super.updateValueFromSurvey(newValue);
+  updateValueFromSurvey(newValue: any, clearData: boolean): void {
+    super.updateValueFromSurvey(newValue, clearData);
     this.updateFormatedValue();
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -442,6 +442,9 @@ Serializer.addClass(
         return getCurrecyCodes();
       },
       default: "USD",
+      visibleIf: (obj: QuestionExpressionModel): boolean => {
+        return obj.displayStyle === "currency";
+      }
     },
     { name: "maximumFractionDigits:number", default: -1 },
     { name: "minimumFractionDigits:number", default: -1 },

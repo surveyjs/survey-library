@@ -27,7 +27,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     creator: ISurveyCreator,
     question: Question
   ): JSX.Element | any {
-    if (!question.isVisible) return null;
+    // if (!question.isVisible) return null;
     var customWidget = question.customWidget;
     if (!customWidget) {
       return creator.createQuestionElement(question);
@@ -91,15 +91,14 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     return (
       super.canRender() &&
       !!this.question &&
-      !!this.creator &&
-      this.question.isVisible
+      !!this.creator
     );
   }
 
   protected renderQuestionContent(): JSX.Element {
     let question = this.question;
     var contentStyle = {
-      display: !this.question.isCollapsed ? "" : "none",
+      display: this.question.renderedIsExpanded ? "" : "none",
     };
     var cssClasses = question.cssClasses;
     var questionRender = this.renderQuestion();
@@ -157,6 +156,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-required={this.question.ariaRequired}
           aria-invalid={this.question.ariaInvalid}
           aria-labelledby={question.ariaLabelledBy}
+          aria-describedby={question.ariaDescribedBy}
           aria-expanded={question.ariaExpanded === null ? undefined : question.ariaExpanded === "true"}
         >
           {errorsAboveQuestion}
@@ -354,7 +354,7 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
       >
         {this.wrapCell(this.props.cell,
           (
-            <div className={this.cssClasses.cellQuestionWrapper}>
+            <div className={this.props.cell.cellQuestionWrapperClassName}>
               {this.renderQuestion()}
             </div>)
         )}

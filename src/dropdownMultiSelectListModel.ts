@@ -47,7 +47,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     if (!_onSelectionChanged) {
       _onSelectionChanged = (item: ItemValue, status: string) => {
         this.resetFilterString();
-        if (item.value === "selectall") {
+        if (item.id === "selectall") {
           this.selectAllItems();
         } else if (status === "added" && item.value === settings.noneItemValue) {
           this.selectNoneItem();
@@ -63,6 +63,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       };
     }
     const res = new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.question.choicesLazyLoadEnabled ? this.listModelFilterStringChanged : undefined, this.listElementId);
+    this.setOnTextSearchCallbackForListModel(res);
     res.forceShowFilter = true;
     return res;
   }

@@ -1,5 +1,5 @@
 import { Base, ArrayChanges } from "../src/base";
-import { ITextProcessor } from "../src/base-interfaces";
+import { IQuestion, ITextProcessor } from "../src/base-interfaces";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { ChoicesRestful } from "../src/choicesRestful";
@@ -531,6 +531,22 @@ QUnit.test("Test dropdown", function(assert) {
   assert.equal(question.choices.length, 0, "Choices do not used");
   assert.equal(question.visibleChoices.length, 5, "There are 5 countries now");
 });
+QUnit.test("Test dropdown in CreatorV2", function(assert) {
+  settings.supportCreatorV2 = true;
+  settings.showDefaultItemsInCreatorV2 = false;
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  const page = survey.addNewPage("p1");
+  const question = new QuestionDropdownModelTester("q1");
+  question.choicesByUrl.url = "allcountries";
+  question.choicesByUrl.path = "RestResponse;result";
+  assert.equal(question.choices.length, 0, "Choices do not used, #1");
+  page.addQuestion(question);
+  assert.equal(question.choices.length, 0, "Choices do not used, #2");
+  assert.equal(question.visibleChoices.length, 0, "Do not load countries, #2");
+  settings.showDefaultItemsInCreatorV2 = true;
+  settings.supportCreatorV2 = false;
+});
 
 QUnit.test(
   "Do not show error or change the question value if quesiton is readOnly, Bug #1819",
@@ -754,10 +770,40 @@ QUnit.test("Clear value on getting empty array, bug #6251", function(assert) {
   question.choicesByUrl.error = new SurveyError("Empty request");
   question["onLoadChoicesFromUrl"]([]);
   assert.equal(question.isEmpty(), true, "value is empty");
-  assert.equal(question.selectedItem, null, "selectedItem is null");
+  const isSelected = !!question.selectedItem;
+  assert.equal(isSelected, false, "selectedItem is null");
   assert.equal(question.errors.length, 1, "It shows error on empty result");
 });
-
+QUnit.test("Do not call loadedChoicesFromServer on setting same items", function(assert) {
+  var survey = new SurveyModel();
+  let counter = 0;
+  survey.loadedChoicesFromServer = (question: IQuestion) => {
+    counter ++;
+  };
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.choicesByUrl.url = "{state}";
+  survey.pages[0].addQuestion(question);
+  question.hasItemsCallbackDelay = true;
+  question.onSurveyLoad();
+  question["onLoadChoicesFromUrl"]([]);
+  assert.equal(counter, 1, "#1");
+  question["onLoadChoicesFromUrl"]([]);
+  question["onLoadChoicesFromUrl"]([]);
+  assert.equal(counter, 1, "#2");
+  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
+  assert.equal(counter, 2, "#3");
+  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
+  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
+  assert.equal(counter, 2, "#4");
+  question["onLoadChoicesFromUrl"]([]);
+  assert.equal(counter, 3, "#5");
+  question["onLoadChoicesFromUrl"]([]);
+  assert.equal(counter, 3, "#6");
+  survey.setValue("q1", "CA");
+  question["onLoadChoicesFromUrl"]([]);
+  assert.equal(counter, 4, "#7");
+});
 QUnit.test(
   "Set value before loading data + storeOthersAsComment, bug #1089",
   function(assert) {

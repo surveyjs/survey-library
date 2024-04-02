@@ -332,12 +332,12 @@ QUnit.test("Run age function, Bug#2562", function(assert) {
   var runner = new ExpressionRunner("age({birthday})");
   var values = { birthday: new Date(1974, 1, 1) };
   var date = new Date(Date.now());
-  date.setFullYear(date.getFullYear() - 90);
+  date.setFullYear(date.getFullYear() - 80);
   values = { birthday: date };
-  assert.equal(runner.run(values), 90, "90 years old, bithday is today");
+  assert.equal(runner.run(values), 80, "80 years old, bithday is today");
   date = new Date(date.getTime() + 60 * 60 * 24 * 1000);
   values.birthday = date;
-  assert.equal(runner.run(values), 89, "one day till 90");
+  assert.equal(runner.run(values), 79, "one day till 80");
 });
 
 QUnit.test("Run getYear() function", function(assert) {
@@ -1508,4 +1508,13 @@ QUnit.test("Custom function returns object&array, #7050", function(assert) {
 
   FunctionFactory.Instance.unregister("func1");
   FunctionFactory.Instance.unregister("func2");
+});
+QUnit.test("ExpressionRunner: substring", function(assert) {
+  var runner = new ExpressionRunner("substring({s}, 1, 3)");
+  const values: any = { s: "abcdef" };
+  assert.equal(runner.run(values), "bc", "abcdef");
+  values.s = undefined;
+  assert.equal(runner.run(values), "", "undefined");
+  values.s = 10;
+  assert.equal(runner.run(values), "", "10");
 });

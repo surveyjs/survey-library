@@ -55,8 +55,8 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
     if (
       !!prevProps.page &&
       !!this.survey &&
-      !!this.survey.currentPage &&
-      prevProps.page.id === this.survey.currentPage.id
+      !!this.survey.activePage &&
+      prevProps.page.id === this.survey.activePage.id
     )
       return;
     this.doAfterRender();
@@ -71,28 +71,18 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
       }
     }
   }
+
+  protected getIsVisible() {
+    return this.panelBase.isVisible;
+  }
+
   protected canRender(): boolean {
     return (
-      super.canRender() && !!this.survey && !!this.panelBase
-      && this.panelBase.isVisible && !!this.panelBase.survey
+      super.canRender() && !!this.survey && !!this.panelBase && !!this.panelBase.survey && this.getIsVisible()
     );
   }
-  private renderedRowsCache: any = {};
   protected renderRows(css: any): Array<JSX.Element> {
-    if (this.changedStatePropName !== "rows") {
-      this.renderedRowsCache = {};
-    }
-    var rows:Array<JSX.Element> = [];
-    var questionRows = this.panelBase.rows;
-    for (var i = 0; i < questionRows.length; i++) {
-      var row = this.renderedRowsCache[questionRows[i].id];
-      if (!row) {
-        row = this.createRow(questionRows[i], css);
-        this.renderedRowsCache[questionRows[i].id] = row;
-      }
-      rows.push(row);
-    }
-    return rows;
+    return this.panelBase.visibleRows.map((row) => this.createRow(row, css));
   }
   protected createRow(row: QuestionRowModel, css: any): JSX.Element {
     return (

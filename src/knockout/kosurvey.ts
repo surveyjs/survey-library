@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import * as ko from "knockout";
 import { Base, SurveyModel, SvgRegistry, doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOptions, settings } from "survey-core";
 import { SurveyElement } from "survey-core";
@@ -7,6 +8,7 @@ import { LocalizableString } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
 import { getElement } from "survey-core";
+import { ILoadFromJSONOptions } from "survey-core";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;
@@ -90,9 +92,6 @@ export class SurveyImplementor extends ImplementorBase {
     );
   }
   public koEventAfterRender(element: any, survey: any) {
-    if (survey["needRenderIcons"]) {
-      SvgRegistry.renderIcons();
-    }
     survey.afterRenderSurvey(element);
   }
   public dispose(): void {
@@ -129,9 +128,9 @@ export class Survey extends SurveyModel {
   public render(element: any = null): void {
     this.implementor.render(element);
   }
-  public fromJSON(json: any) {
+  public fromJSON(json: any, options?: ILoadFromJSONOptions): void {
     if (!json) return;
-    super.fromJSON(json);
+    super.fromJSON(json, options);
     this.locStrsChanged();
   }
   public getHtmlTemplate(): string {
@@ -183,7 +182,7 @@ ItemValue.prototype["onCreating"] = function () {
 ko.components.register("survey", {
   viewModel: {
     createViewModel: function (params: any, componentInfo: any) {
-      var survey: Survey = ko.unwrap(params.survey);
+      var survey: Survey = ko.unwrap(params.survey) || ko.unwrap(params.model);
       ensureSurvey(survey);
       setTimeout(() => {
         var surveyRoot = document.createElement("div");

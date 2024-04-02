@@ -105,4 +105,27 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("signature-data.png", ".sd-question", t, comparer);
     });
   });
+  test("Signature loadingIndicator", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        width: "600px",
+        questions: [
+          {
+            type: "signaturepad",
+            name: "q1",
+            storeDataAsText: false,
+          },
+        ]
+      });
+      await ClientFunction(() => {
+        window["survey"].getQuestionByName("q1").stateChanged("loading");
+      })();
+      await ClientFunction(() => {
+        (document.querySelector(".sd-loading-indicator .sv-svg-icon") as any).style.animationName = "unset";
+      })();
+
+      await takeElementScreenshot("signature-data-loading.png", ".sd-question", t, comparer);
+    });
+  });
 });

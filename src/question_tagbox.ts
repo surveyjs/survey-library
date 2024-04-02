@@ -22,6 +22,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("clearCaption", this, false, true);
+    this.createLocalizableString("readOnlyText", this, true);
     this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
       this.updateReadOnlyText();
     });
@@ -32,7 +33,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.updateReadOnlyText();
     this.dropdownListModel?.locStrsChanged();
   }
-  @property({ defaultValue: "" }) readOnlyText: string;
   private updateReadOnlyText(): void {
     this.readOnlyText = this.displayValue || this.placeholder;
   }
@@ -45,6 +45,16 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       this.dropdownListModel = new DropdownMultiSelectListModel(this);
     }
   }
+  /**
+   * Specifies a comparison operation used to filter the drop-down list. Applies only if [`searchEnabled`](#searchEnabled) is `true`.
+   *
+   * Possible values:
+   *
+   * - `"contains"` (default)
+   * - `"startsWith"`
+   * @see [SurveyModel.onChoicesSearch](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesSearch)
+   */
+  @property() searchMode: "contains" | "startsWith";
 
   /**
    * Specifies whether to display a button that clears the selected value.
@@ -89,6 +99,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({ getDefaultValue: () => { return settings.tagboxCloseOnSelect; } }) closeOnSelect: number;
 
+  @property() textWrapEnabled: boolean;
+
   /**
    * A text displayed in the input field when it doesn't have a value.
    */
@@ -110,6 +122,16 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   get locClearCaption(): LocalizableString {
     return this.getLocalizableString("clearCaption");
+  }
+
+  public get readOnlyText(): string {
+    return this.getLocalizableStringText("readOnlyText");
+  }
+  public set readOnlyText(val: string) {
+    this.setLocalizableStringText("readOnlyText", val);
+  }
+  get locReadOnlyText(): LocalizableString {
+    return this.getLocalizableString("readOnlyText");
   }
 
   public getType(): string {
@@ -204,8 +226,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   public dispose(): void {
     super.dispose();
-    if(!!this.dropdownListModelValue) {
-      this.dropdownListModelValue.dispose();
+    if(!!this.dropdownListModel) {
+      this.dropdownListModel.dispose();
     }
   }
   public clearValue(): void {
@@ -228,11 +250,13 @@ Serializer.addClass(
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
+    { name: "textWrapEnabled:boolean", default: true },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },
     { name: "closeOnSelect:boolean" },
-    { name: "itemComponent", visible: false, default: "" }
+    { name: "itemComponent", visible: false, default: "" },
+    { name: "searchMode", default: "contains", choices: ["contains", "startsWith"] }
   ],
   function () {
     return new QuestionTagboxModel("");

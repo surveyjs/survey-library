@@ -11,6 +11,7 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
   @Input() isExpanded?: boolean;
   @Input() allowClose?: boolean;
   @Input() closeOnCompleteTimeout?: number;
+  @Input() allowFullScreen?: boolean;
   public popup!: PopupSurveyModel;
 
   constructor(changeDetectorRef: ChangeDetectorRef) {
@@ -23,6 +24,14 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
   protected override getShouldReattachChangeDetector(): boolean {
     return false;
   }
+  public getHeaderCss(): string {
+    let headerCss = this.popup.cssHeaderRoot;
+    if (this.popup.isCollapsed) {
+      headerCss += " " + this.popup.cssRootCollapsedMod;
+    }
+    return headerCss;
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["model"]?.currentValue !== changes["model"]?.previousValue) {
       this.popup = new PopupSurveyModel(null, this.model);
@@ -32,6 +41,9 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
     }
     if (this.allowClose !== undefined) {
       this.popup.allowClose = this.allowClose;
+    }
+    if (this.allowFullScreen !== undefined) {
+      this.popup.allowFullScreen = this.allowFullScreen;
     }
     if (this.closeOnCompleteTimeout !== undefined) {
       this.popup.closeOnCompleteTimeout = this.closeOnCompleteTimeout;

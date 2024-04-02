@@ -4,22 +4,16 @@ import { createTOCListModel, getTocRootCss, ListModel, SurveyModel, TOCModel } f
 import { AngularComponentFactory } from "../../../component-factory";
 
 @Component({
-  selector: "sv-progress-toc, sv-ng-progress-toc",
+  selector: "sv-navigation-toc, sv-ng-navigation-toc",
   templateUrl: "./progress.component.html",
   styles: [":host { display: none; }"]
 })
 export class ProgressTocComponent extends EmbeddedViewContentComponent implements OnChanges, OnInit {
-  public tocModel!: TOCModel;
-  @Input() model!: SurveyModel;
-  private createProgressTOCModel() {
-    this.tocModel = new TOCModel(this.model);
-  }
+  @Input() model!: TOCModel;
   override ngOnInit(): void {
     super.ngOnInit();
-    this.createProgressTOCModel();
   }
   ngOnChanges(changes: SimpleChanges): void {
-    this.createProgressTOCModel();
   }
 }
-AngularComponentFactory.Instance.registerComponent("sv-progress-toc", ProgressTocComponent);
+AngularComponentFactory.Instance.registerComponent("sv-navigation-toc", ProgressTocComponent);

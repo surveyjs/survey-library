@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="element.isVisible"
+    v-if="element.getIsContentVisible()"
     :class="element.getContainerCss()"
     :id="element.id"
     @focusin="element.focusIn()"
@@ -16,18 +16,17 @@
     <div
       :id="element.contentId"
       :style="{ paddingLeft: element.innerPaddingLeft }"
-      v-if="!element.isCollapsed"
+      v-if="element.renderedIsExpanded"
       :class="element.cssClasses.panel.content"
     >
-      <template v-for="(row, index) in rows" :key="element.id + '_' + index">
+      <template v-for="row in element.visibleRows" :key="row.id">
         <component
           :is="(element.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
           v-bind="{
             componentData: (element.getSurvey() as SurveyModel).getRowWrapperComponentData(row),
           }"
         >
-          <survey-row v-if="row.visible" :row="row" :survey="survey" :css="css">
-          </survey-row>
+          <survey-row :row="row" :survey="survey" :css="css"> </survey-row>
         </component>
       </template>
       <sv-action-bar :model="element.getFooterToolbar()"></sv-action-bar>
@@ -53,7 +52,6 @@ const props = defineProps<{
   css?: any;
 }>();
 const root = ref<HTMLElement>(null as any);
-const rows = computed(() => props.element.rows);
 const survey = computed(() => props.element.survey);
 
 useBase(() => props.element);

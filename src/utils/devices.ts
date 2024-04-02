@@ -1,14 +1,11 @@
+import { DomWindowHelper } from "../global_variables_utils";
+
 // isMobile
 let _isMobile = false;
 let vendor = null;
 
-if (
-  typeof navigator !== "undefined" &&
-  typeof window !== "undefined" &&
-  navigator &&
-  window
-) {
-  vendor = navigator.userAgent || navigator.vendor || (<any>window).opera;
+if (typeof navigator !== "undefined" && !!navigator && DomWindowHelper.isAvailable()) {
+  vendor = navigator.userAgent || navigator.vendor || DomWindowHelper.hasOwn("opera");
 }
 
 (function (a: any) {
@@ -30,14 +27,20 @@ let _IPad = false;
 
 export const IsMobile = _isMobile || _IPad;
 
-// isTouch
-let _isTouch = false;
+export var mouseInfo = {
+  get isTouch(): boolean {
+    return !this.hasMouse && this.hasTouchEvent;
+  },
+  get hasTouchEvent(): boolean {
+    return DomWindowHelper.isAvailable() && (DomWindowHelper.hasOwn("ontouchstart") || navigator.maxTouchPoints > 0);
+  },
+  hasMouse: true
+};
 
-if (typeof window !== "undefined") {
-  _isTouch = "ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0;
-}
+const pointerMatches = (typeof matchMedia !== "undefined" && !!matchMedia && matchMedia("(pointer:fine)")) || undefined;
+mouseInfo.hasMouse = !!pointerMatches && !!pointerMatches.matches;
 
-export let IsTouch = IsMobile && _isTouch;
+export let IsTouch = mouseInfo.isTouch;
 
 //for tests
 export function _setIsTouch(val: boolean): void {

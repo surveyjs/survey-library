@@ -73,28 +73,31 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             disabled={this.isDisplayMode}
             checked={this.question.booleanValue || false}
             onChange={this.handleOnChange}
-            aria-required={this.question.ariaRequired}
-            aria-label={this.question.ariaLabel}
-            aria-invalid={this.question.ariaInvalid}
-            aria-describedby={this.question.ariaDescribedBy}
+            role={this.question.a11y_input_ariaRole}
+            aria-required={this.question.a11y_input_ariaRequired}
+            aria-label={this.question.a11y_input_ariaLabel}
+            aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+            aria-describedby={this.question.a11y_input_ariaDescribedBy}
+            aria-invalid={this.question.a11y_input_ariaInvalid}
+            aria-errormessage={this.question.a11y_input_ariaErrormessage}
           />
-          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, false)}>
-            <span className={this.question.getLabelCss(false)}>
-              {this.renderLocString(this.question.locLabelFalse)}
+          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, this.question.swapOrder)}>
+            <span className={this.question.getLabelCss(this.question.swapOrder)}>
+              {this.renderLocString(this.question.locLabelLeft)}
             </span>
           </div>
           <div className={cssClasses.switch} onClick={this.handleOnSwitchClick}>
             <span className={cssClasses.slider}>
               {
                 this.question.isDeterminated && cssClasses.sliderText ?
-                  <span className={cssClasses.sliderText}>{ this.renderLocString(this.question.getCheckedLabel()) }</span>
+                  <span className={cssClasses.sliderText}>{this.renderLocString(this.question.getCheckedLabel())}</span>
                   : null
               }
             </span>
           </div>
-          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, true)}>
-            <span className={this.question.getLabelCss(true)}>
-              {this.renderLocString(this.question.locLabelTrue)}
+          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, !this.question.swapOrder)}>
+            <span className={this.question.getLabelCss(!this.question.swapOrder)}>
+              {this.renderLocString(this.question.locLabelRight)}
             </span>
           </div>
         </label>

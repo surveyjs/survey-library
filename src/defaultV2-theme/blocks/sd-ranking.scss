@@ -8,6 +8,66 @@
   left: calcSize(-3);
 }
 
+@container (max-width: #{$sd-panel-normal-min-width}) {
+  .sv-ranking--select-to-rank-horizontal {
+    flex-direction: column-reverse;
+
+    .sv-ranking__containers-divider {
+      margin: calcSize(3) 0;
+      height: 1px;
+      width: initial;
+    }
+
+    .sv-ranking__container--empty {
+      padding-top: calcSize(1);
+      padding-bottom: calcSize(1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .sv-ranking__container {
+      max-width: initial;
+    }
+
+    .sv-ranking__container--to {
+      .sv-ranking-item {
+        left: initial;
+      }
+    }
+
+    .sv-ranking__container--empty {
+      &.sv-ranking__container--to {
+        .sv-ranking-item {
+          left: initial;
+        }
+
+        .sv-ranking__container-placeholder {
+          padding-left: calcSize(3);
+          padding-right: calcSize(3);
+        }
+      }
+
+      &.sv-ranking__container--from {
+        .sv-ranking__container-placeholder {
+          padding-right: initial;
+        }
+      }
+    }
+
+  }
+}
+
+@container (max-width: #{$sd-panel-medium-min-width}) {
+  .sv-ranking__container--empty {
+    &.sv-ranking__container--to {
+      .sv-ranking__container-placeholder {
+        margin-left: calcSize(-5);
+        margin-right: calcSize(-5);
+      }
+    }
+  }
+}
 
 .sd-element--with-frame .sv-ranking--mobile {
   .sv-ranking-item__icon-container {

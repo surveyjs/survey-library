@@ -1,5 +1,5 @@
 import { Selector, ClientFunction, t } from "testcafe";
-import { getListItemByText } from "../../../testCafe/helper";
+import { getListItemByText, setOptions } from "../../../testCafe/helper";
 import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Tagbox Screenshot";
@@ -187,7 +187,7 @@ frameworks.forEach(async framework => {
         questions: [
           {
             type: "tagbox",
-            name: "question12",
+            name: "q1",
             hasOther: "true",
             allowClear: false,
             defaultValue: [
@@ -220,6 +220,9 @@ frameworks.forEach(async framework => {
 
       const questionTagbox = Selector(".sd-input.sd-tagbox");
       await takeElementScreenshot("tagbox-question-multiline-selected-items.png", questionTagbox, t, comparer);
+
+      await setOptions("q1", { "readOnly": true });
+      await takeElementScreenshot("tagbox-question-multiline-selected-items-readonly.png", questionTagbox, t, comparer);
     });
   });
 
@@ -439,6 +442,117 @@ frameworks.forEach(async framework => {
         (<HTMLElement>document.querySelector(".sd-question input")).style.backgroundColor = "red";
       })();
       await takeElementScreenshot("tagbox-contrast-input.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+
+  test("Check readOnly tagbox with markdown", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(900, 400);
+
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        showQuestionNumbers: "off",
+        mode: "display",
+        questions: [
+          {
+            type: "tagbox",
+            name: "q1",
+            defaultValue: ["Cuba", "Romania"],
+            choicesByUrl: {
+              url: "http://127.0.0.1:8080/testCafe/countriesMock.json",
+              path: "RestResponse;result",
+              valueName: "name",
+            },
+          }
+        ]
+      }, {
+        "onGetQuestionDisplayValue": (sender, options) => {
+          var strs = options.displayValue.split(",");
+          options.displayValue = strs.join("<br>");
+        },
+        "onTextMarkdown": (survey, options) => {
+          var converter = new window["showdown"].Converter();
+          var str = converter.makeHtml(options.text);
+          str = str.substring(3);
+          str = str.substring(0, str.length - 4);
+          options.html = str;
+        }
+      });
+
+      const question = Selector(".sd-input.sd-tagbox");
+      await takeElementScreenshot("tagbox-readonly-with-markdown.png", question, t, comparer);
+    });
+  });
+
+  test("Resize input & popup", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "tagbox",
+            name: "tagbox",
+            hideSelectedItems: true,
+            defaultValue: ["item1", "item2", "item3", "item4", "item5"],
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10"
+            ]
+          }, {
+            type: "checkbox",
+            name: "question1",
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6"
+            ]
+          }, {
+            type: "tagbox",
+            name: "tagbox2",
+            hideSelectedItems: true,
+            defaultValue: ["item1", "item2", "item3", "item4", "item5"],
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10"
+            ]
+          }
+        ]
+      });
+      await t.click(Selector(".sd-dropdown__filter-string-input"));
+      await takeElementScreenshot("tagbox-question-popup-direction-bottom.png", Selector(".sd-body"), t, comparer);
+
+      await t
+        .click(getListItemByText("item7"))
+        .click(getListItemByText("item8"));
+      await takeElementScreenshot("tagbox-question-popup-direction-bottom-and-resize-input.png", Selector(".sd-body"), t, comparer);
+
+      await t.click(Selector(".sd-dropdown__filter-string-input").nth(1));
+      await takeElementScreenshot("tagbox-question-popup-direction-top.png", Selector(".sd-body"), t, comparer);
+
+      await t
+        .click(getListItemByText("item7"))
+        .click(getListItemByText("item8"));
+      await takeElementScreenshot("tagbox-question-popup-direction-top-and-resize-input.png", Selector(".sd-body"), t, comparer);
     });
   });
 });

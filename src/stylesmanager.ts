@@ -1,4 +1,5 @@
 import { surveyCss } from "./defaultCss/defaultV2Css";
+import { DomDocumentHelper } from "./global_variables_utils";
 import { settings, ISurveyEnvironment } from "./settings";
 import { getElement, isShadowDOM, Logger } from "./utils/utils";
 
@@ -311,12 +312,12 @@ export class StylesManager {
   static createSheet(styleSheetId: string): any {
     const { stylesSheetsMountContainer }: ISurveyEnvironment = settings.environment;
 
-    let style = document.createElement("style");
+    let style = DomDocumentHelper.createElement("style") as HTMLStyleElement;
     style.id = styleSheetId;
     // Add a media (and/or media query) here if you'd like!
     // style.setAttribute("media", "screen")
     // style.setAttribute("media", "only screen and (max-width : 1024px)")
-    style.appendChild(document.createTextNode(""));
+    style.appendChild(new Text(""));
     getElement(stylesSheetsMountContainer).appendChild(style);
     if (!!StylesManager.Logger) {
       StylesManager.Logger.log("style sheet " + styleSheetId + " created");

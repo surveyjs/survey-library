@@ -26,6 +26,7 @@
   position: relative;
   gap: calcSize(1);
   vertical-align: top;
+  max-width: 100%;
 }
 
 .sd-selectbase__column {
@@ -35,9 +36,10 @@
 .sd-selectbase__column {
   display: block;
   box-sizing: border-box;
-  word-break: break-word;
   flex: 1 1 0px;
+  min-width: 0;
 }
+
 .sd-selectbase__column:not(:last-child) {
   padding-right: calcSize(2);
 }

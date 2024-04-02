@@ -1,26 +1,32 @@
 ---
 title: React Form Library | Getting Started Guide
-description: A step-by-step tutorial on how to add the SurveyJS Form Library to a React application.
+description: SurveyJS Form Library for React is an open-source UI component that renders forms built from JSON schema in React applications. It offers a rich collection of reusable input fields and other form components and simplifies form handling by managing form state, validation, and submission.
 ---
-# Add a Survey to a React Application
+# React Form Library
 
-This step-by-step tutorial will help you get started with the SurveyJS Form Library in a React application. To add a survey to your React application, follow the steps below:
+SurveyJS Form Library for React is a client-side component that uses JSON objects to render dynamic forms in React applications and send submission data to a database for storage. These JSON objects contain key-value pairs representing various aspects of a form, including descriptions of each form field, instructions on how to organize form fields on the page, and how the form should behave in response to user interactions, such as submitting data, validating input, and displaying error messages. By loading the JSON schemas that define form layout and content, the rendering Form Library dynamically generates the corresponding HTML elements and displays them on a web page.
+
+This step-by-step tutorial will help you get started with the SurveyJS Form Library in a React application. To add a form to your React application, follow the steps below:
 
 - [Install the `survey-react-ui` npm Package](#install-the-survey-react-npm-package)
 - [Configure Styles](#configure-styles)
 - [Create a Model](#create-a-model)
-- [Render the Survey](#render-the-survey)
-- [Handle Survey Completion](#handle-survey-completion)
+- [Render the Form](#render-the-form)
+- [Handle Form Completion](#handle-form-completion)
 
-As a result, you will create a survey displayed below:
+As a result, you will create a form displayed below:
 
-<iframe src="https://codesandbox.io/embed/surveyjs-add-a-survey-to-a-react-application-j206b?fontsize=14&hidenavigation=1&theme=dark"
-    style="width:100%; height:600px; border:0; border-radius: 4px; overflow:hidden;"
-    title="SurveyJS - Add a Survey to a React Application"
-    sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+<iframe src="/proxy/github/code-examples/get-started-library/knockout/index.html"
+    style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/react (linkStyle))
+
+If you are looking for a quick-start application that includes all SurveyJS components, refer to the following GitHub repositories:
+
+- <a href="https://github.com/surveyjs/surveyjs_react_quickstart" target="_blank">SurveyJS + React Quickstart Template</a>
+- <a href="https://github.com/surveyjs/surveyjs-nextjs" target="_blank">SurveyJS + Next.js Quickstart Template</a>
+- <a href="https://github.com/surveyjs/surveyjs-remix" target="_blank">SurveyJS + Remix Quickstart Template</a>
 
 ## Install the `survey-react-ui` npm Package
 
@@ -36,7 +42,7 @@ SurveyJS Form Library is shipped with several predefined themes illustrated belo
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-To add SurveyJS themes to your application, open the React component that will render your survey and import the Form Library style sheet:
+To add SurveyJS themes to your application, open the React component that will render your form or survey and import the Form Library style sheet:
 
 ```js
 import 'survey-core/defaultV2.min.css';
@@ -48,7 +54,7 @@ This style sheet applies the Default theme. If you want to apply a different pre
 
 ## Create a Model
 
-A model describes the layout and contents of your survey. The simplest survey model contains one or several questions without layout modifications.
+A model describes the layout and contents of your survey. The simplest form model contains one or several questions without layout modifications.
 
 Models are specified by model schemas (JSON objects). For example, the following model schema declares two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel), each with a [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and a [name](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name). Titles are displayed on screen. Names are used to identify the questions in code.
 
@@ -107,11 +113,18 @@ export default App;
 ```
 </details>
 
-## Render the Survey
+<a id="render-the-survey"></a>
 
-To render a survey, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute:
+## Render the Form
+
+To render a form, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute, as shown below.
+
+> If you are using [Next.js](https://nextjs.org) or another framework that [has adopted React Server Components](https://react.dev/learn/start-a-new-react-project#bleeding-edge-react-frameworks), you need to explicitly mark the React component that renders a SurveyJS component as client code using the ['use client'](https://react.dev/reference/react/use-client) directive.
 
 ```js
+// Uncomment the following line if you are using Next.js:
+// 'use client'
+
 import { Survey } from 'survey-react-ui';
 // ...
 const surveyJson = { ... };
@@ -123,7 +136,7 @@ function App() {
 }
 ```
 
-If you replicate the code correctly, you should see the following survey:
+If you replicate the code correctly, you should see the following form:
 
 ![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
 
@@ -131,6 +144,9 @@ If you replicate the code correctly, you should see the following survey:
     <summary>View Full Code</summary>  
 
 ```js
+// Uncomment the following line if you are using Next.js:
+// 'use client'
+
 import 'survey-core/defaultV2.min.css';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
@@ -157,9 +173,11 @@ export default App;
 ```
 </details>
 
-## Handle Survey Completion
+<a id="handle-survey-completion"></a>
 
-After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
+## Handle Form Completion
+
+After a respondent submits a form, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
 
 ```js
 import { useCallback } from 'react';
@@ -221,7 +239,7 @@ function App() {
 
 ![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
 
-As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
+As you can see, form results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 
 To view the application, run `npm run start` in a command line and open [http://localhost:3000/](http://localhost:3000/) in your browser.
 
@@ -229,6 +247,9 @@ To view the application, run `npm run start` in a command line and open [http://
     <summary>View Full Code</summary>  
 
 ```js
+// Uncomment the following line if you are using Next.js:
+// 'use client'
+
 import { useCallback } from 'react';
 
 import 'survey-core/defaultV2.min.css';

@@ -60,7 +60,7 @@ class XmlParser {
  * }
  * ```
  *
- * Typically, you should assign this object to a question's [`choicesByUrl`](https://surveyjs.io/Documentation/Library?id=QuestionSelectBase#choicesByUrl) property.
+ * Typically, you should assign this object to a question's [`choicesByUrl`](https://surveyjs.io/Documentation/Library?id=QuestionSelectBase#choicesByUrl) property. You can also specify additional application-wide settings using the [`settings.web`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) object.
  */
 export class ChoicesRestful extends Base {
   private static cacheText = "{CACHE}";
@@ -103,10 +103,17 @@ export class ChoicesRestful extends Base {
       }
     }
   }
-  public static onBeforeSendRequest: (
+  public static get onBeforeSendRequest(): (
     sender: ChoicesRestful,
     options: { request: XMLHttpRequest }
-  ) => void;
+  ) => void {
+    return settings.web.onBeforeRequestChoices;
+  }
+  public static set onBeforeSendRequest(
+    val: (sender: ChoicesRestful, options: { request: XMLHttpRequest }) => void
+  ) {
+    settings.web.onBeforeRequestChoices = val;
+  }
   private static getCachedItemsResult(obj: ChoicesRestful): boolean {
     var hash = obj.objHash;
     var res = ChoicesRestful.itemsResult[hash];
@@ -136,6 +143,9 @@ export class ChoicesRestful extends Base {
   };
   constructor() {
     super();
+    this.registerPropertyChangedHandlers(["url"], () => {
+      if(this.owner) (<Base><any>this.owner).setPropertyValue("isUsingRestful", !!this.url);
+    });
   }
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.owner ? this.owner.survey : null;
@@ -249,8 +259,8 @@ export class ChoicesRestful extends Base {
       }
     };
     var options = { request: xhr };
-    if (!!ChoicesRestful.onBeforeSendRequest) {
-      ChoicesRestful.onBeforeSendRequest(this, options);
+    if (!!settings.web.onBeforeRequestChoices) {
+      settings.web.onBeforeRequestChoices(this, options);
     }
     this.beforeSendRequest();
     options.request.send();
@@ -337,7 +347,7 @@ export class ChoicesRestful extends Base {
    * @see titleName
    */
   public get url(): string {
-    return this.getPropertyValue("url", "");
+    return this.getPropertyValue("url") || "";
   }
   public set url(val: string) {
     this.setPropertyValue("url", val);
@@ -370,8 +380,7 @@ export class ChoicesRestful extends Base {
    */
 
   public get path(): string {
-    const res = this.getPropertyValue("path");
-    return !!res ? res : "";
+    return this.getPropertyValue("path") || "";
   }
   public set path(val: string) {
     this.setPropertyValue("path", val);
@@ -420,6 +429,11 @@ export class ChoicesRestful extends Base {
   public set imageLinkName(val: string) {
     this.setPropertyValue("imageLinkName", val);
   }
+  /**
+   * Specifies whether the service is allowed to return an empty response or an empty array in a response.
+   *
+   * Default value: `false`
+   */
   public get allowEmptyResponse(): boolean {
     return this.getPropertyValue("allowEmptyResponse");
   }
@@ -613,12 +627,12 @@ export class ChoicesRestfull extends ChoicesRestful {
     sender: ChoicesRestful,
     options: { request: XMLHttpRequest }
   ) => void {
-    return ChoicesRestful.onBeforeSendRequest;
+    return settings.web.onBeforeRequestChoices;
   }
   public static set onBeforeSendRequest(
     val: (sender: ChoicesRestful, options: { request: XMLHttpRequest }) => void
   ) {
-    ChoicesRestful.onBeforeSendRequest = val;
+    settings.web.onBeforeRequestChoices = val;
   }
 }
 

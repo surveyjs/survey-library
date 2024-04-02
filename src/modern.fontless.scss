@@ -3,7 +3,7 @@
 @import "./modern/blocks/sv-window.scss";
 @import "./common-styles/sv-popup.scss";
 @import "./common-styles/sv-progress-buttons.scss";
-@import "./common-styles/sv-progress-toc.scss";
+@import "./common-styles/sv-navigation-toc.scss";
 @import "./modern/blocks/sv-container.scss";
 @import "./modern/blocks/sv-body.scss";
 @import "./modern/blocks/sv-page.scss";
@@ -52,6 +52,7 @@ body {
 .sv-matrixdynamic__drag-icon {
   padding-top: 16px;
 }
+
 .sv-matrixdynamic__drag-icon:after {
   content: " ";
   display: block;
@@ -63,10 +64,12 @@ body {
   cursor: move;
   margin-top: 12px;
 }
+
 .sv-matrix__drag-drop-ghost-position-top,
 .sv-matrix__drag-drop-ghost-position-bottom {
   position: relative;
 }
+
 .sv-matrix__drag-drop-ghost-position-top::after,
 .sv-matrix__drag-drop-ghost-position-bottom::after {
   content: "";
@@ -76,9 +79,11 @@ body {
   position: absolute;
   left: 0;
 }
+
 .sv-matrix__drag-drop-ghost-position-top::after {
   top: 0;
 }
+
 .sv-matrix__drag-drop-ghost-position-bottom::after {
   bottom: 0;
 }

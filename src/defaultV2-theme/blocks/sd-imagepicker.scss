@@ -35,12 +35,22 @@
   align-items: center;
 }
 
+.sd-imagepicker__label {
+  position: relative;
+
+  .sd-visuallyhidden {
+    height: 100%;
+    margin: 0;
+  }
+}
+
 .sd-imagepicker__image-container {
   position: relative;
 }
 
 .sd-imagepicker__check-decorator {
-  display: none;
+  display: block;
+  opacity: 0;
   position: absolute;
   top: calcSize(1);
   right: calcSize(1);
@@ -49,9 +59,11 @@
   border-radius: 100%;
   background-color: $background;
   z-index: 1;
+  transition: opacity $transition-duration;
 }
 
 .sd-imagepicker__check-icon {
+  @include useEditorFontSize;
   display: block;
   width: multiply(1.5, $font-editorfont-size);
   height: multiply(1.5, $font-editorfont-size);
@@ -59,7 +71,7 @@
 }
 
 .sd-imagepicker__item--checked .sd-imagepicker__check-decorator {
-  display: block;
+  opacity: 1;
 }
 
 .sd-imagepicker__item--error .sd-imagepicker__image-container::before {
@@ -84,9 +96,11 @@
   display: block;
   box-sizing: border-box;
   max-width: 100%;
+  transition: opacity $transition-duration;
 }
 
 .sd-imagepicker__text {
+  @include useEditorFontSize;
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   margin-top: calcSize(1);

@@ -1,6 +1,6 @@
 import { property, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
 import {
   ISurveyImpl,
   IPage,
@@ -17,21 +17,20 @@ import {
 } from "./base-interfaces";
 import { DragTypeOverMeEnum, SurveyElement } from "./survey-element";
 import { Question } from "./question";
-import { ConditionRunner } from "./conditions";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
-import { PageModel } from "./page";
 import { settings } from "./settings";
-import { findScrollableParent, isElementVisible } from "./utils/utils";
+import { findScrollableParent, getElementWidth, isElementVisible } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
-import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
 import { DragDropInfo } from "./drag-drop-helper-v1";
+import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -40,14 +39,12 @@ export class QuestionRowModel extends Base {
   }
   protected _scrollableParent: any = undefined;
   protected _updateVisibility: any = undefined;
-  public startLazyRendering(
-    rowContainerDiv: HTMLElement,
-    findScrollableContainer = findScrollableParent
-  ) {
+  public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
+    if (!DomDocumentHelper.isAvailable()) return;
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
     // if  this._scrollableParent is html the scroll event isn't fired, so we should use window
-    if (this._scrollableParent === document.documentElement) {
-      this._scrollableParent = window;
+    if (this._scrollableParent === DomDocumentHelper.getDocumentElement()) {
+      this._scrollableParent = DomWindowHelper.getWindow();
     }
     const hasScroll = this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight;
     this.isNeedRender = !hasScroll;
@@ -111,17 +108,63 @@ export class QuestionRowModel extends Base {
   public get id(): string {
     return this.idValue;
   }
+  protected equalsCore(obj: Base): boolean {
+    return this == obj;
+  }
   public get elements(): Array<IElement> {
     return this.getPropertyValue("elements");
+  }
+  private getVisibleElementsAnimationOptions(): IAnimationConsumer<[IElement]> {
+    const beforeRunAnimation = (el: HTMLElement) => {
+      el.style.setProperty("--animation-height", el.offsetHeight + "px");
+      el.style.setProperty("--animation-width", getElementWidth(el) + "px");
+    };
+    return {
+      isAnimationEnabled: () => settings.animationEnabled && this.panel?.animationAllowed && this.visible,
+      getAnimatedElement: (element: IElement) => (element as any as SurveyElement).getWrapperElement(),
+      getLeaveOptions: (element: IElement) => {
+        const surveyElement = element as unknown as SurveyElement;
+        const cssClasses = element.isPanel ? surveyElement.cssClasses.panel : surveyElement.cssClasses;
+        return {
+          cssClass: cssClasses.fadeOut,
+          onBeforeRunAnimation: beforeRunAnimation
+        };
+      },
+      getEnterOptions: (element: IElement) => {
+        const surveyElement = element as unknown as SurveyElement;
+        const cssClasses = element.isPanel ? surveyElement.cssClasses.panel : surveyElement.cssClasses;
+        return {
+          cssClass: cssClasses.fadeIn,
+          onBeforeRunAnimation: beforeRunAnimation
+        };
+      }
+    };
+  }
+  public visibleElementsAnimation: AnimationGroup<IElement> = new AnimationGroup(this.getVisibleElementsAnimationOptions(), (value) => {
+    this.setPropertyValue("visibleElements", value);
+    this.setWidth();
+  }, () => this.visibleElements);
+  public set visibleElements(val: Array<IElement>) {
+    if(!val.length) {
+      this.visible = false;
+      this.visibleElementsAnimation.cancel();
+      return;
+    } else {
+      this.visible = true;
+    }
+    this.visibleElementsAnimation.sync(val);
   }
   public get visibleElements(): Array<IElement> {
     return this.getPropertyValue("visibleElements");
   }
+
+  public onVisibleChangedCallback: () => void;
   public get visible(): boolean {
     return this.getPropertyValue("visible", true);
   }
   public set visible(val: boolean) {
     this.setPropertyValue("visible", val);
+    this.onVisibleChangedCallback && this.onVisibleChangedCallback();
   }
   public get isNeedRender(): boolean {
     return this.getPropertyValue("isneedrender", true);
@@ -129,10 +172,16 @@ export class QuestionRowModel extends Base {
   public set isNeedRender(val: boolean) {
     this.setPropertyValue("isneedrender", val);
   }
+
   public updateVisible() {
-    const isVisible = this.calcVisible();
-    this.setWidth();
-    this.visible = isVisible;
+    var visElements: Array<IElement> = [];
+    for (var i = 0; i < this.elements.length; i++) {
+      if (this.elements[i].isVisible) {
+        visElements.push(this.elements[i]);
+      }
+    }
+    this.visibleElements = visElements;
+    return;
   }
   public addElement(q: IElement) {
     this.elements.push(q);
@@ -205,25 +254,6 @@ export class QuestionRowModel extends Base {
   private getRenderedWidthFromWidth(width: string): string {
     return Helpers.isNumber(width) ? width + "px" : width;
   }
-  private calcVisible(): boolean {
-    var visElements: Array<IElement> = [];
-    for (var i = 0; i < this.elements.length; i++) {
-      if (this.elements[i].isVisible) {
-        visElements.push(this.elements[i]);
-      }
-    }
-    if (this.needToUpdateVisibleElements(visElements)) {
-      this.setPropertyValue("visibleElements", visElements);
-    }
-    return visElements.length > 0;
-  }
-  private needToUpdateVisibleElements(visElements: Array<IElement>): boolean {
-    if (visElements.length !== this.visibleElements.length) return true;
-    for (var i = 0; i < visElements.length; i++) {
-      if (visElements[i] !== this.visibleElements[i]) return true;
-    }
-    return false;
-  }
   @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
   public dispose(): void {
     super.dispose();
@@ -233,10 +263,17 @@ export class QuestionRowModel extends Base {
     return new CssClassBuilder()
       .append(this.panel.cssClasses.row)
       .append(this.panel.cssClasses.rowCompact, this.panel["isCompact"])
-      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (!!(<any>this.panel).originalPage && !(<any>this.panel.survey).isShowingPreview))
+      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (!!(<any>this.panel).originalPage))
       .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
       .toString();
 
+  }
+  private rootElement?: HTMLElement;
+  public setRootElement(element?: HTMLElement) {
+    this.rootElement = element;
+  }
+  public getRootElement(): HTMLElement {
+    return this.rootElement;
   }
 }
 
@@ -259,9 +296,53 @@ export class PanelModelBase extends SurveyElement<Question>
 
   private dragDropPanelHelper: DragDropPanelHelperV1;
 
+  public onAddRow(row: QuestionRowModel): void {
+    this.onRowVisibleChanged();
+    row.onVisibleChangedCallback = () => this.onRowVisibleChanged();
+  }
+  private getRowsAnimationOptions(): IAnimationConsumer<[QuestionRowModel]> {
+    const beforeRunAnimation = (el: HTMLElement) => {
+      el.style.setProperty("--animation-height", el.offsetHeight + "px");
+    };
+    return {
+      isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed,
+      getAnimatedElement: (row: QuestionRowModel) => row.getRootElement(),
+      getLeaveOptions: (_: QuestionRowModel) => {
+        return { cssClass: this.cssClasses.rowFadeOut,
+          onBeforeRunAnimation: beforeRunAnimation
+        };
+      },
+      getEnterOptions: (_: QuestionRowModel) => {
+        return {
+          cssClass: this.cssClasses.rowFadeIn,
+          onBeforeRunAnimation: beforeRunAnimation
+        };
+      }
+    };
+  }
+  private rowsAnimation: AnimationGroup<QuestionRowModel> = new AnimationGroup(this.getRowsAnimationOptions(), (value) => {
+    this.setPropertyValue("visibleRows", value);
+  }, () => this.visibleRows)
+  get visibleRows(): Array<QuestionRowModel> {
+    return this.getPropertyValue("visibleRows");
+  }
+  set visibleRows(val: Array<QuestionRowModel>) {
+    this.rowsAnimation.sync(val);
+  }
+
+  public onRemoveRow(row: QuestionRowModel): void {
+    row.visibleElementsAnimation.cancel();
+    this.visibleRows = this.rows.filter(row => row.visible);
+    row.onVisibleChangedCallback = undefined;
+  }
+  onRowVisibleChanged() {
+    this.visibleRows = this.rows.filter(row => row.visible);
+  }
   constructor(name: string = "") {
     super(name);
-    this.createNewArray("rows");
+    this.createNewArray("rows", (el: QuestionRowModel, index: number) => { this.onAddRow(el); }, (el: QuestionRowModel) => { this.onRemoveRow(el); });
+    this.createNewArray("visibleRows");
+
     this.elementsValue = this.createNewArray(
       "elements",
       this.onAddElement.bind(this),
@@ -293,11 +374,13 @@ export class PanelModelBase extends SurveyElement<Question>
     return "panelbase";
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    this.animationAllowed = false;
     super.setSurveyImpl(value, isLight);
     if (this.isDesignMode) this.onVisibleChanged();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].setSurveyImpl(value, isLight);
     }
+    this.animationAllowed = true;
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
@@ -305,6 +388,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.markQuestionListDirty();
     this.onRowsChanged();
   }
+
   @property({ defaultValue: true }) showTitle: boolean;
   get hasTitle(): boolean {
     return (
@@ -444,7 +528,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see visible
    * @see isVisible
    */
@@ -455,7 +539,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("visibleIf", val);
   }
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "", rowMultiple: "", pageRow: "", rowCompact: "" };
+    var classes = { panel: {}, error: {}, row: "", rowFadeIn: "", rowFadeOut: "", rowFadeOutActive: "", rowMultiple: "", pageRow: "", rowCompact: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageRow) {
@@ -466,6 +550,15 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     if (!!css.row) {
       classes.row = css.row;
+    }
+    if (!!css.rowFadeIn) {
+      classes.rowFadeIn = css.rowFadeIn;
+    }
+    if (!!css.rowFadeOut) {
+      classes.rowFadeOut = css.rowFadeOut;
+    }
+    if (!!css.rowFadeOutActive) {
+      classes.rowFadeOutActive = css.rowFadeOutActive;
     }
     if (!!css.rowMultiple) {
       classes.rowMultiple = css.rowMultiple;
@@ -714,7 +807,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see isRequired
    */
   public get requiredIf(): string {
@@ -1015,20 +1108,23 @@ export class PanelModelBase extends SurveyElement<Question>
   public createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
-  public onSurveyLoad() {
+  public onSurveyLoad(): void {
+    this.animationAllowed = false;
+    super.onSurveyLoad();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onSurveyLoad();
     }
     this.onElementVisibilityChanged(this);
+    this.animationAllowed = true;
   }
-  public onFirstRendering() {
+  public onFirstRendering(): void {
     super.onFirstRendering();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onFirstRendering();
     }
     this.onRowsChanged();
   }
-  public updateRows() {
+  public updateRows(): void {
     if (this.isLoadingFromJson) return;
     for (var i = 0; i < this.elements.length; i++) {
       if (this.elements[i].isPanel) {
@@ -1049,15 +1145,84 @@ export class PanelModelBase extends SurveyElement<Question>
 
   protected onRowsChanged() {
     if (this.isLoadingFromJson) return;
+    this.animationAllowed = false;
     this.setArrayPropertyDirectly("rows", this.buildRows());
+    this.animationAllowed = true;
   }
-  protected onAddElement(element: IElement, index: number) {
+
+  private locCountRowUpdates = 0;
+  private blockRowsUpdates() {
+    this.locCountRowUpdates++;
+  }
+  private releaseRowsUpdates() {
+    this.locCountRowUpdates--;
+  }
+  private updateRowsBeforeElementRemoved(element: IElement): void {
+    const elementRow = this.findRowByElement(element);
+    const elementRowIndex = this.rows.indexOf(elementRow);
+    const elementIndexInRow = elementRow.elements.indexOf(element);
+    elementRow.elements.splice(elementIndexInRow, 1);
+    if(elementRow.elements.length == 0) {
+      this.rows.splice(elementRowIndex, 1);
+    } else if(!elementRow.elements[0].startWithNewLine && this.rows[elementRowIndex - 1]) {
+      elementRow.elements.forEach(el => this.rows[elementRowIndex - 1].addElement(el));
+      this.rows.splice(elementRowIndex, 1);
+    }
+    else {
+      elementRow.updateVisible();
+    }
+  }
+  private updateRowsOnElementAdded(element: IElement): void {
+    const index = this.elements.indexOf(element);
+    const targetElement = this.elements[index + 1];
+    const createRowAtIndex = (index: number) => {
+      const row = this.createRowAndSetLazy(index);
+      if(this.isDesignModeV2) {
+        row.setIsLazyRendering(false);
+      }
+      this.rows.splice(index, 0, row);
+      return row;
+    };
+    const updateRow = (row: QuestionRowModel, start: number, deleteCount: number, ...elements: IElement[]) => {
+      const removedElements = row.elements.splice(start, deleteCount, ...elements);
+      row.updateVisible();
+      return removedElements;
+    };
+    if(!targetElement) {
+      if(index == 0 || element.startWithNewLine) {
+        updateRow(createRowAtIndex(this.rows.length), 0, 0, element);
+      } else {
+        this.rows[this.rows.length - 1].addElement(element);
+      }
+      return;
+    }
+    const targetRow = this.findRowByElement(targetElement);
+    if(!targetRow) return;
+    const targetRowIndex = this.rows.indexOf(targetRow);
+    const targetElementIndexInRow = targetRow.elements.indexOf(targetElement);
+    if(targetElementIndexInRow == 0) {
+      if(!targetElement.startWithNewLine) {
+        updateRow(targetRow, 0, 0, element);
+      }
+      else if(element.startWithNewLine || targetRowIndex < 1) {
+        createRowAtIndex(targetRowIndex).addElement(element);
+      } else {
+        this.rows[targetRowIndex - 1].addElement(element);
+      }
+    } else {
+      if(element.startWithNewLine) {
+        updateRow(createRowAtIndex(targetRowIndex + 1), 0, 0, ...[element].concat(updateRow(targetRow, targetElementIndexInRow, targetRow.elements.length)));
+      } else {
+        updateRow(targetRow, targetElementIndexInRow, 0, element);
+      }
+    }
+  }
+  protected onAddElement(element: IElement, index: number): void {
     element.setSurveyImpl(this.surveyImpl);
     element.parent = this;
     this.markQuestionListDirty();
     if (this.canBuildRows()) {
-      let dragDropInfo = settings.supportCreatorV2 ? this.getDragDropInfo() : undefined;
-      this.dragDropPanelHelper.updateRowsOnElementAdded(element, index, dragDropInfo, this);
+      this.updateRowsOnElementAdded(element);
     }
     if (element.isPanel) {
       var p = <PanelModel>element;
@@ -1106,7 +1271,9 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   private onElementStartWithNewLineChanged(element: any) {
-    this.onRowsChanged();
+    if(this.locCountRowUpdates > 0) return;
+    this.updateRowsBeforeElementRemoved(element);
+    this.updateRowsOnElementAdded(element);
   }
   private updateRowsVisibility(element: any) {
     var rows = this.rows;
@@ -1142,7 +1309,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private isLazyRenderInRow(rowIndex: number): boolean {
     if (!this.survey || !this.survey.isLazyRendering) return false;
     return (
-      rowIndex >= settings.lazyRender.firstBatchSize ||
+      rowIndex >= this.survey.lazyRenderingFirstBatchSize ||
       !this.canRenderFirstRows()
     );
   }
@@ -1169,7 +1336,9 @@ export class PanelModelBase extends SurveyElement<Question>
     if (elIndex < 0) return;
     row.elements.splice(elIndex, 1);
     if (row.elements.length > 0) {
+      this.blockRowsUpdates();
       row.elements[0].startWithNewLine = true;
+      this.releaseRowsUpdates();
       row.updateVisible();
     } else {
       if (row.index >= 0) {
@@ -1238,10 +1407,20 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  protected notifyStateChanged(): void {
-    super.notifyStateChanged();
+  protected notifyStateChanged(prevState: string): void {
+    super.notifyStateChanged(prevState);
     if(this.isCollapsed) {
       this.questions.forEach(q => q.onHidingContent());
+    }
+    if(this.survey != null && !this.isLoadingFromJson && this.isExpanded && prevState === "collapsed") {
+      const q = this.getFirstQuestionToFocus(false);
+      if(!!q) {
+        setTimeout(() => {
+          if(!this.isDisposed && !!this.survey) {
+            this.survey.scrollElementToTop(q, q, null, q.inputId, false);
+          }
+        }, 15);
+      }
     }
   }
 
@@ -1255,13 +1434,16 @@ export class PanelModelBase extends SurveyElement<Question>
   public get isVisible(): boolean {
     return this.areInvisibleElementsShowing || this.getIsPageVisible(null);
   }
-  getIsPageVisible(exceptionQuestion: IQuestion): boolean {
-    if (!this.visible) return false;
+  getIsContentVisible(exceptionQuestion?: IQuestion) {
+    if(this.areInvisibleElementsShowing) return true;
     for (var i = 0; i < this.elements.length; i++) {
       if (this.elements[i] == exceptionQuestion) continue;
       if (this.elements[i].isVisible) return true;
     }
     return false;
+  }
+  getIsPageVisible(exceptionQuestion?: IQuestion): boolean {
+    return this.visible && this.getIsContentVisible(exceptionQuestion);
   }
   private lastVisibleIndex: number;
   public setVisibleIndex(index: number): number {
@@ -1325,7 +1507,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
    * @see isReadOnly
    */
@@ -1349,9 +1531,44 @@ export class PanelModelBase extends SurveyElement<Question>
     } else {
       this.elements.splice(index, 0, element);
     }
+    if(this.wasRendered) {
+      element.onFirstRendering();
+    }
     return true;
   }
-
+  public insertElement(element: IElement, dest?: IElement, location: "bottom" | "top" | "left" | "right" = "bottom"): void {
+    if(!dest) {
+      this.addElement(element);
+      return;
+    }
+    this.blockRowsUpdates();
+    let index = this.elements.indexOf(dest);
+    const destRow = this.findRowByElement(dest);
+    if(location == "left" || location == "right") {
+      if(location == "right") {
+        element.startWithNewLine = false;
+        index++;
+      }
+      else {
+        if(destRow.elements.indexOf(dest) == 0) {
+          dest.startWithNewLine = false;
+          element.startWithNewLine = true;
+        } else {
+          element.startWithNewLine = false;
+        }
+      }
+    }
+    else {
+      element.startWithNewLine = true;
+      if(location == "top") {
+        index = this.elements.indexOf(destRow.elements[0]);
+      } else {
+        index = this.elements.indexOf(destRow.elements[destRow.elements.length - 1]) + 1;
+      }
+    }
+    this.releaseRowsUpdates();
+    this.addElement(element, index);
+  }
   public insertElementAfter(element: IElement, after: IElement) {
     const index = this.elements.indexOf(after);
     if (index >= 0) this.addElement(element, index + 1);
@@ -1397,7 +1614,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * This method returns `null` if the panel cannot be created or added to this panel/page; otherwise, the method returns the created panel.
    * @param name A panel name.
-   * @see elements
+   * @see elementsup
    * @see addElement
    */
   public addNewPanel(name: string = null): PanelModel {
@@ -1531,7 +1748,6 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     this.elements.splice(0, this.elements.length);
   }
-
 }
 
 /**
@@ -1675,11 +1891,11 @@ export class PanelModel extends PanelModelBase implements IElement {
       Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex())
     );
   }
-  protected notifyStateChanged(): void {
+  protected notifyStateChanged(prevState: string): void {
     if(!this.isLoadingFromJson) {
       this.locTitle.strChanged();
     }
-    super.notifyStateChanged();
+    super.notifyStateChanged(prevState);
   }
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
@@ -1792,6 +2008,7 @@ export class PanelModel extends PanelModelBase implements IElement {
           id: "cancel-preview",
           locTitle: this.survey.locEditText,
           innerCss: this.survey.cssNavigationEdit,
+          component: "sv-nav-btn",
           action: () => { this.cancelPreview(); }
         });
       }
@@ -1855,7 +2072,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return super.getIsNested() && this.parent !== undefined;
   }
   private get showPanelAsPage() {
-    return !!(<any>this).originalPage && !(<any>this.survey).isShowingPreview;
+    return !!(<any>this).originalPage;
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()
@@ -1923,7 +2140,7 @@ Serializer.addClass(
     { name: "minWidth", defaultFunc: () => "auto" },
     { name: "maxWidth", defaultFunc: () => settings.maxWidth },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
-    { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },
+    { name: "indent:number", default: 0, choices: [0, 1, 2, 3], visible: false },
     {
       name: "page",
       isSerializable: false,

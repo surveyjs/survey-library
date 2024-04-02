@@ -1,39 +1,29 @@
 import * as ko from "knockout";
-import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
+import { ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel, SurveyModel } from "survey-core";
 const template: any = require("html-loader?interpolate!val-loader!./buttons.html");
 
-export class ProgressButtonsViewModel {
-  private progressButtonsModel: SurveyProgressButtonsModel;
-  private scrollButtonCssKo: any = undefined;
-  private hasScroller: any = ko.observable(false);
-  private updateScroller: any = undefined;
-  constructor(private survey: SurveyModel, element: any) {
-    this.progressButtonsModel = new SurveyProgressButtonsModel(survey);
-    this.updateScroller = setInterval(() => {
-      const listContainerElement: HTMLElement = element.querySelector(
-        "." + survey.css.progressButtonsListContainer
-      );
-      if (!!listContainerElement) {
-        this.hasScroller(
-          listContainerElement.scrollWidth > listContainerElement.offsetWidth
-        );
-      }
-    }, 100);
+export class ProgressButtonsViewModel implements IProgressButtonsViewModel {
+  private respManager: ProgressButtonsResponsivityManager;
+  private hasScroller = ko.observable(false);
+  public canShowHeader = ko.observable(false);
+  public canShowFooter = ko.observable(false);
+  public canShowItemTitles = ko.observable(true);
+  constructor(private model: ProgressButtons, private element: HTMLElement, public container: string = "center", public survey: SurveyModel) {
+    this.respManager = new ProgressButtonsResponsivityManager(model, element, this);
   }
-  public isListElementClickable(index: any): boolean {
-    return this.progressButtonsModel.isListElementClickable(index());
+  onResize(canShowItemTitles: boolean): void {
+    this.canShowItemTitles(canShowItemTitles);
+    this.canShowHeader(!this.canShowItemTitles());
   }
-  public getListElementCss(index: any): string {
-    return this.progressButtonsModel.getListElementCss(index());
+  onUpdateScroller(hasScroller: boolean): void {
+    this.hasScroller(hasScroller);
   }
-  public clickListElement(index: any): void {
-    this.progressButtonsModel.clickListElement(index());
+  onUpdateSettings(): void {
+    this.canShowItemTitles(this.model.showItemTitles);
+    this.canShowFooter(!this.model.showItemTitles);
   }
   public getScrollButtonCss(isLeftScroll: boolean): any {
-    this.scrollButtonCssKo = ko.computed(() => {
-      return this.progressButtonsModel.getScrollButtonCss(this.hasScroller(), isLeftScroll);
-    }, this);
-    return this.scrollButtonCssKo;
+    return this.model.getScrollButtonCss(this.hasScroller(), isLeftScroll);
   }
   public clickScrollButton(
     listContainerElement: Element,
@@ -42,24 +32,21 @@ export class ProgressButtonsViewModel {
     listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
   }
   public dispose(): void {
-    if (typeof this.updateScroller !== "undefined") {
-      clearInterval(this.updateScroller);
-      this.updateScroller = undefined;
-    }
-    if (typeof this.scrollButtonCssKo !== "undefined") {
-      this.scrollButtonCssKo.dispose();
-      this.scrollButtonCssKo = undefined;
-    }
+    this.respManager.dispose();
   }
 }
 
 ko.components.register("sv-progress-buttons", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      return new ProgressButtonsViewModel(
+      const viewModel = new ProgressButtonsViewModel(
         params.model,
-        componentInfo.element.nextElementSibling
+        componentInfo.element.nextElementSibling,
+        params.container,
+        params.survey
       );
+      setTimeout(() => (params.model as ProgressButtons)?.processResponsiveness(0), 10);
+      return viewModel;
     },
   },
   template: template

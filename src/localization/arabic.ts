@@ -9,6 +9,8 @@ export var arabicSurveyStrings = {
   startSurveyText: "بداية",
   otherItemText: "نص آخر",
   noneItemText: "لا شيء",
+  refuseItemText: "رفض الإجابة",
+  dontKnowItemText: "لا أعرف",
   selectAllItemText: "اختر الكل",
   progressText: "{1} صفحة {0} من",
   indexText: "{0} من {1}",
@@ -25,6 +27,7 @@ export var arabicSurveyStrings = {
   requiredError: ".يرجى الإجابة على السؤال",
   requiredErrorInPanel: "الرجاء الإجابة على سؤال واحد على الأقل.",
   requiredInAllRowsError: "يرجى الإجابة على الأسئلة في جميع الصفوف",
+  eachRowUniqueError: "يجب أن يكون لكل صف قيمة فريدة.",
   numericError: "يجب أن تكون القيمة رقمية.",
   minError: "يجب ألا تقل القيمة عن {0}",
   maxError: "يجب ألا تزيد القيمة عن {0}",
@@ -42,6 +45,7 @@ export var arabicSurveyStrings = {
   urlRequestError: "طلب إرجاع خطأ '{0}'. {1}ا",
   urlGetChoicesError: "عاد طلب البيانات فارغ أو 'المسار' غير صحيح ",
   exceedMaxSize: "ينبغي ألا يتجاوز حجم الملف {0}ا",
+  noUploadFilesHandler: "لا يمكن تحميل الملفات. يرجى إضافة معالج لحدث \"onUploadFiles\".",
   otherRequiredError: "الرجاء إدخال قيمة أخرى",
   uploadingFile: "تحميل الملف الخاص بك. يرجى الانتظار عدة ثوان والمحاولة لاحقًا",
   loadingFile: "جار التحميل...",
@@ -56,6 +60,8 @@ export var arabicSurveyStrings = {
   emptyRowsText: "لا توجد صفوف.",
   addPanel: "اضف جديد",
   removePanel: "إزالة",
+  showDetails: "اظهر التفاصيل",
+  hideDetails: "إخفاء التفاصيل",
   choices_Item: "بند",
   matrix_column: "عمود",
   matrix_row: "صف",
@@ -94,7 +100,9 @@ export var arabicSurveyStrings = {
   more: "أكثر",
   tagboxDoneButtonCaption: "موافق",
   selectToRankEmptyRankedAreaText: "يتم ترتيب جميع الخيارات",
-  selectToRankEmptyUnrankedAreaText: "قم بسحب وإسقاط الخيارات هنا لترتيبها"
+  selectToRankEmptyUnrankedAreaText: "قم بسحب وإسقاط الخيارات هنا لترتيبها",
+  ok: "موافق",
+  cancel: "إلغاء الأمر"
 };
 
 surveyLocalization.locales["ar"] = arabicSurveyStrings;
@@ -123,4 +131,11 @@ surveyLocalization.localeNames["ar"] = "العربية";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "قم بسحب وإسقاط الخيارات هنا لترتيبها"// takePhotoCaption: "Take Photo" => "التقاط صورة"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "انقر فوق الزر أدناه لالتقاط صورة باستخدام الكاميرا."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "قم بسحب ملف وإفلاته أو تحديده لتحميله أو التقاط صورة باستخدام الكاميرا."
-// replaceFileCaption: "Replace file" => "استبدال الملف"
+// replaceFileCaption: "Replace file" => "استبدال الملف"// eachRowUniqueError: "Each row must have a unique value." => "يجب أن يكون لكل صف قيمة فريدة."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "لا يمكن تحميل الملفات. يرجى إضافة معالج لحدث \"onUploadFiles\"."
+// showDetails: "Show Details" => "اظهر التفاصيل"
+// hideDetails: "Hide Details" => "إخفاء التفاصيل"
+// ok: "OK" => "موافق"
+// cancel: "Cancel" => "إلغاء الأمر"
+// refuseItemText: "Refuse to answer" => "رفض الإجابة"
+// dontKnowItemText: "Don't know" => "لا أعرف"

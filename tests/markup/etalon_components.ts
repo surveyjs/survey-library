@@ -26,7 +26,7 @@ registerMarkupTests(
         dropdown["dropdownListModel"].listModel.renderElements = true;
       },
       getElement: () => {
-        return document.querySelector(".sv-popup.sv-dropdown-popup") as HTMLElement;
+        return document.querySelector(".sv-popup.sv-dropdown-popup .sv-popup__container") as HTMLElement;
       },
       snapshot: "list-component"
     }

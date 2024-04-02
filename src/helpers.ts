@@ -135,16 +135,10 @@ export class Helpers {
     }
     if (!Helpers.isValueObject(x) && !Helpers.isValueObject(y)) return x == y;
     if (!Helpers.isValueObject(x) || !Helpers.isValueObject(y)) return false;
-    if (x["equals"]) return x.equals(y);
-    if (!!x.toJSON && !!y.toJSON && !!x.getType && !!y.getType) {
-      if (x.isDiposed || y.isDiposed) return false;
-      if (x.getType() !== y.getType()) return false;
-      if (!!x.name && x.name !== y.name) return false;
-      return this.isTwoValueEquals(x.toJSON(), y.toJSON(), ignoreOrder, caseSensitive, trimStrings);
-    }
-    if (Array.isArray(x) && Array.isArray(y))
+    if (x["equals"] && y["equals"]) return x.equals(y);
+    if (Array.isArray(x) && Array.isArray(y)) {
       return Helpers.isArraysEqual(x, y, ignoreOrder, caseSensitive, trimStrings);
-    if(!!x.equalsTo && y.equalsTo) return x.equalsTo(y);
+    }
 
     for (var p in x) {
       if (!x.hasOwnProperty(p)) continue;
@@ -403,6 +397,25 @@ export class Helpers {
       return Helpers.convertDateToString(val);
     }
     return val;
+  }
+  public static compareVerions(ver1: string, ver2: string): number {
+    if(!ver1 && !ver2) return 0;
+    const ver1Ar = ver1.split(".");
+    const ver2Ar = ver2.split(".");
+    const len1 = ver1Ar.length;
+    const len2 = ver2Ar.length;
+    for(let i = 0; i < len1 && i < len2; i ++) {
+      const str1 = ver1Ar[i];
+      const str2 = ver2Ar[i];
+      if(str1.length === str2.length) {
+        if(str1 !== str2) {
+          return str1 < str2 ? -1 : 1;
+        }
+      } else {
+        return str1.length < str2.length ? -1 : 1;
+      }
+    }
+    return len1 === len2 ? 0 : (len1 < len2 ? -1 : 1);
   }
 }
 if (!(<any>String.prototype)["format"]) {

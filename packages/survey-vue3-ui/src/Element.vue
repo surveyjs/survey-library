@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="root"
     :style="getRootStyle(element)"
     :class="element.cssClasses.questionWrapper"
   >
@@ -18,13 +19,15 @@
 </template>
 <script lang="ts" setup>
 import type { QuestionRowModel, SurveyElement, SurveyModel } from "survey-core";
-import { computed } from "vue";
+import { computed, onMounted, watch, ref, onUnmounted } from "vue";
 
 const props = defineProps<{
   element: SurveyElement;
   row: QuestionRowModel;
   css?: any;
 }>();
+
+const root = ref<HTMLElement>();
 
 const getElementComponentName = (element: SurveyElement) => {
   return element.isPanel ? "survey-panel" : "survey-question";
@@ -65,5 +68,22 @@ const componentData = computed(() => {
       data: data,
     },
   };
+});
+
+watch(
+  () => props.element,
+  (newValue, oldValue) => {
+    if (oldValue) {
+      oldValue.setWrapperElement(undefined);
+    }
+    newValue.setWrapperElement(root.value);
+  }
+);
+
+onMounted(() => {
+  props.element.setWrapperElement(root.value);
+});
+onUnmounted(() => {
+  props.element.setWrapperElement(undefined);
 });
 </script>

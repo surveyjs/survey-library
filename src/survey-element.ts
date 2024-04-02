@@ -1,5 +1,4 @@
 import { JsonObjectProperty, Serializer, property } from "./jsonobject";
-import { RendererFactory } from "./rendererFactory";
 import { Base } from "./base";
 import { Action, IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
@@ -22,6 +21,9 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
+import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
+import { classesToSelector } from "./utils/utils";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */
@@ -97,6 +99,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public get cssClasses(): any { return {}; }
   public get cssTitle(): string { return ""; }
   public get ariaTitleId(): string { return undefined; }
+  public get ariaDescriptionId(): string { return undefined; }
   public get titleTabIndex(): number { return undefined; }
   public get titleAriaExpanded(): any { return undefined; }
   public get titleAriaRole(): any { return undefined; }
@@ -165,15 +168,31 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const { root } = settings.environment;
     if (!elementId || typeof root === "undefined") return false;
     const el = root.getElementById(elementId);
-    if (!el || !el.scrollIntoView) return false;
-    const elemTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
-    if (elemTop < 0) el.scrollIntoView();
-    return elemTop < 0;
+    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible);
   }
-  public static GetFirstNonTextElement(
-    elements: any,
-    removeSpaces: boolean = false
-  ) {
+  private static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean): boolean {
+    if (!el || !el.scrollIntoView) return false;
+    const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
+    let needScroll = elTop < 0;
+    let elLeft: number = -1;
+    if(!needScroll && checkLeft) {
+      elLeft = el.getBoundingClientRect().left;
+      needScroll = elLeft < 0;
+    }
+    if(!needScroll && DomWindowHelper.isAvailable()) {
+      const height = DomWindowHelper.getInnerHeight();
+      needScroll = height > 0 && height < elTop;
+      if(!needScroll && checkLeft) {
+        const width = DomWindowHelper.getInnerWidth();
+        needScroll = width > 0 && width < elLeft;
+      }
+    }
+    if (needScroll) {
+      el.scrollIntoView();
+    }
+    return needScroll;
+  }
+  public static GetFirstNonTextElement(elements: any, removeSpaces: boolean = false): any {
     if (!elements || !elements.length || elements.length == 0) return null;
     if (removeSpaces) {
       let tEl = elements[0];
@@ -188,7 +207,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return null;
   }
   public static FocusElement(elementId: string): boolean {
-    if (!elementId || typeof document === "undefined") return false;
+    if (!elementId || !DomDocumentHelper.isAvailable()) return false;
     const res: boolean = SurveyElement.focusElementCore(elementId);
     if (!res) {
       setTimeout(() => {
@@ -203,6 +222,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const el = root.getElementById(elementId);
     // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
     if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
+      SurveyElement.ScrollElementToViewCore(el, true, false);
       el.focus();
       return true;
     }
@@ -224,6 +244,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "state") {
       this.updateElementCss(false);
+      this.notifyStateChanged(oldValue);
       if (this.stateChangedCallback) this.stateChangedCallback();
     }
   }
@@ -272,9 +293,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public set state(val: string) {
     this.setPropertyValue("state", val);
-    this.notifyStateChanged();
+    this.renderedIsExpanded = !(this.state === "collapsed" && !this.isDesignMode);
   }
-  protected notifyStateChanged(): void {
+  protected notifyStateChanged(prevState: string): void {
     if (this.survey) {
       this.survey.elementContentVisibilityChanged(this);
     }
@@ -517,7 +538,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private get css(): any {
     return !!this.survey ? this.survey.getCss() : {};
   }
-  @property() cssClassesValue: any;
+  public get cssClassesValue(): any {
+    return this.getPropertyValueWithoutDefault("cssClassesValue");
+  }
+  public set cssClassesValue(val: any) {
+    this.setPropertyValue("cssClassesValue", val);
+  }
   private ensureCssClassesValue() {
     if (!this.cssClassesValue) {
       this.cssClassesValue = this.calcCssClasses(this.css);
@@ -556,7 +582,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected getIsLoadingFromJson(): boolean {
     if (super.getIsLoadingFromJson()) return true;
-    return this.survey ? this.survey.isLoadingFromJson : false;
+    return this.surveyValue ? this.surveyValue.isLoadingFromJson : false;
   }
   /**
    * A survey element identifier.
@@ -624,13 +650,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public set selectedElementInDesign(val: SurveyElement) {
     this.selectedElementInDesignValue = val;
   }
-  public updateCustomWidgets() { }
+  public updateCustomWidgets(): void { }
 
-  public onSurveyLoad() { }
-  public onFirstRendering() {
+  public onSurveyLoad(): void {}
+  private wasRenderedValue: boolean;
+  public get wasRendered(): boolean { return !!this.wasRenderedValue; }
+  public onFirstRendering(): void {
+    this.wasRenderedValue = true;
     this.ensureCssClassesValue();
   }
-  endLoadingFromJson() {
+  endLoadingFromJson(): void {
     super.endLoadingFromJson();
     if (!this.survey) {
       this.onSurveyLoad();
@@ -644,21 +673,21 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * Returns `true` if the survey element is a page.
    * @see Base.getType
    */
-  public get isPage() {
+  public get isPage(): boolean {
     return false;
   }
   /**
    * Returns `true` if the survey element is a panel.
    * @see Base.getType
    */
-  public get isPanel() {
+  public get isPanel(): boolean {
     return false;
   }
   /**
    * Returns `true` if the survey element is a question.
    * @see Base.getType
    */
-  public get isQuestion() {
+  public get isQuestion(): boolean {
     return false;
   }
   public delete(doDispose: boolean): void { }
@@ -784,7 +813,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   public get hasParent() {
-    return (this.parent && !this.parent.isPage && (!(<any>this.parent).originalPage || (<any>this.survey).isShowingPreview)) || (this.parent === undefined);
+    return (this.parent && !this.parent.isPage && (!(<any>this.parent).originalPage)) || (this.parent === undefined);
   }
   @property({ defaultValue: true }) isSingleInRow: boolean = true;
 
@@ -803,11 +832,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.shouldAddRunnerStyles() && (this.hasParent);
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
+    const isExpanadable = !!this.isCollapsed || !!this.isExpanded;
     return new CssClassBuilder()
       .append(cssClasses.withFrame, this.getHasFrameV2() && !this.isCompact)
       .append(cssClasses.compact, this.isCompact && this.getHasFrameV2())
       .append(cssClasses.collapsed, !!this.isCollapsed)
-      .append(cssClasses.expanded, !!this.isExpanded)
+      .append(cssClasses.expandableAnimating, isExpanadable && this.isAnimatingCollapseExpand)
+      .append(cssClasses.expanded, !!this.isExpanded && this.renderedIsExpanded)
+      .append(cssClasses.expandable, isExpanadable)
       .append(cssClasses.nested, this.getIsNested())
       .toString();
   }
@@ -924,12 +956,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   private isContainsSelection(el: any) {
     let elementWithSelection: any = undefined;
-    if ((document as any)["selection"]) {
-      elementWithSelection = (document as any)["selection"].createRange().parentElement();
+    const _document = DomDocumentHelper.getDocument();
+    if (DomDocumentHelper.isAvailable() && !!_document && (_document as any)["selection"]) {
+      elementWithSelection = (_document as any)["selection"].createRange().parentElement();
     }
     else {
-      var selection = window.getSelection();
-      if (selection.rangeCount > 0) {
+      var selection = DomWindowHelper.getSelection();
+      if (!!selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         if (range.startOffset !== range.endOffset) {
           elementWithSelection = range.startContainer.parentNode;
@@ -984,6 +1017,86 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       });
     }
   }
+
+  private wrapperElement?: HTMLElement;
+  public setWrapperElement(element?: HTMLElement) {
+    this.wrapperElement = element;
+  }
+  public getWrapperElement(): HTMLElement {
+    return this.wrapperElement;
+  }
+
+  @property() private _renderedIsExpanded: boolean = true;
+  private _isAnimatingCollapseExpand: boolean = false;
+  private set isAnimatingCollapseExpand(val: boolean) {
+    if(val !== this._isAnimatingCollapseExpand) {
+      this._isAnimatingCollapseExpand = val;
+      this.updateElementCss(false);
+    }
+  }
+  private get isAnimatingCollapseExpand() {
+    return this._isAnimatingCollapseExpand || this._renderedIsExpanded != this.isExpanded;
+  }
+
+  private getExpandCollapseAnimationOptions(): IAnimationConsumer {
+    const beforeRunAnimation = (el: HTMLElement) => {
+      this.isAnimatingCollapseExpand = true;
+      el.style.setProperty("--animation-height", el.offsetHeight + "px");
+    };
+    const afterRunAnimation = (el: HTMLElement) => {
+      this.isAnimatingCollapseExpand = false;
+    };
+    return {
+      getEnterOptions: () => {
+        const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
+        return {
+          cssClass: cssClasses.contentFadeIn,
+          onBeforeRunAnimation: beforeRunAnimation,
+          onAfterRunAnimation: afterRunAnimation,
+        };
+      },
+      getLeaveOptions: () => {
+        const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
+        return { cssClass: cssClasses.contentFadeOut,
+          onBeforeRunAnimation: beforeRunAnimation,
+          onAfterRunAnimation: afterRunAnimation
+        };
+      },
+      getAnimatedElement: () => {
+        const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
+        return this.getWrapperElement()?.querySelector(classesToSelector(cssClasses.content));
+      },
+      isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed && !this.isDesignMode
+    };
+  }
+
+  private animationCollapsed = new AnimationBoolean(this.getExpandCollapseAnimationOptions(), (val) => {
+    this._renderedIsExpanded = val;
+    if(this.animationAllowed) {
+      if(val) {
+        this.isAnimatingCollapseExpand = true;
+      } else {
+        this.updateElementCss(false);
+      }
+    }
+  }, () => this.renderedIsExpanded);
+  public set renderedIsExpanded(val: boolean) {
+    this.animationCollapsed.sync(val);
+  }
+
+  public get renderedIsExpanded(): boolean {
+    return !!this._renderedIsExpanded;
+  }
+
+  private animationAllowedValue: boolean = true;
+  public get animationAllowed(): boolean {
+    return !this.isLoadingFromJson && !this.isDisposed && !!this.survey && this.animationAllowedValue;
+  }
+
+  public set animationAllowed(val: boolean) {
+    this.animationAllowedValue = val;
+  }
+
   public dispose(): void {
     super.dispose();
     if (this.titleToolbarValue) {

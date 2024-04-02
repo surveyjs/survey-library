@@ -39,6 +39,7 @@ import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { ConsoleWarnings } from "../src/console-warnings";
 import { StylesManager } from "../src/stylesmanager";
 import { surveyTimerFunctions } from "../src/surveytimer";
+import { defaultStandardCss } from "../src/defaultCss/cssstandard";
 
 export default QUnit.module("Survey_Questions");
 
@@ -493,54 +494,6 @@ QUnit.test("Matrix Question sortVisibleRows", function (assert) {
   var rows = matrix.visibleRows;
   assert.equal(rows[0].name, "row2", "rows has been reordered");
 });
-QUnit.test("Matrix Question isAllRowRequired property", function (assert) {
-  var matrix = new QuestionMatrixModel("q1");
-  matrix.rows = ["row1", "row2"];
-  matrix.columns = ["col1", "col2"];
-  assert.equal(matrix.hasErrors(), false, "There is no errors by default");
-  matrix.isAllRowRequired = true;
-  assert.equal(matrix.hasErrors(), true, "There is no errors by default");
-});
-QUnit.test(
-  "Matrix Question isAllRowRequired property, value is zero, Bug#2332",
-  function (assert) {
-    var matrix = new QuestionMatrixModel("q1");
-    matrix.fromJSON({
-      type: "matrix",
-      name: "question",
-      isRequired: true,
-      columns: [
-        {
-          value: 0,
-          text: "No",
-        },
-        {
-          value: 1,
-          text: "Maybe",
-        },
-        {
-          value: 2,
-          text: "Yes",
-        },
-      ],
-      rows: ["item1", "item2"],
-      isAllRowRequired: true,
-    });
-    var rows = matrix.visibleRows;
-    assert.equal(matrix.hasErrors(), true, "is Required error");
-    rows[0].value = 0;
-    assert.equal(matrix.hasErrors(), true, "isAllRowRequired error");
-    rows[1].value = 0;
-    assert.deepEqual(
-      matrix.value,
-      { item1: 0, item2: 0 },
-      "value set correctly"
-    );
-    assert.equal(rows[0].value, 0, "First row value set correctly");
-    assert.equal(rows[1].value, 0, "Second row value set correctly");
-    assert.equal(matrix.hasErrors(), false, "There is no errors");
-  }
-);
 QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (
   assert
 ) {
@@ -897,11 +850,14 @@ QUnit.test("Radiogroup Question: support goNextPageAutomatic + hasOther", functi
     goNextPageAutomatic: true,
   };
   const survey = new SurveyModel(json);
-  const question = survey.getQuestionByName("q1");
+  const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
   question.value = "other";
   assert.equal(survey.currentPageNo, 0, "Stay on the first page");
   question.comment = "123";
-  assert.equal(survey.currentPageNo, 1, "Go to the second page");
+  assert.equal(survey.currentPageNo, 0, "Still stay on the page");
+  question.onMouseDown();
+  question.value = 2;
+  assert.equal(survey.currentPageNo, 1, "Go to the next page");
 });
 
 QUnit.test(
@@ -1413,7 +1369,7 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
   assert.equal(question.isOtherSelected, false, "Others is not selected");
   assert.deepEqual(survey.data, { q: ["A", "B"] }, "'B' is set");
 });
-QUnit.test("Checkbox store others value not in comment", function (assert) {
+QUnit.test("Checkbox store others value not in comment & defaultValue", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -1706,14 +1662,14 @@ QUnit.test("checkbox.renderedValue - storeOthersAsComment = false;", function (
   );
   assert.equal(question.comment, "X", "set comment");
 });
-QUnit.test("checkbox.renderedValue - hasNone = true, Bug #1609", function (
+QUnit.test("checkbox.renderedValue - showNoneItem = true, Bug #1609", function (
   assert
 ) {
   var survey = new SurveyModel();
   survey.addNewPage("page1");
   var question = new QuestionCheckboxModel("q");
   question.choices = ["A", "B", "C", "D"];
-  question.hasNone = true;
+  question.showNoneItem = true;
   survey.pages[0].addQuestion(question);
 
   question.value = ["A", "B"];
@@ -1731,14 +1687,14 @@ QUnit.test("checkbox.renderedValue - hasNone = true, Bug #1609", function (
   );
 });
 QUnit.test(
-  "checkbox.renderedValue - hasNone = true and survey.storeOthersAsComment = false, Bug #1609",
+  "checkbox.renderedValue - showNoneItem = true and survey.storeOthersAsComment = false, Bug #1609",
   function (assert) {
     var survey = new SurveyModel();
     survey.storeOthersAsComment = false;
     survey.addNewPage("page1");
     var question = new QuestionCheckboxModel("q");
     question.choices = ["A", "B", "C", "D"];
-    question.hasNone = true;
+    question.showNoneItem = true;
     survey.pages[0].addQuestion(question);
 
     question.value = ["A", "B"];
@@ -1988,7 +1944,7 @@ QUnit.test("defaultValue and hasOther - checkbox, bug#384 (Editor)", function (
     [2, "other"],
     "rendredValue set correctly"
   );
-  assert.deepEqual(question.value, [2, "otherValue"], "value set correctly");
+  assert.deepEqual(question.value, [2, "other"], "value set correctly");
   assert.equal(question.comment, "otherValue", "other value is set");
 });
 
@@ -3065,13 +3021,13 @@ QUnit.test("space in others does not work correctly , bug #1214", function (
   );
 });
 
-QUnit.test("Checkbox hasNone", function (assert) {
+QUnit.test("Checkbox showNoneItem - modify value", function (assert) {
   var json = {
     elements: [
       {
         type: "checkbox",
         name: "q1",
-        hasNone: true,
+        showNoneItem: true,
         choices: [1, 2, 3, 4, 5],
       },
     ],
@@ -3079,22 +3035,58 @@ QUnit.test("Checkbox hasNone", function (assert) {
   var survey = new SurveyModel(json);
   var q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   assert.equal(q.visibleChoices.length, 6, "5 items + none");
-  q.hasNone = false;
+  q.showNoneItem = false;
   assert.equal(q.visibleChoices.length, 5, "none is removed");
-  q.hasNone = true;
+  q.showNoneItem = true;
   assert.equal(q.visibleChoices.length, 6, "none is added");
   q.value = [1, 2, "none"];
   assert.deepEqual(q.value, ["none"], "we keep only none");
   q.value = [1, "none"];
   assert.deepEqual(q.value, [1], "none should gone");
 });
-QUnit.test("Dropdown hasNone", function (assert) {
+QUnit.test("Checkbox showRefuseItem/showDontKnowItem - modify value", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        showRefuseItem: true,
+        showDontKnowItem: true,
+        choices: [1, 2, 3, 4, 5],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.visibleChoices.length, 7, "7 items + refuse + don't know");
+
+  q.showRefuseItem = false;
+  assert.equal(q.visibleChoices.length, 6, "refuse is removed");
+  q.showRefuseItem = true;
+  assert.equal(q.visibleChoices.length, 7, "refuse is added");
+
+  q.showDontKnowItem = false;
+  assert.equal(q.visibleChoices.length, 6, "don't know is removed");
+  q.showDontKnowItem = true;
+  assert.equal(q.visibleChoices.length, 7, "don't know is added");
+
+  q.value = [1, 2, "refused"];
+  assert.deepEqual(q.value, ["refused"], "we keep refuse only");
+  q.value = [1, "refused"];
+  assert.deepEqual(q.value, [1], "refuse should gone");
+
+  q.value = [1, 2, "dontknow"];
+  assert.deepEqual(q.value, ["dontknow"], "we keep dontknow only");
+  q.value = [1, "dontknow"];
+  assert.deepEqual(q.value, [1], "dontknow should gone");
+});
+QUnit.test("Dropdown showNoneItem", function (assert) {
   var json = {
     elements: [
       {
         type: "dropdown",
         name: "q1",
-        hasNone: true,
+        showNoneItem: true,
         choices: [1, 2, 3, 4, 5],
       },
     ],
@@ -3102,9 +3094,9 @@ QUnit.test("Dropdown hasNone", function (assert) {
   var survey = new SurveyModel(json);
   var q = <QuestionDropdownModel>survey.getQuestionByName("q1");
   assert.equal(q.visibleChoices.length, 6, "5 items + none");
-  q.hasNone = false;
+  q.showNoneItem = false;
   assert.equal(q.visibleChoices.length, 5, "none is removed");
-  q.hasNone = true;
+  q.showNoneItem = true;
   assert.equal(q.visibleChoices.length, 6, "none is added");
 });
 
@@ -3252,7 +3244,7 @@ QUnit.test("Test property hideIfChoicesEmpty", function (assert) {
   assert.equal(question.isVisible, false, "Choices are empty");
   question.hasOther = true;
   question.hasSelectAll = true;
-  question.hasNone = true;
+  question.showNoneItem = true;
   assert.equal(question.isVisible, false, "Still choices are empty");
   question.choices = [1, 2, 3];
   assert.equal(question.isVisible, true, "Choices are not empty");
@@ -4623,29 +4615,37 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
         name: "q1",
         storeOthersAsComment: false,
         hasSelectAll: true,
-        hasNone: true,
+        showNoneItem: true,
         choices: [1, 2],
       },
     ],
   });
+  survey.css = defaultStandardCss;
   var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q1.value = [1];
-  assert.equal(
+  const checkCss = (actual: string, expected: string, message: string): void => {
+    const actualList = actual.split(" ");
+    const expectedList = expected.split(" ");
+    expectedList.forEach(cl => {
+      assert.equal(actualList.indexOf(cl) >= 0, true, message + ": '" + cl + "' is not found in " + actual);
+    });
+  };
+  checkCss(
     q1.getItemClass(q1.visibleChoices[0]),
     "sv_q_checkbox sv-q-col-1 sv_q_checkbox_selectall",
     "select all"
   );
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[1]),
     "sv_q_checkbox sv-q-col-1 checked",
     "item 1"
   );
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[2]),
     "sv_q_checkbox sv-q-col-1",
     "item 2"
   );
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[3]),
     "sv_q_checkbox sv-q-col-1 sv_q_checkbox_none",
     "None"
@@ -4655,7 +4655,7 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
       options.css = options.css + " custom";
     }
   });
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[2]),
     "sv_q_checkbox sv-q-col-1 custom",
     "item 2, value = 2, survey.onUpdateChoiceItemCss"
@@ -4911,40 +4911,6 @@ QUnit.test("question.isInputTextUpdate", function (assert) {
   assert.equal(question.isInputTextUpdate, false, "inputType = date");
   question.inputType = "number";
   assert.equal(question.isInputTextUpdate, true, "inputType = number");
-});
-QUnit.test("matirix row, rowClasses property", function (assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "matrix",
-        name: "q1",
-        columns: ["col1", "col2"],
-        rows: ["row1", "row2"],
-        isAllRowRequired: true,
-      },
-    ],
-  });
-  survey.css = { matrix: { row: "row", rowError: "row_error" } };
-  var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
-  assert.ok(question.cssClasses.row, "Row class is not empty");
-  assert.equal(question.visibleRows[0].rowClasses, "row", "Set row class");
-  question.hasErrors();
-  assert.equal(
-    question.visibleRows[0].rowClasses,
-    "row row_error",
-    "Error for the first row"
-  );
-  question.visibleRows[0].value = "col1";
-  assert.equal(
-    question.visibleRows[0].rowClasses,
-    "row",
-    "first row value is set"
-  );
-  assert.equal(
-    question.visibleRows[1].rowClasses,
-    "row row_error",
-    "Error for the second row"
-  );
 });
 QUnit.test("matirix and survey.onValueChanged event, Bug#2408", function (
   assert
@@ -5374,7 +5340,7 @@ QUnit.test("Checkbox: Carry Forward and hasOther", function(assert) {
   assert.equal(q2.visibleChoices[2].text, "someText", "other text");
 });
 QUnit.test(
-  "choicesFromQuestion hasSelectAll, hasNone, hasOther properties, Bug#",
+  "choicesFromQuestion hasSelectAll, showNoneItem, hasOther properties, Bug#",
   function (assert) {
     var survey = new SurveyModel({
       elements: [
@@ -5383,7 +5349,7 @@ QUnit.test(
           name: "q1",
           choices: [1, 2, 3],
           hasSelectAll: true,
-          hasNone: true,
+          showNoneItem: true,
           hasOther: true,
         },
         {
@@ -5391,7 +5357,7 @@ QUnit.test(
           name: "q2",
           choicesFromQuestion: "q1",
           hasSelectAll: true,
-          hasNone: true,
+          showNoneItem: true,
           hasOther: true,
         },
       ],
@@ -5686,7 +5652,7 @@ QUnit.test(
       false,
       "none not in list"
     );
-    q1.hasNone = true;
+    q1.showNoneItem = true;
     assert.equal(q1.isItemInList(q1.visibleChoices[4]), true, "none in list");
 
     assert.equal(q1.visibleChoices[5].value, "other", "index=5, other");
@@ -5698,7 +5664,7 @@ QUnit.test(
     q1.hasOther = true;
     assert.equal(q1.isItemInList(q1.visibleChoices[5]), true, "other in list");
 
-    assert.equal(q2.visibleChoices[0].value, "selectall", "index=0, selectall");
+    assert.equal(q2.visibleChoices[0].id, "selectall", "index=0, selectall");
     assert.equal(
       q2.isItemInList(q2.visibleChoices[0]),
       false,
@@ -5758,7 +5724,7 @@ QUnit.test(
       "Do not show SelectAll+None+hasOther+new: 2"
     );
     q1.hasSelectAll = true;
-    q1.hasNone = true;
+    q1.showNoneItem = true;
     q1.hasOther = true;
     assert.equal(
       q1.visibleChoices.length,
@@ -5807,7 +5773,7 @@ QUnit.test("Creator V2: do not add choices from carry-forward in design mode", f
   settings.supportCreatorV2 = false;
 });
 QUnit.test(
-  "Creator V2: Hide selectAll, hasNone and hasOther if this properties are invisible",
+  "Creator V2: Hide selectAll, showNoneItem and hasOther if this properties are invisible",
   function (assert) {
     var json = {
       elements: [
@@ -5820,7 +5786,7 @@ QUnit.test(
     };
     settings.supportCreatorV2 = true;
     Serializer.findProperty("selectbase", "hasOther").visible = false;
-    Serializer.findProperty("selectbase", "hasNone").visible = false;
+    Serializer.findProperty("selectbase", "showNoneItem").visible = false;
     Serializer.findProperty("checkbox", "hasSelectAll").visible = false;
     var survey = new SurveyModel();
     survey.setDesignMode(true);
@@ -5832,7 +5798,7 @@ QUnit.test(
       "Hide SelectAll+None+hasOther and show only new: 3+4 - 3"
     );
     Serializer.findProperty("selectbase", "hasOther").visible = true;
-    Serializer.findProperty("selectbase", "hasNone").visible = true;
+    Serializer.findProperty("selectbase", "showNoneItem").visible = true;
     Serializer.findProperty("checkbox", "hasSelectAll").visible = true;
     settings.supportCreatorV2 = false;
   }
@@ -6007,6 +5973,46 @@ QUnit.test("isFit custom widgets on renderAs", function (assert) {
   assert.equal(q1.customWidget.name, "pretty", "Correct custom widget name");
   CustomWidgetCollection.Instance.clear();
 });
+QUnit.test("Validate function for custom widget", function (assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "first",
+    isFit: (question): boolean => {
+      return question.name == "question1";
+    },
+    validate: (question): string => {
+      const val = question.value;
+      return val < 1 || val > 3 ? "Out of range" : "";
+    }
+  });
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "question1",
+        choices: [1, 2, 3]
+      },
+    ],
+  });
+  var q1 = <QuestionSelectBase>(
+    survey.getQuestionByName("question1")
+  );
+  assert.equal(q1.validate(), true, "There is no errors, #1");
+  q1.value = 1;
+  assert.equal(q1.validate(), true, "There is no errors, #2");
+  q1.value = 4;
+  assert.equal(q1.validate(), false, "There is a error, #3");
+  assert.equal(q1.errors.length, 1, "Errors list, #4");
+  assert.equal(q1.errors[0].text, "Out of range", "Error text #5");
+  q1.value = 2;
+  assert.equal(q1.errors.length, 0, "Errors list, #6");
+  q1.value = 5;
+  assert.equal(q1.validate(), false, "There is a error, #7");
+  q1.clearValue();
+  assert.equal(q1.errors.length, 0, "Errors list, #8");
+  CustomWidgetCollection.Instance.clear();
+});
+
 QUnit.test("Update choices order on changing locale, bug #2832", function (
   assert
 ) {
@@ -7638,4 +7644,16 @@ QUnit.test("Hide errors on making question disabled", function (assert) {
   q1.value = 100;
   assert.equal(q2.isReadOnly, true, "q2 is read-only");
   assert.equal(q2.errors.length, 0, "Clear errors on making questio read-only");
+});
+QUnit.test("matrix.visibleRows and read-only", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrix", name: "matrix", columns: ["col1", "col2"], rows: ["row1", "row2"], readOnly: true }
+    ]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  matrix.value = { row1: "col1", row2: "col2" };
+  assert.equal(matrix.visibleRows.length, 2, "visibleRows.length");
+  assert.equal(matrix.visibleRows[0].value, "col1", "row1.value");
+  assert.equal(matrix.visibleRows[1].value, "col2", "row2.value");
 });

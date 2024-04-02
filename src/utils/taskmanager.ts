@@ -57,3 +57,25 @@ export class TaskManger {
     TaskManger.tasks.push(task);
   }
 }
+
+export function debounce<T extends (...args: any) => void>(func: T): { run: T, cancel: () => void } {
+  let isSheduled = false;
+  let isCanceled = false;
+  let funcArgs: any;
+  return { run: ((...args: any) => {
+    isCanceled = false;
+    funcArgs = args;
+    if(!isSheduled) {
+      isSheduled = true;
+      queueMicrotask(() => {
+        if(!isCanceled) {
+          func.apply(this, funcArgs);
+        }
+        isCanceled = false;
+        isSheduled = false;
+      });
+    }
+  }) as T, cancel: () => {
+    isCanceled = true;
+  } };
+}

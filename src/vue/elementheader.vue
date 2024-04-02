@@ -5,6 +5,7 @@
       v-if="element.hasDescriptionUnderTitle"
       v-show="element.hasDescription"
       :class="element.cssDescription"
+      :id="element.ariaDescriptionId"
     >
       <survey-string :locString="element.locDescription" />
     </div>
@@ -21,7 +22,7 @@ import { SurveyElement, Question, PanelModel, doKey2ClickUp } from "survey-core"
 export class ElementHeader extends Vue {
   @Prop() element: Question | PanelModel;
   @Prop() css: any;
-  
+
   clickTitleFunction(e: any) {
     if(typeof (<any>this.element).clickTitleFunction === "function") {
       (<any>this.element).clickTitleFunction(e);

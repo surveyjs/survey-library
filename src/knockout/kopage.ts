@@ -20,11 +20,18 @@ export class QuestionRow extends QuestionRowModel {
   public getElementType(el: any) {
     return el.isPanel ? "survey-panel" : "survey-question";
   }
-  public koAfterRender(el: any, con: any) {
-    for (var i = 0; i < el.length; i++) {
-      var tEl = el[i];
+
+  public koAfterRender(htmlElements: any, element: SurveyElement) {
+    for (var i = 0; i < htmlElements.length; i++) {
+      var tEl = htmlElements[i];
       var nName = tEl.nodeName;
       if (nName == "#text") tEl.data = "";
+      else {
+        element.setWrapperElement(tEl);
+        ko.utils.domNodeDisposal.addDisposeCallback(tEl, () => {
+          element.setWrapperElement(undefined);
+        });
+      }
     }
   }
   private elementAfterRender(elements: any, con: any) {
@@ -43,15 +50,20 @@ export class QuestionRow extends QuestionRowModel {
       }
     }, 0);
   }
-
   rowAfterRender(elements: HTMLElement[], model: QuestionRow) {
+    const rowContainerDiv = elements[0].parentElement;
+    model.setRootElement(rowContainerDiv);
+    ko.utils.domNodeDisposal.addDisposeCallback(rowContainerDiv, () => {
+      model.setRootElement(undefined);
+    });
     if (!model.isNeedRender) {
-      const rowContainerDiv = elements[0].parentElement;
       const timer = setTimeout(() => model.startLazyRendering(rowContainerDiv), 1);
       ko.utils.domNodeDisposal.addDisposeCallback(rowContainerDiv, () => {
         clearTimeout(timer);
         model.stopLazyRendering();
-        model.isNeedRender = !model.isLazyRendering();
+        if(!model.isDisposed) {
+          model.isNeedRender = !model.isLazyRendering();
+        }
       });
     }
   }

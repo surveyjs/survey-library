@@ -10,7 +10,7 @@
     v-on:click="click"
     v-key2click
   >
-    <div 
+    <div
       v-if="item.needSeparator"
       v-bind:class="model.cssClasses.itemSeparator"
       />

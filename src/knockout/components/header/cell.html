@@ -14,10 +14,10 @@
     <!-- /ko -->
     <!-- ko if: showDescription -->
     <div class="sv-header__description" data-bind="style: { maxWidth: textAreaWidth }">
-      <h5 data-bind="css: survey.css.description">
+      <div data-bind="css: survey.css.description">
         <!-- ko template: { name: 'survey-string', data: survey.locDescription } -->
         <!-- /ko -->
-      </h5>
+      </div>
     </div>
     <!-- /ko -->
   </div>

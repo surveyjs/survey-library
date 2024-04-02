@@ -3,7 +3,7 @@
     <survey-string v-if="element.isTitleRenderedAsString" :locString="element.locTitle" />
     <span
       v-if="!element.isTitleRenderedAsString && element.isRequireTextOnStart"
-      :class="element.cssClasses.requiredText"
+      :class="cssClasses.requiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
@@ -17,7 +17,7 @@
     <span v-if="!element.isTitleRenderedAsString && element.no">&nbsp;</span>
     <span
       v-if="!element.isTitleRenderedAsString && element.isRequireTextBeforeTitle"
-      :class="element.cssClasses.requiredText"
+      :class="cssClasses.requiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
@@ -26,7 +26,7 @@
     <span v-if="!element.isTitleRenderedAsString && element.isRequireTextAfterTitle">&nbsp;</span>
     <span
       v-if="!element.isTitleRenderedAsString && element.isRequireTextAfterTitle"
-      :class="element.cssClasses.requiredText"
+      :class="cssClasses.requiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
@@ -42,6 +42,10 @@ import { SurveyElementCore } from "survey-core";
 export class TitleContent extends Vue {
   @Prop() element: any;
   @Prop() css: any;
+
+  get cssClasses() {
+    return (this.element.isPanel ? this.element.cssClasses.panel : this.element.cssClasses) || {};
+  }
 
 }
 Vue.component("survey-element-title-content", TitleContent);

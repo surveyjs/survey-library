@@ -1,4 +1,4 @@
-import { StylesManager, Model, SurveyModel, PanelModel } from "survey-core";
+import { StylesManager, Model, SurveyModel, PanelModel, settings } from "survey-core";
 export interface MarkupTestDescriptor {
   name: string;
   json: any;
@@ -103,6 +103,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   }
   StylesManager.applyTheme("default");
   var done = assert.async();
+  settings.animationEnabled = false;
   if (test.before)
     test.before();
   platform.survey = platform.surveyFactory(test.json);
@@ -142,6 +143,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey: SurveyModel, options: any) {
     setTimeout(() => {
+
       let htmlElement = options.htmlElement;
       if(!!test.getElement) {
         htmlElement = test.getElement(options.htmlElement);
@@ -152,14 +154,17 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         clearClasses(all[i]);
       }
       sortAttributes(all);
-      const newEl = document.createElement("div");
+      let newEl = document.createElement("div");
       newEl.innerHTML = clearExtraElements(htmlElement.innerHTML);
-      let str = newEl.children[0].innerHTML;
+      if (!test.getElement) {
+        newEl = newEl.children[0] as any;
+      }
+      let str = newEl.innerHTML;
       if(newEl.getElementsByTagName("form").length) {
         str = newEl.getElementsByTagName("form")[0].innerHTML;
       }
       if(!!test.getSnapshot) {
-        str = test.getSnapshot(htmlElement);
+        str = test.getSnapshot(options.htmlElement);
       }
 
       var re = /(<!--[\s\S]*?-->)/g;
@@ -179,6 +184,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         newstr == oldStr ?
           platform.name + " " + test.name + " rendered correctly" :
           platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#" + test.snapshot);
+      settings.animationEnabled = true;
       if (test.after) { test.after(); }
       if (platform.finish)
         platform.finish(surveyElement);
@@ -278,6 +284,9 @@ function clearClasses(el: Element) {
       if(className.search(/^ng-/) > -1) {
         classesToRemove.push(className);
       }
+      if(["top", "bottom"].filter(direction => className == `sv-popup--${direction}`).length > 0) {
+        classesToRemove.push(className);
+      }
     });
     el.classList.remove(...classesToRemove);
   }
@@ -295,7 +304,7 @@ function clearAttributes(el: Element, removeIds = false) {
   if(!!removeIds) {
     el.removeAttribute("id");
   }
-  //el.removeAttribute("aria-describedby");
+  //el.removeAttribute("aria-errormessage");
   //if(el.getAttribute("list")) el.removeAttribute("list");
   el.removeAttribute("fragment");
   if(el.getAttribute("style") === "") {

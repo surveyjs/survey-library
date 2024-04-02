@@ -5,13 +5,12 @@ import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
 import { SurveyLocStringViewer } from "./string-viewer";
 import { SurveyHeader } from "./components/survey-header/survey-header";
-import { SurveyTimerPanel } from "./reacttimerpanel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElementFactory } from "./element-factory";
-import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { BrandInfo } from "./components/brand-info";
 import { NotifierComponent } from "./components/notifier";
 import { ComponentsContainer } from "./components/components-container";
+import { SvgBundleComponent } from "./svgbundle";
 
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
@@ -82,9 +81,6 @@ export class Survey extends SurveyElementBase<any, any>
     this.destroySurvey();
   }
   doRender(): JSX.Element {
-    if(this.survey["needRenderIcons"]) {
-      SvgRegistry.renderIcons();
-    }
     let renderResult: JSX.Element | null;
     if (this.survey.state == "completed") {
       renderResult = this.renderCompleted();
@@ -112,6 +108,7 @@ export class Survey extends SurveyElementBase<any, any>
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables}>
+        {this.survey.needRenderIcons ? <SvgBundleComponent></SvgBundleComponent> : null }
         <div className={this.survey.wrapperFormCss}>
           {backgroundImage}
           <form onSubmit={onSubmit}>
@@ -179,14 +176,17 @@ export class Survey extends SurveyElementBase<any, any>
     return (
       <div className={this.survey.bodyContainerCss}>
         <ComponentsContainer survey={this.survey} container={"left"}></ComponentsContainer>
-        <div
-          id={pageId}
-          className={className}
-          style={style}
-        >
-          <ComponentsContainer survey={this.survey} container={"contentTop"}></ComponentsContainer>
-          {activePage}
-          <ComponentsContainer survey={this.survey} container={"contentBottom"}></ComponentsContainer>
+        <div className="sv-components-column sv-components-column--expandable">
+          <ComponentsContainer survey={this.survey} container={"center"}></ComponentsContainer>
+          <div
+            id={pageId}
+            className={className}
+            style={style}
+          >
+            <ComponentsContainer survey={this.survey} container={"contentTop"}></ComponentsContainer>
+            {activePage}
+            <ComponentsContainer survey={this.survey} container={"contentBottom"}></ComponentsContainer>
+          </div>
         </div>
         <ComponentsContainer survey={this.survey} container={"right"}></ComponentsContainer>
       </div>

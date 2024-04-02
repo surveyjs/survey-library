@@ -10,6 +10,8 @@
 .sv-ranking-item {
   cursor: pointer;
   position: relative;
+  height: calcSize(6);
+  opacity: 1;
 }
 
 .sv-ranking-item:focus .sv-ranking-item__icon--hover {
@@ -77,6 +79,7 @@
 }
 
 .sv-ranking-item__index.sv-ranking-item__index {
+  @include useEditorFontSize;
   display: flex;
   flex-shrink: 0;
   align-items: center;
@@ -92,15 +95,20 @@
   box-sizing: border-box;
   font-weight: 600;
   margin-left: calcSize(0);
+  transition:
+    outline $transition-duration,
+    background $transition-duration;
+  outline: calcSize(0.25) solid transparent;
 
   svg {
-      fill: $font-questiontitle-color;
-      width: $font-editorfont-size;
-      height: $font-editorfont-size;
+    fill: $font-questiontitle-color;
+    width: $font-editorfont-size;
+    height: $font-editorfont-size;
   }
 }
 
 .sv-ranking-item__text {
+  @include useEditorFontSize;
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -243,6 +251,65 @@
   }
 }
 
+.sv-ranking-item--animate-item-removing {
+  --animation-height: #{calcSize(6)};
+  animation-name: moveIn, fadeIn;
+  animation-direction: reverse;
+  animation-fill-mode: forwards;
+  animation-timing-function: linear;
+  animation-duration: $ranking-move-out-duration, $ranking-fade-out-duration;
+  animation-delay: $ranking-move-out-delay, 0s;
+}
+
+.sv-ranking-item--animate-item-adding {
+  --animation-height: #{calcSize(6)};
+  animation-name: moveIn, fadeIn;
+  opacity: 0;
+  animation-fill-mode: forwards;
+  animation-timing-function: linear;
+  animation-duration: $ranking-move-in-duration, $ranking-fade-in-duration;
+  animation-delay: 0s, $ranking-fade-in-delay;
+}
+
+
+.sv-ranking-item--animate-item-adding-empty {
+  --animation-height: #{calcSize(6)};
+  animation-name: fadeIn;
+  opacity: 0;
+  animation-timing-function: linear;
+  animation-duration: $ranking-fade-in-duration;
+  animation-delay: 0;
+}
+
+.sv-ranking-item--animate-item-removing-empty {
+  --animation-height: #{calcSize(6)};
+  animation-name: fadeIn;
+  animation-direction: reverse;
+  animation-timing-function: linear;
+  animation-duration: $ranking-fade-out-duration;
+  animation-delay: 0;
+}
+
+@keyframes sv-animate-item-opacity-reverse-keyframes {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes sv-animate-item-opacity-keyframes {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
 .sv-ranking--select-to-rank-horizontal {
   .sv-ranking__container {
     max-width: calc(50% - 1px);
@@ -284,7 +351,7 @@
 .sv-ranking__container-placeholder {
   color: var(--sjs-font-questiondescription-color, #{$foreground-dim-light});
   @include defaultFont;
-  white-space: break-spaces;
+  white-space: normal;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -292,6 +359,7 @@
   height: 100%;
   padding-top: calcSize(0.5);
   padding-bottom: calcSize(0.5);
+  box-sizing: border-box;
 }
 
 .sv-ranking__container {
@@ -312,5 +380,14 @@
 .sv-ranking__container--from {
   .sv-ranking-item__icon--focus {
     display: none;
+  }
+}
+
+.sv-ranking--select-to-rank-horizontal .sv-ranking__container--to .sv-ranking-item {
+  left: 0 !important;
+  padding-left: 16px;
+
+  .sv-ranking-item__ghost {
+    left: initial;
   }
 }

@@ -306,3 +306,102 @@ QUnit.test("TOC shouldn't affect page title", function (assert) {
   assert.equal(tocListModel.visibleItems[0].locTitle.textOrHtml, "Text with <em>emphasys text</em>", "Page 1 - nav title in TOC");
   assert.equal(page.locTitle.textOrHtml, "Page 1 title", "Page 1 title");
 });
+
+QUnit.test("TOC shouldn't show search", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+    ]
+  };
+  const survey: SurveyModel = new SurveyModel(json);
+  const tocListModel = createTOCListModel(survey);
+  assert.equal(tocListModel.searchEnabled, false, "Search in TOC should be disabled");
+});
+QUnit.test("survey.tryNavigateToPage", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2",
+            "isRequired": true
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3",
+            "isRequired": true
+          }
+        ]
+      },
+      {
+        "name": "page4",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question4"
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const pages = new Array<string>();
+  survey.onCurrentPageChanged.add((sender, options) => {
+    pages.push(options.newCurrentPage.name);
+  });
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
+  assert.equal(survey.tryNavigateToPage(survey.pages[3]), false, "navigate #1");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), false, "navigate #2");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #3");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #3");
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #4");
+  survey.setValue("question2", "val2");
+  assert.equal(survey.tryNavigateToPage(survey.pages[3]), false, "navigate #4");
+  assert.equal(survey.currentPageNo, 2, "currentPageNo #4");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #5");
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #5");
+  survey.setValue("question3", "val3");
+  assert.equal(survey.tryNavigateToPage(survey.pages[3]), true, "navigate #6");
+  assert.equal(survey.currentPageNo, 3, "currentPageNo #6");
+  assert.deepEqual(pages, ["page2", "page1", "page3", "page1", "page4"], "Check onCurrentPageChanged");
+
+  survey.clear();
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #7");
+  assert.equal(survey.tryNavigateToPage(survey.pages[3]), false, "navigate #7");
+  survey.checkErrorsMode = "onComplete";
+  assert.equal(survey.tryNavigateToPage(survey.pages[3]), true, "navigate #8");
+  assert.equal(survey.currentPageNo, 3, "currentPageNo #9");
+});
+QUnit.test("TOC should be created for survey with no current page", function (assert) {
+  let json: any = { "logoPosition": "right", "pages": [{ "name": "page1", "elements": [{ "type": "panel", "name": "panel1", "width": "1180px" }] }] };
+  const survey: SurveyModel = new SurveyModel(json);
+  assert.equal(survey.pages.length, 1);
+  assert.equal(survey.currentPageNo, -1);
+  const tocListModel = createTOCListModel(survey);
+  assert.ok(!!tocListModel, "TOC model should be created");
+});

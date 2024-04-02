@@ -13,6 +13,7 @@ import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
 import { ITheme } from "./themes";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
@@ -284,16 +285,18 @@ export class QuestionRatingModel extends Question {
 
   private updateColors(themeVariables: any) {
     if (this.colorMode === "monochrome") return;
-    if (typeof document === "undefined" || !document) return;
+    if (!DomDocumentHelper.isAvailable()) return;
     if (QuestionRatingModel.colorsCalculated) return;
     function getRGBColor(colorName: string, varName: string) {
       let str: string = !!themeVariables && themeVariables[colorName] as any;
       if(!str) {
-        const style = getComputedStyle(document.documentElement);
+        const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
         str = style.getPropertyValue && style.getPropertyValue(varName);
       }
       if (!str) return null;
-      var ctx = document.createElement("canvas").getContext("2d");
+      const canvasElement = DomDocumentHelper.createElement("canvas") as HTMLCanvasElement;
+      if (!canvasElement) return null;
+      var ctx = canvasElement.getContext("2d");
       ctx.fillStyle = str;
       const newStr = ctx.fillStyle;
 
@@ -346,6 +349,9 @@ export class QuestionRatingModel extends Question {
       rateValues = this.createRateValues();
     }
 
+    if (this.autoGenerate) {
+      this.rateMax = rateValues[rateValues.length - 1].value;
+    }
     if (this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
 
     this.renderedRateItems = rateValues.map((v, i) => {
@@ -403,7 +409,7 @@ export class QuestionRatingModel extends Question {
     return this.inputId + "_" + index;
   }
   supportGoNextPageAutomatic(): boolean {
-    return this.isMouseDown === true;
+    return this.isMouseDown === true || this.renderAs === "dropdown";
   }
   public supportOther(): boolean {
     return false;
@@ -416,9 +422,10 @@ export class QuestionRatingModel extends Question {
   }
   /**
    * Specifies a description for the minimum (first) rate value.
+   * @see rateDescriptionLocation
+   * @see displayRateDescriptionsAsExtremeItems
    * @see rateValues
    * @see rateMin
-   * @see displayRateDescriptionsAsExtremeItems
    */
   public get minRateDescription(): string {
     return this.getLocalizableStringText("minRateDescription");
@@ -432,9 +439,10 @@ export class QuestionRatingModel extends Question {
   }
   /**
    * Specifies a description for the maximum (last) rate value.
+   * @see rateDescriptionLocation
+   * @see displayRateDescriptionsAsExtremeItems
    * @see rateValues
    * @see rateMax
-   * @see displayRateDescriptionsAsExtremeItems
    */
   public get maxRateDescription(): string {
     return this.getLocalizableStringText("maxRateDescription");
@@ -457,15 +465,14 @@ export class QuestionRatingModel extends Question {
   }
 
   /**
-  * Specifies whether to display `minRateDescription` and `maxRateDescription` values as captions for buttons that correspond to the extreme (first and last) rate values.
+  * Specifies whether to display [`minRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#minRateDescription) and [`maxRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#maxRateDescription) values as captions for buttons that correspond to the extreme (first and last) rate values.
   *
   * Default value: `false`
   *
   * If this property is disabled, the `minRateDescription` and `maxRateDescription` values are displayed as plain non-clickable texts.
   *
   * If any of the `minRateDescription` and `maxRateDescription` properties is empty, the corresponding rate value's `value` or `text` is displayed as a button caption.
-  * @see minRateDescription
-  * @see maxRateDescription
+  * @see rateDescriptionLocation
   * @see rateMin
   * @see rateMax
   * @see rateValues
@@ -495,6 +502,19 @@ export class QuestionRatingModel extends Question {
       }
     }
   }) displayMode: "dropdown" | "buttons" | "auto";
+
+  /**
+  * Specifies the alignment of [`minRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#minRateDescription) and [`maxRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#maxRateDescription) texts.
+  *
+  * Possible values:
+  *
+  * - `"leftRight"` (default) - Aligns `minRateDescription` to the left of rate values and `maxRateDescription` to their right.
+  * - `"top"` - Displays the descriptions above the minimum and maximum rate values.
+  * - `"bottom"` - Displays both descriptions below the minimum and maximum rate values.
+  * - `"topBottom"` - Displays `minRateDescription` above the minimum rate value and `maxRateDescription` below the maximum rate value.
+  * @see displayRateDescriptionsAsExtremeItems
+  */
+  @property() rateDescriptionLocation: "leftRight" | "top" | "bottom" | "topBottom";
 
   /**
    * Specifies the visual representation of rate values.
@@ -605,11 +625,18 @@ export class QuestionRatingModel extends Question {
   }
 
   public get ratingRootCss(): string {
-    const baseClass = ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
-      this.cssClasses.rootWrappable : this.cssClasses.root;
-
+    const baseClassModifier = ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
+      this.cssClasses.rootWrappable : "";
+    let rootClassModifier = "";
+    if(this.hasMaxLabel || this.hasMinLabel) {
+      if (this.rateDescriptionLocation == "top") rootClassModifier = this.cssClasses.rootLabelsTop;
+      if (this.rateDescriptionLocation == "bottom") rootClassModifier = this.cssClasses.rootLabelsBottom;
+      if (this.rateDescriptionLocation == "topBottom") rootClassModifier = this.cssClasses.rootLabelsDiagonal;
+    }
     return new CssClassBuilder()
-      .append(baseClass)
+      .append(this.cssClasses.root)
+      .append(baseClassModifier)
+      .append(rootClassModifier)
       .append(this.cssClasses.itemSmall, this.itemSmallMode && this.rateType != "labels")
       .toString();
   }
@@ -865,7 +892,7 @@ Serializer.addClass(
       default: "labels",
       category: "rateValues",
       choices: ["labels", "stars", "smileys"],
-      visibleIndex: 0
+      visibleIndex: 1
     },
     {
       name: "scaleColorMode",
@@ -875,7 +902,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return obj.rateDisplayMode == "smileys";
       },
-      visibleIndex: 1
+      visibleIndex: 2
     },
     {
       name: "rateColorMode",
@@ -885,20 +912,20 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return obj.rateDisplayMode == "smileys" && obj.scaleColorMode == "monochrome";
       },
-      visibleIndex: 2
+      visibleIndex: 3
     },
     {
       name: "autoGenerate",
       category: "rateValues",
       default: true,
       choices: [true, false],
-      visibleIndex: 4
+      visibleIndex: 5
     },
     {
       name: "rateCount:number",
       default: 5,
       category: "rateValues",
-      visibleIndex: 3,
+      visibleIndex: 4,
       onSettingValue: (obj: any, val: any): any => {
         if (val < 2) return 2;
         if (val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
@@ -915,7 +942,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !obj.autoGenerate;
       },
-      visibleIndex: 5
+      visibleIndex: 6
     },
     {
       name: "rateMin:number", default: 1,
@@ -925,7 +952,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
       },
-      visibleIndex: 6
+      visibleIndex: 7
     },
     {
       name: "rateMax:number", default: 5,
@@ -935,7 +962,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
       },
-      visibleIndex: 7
+      visibleIndex: 8
     },
     {
       name: "rateStep:number", default: 1, minValue: 0.1,
@@ -948,33 +975,39 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
       },
-      visibleIndex: 8
+      visibleIndex: 9
     },
     {
       name: "minRateDescription",
       alternativeName: "mininumRateDescription",
       serializationProperty: "locMinRateDescription",
-      visibleIndex: 17
+      visibleIndex: 18
     },
     {
       name: "maxRateDescription",
       alternativeName: "maximumRateDescription",
       serializationProperty: "locMaxRateDescription",
-      visibleIndex: 18
+      visibleIndex: 19
     },
     {
       name: "displayRateDescriptionsAsExtremeItems:boolean",
       default: false,
-      visibleIndex: 19,
+      visibleIndex: 21,
       visibleIf: function (obj: any) {
         return obj.rateType == "labels";
       }
     },
     {
+      name: "rateDescriptionLocation",
+      default: "leftRight",
+      choices: ["leftRight", "top", "bottom", "topBottom"],
+      visibleIndex: 20
+    },
+    {
       name: "displayMode",
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
-      visibleIndex: 20
+      visibleIndex: 0
     },
     { name: "itemComponent", visible: false,
       defaultFunc: (obj: any): any => {

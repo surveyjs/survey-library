@@ -33,6 +33,8 @@ export const initSurvey = ClientFunction(
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
 
+    window["Survey"].settings.animationEnabled = false;
+
     const model = new window["Survey"].Model(json);
     model.setDesignMode(isDesignMode);
     const surveyComplete = function (model) {
@@ -58,12 +60,13 @@ export const initSurvey = ClientFunction(
       model.render("surveyElement");
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
-      window["ReactDOM"].render(
+      const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
+      window["root"] = root;
+      root.render(
         window["React"].createElement(window["Survey"].Survey, {
           model: model,
           onComplete: surveyComplete,
         }),
-        document.getElementById("surveyElement")
       );
     } else if (framework === "vue") {
       document.getElementById("surveyElement").innerHTML =
@@ -76,6 +79,60 @@ export const initSurvey = ClientFunction(
     } else if (framework === "angular" || framework == "vue3") {
       window.setSurvey(model);
     }
+    window["survey"] = model;
+  }
+);
+
+export const initSurveyPopup = ClientFunction(
+  (framework, json, isDesignMode) => {
+    // eslint-disable-next-line no-console
+    console.error = (msg) => {
+      throw new Error(msg);
+    };
+    // eslint-disable-next-line no-console
+    console.warn = (msg) => {
+      throw new Error(msg);
+    };
+    // eslint-disable-next-line no-console
+    console.log("surveyjs console.error and console.warn override");
+
+    window["Survey"].settings.animationEnabled = false;
+
+    const popupSurvey = new window["Survey"].PopupSurveyModel(json);
+    const model = popupSurvey.survey;
+    model.setDesignMode(isDesignMode);
+
+    if (framework === "knockout") {
+      popupSurvey.isExpanded = true;
+      popupSurvey.allowClose = true;
+      popupSurvey.closeOnCompleteTimeout = -1;
+      popupSurvey.allowFullScreen = true;
+      popupSurvey.show();
+    } else if (framework === "react") {
+      document.getElementById("surveyElement").innerHTML = "";
+      const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
+      window["root"] = root;
+      root.render(
+        window["React"].createElement(window["Survey"].PopupSurvey, {
+          model: model,
+          isExpanded: true,
+          allowClose: true,
+          allowFullScreen: true
+        }),
+      );
+    } else if (framework === "vue") {
+      document.getElementById("surveyElement").innerHTML =
+        "<popup-survey :survey='survey' :isExpanded='true' :allowClose='true' :allowFullScreen='true'/>";
+      !!window["vueApp"] && window["vueApp"].$destroy();
+      window["vueApp"] = new window["Vue"]({
+        el: "#surveyElement",
+        data: { survey: model },
+      });
+    } else if (framework === "angular" || framework == "vue3") {
+      const isPopup = true;
+      window.setSurvey(model, isPopup);
+    }
+    window["popupSurvey"] = popupSurvey;
     window["survey"] = model;
   }
 );

@@ -7,7 +7,7 @@ export var modernCss = {
   header: "sv-title sv-container-modern__title",
   headerClose: "sv-container-modern__close",
   bodyContainer: "sv-components-row",
-  body: "sv-components-column sv-components-column--expandable sv-body",
+  body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
   footer: "sv-footer sv-body__footer sv-clearfix",
   title: "",
@@ -319,7 +319,7 @@ export var modernCss = {
     cellText: "sv-matrix__text",
     cellTextSelected: "sv-matrix__text--checked",
     cellTextDisabled: "sv-matrix__text--disabled",
-    cellResponsiveTitle: "sv-hidden",
+    cellResponsiveTitle: "sv-matrix__cell-responsive-title",
     itemSvgIconId: "#icon-modernradio",
   },
   matrixdropdown: {
@@ -327,6 +327,7 @@ export var modernCss = {
     cell: "sv-table__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
     row: "sv-table__row",
+    rowTextCell: "sv-table__cell--row-text",
     rowAdditional: "sv-table__row--additional",
     detailRow: "sv-table__row--detail",
     detailRowText: "sv-table__cell--detail-rowtext",
@@ -430,14 +431,21 @@ export var modernCss = {
   },
   window: {
     root: "sv_window",
+    rootCollapsedMod: "sv_window--collapsed",
+    rootFullScreenMode: "sv_window--full-screen",
+    rootContent: "sv_window_root-content",
     body: "sv_window_content",
     header: {
-      root: "sv_window_title",
-      title: "",
-      button: "",
+      root: "sv_window_header",
+      titleCollapsed: "sv_window_header_title_collapsed",
+      buttonsContainer: "sv_window_buttons_container",
+      button: "sv_window_button",
       buttonExpanded: "",
       buttonCollapsed: "",
-    },
+      collapseButton: "sv_window_button sv_window_button_collapse",
+      closeButton: "sv_window_button sv_window_button_close",
+      fullScreenButton: "sv_window_button sv_window_button_full_screen"
+    }
   },
   variables: {
     mobileWidth: "--sv-mobile-width",

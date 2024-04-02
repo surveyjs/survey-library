@@ -3,6 +3,7 @@ import { ImageItemValue } from "../question_imagepicker";
 import { ItemValue } from "../itemvalue";
 import { QuestionSelectBase } from "../question_baseselect";
 import { DragDropCore } from "./core";
+import { DomDocumentHelper } from "../global_variables_utils";
 
 export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   private imagepickerControlsNode: HTMLElement;
@@ -19,7 +20,9 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     if (this.parentElement.getType() === "imagepicker") {
       return this.createImagePickerShortcut(this.draggedElement, text, draggedElementNode, event);
     }
-    const draggedElementShortcut: any = document.createElement("div");
+    const draggedElementShortcut: any = DomDocumentHelper.createElement("div");
+    if(!draggedElementShortcut) return;
+
     // draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
@@ -66,7 +69,9 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   private createImagePickerShortcut(item: ImageItemValue, text: string, draggedElementNode: HTMLElement, event: PointerEvent) {
-    const draggedElementShortcut: any = document.createElement("div");
+    const draggedElementShortcut: any = DomDocumentHelper.createElement("div");
+    if(!draggedElementShortcut) return;
+
     draggedElementShortcut.style.cssText = ` 
       cursor: grabbing;
       position: absolute;
@@ -169,7 +174,6 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     if (this.isDropTargetDoesntChanged(this.isBottom)) return;
-    if (this.dropTarget === this.draggedElement) return;
 
     const choices = this.getVisibleChoices();
     const dropTargetIndex = choices.indexOf(this.dropTarget);

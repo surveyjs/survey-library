@@ -7,6 +7,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 import { classesToSelector } from "./utils/utils";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 export class ImageItemValue extends ItemValue implements ILocalizableOwner {
 
@@ -107,12 +108,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public get isCompositeQuestion(): boolean {
     return true;
   }
-  public supportOther(): boolean {
-    return false;
-  }
-  public supportNone(): boolean {
-    return false;
-  }
+  public supportOther(): boolean { return false; }
+  public supportNone(): boolean { return false; }
+  public supportRefuse(): boolean { return false; }
+  public supportDontKnow(): boolean { return false; }
   public isAnswerCorrect(): boolean {
     if (!this.multiSelect) return super.isAnswerCorrect();
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
@@ -272,10 +271,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    *
    * Possible values:
    *
-   * - `"image"` - Images in one of the following formats: JPEG, GIF, PNG, APNG, SVG, BMP, ICO.
+   * - `"image"` (default) - Images in one of the following formats: JPEG, GIF, PNG, APNG, SVG, BMP, ICO.
    * - `"video"` - Videos in one of the following formats: MP4, MOV, WMV, FLV, AVI, MKV.
-   * - `"youtube"` - Links to YouTube videos.
-   * - `"auto"` (default) - Selects one of the above based on the `imageLink` property value of each choice item.
    */
   public get contentMode(): string {
     return this.getPropertyValue("contentMode");
@@ -293,7 +290,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return this.multiSelect ? "checkbox" : "radio";
   }
 
-  protected isBuiltInChoice(item: ItemValue, question: QuestionSelectBase): boolean {
+  protected isBuiltInChoice(item: ItemValue): boolean {
     return false;
   }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
@@ -420,7 +417,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     const observedElement = el && selector ? el.querySelector(selector) : undefined;
     if (!!observedElement) {
       this.reCalcGapBetweenItemsCallback = () => {
-        this.gapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(observedElement).gap)) || 16;
+        this.gapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).gap)) || 16;
       };
       this.reCalcGapBetweenItemsCallback();
     }
@@ -444,6 +441,8 @@ Serializer.addClass(
     { name: "showOtherItem", visible: false },
     { name: "otherText", visible: false },
     { name: "showNoneItem", visible: false },
+    { name: "showRefuseItem", visible: false },
+    { name: "showDontKnowItem", visible: false },
     { name: "noneText", visible: false },
     { name: "optionsCaption", visible: false },
     { name: "otherErrorText", visible: false },

@@ -46,6 +46,7 @@ export { SurveyQuestionDropdownSelect } from "../react/dropdown-select";
 export {
   SurveyQuestionMatrix,
   SurveyQuestionMatrixRow,
+  SurveyQuestionMatrixCell
 } from "../react/reactquestion_matrix";
 export { SurveyQuestionHtml } from "../react/reactquestion_html";
 export { SurveyQuestionFile } from "../react/reactquestion_file";
@@ -62,9 +63,9 @@ export { SurveyQuestionMatrixDropdownCell, SurveyQuestionMatrixDropdownBase } fr
 export { SurveyQuestionMatrixDropdown } from "../react/reactquestion_matrixdropdown";
 export { SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicAddButton } from "../react/reactquestion_matrixdynamic";
 export { SurveyQuestionPanelDynamic } from "../react/reactquestion_paneldynamic";
-export { SurveyProgress } from "../react/reactSurveyProgress";
-export { SurveyProgressButtons } from "../react/reactSurveyProgressButtons";
-export { SurveyProgressToc } from "../react/reactSurveyProgressToc";
+export { SurveyProgress } from "../react/progress";
+export { SurveyProgressButtons } from "../react/progressButtons";
+export { SurveyProgressToc } from "../react/progressToc";
 export { SurveyQuestionRating } from "../react/reactquestion_rating";
 export { SurveyQuestionRatingDropdown } from "../react/rating-dropdown";
 export { SurveyQuestionExpression } from "../react/reactquestion_expression";
@@ -105,6 +106,8 @@ export * from "../react/components/header";
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";
 export { LoadingIndicatorComponent } from "../react/components/loading-indicator";
+
+export { SvgBundleComponent } from "../react/svgbundle";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

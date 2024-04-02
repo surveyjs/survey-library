@@ -107,6 +107,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
 
   state: string;
   isLazyRendering: boolean;
+  lazyRenderingFirstBatchSize: number;
   cancelPreviewByPage(panel: IPanel): any;
   locEditText: LocalizableString;
   cssNavigationEdit: string;
@@ -200,11 +201,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   }): any;
   matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
   matrixRowRemoving(question: IQuestion, rowIndex: number, row: any): boolean;
-  matrixAllowRemoveRow(
-    question: IQuestion,
-    rowIndex: number,
-    row: any
-  ): boolean;
+  matrixAllowRemoveRow(question: IQuestion, rowIndex: number, row: any): boolean;
+  matrixDetailPanelVisibleChanged(question: IQuestion, rowIndex: number, row: any, visible: boolean): void;
   matrixCellCreating(question: IQuestion, options: any): any;
   matrixCellCreated(question: IQuestion, options: any): any;
   matrixAfterCellRender(question: IQuestion, options: any): any;
@@ -219,6 +217,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
   dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
   dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
+  dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void;
 
   dragAndDropAllow(options: DragDropAllowEvent): boolean;
 
@@ -232,6 +231,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   elementContentVisibilityChanged(element: ISurveyElement): void;
   onCorrectQuestionAnswer(question: IQuestion, options: any): void;
   processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
+  chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: Base, item?: any, elementType?: string, propertyName?: string }): void;
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;
@@ -297,7 +297,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   hasTitle: boolean;
   isEmpty(): boolean;
   onSurveyValueChanged(newValue: any): any;
-  updateValueFromSurvey(newValue: any): any;
+  updateValueFromSurvey(newValue: any, clearData: boolean): void;
   updateCommentFromSurvey(newValue: any): any;
   supportGoNextPageAutomatic(): boolean;
   clearUnusedValues(): any;
@@ -366,7 +366,7 @@ export type ISurveyEnvironment = {
   stylesSheetsMountContainer: HTMLElement,
 }
 
-export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";
+export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom" | "center";
 export type HorizontalAlignment = "left" | "center" | "right";
 export type VerticalAlignment = "top" | "middle" | "bottom";
 
@@ -386,4 +386,11 @@ export interface IPlainDataOptions {
   calculations?: Array<{
     propertyName: string,
   }>;
+}
+export interface ILoadFromJSONOptions {
+  validatePropertyValues?: boolean;
+}
+export interface ISaveToJSONOptions {
+  storeDefaults?: boolean;
+  version?: string;
 }

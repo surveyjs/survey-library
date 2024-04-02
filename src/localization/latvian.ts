@@ -9,6 +9,8 @@ export var latvianSurveyStrings = {
   startSurveyText: "Sākt",
   otherItemText: "Cits (lūdzu, aprakstiet!)",
   noneItemText: "Nav",
+  refuseItemText: "Atteikties atbildēt",
+  dontKnowItemText: "Es nezinu",
   selectAllItemText: "Izvēlēties visus",
   progressText: "{0}. lapa no {1}",
   indexText: "{0} no {1}",
@@ -25,6 +27,7 @@ export var latvianSurveyStrings = {
   requiredError: "Lūdzu, atbildiet uz jautājumu!",
   requiredErrorInPanel: "Lūdzu, atbildiet uz vismaz vienu jautājumu.",
   requiredInAllRowsError: "Lūdzu, atbildiet uz jautājumiem visās rindās.",
+  eachRowUniqueError: "Katrai rindai jābūt unikālai vērtībai.",
   numericError: "Atbildei ir jābūt skaitlim.",
   minError: "Vērtība nedrīkst būt mazāka par {0}",
   maxError: "Vērtība nedrīkst būt lielāka par {0}",
@@ -42,6 +45,7 @@ export var latvianSurveyStrings = {
   urlRequestError: "Pieprasījumā tika atgriezta kļūda “{0}”. {1}",
   urlGetChoicesError: "Pieprasījums atgrieza tukšus datus vai rekvizīts “path” ir nepareizs",
   exceedMaxSize: "Faila lielums nedrīkst pārsniegt {0}.",
+  noUploadFilesHandler: "Failus nevar augšupielādēt. Lūdzu, pievienojiet apdarinātāju notikumam \"onUploadFiles\".",
   otherRequiredError: "Lūdzu, ievadiet datus laukā 'Cits'",
   uploadingFile: "Jūsu fails tiek augšupielādēts. Lūdzu, uzgaidiet dažas sekundes un mēģiniet vēlreiz.",
   loadingFile: "Notiek ielāde ...",
@@ -56,6 +60,8 @@ export var latvianSurveyStrings = {
   emptyRowsText: "Nav rindu.",
   addPanel: "Pievieno jaunu",
   removePanel: "Noņemt",
+  showDetails: "Rādīt detalizētu informāciju",
+  hideDetails: "Slēpt detaļas",
   choices_Item: "vienums",
   matrix_column: "Sleja",
   matrix_row: "Rinda",
@@ -94,7 +100,9 @@ export var latvianSurveyStrings = {
   more: "Vairāk",
   tagboxDoneButtonCaption: "LABI",
   selectToRankEmptyRankedAreaText: "Visas izvēles ir sarindotas",
-  selectToRankEmptyUnrankedAreaText: "Velciet un nometiet izvēles iespējas šeit, lai tās sarindotu"
+  selectToRankEmptyUnrankedAreaText: "Velciet un nometiet izvēles iespējas šeit, lai tās sarindotu",
+  ok: "LABI",
+  cancel: "Atcelt"
 };
 
 surveyLocalization.locales["lv"] = latvianSurveyStrings;
@@ -111,4 +119,11 @@ surveyLocalization.localeNames["lv"] = "latviešu";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Velciet un nometiet izvēles iespējas šeit, lai tās sarindotu"// takePhotoCaption: "Take Photo" => "Uzņemt fotoattēlu"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Noklikšķiniet uz pogas zemāk, lai uzņemtu fotoattēlu, izmantojot kameru."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Velciet un nometiet vai atlasiet failu, ko augšupielādēt vai uzņemt fotoattēlu, izmantojot kameru."
-// replaceFileCaption: "Replace file" => "Aizstāt failu"
+// replaceFileCaption: "Replace file" => "Aizstāt failu"// eachRowUniqueError: "Each row must have a unique value." => "Katrai rindai jābūt unikālai vērtībai."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Failus nevar augšupielādēt. Lūdzu, pievienojiet apdarinātāju notikumam \"onUploadFiles\"."
+// showDetails: "Show Details" => "Rādīt detalizētu informāciju"
+// hideDetails: "Hide Details" => "Slēpt detaļas"
+// ok: "OK" => "LABI"
+// cancel: "Cancel" => "Atcelt"
+// refuseItemText: "Refuse to answer" => "Atteikties atbildēt"
+// dontKnowItemText: "Don't know" => "Es nezinu"

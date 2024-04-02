@@ -21,7 +21,7 @@
           width: question.renderedCanvasWidth,
         }"
       />
-      <canvas tabindex="0" :class="question.cssClasses.canvas"></canvas>
+      <canvas tabindex="-1" :class="question.cssClasses.canvas" @blur="question.onBlur"></canvas>
     </div>
     <div
       :class="question.cssClasses.controls"
@@ -44,6 +44,12 @@
           :size="'auto'"
         ></sv-svg-icon>
       </button>
+    </div>
+    <div
+      :class="question.cssClasses.loadingIndicator"
+      v-if="question.showLoadingIndicator"
+    >
+      <sv-loading-indicator></sv-loading-indicator>
     </div>
   </div>
 </template>

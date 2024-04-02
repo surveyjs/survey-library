@@ -9,6 +9,8 @@ export var catalanSurveyStrings = {
   startSurveyText: "Començar",
   otherItemText: "Un altre (descrigui)",
   noneItemText: "Cap",
+  refuseItemText: "Negar-se a respondre",
+  dontKnowItemText: "No sé",
   selectAllItemText: "Selecciona-ho tot",
   progressText: "Pàgina {0} de {1}",
   indexText: "{0} de {1}",
@@ -25,6 +27,7 @@ export var catalanSurveyStrings = {
   requiredError: "Si us plau contesti la pregunta.",
   requiredErrorInPanel: "Resposta necessària: respondre almenys una pregunta.",
   requiredInAllRowsError: "Si us plau contesti les preguntes de cada filera.",
+  eachRowUniqueError: "Cada fila ha de tenir un valor únic.",
   numericError: "L'estimació ha de ser numèrica.",
   minError: "El valor no ha de ser inferior a {0}",
   maxError: "El valor no ha de ser superior a {0}",
@@ -42,6 +45,7 @@ export var catalanSurveyStrings = {
   urlRequestError: "La sol·licitud va tornar error '{0}'. {1}",
   urlGetChoicesError: "La sol·licitud va tornar buida de dates o la propietat 'trajectòria' no és correcta",
   exceedMaxSize: "La mida de l'arxiu no pot excedir {0}.",
+  noUploadFilesHandler: "No es poden carregar fitxers. Afegiu un controlador per a l'esdeveniment 'onUploadFiles'.",
   otherRequiredError: "Si us plau afegiu l'altra estimació.",
   uploadingFile: "El seu arxiu s'està pujant. Si us plau esperi uns segons i intenteu-ho de nou.",
   loadingFile: "Càrrega...",
@@ -56,6 +60,8 @@ export var catalanSurveyStrings = {
   emptyRowsText: "No hi ha files.",
   addPanel: "Afegeix un nou",
   removePanel: "Treure",
+  showDetails: "Mostra els detalls",
+  hideDetails: "Amaga els detalls",
   choices_Item: "ítem",
   matrix_column: "Columna",
   matrix_row: "Filera",
@@ -94,7 +100,9 @@ export var catalanSurveyStrings = {
   more: "Més",
   tagboxDoneButtonCaption: "D'ACORD",
   selectToRankEmptyRankedAreaText: "Totes les opcions estan classificades",
-  selectToRankEmptyUnrankedAreaText: "Arrossegueu i deixeu anar les opcions aquí per classificar-les"
+  selectToRankEmptyUnrankedAreaText: "Arrossegueu i deixeu anar les opcions aquí per classificar-les",
+  ok: "D'ACORD",
+  cancel: "Cancel·lar"
 };
 
 surveyLocalization.locales["ca"] = catalanSurveyStrings;
@@ -163,4 +171,11 @@ surveyLocalization.localeNames["ca"] = "català";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrossegueu i deixeu anar les opcions aquí per classificar-les"// takePhotoCaption: "Take Photo" => "Fer foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Feu clic al botó següent per fer una foto amb la càmera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrossegueu i deixeu anar o seleccioneu un fitxer per penjar-lo o fer-ne una foto amb la càmera."
-// replaceFileCaption: "Replace file" => "Substitueix el fitxer"
+// replaceFileCaption: "Replace file" => "Substitueix el fitxer"// eachRowUniqueError: "Each row must have a unique value." => "Cada fila ha de tenir un valor únic."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "No es poden carregar fitxers. Afegiu un controlador per a l'esdeveniment 'onUploadFiles'."
+// showDetails: "Show Details" => "Mostra els detalls"
+// hideDetails: "Hide Details" => "Amaga els detalls"
+// ok: "OK" => "D'ACORD"
+// cancel: "Cancel" => "Cancel·lar"
+// refuseItemText: "Refuse to answer" => "Negar-se a respondre"
+// dontKnowItemText: "Don't know" => "No sé"

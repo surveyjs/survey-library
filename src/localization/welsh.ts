@@ -9,6 +9,8 @@ export var welshSurveyStrings = {
   startSurveyText: "Dechrau",
   otherItemText: "Arall (disgrifiwch)",
   noneItemText: "Dim",
+  refuseItemText: "Gwrthod ateb",
+  dontKnowItemText: "Ddim yn gwybod",
   selectAllItemText: "Dewis y Cyfan ",
   progressText: "Tudalen {0} o {1}",
   indexText: "{0} o {1}",
@@ -25,6 +27,7 @@ export var welshSurveyStrings = {
   requiredError: "Atebwch y cwestiwn.",
   requiredErrorInPanel: "Atebwch o leiaf un cwestiwn.",
   requiredInAllRowsError: "Atebwch y cwestiynau ym mhob rhes.",
+  eachRowUniqueError: "Rhaid i bob rhes fod â gwerth unigryw.",
   numericError: "Dylai’r gwerth fod yn rhif.",
   minError: "Ni ddylai'r gwerth fod yn llai na {0}",
   maxError: "Ni ddylai'r gwerth fod yn fwy na {0}",
@@ -42,6 +45,7 @@ export var welshSurveyStrings = {
   urlRequestError: "Roedd y cais wedi arwain at y gwall '{0}'. {1}",
   urlGetChoicesError: "Roedd y cais wedi arwain at ddata gwag neu mae priodwedd y ‘path’ yn anghywir ",
   exceedMaxSize: "Ddylai’r ffeil ddim bod yn fwy na {0}.",
+  noUploadFilesHandler: "Ni ellir llwytho ffeiliau i fyny. Ychwanegwch handler ar gyfer y digwyddiad 'onUploadFiles'.",
   otherRequiredError: "Rhowch y gwerth arall.",
   uploadingFile: "Mae eich ffeil wrthi’n llwytho i fyny. Arhoswch ychydig o eiliadau a rhoi cynnig arall arni.",
   loadingFile: "Wrthi’n llwytho...",
@@ -56,6 +60,8 @@ export var welshSurveyStrings = {
   emptyRowsText: "Nid oes unrhyw ffraeau.",
   addPanel: "Ychwanegu o’r newydd",
   removePanel: "Tynnu",
+  showDetails: "Dangos manylion",
+  hideDetails: "Manylion Cuddio",
   choices_Item: "eitem",
   matrix_column: "Colofn",
   matrix_row: "Rhes",
@@ -94,7 +100,9 @@ export var welshSurveyStrings = {
   more: "Rhagor",
   tagboxDoneButtonCaption: "OCÊ",
   selectToRankEmptyRankedAreaText: "Mae'r holl ddewisiadau yn cael eu rhestru",
-  selectToRankEmptyUnrankedAreaText: "Dewisiadau llusgo a gollwng yma i'w graddio"
+  selectToRankEmptyUnrankedAreaText: "Dewisiadau llusgo a gollwng yma i'w graddio",
+  ok: "OCÊ",
+  cancel: "Canslo"
 };
 
 surveyLocalization.locales["cy"] = welshSurveyStrings;
@@ -123,4 +131,10 @@ surveyLocalization.localeNames["cy"] = "cymraeg";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dewisiadau llusgo a gollwng yma i'w graddio"// takePhotoCaption: "Take Photo" => "Tynnu Llun"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Cliciwch y botwm isod i dynnu llun gan ddefnyddio'r camera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Llusgwch a gollwng neu dewiswch ffeil i lanlwytho neu dynnu llun gan ddefnyddio'r camera."
-// replaceFileCaption: "Replace file" => "Amnewid ffeil"
+// replaceFileCaption: "Replace file" => "Amnewid ffeil"// eachRowUniqueError: "Each row must have a unique value." => "Rhaid i bob rhes fod â gwerth unigryw."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Ni ellir llwytho ffeiliau i fyny. Ychwanegwch handler ar gyfer y digwyddiad 'onUploadFiles'."
+// showDetails: "Show Details" => "Dangos manylion"
+// hideDetails: "Hide Details" => "Manylion Cuddio"
+// ok: "OK" => "OCÊ"
+// cancel: "Cancel" => "Canslo"// refuseItemText: "Refuse to answer" => "Gwrthod ateb"
+// dontKnowItemText: "Don't know" => "Ddim yn gwybod"

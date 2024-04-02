@@ -84,7 +84,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.updateShowTableAndAddRow();
       }
     );
-    this.registerPropertyChangedHandlers(["allowRowsDragAndDrop"], () => { this.clearRowsAndResetRenderedTable(); });
+    this.registerPropertyChangedHandlers(["allowRowsDragAndDrop", "isReadOnly"], () => { this.clearRowsAndResetRenderedTable(); });
     this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
   }
 
@@ -106,7 +106,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return true;
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {
-    if (!row || !this.allowRowsDragAndDrop) return;
+    if (!row || !this.isRowsDragAndDrop) return;
     if (this.isBanStartDrag(pointerDownEvent)) return;
     if (row.isDetailPanelShowing) return;
     this.draggedRow = row;
@@ -270,16 +270,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   /**
-   * Specifies whether users can drag and drop matrix rows to reorder them. Applies only if [`columnLayout`](#columnLayout) is `"horizontal"`.
+   * Specifies whether users can drag and drop matrix rows to reorder them. Applies only if [`transposeData`](#transposeData) is `false`.
    *
    * Default value: `false`
    */
   public get allowRowsDragAndDrop(): boolean {
-    if (this.readOnly) return false;
     return this.getPropertyValue("allowRowsDragAndDrop");
   }
   public set allowRowsDragAndDrop(val: boolean) {
     this.setPropertyValue("allowRowsDragAndDrop", val);
+  }
+  public get isRowsDragAndDrop(): boolean {
+    return this.allowRowsDragAndDrop && !this.isReadOnly;
   }
 
   public get iconDragElement(): string {
@@ -575,7 +577,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
     if (confirmDelete) {
-      confirmActionAsync(this.confirmDeleteText, () => { this.removeRowAsync(index, row); });
+      confirmActionAsync(this.confirmDeleteText, () => { this.removeRowAsync(index, row); }, undefined, this.getLocale(), this.survey.rootElement);
       return;
     }
     this.removeRowAsync(index, row);
@@ -652,8 +654,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * - `"bottom"` - Displays the Add Row button at the bottom of the matrix.
    * - `"topBottom"` - Displays the Add Row button at the top and bottom of the matrix.
    *
-   * Default value: `"top"` if `columnLayout` is `vertical`; `"bottom"` if `columnLayout` is `"horizontal"` or the matrix is in compact mode.
-   * @see columnLayout
+   * Default value: `"top"` if [`transposeData`](#transposeData) is `true`; `"bottom"` if `transposeData` is `false` or the matrix is in compact mode.
    * @see addRowText
    */
   public get addRowLocation(): string {

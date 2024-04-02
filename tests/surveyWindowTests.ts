@@ -9,7 +9,7 @@ QUnit.test("Survey is created", function (assert) {
   const questions = window.survey.getAllQuestions();
   assert.equal(questions.length, 1, "There is one question");
   assert.equal(questions[0].name, "q1", "The question name is correct");
-  assert.equal(window.survey.showTitle, false, "Do not show survey title by default");
+  assert.equal(window.survey.showTitle, true, "Show survey title by default");
 });
 QUnit.test("isShowing/isExpanded properties", function (assert) {
   const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
@@ -72,22 +72,21 @@ QUnit.test("cssStyles", function (assert) {
   const css = surveyCss.getCss();
   const oldCssRoot = css.window.root;
   const oldCssHeaderRoot = css.window.header.root;
-  const oldCssHeaderTitle = css.window.header.title;
   const oldCssBody = css.window.body;
   css.window.root = "windowRoot";
+  css.window.rootCollapsedMod = "windowRoot--collapsed";
   css.window.header.root = "headerRoot";
-  css.window.header.title = "headerTitle";
   css.window.body = "windowBody";
 
   const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
   window.show();
-  assert.equal(window.cssRoot, "windowRoot", "Root");
+  assert.equal(window.cssRoot, "windowRoot windowRoot--collapsed", "Root collapsed");
+  window.changeExpandCollapse();
+  assert.equal(window.cssRoot, "windowRoot", "Root expanded");
   assert.equal(window.cssHeaderRoot, "headerRoot", "HeaderRoot");
-  assert.equal(window.cssHeaderTitle, "headerTitle", "HeaderTitle");
   assert.equal(window.cssBody, "windowBody", "windowBody");
   css.window.root = oldCssRoot;
   css.window.header.root = oldCssHeaderRoot;
-  css.window.header.title = oldCssHeaderTitle;
   css.window.body = oldCssBody;
 });
 
@@ -101,4 +100,21 @@ QUnit.test("Check that popups inside survey are closed when scrolling container"
   assert.notOk(question.dropdownListModel.popupModel.isVisible);
   assert.notOk(model.survey["onScrollCallback"]);
   model.onScroll();
+});
+
+QUnit.test("toggleFullScreen", function (assert) {
+  const popup = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
+  popup.show();
+  assert.equal(popup.isExpanded, false, "It is not expanded by default");
+
+  popup.toggleFullScreen();
+  assert.equal(popup.isExpanded, true, "expanded if full screen on");
+
+  popup.isExpanded = false;
+  assert.equal(popup.isFullScreen, false, "fullScreen is off after collapsed");
+
+  popup.isExpanded = true;
+  popup.toggleFullScreen();
+  popup.toggleFullScreen();
+  assert.equal(popup.isExpanded, true, "expanded after full screen off");
 });

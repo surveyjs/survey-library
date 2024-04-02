@@ -12,7 +12,7 @@
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
-      :aria-describedby="question.ariaDescribedBy"
+      :aria-errormessage="question.ariaErrormessage"
       :aria-expanded="
         question.ariaExpanded === null
           ? undefined
@@ -39,7 +39,7 @@
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
         v-show="question.showClearButton"
         @click="clear"
-          :tabindex="question.showClearButton ? 0 : -1"
+        aria-hidden="true"
       >
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"
@@ -57,12 +57,16 @@
       :id="question.inputId"
       :class="question.getControlClass()"
     >
-      <div>{{ question.readOnlyText }}</div>
+      <survey-string
+        v-if="question.locReadOnlyText"
+        :locString="question.locReadOnlyText"
+      />
     </div>
     <div
       :class="question.cssClasses.chevronButton"
       v-on:pointerdown="chevronPointerDown"
       v-if="question.cssClasses.chevronButtonIconId"
+      aria-hidden="true"
     >
       <sv-svg-icon
         :class="question.cssClasses.chevronButtonSvg"
@@ -75,7 +79,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useBase } from "@/base";
+import { useBase, useComputedArray } from "@/base";
 import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
 import { computed } from "vue";
 
@@ -102,7 +106,7 @@ const keyhandler = (event: any) => {
 const blur = (event: any) => {
   model.value?.onBlur(event);
 };
-const selectedChoices = computed(() => props.question.selectedChoices);
+const selectedChoices = useComputedArray(() => props.question.selectedChoices);
 
 useBase(() => model.value);
 </script>

@@ -3,7 +3,7 @@
         [attr.disabled]="model.isInputReadOnly ? true : null" (blur)="blur($event)"
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
-        [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole"
+        [attr.aria-errormessage]="model.ariaErrormessage" [attr.role]="model.ariaRole"
         [attr.aria-controls]="dropdownModel.listElementId"
         [attr.aria-expanded]="model.ariaExpanded"
         [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant">
@@ -14,8 +14,8 @@
             </ng-container>
             <ng-template [component]="{ name: 'sv-tagbox-filter', data: { model: dropdownModel, question: model } }"></ng-template>
         </div>
-        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" [class]="model.cssClasses.cleanButton" [attr.tabindex]="model.showClearButton ? 0 : -1"
-            (click)="clear($event)" [visible]="model.showClearButton">
+        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" [class]="model.cssClasses.cleanButton"
+            (click)="clear($event)" [visible]="model.showClearButton" aria-hidden="true">
             <!-- ko component: { name: 'sv-svg-icon', params: { css: model.cssClasses.cleanButtonSvg, iconName: model.cssClasses.cleanButtonIconId, size: 'auto' } } -->
             <!-- /ko -->
             <svg [iconName]="model.cssClasses.cleanButtonIconId" [partCss]="model.cssClasses.cleanButtonSvg" [title]="model.clearCaption"
@@ -24,9 +24,9 @@
     </div>
     <sv-ng-popup *ngIf="!model.isReadOnly" [popupModel]="model.popupModel"></sv-ng-popup>
     <div disabled *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId">
-        <div>{{ model.readOnlyText }}</div>
+        <sv-ng-string *ngIf="model.locReadOnlyText" [model]="model.locReadOnlyText"></sv-ng-string>
     </div>
-    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton" (pointerdown)="chevronPointerDown($event)">
+    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton" (pointerdown)="chevronPointerDown($event)" aria-hidden="true">
         <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="'auto'" sv-ng-svg-icon></svg>
     </div>
 </div>

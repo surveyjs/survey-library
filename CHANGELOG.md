@@ -2,6 +2,51 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.136](https://github.com/surveyjs/survey-library/compare/v1.9.135...v1.9.136) (2024-03-26)
+
+## [1.9.135](https://github.com/surveyjs/survey-library/compare/v1.9.134...v1.9.135) (2024-03-20)
+
+## [1.9.134](https://github.com/surveyjs/survey-library/compare/v1.9.133...v1.9.134) (2024-03-13)
+
+## [1.9.133](https://github.com/surveyjs/survey-library/compare/v1.9.132...v1.9.133) (2024-03-06)
+
+## [1.9.132](https://github.com/surveyjs/survey-library/compare/v1.9.131...v1.9.132) (2024-02-28)
+
+## [1.9.131](https://github.com/surveyjs/survey-library/compare/v1.9.130...v1.9.131) (2024-02-20)
+
+## [1.9.130](https://github.com/surveyjs/survey-library/compare/v1.9.129...v1.9.130) (2024-02-15)
+
+## [1.9.129](https://github.com/surveyjs/survey-library/compare/v1.9.128...v1.9.129) (2024-02-06)
+
+## [1.9.128](https://github.com/surveyjs/survey-library/compare/v1.9.127...v1.9.128) (2024-01-31)
+
+## [1.9.127](https://github.com/surveyjs/survey-library/compare/v1.9.126...v1.9.127) (2024-01-23)
+
+## [1.9.126](https://github.com/surveyjs/survey-library/compare/v1.9.125...v1.9.126) (2024-01-17)
+
+## [1.9.125](https://github.com/surveyjs/survey-library/compare/v1.9.124...v1.9.125) (2024-01-11)
+
+
+### Bug Fixes
+
+* 🐛 resolved globalThis is undefinded in react-native-window ([#7629](https://github.com/surveyjs/survey-library/issues/7629)) ([36f25e6](https://github.com/surveyjs/survey-library/commit/36f25e6b162d2482ce3c1e0d58d4a45d34053129))
+
+## [1.9.124](https://github.com/surveyjs/survey-library/compare/v1.9.123...v1.9.124) (2024-01-05)
+
+## [1.9.123](https://github.com/surveyjs/survey-library/compare/v1.9.122...v1.9.123) (2023-12-27)
+
+## [1.9.122](https://github.com/surveyjs/survey-library/compare/v1.9.121...v1.9.122) (2023-12-20)
+
+
+### Bug Fixes
+
+* Prevent clear other questions when name equals other value name ([aafad36](https://github.com/surveyjs/survey-library/commit/aafad36dc7258a2180a77f5d2edb973a76f4be6a))
+* Use valueName getter instead ([a077429](https://github.com/surveyjs/survey-library/commit/a07742941627eea82848c16ebb6773848aaf37d5))
+
+## [1.9.121](https://github.com/surveyjs/survey-library/compare/v1.9.120...v1.9.121) (2023-12-12)
+
+## [1.9.120](https://github.com/surveyjs/survey-library/compare/v1.9.119...v1.9.120) (2023-12-05)
+
 ## [1.9.119](https://github.com/surveyjs/survey-library/compare/v1.9.118...v1.9.119) (2023-11-28)
 
 ## [1.9.118](https://github.com/surveyjs/survey-library/compare/v1.9.117...v1.9.118) (2023-11-21)

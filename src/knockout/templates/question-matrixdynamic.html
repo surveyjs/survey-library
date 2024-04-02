@@ -46,12 +46,12 @@
       <!-- /ko -->
   </div>
 </script>
-<script type="text/html" id="survey-matrixcell">
+<script type="text/html" id="survey-matrixdropdown-cell">
   <td
     data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { 'data-responsive-title': headers, title: $data.getTitle(), colspan: $data.colSpans }, event: {focusin: $data.focusIn }"
   >
     <!-- ko if: $data.matrix -->
-    <div data-bind="visible: question.isVisible, css: $parentContext.question.cssClasses.cellQuestionWrapper">
+    <div data-bind="visible: question.isVisible, css: cellQuestionWrapperClassName">
       <!-- ko if: $data.isOtherChoice -->
         <div data-bind="css: question.getCommentAreaCss(true), template: { name: 'survey-other', data: {'question': question, 'visible': true } }"></div>
       <!-- /ko -->
@@ -153,7 +153,7 @@
         </td>
         <!-- /ko -->
         <!-- ko if: $data.hasQuestion -->
-        <!-- ko template: { name: 'survey-matrixcell', afterRender: function(els) { $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
+        <!-- ko template: { name: 'survey-matrixdropdown-cell', afterRender: function(els) { $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
         <!-- /ko -->
         <!-- ko if: $data.hasTitle -->
         <td
@@ -177,7 +177,7 @@
     <tfoot>
       <tr>
         <!-- ko foreach: question.koTable().footerRow.cells -->
-            <!-- ko template: { name: 'survey-matrixcell', afterRender: function(els) { $data.matrix && $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
+            <!-- ko template: { name: 'survey-matrixdropdown-cell', afterRender: function(els) { $data.matrix && $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
         <!-- /ko -->
       </tr>
     </tfoot>

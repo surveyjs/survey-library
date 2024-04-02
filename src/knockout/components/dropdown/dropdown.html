@@ -11,7 +11,7 @@
       'aria-required': question.ariaRequired, 
       'aria-label': question.ariaLabel, 
       'aria-invalid': question.ariaInvalid, 
-      'aria-describedby': question.ariaDescribedBy,
+      'aria-errormessage': question.ariaErrormessage,
       'aria-expanded': question.ariaExpanded,
       'aria-controls': model.listElementId,
       'aria-activedescendant': model.ariaActivedescendant,
@@ -45,6 +45,7 @@
         'aria-activedescendant': model.ariaActivedescendant,
         'aria-label': question.a11y_input_ariaLabel,
         'aria-labelledby': question.a11y_input_ariaLabelledBy,
+        'aria-describedby': question.a11y_input_ariaDescribedBy,
         placeholder: model.placeholderRendered, 
         readonly: model.filterReadOnly || undefined, 
         role: model.filterStringEnabled ? question.ariaRole : undefined,
@@ -56,7 +57,7 @@
       event: { blur: blur, focus: focus }"></input>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
-    <div data-bind="css: question.cssClasses.cleanButton, click: clear, visible: question.showClearButton, attr: {tabindex: question.showClearButton ? 0 : -1}">
+    <div data-bind="css: question.cssClasses.cleanButton, click: clear, visible: question.showClearButton" aria-hidden="true">
       <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto', title: question.clearCaption } } -->
       <!-- /ko -->
     </div>

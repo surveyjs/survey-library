@@ -59,11 +59,12 @@ sv-popup {
   box-sizing: border-box;
 }
 
-.sv-popup--modal > .sv-popup__container {
+.sv-popup--modal>.sv-popup__container {
   position: static;
+  display: flex;
 }
 
-.sv-popup--modal > .sv-popup__container > .sv-popup__shadow > .sv-popup__body-content {
+.sv-popup--modal>.sv-popup__container>.sv-popup__shadow>.sv-popup__body-content {
   box-shadow: $shadow-large;
   background-color: $background-dim-light;
   padding: calcSize(4);
@@ -85,11 +86,15 @@ sv-popup {
 
   .sv-popup__body-content {
     border-radius: calcSize(1);
+    max-width: min-content;
+    align-items: flex-end;
+    min-width: 452px;
   }
 
   .sv-popup__body-header {
     color: $font-editorfont-color;
     margin-bottom: 0;
+    align-self: self-start;
 
     /* UI/Default */
     font-family: $font-family;
@@ -106,6 +111,7 @@ sv-popup {
 
   .sv-popup__body-footer {
     padding-bottom: 0;
+    max-width: max-content;
 
     .sv-action-bar {
       gap: calcSize(2);
@@ -293,7 +299,7 @@ sv-popup {
   }
 }
 
-.sv-popup--dropdown > .sv-popup__container > .sv-popup__shadow > .sv-popup__body-content .sv-list {
+.sv-popup--dropdown>.sv-popup__container>.sv-popup__shadow>.sv-popup__body-content .sv-list {
   background-color: transparent;
 }
 
@@ -498,7 +504,6 @@ sv-popup {
   }
 }
 
-
 .sv-popup--dropdown-overlay.sv-popup--tablet {
   .sv-popup__body-content {
     --sv-popup-overlay-max-height: calc(var(--sv-popup-overlay-height, 100vh) - #{$base-unit} * 8);
@@ -523,4 +528,69 @@ sv-popup {
   .sv-list__container {
     flex-grow: 1;
   }
+}
+
+.sv-popup--visible {
+  opacity: 1;
+}
+
+.sv-popup--hidden {
+  opacity: 0;
+}
+
+.sv-popup--animate-enter {
+  animation-name: fadeIn;
+  animation-fill-mode: forwards;
+  animation-duration: 0.15s;
+}
+
+.sv-popup--modal.sv-popup--animate-enter {
+  animation-duration: 0.25s;
+}
+
+.sv-popup--animate-leave {
+  animation-direction: reverse;
+  animation-name: fadeIn;
+  animation-fill-mode: forwards;
+  animation-duration: 0.15s;
+}
+
+.sv-popup--modal.sv-popup--animate-leave {
+  animation-duration: 0.25s;
+}
+
+.sv-popup--hidden {
+  opacity: 0;
+}
+
+@keyframes modalMoveDown {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(64px);
+  }
+}
+
+@keyframes modalMoveUp {
+  from {
+    transform: translateY(64px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.sv-popup--modal.sv-popup--animate-leave .sv-popup__container {
+  animation-name: modalMoveDown;
+  animation-fill-mode: forwards;
+  animation-duration: 0.25s;
+}
+
+.sv-popup--modal.sv-popup--animate-enter .sv-popup__container {
+  animation-name: modalMoveUp;
+  animation-fill-mode: forwards;
+  animation-duration: 0.25s;
 }

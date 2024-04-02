@@ -9,8 +9,8 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     super(props);
   }
   protected renderElement(): JSX.Element {
-    var onBlur: ((e: any) => void) | undefined = !this.question.isInputTextUpdate ? this.updateValueOnEvent : undefined;
-    var onInput = (event: any) => {
+    const onBlur: ((e: any) => void) | undefined = !this.question.isInputTextUpdate ? this.updateValueOnEvent : undefined;
+    const onInput = (event: any) => {
       if (this.question.isInputTextUpdate) {
         this.updateValueOnEvent(event);
       } else {
@@ -43,8 +43,9 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
           aria-required={this.question.a11y_input_ariaRequired}
           aria-label={this.question.a11y_input_ariaLabel}
           aria-labelledby={this.question.a11y_input_ariaLabelledBy}
-          aria-invalid={this.question.a11y_input_ariaInvalid}
           aria-describedby={this.question.a11y_input_ariaDescribedBy}
+          aria-invalid={this.question.a11y_input_ariaInvalid}
+          aria-errormessage={this.question.a11y_input_ariaErrormessage}
           style={{ resize: this.question.resizeStyle }}
         />
         {counter}
@@ -54,17 +55,32 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
 }
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
-  private getStateComment() {
-    const comment = this.getComment();
-    let stateComment: string = this.state.comment;
-    if (stateComment !== undefined && stateComment.trim() !== comment) {
-      stateComment = comment;
-    }
-    return stateComment !== undefined ? stateComment : comment || "";
-  }
+  private control: HTMLElement;
   constructor(props: any) {
     super(props);
     this.state = { comment: this.getComment() || "" };
+  }
+  componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    this.updateDomElement();
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.updateDomElement();
+  }
+  protected updateDomElement(): void {
+    if (!!this.control) {
+      const control: any = this.control;
+      const newValue = this.getComment() || "";
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
+        control.value = newValue;
+      }
+    }
+  }
+  protected setControl(element: HTMLElement | null): void {
+    if(!!element) {
+      this.control = element;
+    }
   }
   protected canRender(): boolean {
     return !!this.props.question;
@@ -88,30 +104,21 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     return this.props.question.renderedCommentPlaceholder;
   }
   protected renderElement(): JSX.Element {
-    let question = this.props.question;
+    const question = this.props.question;
     let className = this.props.otherCss || this.cssClasses.comment;
-    let handleOnChange = (event: any) => {
-      this.setState({ comment: event.target.value });
-      // https://github.com/surveyjs/survey-library/issues/7252
-      if (!Helpers.isTwoValueEquals(this.getComment(), event.target.value, false, true, false)) {
-        this.setComment(event.target.value);
-      }
-    };
-    let comment = this.getStateComment();
-
     if (question.isReadOnlyRenderDiv()) {
+      const comment = this.getComment() || "";
       return <div>{comment}</div>;
     }
     return (
       <textarea
         id={this.getId()}
         className={className}
-        value={comment}
+        ref={(textarea) => (this.setControl(textarea))}
         disabled={this.isDisplayMode}
         maxLength={question.getOthersMaxLength()}
         placeholder={this.getPlaceholder()}
-        onChange={handleOnChange}
-        onBlur={(e) => { this.onCommentChange(e); handleOnChange(e); }}
+        onBlur={(e) => { this.onCommentChange(e); }}
         onInput={(e) => this.onCommentInput(e)}
         aria-required={question.isRequired || question.a11y_input_ariaRequired}
         aria-label={question.ariaLabel || question.a11y_input_ariaLabel}

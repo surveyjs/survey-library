@@ -1,4 +1,5 @@
 .sjs_sp_placeholder {
+    @include useEditorFontSize;
     color: $font-questionplaceholder-color;
     font-size: $font-editorfont-size;
     line-height: multiply(1.5, $font-editorfont-size);
@@ -14,11 +15,7 @@
     left: auto;
     bottom: auto;
 }
-.sd-question--signature:not(.sd-question--answered) {
-    .sd-signaturepad__controls {
-        display: none;
-    }
-}
+
 .sd-question--signature.sd-question--error {
     .sjs_sp_placeholder {
         background-color: $red-light;
@@ -30,4 +27,18 @@
     top: 0;
     left: 0;
     object-fit: cover;
+}
+
+.sd-signaturepad__loading-indicator {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    .sd-loading-indicator {
+        position: absolute;
+        right: calcSize(1);
+        top: calcSize(1);
+    }
 }

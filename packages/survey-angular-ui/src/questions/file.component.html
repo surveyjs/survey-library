@@ -1,8 +1,8 @@
 <div [class]="model.fileRootCss" #contentElement>
   <input [class]="model.cssClasses.fileInput" *ngIf="!model.isReadOnly && model.hasFileUI" tabindex="-1" type="file"
-    [attr.id]="model.inputId" (change)="model.doChange($event)" [attr.aria-required]="model.ariaRequired"
+    [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
     [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
-    [attr.aria-describedby]="model.ariaDescribedBy" [attr.multiple]="model.multipleRendered"
+    [attr.aria-errormessage]="model.ariaErrormessage" [attr.multiple]="model.multipleRendered"
     [attr.title]="model.inputTitle" [attr.accept]="model.acceptedTypes" [attr.capture]="model.renderCapture" />
   <input *ngIf="model.isReadOnly" type="file" disabled [class]="model.getReadOnlyFileCss()" [attr.id]="model.inputId"
     [attr.multiple]="model.multipleRendered" [attr.placeholder]="model.title" style="color: transparent" />

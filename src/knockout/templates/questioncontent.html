@@ -1,40 +1,36 @@
 ﻿<script type="text/html" id="survey-question-content">
-<div data-bind="visible: !question.isCollapsed, css: question.cssContent, event: {focusin: question.focusIn }" role="presentation">
-    <!-- ko if: question.showErrorOnTop -->
-      <!-- ko template: { name: 'survey-question-errors', data: question } -->
-      <!-- /ko -->
+<div data-bind="visible: question.renderedIsExpanded, css: question.cssContent, event: {focusin: question.focusIn }" role="presentation">
+  <!-- ko if: question.showErrorOnTop -->
+    <!-- ko template: { name: 'survey-question-errors', data: question } -->
     <!-- /ko -->
-    <!-- ko if: question.isDefaultRendering() -->
-      <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
-      <!-- /ko -->
+  <!-- /ko -->
+  <!-- ko if: question.isDefaultRendering() -->
+    <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
     <!-- /ko -->
-    <!-- ko ifnot: question.isDefaultRendering() -->
-      <!-- ko component: { name: getComponentName(), params: { question: question } } -->
-      <!-- /ko -->
+  <!-- /ko -->
+  <!-- ko ifnot: question.isDefaultRendering() -->
+    <!-- ko component: { name: getComponentName(), params: { question: question } } -->
     <!-- /ko -->
-    <!-- ko if: question.hasComment -->
-    <div data-bind="css: question.getCommentAreaCss()">
-      <div>
-        <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
-        <!-- /ko -->
-      </div>
-      <!-- ko template: { name: 'survey-comment',  data: {'question': question, 'visible': true } } -->
+  <!-- /ko -->
+  <!-- ko if: question.hasComment -->
+  <div data-bind="css: question.getCommentAreaCss()">
+    <div>
+      <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
       <!-- /ko -->
     </div>
-    <!-- /ko -->
-    <!-- ko if: question.showErrorOnBottom -->
-      <!-- ko template: { name: 'survey-question-errors', data: question } -->
-      <!-- /ko -->
-    <!-- /ko -->
-    <!-- ko if: question.hasDescriptionUnderInput -->
-    <div data-bind="css: cssClasses.descriptionUnderInput">
-      <!-- ko template: { name: 'survey-string', data: locDescription } -->
-      <!-- /ko -->
-    </div>
-    <!-- /ko -->
-    <!-- ko if: question.hasTitleOnBottom -->
-      <!--ko template: { name: 'survey-question-title', data: question  } -->
-      <!-- /ko -->
+    <!-- ko template: { name: 'survey-comment',  data: {'question': question, 'visible': true } } -->
     <!-- /ko -->
   </div>
+  <!-- /ko -->
+  <!-- ko if: question.showErrorOnBottom -->
+    <!-- ko template: { name: 'survey-question-errors', data: question } -->
+    <!-- /ko -->
+  <!-- /ko -->
+  <!-- ko if: question.hasDescriptionUnderInput -->
+  <div data-bind="css: cssClasses.descriptionUnderInput, attr: {'id': question.ariaDescriptionId}">
+    <!-- ko template: { name: 'survey-string', data: locDescription } -->
+    <!-- /ko -->
+  </div>
+  <!-- /ko -->
+</div>
 </script>

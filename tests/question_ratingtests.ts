@@ -287,7 +287,7 @@ QUnit.test("Check numeric item values recalculation", (assert) => {
   q1.rateStep = 2;
   assert.equal(q1.visibleRateValues.length, 3);
   q1.rateMin = 0;
-  assert.equal(q1.visibleRateValues.length, 4);
+  assert.equal(q1.visibleRateValues.length, 3);
 });
 
 QUnit.test("Check rateValues on text change", (assert) => {
@@ -827,22 +827,50 @@ QUnit.test("rateMin/rateMax/rateStep changing rateCount", (assert) => {
   assert.equal(q1.rateCount, 5);
 
   q1.rateMax = 6;
+  assert.equal(q1.rateMax, 6, "rateMax #1");
+  assert.equal(q1.rateMin, 1, "rateMin #1");
+  assert.equal(q1.visibleRateValues.length, 6, "length #1");
+  assert.equal(q1.rateCount, 6, "count #1");
+
+  q1.rateMin = 2;
+  assert.equal(q1.rateMax, 6, "rateMax #2");
+  assert.equal(q1.rateMin, 2, "rateMin #2");
+  assert.equal(q1.visibleRateValues.length, 5, "length #2");
+  assert.equal(q1.rateCount, 5, "length #2");
+
+  q1.rateStep = 3;
+  assert.equal(q1.rateMax, 5, "rateMax #3");
+  assert.equal(q1.rateMin, 2, "rateMin #3");
+  assert.equal(q1.visibleRateValues.length, 2, "length #3");
+  assert.equal(q1.rateCount, 2, "length #2");
+});
+
+QUnit.test("rateStep changing rateMax", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.rateMax, 5);
+  assert.equal(q1.rateCount, 5);
+
+  q1.rateMax = 6;
   assert.equal(q1.rateMax, 6);
   assert.equal(q1.rateMin, 1);
   assert.equal(q1.visibleRateValues.length, 6);
   assert.equal(q1.rateCount, 6);
 
-  q1.rateMin = 2;
-  assert.equal(q1.rateMax, 6);
-  assert.equal(q1.rateMin, 2);
-  assert.equal(q1.visibleRateValues.length, 5);
-  assert.equal(q1.rateCount, 5);
-
-  q1.rateStep = 3;
-  assert.equal(q1.rateMax, 6);
-  assert.equal(q1.rateMin, 2);
-  assert.equal(q1.visibleRateValues.length, 2);
-  assert.equal(q1.rateCount, 2);
+  q1.rateStep = 2;
+  assert.equal(q1.rateMax, 5);
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.visibleRateValues.length, 3);
+  assert.equal(q1.rateCount, 3);
 });
 
 QUnit.test("rateValues changing rateCount", (assert) => {
@@ -1301,6 +1329,28 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   settings.matrix.rateSize = "small";
 });
 
+QUnit.test("check rating in-matrix mode styles", (assert) => {
+  const survey = new SurveyModel({ questions: [{ type: "rating", name: "q1" }] });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  q1.cssClasses.root = "sv_q";
+  q1.cssClasses.rootLabelsTop = "sv_q__top";
+  assert.equal(q1.ratingRootCss, "sv_q");
+  q1.rateDescriptionLocation = "top";
+  assert.equal(q1.ratingRootCss, "sv_q");
+  q1.maxRateDescription = "Bad";
+  assert.equal(q1.ratingRootCss, "sv_q sv_q__top");
+});
+
+QUnit.test("check rating display-mode styles", (assert) => {
+  const survey = new SurveyModel({ questions: [{ type: "rating", name: "q1" }] });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  q1.cssClasses.root = "sv_q-root";
+  q1.cssClasses.rootWrappable = "sv_q-root__wrap";
+  assert.equal(q1.ratingRootCss, "sv_q-root");
+  q1.displayMode = "buttons";
+  assert.equal(q1.ratingRootCss, "sv_q-root sv_q-root__wrap");
+});
+
 QUnit.test("check rating triggerResponsiveness method", (assert) => {
   const ResizeObserver = window.ResizeObserver;
   window.ResizeObserver = <any>CustomResizeObserver;
@@ -1505,4 +1555,15 @@ QUnit.test("Generate empty rating in column", (assert) => {
     ] });
   assert.equal(col1.itemComponent, "sv-rating-item");
   assert.equal(col2.itemComponent, "sv-rating-item-star");
+});
+QUnit.test("supportGoNextPageAutomatic", (assert) => {
+  const q1 = new QuestionRatingModel("q1");
+  q1.value = 1;
+  assert.equal(q1.supportGoNextPageAutomatic(), false, "#1");
+  q1.onMouseDown();
+  assert.equal(q1.supportGoNextPageAutomatic(), true, "#2");
+  q1.value = 2;
+  assert.equal(q1.supportGoNextPageAutomatic(), false, "#3");
+  q1.displayMode = "dropdown";
+  assert.equal(q1.supportGoNextPageAutomatic(), true, "#4");
 });

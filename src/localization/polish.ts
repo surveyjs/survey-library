@@ -9,6 +9,8 @@ export var polishSurveyStrings = {
   startSurveyText: "Start",
   otherItemText: "Inna odpowiedź (wpisz)",
   noneItemText: "Brak",
+  refuseItemText: "Odmów odpowiedzi",
+  dontKnowItemText: "Nie wiem",
   selectAllItemText: "Wybierz wszystkie",
   progressText: "Strona {0} z {1}",
   indexText: "{0} od {1}",
@@ -25,6 +27,7 @@ export var polishSurveyStrings = {
   requiredError: "Proszę odpowiedzieć na to pytanie.",
   requiredErrorInPanel: "Proszę odpowiedzieć na co najmniej jedno pytanie.",
   requiredInAllRowsError: "Proszę odpowiedzieć na wszystkie pytania.",
+  eachRowUniqueError: "Każdy wiersz musi mieć unikatową wartość.",
   numericError: "W tym polu można wpisać tylko liczby.",
   minError: "Wartość nie powinna być mniejsza niż {0}",
   maxError: "Wartość nie powinna być większa niż {0}",
@@ -42,6 +45,7 @@ export var polishSurveyStrings = {
   urlRequestError: "Żądanie zwróciło błąd '{0}'. {1}",
   urlGetChoicesError: "Żądanie nie zwróciło danych albo ścieżka jest nieprawidłowa",
   exceedMaxSize: "Rozmiar przesłanego pliku nie może przekraczać {0}.",
+  noUploadFilesHandler: "Nie można przesłać plików. Dodaj moduł obsługi zdarzenia \"onUploadFiles\".",
   otherRequiredError: "Proszę podać inną odpowiedź.",
   uploadingFile: "Trwa przenoszenie Twojego pliku, proszę spróbować ponownie za kilka sekund.",
   loadingFile: "Ładowanie...",
@@ -56,6 +60,8 @@ export var polishSurveyStrings = {
   emptyRowsText: "Nie ma rzędów.",
   addPanel: "Dodaj panel",
   removePanel: "Usuń",
+  showDetails: "Pokaż szczegóły",
+  hideDetails: "Ukryj szczegóły",
   choices_Item: "element",
   matrix_column: "Kolumna",
   matrix_row: "Wiersz",
@@ -94,7 +100,9 @@ export var polishSurveyStrings = {
   more: "Więcej",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Wszystkie wybory są uszeregowane",
-  selectToRankEmptyUnrankedAreaText: "Przeciągnij i upuść tutaj wybory, aby je uszeregować"
+  selectToRankEmptyUnrankedAreaText: "Przeciągnij i upuść tutaj wybory, aby je uszeregować",
+  ok: "OK",
+  cancel: "Anuluj"
 };
 
 surveyLocalization.locales["pl"] = polishSurveyStrings;
@@ -111,4 +119,11 @@ surveyLocalization.localeNames["pl"] = "polski";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Przeciągnij i upuść tutaj wybory, aby je uszeregować"// takePhotoCaption: "Take Photo" => "Zrób zdjęcie"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Kliknij przycisk poniżej, aby zrobić zdjęcie aparatem."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Przeciągnij i upuść lub wybierz plik, który chcesz przesłać lub zrobić zdjęcie za pomocą aparatu."
-// replaceFileCaption: "Replace file" => "Zastąp plik"
+// replaceFileCaption: "Replace file" => "Zastąp plik"// eachRowUniqueError: "Each row must have a unique value." => "Każdy wiersz musi mieć unikatową wartość."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Nie można przesłać plików. Dodaj moduł obsługi zdarzenia \"onUploadFiles\"."
+// showDetails: "Show Details" => "Pokaż szczegóły"
+// hideDetails: "Hide Details" => "Ukryj szczegóły"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Anuluj"
+// refuseItemText: "Refuse to answer" => "Odmów odpowiedzi"
+// dontKnowItemText: "Don't know" => "Nie wiem"

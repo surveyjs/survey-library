@@ -428,6 +428,15 @@ QUnit.test("Regex number validator, Bug#1775", function(assert) {
   assert.equal(validator.validate(2), null, "Parse correctly 2");
   assert.equal(validator.validate(null), null, "Parse correctly null");
 });
+QUnit.test("Regex case insensitive, Bug#7620", function(assert) {
+  const validator = new RegexValidator(".+@something.com");
+  validator.insensitive = true;
+  validator.text = "Error";
+  assert.equal(validator.validate("abc").error.text, "Error", "#1");
+  assert.equal(validator.validate("abc@something1.com").error.text, "Error", "#2");
+  assert.equal(validator.validate("abc@something.com"), null, "#3");
+  assert.equal(validator.validate("abc@SomeThing.com"), null, "#4");
+});
 
 QUnit.test("validator.isAsync", function(assert) {
   function asyncFunc(params: any): any {

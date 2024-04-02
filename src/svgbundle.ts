@@ -1,5 +1,4 @@
-import { settings, ISurveyEnvironment } from "./settings";
-import { getElement } from "./utils/utils";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 class SvgIconData {
   [key: string]: string
@@ -15,11 +14,12 @@ export class SvgIconRegistry {
   public registerIconFromSymbol(iconId: string, iconSymbolSvg: string) {
     this.icons[iconId] = iconSymbolSvg;
   }
-  public registerIconFromSvgViaElement(iconId: string, iconSvg: string, iconPrefix: string = this.iconPrefix) {
+  public registerIconFromSvgViaElement(iconId: string, iconSvg: string, iconPrefix: string = this.iconPrefix): void {
+    if(!DomDocumentHelper.isAvailable()) return;
     iconId = this.processId(iconId, iconPrefix);
-    let divSvg = document.createElement("div");
+    let divSvg = DomDocumentHelper.createElement("div");
     divSvg.innerHTML = iconSvg;
-    let symbol = document.createElement("symbol");
+    let symbol = DomDocumentHelper.createElement("symbol");
     let svg = divSvg.querySelector("svg");
     symbol.innerHTML = svg.innerHTML;
 
@@ -57,17 +57,6 @@ export class SvgIconRegistry {
   }
   public iconsRenderedHtml() {
     return Object.keys(this.icons).map(icon => this.icons[icon]).join("");
-  }
-  public renderIcons() {
-    const containerId = "sv-icon-holder-global-container";
-    if(!!settings.environment && !settings.environment.root.getElementById(containerId)) {
-      let iconsDiv = document.createElement("div");
-      iconsDiv.id = containerId;
-      iconsDiv.innerHTML = "<svg>" + this.iconsRenderedHtml() + "</svg>";
-      iconsDiv.style.display = "none";
-
-      getElement(settings.environment.svgMountContainer).appendChild(iconsDiv);
-    }
   }
 }
 export var SvgRegistry: SvgIconRegistry = new SvgIconRegistry();

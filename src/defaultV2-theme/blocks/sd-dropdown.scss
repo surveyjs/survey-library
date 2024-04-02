@@ -16,7 +16,7 @@
   opacity: 1;
   display: flex;
   justify-content: space-between;
-word-spacing: normal;
+  word-spacing: normal;
 }
 
 .sd-dropdown[disabled] {
@@ -43,6 +43,7 @@ word-spacing: normal;
 }
 
 .sd-dropdown__value {
+  @include useEditorFontSize;
   width: 100%;
   min-height: multiply(1.5, $font-editorfont-size);
   overflow: hidden;
@@ -79,12 +80,13 @@ word-spacing: normal;
 
 .sd-dropdown_chevron-button-svg,
 .sd-dropdown_clean-button-svg {
+  @include useEditorFontSize;
   width: multiply(1.5, $font-editorfont-size);
   height: multiply(1.5, $font-editorfont-size);
 }
 
 .sd-input.sd-dropdown:focus-within {
-  box-shadow: 0 0 0 2px $primary;
+  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
 
 .sd-input.sd-dropdown:focus-within {
@@ -94,6 +96,7 @@ word-spacing: normal;
 }
 
 .sd-dropdown__filter-string-input {
+  @include useEditorFontSize;
   position: absolute;
   left: 0;
   top: 0;
@@ -156,11 +159,52 @@ word-spacing: normal;
 
 .sv-dropdown-popup {
   .sd-list__item-body {
+    @include useEditorFontSize;
     line-height: multiply(1.5, $font-editorfont-size);
     font-size: $font-editorfont-size;
     font-weight: $font-editorfont-weight;
     font-family: $font-editorfont-family;
-    padding-inline-end: calcSize(2);
+    padding-inline-end: calcSize(1.75);
+    padding-block: calcSize(1.25);
+    padding-inline-start: calcSize(1.75);
+    border: calcSize(0.25) solid transparent;
+    border-radius: calcCornerRadius(1);
+    transition: border-color $transition-duration;
+  }
+
+  .sv-list__item.sv-list__item--focused:not(.sv-list__item--selected) {
+    .sv-list__item-body {
+      @include borderLight;
+      padding-inline-end: calcSize(1.75);
+      padding-block: calcSize(1.25);
+      padding-inline-start: calcSize(1.75);
+    }
+  }
+
+  .sv-list__item span {
+    margin-inline-start: calcSize(-0.25);
+  }
+}
+
+.sv-dropdown-popup.sv-single-select-list.sv-popup--animate-leave {
+  .sd-list__item.sv-list__item--selected {
+    .sv-list__item-body {
+      font-weight: normal;
+      color: $font-questiontitle-color;
+      background-color: transparent;
+    }
+  }
+}
+
+.sv-dropdown-popup.sv-popup--dropdown.sv-popup--top {
+  .sv-popup__container {
+    transform: translateY(-2px);
+  }
+}
+
+.sv-dropdown-popup.sv-popup--dropdown.sv-popup--bottom {
+  .sv-popup__container {
+    transform: translateY(2px);
   }
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <div :class="!element.isPanel ? element.getRootCss() : null" 
+  <div :class="!element.isPanel ? element.getRootCss() : null"
         v-if="row.isNeedRender"
         ref="root"
         v-on:focusin="element.focusIn()"
@@ -8,6 +8,7 @@
         :aria-required="element.ariaRequired"
         :aria-invalid="element.ariaInvalid"
         :aria-labelledby="element.ariaLabelledBy"
+        :aria-describedby="element.ariaDescribedBy"
         :aria-expanded="element.ariaExpanded"
         :data-name="element.name">
     <survey-errors
@@ -49,6 +50,7 @@
       <div
         v-if="!element.isPanel && element.hasDescriptionUnderInput"
         :class="element.cssClasses.descriptionUnderInput"
+        :id="element.ariaDescriptionId"
       >
         <survey-string :locString="element.locDescription" />
       </div>
@@ -64,7 +66,7 @@
       :location="'bottom'"
     />
   </div>
-  
+
   <component
   v-else-if="!!element.skeletonComponentName"
   ref="root"
@@ -110,10 +112,10 @@ export class SurveyElementVue extends BaseVue {
     this.previousElement = el;
   }
   onUpdated() {
-      this.afterRender(this.$refs.root as HTMLElement);
+    this.afterRender(this.$refs.root as HTMLElement);
   }
   mounted(): void {
-    this.afterRender(this.$refs.root as HTMLElement)
+    this.afterRender(this.$refs.root as HTMLElement);
   }
   destroyed(): void {
     this.previousElement = undefined as any;

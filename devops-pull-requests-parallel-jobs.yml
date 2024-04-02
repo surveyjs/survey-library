@@ -51,8 +51,13 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
+        npm run build_core
         npm run build_knockout_prod
       displayName: "Build Knockout"
+
+    - script: |
+        npm run test:postcss
+      displayName: "check postcss compatibility"
 
     - script: |
         npm run testsingle

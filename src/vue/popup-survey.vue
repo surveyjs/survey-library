@@ -1,36 +1,31 @@
 <template>
-  <div
-    v-if="surveyWindow.isShowing"
-    style="position: fixed; bottom: 3px; right: 10px"
-    :style="{maxWidth: surveyWindow.renderedWidth, width: surveyWindow.renderedWidth}"
-    :class="surveyWindow.cssRoot"
-  >
-    <div :class="surveyWindow.cssHeaderRoot">
-      <span @click="doExpand" style="width: 100%; cursor: pointer; user-select: none;">
-        <span style="padding-right: 10px" :class="surveyWindow.cssHeaderTitle">
-          <survey-string :locString="windowSurvey.locTitle" />
-        </span>
-        <span aria-hidden="true" :class="expandedCss"></span>
-      </span>
-      <span
-        v-if="surveyWindow.allowClose"
-        :class="surveyWindow.cssHeaderButton"
-        @click="doHide"
-        style="transform: rotate(45deg); float: right; cursor: pointer; user-select: none; width: 24px; height: 24px;"
-      >
-        <sv-svg-icon :iconName="'icon-expanddetail'" :size="16"> </sv-svg-icon>
-      </span>
-      <span
-        v-if="isExpandedSurvey"
-        :class="surveyWindow.cssHeaderButton"
-        @click="doExpand"
-        style="float: right; cursor: pointer; user-select: none; width: 24px; height: 24px;"
-      >
-        <sv-svg-icon :iconName="'icon-collapsedetail'" :size="16"> </sv-svg-icon>
-      </span>
-    </div>
-    <div v-if="isExpandedSurvey" :class="surveyWindow.cssBody" @scroll="doScroll">
-      <component :is="getSurveyComponentName()" :survey="windowSurvey"> </component>
+  <div v-if="surveyWindow.isShowing" :style="{ maxWidth: surveyWindow.renderedWidth, width: surveyWindow.renderedWidth }"
+    :class="surveyWindow.cssRoot" @scroll="doScroll">
+    <div :class="surveyWindow.cssRootContent">
+      <div :class="cssHeaderRoot">
+        <div v-if="surveyWindow.isCollapsed && !!surveyWindow.locTitle" :class="surveyWindow.cssHeaderTitleCollapsed">
+          {{ surveyWindow.locTitle.renderedHtml }}
+        </div>
+
+        <div :class="surveyWindow.cssHeaderButtonsContainer">
+          <div v-if="surveyWindow.allowFullScreen" :class="surveyWindow.cssHeaderFullScreenButton" @click="doToggleFullScreen">
+            <sv-svg-icon v-if="surveyWindow.isFullScreen" :iconName="'icon-back-to-panel_16x16'" :size="16"> </sv-svg-icon>
+            <sv-svg-icon v-if="!surveyWindow.isFullScreen" :iconName="'icon-full-screen_16x16'" :size="16"> </sv-svg-icon>
+          </div>
+
+          <div :class="surveyWindow.cssHeaderCollapseButton" @click="doExpand">
+            <sv-svg-icon v-if="surveyWindow.isExpanded" :iconName="'icon-minimize_16x16'" :size="16"> </sv-svg-icon>
+            <sv-svg-icon v-if="surveyWindow.isCollapsed" :iconName="'icon-restore_16x16'" :size="16"> </sv-svg-icon>
+          </div>
+
+          <div v-if="surveyWindow.allowClose" :class="surveyWindow.cssHeaderCloseButton" @click="doHide">
+            <sv-svg-icon :iconName="'icon-close_16x16'" :size="16"> </sv-svg-icon>
+          </div>
+        </div>
+      </div>
+      <div :class="surveyWindow.cssBody">
+        <component :is="getSurveyComponentName()" :survey="survey"> </component>
+      </div>
     </div>
   </div>
 </template>
@@ -48,6 +43,9 @@ export class PopupSurvey extends BaseVue {
   @Prop() isExpanded: boolean;
   @Prop() isexpanded: boolean;
   @Prop() allowClose: boolean;
+  @Prop() allowclose: boolean;
+  @Prop() allowFullScreen: boolean;
+  @Prop() allowfullscreen: boolean;
   @Prop() closeOnCompleteTimeout: number;
 
   surveyWindow: PopupSurveyModel;
@@ -67,13 +65,30 @@ export class PopupSurvey extends BaseVue {
     if (this.closeOnCompleteTimeout !== undefined) {
       this.surveyWindow.closeOnCompleteTimeout = this.closeOnCompleteTimeout;
     }
+    if (this.allowclose !== undefined) {
+      this.surveyWindow.allowClose = this.allowclose;
+    }
     if (this.allowClose !== undefined) {
       this.surveyWindow.allowClose = this.allowClose;
+    }
+    if (this.allowfullscreen !== undefined) {
+      this.surveyWindow.allowFullScreen = this.allowfullscreen;
+    }
+    if (this.allowFullScreen !== undefined) {
+      this.surveyWindow.allowFullScreen = this.allowFullScreen;
     }
     this.surveyWindow.isShowing = true;
   }
   protected getModel(): Base {
     return this.surveyWindow;
+  }
+
+  get cssHeaderRoot(): string {
+    let headerCss = this.surveyWindow.cssHeaderRoot;
+    if (this.surveyWindow.isCollapsed) {
+      headerCss += " " + this.surveyWindow.cssRootCollapsedMod;
+    }
+    return headerCss;
   }
 
   get windowSurvey(): SurveyModel {
@@ -99,6 +114,9 @@ export class PopupSurvey extends BaseVue {
   doHide() {
     this.surveyWindow.hide();
   }
+  doToggleFullScreen() {
+    this.surveyWindow.toggleFullScreen();
+  }
   getSurveyComponentName() {
     return "survey";
   }
@@ -110,7 +128,7 @@ export class PopupSurvey extends BaseVue {
 /**
  * Obsolete, please use PopupSurvey
  */
-export class SurveyWindow extends PopupSurvey {}
+export class SurveyWindow extends PopupSurvey { }
 Vue.component("survey-window", SurveyWindow);
 
 Vue.component("popup-survey", PopupSurvey);

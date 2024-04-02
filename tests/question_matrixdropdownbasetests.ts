@@ -2,6 +2,7 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
+import { QuestionTagboxModel } from "../src/question_tagbox";
 import { SurveyModel } from "../src/survey";
 export * from "../src/localization/german";
 
@@ -91,6 +92,45 @@ QUnit.test("table vertical align and alternate rows", function (assert) {
   matrix.alternateRows = true;
   assert.equal(matrix.getTableCss(), "rootClass rootAlternateRowsClass rootVerticalAlignTopClass", "table css is rootAlternateRowsClass rootVerticalAlignMiddleClass");
 });
+
+QUnit.test("table autocolumn width", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrixd",
+        columns: ["c"]
+      },
+      {
+        type: "matrix",
+        name: "matrix",
+      },
+    ],
+  });
+
+  const matrixd = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrixd");
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+
+  matrix.cssClasses.root = "rootClass";
+  matrix.cssClasses.columnsAutoWidth = "rootColumnsAutoWidth";
+  matrix.cssClasses.rootVerticalAlignMiddle = "";
+
+  matrixd.cssClasses.root = "rootClass";
+  matrixd.cssClasses.columnsAutoWidth = "rootColumnsAutoWidth";
+  matrixd.cssClasses.rootVerticalAlignMiddle = "";
+
+  assert.equal(matrix.getTableCss(), "rootClass rootColumnsAutoWidth", "matrix");
+  assert.equal(matrixd.getTableCss(), "rootClass rootColumnsAutoWidth", "matrixd");
+
+  matrixd.columns[0].width = "100px";
+  assert.equal(matrixd.getTableCss(), "rootClass", "matrixd");
+
+  matrixd.columns[0].width = "";
+  survey.setIsMobile(true);
+  assert.equal(matrix.getTableCss(), "rootClass", "matrix mobile");
+  assert.equal(matrixd.getTableCss(), "rootClass", "matrixd mobile");
+});
+
 QUnit.test("column.templateQuestion has set parentQuestion", function (assert) {
   var survey = new SurveyModel({
     elements: [
@@ -227,8 +267,9 @@ QUnit.test("column cell css classes for vertical layout", function (assert) {
 
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("question1");
   assert.equal(matrix.renderedTable.headerRow.cells.length, 3);
-  assert.equal(matrix.renderedTable.headerRow.cells[1].className, "sv_matrix_cell_header", "column 1");
-  assert.equal(matrix.renderedTable.headerRow.cells[2].className, "sv_matrix_cell_header", "column 2");
+  const cssHeader = survey.css.matrixdropdown.headerCell;
+  assert.equal(matrix.renderedTable.headerRow.cells[1].className, cssHeader, "column 1");
+  assert.equal(matrix.renderedTable.headerRow.cells[2].className, cssHeader, "column 2");
 });
 
 QUnit.test("column cell css classes by matrix cellType test", function (assert) {
@@ -417,8 +458,8 @@ QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", f
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   const renderedTable = matrix.renderedTable;
   assert.equal(renderedTable.headerRow.cells[1].className, "custom-header-cell");
-  assert.equal(renderedTable.rows[1].cells[1].className, "custom-item-cell custom-radio-item-cell");
-  assert.equal(renderedTable.rows[1].cells[3].className, "custom-item-cell custom-checkbox-item-cell");
+  assert.equal(renderedTable.rows[1].cells[1].className, "sv_matrix_cell custom-item-cell custom-radio-item-cell");
+  assert.equal(renderedTable.rows[1].cells[3].className, "sv_matrix_cell custom-item-cell custom-checkbox-item-cell");
 });
 QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", function (assert) {
   const survey = new SurveyModel({
@@ -541,8 +582,9 @@ QUnit.test("Rows with value = 0, Bug#6370", function (assert) {
   assert.deepEqual(survey.data, { q1: { 0: { col1: "val1" } } }, "Set row value correctly");
 });
 QUnit.test("survey.onPropertyValueChangedCallback on column property changed", function (assert) {
-  var survey = new SurveyModel({ elements: [
-    { type: "matrixdynamic", name: "q", columns: [{ cellType: "expression", name: "col1" }] }]
+  var survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "q", columns: [{ cellType: "expression", name: "col1" }] }]
   });
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q");
   const column = matrix.columns[0];
@@ -835,7 +877,8 @@ QUnit.test("question.resetValueIf, cycle calls", function (assert) {
             "choices": ["none"]
           }]
       }
-    ] });
+    ]
+  });
   const row = survey.getQuestionByName("matrix").visibleRows[0];
   const q1 = row.getQuestionByName("dog");
   const q2 = row.getQuestionByName("cat");
@@ -915,13 +958,13 @@ QUnit.test("question.onHidingContent", function (assert) {
   let counter2 = 0;
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   const row = matrix.visibleRows[0];
-  row.getQuestionByName("col1").onHidingContent = (): void => { counter1 ++; };
+  row.getQuestionByName("col1").onHidingContent = (): void => { counter1++; };
   row.showDetailPanel();
-  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2 ++; };
+  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2++; };
   row.hideDetailPanel();
   assert.equal(counter2, 1, "Close detail");
   row.showDetailPanel();
-  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2 ++; };
+  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2++; };
   survey.doComplete();
   assert.equal(counter1, 1, "cell on complete");
   assert.equal(counter2, 2, "detail questions");
@@ -1042,4 +1085,92 @@ QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function
   assert.equal(panelQuestion.choicesMin, 1, "choicesMin is here");
   assert.equal(panelQuestion.choicesMax, 10, "choicesMax is here");
   assert.equal(panelQuestion.visibleChoices.length, 12, "cell question visibleChoices");
+});
+QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix1",
+        "columns": [{ "name": "col1" }],
+        "choices": [1, 2, 3],
+        "cellType": "tagbox",
+        "rows": ["Row 1"]
+      },
+      {
+        "type": "matrixdynamic",
+        "name": "matrix2",
+        "columns": [{ "name": "col1", "cellType": "tagbox" }],
+        "choices": [1, 2, 3, 4],
+      }
+    ]
+  });
+  const matrix1 = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix1");
+  const matrix2 = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix2");
+  const row1 = matrix1.visibleRows[0];
+  const row2 = matrix2.visibleRows[0];
+  const cellQuestion1 = <QuestionTagboxModel>row1.cells[0].question;
+  const cellQuestion2 = <QuestionTagboxModel>row2.cells[0].question;
+  assert.equal(cellQuestion1.getType(), "tagbox", "type #1");
+  assert.equal(cellQuestion2.getType(), "tagbox", "type #2");
+  assert.equal(cellQuestion1.choices.length, 3, "choices #1");
+  assert.equal(cellQuestion2.choices.length, 4, "choices #2");
+});
+QUnit.test("Do not resetTable for always invisible column", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 1,
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text"
+          },
+          {
+            "name": "col2",
+            "cellType": "text",
+            "visibleIf": "false"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const cellQuestion = matrix.visibleRows[0].cells[0].question;
+  const table = matrix.renderedTable;
+  table["$ref"] = "ref1";
+  cellQuestion.value = "test";
+  assert.equal(matrix.renderedTable["$ref"], "ref1", "Do not recreate the rendered table");
+});
+QUnit.test("survey.onMatrixDetailPanelVisibleChanged event", function (assert) {
+  const survey = new SurveyModel({
+    questionErrorLocation: "bottom",
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  const actions = new Array<string>();
+  survey.onMatrixDetailPanelVisibleChanged.add((sender, options) => {
+    const action = (options.visible ? "show" : "hide") + ":" + options.rowIndex;
+    actions.push(action);
+    if (options.visible) {
+      options.detailPanel.getQuestionByName("q1").title = "Question 1";
+    }
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  row.showDetailPanel();
+  const qDetail = row.detailPanel.getQuestionByName("q1");
+  assert.equal(qDetail.title, "Question 1", "set title");
+  row.hideDetailPanel();
+  assert.deepEqual(actions, ["show:0", "hide:0"], "check actions");
 });

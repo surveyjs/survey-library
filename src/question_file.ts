@@ -14,15 +14,19 @@ import { Camera } from "./utils/camera";
 import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { getRenderedSize } from "./utils/utils";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
+export function dataUrl2File(dataUrl: string, fileName: string, type: string) {
+  const str = atob(dataUrl.split(",")[1]);
+  const buffer = new Uint8Array(str.split("").map(c => c.charCodeAt(0))).buffer;
+  return new File([buffer], fileName, { type: type });
+}
 /**
- * A class that describes the File Upload question type.
- *
- * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+ * A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
  */
-export class QuestionFileModel extends Question {
+export class QuestionFileModelBase extends Question {
   @property() public isUploading: boolean = false;
-  @property() isDragging: boolean = false;
+  @property({ defaultValue: "empty" }) currentState: string;
   /**
    * An event that is raised after the upload state has changed.
    *
@@ -33,19 +37,122 @@ export class QuestionFileModel extends Question {
    * - `options.state`: `string`\
    * The current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
    */
-  public onUploadStateChanged: EventBase<QuestionFileModel> = this.addEvent<
-    QuestionFileModel
+  public onUploadStateChanged: EventBase<QuestionFileModelBase> = this.addEvent<
+    QuestionFileModelBase
   >();
-  public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
-    QuestionFileModel
+  public onStateChanged: EventBase<QuestionFileModelBase> = this.addEvent<
+    QuestionFileModelBase
   >();
+  protected stateChanged(state: string) {
+    if (this.currentState == state) {
+      return;
+    }
+    if (state === "loading") {
+      this.isUploading = true;
+    }
+    if (state === "loaded") {
+      this.isUploading = false;
+    }
+    if (state === "error") {
+      this.isUploading = false;
+    }
+    this.currentState = state;
+    this.onStateChanged.fire(this, { state: state });
+    this.onUploadStateChanged.fire(this, { state: state });
+  }
+  public get showLoadingIndicator(): boolean {
+    return this.isUploading && this.isDefaultV2Theme;
+  }
+  /**
+   * Specifies whether to store file or signature content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
+   *
+   * If you disable this property, implement `SurveyModel`'s [`onUploadFiles`](https://surveyjs.io/form-library/documentation/surveymodel#onUploadFiles) event handler to specify how to store file content.
+   */
+  public get storeDataAsText(): boolean {
+    return this.getPropertyValue("storeDataAsText");
+  }
+  public set storeDataAsText(val: boolean) {
+    this.setPropertyValue("storeDataAsText", val);
+  }
+  /**
+     * Enable this property if you want to wait until files are uploaded to complete the survey.
+     *
+     * Default value: `false`
+     */
+  public get waitForUpload(): boolean {
+    return this.getPropertyValue("waitForUpload");
+  }
+  public set waitForUpload(val: boolean) {
+    this.setPropertyValue("waitForUpload", val);
+  }
+
+  public clearValue(): void {
+    this.clearOnDeletingContainer();
+    super.clearValue();
+  }
+  public clearOnDeletingContainer() {
+    if (!this.survey) return;
+    this.survey.clearFiles(this, this.name, this.value, null, () => { });
+  }
+
+  protected onCheckForErrors(
+    errors: Array<SurveyError>,
+    isOnValueChanged: boolean
+  ) {
+    super.onCheckForErrors(errors, isOnValueChanged);
+    if (this.isUploading && this.waitForUpload) {
+      errors.push(
+        new UploadingFileError(
+          this.getLocalizationString("uploadingFile"),
+          this
+        )
+      );
+    }
+  }
+  protected uploadFiles(files: File[]) {
+    if (this.survey) {
+      this.stateChanged("loading");
+      this.survey.uploadFiles(this, this.name, files, (arg1: any, arg2: any) => {
+        if (Array.isArray(arg1)) {
+          this.setValueFromResult(arg1);
+          if (Array.isArray(arg2)) {
+            arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
+            this.stateChanged("error");
+          }
+        }
+        if (arg1 === "success" && Array.isArray(arg2)) {
+          this.setValueFromResult(arg2);
+        }
+        if (arg1 === "error") {
+          if (typeof (arg2) === "string") {
+            this.errors.push(new UploadingFileError(arg2, this));
+          }
+          if (Array.isArray(arg2) && arg2.length > 0) {
+            arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
+          }
+          this.stateChanged("error");
+        }
+        this.stateChanged("loaded");
+      });
+    }
+  }
+}
+
+/**
+ * A class that describes the File Upload question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+ */
+export class QuestionFileModel extends QuestionFileModelBase {
+  @property() isDragging: boolean = false;
   @propertyArray({}) public previewValue: any[];
-  @property({ defaultValue: "empty" }) currentState: string;
 
   @property({ defaultValue: 0 }) indexToShow: number;
-  @property({ defaultValue: 1, onSet: (_, target) => {
-    target.updateFileNavigator();
-  } }) pageSize: number;
+  @property({
+    defaultValue: 1, onSet: (_, target) => {
+      target.updateFileNavigator();
+    }
+  }) pageSize: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
   @property() allowCameraAccess: boolean;
   /**
@@ -60,11 +167,13 @@ export class QuestionFileModel extends Question {
    * @see photoPlaceholder
    * @see fileOrPhotoPlaceholder
    */
-  @property({ onSet: (val: string, obj: QuestionFileModel) => {
-    if(!obj.isLoadingFromJson) {
-      obj.updateCurrentMode();
+  @property({
+    onSet: (val: string, obj: QuestionFileModel) => {
+      if (!obj.isLoadingFromJson) {
+        obj.updateCurrentMode();
+      }
     }
-  } }) sourceType: string;
+  }) sourceType: string;
 
   public fileNavigator: ActionContainer = new ActionContainer();
   protected prevFileAction: Action;
@@ -157,6 +266,7 @@ export class QuestionFileModel extends Question {
       id: "sv-file-choose-file",
       iconSize: "auto",
       data: { question: this },
+      enabledIf: () => !this.isInputReadOnly,
       component: "sv-file-choose-btn"
     });
     this.startCameraAction = new Action({
@@ -196,7 +306,7 @@ export class QuestionFileModel extends Question {
   public get hasFileUI(): boolean { return this.currentMode !== "camera"; }
   private videoStream: MediaStream;
   public startVideo(): void {
-    if(this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
+    if (this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
     this.setIsPlayingVideo(true);
     setTimeout(() => {
       this.startVideoInCamera();
@@ -206,7 +316,7 @@ export class QuestionFileModel extends Question {
   private startVideoInCamera(): void {
     this.camera.startVideo(this.videoId, (stream: MediaStream) => {
       this.videoStream = stream;
-      if(!stream) {
+      if (!stream) {
         this.stopVideo();
       }
     }, getRenderedSize(this.imageWidth), getRenderedSize(this.imageHeight));
@@ -216,9 +326,9 @@ export class QuestionFileModel extends Question {
     this.closeVideoStream();
   }
   public snapPicture(): void {
-    if(!this.isPlayingVideo) return;
+    if (!this.isPlayingVideo) return;
     const blobCallback = (blob: Blob | null): void => {
-      if(blob) {
+      if (blob) {
         const file = new File([blob], "snap_picture.png", { type: "image/png" });
         this.loadFiles([file]);
       }
@@ -228,7 +338,7 @@ export class QuestionFileModel extends Question {
   }
   @property() private canFlipCameraValue: boolean = undefined;
   public canFlipCamera(): boolean {
-    if(this.canFlipCameraValue === undefined) {
+    if (this.canFlipCameraValue === undefined) {
       this.canFlipCameraValue = this.camera.canFlip((res: boolean) => {
         this.canFlipCameraValue = res;
       });
@@ -236,13 +346,13 @@ export class QuestionFileModel extends Question {
     return this.canFlipCameraValue;
   }
   public flipCamera(): void {
-    if(!this.canFlipCamera()) return;
+    if (!this.canFlipCamera()) return;
     this.closeVideoStream();
     this.camera.flip();
     this.startVideoInCamera();
   }
   private closeVideoStream(): void {
-    if(!!this.videoStream) {
+    if (!!this.videoStream) {
       this.videoStream.getTracks().forEach(track => {
         track.stop();
       });
@@ -268,9 +378,9 @@ export class QuestionFileModel extends Question {
   }
   private prevPreviewLength = 0;
   private previewValueChanged() {
-    if(this.previewValue.length !== this.prevPreviewLength) {
-      if(this.previewValue.length > 0) {
-        if(this.prevPreviewLength > this.previewValue.length) {
+    if (this.previewValue.length !== this.prevPreviewLength) {
+      if (this.previewValue.length > 0) {
+        if (this.prevPreviewLength > this.previewValue.length) {
           this.indexToShow = this.indexToShow >= this.pagesCount && this.indexToShow > 0 ? this.pagesCount - 1 : this.indexToShow;
         } else {
           this.indexToShow = Math.floor(this.prevPreviewLength / this.pageSize);
@@ -281,7 +391,7 @@ export class QuestionFileModel extends Question {
     }
     this.fileIndexAction.title = this.getFileIndexCaption();
     this.containsMultiplyFiles = this.previewValue.length > 1;
-    if(this.previewValue.length > 0 && !this.calculatedGapBetweenItems && !this.calculatedItemWidth) {
+    if (this.previewValue.length > 0 && !this.calculatedGapBetweenItems && !this.calculatedItemWidth) {
       setTimeout(() => {
         this.processResponsiveness(0, this._width);
       });
@@ -296,14 +406,6 @@ export class QuestionFileModel extends Question {
 
   public getType(): string {
     return "file";
-  }
-  public clearValue(): void {
-    this.clearOnDeletingContainer();
-    super.clearValue();
-  }
-  public clearOnDeletingContainer() {
-    if (!this.survey) return;
-    this.survey.clearFiles(this, this.name, this.value, null, () => { });
   }
   /**
    * Disable this property only to implement a custom preview.
@@ -356,28 +458,6 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("acceptedTypes", val);
   }
   /**
-   * Specifies whether to store file content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
-   *
-   * If you disable this property, implement `SurveyModel`'s [`onUploadFiles`](https://surveyjs.io/form-library/documentation/surveymodel#onUploadFiles) event handler to specify how to store file content.
-   */
-  public get storeDataAsText(): boolean {
-    return this.getPropertyValue("storeDataAsText");
-  }
-  public set storeDataAsText(val: boolean) {
-    this.setPropertyValue("storeDataAsText", val);
-  }
-  /**
-   * Enable this property if you want to wait until files are uploaded to complete the survey.
-   *
-   * Default value: `false`
-   */
-  public get waitForUpload(): boolean {
-    return this.getPropertyValue("waitForUpload");
-  }
-  public set waitForUpload(val: boolean) {
-    this.setPropertyValue("waitForUpload", val);
-  }
-  /**
    * Specifies whether to show a preview of image files.
    */
   public get allowImagesPreview(): boolean {
@@ -396,6 +476,20 @@ export class QuestionFileModel extends Question {
   }
   public set maxSize(val: number) {
     this.setPropertyValue("maxSize", val);
+  }
+  public chooseFile(event: MouseEvent): void {
+    if (!DomDocumentHelper.isAvailable()) return;
+
+    const inputElement = DomDocumentHelper.getDocument().getElementById(this.inputId) as HTMLInputElement;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (inputElement) {
+      if (this.survey) {
+        this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this, elementType: this.getType(), propertyName: this.name });
+      } else {
+        inputElement.click();
+      }
+    }
   }
   /**
    * Specifies whether users should confirm file deletion.
@@ -444,19 +538,19 @@ export class QuestionFileModel extends Question {
 
   @property() locRenderedPlaceholderValue: LocalizableString;
   public get locRenderedPlaceholder(): LocalizableString {
-    if(this.locRenderedPlaceholderValue === undefined) {
+    if (this.locRenderedPlaceholderValue === undefined) {
       this.locRenderedPlaceholderValue = <LocalizableString><unknown>(new ComputedUpdater<LocalizableString>(() => {
         const isReadOnly = this.isReadOnly;
         const hasFileUI = (!this.isDesignMode && this.hasFileUI) || (this.isDesignMode && this.sourceType != "camera");
         const hasVideoUI = (!this.isDesignMode && this.hasVideoUI) || (this.isDesignMode && this.sourceType != "file");
         let renderedPlaceholder: LocalizableString;
-        if(isReadOnly) {
+        if (isReadOnly) {
           renderedPlaceholder = this.locNoFileChosenCaption;
         }
-        else if(hasFileUI && hasVideoUI) {
+        else if (hasFileUI && hasVideoUI) {
           renderedPlaceholder = this.locFileOrPhotoPlaceholder;
         }
-        else if(hasFileUI) {
+        else if (hasFileUI) {
           renderedPlaceholder = this.locFilePlaceholder;
         }
         else {
@@ -477,8 +571,8 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("isPlayingVideo", show);
   }
   private updateCurrentMode(): void {
-    if(!this.isDesignMode) {
-      if(this.sourceType !== "file") {
+    if (!this.isDesignMode) {
+      if (this.sourceType !== "file") {
         this.camera.hasCamera((res: boolean) => {
           this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.sourceType : "file");
         });
@@ -499,7 +593,7 @@ export class QuestionFileModel extends Question {
     return " ";
   }
 
-  public get chooseButtonText () {
+  public get chooseButtonText() {
     return this.isEmpty() || this.allowMultiple ? this.chooseButtonCaption : this.replaceButtonCaption;
   }
 
@@ -538,9 +632,6 @@ export class QuestionFileModel extends Question {
     const isPlayingVideo = this.isPlayingVideo;
     const showLoadingIndicator = this.showLoadingIndicator;
     return !isPlayingVideo && !showLoadingIndicator;
-  }
-  public get showLoadingIndicator(): boolean {
-    return this.isUploading && this.isDefaultV2Theme;
   }
   public get allowShowPreview(): boolean {
     const isShowLoadingIndicator = this.showLoadingIndicator;
@@ -594,6 +685,18 @@ export class QuestionFileModel extends Question {
       }
     );
   }
+
+  protected setValueFromResult(arg: any) {
+    this.value = (this.value || []).concat(
+      arg.map((r: any) => {
+        return {
+          name: r.file.name,
+          type: r.file.type,
+          content: r.content,
+        };
+      })
+    );
+  }
   /**
    * Loads multiple files into the question.
    * @param files An array of [File](https://developer.mozilla.org/en-US/docs/Web/API/File) objects.
@@ -624,46 +727,7 @@ export class QuestionFileModel extends Question {
           fileReader.readAsDataURL(file);
         });
       } else {
-        if (this.survey) {
-          this.survey.uploadFiles(this, this.name, files, (arg1: any, arg2: any) => {
-            if (Array.isArray(arg1)) {
-              this.value = (this.value || []).concat(
-                arg1.map((r: any) => {
-                  return {
-                    name: r.file.name,
-                    type: r.file.type,
-                    content: r.content,
-                  };
-                })
-              );
-              if (Array.isArray(arg2)) {
-                arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
-                this.stateChanged("error");
-              }
-            }
-            if (arg1 === "success" && Array.isArray(arg2)) {
-              this.value = (this.value || []).concat(
-                arg2.map((r: any) => {
-                  return {
-                    name: r.file.name,
-                    type: r.file.type,
-                    content: r.content,
-                  };
-                })
-              );
-            }
-            if (arg1 === "error") {
-              if (typeof (arg2) === "string") {
-                this.errors.push(new UploadingFileError(arg2, this));
-              }
-              if (Array.isArray(arg2) && arg2.length > 0) {
-                arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
-              }
-              this.stateChanged("error");
-            }
-            this.stateChanged("loaded");
-          });
-        }
+        this.uploadFiles(files);
       }
     };
     if (this.allowMultiple) {
@@ -673,8 +737,9 @@ export class QuestionFileModel extends Question {
     }
   }
   private cameraValue: Camera;
+
   protected get camera(): Camera {
-    if(!this.cameraValue) {
+    if (!this.cameraValue) {
       this.cameraValue = new Camera();
     }
     return this.cameraValue;
@@ -730,37 +795,6 @@ export class QuestionFileModel extends Question {
   }
   protected getIsQuestionReady(): boolean {
     return super.getIsQuestionReady() && !this.isFileLoading;
-  }
-  protected onCheckForErrors(
-    errors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ) {
-    super.onCheckForErrors(errors, isOnValueChanged);
-    if (this.isUploading && this.waitForUpload) {
-      errors.push(
-        new UploadingFileError(
-          this.getLocalizationString("uploadingFile"),
-          this
-        )
-      );
-    }
-  }
-  protected stateChanged(state: string) {
-    if(this.currentState == state) {
-      return;
-    }
-    if (state === "loading") {
-      this.isUploading = true;
-    }
-    if (state === "loaded") {
-      this.isUploading = false;
-    }
-    if (state === "error") {
-      this.isUploading = false;
-    }
-    this.currentState = state;
-    this.onStateChanged.fire(this, { state: state });
-    this.onUploadStateChanged.fire(this, { state: state });
   }
   private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;
@@ -859,7 +893,7 @@ export class QuestionFileModel extends Question {
   }
 
   private onChange(src: any) {
-    if (!(<any>window)["FileReader"]) return;
+    if (!DomWindowHelper.isFileReaderAvailable()) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
     let allowCount = this.allowMultiple ? src.files.length : 1;
@@ -873,7 +907,7 @@ export class QuestionFileModel extends Question {
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
     this.stateChanged(this.isEmpty() ? "empty" : "loaded");
-    if(!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson) {
       this.loadPreview(newValue);
     }
   }
@@ -891,9 +925,8 @@ export class QuestionFileModel extends Question {
     super.updateElementCss(reNew);
     this.updateCurrentMode();
   }
-
-  endLoadingFromJson(): void {
-    super.endLoadingFromJson();
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
     this.updateCurrentMode();
     this.updateActionsVisibility();
     this.loadPreview(this.value);
@@ -919,7 +952,7 @@ export class QuestionFileModel extends Question {
   private calculatedItemWidth: number;
   private _width: number;
   public triggerResponsiveness(hard?: boolean): void {
-    if(hard) {
+    if (hard) {
       this.calculatedGapBetweenItems = undefined;
       this.calculatedItemWidth = undefined;
     }
@@ -927,20 +960,20 @@ export class QuestionFileModel extends Question {
   }
   protected processResponsiveness(_: number, availableWidth: number): boolean {
     this._width = availableWidth;
-    if(this.rootElement) {
-      if((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
+    if (this.rootElement) {
+      if ((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
         const fileListSelector = this.getFileListSelector();
         const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
-        if(fileListElement) {
-          this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(fileListElement).gap));
+        if (fileListElement) {
+          this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(fileListElement).gap));
           const firstVisibleItem = Array.from(fileListElement.children).filter((_, index) => this.isPreviewVisible(index))[0];
-          if(firstVisibleItem) {
-            this.calculatedItemWidth = Math.ceil(Number.parseFloat(window.getComputedStyle(firstVisibleItem).width));
+          if (firstVisibleItem) {
+            this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem).width));
           }
         }
       }
     }
-    if(this.calculatedGapBetweenItems && this.calculatedItemWidth) {
+    if (this.calculatedGapBetweenItems && this.calculatedItemWidth) {
       this.pageSize = this.calcAvailableItemsCount(availableWidth, this.calculatedItemWidth, this.calculatedGapBetweenItems);
       return true;
     }
@@ -959,7 +992,7 @@ export class QuestionFileModel extends Question {
     if (this.canDragDrop()) {
       event.preventDefault();
       this.isDragging = true;
-      this.dragCounter ++;
+      this.dragCounter++;
     }
   }
   onDragOver = (event: any) => {
@@ -981,8 +1014,8 @@ export class QuestionFileModel extends Question {
   }
   onDragLeave = (event: any) => {
     if (this.canDragDrop()) {
-      this.dragCounter --;
-      if(this.dragCounter === 0) {
+      this.dragCounter--;
+      if (this.dragCounter === 0) {
         this.isDragging = false;
       }
     }
@@ -993,15 +1026,15 @@ export class QuestionFileModel extends Question {
   }
   doClean = () => {
     if (this.needConfirmRemoveFile) {
-      confirmActionAsync(this.confirmRemoveAllMessage, () => { this.clearFilesCore(); });
+      confirmActionAsync(this.confirmRemoveAllMessage, () => { this.clearFilesCore(); }, undefined, this.getLocale(), this.survey.rootElement);
       return;
     }
     this.clearFilesCore();
   }
   private clearFilesCore(): void {
-    if(this.rootElement) {
+    if (this.rootElement) {
       const input = this.rootElement.querySelectorAll("input")[0];
-      if(input) {
+      if (input) {
         input.value = "";
       }
     }
@@ -1009,7 +1042,7 @@ export class QuestionFileModel extends Question {
   }
   doRemoveFile(data: any) {
     if (this.needConfirmRemoveFile) {
-      confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); });
+      confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); }, undefined, this.getLocale(), this.survey.rootElement);
       return;
     }
     this.removeFileCore(data);
@@ -1089,7 +1122,7 @@ export class FileLoader {
               name: value.name,
               type: value.type,
             };
-            downloadedCount ++;
+            downloadedCount++;
             if (downloadedCount === files.length) {
               this.callback("loaded", this.loaded);
             }

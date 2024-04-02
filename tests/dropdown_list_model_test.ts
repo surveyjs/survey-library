@@ -2,6 +2,7 @@ import { DropdownListModel } from "../src/dropdownListModel";
 import { ListModel } from "../src/list";
 import { PopupModel } from "../src/popup";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyModel } from "../src/survey";
 import { _setIsTouch } from "../src/utils/devices";
 
@@ -461,12 +462,12 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   assert.equal(question.value, undefined, "value not changed on Escape");
   assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible on Escape");
 
-  event.keyCode = 13;
+  event.keyCode = 40;
   dropdownListModel.keyHandler(event);
-  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first Enter");
-  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on first Enter");
-  assert.equal(question.value, undefined, "value not changed on first Enter");
-  assert.ok(dropdownListModel.popupModel.isVisible, "popup shown on first Enter");
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on keydown");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on keydown");
+  assert.equal(question.value, undefined, "value not changed on keydown");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup shown on keydown");
 
   event.keyCode = 13;
   dropdownListModel.keyHandler(event);
@@ -525,7 +526,7 @@ QUnit.test("dropdown incorrect popup open test", function (assert) {
   event.keyCode = 13;
   dropdownListModel.keyHandler(event);
   assert.equal(dropdownListModel.inputString, "item22", "inputString is item22 on Enter again");
-  assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible 2");
 });
 
 QUnit.test("dropdown incorrect popup open test: lazy load", function (assert) {
@@ -811,6 +812,28 @@ QUnit.test("Survey Markdown - dropdown and other option", function (assert) {
   assert.equal(dropdownListModel.hintString, "", "no hint again");
 });
 
+QUnit.test("Survey Markdown - dropdown and input string", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page 1");
+  var q1 = new QuestionDropdownModel("q1");
+  page.addQuestion(q1);
+  q1.choices = [
+    { value: 1, text: "#text1markdown" },
+    { value: 2, text: "#text2markdown" },
+  ];
+  survey.onTextMarkdown.add(function (survey, options) {
+    options.html = options.text.replace(/#/g, "*<hr>");
+  });
+
+  q1.value = 2;
+  const dropdownListModel = q1.dropdownListModel;
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(dropdownListModel.inputString, "*text2markdown");
+  dropdownListModel.changeSelectionWithKeyboard(true);
+  assert.equal(dropdownListModel.inputString, "*text1markdown");
+});
+
 QUnit.test("lazy loading clear value", function (assert) {
   const survey = new SurveyModel({
     questions: [{
@@ -835,7 +858,7 @@ QUnit.test("lazy loading clear value", function (assert) {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
   assert.equal(question.showSelectedItemLocText, true, "showSelectedItemLocText");
-  event.keyCode = 13;
+  event.keyCode = 40;
   dropdownListModel.keyHandler(event);
 
   assert.equal(dropdownListModel.inputStringRendered, "France", "inputString");
@@ -890,4 +913,91 @@ QUnit.test("DropdownListModel filterReadOnly", (assert) => {
   assert.notOk(dropdownListModel.filterReadOnly);
   dropdownListModel.onBlur({ stopPropagation: () => { } });
   assert.ok(dropdownListModel.filterReadOnly);
+});
+QUnit.test("DropdownListModel in panel filterString change callback", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "p",
+        templateElements: [
+          {
+            type: "dropdown",
+            name: "country",
+            choicesLazyLoadEnabled: true,
+            showOtherItem: true,
+          },
+        ],
+      },
+    ],
+    showQuestionNumbers: false,
+  });
+  const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  question.addPanel();
+
+  const dropdownListModel = (question.panels[0].elements[0] as QuestionDropdownModel).dropdownListModel;
+  dropdownListModel["listModel"].filterString = "abc";
+  assert.equal(dropdownListModel.filterString, "abc");
+});
+QUnit.test("DropdownListModel filter options", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      searchEnabled: true,
+      choices: [
+        "abc",
+        "abd",
+        "cab",
+        "efg"
+      ]
+    }]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  dropdownListModel.filterString = "ab";
+  const getfilteredItems = () => list.renderedActions.filter(item => list.isItemVisible(item));
+
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 3);
+
+  question.searchMode = "startsWith";
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 2);
+});
+
+QUnit.test("DropdownListModel filter event", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      searchEnabled: true,
+      choices: [
+        "abcd",
+        "abdd",
+        "cabd",
+        "efab"
+      ]
+    }]
+  });
+
+  survey.onChoicesSearch.add((sender, options) => {
+    options.filteredChoices = options.choices.filter(item => item.text.indexOf(options.filter) + options.filter.length == item.text.length);
+  });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  dropdownListModel.filterString = "ab";
+  const getfilteredItems = () => list.renderedActions.filter(item => list.isItemVisible(item));
+
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 1);
+
+  question.searchMode = "startsWith";
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 1);
 });

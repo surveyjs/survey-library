@@ -9,6 +9,8 @@ export var teluguStrings = {
   startSurveyText: "ప్రారంభించు",
   otherItemText: "ఇతరమైన(వివరించండి)",
   noneItemText: "ఎవరు కాదు",
+  refuseItemText: "సమాధానం ఇవ్వడానికి నిరాకరించండి",
+  dontKnowItemText: "తెలియదు",
   selectAllItemText: "అన్ని ఎంచుకో",
   progressText: "పేజీ{0}/{1}",
   indexText: "{1} {0}[మార్చు]",
@@ -25,6 +27,7 @@ export var teluguStrings = {
   requiredError: "దయచేసి ప్రశ్నకు జవాబు ఇవ్వండి",
   requiredErrorInPanel: "దయచేసి కనీసం ఒక్క ప్రశ్నకైనా జవాబు ఇవ్వండి",
   requiredInAllRowsError: "దయచేసి అన్ని వరుసలలో ఉన్న ప్రశ్నలకు జవాబు ఇవ్వండి",
+  eachRowUniqueError: "ప్రతి వరుసకు ఒక ప్రత్యేకమైన విలువ ఉండాలి.",
   numericError: "విలువను సంఖ్యలలో తెలియజేయండి",
   minError: "విలువ {0} కంటే తక్కువగా ఉండకూడదు.",
   maxError: "విలువ {0} కంటే ఎక్కువ ఉండకూడదు.",
@@ -42,6 +45,7 @@ export var teluguStrings = {
   urlRequestError: "విన్నపము {0} ని తప్పుగా గుర్తించింది {1}",
   urlGetChoicesError: "విన్నపము ఖాళీ డేటాని తిరిగిచ్చింది, లేదా path తప్పైన ది",
   exceedMaxSize: "ఫైల్ పరిమాణం{0} కంటే పెద్దదిగా ఉండకూడదు",
+  noUploadFilesHandler: "ఫైళ్లను అప్ లోడ్ చేయలేం. దయచేసి 'ఆన్ అప్ లోడ్ ఫైల్స్' ఈవెంట్ కొరకు ఒక హ్యాండ్లర్ ని జోడించండి.",
   otherRequiredError: "దయచేసి ఇతర విలువలను నమో దించండి",
   uploadingFile: "మీ ఫైల్ అప్లోడ్ అవుతున్నది దయచేసి కొన్ని సెకండ్లు వేచి ఉండండి మరియు మళ్లీ ప్రయత్నించండి",
   loadingFile: "లోడ్ అవుతున్నది",
@@ -56,6 +60,8 @@ export var teluguStrings = {
   emptyRowsText: "వరుసలు లేవు.",
   addPanel: "కొత్త దాన్ని చేర్పించండి",
   removePanel: "తీసేయండి",
+  showDetails: "వివరాలు చూపించు",
+  hideDetails: "వివరాలను దాచండి",
   choices_Item: "వస్తువులు",
   matrix_column: "కాలం ",
   matrix_row: "వరుస",
@@ -94,7 +100,9 @@ export var teluguStrings = {
   more: "ఎక్కువ",
   tagboxDoneButtonCaption: "సరే",
   selectToRankEmptyRankedAreaText: "అన్ని ఎంపికలు ర్యాంక్ చేయబడతాయి",
-  selectToRankEmptyUnrankedAreaText: "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి"
+  selectToRankEmptyUnrankedAreaText: "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి",
+  ok: "సరే",
+  cancel: "రద్దు"
 };
 
 surveyLocalization.locales["tel"] = teluguStrings;
@@ -124,4 +132,10 @@ surveyLocalization.localeNames["tel"] = "Telugu";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి"// takePhotoCaption: "Take Photo" => "ఫోటో తీసుకోండి"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "కెమెరాను ఉపయోగించి ఫోటో తీయడానికి దిగువ బటన్ మీద క్లిక్ చేయండి."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "కెమెరాను ఉపయోగించి ఫోటోను అప్ లోడ్ చేయడానికి లేదా తీయడానికి ఫైల్ ను డ్రాగ్ మరియు డ్రాప్ చేయండి లేదా ఎంచుకోండి."
-// replaceFileCaption: "Replace file" => "ఫైలు మార్చండి"
+// replaceFileCaption: "Replace file" => "ఫైలు మార్చండి"// eachRowUniqueError: "Each row must have a unique value." => "ప్రతి వరుసకు ఒక ప్రత్యేకమైన విలువ ఉండాలి."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "ఫైళ్లను అప్ లోడ్ చేయలేం. దయచేసి 'ఆన్ అప్ లోడ్ ఫైల్స్' ఈవెంట్ కొరకు ఒక హ్యాండ్లర్ ని జోడించండి."
+// showDetails: "Show Details" => "వివరాలు చూపించు"
+// hideDetails: "Hide Details" => "వివరాలను దాచండి"
+// ok: "OK" => "సరే"
+// cancel: "Cancel" => "రద్దు"// refuseItemText: "Refuse to answer" => "సమాధానం ఇవ్వడానికి నిరాకరించండి"
+// dontKnowItemText: "Don't know" => "తెలియదు"

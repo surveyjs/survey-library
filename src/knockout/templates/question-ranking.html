@@ -16,7 +16,10 @@
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.unRankingChoices.length === 0 -->
-        <div data-bind="css: cssClasses.containerPlaceholder, text: question.selectToRankEmptyRankedAreaText"></div>
+        <div data-bind="css: cssClasses.containerPlaceholder">
+            <!-- ko template: { name: 'survey-string', data: question.locSelectToRankEmptyRankedAreaText } -->
+            <!-- /ko -->
+        </div>
       <!-- /ko -->
     </div>
     <div data-bind="css: cssClasses.containersDivider"></div>
@@ -26,7 +29,10 @@
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.rankingChoices.length === 0 -->
-      <div data-bind="css: cssClasses.containerPlaceholder, text: question.selectToRankEmptyUnrankedAreaText"></div>
+      <div data-bind="css: cssClasses.containerPlaceholder">
+          <!-- ko template: { name: 'survey-string', data: question.locSelectToRankEmptyUnrankedAreaText } -->
+          <!-- /ko -->
+      </div>
       <!-- /ko -->
     </div>
   </div>

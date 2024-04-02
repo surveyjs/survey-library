@@ -9,6 +9,8 @@ export var malaySurveyStrings = {
   startSurveyText: "Mula",
   otherItemText: "Lain (terangkan)",
   noneItemText: "Tiada",
+  refuseItemText: "Enggan menjawab",
+  dontKnowItemText: "Tak tahu",
   selectAllItemText: "Pilih Semua",
   progressText: "Halaman {0} daripada {1}",
   indexText: "{0} {1}",
@@ -25,6 +27,7 @@ export var malaySurveyStrings = {
   requiredError: "Respons diperlukan.",
   requiredErrorInPanel: "Respons diperlukan: jawab sekurang-kurangnya satu soalan.",
   requiredInAllRowsError: "Respons diperlukan: jawab soalan dalam semua baris.",
+  eachRowUniqueError: "Setiap baris mesti mempunyai nilai yang unik.",
   numericError: "Nilai mestilah numerik.",
   minError: "Nilai tidak boleh kurang daripada {0}",
   maxError: "Nilai tidak boleh lebih besar daripada {0}",
@@ -42,6 +45,7 @@ export var malaySurveyStrings = {
   urlRequestError: "Permintaan mengembalikan ralat '{0}'. {1}",
   urlGetChoicesError: "Permintaan mengembalikan data kosong atau ciri 'laluan' salah",
   exceedMaxSize: "Saiz fail hendaklah tidak melebihi {0}.",
+  noUploadFilesHandler: "Fail tidak boleh dimuat naik. Sila tambah pengendali untuk acara 'onUploadFiles'.",
   otherRequiredError: "Respons diperlukan: masukkan nilai lain.",
   uploadingFile: "Fail anda sedang dimuat naik. Sila tunggu beberapa saat dan cuba lagi.",
   loadingFile: "Memuat...",
@@ -56,6 +60,8 @@ export var malaySurveyStrings = {
   emptyRowsText: "Tiada baris.",
   addPanel: "Tambah baharu",
   removePanel: "Alih keluar",
+  showDetails: "Tunjukkan Butiran",
+  hideDetails: "Sembunyikan Butiran",
   choices_Item: "item",
   matrix_column: "Lajur",
   matrix_row: "Baris",
@@ -94,7 +100,9 @@ export var malaySurveyStrings = {
   more: "Lebih banyak",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Semua pilihan disenaraikan",
-  selectToRankEmptyUnrankedAreaText: "Seret dan lepaskan pilihan di sini untuk meletakkannya"
+  selectToRankEmptyUnrankedAreaText: "Seret dan lepaskan pilihan di sini untuk meletakkannya",
+  ok: "OK",
+  cancel: "Batal"
 };
 
 surveyLocalization.locales["ms"] = malaySurveyStrings;
@@ -113,4 +121,11 @@ surveyLocalization.localeNames["ms"] = "melayu";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepaskan pilihan di sini untuk meletakkannya"// takePhotoCaption: "Take Photo" => "Ambil gambar"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Klik butang di bawah untuk mengambil gambar menggunakan kamera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Seret dan lepas atau pilih fail untuk memuat naik atau mengambil foto menggunakan kamera."
-// replaceFileCaption: "Replace file" => "Gantikan fail"
+// replaceFileCaption: "Replace file" => "Gantikan fail"// eachRowUniqueError: "Each row must have a unique value." => "Setiap baris mesti mempunyai nilai yang unik."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Fail tidak boleh dimuat naik. Sila tambah pengendali untuk acara 'onUploadFiles'."
+// showDetails: "Show Details" => "Tunjukkan Butiran"
+// hideDetails: "Hide Details" => "Sembunyikan Butiran"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Batal"
+// refuseItemText: "Refuse to answer" => "Enggan menjawab"
+// dontKnowItemText: "Don't know" => "Tak tahu"

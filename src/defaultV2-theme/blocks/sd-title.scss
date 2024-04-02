@@ -5,7 +5,6 @@
   color: $foreground;
   flex-direction: row;
   white-space: normal;
-  word-break: break-word;
 }
 
 .sd-title.sd-container-modern__title {
@@ -16,6 +15,10 @@
   font-family: $font-family;
   gap: calcSize(4);
   box-shadow: 0px 2px 0px $primary;
+
+  .sd-logo.sv-logo--right {
+    margin-left: auto;
+  }
 
   .sd-logo__image {
     margin-top: calcSize(1);

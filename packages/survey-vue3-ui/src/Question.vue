@@ -9,6 +9,7 @@
     :aria-required="element.ariaRequired"
     :aria-invalid="element.ariaInvalid"
     :aria-labelledby="element.ariaLabelledBy"
+    :aria-describedby="element.ariaDescribedBy"
     :aria-expanded="
       element.ariaExpanded === null
         ? undefined
@@ -26,40 +27,39 @@
       :element="element"
       :css="css"
     />
-    <div
-      :class="getContentClass(element) || undefined"
-      v-show="!element.isCollapsed"
-      role="presentation"
-    >
-      <survey-errors
-        v-if="hasErrorsOnTop"
-        :element="element"
-        :location="'top'"
-      />
-
-      <component
-        :is="contentComponentName"
-        v-if="!element.isCollapsed"
-        v-bind="contentComponentData"
-      />
-      <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
-        <div>
-          <survey-string :locString="element.locCommentText" />
-        </div>
-        <survey-question-comment :question="element" />
-      </div>
-      <survey-errors
-        v-if="hasErrorsOnBottom"
-        :element="element"
-        :location="'bottom'"
-      />
+    <component :is="contentComponentName" v-bind="contentComponentData">
       <div
-        v-if="element.hasDescriptionUnderInput"
-        :class="element.cssClasses.descriptionUnderInput"
+        :class="getContentClass(element) || undefined"
+        v-show="element.renderedIsExpanded"
+        role="presentation"
       >
-        <survey-string :locString="element.locDescription" />
+        <survey-errors
+          v-if="hasErrorsOnTop"
+          :element="element"
+          :location="'top'"
+        />
+
+        <component :is="componentName" :question="element" />
+        <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
+          <div>
+            <survey-string :locString="element.locCommentText" />
+          </div>
+          <survey-question-comment :question="element" />
+        </div>
+        <survey-errors
+          v-if="hasErrorsOnBottom"
+          :element="element"
+          :location="'bottom'"
+        />
+        <div
+          v-if="element.hasDescriptionUnderInput"
+          :class="element.cssClasses.descriptionUnderInput"
+          :id="element.ariaDescriptionId"
+        >
+          <survey-string :locString="element.locDescription" />
+        </div>
       </div>
-    </div>
+    </component>
     <survey-element-header
       v-if="element.hasTitleOnBottom"
       :element="element"
@@ -124,15 +124,11 @@ const componentName = computed(() => {
 });
 const contentComponentName = computed(() => {
   return (
-    (
-      props.element.survey as SurveyModel
-    ).getQuestionContentWrapperComponentName(props.element) ||
-    componentName.value
-  );
+    props.element.survey as SurveyModel
+  ).getQuestionContentWrapperComponentName(props.element);
 });
 const contentComponentData = computed(() => {
   return {
-    componentName: componentName.value,
     componentData: {
       question: props.element,
       data: (

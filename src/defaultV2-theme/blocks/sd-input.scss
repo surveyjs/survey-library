@@ -1,4 +1,5 @@
 .sd-input {
+  @include useEditorFontSize;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -12,10 +13,15 @@
   color: $font-editorfont-color;
   font-size: $font-editorfont-size;
   background-color: $editor-background;
-  box-shadow: $shadow-inner;
   border: none;
   border-radius: $editor-corner-radius;
   text-align: start;
+  box-shadow: $shadow-inner, 0 0 0 0px $primary;
+  transition: box-shadow $transition-duration;
+}
+
+.sd-input:focus {
+  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
 
 .sd-input.sd-input:focus {
@@ -57,10 +63,6 @@ textarea {
   color: $foreground;
 }
 
-.sd-input:focus {
-  box-shadow: 0 0 0 2px $primary;
-}
-
 .sd-input--error {
   background-color: $red-light;
 }
@@ -74,8 +76,13 @@ textarea {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .sd-text__character-counter:focus-within {
   padding-inline-end: calcSize(8);
+}
+
+.sd-text__character-counter.sd-text__character-counter--big:focus-within {
+  padding-inline-end: calcSize(11);
 }
 
 .sd-remaining-character-counter {
@@ -126,6 +133,7 @@ textarea {
 .sd-input[type="email"],
 .sd-input[type="color"],
 .sd-input[type="range"] {
+  @include useEditorFontSize;
   box-sizing: content-box;
   width: calc(100% - 4 * #{$base-unit});
   height: multiply(1.5, $font-editorfont-size);

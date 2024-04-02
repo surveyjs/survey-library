@@ -5,6 +5,10 @@
 
 <script type="text/html" id="survey-content-template">
   <div data-bind="css: rootCss, elementStyle: themeVariables">
+    <!-- ko if: needRenderIcons -->
+      <!-- ko component: { name: 'sv-svg-bundle'} -->
+      <!-- /ko -->
+    <!-- /ko -->
     <div data-bind="css: wrapperFormCss">
       <!-- ko if: !!renderBackgroundImage -->
       <div data-bind="css: css.rootBackgroundImage, elementStyle: backgroundImageStyle"></div>
@@ -20,17 +24,20 @@
               <!-- ko if: isShowingPage -->
               <div data-bind="css: $data.bodyContainerCss">
                   <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "left" } } --><!-- /ko -->
-                  <div data-bind="css: bodyCss, style:{maxWidth: renderedWidth}, attr: { id: activePage ? activePage.id : '' }">
-                        <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "contentTop" } } --><!-- /ko -->
-                        <!-- ko if: activePage -->
-                        <!-- ko template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage } -->
-                        <!-- /ko -->
-                        <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
-                        <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
-                        <!-- /ko -->
-                        <!-- /ko -->
-                        <!-- /ko -->
-                        <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "contentBottom" } } --><!-- /ko -->
+                  <div class="sv-components-column sv-components-column--expandable">
+                    <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "center" } } --><!-- /ko -->
+                    <div data-bind="css: bodyCss, style:{maxWidth: renderedWidth}, attr: { id: activePage ? activePage.id : '' }">
+                          <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "contentTop" } } --><!-- /ko -->
+                          <!-- ko if: activePage -->
+                          <!-- ko template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage } -->
+                          <!-- /ko -->
+                          <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
+                          <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
+                          <!-- /ko -->
+                          <!-- /ko -->
+                          <!-- /ko -->
+                          <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "contentBottom" } } --><!-- /ko -->
+                    </div>
                   </div>
                   <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "right" } } --><!-- /ko -->
               </div>

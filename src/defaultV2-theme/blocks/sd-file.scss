@@ -1,3 +1,5 @@
+@import "../variables.scss";
+
 .sd-file {
   position: relative;
   font-size: calcFontSize(1);
@@ -48,8 +50,14 @@
   box-sizing: border-box;
   justify-content: center;
   align-items: center;
-  padding: 0 calcSize(8);
   border: 1px dashed $border;
+  container-type: inline-size;
+}
+
+.sd-file--answered {
+  .sd-file__decorator {
+    container-type: unset;
+  }
 }
 
 .sd-file__decorator--drag {
@@ -64,12 +72,41 @@
 }
 
 .sd-file__drag-area-placeholder {
+  @include useEditorFontSize;
   text-align: center;
-  word-break: break-word;
   white-space: normal;
   color: $font-questionplaceholder-color;
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
+  padding: 0 calcSize(8);
+}
+
+@container (max-width: #{$sd-panel-normal-min-width}) {
+  .sd-file__drag-area-placeholder {
+    padding: 0 calcSize(1);
+  }
+}
+
+@container (max-width: #{$sd-panel-medium-min-width}) {
+  .sd-file__drag-area-placeholder {
+    display: none;
+  }
+
+  .sd-file__decorator .sd-action {
+    padding: calcSize(1);
+
+    .sv-svg-icon {
+      margin-left: 0;
+    }
+  }
+
+  .sd-file__decorator .sd-file__actions-container {
+    flex-direction: column;
+
+    span {
+      display: none;
+    }
+  }
 }
 
 .sd-root-modern--mobile {
@@ -100,6 +137,7 @@
 
 .sd-file__wrapper {
   width: max-content;
+  max-width: 100%;
 }
 
 .sd-question--answered {
@@ -110,6 +148,8 @@
 
 .sd-file__actions-container {
   margin-top: calcSize(0.5);
+  flex-wrap: wrap;
+  justify-content: center;
 
   .sv-action--hidden {
     display: none;
@@ -129,6 +169,7 @@
 }
 
 .sd-file--chose-btn--as .sd-file--answered .sd-file__actions-container {
+  @include useEditorFontSize;
   inset-inline-end: calc(multiply(1.5, $font-editorfont-size) + calcSize(5));
 }
 
@@ -162,11 +203,7 @@
   img:hover+.sd-file__remove-file-button,
   svg:hover+.sd-file__remove-file-button,
   .sd-file__remove-file-button:hover {
-    display: block;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    opacity: 1;
   }
 }
 
@@ -196,7 +233,13 @@
 }
 
 .sd-file__remove-file-button {
-  display: none;
+  display: block;
+  opacity: 0;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity $transition-duration;
 }
 
 .sd-file__decorator--error {
@@ -364,4 +407,9 @@
     top: 50%;
     transform: translate(-50%, -50%);
   }
+}
+
+.sd-file__choose-file-btn--disabled {
+  opacity: 0.25;
+  cursor: default;
 }

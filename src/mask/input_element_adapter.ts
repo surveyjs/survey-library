@@ -4,9 +4,15 @@ import { ITextInputParams } from "./mask_utils";
 export class InputElementAdapter {
   private prevUnmaskedValue: string = undefined;
 
-  constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value: string = "") {
-    this.inputElement.value = inputMaskInstance.getMaskedValue(value);
-    this.prevUnmaskedValue = value;
+  constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value?: string) {
+    let _value: any = value;
+    if(_value === null || _value === undefined) {
+      _value = "";
+    } else if(typeof _value !== "string") {
+      _value = _value.toString();
+    }
+    this.inputElement.value = inputMaskInstance.getMaskedValue(_value);
+    this.prevUnmaskedValue = _value;
 
     inputMaskInstance.onPropertyChanged.add(this.inputMaskInstancePropertyChangedHandler);
     this.addInputEventListener();

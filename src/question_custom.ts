@@ -18,6 +18,8 @@ import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
+import { SurveyError } from "./survey-error";
+import { CustomError } from "./error";
 
 /**
  * An interface used to create custom question types.
@@ -243,6 +245,12 @@ export interface ICustomQuestionTypeConfiguration {
    * @see questionJSON
    */
   createQuestion?: any;
+  /**
+   * A function that allows you to display different error texts based on conditions.
+   * @param question A custom question. Use the `question.value` property to access the question's value.
+   * @returns An error text.
+   */
+  getErrorText?: (question: Question) => string;
   valueToQuestion?: (val: any) => any;
   valueFromQuestion?: (val: any) => any;
   getValue?: (val: any) => any;
@@ -309,6 +317,10 @@ export class ComponentQuestionJSON {
   public onValueChanging(question: Question, name: string, newValue: any): any {
     if (!this.json.onValueChanging) return newValue;
     return this.json.onValueChanging(question, name, newValue);
+  }
+  public onGetErrorText(question: Question): string {
+    if (!this.json.getErrorText) return undefined;
+    return this.json.getErrorText(question);
   }
   public onItemValuePropertyChanged(
     question: Question,
@@ -598,6 +610,15 @@ export abstract class QuestionCustomModelBase extends Question
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);
     this.updateElementCss();
+  }
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged);
+    if (!!this.customQuestion) {
+      const text = this.customQuestion.onGetErrorText(this);
+      if(!!text) {
+        errors.push(new CustomError(text, this));
+      }
+    }
   }
   //ISurveyImpl
   getSurveyData(): ISurveyData {

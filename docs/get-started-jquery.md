@@ -13,12 +13,9 @@ This step-by-step tutorial will help you get started with SurveyJS Form Library 
 
 As a result, you will create a survey displayed below:
 
-<p class="codepen" data-height="600" data-default-tab="js,result" data-slug-hash="QWqbyPE" data-user="romantsukanov" style="height: 443px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
-  <span>See the Pen <a href="https://codepen.io/romantsukanov/pen/QWqbyPE">
-  SurveyJS - Add a Survey to a jQuery Application</a> by RomanTsukanov (<a href="https://codepen.io/romantsukanov">@romantsukanov</a>)
-  on <a href="https://codepen.io">CodePen</a>.</span>
-</p>
-<script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
+<iframe src="/proxy/github/code-examples/get-started-library/knockout/index.html"
+    style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
+></iframe>
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/jquery (linkStyle))
 

@@ -1576,3 +1576,14 @@ QUnit.test("Generate empty rating in column", (assert) => {
   assert.equal(col1.itemComponent, "sv-rating-item");
   assert.equal(col2.itemComponent, "sv-rating-item-star");
 });
+QUnit.test("supportGoNextPageAutomatic", (assert) => {
+  const q1 = new QuestionRatingModel("q1");
+  q1.value = 1;
+  assert.equal(q1.supportGoNextPageAutomatic(), false, "#1");
+  q1.onMouseDown();
+  assert.equal(q1.supportGoNextPageAutomatic(), true, "#2");
+  q1.value = 2;
+  assert.equal(q1.supportGoNextPageAutomatic(), false, "#3");
+  q1.displayMode = "dropdown";
+  assert.equal(q1.supportGoNextPageAutomatic(), true, "#4");
+});

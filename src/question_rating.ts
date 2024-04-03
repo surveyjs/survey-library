@@ -409,7 +409,7 @@ export class QuestionRatingModel extends Question {
     return this.inputId + "_" + index;
   }
   supportGoNextPageAutomatic(): boolean {
-    return this.isMouseDown === true;
+    return this.isMouseDown === true || this.renderAs === "dropdown";
   }
   public supportOther(): boolean {
     return false;

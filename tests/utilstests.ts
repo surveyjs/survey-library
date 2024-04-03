@@ -412,10 +412,13 @@ QUnit.test("Test animation utils: leave animation", (assert) => {
   assert.equal(log, "->beforeRunAnimation->afterRunAnimation->updated");
   assert.ok(element.classList.contains("leave"));
   setTimeout(() => {
-    assert.notOk(element.classList.contains("leave"));
-    window.requestAnimationFrame = oldRequestAnimationFrame;
-    done();
-  }, 10);
+    setTimeout(() => {
+      assert.notOk(element.classList.contains("leave"));
+      window.requestAnimationFrame = oldRequestAnimationFrame;
+      element.remove();
+      done();
+    });
+  });
 });
 
 QUnit.test("Test animation utils: group enter animation", (assert) => {
@@ -508,13 +511,15 @@ QUnit.test("Test animation utils: group leave animation", (assert) => {
   assert.ok(htmlElements[2].classList.contains("leave_2"));
 
   setTimeout(() => {
-    assert.notOk(htmlElements[0].classList.contains("leave_0"));
-    assert.notOk(htmlElements[1].classList.contains("leave_1"));
-    assert.notOk(htmlElements[2].classList.contains("leave_2"));
-    htmlElements.forEach(el => el.remove());
-    window.requestAnimationFrame = oldRequestAnimationFrame;
-    done();
-  }, 10);
+    setTimeout(() => {
+      assert.notOk(htmlElements[0].classList.contains("leave_0"));
+      assert.notOk(htmlElements[1].classList.contains("leave_1"));
+      assert.notOk(htmlElements[2].classList.contains("leave_2"));
+      htmlElements.forEach(el => el.remove());
+      window.requestAnimationFrame = oldRequestAnimationFrame;
+      done();
+    });
+  });
 });
 
 QUnit.test("Test animation property: boolean", (assert) => {

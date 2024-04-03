@@ -1074,7 +1074,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       },
       getAnimatedElement: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
-        return this.getWrapperElement()?.querySelector(classesToSelector(cssClasses.content));
+        if(cssClasses.content) {
+          const selector = classesToSelector(cssClasses.content);
+          if(selector) {
+            return this.getWrapperElement()?.querySelector(selector);
+          }
+        }
+        return undefined;
       },
       isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed && !this.isDesignMode
     };

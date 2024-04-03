@@ -61,9 +61,10 @@
 
 .sv-ranking-item--disabled.sv-ranking-item--disabled,
 .sv-ranking-item--readonly.sv-ranking-item--readonly,
-.sv-ranking-item--preview,
-.sv-ranking-item--preview {
+.sv-ranking-item--preview.sv-ranking-item--preview {
   cursor: initial;
+  user-select: initial;
+    -webkit-user-select: initial;
 
   .sv-ranking-item__icon-container.sv-ranking-item__icon-container {
     .sv-ranking-item__icon.sv-ranking-item__icon {

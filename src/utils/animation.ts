@@ -1,4 +1,4 @@
-import { DomWindowHelper } from "src/global_variables_utils";
+import { DomWindowHelper } from "../global_variables_utils";
 import { debounce } from "./taskmanager";
 
 export interface AnimationOptions{

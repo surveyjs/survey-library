@@ -110,8 +110,7 @@
   transition: none;
 
   &.sd-boolean--checked .sd-boolean__thumb {
-    border: 2px solid $foreground;
-    box-shadow: none;
+    box-shadow: inset 0px 0px 0px 2px $foreground;
     transition: none;
     color: $foreground;
   }

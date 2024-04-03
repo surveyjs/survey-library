@@ -1,3 +1,4 @@
+import { DomWindowHelper } from "src/global_variables_utils";
 import { debounce } from "./taskmanager";
 
 export interface AnimationOptions{
@@ -76,8 +77,8 @@ export class AnimationUtils {
         if(isCancel) {
           element.classList.remove(options.cssClass);
         } else {
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
+          DomWindowHelper.requestAnimationFrame(() => {
+            DomWindowHelper.requestAnimationFrame(() => {
               element.classList.remove(options.cssClass);
             });
           });
@@ -110,11 +111,11 @@ export class AnimationPropertyUtils extends AnimationUtils {
       this.beforeAnimationRun(element, options);
       this.runEnterAnimation(element, options);
     };
-    requestAnimationFrame(() => {
+    DomWindowHelper.requestAnimationFrame(() => {
       if(getElement()) {
         callback();
       } else {
-        requestAnimationFrame(callback);
+        DomWindowHelper.requestAnimationFrame(callback);
       }
     });
   }
@@ -127,7 +128,7 @@ export class AnimationPropertyUtils extends AnimationUtils {
 export class AnimationGroupUtils<T> extends AnimationUtils {
   public onEnter(getElement: (el: T) => HTMLElement, getOptions: (el: T) => AnimationOptions, elements: Array<T>): void {
     if(elements.length == 0) return;
-    requestAnimationFrame(() => {
+    DomWindowHelper.requestAnimationFrame(() => {
       const callback = () => {
         elements.forEach((el) => {
           this.beforeAnimationRun(getElement(el), getOptions(el));
@@ -137,7 +138,7 @@ export class AnimationGroupUtils<T> extends AnimationUtils {
         });
       };
       if(!getElement(elements[0])) {
-        requestAnimationFrame(callback);
+        DomWindowHelper.requestAnimationFrame(callback);
       } else {
         callback();
       }

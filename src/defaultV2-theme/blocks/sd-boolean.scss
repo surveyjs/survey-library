@@ -129,12 +129,15 @@
     color: $foreground;
   }
 
-  // &.sd-boolean--checked {
-  //   .sd-boolean__label--false {
-  //     padding-left: 0;
-  //   }
-  // }
-
+  &.sd-boolean--checked {
+    .sd-boolean__thumb {
+        margin-left: auto;
+    }
+    .sd-boolean__label--false {
+      padding-left: 0;
+    }
+  }
+  
   .sd-checkbox__label--preview {
     color: $foreground;
   }

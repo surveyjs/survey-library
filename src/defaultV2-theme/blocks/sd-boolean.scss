@@ -109,7 +109,7 @@
   box-shadow: none;
   transition: none;
 
-  &.sd-boolean--checked .sd-boolean__thumb {
+  .sd-boolean__thumb {
     box-shadow: inset 0px 0px 0px 2px $foreground;
     transition: none;
     color: $foreground;
@@ -122,12 +122,18 @@
   transition: none;
   background: transparent;
 
-  &.sd-boolean--checked .sd-boolean__thumb {
+  .sd-boolean__thumb {
     border: 1px solid $foreground;
     box-shadow: none;
     transition: none;
     color: $foreground;
   }
+
+  // &.sd-boolean--checked {
+  //   .sd-boolean__label--false {
+  //     padding-left: 0;
+  //   }
+  // }
 
   .sd-checkbox__label--preview {
     color: $foreground;

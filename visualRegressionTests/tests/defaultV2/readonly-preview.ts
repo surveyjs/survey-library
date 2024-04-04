@@ -572,11 +572,11 @@ frameworks.forEach(framework => {
         ]
       });
 
-      await takeElementScreenshot("readonly-matrix-single-alt-rows.png", Selector(".sd-question__content"), t, comparer);
+      await takeElementScreenshot("readonly-matrix-single-alt-rows.png", Selector(".sd-question"), t, comparer);
       await ClientFunction(() => {
         (<any>window).survey.showPreview();
       })();
-      await takeElementScreenshot("preview-matrix-single-alt-rows.png", Selector(".sd-question__content"), t, comparer);
+      await takeElementScreenshot("preview-matrix-single-alt-rows.png", Selector(".sd-question"), t, comparer);
     });
   });
 

@@ -50,6 +50,79 @@ QUnit.test("validationNumber: matchWholeMask is true", function(assert) {
   assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "456" }, true), false, "#6");
 });
 
+QUnit.test("validationNumber: matchWholeMask is false - one limit", function (assert) {
+  let maskInstance = new InputMaskNumeric();
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "" }, false), true, "#1");
+  assert.equal(maskInstance.validateNumber({ integralPart: "", fractionalPart: "123" }, false), true, "#2");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "456" }, false), true, "#3");
+
+  maskInstance.max = 100;
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "" }, false), true, "#4");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "" }, false), true, "#5");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "" }, false), false, "#6");
+
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "", isNegative: true }, false), true, "#4.1");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "", isNegative: true }, false), true, "#5.1");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "", isNegative: true }, false), true, "#6.1");
+
+  maskInstance.max = -100;
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "" }, false), false, "#4x");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "" }, false), false, "#5x");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "" }, false), false, "#6x");
+
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "", isNegative: true }, false), true, "#4.1x");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "", isNegative: true }, false), true, "#5.1x");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "", isNegative: true }, false), true, "#6.1x");
+
+  maskInstance.max = undefined as any;
+  maskInstance.min = 100;
+
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "" }, false), true, "#4.2");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "" }, false), true, "#5.2");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "" }, false), true, "#6.2");
+
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "", isNegative: true }, false), false, "#4.3");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "", isNegative: true }, false), false, "#5.3");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "", isNegative: true }, false), false, "#6.3");
+
+  maskInstance.min = -100;
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "" }, false), true, "#4.2n");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "" }, false), true, "#5.2n");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "" }, false), true, "#6.2n");
+
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "", isNegative: true }, false), true, "#4.3n");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "", isNegative: true }, false), true, "#5.3n");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "", isNegative: true }, false), false, "#6.3n");
+
+});
+
+QUnit.test("validationNumber: matchWholeMask is false - both limits", function (assert) {
+  let maskInstance = new InputMaskNumeric();
+  maskInstance.max = 200;
+  maskInstance.min = 100;
+
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "" }, false), true, "#1");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "" }, false), true, "#2");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "" }, false), true, "#3");
+  assert.equal(maskInstance.validateNumber({ integralPart: "1234", fractionalPart: "" }, false), false, "#4");
+
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "", isNegative: true }, false), false, "#5");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "", isNegative: true }, false), false, "#6");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "", isNegative: true }, false), false, "#7");
+
+  maskInstance.max = 100;
+  maskInstance.min = -100;
+
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "" }, false), true, "#1.1");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "" }, false), true, "#2.1");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "" }, false), false, "#3.1");
+  assert.equal(maskInstance.validateNumber({ integralPart: "1234", fractionalPart: "" }, false), false, "#4.1");
+
+  assert.equal(maskInstance.validateNumber({ integralPart: "1", fractionalPart: "", isNegative: true }, false), true, "#5.1");
+  assert.equal(maskInstance.validateNumber({ integralPart: "12", fractionalPart: "", isNegative: true }, false), true, "#6.1");
+  assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "", isNegative: true }, false), false, "#7.1");
+});
+
 QUnit.test("get numeric masked valid text", function(assert) {
   const maskInstance = new InputMaskNumeric();
   assert.equal(maskInstance.getNumberMaskedValue(123), "123");

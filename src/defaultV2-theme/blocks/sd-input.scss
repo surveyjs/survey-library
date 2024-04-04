@@ -46,17 +46,9 @@ textarea {
 
 .sd-input--readonly {
   background-color: $background-dark;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
 }
 
 .sd-input.sd-input--preview {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
   background: none;
   box-shadow: none;
   transition: none;

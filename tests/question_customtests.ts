@@ -3109,3 +3109,32 @@ QUnit.test("Composite: validate", function (assert) {
   assert.equal(q2.errors.length, 0, "q2 errors #3");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: update questions on a value change", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2" },
+      { type: "text", name: "q3" }
+    ],
+    onSetQuestionValue: (question, newValue: any): void => {
+      if(!!newValue && !!newValue.q3) {
+        question.contentPanel.getQuestionByName("q2").choices = [newValue.q3];
+      }
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" },
+    ]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const internalQ2 = q1.contentPanel.getQuestionByName("q2");
+  survey.data = { q1: { q1: 1, q3: 2 } };
+  assert.equal(internalQ2.choices.length, 1, "choices.length #1");
+  assert.equal(internalQ2.choices[0].value, 2, "choices[0].value #1");
+  q1.value = { q1: 1, q3: 3 };
+  assert.equal(internalQ2.choices.length, 1, "choices.length #2");
+  assert.equal(internalQ2.choices[0].value, 3, "choices[0].value #2");
+  ComponentCollection.Instance.clear();
+});

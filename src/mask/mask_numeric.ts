@@ -153,7 +153,7 @@ export class InputMaskNumeric extends InputMaskBase {
     return value;
   }
 
-  public validateNumber(number: INumericalComposition): boolean {
+  public validateNumber(number: INumericalComposition, matchWholeMask: boolean): boolean {
     const min = this.min || Number.MIN_SAFE_INTEGER;
     const max = this.max || Number.MAX_SAFE_INTEGER;
 
@@ -162,7 +162,11 @@ export class InputMaskNumeric extends InputMaskBase {
       if(Number.isNaN(value)) {
         return true;
       }
-      return value >= min && value <= max;
+      if (!matchWholeMask) {
+        return value >= 0 && value <= max || value < 0 && value >= min;
+      } else {
+        return value >= min && value <= max;
+      }
     }
     return true;
   }
@@ -179,7 +183,7 @@ export class InputMaskNumeric extends InputMaskBase {
       const currentChar = input[inputIndex];
       switch(currentChar) {
         case "-": {
-          if(this.allowNegativeValues) {
+          if (this.allowNegativeValues && (this.min === undefined || this.min < 0)) {
             minusCharCount++;
           }
           break;
@@ -217,6 +221,9 @@ export class InputMaskNumeric extends InputMaskBase {
   public getNumberMaskedValue(src: string | number, matchWholeMask: boolean = false): string {
     const input = (src === undefined || src === null) ? "" : src;
     const parsedNumber = this.parseNumber(input);
+    if (!this.validateNumber(parsedNumber, matchWholeMask)) {
+      return null;
+    }
     const displayText = this.displayNumber(parsedNumber, true, matchWholeMask);
     return displayText;
   }
@@ -239,7 +246,7 @@ export class InputMaskNumeric extends InputMaskBase {
     const src = leftPart + rightPart;
     const parsedNumber = this.parseNumber(src);
 
-    if(!this.validateNumber(parsedNumber)) {
+    if (!this.validateNumber(parsedNumber, false)) {
       return result;
     }
 

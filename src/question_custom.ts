@@ -251,6 +251,7 @@ export interface ICustomQuestionTypeConfiguration {
    * @returns An error text.
    */
   getErrorText?: (question: Question) => string;
+  onSetQuestionValue?: (question: Question, newValue: any) => void;
   valueToQuestion?: (val: any) => any;
   valueFromQuestion?: (val: any) => any;
   getValue?: (val: any) => any;
@@ -301,6 +302,10 @@ export class ComponentQuestionJSON {
   public onUpdateQuestionCssClasses(question: Question, element: Question, css: any): void {
     if (!this.json.onUpdateQuestionCssClasses) return;
     this.json.onUpdateQuestionCssClasses(question, element, css);
+  }
+  public onSetQuestionValue(question: Question, newValue: any): void {
+    if (!this.json.onSetQuestionValue) return;
+    this.json.onSetQuestionValue(question, newValue);
   }
   public onPropertyChanged(
     question: Question,
@@ -606,6 +611,9 @@ export abstract class QuestionCustomModelBase extends Question
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateElementCss();
+    if (!!this.customQuestion) {
+      this.customQuestion.onSetQuestionValue(this, newValue);
+    }
   }
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);

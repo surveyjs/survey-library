@@ -208,6 +208,35 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("preview-rating-smileys.png", Selector(".sd-question__content"), t, comparer);
     });
   });
+  test("Rating Smileys colored ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "rating",
+            "name": "nps-score",
+            "title": "Rating",
+            "rateType": "smileys",
+            "rateMin": 1,
+            "rateMax": 5,
+            "minRateDescription": "Not Satisfied",
+            "maxRateDescription": "Completely Satisfied",
+            "defaultValue": 4,
+            "readOnly": true,
+            "scaleColorMode": "colored",
+          }
+        ]
+      });
+      await takeElementScreenshot("readonly-rating-smileys-colored.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-rating-smileys-colored.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
   test("Rating Smileys and Stars in matrix ReadOnly and Preview", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);

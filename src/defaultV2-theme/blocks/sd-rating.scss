@@ -343,6 +343,14 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   opacity: 1;
 }
 
+.sd-rating__item-smiley--scale-colored {
+
+  &.sd-rating__item-smiley--selected,
+  &.sd-rating__item-smiley--readonly,
+  &.sd-rating__item-smiley--preview {
+    opacity: 1;
+  }
+}
 .sd-rating__item-star {
   position: relative;
   width: calcSize(6);

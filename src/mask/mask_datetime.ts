@@ -211,7 +211,7 @@ export class InputMaskDateTime extends InputMaskPattern {
     return dateTime.year >= parseInt(minYearPart) && dateTime.year <= parseInt(maxYearPart);
   }
 
-  private isDateValid(dateTime: IDateTimeComposition, skipMin = false, skipMax = false): boolean {
+  private isDateValid(dateTime: IDateTimeComposition): boolean {
     const min = dateTime.min;
     const max = dateTime.max;
     const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear());
@@ -224,7 +224,7 @@ export class InputMaskDateTime extends InputMaskPattern {
     date.getDate() === day &&
     date.getMonth() === monthIndex &&
     date.getFullYear() === year &&
-    (date >= dateTime.min || skipMin) && (date <= dateTime.max || skipMax);
+    date >= dateTime.min && date <= dateTime.max;
   }
 
   private getPlaceholder(lexemLength: number, str: string, char: string) {

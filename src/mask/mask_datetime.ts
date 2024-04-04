@@ -248,9 +248,30 @@ export class InputMaskDateTime extends InputMaskPattern {
     } else if (propertyName === "year" && !this.isYearValid(dateTime)) {
       data = data.slice(0, data.length - 1);
     } else if((propertyName === "day" && parseInt(data[0]) > 3) || (propertyName === "month" && parseInt(data[0]) > 1)) {
+      if(this.isDateValid(dateTime)) {
+        newItem.isCompleted = true;
+      } else {
+        data = data.slice(0, data.length - 1);
+      }
+    } else if((propertyName === "day" && parseInt(data[0]) <= 3 && parseInt(data[0]) !== 0) || (propertyName === "month" && parseInt(data[0]) <= 1 && parseInt(data[0]) !== 0)) {
+      const prevValue = (dateTime as any)[propertyName];
+      let tempValue = prevValue * 10;
+      const maxValue = propertyName === "month" ? 3 : 10;
       newItem.isCompleted = true;
+
+      for(let index = 0; index < maxValue; index++) {
+        (dateTime as any)[propertyName] = tempValue + index;
+        if(this.isDateValid(dateTime)) {
+          newItem.isCompleted = false;
+          break;
+        }
+      }
+      (dateTime as any)[propertyName] = prevValue;
+      if(newItem.isCompleted && !this.isDateValid(dateTime)) {
+        data = data.slice(0, data.length - 1);
+      }
     }
-    newItem.value = data;
+    newItem.value = data || undefined;
     (dateTime as any)[propertyName] = parseInt(data) > 0 ? parseInt(data) : undefined;
   }
 
@@ -349,36 +370,6 @@ export class InputMaskDateTime extends InputMaskPattern {
     this.inputDateTimeData.forEach(itemData => this.updateInputDateTimeData(itemData, tempDateTime));
     const result = this.getFormatedString(matchWholeMask);
     return result;
-  }
-
-  private getPartsOld(input: string): Array<string> {
-    const inputParts: Array<string> = [];
-    const separatorLexems = this.lexems.filter(l => l.type === "separator");
-
-    let separatorLexemsIndex = 0;
-    do {
-      if (!separatorLexems[separatorLexemsIndex]) {
-        if (!!input) {
-          inputParts.push(input);
-          input = "";
-        }
-        break;
-      }
-
-      let separatorCharIndex = input.indexOf(separatorLexems[separatorLexemsIndex].value);
-      if (separatorCharIndex !== -1) {
-        const part = input.slice(0, separatorCharIndex);
-        if (!!part) {
-          inputParts.push(part);
-        }
-        input = input.slice(separatorCharIndex + 1);
-      } else {
-
-      }
-      separatorLexemsIndex++;
-    } while (!!input);
-
-    return inputParts;
   }
 
   private getParts(input: string): Array<string> {

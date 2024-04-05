@@ -248,11 +248,14 @@ export class InputMaskDateTime extends InputMaskPattern {
       time.push(second);
     }
 
-    let dateStr = date.length > 0 ? date.join("-") : "";
-    let timeStr = time.length > 0 ? (" " + time.join(":")) : "";
-
-    //return (dateStr + (timeStr || "")).trim();
-    return dateStr;
+    const result: Array<string> = [];
+    if(date.length > 0) {
+      result.push(date.join("-"));
+    }
+    if(time.length > 0) {
+      time.push(time.join(":"));
+    }
+    return result.join(" ");
   }
 
   private isYearValid(dateTime: IDateTimeComposition): boolean {
@@ -329,6 +332,8 @@ export class InputMaskDateTime extends InputMaskPattern {
       if(newItem.isCompleted && !this.isDateValid(dateTime)) {
         data = data.slice(0, data.length - 1);
       }
+    } else if((propertyName === "hour" && parseInt(data[0]) > 2) || ((propertyName === "minute" || propertyName === "second") && parseInt(data[0]) > 6)) {
+      newItem.isCompleted = true;
     }
     newItem.value = data || undefined;
     (dateTime as any)[propertyName] = parseInt(data) > 0 ? parseInt(data) : undefined;

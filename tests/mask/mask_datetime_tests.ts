@@ -153,7 +153,7 @@ QUnit.test("parseDateTime with validation mm/dd/yyyy", function(assert) {
   assert.equal(maskInstance._getMaskedValue("02/29/2001"), "02/29/200y");
 });
 
-QUnit.skip("DateTime mask mm/dd/yyyy HH:MM", function (assert) {
+QUnit.test("DateTime mask mm/dd/yyyy HH:MM", function (assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yyyy HH:MM";
 

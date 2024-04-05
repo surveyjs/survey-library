@@ -366,6 +366,106 @@ frameworks.forEach(framework => {
     });
   });
 
+  test.skip("Signature ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "signaturepad",
+            "name": "question1",
+            "readOnly": true,
+          },
+        ]
+      });
+      await takeElementScreenshot("readonly-signature.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-signature.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
+  test.skip("Panel Dynamic ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 1000);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "paneldynamic",
+                "name": "question1",
+                "readOnly": true,
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  }
+                ],
+                "renderMode": "progressTop"
+              },
+              {
+                "type": "paneldynamic",
+                "name": "question3",
+                "defaultValue": [
+                  {
+                    "question2": "123",
+                    "question4": "123"
+                  }
+                ],
+                "readOnly": true,
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "question4"
+                  }
+                ],
+                "renderMode": "progressTop"
+              },
+              {
+                "type": "paneldynamic",
+                "name": "question5",
+                "defaultValue": [
+                  {
+                    "question2": "123",
+                    "question6": "123"
+                  },
+                  {
+                    "question2": "567",
+                    "question6": "456"
+                  }
+                ],
+                "readOnly": true,
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "question6"
+                  }
+                ],
+                "renderMode": "progressTop"
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "showPreviewBeforeComplete": "showAnsweredQuestions"
+      });
+      await takeElementScreenshot("readonly-panel-dynamic-no-entries.png", Selector(".sd-question--paneldynamic").nth(0), t, comparer);
+      await takeElementScreenshot("readonly-panel-dynamic-one-entry.png", Selector(".sd-question--paneldynamic").nth(1), t, comparer);
+      await takeElementScreenshot("readonly-panel-dynamic-two-entries.png", Selector(".sd-question--paneldynamic").nth(2), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-panel-dynamic-no-entries.png", Selector(".sd-question--paneldynamic").nth(0), t, comparer);
+      await takeElementScreenshot("preview-panel-dynamic-one-entry.png", Selector(".sd-question--paneldynamic").nth(1), t, comparer);
+      await takeElementScreenshot("preview-panel-dynamic-two-entries.png", Selector(".sd-question--paneldynamic").nth(2), t, comparer);
+    });
+  });
+
   test("Ranking ReadOnly and Preview", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);

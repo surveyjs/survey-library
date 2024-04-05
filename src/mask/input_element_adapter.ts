@@ -25,6 +25,13 @@ export class InputElementAdapter {
     }
   }
 
+  clickHandler = (event: any) => {
+    if (this.inputElement.value == this.inputMaskInstance.getMaskedValue("")) {
+      this.inputElement.setSelectionRange(0, 0);
+      event.preventDefault();
+    }
+  };
+
   beforeInputHandler = (event: any) => {
     const args = this.createArgs(event);
     const result = this.inputMaskInstance.processInput(args);
@@ -60,11 +67,13 @@ export class InputElementAdapter {
   public addInputEventListener(): void {
     if (!!this.inputElement) {
       this.inputElement.addEventListener("beforeinput", this.beforeInputHandler);
+      this.inputElement.addEventListener("click", this.clickHandler);
     }
   }
   public removeInputEventListener(): void {
     if (!!this.inputElement) {
       this.inputElement.removeEventListener("beforeinput", this.beforeInputHandler);
+      this.inputElement.removeEventListener("click", this.clickHandler);
     }
   }
   public dispose(): void {

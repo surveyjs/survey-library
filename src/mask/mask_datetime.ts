@@ -193,13 +193,22 @@ export class InputMaskDateTime extends InputMaskPattern {
     });
   }
 
-  private getISO_8601Format(dateTime: IDateTimeComposition): string {
-    if(dateTime.year === undefined || dateTime.month === undefined || dateTime.day === undefined) return "";
+  public getISO_8601Format(dateTime: IDateTimeComposition): string {
+    const date: Array<string> = [];
 
-    const year = this.getPlaceholder(4, dateTime.year.toString(), "0") + dateTime.year;
-    const month = this.getPlaceholder(2, dateTime.month.toString(), "0") + dateTime.month;
-    const day = this.getPlaceholder(2, dateTime.day.toString(), "0") + dateTime.day;
-    return [year, month, day].join("-");
+    if(dateTime.year !== undefined) {
+      const year = this.getPlaceholder(4, dateTime.year.toString(), "0") + dateTime.year;
+      date.push(year);
+    }
+    if(dateTime.month !== undefined && dateTime.year !== undefined) {
+      const month = this.getPlaceholder(2, dateTime.month.toString(), "0") + dateTime.month;
+      date.push(month);
+    }
+    if(dateTime.day !== undefined && dateTime.month !== undefined && dateTime.year !== undefined) {
+      const day = this.getPlaceholder(2, dateTime.day.toString(), "0") + dateTime.day;
+      date.push(day);
+    }
+    return date.join("-");
   }
 
   private isYearValid(dateTime: IDateTimeComposition): boolean {

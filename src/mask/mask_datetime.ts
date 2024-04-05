@@ -2,8 +2,9 @@ import { Serializer, property } from "../jsonobject";
 import { InputMaskPattern } from "./mask_pattern";
 import { IMaskedInputResult, ITextInputParams, numberDefinition } from "./mask_utils";
 
+type DateTimeMaskLexemType = "month" | "day" | "year" | "hour" | "minute" | "second" | "separator"
 export interface IDateTimeMaskLexem {
-  type: "month" | "day" | "year" | "separator";
+  type: DateTimeMaskLexemType;
   value: any;
   count: number;
   maxCount: number;
@@ -28,11 +29,14 @@ interface IDateTimeComposition {
 
 function getMaxCountLexem(currentLexemType: string, count: number): number {
   switch(currentLexemType) {
-    case("day"):
-    case("month"): {
+    case "hour":
+    case "minute":
+    case "second":
+    case "day":
+    case "month": {
       return 2;
     }
-    case("year"): {
+    case "year": {
       return count;
     }
     default: {
@@ -67,7 +71,7 @@ export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
   const result: Array<IDateTimeMaskLexem> = [];
   let prevLexemType: string;
 
-  const createOrUpdateLexem = (currentLexemType: "month" | "day" | "year" | "separator", currentChar: string) => {
+  const createOrUpdateLexem = (currentLexemType: DateTimeMaskLexemType, currentChar: string) => {
     if(!!prevLexemType && prevLexemType === currentLexemType) {
       result[result.length - 1].count++;
       const maxCount = getMaxCountLexem(currentLexemType, result[result.length - 1].count);
@@ -90,6 +94,15 @@ export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
         break;
       case "y":
         createOrUpdateLexem("year", "y");
+        break;
+      case "H":
+        createOrUpdateLexem("hour", "H");
+        break;
+      case "M":
+        createOrUpdateLexem("minute", "M");
+        break;
+      case "s":
+        createOrUpdateLexem("second", "s");
         break;
       default:
         result.push({ type: "separator", value: currentChar, count: 1, maxCount: 1 });
@@ -164,15 +177,27 @@ export class InputMaskDateTime extends InputMaskPattern {
         inputData.isCompleted = true;
 
         switch(lexem.type) {
-          case("day"): {
+          case "hour": {
+            inputData.value = date.getHours().toString();
+            break;
+          }
+          case "minute": {
+            inputData.value = date.getMinutes().toString();
+            break;
+          }
+          case "second": {
+            inputData.value = date.getSeconds().toString();
+            break;
+          }
+          case "day": {
             inputData.value = date.getDate().toString();
             break;
           }
-          case("month"): {
+          case "month": {
             inputData.value = (date.getMonth() + 1).toString();
             break;
           }
-          case("year"): {
+          case "year": {
             let year = date.getFullYear();
             if(lexem.count == 2) year = year % 100;
             inputData.value = year.toString();
@@ -195,20 +220,39 @@ export class InputMaskDateTime extends InputMaskPattern {
 
   public getISO_8601Format(dateTime: IDateTimeComposition): string {
     const date: Array<string> = [];
+    const time: Array<string> = [];
 
-    if(dateTime.year !== undefined) {
+    if (dateTime.year !== undefined) {
       const year = this.getPlaceholder(4, dateTime.year.toString(), "0") + dateTime.year;
       date.push(year);
     }
-    if(dateTime.month !== undefined && dateTime.year !== undefined) {
+    if (dateTime.month !== undefined && dateTime.year !== undefined) {
       const month = this.getPlaceholder(2, dateTime.month.toString(), "0") + dateTime.month;
       date.push(month);
     }
-    if(dateTime.day !== undefined && dateTime.month !== undefined && dateTime.year !== undefined) {
+    if (dateTime.day !== undefined && dateTime.month !== undefined && dateTime.year !== undefined) {
       const day = this.getPlaceholder(2, dateTime.day.toString(), "0") + dateTime.day;
       date.push(day);
     }
-    return date.join("-");
+
+    if (dateTime.hour !== undefined) {
+      const hour = this.getPlaceholder(2, dateTime.hour.toString(), "0") + dateTime.hour;
+      time.push(hour);
+    }
+    if (dateTime.minute !== undefined && dateTime.hour !== undefined) {
+      const minute = this.getPlaceholder(2, dateTime.minute.toString(), "0") + dateTime.minute;
+      time.push(minute);
+    }
+    if (dateTime.second !== undefined && dateTime.minute !== undefined && dateTime.hour !== undefined) {
+      const second = this.getPlaceholder(2, dateTime.second.toString(), "0") + dateTime.second;
+      time.push(second);
+    }
+
+    let dateStr = date.length > 0 ? date.join("-") : "";
+    let timeStr = time.length > 0 ? (" " + time.join(":")) : "";
+
+    //return (dateStr + (timeStr || "")).trim();
+    return dateStr;
   }
 
   private isYearValid(dateTime: IDateTimeComposition): boolean {
@@ -226,7 +270,10 @@ export class InputMaskDateTime extends InputMaskPattern {
     const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear());
     const month = dateTime.month !== undefined ? dateTime.month : 1;
     const day = dateTime.day !== undefined ? dateTime.day : 1;
-    const date = new Date(this.getISO_8601Format({ year: year, month: month, day: day }));
+    const hour = dateTime.hour !== undefined ? dateTime.hour : 0;
+    const minute = dateTime.minute !== undefined ? dateTime.minute : 0;
+    const second = dateTime.second !== undefined ? dateTime.second : 0;
+    const date = new Date(this.getISO_8601Format({ year: year, month: month, day: day, hour: hour, minute: minute, second: second }));
     const monthIndex = month - 1;
 
     return !isNaN(date as any) &&
@@ -308,6 +355,9 @@ export class InputMaskDateTime extends InputMaskPattern {
 
   private createIDateTimeComposition(): IDateTimeComposition {
     const tempDateTime: IDateTimeComposition = {
+      hour: undefined,
+      minute: undefined,
+      second: undefined,
       day: undefined,
       month: undefined,
       year: undefined,
@@ -343,6 +393,9 @@ export class InputMaskDateTime extends InputMaskPattern {
     for(let index = 0; index < this.inputDateTimeData.length; index++) {
       const inputData = this.inputDateTimeData[index];
       switch(inputData.lexem.type) {
+        case "hour":
+        case "minute":
+        case "second":
         case "day":
         case "month":
         case "year":

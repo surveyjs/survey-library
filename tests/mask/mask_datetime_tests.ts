@@ -153,7 +153,22 @@ QUnit.test("parseDateTime with validation mm/dd/yyyy", function(assert) {
   assert.equal(maskInstance._getMaskedValue("02/29/2001"), "02/29/200y");
 });
 
-QUnit.test("parseDateTime invalid string mm/dd/yyyy", function(assert) {
+QUnit.skip("DateTime mask mm/dd/yyyy HH:MM", function (assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.pattern = "mm/dd/yyyy HH:MM";
+
+  assert.equal(maskInstance._getMaskedValue("10/24"), "10/24/yyyy HH:MM");
+  assert.equal(maskInstance._getMaskedValue("10/24/2023 1"), "10/24/2023 1H:MM");
+  assert.equal(maskInstance._getMaskedValue("10/24/2023 9"), "10/24/2023 09:MM");
+  assert.equal(maskInstance._getMaskedValue("10/24/2023 13:46"), "10/24/2023 13:46");
+
+  maskInstance.pattern = "mm/dd/yyyy H:MM";
+  assert.equal(maskInstance._getMaskedValue("10/24"), "10/24/yyyy H:MM");
+  assert.equal(maskInstance._getMaskedValue("10/24/2023 3:"), "10/24/2023 3:MM");
+  assert.equal(maskInstance._getMaskedValue("10/24/2023 13:46"), "10/24/2023 13:46");
+});
+
+QUnit.test("parseDateTime invalid string mm/dd/yyyy", function (assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yyyy";
 

@@ -68,12 +68,14 @@ export class InputElementAdapter {
     if (!!this.inputElement) {
       this.inputElement.addEventListener("beforeinput", this.beforeInputHandler);
       this.inputElement.addEventListener("click", this.clickHandler);
+      this.inputElement.addEventListener("focus", this.clickHandler);
     }
   }
   public removeInputEventListener(): void {
     if (!!this.inputElement) {
       this.inputElement.removeEventListener("beforeinput", this.beforeInputHandler);
       this.inputElement.removeEventListener("click", this.clickHandler);
+      this.inputElement.removeEventListener("focus", this.clickHandler);
     }
   }
   public dispose(): void {

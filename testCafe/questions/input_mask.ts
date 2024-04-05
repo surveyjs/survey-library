@@ -59,6 +59,7 @@ frameworks.forEach((framework) => {
       });
 
     await t
+      .expect(getCursor()).eql(0)
       .click(Selector(".sv_q_text_root").nth(0))
       .expect(getCursor()).eql(0);
     await t

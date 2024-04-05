@@ -255,7 +255,7 @@ export class AppModule { }
 
 ## Handle Form Completion
 
-After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
+After a respondent completes a survey, the results are available within the [`onComplete`](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed. If your application has a user identification system, you can add the user ID to the survey results before sending them to the server:
 
 ```js
 import { Component, OnInit } from '@angular/core';
@@ -267,10 +267,13 @@ const SURVEY_ID = 1;
   // ...
 })
 export class AppComponent implements OnInit {
-  surveyComplete (sender) {
+  surveyComplete (survey) {
+    const userId = /* ... Getting the user ID ... */
+    survey.setValue("userId", userId);
+
     saveSurveyResults(
       "https://your-web-service.com/" + SURVEY_ID,
-      sender.data
+      survey.data
     )
   }
   ngOnInit() {    

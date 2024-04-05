@@ -177,7 +177,7 @@ export default App;
 
 ## Handle Form Completion
 
-After a respondent submits a form, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
+After a respondent submits a form, the results are available within the [`onComplete`](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed. If your application has a user identification system, you can add the user ID to the survey results before sending them to the server:
 
 ```js
 import { useCallback } from 'react';
@@ -186,10 +186,13 @@ const SURVEY_ID = 1;
 
 function App() {
   const survey = new Model(surveyJson);
-  const surveyComplete = useCallback((sender) => {
+  const surveyComplete = useCallback((survey) => {
+    const userId = /* ... Getting the user ID ... */
+    survey.setValue("userId", userId);
+
     saveSurveyResults(
       "https://your-web-service.com/" + SURVEY_ID,
-      sender.data
+      survey.data
     )
   }, []);
 

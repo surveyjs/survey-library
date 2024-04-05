@@ -217,6 +217,22 @@ QUnit.test("get getMaskedValue value from ISO m/d/yy", function(assert) {
   assert.equal(maskInstance.getMaskedValue("2024-13-05"), "m/d/yy");
 });
 
+QUnit.test("getISO_8601Format", function(assert) {
+  const maskInstance = new InputMaskDateTime();
+
+  maskInstance.pattern = "yyyy";
+  assert.equal(maskInstance.getUnmaskedValue("2024"), "2024");
+
+  maskInstance.pattern = "mm/yyyy";
+  assert.equal(maskInstance.getUnmaskedValue("09/2024"), "2024-09");
+
+  maskInstance.pattern = "m/yyyy";
+  assert.equal(maskInstance.getUnmaskedValue("9/2024"), "2024-09");
+
+  maskInstance.pattern = "m/yy";
+  assert.equal(maskInstance.getUnmaskedValue("9/24"), "2024-09");
+});
+
 QUnit.test("get masked date if text with dots mm/dd/yyyy", function(assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yyyy";

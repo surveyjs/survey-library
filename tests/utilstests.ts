@@ -355,6 +355,33 @@ QUnit.test("Test animation utils: onAnimationEnd", (assert) => {
     done();
   }, 11);
 });
+
+QUnit.test("Test animation utils: check cancel animation works correctly when mutliple animations applied", (assert) => {
+  const animationUtils = new AnimationUtils();
+  const element = document.createElement("div");
+  element.style.animationName = "animation1, animation2";
+  element.style.animationDuration = "1s";
+  document.body.appendChild(element);
+  let log = "";
+
+  animationUtils["onAnimationEnd"](element, () => {
+    log += "->updated1";
+  }, { } as any);
+
+  animationUtils["onAnimationEnd"](element, () => {
+    log += "->updated2";
+  }, { } as any);
+
+  animationUtils["onAnimationEnd"](element, () => {
+    log += "->updated3";
+  }, { } as any);
+
+  assert.equal(log, "");
+  animationUtils.cancel();
+  assert.equal(log, "->updated1->updated2->updated3");
+  assert.ok(animationUtils["cancelQueue"].length == 0);
+});
+
 QUnit.test("Test animation utils: enter animation", (assert) => {
   const oldRequestAnimationFrame = window.requestAnimationFrame;
   window.requestAnimationFrame = ((cb) => cb()) as any;

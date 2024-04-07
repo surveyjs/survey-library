@@ -641,6 +641,9 @@ export abstract class QuestionCustomModelBase extends Question
   }
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if (!this.data) return;
+    if (!!this.customQuestion) {
+      this.customQuestion.onValueChanged(this, name, newValue);
+    }
     var newName = this.convertDataName(name);
     let valueForSurvey = this.convertDataValue(name, newValue);
     if(this.valueToDataCallback) {
@@ -654,9 +657,6 @@ export abstract class QuestionCustomModelBase extends Question
     );
     this.updateIsAnswered();
     this.updateElementCss();
-    if (!!this.customQuestion) {
-      this.customQuestion.onValueChanged(this, name, newValue);
-    }
   }
   protected getQuestionByName(name: string): IQuestion {
     return undefined;
@@ -1214,7 +1214,8 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.contentPanel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
   }
   protected convertDataValue(name: string, newValue: any): any {
-    var val = this.getValueForContentPanel(this.value);
+    var val = !!this.contentPanel && !this.isEditingSurveyElement ?
+      this.contentPanel.getValue() : this.getValueForContentPanel(this.value);
     if (!val) val = {};
     if (this.isValueEmpty(newValue) && !this.isEditingSurveyElement) {
       delete val[name];

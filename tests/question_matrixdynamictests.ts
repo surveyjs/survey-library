@@ -9236,3 +9236,30 @@ QUnit.test("Totals alingment", function (assert) {
     "sd-table__question-wrapper sd-table__question-wrapper--expression sd-table__question-wrapper--center"
   );
 });
+QUnit.test("lockedRowCount property", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        allowRowsDragAndDrop: true,
+        rowCount: 4,
+        columns: ["col1"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.lockedRowCount = 2;
+  const rows = matrix.visibleRows;
+  assert.equal(matrix.canRemoveRow(rows[0]), false, "canRemoveRow, row#0");
+  assert.equal(matrix.canRemoveRow(rows[1]), false, "canRemoveRow, row#1");
+  assert.equal(matrix.canRemoveRow(rows[2]), true, "canRemoveRow, row#2");
+  assert.equal(matrix.canRemoveRow(rows[3]), true, "canRemoveRow, row#3");
+
+  const table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 3, "Drag handler cell + one column + actions cell");
+  assert.equal(table.rows[1].cells[0].isDragHandlerCell, false, "isDragHandlerCell, row#1");
+  assert.equal(table.rows[3].cells[0].isDragHandlerCell, false, "isDragHandlerCell, row#2");
+  assert.equal(table.rows[5].cells[0].isDragHandlerCell, true, "isDragHandlerCell, row#3");
+  assert.equal(table.rows[7].cells[0].isDragHandlerCell, true, "isDragHandlerCell, row#4");
+});

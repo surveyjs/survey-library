@@ -84,12 +84,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.updateShowTableAndAddRow();
       }
     );
-    this.registerPropertyChangedHandlers(["allowRowsDragAndDrop", "isReadOnly"], () => { this.clearRowsAndResetRenderedTable(); });
+    this.registerPropertyChangedHandlers(["allowRowsDragAndDrop", "isReadOnly", "lockedRowCount"], () => { this.clearRowsAndResetRenderedTable(); });
     this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
   }
 
   public dragDropMatrixRows: DragDropMatrixRows;
-  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value, isLight);
     this.dragDropMatrixRows = new DragDropMatrixRows(this.survey, null, true);
   }
@@ -283,6 +283,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get isRowsDragAndDrop(): boolean {
     return this.allowRowsDragAndDrop && !this.isReadOnly;
   }
+  public get lockedRowCount(): number {
+    return this.getPropertyValue("lockedRowCount", 0);
+  }
+  public set lockedRowCount(val: number) {
+    this.setPropertyValue("lockedRowCount", val);
+  }
 
   public get iconDragElement(): string {
     return this.cssClasses.iconDragElement;
@@ -407,11 +413,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     if (!this.survey) return true;
-    return this.survey.matrixAllowRemoveRow(
-      this,
-      (<MatrixDynamicRowModel>row).index,
-      row
-    );
+    const index = (<MatrixDynamicRowModel>row).index;
+    if(this.lockedRowCount > 0 && index < this.lockedRowCount) return false;
+    return this.survey.matrixAllowRemoveRow(this, index, row);
   }
   public addRowUI(): void {
     this.addRow(true);

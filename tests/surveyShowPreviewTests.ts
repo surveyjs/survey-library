@@ -385,6 +385,49 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "showPreviewBeforeComplete = 'showAllQuestions', edit page",
+  function (assert) {
+    StylesManager.applyTheme("default");
+    var survey = new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "paneldynamic",
+              "name": "question1",
+              "defaultValue": [
+                {
+                  "question2": "qwe"
+                }
+              ],
+              "templateElements": [
+                {
+                  "type": "panel",
+                  "name": "panel1",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "name": "question2"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "showPreviewBeforeComplete": "showAllQuestions"
+    });
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.currentPageNo = 0;
+    assert.notOk(survey.getAllQuestions()[0].visiblePanels[0].elements[0].hasEditButton, "There is no edit button");
+    survey.showPreview();
+
+    assert.notOk(survey.getAllQuestions()[0].visiblePanels[0].elements[0].hasEditButton, "There is no edit button on preview");
+  }
+);
+QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions', edit page",
   function(assert) {
     var survey = new SurveyModel({

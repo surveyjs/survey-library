@@ -181,6 +181,39 @@ const surveyJson = {
 
 [View Demo](https://surveyjs.io/Examples/Library?id=survey-calculatedvalues (linkStyle))
 
+### Variables vs Question Values
+
+Variables and question values are both used to perform custom calculations within a survey. However, they also have a number of important differences. The following table compares variables with question values across multiple criteria:
+
+| Criteria | Variables | Calculated values |
+|--------- | --------- | ----------------- |
+| Configuration | Configured using JavaScript code | Configured using an expression in the survey JSON schema |
+| Evaluation / Re-evaluation | Evaluated only once&mdash;when set | Evaluated when the survey model is instantiated and re-evaluated each time dynamic values within the expression are changed |
+| Inclusion in survey results | Aren't saved in survey results, but can be (see below) | Saved in survey results if the `includeIntoResult` property is enabled |
+
+If you need to save a variable in survey results, create an intermediary calculated value that references the variable. Enable the calculated value's `includeIntoResult` property to save the value in survey results. The following code shows how to save a `currentyear-var` variable value in survey results via a `currentyear` calculated value:
+
+```js
+import { Model } from "survey-core";
+
+const surveyJson = {
+  "elements": [{
+    "name": "footer",
+    "type": "html",
+    "html": "&copy; 2015-{currentyear} Devsoft Baltic OÜ"
+  }],
+  "calculatedValues": [{
+    "name": "currentyear",
+    "expression": "{currentyear-var}",
+    "includeIntoResult": true
+  }]
+};
+
+const survey = new Model(surveyJson);
+
+survey.setVariable("currentyear-var", new Date().getFullYear());
+```
+
 ## Expressions
 
 Expressions allow you to add logic to your survey and perform calculations right in the survey JSON schema. Expressions are evaluated and re-evaluated at runtime.

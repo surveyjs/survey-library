@@ -193,13 +193,22 @@ export class InputMaskDateTime extends InputMaskPattern {
     });
   }
 
-  private getISO_8601Format(dateTime: IDateTimeComposition): string {
-    if(dateTime.year === undefined || dateTime.month === undefined || dateTime.day === undefined) return "";
+  public getISO_8601Format(dateTime: IDateTimeComposition): string {
+    const date: Array<string> = [];
 
-    const year = this.getPlaceholder(4, dateTime.year.toString(), "0") + dateTime.year;
-    const month = this.getPlaceholder(2, dateTime.month.toString(), "0") + dateTime.month;
-    const day = this.getPlaceholder(2, dateTime.day.toString(), "0") + dateTime.day;
-    return [year, month, day].join("-");
+    if(dateTime.year !== undefined) {
+      const year = this.getPlaceholder(4, dateTime.year.toString(), "0") + dateTime.year;
+      date.push(year);
+    }
+    if(dateTime.month !== undefined && dateTime.year !== undefined) {
+      const month = this.getPlaceholder(2, dateTime.month.toString(), "0") + dateTime.month;
+      date.push(month);
+    }
+    if(dateTime.day !== undefined && dateTime.month !== undefined && dateTime.year !== undefined) {
+      const day = this.getPlaceholder(2, dateTime.day.toString(), "0") + dateTime.day;
+      date.push(day);
+    }
+    return date.join("-");
   }
 
   private isYearValid(dateTime: IDateTimeComposition): boolean {
@@ -245,12 +254,36 @@ export class InputMaskDateTime extends InputMaskPattern {
       } else {
         data = data.slice(0, data.length - 1);
       }
-    } else if (propertyName === "year" && !this.isYearValid(dateTime)) {
+    }
+
+    (dateTime as any)[propertyName] = parseInt(data);
+    if (propertyName === "year" && !this.isYearValid(dateTime)) {
       data = data.slice(0, data.length - 1);
     } else if((propertyName === "day" && parseInt(data[0]) > 3) || (propertyName === "month" && parseInt(data[0]) > 1)) {
+      if(this.isDateValid(dateTime)) {
+        newItem.isCompleted = true;
+      } else {
+        data = data.slice(0, data.length - 1);
+      }
+    } else if((propertyName === "day" && parseInt(data[0]) <= 3 && parseInt(data[0]) !== 0) || (propertyName === "month" && parseInt(data[0]) <= 1 && parseInt(data[0]) !== 0)) {
+      const prevValue = (dateTime as any)[propertyName];
+      let tempValue = prevValue * 10;
+      const maxValue = propertyName === "month" ? 3 : 10;
       newItem.isCompleted = true;
+
+      for(let index = 0; index < maxValue; index++) {
+        (dateTime as any)[propertyName] = tempValue + index;
+        if(this.isDateValid(dateTime)) {
+          newItem.isCompleted = false;
+          break;
+        }
+      }
+      (dateTime as any)[propertyName] = prevValue;
+      if(newItem.isCompleted && !this.isDateValid(dateTime)) {
+        data = data.slice(0, data.length - 1);
+      }
     }
-    newItem.value = data;
+    newItem.value = data || undefined;
     (dateTime as any)[propertyName] = parseInt(data) > 0 ? parseInt(data) : undefined;
   }
 
@@ -301,6 +334,11 @@ export class InputMaskDateTime extends InputMaskPattern {
     let result = "";
     let prevSeparator = "";
     let prevIsCompleted = false;
+    let lastItemWithDataIndex = this.inputDateTimeData.length - 1;
+    if(!matchWholeMask) {
+      const arr = this.inputDateTimeData.filter(item => !!item.value);
+      lastItemWithDataIndex = this.inputDateTimeData.indexOf(arr[arr.length - 1]);
+    }
 
     for(let index = 0; index < this.inputDateTimeData.length; index++) {
       const inputData = this.inputDateTimeData[index];
@@ -312,7 +350,8 @@ export class InputMaskDateTime extends InputMaskPattern {
             result += (prevIsCompleted ? prevSeparator : "");
             return result;
           } else {
-            const data = this.getCorrectDatePartFormat(inputData, matchWholeMask);
+            const _matchWholeMask = matchWholeMask || lastItemWithDataIndex !== index;
+            const data = this.getCorrectDatePartFormat(inputData, _matchWholeMask);
             result += (prevSeparator + data);
             prevIsCompleted = inputData.isCompleted;
           }
@@ -326,6 +365,7 @@ export class InputMaskDateTime extends InputMaskPattern {
 
     return result;
   }
+
   private setInputDateTimeData(numberParts: string[]): void {
     let numberPartsArrayIndex = 0;
 
@@ -349,36 +389,6 @@ export class InputMaskDateTime extends InputMaskPattern {
     this.inputDateTimeData.forEach(itemData => this.updateInputDateTimeData(itemData, tempDateTime));
     const result = this.getFormatedString(matchWholeMask);
     return result;
-  }
-
-  private getPartsOld(input: string): Array<string> {
-    const inputParts: Array<string> = [];
-    const separatorLexems = this.lexems.filter(l => l.type === "separator");
-
-    let separatorLexemsIndex = 0;
-    do {
-      if (!separatorLexems[separatorLexemsIndex]) {
-        if (!!input) {
-          inputParts.push(input);
-          input = "";
-        }
-        break;
-      }
-
-      let separatorCharIndex = input.indexOf(separatorLexems[separatorLexemsIndex].value);
-      if (separatorCharIndex !== -1) {
-        const part = input.slice(0, separatorCharIndex);
-        if (!!part) {
-          inputParts.push(part);
-        }
-        input = input.slice(separatorCharIndex + 1);
-      } else {
-
-      }
-      separatorLexemsIndex++;
-    } while (!!input);
-
-    return inputParts;
   }
 
   private getParts(input: string): Array<string> {

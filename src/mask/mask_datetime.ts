@@ -135,9 +135,17 @@ export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
  * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskDateTime extends InputMaskPattern {
+  private defaultDate = "1970-01-01T";
   private turnOfTheCentury = 68;
   private lexems: Array<IDateTimeMaskLexem> = [];
   private inputDateTimeData: Array<IInputDateTimeData> = [];
+  private validBeginningOfNumbers: { [key: string]: any } = {
+    hour: 2,
+    minute: 6,
+    second: 6,
+    day: 3,
+    month: 1,
+  };
   /**
    * A minimum date and time value that respondents can enter.
    * @see max
@@ -148,6 +156,13 @@ export class InputMaskDateTime extends InputMaskPattern {
    * @see min
    */
   @property() max: string;
+
+  public get hasDatePart(): boolean {
+    return this.lexems.some(l => l.type === "day" || l.type === "month" || l.type === "year");
+  }
+  public get hasTimePart(): boolean {
+    return this.lexems.some(l => l.type === "hour" || l.type === "minute" || l.type === "second");
+  }
 
   public getType(): string {
     return "datetimemask";
@@ -168,8 +183,11 @@ export class InputMaskDateTime extends InputMaskPattern {
   }
 
   private getMaskedStrFromISO(str: string): string {
-    const date = new Date(str);
+    let date = new Date(str);
     this.initInputDateTimeData();
+    if(!this.hasDatePart) {
+      date = new Date(this.defaultDate + str);
+    }
 
     if(!isNaN(date as any)) {
       this.lexems.forEach((lexem, index) => {
@@ -253,9 +271,9 @@ export class InputMaskDateTime extends InputMaskPattern {
       result.push(date.join("-"));
     }
     if(time.length > 0) {
-      time.push(time.join(":"));
+      result.push(time.join(":"));
     }
-    return result.join(" ");
+    return result.join("T");
   }
 
   private isYearValid(dateTime: IDateTimeComposition): boolean {
@@ -267,23 +285,35 @@ export class InputMaskDateTime extends InputMaskPattern {
     return dateTime.year >= parseInt(minYearPart) && dateTime.year <= parseInt(maxYearPart);
   }
 
+  private createIDateTimeCompositionWithDefaults(dateTime: IDateTimeComposition, isUpperLimit: boolean): IDateTimeComposition {
+    const min = dateTime.min;
+    const max = dateTime.max;
+    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear());
+    const month = dateTime.month !== undefined ? dateTime.month : (isUpperLimit && this.hasDatePart ? 12 : 1);
+    const day = dateTime.day !== undefined ? dateTime.day : (isUpperLimit && this.hasDatePart ? 31 : 1);
+    const hour = dateTime.hour !== undefined ? dateTime.hour : (isUpperLimit ? 23 : 0);
+    const minute = dateTime.minute !== undefined ? dateTime.minute : (isUpperLimit ? 59 : 0);
+    const second = dateTime.second !== undefined ? dateTime.second : (isUpperLimit ? 59 : 0);
+
+    return { year: year, month: month, day: day, hour: hour, minute: minute, second: second };
+  }
+
   private isDateValid(dateTime: IDateTimeComposition): boolean {
     const min = dateTime.min;
     const max = dateTime.max;
     const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear());
     const month = dateTime.month !== undefined ? dateTime.month : 1;
     const day = dateTime.day !== undefined ? dateTime.day : 1;
-    const hour = dateTime.hour !== undefined ? dateTime.hour : 0;
-    const minute = dateTime.minute !== undefined ? dateTime.minute : 0;
-    const second = dateTime.second !== undefined ? dateTime.second : 0;
-    const date = new Date(this.getISO_8601Format({ year: year, month: month, day: day, hour: hour, minute: minute, second: second }));
     const monthIndex = month - 1;
+
+    const date = new Date(this.getISO_8601Format(this.createIDateTimeCompositionWithDefaults(dateTime, false)));
+    const dateH = new Date(this.getISO_8601Format(this.createIDateTimeCompositionWithDefaults(dateTime, true)));
 
     return !isNaN(date as any) &&
     date.getDate() === day &&
     date.getMonth() === monthIndex &&
     date.getFullYear() === year &&
-    date >= dateTime.min && date <= dateTime.max;
+    dateH >= dateTime.min && date <= dateTime.max;
   }
 
   private getPlaceholder(lexemLength: number, str: string, char: string) {
@@ -307,36 +337,43 @@ export class InputMaskDateTime extends InputMaskPattern {
     }
 
     (dateTime as any)[propertyName] = parseInt(data);
+    const firstDigit = parseInt(data[0]);
+    const validBeginningOfNumber = this.validBeginningOfNumbers[propertyName];
     if (propertyName === "year" && !this.isYearValid(dateTime)) {
       data = data.slice(0, data.length - 1);
-    } else if((propertyName === "day" && parseInt(data[0]) > 3) || (propertyName === "month" && parseInt(data[0]) > 1)) {
+    } else if(validBeginningOfNumber !== undefined && firstDigit > validBeginningOfNumber) {
       if(this.isDateValid(dateTime)) {
         newItem.isCompleted = true;
       } else {
         data = data.slice(0, data.length - 1);
       }
-    } else if((propertyName === "day" && parseInt(data[0]) <= 3 && parseInt(data[0]) !== 0) || (propertyName === "month" && parseInt(data[0]) <= 1 && parseInt(data[0]) !== 0)) {
-      const prevValue = (dateTime as any)[propertyName];
-      let tempValue = prevValue * 10;
-      const maxValue = propertyName === "month" ? 3 : 10;
-      newItem.isCompleted = true;
-
-      for(let index = 0; index < maxValue; index++) {
-        (dateTime as any)[propertyName] = tempValue + index;
-        if(this.isDateValid(dateTime)) {
-          newItem.isCompleted = false;
-          break;
-        }
-      }
-      (dateTime as any)[propertyName] = prevValue;
+    } else if(validBeginningOfNumber !== undefined && firstDigit !== 0 && firstDigit <= validBeginningOfNumber) {
+      this.checkValidationDateTimePart(dateTime, propertyName, newItem);
       if(newItem.isCompleted && !this.isDateValid(dateTime)) {
         data = data.slice(0, data.length - 1);
       }
-    } else if((propertyName === "hour" && parseInt(data[0]) > 2) || ((propertyName === "minute" || propertyName === "second") && parseInt(data[0]) > 6)) {
-      newItem.isCompleted = true;
     }
     newItem.value = data || undefined;
     (dateTime as any)[propertyName] = parseInt(data) > 0 ? parseInt(data) : undefined;
+  }
+
+  private checkValidationDateTimePart(dateTime: IDateTimeComposition, propertyName: string, newItem: IInputDateTimeData) {
+    const prevValue = (dateTime as any)[propertyName];
+    let tempValue = prevValue * 10;
+    let maxValue = 10;
+    if (propertyName === "month") maxValue = 3;
+    if (propertyName === "hour") maxValue = 5;
+
+    newItem.isCompleted = true;
+
+    for (let index = 0; index < maxValue; index++) {
+      (dateTime as any)[propertyName] = tempValue + index;
+      if (this.isDateValid(dateTime)) {
+        newItem.isCompleted = false;
+        break;
+      }
+    }
+    (dateTime as any)[propertyName] = prevValue;
   }
 
   private getCorrectDatePartFormat(inputData: IInputDateTimeData, matchWholeMask: boolean): string {
@@ -359,6 +396,17 @@ export class InputMaskDateTime extends InputMaskPattern {
   }
 
   private createIDateTimeComposition(): IDateTimeComposition {
+    let isoMin: string, isoMax: string;
+
+    if(this.hasDatePart) {
+      isoMin = this.min || "0001-01-01";
+      isoMax = this.max || "9999-12-31";
+    } else {
+      isoMin = this.defaultDate + (this.min || "00:00:00");
+      isoMax = this.defaultDate + (this.max || "23:59:59");
+
+    }
+
     const tempDateTime: IDateTimeComposition = {
       hour: undefined,
       minute: undefined,
@@ -366,8 +414,8 @@ export class InputMaskDateTime extends InputMaskPattern {
       day: undefined,
       month: undefined,
       year: undefined,
-      min: new Date(this.min || "0001-01-01"),
-      max: new Date(this.max || "9999-12-31")
+      min: new Date(isoMin),
+      max: new Date(isoMax)
     };
     return tempDateTime;
   }

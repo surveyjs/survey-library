@@ -107,7 +107,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   }
   public canInsertIntoThisRow(row: MatrixDynamicRowModel): boolean {
     const lockedRows = this.parentElement.lockedRowCount;
-    return lockedRows <= 0 || row.index >= lockedRows;
+    return lockedRows <= 0 || row.rowIndex > lockedRows;
   }
   protected isDropTargetValid(dropTarget: any, dropTargetNode?: HTMLElement): boolean {
     return this.canInsertIntoThisRow(dropTarget);

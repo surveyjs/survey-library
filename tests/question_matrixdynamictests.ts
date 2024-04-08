@@ -4042,14 +4042,22 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
         rowCount: 3,
         columns: ["1", "2"],
       },
+      {
+        type: "matrixdynamic",
+        name: "q2",
+        rowCount: 3,
+        columns: ["1", "2"],
+      },
     ],
   });
   survey.onMatrixAllowRemoveRow.add(function (sender, options) {
     options.allow = options.rowIndex % 2 == 0;
   });
-  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const firstMatrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
+  assert.equal(firstMatrix.visibleRows.length, 3, "Three rows");
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
   assert.equal(matrix.canRemoveRows, true, "The row can be removed");
-  var table = matrix.renderedTable;
+  const table = matrix.renderedTable;
   assert.equal(
     table.rows[1].cells[2].isActionsCell,
     true,

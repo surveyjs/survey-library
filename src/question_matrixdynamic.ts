@@ -413,7 +413,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     if (!this.survey) return true;
-    const index = (<MatrixDynamicRowModel>row).index;
+    const index = (<MatrixDynamicRowModel>row).rowIndex - 1;
     if(this.lockedRowCount > 0 && index < this.lockedRowCount) return false;
     return this.survey.matrixAllowRemoveRow(this, index, row);
   }

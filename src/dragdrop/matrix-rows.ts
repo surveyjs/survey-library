@@ -1,6 +1,6 @@
 import { DomDocumentHelper } from "../global_variables_utils";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
-import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
+import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_matrixdynamic";
 import { DragDropCore } from "./core";
 export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel> {
   protected get draggedElementType(): string {
@@ -105,9 +105,12 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
     return dropTargetRenderedRow.row;
   }
-
+  public canInsertIntoThisRow(row: MatrixDynamicRowModel): boolean {
+    const lockedRows = this.parentElement.lockedRowCount;
+    return lockedRows <= 0 || row.index >= lockedRows;
+  }
   protected isDropTargetValid(dropTarget: any, dropTargetNode?: HTMLElement): boolean {
-    return true;
+    return this.canInsertIntoThisRow(dropTarget);
   }
 
   protected calculateIsBottom(clientY: number): boolean {

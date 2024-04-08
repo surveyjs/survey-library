@@ -551,7 +551,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private getRowDragCell(rowIndex: number) {
     const cell = new QuestionMatrixDropdownRenderedCell();
-    cell.isDragHandlerCell = true;
+    const lockedRows = (<QuestionMatrixDynamicModel>this.matrix).lockedRowCount;
+    cell.isDragHandlerCell = lockedRows < 1 || rowIndex >= lockedRows;
     cell.className = this.getActionsCellClassName(cell);
     cell.row = this.matrix.visibleRows[rowIndex];
     return cell;

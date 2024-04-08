@@ -75,7 +75,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
   }
 
   protected getShortcutText(draggedElement: IShortcutText): string {
-    return draggedElement.shortcutText;
+    return draggedElement?.shortcutText;
   }
 
   protected createDraggedElementShortcut(

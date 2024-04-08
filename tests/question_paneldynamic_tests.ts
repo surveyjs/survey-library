@@ -64,6 +64,40 @@ QUnit.test("Synhronize panelCount and value array length", function(assert) {
   );
 });
 
+QUnit.test("Test panel showNavigation readOnly", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "question1",
+            "readOnly": true,
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question2"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  var oldCss = survey.css.root;
+  survey.css.root = "sd-root-modern";
+  var question = survey.getQuestionByName("question1");
+  question.cssClasses.footer = "footer";
+  question.panelCount = 0;
+  assert.notOk(question.showNavigation, "ne records");
+  question.panelCount = 1;
+  assert.notOk(question.showNavigation, "one record");
+  question.panelCount = 2;
+  assert.ok(question.showNavigation, "two records");
+  survey.css.root = oldCss;
+});
+
 QUnit.test("Dynamic Panel, clearIncorrectValues", function(assert) {
   var question = new QuestionPanelDynamicModel("q");
   (<QuestionRadiogroupModel>(
@@ -6030,6 +6064,7 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
         renderMode: "progressTop"
       }],
   });
+  var oldCss = survey.css;
   survey.css = { root: "sd-root-modern" };
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   const getAddBtn = () => {
@@ -6064,7 +6099,7 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   assert.equal(getAddBtn().visible, false, "add button is invisible #6");
   assert.equal(panel.canAddPanel, false, "canAddPanel #6");
   assert.equal(getNextBtn().visible, true, "nextButton #6");
-  survey.css.root = undefined;
+  survey.css = oldCss;
 });
 QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function (assert) {
   const survey = new SurveyModel({

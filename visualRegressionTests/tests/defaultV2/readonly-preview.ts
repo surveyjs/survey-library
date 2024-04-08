@@ -366,7 +366,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test.skip("Signature ReadOnly and Preview", async (t) => {
+  test("Signature ReadOnly and Preview", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
@@ -388,7 +388,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test.skip("Panel Dynamic ReadOnly and Preview", async (t) => {
+  test("Panel Dynamic ReadOnly and Preview", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 1000);
       await initSurvey(framework, {

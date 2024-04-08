@@ -217,7 +217,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    *
    * Default value: `auto`
    *
-   * This property allows you to specify the exact container height. If you do not set it, the height will be calculated automatically based on the [`minImageHeight`](#minImageHeight) and [`maxImageHeight`](#maxImageHeight) values and available screen height.
+   * This property allows you to specify the exact image height. If you do not set it, the height will be calculated automatically based on the [`minImageHeight`](#minImageHeight) and [`maxImageHeight`](#maxImageHeight) values and available screen height.
    *
    * Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
    * @see imageWidth
@@ -238,7 +238,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    *
    * Default value: `auto`
    *
-   * This property allows you to specify the exact container width. If you do not set it, the width will be calculated automatically based on the [`minImageWidth`](#minImageWidth) and [`maxImageWidth`](#maxImageWidth) values and available screen width.
+   * This property allows you to specify the exact image width. If you do not set it, the width will be calculated automatically based on the [`minImageWidth`](#minImageWidth) and [`maxImageWidth`](#maxImageWidth) values and available screen width.
    *
    * Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
    * @see imageHeight

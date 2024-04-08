@@ -99,7 +99,8 @@ export class AnimationUtils {
   }
 
   public cancel(): void {
-    this.cancelQueue.forEach(func => func());
+    const cancelQueue = [].concat(this.cancelQueue);
+    cancelQueue.forEach(callback => callback());
     this.cancelQueue = [];
   }
 }

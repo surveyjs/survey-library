@@ -10,10 +10,22 @@
 
 @keyframes moveIn {
   from {
-    height: 0
+    height: 0;
   }
 
   to {
-    height: var(--animation-height)
+    height: var(--animation-height);
+  }
+}
+
+@keyframes overflowIn {
+  0% {
+    overflow: hidden;
+  }
+  99% {
+    overflow: hidden;
+  }
+  100% {
+    overflow: visible;
   }
 }

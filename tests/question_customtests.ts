@@ -3138,3 +3138,73 @@ QUnit.test("Composite: update questions on a value change", function (assert) {
   assert.equal(internalQ2.choices[0].value, 3, "choices[0].value #2");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: onValueChanging and survey.onValueChanging", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3] },
+      { type: "text", name: "q3", choices: [1, 2, 3] }
+    ],
+    onValueChanging(question, name, newValue) {
+      if (name === "q1") {
+        question.contentPanel.getQuestionByName("q2").clearValue();
+      }
+      if (name === "q2") {
+        question.contentPanel.getQuestionByName("q3").value = newValue;
+      }
+      return newValue;
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" }
+    ]
+  });
+  let onValueChangingData: any = undefined;
+  survey.onValueChanging.add((sender, options) => {
+    onValueChangingData = options.value;
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  q1.contentPanel.getQuestionByName("q1").value = "test1";
+  assert.deepEqual(onValueChangingData, { q1: "test1" }, "test #1");
+  q1.contentPanel.getQuestionByName("q2").value = 2;
+  assert.deepEqual(onValueChangingData, { q1: "test1", q2: 2, q3: 2 }, "test #2");
+  q1.contentPanel.getQuestionByName("q1").value = "test2";
+  assert.deepEqual(onValueChangingData, { q1: "test2" }, "test #3");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: onValueChanged and survey.data", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3] },
+      { type: "text", name: "q3", choices: [1, 2, 3] }
+    ],
+    onValueChanged(question, name, newValue) {
+      if (name === "q1") {
+        question.contentPanel.getQuestionByName("q2").clearValue();
+        question.contentPanel.getQuestionByName("q3").clearValue();
+      }
+      if (name === "q2") {
+        question.contentPanel.getQuestionByName("q3").value = newValue;
+      }
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  q1.contentPanel.getQuestionByName("q1").value = "test1";
+  assert.deepEqual(survey.data, { q1: { q1: "test1" } }, "test #1");
+  q1.contentPanel.getQuestionByName("q2").value = 2;
+  assert.deepEqual(survey.data, { q1: { q1: "test1", q2: 2, q3: 2 } }, "test #2");
+  q1.contentPanel.getQuestionByName("q1").value = "test2";
+  assert.deepEqual(survey.data, { q1: { q1: "test2" } }, "test #3");
+
+  ComponentCollection.Instance.clear();
+});

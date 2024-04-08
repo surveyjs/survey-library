@@ -185,15 +185,22 @@
 @keyframes paddingFadeIn {
   from {
     padding-top: 0;
+    padding-bottom: 0;
   }
 
   to {
+    padding-bottom: var(--animation-padding-bottom);
     padding-top: var(--animation-padding-top);
   }
 }
 
 .sd-element__content {
   box-sizing: border-box;
+}
+.sd-element__content--fade-in,
+.sd-element__content--fade-out {
+  --animation-padding-top: 0;
+  --animation-padding-bottom: 0;
 }
 
 .sd-element__content--fade-in {

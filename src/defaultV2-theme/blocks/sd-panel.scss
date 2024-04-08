@@ -83,6 +83,7 @@
 .sd-panel.sd-element--nested {
   & > .sd-panel__content {
     padding-bottom: var(--sd-base-padding);
+    --animation-padding-top: var(--sd-base-padding);
   }
 }
 

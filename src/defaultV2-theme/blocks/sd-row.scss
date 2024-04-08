@@ -50,7 +50,7 @@
 
   & > div {
     box-sizing: border-box;
-    --animation-padding-left: calcSize(2);
+    --animation-padding-left: #{calcSize(2)};
     padding-left: calcSize(2);
     display: flex;
     align-items: stretch;

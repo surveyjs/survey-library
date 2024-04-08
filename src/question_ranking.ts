@@ -448,13 +448,17 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     if (key === " " && !isMovedElementRanked) {
       toIndex = 0;
+      this.animationAllowed = false;
       dnd.selectToRank(this, fromIndex, toIndex);
+      this.animationAllowed = true;
       this.setValueAfterKeydown(toIndex, "to-container");
       return;
     }
     if(!isMovedElementRanked) return;
     if (key === " ") {
+      this.animationAllowed = false;
       dnd.unselectFromRank(this, fromIndex);
+      this.animationAllowed = true;
       toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
       this.setValueAfterKeydown(toIndex, "from-container");
       return;

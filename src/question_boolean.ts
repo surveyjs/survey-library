@@ -117,6 +117,13 @@ export class QuestionBooleanModel extends Question {
     return this.booleanValue !== null && this.booleanValue !== undefined;
   }
 
+  /**
+   * Specifies whether to swap the order of the Yes and No answers.
+   *
+   * Default value: `false`
+   *
+   * By default, the order is [ "No", "Yes"]. Enable this property to reorder the answers as follows: [ "Yes", "No" ].
+   */
   @property({ defaultValue: false }) swapOrder: boolean;
   get locLabelLeft(): LocalizableString {
     return this.swapOrder ? this.getLocalizableString("labelTrue") : this.getLocalizableString("labelFalse");

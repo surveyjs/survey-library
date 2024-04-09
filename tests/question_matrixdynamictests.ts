@@ -4042,14 +4042,22 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
         rowCount: 3,
         columns: ["1", "2"],
       },
+      {
+        type: "matrixdynamic",
+        name: "q2",
+        rowCount: 3,
+        columns: ["1", "2"],
+      },
     ],
   });
   survey.onMatrixAllowRemoveRow.add(function (sender, options) {
     options.allow = options.rowIndex % 2 == 0;
   });
-  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const firstMatrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
+  assert.equal(firstMatrix.visibleRows.length, 3, "Three rows");
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
   assert.equal(matrix.canRemoveRows, true, "The row can be removed");
-  var table = matrix.renderedTable;
+  const table = matrix.renderedTable;
   assert.equal(
     table.rows[1].cells[2].isActionsCell,
     true,
@@ -9235,4 +9243,31 @@ QUnit.test("Totals alingment", function (assert) {
     renderedTable.footerRow.cells[3].cellQuestionWrapperClassName,
     "sd-table__question-wrapper sd-table__question-wrapper--expression sd-table__question-wrapper--center"
   );
+});
+QUnit.test("lockedRowCount property", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        allowRowsDragAndDrop: true,
+        rowCount: 4,
+        columns: ["col1"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.lockedRowCount = 2;
+  const rows = matrix.visibleRows;
+  assert.equal(matrix.canRemoveRow(rows[0]), false, "canRemoveRow, row#0");
+  assert.equal(matrix.canRemoveRow(rows[1]), false, "canRemoveRow, row#1");
+  assert.equal(matrix.canRemoveRow(rows[2]), true, "canRemoveRow, row#2");
+  assert.equal(matrix.canRemoveRow(rows[3]), true, "canRemoveRow, row#3");
+
+  const table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 3, "Drag handler cell + one column + actions cell");
+  assert.equal(table.rows[1].cells[0].isDragHandlerCell, false, "isDragHandlerCell, row#1");
+  assert.equal(table.rows[3].cells[0].isDragHandlerCell, false, "isDragHandlerCell, row#2");
+  assert.equal(table.rows[5].cells[0].isDragHandlerCell, true, "isDragHandlerCell, row#3");
+  assert.equal(table.rows[7].cells[0].isDragHandlerCell, true, "isDragHandlerCell, row#4");
 });

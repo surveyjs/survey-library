@@ -20,6 +20,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
+import { ConsoleWarnings } from "./console-warnings";
 
 /**
  * An interface used to create custom question types.
@@ -843,14 +844,14 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       if (!qType || !Serializer.findClass(qType))
         throw "type attribute in questionJSON is empty or incorrect";
       res = <Question>Serializer.createClass(qType);
-      this.initElement(res);
       res.fromJSON(json.questionJSON);
+      res = this.checkCreatedQuestion(res);
     } else {
       if (!!json.createQuestion) {
-        res = json.createQuestion();
-        this.initElement(res);
+        res = this.checkCreatedQuestion(json.createQuestion());
       }
     }
+    this.initElement(res);
     if (!!res) {
       res.isContentElement = true;
       if (!res.name) {
@@ -863,6 +864,18 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       res.setValueChangedDirectlyCallback = (val: boolean): void => { this.setValueChangedDirectly(val); };
     }
 
+    return res;
+  }
+  private checkCreatedQuestion(res: Question): Question {
+    if(!res) return res;
+    if(!res.isQuestion) {
+      if(Array.isArray(res.questions) && res.questions.length > 0) {
+        res = res.questions[0];
+      } else {
+        res = Serializer.createClass("text");
+      }
+      ConsoleWarnings.error("Could not create component: '" + this.getType() + "'. questionJSON should be a question.");
+    }
     return res;
   }
   public onSurveyLoad() {

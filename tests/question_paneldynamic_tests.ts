@@ -6838,3 +6838,20 @@ QUnit.test("panel dynamic & panel visibleIf & checkbox vs carry forward, #7693",
     ]
   });
 });
+QUnit.test("onQuestionVisibleChanged should be fired", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "paneldynamic", name: "q2", panelCount: 1,
+        templateElements: [{ type: "text", name: "q3", visibleIf: "{q1} = 1" }, { type: "text", name: "q4" }]
+      }
+    ]
+  });
+  const questionNames = new Array<string>();
+  survey.onQuestionVisibleChanged.add((sender, options) => {
+    questionNames.push(options.question.name + ":" + options.question.isVisible);
+  });
+  survey.setValue("q1", 1);
+  survey.setValue("q1", 2);
+  assert.deepEqual(questionNames, ["q3:true", "q3:false"], "visiblity logs");
+});

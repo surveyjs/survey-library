@@ -31,6 +31,7 @@ import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
 import { DragDropInfo } from "./drag-drop-helper-v1";
 import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { PageModel } from "./page";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -2030,7 +2031,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return this.footerToolbarValue;
   }
   public get hasEditButton(): boolean {
-    if (this.survey && this.survey.state === "preview") return this.depth === 1;
+    if (this.survey && this.survey.state === "preview") return (this.parent && this.parent instanceof PageModel);
     return false;
   }
   public cancelPreview() {

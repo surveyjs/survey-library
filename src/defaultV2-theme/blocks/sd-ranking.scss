@@ -7,9 +7,18 @@
 .sd-element--with-frame .sv-ranking-item {
   left: calcSize(-3);
 }
+
 .sv-ranking.sd-ranking--readonly {
   user-select: initial;
   -webkit-user-select: initial;
+
+  .sv-ranking__containers-divider {
+    visibility: hidden;
+  }
+
+  .sv-ranking__container--empty {
+    visibility: hidden;
+  }
 }
 
 @container (max-width: #{$sd-panel-normal-min-width}) {

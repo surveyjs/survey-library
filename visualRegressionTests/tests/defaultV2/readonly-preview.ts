@@ -515,6 +515,30 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Boolean:Indeterminate ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "boolean",
+            "name": "boolean1",
+            "valueTrue": "Yes",
+            "valueFalse": "No",
+            "readOnly": true,
+          }
+        ]
+      });
+      await takeElementScreenshot("readonly-boolean-indeterminate.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-boolean-indeterminate.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
   test("Boolean:Radio ReadOnly and Preview", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);

@@ -108,11 +108,16 @@
   pointer-events: none;
   box-shadow: none;
   transition: none;
+  padding-left: 0;
 
   .sd-boolean__thumb {
     box-shadow: inset 0px 0px 0px 2px $foreground;
     transition: none;
     color: $foreground;
+  }
+
+  .sd-boolean__switch {
+    padding-left: 0;
   }
 }
 
@@ -130,13 +135,12 @@
     color: $foreground;
   }
 
-  &.sd-boolean--checked {
+  .sd-boolean__switch {
     padding-left: 0;
+  }
 
-    .sd-boolean__switch {
-      padding-left: 0;
-    }
-
+  &.sd-boolean--checked,
+  &.sd-boolean--indeterminate {
     .sd-boolean__thumb {
       margin-left: auto;
     }
@@ -148,6 +152,12 @@
 
   .sd-checkbox__label--preview {
     color: $foreground;
+  }
+
+  &.sd-boolean--indeterminate {
+    .sd-boolean__thumb-ghost:first-of-type .sd-boolean__label {
+      padding-left: 0;
+    }
   }
 }
 

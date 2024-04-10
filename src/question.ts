@@ -665,9 +665,11 @@ export class Question extends SurveyElement<Question>
   }
   public getTitleOwner(): ITitleOwner { return this; }
   protected getIsTitleRenderedAsString(): boolean { return this.titleLocation === "hidden"; }
-  private notifySurveyVisibilityChanged() {
+  protected notifySurveyOnChildrenVisibilityChanged(): boolean { return false; }
+  private notifySurveyVisibilityChanged(): void {
     if (!this.survey || this.isLoadingFromJson) return;
-    this.survey.questionVisibilityChanged(this, this.isVisible);
+    this.survey.questionVisibilityChanged(this, this.isVisible,
+      !this.parentQuestion || this.parentQuestion.notifySurveyOnChildrenVisibilityChanged());
     const isClearOnHidden = this.isClearValueOnHidden;
     if (!this.visible) {
       this.clearValueOnHidding(isClearOnHidden);

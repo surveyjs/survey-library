@@ -452,7 +452,7 @@ frameworks.forEach(framework => {
           }
         ],
         "showQuestionNumbers": "off",
-        "showPreviewBeforeComplete": "showAnsweredQuestions"
+        "showPreviewBeforeComplete": "showAllQuestions"
       });
       await takeElementScreenshot("readonly-panel-dynamic-no-entries.png", Selector(".sd-question--paneldynamic").nth(0), t, comparer);
       await takeElementScreenshot("readonly-panel-dynamic-one-entry.png", Selector(".sd-question--paneldynamic").nth(1), t, comparer);

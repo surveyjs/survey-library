@@ -836,6 +836,89 @@ QUnit.test("dateTime processInput: min & max for 12-hour time", function (assert
   assert.equal(result.caretPosition, 6, "type p");
 });
 
+QUnit.test("dateTime processInput: min & max for 12-hour time - h", function (assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.pattern = "h:MM tt";
+  maskInstance.min = "08:00";
+  maskInstance.max = "18:00";
+
+  let result = maskInstance.processInput({ insertedChars: "7", selectionStart: 0, selectionEnd: 0, prevValue: "h:MM tt", inputDirection: "forward" });
+  assert.equal(result.value, "h:MM tt", "try type 7");
+  assert.equal(result.caretPosition, 0, "try type 7");
+
+  result = maskInstance.processInput({ insertedChars: "1", selectionStart: 0, selectionEnd: 0, prevValue: "h:MM tt", inputDirection: "forward" });
+  assert.equal(result.value, "1:MM tt", "type 1");
+  assert.equal(result.caretPosition, 1, "type 1");
+
+  result = maskInstance.processInput({ insertedChars: "9", selectionStart: 0, selectionEnd: 0, prevValue: "h:MM tt", inputDirection: "forward" });
+  assert.equal(result.value, "9:MM tt", "type 1");
+  assert.equal(result.caretPosition, 2, "type 1");
+
+  result = maskInstance.processInput({ insertedChars: "0", selectionStart: 1, selectionEnd: 1, prevValue: "1:MM tt", inputDirection: "forward" });
+  assert.equal(result.value, "10:MM tt", "type 0");
+  assert.equal(result.caretPosition, 3, "type 0");
+
+  result = maskInstance.processInput({ insertedChars: "p", selectionStart: 6, selectionEnd: 6, prevValue: "10:00 tt", inputDirection: "forward" });
+  assert.equal(result.value, "10:00 tt", "type p");
+  assert.equal(result.caretPosition, 6, "type p");
+
+  result = maskInstance.processInput({ insertedChars: "a", selectionStart: 6, selectionEnd: 6, prevValue: "10:00 tt", inputDirection: "forward" });
+  assert.equal(result.value, "10:00 at", "type a");
+  assert.equal(result.caretPosition, 7, "type a");
+
+  maskInstance.min = "13:00";
+  maskInstance.max = "17:00";
+  result = maskInstance.processInput({ insertedChars: "1", selectionStart: 0, selectionEnd: 0, prevValue: "h:MM tt", inputDirection: "forward" });
+  assert.equal(result.value, "1:MM tt", "type 1");
+  assert.equal(result.caretPosition, 2, "type 1");
+
+  result = maskInstance.processInput({ insertedChars: "6", selectionStart: 0, selectionEnd: 0, prevValue: "h:MM tt", inputDirection: "forward" });
+  assert.equal(result.value, "h:MM tt", "type 6");
+  assert.equal(result.caretPosition, 0, "type 6");
+
+  // result = maskInstance.processInput({ insertedChars: "0", selectionStart: 0, selectionEnd: 0, prevValue: "h:MM tt", inputDirection: "forward" });
+  // assert.equal(result.value, "h:MM tt", "try type 0");
+  // assert.equal(result.caretPosition, 0, "try type 0");
+
+  result = maskInstance.processInput({ insertedChars: "0", selectionStart: 3, selectionEnd: 3, prevValue: "5:0M tt", inputDirection: "forward" });
+  assert.equal(result.value, "5:00 tt", "type second 0");
+  assert.equal(result.caretPosition, 5, "type second  0");
+
+  result = maskInstance.processInput({ insertedChars: "a", selectionStart: 5, selectionEnd: 5, prevValue: "5:00 tt", inputDirection: "forward" });
+  assert.equal(result.value, "5:00 tt", "type a");
+  assert.equal(result.caretPosition, 5, "type a");
+
+  result = maskInstance.processInput({ insertedChars: "p", selectionStart: 5, selectionEnd: 5, prevValue: "5:00 tt", inputDirection: "forward" });
+  assert.equal(result.value, "5:00 pt", "type p");
+  assert.equal(result.caretPosition, 6, "type p");
+
+  maskInstance.min = "01:00";
+  maskInstance.max = "05:00";
+  result = maskInstance.processInput({ insertedChars: "1", selectionStart: 0, selectionEnd: 0, prevValue: "h:MM tt", inputDirection: "forward" });
+  assert.equal(result.value, "1:MM tt", "type 1");
+  assert.equal(result.caretPosition, 2, "type 1");
+
+  result = maskInstance.processInput({ insertedChars: "6", selectionStart: 0, selectionEnd: 0, prevValue: "h:MM tt", inputDirection: "forward" });
+  assert.equal(result.value, "h:MM tt", "type 6");
+  assert.equal(result.caretPosition, 0, "type 6");
+
+  // result = maskInstance.processInput({ insertedChars: "0", selectionStart: 0, selectionEnd: 0, prevValue: "h:MM tt", inputDirection: "forward" });
+  // assert.equal(result.value, "h:MM tt", "type 0");
+  // assert.equal(result.caretPosition, 0, "type 0");
+
+  result = maskInstance.processInput({ insertedChars: "0", selectionStart: 3, selectionEnd: 3, prevValue: "5:0M tt", inputDirection: "forward" });
+  assert.equal(result.value, "5:00 tt", "type second 0");
+  assert.equal(result.caretPosition, 5, "type second  0");
+
+  result = maskInstance.processInput({ insertedChars: "a", selectionStart: 5, selectionEnd: 5, prevValue: "5:00 tt", inputDirection: "forward" });
+  assert.equal(result.value, "5:00 at", "type a");
+  assert.equal(result.caretPosition, 6, "type a");
+
+  result = maskInstance.processInput({ insertedChars: "p", selectionStart: 5, selectionEnd: 5, prevValue: "05:00 tt", inputDirection: "forward" });
+  assert.equal(result.value, "5:00 tt", "type p");
+  assert.equal(result.caretPosition, 5, "type p");
+});
+
 QUnit.test("dateTime processInput: min for date", function (assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yyyy";
@@ -948,6 +1031,27 @@ QUnit.test("dateTime processInput: time", function (assert) {
   assert.equal(result.caretPosition, 5, "type 5");
 });
 
+QUnit.test("dateTime processInput: time - H", function (assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.pattern = "H:MM";
+
+  let result = maskInstance.processInput({ insertedChars: "1", prevValue: "H:MM", selectionStart: 0, selectionEnd: 0, inputDirection: "forward" });
+  assert.equal(result.value, "1:MM", "type 1");
+  assert.equal(result.caretPosition, 1, "type 1");
+
+  result = maskInstance.processInput({ insertedChars: "2", prevValue: "1:MM", selectionStart: 1, selectionEnd: 1, inputDirection: "forward" });
+  assert.equal(result.value, "12:MM", "type 2");
+  assert.equal(result.caretPosition, 3, "type 2");
+
+  result = maskInstance.processInput({ insertedChars: "4", prevValue: "12:MM", selectionStart: 3, selectionEnd: 3, inputDirection: "forward" });
+  assert.equal(result.value, "12:4M", "type 4");
+  assert.equal(result.caretPosition, 4, "type 4");
+
+  result = maskInstance.processInput({ insertedChars: "5", prevValue: "12:4M", selectionStart: 4, selectionEnd: 4, inputDirection: "forward" });
+  assert.equal(result.value, "12:45", "type 5");
+  assert.equal(result.caretPosition, 5, "type 5");
+});
+
 QUnit.test("dateTime processInput: time 12 hours", function (assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "hh:MM TT";
@@ -996,6 +1100,31 @@ QUnit.test("dateTime processInput: time 12 hours", function (assert) {
   result = maskInstance.processInput({ insertedChars: "m", prevValue: "12:45 pt", selectionStart: 7, selectionEnd: 7, inputDirection: "forward" });
   assert.equal(result.value, "12:45 pm", "type m");
   assert.equal(result.caretPosition, 8, "type m");
+});
+
+QUnit.test("dateTime processInput: time 12 hours - h", function (assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.pattern = "h:MM TT";
+
+  let result = maskInstance.processInput({ insertedChars: "2", prevValue: "h:MM TT", selectionStart: 0, selectionEnd: 0, inputDirection: "forward" });
+  assert.equal(result.value, "2:MM TT", "type 2");
+  assert.equal(result.caretPosition, 2, "type 2");
+
+  result = maskInstance.processInput({ insertedChars: "1", prevValue: "h:MM TT", selectionStart: 0, selectionEnd: 0, inputDirection: "forward" });
+  assert.equal(result.value, "1:MM TT", "type 1");
+  assert.equal(result.caretPosition, 1, "type 1");
+
+  result = maskInstance.processInput({ insertedChars: "3", prevValue: "1:MM TT", selectionStart: 1, selectionEnd: 1, inputDirection: "forward" });
+  assert.equal(result.value, "1:MM TT", "type 3");
+  assert.equal(result.caretPosition, 1, "type 3");
+
+  result = maskInstance.processInput({ insertedChars: "2", prevValue: "1:MM TT", selectionStart: 1, selectionEnd: 1, inputDirection: "forward" });
+  assert.equal(result.value, "12:MM TT", "type 2");
+  assert.equal(result.caretPosition, 3, "type 2");
+
+  result = maskInstance.processInput({ insertedChars: "4", prevValue: "12:MM TT", selectionStart: 3, selectionEnd: 3, inputDirection: "forward" });
+  assert.equal(result.value, "12:4M TT", "type 4");
+  assert.equal(result.caretPosition, 4, "type 4");
 });
 
 QUnit.test("dateTime processInput: time 12 hours v2", function (assert) {

@@ -119,9 +119,9 @@
 
       &>td.sd-table__cell:not(.sd-table__cell--actions),
       td:first-of-type {
-        border-top-color: $background-dim-light;
-        border-bottom-color: $background-dim-light;
-        background-color: $background-dim-light;
+        border-top-color: $background-dark;
+        border-bottom-color: $background-dark;
+        background-color: $background-dark;
 
         &.sd-matrix__text--checked {
           background-color: $primary-light;

@@ -17,6 +17,7 @@ import { PanelModel } from "../src/panel";
 import { StylesManager } from "../src/stylesmanager";
 import { ArrayChanges, Base } from "../src/base";
 import { QuestionFileModel } from "../src/question_file";
+import { ConsoleWarnings } from "../src/console-warnings";
 
 export default QUnit.module("custom questions");
 
@@ -3207,4 +3208,32 @@ QUnit.test("Composite: onValueChanged and survey.data", function (assert) {
   assert.deepEqual(survey.data, { q1: { q1: "test2" } }, "test #3");
 
   ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: use incorrect json", function (assert) {
+  const prev = ConsoleWarnings.error;
+  const reportTexts = new Array<string>();
+  ConsoleWarnings.error = (text: string) => {
+    reportTexts.push(text);
+  };
+  ComponentCollection.Instance.add({
+    name: "test1",
+    questionJSON: { type: "panel", elements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3] }, { type: "text", name: "q2" }] },
+  });
+  ComponentCollection.Instance.add({
+    name: "test2",
+    questionJSON: { type: "page" },
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test1", name: "q1" }, { type: "test2", name: "q2" }]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCustomModel>survey.getQuestionByName("q2");
+
+  assert.equal(q1.contentQuestion.getType(), "dropdown", "q1 content type");
+  assert.equal(q2.contentQuestion.getType(), "text", "q2 content type");
+  assert.deepEqual(reportTexts, ["Could not create component: 'test1'. questionJSON should be a question.",
+    "Could not create component: 'test2'. questionJSON should be a question."], "check console errors");
+
+  ComponentCollection.Instance.clear();
+  ConsoleWarnings.error = prev;
 });

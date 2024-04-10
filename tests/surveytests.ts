@@ -19510,3 +19510,37 @@ QUnit.test("page passed", function (assert) {
   assert.ok(survey.pages[0].passed, "First page passed");
   assert.ok(survey.pages[1].passed, "Second page passed");
 });
+QUnit.test("showPreview & updateProgress & updateVisibleIndexes", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    showProgressBar: "top",
+    progressBarType: "buttons",
+    progressBarShowPageTitles: true,
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1" }]
+      },
+      {
+        elements: [
+          { type: "paneldynamic", name: "q2", panelCount: 10,
+            elements: [{ type: "text", name: "q3", visibleIf: "{q1} = 1" }]
+          },
+          { type: "text", name: "q4", visibleIf: "{q1} = 1" }
+        ]
+      }
+    ]
+  });
+  survey.data = { q1: 1 };
+  let progressCounter = 0;
+  let visibleChangedCounter = 0;
+  survey.onProgressText.add((sender, options) => {
+    progressCounter ++;
+  });
+  survey.onQuestionVisibleChanged.add((sender, options) => {
+    visibleChangedCounter ++;
+  });
+  survey.showPreview();
+  assert.equal(progressCounter, 1, "progressCounter");
+  assert.equal(visibleChangedCounter, 0, "visibleChangedCounter");
+});

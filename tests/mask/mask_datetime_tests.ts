@@ -1102,6 +1102,40 @@ QUnit.test("dateTime processInput: time 12 hours", function (assert) {
   assert.equal(result.caretPosition, 8, "type m");
 });
 
+QUnit.test("dateTime processInput: time 12 hours - a/p", function (assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.pattern = "hh:MM T";
+
+  let result = maskInstance.processInput({ insertedChars: "2", prevValue: "hh:MM T", selectionStart: 0, selectionEnd: 0, inputDirection: "forward" });
+  assert.equal(result.value, "02:MM T", "type 2");
+  assert.equal(result.caretPosition, 3, "type 2");
+
+  result = maskInstance.processInput({ insertedChars: "1", prevValue: "hh:MM T", selectionStart: 0, selectionEnd: 0, inputDirection: "forward" });
+  assert.equal(result.value, "1h:MM T", "type 1");
+  assert.equal(result.caretPosition, 1, "type 1");
+
+  result = maskInstance.processInput({ insertedChars: "X", prevValue: "12:45 T", selectionStart: 6, selectionEnd: 6, inputDirection: "forward" });
+  assert.equal(result.value, "12:45 T", "try type X");
+  assert.equal(result.caretPosition, 6, "try type X");
+
+  result = maskInstance.processInput({ insertedChars: "p", prevValue: "12:45 T", selectionStart: 6, selectionEnd: 6, inputDirection: "forward" });
+  assert.equal(result.value, "12:45 P", "type p");
+  assert.equal(result.caretPosition, 7, "type p");
+
+  result = maskInstance.processInput({ insertedChars: "z", prevValue: "12:45 P", selectionStart: 7, selectionEnd: 7, inputDirection: "forward" });
+  assert.equal(result.value, "12:45 P", "try type z");
+  assert.equal(result.caretPosition, 7, "try type z");
+
+  result = maskInstance.processInput({ insertedChars: "m", prevValue: "12:45 P", selectionStart: 7, selectionEnd: 7, inputDirection: "forward" });
+  assert.equal(result.value, "12:45 P", "try type m");
+  assert.equal(result.caretPosition, 7, "try type m");
+
+  maskInstance.pattern = "hh:MM t";
+  result = maskInstance.processInput({ insertedChars: "m", prevValue: "12:45 p", selectionStart: 7, selectionEnd: 7, inputDirection: "forward" });
+  assert.equal(result.value, "12:45 p", "try type m #2");
+  assert.equal(result.caretPosition, 7, "try type m #2");
+});
+
 QUnit.test("dateTime processInput: time 12 hours - h", function (assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "h:MM TT";

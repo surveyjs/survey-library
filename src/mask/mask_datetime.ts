@@ -34,11 +34,11 @@ function getMaxCountLexem(currentLexemType: string, count: number): number {
     case "hour":
     case "minute":
     case "second":
-    case "timeMarker":
     case "day":
     case "month": {
       return 2;
     }
+    case "timeMarker":
     case "year": {
       return count;
     }

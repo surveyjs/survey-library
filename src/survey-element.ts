@@ -24,6 +24,8 @@ import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { Panel } from "./knockout/kopage";
+import { PanelModel } from "./panel";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */
@@ -825,11 +827,15 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.survey && (<SurveyModel>this.survey)["isCompact"];
   }
 
+  private canHaveFrameStyles() {
+    return (!this.hasParent || this.parent && (this.parent as PanelModel).showPanelAsPage);
+  }
+
   protected getHasFrameV2(): boolean {
-    return this.shouldAddRunnerStyles() && (!this.hasParent);
+    return this.shouldAddRunnerStyles() && this.canHaveFrameStyles();
   }
   protected getIsNested(): boolean {
-    return this.shouldAddRunnerStyles() && (this.hasParent);
+    return this.shouldAddRunnerStyles() && !this.canHaveFrameStyles();
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     const isExpanadable = !!this.isCollapsed || !!this.isExpanded;

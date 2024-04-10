@@ -828,7 +828,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   private canHaveFrameStyles() {
-    return (!this.hasParent || this.parent && (this.parent as PanelModel).showPanelAsPage);
+    return (this.parent !== undefined && (!this.hasParent || this.parent && (this.parent as PanelModel).showPanelAsPage));
   }
 
   protected getHasFrameV2(): boolean {

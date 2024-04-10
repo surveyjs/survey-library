@@ -10,7 +10,7 @@
       :class="question.cssClasses.placeholder"
       v-show="question.needShowPlaceholder()"
     >
-      <survey-string :locString="question.locPlaceholder"></survey-string>
+      <survey-string :locString="question.locRenderedPlaceholder"></survey-string>
     </div>
     <div>
       <img

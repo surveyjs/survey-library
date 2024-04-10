@@ -338,6 +338,10 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
    */
   @property({}) showPlaceholder: boolean;
 
+  public get locRenderedPlaceholder() {
+    return this.isReadOnly ? this.locPlaceholderReadOnly : this.locPlaceholder;
+  }
+
   public nothingIsDrawn(): boolean {
     const isDrawing = this.isDrawingValue;
     const isEmpty = this.isEmpty();
@@ -354,6 +358,10 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
    */
   @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
 
+  /**
+   * A placeholder for the signature area in read-only or preview mode. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
+   */
+  @property({ localizable: { defaultStr: "signaturePlaceHolderReadOnly" } }) placeholderReadOnly: string;
   public onBlur = (event: any): void => {
     if (!this.storeDataAsText) {
       if (!this.element.contains(event.relatedTarget)) {
@@ -442,6 +450,13 @@ Serializer.addClass(
     {
       name: "placeholder:text",
       serializationProperty: "locPlaceholder",
+      category: "general",
+      dependsOn: "showPlaceholder",
+      visibleIf: (obj: QuestionSignaturePadModel) => obj.showPlaceholder
+    },
+    {
+      name: "placeholderReadOnly:text",
+      serializationProperty: "locPlaceholderReadOnly",
       category: "general",
       dependsOn: "showPlaceholder",
       visibleIf: (obj: QuestionSignaturePadModel) => obj.showPlaceholder

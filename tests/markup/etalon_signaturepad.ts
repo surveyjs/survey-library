@@ -17,6 +17,20 @@ registerMarkupTests(
       snapshot: "signaturepad"
     },
     {
+      name: "Test Signaturepad question markup readonly",
+      json: {
+        questions: [
+          {
+            type: "signaturepad",
+            name: "q1",
+            titleLocation: "hidden",
+            readOnly: true
+          }
+        ]
+      },
+      snapshot: "signaturepad-readonly"
+    },
+    {
       name: "Test Signaturepad question with value",
       json: {
         questions: [

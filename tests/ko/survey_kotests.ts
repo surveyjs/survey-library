@@ -2612,3 +2612,26 @@ QUnit.test("questionsOnPageMode change from questionPerPage to standard leads to
   assert.equal(survey.pages[0].elements.length, 2, "There are two questions on the first page");
   assert.equal(survey.pages[0].rows.length, 2, "two rows on the firts page");
 });
+
+QUnit.test("koProcessedCompletedHtml reacts on completedHtml changed", function (assert) {
+  var json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "question1",
+            choices: ["Item 1", "Item 2", "Item 3"]
+          },
+        ]
+      },
+    ]
+  };
+  const survey = new Survey(json) as any;
+  assert.equal(survey.koProcessedCompletedHtml(), "<h3>Thank you for completing the survey</h3>", "empty");
+  survey.doComplete();
+  assert.equal(survey.koProcessedCompletedHtml(), "<h3>Thank you for completing the survey</h3>", "after complete");
+  survey.completedHtml = "Changed text";
+  assert.equal(survey.koProcessedCompletedHtml(), "Changed text", "Changed text");
+});

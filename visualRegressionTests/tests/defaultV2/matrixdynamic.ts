@@ -223,7 +223,7 @@ frameworks.forEach(framework => {
   test("Check Matrixdynamic with allowRowsDragAndDrop", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       //todo
-      if (framework === "vue" || framework === "angular") {
+      if (framework === "vue") {
         return;
       }
       await t.resizeWindow(1280, 1100);
@@ -237,7 +237,7 @@ frameworks.forEach(framework => {
   test("Check Matrixdynamic with allowRowsDragAndDrop & lockedRowCount=1", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       //todo
-      if (framework === "vue" || framework === "angular") {
+      if (framework === "vue") {
         return;
       }
       await t.resizeWindow(1280, 1100);

@@ -3,13 +3,10 @@ import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { SurveyModel, QuestionPanelDynamicModel } from "survey-core";
 import { SurveyPanel } from "./panel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { SurveyQuestionPanelDynamicNextButton } from "./components/paneldynamic-actions/paneldynamic-next-btn";
 import { SurveyQuestionPanelDynamicPrevButton } from "./components/paneldynamic-actions/paneldynamic-prev-btn";
 import { SurveyQuestionPanelDynamicProgressText } from "./components/paneldynamic-actions/paneldynamic-progress-text";
-import { SurveyQuestionPanelDynamicAddButton } from "./components/paneldynamic-actions/paneldynamic-add-btn";
-import { SurveyQuestionPanelDynamicRemoveButton } from "./components/paneldynamic-actions/paneldynamic-remove-btn";
 import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
@@ -47,8 +44,8 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   protected renderElement(): JSX.Element {
     const panels:Array<JSX.Element> = [];
     if (this.question.isRenderModeList) {
-      for (let i = 0; i < this.question.panels.length; i++) {
-        const panel = this.question.panels[i];
+      for (let i = 0; i < this.question.visiblePanels.length; i++) {
+        const panel = this.question.visiblePanels[i];
         panels.push(
           <SurveyQuestionPanelDynamicItem
             key={panel.id}

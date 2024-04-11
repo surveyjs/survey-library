@@ -100,7 +100,7 @@ useQuestion(
 );
 
 const renderedPanels = computed(() => {
-  if (props.question.isRenderModeList) return props.question.panels;
+  if (props.question.isRenderModeList) return props.question.visiblePanels;
   const panels = [];
   if (props.question.currentPanel) {
     panels.push(props.question.currentPanel);

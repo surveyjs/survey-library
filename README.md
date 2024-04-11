@@ -1,6 +1,6 @@
 <div align="center">
     
-![SurveyJS Form Library](https://github.com/surveyjs/survey-library/assets/102306951/68652f08-74cc-464c-b5c8-4e23a4068076)
+![01](https://github.com/surveyjs/survey-library/assets/102306951/e2578bc5-a86f-449a-8ebf-26f808b1d6ee)
     
 </div>
 

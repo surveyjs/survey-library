@@ -33,6 +33,7 @@
   }
 
   .sd-radio__svg {
+    fill: $foreground;
     display: block;
     width: calcSize(2.5);
     height: calcSize(2.5);

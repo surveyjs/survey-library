@@ -234,6 +234,24 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop.png", matrixdynamicRoot, t, comparer);
     });
   });
+  test("Check Matrixdynamic with allowRowsDragAndDrop & lockedRowCount=1", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      //todo
+      if (framework === "vue" || framework === "angular") {
+        return;
+      }
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, { elements: [{ type: "matrixdynamic", name: "question1", allowRowsDragAndDrop: true, defaultValue: [{ col1: "Row1 value" }, { col1: "Row2 value" }, { col1: "Row3 value" }], columns: [{ "name": "col1", "title": "Column 1", "cellType": "text" }] }] });
+      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].lockedRowCount = 1; })();
+
+      const matrixdynamicRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop-lockedRowCount.png", matrixdynamicRoot, t, comparer);
+
+      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].allowRowsDragAndDrop = false; })();
+      await takeElementScreenshot("matrixdynamic-lockedRowCount.png", matrixdynamicRoot, t, comparer);
+    });
+  });
 
   test("Check matrixdropdown with showInMultipleColumns", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {

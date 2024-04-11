@@ -365,10 +365,12 @@ function sortInlineStyles(str: string) {
     if(!!el.getAttribute("style")) {
       const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(/;(?![^(]*\))/);
       if(el.tagName === "CANVAS") {
-        const excludeStyle = "touch-action: none";
-        if(inlineStyle.indexOf(excludeStyle) !== -1) {
-          inlineStyle.splice(inlineStyle.indexOf(excludeStyle), 1);
-        }
+        const excludeStyles = ["touch-action: none", "touch-action: auto"];
+        excludeStyles.forEach(excludeStyle => {
+          if (inlineStyle.indexOf(excludeStyle) !== -1) {
+            inlineStyle.splice(inlineStyle.indexOf(excludeStyle), 1);
+          }
+        });
       }
       const flexRules = ["flex-grow", "flex-shrink", "flex-basis"];
       const flexStyles: Array<string> = [];

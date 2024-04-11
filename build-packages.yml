@@ -150,12 +150,16 @@ jobs:
         npm run doc_gen
       displayName: "generate docs"
 
-    - task: CopyFiles@2
+    - task: CopyFiles@2 
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/docs"
+        Contents: |
+          classes.json
+          pmes.json
+          surveyjs_definition.json
         TargetFolder: "$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/DocsLibrary"
-        CleanTargetFolder: true
-      displayName: "copy generated docs to the local surveyjs/service repo"
+        CleanTargetFolder: false
+      displayName: "copy generated docs from library repo to the local surveyjs/service repo"
 
     # read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
     # https://github.com/microsoft/azure-pipelines-yaml/issues/248
@@ -169,10 +173,34 @@ jobs:
         git fetch origin master --tags --force
         git checkout master
         git add surveyjs.io/App_Data/DocsLibrary
+        git commit -m "updated survey-library generated docs [azurepipelines skip]"
+        git pull origin master
+        git push origin master
+      displayName: "git surveyjs/service push generated docs"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/DocsLibrary"
+        TargetFolder: "$(Build.SourcesDirectory)/survey-library/docs"
+        CleanTargetFolder: true
+      displayName: "copy generated docs to the local surveyjs/service repo"
+
+    # read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
+    # https://github.com/microsoft/azure-pipelines-yaml/issues/248
+    # https://stackoverflow.com/questions/58485585/azure-pipeline-powershell-and-git-on-windows-server-2019-gives-error-in-output
+    - powershell: |
+        cd $(Build.SourcesDirectory)/survey-library
+        $env:GIT_REDIRECT_STDERR = '2>&1'
+        git config --global user.email "kurmanov.work@gmail.com"
+        git config --global user.name "dmitrykurmanov"
+        git pull origin master
+        git fetch origin master --tags --force
+        git checkout master
+        git add docs
         git commit -m "updated survey-library docs [azurepipelines skip]"
         git pull origin master
         git push origin master
-      displayName: "git surveyjs/service push updated docs"
+      displayName: "git survey-library repo push updated docs from service"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library

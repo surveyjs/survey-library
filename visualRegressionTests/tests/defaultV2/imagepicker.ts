@@ -193,4 +193,87 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("imagepicker-not-load.png", questionRoot, t, comparer);
     });
   });
+  test("Check image picker columns and long label text", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "imagepicker",
+                "name": "best_picture",
+                "title": "Which movie do you believe should have won the Academy Award for Best Picture?",
+                "hideNumber": true,
+                "choices": [
+                  {
+                    "value": "movie_1",
+                    "text": "The Holdovers",
+                    "imageLink": "https://api.surveyjs.io/private/Surveys/files?name=75872c76-0c59-4e65-a4ed-84ee1f7e41a8"
+                  },
+                  {
+                    "value": "movie_2",
+                    "text": "American Fiction",
+                    "imageLink": "https://api.surveyjs.io/private/Surveys/files?name=ace0a8c5-1e9b-4a4a-bf6d-c6e2d6b75d8e"
+                  },
+                  {
+                    "value": "movie_3",
+                    "text": "Oppenheimer",
+                    "enableIf": "{trailer-follow-up} = 3",
+                    "imageLink": "https://api.surveyjs.io/private/Surveys/files?name=21955954-3a96-4878-b38b-05a1c69ef3ac"
+                  },
+                  {
+                    "value": "movie_4",
+                    "text": "Barbie",
+                    "imageLink": "https://api.surveyjs.io/private/Surveys/files?name=48cb552f-df27-4b63-a8d8-980525ddd2f7"
+                  },
+                  {
+                    "value": "movie_5",
+                    "text": "Poor Things",
+                    "imageLink": "https://api.surveyjs.io/private/Surveys/files?name=f6ca4ef5-2bff-4023-904f-1f79cbcfdbc9"
+                  },
+                  {
+                    "value": "movie_6",
+                    "text": "Past Lives",
+                    "imageLink": "https://api.surveyjs.io/private/Surveys/files?name=4b35eac0-a7dc-4c90-9ad3-44b5cf4e315f"
+                  },
+                  {
+                    "value": "movie_7",
+                    "text": "Killers of the Flower Moon",
+                    "imageLink": "https://api.surveyjs.io/private/Surveys/files?name=7a43145a-8baf-47a0-8b0e-a6d020a92f37"
+                  },
+                  {
+                    "value": "movie_8",
+                    "text": "Maestro",
+                    "imageLink": "https://api.surveyjs.io/private/Surveys/files?name=763ed4e1-7815-4a3f-9bdd-bd4daf55275c"
+                  },
+                  {
+                    "value": "movie_9",
+                    "text": "Anatomy of a Fall",
+                    "imageLink": "https://api.surveyjs.io/private/Surveys/files?name=0fcd5fa7-d280-42f2-be1b-88699638a95f"
+                  },
+                  {
+                    "value": "movie_10",
+                    "text": "The Zone of Interest",
+                    "imageLink": "https://api.surveyjs.io/private/Surveys/files?name=bfd7cc1f-d4ce-49e0-9a32-cf4009117f95"
+                  }
+                ],
+                "colCount": 5,
+                "imageHeight": 220,
+                "imageWidth": 220,
+                "showLabel": true,
+                "multiSelect": true
+              },
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "width": "1000"
+      });
+      const questionRoot = Selector(".sd-imagepicker");
+      await takeElementScreenshot("imagepicker-question-columns-long-label.png", questionRoot, t, comparer);
+    });
+  });
 });

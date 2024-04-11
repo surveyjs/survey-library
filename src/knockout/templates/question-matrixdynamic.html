@@ -122,27 +122,34 @@
       <!-- ko ifnot: ($parent.detailPanelMode === "popup" && $data.isDetailRow) || !$data.visible-->
       <tr data-bind="css: $data.className, attr: attributes, event: { pointerdown: function (model, event) { question.onPointerDown(event, row); return true;} }">
         <!-- ko foreach: $data.cells -->
-        <!-- ko ifnot: $data.hasQuestion -->
+        <!-- ko if: $data.isDragHandlerCell -->
+        <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">
+          <!-- ko component: { name: 'sv-matrix-drag-drop-icon', params: { item: { data: { row: row, question: question } } }} -->
+          <!-- /ko -->
+        </td>
+        <!-- /ko -->
+        <!-- ko if: $data.isActionsCell -->
         <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }">
-          <!-- ko if: $data.isDragHandlerCell -->
-            <!-- ko component: { name: 'sv-matrix-drag-drop-icon', params: { item: { data: { row: row, question: question } } }} -->
+          <!-- ko component: { name: 'sv-action-bar', params: { model: $data.item.getData(), handleClick: false } } -->
+          <!-- /ko -->
+        </td>
+        <!-- /ko -->
+        <!-- ko if: $data.isEmpty -->
+        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }"></td>
+        <!-- /ko -->
+        <!-- ko if: $data.hasPanel -->
+        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans }">
+          <!-- ko component: { name: $data.panel.survey.getElementWrapperComponentName($data.panel), 
+            params: { componentData:  $data.panel.survey.getElementWrapperComponentData($data.panel), 
+            templateData: { name: $data.panel.koElementType, data: $data.panel, afterRender: question.koPanelAfterRender } } } 
+          -->
+          <!-- /ko -->
+        </td>
+        <!-- /ko -->
+        <!-- ko if: $data.isErrorsCell -->
+        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }">
+            <!-- ko template: { name: 'survey-question-errors', data: $data.question, as: 'question' } -->
             <!-- /ko -->
-          <!-- /ko -->
-          <!-- ko if: $data.isActionsCell -->
-            <!-- ko component: { name: 'sv-action-bar', params: { model: $data.item.getData(), handleClick: false } } -->
-            <!-- /ko -->
-          <!-- /ko -->
-          <!-- ko if: $data.hasPanel -->
-            <!-- ko component: { name: $data.panel.survey.getElementWrapperComponentName($data.panel), 
-              params: { componentData:  $data.panel.survey.getElementWrapperComponentData($data.panel), 
-              templateData: { name: $data.panel.koElementType, data: $data.panel, afterRender: question.koPanelAfterRender } } } 
-            -->
-            <!-- /ko -->
-          <!-- /ko -->
-          <!-- ko if: $data.isErrorsCell -->
-              <!-- ko template: { name: 'survey-question-errors', data: $data.question, as: 'question' } -->
-              <!-- /ko -->
-          <!-- /ko -->
         </td>
         <!-- /ko -->
         <!-- ko if: $data.hasQuestion -->

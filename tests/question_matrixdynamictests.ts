@@ -9270,4 +9270,8 @@ QUnit.test("lockedRowCount property", function (assert) {
   assert.equal(table.rows[3].cells[0].isDragHandlerCell, false, "isDragHandlerCell, row#2");
   assert.equal(table.rows[5].cells[0].isDragHandlerCell, true, "isDragHandlerCell, row#3");
   assert.equal(table.rows[7].cells[0].isDragHandlerCell, true, "isDragHandlerCell, row#4");
+  assert.equal(table.rows[1].cells[0].isEmpty, true, "isEmpty, row#1");
+  assert.equal(table.rows[3].cells[0].isEmpty, true, "isEmpty, row#2");
+  assert.equal(table.rows[5].cells[0].isEmpty, false, "isEmpty, row#3");
+  assert.equal(table.rows[7].cells[0].isEmpty, false, "isEmpty, row#4");
 });

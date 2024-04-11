@@ -1,10 +1,10 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog } from "../src/utils/utils";
+import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, mergeValues } from "../src/utils/utils";
 import { mouseInfo } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
-import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationUtils } from "../src/utils/animation";
+import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationTab, AnimationUtils, IAnimationConsumer } from "../src/utils/animation";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
@@ -386,27 +386,41 @@ QUnit.test("Test animation utils: enter animation", (assert) => {
   const oldRequestAnimationFrame = window.requestAnimationFrame;
   window.requestAnimationFrame = ((cb) => cb()) as any;
   const animationUtils = new AnimationPropertyUtils();
-  const element = document.createElement("div");
-  element.style.animationName = "animation1";
-  element.style.animationDuration = "1s";
-  document.body.appendChild(element);
+  const htmlElement = document.createElement("div");
+  htmlElement.style.animationName = "animation1";
+  htmlElement.style.animationDuration = "1s";
+  document.body.appendChild(htmlElement);
   let log = "";
-  animationUtils.onEnter(() => element, {
-    onAfterRunAnimation: (element) => {
-      assert.equal(element, element);
-      log+= "->afterRunAnimation";
+  const animationOptions: IAnimationConsumer = {
+    getLeaveOptions() {
+      return {} as any;
     },
-    onBeforeRunAnimation: (element) => {
-      assert.equal(element, element);
-      log+= "->beforeRunAnimation";
+    isAnimationEnabled() {
+      return true;
     },
-    cssClass: "enter"
-  });
+    getAnimatedElement() {
+      return htmlElement;
+    },
+    getEnterOptions() {
+      return {
+        onAfterRunAnimation: (element) => {
+          assert.equal(element, element);
+          log+= "->afterRunAnimation";
+        },
+        onBeforeRunAnimation: (element) => {
+          assert.equal(element, element);
+          log+= "->beforeRunAnimation";
+        },
+        cssClass: "enter"
+      };
+    }
+  };
+  animationUtils.onEnter(animationOptions);
   assert.equal(log, "->beforeRunAnimation");
-  assert.ok(element.classList.contains("enter"));
-  element.dispatchEvent(new AnimationEvent("animationend"));
+  assert.ok(htmlElement.classList.contains("enter"));
+  htmlElement.dispatchEvent(new AnimationEvent("animationend"));
   assert.equal(log, "->beforeRunAnimation->afterRunAnimation");
-  assert.notOk(element.classList.contains("enter"));
+  assert.notOk(htmlElement.classList.contains("enter"));
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
 
@@ -415,34 +429,48 @@ QUnit.test("Test animation utils: leave animation", (assert) => {
   const oldRequestAnimationFrame = window.requestAnimationFrame;
   window.requestAnimationFrame = (cb) => setTimeout(cb);
   const animationUtils = new AnimationPropertyUtils();
-  const element = document.createElement("div");
-  element.style.animationName = "animation1";
-  element.style.animationDuration = "1s";
-  document.body.appendChild(element);
+  const htmlElement = document.createElement("div");
+  htmlElement.style.animationName = "animation1";
+  htmlElement.style.animationDuration = "1s";
+  document.body.appendChild(htmlElement);
   let log = "";
-  animationUtils.onLeave(() => element, () => {
+  const animationOptions: IAnimationConsumer = {
+    getLeaveOptions() {
+      return {
+        onAfterRunAnimation: (element) => {
+          assert.equal(element, element);
+          log+= "->afterRunAnimation";
+        },
+        onBeforeRunAnimation: (element) => {
+          assert.equal(element, element);
+          log+= "->beforeRunAnimation";
+        },
+        cssClass: "leave"
+      };
+    },
+    isAnimationEnabled() {
+      return true;
+    },
+    getAnimatedElement() {
+      return htmlElement;
+    },
+    getEnterOptions() {
+      return {} as any;
+    }
+  };
+  animationUtils.onLeave(animationOptions, () => {
     log += "->updated";
-  }, {
-    onAfterRunAnimation: (element) => {
-      assert.equal(element, element);
-      log+= "->afterRunAnimation";
-    },
-    onBeforeRunAnimation: (element) => {
-      assert.equal(element, element);
-      log+= "->beforeRunAnimation";
-    },
-    cssClass: "leave"
-  });
+  },);
   assert.equal(log, "->beforeRunAnimation");
-  assert.ok(element.classList.contains("leave"));
-  element.dispatchEvent(new AnimationEvent("animationend"));
+  assert.ok(htmlElement.classList.contains("leave"));
+  htmlElement.dispatchEvent(new AnimationEvent("animationend"));
   assert.equal(log, "->beforeRunAnimation->afterRunAnimation->updated");
-  assert.ok(element.classList.contains("leave"));
+  assert.ok(htmlElement.classList.contains("leave"));
   setTimeout(() => {
     setTimeout(() => {
-      assert.notOk(element.classList.contains("leave"));
+      assert.notOk(htmlElement.classList.contains("leave"));
       window.requestAnimationFrame = oldRequestAnimationFrame;
-      element.remove();
+      htmlElement.remove();
       done();
     });
   });
@@ -461,19 +489,31 @@ QUnit.test("Test animation utils: group enter animation", (assert) => {
     return element;
   });
   let log = "";
-  animationUtils.onEnter((i: number) => htmlElements[i], (i) => {
-    return {
-      onAfterRunAnimation: (element) => {
-        assert.equal(element, element);
-        log+= "->afterRunAnimation_" + i;
-      },
-      onBeforeRunAnimation: (element) => {
-        assert.equal(element, element);
-        log+= "->beforeRunAnimation_" + i;
-      },
-      cssClass: "enter_" + i
-    };
-  }, [0, 1, 2]);
+  const animationOptions: IAnimationConsumer<[number]> = {
+    getEnterOptions(i) {
+      return {
+        onAfterRunAnimation: (element) => {
+          assert.equal(element, element);
+          log+= "->afterRunAnimation_" + i;
+        },
+        onBeforeRunAnimation: (element) => {
+          assert.equal(element, element);
+          log+= "->beforeRunAnimation_" + i;
+        },
+        cssClass: "enter_" + i
+      };
+    },
+    getLeaveOptions() {
+      return {} as any;
+    },
+    isAnimationEnabled() {
+      return true;
+    },
+    getAnimatedElement(i) {
+      return htmlElements[i];
+    }
+  };
+  animationUtils.runGroupAnimation(animationOptions, [0, 1, 2], []);
   assert.equal(log, "->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
   assert.ok(htmlElements[0].classList.contains("enter_0"));
   assert.ok(htmlElements[1].classList.contains("enter_1"));
@@ -507,44 +547,57 @@ QUnit.test("Test animation utils: group leave animation", (assert) => {
     return element;
   });
   let log = "";
-  animationUtils.onLeave((i: number) => htmlElements[i], () => {
+  const animationOptions: IAnimationConsumer<[number]> = {
+    getEnterOptions(i) {
+      return {} as any;
+    },
+    getLeaveOptions(i) {
+      {
+        return {
+          onAfterRunAnimation: (element) => {
+            assert.equal(element, element);
+            log+= "->afterRunAnimation_" + i;
+          },
+          onBeforeRunAnimation: (element) => {
+            assert.equal(element, element);
+            log+= "->beforeRunAnimation_" + i;
+          },
+          cssClass: "leave_" + i
+        };
+      }
+    },
+    isAnimationEnabled() {
+      return true;
+    },
+    getAnimatedElement(i) {
+      return htmlElements[i];
+    }
+  };
+  animationUtils.runGroupAnimation(animationOptions, [], [0, 1, 2], () => {
     log+="->updated";
-  }, (i) => {
-    return {
-      onAfterRunAnimation: (element) => {
-        assert.equal(element, element);
-        log+= "->afterRunAnimation_" + i;
-      },
-      onBeforeRunAnimation: (element) => {
-        assert.equal(element, element);
-        log+= "->beforeRunAnimation_" + i;
-      },
-      cssClass: "leave_" + i
-    };
-  }, [0, 1, 2]);
-  assert.equal(log, "->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
-  assert.ok(htmlElements[0].classList.contains("leave_0"));
-  assert.ok(htmlElements[1].classList.contains("leave_1"));
-  assert.ok(htmlElements[2].classList.contains("leave_2"));
-
-  log = "";
-  htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
-  htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
-  htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
-
-  assert.equal(log, "->afterRunAnimation_0->afterRunAnimation_1->afterRunAnimation_2->updated");
-  assert.ok(htmlElements[0].classList.contains("leave_0"));
-  assert.ok(htmlElements[1].classList.contains("leave_1"));
-  assert.ok(htmlElements[2].classList.contains("leave_2"));
-
+  });
   setTimeout(() => {
+    assert.equal(log, "->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
+    assert.ok(htmlElements[0].classList.contains("leave_0"));
+    assert.ok(htmlElements[1].classList.contains("leave_1"));
+    assert.ok(htmlElements[2].classList.contains("leave_2"));
+    log = "";
+    htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
+    htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
+    htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
+    assert.equal(log, "->afterRunAnimation_0->afterRunAnimation_1->afterRunAnimation_2->updated");
+    assert.ok(htmlElements[0].classList.contains("leave_0"));
+    assert.ok(htmlElements[1].classList.contains("leave_1"));
+    assert.ok(htmlElements[2].classList.contains("leave_2"));
     setTimeout(() => {
-      assert.notOk(htmlElements[0].classList.contains("leave_0"));
-      assert.notOk(htmlElements[1].classList.contains("leave_1"));
-      assert.notOk(htmlElements[2].classList.contains("leave_2"));
-      htmlElements.forEach(el => el.remove());
-      window.requestAnimationFrame = oldRequestAnimationFrame;
-      done();
+      setTimeout(() => {
+        assert.notOk(htmlElements[0].classList.contains("leave_0"));
+        assert.notOk(htmlElements[1].classList.contains("leave_1"));
+        assert.notOk(htmlElements[2].classList.contains("leave_2"));
+        htmlElements.forEach(el => el.remove());
+        window.requestAnimationFrame = oldRequestAnimationFrame;
+        done();
+      });
     });
   });
 });
@@ -605,7 +658,6 @@ QUnit.test("Test animation property: boolean", (assert) => {
 QUnit.test("Test animation property: array", (assert) => {
   const oldRequestAnimationFrame = window.requestAnimationFrame;
   window.requestAnimationFrame = ((cb) => cb()) as any;
-  let value: boolean = false;
   let elements = [0, 3];
   const htmlElements = [0, 1, 2, 3].map(() => {
     const element = document.createElement("div");
@@ -651,13 +703,75 @@ QUnit.test("Test animation property: array", (assert) => {
   animation["_sync"]([0, 1, 2, 3]);
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
-  assert.equal(log, "->before-enter_1->before-enter_2->updated: 0,1,2,3->after-enter_1->after-enter_2");
+  assert.equal(log, "->updated: 0,1,2,3->before-enter_1->before-enter_2->after-enter_1->after-enter_2");
 
   log = "";
   animation["_sync"]([1, 2]);
   htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[3].dispatchEvent(new AnimationEvent("animationend"));
   assert.equal(log, "->before-leave_0->before-leave_3->after-leave_0->after-leave_3->updated: 1,2");
+
+  window.requestAnimationFrame = oldRequestAnimationFrame;
+});
+
+QUnit.test("Test animation tab", (assert) => {
+  const oldRequestAnimationFrame = window.requestAnimationFrame;
+  window.requestAnimationFrame = ((cb) => cb()) as any;
+  let elements = [0];
+  const htmlElements = [0, 1].map(() => {
+    const element = document.createElement("div");
+    element.style.animationName = "animation1";
+    element.style.animationDuration = "1s";
+    document.body.appendChild(element);
+    return element;
+  });
+  let log = "";
+  const animation = new AnimationTab<number>({
+    getEnterOptions: (i) => {
+      return {
+        onBeforeRunAnimation: () => {
+          log += `->before-enter_${i}`;
+        },
+        onAfterRunAnimation: () => {
+          log += `->after-enter_${i}`;
+        },
+        cssClass: "enter"
+      };
+    },
+    isAnimationEnabled: () => {
+      return true;
+    },
+    getAnimatedElement: (i) => {
+      return htmlElements[i];
+    },
+    getLeaveOptions: (i) => {
+      return {
+        onBeforeRunAnimation: () => {
+          log += `->before-leave_${i}`;
+        },
+        onAfterRunAnimation: () => {
+          log += `->after-leave_${i}`;
+        },
+        cssClass: "leave"
+      };
+    }
+  }, (val: Array<number>) => {
+    elements = val;
+    log += `->updated: ${val}`;
+  }, () => elements, (newValue: number[], oldValue: number[]) => {
+    return ([] as number[]).concat(newValue, oldValue);
+  },);
+  animation["_sync"]([1]);
+  htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
+  htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
+  assert.equal(log, "->updated: 1,0->before-enter_1->before-leave_0->after-leave_0->after-enter_1->updated: 1");
+  assert.deepEqual(elements, [1]);
+  log = "";
+  animation["_sync"]([0]);
+  htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
+  htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
+  assert.equal(log, "->updated: 0,1->before-enter_0->before-leave_1->after-enter_0->after-leave_1->updated: 0");
+  assert.deepEqual(elements, [0]);
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });

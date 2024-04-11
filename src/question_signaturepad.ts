@@ -332,9 +332,11 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     return this.getLocalizationString("clearCaption");
   }
   /**
-   * A Boolean value that specifies whether to show the [placeholder](#placeholder).
+   * A Boolean value that specifies whether to show the placeholder text in the signature area.
    *
    * Default value: `true`
+   *
+   * Use the [`placeholder`](#placeholder) and [`placeholderReadOnly`](#placeholderReadOnly) properties to specify placeholder texts for the signature area in edit mode and in read-only or preview mode.
    */
   @property({}) showPlaceholder: boolean;
 
@@ -354,12 +356,12 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     return this.showPlaceholder && this.nothingIsDrawn();
   }
   /**
-   * A placeholder for the signature area. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
+   * A placeholder text for the signature area. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
    */
   @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
 
   /**
-   * A placeholder for the signature area in read-only or preview mode. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
+   * A placeholder text for the signature area in read-only or preview mode. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
    */
   @property({ localizable: { defaultStr: "signaturePlaceHolderReadOnly" } }) placeholderReadOnly: string;
   public onBlur = (event: any): void => {

@@ -56,6 +56,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.itemOnError, this.hasCssError())
       .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
       .append(this.cssClasses.rootSelectToRankMod, this.selectToRankEnabled)
+      .append(this.cssClasses.rootSelectToRankEmptyValueMod, this.isEmpty())
       .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "horizontal")
       .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "vertical")
       .toString();

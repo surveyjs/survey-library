@@ -751,6 +751,7 @@ export var defaultV2Css = {
     rootDesignMode: "sv-ranking--design-mode",
     rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
     rootSelectToRankMod: "sv-ranking--select-to-rank",
+    rootSelectToRankEmptyValueMod: "sv-ranking--select-to-rank-empty-value",
     rootSelectToRankAlignVertical: "sv-ranking--select-to-rank-vertical",
     rootSelectToRankAlignHorizontal: "sv-ranking--select-to-rank-horizontal",
     item: "sv-ranking-item",

@@ -12,8 +12,25 @@
   user-select: initial;
   -webkit-user-select: initial;
 
-  .sv-ranking__containers-divider {
+  &.sv-ranking--select-to-rank-empty-value {
+    .sv-ranking__containers-divider {
+      visibility: hidden;
+    }
+  }
+
+  .sv-ranking__container--empty {
     visibility: hidden;
+  }
+}
+
+.sv-ranking.sd-ranking--preview {
+  user-select: initial;
+  -webkit-user-select: initial;
+
+  &.sv-ranking--select-to-rank-empty-value {
+    .sv-ranking__containers-divider {
+      visibility: hidden;
+    }
   }
 
   .sv-ranking__container--empty {

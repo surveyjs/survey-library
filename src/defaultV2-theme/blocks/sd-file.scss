@@ -430,6 +430,10 @@
   .sd-file__image-wrapper {
     background: $background-dark;
   }
+
+  .sd-file__drag-area-placeholder {
+    color: $foreground;
+  }
 }
 
 .sd-file--preview {

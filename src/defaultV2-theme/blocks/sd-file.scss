@@ -426,6 +426,10 @@
   .sd-file__actions-container {
     display: none;
   }
+
+  .sd-file__image-wrapper {
+    background: $background-dark;
+  }
 }
 
 .sd-file--preview {

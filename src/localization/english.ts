@@ -86,7 +86,7 @@ export var englishStrings = {
   timerLimitSurvey: "You have spent {0} of {1} in total.",
   clearCaption: "Clear",
   signaturePlaceHolder: "Sign here",
-  signaturePlaceHolderReadOnly: "No signature",
+  signaturePlaceHolderReadOnly: "No signature.",
   chooseFileCaption: "Select File",
   takePhotoCaption: "Take Photo",
   photoPlaceholder: "Click the button below to take a photo using the camera.",

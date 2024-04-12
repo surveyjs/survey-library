@@ -330,7 +330,7 @@ QUnit.test("check showPlaceholder & placeholder properties", (assert) => {
 
   assert.equal(question.locRenderedPlaceholder.renderedHtml, "test sign");
   question.readOnly = true;
-  assert.equal(question.locRenderedPlaceholder.renderedHtml, "No signature");
+  assert.equal(question.locRenderedPlaceholder.renderedHtml, "No signature.");
   question.placeholderReadOnly = "empty sign";
   assert.equal(question.locRenderedPlaceholder.renderedHtml, "empty sign");
 

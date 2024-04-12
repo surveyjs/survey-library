@@ -337,6 +337,21 @@ frameworks.forEach((framework) => {
       .expect(addNewSelector.count).eql(1)
       .expect(Selector("span").withText("#1-2").visible).ok();
   });
+  test("templateVisibleIf renderMode: list", async (t) => {
+    await ClientFunction(() => {
+      (window as any).survey.getQuestionByName("panel").renderMode = "list";
+    })();
+    const titleSelector = Selector("span").withText("q1");
+    await t
+      .expect(titleSelector.count).eql(0)
+      .pressKey("b")
+      .pressKey("tab")
+      .expect(titleSelector.count).eql(0)
+      .pressKey("tab")
+      .pressKey("a")
+      .pressKey("tab")
+      .expect(titleSelector.count).eql(1);
+  });
 });
 const jsonCheckboxRestFul = {
   storeOthersAsComment: false,

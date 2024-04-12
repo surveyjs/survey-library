@@ -140,7 +140,7 @@
             background-color: $primary;
           }
           &.sd-item--readonly.sd-item--checked .sd-item__decorator {
-            background-color: $primary-foreground;
+            background-color: $background;
           }
           &.sd-item--preview.sd-item--preview .sd-item__decorator {
             background-color: transparent;

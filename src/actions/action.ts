@@ -201,7 +201,10 @@ export function getActionDropdownButtonTarget(container: HTMLElement): HTMLEleme
 }
 
 export abstract class BaseAction extends Base implements IAction {
+  private static renderedId = 1;
+  private static getNextRendredId(): number { return BaseAction.renderedId ++; }
   private cssClassesValue: any;
+  private rendredIdValue = BaseAction.getNextRendredId();
   @property() tooltip: string;
   @property() showTitle: boolean;
   @property() innerCss: string;
@@ -228,6 +231,8 @@ export abstract class BaseAction extends Base implements IAction {
   @property() css?: string
   minDimension: number;
   maxDimension: number;
+
+  public get renderedId(): number { return this.rendredIdValue; }
 
   public get visible(): boolean {
     return this.getVisible();

@@ -1,10 +1,34 @@
 import { InputElementAdapter } from "../../src/mask/input_element_adapter";
 import { InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { InputMaskPattern } from "../../src/mask/mask_pattern";
+import { InputMaskCurrency } from "../../src/mask/mask_currency";
 
 export default QUnit.module("Input mask");
 
-QUnit.test("InputElementAdapter createArgs insertText", function(assert) {
+QUnit.test("InputElementAdapter constructor", function (assert) {
+  const testInput = document.createElement("input");
+  const inputMask = new InputMaskCurrency();
+  inputMask.fromJSON({
+    "decimalSeparator": ",",
+    "thousandsSeparator": " ",
+    "suffix": " Eur"
+  });
+  let adapter = new InputElementAdapter(inputMask, testInput, 12345.67);
+  assert.equal(testInput.value, "12 345,67 Eur");
+
+  adapter = new InputElementAdapter(inputMask, testInput);
+  assert.equal(testInput.value, "");
+
+  adapter = new InputElementAdapter(inputMask, testInput, undefined);
+  assert.equal(testInput.value, "");
+
+  adapter = new InputElementAdapter(inputMask, testInput, null);
+  assert.equal(testInput.value, "");
+
+  testInput.remove();
+});
+
+QUnit.test("InputElementAdapter createArgs insertText", function (assert) {
   const testInput = document.createElement("input");
   const inputMaskPattern = new InputMaskPattern();
   inputMaskPattern.pattern = "999";
@@ -24,7 +48,7 @@ QUnit.test("InputElementAdapter createArgs insertText", function(assert) {
   testInput.remove();
 });
 
-QUnit.test("InputElementAdapter createArgs deleteContentForward", function(assert) {
+QUnit.test("InputElementAdapter createArgs deleteContentForward", function (assert) {
   const testInput = document.createElement("input");
   const inputMaskPattern = new InputMaskPattern();
   inputMaskPattern.pattern = "999";
@@ -64,7 +88,7 @@ QUnit.test("InputElementAdapter createArgs deleteContentForward", function(asser
   testInput.remove();
 });
 
-QUnit.test("InputElementAdapter createArgs deleteContentBackward", function(assert) {
+QUnit.test("InputElementAdapter createArgs deleteContentBackward", function (assert) {
   const testInput = document.createElement("input");
   const inputMaskPattern = new InputMaskPattern();
   inputMaskPattern.pattern = "999";
@@ -103,7 +127,7 @@ QUnit.test("InputElementAdapter createArgs deleteContentBackward", function(asse
   testInput.remove();
 });
 
-QUnit.test("Change property mask => update display value", function(assert) {
+QUnit.test("Change property mask => update display value", function (assert) {
   const testInput = document.createElement("input");
   const inputMaskPattern = new InputMaskPattern();
   inputMaskPattern.pattern = "999";

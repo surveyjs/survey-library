@@ -4705,10 +4705,10 @@ QUnit.test("noEntriesReadonlyText property for panel dynamic", function (assert)
   const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
   assert.equal(panel1.noEntriesText.indexOf("No entries yet.\nClick the button below to add a new entry."), 0, "panel1 default");
-  assert.equal(panel2.noEntriesText.indexOf("No entries."), 0, "panel2: text for allowAddPanel false");
+  assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for allowAddPanel false");
   panel1.allowAddPanel = false;
-  assert.equal(panel1.noEntriesText.indexOf("No entries."), 0, "panel1: text for allowAddPanel false");
-  assert.equal(panel2.noEntriesText.indexOf("No entries."), 0, "panel2: text for allowAddPanel false");
+  assert.equal(panel1.noEntriesText.indexOf("No entries"), 0, "panel1: text for allowAddPanel false");
+  assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for allowAddPanel false");
 });
 
 QUnit.test("Question defaultValueExpression in panel dynamic", function(
@@ -5339,9 +5339,9 @@ QUnit.test("NoentriesText and readOnly", (assert) => {
   const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
   assert.equal(panel1.noEntriesText.indexOf("No entries yet."), 0, "panel1: text for editing");
-  assert.equal(panel2.noEntriesText.indexOf("No entries."), 0, "panel2: text for readonly");
+  assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for readonly");
   survey.mode = "display";
-  assert.equal(panel1.noEntriesText.indexOf("No entries."), 0, "panel1: text for readonly");
+  assert.equal(panel1.noEntriesText.indexOf("No entries"), 0, "panel1: text for readonly");
 });
 QUnit.test("Carry forward in panel dynamic", function (assert) {
   const survey = new SurveyModel({

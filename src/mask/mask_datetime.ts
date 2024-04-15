@@ -296,7 +296,7 @@ export class InputMaskDateTime extends InputMaskPattern {
     if(date.length > 0) {
       result.push(date.join("-"));
     }
-    if(time.length > 0) {
+    if (time.length > 1) {
       result.push(time.join(":"));
     }
     return result.join("T");
@@ -656,20 +656,26 @@ export class InputMaskDateTime extends InputMaskPattern {
   public getUnmaskedValue(src: string): any {
     let input = (src === undefined || src === null) ? "" : src.toString();
     const inputParts = this.getParts(input);
+
     this.setInputDateTimeData(inputParts);
 
     const timeMarker = this.inputDateTimeData.filter(idtd => idtd.lexem.type === "timeMarker")[0]?.value.toLowerCase()[0];
 
     const tempDateTime = this.createIDateTimeComposition();
+    let uncompleted = false;
     this.inputDateTimeData.forEach(inputData => {
       let str = inputData.value;
-      if (!str || str.length < inputData.lexem.count || inputData.lexem.type == "timeMarker") return undefined;
+      if (inputData.lexem.type == "timeMarker" || inputData.lexem.type == "separator") return;
+      if (!str || str.length < inputData.lexem.count) {
+        uncompleted = true;
+        return;
+      }
       let value = parseInt(this.parseTwoDigitYear(inputData));
       if (inputData.lexem.type == "hour" && timeMarker === "p" && value != this.twelve) value += this.twelve;
       (tempDateTime as any)[inputData.lexem.type] = value;
     });
 
-    return this.getISO_8601Format(tempDateTime);
+    return uncompleted ? "" : this.getISO_8601Format(tempDateTime);
   }
 
   public getMaskedValue(src: string) : string {

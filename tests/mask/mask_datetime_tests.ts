@@ -266,7 +266,7 @@ QUnit.test("get getMaskedValue value from ISO", function (assert) {
   assert.equal(maskInstance.getMaskedValue("22:07"), "10:07");
 });
 
-QUnit.test("getISO_8601Format", function (assert) {
+QUnit.test("getISO_8601Format getUnmaskedValue", function (assert) {
   const maskInstance = new InputMaskDateTime();
 
   maskInstance.pattern = "yyyy";
@@ -284,6 +284,10 @@ QUnit.test("getISO_8601Format", function (assert) {
   maskInstance.pattern = "HH:MM";
   assert.equal(maskInstance.getUnmaskedValue("12:45"), "12:45");
   assert.equal(maskInstance.getUnmaskedValue("05:05"), "05:05");
+
+  maskInstance.pattern = "dd/mm/yyyy HH:MM";
+  assert.equal(maskInstance.getUnmaskedValue("24/07/1998 12:45"), "1998-07-24T12:45");
+  assert.equal(maskInstance.getUnmaskedValue("24/07/1998 HH:MM"), "");
 
   maskInstance.pattern = "hh:MM tt";
   assert.equal(maskInstance.getUnmaskedValue("12:45 pm"), "12:45");

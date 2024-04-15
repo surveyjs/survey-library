@@ -1,6 +1,6 @@
 .sd-table {
   width: 100%;
-  background: $question-background;
+  background: transparent;
   border-collapse: separate;
   border-spacing: 0;
   white-space: normal;
@@ -343,7 +343,7 @@
 .sd-matrix__cell:first-of-type,
 .sd-matrix tr>td:first-of-type {
   position: sticky;
-  background-color: $question-background;
+  background-color: transparent;
   z-index: 12;
 
   &:first-of-type {
@@ -359,7 +359,7 @@
   .sd-action-bar {
     margin-right: calcSize(-3);
     justify-content: flex-end;
-    background: $question-background;
+    background: transparent;
   }
 }
 
@@ -386,7 +386,7 @@
     min-height: 100%;
     width: calc(var(--sd-base-padding) - #{$base-unit});
     flex-shrink: 0;
-    background: $question-background;
+    background: transparent;
     z-index: 11;
   }
 

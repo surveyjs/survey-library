@@ -1,6 +1,6 @@
 <div align="center">
     
-![SurveyJS Form Library](https://github.com/surveyjs/survey-library/assets/102306951/68652f08-74cc-464c-b5c8-4e23a4068076)
+![Library](https://github.com/surveyjs/survey-library/assets/102306951/d200bacb-b162-496c-a157-981e0623bae0)
     
 </div>
 
@@ -17,6 +17,9 @@
 <a href="https://github.com/surveyjs/survey-library/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+">
 <img alt="Closed issues" title="Closed Issues" src="https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg">
 </a>
+<a href="https://surveyjs.io/stay-updated/release-notes">
+<img alt="GitHub Release" src="https://img.shields.io/github/v/release/surveyjs/survey-library">
+</a>
     
 # SurveyJS Form Library
 
@@ -27,6 +30,7 @@
 SurveyJS Form Library is a free to use MIT-licensed client-side component that allows you to render dynamic JSON-based forms in any JavaScript application, collect responses, and send all form submission data to a database of your choice. You can use it for multi-page forms of any length and complexity, pop-up surveys, quizzes, scored surveys, calculator forms, and more. SurveyJS Form Library has **native support for React, Angular, Vue, and Knockout;** jQuery is supported via a wrapper over the Knockout version. The library interacts with the server using JSON objects&mdash;for both form metadata, also known as form JSON schemas, and results. The [SurveyJS product family](https://surveyjs.io/) also includes a robust [form builder library](https://surveyjs.io/survey-creator/documentation/overview) that automatically generates form configuration files in JSON format. The form builder features a drag-and-drop UI, CSS Theme Editor, and GUI for conditional logic and form branching.
 
 </div>
+<br>
 
 <p align="center">
     <a href="https://surveyjs.io/form-library/documentation/overview">Documentation</a>
@@ -41,6 +45,11 @@ SurveyJS Form Library is a free to use MIT-licensed client-side component that a
     ·
     <a href="https://twitter.com/SurveyJS">Twitter</a>
   </p>
+  
+<br>
+
+https://github.com/surveyjs/survey-library/assets/102306951/844563b2-c7c3-400c-962f-bcdbe7274d55
+
 
 ## Features
 

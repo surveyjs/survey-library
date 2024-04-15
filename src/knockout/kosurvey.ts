@@ -59,6 +59,13 @@ export class SurveyImplementor extends ImplementorBase {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) this.survey.afterRenderHeader(el);
     };
+    this.survey["koProcessedCompletedHtml"] = <any>ko.observable(this.survey.processedCompletedHtml);
+    (this.survey.locCompletedHtml as any)["koRenderedHtml"].subscribe(() => {
+      this.survey["koProcessedCompletedHtml"](this.survey.processedCompletedHtml);
+    });
+    this.survey.registerPropertyChangedHandlers(["state"],
+      () => { this.survey["koProcessedCompletedHtml"](this.survey.processedCompletedHtml); }
+    );
     this.survey.disposeCallback = () => {
       this.dispose();
     };

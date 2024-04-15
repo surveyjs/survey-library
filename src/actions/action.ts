@@ -205,6 +205,7 @@ export abstract class BaseAction extends Base implements IAction {
   private static getNextRendredId(): number { return BaseAction.renderedId ++; }
   private cssClassesValue: any;
   private rendredIdValue = BaseAction.getNextRendredId();
+  private ownerValue: ILocalizableOwner;
   @property() tooltip: string;
   @property() showTitle: boolean;
   @property() innerCss: string;
@@ -215,7 +216,6 @@ export abstract class BaseAction extends Base implements IAction {
   @property() needSeparator: boolean;
   @property() template: string;
   @property({ defaultValue: "large" }) mode: actionModeType;
-  public owner: ILocalizableOwner;
   @property() visibleIndex: number;
   @property() disableTabStop: boolean;
   @property() disableShrink: boolean;
@@ -233,7 +233,13 @@ export abstract class BaseAction extends Base implements IAction {
   maxDimension: number;
 
   public get renderedId(): number { return this.rendredIdValue; }
-
+  public get owner(): ILocalizableOwner { return this.ownerValue; }
+  public set owner(val: ILocalizableOwner) {
+    if(val !== this.owner) {
+      this.ownerValue = val;
+      this.locStrsChanged();
+    }
+  }
   public get visible(): boolean {
     return this.getVisible();
   }

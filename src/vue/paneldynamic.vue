@@ -42,7 +42,7 @@ import { default as QuestionVue } from "./question";
 @Component
 export class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel> {
   get renderedPanels(): PanelModel[] {
-    if (this.question.isRenderModeList) return this.question.panels;
+    if (this.question.isRenderModeList) return this.question.visiblePanels;
     const panels = [];
     if (this.question.currentPanel) {
       panels.push(this.question.currentPanel);

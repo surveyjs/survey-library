@@ -316,12 +316,17 @@ export class InputMaskDateTime extends InputMaskPattern {
     const max = dateTime.max;
     const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear());
     const month = dateTime.month !== undefined ? dateTime.month : (isUpperLimit && this.hasDatePart ? 12 : 1);
-    const day = dateTime.day !== undefined ? dateTime.day : (isUpperLimit && this.hasDatePart ? 31 : 1);
+    const day = dateTime.day !== undefined ? dateTime.day : (isUpperLimit && this.hasDatePart ? this.getMaxDateForMonth(year, month) : 1);
     const hour = dateTime.hour !== undefined ? dateTime.hour : (isUpperLimit ? 23 : 0);
     const minute = dateTime.minute !== undefined ? dateTime.minute : (isUpperLimit ? 59 : 0);
     const second = dateTime.second !== undefined ? dateTime.second : (isUpperLimit ? 59 : 0);
 
     return { year: year, month: month, day: day, hour: hour, minute: minute, second: second };
+  }
+
+  private getMaxDateForMonth(year: number, month: number) {
+    if (month == 2) return year % 4 == 0 && year % 100 != 0 || year % 400 ? 29 : 28;
+    return [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
   }
 
   private isDateValid(dateTime: IDateTimeComposition): boolean {

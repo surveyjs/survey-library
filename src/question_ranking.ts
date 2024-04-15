@@ -10,6 +10,7 @@ import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
 import { settings } from "../src/settings";
 import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
+import { DragOrClickHelper } from "./utils/dragOrClickHelper";
 
 /**
  * A class that describes the Ranking question type.
@@ -18,6 +19,7 @@ import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
  */
 export class QuestionRankingModel extends QuestionCheckboxModel {
   private domNode: HTMLElement = null;
+  private dragOrClickHelper: DragOrClickHelper;
 
   constructor(name: string) {
     super(name);
@@ -28,6 +30,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.setDragDropRankingChoices();
       this.updateRankingChoicesSync();
     });
+    this.dragOrClickHelper = new DragOrClickHelper(this.startDrag);
   }
 
   protected getDefaultItemComponent(): string {
@@ -334,6 +337,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return new DragDropRankingChoices(this.survey, null, this.longTap);
   }
 
+  private draggedChoise: ItemValue;
   public handlePointerDown = (
     event: PointerEvent,
     choice: ItemValue,
@@ -350,8 +354,22 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.canStartDragDueItemEnabled(choice)
     )
     {
-      this.dragDropRankingChoices.startDrag(event, choice, this, node);
+      this.draggedChoise = choice;
+      this.dragOrClickHelper.onPointerDown(event);
     }
+  };
+
+  public startDrag = (event: PointerEvent): void => {
+    this.dragDropRankingChoices.startDrag(event, this.draggedChoise, this, <HTMLElement>event.currentTarget);
+  }
+
+  public handlePointerUp = (
+    event: PointerEvent,
+    choice: ItemValue,
+    node: HTMLElement
+  ): void => {
+    if (!this.selectToRankEnabled) return;
+    this.handleKeydownSelectToRank(<any>event, choice, " ");
   };
 
   private isDragStartNodeValid(target: HTMLElement): boolean {
@@ -435,9 +453,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }, 1);
   }
 
-  public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue): void {
+  public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue, hardKey?:string): void {
     if (this.isDesignMode) return;
-    const key: any = event.key;
+    let key: any = event.key;
+    if (hardKey) key = hardKey;
     if(key !== " " && key !== "ArrowUp" && key !== "ArrowDown") return;
 
     const dnd:any = this.dragDropRankingChoices; //????

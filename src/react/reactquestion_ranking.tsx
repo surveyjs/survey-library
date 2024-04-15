@@ -87,10 +87,10 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     question: QuestionRankingModel,
     unrankedItem?: boolean
   ): JSX.Element {
-    const key: string = item.value + "-" + i + "-item";
+    const key: string = "id-" + item.renderedId;
     const text: JSX.Element = this.renderLocString(item.locText);
     const index = i;
-    const indexText: string = this.question.getNumberByIndex(i);
+    const indexText: string = this.question.getNumberByIndex(index);
     const tabIndex: number = this.question.getItemTabIndex(item);
     const renderedItem = (
       <SurveyQuestionRankingItem

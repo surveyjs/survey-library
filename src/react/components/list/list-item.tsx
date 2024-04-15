@@ -79,7 +79,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
         onPointerDown={(event: any) => this.model.onPointerDown(event, this.item)}>
         {separator}
         {contentWrap}
-      </li>
+      </li>, this.item
     );
   }
   componentDidMount() {

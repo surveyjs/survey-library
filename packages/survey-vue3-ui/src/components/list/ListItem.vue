@@ -1,6 +1,5 @@
 <template>
   <li
-    tabindex="0"
     role="option"
     :aria-selected="model.isItemSelected(item)"
     v-show="model.isItemVisible(item)"
@@ -9,7 +8,8 @@
     @pointerdown="model.onPointerDown($event, item)"
     v-bind:class="model.getItemClass(item)"
     v-on:click="click"
-    v-key2click
+    v-bind:tabindex="item.disableTabStop ? -1 : 0"
+    v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >
     <div
       v-if="item.needSeparator"

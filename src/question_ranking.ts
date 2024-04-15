@@ -58,7 +58,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "vertical")
       .toString();
   }
-
+  protected isItemSelectedCore(item: ItemValue): boolean {
+    return false;
+  }
   protected getItemClassCore(item: ItemValue, options: any): string {
     const itemIndex = this.rankingChoices.indexOf(item);
     const unrankedItemIndex = this.unRankingChoices.indexOf(item);

@@ -201,7 +201,10 @@ export function getActionDropdownButtonTarget(container: HTMLElement): HTMLEleme
 }
 
 export abstract class BaseAction extends Base implements IAction {
+  private static renderedId = 1;
+  private static getNextRendredId(): number { return BaseAction.renderedId ++; }
   private cssClassesValue: any;
+  private rendredIdValue = BaseAction.getNextRendredId();
   private ownerValue: ILocalizableOwner;
   @property() tooltip: string;
   @property() showTitle: boolean;
@@ -229,6 +232,7 @@ export abstract class BaseAction extends Base implements IAction {
   minDimension: number;
   maxDimension: number;
 
+  public get renderedId(): number { return this.rendredIdValue; }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
   public set owner(val: ILocalizableOwner) {
     if(val !== this.owner) {

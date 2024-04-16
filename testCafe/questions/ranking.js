@@ -311,4 +311,38 @@ frameworks.forEach((framework) => {
 
     await removeFlexboxLayout();
   });
+
+  test("ranking: selectToRank: click to add", async (t) => {
+    let selectToRankJson = {
+      "elements": [
+        {
+          "type": "ranking",
+          "name": "question1",
+          "title": "Please rank the following smartphone features in order of importance:",
+          "choices": [
+            "Battery life",
+            "Screen size",
+            "Storage space",
+            "Camera quality",
+            "Durability",
+            "Processor power",
+            "Price",
+          ],
+          "selectToRankEnabled": true
+        }
+      ]
+    };
+    await initSurvey(framework, selectToRankJson);
+
+    await t.click(PriceItem);
+    await t.click(BatteryItem);
+
+    let data = await getData();
+    await t.expect(data["smartphone-features"]).eql([
+      "Price",
+      "Battery life"
+    ]);
+
+    await initSurvey(framework, json);
+  });
 });

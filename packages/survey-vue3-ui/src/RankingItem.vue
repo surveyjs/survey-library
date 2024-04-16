@@ -18,6 +18,16 @@
         );
       }
     "
+    v-on:pointerup="
+      (event) => {
+        question.handlePointerUp.call(
+          question,
+          event,
+          item,
+          event.currentTarget as HTMLElement
+        );
+      }
+    "
   >
     <div tabindex="-1" style="outline: none">
       <div :class="question.cssClasses.itemGhostNode"></div>

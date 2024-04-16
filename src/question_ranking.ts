@@ -369,7 +369,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     node: HTMLElement
   ): void => {
     if (!this.selectToRankEnabled) return;
-    this.handleKeydownSelectToRank(<any>event, choice, " ");
+    this.handleKeydownSelectToRank(<any>event, choice, " ", false);
   };
 
   private isDragStartNodeValid(target: HTMLElement): boolean {
@@ -453,7 +453,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }, 1);
   }
 
-  public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue, hardKey?:string): void {
+  public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue, hardKey?:string, isNeedFocus: boolean = true): void {
     if (this.isDesignMode) return;
     let key: any = event.key;
     if (hardKey) key = hardKey;
@@ -472,7 +472,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.animationAllowed = false;
       dnd.selectToRank(this, fromIndex, toIndex);
       this.animationAllowed = true;
-      this.setValueAfterKeydown(toIndex, "to-container");
+      this.setValueAfterKeydown(toIndex, "to-container", isNeedFocus);
       return;
     }
     if(!isMovedElementRanked) return;
@@ -481,7 +481,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       dnd.unselectFromRank(this, fromIndex);
       this.animationAllowed = true;
       toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
-      this.setValueAfterKeydown(toIndex, "from-container");
+      this.setValueAfterKeydown(toIndex, "from-container", isNeedFocus);
       return;
     }
     const delta = key === "ArrowUp" ? -1 : (key === "ArrowDown" ? 1 : 0);
@@ -489,14 +489,18 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     toIndex = fromIndex + delta;
     if(toIndex < 0 || toIndex >= rankingChoices.length) return;
     dnd.reorderRankedItem(this, fromIndex, toIndex);
-    this.setValueAfterKeydown(toIndex, "to-container");
+    this.setValueAfterKeydown(toIndex, "to-container", isNeedFocus);
   }
 
-  private setValueAfterKeydown(index: number, container: string) {
+  private setValueAfterKeydown(index: number, container: string, isNeedFocus: boolean = true) {
     this.setValue();
-    setTimeout(() => {
-      this.focusItem(index, container);
-    }, 1);
+
+    if (isNeedFocus) {
+      setTimeout(() => {
+        this.focusItem(index, container);
+      }, 1);
+    }
+
     event.preventDefault();
   }
 

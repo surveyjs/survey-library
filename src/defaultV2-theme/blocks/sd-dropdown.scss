@@ -151,12 +151,23 @@
   }
 }
 
-.sd-input--disabled .sv-string-viewer {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.sd-input--disabled,
+.sd-input--readonly,
+.sd-input--preview {
+  .sv-string-viewer {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
+.sd-question--readonly .sd-dropdown_chevron-button use {
+  opacity: 0.24;
+}
+
+.sd-question--preview .sd-dropdown_chevron-button {
+  display: none;
+}
 .sv-dropdown-popup {
   .sd-list__item-body {
     @include useEditorFontSize;

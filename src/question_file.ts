@@ -877,6 +877,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public get fileRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
+      .append(this.cssClasses.rootDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.rootReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.rootPreview, this.isPreviewStyle)
       .append(this.cssClasses.rootDragging, this.isDragging)
       .append(this.cssClasses.rootAnswered, this.isAnswered)
       .append(this.cssClasses.single, !this.allowMultiple)

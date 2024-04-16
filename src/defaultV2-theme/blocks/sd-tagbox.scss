@@ -1,12 +1,16 @@
-.sd-input.sd-tagbox:not(.sd-tagbox--empty):not(.sd-input--disabled) {
+.sd-input.sd-tagbox:not(.sd-tagbox--empty).sd-input--editable {
   height: auto;
   padding: calcSize(0.5);
   padding-inline-end: calcSize(6); //padding-right
   padding-inline-start: calcSize(0.5); //padding-left
 }
 
-.sd-tagbox.sd-input--disabled {
-  white-space: normal;
+.sd-tagbox{
+  &.sd-input--disabled,
+  &.sd-input--readonly,
+  &.sd-input--preview {
+    white-space: normal;
+  }
 }
 
 .sd-tagbox.sd-tagbox--empty {

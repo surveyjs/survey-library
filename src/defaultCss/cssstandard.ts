@@ -336,7 +336,7 @@ export var defaultStandardCss = {
   file: {
     root: "sv_q_file",
     placeholderInput: "sv-visuallyhidden",
-    preview: "sv_q_file_preview",
+    previewItem: "sv_q_file_preview",
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv-visuallyhidden",
     removeFile: "sv_q_file_remove",

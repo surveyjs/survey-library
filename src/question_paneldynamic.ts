@@ -2317,6 +2317,7 @@ export class QuestionPanelDynamicModel extends Question
     return !this.isDefaultV2Theme;
   }
   get showNavigation(): boolean {
+    if (this.isReadOnly && this.visiblePanelCount == 1) return false;
     return this.visiblePanelCount > 0 && !this.showLegacyNavigation && !!this.cssClasses.footer;
   }
   showSeparator(index: number): boolean {

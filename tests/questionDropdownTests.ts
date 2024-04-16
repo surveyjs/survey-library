@@ -41,7 +41,7 @@ QUnit.test("check dropdown disabled class", function (assert) {
   };
   const survey = new SurveyModel(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  question.cssClasses.controlDisabled = "sv_q_dropdown_disabled";
+  question.cssClasses.controlReadOnly = "sv_q_dropdown_disabled";
   assert.ok(question.getControlClass().indexOf("sv_q_dropdown_disabled") == -1);
   question.readOnly = true;
   assert.ok(question.getControlClass().indexOf("sv_q_dropdown_disabled") != -1);

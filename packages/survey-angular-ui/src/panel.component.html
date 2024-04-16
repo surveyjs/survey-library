@@ -1,5 +1,5 @@
 <ng-template #template>
-  <div *ngIf="!!model && model.getIsContentVisible()" [attr.id]="model.id" [class]="model.getContainerCss()" (focusin)="model.focusIn()" #panelContainer>
+  <div *ngIf="canRender" [attr.id]="model.id" [class]="model.getContainerCss()" (focusin)="model.focusIn()" #panelContainer>
     <div *ngIf="model.showErrorsAbovePanel && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <div *ngIf="model.hasDescription || model.hasTitle" [element]="model" sv-ng-element-header></div>
     <div *ngIf="!model.showErrorsAbovePanel && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>

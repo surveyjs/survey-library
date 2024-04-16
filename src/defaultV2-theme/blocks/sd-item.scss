@@ -19,8 +19,16 @@
   transition: box-shadow $transition-duration, background $transition-duration;
 }
 
-.sd-radio__decorator:after {
-  
+.sd-item--readonly.sd-item--readonly .sd-item__decorator {
+  background-color: $background-dark;
+  box-shadow: none;
+  transition: none;
+}
+
+.sd-item--preview.sd-item--preview .sd-item__decorator {
+  background-color: transparent;
+  box-shadow: none;
+  transition: none;
 }
 
 .sd-item--checked .sd-item__decorator {

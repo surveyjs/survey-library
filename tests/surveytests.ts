@@ -15206,6 +15206,15 @@ QUnit.test("survey.allowResizeComment", function (assert) {
   survey.allowResizeComment = true;
   assert.equal(comment1.renderedAllowResize, true);
   assert.equal(comment2.renderedAllowResize, false);
+
+  comment1.readOnly = true;
+  assert.equal(comment1.renderedAllowResize, false);
+  comment1.readOnly = false;
+
+  survey.showPreview();
+  let comment1Preview = survey.getQuestionByName("comment1");
+  assert.equal(comment1Preview.renderedAllowResize, false);
+
 });
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
@@ -17934,7 +17943,7 @@ QUnit.test("check title classes when readOnly changed", function (assert) {
   const customDisabledClass = "custom_disabled_class";
   survey.css = {
     question: {
-      titleDisabled: customDisabledClass
+      titleReadOnly: customDisabledClass
     },
   };
   const question = survey.getQuestionByName("q1");

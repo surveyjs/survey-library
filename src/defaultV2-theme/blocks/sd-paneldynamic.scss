@@ -28,6 +28,12 @@
     }
 }
 
+.sd-question--readonly,
+.sd-question--preview {
+    .sd-paneldynamic .sd-question__placeholder {
+        color: $foreground;
+    }
+}
 .sd-paneldynamic__separator {
     display: block;
     position: absolute;

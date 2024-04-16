@@ -12,6 +12,7 @@ ko.components.register("sv-list-item", {
       return {
         item: params.item,
         model: params.model,
+        disableTabStop: params.item.disableTabStop,
         itemClick: (data: any, event: any) => {
           data.model.onItemClick(data.item);
           event.stopPropagation();

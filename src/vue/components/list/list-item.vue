@@ -1,31 +1,14 @@
 <template>
-  <li
-    tabindex="0"
-    role="option"
-    :id="elementId"
-    :aria-selected="model.isItemSelected(item) ? 'true' : 'false'"
-    v-show="model.isItemVisible(item)"
-    :key="item.id"
-    v-bind:class="model.getItemClass(item)"
-    v-on:click="click"
-    v-key2click
-  >
-    <div
-      v-if="item.needSeparator"
-      v-bind:class="model.cssClasses.itemSeparator"
-      />
+  <li role="option" :id="elementId" :aria-selected="model.isItemSelected(item) ? 'true' : 'false'"
+    v-show="model.isItemVisible(item)" :key="item.id" v-bind:class="model.getItemClass(item)" v-on:click="click"
+    v-bind:tabindex="item.disableTabStop ? -1 : 0"
+    v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }">
+    <div v-if="item.needSeparator" v-bind:class="model.cssClasses.itemSeparator" />
 
-    <div
-      :style="{ paddingInlineStart: model.getItemIndent(item) }"
-      v-bind:class="model.cssClasses.itemBody"
-      :title="item.locTitle.calculatedText"
-    >
-      <sv-svg-icon
-        v-if="item.iconName && !item.component"
-        v-bind:class="model.cssClasses.itemIcon"
-        :iconName="item.iconName"
-        :size="item.iconSize"
-      ></sv-svg-icon>
+    <div :style="{ paddingInlineStart: model.getItemIndent(item) }" v-bind:class="model.cssClasses.itemBody"
+      :title="item.locTitle.calculatedText">
+      <sv-svg-icon v-if="item.iconName && !item.component" v-bind:class="model.cssClasses.itemIcon"
+        :iconName="item.iconName" :size="item.iconSize"></sv-svg-icon>
       <survey-string v-if="!item.component" :locString="item.locTitle" />
       <component v-if="item.component" :is="item.component" :item="item"> </component>
     </div>

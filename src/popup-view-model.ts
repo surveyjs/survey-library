@@ -153,6 +153,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   constructor(model: PopupModel) {
     super();
     this.model = model;
+    this.locale = this.model.locale;
   }
   public get title(): string {
     return this.model.title;

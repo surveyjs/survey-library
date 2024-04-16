@@ -468,7 +468,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     let toIndex;
 
     if (key === " " && !isMovedElementRanked) {
-      toIndex = 0;
+      toIndex = this.value.length;
       this.animationAllowed = false;
       dnd.selectToRank(this, fromIndex, toIndex);
       this.animationAllowed = true;

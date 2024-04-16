@@ -7,7 +7,7 @@
       v-for="(val, index) in question.previewValue"
       :key="question.inputId + '_' + index"
       v-show="val && question.isPreviewVisible(index)"
-      :class="question.cssClasses.preview"
+      :class="question.cssClasses.previewItem"
     >
       <div
         v-if="val.name && question.cssClasses.fileSign"

@@ -94,7 +94,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     const tabIndex: number = this.question.getItemTabIndex(item);
     const renderedItem = (
       <SurveyQuestionRankingItem
-        key={key}
+        key={item.value}
         text={text}
         index={index}
         indexText={indexText}

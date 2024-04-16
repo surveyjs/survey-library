@@ -35,14 +35,14 @@
       .sd-rating__min-text {
         position: absolute;
         margin: 0;
-        left:0;
+        left: 0;
         top: 0;
         border: 0;
       }
       .sd-rating__max-text {
         position: absolute;
         margin: 0;
-        right:0;
+        right: 0;
         top: 0;
         border: 0;
       }
@@ -63,12 +63,12 @@
       .sd-rating__max-text {
         position: absolute;
         margin: 0;
-        right:0;
+        right: 0;
         bottom: 0;
         border: 0;
       }
     }
-  }
+    }
   &.sd-rating--labels-diagonal {
     fieldset {
       padding-top: calcSize(4.5);
@@ -77,14 +77,14 @@
       .sd-rating__min-text {
         position: absolute;
         margin: 0;
-        left:0;
+        left: 0;
         top: 0;
         border: 0;
       }
       .sd-rating__max-text {
         position: absolute;
         margin: 0;
-        right:0;
+        right: 0;
         bottom: 0;
         border: 0;
       }
@@ -150,6 +150,47 @@ legend+sv-ng-rating-item+.sd-rating__item {
   fill: $foreground;
   background-color: $background-semitransparent;
   border: none;
+}
+
+.sd-rating__item.sd-rating__item--readonly {
+  fill: transparent;
+  background-color: transparent;
+  border: 2px solid $border-inside;
+  box-shadow: none;
+  transform: none;
+
+  .sd-rating__item-text.sd-rating__item-text {
+    color: $foreground-light;
+  }
+}
+
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--readonly {
+  border-color: $foreground;
+
+  .sd-rating__item-text.sd-rating__item-text {
+    color: $foreground;
+  }
+}
+
+.sd-rating__item.sd-rating__item--preview {
+  fill: transparent;
+  background-color: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  transform: none;
+
+  .sd-rating__item-text.sd-rating__item-text {
+    color: $foreground;
+  }
+}
+
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--preview {
+  border-color: $foreground;
+  border-width: 1px;
+
+  .sd-rating__item-text.sd-rating__item-text {
+    color: $foreground;
+  }
 }
 
 .sd-question--disabled .sd-rating__item-text {
@@ -240,6 +281,30 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   fill: $primary-foreground;
 }
 
+.sd-rating__item-smiley.sd-rating__item-smiley--readonly {
+  //
+}
+
+.sd-rating__item-smiley.sd-rating__item-smiley--selected.sd-rating__item-smiley--readonly {
+  fill: $foreground;
+  border-color: $foreground;
+  background-color: unset;
+}
+
+.sd-rating__item-smiley.sd-rating__item-smiley--preview {
+  border-color: $foreground;
+  border-width: 1px;
+  fill: $foreground;
+
+  svg {
+    margin: 1px;
+  }
+}
+
+.sd-rating__item-smiley.sd-rating__item-smiley--selected.sd-rating__item-smiley--preview {
+  fill: $background;
+  background-color: $foreground;
+}
 .sd-rating__item-smiley--allowhover:hover {
   background-color: $background-dark;
   border-color: $border;
@@ -278,6 +343,14 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   opacity: 1;
 }
 
+.sd-rating__item-smiley--scale-colored {
+
+  &.sd-rating__item-smiley--selected,
+  &.sd-rating__item-smiley--readonly,
+  &.sd-rating__item-smiley--preview {
+    opacity: 1;
+  }
+}
 .sd-rating__item-star {
   position: relative;
   width: calcSize(6);
@@ -295,6 +368,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
   svg {
     stroke: $border;
+    stroke-width: 2px;
     fill: transparent;
     width: calcSize(6);
     height: calcSize(6);
@@ -319,6 +393,11 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   svg {
     width: calcSize(3);
     height: calcSize(3);
+  }
+  &.sd-rating__item-star--selected {
+    svg {
+      stroke-width: 1px;
+    }
   }
 }
 
@@ -352,6 +431,34 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   }
 }
 
+.sd-rating__item-star--readonly {
+  svg {
+    stroke: $border;
+    fill: none;
+  }
+}
+
+.sd-rating__item-star--selected.sd-rating__item-star--readonly {
+  svg {
+    stroke: none;
+    fill: $foreground;
+  }
+}
+
+.sd-rating__item-star--preview {
+  svg {
+    stroke: $foreground;
+    stroke-width: 1px;
+    fill: none;
+  }
+}
+
+.sd-rating__item-star--selected.sd-rating__item-star--preview {
+  svg {
+    stroke: none;
+    fill: $foreground;
+  }
+}
 .sd-rating__item-star:focus-within {
   svg {
     stroke: $primary;

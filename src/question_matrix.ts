@@ -19,6 +19,7 @@ export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
   getCorrectedRowValue(value: any): any;
   cssClasses: any;
+  isDisabledStyle: boolean;
   isInputReadOnly: boolean;
   hasErrorInRow(row: MatrixRowModel): boolean;
 }
@@ -71,7 +72,8 @@ export class MatrixRowModel extends Base {
     const cssClasses = (<any>this.data).cssClasses;
     return new CssClassBuilder().append(cssClasses.row)
       .append(cssClasses.rowError, this.data.hasErrorInRow(this))
-      .append(cssClasses.rowDisabled, this.isReadOnly)
+      .append(cssClasses.rowReadOnly, this.isReadOnly)
+      .append(cssClasses.rowDisabled, this.data.isDisabledStyle)
       .toString();
   }
 }
@@ -336,11 +338,16 @@ export class QuestionMatrixModel
       .append(hasCellText ? css.cellText : css.label)
       .append(css.itemOnError, !hasCellText && (this.isAllRowRequired ? this.hasErrorInRow(row) : this.hasCssError()))
       .append(hasCellText ? css.cellTextSelected : css.itemChecked, isChecked)
-      .append(hasCellText ? css.cellTextDisabled : css.itemDisabled, isDisabled)
+      .append(hasCellText ? css.cellTextDisabled : css.itemDisabled, this.isDisabledStyle)
+      .append(hasCellText ? css.cellTextReadOnly : css.itemReadOnly, this.isReadOnlyStyle)
+      .append(hasCellText ? css.cellTextPreview : css.itemPreview, this.isPreviewStyle)
       .append(css.itemHover, allowHover && !hasCellText)
       .toString();
   }
   public get itemSvgIcon(): string {
+    if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
+      return this.cssClasses.itemPreviewSvgIconId;
+    }
     return this.cssClasses.itemSvgIconId;
   }
   public locStrsChanged(): void {

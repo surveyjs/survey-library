@@ -35,7 +35,7 @@ export class SurveyFilePreview extends SurveyElementBase<{ question: QuestionFil
       return (
         <span
           key={this.question.inputId + "_" + index}
-          className={this.question.cssClasses.preview}
+          className={this.question.cssClasses.previewItem}
           style={{ display: this.question.isPreviewVisible(index) ? undefined : "none" }}
         >
           {this.renderFileSign(this.question.cssClasses.fileSign, val)}

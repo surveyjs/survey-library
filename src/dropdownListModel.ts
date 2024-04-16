@@ -195,6 +195,7 @@ export class DropdownListModel extends Base {
       }
     });
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
+    model.actions.forEach(a => a.disableTabStop = true);
   }
   public updateCssClasses(popupCssClass: string, listCssClasses: any): void {
     this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.popupCssClasses).toString();

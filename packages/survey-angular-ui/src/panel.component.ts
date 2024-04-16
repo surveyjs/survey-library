@@ -20,5 +20,8 @@ export class PanelComponent extends BaseAngular<PanelModel> implements AfterView
   trackRowBy = (_: any, row: any) => {
     return row.id;
   }
+  public get canRender() {
+    return this.model && this.model.survey && this.model.getIsContentVisible();
+  }
 }
 AngularComponentFactory.Instance.registerComponent("panel", PanelComponent);

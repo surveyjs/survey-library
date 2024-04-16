@@ -19544,3 +19544,37 @@ QUnit.test("showPreview & updateProgress & updateVisibleIndexes", function (
   assert.equal(progressCounter, 1, "progressCounter");
   assert.equal(visibleChangedCounter, 0, "visibleChangedCounter");
 });
+
+QUnit.test("showPreview & dynamic panel? single page", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "question1",
+            "defaultValue": [
+              {
+                "question2": "q"
+              }
+            ],
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question2"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "questionsOnPageMode": "singlePage",
+    "showPreviewBeforeComplete": "showAllQuestions"
+  });
+  survey.showPreview();
+  assert.notOk((survey.getQuestionByName("question1") as QuestionPanelDynamicModel).panels[0].showPanelAsPage);
+});
+

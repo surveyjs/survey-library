@@ -2073,7 +2073,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return super.getIsNested() && this.parent !== undefined;
   }
   public get showPanelAsPage(): boolean {
-    return !!(<any>this).originalPage || (<any>this.survey).isShowingPreview && (<any>this.survey).isSinglePage && !!(<any>this).parent.originalPage;
+    return !!(<any>this).originalPage || (<any>this.survey).isShowingPreview && (<any>this.survey).isSinglePage && !!(<any>this).parent && !!(<any>this).parent.originalPage;
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()

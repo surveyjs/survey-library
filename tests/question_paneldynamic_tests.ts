@@ -18,6 +18,7 @@ import { StylesManager } from "../src/stylesmanager";
 import { settings } from "../src/settings";
 import { QuestionMatrixModel } from "../src/question_matrix";
 import { defaultStandardCss } from "../src/defaultCss/cssstandard";
+import { AnimationGroup, AnimationTab } from "../src/utils/animation";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -6837,4 +6838,148 @@ QUnit.test("panel dynamic & panel visibleIf & checkbox vs carry forward, #7693",
       }
     ]
   });
+});
+
+QUnit.test("paneldynamic: check renderedPanels", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [
+          { name: "q1", type: "text" },
+        ]
+      },
+      { type: "text", name: "q4" }
+    ]
+  });
+  const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  assert.equal(question.renderedPanels.length, 1);
+  assert.deepEqual(question.renderedPanels, question.visiblePanels);
+  question.addPanel(1);
+  assert.equal(question.renderedPanels.length, 2);
+  assert.deepEqual(question.renderedPanels, question.visiblePanels);
+  question.addPanel(2);
+  assert.equal(question.renderedPanels.length, 3);
+  assert.deepEqual(question.renderedPanels, question.visiblePanels);
+  question.removePanel(question.visiblePanels[1]);
+  assert.equal(question.renderedPanels.length, 2);
+  assert.deepEqual(question.renderedPanels, question.visiblePanels);
+  question.removePanel(question.visiblePanels[0]);
+  assert.equal(question.renderedPanels.length, 1);
+  assert.deepEqual(question.renderedPanels, question.visiblePanels);
+  question.addPanel(1);
+  assert.equal(question.renderedPanels.length, 2);
+  assert.deepEqual(question.renderedPanels, question.visiblePanels);
+  question.renderMode = "tabs";
+  assert.equal(question.renderedPanels.length, 1);
+  assert.deepEqual(question.renderedPanels[0], question.visiblePanels[0]);
+  question.currentIndex = 1;
+  assert.equal(question.renderedPanels.length, 1);
+  assert.deepEqual(question.renderedPanels[0], question.visiblePanels[1]);
+  question.currentIndex = 0;
+  assert.equal(question.renderedPanels.length, 1);
+  assert.deepEqual(question.renderedPanels[0], question.visiblePanels[0]);
+  question.addPanel(2);
+  assert.equal(question.renderedPanels.length, 1);
+  assert.deepEqual(question.renderedPanels[0], question.visiblePanels[2]);
+  question.removePanel(question.visiblePanels[2]);
+  assert.equal(question.renderedPanels.length, 1);
+  assert.deepEqual(question.renderedPanels[0], question.visiblePanels[1]);
+});
+
+QUnit.test("paneldynamic: check panelsAnimation", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [
+          { name: "q1", type: "text" },
+        ]
+      },
+      { type: "text", name: "q4" }
+    ]
+  });
+  const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  assert.ok(question["panelsAnimation"] instanceof AnimationGroup);
+  assert.notOk(question["panelsAnimation"] instanceof AnimationTab);
+
+  question.renderMode = "tabs";
+  assert.notOk(question["panelsAnimation"] instanceof AnimationGroup);
+  assert.ok(question["panelsAnimation"] instanceof AnimationTab);
+
+  question.renderMode = "progressTop";
+  assert.notOk(question["panelsAnimation"] instanceof AnimationGroup);
+  assert.ok(question["panelsAnimation"] instanceof AnimationTab);
+
+  question.renderMode = "list";
+  assert.ok(question["panelsAnimation"] instanceof AnimationGroup);
+  assert.notOk(question["panelsAnimation"] instanceof AnimationTab);
+});
+
+QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        templateElements: [
+          { name: "q1", type: "text" },
+        ]
+      },
+      { type: "text", name: "q4" }
+    ]
+  });
+  survey.css = {
+    paneldynamic: {
+      panelWrapperFadeIn: "enter",
+      panelWrapperFadeOut: "leave"
+    }
+  };
+  const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  const options = question["getPanelsAnimationOptions"]();
+  const panelsContainer = document.createElement("div");
+  const panelContainer2 = document.createElement("div");
+  const panelContainer1 = document.createElement("div");
+  panelsContainer.appendChild(panelContainer2);
+  panelsContainer.appendChild(panelContainer1);
+  document.body.appendChild(panelsContainer);
+  let enterOptions = options.getEnterOptions(question.panels[0]);
+  let leaveOptions = options.getLeaveOptions(question.panels[1]);
+  assert.equal(enterOptions.cssClass, "enter");
+  assert.equal(leaveOptions.cssClass, "leave");
+  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer1);
+  assert.equal(panelContainer1.style.getPropertyValue("--animation-height"), "0px");
+  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer2);
+  assert.equal(panelContainer2.style.getPropertyValue("--animation-height"), "0px");
+
+  question.renderMode = "progressTop";
+  question.currentIndex = 0;
+  question["_renderedPanels"] = [question.panels[0], question.panels[1]];
+  panelContainer1.style.height = "20px";
+  panelContainer2.style.height = "40px";
+
+  enterOptions = options.getEnterOptions(question.panels[0]);
+  leaveOptions = options.getLeaveOptions(question.panels[1]);
+  assert.equal(enterOptions.cssClass, "enter-right");
+  assert.equal(leaveOptions.cssClass, "leave-right");
+  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer1);
+  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer2);
+  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "40px");
+  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "20px");
+
+  question.currentIndex = 1;
+  enterOptions = options.getEnterOptions(question.panels[0]);
+  leaveOptions = options.getLeaveOptions(question.panels[1]);
+  assert.equal(enterOptions.cssClass, "enter-left");
+  assert.equal(leaveOptions.cssClass, "leave-left");
+  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
+  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
+  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
+  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
+  panelsContainer.remove();
 });

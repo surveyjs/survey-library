@@ -27,29 +27,34 @@
       v-if="getShowLegacyNavigation() && question.isProgressTopShowing"
       :question="question"
     />
-    <template v-for="(panel, index) in renderedPanels" :key="panel.id">
-      <div :class="question.getPanelWrapperCss(panel)">
-        <component
-          :is="getPanelComponentName(panel)"
-          v-bind="getPanelComponentData(panel)"
-        ></component>
-        <sv-paneldynamic-remove-btn
+    <div :class="question.cssClasses.panelsContainer">
+      <template
+        v-for="(panel, index) in question.renderedPanels"
+        :key="panel.id"
+      >
+        <div :class="question.getPanelWrapperCss(panel)">
+          <component
+            :is="getPanelComponentName(panel)"
+            v-bind="getPanelComponentData(panel)"
+          ></component>
+          <sv-paneldynamic-remove-btn
+            v-if="
+              question.panelRemoveButtonLocation === 'right' &&
+              question.canRemovePanel &&
+              panel.state !== 'collapsed'
+            "
+            :data="{ question, panel }"
+          />
+        </div>
+        <hr
+          :class="question.cssClasses.separator"
           v-if="
-            question.panelRemoveButtonLocation === 'right' &&
-            question.canRemovePanel &&
-            panel.state !== 'collapsed'
+            question.isRenderModeList && index < question.visiblePanelCount - 1
           "
-          :data="{ question, panel }"
+          :key="'separator' + panel.id"
         />
-      </div>
-      <hr
-        :class="question.cssClasses.separator"
-        v-if="
-          question.isRenderModeList && index < question.visiblePanelCount - 1
-        "
-        :key="'separator' + panel.id"
-      />
-    </template>
+      </template>
+    </div>
     <survey-paneldynamicprogress
       v-if="getShowLegacyNavigation() && question.isProgressBottomShowing"
       :question="question"
@@ -98,15 +103,6 @@ useQuestion(
     value.renderModeChangedCallback = () => {};
   }
 );
-
-const renderedPanels = computed(() => {
-  if (props.question.isRenderModeList) return props.question.panels;
-  const panels = [];
-  if (props.question.currentPanel) {
-    panels.push(props.question.currentPanel);
-  }
-  return panels;
-});
 
 const getShowLegacyNavigation = () => {
   return props.question["showLegacyNavigation"];

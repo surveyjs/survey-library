@@ -223,7 +223,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
     if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
       SurveyElement.ScrollElementToViewCore(el, true, false);
-      el.focus();
+      el.focus({ preventScroll: true });
       return true;
     }
     return false;

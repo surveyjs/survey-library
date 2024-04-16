@@ -160,6 +160,27 @@ $element-fade-out-duration: var(--sjs-element-fade-out-duration, 150ms);
 $element-move-out-duration: var(--sjs-element-move-out-duration, 250ms);
 $element-move-out-delay: var(--sjs-element-move-out-delay, 0ms);
 
+$pd-tab-height-change-duration: var(--sjs-pd-tab-height-change-duration, 100ms);
+$pd-tab-height-change-delay: var(--sjs-pd-tab-height-change-delay, 0ms);
+$pd-tab-move-in-duration: var(--sjs-pd-tab-move-in-duration, 250ms);
+$pd-tab-move-in-delay: var(--sjs-pd-tab-move-in-delay, 100ms);
+$pd-tab-fade-in-duration: var(--sjs-pd-tab-fade-in-duration, 250ms);
+$pd-tab-fade-in-delay: var(--sjs-pd-tab-fade-in-delay, 100ms);
+$pd-tab-fade-out-duration: var(--sjs-pd-tab-fade-out-duration, 250ms);
+$pd-tab-fade-out-delay: var(--sjs-pd-tab-fade-out-delay, 0ms);
+$pd-tab-move-out-duration: var(--sjs-pd-tab-move-out-duration, 250ms);
+$pd-tab-move-out-delay: var(--sjs-pd-tab-move-out-delay, 0ms);
+$pd-tab-move-in-margin: var(--sjs-pd-tab-move-in-margin, 50%);
+$pd-tab-move-out-margin: var(--sjs-pd-tab-move-out-margin, 50%);
+$pd-tab-move-margin: var(--sjs-pd-tab-move-margin);
+
+$pd-list-fade-in-duration: var(--sjs-pd-list-fade-in-duration, 500ms);
+$pd-list-move-in-duration: var(--sjs-pd-list-move-in-duration, 250ms);
+$pd-list-fade-in-delay: var(--sjs-pd-list-fade-in-delay, 250ms);
+$pd-list-fade-out-duration: var(--sjs-pd-list-fade-out-duration, 150ms);
+$pd-list-move-out-duration: var(--sjs-pd-list-move-out-duration, 250ms);
+$pd-list-move-out-delay: var(--sjs-pd-list-move-out-delay, 100ms);
+
 $transition-duration: var(--sjs-transition-duration, 150ms);
 
 $ease-out: cubic-bezier(0, 0, 0.58, 1);

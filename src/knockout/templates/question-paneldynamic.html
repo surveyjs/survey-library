@@ -10,7 +10,8 @@
         </div>
     <!-- /ko -->
     <!-- ko if: question.koIsList() -->
-      <!-- ko foreach: { data: question.panels } -->
+    <div data-bind="css: question.cssClasses.panelsContainer">
+      <!-- ko foreach: { data: question.renderedPanels } -->
         <div data-bind="css: question.getPanelWrapperCss($data)">
           <!-- ko let: { question: $data } -->
             <!-- ko component: { name: survey.getElementWrapperComponentName(question), params: { componentData:  survey.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: $parent.koPanelAfterRender } } } -->
@@ -26,6 +27,7 @@
         <hr data-bind="css: question.cssClasses.separator"/>
         <!-- /ko -->
       <!-- /ko -->
+      </div>
       <!-- ko if: question.showLegacyNavigation -->
         <!-- ko component: { name: 'sv-paneldynamic-add-btn', params: { question: question }} --><!-- /ko -->
       <!-- /ko -->
@@ -44,15 +46,19 @@
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.koPanel() -->
-      <div data-bind="css: question.getPanelWrapperCss(question.koPanel())">
-        <!-- ko let: { question: question.koPanel() } -->
-          <!-- ko component: { name: question.survey.getElementWrapperComponentName(question), params: { componentData:  question.survey.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: $parent.koPanelAfterRender } } } -->
+      <div data-bind="css: question.cssClasses.panelsContainer">
+        <!-- ko foreach: { data: question.renderedPanels } -->
+          <div data-bind="css: question.getPanelWrapperCss($data)">
+          <!-- ko let: { question: $data } -->
+            <!-- ko component: { name: question.survey.getElementWrapperComponentName(question), params: { componentData:  question.survey.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: $parent.koPanelAfterRender } } } -->
+            <!-- /ko -->
           <!-- /ko -->
-        <!-- /ko -->
-        <!-- ko if: question.panelRemoveButtonLocation === 'right'-->
-          <!-- ko template: { name: 'survey-question-paneldynamic-remove-btn', data: { question: question, panel: question.koPanel() }, as: 'question'} -->
-          <!-- /ko -->
-        <!-- /ko-->
+          <!-- ko if: question.panelRemoveButtonLocation === 'right'-->
+            <!-- ko template: { name: 'survey-question-paneldynamic-remove-btn', data: { question: question, panel: question.koPanel() }, as: 'question'} -->
+            <!-- /ko -->
+          <!-- /ko-->
+          </div>
+         <!-- /ko -->
       </div>
       <!-- /ko -->
       <!-- ko if: question.showLegacyNavigation && question.koIsProgressBottom--> 

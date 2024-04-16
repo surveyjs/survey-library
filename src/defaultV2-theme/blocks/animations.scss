@@ -7,6 +7,14 @@
     opacity: 1;
   }
 }
+@keyframes changeHeight {
+  from {
+    height: var(--animation-height-from);
+  }
+  to {
+    height: var(--animation-height-to);
+  }
+}
 
 @keyframes moveIn {
   from {
@@ -27,5 +35,17 @@
   }
   100% {
     overflow: visible;
+  }
+}
+
+@keyframes paddingFadeIn {
+  from {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  to {
+    padding-bottom: var(--animation-padding-bottom);
+    padding-top: var(--animation-padding-top);
   }
 }

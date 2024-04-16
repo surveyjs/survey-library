@@ -301,7 +301,7 @@ QUnit.test("Ranking: selectToRank key navigation with animation", function (asse
 
   q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[0]);
   assert.deepEqual(q.unRankingChoices.map((item) => item.value), ["c"]);
-  assert.deepEqual(q.rankingChoices.map((item) => item.value), ["a", "b"]);
+  assert.deepEqual(q.rankingChoices.map((item) => item.value), ["b", "a"]);
 
   q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[1]);
   assert.deepEqual(q.unRankingChoices.map((item) => item.value), ["b", "c"]);

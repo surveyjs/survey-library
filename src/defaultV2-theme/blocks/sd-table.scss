@@ -412,6 +412,34 @@
   }
 }
 
+//compact styles
+.sd-element--with-frame.sd-element--compact {
+  .sd-table {
+    background-color: $background-dim;
+  }
+  .sd-table-wrapper {
+
+    &:before,
+    &:after {
+      background-color: $background-dim;
+    }
+  }
+  
+  .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child {
+    .sd-action-bar {
+      background-color: $background-dim;
+    }
+  }
+
+  .sd-table__cell--actions:not(.sd-table__cell--vertical),
+  .sd-table__cell--empty,
+  .sd-table__cell--row-text,
+  .sd-table__cell--footer-total,
+  .sd-matrix__cell:first-of-type,
+  .sd-matrix tr>td:first-of-type {
+    background-color: $background-dim;
+  }
+}
 .sd-question--table {
 
   &>.sd-question__header,

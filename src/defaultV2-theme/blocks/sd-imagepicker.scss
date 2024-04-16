@@ -129,6 +129,18 @@
   gap: calcSize(2);
   align-items: flex-start;
   padding-right: 0;
+
+  .sd-imagepicker__item {
+    width: 100%;
+  }
+
+  .sd-imagepicker__text {
+    width: 100%;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
 }
 
 .sd-selectbase__column.sd-imagepicker__column:not(:last-child) {

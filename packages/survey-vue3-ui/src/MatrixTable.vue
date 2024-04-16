@@ -36,22 +36,13 @@
       </thead>
       <tbody>
         <template
-          v-for="row in table.rows"
+          v-for="row in table.renderedRows"
           :key="question.inputId + '_' + row.id"
         >
-          <tr
-            :data-sv-drop-target-matrix-row="row.row && row.row.id"
-            @pointerdown="question.onPointerDown($event, row.row)"
-            :class="row.className"
-            v-if="row.visible"
-          >
-            <survey-matrixdropdown-cell
-              :cell="cell"
-              :question="question"
-              v-for="(cell, cellIndex) in row.cells"
-              :key="row.id + '_' + cellIndex"
-            />
-          </tr>
+          <survey-matrix-row
+            :row="row"
+            :question="question"
+          ></survey-matrix-row>
         </template>
       </tbody>
       <tfoot v-if="table.showFooter">

@@ -187,7 +187,7 @@ export class AnimationGroupUtils<T> extends AnimationUtils {
           this.runAnimation(removedHtmlElements[i], leaveOptions[i], onAnimationEndCallback);
         });
       },
-      () => !addedElements[0] || !!options.getAnimatedElement(addedElements[0]));
+      () => addedElements.length == 0 || addedElements.some(el => !!options.getAnimatedElement(el)));
   }
 }
 

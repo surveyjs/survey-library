@@ -212,7 +212,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   private getChoicesAnimation(isRankingChoices: boolean): IAnimationConsumer<[ItemValue]> {
     return {
-      isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed,
+      isAnimationEnabled: () => this.animationAllowed,
       getLeaveOptions: (item: ItemValue) => {
         const choices = isRankingChoices ? this.rankingChoices : this.unRankingChoices;
         if(this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {

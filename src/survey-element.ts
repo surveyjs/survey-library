@@ -1072,7 +1072,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         }
         return undefined;
       },
-      isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed && !this.isDesignMode
+      isAnimationEnabled: () => this.animationAllowed && !this.isDesignMode
     };
   }
 
@@ -1096,7 +1096,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   private animationAllowedValue: boolean = true;
   public get animationAllowed(): boolean {
-    return !this.isLoadingFromJson && !this.isDisposed && !!this.survey && this.animationAllowedValue;
+    return settings.animationEnabled && !this.isLoadingFromJson && !this.isDisposed && !!this.survey && this.animationAllowedValue;
   }
 
   public set animationAllowed(val: boolean) {

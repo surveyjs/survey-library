@@ -23,7 +23,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
           className={cssClasses.placeholder}
           style={{ display: this.question.needShowPlaceholder() ? "" : "none" }}
         >
-          {this.renderLocString(this.question.locPlaceholder)}
+          {this.renderLocString(this.question.locRenderedPlaceholder)}
         </div>
         <div>
           {this.renderBackgroundImage()}

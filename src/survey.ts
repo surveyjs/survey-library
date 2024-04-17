@@ -3584,7 +3584,7 @@ export class SurveyModel extends SurveyElementCore
   public get isEditMode(): boolean {
     return this.mode == "edit";
   }
-  public get isDisplayMode(): boolean {
+  public get isDisplayMode(): boolean { //
     return this.mode == "display" && !this.isDesignMode || this.state == "preview";
   }
   public get isUpdateValueTextOnTyping(): boolean {
@@ -4685,8 +4685,8 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   private isCalculatingProgressText = false;
-  public updateProgressText(onValueChanged: boolean = false) {
-    if (this.isCalculatingProgressText) return;
+  public updateProgressText(onValueChanged: boolean = false): void {
+    if (this.isCalculatingProgressText || this.isShowingPreview || this.isLockingUpdateOnPageModes) return;
     if (
       onValueChanged &&
       this.progressBarType == "pages" &&
@@ -6057,7 +6057,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
   }
   private updateVisibleIndexes() {
-    if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
+    if (this.isLoadingFromJson || !!this.isEndLoadingFromJson || this.isLockingUpdateOnPageModes) return;
     if (
       this.isRunningConditions &&
       this.onQuestionVisibleChanged.isEmpty &&
@@ -6655,8 +6655,10 @@ export class SurveyModel extends SurveyElementCore
     if (questionClearIf !== "default") return questionClearIf;
     return this.clearInvisibleValues;
   }
-  questionVisibilityChanged(question: Question, newValue: boolean) {
-    this.updateVisibleIndexes();
+  questionVisibilityChanged(question: Question, newValue: boolean, resetIndexes: boolean): void {
+    if(resetIndexes) {
+      this.updateVisibleIndexes();
+    }
     this.onQuestionVisibleChanged.fire(this, {
       question: question,
       name: question.name,

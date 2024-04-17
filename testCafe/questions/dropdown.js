@@ -1988,6 +1988,45 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk();
   });
 
+  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup tab navigation", async (t) => {
+    await t.resizeWindow(800, 600);
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          searchEnabled: true,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen"
+          ]
+        },
+        {
+          type: "text",
+          name: "info"
+        }
+
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const questionTextSelect = Selector(".sd-text");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const dropdownWidth = await questionDropdownV2Select.getBoundingClientRectProperty("width");
+    await t
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .expect(questionDropdownV2Select.find("input").filterVisible().focused).ok()
+
+      .pressKey("tab")
+
+      .expect(questionTextSelect.filterVisible().focused).ok();
+  });
+
   test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup opens after beak click - search enabled", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {

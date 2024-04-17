@@ -193,4 +193,87 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("imagepicker-not-load.png", questionRoot, t, comparer);
     });
   });
+  test("Check image picker columns and long label text", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "imagepicker",
+                "name": "best_picture",
+                "title": "Which movie do you believe should have won the Academy Award for Best Picture?",
+                "hideNumber": true,
+                "choices": [
+                  {
+                    "value": "movie_1",
+                    "text": "The Holdovers",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+                  },
+                  {
+                    "value": "movie_2",
+                    "text": "American Fiction",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+                  },
+                  {
+                    "value": "movie_3",
+                    "text": "Oppenheimer",
+                    "enableIf": "{trailer-follow-up} = 3",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+                  },
+                  {
+                    "value": "movie_4",
+                    "text": "Barbie",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+                  },
+                  {
+                    "value": "movie_5",
+                    "text": "Poor Things",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+                  },
+                  {
+                    "value": "movie_6",
+                    "text": "Past Lives",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+                  },
+                  {
+                    "value": "movie_7",
+                    "text": "Killers of the Flower Moon",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+                  },
+                  {
+                    "value": "movie_8",
+                    "text": "Maestro",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+                  },
+                  {
+                    "value": "movie_9",
+                    "text": "Anatomy of a Fall",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+                  },
+                  {
+                    "value": "movie_10",
+                    "text": "The Zone of Interest",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+                  }
+                ],
+                "colCount": 5,
+                "imageHeight": 220,
+                "imageWidth": 220,
+                "showLabel": true,
+                "multiSelect": true
+              },
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "width": "1000"
+      });
+      const questionRoot = Selector(".sd-imagepicker");
+      await takeElementScreenshot("imagepicker-question-columns-long-label.png", questionRoot, t, comparer);
+    });
+  });
 });

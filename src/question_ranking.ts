@@ -49,16 +49,21 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.rootMobileMod, this.isMobileMode())
-      .append(this.cssClasses.rootDisabled, this.isReadOnly)
+      .append(this.cssClasses.rootDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.rootReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.rootPreview, this.isPreviewStyle)
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.itemOnError, this.hasCssError())
       .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
       .append(this.cssClasses.rootSelectToRankMod, this.selectToRankEnabled)
+      .append(this.cssClasses.rootSelectToRankEmptyValueMod, this.isEmpty())
       .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "horizontal")
       .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "vertical")
       .toString();
   }
-
+  protected isItemSelectedCore(item: ItemValue): boolean {
+    return false;
+  }
   protected getItemClassCore(item: ItemValue, options: any): string {
     const itemIndex = this.rankingChoices.indexOf(item);
     const unrankedItemIndex = this.unRankingChoices.indexOf(item);
@@ -448,13 +453,17 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     if (key === " " && !isMovedElementRanked) {
       toIndex = 0;
+      this.animationAllowed = false;
       dnd.selectToRank(this, fromIndex, toIndex);
+      this.animationAllowed = true;
       this.setValueAfterKeydown(toIndex, "to-container");
       return;
     }
     if(!isMovedElementRanked) return;
     if (key === " ") {
+      this.animationAllowed = false;
       dnd.unselectFromRank(this, fromIndex);
+      this.animationAllowed = true;
       toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
       this.setValueAfterKeydown(toIndex, "from-container");
       return;

@@ -690,7 +690,9 @@ export class QuestionRatingModel extends Question {
   }
 
   public getItemStyle(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
-    if (this.scaleColorMode === "monochrome" && this.rateColorMode == "default") return { borderColor: null, fill: null, backgroundColor: null };
+    if (this.scaleColorMode === "monochrome" && this.rateColorMode == "default" ||
+      this.isPreviewStyle ||
+      this.isReadOnlyStyle) return { borderColor: null, fill: null, backgroundColor: null };
     const index = this.visibleRateValues.indexOf(item);
     const color = this.getRenderedItemColor(index, false);
     if (this.value != this.renderedRateItems[index].value) {
@@ -720,6 +722,8 @@ export class QuestionRatingModel extends Question {
     let itemClass = this.cssClasses.item;
     let itemSelectedClass = this.cssClasses.selected;
     let itemDisabledClass = this.cssClasses.itemDisabled;
+    let itemReadOnlyClass = this.cssClasses.itemReadOnly;
+    let itemPreviewClass = this.cssClasses.itemPreview;
     let itemHoverClass = this.cssClasses.itemHover;
     let itemitemOnErrorClass = this.cssClasses.itemOnError;
     let itemHighlightedClass = null;
@@ -732,6 +736,8 @@ export class QuestionRatingModel extends Question {
       itemClass = this.cssClasses.itemStar;
       itemSelectedClass = this.cssClasses.itemStarSelected;
       itemDisabledClass = this.cssClasses.itemStarDisabled;
+      itemReadOnlyClass = this.cssClasses.itemStarReadOnly;
+      itemPreviewClass = this.cssClasses.itemStarPreview;
       itemHoverClass = this.cssClasses.itemStarHover;
       itemitemOnErrorClass = this.cssClasses.itemStarOnError;
       itemHighlightedClass = this.cssClasses.itemStarHighlighted;
@@ -742,6 +748,8 @@ export class QuestionRatingModel extends Question {
       itemClass = this.cssClasses.itemSmiley;
       itemSelectedClass = this.cssClasses.itemSmileySelected;
       itemDisabledClass = this.cssClasses.itemSmileyDisabled;
+      itemReadOnlyClass = this.cssClasses.itemSmileyReadOnly;
+      itemPreviewClass = this.cssClasses.itemSmileyPreview;
       itemHoverClass = this.cssClasses.itemSmileyHover;
       itemitemOnErrorClass = this.cssClasses.itemSmileyOnError;
       itemHighlightedClass = this.cssClasses.itemSmileyHighlighted;
@@ -763,7 +771,9 @@ export class QuestionRatingModel extends Question {
     return new CssClassBuilder()
       .append(itemClass)
       .append(itemSelectedClass, isSelected)
-      .append(itemDisabledClass, this.isReadOnly)
+      .append(itemDisabledClass, this.isDisabledStyle)
+      .append(itemReadOnlyClass, this.isReadOnlyStyle)
+      .append(itemPreviewClass, this.isPreviewStyle)
       .append(itemHoverClass, allowHover)
       .append(itemHighlightedClass, isHighlighted)
       .append(itemScaleColoredClass, this.scaleColorMode == "colored")

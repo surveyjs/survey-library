@@ -31,6 +31,7 @@ export interface IPopupModel<T = any> extends IDialogOptions {
 export class PopupModel<T = any> extends Base {
   public setWidthByTarget: boolean;
   public focusFirstInputSelector = "";
+  public locale: string;
 
   @property() contentComponentName: string;
   @property() contentComponentData: T;

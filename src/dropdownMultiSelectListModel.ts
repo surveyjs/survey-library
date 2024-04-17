@@ -63,6 +63,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       };
     }
     const res = new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.question.choicesLazyLoadEnabled ? this.listModelFilterStringChanged : undefined, this.listElementId);
+    res.actions.forEach(a => a.disableTabStop = true);
     this.setOnTextSearchCallbackForListModel(res);
     res.forceShowFilter = true;
     return res;

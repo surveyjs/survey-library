@@ -56,7 +56,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   getQuestionByName(name: string): IQuestion;
   pageVisibilityChanged(page: IPage, newValue: boolean): any;
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
-  questionVisibilityChanged(question: IQuestion, newValue: boolean): any;
+  questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;
   isEditingSurveyElement: boolean;
   getQuestionClearIfInvisible(questionClearIf: string): string;
   questionsOrder: string;

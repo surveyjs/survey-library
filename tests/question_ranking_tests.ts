@@ -1,7 +1,7 @@
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRankingModel } from "../src/question_ranking";
 import { SurveyModel } from "../src/survey";
-import { settings as Settings } from "../src/settings";
+import { settings as Settings, settings } from "../src/settings";
 import { Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 
@@ -278,6 +278,43 @@ QUnit.test("Ranking: design mode", function (assert) {
   assert.equal(preventDefaultCalled, 2);
 });
 
+QUnit.test("Ranking: selectToRank key navigation with animation", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q",
+        choices: ["a", "b", "c"],
+        selectToRankEnabled: true
+      },
+    ],
+  });
+
+  const q = <QuestionRankingModel>survey.getAllQuestions()[0];
+  q["focusItem"] = () => {};
+  (window as any).event = { preventDefault: () => {} };
+
+  settings.animationEnabled = true;
+  q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[1]);
+  assert.deepEqual(q.unRankingChoices.map((item) => item.value), ["a", "c"]);
+  assert.deepEqual(q.rankingChoices.map((item) => item.value), ["b"]);
+
+  q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[0]);
+  assert.deepEqual(q.unRankingChoices.map((item) => item.value), ["c"]);
+  assert.deepEqual(q.rankingChoices.map((item) => item.value), ["a", "b"]);
+
+  q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[1]);
+  assert.deepEqual(q.unRankingChoices.map((item) => item.value), ["b", "c"]);
+  assert.deepEqual(q.rankingChoices.map((item) => item.value), ["a"]);
+
+  q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[0]);
+  assert.deepEqual(q.unRankingChoices.map((item) => item.value), ["a", "b", "c"]);
+  assert.deepEqual(q.rankingChoices.map((item) => item.value), []);
+
+  (window as any).event = undefined;
+  settings.animationEnabled = false;
+});
+
 QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
   let result;
   let dragStartTargetNode;
@@ -316,6 +353,24 @@ QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
   assert.equal(result, true);
 
   dragStartTargetNode.remove();
+});
+QUnit.test("Ranking: isItemSelected() returns always false for optimization", function(assert) {
+  let result;
+  let dragStartTargetNode;
+
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        choices: ["a", "b", "c"],
+      },
+    ],
+  });
+  const rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q1");
+  assert.equal(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), false, "#1");
+  rankingQuestion.value = ["b", "c", "a"];
+  assert.equal(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), false, "#2");
 });
 
 QUnit.test("Ranking: separateSpecialChoices ", function (assert) {

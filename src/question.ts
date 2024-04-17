@@ -665,9 +665,11 @@ export class Question extends SurveyElement<Question>
   }
   public getTitleOwner(): ITitleOwner { return this; }
   protected getIsTitleRenderedAsString(): boolean { return this.titleLocation === "hidden"; }
-  private notifySurveyVisibilityChanged() {
+  protected notifySurveyOnChildrenVisibilityChanged(): boolean { return false; }
+  private notifySurveyVisibilityChanged(): void {
     if (!this.survey || this.isLoadingFromJson) return;
-    this.survey.questionVisibilityChanged(this, this.isVisible);
+    this.survey.questionVisibilityChanged(this, this.isVisible,
+      !this.parentQuestion || this.parentQuestion.notifySurveyOnChildrenVisibilityChanged());
     const isClearOnHidden = this.isClearValueOnHidden;
     if (!this.visible) {
       this.clearValueOnHidding(isClearOnHidden);
@@ -1099,7 +1101,9 @@ export class Question extends SurveyElement<Question>
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssRoot)
-      .append(this.cssClasses.disabled, this.isReadOnly)
+      .append(this.cssClasses.readOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.disabled, this.isDisabledStyle)
+      .append(this.cssClasses.preview, this.isPreviewStyle)
       .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }

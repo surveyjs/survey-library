@@ -4,12 +4,10 @@ import { ITextInputParams } from "./mask_utils";
 export class InputElementAdapter {
   private prevUnmaskedValue: string = undefined;
 
-  constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value?: string) {
+  constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value?: any) {
     let _value: any = value;
-    if(_value === null || _value === undefined) {
+    if (_value === null || _value === undefined) {
       _value = "";
-    } else if(typeof _value !== "string") {
-      _value = _value.toString();
     }
     this.inputElement.value = inputMaskInstance.getMaskedValue(_value);
     this.prevUnmaskedValue = _value;
@@ -19,7 +17,7 @@ export class InputElementAdapter {
   }
 
   inputMaskInstancePropertyChangedHandler = (sender: any, options: any) => {
-    if(options.name !== "saveMaskedValue") {
+    if (options.name !== "saveMaskedValue") {
       const maskedValue = this.inputMaskInstance.getMaskedValue(this.prevUnmaskedValue);
       this.inputElement.value = maskedValue;
     }
@@ -37,7 +35,7 @@ export class InputElementAdapter {
     const result = this.inputMaskInstance.processInput(args);
     this.inputElement.value = result.value;
     this.inputElement.setSelectionRange(result.caretPosition, result.caretPosition);
-    if(!result.cancelPreventDefault) {
+    if (!result.cancelPreventDefault) {
       event.preventDefault();
     }
   };
@@ -51,14 +49,14 @@ export class InputElementAdapter {
       inputDirection: "forward"
     };
 
-    if(event.inputType === "deleteContentBackward") {
+    if (event.inputType === "deleteContentBackward") {
       args.inputDirection = "backward";
 
-      if(args.selectionStart === args.selectionEnd) {
+      if (args.selectionStart === args.selectionEnd) {
         args.selectionStart = Math.max(args.selectionStart - 1, 0);
       }
     }
-    if(event.inputType === "deleteContentForward" && args.selectionStart === args.selectionEnd) {
+    if (event.inputType === "deleteContentForward" && args.selectionStart === args.selectionEnd) {
       args.selectionEnd += 1;
     }
 

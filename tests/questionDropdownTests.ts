@@ -5,8 +5,11 @@ import { createListContainerHtmlElement } from "./utilstests";
 import { Question } from "../src/question";
 import { settings } from "../src/settings";
 import { Serializer } from "../src/jsonobject";
+import { PopupBaseViewModel } from "../src/popup-view-model";
+import { PopupDropdownViewModel } from "../src/popup-dropdown-view-model";
+import { PopupModalViewModel } from "../src/popup-modal-view-model";
 
-export default QUnit.module("choicesRestful");
+export default QUnit.module("Dropdown question");
 
 QUnit.test("Test dropdown choicesMax choicesMin properties", function (assert) {
   const json = {
@@ -38,7 +41,7 @@ QUnit.test("check dropdown disabled class", function (assert) {
   };
   const survey = new SurveyModel(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  question.cssClasses.controlDisabled = "sv_q_dropdown_disabled";
+  question.cssClasses.controlReadOnly = "sv_q_dropdown_disabled";
   assert.ok(question.getControlClass().indexOf("sv_q_dropdown_disabled") == -1);
   question.readOnly = true;
   assert.ok(question.getControlClass().indexOf("sv_q_dropdown_disabled") != -1);
@@ -1893,4 +1896,27 @@ QUnit.test("lazy loading: check onChoicesLazyLoad callback count", assert => {
     }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
     done();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});
+
+QUnit.test("Test dropdown string localization", function (assert) {
+  const survey = new SurveyModel({
+    "locale": "de",
+    "elements": [
+      {
+        "name": "q1",
+        "type": "dropdown",
+      }
+    ],
+  });
+  const q1 = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const listModel = q1.dropdownListModel["listModel"];
+  assert.equal(listModel.filterStringPlaceholder, "Tippe um zu suchen...", "filterStringPlaceholder");
+  assert.equal(listModel.emptyMessage, "Es gibt noch keine Daten.", "emptyMessage");
+  assert.equal(listModel.loadingText, "Wird hochgeladen...", "loadingText");
+
+  let popupViewModel: PopupBaseViewModel = new PopupDropdownViewModel(q1.dropdownListModel.popupModel);
+  assert.equal(popupViewModel.cancelButtonText, "Abbrechen", "cancelButtonText");
+
+  popupViewModel = new PopupModalViewModel(q1.dropdownListModel.popupModel);
+  assert.equal((popupViewModel as PopupModalViewModel).applyButtonText, "Anwenden", "applyButtonText");
 });

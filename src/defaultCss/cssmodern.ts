@@ -395,7 +395,7 @@ export var modernCss = {
     root: "sv-file",
     other: "sv-comment sv-question__other",
     placeholderInput: "sv-visuallyhidden",
-    preview: "sv-file__preview",
+    previewItem: "sd-file__preview-item",
     fileSignBottom: "sv-file__sign",
     fileDecorator: "sv-file__decorator",
     fileInput: "sv-visuallyhidden",

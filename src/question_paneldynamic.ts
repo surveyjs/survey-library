@@ -1088,9 +1088,10 @@ export class QuestionPanelDynamicModel extends Question
   public set showQuestionNumbers(val: string) {
     this.setPropertyValue("showQuestionNumbers", val);
     if (!this.isLoadingFromJson && this.survey) {
-      this.survey.questionVisibilityChanged(this, this.visible);
+      this.survey.questionVisibilityChanged(this, this.visible, true);
     }
   }
+  protected notifySurveyOnChildrenVisibilityChanged(): boolean { return this.showQuestionNumbers === "onSurvey"; }
   /**
    * Specifies the location of the Delete Panel button relative to panel content.
    *
@@ -1163,19 +1164,20 @@ export class QuestionPanelDynamicModel extends Question
   }
   public setVisibleIndex(value: number): number {
     if (!this.isVisible) return 0;
-    var startIndex = this.showQuestionNumbers == "onSurvey" ? value : 0;
+    const onSurveyNumbering = this.showQuestionNumbers === "onSurvey";
+    var startIndex = onSurveyNumbering ? value : 0;
     for (var i = 0; i < this.visiblePanelsCore.length; i++) {
       var counter = this.setPanelVisibleIndex(
         this.visiblePanelsCore[i],
         startIndex,
         this.showQuestionNumbers != "off"
       );
-      if (this.showQuestionNumbers == "onSurvey") {
+      if (onSurveyNumbering) {
         startIndex += counter;
       }
     }
-    super.setVisibleIndex(this.showQuestionNumbers != "onSurvey" ? value : -1);
-    return this.showQuestionNumbers != "onSurvey" ? 1 : startIndex - value;
+    super.setVisibleIndex(!onSurveyNumbering ? value : -1);
+    return !onSurveyNumbering ? 1 : startIndex - value;
   }
   private setPanelVisibleIndex(
     panel: PanelModel,
@@ -2413,6 +2415,7 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   get showNavigation(): boolean {
+    if (this.isReadOnly && this.visiblePanelCount == 1) return false;
     return this.visiblePanelCount > 0 && !this.showLegacyNavigation && !!this.cssClasses.footer;
   }
   showSeparator(index: number): boolean {

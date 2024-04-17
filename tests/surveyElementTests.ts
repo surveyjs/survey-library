@@ -323,3 +323,35 @@ QUnit.test("question.errorLocation & panel.questionErrorLocation & page.question
   q1.errorLocation = "top";
   assert.equal(q1.getErrorLocation(), "top", "#5");
 });
+
+QUnit.test("single page survey in preview", function (assert) {
+  const json = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          }
+        ],
+        "title": "Page 1"
+      }
+    ],
+    "questionsOnPageMode": "singlePage",
+    "showPreviewBeforeComplete": "showAllQuestions"
+  };
+
+  let survey = new SurveyModel(json);
+  var oldCss = survey.css;
+  survey.css = {
+    root: "sd-root-modern"
+  };
+  assert.ok(survey.getQuestionByName("question1")["getHasFrameV2"]());
+  assert.notOk(survey.getQuestionByName("question1")["getIsNested"]());
+  survey.showPreview();
+  assert.ok(survey.getQuestionByName("question1")["getHasFrameV2"]());
+  assert.notOk(survey.getQuestionByName("question1")["getIsNested"]());
+  assert.ok((survey.pages[0].elements[0] as PanelModel).showPanelAsPage);
+  survey.css = oldCss;
+});

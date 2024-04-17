@@ -65,6 +65,40 @@ QUnit.test("Synhronize panelCount and value array length", function(assert) {
   );
 });
 
+QUnit.test("Test panel showNavigation readOnly", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "question1",
+            "readOnly": true,
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question2"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  var oldCss = survey.css.root;
+  survey.css.root = "sd-root-modern";
+  var question = survey.getQuestionByName("question1");
+  question.cssClasses.footer = "footer";
+  question.panelCount = 0;
+  assert.notOk(question.showNavigation, "ne records");
+  question.panelCount = 1;
+  assert.notOk(question.showNavigation, "one record");
+  question.panelCount = 2;
+  assert.ok(question.showNavigation, "two records");
+  survey.css.root = oldCss;
+});
+
 QUnit.test("Dynamic Panel, clearIncorrectValues", function(assert) {
   var question = new QuestionPanelDynamicModel("q");
   (<QuestionRadiogroupModel>(
@@ -4672,10 +4706,10 @@ QUnit.test("noEntriesReadonlyText property for panel dynamic", function (assert)
   const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
   assert.equal(panel1.noEntriesText.indexOf("No entries yet.\nClick the button below to add a new entry."), 0, "panel1 default");
-  assert.equal(panel2.noEntriesText.indexOf("No entries."), 0, "panel2: text for allowAddPanel false");
+  assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for allowAddPanel false");
   panel1.allowAddPanel = false;
-  assert.equal(panel1.noEntriesText.indexOf("No entries."), 0, "panel1: text for allowAddPanel false");
-  assert.equal(panel2.noEntriesText.indexOf("No entries."), 0, "panel2: text for allowAddPanel false");
+  assert.equal(panel1.noEntriesText.indexOf("No entries"), 0, "panel1: text for allowAddPanel false");
+  assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for allowAddPanel false");
 });
 
 QUnit.test("Question defaultValueExpression in panel dynamic", function(
@@ -5306,9 +5340,9 @@ QUnit.test("NoentriesText and readOnly", (assert) => {
   const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
   assert.equal(panel1.noEntriesText.indexOf("No entries yet."), 0, "panel1: text for editing");
-  assert.equal(panel2.noEntriesText.indexOf("No entries."), 0, "panel2: text for readonly");
+  assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for readonly");
   survey.mode = "display";
-  assert.equal(panel1.noEntriesText.indexOf("No entries."), 0, "panel1: text for readonly");
+  assert.equal(panel1.noEntriesText.indexOf("No entries"), 0, "panel1: text for readonly");
 });
 QUnit.test("Carry forward in panel dynamic", function (assert) {
   const survey = new SurveyModel({
@@ -6031,6 +6065,7 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
         renderMode: "progressTop"
       }],
   });
+  var oldCss = survey.css;
   survey.css = { root: "sd-root-modern" };
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   const getAddBtn = () => {
@@ -6065,7 +6100,7 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   assert.equal(getAddBtn().visible, false, "add button is invisible #6");
   assert.equal(panel.canAddPanel, false, "canAddPanel #6");
   assert.equal(getNextBtn().visible, true, "nextButton #6");
-  survey.css.root = undefined;
+  survey.css = oldCss;
 });
 QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function (assert) {
   const survey = new SurveyModel({
@@ -6982,4 +7017,21 @@ QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
   panelsContainer.remove();
+});
+QUnit.test("onQuestionVisibleChanged should be fired", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "paneldynamic", name: "q2", panelCount: 1,
+        templateElements: [{ type: "text", name: "q3", visibleIf: "{q1} = 1" }, { type: "text", name: "q4" }]
+      }
+    ]
+  });
+  const questionNames = new Array<string>();
+  survey.onQuestionVisibleChanged.add((sender, options) => {
+    questionNames.push(options.question.name + ":" + options.question.isVisible);
+  });
+  survey.setValue("q1", 1);
+  survey.setValue("q1", 2);
+  assert.deepEqual(questionNames, ["q3:true", "q3:false"], "visiblity logs");
 });

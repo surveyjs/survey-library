@@ -15206,6 +15206,15 @@ QUnit.test("survey.allowResizeComment", function (assert) {
   survey.allowResizeComment = true;
   assert.equal(comment1.renderedAllowResize, true);
   assert.equal(comment2.renderedAllowResize, false);
+
+  comment1.readOnly = true;
+  assert.equal(comment1.renderedAllowResize, false);
+  comment1.readOnly = false;
+
+  survey.showPreview();
+  let comment1Preview = survey.getQuestionByName("comment1");
+  assert.equal(comment1Preview.renderedAllowResize, false);
+
 });
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
@@ -17934,7 +17943,7 @@ QUnit.test("check title classes when readOnly changed", function (assert) {
   const customDisabledClass = "custom_disabled_class";
   survey.css = {
     question: {
-      titleDisabled: customDisabledClass
+      titleReadOnly: customDisabledClass
     },
   };
   const question = survey.getQuestionByName("q1");
@@ -19501,3 +19510,71 @@ QUnit.test("page passed", function (assert) {
   assert.ok(survey.pages[0].passed, "First page passed");
   assert.ok(survey.pages[1].passed, "Second page passed");
 });
+QUnit.test("showPreview & updateProgress & updateVisibleIndexes", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    showProgressBar: "top",
+    progressBarType: "buttons",
+    progressBarShowPageTitles: true,
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1" }]
+      },
+      {
+        elements: [
+          { type: "paneldynamic", name: "q2", panelCount: 10,
+            elements: [{ type: "text", name: "q3", visibleIf: "{q1} = 1" }]
+          },
+          { type: "text", name: "q4", visibleIf: "{q1} = 1" }
+        ]
+      }
+    ]
+  });
+  survey.data = { q1: 1 };
+  let progressCounter = 0;
+  let visibleChangedCounter = 0;
+  survey.onProgressText.add((sender, options) => {
+    progressCounter ++;
+  });
+  survey.onQuestionVisibleChanged.add((sender, options) => {
+    visibleChangedCounter ++;
+  });
+  survey.showPreview();
+  assert.equal(progressCounter, 1, "progressCounter");
+  assert.equal(visibleChangedCounter, 0, "visibleChangedCounter");
+});
+
+QUnit.test("showPreview & dynamic panel? single page", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "question1",
+            "defaultValue": [
+              {
+                "question2": "q"
+              }
+            ],
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question2"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "questionsOnPageMode": "singlePage",
+    "showPreviewBeforeComplete": "showAllQuestions"
+  });
+  survey.showPreview();
+  assert.notOk((survey.getQuestionByName("question1") as QuestionPanelDynamicModel).panels[0].showPanelAsPage);
+});
+

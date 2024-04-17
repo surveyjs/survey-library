@@ -832,6 +832,9 @@ export class QuestionMultipleTextModel extends Question
   public getItemLabelCss(item: MultipleTextItemModel): string {
     return new CssClassBuilder()
       .append(this.cssClasses.itemLabel)
+      .append(this.cssClasses.itemLabelDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.itemLabelReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.itemLabelPreview, this.isPreviewStyle)
       .append(this.cssClasses.itemLabelAnswered, item.editor.isAnswered)
       .append(this.cssClasses.itemLabelAllowFocus, !this.isDesignMode)
       .append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0)

@@ -142,8 +142,16 @@ export class InputMaskPattern extends InputMaskBase {
    * - `dd` - Day of the month, with leading zero for single-digit values.
    * - `yy` - Last two digits of the year.
    * - `yyyy` - A four-digit year.
+   * - `H` - Hours in 24-hour format.
+   * - `HH` - Hours in 24-hour format, with leading zero for single-digit values.
+   * - `h` - Hours in 12-hour format.
+   * - `hh` - Hours in 12-hour format, with leading zero for single-digit values.
+   * - `MM` - Minutes.
+   * - `ss` - Seconds.
+   * - `TT` - 12-hour clock period in upper case (AM/PM).
+   * - `tt` - 12-hour clock period in lower case (am/pm).
    *
-   * Example: `mm/dd/yyyy`
+   * Example: `mm/dd/yyyy HH:MM:ss`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
    * @see [settings.maskSettings](https://surveyjs.io/form-library/documentation/api-reference/settings#maskSettings)

@@ -1,7 +1,7 @@
 <div [class]="model.cssClasses.root" #contentElement>
   <div *ngIf="model.getShowNoEntriesPlaceholder()" [class]="model.cssClasses.noEntriesPlaceholder">
     <span [model]="model.locNoEntriesText" sv-ng-string></span>
-    <sv-ng-paneldynamic-add-btn [data]="{ question: model }"></sv-ng-paneldynamic-add-btn>
+    <sv-ng-paneldynamic-add-btn *ngIf="model.canAddPanel" [data]="{ question: model }"></sv-ng-paneldynamic-add-btn>
   </div>
   <div [class]="model.cssClasses.progress"
     *ngIf="!model.showLegacyNavigation && model.isProgressTopShowing && model.isRangeShowing">

@@ -313,6 +313,7 @@ QUnit.test("check showPlaceholder & placeholder properties", (assert) => {
   let question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
   assert.ok(question.needShowPlaceholder(), "#0");
   assert.equal(question.locPlaceholder.renderedHtml, "Sign here");
+  assert.equal(question.locRenderedPlaceholder.renderedHtml, "Sign here");
 
   question.valueWasChangedFromLastUpload = true;
   assert.equal(question.needShowPlaceholder(), false, "#1");
@@ -326,6 +327,12 @@ QUnit.test("check showPlaceholder & placeholder properties", (assert) => {
   assert.notOk(question.needShowPlaceholder(), "#4");
   question.placeholder = "test sign";
   assert.equal(question.locPlaceholder.renderedHtml, "test sign");
+
+  assert.equal(question.locRenderedPlaceholder.renderedHtml, "test sign");
+  question.readOnly = true;
+  assert.equal(question.locRenderedPlaceholder.renderedHtml, "No signature");
+  question.placeholderReadOnly = "empty sign";
+  assert.equal(question.locRenderedPlaceholder.renderedHtml, "empty sign");
 
   json = {
     questions: [
@@ -347,7 +354,8 @@ QUnit.test("check showPlaceholder & placeholder properties", (assert) => {
 
 QUnit.test("check placeholder property visibility", (assert) => {
   const prop1 = Serializer.getProperty("signaturepad", "placeholder");
-  assert.deepEqual(Serializer.getProperty("signaturepad", "showPlaceholder").getDependedProperties(), [prop1.name]);
+  const prop2 = Serializer.getProperty("signaturepad", "placeholderReadOnly");
+  assert.deepEqual(Serializer.getProperty("signaturepad", "showPlaceholder").getDependedProperties(), [prop1.name, prop2.name]);
   const q1 = new QuestionSignaturePadModel("q1");
   q1.showPlaceholder = true;
   assert.equal(prop1.isVisible(undefined, q1), true);
@@ -509,4 +517,3 @@ QUnit.test("Question Signature pad invisible - on complete", function (assert) {
   survey.doComplete();
   assert.deepEqual(survey.data, { text: "abc" });
 });
-

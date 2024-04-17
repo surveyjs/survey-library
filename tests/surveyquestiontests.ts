@@ -7548,6 +7548,29 @@ QUnit.test("question.setValueIf, setValueExpression is empty", function (assert)
   q1.value = 2;
   assert.equal(q2.value, "edf", "value is keep, #3");
 });
+QUnit.test("question.setValueIf is empty, setValueExpression is not empty & question is read-only", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { "name": "q1", "type": "text" },
+      { "name": "q2", "type": "text", "setValueExpression": "{q1} + {q3}", "readOnly": true },
+      { "name": "q3", "type": "text" }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.setValueExpression, "{q1} + {q3}", "Load from JSON, setValueExpression");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, 2 + 3, "value is set");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, 2 + 5, "value is keep, #3");
+  q1.value = 3;
+  assert.equal(q2.value, 3 + 5, "value is keep, #4");
+});
+
 QUnit.test("question.setValueIf is empty, setValueExpression is not empty", function (assert) {
   const survey = new SurveyModel({
     elements: [

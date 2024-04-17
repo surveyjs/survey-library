@@ -87,15 +87,6 @@
   }
 }
 
-@keyframes overflowIn {
-  from {
-    overflow: hidden;
-  }
-  to {
-    overflow: visible;
-  }
-}
-
 @keyframes empty {
   from {
   }
@@ -116,12 +107,12 @@
     animation-duration: $matrix-row-move-in-duration;
     animation-fill-mode: forwards;
     & > div {
-      animation-name: fadeIn, moveIn, overflowIn;
+      animation-name: fadeIn, moveInWithOverflow;
       opacity: 0;
       animation-timing-function: $ease-out;
       animation-fill-mode: forwards;
-      animation-duration: $matrix-row-fade-in-duration, $matrix-row-move-in-duration, $matrix-row-move-in-duration;
-      animation-delay: $matrix-row-fade-in-delay, 0s, 0s;
+      animation-duration: $matrix-row-fade-in-duration, $matrix-row-move-in-duration;
+      animation-delay: $matrix-row-fade-in-delay, 0s;
     }
   }
 }
@@ -139,8 +130,8 @@
     & > div {
       animation-direction: reverse;
       animation-timing-function: $reverse-ease-out;
-      animation-duration: $matrix-row-fade-out-duration, $matrix-row-move-out-duration, $matrix-row-move-out-duration;
-      animation-delay: 0s, $matrix-row-move-out-delay, $matrix-row-move-out-delay;
+      animation-duration: $matrix-row-fade-out-duration, $matrix-row-move-out-duration;
+      animation-delay: 0s, $matrix-row-move-out-delay;
     }
   }
 }
@@ -163,9 +154,8 @@
       animation-timing-function: $ease-out;
       animation-duration: $matrix-detail-row-move-in-duration;
       & > div {
-        animation-duration: $matrix-detail-row-fade-in-duration, $matrix-detail-row-move-in-duration,
-          $matrix-detail-row-move-in-duration;
-        animation-delay: $matrix-detail-row-fade-in-delay, 0s, 0s;
+        animation-duration: $matrix-detail-row-fade-in-duration, $matrix-detail-row-move-in-duration;
+        animation-delay: $matrix-detail-row-fade-in-delay, 0s;
       }
     }
   }
@@ -180,9 +170,8 @@
       animation-delay: $matrix-detail-row-move-out-delay;
       animation-direction: reverse;
       & > div {
-        animation-duration: $matrix-detail-row-fade-out-duration, $matrix-detail-row-move-out-duration,
-          $matrix-detail-row-move-out-duration;
-        animation-delay: 0s, $matrix-detail-row-move-out-delay, $matrix-detail-row-move-out-delay;
+        animation-duration: $matrix-detail-row-fade-out-duration, $matrix-detail-row-move-out-duration;
+        animation-delay: 0s, $matrix-detail-row-move-out-delay;
       }
     }
   }

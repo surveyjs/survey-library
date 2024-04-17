@@ -15,7 +15,20 @@
     height: var(--animation-height-to);
   }
 }
-
+@keyframes moveInWithOverflow {
+  from {
+    overflow: hidden;
+    height: 0;
+  }
+  99% {
+    overflow: hidden;
+    height: var(--animation-height);
+  }
+  to {
+    overflow: visible;
+    height: var(--animation-height);
+  }
+}
 @keyframes moveIn {
   from {
     height: 0;
@@ -23,18 +36,6 @@
 
   to {
     height: var(--animation-height);
-  }
-}
-
-@keyframes overflowIn {
-  0% {
-    overflow: hidden;
-  }
-  99% {
-    overflow: hidden;
-  }
-  100% {
-    overflow: visible;
   }
 }
 

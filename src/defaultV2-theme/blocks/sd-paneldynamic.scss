@@ -356,7 +356,7 @@
 
 .sd-paneldynamic__panel-wrapper--fade-in,
 .sd-paneldynamic__panel-wrapper--fade-out {
-    animation-name: fadeIn, moveIn, paddingFadeIn, overflowIn;
+    animation-name: fadeIn, moveInWithOverflow, paddingFadeIn;
     animation-fill-mode: forwards;
     --animation-padding-bottom: calc(1 * var(--sd-base-padding));
     min-height: 0 !important;
@@ -364,16 +364,14 @@
 .sd-paneldynamic__panel-wrapper--fade-in {
     opacity: 0;
     animation-timing-function: $ease-out;
-    animation-duration: $pd-list-fade-in-duration, $pd-list-move-in-duration, $pd-list-move-in-duration,
-        $pd-list-move-in-duration;
-    animation-delay: $pd-list-fade-in-delay, 0s, 0s, 0s;
+    animation-duration: $pd-list-fade-in-duration, $pd-list-move-in-duration, $pd-list-move-in-duration;
+    animation-delay: $pd-list-fade-in-delay, 0s, 0s;
 }
 
 .sd-paneldynamic__panel-wrapper--fade-out {
     animation-direction: reverse;
     animation-timing-function: $reverse-ease-out;
-    animation-duration: $pd-list-fade-out-duration, $pd-list-move-out-duration, $pd-list-move-out-duration,
-        $expand-move-in-duration;
-    animation-delay: 0s, $pd-list-move-out-delay, $pd-list-move-out-delay, $pd-list-move-out-delay;
+    animation-duration: $pd-list-fade-out-duration, $pd-list-move-out-duration, $pd-list-move-out-duration;
+    animation-delay: 0s, $pd-list-move-out-delay, $pd-list-move-out-delay;
     --animation-padding-bottom: calc(1 * var(--sd-base-padding));
 }

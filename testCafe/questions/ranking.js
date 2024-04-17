@@ -313,27 +313,11 @@ frameworks.forEach((framework) => {
   });
 
   test("ranking: selectToRank: click to add", async (t) => {
-    let selectToRankJson = {
-      "elements": [
-        {
-          "type": "ranking",
-          "name": "question1",
-          "title": "Please rank the following smartphone features in order of importance:",
-          "choices": [
-            "Battery life",
-            "Screen size",
-            "Storage space",
-            "Camera quality",
-            "Durability",
-            "Processor power",
-            "Price",
-          ],
-          "selectToRankEnabled": true
-        }
-      ]
-    };
-    await initSurvey(framework, selectToRankJson);
-
+    const setselectToRankEnabled = ClientFunction(() => {
+      const rankingQ = window["survey"].getAllQuestions()[0];
+      rankingQ.selectToRankEnabled = true;
+    });
+    await setselectToRankEnabled();
     await t.click(PriceItem);
     await t.click(BatteryItem);
 
@@ -342,7 +326,5 @@ frameworks.forEach((framework) => {
       "Price",
       "Battery life"
     ]);
-
-    await initSurvey(framework, json);
   });
 });

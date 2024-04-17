@@ -144,6 +144,7 @@
 .sd-question--empty.sd-question--paneldynamic {
     & > .sd-question__content {
         padding-bottom: var(--sd-base-padding);
+        --animation-padding-bottom: var(--sd-base-padding);
     }
 }
 

@@ -58,6 +58,7 @@
       &>.sd-question__header {
         &~.sd-question__content {
           padding-top: calcSize(2);
+          --animation-padding-top: #{calcSize(2)};
 
           .sd-table--no-header {
             padding-top: calcSize(4);
@@ -450,6 +451,7 @@
 
   &>.sd-question__content {
     padding-top: calcSize(2);
+    --animation-padding-top: #{calcSize(2)};
     min-width: min-content;
   }
 
@@ -486,6 +488,7 @@
   .sd-question.sd-question--table {
     &>.sd-question__content {
       padding-top: 0;
+      --animation-padding-top: 0;
     }
   }
 

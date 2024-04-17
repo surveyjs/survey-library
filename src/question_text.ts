@@ -539,7 +539,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateTextAlign(style: any) {
     if (this.inputTextAlignment !== "auto") {
       style.textAlign = this.inputTextAlignment;
-    } else if (this.maskType === "numeric" || this.maskType === "currency") {
+    } else if (this.maskSettings.isNumeric) {
       style.textAlign = "right";
     }
   }

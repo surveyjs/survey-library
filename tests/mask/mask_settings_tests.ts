@@ -3,6 +3,7 @@ import { InputMaskPattern } from "../../src/mask/mask_pattern";
 import { InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { InputMaskCurrency } from "../../src/mask/mask_currency";
 import { QuestionTextModel } from "../../src/question_text";
+import { Serializer } from "../../src/jsonobject";
 
 export default QUnit.module("Question text: Input mask");
 
@@ -175,6 +176,17 @@ QUnit.test("Currency mask: value & inputValue", function (assert) {
   assert.equal(q.inputValue, "$ 123,456", "masked inputValue #4");
 });
 
+QUnit.test("Numeric mask: text aligment", function (assert) {
+  const q = new QuestionTextModel("q1");
+  assert.deepEqual(q.inputStyle, { width: undefined });
+
+  q.maskType = "numeric";
+  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "right" });
+
+  q.inputTextAlignment = "left";
+  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "left" });
+});
+
 QUnit.test("Currency mask: text aligment", function (assert) {
   const q = new QuestionTextModel("q1");
   assert.deepEqual(q.inputStyle, { width: undefined });
@@ -184,4 +196,29 @@ QUnit.test("Currency mask: text aligment", function (assert) {
 
   q.inputTextAlignment = "left";
   assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "left" });
+});
+
+class IntegerMask extends InputMaskNumeric {
+  public getType(): string {
+    return "integermask";
+  }
+}
+
+QUnit.test("Currency mask: text aligment", function (assert) {
+  Serializer.addClass("integermask", [],
+    () => new IntegerMask(),
+    "numericmask"
+  );
+
+  const q = new QuestionTextModel("q1");
+  assert.deepEqual(q.inputStyle, { width: undefined });
+
+  q.maskType = "integer";
+  assert.equal(q.maskSettings instanceof IntegerMask, true);
+  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "right" });
+
+  q.inputTextAlignment = "left";
+  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "left" });
+
+  Serializer.removeClass("integermask");
 });

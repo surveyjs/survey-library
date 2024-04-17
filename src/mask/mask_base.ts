@@ -42,12 +42,12 @@ export class InputMaskBase extends Base implements IInputMask {
     return res;
   }
 
-  // public get maskedInputValue(): string {
-  //   return this.input.value;
-  // }
-  // public get unmaskedInputValue(): string {
-  //   return this.getUnmaskedValue(this.input.value, true);
-  // }
+  public get isNumeric(): boolean {
+    const currentType = this.getType();
+    if (currentType === "numericmask") return true;
+    const childrenClassNames = Serializer.getChildrenClasses("numericmask").map(cl => cl.name);
+    return childrenClassNames.indexOf(currentType) !== -1;
+  }
 
   public processInput(args: ITextInputParams): IMaskedInputResult {
     return { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };

@@ -37,11 +37,6 @@
 .sd-paneldynamic__separator {
     display: none;
 }
-
-.sd-paneldynamic__separator:only-child {
-    display: none;
-}
-
 .sd-paneldynamic__panel-wrapper {
     box-sizing: border-box;
     padding-bottom: calc(1 * var(--sd-base-padding));
@@ -53,7 +48,7 @@
     content: " ";
 }
 
-.sd-paneldynamic__footer:before,
+.sd-paneldynamic__footer .sd-paneldynamic__separator,
 .sd-paneldynamic__panel-wrapper--list ~ .sd-paneldynamic__panel-wrapper--list:before {
     content: " ";
     display: block;
@@ -65,6 +60,9 @@
     background: $border-light;
     height: 1px;
     border: none;
+}
+.sd-paneldynamic__separator:only-child {
+    display: none;
 }
 
 .sd-paneldynamic__panel-wrapper--in-row {

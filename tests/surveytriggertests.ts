@@ -9,6 +9,7 @@ import { SurveyModel } from "../src/survey";
 import { settings } from "../src/settings";
 import { Serializer } from "../src/jsonobject";
 import { QuestionMatrixModel } from "../src/question_matrix";
+import { FunctionFactory } from "../src/functionsfactory";
 
 export default QUnit.module("Triggers");
 
@@ -676,4 +677,55 @@ QUnit.test("complete trigger and next/complete buttons, Bug#6970", function (ass
   survey.nextPage();
   assert.equal(survey.isCompleteButtonVisible, true, "complete button is visible, #4");
   assert.equal(survey.isShowNextButton, false, "next button is invisible, #4");
+});
+QUnit.test("runexpression trigger and isNextPage", function(assert) {
+  let counter = 0;
+  FunctionFactory.Instance.register("calcCust", function getCustValue(params
+  ) {
+    counter ++;
+    const val = params[0];
+    return !!val ? val + "_abc" : undefined;
+  });
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" },
+        ]
+      },
+      {
+        elements: [
+          { type: "text", name: "q4" },
+        ],
+      }
+    ],
+    triggers: [
+      {
+        "type": "runexpression",
+        "expression": "{q1} empty or {q1} notempty",
+        "runExpression": "calcCust({q1})",
+        "setToName": "q2"
+      }
+    ],
+  });
+  assert.equal(counter, 0, "Calculate on loading");
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q1.value = "1";
+  assert.equal(counter, 1, "counter #1");
+  assert.equal(q2.value, "1_abc", "value #1");
+  q3.value = "2";
+  assert.equal(counter, 1, "counter #2");
+  assert.equal(q2.value, "1_abc", "value #2");
+  survey.nextPage();
+  assert.equal(counter, 1, "counter #3");
+  assert.equal(q2.value, "1_abc", "value #3");
+  survey.doComplete();
+  assert.equal(counter, 1, "counter #4");
+  assert.equal(q2.value, "1_abc", "value #4");
+
+  FunctionFactory.Instance.unregister("calcCust");
 });

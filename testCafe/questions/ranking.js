@@ -275,7 +275,7 @@ frameworks.forEach((framework) => {
       .find("span")
       .withText("two");
 
-    await t.dragToElement(FirstItem, SecondItem);
+    await t.dragToElement(FirstItem, SecondItem, { speed: 0.1 });
 
     let data = await getData();
     await t.expect(data[newName]).eql([

@@ -602,6 +602,7 @@ export class QuestionPanelDynamicModel extends Question
     if(this.renderedPanels.length == 0 || val.length == 0) {
       this._renderedPanels = val;
     } else {
+      this.isPanelsAnimationRunning = true;
       this.panelsAnimation.sync(val);
     }
   }
@@ -609,7 +610,7 @@ export class QuestionPanelDynamicModel extends Question
   public get renderedPanels(): Array<PanelModel> {
     return this._renderedPanels;
   }
-
+  private isPanelsAnimationRunning: boolean = false;
   private getPanelsAnimationOptions(): IAnimationConsumer<[PanelModel]> {
     const getDirection = () => {
       if(this.isRenderModeList) return "";
@@ -638,9 +639,6 @@ export class QuestionPanelDynamicModel extends Question
             } else {
               el.style.setProperty("--animation-height", el.offsetHeight + "px");
             }
-          },
-          onAfterRunAnimation: (el) => {
-            this.focusNewPanel();
           },
           cssClass: cssClass
         };
@@ -675,23 +673,13 @@ export class QuestionPanelDynamicModel extends Question
     });
   }
   private updatePanelsAnimation() {
-    if(this.isRenderModeList)
-      this._panelsAnimations = new AnimationGroup(this.getPanelsAnimationOptions(), (val, isTempUpdate?: boolean) => {
-        this._renderedPanels = val;
-        if(!isTempUpdate) {
-          this.focusNewPanel();
-        }
-      }, () => this._renderedPanels);
-    else {
-      this._panelsAnimations = new AnimationTab(this.getPanelsAnimationOptions(), (val, isTempUpdate?: boolean) => {
-        this._renderedPanels = val;
-        if(!isTempUpdate) {
-          this.focusNewPanel();
-        }
-      }, () => this._renderedPanels, (newValue, oldValue) => {
-        return [oldValue[0], newValue[0]];
-      });
-    }
+    this._panelsAnimations = new (this.isRenderModeList ? AnimationGroup : AnimationTab)(this.getPanelsAnimationOptions(), (val, isTempUpdate?: boolean) => {
+      this._renderedPanels = val;
+      if(!isTempUpdate) {
+        this.isPanelsAnimationRunning = false;
+        this.focusNewPanel();
+      }
+    }, () => this._renderedPanels);
   }
 
   get panelsAnimation(): AnimationProperty<Array<PanelModel>, [PanelModel]> {
@@ -1378,7 +1366,7 @@ export class QuestionPanelDynamicModel extends Question
     this.focusNewPanelCallback = () => {
       newPanel.focusFirstQuestion();
     };
-    if(!this.animationAllowed) {
+    if(!this.isPanelsAnimationRunning) {
       this.focusNewPanel();
     }
     return newPanel;

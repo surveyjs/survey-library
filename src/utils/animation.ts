@@ -253,7 +253,7 @@ export class AnimationTab<T> extends AnimationProperty<Array<T>, [T]> {
   protected _sync(newValue: [T]): void {
     const oldValue = [].concat(this.getCurrentValue());
     if(oldValue[0] !== newValue[0]) {
-      const tempValue = !!this.mergeValues ? this.mergeValues(newValue, oldValue) : [].concat(newValue, oldValue);
+      const tempValue = !!this.mergeValues ? this.mergeValues(newValue, oldValue) : [].concat(oldValue, newValue);
       this.update(tempValue, true);
       this.animation.runGroupAnimation(this.animationOptions, newValue, oldValue, () => {
         this.update(newValue);

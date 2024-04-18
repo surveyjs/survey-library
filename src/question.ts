@@ -581,8 +581,7 @@ export class Question extends SurveyElement<Question>
     info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
   public runTriggers(name: string, value: any): void {
-    if(this.isReadOnly || this.isSettingQuestionValue ||
-      (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
+    if(this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
     this.triggersInfo.forEach(info => {
       this.runTriggerInfo(info, name, value);
     });

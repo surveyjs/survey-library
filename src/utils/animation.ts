@@ -192,7 +192,7 @@ export class AnimationGroupUtils<T> extends AnimationUtils {
 }
 
 export abstract class AnimationProperty<T, S extends Array<any> = []> {
-  constructor(protected animationOptions: IAnimationConsumer<S>, protected update: (val: T) => void, protected getCurrentValue: () => T) {
+  constructor(protected animationOptions: IAnimationConsumer<S>, protected update: (val: T, isTempUpdate?: boolean) => void, protected getCurrentValue: () => T) {
   }
   protected animation: AnimationUtils;
   protected abstract _sync(newValue: T): void;
@@ -247,14 +247,14 @@ export class AnimationGroup<T> extends AnimationProperty<Array<T>, [T]> {
 }
 export class AnimationTab<T> extends AnimationProperty<Array<T>, [T]> {
   protected animation: AnimationGroupUtils<T> = new AnimationGroupUtils();
-  constructor(animationOptions: IAnimationConsumer<[T]>, update: (val: Array<T>) => void, getCurrentValue: () => Array<T>, protected mergeValues?: (newValue: Array<T>, oldValue: Array<T>) => Array<T>) {
+  constructor(animationOptions: IAnimationConsumer<[T]>, update: (val: Array<T>, isTempUpdate?: boolean) => void, getCurrentValue: () => Array<T>, protected mergeValues?: (newValue: Array<T>, oldValue: Array<T>) => Array<T>) {
     super(animationOptions, update, getCurrentValue);
   }
   protected _sync(newValue: [T]): void {
     const oldValue = [].concat(this.getCurrentValue());
     if(oldValue[0] !== newValue[0]) {
       const tempValue = !!this.mergeValues ? this.mergeValues(newValue, oldValue) : [].concat(newValue, oldValue);
-      this.update(tempValue);
+      this.update(tempValue, true);
       this.animation.runGroupAnimation(this.animationOptions, newValue, oldValue, () => {
         this.update(newValue);
       });

@@ -31,7 +31,6 @@ import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer } from "./utils/animation";
-import { Panel } from "./knockout/kopage";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -630,11 +629,18 @@ export class QuestionPanelDynamicModel extends Question
         const cssClass = this.cssClasses.panelWrapperFadeIn ? `${this.cssClasses.panelWrapperFadeIn}${getDirection()}` : "";
         return {
           onBeforeRunAnimation: (el) => {
+            if(this.focusNewPanelCallback) {
+              const scolledElement = this.isRenderModeList ? el : el.parentElement;
+              SurveyElement.ScrollElementToViewCore(scolledElement, false, false, { behavior: "smooth" });
+            }
             if(!this.isRenderModeList) {
               el.parentElement?.style.setProperty("--animation-height-to", el.offsetHeight + "px");
             } else {
               el.style.setProperty("--animation-height", el.offsetHeight + "px");
             }
+          },
+          onAfterRunAnimation: (el) => {
+            this.focusNewPanel();
           },
           cssClass: cssClass
         };
@@ -658,8 +664,34 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   private _panelsAnimations: AnimationProperty<Array<PanelModel>, [PanelModel]>;
+  private disablePanelsAnimations() {
+    this.panelsCore.forEach((panel) => {
+      panel.animationAllowed = false;
+    });
+  }
+  private enablePanelsAnimations() {
+    this.panelsCore.forEach((panel) => {
+      panel.animationAllowed = true;
+    });
+  }
   private updatePanelsAnimation() {
-    this._panelsAnimations = new (this.isRenderModeList ? AnimationGroup : AnimationTab)(this.getPanelsAnimationOptions(), (val) => this._renderedPanels = val, () => this._renderedPanels);
+    if(this.isRenderModeList)
+      this._panelsAnimations = new AnimationGroup(this.getPanelsAnimationOptions(), (val, isTempUpdate?: boolean) => {
+        this._renderedPanels = val;
+        if(!isTempUpdate) {
+          this.focusNewPanel();
+        }
+      }, () => this._renderedPanels);
+    else {
+      this._panelsAnimations = new AnimationTab(this.getPanelsAnimationOptions(), (val, isTempUpdate?: boolean) => {
+        this._renderedPanels = val;
+        if(!isTempUpdate) {
+          this.focusNewPanel();
+        }
+      }, () => this._renderedPanels, (newValue, oldValue) => {
+        return [oldValue[0], newValue[0]];
+      });
+    }
   }
 
   get panelsAnimation(): AnimationProperty<Array<PanelModel>, [PanelModel]> {
@@ -899,11 +931,13 @@ export class QuestionPanelDynamicModel extends Question
     if (val < this.panelCount) {
       this.panelsCore.splice(val, this.panelCount - val);
     }
+    this.disablePanelsAnimations();
     this.setValueAfterPanelsCreating();
     this.setValueBasedOnPanelCount();
     this.reRunCondition();
     this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
+    this.enablePanelsAnimations();
   }
   /**
    * Returns the number of visible panels in Dynamic Panel.
@@ -1341,9 +1375,19 @@ export class QuestionPanelDynamicModel extends Question
     if (this.renderMode === "list" && this.panelsState !== "default") {
       newPanel.expand();
     }
-    newPanel.focusFirstQuestion();
+    this.focusNewPanelCallback = () => {
+      newPanel.focusFirstQuestion();
+    };
     return newPanel;
   }
+  private focusNewPanelCallback: () => void;
+  private focusNewPanel() {
+    if(this.focusNewPanelCallback) {
+      this.focusNewPanelCallback();
+      this.focusNewPanelCallback = undefined;
+    }
+  }
+
   /**
    * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
    * @param index *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`renderMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `renderMode` value.

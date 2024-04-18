@@ -294,10 +294,10 @@
 .sd-paneldynamic__panels-container {
     position: relative;
     overflow: hidden;
-    margin-left: -40px;
-    padding-left: 40px;
-    margin-right: -40px;
-    padding-right: 40px;
+    margin-left: calc(-1 * var(--sd-base-padding));
+    padding-left: var(--sd-base-padding);
+    margin-left: calc(-1 * var(--sd-base-padding));
+    padding-right: var(--sd-base-padding);
 }
 .sd-paneldynamic__panel-wrapper {
     box-sizing: border-box;
@@ -343,9 +343,9 @@
     animation-direction: reverse;
     animation-fill-mode: forwards;
     position: absolute;
-    left: 40px;
+    left: var(--sd-base-padding);
     top: 0;
-    width: calc(100% - 80px);
+    width: calc(100% - 2 * var(--sd-base-padding));
 }
 .sd-paneldynamic__panel-wrapper--fade-out-left {
     --sjs-pd-tab-move-margin: calc(-1 * #{$pd-tab-move-out-margin});

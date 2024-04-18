@@ -201,25 +201,22 @@ QUnit.test("isNumeric", function (assert) {
 
   const q = new QuestionTextModel("q1");
   assert.equal(q.maskType, "none");
-  assert.equal(q.maskSettings.isNumeric, false);
-
-  q.maskType = "pattern";
-  assert.equal(q.maskSettings.isNumeric, false);
+  assert.equal(q.maskSettings.getTextAlignment(), "auto");
 
   q.maskType = "numeric";
-  assert.equal(q.maskSettings.isNumeric, true);
+  assert.equal(q.maskSettings.getTextAlignment(), "right");
 
   q.maskType = "datetime";
-  assert.equal(q.maskSettings.isNumeric, false);
+  assert.equal(q.maskSettings.getTextAlignment(), "auto");
 
   q.maskType = "currency";
-  assert.equal(q.maskSettings.isNumeric, true);
+  assert.equal(q.maskSettings.getTextAlignment(), "right");
 
-  q.maskType = "none";
-  assert.equal(q.maskSettings.isNumeric, false);
+  q.maskType = "pattern";
+  assert.equal(q.maskSettings.getTextAlignment(), "auto");
 
   q.maskType = "integer";
-  assert.equal(q.maskSettings.isNumeric, true);
+  assert.equal(q.maskSettings.getTextAlignment(), "right");
 
   Serializer.removeClass("integermask");
 });

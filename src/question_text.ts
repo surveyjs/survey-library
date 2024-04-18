@@ -62,7 +62,7 @@ export class QuestionTextModel extends QuestionTextBase {
   @property({
     onSet: (newValue: string, target: QuestionTextModel) => { target.onSetMaskType(newValue); }
   }) maskType: string;
-  @property() inputTextAlignment: "left" | "right" | "auto" ;
+  @property() inputTextAlignment: "left" | "right" | "auto";
 
   get maskTypeIsEmpty(): boolean {
     return this.maskType === "none";
@@ -539,8 +539,8 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateTextAlign(style: any) {
     if (this.inputTextAlignment !== "auto") {
       style.textAlign = this.inputTextAlignment;
-    } else if (this.maskSettings.isNumeric) {
-      style.textAlign = "right";
+    } else if (this.maskSettings.getTextAlignment() !== "auto") {
+      style.textAlign = this.maskSettings.getTextAlignment();
     }
   }
   //web-based methods

@@ -209,6 +209,7 @@ li:focus .sv-list__item.sv-list__item--selected {
   background: $background;
   box-sizing: border-box;
   width: 100%;
+  min-width: calcSize(30);
   outline: none;
   font-size: calcFontSize(1);
   color: $foreground;

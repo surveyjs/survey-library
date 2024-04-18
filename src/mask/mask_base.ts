@@ -42,19 +42,13 @@ export class InputMaskBase extends Base implements IInputMask {
     return res;
   }
 
-  // public get maskedInputValue(): string {
-  //   return this.input.value;
-  // }
-  // public get unmaskedInputValue(): string {
-  //   return this.getUnmaskedValue(this.input.value, true);
-  // }
-
   public processInput(args: ITextInputParams): IMaskedInputResult {
     return { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };
   }
 
   public getUnmaskedValue(src: string): any { return src; }
   public getMaskedValue(src: any): string { return src; }
+  public getTextAlignment(): "left" | "right" | "auto" { return "auto"; }
 }
 
 Serializer.addClass(

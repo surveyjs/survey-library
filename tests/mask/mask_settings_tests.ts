@@ -3,6 +3,7 @@ import { InputMaskPattern } from "../../src/mask/mask_pattern";
 import { InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { InputMaskCurrency } from "../../src/mask/mask_currency";
 import { QuestionTextModel } from "../../src/question_text";
+import { Serializer } from "../../src/jsonobject";
 
 export default QUnit.module("Question text: Input mask");
 
@@ -184,4 +185,38 @@ QUnit.test("Currency mask: text aligment", function (assert) {
 
   q.inputTextAlignment = "left";
   assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "left" });
+});
+
+class IntegerMask extends InputMaskNumeric {
+  public getType(): string {
+    return "integermask";
+  }
+}
+
+QUnit.test("isNumeric", function (assert) {
+  Serializer.addClass("integermask", [],
+    () => new IntegerMask(),
+    "numericmask"
+  );
+
+  const q = new QuestionTextModel("q1");
+  assert.equal(q.maskType, "none");
+  assert.equal(q.maskSettings.getTextAlignment(), "auto");
+
+  q.maskType = "numeric";
+  assert.equal(q.maskSettings.getTextAlignment(), "right");
+
+  q.maskType = "datetime";
+  assert.equal(q.maskSettings.getTextAlignment(), "auto");
+
+  q.maskType = "currency";
+  assert.equal(q.maskSettings.getTextAlignment(), "right");
+
+  q.maskType = "pattern";
+  assert.equal(q.maskSettings.getTextAlignment(), "auto");
+
+  q.maskType = "integer";
+  assert.equal(q.maskSettings.getTextAlignment(), "right");
+
+  Serializer.removeClass("integermask");
 });

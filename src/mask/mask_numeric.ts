@@ -233,6 +233,9 @@ export class InputMaskNumeric extends InputMaskBase {
     return this.convertNumber(parsedNumber);
   }
 
+  public getTextAlignment(): "left" | "right" | "auto" {
+    return "right";
+  }
   public getMaskedValue(src: any): string {
     return this.getNumberMaskedValue(src, true);
   }

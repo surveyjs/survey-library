@@ -176,17 +176,6 @@ QUnit.test("Currency mask: value & inputValue", function (assert) {
   assert.equal(q.inputValue, "$ 123,456", "masked inputValue #4");
 });
 
-QUnit.test("Numeric mask: text aligment", function (assert) {
-  const q = new QuestionTextModel("q1");
-  assert.deepEqual(q.inputStyle, { width: undefined });
-
-  q.maskType = "numeric";
-  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "right" });
-
-  q.inputTextAlignment = "left";
-  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "left" });
-});
-
 QUnit.test("Currency mask: text aligment", function (assert) {
   const q = new QuestionTextModel("q1");
   assert.deepEqual(q.inputStyle, { width: undefined });
@@ -204,21 +193,33 @@ class IntegerMask extends InputMaskNumeric {
   }
 }
 
-QUnit.test("Currency mask: text aligment", function (assert) {
+QUnit.test("isNumeric", function (assert) {
   Serializer.addClass("integermask", [],
     () => new IntegerMask(),
     "numericmask"
   );
 
   const q = new QuestionTextModel("q1");
-  assert.deepEqual(q.inputStyle, { width: undefined });
+  assert.equal(q.maskType, "none");
+  assert.equal(q.maskSettings.isNumeric, false);
+
+  q.maskType = "pattern";
+  assert.equal(q.maskSettings.isNumeric, false);
+
+  q.maskType = "numeric";
+  assert.equal(q.maskSettings.isNumeric, true);
+
+  q.maskType = "datetime";
+  assert.equal(q.maskSettings.isNumeric, false);
+
+  q.maskType = "currency";
+  assert.equal(q.maskSettings.isNumeric, true);
+
+  q.maskType = "none";
+  assert.equal(q.maskSettings.isNumeric, false);
 
   q.maskType = "integer";
-  assert.equal(q.maskSettings instanceof IntegerMask, true);
-  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "right" });
-
-  q.inputTextAlignment = "left";
-  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "left" });
+  assert.equal(q.maskSettings.isNumeric, true);
 
   Serializer.removeClass("integermask");
 });

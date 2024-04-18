@@ -1874,3 +1874,42 @@ QUnit.test("radiogroup with incorrect defaultValue, other & survey.data Bug#7943
   survey.doComplete(false);
   assert.deepEqual(survey.data, { q1: "other", "q1-Comment": "101" }, "survey.data on complete");
 });
+QUnit.test("On value changed, comment and valueName Bug#8137", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "valueName": "val1",
+        "choices": [1, 2],
+        "showOtherItem": true,
+      }
+    ]
+  });
+  let counter = 0;
+  let questionName = "";
+  let name = "";
+  let value = undefined;
+  survey.onValueChanged.add((sender, options) => {
+    counter ++;
+    questionName = options.question.name;
+    name = options.name;
+    value = options.value;
+  });
+  const q = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q.value = 1;
+  assert.equal(counter, 1, "counter #1");
+  assert.equal(questionName, "q1", "question.name #1");
+  assert.equal(name, "val1", "name #1");
+  assert.equal(value, 1, "value #1");
+  q.value = "other";
+  assert.equal(counter, 2, "counter #2");
+  questionName = "";
+  name = "";
+  value = undefined;
+  q.comment = "comment1";
+  assert.equal(counter, 3, "counter #3");
+  assert.equal(questionName, "q1", "question name #3");
+  assert.equal(name, "val1-Comment", "name #3");
+  assert.equal(value, "comment1", "value #3");
+});

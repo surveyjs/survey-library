@@ -6594,11 +6594,7 @@ export class SurveyModel extends SurveyElementCore
    * @param locNotification For internal use.
    * @see getComment
    */
-  public setComment(
-    name: string,
-    newValue: string,
-    locNotification: any = false
-  ) {
+  public setComment(name: string, newValue: string, locNotification: any = false):void {
     if (!newValue) newValue = "";
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
     var commentName = name + this.commentSuffix;
@@ -6620,7 +6616,7 @@ export class SurveyModel extends SurveyElementCore
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
     }
-    var question = this.getQuestionByName(name);
+    var question = this.getQuestionByValueName(name);
     if (question) {
       this.onValueChanged.fire(this, {
         name: commentName,

@@ -1378,6 +1378,9 @@ export class QuestionPanelDynamicModel extends Question
     this.focusNewPanelCallback = () => {
       newPanel.focusFirstQuestion();
     };
+    if(!this.animationAllowed) {
+      this.focusNewPanel();
+    }
     return newPanel;
   }
   private focusNewPanelCallback: () => void;

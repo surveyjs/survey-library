@@ -392,7 +392,10 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
   public set runExpression(val: string) {
     this.setPropertyValue("runExpression", val);
   }
-  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
+  protected canBeExecuted(isOnNextPage: boolean): boolean {
+    return !isOnNextPage;
+  }
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>): boolean {
     if (!this.owner || !this.runExpression) return;
     var expression = new ExpressionRunner(this.runExpression);
     if (expression.canRun) {

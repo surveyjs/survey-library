@@ -91,6 +91,9 @@
   .sd-element__num {
     float: right;
   }
+  .sd-element__title--expandable:before {
+    transform: rotate(180deg);
+  }
 }
 
 .sd-element__title--num-inline {
@@ -113,7 +116,7 @@
   height: calcSize(2);
   width: calcSize(2);
   position: absolute;
-  left: calcSize(-3);
+  inset-inline-start: calcSize(-3);
   top: calcSize(0.5);
   transition-property: transform;
 }

@@ -313,11 +313,11 @@ frameworks.forEach((framework) => {
   });
 
   test("ranking: selectToRank: click to add", async (t) => {
-    const setselectToRankEnabled = ClientFunction(() => {
+    const setSelectToRankEnabled = ClientFunction(() => {
       const rankingQ = window["survey"].getAllQuestions()[0];
       rankingQ.selectToRankEnabled = true;
     });
-    await setselectToRankEnabled();
+    await setSelectToRankEnabled();
     await t.click(PriceItem);
     await t.click(BatteryItem);
 
@@ -326,5 +326,11 @@ frameworks.forEach((framework) => {
       "Price",
       "Battery life"
     ]);
+
+    const setSelectToRankDisabled = ClientFunction(() => {
+      const rankingQ = window["survey"].getAllQuestions()[0];
+      rankingQ.selectToRankEnabled = false;
+    });
+    await setSelectToRankDisabled();
   });
 });

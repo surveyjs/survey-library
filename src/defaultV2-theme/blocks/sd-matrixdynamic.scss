@@ -97,10 +97,8 @@
 .sd-table__row--fade-in {
   animation-name: empty;
   animation-fill-mode: forwards;
-  animation-duration: max(
-    calc(#{$matrix-row-fade-in-duration} + #{$matrix-row-fade-in-delay}),
-    #{$matrix-row-move-in-duration}
-  );
+  --fade-in-animation-duration: calc(#{$matrix-row-fade-in-duration} + #{$matrix-row-fade-in-delay});
+  animation-duration: max(var(--fade-in-animation-duration), #{$matrix-row-move-in-duration});
   & > td {
     animation-name: borderAnimation;
     animation-timing-function: $ease-out;
@@ -118,10 +116,8 @@
 }
 .sd-table__row--fade-out {
   animation-direction: reverse;
-  animation-duration: max(
-    calc(#{$matrix-row-move-out-duration} + #{$matrix-row-move-out-delay}),
-    #{$matrix-row-fade-out-duration}
-  );
+  --move-out-animation-duration: calc(#{$matrix-row-move-out-duration} + #{$matrix-row-move-out-delay});
+  animation-duration: max(var(--move-out-animation-duration), #{$matrix-row-fade-out-duration});
   & > td {
     animation-duration: $matrix-row-move-out-duration;
     animation-delay: $matrix-row-move-out-delay;
@@ -146,10 +142,8 @@
   }
 
   &.sd-table__row--fade-in {
-    animation-duration: max(
-      calc(#{$matrix-detail-row-fade-in-duration} + #{$matrix-detail-row-fade-in-delay}),
-      #{$matrix-detail-row-move-in-duration}
-    );
+    --fade-in-animation-duration: calc(#{$matrix-detail-row-fade-in-duration} + #{$matrix-detail-row-fade-in-delay});
+    animation-duration: max(var(--fade-in-animation-duration), #{$matrix-detail-row-move-in-duration});
     & > td {
       animation-timing-function: $ease-out;
       animation-duration: $matrix-detail-row-move-in-duration;
@@ -160,10 +154,8 @@
     }
   }
   &.sd-table__row--fade-out {
-    animation-duration: max(
-      calc(#{$matrix-detail-row-move-out-duration} + #{$matrix-detail-row-move-out-delay}),
-      #{$matrix-detail-row-fade-out-duration}
-    );
+    --move-out-animation-duration: calc(#{$matrix-detail-row-move-out-duration} + #{$matrix-detail-row-move-out-delay});
+    animation-duration: max(var(--move-out-animation-duration), #{$matrix-detail-row-fade-out-duration});
     & > td {
       animation-timing-function: $reverse-ease-out;
       animation-duration: $matrix-detail-row-move-out-duration;

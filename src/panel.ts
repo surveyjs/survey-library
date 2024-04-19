@@ -264,10 +264,9 @@ export class QuestionRowModel extends Base {
     return new CssClassBuilder()
       .append(this.panel.cssClasses.row)
       .append(this.panel.cssClasses.rowCompact, this.panel["isCompact"])
-      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (!!(<any>this.panel).originalPage))
+      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (this.panel as PanelModel).showPanelAsPage)
       .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
       .toString();
-
   }
   private rootElement?: HTMLElement;
   public setRootElement(element?: HTMLElement) {

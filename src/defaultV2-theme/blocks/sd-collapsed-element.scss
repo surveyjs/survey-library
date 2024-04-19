@@ -10,7 +10,7 @@
     padding: calcSize(0) var(--sd-base-padding);
     box-sizing: border-box;
     background-color: $background;
-    margin-left: calc(-1 * var(--sd-base-padding));
+    margin-inline-start: calc(-1 * var(--sd-base-padding));
     width: calc(100% + 2 * var(--sd-base-padding));
   }
 

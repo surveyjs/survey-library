@@ -130,6 +130,49 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check panel expand/collapse - rtl", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "rtl");
+      })();
+
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        width: "900px",
+        questions: [
+          {
+            type: "panel",
+            name: "details",
+            title: "Please answer",
+            minWidth: "708px",
+            maxWidth: "708px",
+            width: "708px",
+            state: "collapsed",
+            elements: [
+              {
+                type: "text",
+                name: "question",
+              }
+            ]
+          },
+        ]
+      });
+
+      const panelRoot = Selector(".sd-panel");
+      await takeElementScreenshot("panel-collapse-rtl.png", panelRoot, t, comparer);
+      await t.click(panelRoot.find(".sd-panel__title"));
+      await takeElementScreenshot("panel-expand-rtl.png", panelRoot, t, comparer);
+
+      await t.resizeWindow(400, 1080);
+
+      await takeElementScreenshot("panel-expand-mobile-rtl.png", panelRoot, t, comparer);
+
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "ltr");
+      })();
+    });
+  });
+
   test("Check invisible panel when showInvisibleElements: true", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

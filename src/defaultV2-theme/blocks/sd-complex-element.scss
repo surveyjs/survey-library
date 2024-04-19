@@ -75,7 +75,7 @@
   & > .sd-element__header--location-top {
     &:after {
       bottom: calc(-1 * var(--sd-base-vertical-padding));
-      left: calc(-1 * var(--sd-base-padding));
+      inset-inline-start: calc(-1 * var(--sd-base-padding));
       width: calc(100% + 2 * var(--sd-base-padding));
     }
   }

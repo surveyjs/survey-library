@@ -275,7 +275,7 @@ frameworks.forEach(framework => {
       });
 
       await patchDragDropToShowGhostElementAfterDrop();
-      await t.dragToElement(item1, item1);
+      await t.dragToElement(item1, item1, { destinationOffsetX: -1, speed: 0.1 });
       await takeElementScreenshot("question-ranking-shortcut-position-container-scroll-layout.png", Selector(".sd-question"), t, comparer);
     });
   });

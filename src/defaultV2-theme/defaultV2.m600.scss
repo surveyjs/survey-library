@@ -18,7 +18,7 @@
     }
 
     .sd-element__title--expandable:before {
-      left: calcSize(-2.5);
+      inset-inline-start: calcSize(-2.5);
     }
 
     .sd-title.sd-container-modern__title {

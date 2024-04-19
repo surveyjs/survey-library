@@ -18,4 +18,5 @@ export interface IInputMask {
   getMaskedValue(src: any): string;
   getUnmaskedValue(src: string): any;
   processInput(args: ITextInputParams): IMaskedInputResult;
+  getTextAlignment(): "left" | "right" | "auto";
 }

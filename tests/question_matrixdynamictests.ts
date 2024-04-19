@@ -9149,6 +9149,47 @@ QUnit.test("matrix dynamic expression & checkbox ValuePropertyName", function (a
   assert.equal(matrix.visibleRows.length, 2, "matrix rows #2");
   assert.deepEqual(matrix.value, [{ testItem: "Item 1", col1: "Item 1 - matrix" }, { testItem: "Item 2", col1: "Item 2 - matrix" }], "matrix value #2");
 });
+QUnit.test("matrix dynamic expression & checkbox valuePropertyName & sumInArray function", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [
+          "Item 1",
+          "Item 2"
+        ],
+        "valuePropertyName": "testItem"
+      },
+      {
+        "type": "matrixdynamic",
+        "name": "q2",
+        "valueName": "q1",
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text",
+            "inputType": "text"
+          }
+        ],
+        "rowCount": 0
+      },
+      {
+        "type": "expression",
+        "name": "q3",
+        "expression": "sumInArray({q1}, 'col1')"
+      }
+    ]
+  });
+  const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  const expression = survey.getQuestionByName("q3");
+  checkbox.renderedValue = ["Item 1", "Item 2"];
+  const rows = matrix.visibleRows;
+  rows[0].getQuestionByColumnName("col1").value = 5;
+  rows[1].getQuestionByColumnName("col1").value = 7;
+  assert.equal(expression.value, 12, "Calculate values correctly");
+});
 
 QUnit.test("Totals alingment", function (assert) {
   var json = {

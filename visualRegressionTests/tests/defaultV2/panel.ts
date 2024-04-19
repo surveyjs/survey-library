@@ -334,6 +334,77 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check preview mode for multi-rows Panelless", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page2",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question5",
+                "title": "First name"
+              },
+              {
+                "type": "text",
+                "name": "question6",
+                "startWithNewLine": false,
+                "title": "Last name"
+              },
+              {
+                "type": "text",
+                "name": "question7",
+                "title": "Address"
+              },
+              {
+                type: "panel",
+                "name": "dd",
+                "elements": [
+                  {
+                    "type": "text",
+                    "name": "question1",
+                    "title": "First name"
+                  },
+                  {
+                    "type": "text",
+                    "name": "question2",
+                    "startWithNewLine": false,
+                    "title": "Last name"
+                  },
+                  {
+                    "type": "text",
+                    "name": "question3",
+                    "title": "Address"
+                  },
+                ]
+              },
+            ]
+          },
+        ],
+        "showQuestionNumbers": "off",
+        "questionsOnPageMode": "singlePage",
+        "showPreviewBeforeComplete": "showAllQuestions",
+        "widthMode": "static",
+        "width": "800"
+      });
+      await ClientFunction(() => {
+        const themeJson = {
+          "isPanelless": true
+        };
+        window["survey"].applyTheme(themeJson);
+      })();
+      const panelRoot = Selector(".sd-panel--as-page");
+      await takeElementScreenshot("panel-multi-panelless.png", panelRoot, t, comparer);
+      await ClientFunction(() => {
+        document.body.focus();
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("panel-preview-mode-multi-panelless.png", panelRoot, t, comparer);
+    });
+  });
+
   test("Two panels - one row, small screen", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(722, 1000);

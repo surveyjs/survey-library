@@ -2153,6 +2153,9 @@ export class QuestionPanelDynamicModel extends Question
     return false;
   }
   private additionalTitleToolbarValue: AdaptiveActionContainer;
+  public get hasAdditionalTitleToolbar(): boolean {
+    return this.isRenderModeTab && this.visiblePanels.length > 0;
+  }
   protected getAdditionalTitleToolbar() : AdaptiveActionContainer | null {
     if(!this.isRenderModeTab) return null;
     if (!this.additionalTitleToolbarValue) {

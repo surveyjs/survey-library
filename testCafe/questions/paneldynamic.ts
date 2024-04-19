@@ -539,4 +539,40 @@ frameworks.forEach((framework) => {
       panel1: [{ name: "123" }, { name: "456" }, { name: "789" }]
     });
   });
+  test("Check dynamic panel actionbar responsivity", async (t) => {
+    await initSurvey(framework, {
+      "logoPosition": "right",
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "paneldynamic",
+              "name": "question1",
+
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "question2"
+                }
+              ],
+              "renderMode": "tab"
+            }
+          ]
+        }
+      ]
+    });
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+
+    await t.expect(Selector(".sv-action.sv-dots").visible).ok();
+  });
+
 });

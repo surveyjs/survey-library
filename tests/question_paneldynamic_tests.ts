@@ -5638,6 +5638,30 @@ QUnit.test("renderMode: tab check disableHide property", function (assert) {
   assert.equal(log, "->raised->raised");
 });
 
+QUnit.test("renderMode: tab check hasAdditionalTitleToolbar property", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        renderMode: "tab",
+        templateElements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ],
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  assert.notOk(panel.hasAdditionalTitleToolbar);
+  panel.addPanel(1);
+  assert.ok(panel.hasAdditionalTitleToolbar);
+  panel.addPanel(2);
+  assert.ok(panel.hasAdditionalTitleToolbar);
+});
+
 QUnit.test("question.cssHeader class", function (assert) {
   StylesManager.applyTheme("default");
   const survey = new SurveyModel({

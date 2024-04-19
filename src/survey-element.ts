@@ -996,6 +996,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.toggleState();
     }
   }
+  public get hasAdditionalTitleToolbar(): boolean {
+    return false;
+  }
   public get additionalTitleToolbar(): ActionContainer {
     return this.getAdditionalTitleToolbar();
   }

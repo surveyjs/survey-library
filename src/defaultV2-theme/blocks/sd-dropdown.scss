@@ -89,11 +89,11 @@
   box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
 
-.sd-input.sd-dropdown:focus-within {
-  .sd-dropdown__filter-string-input {
-    z-index: 2000;
-  }
-}
+// .sd-input.sd-dropdown:focus-within {
+//   .sd-dropdown__filter-string-input {
+//     z-index: 2000;
+//   }
+// }
 
 .sd-dropdown__filter-string-input {
   @include useEditorFontSize;

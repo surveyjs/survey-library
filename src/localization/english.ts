@@ -74,6 +74,7 @@ export var englishStrings = {
   savingData: "The results are being saved on the server...",
   savingDataError: "An error occurred and we could not save the results.",
   savingDataSuccess: "The results were saved successfully!",
+  savingExceedSize: "Your response is exceed the 64K. Please reduce the size of your file(s) or contact an owner of the survey",
   saveAgainButton: "Try again",
   timerMin: "min",
   timerSec: "sec",

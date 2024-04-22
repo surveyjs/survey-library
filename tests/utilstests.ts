@@ -825,3 +825,44 @@ QUnit.test("Check onNextRender and cancel", (assert) => {
   window.requestAnimationFrame = oldRequestAnimationFrame;
   window.cancelAnimationFrame = oldCancelAnimationFrame;
 });
+
+QUnit.test("Test animation property: check latest update persists", (assert) => {
+  const done = assert.async();
+  let value: boolean = false;
+  let animationEnabled = false;
+  const animation = new AnimationBoolean({
+    getEnterOptions: () => {
+      return {
+        cssClass: "enter",
+      };
+    },
+    isAnimationEnabled: () => {
+      return animationEnabled;
+    },
+    getAnimatedElement: () => {
+      return undefined as any;
+    },
+    getLeaveOptions: () => {
+      return {
+        cssClass: "leave"
+      };
+    }
+  }, (val: boolean) => {
+    value = val;
+  }, () => value);
+  animationEnabled = true;
+  animation.sync(true);
+  animationEnabled = false;
+  animation.sync(false);
+  setTimeout(() => {
+    assert.notOk(value);
+    animationEnabled = false;
+    animation.sync(true);
+    assert.ok(value);
+    animation.sync(false);
+    setTimeout(() => {
+      assert.notOk(value);
+      done();
+    });
+  });
+});

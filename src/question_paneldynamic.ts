@@ -599,12 +599,14 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   public set renderedPanels(val: Array<PanelModel>) {
+    const oldAnimationAllowed = this.animationAllowed;
     if(this.renderedPanels.length == 0 || val.length == 0) {
-      this._renderedPanels = val;
+      this.animationAllowed = false;
     } else {
       this.isPanelsAnimationRunning = true;
-      this.panelsAnimation.sync(val);
     }
+    this.panelsAnimation.sync(val);
+    this.animationAllowed = oldAnimationAllowed;
   }
 
   public get renderedPanels(): Array<PanelModel> {

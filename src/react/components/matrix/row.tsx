@@ -36,7 +36,7 @@ export class MatrixRow extends SurveyElementBase<IMatrixRowProps, any> {
 
   componentWillUnmount(): void {
     super.componentWillUnmount();
-    this.model.setRootElement(undefined);
+    this.model.setRootElement(undefined as any);
   }
 
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
@@ -46,7 +46,7 @@ export class MatrixRow extends SurveyElementBase<IMatrixRowProps, any> {
         nextProps.element.setRootElement(this.root.current);
       }
       if(this.model) {
-        this.model.setRootElement(undefined);
+        this.model.setRootElement(undefined as any);
       }
     }
     return true;

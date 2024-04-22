@@ -1019,16 +1019,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       .append(cssClasses.titleOnError, this.containsErrors).toString();
   }
   public get isDisabledStyle(): boolean {
-    return this.geIsDisabledStyle(false);
+    return this.getIsDisableAndReadOnlyStyles(false)[1];
   }
   public get isReadOnlyStyle(): boolean {
-    return this.getIsReadOnlyStyle(false);
+    return this.getIsDisableAndReadOnlyStyles(false)[0];
   }
-  protected geIsDisabledStyle(itemReadOnly: boolean): boolean {
-    return !this.isDefaultV2Theme && (this.getIsReadOnlyStyle(itemReadOnly) || this.isPreviewStyle);
-  }
-  protected getIsReadOnlyStyle(itemReadOnly: boolean): boolean {
-    return (itemReadOnly || this.isReadOnly) && !this.isPreviewStyle;
+  protected getIsDisableAndReadOnlyStyles(itemReadOnly: boolean): Array<boolean> {
+    const isPreview = this.isPreviewStyle;
+    const isReadOnly = itemReadOnly || this.isReadOnly;
+    const isReadOnlyStyle = isReadOnly && !isPreview;
+    const isDisableStyle = !this.isDefaultV2Theme && (isReadOnly || isPreview);
+    return [isReadOnlyStyle, isDisableStyle];
   }
   public get isPreviewStyle(): boolean {
     return !!this.survey && this.survey.state === "preview";

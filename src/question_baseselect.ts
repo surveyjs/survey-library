@@ -1713,8 +1713,9 @@ export class QuestionSelectBase extends Question {
       .append("sv-q-col-" + this.getCurrentColCount(), !this.hasColumns && this.colCount !== 0)
       .append(this.cssClasses.itemOnError, this.hasCssError());
 
-    const isDisabled = this.geIsDisabledStyle(!item.isEnabled);
-    const isReadOnly = this.getIsReadOnlyStyle(!item.isEnabled);
+    const readOnlyStyles = this.getIsDisableAndReadOnlyStyles(!item.isEnabled);
+    const isReadOnly = readOnlyStyles[0];
+    const isDisabled = readOnlyStyles[1];
     const isChecked = this.isItemSelected(item) ||
       (this.isOtherSelected && this.otherItem.value === item.value);
     const allowHover = !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);

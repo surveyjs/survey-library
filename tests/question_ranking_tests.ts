@@ -511,6 +511,22 @@ QUnit.test("selectToRankEnabled : checkMaxSelectedChoicesUnreached", function (a
   assert.equal(questionModel.checkMaxSelectedChoicesUnreached(), false, "MaxSelectedChoices limit reached");
 });
 
+QUnit.test("selectToRankEnabled : checkMaxSelectedChoices and handleKeydownSelectToRank", function (assert) {
+  const selectToRankEnabled = true;
+  const withDefaultValue = true;
+  const questionModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
+
+  questionModel.maxSelectedChoices = 2;
+  const fakeEvent:any = { key: " ", preventDefault: ()=>{} };
+  questionModel.handleKeydownSelectToRank(fakeEvent, questionModel.unRankingChoices[0], " ", false);
+
+  assert.equal(questionModel.value.length, 2, "can't add due to MaxSelectedChoices");
+
+  questionModel.handleKeydownSelectToRank(fakeEvent, questionModel.rankingChoices[0], " ", false);
+
+  assert.equal(questionModel.value.length, 1, "unrank with MaxSelectedChoices");
+});
+
 QUnit.test("Ranking: renderedSelectToRankAreasLayout", function (assert) {
   const selectToRankEnabled = true;
   const withDefaultValue = false;

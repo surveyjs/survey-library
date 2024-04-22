@@ -374,7 +374,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     node: HTMLElement
   ): void => {
     if (!this.selectToRankEnabled) return;
-    this.handleKeydownSelectToRank(<any>event, choice, " ", false);
+    if (
+      this.allowStartDrag
+    ) {
+      this.handleKeydownSelectToRank(<any>event, choice, " ", false);
+    }
   };
 
   private isDragStartNodeValid(target: HTMLElement): boolean {
@@ -460,6 +464,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue, hardKey?:string, isNeedFocus: boolean = true): void {
     if (this.isDesignMode) return;
+
     let key: any = event.key;
     if (hardKey) key = hardKey;
     if(key !== " " && key !== "ArrowUp" && key !== "ArrowDown") return;
@@ -473,6 +478,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     let toIndex;
 
     if (key === " " && !isMovedElementRanked) {
+      if (!this.checkMaxSelectedChoicesUnreached() || !this.canStartDragDueItemEnabled(movedElement)) return;
       toIndex = this.value.length;
       this.animationAllowed = false;
       dnd.selectToRank(this, fromIndex, toIndex);
@@ -506,7 +512,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       }, 1);
     }
 
-    event.preventDefault();
+    event && event.preventDefault();
   }
 
   private focusItem = (index: number, container?: string) => {

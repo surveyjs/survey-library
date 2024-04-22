@@ -153,6 +153,7 @@ export interface IAction {
   ariaExpanded?: boolean;
   ariaRole?: string;
   elementId?: string;
+  items?: Array<IAction>;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -161,24 +162,15 @@ export function createDropdownActionModel(actionOptions: IAction, dropdownOption
   return createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions, locOwner);
 }
 export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase, locOwner?: ILocalizableOwner): Action {
-  const listModel: ListModel = new ListModel(
-    listOptions.items,
-    (item: Action) => {
-      if (newAction.hasTitle) {
-        newAction.title = item.title;
-      }
-      listOptions.onSelectionChanged(item);
-      innerPopupModel.toggleVisibility();
-    },
-    listOptions.allowSelection,
-    listOptions.selectedItem,
-    listOptions.onFilterStringChangedCallback
-  );
+  const oldSelectionChanged = listOptions.onSelectionChanged;
+  listOptions.onSelectionChanged = (item: Action, ...params: any[]) => {
+    if (newAction.hasTitle) { newAction.title = item.title; }
+    oldSelectionChanged(item, params);
+  };
+
+  const { innerPopupModel, listModel }: { innerPopupModel: PopupModel<any>, listModel: ListModel<Action> } =
+    createPopupModelWithListModel(listOptions, popupOptions);
   listModel.locOwner = locOwner;
-  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title, () => {
-    listModel.dispose();
-  });
-  innerPopupModel.displayMode = popupOptions?.displayMode as any;
 
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
@@ -196,13 +188,32 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   return newAction;
 }
 
+export function createPopupModelWithListModel(listOptions: IListModel, popupOptions: IPopupOptionsBase) {
+  const listModel: ListModel = new ListModel(
+    listOptions.items,
+    (item: Action) => {
+      listOptions.onSelectionChanged(item);
+      innerPopupModel.toggleVisibility();
+    },
+    listOptions.allowSelection,
+    listOptions.selectedItem,
+    listOptions.onFilterStringChangedCallback
+  );
+  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title, () => {
+    listModel.dispose();
+  });
+  innerPopupModel.displayMode = popupOptions?.displayMode as any;
+  return { innerPopupModel, listModel };
+}
+
 export function getActionDropdownButtonTarget(container: HTMLElement): HTMLElement {
   return container?.previousElementSibling as HTMLElement;
 }
 
 export abstract class BaseAction extends Base implements IAction {
+  items?: IAction[];
   private static renderedId = 1;
-  private static getNextRendredId(): number { return BaseAction.renderedId ++; }
+  private static getNextRendredId(): number { return BaseAction.renderedId++; }
   private cssClassesValue: any;
   private rendredIdValue = BaseAction.getNextRendredId();
   private ownerValue: ILocalizableOwner;
@@ -366,6 +377,16 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private createLocTitle(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
+  public setItems(items: Array<IAction>) {
+    this.component = "sv-list-item-group";
+    const { innerPopupModel, listModel }: { innerPopupModel: PopupModel<any>, listModel: ListModel<Action> } =
+      createPopupModelWithListModel(
+        { items: items, onSelectionChanged: (item: Action, ...params: any[]) => { !!this.action && this.action(); } },
+        { verticalPosition: "bottom", horizontalPosition: "left" });
+    innerPopupModel.cssClass = "sv-popup-inner";
+    this.popupModel = innerPopupModel;
+  }
+
   location?: string;
   @property() id: string;
   @property({
@@ -381,7 +402,11 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() private _enabled: boolean;
   @property() action: (context?: any, isUserAction?: boolean) => void;
   @property() _component: string;
-  @property() items: any;
+  @property({
+    onSet: (val, target) => {
+      target.setItems(val);
+    }
+  }) items: any;
   @property({
     onSet: (val, target) => {
       if (target.locTitleValue.text === val) return;

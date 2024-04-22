@@ -16,6 +16,11 @@ ko.components.register("sv-list-item", {
         itemClick: (data: any, event: any) => {
           data.model.onItemClick(data.item);
           event.stopPropagation();
+        },
+        hover: (event: MouseEvent, data: any) => {
+          if (event.type === "mouseover") {
+            data.model.onItemHover(data.item);
+          }
         }
       };
     },

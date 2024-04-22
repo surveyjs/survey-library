@@ -151,6 +151,19 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   };
 
+  public onItemHover = (itemValue: T): void => {
+    this.actions.forEach(action => {
+      if (action === itemValue && !!itemValue.popupModel) {
+        itemValue.popupModel.isVisible = true;
+        // itemValue.popupModel.isFocusedContent = !isUserAction || listModel.showFilter;
+        // itemValue.popupModel.toggleVisibility();
+        // listModel.scrollToSelectedItem();
+      } else if (!!action.popupModel && action.popupModel.isVisible) {
+        action.popupModel.isVisible = false;
+      }
+    });
+  }
+
   public isItemDisabled: (itemValue: T) => boolean = (itemValue: T) => {
     return itemValue.enabled !== undefined && !itemValue.enabled;
   };

@@ -6,6 +6,7 @@ import { ActionContainerImplementor } from "../action-bar/action-bar";
 const template = require("./list.html");
 
 export * from "./list-item";
+export * from "./list-item-group";
 
 export var ListViewComponent: any;
 

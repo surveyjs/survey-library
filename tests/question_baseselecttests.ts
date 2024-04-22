@@ -719,6 +719,9 @@ QUnit.test("checkbox vs valuePropertyName, use in expression", (assert) => {
     ]
   });
   const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const conds: any = [];
+  q1.addConditionObjectsByContext(conds, undefined);
+  assert.equal(conds[0].name, "q1-unwrapped", "use filtered name");
   const q2 = survey.getQuestionByName("q2");
   assert.equal(q2.isVisible, false, "#1");
   q1.renderedValue = ["apple", "orange"];

@@ -356,6 +356,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   protected needResponsiveness() {
     return this.supportResponsiveness() && this.isDefaultV2Theme;
   }
+  public needResponsiveWidth() {
+    return this.colCount > 2;
+  }
 
   private _width: number;
 

@@ -230,12 +230,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       target.updateRenderedRows();
     }
   }) rows: Array<QuestionMatrixDropdownRenderedRow>;
-  private _animationAllowed: boolean = true;
-  private get animationAllowed(): boolean {
-    return this._animationAllowed && this.matrix.animationAllowed;
-  }
-  private set animationAllowed(val: boolean) {
-    this._animationAllowed = val;
+  protected getIsAnimationAllowed(): boolean {
+    return super.getIsAnimationAllowed() && this.matrix.animationAllowed;
   }
   private getRenderedRowsAnimationOptions(): IAnimationConsumer<[QuestionMatrixDropdownRenderedRow]> {
     const beforeAnimationRun = (el: HTMLElement) => {
@@ -541,12 +537,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
   }
   protected buildRows() {
-    this.animationAllowed = false;
+    this.blockAnimations();
     var rows = this.matrix.isColumnLayoutHorizontal
       ? this.buildHorizontalRows()
       : this.buildVerticalRows();
     this.rows = rows;
-    this.animationAllowed = true;
+    this.releaseAnimations();
   }
   private hasActionCellInRowsValues: any = {};
   private hasActionCellInRows(location: "start" | "end"): boolean {

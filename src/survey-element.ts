@@ -1112,14 +1112,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get renderedIsExpanded(): boolean {
     return !!this._renderedIsExpanded;
   }
-
-  private animationAllowedValue: boolean = true;
-  public get animationAllowed(): boolean {
-    return settings.animationEnabled && !this.isLoadingFromJson && !this.isDisposed && !!this.survey && this.animationAllowedValue;
-  }
-
-  public set animationAllowed(val: boolean) {
-    this.animationAllowedValue = val;
+  protected getIsAnimationAllowed(): boolean {
+    return super.getIsAnimationAllowed() && !!this.survey;
   }
 
   public dispose(): void {

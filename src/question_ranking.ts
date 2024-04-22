@@ -139,9 +139,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private updateRankingChoicesSync() {
-    this.animationAllowed = false;
+    this.blockAnimations();
     this.updateRankingChoices();
-    this.animationAllowed = true;
+    this.releaseAnimations();
   }
 
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
@@ -480,17 +480,17 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     if (key === " " && !isMovedElementRanked) {
       if (!this.checkMaxSelectedChoicesUnreached() || !this.canStartDragDueItemEnabled(movedElement)) return;
       toIndex = this.value.length;
-      this.animationAllowed = false;
+      this.blockAnimations();
       dnd.selectToRank(this, fromIndex, toIndex);
-      this.animationAllowed = true;
+      this.releaseAnimations();
       this.setValueAfterKeydown(toIndex, "to-container", isNeedFocus);
       return;
     }
     if(!isMovedElementRanked) return;
     if (key === " ") {
-      this.animationAllowed = false;
+      this.blockAnimations();
       dnd.unselectFromRank(this, fromIndex);
-      this.animationAllowed = true;
+      this.releaseAnimations();
       toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
       this.setValueAfterKeydown(toIndex, "from-container", isNeedFocus);
       return;

@@ -599,14 +599,14 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   public set renderedPanels(val: Array<PanelModel>) {
-    const oldAnimationAllowed = this.animationAllowed;
     if(this.renderedPanels.length == 0 || val.length == 0) {
-      this.animationAllowed = false;
+      this.blockAnimations();
+      this.panelsAnimation.sync(val);
+      this.releaseAnimations();
     } else {
       this.isPanelsAnimationRunning = true;
+      this.panelsAnimation.sync(val);
     }
-    this.panelsAnimation.sync(val);
-    this.animationAllowed = oldAnimationAllowed;
   }
 
   public get renderedPanels(): Array<PanelModel> {
@@ -666,12 +666,12 @@ export class QuestionPanelDynamicModel extends Question
   private _panelsAnimations: AnimationProperty<Array<PanelModel>, [PanelModel]>;
   private disablePanelsAnimations() {
     this.panelsCore.forEach((panel) => {
-      panel.animationAllowed = false;
+      panel.blockAnimations();
     });
   }
   private enablePanelsAnimations() {
     this.panelsCore.forEach((panel) => {
-      panel.animationAllowed = true;
+      panel.releaseAnimations();
     });
   }
   private updatePanelsAnimation() {
@@ -1160,9 +1160,9 @@ export class QuestionPanelDynamicModel extends Question
   public set renderMode(val: string) {
     this.setPropertyValue("renderMode", val);
     this.fireCallback(this.renderModeChangedCallback);
-    this.animationAllowed = false;
+    this.blockAnimations();
     this.updateRenderedPanels();
-    this.animationAllowed = true;
+    this.releaseAnimations();
     this.updatePanelsAnimation();
   }
   public get tabAlign(): "center" | "left" | "right" {
@@ -1680,7 +1680,7 @@ export class QuestionPanelDynamicModel extends Question
   private buildPanelsFirstTime(force: boolean = false): void {
     if(this.hasPanelBuildFirstTime) return;
     if(!force && this.wasNotRenderedInSurvey) return;
-    this.animationAllowed = false;
+    this.blockAnimations();
     this.hasPanelBuildFirstTime = true;
     this.isBuildingPanelsFirstTime = true;
     if (this.getPropertyValue("panelCount") > 0) {
@@ -1703,7 +1703,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.updateFooterActions();
     this.isBuildingPanelsFirstTime = false;
-    this.animationAllowed = true;
+    this.releaseAnimations();
   }
   private get wasNotRenderedInSurvey(): boolean {
     return !this.hasPanelBuildFirstTime && !this.wasRendered && !!this.survey;

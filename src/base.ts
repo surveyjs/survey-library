@@ -1144,6 +1144,19 @@ export class Base {
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     return [];
   }
+  public get animationAllowed(): boolean {
+    return this.getIsAnimationAllowed();
+  }
+  protected getIsAnimationAllowed(): boolean {
+    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed;
+  }
+  private animationAllowedLock: number = 0;
+  public blockAnimations(): void {
+    this.animationAllowedLock--;
+  }
+  public releaseAnimations(): void {
+    this.animationAllowedLock++;
+  }
 }
 
 export class ArrayChanges<T = any> {

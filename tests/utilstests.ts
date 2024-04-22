@@ -775,3 +775,53 @@ QUnit.test("Test animation tab", (assert) => {
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
+
+QUnit.test("Check onNextRender and cancel", (assert) => {
+  const oldRequestAnimationFrame = window.requestAnimationFrame;
+  const oldCancelAnimationFrame = window.cancelAnimationFrame;
+  let id = 0;
+  let log = "";
+  let latestCb;
+  window.requestAnimationFrame = (cb: any) => {
+    let rafId = ++id;
+    latestCb = () => { log+= `->running: ${id}`; cb(); };
+    log+= `->raf: ${rafId}`;
+    return rafId; };
+  window.cancelAnimationFrame = (id) => { log+= `->canceled: ${id}`; };
+  const animation = new AnimationUtils();
+  animation["onNextRender"](() => {
+    log+="->updated";
+  });
+  animation.cancel();
+  assert.equal(log, "->raf: 1->updated->canceled: 1");
+  id = 0;
+  log = "";
+  animation["onNextRender"](() => {
+    log+="->updated";
+  });
+  latestCb();
+  animation.cancel();
+  assert.equal(log, "->raf: 1->running: 1->raf: 2->updated->canceled: 2");
+  id = 0;
+  log = "";
+  animation["onNextRender"](() => {
+    log+="->updated";
+  });
+  latestCb();
+  latestCb();
+  assert.equal(log, "->raf: 1->running: 1->raf: 2->running: 2->updated");
+  log = "";
+  animation.cancel();
+  assert.equal(log, "");
+
+  id = 0;
+  log = "";
+  animation["onNextRender"](() => {
+    log+="->updated";
+  }, () => true);
+  latestCb();
+  assert.equal(log, "->raf: 1->running: 1->updated");
+
+  window.requestAnimationFrame = oldRequestAnimationFrame;
+  window.cancelAnimationFrame = oldCancelAnimationFrame;
+});

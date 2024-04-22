@@ -84,7 +84,7 @@ QUnit.test("Try to save a lot of data into the service", function(assert) {
   }
   survey.getQuestionByName("q1").value = largeVal;
   survey.doComplete();
-  const errorText = "Your response is exceed the 64K. Please reduce the size of your file(s) or contact an owner of the survey";
+  const errorText = "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner.";
   assert.equal(survey.serviceTester.isSurveJSIOService, true, "We are saving data into the surveyjs service");
   assert.equal(survey.serviceTester.isSavingData, false, "The data is not saving. We got an error stright away");
   assert.equal(survey.completedStateText, errorText, "try to save");

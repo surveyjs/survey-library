@@ -69,6 +69,7 @@ export var finnishSurveyStrings = {
   savingData: "Tietoja tallennetaan palvelimelle...",
   savingDataError: "Tapahtui virhe, emmekä voineet tallentaa kyselyn tietoja.",
   savingDataSuccess: "Tiedot tallennettiin onnistuneesti!",
+  savingExceedSize: "Vastauksesi ylittää 64 kt. Pienennä tiedostojesi kokoa ja yritä uudelleen tai ota yhteyttä kyselyn omistajaan.",
   saveAgainButton: "Yritä uudelleen",
   timerMin: "min",
   timerSec: "sek",
@@ -80,6 +81,7 @@ export var finnishSurveyStrings = {
   timerLimitSurvey: "Olet käyttänyt yhteensä {0} / {1}.",
   clearCaption: "Tyhjennä",
   signaturePlaceHolder: "Allekirjoita tähän",
+  signaturePlaceHolderReadOnly: "Ei allekirjoitusta",
   chooseFileCaption: "Valitse tiedosto",
   takePhotoCaption: "Ota valokuva",
   photoPlaceholder: "Napsauta alla olevaa painiketta ottaaksesi valokuvan kameralla.",
@@ -126,4 +128,5 @@ surveyLocalization.localeNames["fi"] = "suomi";
 // ok: "OK" => "OKEI"
 // cancel: "Cancel" => "Perua"
 // refuseItemText: "Refuse to answer" => "Kieltäydy vastaamasta"
-// dontKnowItemText: "Don't know" => "Ei tiedä"
+// dontKnowItemText: "Don't know" => "Ei tiedä"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vastauksesi ylittää 64 kt. Pienennä tiedostojesi kokoa ja yritä uudelleen tai ota yhteyttä kyselyn omistajaan."
+// signaturePlaceHolderReadOnly: "No signature" => "Ei allekirjoitusta"

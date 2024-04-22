@@ -69,6 +69,7 @@ export var greekSurveyStrings = {
   savingData: "Τα αποτελέσματα αποθηκεύονται στον διακομιστή ...",
   savingDataError: "Παρουσιάστηκε σφάλμα και δεν ήταν δυνατή η αποθήκευση των αποτελεσμάτων.",
   savingDataSuccess: "Τα αποτελέσματα αποθηκεύτηκαν με επιτυχία!",
+  savingExceedSize: "Η απάντησή σας υπερβαίνει τα 64KB. Μειώστε το μέγεθος των αρχείων σας και προσπαθήστε ξανά ή επικοινωνήστε με έναν κάτοχο έρευνας.",
   saveAgainButton: "Προσπάθησε ξανά",
   timerMin: "ελάχ",
   timerSec: "δευτ",
@@ -80,6 +81,7 @@ export var greekSurveyStrings = {
   timerLimitSurvey: "Έχετε ξοδέψει {0} από {1} συνολικά.",
   clearCaption: "Εκκαθάριση",
   signaturePlaceHolder: "Υπογράψτε εδώ",
+  signaturePlaceHolderReadOnly: "Χωρίς υπογραφή",
   chooseFileCaption: "Επιλέξτε αρχείο",
   takePhotoCaption: "Λήψη φωτογραφίας",
   photoPlaceholder: "Κάντε κλικ στο παρακάτω κουμπί για να τραβήξετε μια φωτογραφία χρησιμοποιώντας την κάμερα.",
@@ -123,4 +125,5 @@ surveyLocalization.localeNames["gr"] = "ελληνικά";
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Ακυρώνω"
 // refuseItemText: "Refuse to answer" => "Αρνηθείτε να απαντήσετε"
-// dontKnowItemText: "Don't know" => "Δεν ξέρω"
+// dontKnowItemText: "Don't know" => "Δεν ξέρω"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Η απάντησή σας υπερβαίνει τα 64KB. Μειώστε το μέγεθος των αρχείων σας και προσπαθήστε ξανά ή επικοινωνήστε με έναν κάτοχο έρευνας."
+// signaturePlaceHolderReadOnly: "No signature" => "Χωρίς υπογραφή"

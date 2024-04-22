@@ -69,6 +69,7 @@ export var bulgarianStrings = {
   savingData: "Резултатите се запазват на сървъра...",
   savingDataError: "Поради възникнала грешка резултатите не можаха да бъдат запазени.",
   savingDataSuccess: "Резултатите бяха запазени успешно!",
+  savingExceedSize: "Вашият отговор надхвърля 64KB. Намалете размера на вашите файлове и опитайте отново или се свържете със собственика на проучването.",
   saveAgainButton: "Нов опит",
   timerMin: "мин",
   timerSec: "сек",
@@ -80,6 +81,7 @@ export var bulgarianStrings = {
   timerLimitSurvey: "Вие използвахте общо {0} от {1}.",
   clearCaption: "Начално състояние",
   signaturePlaceHolder: "Подпишете тук",
+  signaturePlaceHolderReadOnly: "Няма подпис",
   chooseFileCaption: "Изберете файл",
   takePhotoCaption: "Направете снимка",
   photoPlaceholder: "Кликнете върху бутона по-долу, за да направите снимка с помощта на камерата.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["bg"] = "български";
 // ok: "OK" => "Добре"
 // cancel: "Cancel" => "Отмени"
 // refuseItemText: "Refuse to answer" => "Отказва да отговори"
-// dontKnowItemText: "Don't know" => "Не знам"
+// dontKnowItemText: "Don't know" => "Не знам"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Вашият отговор надхвърля 64KB. Намалете размера на вашите файлове и опитайте отново или се свържете със собственика на проучването."
+// signaturePlaceHolderReadOnly: "No signature" => "Няма подпис"

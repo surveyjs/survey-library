@@ -69,6 +69,7 @@ export var germanSurveyStrings = {
   savingData: "Die Ergebnisse werden auf dem Server gespeichert...",
   savingDataError: "Es ist ein Fehler aufgetreten. Die Ergebnisse konnten nicht gespeichert werden.",
   savingDataSuccess: "Die Ergebnisse wurden gespeichert!",
+  savingExceedSize: "Ihre Antwort überschreitet 64 KB. Reduzieren Sie die Größe Ihrer Datei(en) und versuchen Sie es erneut, oder wenden Sie sich an einen Umfragebesitzer.",
   saveAgainButton: "Erneut absenden",
   timerMin: "Min.",
   timerSec: "Sek.",
@@ -80,6 +81,7 @@ export var germanSurveyStrings = {
   timerLimitSurvey: "Sie haben insgesamt {0} von {1} gebraucht.",
   clearCaption: "Auswahl entfernen",
   signaturePlaceHolder: "Hier unterschreiben",
+  signaturePlaceHolderReadOnly: "Keine Unterschrift",
   chooseFileCaption: "Datei auswählen",
   takePhotoCaption: "Foto machen",
   photoPlaceholder: "Klicken Sie auf die Schaltfläche unten, um ein Foto mit der Kamera aufzunehmen.",
@@ -125,3 +127,5 @@ surveyLocalization.localeNames["de"] = "deutsch";
 // cancel: "Cancel" => "Abbrechen"
 // refuseItemText: "Refuse to answer" => "Verweigern Sie die Antwort"
 // dontKnowItemText: "Don't know" => "Weiß ich nicht"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ihre Antwort überschreitet 64 KB. Reduzieren Sie die Größe Ihrer Datei(en) und versuchen Sie es erneut, oder wenden Sie sich an einen Umfragebesitzer."
+// signaturePlaceHolderReadOnly: "No signature" => "Keine Unterschrift"

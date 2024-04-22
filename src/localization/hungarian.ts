@@ -69,6 +69,7 @@ export var hungarianSurveyStrings = {
   savingData: "Eredmény mentése a szerverre...",
   savingDataError: "Egy hiba folytán nem tudtuk elmenteni az eredményt.",
   savingDataSuccess: "Eredmény sikeresen mentve!",
+  savingExceedSize: "A válasz meghaladja a 64 KB-ot. Kérjük, csökkentse a fájl(ok) méretét, és próbálja újra, vagy lépjen kapcsolatba egy felmérés tulajdonosával.",
   saveAgainButton: "Próbálja újra",
   timerMin: "min",
   timerSec: "sec",
@@ -80,6 +81,7 @@ export var hungarianSurveyStrings = {
   timerLimitSurvey: "Összesen {0} / {1} összeget költött el.",
   clearCaption: "Egyértelmű",
   signaturePlaceHolder: "Írja alá itt",
+  signaturePlaceHolderReadOnly: "Nincs aláírás",
   chooseFileCaption: "Válassz fájlt",
   takePhotoCaption: "Fotó készítése",
   photoPlaceholder: "Kattintson az alábbi gombra, hogy fényképet készítsen a fényképezőgéppel.",
@@ -137,4 +139,5 @@ surveyLocalization.localeNames["hu"] = "magyar";
 // ok: "OK" => "OKÉ"
 // cancel: "Cancel" => "Érvénytelenít"
 // refuseItemText: "Refuse to answer" => "A válaszadás megtagadása"
-// dontKnowItemText: "Don't know" => "Nem tudom"
+// dontKnowItemText: "Don't know" => "Nem tudom"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "A válasz meghaladja a 64 KB-ot. Kérjük, csökkentse a fájl(ok) méretét, és próbálja újra, vagy lépjen kapcsolatba egy felmérés tulajdonosával."
+// signaturePlaceHolderReadOnly: "No signature" => "Nincs aláírás"

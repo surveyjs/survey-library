@@ -69,6 +69,7 @@ export var latvianSurveyStrings = {
   savingData: "Rezultāti tiek saglabāti serverī ...",
   savingDataError: "Radās kļūda, un mēs nevarējām saglabāt rezultātus.",
   savingDataSuccess: "Rezultāti tika veiksmīgi saglabāti!",
+  savingExceedSize: "Jūsu atbilde pārsniedz 64 KB. Lūdzu, samaziniet sava(-u) faila(-u) lielumu un mēģiniet vēlreiz vai sazinieties ar aptaujas īpašnieku.",
   saveAgainButton: "Mēģiniet vēlreiz",
   timerMin: "min",
   timerSec: "sek",
@@ -80,6 +81,7 @@ export var latvianSurveyStrings = {
   timerLimitSurvey: "Kopā esat iztērējis {0} no {1}.",
   clearCaption: "Iztīrīt",
   signaturePlaceHolder: "Parakstieties šeit",
+  signaturePlaceHolderReadOnly: "Nav paraksta",
   chooseFileCaption: "Izvēlēties failu",
   takePhotoCaption: "Uzņemt fotoattēlu",
   photoPlaceholder: "Noklikšķiniet uz pogas zemāk, lai uzņemtu fotoattēlu, izmantojot kameru.",
@@ -126,4 +128,5 @@ surveyLocalization.localeNames["lv"] = "latviešu";
 // ok: "OK" => "LABI"
 // cancel: "Cancel" => "Atcelt"
 // refuseItemText: "Refuse to answer" => "Atteikties atbildēt"
-// dontKnowItemText: "Don't know" => "Es nezinu"
+// dontKnowItemText: "Don't know" => "Es nezinu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jūsu atbilde pārsniedz 64 KB. Lūdzu, samaziniet sava(-u) faila(-u) lielumu un mēģiniet vēlreiz vai sazinieties ar aptaujas īpašnieku."
+// signaturePlaceHolderReadOnly: "No signature" => "Nav paraksta"

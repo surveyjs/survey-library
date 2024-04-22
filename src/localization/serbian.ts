@@ -69,6 +69,7 @@ export var serbianStrings = {
   savingData: "U toku je čuvanje podataka na serveru...",
   savingDataError: "Došlo je do greške i rezultati nisu sačuvani.",
   savingDataSuccess: "Rezultati su uspešno sačuvani!",
+  savingExceedSize: "Vaš odgovor premašuje 64KB. Smanjite veličinu datoteka i pokušajte ponovo ili se obratite vlasniku ankete.",
   saveAgainButton: "Pokušajte ponovo",
   timerMin: "min",
   timerSec: "sek",
@@ -80,6 +81,7 @@ export var serbianStrings = {
   timerLimitSurvey: "Proveli ste {0} od {1} ukupno.",
   clearCaption: "Poništi",
   signaturePlaceHolder: "Potpišite ovde",
+  signaturePlaceHolderReadOnly: "Bez potpisa",
   chooseFileCaption: "Izaberi fajl",
   takePhotoCaption: "Fotografisanje",
   photoPlaceholder: "Kliknite na dugme ispod da biste snimili fotografiju pomoću fotoaparata.",
@@ -133,4 +135,5 @@ surveyLocalization.localeNames["rs"] = "Srpski";
 // ok: "OK" => "U redu"
 // cancel: "Cancel" => "Otkaži"
 // refuseItemText: "Refuse to answer" => "Odbijanje odgovora"
-// dontKnowItemText: "Don't know" => "Ne znam"
+// dontKnowItemText: "Don't know" => "Ne znam"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaš odgovor premašuje 64KB. Smanjite veličinu datoteka i pokušajte ponovo ili se obratite vlasniku ankete."
+// signaturePlaceHolderReadOnly: "No signature" => "Bez potpisa"

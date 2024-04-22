@@ -69,6 +69,7 @@ export var icelandicSurveyStrings = {
   savingData: "Niðurstöðurnar eru að spara á netþjóninum ... ",
   savingDataError: "Villa kom upp og við gátum ekki vistað niðurstöðurnar.",
   savingDataSuccess: "Árangurinn var vistaður með góðum árangri!",
+  savingExceedSize: "Svar þitt fer yfir 64KB. Vinsamlegast minnkaðu stærð skráa þinna og reyndu aftur eða hafðu samband við eiganda könnunarinnar.",
   saveAgainButton: "Reyndu aftur",
   timerMin: "mín",
   timerSec: "sek",
@@ -80,6 +81,7 @@ export var icelandicSurveyStrings = {
   timerLimitSurvey: "Þú hefur eytt {0} af {1} samtals.",
   clearCaption: "Hreinsa",
   signaturePlaceHolder: "Kvittađu hér",
+  signaturePlaceHolderReadOnly: "Engin undirskrift",
   chooseFileCaption: "Veldu skrá",
   takePhotoCaption: "Taka mynd",
   photoPlaceholder: "Smelltu á hnappinn hér að neðan til að taka mynd með myndavélinni.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["is"] = "íslenska";
 // ok: "OK" => "ÓKEI"
 // cancel: "Cancel" => "Afturkalla"
 // refuseItemText: "Refuse to answer" => "Neita að svara"
-// dontKnowItemText: "Don't know" => "Veit ekki"
+// dontKnowItemText: "Don't know" => "Veit ekki"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Svar þitt fer yfir 64KB. Vinsamlegast minnkaðu stærð skráa þinna og reyndu aftur eða hafðu samband við eiganda könnunarinnar."
+// signaturePlaceHolderReadOnly: "No signature" => "Engin undirskrift"

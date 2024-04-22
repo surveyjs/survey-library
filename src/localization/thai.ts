@@ -69,6 +69,7 @@ export var thaiStrings = {
   savingData: "ผลลัพท์กำลังบันทึกลงที่เซิร์ฟเวอร์...",
   savingDataError: "มีความผิดพลาดเกิดขึ้นส่งผลให้ไม่สามารถบันทึกผลได้",
   savingDataSuccess: "บันทึกสำเร็จแล้ว",
+  savingExceedSize: "คําตอบของคุณเกิน 64KB โปรดลดขนาดไฟล์ของคุณแล้วลองอีกครั้งหรือติดต่อเจ้าของแบบสํารวจ",
   saveAgainButton: "รบกวนลองอีกครั้ง",
   timerMin: "นาที",
   timerSec: "วินาที",
@@ -80,6 +81,7 @@ export var thaiStrings = {
   timerLimitSurvey: "คุณใช้เวลา {0} ของ {1} รวมทั้งหมด",
   clearCaption: "เคลียร์",
   signaturePlaceHolder: "ลงชื่อที่นี่",
+  signaturePlaceHolderReadOnly: "ไม่มีลายเซ็น",
   chooseFileCaption: "เลือกไฟล์",
   takePhotoCaption: "ถ่ายรูป",
   photoPlaceholder: "คลิกปุ่มด้านล่างเพื่อถ่ายภาพโดยใช้กล้อง",
@@ -137,4 +139,5 @@ surveyLocalization.localeNames["th"] = "ไทย";
 // hideDetails: "Hide Details" => "ซ่อนรายละเอียด"
 // ok: "OK" => "ตกลง, ได้"
 // cancel: "Cancel" => "ยกเลิก"// refuseItemText: "Refuse to answer" => "ปฏิเสธที่จะตอบ"
-// dontKnowItemText: "Don't know" => "ไม่ทราบ"
+// dontKnowItemText: "Don't know" => "ไม่ทราบ"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "คําตอบของคุณเกิน 64KB โปรดลดขนาดไฟล์ของคุณแล้วลองอีกครั้งหรือติดต่อเจ้าของแบบสํารวจ"
+// signaturePlaceHolderReadOnly: "No signature" => "ไม่มีลายเซ็น"

@@ -69,6 +69,7 @@ export var japaneseSurveyStrings = {
   savingData: "結果はサーバーに保存されています...。",
   savingDataError: "エラーが発生し、結果を保存できませんでした。",
   savingDataSuccess: "結果は無事に保存されました",
+  savingExceedSize: "回答は 64 KB を超えています。ファイルのサイズを小さくしてもう一度お試しいただくか、アンケートの所有者にお問い合わせください。",
   saveAgainButton: "もう一度試してみてください。",
   timerMin: "僅少",
   timerSec: "セック",
@@ -80,6 +81,7 @@ export var japaneseSurveyStrings = {
   timerLimitSurvey: "合計で{1}の{0}を使ったことがあります。",
   clearCaption: "空白",
   signaturePlaceHolder: "ここに署名",
+  signaturePlaceHolderReadOnly: "署名なし",
   chooseFileCaption: "ファイルを選択",
   takePhotoCaption: "写真を撮る",
   photoPlaceholder: "下のボタンをクリックして、カメラを使用して写真を撮ります。",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["ja"] = "日本語";
 // ok: "OK" => "わかりました"
 // cancel: "Cancel" => "キャンセル"
 // refuseItemText: "Refuse to answer" => "回答を拒否する"
-// dontKnowItemText: "Don't know" => "わかりません"
+// dontKnowItemText: "Don't know" => "わかりません"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "回答は 64 KB を超えています。ファイルのサイズを小さくしてもう一度お試しいただくか、アンケートの所有者にお問い合わせください。"
+// signaturePlaceHolderReadOnly: "No signature" => "署名なし"

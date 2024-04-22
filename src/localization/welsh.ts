@@ -69,6 +69,7 @@ export var welshSurveyStrings = {
   savingData: "Mae’r canlyniadau’n cael eu cadw ar y gweinydd...",
   savingDataError: "Roedd gwall a doedd dim modd cadw’r canlyniadau.",
   savingDataSuccess: "Wedi llwyddo i gadw’r canlyniadau!",
+  savingExceedSize: "Mae eich ymateb yn fwy na 64KB. Lleihau maint eich ffeil(au) a cheisiwch eto neu cysylltwch â pherchennog yr arolwg.",
   saveAgainButton: "Rhowch gynnig arall arni",
   timerMin: "mun",
   timerSec: "eil",
@@ -80,6 +81,7 @@ export var welshSurveyStrings = {
   timerLimitSurvey: "Rydych chi wedi treulio {0} o {1} gyda’i gilydd.",
   clearCaption: "Clirio",
   signaturePlaceHolder: "Arwydd yma",
+  signaturePlaceHolderReadOnly: "Dim llofnod",
   chooseFileCaption: "Dewiswch ffeil ",
   takePhotoCaption: "Tynnu Llun",
   photoPlaceholder: "Cliciwch y botwm isod i dynnu llun gan ddefnyddio'r camera.",
@@ -137,4 +139,5 @@ surveyLocalization.localeNames["cy"] = "cymraeg";
 // hideDetails: "Hide Details" => "Manylion Cuddio"
 // ok: "OK" => "OCÊ"
 // cancel: "Cancel" => "Canslo"// refuseItemText: "Refuse to answer" => "Gwrthod ateb"
-// dontKnowItemText: "Don't know" => "Ddim yn gwybod"
+// dontKnowItemText: "Don't know" => "Ddim yn gwybod"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Mae eich ymateb yn fwy na 64KB. Lleihau maint eich ffeil(au) a cheisiwch eto neu cysylltwch â pherchennog yr arolwg."
+// signaturePlaceHolderReadOnly: "No signature" => "Dim llofnod"

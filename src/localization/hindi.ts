@@ -69,6 +69,7 @@ export var hindiStrings = {
   savingData: "परिणाम सर्वर पर सेव हो रहे हैं",
   savingDataError: "एक त्रुटि हुई और हम परिणामों को नहीं सेव कर सके",
   savingDataSuccess: "परिणाम सफलतापूर्वक सेव हो गए",
+  savingExceedSize: "आपकी प्रतिक्रिया 64KB से अधिक है। कृपया अपनी फ़ाइल(फ़ाइलों) का आकार घटाएँ और पुन: प्रयास करें या सर्वेक्षण स्वामी से संपर्क करें.",
   saveAgainButton: "फिर कोशिश करो",
   timerMin: "मिनट",
   timerSec: "सेकंड",
@@ -80,6 +81,7 @@ export var hindiStrings = {
   timerLimitSurvey: "आपने कुल {1} की {0} खर्च की है",
   clearCaption: "स्पष्ट",
   signaturePlaceHolder: "यहां साइन करें",
+  signaturePlaceHolderReadOnly: "कोई हस्ताक्षर नहीं",
   chooseFileCaption: "फ़ाइल चुनें",
   takePhotoCaption: "फोटो ले लो",
   photoPlaceholder: "कैमरे का उपयोग करके फोटो लेने के लिए नीचे दिए गए बटन पर क्लिक करें।",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["hi"] = "hindi";
 // hideDetails: "Hide Details" => "विवरण छुपाएँ"
 // ok: "OK" => "ठीक है"
 // cancel: "Cancel" => "रद्द करना"// refuseItemText: "Refuse to answer" => "जवाब देने से इनकार"
-// dontKnowItemText: "Don't know" => "नहीं मालूम"
+// dontKnowItemText: "Don't know" => "नहीं मालूम"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "आपकी प्रतिक्रिया 64KB से अधिक है। कृपया अपनी फ़ाइल(फ़ाइलों) का आकार घटाएँ और पुन: प्रयास करें या सर्वेक्षण स्वामी से संपर्क करें."
+// signaturePlaceHolderReadOnly: "No signature" => "कोई हस्ताक्षर नहीं"

@@ -69,6 +69,7 @@ export var arabicSurveyStrings = {
   savingData: "يتم حفظ النتائج على الخادم ...",
   savingDataError: "حدث خطأ ولم نتمكن من حفظ النتائج.",
   savingDataSuccess: "تم حفظ النتائج بنجاح!",
+  savingExceedSize: "ردك يتجاوز 64 كيلوبايت. يرجى تقليل حجم الملف (الملفات) والمحاولة مرة أخرى أو الاتصال بمالك الاستطلاع.",
   saveAgainButton: "حاول مجددا",
   timerMin: "دقيقة",
   timerSec: "ثانية",
@@ -80,6 +81,7 @@ export var arabicSurveyStrings = {
   timerLimitSurvey: "لقد أنفقت {0} من إجمالي {1}.",
   clearCaption: "واضح",
   signaturePlaceHolder: "وقع هنا",
+  signaturePlaceHolderReadOnly: "لا يوجد توقيع",
   chooseFileCaption: "اختر ملف",
   takePhotoCaption: "التقاط صورة",
   photoPlaceholder: "انقر فوق الزر أدناه لالتقاط صورة باستخدام الكاميرا.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["ar"] = "العربية";
 // ok: "OK" => "موافق"
 // cancel: "Cancel" => "إلغاء الأمر"
 // refuseItemText: "Refuse to answer" => "رفض الإجابة"
-// dontKnowItemText: "Don't know" => "لا أعرف"
+// dontKnowItemText: "Don't know" => "لا أعرف"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "ردك يتجاوز 64 كيلوبايت. يرجى تقليل حجم الملف (الملفات) والمحاولة مرة أخرى أو الاتصال بمالك الاستطلاع."
+// signaturePlaceHolderReadOnly: "No signature" => "لا يوجد توقيع"

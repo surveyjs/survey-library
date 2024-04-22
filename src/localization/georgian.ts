@@ -69,6 +69,7 @@ export var georgianSurveyStrings = {
   savingData: "შედეგები ინახება სერვერზე...",
   savingDataError: "დაფიქსირდა შეცდომა და შედეგი ვერ შევინახავდით.",
   savingDataSuccess: "შედეგები წარმატებით გადაარჩინეს!",
+  savingExceedSize: "თქვენი პასუხი აღემატება 64KB. გთხოვთ, შეამციროთ თქვენი ფაილ(ებ)ის ზომა და სცადოთ ხელახლა ან დაუკავშირდეთ გამოკითხვის მფლობელს.",
   saveAgainButton: "კიდევ სცადე",
   timerMin: "წთ",
   timerSec: "წმ",
@@ -80,6 +81,7 @@ export var georgianSurveyStrings = {
   timerLimitSurvey: "თქვენ სულ {1} {0} დახარჯეთ.",
   clearCaption: "მოწმენდილი ცა",
   signaturePlaceHolder: "შესვლა აქ",
+  signaturePlaceHolderReadOnly: "ხელმოწერა არ არის",
   chooseFileCaption: "ვაუჩერის ნახვა",
   takePhotoCaption: "გადაიღეთ ფოტო",
   photoPlaceholder: "დააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ გადაიღოთ ფოტო კამერის გამოყენებით.",
@@ -191,4 +193,5 @@ surveyLocalization.localeNames["ka"] = "ქართული";
 // ok: "OK" => "კარგი"
 // cancel: "Cancel" => "გაუქმება"
 // refuseItemText: "Refuse to answer" => "უარი პასუხზე"
-// dontKnowItemText: "Don't know" => "არ ვიცი"
+// dontKnowItemText: "Don't know" => "არ ვიცი"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "თქვენი პასუხი აღემატება 64KB. გთხოვთ, შეამციროთ თქვენი ფაილ(ებ)ის ზომა და სცადოთ ხელახლა ან დაუკავშირდეთ გამოკითხვის მფლობელს."
+// signaturePlaceHolderReadOnly: "No signature" => "ხელმოწერა არ არის"

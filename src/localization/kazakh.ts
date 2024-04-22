@@ -69,6 +69,7 @@ export var kazakhStrings = {
   savingData: "Нәтижелер серверде сақталады...",
   savingDataError: "Қателік туындады, нәтиже сақталынбады.",
   savingDataSuccess: "Нәтиже ойдағыдай сақталды!",
+  savingExceedSize: "Сіздің жауабыңыз 64КБ-тан асады. Файлдың өлшемін азайтып, қайталап көріңіз немесе сауалнама иесіне хабарласыңыз.",
   saveAgainButton: "Қайтадан байқап көру",
   timerMin: "мин",
   timerSec: "сек",
@@ -80,6 +81,7 @@ export var kazakhStrings = {
   timerLimitSurvey: "Сіз бүкіл сауалнама үшін {0} ден {1} кетірдіңіз ",
   clearCaption: "Тазалау",
   signaturePlaceHolder: "Осында кіру",
+  signaturePlaceHolderReadOnly: "Қолдың No",
   chooseFileCaption: "Файл таңдаңыз",
   takePhotoCaption: "Фотосуретке түсу",
   photoPlaceholder: "Камераны пайдаланып суретке түсу үшін төмендегі түймені басыңыз.",
@@ -137,4 +139,5 @@ surveyLocalization.localeNames["kk"] = "Kazakh";
 // ok: "OK" => "ЖАҚСЫ"
 // cancel: "Cancel" => "Болдырмау"
 // refuseItemText: "Refuse to answer" => "Жауап беруден бас тарту"
-// dontKnowItemText: "Don't know" => "Білмеймін"
+// dontKnowItemText: "Don't know" => "Білмеймін"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Сіздің жауабыңыз 64КБ-тан асады. Файлдың өлшемін азайтып, қайталап көріңіз немесе сауалнама иесіне хабарласыңыз."
+// signaturePlaceHolderReadOnly: "No signature" => "Қолдың No"

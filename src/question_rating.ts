@@ -65,7 +65,12 @@ export class QuestionRatingModel extends Question {
       });
     this.registerFunctionOnPropertiesValueChanged(["rateValues"],
       () => {
-        this.autoGenerate = false;
+        this.setIconsToRateValues();
+        this.createRenderedRateItems();
+      });
+    this.registerSychProperties(["rateValues"],
+      () => {
+        this.autoGenerate = this.rateValues.length == 0;
         this.setIconsToRateValues();
         this.createRenderedRateItems();
       });
@@ -73,13 +78,13 @@ export class QuestionRatingModel extends Question {
       () => {
         this.updateColors((this.survey as SurveyModel).themeVariables);
       });
-    this.registerFunctionOnPropertiesValueChanged(["autoGenerate"],
+    this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.rateValues.length === 0) {
           this.setPropertyValue("rateValues", this.visibleRateValues);
         }
         if (this.autoGenerate) {
-          this.rateValues.length = 0;
+          this.rateValues.splice(0, this.rateValues.length);
           this.updateRateMax();
         }
         this.createRenderedRateItems();

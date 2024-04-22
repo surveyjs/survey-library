@@ -1723,7 +1723,7 @@ export class QuestionSelectBase extends Question {
     options.isNone = isNone;
 
     return builder
-      .append(this.cssClasses.itemDisabled, isDisabled || this.isDisabledStyle)
+      .append(this.cssClasses.itemDisabled, this.isDisabledStyle)
       .append(this.cssClasses.itemReadOnly, this.isReadOnlyStyle)
       .append(this.cssClasses.itemPreview, this.isPreviewStyle)
       .append(this.cssClasses.itemChecked, isChecked)

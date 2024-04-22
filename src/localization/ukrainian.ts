@@ -69,6 +69,7 @@ export var ukrainianSurveyStrings = {
   savingData: "Результати зберігаються на сервер...",
   savingDataError: "Відбулася помилка, результат не був збережений.",
   savingDataSuccess: "Резвультат успішно збережений!",
+  savingExceedSize: "Ваша відповідь перевищує 64 КБ. Будь ласка, зменшіть розмір файлу (файлів) і повторіть спробу або зв'яжіться з власником опитування.",
   saveAgainButton: "Спробувати знову",
   timerMin: "хв",
   timerSec: "сек",
@@ -80,6 +81,7 @@ export var ukrainianSurveyStrings = {
   timerLimitSurvey: "Ви витратили {0} з {1} для всього тесту.",
   clearCaption: "Очистити",
   signaturePlaceHolder: "Підпишіться тут",
+  signaturePlaceHolderReadOnly: "Без підпису",
   chooseFileCaption: "Виберіть файл",
   takePhotoCaption: "Зробити фото",
   photoPlaceholder: "Натисніть кнопку нижче, щоб зробити фото за допомогою камери.",
@@ -137,4 +139,5 @@ surveyLocalization.localeNames["ua"] = "українська";
 // hideDetails: "Hide Details" => "Сховати подробиці"
 // ok: "OK" => "ГАРАЗД"
 // cancel: "Cancel" => "Скасувати"// refuseItemText: "Refuse to answer" => "Відмовтеся відповідати"
-// dontKnowItemText: "Don't know" => "Не знаю"
+// dontKnowItemText: "Don't know" => "Не знаю"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ваша відповідь перевищує 64 КБ. Будь ласка, зменшіть розмір файлу (файлів) і повторіть спробу або зв'яжіться з власником опитування."
+// signaturePlaceHolderReadOnly: "No signature" => "Без підпису"

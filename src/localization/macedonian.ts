@@ -69,6 +69,7 @@ export var macedonianSurveyStrings = {
   savingData: "Резултатите се зачувуваат на серверот ...",
   savingDataError: "Настана грешка и не можевме да ги зачуваме резултатите.",
   savingDataSuccess: "Резултатите беа успешно зачувани!",
+  savingExceedSize: "Вашиот одговор надминува 64KB. Ве молиме да ја намалите големината на вашата(ите) датотека(и) и обидете се повторно или контактирајте го сопственикот на истражувањето.",
   saveAgainButton: "Обиди се повторно",
   timerMin: "мин",
   timerSec: "сек",
@@ -80,6 +81,7 @@ export var macedonianSurveyStrings = {
   timerLimitSurvey: "Вие потрошивте вкупно {0} од {1}.",
   clearCaption: "Да расчисти",
   signaturePlaceHolder: "Потпиши се овде.",
+  signaturePlaceHolderReadOnly: "Нема потпис",
   chooseFileCaption: "Изберете датотека",
   takePhotoCaption: "Фотографирајте",
   photoPlaceholder: "Кликнете на копчето подолу за да фотографирате користејќи ја камерата.",
@@ -132,4 +134,5 @@ surveyLocalization.localeNames["mk"] = "Македонски";
 // ok: "OK" => "ДОБРО"
 // cancel: "Cancel" => "Откажи"
 // refuseItemText: "Refuse to answer" => "Одбиј да одговориш."
-// dontKnowItemText: "Don't know" => "Не знам"
+// dontKnowItemText: "Don't know" => "Не знам"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Вашиот одговор надминува 64KB. Ве молиме да ја намалите големината на вашата(ите) датотека(и) и обидете се повторно или контактирајте го сопственикот на истражувањето."
+// signaturePlaceHolderReadOnly: "No signature" => "Нема потпис"

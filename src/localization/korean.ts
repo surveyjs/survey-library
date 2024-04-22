@@ -69,6 +69,7 @@ export var koreanStrings = {
   savingData: "결과가 서버에 저장 중입니다...",
   savingDataError: "오류가 발생하여 결과를 저장할 수 없습니다.",
   savingDataSuccess: "결과가 성공적으로 저장되었습니다.",
+  savingExceedSize: "응답이 64KB를 초과합니다. 파일 크기를 줄인 후 다시 시도하거나 설문조사 소유자에게 문의하세요.",
   saveAgainButton: "다시 시도하세요.",
   timerMin: "분",
   timerSec: "초",
@@ -80,6 +81,7 @@ export var koreanStrings = {
   timerLimitSurvey: "총 {0}/{1}이 걸렸습니다.",
   clearCaption: "지우기",
   signaturePlaceHolder: "서명하세요.",
+  signaturePlaceHolderReadOnly: "서명 없음",
   chooseFileCaption: "파일 선택",
   takePhotoCaption: "사진 찍기",
   photoPlaceholder: "아래 버튼을 클릭하여 카메라로 사진을 찍습니다.",
@@ -125,4 +127,5 @@ surveyLocalization.localeNames["ko"] = "한국어";
 // ok: "OK" => "그래"
 // cancel: "Cancel" => "취소"
 // refuseItemText: "Refuse to answer" => "대답 거부"
-// dontKnowItemText: "Don't know" => "모르다"
+// dontKnowItemText: "Don't know" => "모르다"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "응답이 64KB를 초과합니다. 파일 크기를 줄인 후 다시 시도하거나 설문조사 소유자에게 문의하세요."
+// signaturePlaceHolderReadOnly: "No signature" => "서명 없음"

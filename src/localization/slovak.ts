@@ -69,6 +69,7 @@ export var slovakSurveyStrings = {
   savingData: "Výsledky sa ukladajú na server...",
   savingDataError: "V dôsledku chyby sa nepodarilo výsledky uložiť.",
   savingDataSuccess: "Výsledky sa úspešne uložili.",
+  savingExceedSize: "Vaša odpoveď presahuje 64 kB. Zmenšite veľkosť svojich súborov a skúste to znova alebo kontaktujte vlastníka prieskumu.",
   saveAgainButton: "Skúste to znova",
   timerMin: "min",
   timerSec: "s",
@@ -80,6 +81,7 @@ export var slovakSurveyStrings = {
   timerLimitSurvey: "Celkovo ste strávili {0} z {1}.",
   clearCaption: "Vymazať",
   signaturePlaceHolder: "Podpísať tu",
+  signaturePlaceHolderReadOnly: "Bez podpisu",
   chooseFileCaption: "Vybrať súbor",
   takePhotoCaption: "Odfotiť",
   photoPlaceholder: "Kliknutím na tlačidlo nižšie nasnímate fotografiu pomocou fotoaparátu.",
@@ -128,4 +130,5 @@ surveyLocalization.localeNames["sk"] = "slovak";
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Zrušiť"
 // refuseItemText: "Refuse to answer" => "Odmietnuť odpovedať"
-// dontKnowItemText: "Don't know" => "Neviem"
+// dontKnowItemText: "Don't know" => "Neviem"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaša odpoveď presahuje 64 kB. Zmenšite veľkosť svojich súborov a skúste to znova alebo kontaktujte vlastníka prieskumu."
+// signaturePlaceHolderReadOnly: "No signature" => "Bez podpisu"

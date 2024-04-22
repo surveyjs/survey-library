@@ -1,7 +1,7 @@
 import { settings } from "./settings";
 import { surveyLocalization } from "./surveyStrings";
 
-const surveyIOSite = "surveyjs" + ".io";
+const surveyIOSite = "surveyjs.io";
 const surveyIOMaxPostSize = 65536;
 /**
  * The class contains methods to work with api.surveyjs.io service.

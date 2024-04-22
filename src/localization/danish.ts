@@ -69,6 +69,7 @@ export var danishSurveyStrings = {
   savingData: "Resultaterne bliver gemt på serveren...",
   savingDataError: "Der opstod en fejl og vi kunne ikke gemme resultatet.",
   savingDataSuccess: "Resultatet blev gemt!",
+  savingExceedSize: "Dit svar overstiger 64 KB. Reducer størrelsen på din(e) fil(er), og prøv igen, eller kontakt en undersøgelsesejer.",
   saveAgainButton: "Prøv igen",
   timerMin: "min",
   timerSec: "sek",
@@ -80,6 +81,7 @@ export var danishSurveyStrings = {
   timerLimitSurvey: "Du har brugt {0} af {1} i alt.",
   clearCaption: "Fjern",
   signaturePlaceHolder: "Tilmeld dig her",
+  signaturePlaceHolderReadOnly: "Ingen underskrift",
   chooseFileCaption: "Vælg fil",
   takePhotoCaption: "Tag billede",
   photoPlaceholder: "Klik på knappen nedenfor for at tage et billede med kameraet.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["da"] = "dansk";
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Aflyse"
 // refuseItemText: "Refuse to answer" => "Nægt at svare"
-// dontKnowItemText: "Don't know" => "Ved ikke"
+// dontKnowItemText: "Don't know" => "Ved ikke"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Dit svar overstiger 64 KB. Reducer størrelsen på din(e) fil(er), og prøv igen, eller kontakt en undersøgelsesejer."
+// signaturePlaceHolderReadOnly: "No signature" => "Ingen underskrift"

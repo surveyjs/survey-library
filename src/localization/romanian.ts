@@ -69,6 +69,7 @@ export var romanianSurveyStrings: any = {
   savingData: "Rezultatele sunt în curs de salvare...",
   savingDataError: "A intervenit o eroare, rezultatele nu au putut fi salvate.",
   savingDataSuccess: "Rezultatele au fost salvate cu succes!",
+  savingExceedSize: "Răspunsul tău depășește 64KB. Reduceți dimensiunea fișierelor și încercați din nou sau contactați un proprietar de sondaj.",
   saveAgainButton: "Încercați din nou",
   timerMin: "min",
   timerSec: "sec",
@@ -80,6 +81,7 @@ export var romanianSurveyStrings: any = {
   timerLimitSurvey: "Ați petrecut {0} din {1} în total.",
   clearCaption: "clar",
   signaturePlaceHolder: "Semnează aici",
+  signaturePlaceHolderReadOnly: "Fără semnătură",
   chooseFileCaption: "Alege fișierul",
   takePhotoCaption: "Faceți o fotografie",
   photoPlaceholder: "Faceți clic pe butonul de mai jos pentru a face o fotografie folosind camera.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["ro"] = "română";
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Anula"
 // refuseItemText: "Refuse to answer" => "Refuză să răspundă"
-// dontKnowItemText: "Don't know" => "Nu ştiu"
+// dontKnowItemText: "Don't know" => "Nu ştiu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Răspunsul tău depășește 64KB. Reduceți dimensiunea fișierelor și încercați din nou sau contactați un proprietar de sondaj."
+// signaturePlaceHolderReadOnly: "No signature" => "Fără semnătură"

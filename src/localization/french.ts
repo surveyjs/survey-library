@@ -69,6 +69,7 @@ export var frenchSurveyStrings = {
   savingData: "Les résultats sont en cours de sauvegarde sur le serveur...",
   savingDataError: "Une erreur est survenue et a empêché la sauvegarde des résultats.",
   savingDataSuccess: "Les résultats ont bien été enregistrés !",
+  savingExceedSize: "Votre réponse dépasse 64 Ko. Veuillez réduire la taille de votre ou vos fichiers et réessayer ou contacter un propriétaire de sondage.",
   saveAgainButton: "Réessayer",
   timerMin: "min",
   timerSec: "sec",
@@ -80,6 +81,7 @@ export var frenchSurveyStrings = {
   timerLimitSurvey: "Vous avez passé {0} sur {1} au total.",
   clearCaption: "Vider",
   signaturePlaceHolder: "Signez ici",
+  signaturePlaceHolderReadOnly: "Pas de signature",
   chooseFileCaption: "Ajouter un fichier",
   takePhotoCaption: "Prendre une photo",
   photoPlaceholder: "Cliquez sur le bouton ci-dessous pour prendre une photo à l’aide de l’appareil photo.",
@@ -126,4 +128,5 @@ surveyLocalization.localeNames["fr"] = "français";
 // ok: "OK" => "D’ACCORD"
 // cancel: "Cancel" => "Annuler"
 // refuseItemText: "Refuse to answer" => "Refuser de répondre"
-// dontKnowItemText: "Don't know" => "Sais pas"
+// dontKnowItemText: "Don't know" => "Sais pas"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Votre réponse dépasse 64 Ko. Veuillez réduire la taille de votre ou vos fichiers et réessayer ou contacter un propriétaire de sondage."
+// signaturePlaceHolderReadOnly: "No signature" => "Pas de signature"

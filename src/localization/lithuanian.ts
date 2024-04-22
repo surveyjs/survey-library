@@ -69,6 +69,7 @@ export var lithuaniaSurveyStrings = {
   savingData: "Rezultatai saugomi serveryje...",
   savingDataError: "Įvyko klaida ir mes negalėjome išsaugoti rezultatų.",
   savingDataSuccess: "Rezultatai buvo išsaugoti sėkmingai!",
+  savingExceedSize: "Jūsų atsakymas viršija 64 KB. Sumažinkite failo (-ų) dydį ir bandykite dar kartą arba susisiekite su apklausos savininku.",
   saveAgainButton: "Bandyti dar kartą",
   timerMin: "min",
   timerSec: "sek",
@@ -80,6 +81,7 @@ export var lithuaniaSurveyStrings = {
   timerLimitSurvey: "Praleidote {0} iš {1} iš viso.",
   clearCaption: "Valyti",
   signaturePlaceHolder: "Pasirašykite čia",
+  signaturePlaceHolderReadOnly: "Nėra parašo",
   chooseFileCaption: "Pasirinkti failą",
   takePhotoCaption: "Fotografuoti",
   photoPlaceholder: "Spustelėkite žemiau esantį mygtuką, kad nufotografuotumėte fotoaparatu.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["lt"] = "lietuvių";
 // ok: "OK" => "GERAI"
 // cancel: "Cancel" => "Atšaukti"
 // refuseItemText: "Refuse to answer" => "Atsisakyti atsakyti"
-// dontKnowItemText: "Don't know" => "Nežinau"
+// dontKnowItemText: "Don't know" => "Nežinau"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jūsų atsakymas viršija 64 KB. Sumažinkite failo (-ų) dydį ir bandykite dar kartą arba susisiekite su apklausos savininku."
+// signaturePlaceHolderReadOnly: "No signature" => "Nėra parašo"

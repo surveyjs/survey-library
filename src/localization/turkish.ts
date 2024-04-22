@@ -69,6 +69,7 @@ export var turkishSurveyStrings = {
   savingData: "Sonuçlar sunucuya kaydediliyor...",
   savingDataError: "Bir hata oluştu ve sonuçlar kaydedilemedi.",
   savingDataSuccess: "Sonuçlar başarıyla kaydedildi!",
+  savingExceedSize: "Yanıtınız 64 KB'ı aşıyor. Lütfen dosyalarınızın boyutunu küçültün ve tekrar deneyin veya bir anket sahibiyle iletişime geçin.",
   saveAgainButton: "Tekrar deneyin",
   timerMin: "dakika",
   timerSec: "saniye",
@@ -80,6 +81,7 @@ export var turkishSurveyStrings = {
   timerLimitSurvey: "Toplamda {0}/{1} harcadınız.",
   clearCaption: "Temizle",
   signaturePlaceHolder: "Burayı imzalayın",
+  signaturePlaceHolderReadOnly: "İmza yok",
   chooseFileCaption: "Dosya seçin",
   takePhotoCaption: "Fotoğraf Çekin",
   photoPlaceholder: "Kamerayı kullanarak fotoğraf çekmek için aşağıdaki düğmeyi tıklayın.",
@@ -119,4 +121,5 @@ surveyLocalization.localeNames["tr"] = "türkçe";
 // hideDetails: "Hide Details" => "Detayları Gizle"
 // ok: "OK" => "TAMAM"
 // cancel: "Cancel" => "İptal"// refuseItemText: "Refuse to answer" => "Cevap vermeyi reddet"
-// dontKnowItemText: "Don't know" => "Bilmiyorum"
+// dontKnowItemText: "Don't know" => "Bilmiyorum"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Yanıtınız 64 KB'ı aşıyor. Lütfen dosyalarınızın boyutunu küçültün ve tekrar deneyin veya bir anket sahibiyle iletişime geçin."
+// signaturePlaceHolderReadOnly: "No signature" => "İmza yok"

@@ -69,6 +69,7 @@ export var catalanSurveyStrings = {
   savingData: "Els resultats s'estan guardant al servidor...",
   savingDataError: "S'ha produït un error i no hem pogut guardar els resultats.",
   savingDataSuccess: "Els resultats es van salvar amb èxit!",
+  savingExceedSize: "La teva resposta supera els 64KB. Reduïu la mida dels fitxers i torneu-ho a provar o poseu-vos en contacte amb el propietari de l'enquesta.",
   saveAgainButton: "Prova una altra vegada",
   timerMin: "min",
   timerSec: "Seg",
@@ -80,6 +81,7 @@ export var catalanSurveyStrings = {
   timerLimitSurvey: "Has gastat {0} d'{1} en total.",
   clearCaption: "Clar",
   signaturePlaceHolder: "Inscriu-te aquí",
+  signaturePlaceHolderReadOnly: "Sense signatura",
   chooseFileCaption: "Tria un fitxer",
   takePhotoCaption: "Fer foto",
   photoPlaceholder: "Feu clic al botó següent per fer una foto amb la càmera.",
@@ -178,4 +180,5 @@ surveyLocalization.localeNames["ca"] = "català";
 // ok: "OK" => "D'ACORD"
 // cancel: "Cancel" => "Cancel·lar"
 // refuseItemText: "Refuse to answer" => "Negar-se a respondre"
-// dontKnowItemText: "Don't know" => "No sé"
+// dontKnowItemText: "Don't know" => "No sé"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "La teva resposta supera els 64KB. Reduïu la mida dels fitxers i torneu-ho a provar o poseu-vos en contacte amb el propietari de l'enquesta."
+// signaturePlaceHolderReadOnly: "No signature" => "Sense signatura"

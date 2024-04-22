@@ -69,6 +69,7 @@ export var russianSurveyStrings = {
   savingData: "Результаты сохраняются на сервер...",
   savingDataError: "Произошла ошибка, результат не был сохранён.",
   savingDataSuccess: "Результат успешно сохранён!",
+  savingExceedSize: "Ваш ответ превышает 64 КБ. Уменьшите размер файла (файлов) и повторите попытку или обратитесь к владельцу опроса.",
   saveAgainButton: "Попробовать снова",
   timerMin: "мин",
   timerSec: "сек",
@@ -80,6 +81,7 @@ export var russianSurveyStrings = {
   timerLimitSurvey: "Вы потратили {0} из {1} для всего теста.",
   clearCaption: "Очистить",
   signaturePlaceHolder: "Подпишите здесь",
+  signaturePlaceHolderReadOnly: "Без подписи",
   chooseFileCaption: "Выберите файл",
   takePhotoCaption: "Сделать фото",
   photoPlaceholder: "Нажмите кнопку ниже, чтобы сделать снимок с помощью камеры.",
@@ -122,4 +124,5 @@ surveyLocalization.localeNames["ru"] = "русский";
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Файлы не могут быть загружены. Пожалуйста, добавьте обработчик для события 'onUploadFiles'."
 // showDetails: "Show Details" => "Показать подробности"
 // hideDetails: "Hide Details" => "Скрыть подробности"
-// cancel: "Cancel" => "Отмена"
+// cancel: "Cancel" => "Отмена"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ваш ответ превышает 64 КБ. Уменьшите размер файла (файлов) и повторите попытку или обратитесь к владельцу опроса."
+// signaturePlaceHolderReadOnly: "No signature" => "Без подписи"

@@ -70,7 +70,7 @@ const componentData = computed(() => {
   };
 });
 
-watch(
+const stopWatch = watch(
   () => props.element,
   (newValue, oldValue) => {
     if (oldValue) {
@@ -85,5 +85,6 @@ onMounted(() => {
 });
 onUnmounted(() => {
   props.element.setWrapperElement(undefined);
+  stopWatch();
 });
 </script>

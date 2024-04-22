@@ -19,6 +19,7 @@ import { SurveyElement } from "../src/survey-element";
 import { Action } from "../src/actions/action";
 import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedErrorRow, QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
+import { AnimationGroup } from "../src/utils/animation";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -9274,4 +9275,72 @@ QUnit.test("lockedRowCount property", function (assert) {
   assert.equal(table.rows[3].cells[0].isEmpty, true, "isEmpty, row#2");
   assert.equal(table.rows[5].cells[0].isEmpty, false, "isEmpty, row#3");
   assert.equal(table.rows[7].cells[0].isEmpty, false, "isEmpty, row#4");
+});
+
+QUnit.test("table: check renderedRows", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        columns: ["col1"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const renderedTable = matrix.renderedTable;
+  assert.equal(renderedTable.renderedRows.length, 4);
+  assert.deepEqual(renderedTable.renderedRows, renderedTable.rows);
+  matrix.addRow();
+  assert.equal(renderedTable.rows.length, 6);
+  assert.equal(renderedTable.renderedRows.length, 6);
+  matrix.removeRow(2);
+  assert.equal(renderedTable.rows.length, 4);
+  assert.equal(renderedTable.renderedRows.length, 4);
+});
+
+QUnit.test("table: check animation options", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        columns: ["col1"]
+      }
+    ]
+  });
+  survey.css = {
+    "matrixdynamic": {
+      rowFadeIn: "enter",
+      rowFadeOut: "leave",
+    }
+  };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const renderedTable = matrix.renderedTable;
+  assert.ok(renderedTable["renderedRowsAnimation"] instanceof AnimationGroup);
+  const options = renderedTable["getRenderedRowsAnimationOptions"]();
+  const tableHtmlElement = document.createElement("table");
+  const rowHtmlElement = document.createElement("tr");
+  const cellHtmlElement = document.createElement("td");
+  const questionHtmlElement = document.createElement("div");
+  cellHtmlElement.appendChild(questionHtmlElement);
+  rowHtmlElement.appendChild(cellHtmlElement);
+  tableHtmlElement.appendChild(rowHtmlElement);
+  document.body.appendChild(tableHtmlElement);
+  questionHtmlElement.style.height = "20px";
+
+  const enterOptions = options.getEnterOptions(renderedTable.rows[1]);
+  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(rowHtmlElement);
+  assert.equal(enterOptions.cssClass, "enter");
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "20px");
+
+  questionHtmlElement.style.height = "40px";
+  const leaveOptions = options.getLeaveOptions(renderedTable.rows[1]);
+  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(rowHtmlElement);
+  assert.equal(leaveOptions.cssClass, "leave");
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "40px");
+
+  tableHtmlElement.remove();
 });

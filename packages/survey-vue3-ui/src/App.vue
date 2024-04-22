@@ -2,7 +2,6 @@
 import { defineComponent } from "vue";
 import { SurveyModel, StylesManager } from "survey-core";
 import Survey from "./Survey.vue";
-import "./index.css"
 
 const json = {
  "logoPosition": "right",

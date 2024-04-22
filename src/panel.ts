@@ -121,7 +121,7 @@ export class QuestionRowModel extends Base {
       el.style.setProperty("--animation-width", getElementWidth(el) + "px");
     };
     return {
-      isAnimationEnabled: () => settings.animationEnabled && this.panel?.animationAllowed && this.visible,
+      isAnimationEnabled: () => this.panel?.animationAllowed && this.visible,
       getAnimatedElement: (element: IElement) => (element as any as SurveyElement).getWrapperElement(),
       getLeaveOptions: (element: IElement) => {
         const surveyElement = element as unknown as SurveyElement;
@@ -305,7 +305,7 @@ export class PanelModelBase extends SurveyElement<Question>
       el.style.setProperty("--animation-height", el.offsetHeight + "px");
     };
     return {
-      isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed,
+      isAnimationEnabled: () => this.animationAllowed,
       getAnimatedElement: (row: QuestionRowModel) => row.getRootElement(),
       getLeaveOptions: (_: QuestionRowModel) => {
         return { cssClass: this.cssClasses.rowFadeOut,

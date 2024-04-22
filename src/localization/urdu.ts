@@ -69,6 +69,7 @@ export var urduSurveyStrings = {
   savingData: "...نتائج کو سرور پر محفوظ کیا جا رہا ہے",
   savingDataError: "ایک خرابی پیش آگئی اور ہم نتائج کو محفوظ نہیں کر سکے۔",
   savingDataSuccess: "نتائج کامیابی سے محفوظ ہو گئے۔",
+  savingExceedSize: "آپ کا جواب 64KB سے تجاوز کر گیا ہے۔ براہ کرم اپنی فائل کا سائز کم کریں اور دوبارہ کوشش کریں یا سروے کے مالک سے رابطہ کریں۔",
   saveAgainButton: "دوبارہ کوشش کریں",
   timerMin: "منٹ",
   timerSec: "سیکنڈ",
@@ -80,6 +81,7 @@ export var urduSurveyStrings = {
   timerLimitSurvey: "آپ نے کل {1} میں سے {1} خرچ کیا ہے۔",
   clearCaption: "صاف",
   signaturePlaceHolder: "یہاں سائن کریں۔",
+  signaturePlaceHolderReadOnly: "کوئی دستخط نہیں",
   chooseFileCaption: "فائل منتخب کریں",
   takePhotoCaption: "تصویر لیں",
   photoPlaceholder: "کیمرے کا استعمال کرتے ہوئے تصویر لینے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔",
@@ -130,4 +132,5 @@ surveyLocalization.localeNames["ur"] = "Urdu";
 // hideDetails: "Hide Details" => "تفصیلات چھپائیں"
 // ok: "OK" => "ٹھيک ہے"
 // cancel: "Cancel" => "منسوخ"// refuseItemText: "Refuse to answer" => "جواب دینے سے انکار"
-// dontKnowItemText: "Don't know" => "معلوم نہيں"
+// dontKnowItemText: "Don't know" => "معلوم نہيں"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "آپ کا جواب 64KB سے تجاوز کر گیا ہے۔ براہ کرم اپنی فائل کا سائز کم کریں اور دوبارہ کوشش کریں یا سروے کے مالک سے رابطہ کریں۔"
+// signaturePlaceHolderReadOnly: "No signature" => "کوئی دستخط نہیں"

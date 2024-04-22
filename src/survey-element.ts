@@ -172,7 +172,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const el = root.getElementById(elementId);
     return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible);
   }
-  private static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean): boolean {
+  public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions): boolean {
     if (!el || !el.scrollIntoView) return false;
     const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
     let needScroll = elTop < 0;
@@ -190,7 +190,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       }
     }
     if (needScroll) {
-      el.scrollIntoView();
+      el.scrollIntoView(scrollIntoViewOptions);
     }
     return needScroll;
   }
@@ -1091,7 +1091,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         }
         return undefined;
       },
-      isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed && !this.isDesignMode
+      isAnimationEnabled: () => this.animationAllowed && !this.isDesignMode
     };
   }
 
@@ -1115,7 +1115,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   private animationAllowedValue: boolean = true;
   public get animationAllowed(): boolean {
-    return !this.isLoadingFromJson && !this.isDisposed && !!this.survey && this.animationAllowedValue;
+    return settings.animationEnabled && !this.isLoadingFromJson && !this.isDisposed && !!this.survey && this.animationAllowedValue;
   }
 
   public set animationAllowed(val: boolean) {

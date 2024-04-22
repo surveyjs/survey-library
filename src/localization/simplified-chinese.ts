@@ -69,6 +69,7 @@ export var simplifiedChineseSurveyStrings = {
   savingData: "正在将结果保存到服务器...",
   savingDataError: "在保存结果过程中发生了错误，结果未能保存",
   savingDataSuccess: "结果保存成功!",
+  savingExceedSize: "您的回复超过 64KB。请减小文件的大小，然后重试或联系调查所有者。",
   saveAgainButton: "请重试",
   timerMin: "分",
   timerSec: "秒",
@@ -80,6 +81,7 @@ export var simplifiedChineseSurveyStrings = {
   timerLimitSurvey: "总计用时 {0} 共 {1}.",
   clearCaption: "清除",
   signaturePlaceHolder: "在此签名",
+  signaturePlaceHolderReadOnly: "无签名",
   chooseFileCaption: "选择文件",
   takePhotoCaption: "拍照",
   photoPlaceholder: "单击下面的按钮使用相机拍照。",
@@ -132,4 +134,5 @@ surveyLocalization.localeNames["zh-cn"] = "简体中文";
 // ok: "OK" => "还行"
 // cancel: "Cancel" => "取消"
 // refuseItemText: "Refuse to answer" => "拒绝回答"
-// dontKnowItemText: "Don't know" => "不知道"
+// dontKnowItemText: "Don't know" => "不知道"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "您的回复超过 64KB。请减小文件的大小，然后重试或联系调查所有者。"
+// signaturePlaceHolderReadOnly: "No signature" => "无签名"

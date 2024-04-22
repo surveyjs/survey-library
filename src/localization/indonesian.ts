@@ -69,6 +69,7 @@ export var indonesianStrings = {
   savingData: "Hasil sedang disimpan pada server...",
   savingDataError: "Kesalahan terjadi dan kami tidak dapat menyimpan hasil.",
   savingDataSuccess: "Hasil telah sukses disimpan!",
+  savingExceedSize: "Respons Anda melebihi 64 KB. Harap kurangi ukuran file Anda dan coba lagi atau hubungi pemilik survei.",
   saveAgainButton: "Coba lagi",
   timerMin: "menit",
   timerSec: "detik",
@@ -80,6 +81,7 @@ export var indonesianStrings = {
   timerLimitSurvey: "Anda telah menghabiskan {0} dari {1} secara keseluruhan.",
   clearCaption: "Bersihkan",
   signaturePlaceHolder: "Tanda tangan di sini",
+  signaturePlaceHolderReadOnly: "Tidak ada tanda tangan",
   chooseFileCaption: "Pilih File",
   takePhotoCaption: "Ambil Foto",
   photoPlaceholder: "Klik tombol di bawah ini untuk mengambil foto menggunakan kamera.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["id"] = "bahasa Indonesia";
 // ok: "OK" => "OKE"
 // cancel: "Cancel" => "Membatalkan"
 // refuseItemText: "Refuse to answer" => "Menolak untuk menjawab"
-// dontKnowItemText: "Don't know" => "Tidak tahu"
+// dontKnowItemText: "Don't know" => "Tidak tahu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Respons Anda melebihi 64 KB. Harap kurangi ukuran file Anda dan coba lagi atau hubungi pemilik survei."
+// signaturePlaceHolderReadOnly: "No signature" => "Tidak ada tanda tangan"

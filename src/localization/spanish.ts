@@ -69,6 +69,7 @@ export var spanishSurveyStrings = {
   savingData: "Los resultados se están guardando en el servidor...",
   savingDataError: "Los resultados se están guardando en el servidor...",
   savingDataSuccess: "¡Los resultados se guardaron con éxito!",
+  savingExceedSize: "Su respuesta supera los 64 KB. Reduzca el tamaño de su(s) archivo(s) e inténtelo de nuevo o póngase en contacto con el propietario de una encuesta.",
   saveAgainButton: "Inténtalo de nuevo.",
   timerMin: "min",
   timerSec: "sec",
@@ -80,6 +81,7 @@ export var spanishSurveyStrings = {
   timerLimitSurvey: "Usted ha gastado {0} de {1} en total.",
   clearCaption: "Borrar",
   signaturePlaceHolder: "Firma aqui",
+  signaturePlaceHolderReadOnly: "Sin firma",
   chooseFileCaption: "Elija el archivo",
   takePhotoCaption: "Tomar foto",
   photoPlaceholder: "Haga clic en el botón de abajo para tomar una foto con la cámara.",
@@ -126,4 +128,5 @@ surveyLocalization.localeNames["es"] = "español";
 // ok: "OK" => "De acuerdo"
 // cancel: "Cancel" => "Cancelar"
 // refuseItemText: "Refuse to answer" => "Negarse a responder"
-// dontKnowItemText: "Don't know" => "No sé"
+// dontKnowItemText: "Don't know" => "No sé"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Su respuesta supera los 64 KB. Reduzca el tamaño de su(s) archivo(s) e inténtelo de nuevo o póngase en contacto con el propietario de una encuesta."
+// signaturePlaceHolderReadOnly: "No signature" => "Sin firma"

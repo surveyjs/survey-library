@@ -43,37 +43,17 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
   protected renderElement(): JSX.Element {
     const panels:Array<JSX.Element> = [];
-    if (this.question.isRenderModeList) {
-      for (let i = 0; i < this.question.visiblePanels.length; i++) {
-        const panel = this.question.visiblePanels[i];
-        panels.push(
-          <SurveyQuestionPanelDynamicItem
-            key={panel.id}
-            element={panel}
-            question={this.question}
-            index={i}
-            cssClasses={this.question.cssClasses}
-            isDisplayMode={this.isDisplayMode}
-            creator={this.creator}
-          />
-        );
-      }
-    } else {
-      if (this.question.currentPanel != null) {
-        const panel = this.question.currentPanel;
-        panels.push(
-          <SurveyQuestionPanelDynamicItem
-            key={this.question.currentIndex}
-            element={panel}
-            question={this.question}
-            index={this.question.currentIndex}
-            cssClasses={this.question.cssClasses}
-            isDisplayMode={this.isDisplayMode}
-            creator={this.creator}
-          />
-        );
-      }
-    }
+    this.question.renderedPanels.forEach((panel, index) => {
+      panels.push(<SurveyQuestionPanelDynamicItem
+        key={panel.id}
+        element={panel}
+        question={this.question}
+        index={index}
+        cssClasses={this.question.cssClasses}
+        isDisplayMode={this.isDisplayMode}
+        creator={this.creator}
+      />);
+    });
     const btnAdd: JSX.Element | null = this.question.isRenderModeList && this.question["showLegacyNavigation"]
       ? this.renderAddRowButton()
       : null;
@@ -84,14 +64,15 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       ? this.renderNavigator()
       : null;
 
-    const style: any = {};
     const navV2 = this.renderNavigatorV2();
     const noEntriesPlaceholder = this.renderPlaceholder();
     return (
       <div className={this.question.cssClasses.root}>
         {noEntriesPlaceholder}
         {navTop}
-        {panels}
+        <div className={this.question.cssClasses.panelsContainer}>
+          {panels}
+        </div>
         {navBottom}
         {btnAdd}
         {navV2}

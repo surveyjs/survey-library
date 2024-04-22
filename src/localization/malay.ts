@@ -69,6 +69,7 @@ export var malaySurveyStrings = {
   savingData: "Keputusan sedang disimpan pada pelayan...",
   savingDataError: "Ralat berlaku dan kami tidak dapat menyimpan keputusan.",
   savingDataSuccess: "Keputusan berjaya disimpan!",
+  savingExceedSize: "Jawapan anda melebihi 64KB. Sila kurangkan saiz fail anda dan cuba lagi atau hubungi pemilik tinjauan.",
   saveAgainButton: "Cuba lagi",
   timerMin: "min",
   timerSec: "saat",
@@ -80,6 +81,7 @@ export var malaySurveyStrings = {
   timerLimitSurvey: "Anda telah meluangkan {0} daripada {1} secara keseluruhan.",
   clearCaption: "Kosongkan",
   signaturePlaceHolder: "Tandatangan di sini",
+  signaturePlaceHolderReadOnly: "Tiada tandatangan",
   chooseFileCaption: "Pilih fail",
   takePhotoCaption: "Ambil gambar",
   photoPlaceholder: "Klik butang di bawah untuk mengambil gambar menggunakan kamera.",
@@ -128,4 +130,5 @@ surveyLocalization.localeNames["ms"] = "melayu";
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Batal"
 // refuseItemText: "Refuse to answer" => "Enggan menjawab"
-// dontKnowItemText: "Don't know" => "Tak tahu"
+// dontKnowItemText: "Don't know" => "Tak tahu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jawapan anda melebihi 64KB. Sila kurangkan saiz fail anda dan cuba lagi atau hubungi pemilik tinjauan."
+// signaturePlaceHolderReadOnly: "No signature" => "Tiada tandatangan"

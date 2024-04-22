@@ -69,6 +69,7 @@ export var basqueSurveyStrings = {
   savingData: "Erantzunak zerbitzarian gordetzen ari dira...",
   savingDataError: "Erroreren bat gertatu eta erantzunak ez dira zerbitzarian gorde ahal izan.",
   savingDataSuccess: "Erantzunak egoki gorde dira!",
+  savingExceedSize: "Erantzuna 64 KB-tik gorakoa da. Murriztu artxiboaren tamaina, eta berriro saiatu edo jarri harremanetan inkesta baten jabearekin.",
   saveAgainButton: "Berriro saiatu.",
   timerMin: "min",
   timerSec: "seg",
@@ -80,6 +81,7 @@ export var basqueSurveyStrings = {
   timerLimitSurvey: "Zuk orotara {0} gastatu duzu {1}-(e)tik.",
   clearCaption: "Hustu",
   signaturePlaceHolder: "Sinatu hemen",
+  signaturePlaceHolderReadOnly: "Sinadurarik gabe",
   chooseFileCaption: "Fitxategia hautatu",
   takePhotoCaption: "Argazkia hartu",
   photoPlaceholder: "Egin klik beheko botoian, kamerarekin argazki bat hartzeko.",
@@ -131,4 +133,5 @@ surveyLocalization.localeNames["eu"] = "Euskara";
 // ok: "OK" => "Ados"
 // cancel: "Cancel" => "Ezeztatu"
 // refuseItemText: "Refuse to answer" => "Erantzuteari uko egin"
-// dontKnowItemText: "Don't know" => "Ez dakit"
+// dontKnowItemText: "Don't know" => "Ez dakit"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Erantzuna 64 KB-tik gorakoa da. Murriztu artxiboaren tamaina, eta berriro saiatu edo jarri harremanetan inkesta baten jabearekin."
+// signaturePlaceHolderReadOnly: "No signature" => "Sinadurarik gabe"

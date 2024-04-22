@@ -69,6 +69,7 @@ export var teluguStrings = {
   savingData: "ఫలితాంశాలు సర్వర్లో సేవ్ అవుతున్నాయి",
   savingDataError: "ఒక లోపము సంభవించినది అందుకని ఫలితాంశాలను సేవ్ చేయలేకపోయాము  ",
   savingDataSuccess: "ఫలితాంశాలను విజయవంతంగా సేవ్ చేసాము",
+  savingExceedSize: "మీ ప్రతిస్పందన 64KBని మించిపోయింది. దయచేసి మీ ఫైల్(లు) పరిమాణాన్ని తగ్గించండి మరియు మళ్లీ ప్రయత్నించండి లేదా సర్వే యజమానిని సంప్రదించండి.",
   saveAgainButton: "మళ్లీ ప్రయత్నించు",
   timerMin: "నిమిషాలు ",
   timerSec: "సెకండ్లు",
@@ -80,6 +81,7 @@ export var teluguStrings = {
   timerLimitSurvey: " మొత్తంగా మీరు {1} లో {0} ని ఉపయోగించారు ",
   clearCaption: "స్పష్టమ్",
   signaturePlaceHolder: "ఇక్కడ సంతకం చేయండి",
+  signaturePlaceHolderReadOnly: "సంతకం లేదు",
   chooseFileCaption: "ఫైల్ ఎంచుకోండి",
   takePhotoCaption: "ఫోటో తీసుకోండి",
   photoPlaceholder: "కెమెరాను ఉపయోగించి ఫోటో తీయడానికి దిగువ బటన్ మీద క్లిక్ చేయండి.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["tel"] = "Telugu";
 // hideDetails: "Hide Details" => "వివరాలను దాచండి"
 // ok: "OK" => "సరే"
 // cancel: "Cancel" => "రద్దు"// refuseItemText: "Refuse to answer" => "సమాధానం ఇవ్వడానికి నిరాకరించండి"
-// dontKnowItemText: "Don't know" => "తెలియదు"
+// dontKnowItemText: "Don't know" => "తెలియదు"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "మీ ప్రతిస్పందన 64KBని మించిపోయింది. దయచేసి మీ ఫైల్(లు) పరిమాణాన్ని తగ్గించండి మరియు మళ్లీ ప్రయత్నించండి లేదా సర్వే యజమానిని సంప్రదించండి."
+// signaturePlaceHolderReadOnly: "No signature" => "సంతకం లేదు"

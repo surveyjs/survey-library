@@ -5307,11 +5307,8 @@ export class SurveyModel extends SurveyElementCore
   protected createSurveyService(): dxSurveyService {
     return new dxSurveyService();
   }
-  protected uploadFilesCore(
-    name: string,
-    files: File[],
-    uploadingCallback: (data: any | Array<any>, errors?: any | Array<any>,) => any
-  ) {
+  protected uploadFilesCore(name: string, files: File[],
+    uploadingCallback: (data: any | Array<any>, errors?: any | Array<any>,) => any): void {
     var responses: Array<any> = [];
     files.forEach((file) => {
       if (uploadingCallback) uploadingCallback("uploading", file);
@@ -5928,11 +5925,7 @@ export class SurveyModel extends SurveyElementCore
    * @param clientId A respondent identifier (e-mail or other unique ID). This ID ensures that the respondent does not pass the same survey twice.
    * @param isPartial Pass `true` to save partial survey results (see [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete)).
    */
-  public sendResult(
-    postId: string = null,
-    clientId: string = null,
-    isPartial: boolean = false
-  ) {
+  public sendResult(postId: string = null, clientId: string = null, isPartial: boolean = false): void {
     if (!this.isEditMode) return;
     if (isPartial && this.onPartialSend) {
       this.onPartialSend.fire(this, null);
@@ -5946,26 +5939,23 @@ export class SurveyModel extends SurveyElementCore
       this.clientId = clientId;
     }
     if (isPartial && !this.clientId) return;
-    var self = this;
-    if (this.surveyShowDataSaving) {
+    const service = this.createSurveyService();
+    service.locale = this.getLocale();
+    const showSaving = this.surveyShowDataSaving || (!isPartial && service.isSurveJSIOService);
+    if (showSaving) {
       this.setCompletedState("saving", "");
     }
-    this.createSurveyService().sendResult(
-      postId,
-      this.data,
-      function (success: boolean, response: any, request: any) {
-        if (self.surveyShowDataSaving) {
+    service.sendResult(postId, this.data,
+      (success: boolean, response: any, request: any) => {
+        if (showSaving || service.isSurveJSIOService) {
           if (success) {
-            self.setCompletedState("success", "");
+            this.setCompletedState("success", "");
           } else {
-            self.setCompletedState("error", response);
+            this.setCompletedState("error", response);
           }
         }
-        self.onSendResult.fire(self, {
-          success: success,
-          response: response,
-          request: request,
-        });
+        const options = { success: success, response: response, request: request };
+        this.onSendResult.fire(this, options);
       },
       this.clientId,
       isPartial

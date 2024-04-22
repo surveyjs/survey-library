@@ -55,6 +55,18 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     this.setCallbackFunc("koPanelAfterRender", (el: any, con: any) => {
       this.panelAfterRender(el, con);
     });
+    this.setCallbackFunc("koRowAfterRender", (htmlElements: any, element: QuestionMatrixDropdownRenderedRow) => {
+      for (var i = 0; i < htmlElements.length; i++) {
+        var tEl = htmlElements[i];
+        var nName = tEl.nodeName;
+        if(nName !== "#text" && nName !== "#comment") {
+          element.setRootElement(tEl);
+          ko.utils.domNodeDisposal.addDisposeCallback(tEl, () => {
+            element.setRootElement(undefined);
+          });
+        }
+      }
+    });
   }
   public get matrix(): QuestionMatrixDropdownModel { return <QuestionMatrixDropdownModel>this.question; }
   private cellAfterRender(elements: any, con: any) {

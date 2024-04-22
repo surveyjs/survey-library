@@ -69,6 +69,7 @@ export var persianSurveyStrings = {
   savingData: "نتایج در حال ذخیره سازی در سرور است",
   savingDataError: "خطایی در ذخیره سازی نتایج رخ داده است",
   savingDataSuccess: "نتایج با موفقیت ذخیره شد",
+  savingExceedSize: "پاسخ شما بیش از 64KB است. لطفا اندازه فایل(های) خود را کاهش دهید و دوباره تلاش کنید یا با صاحب نظرسنجی تماس بگیرید.",
   saveAgainButton: "مجدد تلاش کنید",
   timerMin: "دقیقه",
   timerSec: "ثانیه",
@@ -80,6 +81,7 @@ export var persianSurveyStrings = {
   timerLimitSurvey: "شما مدت {0} از {1} را در مجموع سپری کرده اید.",
   clearCaption: "خالی کردن",
   signaturePlaceHolder: "اینجا را امضا کنید",
+  signaturePlaceHolderReadOnly: "بدون امضا",
   chooseFileCaption: "انتخاب فایل",
   takePhotoCaption: "گرفتن عکس",
   photoPlaceholder: "روی دکمه زیر کلیک کنید تا با استفاده از دوربین عکس بگیرید.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["fa"] = "فارْسِى";
 // ok: "OK" => "باشه"
 // cancel: "Cancel" => "لغو"
 // refuseItemText: "Refuse to answer" => "امتناع از پاسخ دادن"
-// dontKnowItemText: "Don't know" => "نمی دانم"
+// dontKnowItemText: "Don't know" => "نمی دانم"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "پاسخ شما بیش از 64KB است. لطفا اندازه فایل(های) خود را کاهش دهید و دوباره تلاش کنید یا با صاحب نظرسنجی تماس بگیرید."
+// signaturePlaceHolderReadOnly: "No signature" => "بدون امضا"

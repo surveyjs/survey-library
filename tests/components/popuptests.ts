@@ -1653,13 +1653,13 @@ class TestAnimation extends AnimationUtils {
   public logger: { log: string };
   public passedEnterClass: string;
   public passedLeaveClass: string;
-  public onEnter(getElement: () => HTMLElement, options: AnimationOptions): void {
+  public onEnter(options: PopupBaseViewModel): void {
     this.logger.log += "->onEnter";
-    this.passedEnterClass = options.cssClass;
+    this.passedEnterClass = options.getEnterOptions().cssClass;
   }
-  public onLeave(element: () => HTMLElement, callback: () => void, options: AnimationOptions): void {
+  public onLeave(options: PopupBaseViewModel, callback: () => void): void {
     this.logger.log += "->onLeave";
-    this.passedLeaveClass = options.cssClass;
+    this.passedLeaveClass = options.getLeaveOptions().cssClass;
     callback();
   }
 }

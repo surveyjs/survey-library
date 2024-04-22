@@ -69,6 +69,7 @@ export var swedishSurveyStrings = {
   savingData: "Resultaten sparas på servern ...",
   savingDataError: "Ett fel inträffade och vi kunde inte spara resultaten.",
   savingDataSuccess: "Resultaten lyckades sparas!",
+  savingExceedSize: "Ditt svar överskrider 64 kB. Minska storleken på dina filer och försök igen eller kontakta en undersökningsägare.",
   saveAgainButton: "Försök igen",
   timerMin: "min",
   timerSec: "sek",
@@ -80,6 +81,7 @@ export var swedishSurveyStrings = {
   timerLimitSurvey: "Du har spenderat {0} av {1} totalt.",
   clearCaption: "Klar",
   signaturePlaceHolder: "Signera här",
+  signaturePlaceHolderReadOnly: "Ingen signatur",
   chooseFileCaption: "Välj fil",
   takePhotoCaption: "Ta foto",
   photoPlaceholder: "Klicka på knappen nedan för att ta ett foto med kameran.",
@@ -126,4 +128,5 @@ surveyLocalization.localeNames["sv"] = "svenska";
 // ok: "OK" => "OKEJ"
 // cancel: "Cancel" => "Annullera"
 // refuseItemText: "Refuse to answer" => "Vägra svara"
-// dontKnowItemText: "Don't know" => "Vet inte"
+// dontKnowItemText: "Don't know" => "Vet inte"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ditt svar överskrider 64 kB. Minska storleken på dina filer och försök igen eller kontakta en undersökningsägare."
+// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"

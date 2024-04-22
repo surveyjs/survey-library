@@ -69,6 +69,7 @@ export var estonianSurveyStrings = {
   savingData: "Salvestan andmed serveris...",
   savingDataError: "Tekkis viga ning me ei saanud vastuseid salvestada.",
   savingDataSuccess: "Vastuste salvestamine õnnestus!",
+  savingExceedSize: "Teie vastus ületab 64 KB. Vähendage faili(de) mahtu ja proovige uuesti või võtke ühendust uuringu omanikuga.",
   saveAgainButton: "Proovi uuesti",
   timerMin: "min",
   timerSec: "sek",
@@ -80,6 +81,7 @@ export var estonianSurveyStrings = {
   timerLimitSurvey: "Oled kulutanud {0} võimalikust {1} koguajast.",
   clearCaption: "Puhasta",
   signaturePlaceHolder: "Allkirjasta siin",
+  signaturePlaceHolderReadOnly: "Allkiri puudub",
   chooseFileCaption: "Vali fail",
   takePhotoCaption: "Pildistamine",
   photoPlaceholder: "Kaamera abil pildistamiseks klõpsake allolevat nuppu.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["et"] = "eesti keel";
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Tühistama"
 // refuseItemText: "Refuse to answer" => "Keeldu vastamast"
-// dontKnowItemText: "Don't know" => "Ei tea"
+// dontKnowItemText: "Don't know" => "Ei tea"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Teie vastus ületab 64 KB. Vähendage faili(de) mahtu ja proovige uuesti või võtke ühendust uuringu omanikuga."
+// signaturePlaceHolderReadOnly: "No signature" => "Allkiri puudub"

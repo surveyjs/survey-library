@@ -793,7 +793,7 @@ QUnit.test("base.resetPropertyValue() for localization string, #2, bug#7388", fu
   assert.equal(survey.completeText, "Complete", "default value en");
 });
 
-QUnit.only("check animationAllowed", function (assert) {
+QUnit.test("check animationAllowed", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {

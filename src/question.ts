@@ -2028,7 +2028,7 @@ export class Question extends SurveyElement<Question>
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     objects.push({
-      name: this.getValueName(),
+      name: this.getFilteredName(),
       text: this.processedTitle,
       question: this,
     });

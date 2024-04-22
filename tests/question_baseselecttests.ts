@@ -714,7 +714,7 @@ QUnit.test("checkbox vs valuePropertyName, use in expression", (assert) => {
       {
         type: "text",
         name: "q2",
-        visibleIf: "{q1#value} allof ['apple', 'orange']"
+        visibleIf: "{q1-unwrapped} allof ['apple', 'orange']"
       }
     ]
   });

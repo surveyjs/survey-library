@@ -591,7 +591,7 @@ frameworks.forEach(framework => {
           {
             name: "name",
             type: "text",
-            title: "Text long  long long long long long long long long long long long long long long",
+            title: "Text long long long long long long long long long long long long long long long",
             placeHolder: "Jon Snow",
             isRequired: true
           }

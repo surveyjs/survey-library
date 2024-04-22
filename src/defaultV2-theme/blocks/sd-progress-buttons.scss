@@ -277,3 +277,28 @@
   width: 100%;
   margin: auto;
 }
+
+[dir="rtl"],
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
+
+  .sd-progress-buttons__list {
+    li {
+      &:not(:first-child)>.sd-progress-buttons__connector {
+        right: unset;
+        left: calc(50% + 4px);
+      }
+    }
+  }
+
+  .sd-progress-buttons--numbered {
+    .sd-progress-buttons__list {
+      li {
+        &:not(:first-child)>.sd-progress-buttons__connector {
+          right: unset;
+          left: calc(50% + 8px);
+        }
+      }
+    }
+  }
+}

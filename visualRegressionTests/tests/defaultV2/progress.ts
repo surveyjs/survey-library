@@ -345,4 +345,18 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-progress-bar-top-survey-width-static-1400.png", Selector(".sd-container-modern"), t, comparer);
     });
   });
+  test("Check survey with progress top - RTL", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "rtl");
+      })();
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await takeElementScreenshot("survey-progress-bar-top-rtl.png", Selector(".sd-container-modern"), t, comparer); // title + progress
+    });
+  });
 });

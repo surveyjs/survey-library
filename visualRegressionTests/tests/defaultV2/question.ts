@@ -591,7 +591,7 @@ frameworks.forEach(framework => {
           {
             name: "name",
             type: "text",
-            title: "Text long  long long long long long long long long long long long long long long",
+            title: "Text long long long long long long long long long long long long long long long",
             placeHolder: "Jon Snow",
             isRequired: true
           }
@@ -1075,4 +1075,29 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-multicolumn-overflow.png", question, t, comparer);
     });
   });
+  test("Question title linebreak", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question2",
+                "title": "Line\nbreak",
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "650"
+      });
+      const question = Selector(".sd-question");
+      await takeElementScreenshot("question-title-linebreak.png", question, t, comparer);
+    });
+  });
+
 });

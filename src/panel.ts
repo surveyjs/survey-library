@@ -115,13 +115,16 @@ export class QuestionRowModel extends Base {
   public get elements(): Array<IElement> {
     return this.getPropertyValue("elements");
   }
+  protected getIsAnimationAllowed(): boolean {
+    return super.getIsAnimationAllowed() && this.visible && this.panel?.animationAllowed;
+  }
   private getVisibleElementsAnimationOptions(): IAnimationConsumer<[IElement]> {
     const beforeRunAnimation = (el: HTMLElement) => {
       el.style.setProperty("--animation-height", el.offsetHeight + "px");
       el.style.setProperty("--animation-width", getElementWidth(el) + "px");
     };
     return {
-      isAnimationEnabled: () => this.panel?.animationAllowed && this.visible,
+      isAnimationEnabled: () => this.animationAllowed,
       getAnimatedElement: (element: IElement) => (element as any as SurveyElement).getWrapperElement(),
       getLeaveOptions: (element: IElement) => {
         const surveyElement = element as unknown as SurveyElement;
@@ -374,13 +377,13 @@ export class PanelModelBase extends SurveyElement<Question>
     return "panelbase";
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
-    this.animationAllowed = false;
+    this.blockAnimations();
     super.setSurveyImpl(value, isLight);
     if (this.isDesignMode) this.onVisibleChanged();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].setSurveyImpl(value, isLight);
     }
-    this.animationAllowed = true;
+    this.releaseAnimations();
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
@@ -1109,13 +1112,13 @@ export class PanelModelBase extends SurveyElement<Question>
     return new QuestionRowModel(this);
   }
   public onSurveyLoad(): void {
-    this.animationAllowed = false;
+    this.blockAnimations();
     super.onSurveyLoad();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onSurveyLoad();
     }
     this.onElementVisibilityChanged(this);
-    this.animationAllowed = true;
+    this.releaseAnimations();
   }
   public onFirstRendering(): void {
     super.onFirstRendering();
@@ -1145,9 +1148,9 @@ export class PanelModelBase extends SurveyElement<Question>
 
   protected onRowsChanged() {
     if (this.isLoadingFromJson) return;
-    this.animationAllowed = false;
+    this.blockAnimations();
     this.setArrayPropertyDirectly("rows", this.buildRows());
-    this.animationAllowed = true;
+    this.releaseAnimations();
   }
 
   private locCountRowUpdates = 0;

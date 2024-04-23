@@ -354,7 +354,7 @@ QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
 
   dragStartTargetNode.remove();
 });
-QUnit.test("Ranking: isItemSelected() returns always false for optimization", function(assert) {
+QUnit.test("Ranking: isItemSelected() returns always true for optimization", function(assert) {
   let result;
   let dragStartTargetNode;
 
@@ -368,9 +368,9 @@ QUnit.test("Ranking: isItemSelected() returns always false for optimization", fu
     ],
   });
   const rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q1");
-  assert.equal(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), false, "#1");
+  assert.equal(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), true, "#1");
   rankingQuestion.value = ["b", "c", "a"];
-  assert.equal(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), false, "#2");
+  assert.equal(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), true, "#2");
 });
 
 QUnit.test("Ranking: separateSpecialChoices ", function (assert) {
@@ -459,6 +459,33 @@ QUnit.test("Ranking: disabledItem", function(assert) {
 
   assert.equal(rankingQuestion.canStartDragDueItemEnabled(disabledItem), false, "can't start drag disabled item");
   assert.equal(rankingQuestion.getItemTabIndex(disabledItem), undefined, "can't move disabled item via keyboard");
+});
+
+QUnit.test("Ranking: disabledItem with selectToRank and maxSelectedChoices", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        selectToRankEnabled: true,
+        choices: [
+          "a",
+          "b",
+          "c"
+        ],
+        maxSelectedChoices: 1,
+        defaultValue: ["a"]
+      }
+    ]
+  });
+  const rankingQuestion = survey.getQuestionByName("q1");
+  const rankedItem = rankingQuestion.rankingChoices[0];
+
+  assert.equal(
+    rankingQuestion.canStartDragDueItemEnabled(rankedItem),
+    true,
+    "should be able to start drag rankedItem item for uranking action"
+  );
 });
 
 // selectToRankEnabled

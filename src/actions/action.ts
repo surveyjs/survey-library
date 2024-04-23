@@ -175,10 +175,9 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     listOptions.onFilterStringChangedCallback
   );
   listModel.locOwner = locOwner;
-  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title, () => {
-    listModel.dispose();
-  });
-  innerPopupModel.displayMode = popupOptions?.displayMode as any;
+  const options = popupOptions || {};
+  options.onDispose = () => { listModel.dispose(); };
+  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, options);
 
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
@@ -202,7 +201,7 @@ export function getActionDropdownButtonTarget(container: HTMLElement): HTMLEleme
 
 export abstract class BaseAction extends Base implements IAction {
   private static renderedId = 1;
-  private static getNextRendredId(): number { return BaseAction.renderedId ++; }
+  private static getNextRendredId(): number { return BaseAction.renderedId++; }
   private cssClassesValue: any;
   private rendredIdValue = BaseAction.getNextRendredId();
   private ownerValue: ILocalizableOwner;

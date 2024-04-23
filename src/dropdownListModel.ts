@@ -4,7 +4,7 @@ import { DomDocumentHelper } from "./global_variables_utils";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { ListModel } from "./list";
-import { PopupModel } from "./popup";
+import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionDropdownModel } from "./question_dropdown";
 import { settings } from "./settings";
@@ -87,7 +87,8 @@ export class DropdownListModel extends Base {
   }
 
   protected createPopup(): void {
-    this._popupModel = new PopupModel("sv-list", { model: this.listModel }, "bottom", "center", false);
+    const popupOptions: IPopupOptionsBase = { verticalPosition: "bottom", horizontalPosition: "center", showPointer: false };
+    this._popupModel = new PopupModel("sv-list", { model: this.listModel }, popupOptions);
     this._popupModel.displayMode = IsTouch ? "overlay" : "popup";
     this._popupModel.positionMode = "fixed";
     this._popupModel.isFocusedContainer = false;
@@ -152,7 +153,6 @@ export class DropdownListModel extends Base {
   protected onHidePopup(): void {
     this.resetFilterString();
     this.question.suggestedItem = null;
-    this.listModel.refresh();
   }
 
   protected getAvailableItems(): Array<ItemValue> {

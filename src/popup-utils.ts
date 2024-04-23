@@ -1,25 +1,17 @@
 import { DomDocumentHelper } from "./global_variables_utils";
-import { IDialogOptions, PopupModel } from "./popup";
+import { IDialogOptions, IPopupOptionsBase, PopupModel } from "./popup";
 import { PopupDropdownViewModel } from "./popup-dropdown-view-model";
 import { PopupModalViewModel } from "./popup-modal-view-model";
 import { PopupBaseViewModel } from "./popup-view-model";
 
 export function createPopupModalViewModel(options: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
-  const popupModel = new PopupModel(
-    options.componentName,
-    options.data,
-    "top",
-    "left",
-    false,
-    true,
-    options.onCancel,
-    options.onApply,
-    options.onHide,
-    options.onShow,
-    options.cssClass,
-    options.title
-  );
-  popupModel.displayMode = options.displayMode || "popup";
+  const popupOptions: IPopupOptionsBase = { ...options };
+  popupOptions.verticalPosition = "top";
+  popupOptions.horizontalPosition = "left";
+  popupOptions.showPointer = false;
+  popupOptions.isModal = true;
+  popupOptions.displayMode = options.displayMode || "popup";
+  const popupModel = new PopupModel(options.componentName, options.data, popupOptions);
   popupModel.isFocusedContent = options.isFocusedContent ?? true;
   const popupViewModel: PopupBaseViewModel = new PopupModalViewModel(popupModel);
   if(!!rootElement && !!rootElement.appendChild) {

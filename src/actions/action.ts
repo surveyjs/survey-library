@@ -377,12 +377,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private createLocTitle(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
-  public setItems(items: Array<IAction>) {
+  public setItems(items: Array<IAction>, onSelectionChanged: (item: Action, ...params: any[]) => void): void {
     this.component = "sv-list-item-group";
     const { innerPopupModel, listModel }: { innerPopupModel: PopupModel<any>, listModel: ListModel<Action> } =
       createPopupModelWithListModel(
-        { items: items, onSelectionChanged: (item: Action, ...params: any[]) => { !!this.action && this.action(); } },
-        { verticalPosition: "bottom", horizontalPosition: "left" });
+        { items: items, onSelectionChanged: onSelectionChanged },
+        { horizontalPosition: "right", showPointer: false }
+      );
     innerPopupModel.cssClass = "sv-popup-inner";
     this.popupModel = innerPopupModel;
   }
@@ -402,11 +403,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() private _enabled: boolean;
   @property() action: (context?: any, isUserAction?: boolean) => void;
   @property() _component: string;
-  @property({
-    onSet: (val, target) => {
-      target.setItems(val);
-    }
-  }) items: any;
+  @property() items: any;
   @property({
     onSet: (val, target) => {
       if (target.locTitleValue.text === val) return;

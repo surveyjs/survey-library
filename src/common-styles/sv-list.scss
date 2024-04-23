@@ -134,7 +134,7 @@
 .sv-list__item.sv-list__item--selected.sv-list__item--focused,
 .sv-multi-select-list .sv-list__item.sv-list__item--selected.sv-list__item--focused,
 li:focus .sv-list__item.sv-list__item--selected {
-  .sv-list__item-body {
+  & > .sv-list__item-body {
     background-color: $primary;
     color: $primary-foreground;
     font-weight: 600;

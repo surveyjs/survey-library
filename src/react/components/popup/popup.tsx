@@ -72,7 +72,6 @@ ReactElementFactory.Instance.registerElement(
 );
 
 export class PopupContainer extends SurveyElementBase<any, any> {
-  public prevIsVisible: boolean = false;
   constructor(props: any) {
     super(props);
   }
@@ -90,10 +89,9 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   };
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
-    if (!this.prevIsVisible && this.model.isVisible) {
+    if (!this.model.isPositionSet && this.model.isVisible) {
       this.model.updateOnShowing();
     }
-    this.prevIsVisible = this.model.isVisible;
   }
   renderContainer(popupBaseViewModel: PopupBaseViewModel): JSX.Element {
     const headerPopup = popupBaseViewModel.showHeader ? this.renderHeaderPopup(popupBaseViewModel) : null;

@@ -65,7 +65,6 @@ import { BaseVue } from "../../base";
 @Component
 export class PopupContainer extends BaseVue {
   @Prop() model: PopupBaseViewModel;
-  private prevIsVisible: boolean;
   protected getModel() {
     return this.model;
   }
@@ -73,10 +72,9 @@ export class PopupContainer extends BaseVue {
     event.stopPropagation();
   }
   onUpdated() {
-    if (!this.prevIsVisible && this.model.isVisible) {
+    if (!this.model.isPositionSet && this.model.isVisible) {
       this.model.updateOnShowing();
     }
-    this.prevIsVisible = this.model.isVisible;
   }
 }
 // replace to showDialog then delete

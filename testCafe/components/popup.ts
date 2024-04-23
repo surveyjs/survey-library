@@ -120,6 +120,25 @@ frameworks.forEach(async framework => {
     await t.expect(popupSelector.exists).notOk();
   });
 
+  test("check ordinary popup when isVisible is changed twice", async t => {
+    await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownTitleAction });
+
+    await t
+      .click(clickButton)
+      .expect(popupSelector.visible).ok();
+    await ClientFunction(() => {
+      const action = (window as any).survey.getAllQuestions()[0].titleActions[0];
+      action.action();
+      action.action();
+    })();
+
+    let popupClientRect = await getElementClientRect(".sv-popup__container");
+    let itemClientRect = await getElementClientRect(".sv-action-bar-item");
+    await t
+      .expect(Math.round(itemClientRect.left) - 8 - Math.round(popupClientRect.width)).eql(Math.round(popupClientRect.left))
+      .expect(Math.round(itemClientRect.top)).eql(Math.round(popupClientRect.top));
+  });
+
   test("check showPointer popup position", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownTitleAction });
     await ClientFunction(selector => {

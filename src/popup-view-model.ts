@@ -36,8 +36,8 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   private visibilityAnimation: AnimationBoolean = new AnimationBoolean(this, (val) => {
     if(this._isVisible !== val) {
       if(!val) {
-        this.updateOnHiding();
         this.updateIsVisible(val);
+        this.updateOnHiding();
       }
       else {
         this.updateIsVisible(val);
@@ -230,6 +230,10 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
       this.focusContainer();
     }
   }
+  protected _isPositionSetValue: boolean = false;
+  public get isPositionSet(): boolean {
+    return this._isPositionSetValue;
+  }
 
   public updateOnShowing(): void {
     this.prevActiveElement = <HTMLElement>settings.environment.root.activeElement;
@@ -239,12 +243,14 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     }
 
     this.switchFocus();
+    this._isPositionSetValue = true;
   }
 
   public updateOnHiding(): void {
     if (this.isFocusedContent && this.prevActiveElement) {
       this.prevActiveElement.focus();
     }
+    this._isPositionSetValue = false;
   }
   private focusContainer() {
     if (!this.container) return;

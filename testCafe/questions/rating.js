@@ -223,4 +223,61 @@ frameworks.forEach((framework) => {
       });
     });
   });
+  frameworks.forEach(framework => {
+    fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+      async t => {
+        await initSurvey(framework, {
+          "logoPosition": "right",
+          "pages": [
+            {
+              "name": "page1",
+              "elements": [
+                {
+                  "type": "matrixdropdown",
+                  "name": "question1",
+                  "columns": [
+                    {
+                      "name": "col1",
+                      "cellType": "rating",
+                      "rateType": "stars"
+                    },
+                  ],
+                  "choices": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "rows": [
+                    "row1",
+                    "row2"
+                  ]
+                }
+              ]
+            }
+          ]
+        });
+      }
+    );
+
+    test("check keynavigation inside matrixdropdown", async t => {
+      await t
+        .pressKey("tab")
+        .pressKey("right")
+        .pressKey("tab")
+        .pressKey("right")
+        .pressKey("right");
+
+      await t.click("input[value=Complete]");
+      const surveyResult = await getSurveyResult();
+
+      await t.expect(surveyResult).eql({
+        question1: {
+          row1: { col1: 2 },
+          row2: { col1: 3 }
+        }
+      });
+    });
+  });
 });

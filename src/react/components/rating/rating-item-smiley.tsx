@@ -18,7 +18,7 @@ export class RatingItemSmiley extends RatingItemBase {
         <input
           type="radio"
           className="sv-visuallyhidden"
-          name={this.question.name}
+          name={this.question.questionName}
           id={this.question.getInputId(this.index)}
           value={this.item.value}
           disabled={this.isDisplayMode}

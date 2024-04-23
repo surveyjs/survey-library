@@ -9,7 +9,7 @@
     <input
       type="radio"
       class="sv-visuallyhidden"
-      :name="question.name"
+      :name="question.questionName"
       :id="question.getInputId(index)"
       :value="item.value"
       :disabled="question.isInputReadOnly"

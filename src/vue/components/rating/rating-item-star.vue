@@ -2,7 +2,7 @@
   <label :key="item.value" @mousedown="question.onMouseDown()" :class="question.getItemClass(item.itemValue)"
   @mouseover="(e) => question.onItemMouseIn(item)"
   @mouseleave="(e) => question.onItemMouseOut(item)">
-    <input type="radio" class="sv-visuallyhidden" :name="question.name" :id="question.getInputId(index)"
+    <input type="radio" class="sv-visuallyhidden" :name="question.questionName" :id="question.getInputId(index)"
       :value="item.value" :disabled="question.isInputReadOnly" @click="(e) => question.setValueFromClick(e.target.value)"
       :aria-required="question.ariaRequired" :aria-label="question.ariaLabel" :aria-invalid="question.ariaInvalid"
       :aria-errormessage="question.ariaErrormessage" />

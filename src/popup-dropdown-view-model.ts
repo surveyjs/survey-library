@@ -68,9 +68,17 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       verticalPosition = PopupUtils.updateVerticalPosition(
         targetElementRect,
         height,
+        this.model.horizontalPosition,
         this.model.verticalPosition,
-        this.model.showPointer,
         DomWindowHelper.getInnerHeight()
+      );
+
+      actualHorizontalPosition = PopupUtils.updateHorizontalPosition(
+        targetElementRect,
+        width,
+        this.model.horizontalPosition,
+        this.model.verticalPosition,
+        DomWindowHelper.getInnerWidth()
       );
     }
     this.popupDirection = PopupUtils.calculatePopupDirection(
@@ -83,7 +91,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       width + marginLeft + marginRight,
       verticalPosition,
       actualHorizontalPosition,
-      this.showHeader,
       this.model.positionMode
     );
 

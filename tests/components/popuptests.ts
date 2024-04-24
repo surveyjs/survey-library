@@ -1614,7 +1614,7 @@ QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
   container.remove();
 });
 QUnit.test("PopupModel into modal window with translate/transform", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center");
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center" });
   const targetElement: HTMLElement = document.createElement("button");
 
   targetElement.style.position = "absolute";
@@ -1746,7 +1746,7 @@ QUnit.test("PopupViewModel: check popupViewModel is working correctly when shoul
 
 QUnit.test("PopupViewModel: check getShouldRunAnimation method", (assert) => {
   settings.animationEnabled = true;
-  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center");
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center" });
   const viewModel: TestAnimationPopupViewModel = new TestAnimationPopupViewModel(model);
   assert.ok(viewModel.isAnimationEnabled());
   model.displayMode = "overlay";

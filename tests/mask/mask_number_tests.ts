@@ -125,6 +125,9 @@ QUnit.test("get numeric masked valid text", function(assert) {
   assert.equal(maskInstance.getMaskedValue(123456), "123,456");
   assert.equal(maskInstance.getMaskedValue(123456.78), "123,456.78");
   assert.equal(maskInstance.getMaskedValue(123456.789), "123,456.78");
+
+  assert.equal(maskInstance.getMaskedValue("123456.78"), "123,456.78");
+  assert.equal(maskInstance.getMaskedValue("123456.789"), "123,456.78");
 });
 
 QUnit.test("get numeric masked invalid text", function(assert) {

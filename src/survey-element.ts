@@ -1093,7 +1093,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         if(cssClasses.content) {
           const selector = classesToSelector(cssClasses.content);
           if(selector) {
-            return this.getWrapperElement()?.querySelector(selector);
+            return this.getWrapperElement()?.querySelector(`:scope ${selector}`);
           }
         }
         return undefined;

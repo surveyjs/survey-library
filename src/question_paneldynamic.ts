@@ -625,7 +625,7 @@ export class QuestionPanelDynamicModel extends Question
       getAnimatedElement: (panel) => {
         if(panel && this.cssContent) {
           const contentSelector = classesToSelector(this.cssContent);
-          return this.getWrapperElement()?.querySelector(`${contentSelector} #${panel.id}`)?.parentElement;
+          return this.getWrapperElement()?.querySelector(`:scope ${contentSelector} #${panel.id}`)?.parentElement;
         }
       },
       getEnterOptions: () => {

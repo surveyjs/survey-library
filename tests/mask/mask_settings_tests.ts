@@ -4,6 +4,7 @@ import { InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { InputMaskCurrency } from "../../src/mask/mask_currency";
 import { QuestionTextModel } from "../../src/question_text";
 import { Serializer } from "../../src/jsonobject";
+import { SurveyModel } from "../../src/survey";
 
 export default QUnit.module("Question text: Input mask");
 
@@ -219,4 +220,27 @@ QUnit.test("isNumeric", function (assert) {
   assert.equal(q.maskSettings.getTextAlignment(), "right");
 
   Serializer.removeClass("integermask");
+});
+
+QUnit.test("isNumeric: load form data", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "puslapis1",
+        elements: [
+          {
+            type: "text",
+            name: "klausimas298",
+            maskType: "numeric",
+            maskSettings: { decimalSeparator: ",", thousandsSeparator: " " },
+          },
+        ],
+      },
+    ],
+  });
+  survey.data = { klausimas298: "10000.99" };
+  const q = survey.getQuestionByName("klausimas298") as QuestionTextModel;
+
+  assert.equal(q.value, "10000.99");
+  assert.equal(q.inputValue, "10 000,99");
 });

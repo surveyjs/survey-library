@@ -234,13 +234,22 @@ QUnit.test("isNumeric: load form data", function (assert) {
             maskType: "numeric",
             maskSettings: { decimalSeparator: ",", thousandsSeparator: " " },
           },
+          {
+            type: "text",
+            name: "klausimas",
+            maskType: "numeric",
+            maskSettings: { decimalSeparator: ",", thousandsSeparator: " " },
+          },
         ],
       },
     ],
   });
-  survey.data = { klausimas298: "10000.99" };
-  const q = survey.getQuestionByName("klausimas298") as QuestionTextModel;
+  survey.data = { klausimas298: "10000.99", klausimas: 10000.99 };
+  const q1 = survey.getQuestionByName("klausimas298") as QuestionTextModel;
+  const q2 = survey.getQuestionByName("klausimas") as QuestionTextModel;
 
-  assert.equal(q.value, "10000.99");
-  assert.equal(q.inputValue, "10 000,99");
+  assert.equal(q1.value, "10000.99");
+  assert.equal(q1.inputValue, "10 000,99");
+  assert.equal(q2.value, "10000.99");
+  assert.equal(q2.inputValue, "10 000,99");
 });

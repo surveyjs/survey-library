@@ -323,6 +323,7 @@
     padding-bottom: 0;
     transform: translateX(#{$pd-tab-move-margin});
     height: var(--animation-height-from);
+    --animation-padding-top: 0;
     --animation-padding-bottom: calc(1 * var(--sd-base-padding));
 }
 .sd-paneldynamic__panel-wrapper--fade-in-left {
@@ -356,6 +357,7 @@
 .sd-paneldynamic__panel-wrapper--fade-out {
     animation-name: fadeIn, moveInWithOverflow, paddingFadeIn;
     animation-fill-mode: forwards;
+    --animation-padding-top: 0;
     --animation-padding-bottom: calc(1 * var(--sd-base-padding));
     min-height: 0 !important;
 }

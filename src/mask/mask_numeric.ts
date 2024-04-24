@@ -171,12 +171,9 @@ export class InputMaskNumeric extends InputMaskBase {
     return true;
   }
 
-  public parseNumber(src: string | number): INumericalComposition {
+  public parseNumber(src: string): INumericalComposition {
     const result: INumericalComposition = { integralPart: "", fractionalPart: "", hasDecimalSeparator: false, isNegative: false };
-    let input = (src === undefined || src === null) ? "" : src.toString();
-    if(typeof src === "number") {
-      input = src.toString().replace(".", this.decimalSeparator);
-    }
+    const input = (src === undefined || src === null) ? "" : src.toString();
     let minusCharCount = 0;
 
     for(let inputIndex = 0; inputIndex < input.length; inputIndex++) {
@@ -218,9 +215,8 @@ export class InputMaskNumeric extends InputMaskBase {
     return result;
   }
 
-  public getNumberMaskedValue(src: string | number, matchWholeMask: boolean = false): string {
-    const input = (src === undefined || src === null) ? "" : src;
-    const parsedNumber = this.parseNumber(input);
+  public getNumberMaskedValue(src: string, matchWholeMask: boolean = false): string {
+    const parsedNumber = this.parseNumber(src);
     if (!this.validateNumber(parsedNumber, matchWholeMask)) {
       return null;
     }
@@ -237,7 +233,9 @@ export class InputMaskNumeric extends InputMaskBase {
     return "right";
   }
   public getMaskedValue(src: any): string {
-    return this.getNumberMaskedValue(src, true);
+    let input: string = (src === undefined || src === null) ? "" : src.toString();
+    input = input.replace(".", this.decimalSeparator);
+    return this.getNumberMaskedValue(input, true);
   }
   public getUnmaskedValue(src: string): any {
     return this.getNumberUnmaskedValue(src);

@@ -20,13 +20,9 @@ QUnit.test("splitString", assert => {
 
 QUnit.test("parseNumber", assert => {
   const maskInstance = new InputMaskNumeric();
-  assert.equal(maskInstance.parseNumber(123).integralPart, 123);
-  assert.equal(maskInstance.parseNumber(123).fractionalPart, 0);
   assert.equal(maskInstance.parseNumber("123").integralPart, 123);
   assert.equal(maskInstance.parseNumber("123").fractionalPart, 0);
 
-  assert.equal(maskInstance.parseNumber(123.45).integralPart, 123);
-  assert.equal(maskInstance.parseNumber(123.45).fractionalPart, 45);
   assert.equal(maskInstance.parseNumber("123.45").integralPart, 123);
   assert.equal(maskInstance.parseNumber("123.45").fractionalPart, 45);
 
@@ -125,10 +121,13 @@ QUnit.test("validationNumber: matchWholeMask is false - both limits", function (
 
 QUnit.test("get numeric masked valid text", function(assert) {
   const maskInstance = new InputMaskNumeric();
-  assert.equal(maskInstance.getNumberMaskedValue(123), "123");
-  assert.equal(maskInstance.getNumberMaskedValue(123456), "123,456");
-  assert.equal(maskInstance.getNumberMaskedValue(123456.78), "123,456.78");
-  assert.equal(maskInstance.getNumberMaskedValue(123456.789), "123,456.78");
+  assert.equal(maskInstance.getMaskedValue(123), "123");
+  assert.equal(maskInstance.getMaskedValue(123456), "123,456");
+  assert.equal(maskInstance.getMaskedValue(123456.78), "123,456.78");
+  assert.equal(maskInstance.getMaskedValue(123456.789), "123,456.78");
+
+  assert.equal(maskInstance.getMaskedValue("123456.78"), "123,456.78");
+  assert.equal(maskInstance.getMaskedValue("123456.789"), "123,456.78");
 });
 
 QUnit.test("get numeric masked invalid text", function(assert) {
@@ -694,8 +693,6 @@ QUnit.test("parseNumber with custom settings", assert => {
   const maskInstance = new InputMaskNumeric();
   maskInstance.setData(customMaskSettings);
 
-  assert.equal(maskInstance.parseNumber(123.45).integralPart, 123);
-  assert.equal(maskInstance.parseNumber(123.45).fractionalPart, 45);
   assert.equal(maskInstance.parseNumber("123,45").integralPart, 123);
   assert.equal(maskInstance.parseNumber("123,45").fractionalPart, 45);
 

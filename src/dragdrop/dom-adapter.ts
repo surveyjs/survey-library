@@ -249,13 +249,17 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     }
 
     const repeat = () => {
-      if (clientY - top <= startScrollBoundary) {
+      const isTop = clientY - top <= startScrollBoundary;
+      const isBottom = bottom - clientY <= startScrollBoundary;
+      const isLeft = clientX - left <= startScrollBoundary;
+      const isRight = right - clientX <= startScrollBoundary;
+      if (isTop && !isLeft && !isRight) {
         scrollableParentNode.scrollTop -= 15;
-      } else if (bottom - clientY <= startScrollBoundary) {
+      } else if (isBottom && !isLeft && !isRight) {
         scrollableParentNode.scrollTop += 15;
-      } else if (right - clientX <= startScrollBoundary) {
+      } else if (isRight && !isTop && !isBottom) {
         scrollableParentNode.scrollLeft += 15;
-      } else if (clientX - left <= startScrollBoundary) {
+      } else if (isLeft && !isTop && !isBottom) {
         scrollableParentNode.scrollLeft -= 15;
       }
       this.scrollIntervalId = requestAnimationFrame(repeat);

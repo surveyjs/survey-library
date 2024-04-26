@@ -10,7 +10,7 @@
     <component
       v-for="(error, index) in element.errors"
       :is="element.survey['questionErrorComponent']"
-      :key="'error_' + index"
+      :errorKey="'error_' + index"
       :error="error"
       :cssClasses="element.cssClasses"
     />

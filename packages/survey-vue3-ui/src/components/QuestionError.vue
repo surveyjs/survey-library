@@ -1,5 +1,5 @@
 <template>
-    <div :key="key">
+    <div :key="errorKey">
       <span
         :class="
           cssClasses
@@ -23,7 +23,7 @@
 <script lang="ts" setup>
 import { SurveyError } from "survey-core";
 const props = defineProps<{
-  key: string;
+  errorKey: string;
   error: SurveyError;
   cssClasses: any;
 }>();

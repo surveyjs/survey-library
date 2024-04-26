@@ -1,5 +1,5 @@
 <template>
-    <div :key="key">
+    <div :key="errorKey">
       <span
         :class="cssClasses ? cssClasses.error.icon || undefined : 'panel-error-icon'"
         aria-hidden="true"
@@ -19,7 +19,7 @@ import { SurveyError } from "survey-core";
 
 @Component
 export class QuestionError extends Vue {
-  @Prop() key: string;
+  @Prop() errorKey: string;
   @Prop() error: SurveyError;
   @Prop() cssClasses: any;
   constructor() {

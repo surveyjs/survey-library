@@ -1,4 +1,4 @@
-import { Question } from "../src/question";
+import { Question, IConditionObject } from "../src/question";
 import { PanelModel } from "../src/panel";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyModel } from "../src/survey";
@@ -1621,11 +1621,13 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
         name: "panel.q2.item1",
         text: "panel.Question 2.item1",
         question: "q2",
+        context: "qPanel"
       },
       {
         name: "panel.q2.item2",
         text: "panel.Question 2.item2",
         question: "q2",
+        context: "qPanel"
       },
     ],
     "addConditionObjectsByContext work correctly for panel dynamic with context"
@@ -1697,11 +1699,13 @@ QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMax
         name: "panel.q2.item1",
         text: "panel.Question 2.item1",
         question: "q2",
+        context: "qPanel"
       },
       {
         name: "panel.q2.item2",
         text: "panel.Question 2.item2",
         question: "q2",
+        context: "qPanel"
       },
     ],
     "addConditionObjectsByContext work correctly for panel dynamic with context"
@@ -1770,11 +1774,13 @@ QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMax
         name: "panel.q2.item1",
         text: "panel.Question 2.item1",
         question: "q2",
+        context: "qPanel"
       },
       {
         name: "panel.q2.item2",
         text: "panel.Question 2.item2",
         question: "q2",
+        context: "qPanel"
       },
     ],
     "addConditionObjectsByContext work correctly for panel dynamic with context"
@@ -1806,6 +1812,52 @@ QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMax
     "addConditionObjectsByContext work correctly for panel dynamic with context equals true"
   );
   settings.panelDynamicMaxPanelCountInCondition = 1;
+});
+QUnit.test("panelDynamic.addConditionObjectsByContext + nested dynamic panel + context", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "question1",
+        "title": "parent dynamic panel",
+        "templateElements": [
+          {
+            "type": "paneldynamic",
+            "name": "question2",
+            "title": "nested dynamic panel",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question3",
+                "title": "nq1"
+              },
+              {
+                "type": "text",
+                "name": "question4",
+                "title": "nq2"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "name": "question5",
+            "title": "pq1"
+          }
+        ]
+      }
+    ]
+  });
+  const rootPanel = survey.getQuestionByName("question1");
+  const nestedPanel = rootPanel.template.getQuestionByName("question2");
+  const question3 = nestedPanel.template.getQuestionByName("question3");
+  const objs: IConditionObject[] = [];
+  rootPanel.addConditionObjectsByContext(objs, question3);
+  assert.equal(objs.length, 4, "There should be 4 elements");
+  assert.equal(objs[0].name, "question1[0].question2[0].question3", "value #0");
+  assert.equal(objs[1].name, "question1[0].question2[0].question4", "value #1");
+  assert.equal(objs[2].name, "panel.question4", "value #2");
+  assert.equal(objs[2].text, "panel.nq2", "text #2");
+  assert.equal(objs[3].name, "question1[0].question5", "value #3");
 });
 
 QUnit.test("matrixDynamic.getConditionJson", function(assert) {

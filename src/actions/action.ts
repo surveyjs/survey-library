@@ -154,6 +154,8 @@ export interface IAction {
   ariaRole?: string;
   elementId?: string;
   items?: Array<IAction>;
+  markerIconName?: string;
+  markerIconSize?: number;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -239,6 +241,8 @@ export abstract class BaseAction extends Base implements IAction {
   public removePriority: number;
   @property() iconName: string;
   @property() iconSize: number = 24;
+  @property() markerIconName: string;
+  @property() markerIconSize: number = 16;
   @property() css?: string
   minDimension: number;
   maxDimension: number;
@@ -378,6 +382,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return this.createLocalizableString("title", this, true);
   }
   public setItems(items: Array<IAction>, onSelectionChanged: (item: Action, ...params: any[]) => void): void {
+    this.markerIconName = "icon-next_16x16";
     this.component = "sv-list-item-group";
     const { innerPopupModel, listModel }: { innerPopupModel: PopupModel<any>, listModel: ListModel<Action> } =
       createPopupModelWithListModel(
@@ -385,6 +390,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
         { horizontalPosition: "right", showPointer: false }
       );
     innerPopupModel.cssClass = "sv-popup-inner";
+    listModel.searchEnabled = false;
     this.popupModel = innerPopupModel;
   }
 

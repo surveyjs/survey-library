@@ -109,6 +109,20 @@
   }
 }
 
+.sv-list-item__marker-icon {
+  float: right;
+  flex-shrink: 0;
+  padding: calcSize(0.5);
+
+  svg {
+    display: block;
+  }
+
+  use {
+    fill: $foreground-light;
+  }
+}
+
 [dir="rtl"],
 [style*="direction:rtl"],
 [style*="direction: rtl"] {

@@ -17,6 +17,7 @@ export let defaultListCss = {
   itemFocused: "sv-list__item--focused",
   itemTextWrap: "sv-list__item-text--wrap",
   itemIcon: "sv-list__item-icon",
+  itemMarkerIcon: "sv-list-item__marker-icon",
   itemSeparator: "sv-list__item-separator",
   itemBody: "sv-list__item-body",
   itemsContainer: "sv-list",
@@ -155,6 +156,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.actions.forEach(action => {
       if (action === itemValue && !!itemValue.popupModel) {
         itemValue.popupModel.isVisible = true;
+        this.addScrollEventListener(() => {
+          itemValue.popupModel.isVisible = false;
+        });
         // itemValue.popupModel.isFocusedContent = !isUserAction || listModel.showFilter;
         // itemValue.popupModel.toggleVisibility();
         // listModel.scrollToSelectedItem();
@@ -325,6 +329,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
 
   public addScrollEventListener(handler: (e?: any) => void): void {
     if (!!handler) {
+      this.removeScrollEventListener();
       this.scrollHandler = handler;
     }
     if (!!this.scrollHandler) {

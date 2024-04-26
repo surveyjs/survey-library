@@ -4,5 +4,8 @@
   <!-- /ko -->
   <!-- /ko -->
   <!-- ko template: { name: 'survey-string', data: $data.item.locTitle } --><!-- /ko -->
+  <!-- ko if: $data.item.markerIconName -->
+  <!-- ko component: { name: 'sv-svg-icon', params: { css: $data.item.cssClasses.itemMarkerIcon, iconName: $data.item.markerIconName, size: $data.item.markerIconSize } } --><!-- /ko -->
+  <!-- /ko -->
 </div>
 <sv-popup params="{ model: $data.item.popupModel, getTarget: $parent.getTarget }"></sv-popup>

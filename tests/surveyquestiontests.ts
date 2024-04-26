@@ -7756,3 +7756,15 @@ QUnit.test("matrix.visibleRows and read-only", function (assert) {
   assert.equal(matrix.visibleRows[0].value, "col1", "row1.value");
   assert.equal(matrix.visibleRows[1].value, "col2", "row2.value");
 });
+QUnit.test("QuestionImagePickerModel.needResponsiveWidth", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "imagepicker", name: "q" }
+    ]
+  });
+  const q = survey.getAllQuestions()[0] as QuestionImagePickerModel;
+  assert.equal(survey.widthMode, "auto", "Auto mode by default");
+  assert.equal(q.needResponsiveWidth(), false, "Not responsive for single column auto width mode");
+  q.colCount = 3;
+  assert.equal(q.needResponsiveWidth(), true, "Responsive in auto mode for several columns");
+});

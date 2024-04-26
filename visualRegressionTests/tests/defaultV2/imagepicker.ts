@@ -270,7 +270,8 @@ frameworks.forEach(framework => {
           }
         ],
         "showQuestionNumbers": "off",
-        "width": "1000"
+        "width": "1000",
+        "widthMode": "static"
       });
       const questionRoot = Selector(".sd-imagepicker");
       await takeElementScreenshot("imagepicker-question-columns-long-label.png", questionRoot, t, comparer);

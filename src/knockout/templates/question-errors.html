@@ -2,12 +2,8 @@
         <!-- ko if: hasVisibleErrors -->
             <div role="alert" aria-live="polite" data-bind="visible: hasVisibleErrors, foreach: { data: errors, as: 'error' }, css: cssError, attr: { id: question.id + '_errors' }">
             <!-- ko if: error.visible -->
-            <div>   
-                <span aria-hidden="true" data-bind="css: question.cssClasses.error.icon"></span>
-                <span data-bind="css: question.cssClasses.error.item">
-                    <!-- ko template: { name: 'survey-string', data: error.locText } --><!-- /ko -->
-                </span>
-            </div>
+            <!-- ko component: { name: question.survey.questionErrorComponent, params: { error: error, cssClasses: question.cssClasses } } -->
+            <!-- /ko -->
             <!-- /ko -->
         </div>
         <!-- /ko -->

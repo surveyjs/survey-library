@@ -288,14 +288,7 @@ export class Survey extends SurveyElementBase<any, any>
     error: SurveyError,
     cssClasses: any
   ): JSX.Element {
-    return (
-      <div key={key}>
-        <span className={cssClasses.error.icon || undefined} aria-hidden="true" />
-        <span className={cssClasses.error.item || undefined}>
-          <SurveyLocStringViewer locStr={error.locText} />
-        </span>
-      </div>
-    );
+    return ReactElementFactory.Instance.createElement(this.survey.questionErrorComponent, { key, error, cssClasses });
   }
   public questionTitleLocation(): string {
     return this.survey.questionTitleLocation;

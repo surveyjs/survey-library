@@ -7680,6 +7680,7 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
+  public questionErrorComponent = "sv-question-error";
 }
 
 function isStrCiEqual(a: string, b: string) {

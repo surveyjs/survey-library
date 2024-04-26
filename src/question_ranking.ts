@@ -65,7 +65,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .toString();
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
-    return false;
+    if(this.selectToRankEnabled) {
+      return super.isItemSelectedCore(item);
+    }
+    return true;
   }
   protected getItemClassCore(item: ItemValue, options: any): string {
     const itemIndex = this.rankingChoices.indexOf(item);

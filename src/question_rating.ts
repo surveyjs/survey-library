@@ -413,6 +413,9 @@ export class QuestionRatingModel extends Question {
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
   }
+  public get questionName() {
+    return this.name + "_" + this.id;
+  }
   supportGoNextPageAutomatic(): boolean {
     return this.isMouseDown === true || this.renderAs === "dropdown";
   }

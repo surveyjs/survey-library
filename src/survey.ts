@@ -6584,7 +6584,7 @@ export class SurveyModel extends SurveyElementCore
    * @param locNotification For internal use.
    * @see getComment
    */
-  public setComment(name: string, newValue: string, locNotification: any = false):void {
+  public setComment(name: string, newValue: string, locNotification: any = false): void {
     if (!newValue) newValue = "";
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
     var commentName = name + this.commentSuffix;
@@ -6642,7 +6642,7 @@ export class SurveyModel extends SurveyElementCore
     return this.clearInvisibleValues;
   }
   questionVisibilityChanged(question: Question, newValue: boolean, resetIndexes: boolean): void {
-    if(resetIndexes) {
+    if (resetIndexes) {
       this.updateVisibleIndexes();
     }
     this.onQuestionVisibleChanged.fire(this, {
@@ -7808,7 +7808,7 @@ Serializer.addClass("survey", [
   {
     name: "showProgressBar",
     default: "off",
-    choices: ["off", "auto", "aboveHeader", "belowHeader", "bottom", "topBottom"],
+    choices: ["off", "auto", "aboveheader", "belowheader", "bottom", "topbottom"],
   },
   {
     name: "progressBarType",

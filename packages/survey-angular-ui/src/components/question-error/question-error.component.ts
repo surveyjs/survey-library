@@ -9,6 +9,6 @@ import { SurveyError } from "survey-core";
 export class QuestionErrorComponent {
   @Input() error!: SurveyError;
   @Input() cssClasses?: any;
-
+  @Input() element: any;
 }
 AngularComponentFactory.Instance.registerComponent("sv-question-error", QuestionErrorComponent);

@@ -22,6 +22,7 @@ export class QuestionError extends Vue {
   @Prop() errorKey: string;
   @Prop() error: SurveyError;
   @Prop() cssClasses: any;
+  @Prop() element: any;
   constructor() {
     super();
   }

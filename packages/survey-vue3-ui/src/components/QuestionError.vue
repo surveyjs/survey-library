@@ -26,5 +26,6 @@ const props = defineProps<{
   errorKey: string;
   error: SurveyError;
   cssClasses: any;
+  element: any;
 }>();
 </script>

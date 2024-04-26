@@ -286,9 +286,10 @@ export class Survey extends SurveyElementBase<any, any>
   public renderError(
     key: string,
     error: SurveyError,
-    cssClasses: any
+    cssClasses: any,
+    element?: any
   ): JSX.Element {
-    return ReactElementFactory.Instance.createElement(this.survey.questionErrorComponent, { key: key, error, cssClasses });
+    return ReactElementFactory.Instance.createElement(this.survey.questionErrorComponent, { key: key, error, cssClasses, element });
   }
   public questionTitleLocation(): string {
     return this.survey.questionTitleLocation;

@@ -6,6 +6,7 @@ import { SurveyLocStringViewer } from "../string-viewer";
 export interface IQuestionErrorComponentProps {
   error: SurveyError;
   cssClasses: any;
+  element: any;
 }
 
 export class QuestionErrorComponent extends React.Component<IQuestionErrorComponentProps, any> {

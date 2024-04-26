@@ -171,10 +171,10 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
       innerPopupModel.toggleVisibility();
     },
     listOptions.allowSelection,
-    listOptions.selectedItem,
-    listOptions.onFilterStringChangedCallback
+    listOptions.selectedItem
   );
   listModel.locOwner = locOwner;
+  listModel.setOnFilterStringChangedCallback(listOptions.onFilterStringChangedCallback);
   const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title, () => {
     listModel.dispose();
   });

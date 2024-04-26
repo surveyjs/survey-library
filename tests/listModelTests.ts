@@ -102,7 +102,8 @@ QUnit.test("ListModel custom onFilter", assert => {
     new Action({ id: "test7", title: "test7" })
   ];
   const myObject = new MyObject(items);
-  const list = new ListModel([], () => { }, true, null, (text: string) => { myObject.myOnFilter(text); });
+  const list = new ListModel([], () => { }, true);
+  list.setOnFilterStringChangedCallback((text: string) => { myObject.myOnFilter(text); });
   assert.equal(list.renderedActions.length, 0);
 
   list.setItems(myObject.myItems);
@@ -142,7 +143,8 @@ QUnit.test("ListModel custom onFilter: item is not found when a search string co
     new Action({ id: "test7", title: "test7" })
   ];
   const myObject = new MyObject2(items);
-  const list = new ListModel([], () => { }, true, null, (text: string) => { myObject.myOnFilter(text); });
+  const list = new ListModel([], () => { }, true);
+  list.setOnFilterStringChangedCallback((text: string) => { myObject.myOnFilter(text); });
   assert.equal(list.renderedActions.length, 0, "#1");
   assert.equal(list.isEmpty, true, "#2");
 

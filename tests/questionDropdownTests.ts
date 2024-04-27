@@ -8,6 +8,7 @@ import { Serializer } from "../src/jsonobject";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupDropdownViewModel } from "../src/popup-dropdown-view-model";
 import { PopupModalViewModel } from "../src/popup-modal-view-model";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
 export default QUnit.module("Dropdown question");
 
@@ -1919,4 +1920,86 @@ QUnit.test("Test dropdown string localization", function (assert) {
 
   popupViewModel = new PopupModalViewModel(q1.dropdownListModel.popupModel);
   assert.equal((popupViewModel as PopupModalViewModel).applyButtonText, "Anwenden", "applyButtonText");
+});
+
+QUnit.test("Dropdown choicesLazyLoadEnabled into matrixdynamic", function (assert) {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "name": "question1",
+            "columns": [
+              {
+                "cellType": "dropdown",
+                "name": "country",
+                "choicesLazyLoadEnabled": true,
+                "showOtherItem": true
+              },
+              { "name": "country" },
+              { "name": "Column3" }
+            ],
+            "choices": [1, 2, 3, 4, 5]
+          }
+        ]
+      }
+    ]
+  });
+  survey.onChoicesLazyLoad.add(callback);
+
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const question = <QuestionDropdownModel>matrix.visibleRows[0].cells[0].question;
+  const itemsSettings = question.dropdownListModel["itemsSettings"];
+  const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 5);
+  assert.equal(itemsSettings.skip, 0);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 0);
+  assert.equal(itemsSettings.items.length, 0);
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[24].value, 25);
+    assert.equal(itemsSettings.skip, 25);
+    assert.equal(itemsSettings.take, 25);
+    assert.equal(itemsSettings.totalCount, 55);
+    assert.equal(itemsSettings.items.length, 25);
+
+    listModel.filterString = "2";
+    setTimeout(() => {
+      assert.equal(question.choices.length, 25);
+      assert.equal(question.choices[0].value, 2);
+      assert.equal(question.choices[24].value, 123);
+      assert.equal(itemsSettings.skip, 25);
+      assert.equal(itemsSettings.take, 25);
+      assert.equal(itemsSettings.totalCount, 55);
+      assert.equal(itemsSettings.items.length, 25);
+
+      listModel.filterString = "22";
+      setTimeout(() => {
+        assert.equal(question.choices.length, 25);
+        assert.equal(question.choices[0].value, 22);
+        assert.equal(question.choices[24].value, 1223);
+        assert.equal(itemsSettings.skip, 25);
+        assert.equal(itemsSettings.take, 25);
+        assert.equal(itemsSettings.totalCount, 55);
+        assert.equal(itemsSettings.items.length, 25);
+
+        done3();
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+      done2();
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+    done1();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });

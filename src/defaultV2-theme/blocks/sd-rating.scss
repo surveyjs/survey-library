@@ -355,6 +355,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   position: relative;
   width: calcSize(6);
   height: calcSize(6);
+  box-sizing: content-box;
 
   &:not(:first-of-type) {
     padding-left: calcSize(0.5);

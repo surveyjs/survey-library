@@ -208,6 +208,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("takePhotoCaption", this, false, true);
+    this.createLocalizableString("clearCaption", this, false, true);
     this.actionsContainer = new ActionContainer();
     this.actionsContainer.locOwner = this;
     this.fileIndexAction = new Action({
@@ -284,7 +285,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       iconName: "icon-clear",
       id: "sv-file-clean",
       iconSize: "auto",
-      title: <string>(new ComputedUpdater<string>(() => this.clearButtonCaption) as any),
+      locTitle: this.locClearButtonCaption,
       showTitle: false,
       enabledIf: () => !this.isInputReadOnly,
       innerCss: <string>(new ComputedUpdater<string>(() => this.cssClasses.removeButton) as any),
@@ -513,10 +514,20 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public set takePhotoCaption(val: string) { this.setLocalizableStringText("takePhotoCaption", val); }
   public get locTakePhotoCaption(): LocalizableString { return this.getLocalizableString("takePhotoCaption"); }
   @property({ localizable: { defaultStr: "replaceFileCaption" } }) replaceButtonCaption: string;
-  @property({ localizable: { defaultStr: "clearCaption" } }) clearButtonCaption: string;
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
+
+  public get clearButtonCaption(): string {
+    return this.getLocalizableStringText("clearCaption");
+  }
+  public set clearButtonCaption(value: string) {
+    this.setLocalizableStringText("clearCaption", value);
+  }
+  get locClearButtonCaption(): LocalizableString {
+    return this.getLocalizableString("clearCaption");
+  }
+
   /**
    * A placeholder text displayed when the File Upload question doesn't contain any files or photos to upload. Applies only when [`sourceType`](#sourceType) value is `"file-camera"`.
    * @see filePlaceholder

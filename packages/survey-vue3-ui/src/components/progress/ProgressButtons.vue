@@ -43,7 +43,7 @@
               :class="css.progressButtonsPageTitle"
               :title="page.renderedNavigationTitle"
             >
-              <survey-string :locString="item.locNavigationTitle" />
+              <survey-string :locString="page.locNavigationTitle" />
             </div>
             <div
               v-if="canShowItemTitles"

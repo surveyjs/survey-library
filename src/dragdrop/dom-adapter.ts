@@ -274,7 +274,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
 
     let scrollableParentNode = findScrollableParent(dragOverNode);
 
-    this.scrollByDrag(scrollableParentNode, clientX, clientY);
+    this.scrollByDrag(scrollableParentNode, clientY, clientX);
   }
 
   private dragOver = (event: PointerEvent) => {

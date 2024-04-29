@@ -27,8 +27,10 @@
       ]
     }
   },
+  "peerDependencies": {
+    "survey-core": "*"
+  },
   "dependencies": {
-    "survey-core": "*",
     "knockout": "^3.5.0"
   }
 }

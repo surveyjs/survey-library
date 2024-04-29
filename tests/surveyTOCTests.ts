@@ -256,10 +256,20 @@ QUnit.test("TOC respects markup", function (assert) {
       },
       {
         "name": "page3",
+        "title": "Page 3",
         "elements": [
           {
             "type": "text",
             "name": "question3"
+          }
+        ]
+      },
+      {
+        "name": "page4",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question4"
           }
         ]
       }
@@ -271,11 +281,13 @@ QUnit.test("TOC respects markup", function (assert) {
   });
   let tocListModel = createTOCListModel(survey);
 
-  assert.equal(tocListModel.visibleItems.length, 3, "2 items is TOC");
+  assert.equal(survey.pages[2].locTitle.textOrHtml, "markup Page 3", "survey.pages[2]");
+
+  assert.equal(tocListModel.visibleItems.length, 4, "2 items is TOC");
   assert.equal(tocListModel.visibleItems[0].locTitle.textOrHtml, "markup Text with <strong>strong text</strong>", "Page 1 = locTitle");
-  // TODO - eliminate duplicated call
-  assert.equal(tocListModel.visibleItems[1].locTitle.textOrHtml, "markup markup Text with <em>emphasys text</em>", "Page 2 - nav title");
-  assert.equal(tocListModel.visibleItems[2].locTitle.textOrHtml, "markup page3", "Page 3");
+  assert.equal(tocListModel.visibleItems[1].locTitle.textOrHtml, "markup Text with <em>emphasys text</em>", "Page 2 - nav title");
+  assert.equal(tocListModel.visibleItems[2].locTitle.textOrHtml, "markup Page 3", "Page 3");
+  assert.equal(tocListModel.visibleItems[3].locTitle.textOrHtml, "page4", "Page 4");
 });
 
 QUnit.test("TOC shouldn't affect page title", function (assert) {

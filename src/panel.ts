@@ -360,6 +360,9 @@ export class PanelModelBase extends SurveyElement<Question>
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
     this.createLocalizableString("requiredErrorText", this);
+    this.createLocalizableString("navigationTitle", this, true).onGetTextCallback = (text: string) => {
+      return text || this.title || this.name;
+    };
     this.registerPropertyChangedHandlers(["questionTitleLocation"], () => {
       this.onVisibleChanged.bind(this);
       this.updateElementCss(true);
@@ -426,8 +429,17 @@ export class PanelModelBase extends SurveyElement<Question>
       this.elements[i].locStrsChanged();
     }
   }
+  getMarkdownHtml(text: string, name: string): string {
+    if(name === "navigationTitle" && this.locNavigationTitle.isEmpty) {
+      return this.locTitle.renderedHtml || this.name;
+    }
+    return super.getMarkdownHtml(text, name);
+  }
+  public get locNavigationTitle(): LocalizableString {
+    return this.getLocalizableString("navigationTitle");
+  }
   public get renderedNavigationTitle(): string {
-    return this.title || this.name;
+    return this.locNavigationTitle.renderedHtml;
   }
   /**
    * Returns a character or text string that indicates a required panel/page.

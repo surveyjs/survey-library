@@ -268,6 +268,27 @@ QUnit.test("PageModel.renderedNavigationTitle", function (assert) {
   assert.equal(survey.pages[3].renderedNavigationTitle, "NavPage 4", "page4");
 });
 
+QUnit.test("PageModel.renderedNavigationTitle & piped text", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1" }] },
+      { name: "page2", title: "Page 2", elements: [{ type: "text", name: "q2" }] },
+      { name: "page3", title: "Page 3", navigationTitle: "NavPage 3, {q1}", elements: [{ type: "text", name: "q3" }] },
+      { name: "page4", navigationTitle: "NavPage 4, {q2}", elements: [{ type: "text", name: "q4" }] },
+    ]
+  });
+  assert.equal(survey.pages[0].renderedNavigationTitle, "page1", "page1, #1");
+  assert.equal(survey.pages[1].renderedNavigationTitle, "Page 2", "page2, #1");
+  assert.equal(survey.pages[2].renderedNavigationTitle, "NavPage 3, ", "page3, #1");
+  assert.equal(survey.pages[3].renderedNavigationTitle, "NavPage 4, ", "page4, #1");
+  survey.setValue("q1", "val1");
+  survey.setValue("q2", "val2");
+  assert.equal(survey.pages[0].renderedNavigationTitle, "page1", "page1, #2");
+  assert.equal(survey.pages[1].renderedNavigationTitle, "Page 2", "page2, #2");
+  assert.equal(survey.pages[2].renderedNavigationTitle, "NavPage 3, val1", "page3, #2");
+  assert.equal(survey.pages[3].renderedNavigationTitle, "NavPage 4, val2", "page4, #2");
+});
+
 QUnit.test("Remove Page in design mode", function (assert) {
   var survey = new SurveyModel();
   survey.setDesignMode(true);

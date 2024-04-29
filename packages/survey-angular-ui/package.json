@@ -57,7 +57,7 @@
     "survey-core": "../../build/survey-core"
   },
   "scripts": {
-    "build": "ng build && npx copyfiles -u 1 \"build/**/*\" ../../build/survey-angular-ui",
+    "build": "ng build && npx copyfiles -u 1 \"build/**/*\" ../../build/survey-angular-ui && node ./update-version.js",
     "serve:example": "ng serve",
     "build:example": "ng build --aot --output-hashing=none angular-ui",
     "test": "ng test survey-angular-ui",

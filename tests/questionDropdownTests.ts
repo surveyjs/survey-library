@@ -363,7 +363,7 @@ QUnit.test("ListModel localization", assert => {
   const listModel = question.popupModel.contentComponentData.model as ListModel;
   assert.equal(listModel.filterStringPlaceholder, "Type to search...", "filtered text in en");
   survey.locale = "de";
-  assert.equal(listModel.filterStringPlaceholder, "Tippe um zu suchen...", "filtered text in de");
+  assert.equal(listModel.filterStringPlaceholder, "Tippen Sie, um zu suchen...", "filtered text in de");
   survey.locale = "";
 });
 QUnit.test("readOnlyText default", assert => {
@@ -1911,7 +1911,7 @@ QUnit.test("Test dropdown string localization", function (assert) {
   });
   const q1 = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const listModel = q1.dropdownListModel["listModel"];
-  assert.equal(listModel.filterStringPlaceholder, "Tippe um zu suchen...", "filterStringPlaceholder");
+  assert.equal(listModel.filterStringPlaceholder, "Tippen Sie, um zu suchen...", "filterStringPlaceholder");
   assert.equal(listModel.emptyMessage, "Es gibt noch keine Daten.", "emptyMessage");
   assert.equal(listModel.loadingText, "Wird hochgeladen...", "loadingText");
 

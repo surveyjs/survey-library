@@ -48,7 +48,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.createDropdownListModel();
   }
   private createDropdownListModel(): void {
-    if (!this.dropdownListModel) {
+    if (!this.dropdownListModel && !this.isLoadingFromJson) {
       this.dropdownListModel = new DropdownMultiSelectListModel(this);
     }
   }

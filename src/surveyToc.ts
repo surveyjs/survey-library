@@ -19,8 +19,7 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
   var items = (pagesSource || []).map(page => {
     return new Action({
       id: page.name,
-      locTitle: (page as PageModel).locNavigationTitle?.text ? (page as PageModel).locNavigationTitle : (page.locTitle?.text ? page.locTitle : undefined),
-      title: page.renderedNavigationTitle,
+      locTitle: page.locNavigationTitle,
       action: () => {
         DomDocumentHelper.activeElementBlur();
         !!onAction && onAction();

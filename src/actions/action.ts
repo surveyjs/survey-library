@@ -350,9 +350,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
-        if (key !== "locTitle") {
-          (<any>this)[key] = (<any>innerItem)[key];
-        }
+        if(key === "locTitle" || key === "title" && !!this.locTitle && !!this.title) continue;
+        (<any>this)[key] = (<any>innerItem)[key];
       }
     }
     if (!!this.locTitleName) {

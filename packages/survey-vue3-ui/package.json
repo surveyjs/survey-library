@@ -1,6 +1,6 @@
 {
   "name": "survey-vue3-ui",
-  "version": "1.9.139",
+  "version": "1.10.2",
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",

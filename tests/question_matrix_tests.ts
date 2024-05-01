@@ -70,7 +70,7 @@ QUnit.test("Matrix Question eachRowUnique property", function (assert) {
   matrix.value = { row1: "col2", row2: "col2" };
   assert.equal(matrix.validate(), false, "validate #7");
 });
-QUnit.test("matirix row, rowClasses property, isAllRowRequired", function (assert) {
+QUnit.test("matrix row, rowClasses property, isAllRowRequired", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -92,7 +92,7 @@ QUnit.test("matirix row, rowClasses property, isAllRowRequired", function (asser
   assert.equal(question.visibleRows[0].rowClasses, "row", "first row value is set");
   assert.equal(question.visibleRows[1].rowClasses, "row row_error", "Error for the second row");
 });
-QUnit.test("matirix row, rowClasses property, eachRowUnique", function (assert) {
+QUnit.test("matrix row, rowClasses property, eachRowUnique", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -108,20 +108,25 @@ QUnit.test("matirix row, rowClasses property, eachRowUnique", function (assert) 
   const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
   assert.ok(question.cssClasses.row, "Row class is not empty");
   assert.equal(question.hasErrorInRow(question.visibleRows[0]), false, "hasErrorInRow(0)");
+  assert.equal(question.visibleRows[0].hasError, false, "visibleRows[0].hasError");
   assert.equal(question.visibleRows[0].rowClasses, "row", "Set row class");
   question.value = { row1: "col1", row2: "col1" };
   question.validate();
   assert.equal(question.hasErrorInRow(question.visibleRows[0]), false, "hasErrorInRow(0) #1");
+  assert.equal(question.visibleRows[0].hasError, false, "visibleRows[0].hasError #1");
   assert.equal(question.visibleRows[0].rowClasses, "row", "first row #1");
   assert.equal(question.hasErrorInRow(question.visibleRows[1]), true, "hasErrorInRow(1) #1");
+  assert.equal(question.visibleRows[1].hasError, true, "visibleRows[1].hasError #1");
   assert.equal(question.visibleRows[1].rowClasses, "row row_error", "second row #1");
   question.visibleRows[1].value = "col2";
-  assert.equal(question.hasErrorInRow(question.visibleRows[0]), false, "hasErrorInRow(0) #1");
+  assert.equal(question.hasErrorInRow(question.visibleRows[0]), false, "hasErrorInRow(0) #2");
+  assert.equal(question.visibleRows[0].hasError, false, "visibleRows[0].hasError #2");
   assert.equal(question.visibleRows[0].rowClasses, "row", "first row #2");
   assert.equal(question.hasErrorInRow(question.visibleRows[1]), false, "hasErrorInRow(1) #2");
+  assert.equal(question.visibleRows[1].hasError, false, "visibleRows[1].hasError #2");
   assert.equal(question.visibleRows[1].rowClasses, "row", "second row #2");
 });
-QUnit.test("matirix row, rowClasses property, #7889", function (assert) {
+QUnit.test("matrix row, rowClasses property, #7889", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -137,13 +142,19 @@ QUnit.test("matirix row, rowClasses property, #7889", function (assert) {
   const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
   assert.ok(question.cssClasses.row, "Row class is not empty");
   assert.equal(question.hasErrorInRow(question.visibleRows[0]), false, "hasErrorInRow(0), #1");
+  assert.equal(question.visibleRows[0].hasError, false, "visibleRows[0].hasError, #1");
   assert.equal(question.hasErrorInRow(question.visibleRows[1]), false, "hasErrorInRow(1), #2");
+  assert.equal(question.visibleRows[1].hasError, false, "visibleRows[1].hasError, #2");
   assert.equal(question.hasErrorInRow(question.visibleRows[2]), false, "hasErrorInRow(2), #3");
+  assert.equal(question.visibleRows[2].hasError, false, "visibleRows[2].hasError, #3");
   question.visibleRows[0].cellClick(question.columns[0]);
   assert.deepEqual(question.value, { row1: "col1" }, "value is set #4");
   assert.equal(question.hasErrorInRow(question.visibleRows[0]), false, "hasErrorInRow(0), #5");
+  assert.equal(question.visibleRows[0].hasError, false, "visibleRows[0].hasError, #5");
   assert.equal(question.hasErrorInRow(question.visibleRows[1]), false, "hasErrorInRow(1), #6");
+  assert.equal(question.visibleRows[1].hasError, false, "visibleRows[1].hasError, #6");
   assert.equal(question.hasErrorInRow(question.visibleRows[2]), false, "hasErrorInRow(2), #7");
+  assert.equal(question.visibleRows[2].hasError, false, "visibleRows[2].hasError, #7");
 });
 QUnit.test("check row randomization in design mode", (assert) => {
 
@@ -268,7 +279,7 @@ QUnit.test("rows.class, ItemValue.enableIf", (assert) => {
     survey.css.matrix.rowReadOnly = prevCssValue;
   }
 });
-QUnit.test("matirix isAllRowRequired & getItemClass #7963", function (assert) {
+QUnit.test("matrix isAllRowRequired & getItemClass #7963", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -290,7 +301,7 @@ QUnit.test("matirix isAllRowRequired & getItemClass #7963", function (assert) {
   question.value = { row1: "col1" };
   assert.equal(question.getItemClass(row, column).indexOf(itemError) > -1, false, "itemError doesn't exist");
 });
-QUnit.test("matirix isRequired & getItemClass #7963", function (assert) {
+QUnit.test("matrix isRequired & getItemClass #7963", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -312,7 +323,7 @@ QUnit.test("matirix isRequired & getItemClass #7963", function (assert) {
   question.value = { row2: "col1" };
   assert.equal(question.getItemClass(row, column).indexOf(itemError) > -1, false, "itemError doesn't exist");
 });
-QUnit.test("matirix isAllRowRequired & isRequired & getItemClass #7963", function (assert) {
+QUnit.test("matrix isAllRowRequired & isRequired & getItemClass #7963", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {

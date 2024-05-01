@@ -16,7 +16,7 @@ import { SurveyElementHeader } from "./element-header";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element | null;
-  renderError(key: string, error: SurveyError, cssClasses: any): JSX.Element;
+  renderError(key: string, error: SurveyError, cssClasses: any, element?: any): JSX.Element;
   questionTitleLocation(): string;
   questionErrorLocation(): string;
 }
@@ -256,7 +256,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     for (let i = 0; i < this.element.errors.length; i++) {
       const key: string = "error" + i;
       errors.push(
-        this.creator.renderError(key, this.element.errors[i], this.cssClasses)
+        this.creator.renderError(key, this.element.errors[i], this.cssClasses, this.element)
       );
     }
 

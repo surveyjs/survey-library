@@ -87,7 +87,13 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * @see choicesLazyLoadPageSize
    * @see SurveyModel.onChoicesLazyLoad
    */
-  @property() choicesLazyLoadEnabled: boolean;
+  @property({
+    onSet: (newValue: boolean, target: QuestionTagboxModel) => {
+      if (!!target.dropdownListModel) {
+        target.dropdownListModel.setChoicesLazyLoadEnabled(newValue);
+      }
+    }
+  }) choicesLazyLoadEnabled: boolean;
   /**
    * Specifies the number of choice items to load at a time when choices are loaded on demand.
    * @see choicesLazyLoadEnabled

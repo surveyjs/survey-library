@@ -399,7 +399,7 @@ frameworks.forEach((framework) => {
       .click(Selector("span").withExactText("Abbrechen"))
       .expect(Selector(".sv_matrix_row").count).eql(3)
       .click(Selector(".sv_matrix_dynamic_button .sv-string-viewer").nth(1).withText("Entfernen"))
-      .click(Selector("span").withExactText("OKAY"))
+      .click(Selector("span").withExactText("OK"))
       .expect(Selector(".sv_matrix_row").count).eql(2);
   });
 });

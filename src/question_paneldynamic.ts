@@ -625,7 +625,7 @@ export class QuestionPanelDynamicModel extends Question
       getAnimatedElement: (panel) => {
         if(panel && this.cssContent) {
           const contentSelector = classesToSelector(this.cssContent);
-          return this.getWrapperElement()?.querySelector(`${contentSelector} #${panel.id}`)?.parentElement;
+          return this.getWrapperElement()?.querySelector(`:scope ${contentSelector} #${panel.id}`)?.parentElement;
         }
       },
       getEnterOptions: () => {
@@ -1610,11 +1610,15 @@ export class QuestionPanelDynamicModel extends Question
       const prefixName = this.getValueName() + indexStr;
       const prefixText = this.processedTitle + indexStr;
       for (var i = 0; i < panelObjs.length; i++) {
-        objects.push({
-          name: prefixName + panelObjs[i].name,
-          text: prefixText + panelObjs[i].text,
-          question: panelObjs[i].question,
-        });
+        if(!!panelObjs[i].context) {
+          objects.push(panelObjs[i]);
+        } else {
+          objects.push({
+            name: prefixName + panelObjs[i].name,
+            text: prefixText + panelObjs[i].text,
+            question: panelObjs[i].question,
+          });
+        }
       }
     }
     if (hasContext) {
@@ -1627,9 +1631,7 @@ export class QuestionPanelDynamicModel extends Question
           text: prefixText + QuestionPanelDynamicItem.ItemVariableName + "." + panelObjs[i].text,
           question: panelObjs[i].question
         };
-        if (context === true) {
-          obj.context = this;
-        }
+        obj.context = this;
         objects.push(obj);
       }
     }

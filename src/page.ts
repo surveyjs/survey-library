@@ -27,7 +27,6 @@ export class PageModel extends PanelModelBase implements IPage {
       if (this.canShowPageNumber() && text) return this.num + ". " + text;
       return text;
     };
-    this.createLocalizableString("navigationTitle", this, true);
     this.createLocalizableString("navigationDescription", this, true);
     this.dragDropPageHelper = new DragDropPageHelperV1(this);
   }
@@ -57,9 +56,6 @@ export class PageModel extends PanelModelBase implements IPage {
   public set navigationTitle(val: string) {
     this.setLocalizableStringText("navigationTitle", val);
   }
-  public get locNavigationTitle(): LocalizableString {
-    return this.getLocalizableString("navigationTitle");
-  }
   /**
    * Explanatory text displayed under a navigation button in the progress bar. Applies when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar), `SurveyModel`'s [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is set to `"pages"`, and [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarShowPageTitles) is `true`.
    */
@@ -73,11 +69,11 @@ export class PageModel extends PanelModelBase implements IPage {
     return this.getLocalizableString("navigationDescription");
   }
   public navigationLocStrChanged(): void {
+    if(this.locNavigationTitle.isEmpty) {
+      this.locTitle.strChanged();
+    }
     this.locNavigationTitle.strChanged();
     this.locNavigationDescription.strChanged();
-  }
-  public get renderedNavigationTitle(): string {
-    return this.locNavigationTitle.renderedHtml || this.title || this.name;
   }
   public get passed(): boolean {
     return this.getPropertyValue("passed", false);

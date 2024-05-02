@@ -41,7 +41,7 @@
   box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
 
-.sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {
+.sd-item--allowhover:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-item__decorator {
   background: $background-dim-dark;
   outline: none;
 }

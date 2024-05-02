@@ -81,11 +81,15 @@ export class AnimationUtils {
       options.onBeforeRunAnimation && options.onBeforeRunAnimation(element);
     }
   }
-
+  private getCssClasses(options: AnimationOptions) {
+    return options.cssClass.replace(/\s+$/, "").split(/\s+/);
+  }
   protected runAnimation(element: HTMLElement, options: AnimationOptions, callback: (isCancel?: boolean) => void): void {
     if(element && options.cssClass) {
       this.reflow(element);
-      element.classList.add(options.cssClass);
+      this.getCssClasses(options).forEach((cssClass) => {
+        element.classList.add(cssClass);
+      });
       this.onAnimationEnd(element, callback, options);
     } else {
       callback(true);
@@ -93,7 +97,9 @@ export class AnimationUtils {
   }
   protected clearHtmlElement(element: HTMLElement, options: AnimationOptions): void {
     if(element && options.cssClass) {
-      element.classList.remove(options.cssClass);
+      this.getCssClasses(options).forEach((cssClass) => {
+        element.classList.remove(cssClass);
+      });
     }
   }
 

@@ -355,6 +355,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   position: relative;
   width: calcSize(6);
   height: calcSize(6);
+  box-sizing: content-box;
 
   &:not(:first-of-type) {
     padding-left: calcSize(0.5);
@@ -405,6 +406,14 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   svg {
     stroke: transparent;
     fill: $primary;
+  }
+
+  @for $i from 1 through 25 {
+    &:nth-child(#{$i}) {
+      svg {
+        transition-delay: #{($i - 1) * 25}ms;
+      }
+    }
   }
 }
 

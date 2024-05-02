@@ -204,6 +204,7 @@ export abstract class AnimationProperty<T, S extends Array<any> = []> {
     if(this.animationOptions.isAnimationEnabled()) {
       this._debouncedSync.run(newValue);
     } else {
+      this.cancel();
       this.update(newValue);
     }
   }

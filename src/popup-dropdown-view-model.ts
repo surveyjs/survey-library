@@ -218,6 +218,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       this.resizeEventCallback();
     }
     DomWindowHelper.addEventListener("scroll", this.scrollEventCallBack);
+    this._isPositionSetValue = true;
   }
   private get shouldCreateResizeCallback(): boolean {
     return !!DomWindowHelper.getVisualViewport() && this.isOverlay && IsTouch;

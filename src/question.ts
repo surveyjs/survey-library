@@ -1517,6 +1517,7 @@ export class Question extends SurveyElement<Question>
   }
   public get hasFilteredValue(): boolean { return false; }
   public getFilteredValue(): any { return this.value; }
+  public getFilteredName(): any { return this.getValueName(); }
   public get valueForSurvey(): any {
     if (!!this.valueToDataCallback) {
       return this.valueToDataCallback(this.value);
@@ -2026,7 +2027,7 @@ export class Question extends SurveyElement<Question>
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     objects.push({
-      name: this.getValueName(),
+      name: this.getFilteredName(),
       text: this.processedTitle,
       question: this,
     });

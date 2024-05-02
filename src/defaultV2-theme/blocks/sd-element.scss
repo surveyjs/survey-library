@@ -60,6 +60,9 @@
 
   .sv-string-viewer {
     white-space: normal;
+    &.sv-string-viewer--multiline {
+      white-space: pre-wrap;
+    }
   }
 }
 

@@ -8,7 +8,6 @@ import { PopupBaseViewModel, PopupModalViewModel } from "survey-core";
   })
 
 export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBaseViewModel> extends BaseAngular<T> {
-  private prevIsVisible: boolean = false;
   @Input() model!: T;
 
   constructor(changeDetectorRef: ChangeDetectorRef) {
@@ -48,11 +47,8 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
   protected override afterUpdate(isSync: boolean = false): void {
     super.afterUpdate(isSync);
     if(!isSync) {
-      if (!this.prevIsVisible && this.model.isVisible) {
+      if (!this.model.isPositionSet && this.model.isVisible) {
         this.model.updateOnShowing();
-      }
-      if (this.prevIsVisible !== this.model.isVisible) {
-        this.prevIsVisible = this.model.isVisible;
       }
     }
   }

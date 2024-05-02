@@ -1019,10 +1019,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       .append(cssClasses.titleOnError, this.containsErrors).toString();
   }
   public get isDisabledStyle(): boolean {
-    return !this.isDefaultV2Theme && (this.isReadOnlyStyle || this.isPreviewStyle);
+    return this.getIsDisableAndReadOnlyStyles(false)[1];
   }
   public get isReadOnlyStyle(): boolean {
-    return this.isReadOnly && !this.isPreviewStyle;
+    return this.getIsDisableAndReadOnlyStyles(false)[0];
+  }
+  protected getIsDisableAndReadOnlyStyles(itemReadOnly: boolean): Array<boolean> {
+    const isPreview = this.isPreviewStyle;
+    const isReadOnly = itemReadOnly || this.isReadOnly;
+    const isReadOnlyStyle = isReadOnly && !isPreview;
+    const isDisableStyle = !this.isDefaultV2Theme && (isReadOnly || isPreview);
+    return [isReadOnlyStyle, isDisableStyle];
   }
   public get isPreviewStyle(): boolean {
     return !!this.survey && this.survey.state === "preview";
@@ -1086,7 +1093,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         if(cssClasses.content) {
           const selector = classesToSelector(cssClasses.content);
           if(selector) {
-            return this.getWrapperElement()?.querySelector(selector);
+            return this.getWrapperElement()?.querySelector(`:scope ${selector}`);
           }
         }
         return undefined;
@@ -1112,14 +1119,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get renderedIsExpanded(): boolean {
     return !!this._renderedIsExpanded;
   }
-
-  private animationAllowedValue: boolean = true;
-  public get animationAllowed(): boolean {
-    return settings.animationEnabled && !this.isLoadingFromJson && !this.isDisposed && !!this.survey && this.animationAllowedValue;
-  }
-
-  public set animationAllowed(val: boolean) {
-    this.animationAllowedValue = val;
+  protected getIsAnimationAllowed(): boolean {
+    return super.getIsAnimationAllowed() && !!this.survey;
   }
 
   public dispose(): void {

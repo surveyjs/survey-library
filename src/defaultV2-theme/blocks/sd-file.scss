@@ -197,7 +197,7 @@
 
   .sd-file__default-image {
     width: calcSize(7);
-    height: 90px;
+    height: calcSize(8.5);
   }
 
   img:hover+.sd-file__remove-file-button,
@@ -223,7 +223,7 @@
     min-width: 100%;
     max-width: 100%;
     overflow: hidden;
-    max-height: calcSize(6);
+    max-height: calcLineHeight(3);
     text-overflow: ellipsis;
     line-height: calcLineHeight(1);
     display: -webkit-box;

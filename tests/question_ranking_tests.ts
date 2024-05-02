@@ -301,7 +301,7 @@ QUnit.test("Ranking: selectToRank key navigation with animation", function (asse
 
   q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[0]);
   assert.deepEqual(q.unRankingChoices.map((item) => item.value), ["c"]);
-  assert.deepEqual(q.rankingChoices.map((item) => item.value), ["a", "b"]);
+  assert.deepEqual(q.rankingChoices.map((item) => item.value), ["b", "a"]);
 
   q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[1]);
   assert.deepEqual(q.unRankingChoices.map((item) => item.value), ["b", "c"]);
@@ -354,7 +354,7 @@ QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
 
   dragStartTargetNode.remove();
 });
-QUnit.test("Ranking: isItemSelected() returns always false for optimization", function(assert) {
+QUnit.test("Ranking: isItemSelected() returns always true for optimization", function(assert) {
   let result;
   let dragStartTargetNode;
 
@@ -368,9 +368,9 @@ QUnit.test("Ranking: isItemSelected() returns always false for optimization", fu
     ],
   });
   const rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q1");
-  assert.equal(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), false, "#1");
+  assert.equal(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), true, "#1");
   rankingQuestion.value = ["b", "c", "a"];
-  assert.equal(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), false, "#2");
+  assert.equal(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), true, "#2");
 });
 
 QUnit.test("Ranking: separateSpecialChoices ", function (assert) {
@@ -461,6 +461,33 @@ QUnit.test("Ranking: disabledItem", function(assert) {
   assert.equal(rankingQuestion.getItemTabIndex(disabledItem), undefined, "can't move disabled item via keyboard");
 });
 
+QUnit.test("Ranking: disabledItem with selectToRank and maxSelectedChoices", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        selectToRankEnabled: true,
+        choices: [
+          "a",
+          "b",
+          "c"
+        ],
+        maxSelectedChoices: 1,
+        defaultValue: ["a"]
+      }
+    ]
+  });
+  const rankingQuestion = survey.getQuestionByName("q1");
+  const rankedItem = rankingQuestion.rankingChoices[0];
+
+  assert.equal(
+    rankingQuestion.canStartDragDueItemEnabled(rankedItem),
+    true,
+    "should be able to start drag rankedItem item for uranking action"
+  );
+});
+
 // selectToRankEnabled
 function createRankingQuestionModel(selectToRankEnabled = false, withDefaultValue = false) {
   const json = {
@@ -509,6 +536,22 @@ QUnit.test("selectToRankEnabled : checkMaxSelectedChoicesUnreached", function (a
   questionModel.maxSelectedChoices = 2;
   questionModel.value = ["11", "22"];
   assert.equal(questionModel.checkMaxSelectedChoicesUnreached(), false, "MaxSelectedChoices limit reached");
+});
+
+QUnit.test("selectToRankEnabled : checkMaxSelectedChoices and handleKeydownSelectToRank", function (assert) {
+  const selectToRankEnabled = true;
+  const withDefaultValue = true;
+  const questionModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
+
+  questionModel.maxSelectedChoices = 2;
+  const fakeEvent:any = { key: " ", preventDefault: ()=>{} };
+  questionModel.handleKeydownSelectToRank(fakeEvent, questionModel.unRankingChoices[0], " ", false);
+
+  assert.equal(questionModel.value.length, 2, "can't add due to MaxSelectedChoices");
+
+  questionModel.handleKeydownSelectToRank(fakeEvent, questionModel.rankingChoices[0], " ", false);
+
+  assert.equal(questionModel.value.length, 1, "unrank with MaxSelectedChoices");
 });
 
 QUnit.test("Ranking: renderedSelectToRankAreasLayout", function (assert) {

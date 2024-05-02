@@ -566,9 +566,6 @@ export class Base {
    * @param val A new value for the property.
    */
   public setPropertyValue(name: string, val: any): void {
-    if(name) {
-
-    }
     if(!this.isLoadingFromJson) {
       const prop = this.getPropertyByName(name);
       if(!!prop) {
@@ -1143,6 +1140,19 @@ export class Base {
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     return [];
+  }
+  public get animationAllowed(): boolean {
+    return this.getIsAnimationAllowed();
+  }
+  protected getIsAnimationAllowed(): boolean {
+    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed;
+  }
+  private animationAllowedLock: number = 0;
+  public blockAnimations(): void {
+    this.animationAllowedLock--;
+  }
+  public releaseAnimations(): void {
+    this.animationAllowedLock++;
   }
 }
 

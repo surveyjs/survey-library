@@ -39,6 +39,7 @@ export interface IListModel {
 export class ListModel<T extends BaseAction = Action> extends ActionContainer<T> {
   private listContainerHtmlElement: HTMLElement;
   private loadingIndicatorValue: T;
+  private onFilterStringChangedCallback?: (text: string) => void;
 
   @property({
     defaultValue: true,
@@ -108,7 +109,6 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     public onSelectionChanged: (item: T, ...params: any[]) => void,
     public allowSelection: boolean,
     selectedItem?: IAction,
-    private onFilterStringChangedCallback?: (text: string) => void,
     public elementId?: string
   ) {
     super();
@@ -116,10 +116,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.selectedItem = selectedItem;
   }
   private onTextSearchCallback: (item: T, textToSearch: string) => boolean;
-  public setOnFilterStringChangedCallback(callback: (text: string) => void) {
+  public setOnFilterStringChangedCallback(callback: (text: string) => void): void {
     this.onFilterStringChangedCallback = callback;
   }
-  public setOnTextSearchCallback(callback: (item: T, textToSearch: string) => boolean) {
+  public setOnTextSearchCallback(callback: (item: T, textToSearch: string) => boolean): void {
     this.onTextSearchCallback = callback;
   }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {

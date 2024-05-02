@@ -198,9 +198,10 @@ export function createPopupModelWithListModel(listOptions: IListModel, popupOpti
       innerPopupModel.toggleVisibility();
     },
     listOptions.allowSelection,
-    listOptions.selectedItem,
-    listOptions.onFilterStringChangedCallback
+    listOptions.selectedItem
   );
+  listModel.setOnFilterStringChangedCallback(listOptions.onFilterStringChangedCallback);
+
   const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title, () => {
     listModel.dispose();
   });
@@ -365,9 +366,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
-        if (key !== "locTitle") {
-          (<any>this)[key] = (<any>innerItem)[key];
-        }
+        if (key === "locTitle" || key === "title" && !!this.locTitle && !!this.title) continue;
+        (<any>this)[key] = (<any>innerItem)[key];
       }
     }
     if (!!this.locTitleName) {

@@ -10,6 +10,7 @@ import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
 import { settings } from "../src/settings";
 import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
+import { DragOrClickHelper } from "./utils/dragOrClickHelper";
 
 /**
  * A class that describes the Ranking question type.
@@ -18,6 +19,7 @@ import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
  */
 export class QuestionRankingModel extends QuestionCheckboxModel {
   private domNode: HTMLElement = null;
+  private dragOrClickHelper: DragOrClickHelper;
 
   constructor(name: string) {
     super(name);
@@ -28,6 +30,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.setDragDropRankingChoices();
       this.updateRankingChoicesSync();
     });
+    this.dragOrClickHelper = new DragOrClickHelper(this.startDrag);
   }
 
   protected getDefaultItemComponent(): string {
@@ -62,7 +65,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .toString();
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
-    return false;
+    if(this.selectToRankEnabled) {
+      return super.isItemSelectedCore(item);
+    }
+    return true;
   }
   protected getItemClassCore(item: ItemValue, options: any): string {
     const itemIndex = this.rankingChoices.indexOf(item);
@@ -136,9 +142,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private updateRankingChoicesSync() {
-    this.animationAllowed = false;
+    this.blockAnimations();
     this.updateRankingChoices();
-    this.animationAllowed = true;
+    this.releaseAnimations();
   }
 
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
@@ -337,6 +343,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return new DragDropRankingChoices(this.survey, null, this.longTap);
   }
 
+  private draggedChoise: ItemValue;
+  private draggedTargetNode: HTMLElement;
   public handlePointerDown = (
     event: PointerEvent,
     choice: ItemValue,
@@ -353,7 +361,26 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.canStartDragDueItemEnabled(choice)
     )
     {
-      this.dragDropRankingChoices.startDrag(event, choice, this, node);
+      this.draggedChoise = choice;
+      this.draggedTargetNode = node;
+      this.dragOrClickHelper.onPointerDown(event);
+    }
+  };
+
+  public startDrag = (event: PointerEvent): void => {
+    this.dragDropRankingChoices.startDrag(event, this.draggedChoise, this, this.draggedTargetNode);
+  }
+
+  public handlePointerUp = (
+    event: PointerEvent,
+    choice: ItemValue,
+    node: HTMLElement
+  ): void => {
+    if (!this.selectToRankEnabled) return;
+    if (
+      this.allowStartDrag
+    ) {
+      this.handleKeydownSelectToRank(<any>event, choice, " ", false);
     }
   };
 
@@ -438,9 +465,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }, 1);
   }
 
-  public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue): void {
+  public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue, hardKey?:string, isNeedFocus: boolean = true): void {
     if (this.isDesignMode) return;
-    const key: any = event.key;
+
+    let key: any = event.key;
+    if (hardKey) key = hardKey;
     if(key !== " " && key !== "ArrowUp" && key !== "ArrowDown") return;
 
     const dnd:any = this.dragDropRankingChoices; //????
@@ -452,20 +481,21 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     let toIndex;
 
     if (key === " " && !isMovedElementRanked) {
-      toIndex = 0;
-      this.animationAllowed = false;
+      if (!this.checkMaxSelectedChoicesUnreached() || !this.canStartDragDueItemEnabled(movedElement)) return;
+      toIndex = this.value.length;
+      this.blockAnimations();
       dnd.selectToRank(this, fromIndex, toIndex);
-      this.animationAllowed = true;
-      this.setValueAfterKeydown(toIndex, "to-container");
+      this.releaseAnimations();
+      this.setValueAfterKeydown(toIndex, "to-container", isNeedFocus);
       return;
     }
     if(!isMovedElementRanked) return;
     if (key === " ") {
-      this.animationAllowed = false;
+      this.blockAnimations();
       dnd.unselectFromRank(this, fromIndex);
-      this.animationAllowed = true;
+      this.releaseAnimations();
       toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
-      this.setValueAfterKeydown(toIndex, "from-container");
+      this.setValueAfterKeydown(toIndex, "from-container", isNeedFocus);
       return;
     }
     const delta = key === "ArrowUp" ? -1 : (key === "ArrowDown" ? 1 : 0);
@@ -473,15 +503,19 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     toIndex = fromIndex + delta;
     if(toIndex < 0 || toIndex >= rankingChoices.length) return;
     dnd.reorderRankedItem(this, fromIndex, toIndex);
-    this.setValueAfterKeydown(toIndex, "to-container");
+    this.setValueAfterKeydown(toIndex, "to-container", isNeedFocus);
   }
 
-  private setValueAfterKeydown(index: number, container: string) {
+  private setValueAfterKeydown(index: number, container: string, isNeedFocus: boolean = true) {
     this.setValue();
-    setTimeout(() => {
-      this.focusItem(index, container);
-    }, 1);
-    event.preventDefault();
+
+    if (isNeedFocus) {
+      setTimeout(() => {
+        this.focusItem(index, container);
+      }, 1);
+    }
+
+    event && event.preventDefault();
   }
 
   private focusItem = (index: number, container?: string) => {

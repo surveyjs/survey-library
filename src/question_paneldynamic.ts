@@ -600,7 +600,9 @@ export class QuestionPanelDynamicModel extends Question
 
   public set renderedPanels(val: Array<PanelModel>) {
     if(this.renderedPanels.length == 0 || val.length == 0) {
-      this._renderedPanels = val;
+      this.blockAnimations();
+      this.panelsAnimation.sync(val);
+      this.releaseAnimations();
     } else {
       this.isPanelsAnimationRunning = true;
       this.panelsAnimation.sync(val);
@@ -623,7 +625,7 @@ export class QuestionPanelDynamicModel extends Question
       getAnimatedElement: (panel) => {
         if(panel && this.cssContent) {
           const contentSelector = classesToSelector(this.cssContent);
-          return this.getWrapperElement()?.querySelector(`${contentSelector} #${panel.id}`)?.parentElement;
+          return this.getWrapperElement()?.querySelector(`:scope ${contentSelector} #${panel.id}`)?.parentElement;
         }
       },
       getEnterOptions: () => {
@@ -664,12 +666,12 @@ export class QuestionPanelDynamicModel extends Question
   private _panelsAnimations: AnimationProperty<Array<PanelModel>, [PanelModel]>;
   private disablePanelsAnimations() {
     this.panelsCore.forEach((panel) => {
-      panel.animationAllowed = false;
+      panel.blockAnimations();
     });
   }
   private enablePanelsAnimations() {
     this.panelsCore.forEach((panel) => {
-      panel.animationAllowed = true;
+      panel.releaseAnimations();
     });
   }
   private updatePanelsAnimation() {
@@ -1158,9 +1160,9 @@ export class QuestionPanelDynamicModel extends Question
   public set renderMode(val: string) {
     this.setPropertyValue("renderMode", val);
     this.fireCallback(this.renderModeChangedCallback);
-    this.animationAllowed = false;
+    this.blockAnimations();
     this.updateRenderedPanels();
-    this.animationAllowed = true;
+    this.releaseAnimations();
     this.updatePanelsAnimation();
   }
   public get tabAlign(): "center" | "left" | "right" {
@@ -1608,11 +1610,15 @@ export class QuestionPanelDynamicModel extends Question
       const prefixName = this.getValueName() + indexStr;
       const prefixText = this.processedTitle + indexStr;
       for (var i = 0; i < panelObjs.length; i++) {
-        objects.push({
-          name: prefixName + panelObjs[i].name,
-          text: prefixText + panelObjs[i].text,
-          question: panelObjs[i].question,
-        });
+        if(!!panelObjs[i].context) {
+          objects.push(panelObjs[i]);
+        } else {
+          objects.push({
+            name: prefixName + panelObjs[i].name,
+            text: prefixText + panelObjs[i].text,
+            question: panelObjs[i].question,
+          });
+        }
       }
     }
     if (hasContext) {
@@ -1625,9 +1631,7 @@ export class QuestionPanelDynamicModel extends Question
           text: prefixText + QuestionPanelDynamicItem.ItemVariableName + "." + panelObjs[i].text,
           question: panelObjs[i].question
         };
-        if (context === true) {
-          obj.context = this;
-        }
+        obj.context = this;
         objects.push(obj);
       }
     }
@@ -1678,7 +1682,7 @@ export class QuestionPanelDynamicModel extends Question
   private buildPanelsFirstTime(force: boolean = false): void {
     if(this.hasPanelBuildFirstTime) return;
     if(!force && this.wasNotRenderedInSurvey) return;
-    this.animationAllowed = false;
+    this.blockAnimations();
     this.hasPanelBuildFirstTime = true;
     this.isBuildingPanelsFirstTime = true;
     if (this.getPropertyValue("panelCount") > 0) {
@@ -1701,7 +1705,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.updateFooterActions();
     this.isBuildingPanelsFirstTime = false;
-    this.animationAllowed = true;
+    this.releaseAnimations();
   }
   private get wasNotRenderedInSurvey(): boolean {
     return !this.hasPanelBuildFirstTime && !this.wasRendered && !!this.survey;

@@ -67,6 +67,16 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
               event.currentTarget
             );
           },
+          (event: any) => {
+            event.persist();
+            //event.preventDefault();
+            this.question.handlePointerUp.call(
+              this.question,
+              event,
+              item,
+              event.currentTarget
+            );
+          },
           this.question.cssClasses,
           this.question.getItemClass(item),
           this.question,
@@ -82,6 +92,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     i: number,
     handleKeydown: (event: any) => void,
     handlePointerDown: (event: PointerEvent) => void,
+    handlePointerUp: (event: PointerEvent) => void,
     cssClasses: any,
     itemClass: string,
     question: QuestionRankingModel,
@@ -101,6 +112,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
         itemTabIndex={tabIndex}
         handleKeydown={handleKeydown}
         handlePointerDown={handlePointerDown}
+        handlePointerUp={handlePointerUp}
         cssClasses={cssClasses}
         itemClass={itemClass}
         question={question}
@@ -132,6 +144,9 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   }
   protected get handlePointerDown(): (event: any) => void {
     return this.props.handlePointerDown;
+  }
+  protected get handlePointerUp(): (event: any) => void {
+    return this.props.handlePointerUp;
   }
   protected get cssClasses(): any {
     return this.props.cssClasses;
@@ -167,6 +182,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
         className={this.itemClass}
         onKeyDown={this.handleKeydown}
         onPointerDown={this.handlePointerDown}
+        onPointerUp={this.handlePointerUp}
         data-sv-drop-target-ranking-item={this.index}
       >
         <div tabIndex={-1} style={{ outline: "none" }}>

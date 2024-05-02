@@ -714,11 +714,14 @@ QUnit.test("checkbox vs valuePropertyName, use in expression", (assert) => {
       {
         type: "text",
         name: "q2",
-        visibleIf: "{q1} allof ['apple', 'orange']"
+        visibleIf: "{q1-unwrapped} allof ['apple', 'orange']"
       }
     ]
   });
   const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const conds: any = [];
+  q1.addConditionObjectsByContext(conds, undefined);
+  assert.equal(conds[0].name, "q1-unwrapped", "use filtered name");
   const q2 = survey.getQuestionByName("q2");
   assert.equal(q2.isVisible, false, "#1");
   q1.renderedValue = ["apple", "orange"];
@@ -1912,4 +1915,33 @@ QUnit.test("On value changed, comment and valueName Bug#8137", (assert) => {
   assert.equal(questionName, "q1", "question name #3");
   assert.equal(name, "val1-Comment", "name #3");
   assert.equal(value, "comment1", "value #3");
+});
+QUnit.test("maxSelectedChoices & getItemClass, bug#8159", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["Item1", "Item2", "Item3"],
+        maxSelectedChoices: 2
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  const disableStyle = "sv_q_disable";
+  const readOnlyStyle = "sv_q_disable";
+  q1.cssClasses.itemDisabled = disableStyle;
+  q1.cssClasses.itemReadOnly = readOnlyStyle;
+  q1.renderedValue = ["Item1", "Item3"];
+  assert.ok(q1.visibleChoices[0].enabled, "Item1 enabled #1");
+  assert.notOk(q1.visibleChoices[1].enabled, "Item2 enabled #2");
+
+  assert.notOk(q1.getItemClass(q1.visibleChoices[0]).indexOf(disableStyle) >= 0, "Item1 disabled #1");
+  assert.ok(q1.getItemClass(q1.visibleChoices[1]).indexOf(disableStyle) >= 0, "Item2 disabled #2");
+  assert.notOk(q1.getItemClass(q1.visibleChoices[2]).indexOf(disableStyle) >= 0, "Item3 disabled #3");
+
+  assert.notOk(q1.getItemClass(q1.visibleChoices[0]).indexOf(readOnlyStyle) >= 0, "Item1 read-only #1");
+  assert.ok(q1.getItemClass(q1.visibleChoices[1]).indexOf(readOnlyStyle) >= 0, "Item2 read-only #2");
+  assert.notOk(q1.getItemClass(q1.visibleChoices[2]).indexOf(readOnlyStyle) >= 0, "Item3 read-only #3");
 });

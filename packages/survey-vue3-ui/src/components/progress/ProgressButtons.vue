@@ -1,7 +1,19 @@
 <template>
-  <div :class="model.getRootCss(container)" :style="{'maxWidth': model.progressWidth}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
+  <div
+    :class="model.getRootCss(container)"
+    :style="{ maxWidth: model.progressWidth }"
+    role="progressbar"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-label="progress"
+  >
     <div v-if="canShowHeader" :class="survey.css.progressButtonsHeader">
-      <div :class="survey.css.progressButtonsPageTitle" :title="model.headerText">{{ model.headerText }}</div>
+      <div
+        :class="survey.css.progressButtonsPageTitle"
+        :title="model.headerText"
+      >
+        {{ model.headerText }}
+      </div>
     </div>
     <div :class="css.progressButtonsContainer">
       <div
@@ -19,24 +31,32 @@
             :key="'listelement' + index"
             :class="model.getListElementCss(index)"
             v-on:click="
-              model.isListElementClickable(index) ? model.clickListElement(page) : null
+              model.isListElementClickable(index)
+                ? model.clickListElement(page)
+                : null
             "
             :data-page-number="model.getItemNumber(page)"
           >
             <div :class="css.progressButtonsConnector"></div>
-            <div v-if="canShowItemTitles"
+            <div
+              v-if="canShowItemTitles"
               :class="css.progressButtonsPageTitle"
               :title="page.renderedNavigationTitle"
             >
-              {{ page.renderedNavigationTitle }}
+              <survey-string :locString="page.locNavigationTitle" />
             </div>
-            <div v-if="canShowItemTitles"
+            <div
+              v-if="canShowItemTitles"
               :class="css.progressButtonsPageDescription"
               :title="page.locNavigationDescription.renderedHtml"
             >
               {{ page.locNavigationDescription.renderedHtml }}
             </div>
-            <div :class="css.progressButtonsButton"><div :class="css.progressButtonsButtonBackground"></div><div :class="css.progressButtonsButtonContent"></div><span>{{model.getItemNumber(page)}}</span></div>
+            <div :class="css.progressButtonsButton">
+              <div :class="css.progressButtonsButtonBackground"></div>
+              <div :class="css.progressButtonsButtonContent"></div>
+              <span>{{ model.getItemNumber(page) }}</span>
+            </div>
           </li>
         </ul>
       </div>
@@ -47,13 +67,23 @@
       ></div>
     </div>
     <div v-if="canShowFooter" :class="survey.css.progressButtonsFooter">
-      <div :class="survey.css.progressButtonsPageTitle" :title="model.footerText">{{ model.footerText }}</div>
+      <div
+        :class="survey.css.progressButtonsPageTitle"
+        :title="model.footerText"
+      >
+        {{ model.footerText }}
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { type SurveyModel, ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "survey-core";
+import {
+  type SurveyModel,
+  ProgressButtons,
+  ProgressButtonsResponsivityManager,
+  IProgressButtonsViewModel,
+} from "survey-core";
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
 
 const props = defineProps<{
@@ -88,7 +118,7 @@ onMounted(() => {
       canShowItemTitles.value = props.model.showItemTitles;
       canShowFooter.value = !props.model.showItemTitles;
     },
-    container: computed(() => props.container)
+    container: computed(() => props.container),
   } as any);
 });
 onBeforeUnmount(() => {

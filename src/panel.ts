@@ -115,13 +115,16 @@ export class QuestionRowModel extends Base {
   public get elements(): Array<IElement> {
     return this.getPropertyValue("elements");
   }
+  protected getIsAnimationAllowed(): boolean {
+    return super.getIsAnimationAllowed() && this.visible && this.panel?.animationAllowed;
+  }
   private getVisibleElementsAnimationOptions(): IAnimationConsumer<[IElement]> {
     const beforeRunAnimation = (el: HTMLElement) => {
       el.style.setProperty("--animation-height", el.offsetHeight + "px");
       el.style.setProperty("--animation-width", getElementWidth(el) + "px");
     };
     return {
-      isAnimationEnabled: () => this.panel?.animationAllowed && this.visible,
+      isAnimationEnabled: () => this.animationAllowed,
       getAnimatedElement: (element: IElement) => (element as any as SurveyElement).getWrapperElement(),
       getLeaveOptions: (element: IElement) => {
         const surveyElement = element as unknown as SurveyElement;
@@ -357,6 +360,9 @@ export class PanelModelBase extends SurveyElement<Question>
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
     this.createLocalizableString("requiredErrorText", this);
+    this.createLocalizableString("navigationTitle", this, true).onGetTextCallback = (text: string) => {
+      return text || this.title || this.name;
+    };
     this.registerPropertyChangedHandlers(["questionTitleLocation"], () => {
       this.onVisibleChanged.bind(this);
       this.updateElementCss(true);
@@ -374,13 +380,13 @@ export class PanelModelBase extends SurveyElement<Question>
     return "panelbase";
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
-    this.animationAllowed = false;
+    this.blockAnimations();
     super.setSurveyImpl(value, isLight);
     if (this.isDesignMode) this.onVisibleChanged();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].setSurveyImpl(value, isLight);
     }
-    this.animationAllowed = true;
+    this.releaseAnimations();
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
@@ -423,8 +429,17 @@ export class PanelModelBase extends SurveyElement<Question>
       this.elements[i].locStrsChanged();
     }
   }
+  getMarkdownHtml(text: string, name: string): string {
+    if(name === "navigationTitle" && this.locNavigationTitle.isEmpty) {
+      return this.locTitle.renderedHtml || this.name;
+    }
+    return super.getMarkdownHtml(text, name);
+  }
+  public get locNavigationTitle(): LocalizableString {
+    return this.getLocalizableString("navigationTitle");
+  }
   public get renderedNavigationTitle(): string {
-    return this.title || this.name;
+    return this.locNavigationTitle.renderedHtml;
   }
   /**
    * Returns a character or text string that indicates a required panel/page.
@@ -1109,13 +1124,13 @@ export class PanelModelBase extends SurveyElement<Question>
     return new QuestionRowModel(this);
   }
   public onSurveyLoad(): void {
-    this.animationAllowed = false;
+    this.blockAnimations();
     super.onSurveyLoad();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onSurveyLoad();
     }
     this.onElementVisibilityChanged(this);
-    this.animationAllowed = true;
+    this.releaseAnimations();
   }
   public onFirstRendering(): void {
     super.onFirstRendering();
@@ -1145,9 +1160,9 @@ export class PanelModelBase extends SurveyElement<Question>
 
   protected onRowsChanged() {
     if (this.isLoadingFromJson) return;
-    this.animationAllowed = false;
+    this.blockAnimations();
     this.setArrayPropertyDirectly("rows", this.buildRows());
-    this.animationAllowed = true;
+    this.releaseAnimations();
   }
 
   private locCountRowUpdates = 0;

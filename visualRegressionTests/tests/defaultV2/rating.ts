@@ -291,6 +291,9 @@ frameworks.forEach(framework => {
 
   test("Check rating stars question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await ClientFunction(() => {
+        document.head.insertAdjacentHTML("beforeend", "<style>* { box-sizing: border-box; }</style>");
+      })();
       await t.resizeWindow(1920, 1080);
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {

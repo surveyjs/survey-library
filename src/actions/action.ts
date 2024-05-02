@@ -171,13 +171,15 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
       innerPopupModel.toggleVisibility();
     },
     listOptions.allowSelection,
-    listOptions.selectedItem,
-    listOptions.onFilterStringChangedCallback
+    listOptions.selectedItem
   );
   listModel.locOwner = locOwner;
+  listModel.setOnFilterStringChangedCallback(listOptions.onFilterStringChangedCallback);
+
   const options = popupOptions || {};
   options.onDispose = () => { listModel.dispose(); };
   const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, options);
+  innerPopupModel.displayMode = popupOptions?.displayMode as any;
 
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
@@ -234,7 +236,7 @@ export abstract class BaseAction extends Base implements IAction {
   public get renderedId(): number { return this.rendredIdValue; }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
   public set owner(val: ILocalizableOwner) {
-    if(val !== this.owner) {
+    if (val !== this.owner) {
       this.ownerValue = val;
       this.locStrsChanged();
     }
@@ -349,9 +351,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
-        if (key !== "locTitle") {
-          (<any>this)[key] = (<any>innerItem)[key];
-        }
+        if (key === "locTitle" || key === "title" && !!this.locTitle && !!this.title) continue;
+        (<any>this)[key] = (<any>innerItem)[key];
       }
     }
     if (!!this.locTitleName) {

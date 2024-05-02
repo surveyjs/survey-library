@@ -21,7 +21,7 @@
             [class]="survey.css.progressButtonsPageTitle"
             [title]="page.renderedNavigationTitle"
           >
-            {{ page.renderedNavigationTitle }}
+            <sv-ng-string [model]="page.locNavigationTitle"></sv-ng-string>
           </div>
           <div *ngIf="canShowItemTitles"
             [class]="survey.css.progressButtonsPageDescription"

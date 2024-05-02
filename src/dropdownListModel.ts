@@ -106,6 +106,7 @@ export class DropdownListModel extends Base {
       }
       if (option.isVisible && this.question.choicesLazyLoadEnabled) {
         this.listModel.actions = [];
+        this.resetItemsSettings();
         this.updateQuestionChoices();
       }
 
@@ -177,7 +178,7 @@ export class DropdownListModel extends Base {
         this.popupModel.isVisible = false;
       };
     }
-    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.question.choicesLazyLoadEnabled ? this.listModelFilterStringChanged : undefined, this.listElementId);
+    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.listElementId);
     this.setOnTextSearchCallbackForListModel(res);
     res.renderElements = false;
     res.forceShowFilter = true;
@@ -364,6 +365,7 @@ export class DropdownListModel extends Base {
 
     this.listModel = this.createListModel();
     this.updateAfterListModelCreated(this.listModel);
+    this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
     this.setSearchEnabled(this.question.searchEnabled);
     this.setTextWrapEnabled(this.question.textWrapEnabled);
     this.createPopup();
@@ -392,6 +394,10 @@ export class DropdownListModel extends Base {
     this.searchEnabled = newValue;
   }
 
+  public setChoicesLazyLoadEnabled(newValue: boolean): void {
+    this.listModel.setOnFilterStringChangedCallback(newValue ? this.listModelFilterStringChanged : undefined);
+  }
+
   public updateItems(): void {
     this.listModel.setItems(this.getAvailableItems());
   }
@@ -411,9 +417,6 @@ export class DropdownListModel extends Base {
   protected onPropertyChangedHandler(sender: any, options: any) {
     if (options.name == "value") {
       this.showInputFieldComponent = this.question.showInputFieldComponent;
-    }
-    if(options.name == "choicesLazyLoadEnabled" && options.newValue) {
-      this.listModel.setOnFilterStringChangedCallback(this.listModelFilterStringChanged);
     }
     if(options.name == "textWrapEnabled") {
       this.setTextWrapEnabled(options.newValue);

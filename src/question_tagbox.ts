@@ -39,9 +39,16 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   protected getDefaultItemComponent(): string {
     return "";
   }
-  public onSurveyLoad() {
+  public onSurveyLoad(): void {
     super.onSurveyLoad();
-    if (!this.dropdownListModel) {
+    this.createDropdownListModel();
+  }
+  protected onSetData(): void {
+    super.onSetData();
+    this.createDropdownListModel();
+  }
+  private createDropdownListModel(): void {
+    if (!this.dropdownListModel && !this.isLoadingFromJson) {
       this.dropdownListModel = new DropdownMultiSelectListModel(this);
     }
   }

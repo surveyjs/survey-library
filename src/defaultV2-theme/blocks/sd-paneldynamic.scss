@@ -310,13 +310,14 @@
     }
 }
 
-.sd-paneldynamic__panel-wrapper--fade-in-left,
-.sd-paneldynamic__panel-wrapper--fade-in-right {
+.sd-paneldynamic__panel-wrapper--fade-in.sv-pd-animation-left,
+.sd-paneldynamic__panel-wrapper--fade-in.sv-pd-animation-right {
+    --sjs-pd-tab-animation-delay: 0ms;
     animation-name: movePanel, changeHeight, paddingFadeIn, fadeIn;
     animation-duration: $pd-tab-move-in-duration, $pd-tab-height-change-duration, $pd-tab-height-change-duration,
         $pd-tab-fade-in-duration;
-    animation-delay: $pd-tab-move-in-delay, $pd-tab-height-change-delay, $pd-tab-height-change-delay,
-        $pd-tab-fade-in-delay;
+    animation-delay: calc(#{$pd-tab-move-in-delay} + var(--sjs-pd-tab-animation-delay)), calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay)), calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay)),
+        calc(#{$pd-tab-fade-in-delay} + var(--sjs-pd-tab-animation-delay));
     animation-timing-function: $ease-out;
     animation-fill-mode: forwards;
     opacity: 0;
@@ -325,15 +326,15 @@
     height: var(--animation-height-from);
     --animation-padding-bottom: calc(1 * var(--sd-base-padding));
 }
-.sd-paneldynamic__panel-wrapper--fade-in-left {
+.sd-paneldynamic__panel-wrapper--fade-in.sv-pd-animation-left {
     --sjs-pd-tab-move-margin: calc(1 * #{$pd-tab-move-in-margin});
 }
-.sd-paneldynamic__panel-wrapper--fade-in-right {
+.sd-paneldynamic__panel-wrapper--fade-in.sv-pd-animation-right {
     --sjs-pd-tab-move-margin: calc(-1 * #{$pd-tab-move-in-margin});
 }
 
-.sd-paneldynamic__panel-wrapper--fade-out-left,
-.sd-paneldynamic__panel-wrapper--fade-out-right {
+.sd-paneldynamic__panel-wrapper--fade-out.sv-pd-animation-left,
+.sd-paneldynamic__panel-wrapper--fade-out.sv-pd-animation-right {
     animation-name: fadeIn, movePanel;
     animation-duration: $pd-tab-fade-out-duration, $pd-tab-move-out-duration;
     animation-delay: $pd-tab-fade-out-delay, $pd-tab-move-out-delay;
@@ -343,13 +344,36 @@
     position: absolute;
     left: var(--sd-base-padding);
     top: 0;
-    width: calc(100% - 2 * var(--sd-base-padding));
+    width: calc(100% - 2 * var(--sd-base-padding));   
 }
-.sd-paneldynamic__panel-wrapper--fade-out-left {
+.sd-paneldynamic__panel-wrapper--fade-out.sv-pd-animation-left {
     --sjs-pd-tab-move-margin: calc(-1 * #{$pd-tab-move-out-margin});
 }
-.sd-paneldynamic__panel-wrapper--fade-out-right {
+.sd-paneldynamic__panel-wrapper--fade-out.sv-pd-animation-right {
     --sjs-pd-tab-move-margin: calc(1 * #{$pd-tab-move-out-margin});
+}
+.sd-paneldynamic__panel-wrapper--fade-in.sv-pd-animation-adding {
+    animation-name: fadeIn, changeHeight, paddingFadeIn;
+    animation-duration: $pd-tab-add-fade-in-duration, $pd-tab-height-change-duration, $pd-tab-height-change-duration;
+    animation-delay: calc(#{$pd-tab-add-fade-in-delay} + var(--sjs-pd-tab-animation-delay)), calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay)), calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay));
+    animation-timing-function: $ease-out;
+    animation-fill-mode: forwards;
+    transform: translateX(0);
+}
+.sd-paneldynamic__panel-wrapper--fade-in.sv-pd-animation-removing {
+    --sjs-pd-tab-animation-delay: #{$pd-tab-remove-fade-in-delay};   
+}
+.sd-paneldynamic__panel-wrapper--fade-out.sv-pd-animation-removing {
+    animation-name: fadeIn;
+    animation-duration: $pd-tab-remove-fade-out-duration;
+    animation-delay: $pd-tab-remove-fade-out-delay;
+    animation-timing-function: $reverse-ease-out;
+    animation-direction: reverse;
+    animation-fill-mode: forwards;
+    position: absolute;
+    left: var(--sd-base-padding);
+    top: 0;
+    width: calc(100% - 2 * var(--sd-base-padding));
 }
 
 .sd-paneldynamic__panel-wrapper--fade-in,

@@ -88,8 +88,10 @@
 }
 
 .sd-imagepicker__item:focus-within .sd-imagepicker__image,
-.sd-imagepicker__item--allowhover .sd-imagepicker__image:hover {
-  opacity: 0.5;
+.sd-imagepicker__item--allowhover:not(.sd-imagepicker__item--readonly, .sd-imagepicker__item--preview) {
+  .sd-imagepicker__image:hover {
+    opacity: 0.5;
+  }
 }
 
 .sd-imagepicker__image {

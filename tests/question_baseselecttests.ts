@@ -1945,3 +1945,18 @@ QUnit.test("maxSelectedChoices & getItemClass, bug#8159", (assert) => {
   assert.ok(q1.getItemClass(q1.visibleChoices[1]).indexOf(readOnlyStyle) >= 0, "Item2 read-only #2");
   assert.notOk(q1.getItemClass(q1.visibleChoices[2]).indexOf(readOnlyStyle) >= 0, "Item3 read-only #3");
 });
+QUnit.test("radiogroup.getConditionJson, bug#8226", (assert) => {
+  var json = {
+    questions: [
+      { type: "radiogroup", name: "q1", showClearButton: true, choices: ["Item1"] },
+      { type: "radiogroup", name: "q2", choices: ["Item1"] }
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const res = { type: "radiogroup", name: "q1", choices: ["Item1"] };
+  assert.deepEqual(q1.getConditionJson(), res, "q1");
+  res.name = "q2";
+  assert.deepEqual(q2.getConditionJson(), res, "q2");
+});

@@ -534,7 +534,7 @@ export class QuestionMultipleTextModel extends Question
     this.items.forEach(item => item.editor.collectNestedQuestions(questions, visibleOnly));
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    if (!path) return super.getConditionJson();
+    if (!path) return super.getConditionJson(operator);
     var item = this.getItemByName(path);
     if (!item) return null;
     var json = new JsonObject().toJsonObject(item);

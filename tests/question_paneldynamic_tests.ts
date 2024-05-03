@@ -19,6 +19,7 @@ import { settings } from "../src/settings";
 import { QuestionMatrixModel } from "../src/question_matrix";
 import { defaultStandardCss } from "../src/defaultCss/cssstandard";
 import { AnimationGroup, AnimationTab } from "../src/utils/animation";
+import { SurveyElement } from "../src/survey-element";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -7147,4 +7148,35 @@ QUnit.test("onQuestionVisibleChanged should be fired", function (assert) {
   survey.setValue("q1", 1);
   survey.setValue("q1", 2);
   assert.deepEqual(questionNames, ["q3:true", "q3:false"], "visiblity logs");
+});
+QUnit.test("Always focus on error in duplicated value, Bug8228", function (assert) {
+  let focusedQuestionId = "";
+  var oldFunc = SurveyElement.FocusElement;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    focusedQuestionId = elId;
+    return true;
+  };
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "q1",
+      "type": "paneldynamic",
+      "keyName": "q2",
+      "templateElements": [
+        {
+          "name": "q2",
+          "type": "text"
+        }
+      ]
+    },
+    ]
+  });
+  survey.data = { q1: [{ q2: 2 }, { q2: 2 }] };
+
+  const res = survey.validate(false, false);
+  assert.equal(res, false, "There is an error");
+  assert.notOk(focusedQuestionId, "Do not focus");
+  survey.validate(false, true);
+  assert.ok(focusedQuestionId, "Focus on the question");
+
+  SurveyElement.FocusElement = oldFunc;
 });

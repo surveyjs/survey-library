@@ -37,6 +37,7 @@
   height: calc(100%);
   box-sizing: border-box;
   border-radius: calcSize(12.5);
+  overflow: hidden;
 }
 
 .sd-boolean.sd-boolean--checked .sd-boolean__label--true,

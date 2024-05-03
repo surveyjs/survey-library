@@ -63,6 +63,7 @@ export class QuestionBooleanModel extends Question {
       this.value = val == true ? this.getValueTrue() : this.getValueFalse();
       this.booleanValueRendered = val;
     }
+    this.updateThumbMargin();
   }
   public get defaultValue(): any {
     return this.getPropertyValue("defaultValue");
@@ -85,6 +86,29 @@ export class QuestionBooleanModel extends Question {
   }
   public get labelRenderedAriaID(): string {
     return this.isLabelRendered ? this.ariaTitleId : null;
+  }
+
+  @property() leftAnswerElement: HTMLElement;
+  @property() thumbMargin: string;
+
+  public updateThumbMargin(): void {
+    let margin = undefined;
+    if (!this.isIndeterminate && this.leftAnswerElement) {
+      if (!this.swapOrder && this.value === this.getValueTrue() || this.swapOrder && this.value === this.getValueFalse()) {
+        margin = this.leftAnswerElement.clientWidth + (this.swapOrder ? 4 : 2) + "px";
+      }
+    }
+    this.thumbMargin = margin;
+  }
+
+  public afterRender(el: HTMLElement) {
+    super.afterRender(el);
+    this.leftAnswerElement = el.querySelectorAll("." + this.cssClasses.sliderGhost)[0] as HTMLElement;
+    this.updateThumbMargin();
+  }
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
+    super.beforeDestroyQuestionElement(el);
+    this.leftAnswerElement = undefined;
   }
 
   //Obsolete

@@ -11,7 +11,7 @@
         </span>
       </div>
       <div data-bind="css: question.cssClasses.switch, click: onSwitchClick">
-        <span data-bind="css: question.cssClasses.slider">
+        <span data-bind="css: question.cssClasses.slider, style: { marginLeft: question.thumbMargin }">
             <!-- ko if: question.cssClasses.sliderText && question.isDeterminated -->
             <span data-bind="css: question.cssClasses.sliderText">
               <!-- ko template: { name: 'survey-string', data: question.getCheckedLabel() } --><!-- /ko -->

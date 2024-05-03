@@ -1507,6 +1507,32 @@ QUnit.test("Allow to override default value fro choicesByUrl.path Bug#6766", fun
   assert.equal(q1.choicesByUrl.path, "list", "get new default value for path");
   prop.defaultValue = undefined;
 });
+QUnit.test("Infinitive loop error by using carryForward, Bug#8232", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    {
+      type: "checkbox",
+      name: "q1",
+      visibleIf: "{q1} notempty",
+      choices: [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }, { value: 3, text: "Item 3" },
+        { value: 4, text: "Item 4" }, { value: 5, text: "Item 5" }],
+      choicesFromQuestionMode: "selected",
+      hideIfChoicesEmpty: true,
+    },
+    {
+      type: "checkbox",
+      name: "q2",
+      choicesFromQuestion: "q1",
+      choicesFromQuestionMode: "unselected",
+      hideIfChoicesEmpty: true,
+    }],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  assert.ok(q1, "q1 exists");
+  assert.ok(q2, "q2 exists");
+  assert.equal(q1.visibleChoices.length, 5, "q1.visibleChoices");
+  assert.equal(q2.visibleChoices.length, 5, "q2.visibleChoices");
+});
 QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-1", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "paneldynamic", name: "q1", valueName: "sharedData",

@@ -111,7 +111,7 @@ export class QuestionSelectBase extends Question {
     return "itemvalue";
   }
   public createItemValue(value: any, text?: string): ItemValue {
-    const res = <ItemValue>Serializer.createClass(this.getItemValueType(), value);
+    const res = <ItemValue>Serializer.createClass(this.getItemValueType(), { value: value });
     res.locOwner = this;
     if(!!text) res.text = text;
     return res;
@@ -1174,18 +1174,29 @@ export class QuestionSelectBase extends Question {
       ? this.filteredChoicesValue
       : this.activeChoices;
   }
+  private isGettingAcitveChoices: boolean;
   protected get activeChoices(): Array<ItemValue> {
+    if(this.isGettingAcitveChoices) return [];
+    this.isGettingAcitveChoices = true;
+    let res: Array<ItemValue> = undefined;
     const question = this.getCarryForwardQuestion();
     if (this.carryForwardQuestionType === "select") {
       (<QuestionSelectBase>question).addDependedQuestion(this);
-      return this.getChoicesFromSelectQuestion((<QuestionSelectBase>question));
+      res = this.getChoicesFromSelectQuestion((<QuestionSelectBase>question));
+    } else {
+      if (this.carryForwardQuestionType === "array") {
+        (<any>question).addDependedQuestion(this);
+        res = this.getChoicesFromArrayQuestion(question);
+      }
     }
-    if (this.carryForwardQuestionType === "array") {
-      (<any>question).addDependedQuestion(this);
-      return this.getChoicesFromArrayQuestion(question);
+    if(!res && this.isEmptyActiveChoicesInDesign) {
+      res = [];
     }
-    if(this.isEmptyActiveChoicesInDesign) return [];
-    return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
+    if(!res) {
+      res = this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
+    }
+    this.isGettingAcitveChoices = false;
+    return res;
   }
   public get isMessagePanelVisible(): boolean {
     return this.getPropertyValue("isMessagePanelVisible", false);

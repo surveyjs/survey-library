@@ -32,8 +32,8 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
   var buildPath = __dirname + "/../build/" + (buildFolderName || packageJson.name) + "/";
   var isProductionBuild = options.buildType === "prod";
 
-  if (!!packageJson.dependencies && packageJson.dependencies["survey-core"]) {
-    packageJson.dependencies["survey-core"] = packageJson.version;
+  if (!!packageJson.peerDependencies && packageJson.peerDependencies["survey-core"]) {
+    packageJson.peerDependencies["survey-core"] = packageJson.version;
   }
 
   function createSVGBundle() {

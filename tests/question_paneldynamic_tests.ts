@@ -7076,22 +7076,59 @@ QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
 
   enterOptions = options.getEnterOptions(question.panels[0]);
   leaveOptions = options.getLeaveOptions(question.panels[1]);
-  assert.equal(enterOptions.cssClass, "enter-right");
-  assert.equal(leaveOptions.cssClass, "leave-right");
+  assert.equal(enterOptions.cssClass, "enter sv-pd-animation-right");
+  assert.equal(leaveOptions.cssClass, "leave sv-pd-animation-right");
   enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer1);
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer2);
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "40px");
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "20px");
 
   question.currentIndex = 1;
+  question["_renderedPanels"] = [question.panels[0], question.panels[1]];
+
   enterOptions = options.getEnterOptions(question.panels[0]);
   leaveOptions = options.getLeaveOptions(question.panels[1]);
-  assert.equal(enterOptions.cssClass, "enter-left");
-  assert.equal(leaveOptions.cssClass, "leave-left");
+  assert.equal(enterOptions.cssClass, "enter sv-pd-animation-left");
+  assert.equal(leaveOptions.cssClass, "leave sv-pd-animation-left");
   enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
+
+  question["focusNewPanelCallback"] = () => {};
+  enterOptions = options.getEnterOptions(question.panels[0]);
+  leaveOptions = options.getLeaveOptions(question.panels[1]);
+  assert.equal(enterOptions.cssClass, "enter sv-pd-animation-adding sv-pd-animation-left");
+  assert.equal(leaveOptions.cssClass, "leave sv-pd-animation-adding sv-pd-animation-left");
+  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
+  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
+  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
+  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
+
+  const removedPanel = question.panels[1];
+  question.removePanel(removedPanel);
+  question["_renderedPanels"] = [question.panels[0], removedPanel];
+
+  question["removedPanelIndex"] = 0;
+  enterOptions = options.getEnterOptions(question.panels[0]);
+  leaveOptions = options.getLeaveOptions(question.panels[1]);
+  assert.equal(enterOptions.cssClass, "enter sv-pd-animation-removing sv-pd-animation-left");
+  assert.equal(leaveOptions.cssClass, "leave sv-pd-animation-removing sv-pd-animation-left");
+  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
+  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
+  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
+  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
+
+  question["removedPanelIndex"] = 1;
+  enterOptions = options.getEnterOptions(question.panels[0]);
+  leaveOptions = options.getLeaveOptions(question.panels[1]);
+  assert.equal(enterOptions.cssClass, "enter sv-pd-animation-removing sv-pd-animation-right");
+  assert.equal(leaveOptions.cssClass, "leave sv-pd-animation-removing sv-pd-animation-right");
+  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
+  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
+  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
+  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
+
   panelsContainer.remove();
 });
 QUnit.test("onQuestionVisibleChanged should be fired", function (assert) {

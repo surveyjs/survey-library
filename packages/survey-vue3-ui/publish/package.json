@@ -19,9 +19,7 @@
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
   "peerDependencies": {
-    "vue": "^3.2.41"
-  },
-  "dependencies": {
+    "vue": "^3.2.41",
     "survey-core": "*"
   }
 }

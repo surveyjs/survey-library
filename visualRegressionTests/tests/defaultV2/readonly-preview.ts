@@ -152,6 +152,35 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Rating as dropdown ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "rating",
+            "name": "nps-score",
+            "title": "Rating",
+            "rateMin": 1,
+            "rateMax": 5,
+            "minRateDescription": "Not Satisfied",
+            "maxRateDescription": "Completely Satisfied",
+            "defaultValue": 4,
+            "readOnly": true,
+            "displayMode": "dropdown",
+          }
+        ]
+      });
+      await takeElementScreenshot("readonly-rating-dropdown.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-rating-dropdown.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
   test("Rating Stars ReadOnly and Preview", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);

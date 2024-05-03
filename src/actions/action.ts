@@ -175,9 +175,10 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   );
   listModel.locOwner = locOwner;
   listModel.setOnFilterStringChangedCallback(listOptions.onFilterStringChangedCallback);
-  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title, () => {
-    listModel.dispose();
-  });
+
+  const options = popupOptions || {};
+  options.onDispose = () => { listModel.dispose(); };
+  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, options);
   innerPopupModel.displayMode = popupOptions?.displayMode as any;
 
   const newActionOptions = Object.assign({}, actionOptions, {
@@ -202,7 +203,7 @@ export function getActionDropdownButtonTarget(container: HTMLElement): HTMLEleme
 
 export abstract class BaseAction extends Base implements IAction {
   private static renderedId = 1;
-  private static getNextRendredId(): number { return BaseAction.renderedId ++; }
+  private static getNextRendredId(): number { return BaseAction.renderedId++; }
   private cssClassesValue: any;
   private rendredIdValue = BaseAction.getNextRendredId();
   private ownerValue: ILocalizableOwner;
@@ -235,7 +236,7 @@ export abstract class BaseAction extends Base implements IAction {
   public get renderedId(): number { return this.rendredIdValue; }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
   public set owner(val: ILocalizableOwner) {
-    if(val !== this.owner) {
+    if (val !== this.owner) {
       this.ownerValue = val;
       this.locStrsChanged();
     }
@@ -350,7 +351,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
-        if(key === "locTitle" || key === "title" && !!this.locTitle && !!this.title) continue;
+        if (key === "locTitle" || key === "title" && !!this.locTitle && !!this.title) continue;
         (<any>this)[key] = (<any>innerItem)[key];
       }
     }

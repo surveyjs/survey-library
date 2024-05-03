@@ -176,7 +176,7 @@ QUnit.test("Action title in list model", (assert) => {
     locTooltipName: "previewText"
   });
   const list = new ListModel([action1], () => { }, true);
-  const popupModel = new PopupModel("sv-list", list, "bottom", "center");
+  const popupModel = new PopupModel("sv-list", list, { verticalPosition: "bottom", horizontalPosition: "center" });
   survey.addNavigationItem({ id: "action1", title: "test", popupModel: popupModel });
   assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
   assert.equal(action1.title, "Select All", "Update action title en localization");

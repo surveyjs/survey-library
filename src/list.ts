@@ -79,6 +79,21 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public isItemVisible(item: T): boolean {
     return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filterString));
   }
+
+  protected getRenderedActions(): Array<T> {
+    let actions = super.getRenderedActions();
+
+    if (this.filterString) {
+      let newActions = [] as Array<T>;
+      actions.forEach(action => {
+        newActions.push(action);
+        if (action.items) action.items.forEach(item => newActions.push(item as T));
+      });
+      return newActions;
+    }
+
+    return actions;
+  }
   public get visibleItems(): Array<T> {
     return this.visibleActions.filter(item => this.isItemVisible(item));
   }

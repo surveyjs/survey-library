@@ -384,6 +384,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   public setItems(items: Array<IAction>, onSelectionChanged: (item: Action, ...params: any[]) => void): void {
     this.markerIconName = "icon-next_16x16";
     this.component = "sv-list-item-group";
+    this.items = [...items];
     const { innerPopupModel, listModel }: { innerPopupModel: PopupModel<any>, listModel: ListModel<Action> } =
       createPopupModelWithListModel(
         { items: items, onSelectionChanged: onSelectionChanged },

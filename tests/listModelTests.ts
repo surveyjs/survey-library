@@ -406,3 +406,37 @@ QUnit.test("ListModel filter & comparator.normalize text (brouillé=brouille)", 
   assert.equal(filteredActions.length, 2, "include brouillé");
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
 });
+QUnit.test("ListModel search in subitems", function (assert) {
+  ListModel.MINELEMENTCOUNT = 5;
+
+  const items: Array<IAction> = [];
+  for (let index = 0; index < 7; ++index) {
+    items.push(new Action({ id: "test" + index, title: "test" + index }));
+  }
+
+  const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
+  (items[2] as Action).setItems(subitems, () => { });
+  const list = new ListModel(items, () => { }, true);
+  let filteredActions;
+  filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
+  assert.equal(filteredActions.length, 7);
+  list.filterString = "t";
+  filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
+  assert.equal(filteredActions.length, 9);
+
+  list.filterString = "2";
+  filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
+  assert.equal(filteredActions.length, 3);
+  assert.deepEqual(filteredActions.map(a => a.title), ["test2", "test28", "test29"]);
+
+  list.filterString = "1";
+  filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
+  assert.equal(filteredActions.length, 1);
+  assert.deepEqual(filteredActions.map(a => a.title), ["test1"]);
+  list.filterString = "28";
+  filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
+  assert.equal(filteredActions.length, 1);
+  assert.deepEqual(filteredActions.map(a => a.title), ["test28"]);
+
+  ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
+});

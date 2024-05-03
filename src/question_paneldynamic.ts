@@ -1654,7 +1654,7 @@ export class QuestionPanelDynamicModel extends Question
     });
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    if (!path) return super.getConditionJson(operator, path);
+    if (!path) return super.getConditionJson(operator);
     var questionName = path;
     var pos = path.indexOf(".");
     if (pos > -1) {

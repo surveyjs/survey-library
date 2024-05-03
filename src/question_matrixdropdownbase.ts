@@ -1370,7 +1370,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return options.cellType;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    if (!path) return super.getConditionJson();
+    if (!path) return super.getConditionJson(operator);
     var columnName = "";
     for (var i = path.length - 1; i >= 0; i--) {
       if (path[i] == ".") break;

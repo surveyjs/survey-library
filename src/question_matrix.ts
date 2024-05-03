@@ -633,7 +633,7 @@ export class QuestionMatrixModel
     }
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    if (!path) return super.getConditionJson();
+    if (!path) return super.getConditionJson(operator);
     var question = new QuestionDropdownModel(path);
     question.choices = this.columns;
     var json = new JsonObject().toJsonObject(question);

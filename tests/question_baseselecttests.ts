@@ -1532,6 +1532,7 @@ QUnit.test("Infinitive loop error by using carryForward, Bug#8232", function (as
   assert.ok(q2, "q2 exists");
   assert.equal(q1.visibleChoices.length, 5, "q1.visibleChoices");
   assert.equal(q2.visibleChoices.length, 5, "q2.visibleChoices");
+  assert.equal(q2.isVisible, true, "q2 is visible");
 });
 QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-1", function (assert) {
   const survey = new SurveyModel({ elements: [

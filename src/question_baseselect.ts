@@ -482,7 +482,7 @@ export class QuestionSelectBase extends Question {
   private canSurveyChangeItemVisibility(): boolean {
     return !!this.survey && this.survey.canChangeChoiceItemsVisibility();
   }
-  public changeItemVisisbility() {
+  private changeItemVisibility() {
     return this.canSurveyChangeItemVisibility() ?
       (item: ItemValue, val: boolean): boolean => this.survey.getChoiceItemVisibility(this, item, val)
       : null;
@@ -492,7 +492,7 @@ export class QuestionSelectBase extends Question {
     properties: HashTable<any>
   ): boolean {
     this.filteredChoicesValue = [];
-    const calcVisibility = this.changeItemVisisbility();
+    const calcVisibility = this.changeItemVisibility();
     return ItemValue.runConditionsForItems(
       this.activeChoices,
       this.getFilteredChoices(),
@@ -1065,7 +1065,7 @@ export class QuestionSelectBase extends Question {
   protected canShowOptionItem(item: ItemValue, isAddAll: boolean, hasItem: boolean): boolean {
     let res: boolean = (isAddAll && (!!this.canShowOptionItemCallback ? this.canShowOptionItemCallback(item) : true)) || hasItem;
     if (this.canSurveyChangeItemVisibility()) {
-      const calc = this.changeItemVisisbility();
+      const calc = this.changeItemVisibility();
       return calc(item, res);
     }
     return res;
@@ -1174,29 +1174,18 @@ export class QuestionSelectBase extends Question {
       ? this.filteredChoicesValue
       : this.activeChoices;
   }
-  private isGettingAcitveChoices: boolean;
   protected get activeChoices(): Array<ItemValue> {
-    if(this.isGettingAcitveChoices) return [];
-    this.isGettingAcitveChoices = true;
-    let res: Array<ItemValue> = undefined;
     const question = this.getCarryForwardQuestion();
     if (this.carryForwardQuestionType === "select") {
       (<QuestionSelectBase>question).addDependedQuestion(this);
-      res = this.getChoicesFromSelectQuestion((<QuestionSelectBase>question));
-    } else {
-      if (this.carryForwardQuestionType === "array") {
-        (<any>question).addDependedQuestion(this);
-        res = this.getChoicesFromArrayQuestion(question);
-      }
+      return this.getChoicesFromSelectQuestion((<QuestionSelectBase>question));
     }
-    if(!res && this.isEmptyActiveChoicesInDesign) {
-      res = [];
+    if (this.carryForwardQuestionType === "array") {
+      (<any>question).addDependedQuestion(this);
+      return this.getChoicesFromArrayQuestion(question);
     }
-    if(!res) {
-      res = this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
-    }
-    this.isGettingAcitveChoices = false;
-    return res;
+    if(this.isEmptyActiveChoicesInDesign) return [];
+    return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
   public get isMessagePanelVisible(): boolean {
     return this.getPropertyValue("isMessagePanelVisible", false);
@@ -1592,7 +1581,7 @@ export class QuestionSelectBase extends Question {
     this.onVisibleChoicesChanged();
     this.clearIncorrectValues();
   }
-  onSurveyValueChanged(newValue: any) {
+  onSurveyValueChanged(newValue: any): void {
     super.onSurveyValueChanged(newValue);
     this.updateChoicesDependedQuestions();
   }
@@ -1608,8 +1597,8 @@ export class QuestionSelectBase extends Question {
   protected isVisibleCore(): boolean {
     const superVal = super.isVisibleCore();
     if (!this.hideIfChoicesEmpty || !superVal) return superVal;
-    var filteredChoices = this.getFilteredChoices();
-    return !filteredChoices || filteredChoices.length > 0;
+    var choices = this.isUsingCarryForward ? this.visibleChoices : this.getFilteredChoices();
+    return !choices || choices.length > 0;
   }
   private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
     if(this.isDesignMode) return array;

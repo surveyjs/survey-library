@@ -2414,7 +2414,6 @@ export class Question extends SurveyElement<Question>
   public isDefaultRendering(): boolean {
     return (
       !!this.customWidget ||
-      this.renderAs === "default" ||
       this.getComponentName() === "default"
     );
   }

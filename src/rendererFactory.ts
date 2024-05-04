@@ -26,9 +26,13 @@ export class RendererFactory {
   }
 
   public getRenderer(questionType: string, renderAs: string): string {
-    return (this.renderersHash[questionType] && this.renderersHash[questionType][renderAs]) ||
-        this.defaultHash[questionType] && this.renderersHash[questionType][this.defaultHash[questionType]]
-        || "default";
+    const qHash = this.renderersHash[questionType];
+    if(!!qHash) {
+      if(!!renderAs && qHash[renderAs]) return qHash[renderAs];
+      const dVal = this.defaultHash[questionType];
+      if(!!dVal && qHash[dVal]) return qHash[dVal];
+    }
+    return "default";
   }
 
   public getRendererByQuestion(question: Question): any {

@@ -92,13 +92,14 @@ export class QuestionBooleanModel extends Question {
   @property() thumbMargin: string;
 
   public updateThumbMargin(): void {
-    let margin = undefined;
     if (!this.isIndeterminate && this.leftAnswerElement) {
       if (!this.swapOrder && this.value === this.getValueTrue() || this.swapOrder && this.value === this.getValueFalse()) {
-        margin = this.leftAnswerElement.clientWidth + (this.swapOrder ? 4 : 2) + "px";
+        setTimeout(() => {
+          this.thumbMargin = this.leftAnswerElement.clientWidth + (this.swapOrder ? 4 : 2) + "px";
+        }, 50);
       }
     }
-    this.thumbMargin = margin;
+    this.thumbMargin = undefined;
   }
 
   public afterRender(el: HTMLElement) {

@@ -17,17 +17,6 @@ export class DragDropRankingChoices extends DragDropChoices {
     if(!draggedElementShortcut) return;
 
     draggedElementShortcut.className = this.shortcutClass + " sv-ranking-shortcut";
-    draggedElementShortcut.style.cssText = ` 
-          cursor: grabbing;
-          position: absolute;
-          z-index: 10000;
-          border-radius: calc(12.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
-          min-width: 100px;
-          max-width: 400px;
-          box-shadow: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
-          background-color: var(--sjs-general-backcolor, var(--background, #fff));
-          font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));
-        `;
 
     const isDeepClone = true;
     const clone = <HTMLElement>draggedElementNode.cloneNode(isDeepClone);

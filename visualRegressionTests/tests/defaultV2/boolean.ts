@@ -140,5 +140,39 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("boolean-question-word-wrap.png", questionRoot, t, comparer);
     });
   });
+
+  test("Check boolean thumb position", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1400, 800);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                type: "boolean",
+                name: "boolean1",
+                swapOrder: false,
+                labelTrue: "True Label",
+                defaultValue: true
+              },
+              {
+                type: "boolean",
+                name: "boolean2",
+                swapOrder: true,
+                labelTrue: "True Label",
+                defaultValue: false
+              },
+            ]
+          }
+        ]
+      });
+      const questionRoot = Selector(".sd-question--boolean");
+      await t.wait(1000);
+      await takeElementScreenshot("boolean-switch-thumb-right.png", questionRoot.nth(0), t, comparer);
+      await takeElementScreenshot("boolean-switch-thumb-right-swapped.png", questionRoot.nth(1), t, comparer);
+    });
+  });
 });
 

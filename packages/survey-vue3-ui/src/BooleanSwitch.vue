@@ -34,7 +34,7 @@
         :class="question.cssClasses.switch"
         v-on:click="onSwitchClick($event)"
       >
-        <span :class="question.cssClasses.slider">
+        <span :class="question.cssClasses.slider" :style="{ marginLeft: question.thumbMargin }">
           <span
             v-if="question.cssClasses.sliderText && question.isDeterminated"
             :class="question.cssClasses.sliderText"

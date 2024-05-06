@@ -37,6 +37,7 @@
   height: calc(100%);
   box-sizing: border-box;
   border-radius: calcSize(12.5);
+  overflow: hidden;
 }
 
 .sd-boolean.sd-boolean--checked .sd-boolean__label--true,
@@ -64,7 +65,6 @@
   transition-timing-function: linear;
   color: $primary;
   font-weight: 600;
-  margin-left: 0%;
 
   .sv-string-viewer {
     &.sv-string-viewer--multiline {
@@ -75,18 +75,7 @@
   z-index: 2;
 }
 
-.sd-boolean--checked .sd-boolean__thumb {
-  margin-left: 50%;
-}
-
 .sd-boolean--exchanged {
-  .sd-boolean__thumb {
-    margin-left: calc(50% + calcSize(0.5));
-  }
-
-  &.sd-boolean--checked .sd-boolean__thumb {
-    margin-left: 0%;
-  }
 
   &.sd-boolean:not(.sd-boolean--checked):not(sd-boolean--indeterminate) .sd-boolean__label--false,
   &.sd-boolean.sd-boolean--checked .sd-boolean__label--true {

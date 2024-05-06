@@ -100,7 +100,7 @@ export class QuestionBooleanModel extends Question {
         }, 50);
       }
     }
-    this.thumbMargin = "0px";
+    this.thumbMargin = undefined;
   }
 
   public afterRender(el: HTMLElement) {

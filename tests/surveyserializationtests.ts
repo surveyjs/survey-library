@@ -12,6 +12,7 @@ import { NumericValidator } from "../src/validator";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { Helpers } from "../src/helpers";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
+import { ComponentCollection } from "../src/question_custom";
 
 export default QUnit.module("SurveySerialization");
 
@@ -772,4 +773,79 @@ QUnit.test("Allow to save empty string for trings with default value", function 
   assert.equal(q.minWidth, "300px", "Default value again");
   q.fromJSON({ name: "q1", minWidth: "" });
   assert.equal(q.minWidth, "", "empty width was in JSON");
+});
+QUnit.test("An infinitive loop occurs at e.removePosFromObj Bug#8224", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "exampleComponentQuestion",
+    elementsJSON: [
+      {
+        type: "checkbox",
+        name: "exampleCheckbox",
+      },
+    ],
+    onInit() {
+      Serializer.addClass(
+        "exampleOptions",
+        [
+          {
+            name: "value",
+            type: "dropdown",
+            choices: [
+              { value: 1, text: "Foo" },
+              { value: 2, text: "Bar" },
+              { value: 3, text: "Baz" },
+            ],
+          },
+          { name: "text", type: "string", showMode: "form" },
+          { name: "isSpecial", type: "boolean", showMode: "form" }
+        ],
+        undefined,
+        "itemvalue"
+      );
+      Serializer.addProperty("exampleComponentQuestion", {
+        name: "exampleOptions",
+        type: "exampleOptions[]",
+        visible: true,
+        categoryIndex: 0,
+        visibleIndex: 1,
+        category: "Example Options",
+      });
+    },
+    onLoaded(question) {
+      const checkbox = question.contentPanel.getQuestionByName("exampleCheckbox");
+      checkbox.choices = question.exampleOptions.map((option) => ({
+        value: option.value,
+        text: option.isSpecial ? option.text + " is special" : option.text,
+      }));
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "exampleComponentQuestion",
+        name: "q1",
+        exampleOptions: [
+          { value: 1, text: "Foo" },
+          { value: 2, text: "Bar Custom" },
+          { value: 3, text: "Baz", isSpecial: true },
+        ]
+      },
+    ],
+  });
+  const question = survey.getQuestionByName("q1");
+  question.exampleOptions = [
+    { value: 1, text: "Foo" },
+    { value: 2, text: "Bar", isSpecial: true },
+    { value: 3, text: "Baz Custom" }
+  ];
+  const json = question.toJSON();
+  const opts = json.exampleOptions;
+  assert.equal(opts.length, 3, "Three options");
+  assert.equal(opts[0].text, "Foo", "opts[0].text");
+  assert.equal(opts[1].isSpecial, true, "opts[1].isSpecial");
+  assert.equal(opts[2].value, 3, "opts[2].value");
+
+  Serializer.removeClass("exampleComponentQuestion");
+  Serializer.removeClass("exampleOptions");
+  ComponentCollection.Instance.clear();
 });

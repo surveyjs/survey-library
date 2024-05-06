@@ -555,7 +555,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return res;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    var json = super.getConditionJson();
+    const json = super.getConditionJson(operator, path);
     if (operator == "contains" || operator == "notcontains") {
       json["type"] = "radiogroup";
     }

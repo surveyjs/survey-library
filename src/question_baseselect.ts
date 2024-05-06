@@ -111,7 +111,7 @@ export class QuestionSelectBase extends Question {
     return "itemvalue";
   }
   public createItemValue(value: any, text?: string): ItemValue {
-    const res = <ItemValue>Serializer.createClass(this.getItemValueType(), value);
+    const res = <ItemValue>Serializer.createClass(this.getItemValueType(), { value: value });
     res.locOwner = this;
     if(!!text) res.text = text;
     return res;
@@ -482,7 +482,7 @@ export class QuestionSelectBase extends Question {
   private canSurveyChangeItemVisibility(): boolean {
     return !!this.survey && this.survey.canChangeChoiceItemsVisibility();
   }
-  public changeItemVisisbility() {
+  private changeItemVisibility() {
     return this.canSurveyChangeItemVisibility() ?
       (item: ItemValue, val: boolean): boolean => this.survey.getChoiceItemVisibility(this, item, val)
       : null;
@@ -492,7 +492,7 @@ export class QuestionSelectBase extends Question {
     properties: HashTable<any>
   ): boolean {
     this.filteredChoicesValue = [];
-    const calcVisibility = this.changeItemVisisbility();
+    const calcVisibility = this.changeItemVisibility();
     return ItemValue.runConditionsForItems(
       this.activeChoices,
       this.getFilteredChoices(),
@@ -1065,7 +1065,7 @@ export class QuestionSelectBase extends Question {
   protected canShowOptionItem(item: ItemValue, isAddAll: boolean, hasItem: boolean): boolean {
     let res: boolean = (isAddAll && (!!this.canShowOptionItemCallback ? this.canShowOptionItemCallback(item) : true)) || hasItem;
     if (this.canSurveyChangeItemVisibility()) {
-      const calc = this.changeItemVisisbility();
+      const calc = this.changeItemVisibility();
       return calc(item, res);
     }
     return res;
@@ -1581,7 +1581,7 @@ export class QuestionSelectBase extends Question {
     this.onVisibleChoicesChanged();
     this.clearIncorrectValues();
   }
-  onSurveyValueChanged(newValue: any) {
+  onSurveyValueChanged(newValue: any): void {
     super.onSurveyValueChanged(newValue);
     this.updateChoicesDependedQuestions();
   }
@@ -1597,8 +1597,8 @@ export class QuestionSelectBase extends Question {
   protected isVisibleCore(): boolean {
     const superVal = super.isVisibleCore();
     if (!this.hideIfChoicesEmpty || !superVal) return superVal;
-    var filteredChoices = this.getFilteredChoices();
-    return !filteredChoices || filteredChoices.length > 0;
+    var choices = this.isUsingCarryForward ? this.visibleChoices : this.getFilteredChoices();
+    return !choices || choices.length > 0;
   }
   private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
     if(this.isDesignMode) return array;

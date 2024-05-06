@@ -1507,6 +1507,33 @@ QUnit.test("Allow to override default value fro choicesByUrl.path Bug#6766", fun
   assert.equal(q1.choicesByUrl.path, "list", "get new default value for path");
   prop.defaultValue = undefined;
 });
+QUnit.test("Infinitive loop error by using carryForward, Bug#8232", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    {
+      type: "checkbox",
+      name: "q1",
+      visibleIf: "{q1} notempty",
+      choices: [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }, { value: 3, text: "Item 3" },
+        { value: 4, text: "Item 4" }, { value: 5, text: "Item 5" }],
+      choicesFromQuestionMode: "selected",
+      hideIfChoicesEmpty: true,
+    },
+    {
+      type: "checkbox",
+      name: "q2",
+      choicesFromQuestion: "q1",
+      choicesFromQuestionMode: "unselected",
+      hideIfChoicesEmpty: true,
+    }],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  assert.ok(q1, "q1 exists");
+  assert.ok(q2, "q2 exists");
+  assert.equal(q1.visibleChoices.length, 5, "q1.visibleChoices");
+  assert.equal(q2.visibleChoices.length, 5, "q2.visibleChoices");
+  assert.equal(q2.isVisible, true, "q2 is visible");
+});
 QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-1", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "paneldynamic", name: "q1", valueName: "sharedData",
@@ -1944,4 +1971,19 @@ QUnit.test("maxSelectedChoices & getItemClass, bug#8159", (assert) => {
   assert.notOk(q1.getItemClass(q1.visibleChoices[0]).indexOf(readOnlyStyle) >= 0, "Item1 read-only #1");
   assert.ok(q1.getItemClass(q1.visibleChoices[1]).indexOf(readOnlyStyle) >= 0, "Item2 read-only #2");
   assert.notOk(q1.getItemClass(q1.visibleChoices[2]).indexOf(readOnlyStyle) >= 0, "Item3 read-only #3");
+});
+QUnit.test("radiogroup.getConditionJson, bug#8226", (assert) => {
+  var json = {
+    questions: [
+      { type: "radiogroup", name: "q1", showClearButton: true, choices: ["Item1"] },
+      { type: "radiogroup", name: "q2", choices: ["Item1"] }
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const res = { type: "radiogroup", name: "q1", choices: ["Item1"] };
+  assert.deepEqual(q1.getConditionJson(), res, "q1");
+  res.name = "q2";
+  assert.deepEqual(q2.getConditionJson(), res, "q2");
 });

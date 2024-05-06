@@ -1842,7 +1842,7 @@ export class JsonObject {
     this.removePosFromObj(value);
   }
   private removePosFromObj(obj: any) {
-    if (!obj) return;
+    if (!obj || typeof obj.getType === "function") return;
     if (Array.isArray(obj)) {
       for (var i = 0; i < obj.length; i++) {
         this.removePosFromObj(obj[i]);

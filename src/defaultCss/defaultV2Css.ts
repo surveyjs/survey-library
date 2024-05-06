@@ -635,6 +635,8 @@ export var defaultV2Css = {
     selectWrapper: "sv-dropdown_select-wrapper",
     controlValue: "sd-dropdown__value",
     controlDisabled: "sd-input--disabled",
+    controlReadOnly: "sd-input--readonly",
+    controlPreview: "sd-input--preview",
     controlEmpty: "sd-dropdown--empty",
     filterStringInput: "sd-dropdown__filter-string-input",
     chevronButton: "sd-dropdown_chevron-button",

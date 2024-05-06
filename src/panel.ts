@@ -857,7 +857,7 @@ export class PanelModelBase extends SurveyElement<Question>
       };
     if(rec.result !== true) rec.result = false;
     this.hasErrorsCore(rec);
-    if (rec.firstErrorQuestion) {
+    if (rec.focuseOnFirstError && rec.firstErrorQuestion) {
       rec.firstErrorQuestion.focus(true);
     }
     return !rec.result;

@@ -202,10 +202,11 @@ export function createPopupModelWithListModel(listOptions: IListModel, popupOpti
   );
   listModel.setOnFilterStringChangedCallback(listOptions.onFilterStringChangedCallback);
 
-  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title, () => {
-    listModel.dispose();
-  });
+  const options = popupOptions || {};
+  options.onDispose = () => { listModel.dispose(); };
+  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, options);
   innerPopupModel.displayMode = popupOptions?.displayMode as any;
+
   return { innerPopupModel, listModel };
 }
 
@@ -241,7 +242,7 @@ export abstract class BaseAction extends Base implements IAction {
   public id: string;
   public removePriority: number;
   @property() iconName: string;
-  @property() iconSize: number = 24;
+  @property({ defaultValue: 24 }) iconSize: number;
   @property() markerIconName: string;
   @property() markerIconSize: number = 16;
   @property() css?: string

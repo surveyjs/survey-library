@@ -1,5 +1,5 @@
 import { PopupUtils } from "../../src/utils/popup";
-import { PopupModel } from "../../src/popup";
+import { IPopupOptionsBase, PopupModel } from "../../src/popup";
 import { PopupBaseViewModel } from "../../src/popup-view-model";
 import { createPopupViewModel } from "../../src/popup-utils";
 import { surveyLocalization } from "../../src/surveyStrings";
@@ -1064,7 +1064,7 @@ QUnit.test("PopupModel and locale", (assert) => {
 });
 
 QUnit.test("PopupModel top+center position calculate", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center", true);
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center", showPointer: true });
   const targetElement: HTMLElement = document.createElement("button");
 
   targetElement.style.position = "absolute";
@@ -1094,7 +1094,7 @@ QUnit.test("PopupModel top+center position calculate", (assert) => {
 });
 
 QUnit.test("PopupModel top+left position calculate", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "top", "left", true);
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "left", showPointer: true });
   const targetElement: HTMLElement = document.createElement("button");
 
   targetElement.style.position = "absolute";
@@ -1124,7 +1124,7 @@ QUnit.test("PopupModel top+left position calculate", (assert) => {
 });
 
 QUnit.test("Fixed PopupModel width calculate setWidthByTarget = false", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
   model.positionMode = "fixed";
   model.setWidthByTarget = false;
   const targetElement: HTMLElement = document.createElement("button");
@@ -1159,7 +1159,7 @@ QUnit.test("Fixed PopupModel width calculate setWidthByTarget = false", (assert)
 });
 
 QUnit.test("Fixed PopupModel width calculate if short content setWidthByTarget = false", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
   model.positionMode = "fixed";
   model.setWidthByTarget = false;
   const targetElement: HTMLElement = document.createElement("button");
@@ -1194,7 +1194,7 @@ QUnit.test("Fixed PopupModel width calculate if short content setWidthByTarget =
 });
 
 QUnit.test("Fixed PopupModel width calculate and overflow content position calculate setWidthByTarget = false", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
   model.positionMode = "fixed";
   model.setWidthByTarget = false;
   const targetElement: HTMLElement = document.createElement("button");
@@ -1229,7 +1229,7 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
 });
 
 QUnit.test("Fixed PopupModel width calculate", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
   model.positionMode = "fixed";
   model.setWidthByTarget = true;
   const targetElement: HTMLElement = document.createElement("button");
@@ -1264,7 +1264,7 @@ QUnit.test("Fixed PopupModel width calculate", (assert) => {
 });
 
 QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
   model.positionMode = "fixed";
   model.setWidthByTarget = true;
   const targetElement: HTMLElement = document.createElement("button");
@@ -1299,7 +1299,7 @@ QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
 });
 
 QUnit.test("Fixed PopupModel width calculate and overflow content position calculate", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
   model.positionMode = "fixed";
   model.setWidthByTarget = true;
   const targetElement: HTMLElement = document.createElement("button");
@@ -1334,7 +1334,7 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
 });
 
 QUnit.test("PopupViewModel updateOnHiding", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
   model.positionMode = "fixed";
   const targetElement: HTMLElement = document.createElement("button");
 
@@ -1394,7 +1394,7 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
 });
 
 QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
   const targetElement: HTMLElement = document.createElement("button");
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel["calculateIsTablet"](300, 300);
@@ -1413,7 +1413,7 @@ QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
   targetElement.remove();
 });
 QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
   const targetElement: HTMLElement = document.createElement("button");
 
   targetElement.style.position = "absolute";
@@ -1555,7 +1555,7 @@ QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
   container.remove();
 });
 QUnit.test("PopupModel into modal window with translate/transform", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center");
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center" });
   const targetElement: HTMLElement = document.createElement("button");
 
   targetElement.style.position = "absolute";
@@ -1623,7 +1623,7 @@ QUnit.test("PopupViewModel: check animation's onEnter, onLeave are called correc
   settings.animationEnabled = true;
   const oldQueueMicrotask = window.queueMicrotask;
   window.queueMicrotask = (cb) => cb();
-  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center");
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center" });
   model.onVisibilityChanged.add((_: PopupModel, options: { isVisible: boolean }) => {
     logger.log += `->model:isVisible:${options.isVisible}`;
   });
@@ -1648,7 +1648,7 @@ QUnit.test("PopupViewModel: check animation's onEnter, onLeave are called correc
 
 QUnit.test("PopupViewModel: check popupViewModel without container is working correctly", (assert) => {
   const logger = { log: "" };
-  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center");
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center" });
   model.onVisibilityChanged.add((_: PopupModel, options: { isVisible: boolean }) => {
     logger.log += `->model:isVisible:${options.isVisible}`;
   });
@@ -1666,7 +1666,7 @@ QUnit.test("PopupViewModel: check popupViewModel without container is working co
 
 QUnit.test("PopupViewModel: check popupViewModel is working correctly when shouldRunAnimation is false", (assert) => {
   const logger = { log: "" };
-  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center");
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center" });
   model.onVisibilityChanged.add((_: PopupModel, options: { isVisible: boolean }) => {
     logger.log += `->model:isVisible:${options.isVisible}`;
   });
@@ -1687,7 +1687,7 @@ QUnit.test("PopupViewModel: check popupViewModel is working correctly when shoul
 
 QUnit.test("PopupViewModel: check getShouldRunAnimation method", (assert) => {
   settings.animationEnabled = true;
-  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center");
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center" });
   const viewModel: TestAnimationPopupViewModel = new TestAnimationPopupViewModel(model);
   assert.ok(viewModel.isAnimationEnabled());
   model.displayMode = "overlay";

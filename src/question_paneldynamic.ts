@@ -614,12 +614,22 @@ export class QuestionPanelDynamicModel extends Question
   }
   private isPanelsAnimationRunning: boolean = false;
   private getPanelsAnimationOptions(): IAnimationConsumer<[PanelModel]> {
-    const getDirection = () => {
+    const getDirectionCssClass = () => {
       if(this.isRenderModeList) return "";
+      let cssClass = new CssClassBuilder();
+      let isRemoving = false;
       const leavingPanel = this.renderedPanels.filter(el => el !== this.currentPanel)[0];
       let leavingPanelIndex = this.visiblePanels.indexOf(leavingPanel);
-      if(leavingPanelIndex < 0) leavingPanelIndex = this.removedPanelIndex;
-      return leavingPanelIndex > this.currentIndex ? "-right" : "-left";
+      if(leavingPanelIndex < 0) {
+        isRemoving = true;
+        leavingPanelIndex = this.removedPanelIndex;
+      }
+      return cssClass
+        .append("sv-pd-animation-adding", !!this.focusNewPanelCallback)
+        .append("sv-pd-animation-removing", isRemoving)
+        .append("sv-pd-animation-left", leavingPanelIndex <= this.currentIndex)
+        .append("sv-pd-animation-right", leavingPanelIndex > this.currentIndex)
+        .toString();
     };
     return {
       getAnimatedElement: (panel) => {
@@ -629,7 +639,7 @@ export class QuestionPanelDynamicModel extends Question
         }
       },
       getEnterOptions: () => {
-        const cssClass = this.cssClasses.panelWrapperFadeIn ? `${this.cssClasses.panelWrapperFadeIn}${getDirection()}` : "";
+        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperFadeIn).append(getDirectionCssClass()).toString();
         return {
           onBeforeRunAnimation: (el) => {
             if(this.focusNewPanelCallback) {
@@ -646,7 +656,7 @@ export class QuestionPanelDynamicModel extends Question
         };
       },
       getLeaveOptions: () => {
-        const cssClass = this.cssClasses.panelWrapperFadeOut ? `${this.cssClasses.panelWrapperFadeOut}${getDirection()}` : "";
+        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperFadeOut).append(getDirectionCssClass()).toString();
         return {
           onBeforeRunAnimation: (el) => {
             if(!this.isRenderModeList) {
@@ -1644,7 +1654,7 @@ export class QuestionPanelDynamicModel extends Question
     });
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    if (!path) return super.getConditionJson(operator, path);
+    if (!path) return super.getConditionJson(operator);
     var questionName = path;
     var pos = path.indexOf(".");
     if (pos > -1) {

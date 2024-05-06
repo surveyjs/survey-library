@@ -1160,9 +1160,17 @@ export class JsonMetadata {
     return metaClass.getAllProperties();
   }
   public getPropertiesByObj(obj: any): Array<JsonObjectProperty> {
-    if (!obj || !obj.getType) return [];
-    const props = this.getProperties(obj.getType());
+    const type = !!obj && !!obj.getType ? obj.getType() : undefined;
+    if (!type) return [];
+    const props = this.getProperties(type);
     const dynamicProps = this.getDynamicPropertiesByObj(obj);
+    for(let i = dynamicProps.length -1; i >= 0; i --) {
+      if(this.findProperty(type, dynamicProps[i].name)) {
+        dynamicProps.splice(i, 1);
+      }
+    }
+    if(dynamicProps.length === 0) return props;
+
     return [].concat(props).concat(dynamicProps);
   }
   public addDynamicPropertiesIntoObj(dest: any, src: any, props: Array<JsonObjectProperty>): void {

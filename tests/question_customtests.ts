@@ -3237,3 +3237,36 @@ QUnit.test("Single: use incorrect json", function (assert) {
   ComponentCollection.Instance.clear();
   ConsoleWarnings.error = prev;
 });
+QUnit.test("single component: inheritBaseProps - do not duplicate description property", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customdropdown",
+    inheritBaseProps: ["description"],
+    questionJSON: {
+      type: "dropdown",
+      description: {
+        en: "Custom Question",
+        de: "Aangepaste vraag"
+      },
+      choices: [1, 2, 3]
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customdropdown", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  assert.equal(q1.description, "Custom Question", "Get description from internal description");
+  survey.locale = "de";
+  assert.equal(q1.description, "Aangepaste vraag", "Get description from internal description for 'de'");
+  const props = Serializer.getPropertiesByObj(q1);
+  let descriptionCounter = 0;
+  props.forEach(prop => {
+    if(prop.name === "description") {
+      descriptionCounter ++;
+    }
+  });
+  assert.equal(descriptionCounter, 1, "We have one description property");
+  ComponentCollection.Instance.clear();
+});

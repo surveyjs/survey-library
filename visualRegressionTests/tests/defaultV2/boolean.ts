@@ -171,7 +171,7 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question--boolean");
       await t.wait(1000);
       await takeElementScreenshot("boolean-switch-thumb-right.png", questionRoot.nth(0), t, comparer);
-      await takeElementScreenshot("boolean-switch-thumb-right-swapped.png", questionRoot.nth(0), t, comparer);
+      await takeElementScreenshot("boolean-switch-thumb-right-swapped.png", questionRoot.nth(1), t, comparer);
     });
   });
 });

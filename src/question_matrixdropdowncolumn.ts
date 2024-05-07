@@ -233,9 +233,9 @@ export class MatrixDropdownColumn extends Base
    * @see isRequired
    * @see readOnly
    */
-  public get visible(): boolean { return this.getPropertyValue("visible"); }
+  public get visible(): boolean { return this.templateQuestion.visible; }
   public set visible(val: boolean) {
-    this.setPropertyValue("visible", val);
+    this.templateQuestion.visible = val;
   }
   public get hasVisibleCell(): boolean {
     return this._hasVisibleCell;

@@ -1878,7 +1878,7 @@ export class QuestionSelectBase extends Question {
     return this.name + "_" + this.id;
   }
   public getItemEnabled(item: ItemValue) {
-    return !this.isInputReadOnly && item.isEnabled;
+    return !this.isDisabledAttr && item.isEnabled;
   }
   protected rootElement: HTMLElement;
   public afterRender(el: HTMLElement) {

@@ -78,6 +78,9 @@ export class QuestionRatingModel extends Question {
       () => {
         this.updateColors((this.survey as SurveyModel).themeVariables);
       });
+    this.registerFunctionOnPropertiesValueChanged(["displayMode"], () => {
+      this.updateRenderAsBasedOnDisplayMode();
+    });
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.rateValues.length === 0) {
@@ -499,18 +502,16 @@ export class QuestionRatingModel extends Question {
   * [View Demo](https://surveyjs.io/form-library/examples/ui-adaptation-modes-for-rating-scale/ (linkStyle))
   * @see rateType
   */
-  @property({
-    onSet: (val: string, target: QuestionRatingModel) => {
-      if (!target.isDesignMode) {
-        if (val === "dropdown") {
-          target.renderAs = "dropdown";
-        } else {
-          target.renderAs = "default";
-        }
-      }
-    }
-  }) displayMode: "dropdown" | "buttons" | "auto";
-
+  @property() displayMode: "dropdown" | "buttons" | "auto";
+  private updateRenderAsBasedOnDisplayMode(): void {
+    if(this.renderAs !== "default" && this.renderAs !== "dropdown") return;
+    const newVal = !this.isDesignMode && this.displayMode === "dropdown" ? this.displayMode : "default";
+    this.renderAs = newVal;
+  }
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    this.updateRenderAsBasedOnDisplayMode();
+  }
   /**
   * Specifies the alignment of [`minRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#minRateDescription) and [`maxRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#maxRateDescription) texts.
   *
@@ -894,6 +895,7 @@ export class QuestionRatingModel extends Question {
     super.setSurveyImpl(value, isLight);
     if (!this.survey) return;
     this.updateColors((this.survey as SurveyModel).themeVariables);
+    this.updateRenderAsBasedOnDisplayMode();
   }
   public dispose(): void {
     super.dispose();

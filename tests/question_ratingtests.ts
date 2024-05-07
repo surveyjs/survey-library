@@ -1554,6 +1554,28 @@ QUnit.test("rating items custom component", (assert) => {
   const q2 = <QuestionRatingModel>survey2.getQuestionByName("q1");
   assert.equal(q2.itemComponent, "custom-item");
 });
+QUnit.test("renderAs and copying in design-time", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        displayMode: "dropdown"
+      },
+    ],
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.renderAs, "default", "q1.renderAs, #1");
+  const q2 = new QuestionRatingModel("q1");
+  q2.displayMode = "dropdown";
+  assert.equal(q2.renderAs, "dropdown", "q2.renderAs, #2");
+  survey.pages[0].addElement(q2);
+  assert.equal(q2.renderAs, "default", "q2.renderAs, #3");
+});
+
 QUnit.test("Generate empty rating", (assert) => {
   const q1 = new QuestionRatingModel("q1");
   assert.deepEqual(q1.toJSON(), { name: "q1" });

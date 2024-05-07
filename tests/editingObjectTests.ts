@@ -1631,3 +1631,29 @@ QUnit.test("survey, complete text & locale", function (assert) {
   assert.equal(survey.description, "text:de", "description #3");
   assert.equal(commentText.value, "text:de", "commentText #4");
 });
+QUnit.test("Column visible property", function (assert) {
+  var question = new QuestionMatrixDynamicModel("q1");
+  const column = question.addColumn("col1");
+  column.visible = false;
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "name" },
+      { type: "boolean", name: "visible" },
+    ],
+  });
+  survey.editingObj = column;
+  assert.equal(column.visible, false, "column visible property");
+  assert.equal(Serializer.getObjPropertyValue(column, "visible"), false, "Serializer.getObjPropertyValue");
+  const nameQuestion = survey.getQuestionByName("name");
+  const visibleQuestion = survey.getQuestionByName("visible");
+  assert.equal(nameQuestion.value, "col1", "column name");
+  assert.equal(visibleQuestion.value, false, "column visible");
+  visibleQuestion.value = true;
+  assert.equal(visibleQuestion.value, true, "column visible, #2");
+  assert.equal(column.visible, true, "column visible property, #2");
+  assert.equal(Serializer.getObjPropertyValue(column, "visible"), true, "Serializer.getObjPropertyValue, #2");
+  column.visible = false;
+  assert.equal(visibleQuestion.value, false, "column visible, #3");
+  assert.equal(column.visible, false, "column visible property, #3");
+  assert.equal(Serializer.getObjPropertyValue(column, "visible"), false, "Serializer.getObjPropertyValue, #3");
+});

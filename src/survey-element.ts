@@ -1120,7 +1120,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return !!this._renderedIsExpanded;
   }
   protected getIsAnimationAllowed(): boolean {
-    return super.getIsAnimationAllowed() && !!this.survey;
+    return super.getIsAnimationAllowed() && !!this.survey && !(this.survey as SurveyModel)["isEndLoadingFromJson"];
   }
 
   public dispose(): void {

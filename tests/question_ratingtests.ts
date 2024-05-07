@@ -1554,9 +1554,9 @@ QUnit.test("rating items custom component", (assert) => {
   const q2 = <QuestionRatingModel>survey2.getQuestionByName("q1");
   assert.equal(q2.itemComponent, "custom-item");
 });
-QUnit.test("renderAs and copying in design-time", (assert) => {
-  var json = {
-    questions: [
+QUnit.test("displayMode and copying in design-time", (assert) => {
+  const json = {
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -1574,6 +1574,45 @@ QUnit.test("renderAs and copying in design-time", (assert) => {
   assert.equal(q2.renderAs, "dropdown", "q2.renderAs, #2");
   survey.pages[0].addElement(q2);
   assert.equal(q2.renderAs, "default", "q2.renderAs, #3");
+});
+QUnit.test("renderAs in design-time", (assert) => {
+  const json = {
+    elements: [
+      {
+        type: "rating",
+        name: "q1",
+        renderAs: "dropdown"
+      },
+    ],
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.displayMode, "dropdown", "q1.renderAs");
+  assert.equal(q1.renderAs, "default", "q1.renderAs");
+});
+QUnit.test("renderAs in runtime", (assert) => {
+  const json = {
+    elements: [
+      {
+        type: "rating",
+        name: "q1",
+        renderAs: "dropdown"
+      },
+    ],
+  };
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "rating",
+        name: "q1",
+        renderAs: "dropdown"
+      },
+    ],
+  });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.renderAs, "dropdown");
 });
 
 QUnit.test("Generate empty rating", (assert) => {

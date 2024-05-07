@@ -79,7 +79,7 @@ export class QuestionRatingModel extends Question {
         this.updateColors((this.survey as SurveyModel).themeVariables);
       });
     this.registerFunctionOnPropertiesValueChanged(["displayMode"], () => {
-      this.updateRenderAsBasedOnDisplayMode();
+      this.updateRenderAsBasedOnDisplayMode(true);
     });
     this.registerSychProperties(["autoGenerate"],
       () => {
@@ -503,14 +503,24 @@ export class QuestionRatingModel extends Question {
   * @see rateType
   */
   @property() displayMode: "dropdown" | "buttons" | "auto";
-  private updateRenderAsBasedOnDisplayMode(): void {
-    if(this.renderAs !== "default" && this.renderAs !== "dropdown") return;
-    const newVal = !this.isDesignMode && this.displayMode === "dropdown" ? this.displayMode : "default";
-    this.renderAs = newVal;
+  private updateRenderAsBasedOnDisplayMode(isOnChange?: boolean): void {
+    if(this.isDesignMode) {
+      if(isOnChange || this.renderAs === "dropdown") {
+        this.renderAs = "default";
+      }
+    } else {
+      if(isOnChange || this.displayMode !== "auto") {
+        this.renderAs = this.displayMode === "dropdown" ? "dropdown": "default";
+      }
+    }
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
-    this.updateRenderAsBasedOnDisplayMode();
+    if(this.renderAs === "dropdown" && this.displayMode === "auto") {
+      this.displayMode = this.renderAs;
+    } else {
+      this.updateRenderAsBasedOnDisplayMode();
+    }
   }
   /**
   * Specifies the alignment of [`minRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#minRateDescription) and [`maxRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#maxRateDescription) texts.

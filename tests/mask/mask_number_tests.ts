@@ -194,6 +194,8 @@ QUnit.test("get numeric masked not allow negative value by formated text", funct
 
 QUnit.test("get numeric unmasked valid text", function(assert) {
   const maskInstance = new InputMaskNumeric();
+  assert.ok(maskInstance.getUnmaskedValue("") === undefined);
+  assert.ok(maskInstance.getUnmaskedValue("0") === 0);
   assert.ok(maskInstance.getUnmaskedValue("123") === 123);
   assert.ok(maskInstance.getUnmaskedValue("123,456") === 123456);
   assert.ok(maskInstance.getUnmaskedValue("123,456.78") === 123456.78);
@@ -201,9 +203,20 @@ QUnit.test("get numeric unmasked valid text", function(assert) {
   assert.ok(maskInstance.getUnmaskedValue("123,456,789,101.12") === 123456789101.12);
 });
 
-QUnit.test("get numeric unmasked valid text custom settings", function(assert) {
+QUnit.test("get numeric unmasked invalid text", function (assert) {
+  const maskInstance = new InputMaskNumeric();
+  assert.ok(maskInstance.getUnmaskedValue(" ") === undefined);
+  assert.ok(maskInstance.getUnmaskedValue(".") === undefined);
+  assert.ok(maskInstance.getUnmaskedValue(",") === undefined);
+  assert.ok(maskInstance.getUnmaskedValue("-") === undefined);
+  assert.ok(maskInstance.getUnmaskedValue("@") === undefined);
+  assert.ok(maskInstance.getUnmaskedValue("a") === undefined);
+});
+
+QUnit.test("get numeric unmasked valid text custom settings", function (assert) {
   const maskInstance = new InputMaskNumeric();
   maskInstance.setData({ "decimalSeparator": ",", "thousandsSeparator": "." });
+  assert.ok(maskInstance.getUnmaskedValue("0") === 0);
   assert.ok(maskInstance.getUnmaskedValue("123") === 123);
   assert.ok(maskInstance.getUnmaskedValue("123.456") === 123456);
   assert.ok(maskInstance.getUnmaskedValue("123.456,78") === 123456.78);

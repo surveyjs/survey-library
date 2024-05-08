@@ -760,7 +760,7 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
   let verticalPosition = PopupUtils.updateVerticalPosition(
     targetRect,
     100,
-    "left",
+    "center",
     "bottom",
     windowHeight
   );
@@ -774,7 +774,7 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
   verticalPosition = PopupUtils.updateVerticalPosition(
     targetRect,
     100,
-    "left",
+    "center",
     "top",
     windowHeight
   );
@@ -788,7 +788,7 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
   verticalPosition = PopupUtils.updateVerticalPosition(
     targetRect,
     300,
-    "left",
+    "center",
     "top",
     windowHeight
   );
@@ -802,7 +802,7 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
   verticalPosition = PopupUtils.updateVerticalPosition(
     targetRect,
     300,
-    "left",
+    "center",
     "top",
     windowHeight
   );
@@ -816,7 +816,7 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
   verticalPosition = PopupUtils.updateVerticalPosition(
     targetRect,
     60,
-    "center",
+    "left",
     "top",
     windowHeight
   );
@@ -828,7 +828,7 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
   verticalPosition = PopupUtils.updateVerticalPosition(
     targetRect,
     100,
-    "center",
+    "left",
     "top",
     windowHeight
   );
@@ -843,7 +843,7 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
   verticalPosition = PopupUtils.updateVerticalPosition(
     targetRect,
     40,
-    "center",
+    "left",
     "bottom",
     windowHeight
   );
@@ -855,7 +855,7 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
   verticalPosition = PopupUtils.updateVerticalPosition(
     targetRect,
     100,
-    "center",
+    "left",
     "bottom",
     windowHeight
   );
@@ -869,7 +869,7 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
   verticalPosition = PopupUtils.updateVerticalPosition(
     targetRect,
     300,
-    "center",
+    "left",
     "top",
     windowHeight
   );
@@ -883,7 +883,7 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
   verticalPosition = PopupUtils.updateVerticalPosition(
     targetRect,
     300,
-    "center",
+    "left",
     "top",
     windowHeight
   );
@@ -904,48 +904,29 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
     right: 270,
   };
   let windowWidth = 300;
-  let horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 100, "right", "top", windowWidth);
+  let horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 100, "right", windowWidth);
   assert.deepEqual(horizontalPosition, "left", "horizontal position is changed to top cause doesn't fit in right");
+
+  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 25, "right", windowWidth);
+  assert.deepEqual(horizontalPosition, "right", "right horizontal position is not changed");
 
   targetRect.left = 50;
   targetRect.right = 70;
-  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 100, "left", "top", windowWidth);
+  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 100, "left", windowWidth);
   assert.deepEqual(horizontalPosition, "right", "horizontal position is changed to bottom cause doesn't fit in left");
+
+  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 40, "left", windowWidth);
+  assert.deepEqual(horizontalPosition, "left", "left horizontal position is not changed");
 
   targetRect.left = 200;
   targetRect.right = 220;
-  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 300, "left", "top", windowWidth);
+  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 300, "left", windowWidth);
   assert.deepEqual(horizontalPosition, "left", "both directions do not fit: result left");
 
   targetRect.left = 100;
   targetRect.right = 120;
-  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 300, "left", "top", windowWidth);
+  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 300, "left", windowWidth);
   assert.deepEqual(horizontalPosition, "right", "both directions do not fit: result right");
-
-  targetRect.left = 50;
-  targetRect.right = 70;
-  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 60, "left", "middle", windowWidth);
-  assert.deepEqual(horizontalPosition, "left", "with pointer: left horizontal position is not changed");
-
-  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 100, "left", "middle", windowWidth);
-  assert.deepEqual(horizontalPosition, "right", "with pointer: left horizontal position is changed to right");
-
-  targetRect.left = 250;
-  targetRect.right = 270;
-  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 40, "right", "middle", windowWidth);
-  assert.deepEqual(horizontalPosition, "right", "with pointer: right horizontal position is not changed");
-  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 100, "right", "middle", windowWidth);
-  assert.deepEqual(horizontalPosition, "left", "with pointer: right horizontal position is changed to left");
-
-  targetRect.left = 200;
-  targetRect.right = 220;
-  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 300, "left", "middle", windowWidth);
-  assert.deepEqual(horizontalPosition, "left", "with pointer: both directions do not fit: result left");
-
-  targetRect.left = 100;
-  targetRect.right = 120;
-  horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 300, "left", "middle", windowWidth);
-  assert.deepEqual(horizontalPosition, "right", "with pointer: both directions do not fit: result right");
 });
 
 QUnit.test("Check getCorrectedVerticalDimensions if both directions do not fit", (assert) => {

@@ -125,8 +125,8 @@ export class PopupUtils {
   ): VerticalPosition {
     if (verticalPosition === "middle") return verticalPosition;
 
-    let deltaTop = height - (targetRect.top + (horizontalPosition === "center" ? targetRect.height : 0));
-    let deltaBottom = height + targetRect.bottom - (horizontalPosition === "center" ? targetRect.height : 0) - windowHeight;
+    let deltaTop = height - (targetRect.top + (horizontalPosition !== "center" ? targetRect.height : 0));
+    let deltaBottom = height + targetRect.bottom - (horizontalPosition !== "center" ? targetRect.height : 0) - windowHeight;
     if (deltaTop > 0 && deltaBottom <= 0 && verticalPosition == "top") {
       verticalPosition = "bottom";
     } else if (deltaBottom > 0 && deltaTop <= 0 && verticalPosition == "bottom") {
@@ -141,13 +141,12 @@ export class PopupUtils {
     targetRect: ClientRect,
     width: number,
     horizontalPosition: HorizontalPosition,
-    verticalPosition: VerticalPosition,
     windowWidth: number
   ): HorizontalPosition {
     if (horizontalPosition === "center") return horizontalPosition;
 
-    let deltaLeft = width - (targetRect.left + (verticalPosition === "middle" ? targetRect.width : 0));
-    let deltaRight = width + targetRect.right - (verticalPosition === "middle" ? targetRect.width : 0) - windowWidth;
+    let deltaLeft = width - targetRect.left;
+    let deltaRight = width + targetRect.right - windowWidth;
     if (deltaLeft > 0 && deltaRight <= 0 && horizontalPosition == "left") {
       horizontalPosition = "right";
     } else if (deltaRight > 0 && deltaLeft <= 0 && horizontalPosition == "right") {

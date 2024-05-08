@@ -77,7 +77,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         targetElementRect,
         width,
         this.model.horizontalPosition,
-        this.model.verticalPosition,
         DomWindowHelper.getInnerWidth()
       );
     }

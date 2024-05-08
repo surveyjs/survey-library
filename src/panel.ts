@@ -29,7 +29,7 @@ import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
 import { DragDropInfo } from "./drag-drop-helper-v1";
-import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
+import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PageModel } from "./page";
 
@@ -118,7 +118,7 @@ export class QuestionRowModel extends Base {
   protected getIsAnimationAllowed(): boolean {
     return super.getIsAnimationAllowed() && this.visible && this.panel?.animationAllowed;
   }
-  private getVisibleElementsAnimationOptions(): IAnimationConsumer<[IElement]> {
+  private getVisibleElementsAnimationOptions(): IAnimationGroupConsumer<IElement> {
     const beforeRunAnimation = (el: HTMLElement) => {
       el.style.setProperty("--animation-height", el.offsetHeight + "px");
       el.style.setProperty("--animation-width", getElementWidth(el) + "px");
@@ -303,7 +303,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.onRowVisibleChanged();
     row.onVisibleChangedCallback = () => this.onRowVisibleChanged();
   }
-  private getRowsAnimationOptions(): IAnimationConsumer<[QuestionRowModel]> {
+  private getRowsAnimationOptions(): IAnimationGroupConsumer<QuestionRowModel> {
     const beforeRunAnimation = (el: HTMLElement) => {
       el.style.setProperty("--animation-height", el.offsetHeight + "px");
     };

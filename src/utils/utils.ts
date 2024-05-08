@@ -4,7 +4,6 @@ import { IDialogOptions } from "../popup";
 import { surveyLocalization } from "../surveyStrings";
 import { PopupBaseViewModel } from "../popup-view-model";
 import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
-
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
   const segmentsA: string[] = a.replace(regExStrip0, "").split(".");
@@ -469,6 +468,90 @@ function chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void)
     callback(files);
   };
   input.click();
+}
+export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey: (item: T) => any): { addedItems: Array<T>, deletedItems: Array<T>, reorderedItems: Array<{ item: T, movedForward: boolean }>, mergedItems: Array<T> } {
+  const oldItemsMap = new Map<any, T>();
+  const newItemsMap = new Map<any, T>();
+  const commonItemsInNewMap = new Map<any, number>();
+  const commonItemsInOldMap = new Map<any, number>();
+  oldValue.forEach((item, index) => {
+    oldItemsMap.set(getKey(item), item);
+  });
+  newValue.forEach((item, index) => {
+    newItemsMap.set(getKey(item), item);
+  });
+  const addedItems: Array<T> = [];
+  const deletedItems: Array<T> = [];
+
+  //calculating addedItems and items that exist in both arrays
+  newItemsMap.forEach((item, key) => {
+    if(!oldItemsMap.has(key)) {
+      addedItems.push(item);
+    } else {
+      commonItemsInNewMap.set(key, commonItemsInNewMap.size);
+    }
+  });
+
+  //calculating deletedItems and items that exist in both arrays
+
+  oldItemsMap.forEach((item, key) => {
+    if(!newItemsMap.has(key)) {
+      deletedItems.push(item);
+    } else {
+      commonItemsInOldMap.set(key, commonItemsInOldMap.size);
+    }
+  });
+
+  //calculating reordered items
+  const reorderedItems: Array<{ item: T, movedForward: boolean }> = [];
+  commonItemsInNewMap.forEach((index, key) => {
+    const oldIndex = commonItemsInOldMap.get(key);
+    const item = newItemsMap.get(key);
+    if(oldIndex !== index) reorderedItems.push({ item: item, movedForward: oldIndex < index });
+  });
+
+  //calculating merged array if multiple operations are applied at once
+
+  const oldItemsWithCorrectOrder = new Array<T>(oldValue.length);
+  let commonItemsIndex = 0;
+  const commonItemsKeysOrder = Array.from(commonItemsInNewMap.keys());
+  oldValue.forEach((item, index) => {
+    if(commonItemsInNewMap.has(getKey(item))) {
+      oldItemsWithCorrectOrder[index] = newItemsMap.get(commonItemsKeysOrder[commonItemsIndex]);
+      commonItemsIndex++;
+    } else {
+      oldItemsWithCorrectOrder[index] = item;
+    }
+  });
+
+  const valuesToInsertBeforeKey = new Map<any, Array<T>>();
+  let tempValuesArray: Array<T> = [];
+  oldItemsWithCorrectOrder.forEach((item) => {
+    const itemKey = getKey(item);
+    if(newItemsMap.has(itemKey)) {
+      if(tempValuesArray.length > 0) {
+        valuesToInsertBeforeKey.set(itemKey, tempValuesArray);
+        tempValuesArray = [];
+      }
+    } else {
+      tempValuesArray.push(item);
+    }
+  });
+
+  const mergedItems = new Array<T>();
+  newItemsMap.forEach((item, key) => {
+    if(valuesToInsertBeforeKey.has(key)) {
+      valuesToInsertBeforeKey.get(key).forEach((item) => {
+        mergedItems.push(item);
+      });
+    }
+    mergedItems.push(item);
+  });
+  tempValuesArray.forEach((item) => {
+    mergedItems.push(item);
+  });
+
+  return { reorderedItems, deletedItems, addedItems, mergedItems };
 }
 
 export {

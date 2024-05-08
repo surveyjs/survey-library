@@ -1,10 +1,10 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, mergeValues } from "../src/utils/utils";
+import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, mergeValues, compareArrays } from "../src/utils/utils";
 import { mouseInfo } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
-import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationTab, AnimationUtils, IAnimationConsumer } from "../src/utils/animation";
+import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationTab, AnimationUtils, IAnimationConsumer, IAnimationGroupConsumer } from "../src/utils/animation";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
@@ -489,7 +489,7 @@ QUnit.test("Test animation utils: group enter animation", (assert) => {
     return element;
   });
   let log = "";
-  const animationOptions: IAnimationConsumer<[number]> = {
+  const animationOptions: IAnimationGroupConsumer<number> = {
     getEnterOptions(i) {
       return {
         onAfterRunAnimation: (element) => {
@@ -513,7 +513,7 @@ QUnit.test("Test animation utils: group enter animation", (assert) => {
       return htmlElements[i];
     }
   };
-  animationUtils.runGroupAnimation(animationOptions, [0, 1, 2], []);
+  animationUtils.runGroupAnimation(animationOptions, [0, 1, 2], [], []);
   assert.equal(log, "->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
   assert.ok(htmlElements[0].classList.contains("enter_0"));
   assert.ok(htmlElements[1].classList.contains("enter_1"));
@@ -547,10 +547,7 @@ QUnit.test("Test animation utils: group leave animation", (assert) => {
     return element;
   });
   let log = "";
-  const animationOptions: IAnimationConsumer<[number]> = {
-    getEnterOptions(i) {
-      return {} as any;
-    },
+  const animationOptions: IAnimationGroupConsumer<number> = {
     getLeaveOptions(i) {
       {
         return {
@@ -573,7 +570,7 @@ QUnit.test("Test animation utils: group leave animation", (assert) => {
       return htmlElements[i];
     }
   };
-  animationUtils.runGroupAnimation(animationOptions, [], [0, 1, 2], () => {
+  animationUtils.runGroupAnimation(animationOptions, [], [0, 1, 2], [], () => {
     log+="->updated";
   });
   setTimeout(() => {
@@ -865,4 +862,54 @@ QUnit.test("Test animation property: check latest update persists", (assert) => 
       done();
     });
   });
+});
+
+QUnit.test("test compareArrays function", (assert) => {
+  let res: any = compareArrays([0, 1, 2, 3, 4], [5, 3, 6, 1, 7], (i) => i);
+  assert.deepEqual(res.deletedItems, [0, 2, 4]);
+  assert.deepEqual(res.addedItems, [5, 6, 7]);
+  assert.deepEqual(res.reorderedItems, [{ item: 3, movedForward: false }, { item: 1, movedForward: true }]);
+  assert.deepEqual(res.mergedItems, [5, 0, 3, 6, 2, 1, 7, 4]);
+
+  res = compareArrays([0, 1, 2, 3, 4], [3, 1], (i) => i);
+  assert.deepEqual(res.deletedItems, [0, 2, 4]);
+  assert.deepEqual(res.addedItems, []);
+  assert.deepEqual(res.reorderedItems, [{ item: 3, movedForward: false }, { item: 1, movedForward: true }]);
+  assert.deepEqual(res.mergedItems, [0, 3, 2, 1, 4]);
+
+  res = compareArrays([1, 3], [5, 3, 6, 1, 7], (i) => i);
+  assert.deepEqual(res.deletedItems, []);
+  assert.deepEqual(res.addedItems, [5, 6, 7]);
+  assert.deepEqual(res.reorderedItems, [{ item: 3, movedForward: false }, { item: 1, movedForward: true }]);
+  assert.deepEqual(res.mergedItems, [5, 3, 6, 1, 7]);
+
+  res = compareArrays([0, 1, 2, 3, 4], [5, 1, 6, 3, 7], (i) => i);
+  assert.deepEqual(res.deletedItems, [0, 2, 4]);
+  assert.deepEqual(res.addedItems, [5, 6, 7]);
+  assert.deepEqual(res.reorderedItems, []);
+  assert.deepEqual(res.mergedItems, [5, 0, 1, 6, 2, 3, 7, 4]);
+
+  res = compareArrays([0, 1, 2, 3, 4], [], (i) => i);
+  assert.deepEqual(res.deletedItems, [0, 1, 2, 3, 4]);
+  assert.deepEqual(res.addedItems, []);
+  assert.deepEqual(res.reorderedItems, []);
+  assert.deepEqual(res.mergedItems, [0, 1, 2, 3, 4]);
+
+  res = compareArrays([], [5, 1, 6, 3, 7], (i) => i);
+  assert.deepEqual(res.deletedItems, []);
+  assert.deepEqual(res.addedItems, [5, 1, 6, 3, 7]);
+  assert.deepEqual(res.reorderedItems, []);
+  assert.deepEqual(res.mergedItems, [5, 1, 6, 3, 7]);
+
+  res = compareArrays([{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }], [{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }], (item) => item.value);
+  assert.deepEqual(res.deletedItems, [{ value: 0 }, { value: 2 }, { value: 4 }]);
+  assert.deepEqual(res.addedItems, [{ value: 5 }, { value: 6 }, { value: 7 }]);
+  assert.deepEqual(res.reorderedItems, [{ item: { value: 3 }, movedForward: false }, { item: { value: 1 }, movedForward: true }]);
+  assert.deepEqual(res.mergedItems, [{ value: 5 }, { value: 0 }, { value: 3 }, { value: 6 }, { value: 2 }, { value: 1 }, { value: 7 }, { value: 4 }]);
+
+  res = compareArrays([{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }], [{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }], (item) => item);
+  assert.deepEqual(res.deletedItems, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }]);
+  assert.deepEqual(res.addedItems, [{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }]);
+  assert.deepEqual(res.reorderedItems, []);
+  assert.deepEqual(res.mergedItems, [{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }, { value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }]);
 });

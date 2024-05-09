@@ -9385,3 +9385,53 @@ QUnit.test("table: check animation options", function (assert) {
 
   tableHtmlElement.remove();
 });
+QUnit.test("set data from the survey", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [{ name: "col1" }]
+      }
+    ]
+  });
+  survey.data = { matrix: [{ col1: 1 }] };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 1, "There one row");
+});
+QUnit.test("set data from the survey and default row count is 0", function (assert) {
+  const prop = Serializer.findProperty("matrixdynamic", "rowCount");
+  const prevValue = prop.defaultValue;
+  assert.equal(prevValue, 2, "The default rowCount value is 2");
+  prop.defaultValue = 0;
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [{ name: "col1" }]
+      }
+    ]
+  });
+  survey.data = { matrix: [{ col1: 1 }] };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 1, "There one row");
+  Serializer.findProperty("matrixdynamic", "rowCount").defaultValue = 2;
+  prop.defaultValue = prevValue;
+});
+QUnit.test("set data from the defaultValue and ignore rowCount", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 3,
+        defaultValue: [{ col1: 1 }],
+        columns: [{ name: "col1" }]
+      }
+    ]
+  });
+  survey.data = { matrix: [{ col1: 1 }] };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 1, "There one row");
+});

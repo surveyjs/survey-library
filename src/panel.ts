@@ -315,9 +315,10 @@ export class PanelModelBase extends SurveyElement<Question>
           onBeforeRunAnimation: beforeRunAnimation
         };
       },
-      getEnterOptions: (_: QuestionRowModel) => {
+      getEnterOptions: (_: QuestionRowModel, animationInfo) => {
+        const cssClasses = this.cssClasses;
         return {
-          cssClass: this.cssClasses.rowFadeIn,
+          cssClass: new CssClassBuilder().append(cssClasses.rowFadeIn).append(cssClasses.rowDelayedFadeIn, animationInfo.isDeletingRunning).toString(),
           onBeforeRunAnimation: beforeRunAnimation
         };
       }
@@ -554,7 +555,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("visibleIf", val);
   }
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "", rowFadeIn: "", rowFadeOut: "", rowFadeOutActive: "", rowMultiple: "", pageRow: "", rowCompact: "" };
+    var classes = { panel: {}, error: {}, row: "", rowFadeIn: "", rowFadeOut: "", rowDelayedFadeIn: "", rowMultiple: "", pageRow: "", rowCompact: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageRow) {
@@ -572,8 +573,8 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!!css.rowFadeOut) {
       classes.rowFadeOut = css.rowFadeOut;
     }
-    if (!!css.rowFadeOutActive) {
-      classes.rowFadeOutActive = css.rowFadeOutActive;
+    if (!!css.rowDelayedFadeIn) {
+      classes.rowDelayedFadeIn = css.rowDelayedFadeIn;
     }
     if (!!css.rowMultiple) {
       classes.rowMultiple = css.rowMultiple;

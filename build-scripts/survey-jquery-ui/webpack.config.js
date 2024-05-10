@@ -47,6 +47,6 @@ const config = {
 
 module.exports = function (options) {
   options.platform = "jquery-ui";
-  options.libraryName = "SurveyJquery";
+  options.libraryName = "Survey";
   return merge(webpackCommonConfigCreator(options, packageJson, "survey.jquery.ui"), config);
 }

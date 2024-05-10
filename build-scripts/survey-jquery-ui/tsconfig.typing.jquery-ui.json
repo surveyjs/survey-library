@@ -11,7 +11,7 @@
     "baseUrl": ".",
     "paths": {
       "survey-core": [
-        "../../src/entries/core.ts"
+        "../../build/survey-core"
       ]
     },
     "sourceMap": false,
@@ -27,6 +27,6 @@
     "skipLibCheck": true
   },
   "include": [
-    "../../src/entries/jquery-ui.ts"
+    "../../src/entries/jquery-ui-model.ts"
   ],
 }

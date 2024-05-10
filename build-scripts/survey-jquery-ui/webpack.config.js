@@ -27,12 +27,18 @@ const config = {
       commonjs2: "jquery",
       commonjs: "jquery",
       amd: "jquery"
+    },
+    "survey-core": {
+      root: "Survey",
+      commonjs2: "survey-core",
+      commonjs: "survey-core",
+      amd: "survey-core"
     }
   },
   plugins: [
     new DtsGeneratorPlugin({
-      tsConfigPath: "./build-scripts/survey-jquery-ui/tsconfig.typing.jquery.json",
-      filePath: "build/survey-jquery/survey.jquery-ui.d.ts",
+      tsConfigPath: "./build-scripts/survey-jquery-ui/tsconfig.typing.jquery-ui.json",
+      filePath: "build/survey-jquery-ui/survey.jquery-ui.d.ts",
       moduleName: "survey-jquery-ui",
       importName: "entries/jquery-ui"
     }),

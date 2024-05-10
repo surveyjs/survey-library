@@ -254,10 +254,16 @@ QUnit.test("Ranking: design mode", function (assert) {
 
   var upCalled = 0, downCalled = 0, preventDefaultCalled = 0;
   var q = <QuestionRankingModel>survey.getQuestionByName("q");
-  q["handleArrowKeys"] = (index, choice, isDown) => {
-    if (isDown) downCalled++;
-    else upCalled++;
-  };
+  q["focusItem"] = () => {};
+  q.dragDropRankingChoices = {
+    reorderRankedItem: (question, fromIndex: number, toIndex: number) => {
+      if(fromIndex < toIndex) {
+        downCalled++;
+      } else if(fromIndex > toIndex) {
+        upCalled++;
+      }
+    }
+  } as any;
   function preventDefault() { preventDefaultCalled++; }
 
   q.handleKeydown(<any>{ key: "ArrowUp", preventDefault: preventDefault }, q.choices[1]);

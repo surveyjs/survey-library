@@ -912,4 +912,7 @@ QUnit.test("test compareArrays function", (assert) => {
   assert.deepEqual(res.addedItems, [{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }]);
   assert.deepEqual(res.reorderedItems, []);
   assert.deepEqual(res.mergedItems, [{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }, { value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }]);
+
+  assert.throws(() => compareArrays([{ value: 0 }, { value: 0 }], [], (item) => item.value), new Error("keys must be unique"));
+  assert.throws(() => compareArrays([], [{ value: 1 }, { value: 1 }], (item) => item.value), new Error("keys must be unique"));
 });

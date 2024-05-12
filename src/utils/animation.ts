@@ -218,11 +218,11 @@ export class AnimationGroupUtils<T> extends AnimationUtils {
         removedItems.forEach((_, i) => {
           this.runAnimation(removedHtmlElements[i], leaveOptions[i], onAnimationEndCallback);
         });
-        reorderedHtmlElements.forEach((_, i) => {
+        reorderedItems.forEach((_, i) => {
           this.runAnimation(reorderedHtmlElements[i], reorderedOptions[i], onAnimationEndCallback);
         });
       },
-      () => addedItems.length == 0 || addedItems.some(el => !!options.getAnimatedElement(el)));
+      () => (addedItems.length == 0 || addedItems.some(el => !!options.getAnimatedElement(el))) && (reorderedItems.length == 0 || reorderedItems.some(el => !!options.getAnimatedElement(el.item))));
   }
 }
 
@@ -271,13 +271,17 @@ export class AnimationGroup<T> extends AnimationProperty<Array<T>, IAnimationGro
   protected animation: AnimationGroupUtils<T> = new AnimationGroupUtils();
   protected _sync (newValue: Array<T>): void {
     const oldValue = this.getCurrentValue();
-    const { addedItems, deletedItems, reorderedItems, mergedItems } = compareArrays(oldValue, newValue, this.animationOptions.getKey ?? ((item: T) => item));
-    if(deletedItems.length <= 0 || reorderedItems.length > 0 || addedItems.length > 0) this.update(mergedItems);
-    this.animation.runGroupAnimation(this.animationOptions, addedItems, deletedItems, reorderedItems, () => {
-      if(deletedItems.length > 0) {
-        this.update(newValue);
-      }
-    });
+    try {
+      const { addedItems, deletedItems, reorderedItems, mergedItems } = compareArrays(oldValue, newValue, this.animationOptions.getKey ?? ((item: T) => item));
+      if(deletedItems.length <= 0 || reorderedItems.length > 0 || addedItems.length > 0) this.update(mergedItems);
+      this.animation.runGroupAnimation(this.animationOptions, addedItems, deletedItems, reorderedItems, () => {
+        if(deletedItems.length > 0) {
+          this.update(newValue);
+        }
+      });
+    } catch {
+      this.update(newValue);
+    }
   }
 }
 export class AnimationTab<T> extends AnimationProperty<Array<T>, IAnimationGroupConsumer<T>> {

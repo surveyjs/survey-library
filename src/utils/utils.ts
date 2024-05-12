@@ -474,11 +474,23 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   const newItemsMap = new Map<any, T>();
   const commonItemsInNewMap = new Map<any, number>();
   const commonItemsInOldMap = new Map<any, number>();
-  oldValue.forEach((item, index) => {
-    oldItemsMap.set(getKey(item), item);
+  oldValue.forEach((item) => {
+    const itemKey = getKey(item);
+    if(!oldItemsMap.has(itemKey)) {
+      oldItemsMap.set(getKey(item), item);
+    } else {
+      //if keys are set incorrectly do not process comparing
+      throw new Error("keys must be unique");
+    }
   });
-  newValue.forEach((item, index) => {
-    newItemsMap.set(getKey(item), item);
+  newValue.forEach((item) => {
+    const itemKey = getKey(item);
+    if(!newItemsMap.has(itemKey)) {
+      newItemsMap.set(itemKey, item);
+    } else {
+      //if keys are set incorrectly do not process comparing
+      throw new Error("keys must be unique");
+    }
   });
   const addedItems: Array<T> = [];
   const deletedItems: Array<T> = [];

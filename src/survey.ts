@@ -6554,7 +6554,9 @@ export class SurveyModel extends SurveyElementCore
     }
     if (this.isLastPage && (this.goNextPageAutomatic !== true || !this.allowCompleteSurveyAutomatic)) return;
     if (this.checkIsCurrentPageHasErrors(false)) return;
+    const curPage = this.currentPage;
     const goNextPage = () => {
+      if(curPage !== this.currentPage) return;
       if (!this.isLastPage) {
         this.nextPage();
       } else {

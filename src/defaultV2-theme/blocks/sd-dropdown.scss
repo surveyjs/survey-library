@@ -88,6 +88,10 @@
 .sd-input.sd-dropdown:focus-within {
   box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
+.sd-input.sd-dropdown.sd-input--readonly {
+  box-shadow: none;
+  transition: none;
+}
 
 .sd-dropdown__filter-string-input {
   @include useEditorFontSize;

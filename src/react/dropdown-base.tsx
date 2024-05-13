@@ -46,7 +46,12 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       const text = (this.question.selectedItemLocText) ? this.renderLocString(this.question.selectedItemLocText) : "";
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      selectElement = <div id={this.question.inputId} className={this.question.getControlClass()} disabled>
+      selectElement = <div id={this.question.inputId}
+        aria-label={this.question.a11y_input_ariaLabel}
+        aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+        aria-describedby={this.question.a11y_input_ariaDescribedBy}
+        tabIndex={this.question.isDisabledAttr ? undefined : 0}
+        className={this.question.getControlClass()}>
         {text}
         {this.renderReadOnlyElement()}
       </div>;
@@ -92,7 +97,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       tabIndex={dropdownListModel.noTabIndex ? undefined : 0}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      disabled={this.question.isInputReadOnly}
+      disabled={this.question.isDisabledAttr}
       required={this.question.isRequired}
       onKeyDown={this.keyhandler}
       onBlur={this.blur}
@@ -130,7 +135,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           placeholder={dropdownListModel.placeholderRendered}
           readOnly={dropdownListModel.filterReadOnly ? true : undefined}
           tabIndex={dropdownListModel.noTabIndex ? undefined : -1}
-          disabled={this.question.isInputReadOnly}
+          disabled={this.question.isDisabledAttr}
           inputMode={dropdownListModel.inputMode}
           onChange={(e) => { onInputChange(e); }}
           onBlur={this.blur}

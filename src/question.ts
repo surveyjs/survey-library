@@ -1354,16 +1354,16 @@ export class Question extends SurveyElement<Question>
     }
     return this.isReadOnly || this.isDesignModeV2;
   }
-  public get renderedInputReadOnly() {
+  public get renderedInputReadOnly(): string {
     return this.isInputReadOnly ? "" : undefined;
   }
-  public get renderedInputDisabled() {
+  public get renderedInputDisabled(): string {
     return this.isInputReadOnly ? "" : undefined;
   }
-  public get isReadOnlyAttr() {
+  public get isReadOnlyAttr(): boolean {
     return this.isReadOnly;
   }
-  public get isDisabledAttr() {
+  public get isDisabledAttr(): boolean {
     return this.isDesignModeV2;
   }
   protected onReadOnlyChanged(): void {

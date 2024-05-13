@@ -331,6 +331,7 @@ frameworks.forEach(framework => {
       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", false); })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Read Me.txt"]);
       await t.click(".sd-file input[type=file] + div label");
+      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera"); })();
       await takeElementScreenshot("file-question-both-mode-answered.png", questionRoot, t, comparer);
     });
   });

@@ -6378,14 +6378,20 @@ export class SurveyModel extends SurveyElementCore
    */
   public setVariable(name: string, newValue: any): void {
     if (!name) return;
+    const oldValue = this.getVariable(name);
     if (!!this.valuesHash) {
       delete this.valuesHash[name];
     }
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
-    this.runConditionOnValueChanged(name, newValue);
-    this.onVariableChanged.fire(this, { name: name, value: newValue });
+    if(!Helpers.isTwoValueEquals(oldValue, newValue)) {
+      this.runConditionOnValueChanged(name, newValue);
+      var triggerKeys: { [index: string]: any } = {};
+      triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
+      this.checkTriggers(triggerKeys, false, false, name);
+      this.onVariableChanged.fire(this, { name: name, value: newValue });
+    }
   }
   /**
    * Returns the names of all variables in the survey.

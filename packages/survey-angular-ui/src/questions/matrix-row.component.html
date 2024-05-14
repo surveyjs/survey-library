@@ -1,6 +1,6 @@
 <ng-template #template>
   <tr *ngIf="model.visible" [class]="model.className" (pointerdown)="question.onPointerDown($event, row)"
-    [attr.data-sv-drop-target-matrix-row]="row && row.id">
+    [attr.data-sv-drop-target-matrix-row]="row && row.id" #container>
     <sv-ng-matrixdropdown-cell [cell]="cell" [question]="question"
       *ngFor="let cell of model.cells; trackBy: trackCellBy"></sv-ng-matrixdropdown-cell>
   </tr>

@@ -9,7 +9,7 @@ export class PopupViewModel {
   constructor(public popupViewModel: PopupBaseViewModel) {
     this._popupModelImplementor = new ImplementorBase(popupViewModel.model);
     this._popupImplementor = new ImplementorBase(popupViewModel);
-    popupViewModel.model.onVisibilityChanged.add(this.visibilityChangedHandler);
+    popupViewModel.onVisibilityChanged.add(this.visibilityChangedHandler);
   }
   public dispose(): void {
     this._popupModelImplementor.dispose();
@@ -17,7 +17,7 @@ export class PopupViewModel {
     this._popupImplementor.dispose();
     this._popupImplementor = undefined;
     this.popupViewModel.resetComponentElement();
-    this.popupViewModel.model.onVisibilityChanged.remove(this.visibilityChangedHandler);
+    this.popupViewModel.onVisibilityChanged.remove(this.visibilityChangedHandler);
     this.popupViewModel.dispose();
     this.visibilityChangedHandler = undefined;
   }
@@ -54,13 +54,17 @@ export function showModal(
   return showDialog(options, container);
 }
 export function showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
-  dialogOptions.onHide = () => {
-    ko.cleanNode(popupViewModel.container);
-    popupViewModel.container.remove();
-    popupViewModel.dispose();
-    viewModel.dispose();
-  };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, rootElement);
+  const onVisibilityChangedCallback = (_: PopupBaseViewModel, options: { isVisible: boolean }) => {
+    if(!options.isVisible) {
+      popupViewModel.onVisibilityChanged.remove(onVisibilityChangedCallback);
+      ko.cleanNode(popupViewModel.container);
+      popupViewModel.container.remove();
+      popupViewModel.dispose();
+      viewModel.dispose();
+    }
+  };
+  popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);
   var viewModel = new PopupViewModel(popupViewModel);
   popupViewModel.container.innerHTML = template;
   ko.applyBindings(viewModel, popupViewModel.container);

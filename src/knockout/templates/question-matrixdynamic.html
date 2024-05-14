@@ -118,7 +118,7 @@
     </thead>
     <!-- /ko -->
     <tbody>
-      <!-- ko foreach: question.koTable().rows -->
+      <!-- ko foreach: { data: question.koTable().renderedRows, afterRender: question.koRowAfterRender } -->
       <!-- ko ifnot: ($parent.detailPanelMode === "popup" && $data.isDetailRow) || !$data.visible-->
       <tr data-bind="css: $data.className, attr: attributes, event: { pointerdown: function (model, event) { question.onPointerDown(event, row); return true;} }">
         <!-- ko foreach: $data.cells -->

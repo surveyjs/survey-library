@@ -1,8 +1,7 @@
 import { property, propertyArray } from "./jsonobject";
 import { Question } from "./question";
-import { Base, ComputedUpdater } from "./base";
+import { Base } from "./base";
 import { ItemValue } from "./itemvalue";
-import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { PanelModel } from "./panel";
 import { Action, IAction } from "./actions/action";
@@ -13,6 +12,7 @@ import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownM
 import { ActionContainer } from "./actions/container";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { settings } from "./settings";
+import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
 
 export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
@@ -148,6 +148,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   @property({ defaultValue: false }) isGhostRow: boolean;
   @property({ defaultValue: false }) isAdditionalClasses: boolean;
   @property({ defaultValue: true }) visible: boolean;
+  public onVisibilityChangedCallback: () => void;
   public hasEndActions: boolean = false;
   public row: MatrixDropdownRowModelBase;
   public isErrorsRow = false;
@@ -176,6 +177,13 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
       .append(this.cssClasses.ghostRow, this.isGhostRow)
       .append(this.cssClasses.rowAdditional, this.isAdditionalClasses)
       .toString();
+  }
+  private rootElement: HTMLTableRowElement;
+  public setRootElement(val: HTMLTableRowElement): void {
+    this.rootElement = val;
+  }
+  public getRootElement(): HTMLTableRowElement {
+    return this.rootElement;
   }
 }
 export class QuestionMatrixDropdownRenderedErrorRow extends QuestionMatrixDropdownRenderedRow {
@@ -216,8 +224,52 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   @propertyArray({
     onPush: (_: any, i: number, target: QuestionMatrixDropdownRenderedTable) => {
       target.renderedRowsChangedCallback();
+      target.updateRenderedRows();
     },
+    onRemove: (_: any, i: number, target: QuestionMatrixDropdownRenderedTable) => {
+      target.updateRenderedRows();
+    }
   }) rows: Array<QuestionMatrixDropdownRenderedRow>;
+  protected getIsAnimationAllowed(): boolean {
+    return super.getIsAnimationAllowed() && this.matrix.animationAllowed;
+  }
+  private getRenderedRowsAnimationOptions(): IAnimationConsumer<[QuestionMatrixDropdownRenderedRow]> {
+    const beforeAnimationRun = (el: HTMLElement) => {
+      el.querySelectorAll(":scope > td > *").forEach((el:HTMLElement) => {
+        el.style.setProperty("--animation-height", el.offsetHeight + "px");
+      });
+    };
+    return {
+      isAnimationEnabled: () => {
+        return this.animationAllowed;
+      },
+      getAnimatedElement(el: QuestionMatrixDropdownRenderedRow) {
+        return el.getRootElement();
+      },
+      getLeaveOptions: () => {
+        return { cssClass: this.cssClasses.rowFadeOut, onBeforeRunAnimation: beforeAnimationRun };
+      },
+      getEnterOptions: () => {
+        return { cssClass: this.cssClasses.rowFadeIn, onBeforeRunAnimation: beforeAnimationRun };
+      }
+    };
+  }
+
+  @propertyArray() private _renderedRows: Array<QuestionMatrixDropdownRenderedRow> = [];
+  public updateRenderedRows(): void {
+    this.renderedRows = this.rows;
+  }
+  private renderedRowsAnimation = new AnimationGroup(this.getRenderedRowsAnimationOptions(), (val) => {
+    this._renderedRows = val;
+    this.renderedRowsChangedCallback();
+  }, () => this._renderedRows)
+
+  public get renderedRows(): Array<QuestionMatrixDropdownRenderedRow> {
+    return this._renderedRows;
+  }
+  public set renderedRows(val: Array<QuestionMatrixDropdownRenderedRow>) {
+    this.renderedRowsAnimation.sync(val);
+  }
 
   public constructor(public matrix: QuestionMatrixDropdownModelBase) {
     super();
@@ -485,10 +537,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
   }
   protected buildRows() {
+    this.blockAnimations();
     var rows = this.matrix.isColumnLayoutHorizontal
       ? this.buildHorizontalRows()
       : this.buildVerticalRows();
     this.rows = rows;
+    this.releaseAnimations();
   }
   private hasActionCellInRowsValues: any = {};
   private hasActionCellInRows(location: "start" | "end"): boolean {
@@ -551,7 +605,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private getRowDragCell(rowIndex: number) {
     const cell = new QuestionMatrixDropdownRenderedCell();
-    cell.isDragHandlerCell = true;
+    const lockedRows = (<QuestionMatrixDynamicModel>this.matrix).lockedRowCount;
+    cell.isDragHandlerCell = lockedRows < 1 || rowIndex >= lockedRows;
+    cell.isEmpty = !cell.isDragHandlerCell;
     cell.className = this.getActionsCellClassName(cell);
     cell.row = this.matrix.visibleRows[rowIndex];
     return cell;
@@ -931,6 +987,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private setItemCellCssClasses(cell: QuestionMatrixDropdownRenderedCell) {
     cell.className = new CssClassBuilder()
+      .append(this.cssClasses.cell)
       .append(this.cssClasses.itemCell)
       .append(this.cssClasses.radioCell, cell.isRadio)
       .append(this.cssClasses.checkboxCell, cell.isCheckbox)

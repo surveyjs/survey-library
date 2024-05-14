@@ -49,6 +49,11 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   supportGoNextPageAutomatic(): boolean {
     return this.isMouseDown === true && !this.isOtherSelected;
   }
+  public getConditionJson(operator: string = null, path: string = null): any {
+    const json = super.getConditionJson(operator, path);
+    delete json["showClearButton"];
+    return json;
+  }
   protected setNewComment(newValue: string): void {
     this.isMouseDown = true;
     super.setNewComment(newValue);

@@ -1,4 +1,4 @@
-import { StylesManager, Model, SurveyModel, PanelModel } from "survey-core";
+import { StylesManager, Model, SurveyModel, PanelModel, settings } from "survey-core";
 export interface MarkupTestDescriptor {
   name: string;
   json: any;
@@ -103,6 +103,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   }
   StylesManager.applyTheme("default");
   var done = assert.async();
+  settings.animationEnabled = false;
   if (test.before)
     test.before();
   platform.survey = platform.surveyFactory(test.json);
@@ -183,6 +184,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         newstr == oldStr ?
           platform.name + " " + test.name + " rendered correctly" :
           platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#" + test.snapshot);
+      settings.animationEnabled = true;
       if (test.after) { test.after(); }
       if (platform.finish)
         platform.finish(surveyElement);
@@ -282,6 +284,9 @@ function clearClasses(el: Element) {
       if(className.search(/^ng-/) > -1) {
         classesToRemove.push(className);
       }
+      if(["top", "bottom"].filter(direction => className == `sv-popup--${direction}`).length > 0) {
+        classesToRemove.push(className);
+      }
     });
     el.classList.remove(...classesToRemove);
   }
@@ -299,7 +304,7 @@ function clearAttributes(el: Element, removeIds = false) {
   if(!!removeIds) {
     el.removeAttribute("id");
   }
-  //el.removeAttribute("aria-describedby");
+  //el.removeAttribute("aria-errormessage");
   //if(el.getAttribute("list")) el.removeAttribute("list");
   el.removeAttribute("fragment");
   if(el.getAttribute("style") === "") {
@@ -360,10 +365,12 @@ function sortInlineStyles(str: string) {
     if(!!el.getAttribute("style")) {
       const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(/;(?![^(]*\))/);
       if(el.tagName === "CANVAS") {
-        const excludeStyle = "touch-action: none";
-        if(inlineStyle.indexOf(excludeStyle) !== -1) {
-          inlineStyle.splice(inlineStyle.indexOf(excludeStyle), 1);
-        }
+        const excludeStyles = ["touch-action: none", "touch-action: auto"];
+        excludeStyles.forEach(excludeStyle => {
+          if (inlineStyle.indexOf(excludeStyle) !== -1) {
+            inlineStyle.splice(inlineStyle.indexOf(excludeStyle), 1);
+          }
+        });
       }
       const flexRules = ["flex-grow", "flex-shrink", "flex-basis"];
       const flexStyles: Array<string> = [];

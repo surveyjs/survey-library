@@ -13,6 +13,7 @@ import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
 import { ITheme } from "./themes";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
@@ -64,7 +65,12 @@ export class QuestionRatingModel extends Question {
       });
     this.registerFunctionOnPropertiesValueChanged(["rateValues"],
       () => {
-        this.autoGenerate = false;
+        this.setIconsToRateValues();
+        this.createRenderedRateItems();
+      });
+    this.registerSychProperties(["rateValues"],
+      () => {
+        this.autoGenerate = this.rateValues.length == 0;
         this.setIconsToRateValues();
         this.createRenderedRateItems();
       });
@@ -72,13 +78,13 @@ export class QuestionRatingModel extends Question {
       () => {
         this.updateColors((this.survey as SurveyModel).themeVariables);
       });
-    this.registerFunctionOnPropertiesValueChanged(["autoGenerate"],
+    this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.rateValues.length === 0) {
           this.setPropertyValue("rateValues", this.visibleRateValues);
         }
         if (this.autoGenerate) {
-          this.rateValues.length = 0;
+          this.rateValues.splice(0, this.rateValues.length);
           this.updateRateMax();
         }
         this.createRenderedRateItems();
@@ -284,16 +290,18 @@ export class QuestionRatingModel extends Question {
 
   private updateColors(themeVariables: any) {
     if (this.colorMode === "monochrome") return;
-    if (typeof document === "undefined" || !document) return;
+    if (!DomDocumentHelper.isAvailable()) return;
     if (QuestionRatingModel.colorsCalculated) return;
     function getRGBColor(colorName: string, varName: string) {
       let str: string = !!themeVariables && themeVariables[colorName] as any;
       if(!str) {
-        const style = getComputedStyle(document.documentElement);
+        const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
         str = style.getPropertyValue && style.getPropertyValue(varName);
       }
       if (!str) return null;
-      var ctx = document.createElement("canvas").getContext("2d");
+      const canvasElement = DomDocumentHelper.createElement("canvas") as HTMLCanvasElement;
+      if (!canvasElement) return null;
+      var ctx = canvasElement.getContext("2d");
       ctx.fillStyle = str;
       const newStr = ctx.fillStyle;
 
@@ -346,6 +354,9 @@ export class QuestionRatingModel extends Question {
       rateValues = this.createRateValues();
     }
 
+    if (this.autoGenerate) {
+      this.rateMax = rateValues[rateValues.length - 1].value;
+    }
     if (this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
 
     this.renderedRateItems = rateValues.map((v, i) => {
@@ -402,8 +413,11 @@ export class QuestionRatingModel extends Question {
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
   }
+  public get questionName() {
+    return this.name + "_" + this.id;
+  }
   supportGoNextPageAutomatic(): boolean {
-    return this.isMouseDown === true;
+    return this.isMouseDown === true || this.renderAs === "dropdown";
   }
   public supportOther(): boolean {
     return false;
@@ -684,7 +698,9 @@ export class QuestionRatingModel extends Question {
   }
 
   public getItemStyle(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
-    if (this.scaleColorMode === "monochrome" && this.rateColorMode == "default") return { borderColor: null, fill: null, backgroundColor: null };
+    if (this.scaleColorMode === "monochrome" && this.rateColorMode == "default" ||
+      this.isPreviewStyle ||
+      this.isReadOnlyStyle) return { borderColor: null, fill: null, backgroundColor: null };
     const index = this.visibleRateValues.indexOf(item);
     const color = this.getRenderedItemColor(index, false);
     if (this.value != this.renderedRateItems[index].value) {
@@ -714,6 +730,8 @@ export class QuestionRatingModel extends Question {
     let itemClass = this.cssClasses.item;
     let itemSelectedClass = this.cssClasses.selected;
     let itemDisabledClass = this.cssClasses.itemDisabled;
+    let itemReadOnlyClass = this.cssClasses.itemReadOnly;
+    let itemPreviewClass = this.cssClasses.itemPreview;
     let itemHoverClass = this.cssClasses.itemHover;
     let itemitemOnErrorClass = this.cssClasses.itemOnError;
     let itemHighlightedClass = null;
@@ -726,6 +744,8 @@ export class QuestionRatingModel extends Question {
       itemClass = this.cssClasses.itemStar;
       itemSelectedClass = this.cssClasses.itemStarSelected;
       itemDisabledClass = this.cssClasses.itemStarDisabled;
+      itemReadOnlyClass = this.cssClasses.itemStarReadOnly;
+      itemPreviewClass = this.cssClasses.itemStarPreview;
       itemHoverClass = this.cssClasses.itemStarHover;
       itemitemOnErrorClass = this.cssClasses.itemStarOnError;
       itemHighlightedClass = this.cssClasses.itemStarHighlighted;
@@ -736,6 +756,8 @@ export class QuestionRatingModel extends Question {
       itemClass = this.cssClasses.itemSmiley;
       itemSelectedClass = this.cssClasses.itemSmileySelected;
       itemDisabledClass = this.cssClasses.itemSmileyDisabled;
+      itemReadOnlyClass = this.cssClasses.itemSmileyReadOnly;
+      itemPreviewClass = this.cssClasses.itemSmileyPreview;
       itemHoverClass = this.cssClasses.itemSmileyHover;
       itemitemOnErrorClass = this.cssClasses.itemSmileyOnError;
       itemHighlightedClass = this.cssClasses.itemSmileyHighlighted;
@@ -757,7 +779,9 @@ export class QuestionRatingModel extends Question {
     return new CssClassBuilder()
       .append(itemClass)
       .append(itemSelectedClass, isSelected)
-      .append(itemDisabledClass, this.isReadOnly)
+      .append(itemDisabledClass, this.isDisabledStyle)
+      .append(itemReadOnlyClass, this.isReadOnlyStyle)
+      .append(itemPreviewClass, this.isPreviewStyle)
       .append(itemHoverClass, allowHover)
       .append(itemHighlightedClass, isHighlighted)
       .append(itemScaleColoredClass, this.scaleColorMode == "colored")
@@ -775,7 +799,9 @@ export class QuestionRatingModel extends Question {
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
       .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
       .toString();
   }
   public get placeholder(): string {

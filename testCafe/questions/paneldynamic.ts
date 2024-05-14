@@ -337,6 +337,21 @@ frameworks.forEach((framework) => {
       .expect(addNewSelector.count).eql(1)
       .expect(Selector("span").withText("#1-2").visible).ok();
   });
+  test("templateVisibleIf renderMode: list", async (t) => {
+    await ClientFunction(() => {
+      (window as any).survey.getQuestionByName("panel").renderMode = "list";
+    })();
+    const titleSelector = Selector("span").withText("q1");
+    await t
+      .expect(titleSelector.count).eql(0)
+      .pressKey("b")
+      .pressKey("tab")
+      .expect(titleSelector.count).eql(0)
+      .pressKey("tab")
+      .pressKey("a")
+      .pressKey("tab")
+      .expect(titleSelector.count).eql(1);
+  });
 });
 const jsonCheckboxRestFul = {
   storeOthersAsComment: false,
@@ -524,4 +539,40 @@ frameworks.forEach((framework) => {
       panel1: [{ name: "123" }, { name: "456" }, { name: "789" }]
     });
   });
+  test("Check dynamic panel actionbar responsivity", async (t) => {
+    await initSurvey(framework, {
+      "logoPosition": "right",
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "paneldynamic",
+              "name": "question1",
+
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "question2"
+                }
+              ],
+              "renderMode": "tab"
+            }
+          ]
+        }
+      ]
+    });
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+    await t.click(Selector("button").withText("Add new"));
+
+    await t.expect(Selector(".sv-action.sv-dots").visible).ok();
+  });
+
 });

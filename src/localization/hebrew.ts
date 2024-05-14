@@ -69,6 +69,7 @@ export var hebrewSurveyStrings = {
   savingData: "התוצאות נשמרות בשרת ...",
   savingDataError: "אירעה שגיאה ולא הצלחנו לשמור את התוצאות.",
   savingDataSuccess: "התוצאות נשמרו בהצלחה!",
+  savingExceedSize: "תגובתך עולה על 64KB. הקטן את גודל הקבצים שלך ונסה שוב או פנה לבעלים של סקר.",
   saveAgainButton: "נסה שוב",
   timerMin: "דקה",
   timerSec: "שניות",
@@ -78,8 +79,9 @@ export var hebrewSurveyStrings = {
   timerLimitAll: "הוצאת {0} מתוך {1} בדף זה ו- {2} מתוך {3} בסך הכל.",
   timerLimitPage: "הוצאת {0} מתוך {1} בדף זה.",
   timerLimitSurvey: "הוצאת סכום כולל של {0} מתוך {1}.",
-  clearCaption: "ברור",
+  clearCaption: "לנקות",
   signaturePlaceHolder: "חתום כאן",
+  signaturePlaceHolderReadOnly: "אין חתימה",
   chooseFileCaption: "בחר קובץ",
   takePhotoCaption: "צלם תמונה",
   photoPlaceholder: "לחץ על הלחצן למטה כדי לצלם תמונה באמצעות המצלמה.",
@@ -139,3 +141,5 @@ surveyLocalization.localeNames["he"] = "עברית";
 // cancel: "Cancel" => "ביטל"
 // refuseItemText: "Refuse to answer" => "מסרבים לענות"
 // dontKnowItemText: "Don't know" => "לא יודע"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "תגובתך עולה על 64KB. הקטן את גודל הקבצים שלך ונסה שוב או פנה לבעלים של סקר."
+// signaturePlaceHolderReadOnly: "No signature" => "אין חתימה"

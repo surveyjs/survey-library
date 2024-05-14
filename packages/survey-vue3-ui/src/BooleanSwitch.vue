@@ -18,8 +18,9 @@
         :aria-required="question.a11y_input_ariaRequired"
         :aria-label="question.a11y_input_ariaLabel"
         :aria-labelledby="question.a11y_input_ariaLabelledBy"
-        :aria-invalid="question.a11y_input_ariaInvalid"
         :aria-describedby="question.a11y_input_ariaDescribedBy"
+        :aria-invalid="question.a11y_input_ariaInvalid"
+        :aria-errormessage="question.a11y_input_ariaErrormessage"
       />
       <div
         :class="question.cssClasses.sliderGhost"
@@ -33,7 +34,7 @@
         :class="question.cssClasses.switch"
         v-on:click="onSwitchClick($event)"
       >
-        <span :class="question.cssClasses.slider">
+        <span :class="question.cssClasses.slider" :style="{ marginLeft: question.thumbMargin }">
           <span
             v-if="question.cssClasses.sliderText && question.isDeterminated"
             :class="question.cssClasses.sliderText"

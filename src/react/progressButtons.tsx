@@ -2,6 +2,7 @@ import * as React from "react";
 import { ProgressButtons, PageModel, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "survey-core";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
+import { SurveyElementBase } from "./reactquestion_element";
 
 export class SurveyProgressButtons extends SurveyNavigationBase implements IProgressButtonsViewModel {
   private respManager: ProgressButtonsResponsivityManager;
@@ -29,7 +30,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
   }
   render(): JSX.Element {
     return (
-      <div className={this.model.getRootCss(this.props.container)} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-label="progress">
+      <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth }} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-label="progress">
         {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
           <div className={this.css.progressButtonsPageTitle} title={this.model.headerText}>{this.model.headerText}</div>
         </div> : null}
@@ -71,6 +72,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
     return buttons;
   }
   protected renderListElement(page: PageModel, index: number): JSX.Element {
+    const text = SurveyElementBase.renderLocString(page.locNavigationTitle);
     return (
       <li
         key={"listelement" + index}
@@ -88,7 +90,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
             className={this.css.progressButtonsPageTitle}
             title={page.renderedNavigationTitle}
           >
-            {page.renderedNavigationTitle}
+            {text}
           </div>
           <div
             className={this.css.progressButtonsPageDescription}
@@ -97,6 +99,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
             {page.navigationDescription}
           </div>
         </> : null}
+        <div className={this.css.progressButtonsButton}><div className={this.css.progressButtonsButtonBackground}></div><div className={this.css.progressButtonsButtonContent}></div><span>{this.model.getItemNumber(page)}</span></div>
       </li>
     );
   }

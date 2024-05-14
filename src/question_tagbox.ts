@@ -39,12 +39,29 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   protected getDefaultItemComponent(): string {
     return "";
   }
-  public onSurveyLoad() {
+  public onSurveyLoad(): void {
     super.onSurveyLoad();
-    if (!this.dropdownListModel) {
+    this.createDropdownListModel();
+  }
+  protected onSetData(): void {
+    super.onSetData();
+    this.createDropdownListModel();
+  }
+  private createDropdownListModel(): void {
+    if (!this.dropdownListModel && !this.isLoadingFromJson) {
       this.dropdownListModel = new DropdownMultiSelectListModel(this);
     }
   }
+  /**
+   * Specifies a comparison operation used to filter the drop-down list. Applies only if [`searchEnabled`](#searchEnabled) is `true`.
+   *
+   * Possible values:
+   *
+   * - `"contains"` (default)
+   * - `"startsWith"`
+   * @see [SurveyModel.onChoicesSearch](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesSearch)
+   */
+  @property() searchMode: "contains" | "startsWith";
 
   /**
    * Specifies whether to display a button that clears the selected value.
@@ -77,7 +94,13 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * @see choicesLazyLoadPageSize
    * @see SurveyModel.onChoicesLazyLoad
    */
-  @property() choicesLazyLoadEnabled: boolean;
+  @property({
+    onSet: (newValue: boolean, target: QuestionTagboxModel) => {
+      if (!!target.dropdownListModel) {
+        target.dropdownListModel.setChoicesLazyLoadEnabled(newValue);
+      }
+    }
+  }) choicesLazyLoadEnabled: boolean;
   /**
    * Specifies the number of choice items to load at a time when choices are loaded on demand.
    * @see choicesLazyLoadEnabled
@@ -88,6 +111,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * Specifies whether to close the drop-down menu after a user selects a value.
    */
   @property({ getDefaultValue: () => { return settings.tagboxCloseOnSelect; } }) closeOnSelect: number;
+
+  @property() textWrapEnabled: boolean;
 
   /**
    * A text displayed in the input field when it doesn't have a value.
@@ -141,7 +166,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
       .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .append(this.cssClasses.controlEditable, !this.isDisabledStyle && !this.isReadOnlyStyle && !this.isPreviewStyle)
+      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
       .toString();
   }
   public onOpened: EventBase<QuestionTagboxModel> = this.addEvent<QuestionTagboxModel>();
@@ -214,8 +242,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   public dispose(): void {
     super.dispose();
-    if(!!this.dropdownListModelValue) {
-      this.dropdownListModelValue.dispose();
+    if(!!this.dropdownListModel) {
+      this.dropdownListModel.dispose();
     }
   }
   public clearValue(): void {
@@ -238,11 +266,13 @@ Serializer.addClass(
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
+    { name: "textWrapEnabled:boolean", default: true },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },
     { name: "closeOnSelect:boolean" },
-    { name: "itemComponent", visible: false, default: "" }
+    { name: "itemComponent", visible: false, default: "" },
+    { name: "searchMode", default: "contains", choices: ["contains", "startsWith"] }
   ],
   function () {
     return new QuestionTagboxModel("");

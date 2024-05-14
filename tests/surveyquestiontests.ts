@@ -39,6 +39,7 @@ import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { ConsoleWarnings } from "../src/console-warnings";
 import { StylesManager } from "../src/stylesmanager";
 import { surveyTimerFunctions } from "../src/surveytimer";
+import { defaultStandardCss } from "../src/defaultCss/cssstandard";
 
 export default QUnit.module("Survey_Questions");
 
@@ -1368,7 +1369,7 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
   assert.equal(question.isOtherSelected, false, "Others is not selected");
   assert.deepEqual(survey.data, { q: ["A", "B"] }, "'B' is set");
 });
-QUnit.test("Checkbox store others value not in comment", function (assert) {
+QUnit.test("Checkbox store others value not in comment & defaultValue", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -1943,7 +1944,7 @@ QUnit.test("defaultValue and hasOther - checkbox, bug#384 (Editor)", function (
     [2, "other"],
     "rendredValue set correctly"
   );
-  assert.deepEqual(question.value, [2, "otherValue"], "value set correctly");
+  assert.deepEqual(question.value, [2, "other"], "value set correctly");
   assert.equal(question.comment, "otherValue", "other value is set");
 });
 
@@ -3182,6 +3183,82 @@ QUnit.test(
     assert.equal(itemQuestion.isReadOnly, false, "survey mode is edit");
     question.readOnly = true;
     assert.equal(itemQuestion.isReadOnly, true, "question is readOnly");
+  }
+);
+
+QUnit.test(
+  "isDisabledStyle isReadOnlyStyle properties",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionMultipleTextModel("q1");
+    assert.equal(question.isDisabledStyle, false);
+
+    page.addQuestion(question);
+    assert.equal(question.isReadOnlyStyle, false);
+    question.readOnly = true;
+    assert.equal(question.isReadOnlyStyle, true);
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.isReadOnlyStyle, false);
+  }
+);
+
+QUnit.test(
+  "isPreviewStyle property",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionMultipleTextModel("q1");
+    assert.equal(question.isPreviewStyle, false, "false if survey doesn't exist");
+
+    page.addQuestion(question);
+    assert.equal(question.isPreviewStyle, false, "false in not preview mode");
+
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.isPreviewStyle, true, "true in preview mode");
+  }
+);
+
+QUnit.test(
+  "itemSvgIcon property",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionRadiogroupModel("q1");
+    page.addQuestion(question);
+
+    survey.setCss({ radiogroup: { itemSvgIconId: "icon-id", itemPreviewSvgIconId: undefined } });
+    assert.equal(question.itemSvgIcon, "icon-id");
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.itemSvgIcon, "icon-id", "preview mode");
+    survey.setCss({ radiogroup: { itemPreviewSvgIconId: "preview-icon-id" } });
+    assert.equal(questionPreview.itemSvgIcon, "preview-icon-id");
+  }
+);
+
+QUnit.test(
+  "Boolean Radiogroup Mode itemSvgIcon property",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionBooleanModel("q1");
+    question.renderAs = "radio";
+    page.addQuestion(question);
+
+    survey.setCss({ boolean: { itemSvgIconId: "icon-id", itemPreviewSvgIconId: undefined } });
+    assert.equal(question.itemSvgIcon, "icon-id");
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.itemSvgIcon, "icon-id", "preview mode");
+    survey.setCss({ boolean: { itemPreviewSvgIconId: "preview-icon-id" } });
+    assert.equal(questionPreview.itemSvgIcon, "preview-icon-id");
   }
 );
 
@@ -4619,24 +4696,32 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
       },
     ],
   });
+  survey.css = defaultStandardCss;
   var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q1.value = [1];
-  assert.equal(
+  const checkCss = (actual: string, expected: string, message: string): void => {
+    const actualList = actual.split(" ");
+    const expectedList = expected.split(" ");
+    expectedList.forEach(cl => {
+      assert.equal(actualList.indexOf(cl) >= 0, true, message + ": '" + cl + "' is not found in " + actual);
+    });
+  };
+  checkCss(
     q1.getItemClass(q1.visibleChoices[0]),
     "sv_q_checkbox sv-q-col-1 sv_q_checkbox_selectall",
     "select all"
   );
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[1]),
     "sv_q_checkbox sv-q-col-1 checked",
     "item 1"
   );
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[2]),
     "sv_q_checkbox sv-q-col-1",
     "item 2"
   );
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[3]),
     "sv_q_checkbox sv-q-col-1 sv_q_checkbox_none",
     "None"
@@ -4646,7 +4731,7 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
       options.css = options.css + " custom";
     }
   });
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[2]),
     "sv_q_checkbox sv-q-col-1 custom",
     "item 2, value = 2, survey.onUpdateChoiceItemCss"
@@ -5964,6 +6049,46 @@ QUnit.test("isFit custom widgets on renderAs", function (assert) {
   assert.equal(q1.customWidget.name, "pretty", "Correct custom widget name");
   CustomWidgetCollection.Instance.clear();
 });
+QUnit.test("Validate function for custom widget", function (assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "first",
+    isFit: (question): boolean => {
+      return question.name == "question1";
+    },
+    validate: (question): string => {
+      const val = question.value;
+      return val < 1 || val > 3 ? "Out of range" : "";
+    }
+  });
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "question1",
+        choices: [1, 2, 3]
+      },
+    ],
+  });
+  var q1 = <QuestionSelectBase>(
+    survey.getQuestionByName("question1")
+  );
+  assert.equal(q1.validate(), true, "There is no errors, #1");
+  q1.value = 1;
+  assert.equal(q1.validate(), true, "There is no errors, #2");
+  q1.value = 4;
+  assert.equal(q1.validate(), false, "There is a error, #3");
+  assert.equal(q1.errors.length, 1, "Errors list, #4");
+  assert.equal(q1.errors[0].text, "Out of range", "Error text #5");
+  q1.value = 2;
+  assert.equal(q1.errors.length, 0, "Errors list, #6");
+  q1.value = 5;
+  assert.equal(q1.validate(), false, "There is a error, #7");
+  q1.clearValue();
+  assert.equal(q1.errors.length, 0, "Errors list, #8");
+  CustomWidgetCollection.Instance.clear();
+});
+
 QUnit.test("Update choices order on changing locale, bug #2832", function (
   assert
 ) {
@@ -6985,9 +7110,9 @@ QUnit.test("question.getRootCss apply disable css correctly", function (assert) 
       }]
   });
   const q = survey.getQuestionByName("q1");
-  survey.setCss({ question: { titleDisabled: "css-disabled" } });
+  survey.setCss({ question: { titleReadOnly: "css-disabled" } });
   q.updateElementCss(true);
-  const disableCss = q.cssClasses.titleDisabled;
+  const disableCss = q.cssClasses.titleReadOnly;
   assert.equal(disableCss, "css-disabled", "#1");
   assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #2");
   q.readOnly = true;
@@ -7423,6 +7548,29 @@ QUnit.test("question.setValueIf, setValueExpression is empty", function (assert)
   q1.value = 2;
   assert.equal(q2.value, "edf", "value is keep, #3");
 });
+QUnit.test("question.setValueIf is empty, setValueExpression is not empty & question is read-only", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { "name": "q1", "type": "text" },
+      { "name": "q2", "type": "text", "setValueExpression": "{q1} + {q3}", "readOnly": true },
+      { "name": "q3", "type": "text" }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.setValueExpression, "{q1} + {q3}", "Load from JSON, setValueExpression");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, 2 + 3, "value is set");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, 2 + 5, "value is keep, #3");
+  q1.value = 3;
+  assert.equal(q2.value, 3 + 5, "value is keep, #4");
+});
+
 QUnit.test("question.setValueIf is empty, setValueExpression is not empty", function (assert) {
   const survey = new SurveyModel({
     elements: [
@@ -7607,4 +7755,16 @@ QUnit.test("matrix.visibleRows and read-only", function (assert) {
   assert.equal(matrix.visibleRows.length, 2, "visibleRows.length");
   assert.equal(matrix.visibleRows[0].value, "col1", "row1.value");
   assert.equal(matrix.visibleRows[1].value, "col2", "row2.value");
+});
+QUnit.test("QuestionImagePickerModel.needResponsiveWidth", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "imagepicker", name: "q" }
+    ]
+  });
+  const q = survey.getAllQuestions()[0] as QuestionImagePickerModel;
+  assert.equal(survey.widthMode, "auto", "Auto mode by default");
+  assert.equal(q.needResponsiveWidth(), false, "Not responsive for single column auto width mode");
+  q.colCount = 3;
+  assert.equal(q.needResponsiveWidth(), true, "Responsive in auto mode for several columns");
 });

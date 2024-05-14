@@ -5,7 +5,7 @@ import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
 import { settings } from "../src/settings";
 import { StylesManager } from "../src/stylesmanager";
 
-QUnit.test("check dropdown disabled class", function(assert) {
+QUnit.test("check text disabled class", function (assert) {
   var json = {
     questions: [
       {
@@ -16,7 +16,7 @@ QUnit.test("check dropdown disabled class", function(assert) {
   };
   const survey = new SurveyModel(json);
   const question = <QuestionTextModel>survey.getAllQuestions()[0];
-  question.cssClasses.controlDisabled = "sv_q_text_disabled";
+  question.cssClasses.controlReadOnly = "sv_q_text_disabled";
   assert.ok(question.getControlClass().indexOf("sv_q_text_disabled") == -1);
   question.readOnly = true;
   assert.ok(question.getControlClass().indexOf("sv_q_text_disabled") != -1);
@@ -84,6 +84,23 @@ QUnit.test("Test renderedPlaceholder on locale change", function(assert) {
   assert.equal(q2.renderedPlaceholder, "comment_de", "text, locale de");
   survey.locale = "";
 });
+QUnit.test("Test renderedPlaceholder on locale change, bug#7911", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        name: "q1",
+        type: "text",
+        placeholder: "my text"
+      }
+    ]
+  });
+  survey.showPreview();
+  let q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.notOk(q1.renderedPlaceholder, "#1");
+  survey.cancelPreview();
+  q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(q1.renderedPlaceholder, "my text", "#2");
+});
 QUnit.test("Test renderedPlaceholder on locale change", function(assert) {
   const survey = new SurveyModel({
     "elements": [
@@ -102,6 +119,7 @@ QUnit.test("Test renderedPlaceholder on locale change", function(assert) {
   const q1 = <QuestionTextModel>survey.getAllQuestions()[0];
   assert.equal(q1.renderedPlaceholder, "Spanish", "text, locale es");
 });
+
 QUnit.test("min date error text, bug #4596", function(assert) {
   const survey = new SurveyModel({
     elements: [{ type: "text", name: "q1", inputType: "date", min: "2000-10-10" }]

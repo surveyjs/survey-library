@@ -3,13 +3,10 @@ import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { SurveyModel, QuestionPanelDynamicModel } from "survey-core";
 import { SurveyPanel } from "./panel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { SurveyQuestionPanelDynamicNextButton } from "./components/paneldynamic-actions/paneldynamic-next-btn";
 import { SurveyQuestionPanelDynamicPrevButton } from "./components/paneldynamic-actions/paneldynamic-prev-btn";
 import { SurveyQuestionPanelDynamicProgressText } from "./components/paneldynamic-actions/paneldynamic-progress-text";
-import { SurveyQuestionPanelDynamicAddButton } from "./components/paneldynamic-actions/paneldynamic-add-btn";
-import { SurveyQuestionPanelDynamicRemoveButton } from "./components/paneldynamic-actions/paneldynamic-remove-btn";
 import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
@@ -46,37 +43,17 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
   protected renderElement(): JSX.Element {
     const panels:Array<JSX.Element> = [];
-    if (this.question.isRenderModeList) {
-      for (let i = 0; i < this.question.panels.length; i++) {
-        const panel = this.question.panels[i];
-        panels.push(
-          <SurveyQuestionPanelDynamicItem
-            key={panel.id}
-            element={panel}
-            question={this.question}
-            index={i}
-            cssClasses={this.question.cssClasses}
-            isDisplayMode={this.isDisplayMode}
-            creator={this.creator}
-          />
-        );
-      }
-    } else {
-      if (this.question.currentPanel != null) {
-        const panel = this.question.currentPanel;
-        panels.push(
-          <SurveyQuestionPanelDynamicItem
-            key={this.question.currentIndex}
-            element={panel}
-            question={this.question}
-            index={this.question.currentIndex}
-            cssClasses={this.question.cssClasses}
-            isDisplayMode={this.isDisplayMode}
-            creator={this.creator}
-          />
-        );
-      }
-    }
+    this.question.renderedPanels.forEach((panel, index) => {
+      panels.push(<SurveyQuestionPanelDynamicItem
+        key={panel.id}
+        element={panel}
+        question={this.question}
+        index={index}
+        cssClasses={this.question.cssClasses}
+        isDisplayMode={this.isDisplayMode}
+        creator={this.creator}
+      />);
+    });
     const btnAdd: JSX.Element | null = this.question.isRenderModeList && this.question["showLegacyNavigation"]
       ? this.renderAddRowButton()
       : null;
@@ -87,14 +64,15 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       ? this.renderNavigator()
       : null;
 
-    const style: any = {};
     const navV2 = this.renderNavigatorV2();
     const noEntriesPlaceholder = this.renderPlaceholder();
     return (
       <div className={this.question.cssClasses.root}>
         {noEntriesPlaceholder}
         {navTop}
-        {panels}
+        <div className={this.question.cssClasses.panelsContainer}>
+          {panels}
+        </div>
         {navBottom}
         {btnAdd}
         {navV2}
@@ -208,7 +186,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
       (<hr className={this.question.cssClasses.separator} />) : null;
     return (
       <>
-        <div className={this.question.getPanelWrapperCss()}>
+        <div className={this.question.getPanelWrapperCss(this.panel)}>
           {panel}
           {removeButton}
         </div>

@@ -3,7 +3,7 @@
 	<div class="sd-file__drag-area">
 		<div class="sd-file__decorator">
 			<span class="sd-file__drag-area-placeholder">
-				<span class="sv-string-viewer">Drag and drop a file here or click the button below to select a file to upload.</span>
+				<span class="sv-string-viewer sv-string-viewer--multiline">Drag and drop a file here or click the button below to select a file to upload.</span>
 			</span>
 			<div class="sd-file__wrapper">
 				<div class="sd-action-bar sd-file__actions-container">
@@ -45,11 +45,16 @@
 			</div>
 		</div>
 		<div class="sd-file__list">
-			<div class="sd-file__page">
-				<span class="sd-file__preview">
-					<div class="sd-file__image-wrapper sd-file__image-wrapper--default-image">
-						<svg class="sd-file__default-image sv-svg-icon" role="img">
-							<use xlink:href="#icon-defaultfile" class="">
+			<span class="sd-file__preview-item">
+				<div class="sd-file__image-wrapper sd-file__image-wrapper--default-image">
+					<svg class="sd-file__default-image sv-svg-icon" role="img">
+						<use xlink:href="#icon-defaultfile" class="">
+						</use>
+					</svg>
+					<div class="sd-context-btn sd-context-btn--negative sd-file__remove-file-button">
+						<span class="sd-hidden">Remove this file</span>
+						<svg class="sv-svg-icon" role="img">
+							<use xlink:href="#icon-delete" class="">
 							</use>
 						</svg>
 						<div class="sd-context-btn sd-context-btn--negative sd-file__remove-file-button">

@@ -5,6 +5,8 @@ import { PopupBaseViewModel } from "../src/popup-view-model";
 import { _setIsTouch } from "../src/utils/devices";
 import { settings } from "../src/settings";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { ListModel } from "../src/list";
+import { PageModel } from "../src/page";
 
 export default QUnit.module("Tagbox question");
 
@@ -1509,4 +1511,69 @@ QUnit.test("Check readOnly tagbox with markdown", function (assert) {
 
   assert.equal(q1.displayValue, "item1 |  item2 |  item3");
   assert.equal(q1.locReadOnlyText.renderedHtml, "item1 |  item2 |  item3");
+});
+
+QUnit.test("Tagbox searchmode filter options", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      searchEnabled: true,
+      searchMode: "startsWith",
+      choices: [
+        "abc",
+        "abd",
+        "cab",
+        "efg"
+      ]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.searchMode, "startsWith");
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  dropdownListModel.filterString = "ab";
+  const getfilteredItems = () => list.renderedActions.filter(item => list.isItemVisible(item));
+
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 2);
+
+  question.searchMode = "contains";
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 3);
+});
+
+QUnit.test("Tagbox readonly", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      readOnly: true,
+      choices: [
+        "1",
+        "2",
+        "3"
+      ],
+      "showSelectAllItem": true
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.readOnlyText, "Select...");
+});
+QUnit.test("Create tag box in the code, dropdownListModel instance", (assert) => {
+  const survey = new SurveyModel();
+  const question = new QuestionTagboxModel("q1");
+  const page = new PageModel("page1");
+  page.addQuestion(question);
+  assert.notOk(question.dropdownListModel, "It is not created yet");
+  survey.addPage(page);
+  assert.ok(question.dropdownListModel, "It is created");
+});
+QUnit.test("Create tag box from json, dropdownListModel instance", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{ type: "tagbox", name: "q1" }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.ok(question.dropdownListModel, "It is created");
 });

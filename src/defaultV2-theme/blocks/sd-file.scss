@@ -285,7 +285,7 @@
 
   .sd-file__default-image {
     width: calcSize(7);
-    height: 90px;
+    height: calcSize(8.5);
   }
 
   img:hover + .sd-file__remove-file-button,
@@ -311,7 +311,7 @@
     min-width: 100%;
     max-width: 100%;
     overflow: hidden;
-    max-height: calcSize(6);
+    max-height: calcLineHeight(3);
     text-overflow: ellipsis;
     line-height: calcLineHeight(1);
     display: -webkit-box;
@@ -372,6 +372,7 @@
     height: 100%;
   }
   .sd-file__preview {
+  .sd-file__preview-item {
     width: 100%;
     margin: 0;
   }
@@ -413,6 +414,7 @@
       height: 100%;
       outline: none;
     }
+  }
   }
 }
 
@@ -496,5 +498,54 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+  }
+}
+
+.sd-file__choose-file-btn--disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.sd-file--readonly {
+  .sd-context-btn {
+    display: none;
+  }
+
+  .sd-file__decorator {
+    border-color: transparent;
+  }
+
+  .sd-file__actions-container {
+    display: none;
+  }
+
+  .sd-file__image-wrapper {
+    background: $background-dark;
+  }
+
+  .sd-file__drag-area-placeholder {
+    color: $foreground;
+  }
+}
+
+.sd-file--preview {
+  .sd-context-btn {
+    display: none;
+  }
+
+  .sd-file__decorator {
+    border-color: transparent;
+  }
+
+  .sd-file__image-wrapper {
+    background: transparent;
+  }
+
+  .sd-file__actions-container {
+    display: none;
+  }
+
+  .sd-file__drag-area-placeholder {
+    color: $foreground;
   }
 }

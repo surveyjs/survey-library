@@ -121,7 +121,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   renderRows(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var rows:Array<JSX.Element> = [];
-    var renderedRows = this.question.renderedTable.rows;
+    var renderedRows = this.question.renderedTable.renderedRows;
     for (var i = 0; i < renderedRows.length; i++) {
       rows.push(
         this.renderRow(renderedRows[i].id, renderedRows[i], cssClasses)

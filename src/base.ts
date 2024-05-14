@@ -270,6 +270,8 @@ export class Base {
    * A new value for the property.
    * - `options.oldValue`: `any`\
    * An old value of the property. If the property is an array, `oldValue` contains the same array as `newValue` does.
+   *
+   * If you need to add and remove property change event handlers dynamically, use the [`registerPropertyChangedHandlers`](#registerPropertyChangedHandlers) and [`unregisterPropertyChangedHandlers`](#unregisterPropertyChangedHandlers) methods instead.
    */
   public onPropertyChanged: EventBase<Base> = this.addEvent<Base>();
   /**
@@ -397,6 +399,7 @@ export class Base {
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
   }
+
   /**
    * Returns a JSON object that corresponds to the current SurveyJS object.
    * @see fromJSON
@@ -545,8 +548,8 @@ export class Base {
     var survey = this.getSurvey();
     return !!survey && survey.isEditingSurveyElement;
   }
-  public iteratePropertiesHash(func: (hash: any, key: any) => void) {
-    var keys: any[] = [];
+  public iteratePropertiesHash(func: (hash: any, key: string) => void) {
+    var keys: string[] = [];
     for (var key in this.propertyHash) {
       if (
         key === "value" &&
@@ -658,7 +661,7 @@ export class Base {
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       if (this.onPropChangeFunctions[i].name == name)
-        this.onPropChangeFunctions[i].func(newValue);
+        this.onPropChangeFunctions[i].func(newValue, arrayChanges);
     }
   }
   public onBindingChanged(oldValue: any, newValue: any): void {
@@ -760,9 +763,11 @@ export class Base {
     return res;
   }
   /**
-   * Registers a function to call when a property value changes.
+   * Registers a single value change handler for one or multiple properties.
+   *
+   * The `registerPropertyChangedHandlers` and [`unregisterPropertyChangedHandlers`](#unregisterPropertyChangedHandlers) methods allow you to manage property change event handlers dynamically. If you only need to attach an event handler without removing it afterwards, you can use the [`onPropertyChanged`](#onPropertyChanged) event instead.
    * @param propertyNames An array of one or multiple property names.
-   * @param handler A function to call when one of the listed properties change.
+   * @param handler A function to call when one of the listed properties change. Accepts a new property value as an argument.
    * @param key *(Optional)* A key that identifies the current registration. If a function for one of the properties is already registered with the same key, the function will be overwritten. You can also use the key to subsequently unregister handlers.
    * @see unregisterPropertyChangedHandlers
    */
@@ -1140,14 +1145,27 @@ export class Base {
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     return [];
   }
+  public get animationAllowed(): boolean {
+    return this.getIsAnimationAllowed();
+  }
+  protected getIsAnimationAllowed(): boolean {
+    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed;
+  }
+  private animationAllowedLock: number = 0;
+  public blockAnimations(): void {
+    this.animationAllowedLock--;
+  }
+  public releaseAnimations(): void {
+    this.animationAllowedLock++;
+  }
 }
 
-export class ArrayChanges {
+export class ArrayChanges<T = any> {
   constructor(
     public index: number,
     public deleteCount: number,
-    public itemsToAdd: any[],
-    public deletedItems: any[]
+    public itemsToAdd: T[],
+    public deletedItems: T[]
   ) { }
 }
 

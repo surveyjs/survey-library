@@ -46,6 +46,7 @@ import MultipleText from "./Multipletext.vue";
 import MultipletextItem from "./MultipletextItem.vue";
 
 import Matrix from "./Matrix.vue";
+import MatrixRow from "./MatrixRow.vue";
 import MatrixCell from "./MatrixCell.vue";
 import MatrixDropdown from "./MatrixDropdown.vue";
 import MatrixTable from "./MatrixTable.vue";
@@ -72,6 +73,7 @@ import TitleContent from "./components/title/TitleContent.vue";
 import TitleActions from "./components/title/TitleActions.vue";
 import BrandInfo from "./components/BrandInfo.vue";
 import SvgIcon from "./components/svg-icon/SvgIcon.vue";
+import QuestionError from "./components/QuestionError.vue";
 
 import ActionBar from "./components/action-bar/ActionBar.vue";
 import Action from "./components/action-bar/Action.vue";
@@ -197,6 +199,7 @@ function registerComponents(app: App) {
   app.component("survey-multipletext-item", MultipletextItem);
 
   app.component("survey-matrix", Matrix);
+  app.component("survey-matrix-row", MatrixRow);
   app.component("survey-matrix-cell", MatrixCell);
   app.component("survey-matrixdropdown", MatrixDropdown);
   app.component("survey-matrixtable", MatrixTable);
@@ -231,6 +234,7 @@ function registerComponents(app: App) {
   app.component("survey-element-title-content", TitleContent);
   app.component("sv-title-actions", TitleActions);
   app.component("sv-brand-info", BrandInfo);
+  app.component("sv-question-error", QuestionError);
   app.component("sv-svg-icon", SvgIcon);
 
   app.component("sv-action-bar", ActionBar);

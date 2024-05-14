@@ -82,6 +82,7 @@ export { ButtonGroupItemViewModel } from "../knockout/components/button-group/bu
 export { SurveyNavigationButton } from "../knockout/components/survey-actions/survey-nav-button";
 export * from "../knockout/components/paneldynamic-actions/paneldynamic-actions";
 export * from "../knockout/components/brand-info/brand-info";
+export * from "../knockout/components/question-error/question-error";
 export * from "../knockout/components/notifier/notifier";
 export * from "../knockout/components/loading-indicator/loading-indicator";
 export * from "../knockout/svg-bundle";

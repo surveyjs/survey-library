@@ -104,7 +104,7 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
         aria-required={this.model.isRequired}
         aria-label={this.model.caption.renderedHtml}
         aria-invalid={this.model.hasErrors}
-        aria-describedby={this.model.describedBy}
+        aria-errormessage={this.model.describedBy}
         role="radio"
       />
     );

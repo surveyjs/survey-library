@@ -174,6 +174,55 @@ export interface IObject {
   [key: string]: any;
 }
 
+export interface IJsonPropertyInfo {
+  name: string;
+  type?: string;
+  className?: string;
+  classNamePart?: string;
+  baseClassName?: string;
+  isRequired?: boolean;
+  isUnique?: boolean;
+  //uniquePropertyName
+  uniqueProperty?: string;
+  choices?: any;
+  visible?: boolean;
+  alternativeName?: string;
+  oldName?: string;
+  version?: string;
+  dataList?: Array<string>;
+  isLocalizable?: boolean;
+  isSerializable?: boolean;
+  isLightSerializable?: boolean;
+  readOnly?: boolean;
+  serializationProperty?: string;
+  dependsOn?: Array<string> | string;
+
+  isBindable?: boolean;
+  isArray?: boolean;
+  layout?: string;
+  default?: any;
+  defaultFunc?: (obj: Base) => any;
+  baseValue?: any;
+  onSerializeValue?: (obj: any) => any;
+  onGetValue?: (obj: any) => any;
+  onSettingValue?: (obj: any, value: any) => any;
+  onSetValue?: (obj: any, value: any, jsonConv: JsonObject) => any;
+  visibleIf?: (obj: any) => boolean;
+  enableIf?: (obj: any) => boolean;
+  onExecuteExpression?: (obj: any, res: any) => any;
+  onPropertyEditorUpdate?: (obj: any, propEditor: any) => any;
+
+  displayName?: string;
+  category?: string;
+  categoryIndex?: number;
+  visibleIndex?: number;
+  nextToProperty?: string;
+  overridingProperty?: string;
+  showMode?: string;
+  maxLength?: number;
+  maxValue?: any;
+  minValue?: any;
+}
 /**
  * Contains information about a property of a survey element (page, panel, questions, and etc).
  * @see addProperty
@@ -181,7 +230,7 @@ export interface IObject {
  * @see [Add Properties](https://surveyjs.io/Documentation/Survey-Creator#addproperties)
  * @see [Remove Properties](https://surveyjs.io/Documentation/Survey-Creator#removeproperties)
  */
-export class JsonObjectProperty implements IObject {
+export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public static getItemValuesDefaultValue: (val: any, type: string) => any;
   [key: string]: any;
   private static Index = 1;
@@ -233,7 +282,7 @@ export class JsonObjectProperty implements IObject {
   private classInfoValue: JsonMetadataClass;
   private typeValue: string;
   private choicesValue: Array<any>;
-  private baseValue: any;
+  public baseValue: any;
   private isRequiredValue: boolean = false;
   private isUniqueValue: boolean = false;
   private uniquePropertyValue: string
@@ -286,6 +335,10 @@ export class JsonObjectProperty implements IObject {
     this.isRequiredValue = isRequired;
     this.idValue = JsonObjectProperty.Index++;
   }
+  uniqueProperty?: string;
+  dependsOn?: string | string[];
+  default?: any;
+  defaultFunc?: (obj: Base) => any;
   public get id(): number {
     return this.idValue;
   }
@@ -1058,7 +1111,7 @@ export class JsonMetadata {
   }
   public addClass(
     name: string,
-    properties: Array<any>,
+    properties: Array<IJsonPropertyInfo | string>,
     creator: (json?: any) => any = null,
     parentName: string = null
   ): JsonMetadataClass {
@@ -1107,9 +1160,17 @@ export class JsonMetadata {
     return metaClass.getAllProperties();
   }
   public getPropertiesByObj(obj: any): Array<JsonObjectProperty> {
-    if (!obj || !obj.getType) return [];
-    const props = this.getProperties(obj.getType());
+    const type = !!obj && !!obj.getType ? obj.getType() : undefined;
+    if (!type) return [];
+    const props = this.getProperties(type);
     const dynamicProps = this.getDynamicPropertiesByObj(obj);
+    for(let i = dynamicProps.length -1; i >= 0; i --) {
+      if(this.findProperty(type, dynamicProps[i].name)) {
+        dynamicProps.splice(i, 1);
+      }
+    }
+    if(dynamicProps.length === 0) return props;
+
     return [].concat(props).concat(dynamicProps);
   }
   public addDynamicPropertiesIntoObj(dest: any, src: any, props: Array<JsonObjectProperty>): void {
@@ -1290,14 +1351,14 @@ export class JsonMetadata {
     }
     return res;
   }
-  public addProperties(className: string, propertiesInfos: Array<any>) {
+  public addProperties(className: string, propertiesInfos: Array<IJsonPropertyInfo | string>): void {
     className = className.toLowerCase();
     var metaDataClass = this.findClass(className);
     for (var i = 0; i < propertiesInfos.length; i++) {
       this.addCustomPropertyCore(metaDataClass, propertiesInfos[i]);
     }
   }
-  public addProperty(className: string, propertyInfo: any): JsonObjectProperty {
+  public addProperty(className: string, propertyInfo: IJsonPropertyInfo | string): JsonObjectProperty {
     return this.addCustomPropertyCore(this.findClass(className), propertyInfo);
   }
   private addCustomPropertyCore(
@@ -1532,23 +1593,7 @@ export class JsonError {
 }
 export class JsonUnknownPropertyError extends JsonError {
   constructor(public propertyName: string, public className: string) {
-    super(
-      "unknownproperty",
-      "The property '" +
-      propertyName +
-      "' in class '" +
-      className +
-      "' is unknown."
-    );
-    var properties = Serializer.getProperties(className);
-    if (properties) {
-      this.description = "The list of available properties are: ";
-      for (var i = 0; i < properties.length; i++) {
-        if (i > 0) this.description += ", ";
-        this.description += properties[i].name;
-      }
-      this.description += ".";
-    }
+    super("unknownproperty", "Unknown property in class '" + className + "': '" + propertyName + "'.");
   }
 }
 export class JsonMissingTypeErrorBase extends JsonError {
@@ -1558,13 +1603,6 @@ export class JsonMissingTypeErrorBase extends JsonError {
     public message: string
   ) {
     super(type, message);
-    this.description = "The following types are available: ";
-    var types = Serializer.getChildrenClasses(baseClassName, true);
-    for (var i = 0; i < types.length; i++) {
-      if (i > 0) this.description += ", ";
-      this.description += "'" + types[i].name + "'";
-    }
-    this.description += ".";
   }
 }
 export class JsonMissingTypeError extends JsonMissingTypeErrorBase {
@@ -1812,7 +1850,7 @@ export class JsonObject {
     this.removePosFromObj(value);
   }
   private removePosFromObj(obj: any) {
-    if (!obj) return;
+    if (!obj || typeof obj.getType === "function") return;
     if (Array.isArray(obj)) {
       for (var i = 0; i < obj.length; i++) {
         this.removePosFromObj(obj[i]);

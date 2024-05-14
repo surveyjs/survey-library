@@ -4,8 +4,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component } from 'vue-property-decorator';
-import Vue from 'vue';
+import { Component } from "vue-property-decorator";
+import Vue from "vue";
 
 @Component
 export class LoadingIndicatorComponent extends Vue {}

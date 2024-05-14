@@ -385,9 +385,12 @@ frameworks.forEach(framework => {
             action: () => {
               const model = new window["Survey"].Model(json);
               model.focusFirstQuestionAutomatic = false;
-              window["Survey"].settings.showModal("survey", {
-                model: model,
-                survey: model
+              window["Survey"].settings.showDialog({
+                componentName: "survey",
+                data: {
+                  model: model,
+                  survey: model
+                }
               });
             }
           });
@@ -400,6 +403,37 @@ frameworks.forEach(framework => {
 
       await resetHoverToBody(t);
       await takeElementScreenshot("popup-into-modal-popup.png", Selector(".sv-popup.sv-single-select-list .sv-popup__container"), t, comparer);
+    });
+  });
+  test("Popup search width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 600);
+      await initSurvey(framework, {
+
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "paneldynamic",
+                "name": "question1",
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  }
+                ],
+                "panelCount": 20,
+                "renderMode": "tab"
+              }
+            ]
+          }
+        ]
+      });
+      await t
+        .click(".sv-dots__item");
+
+      await takeElementScreenshot("popup-search-width.png", Selector(".sv-popup .sv-popup__container"), t, comparer);
     });
   });
 });

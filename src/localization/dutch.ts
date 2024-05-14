@@ -69,6 +69,7 @@ export var dutchSurveyStrings = {
   savingData: "De resultaten worden bewaard op de server...",
   savingDataError: "Er was een probleem en we konden de resultaten niet bewaren.",
   savingDataSuccess: "De resultaten werden succesvol bewaard!",
+  savingExceedSize: "Uw antwoord is groter dan 64 kB. Verklein de grootte van uw bestand(en) en probeer het opnieuw of neem contact op met een enquête-eigenaar.",
   saveAgainButton: "Probeer opnieuw",
   timerMin: "minimum",
   timerSec: "sec",
@@ -80,6 +81,7 @@ export var dutchSurveyStrings = {
   timerLimitSurvey: "U heeft {0} van {1} in het totaal.",
   clearCaption: "Verwijder",
   signaturePlaceHolder: "Hier tekenen",
+  signaturePlaceHolderReadOnly: "Geen handtekening",
   chooseFileCaption: "Gekozen bestand",
   takePhotoCaption: "Foto maken",
   photoPlaceholder: "Klik op de onderstaande knop om een foto te maken met de camera.",
@@ -136,4 +138,5 @@ surveyLocalization.localeNames["nl"] = "nederlands";
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Annuleren"
 // refuseItemText: "Refuse to answer" => "Weiger te antwoorden"
-// dontKnowItemText: "Don't know" => "Weet niet"
+// dontKnowItemText: "Don't know" => "Weet niet"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Uw antwoord is groter dan 64 kB. Verklein de grootte van uw bestand(en) en probeer het opnieuw of neem contact op met een enquête-eigenaar."
+// signaturePlaceHolderReadOnly: "No signature" => "Geen handtekening"

@@ -12,7 +12,7 @@
       :aria-label="model.caption.renderedHtml"
       role="radio"
       :aria-invalid="model.hasErrors"
-      :aria-describedby="model.describedBy"
+      :aria-errormessage="model.describedBy"
       :disabled="model.readOnly"
       :class="model.css.control"
       v-model="renderedValue"

@@ -21,6 +21,7 @@ import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
 import { ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
+import { DomWindowHelper } from "./global_variables_utils";
 
 export interface IConditionObject {
   name: string;
@@ -580,8 +581,7 @@ export class Question extends SurveyElement<Question>
     info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
   public runTriggers(name: string, value: any): void {
-    if(this.isReadOnly || this.isSettingQuestionValue ||
-      (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
+    if(this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
     this.triggersInfo.forEach(info => {
       this.runTriggerInfo(info, name, value);
     });
@@ -664,9 +664,11 @@ export class Question extends SurveyElement<Question>
   }
   public getTitleOwner(): ITitleOwner { return this; }
   protected getIsTitleRenderedAsString(): boolean { return this.titleLocation === "hidden"; }
-  private notifySurveyVisibilityChanged() {
+  protected notifySurveyOnChildrenVisibilityChanged(): boolean { return false; }
+  private notifySurveyVisibilityChanged(): void {
     if (!this.survey || this.isLoadingFromJson) return;
-    this.survey.questionVisibilityChanged(this, this.isVisible);
+    this.survey.questionVisibilityChanged(this, this.isVisible,
+      !this.parentQuestion || this.parentQuestion.notifySurveyOnChildrenVisibilityChanged());
     const isClearOnHidden = this.isClearValueOnHidden;
     if (!this.visible) {
       this.clearValueOnHidding(isClearOnHidden);
@@ -1098,7 +1100,9 @@ export class Question extends SurveyElement<Question>
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssRoot)
-      .append(this.cssClasses.disabled, this.isReadOnly)
+      .append(this.cssClasses.readOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.disabled, this.isDisabledStyle)
+      .append(this.cssClasses.preview, this.isPreviewStyle)
       .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }
@@ -1302,6 +1306,9 @@ export class Question extends SurveyElement<Question>
   }
   public get ariaTitleId(): string {
     return this.id + "_ariaTitle";
+  }
+  public get ariaDescriptionId(): string {
+    return this.id + "_ariaDescription";
   }
   public get commentId(): string {
     return this.id + "_comment";
@@ -1510,6 +1517,7 @@ export class Question extends SurveyElement<Question>
   }
   public get hasFilteredValue(): boolean { return false; }
   public getFilteredValue(): any { return this.value; }
+  public getFilteredName(): any { return this.getValueName(); }
   public get valueForSurvey(): any {
     if (!!this.valueToDataCallback) {
       return this.valueToDataCallback(this.value);
@@ -2019,7 +2027,7 @@ export class Question extends SurveyElement<Question>
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     objects.push({
-      name: this.getValueName(),
+      name: this.getFilteredName(),
       text: this.processedTitle,
       question: this,
     });
@@ -2043,13 +2051,12 @@ export class Question extends SurveyElement<Question>
     questions.push(this);
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    var json = new JsonObject().toJsonObject(this);
+    const json = new JsonObject().toJsonObject(this);
     json["type"] = this.getType();
     return json;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    var oldHasErrors = this.errors.length > 0;
-    var errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
+    const errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
     if (fireCallback) {
       if (!!this.survey) {
         this.survey.beforeSettingQuestionErrors(this, errors);
@@ -2095,11 +2102,14 @@ export class Question extends SurveyElement<Question>
     if (!error) return;
     let newError: SurveyError = null;
     if (typeof error === "string" || error instanceof String) {
-      newError = new CustomError(<string>error, this.survey);
+      newError = this.addCustomError(<string>error);
     } else {
       newError = <SurveyError>error;
     }
     this.errors.push(newError);
+  }
+  private addCustomError(error: string): SurveyError {
+    return new CustomError(error, this.survey);
   }
   public removeError(error: SurveyError): void {
     var errors = this.errors;
@@ -2149,6 +2159,12 @@ export class Question extends SurveyElement<Question>
       const err = new AnswerRequiredError(this.requiredErrorText, this);
       err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
       errors.push(err);
+    }
+    if(!this.isEmpty() && this.customWidget) {
+      const text = this.customWidget.validate(this);
+      if(!!text) {
+        errors.push(this.addCustomError(text));
+      }
     }
   }
   protected hasRequiredError(): boolean {
@@ -2398,7 +2414,6 @@ export class Question extends SurveyElement<Question>
   public isDefaultRendering(): boolean {
     return (
       !!this.customWidget ||
-      this.renderAs === "default" ||
       this.getComponentName() === "default"
     );
   }
@@ -2517,7 +2532,7 @@ export class Question extends SurveyElement<Question>
 
       };
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-        window.requestAnimationFrame((): void | undefined => {
+        DomWindowHelper.requestAnimationFrame((): void | undefined => {
           this.triggerResponsiveness(false);
         });
       });
@@ -2602,10 +2617,19 @@ export class Question extends SurveyElement<Question>
       return null;
     }
   }
+  public get ariaDescribedBy(): string {
+    if (this.isNewA11yStructure) return null;
+
+    if (this.hasTitle) {
+      return this.ariaDescriptionId;
+    } else {
+      return null;
+    }
+  }
   public get ariaExpanded(): string {
     return null;
   }
-  public get ariaDescribedBy(): string {
+  public get ariaErrormessage(): string {
     if (this.isNewA11yStructure) return null;
 
     return this.hasCssError() ? this.id + "_errors" : null;
@@ -2637,6 +2661,13 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
+    if (this.hasTitle && !this.parentQuestion) {
+      return this.ariaDescriptionId;
+    } else {
+      return null;
+    }
+  }
+  public get a11y_input_ariaErrormessage(): string {
     return this.hasCssError() ? this.id + "_errors" : null;
   }
   //EO new a11y

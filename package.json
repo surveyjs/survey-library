@@ -73,6 +73,7 @@
     "test:vue:single": "karma start ./build-scripts/survey-vue/karma.conf.vue.js --single-run",
     "test:markup": "npm run test:knockout:single && npm run test:react:single && npm run test:vue:single",
     "visual-regression-tests": "testcafe chrome ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --reporter minimal --selector-timeout 1500",
+    "vrt:ko": "testcafe chrome ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --reporter minimal --env=knockout --selector-timeout 1500",
     "visual-regression-tests:ci": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal",
     "visual-regression-tests:ci:knockout": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=knockout",
     "visual-regression-tests:ci:angular": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=angular",
@@ -95,7 +96,7 @@
     "prepare": "husky install",
     "test:postcss": "postcss build/survey-core/defaultV2.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -o defaultV2.postcss.css && rimraf defaultV2.postcss.css"
   },
-  "version": "1.9.129",
+  "version": "1.10.2",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
@@ -114,6 +115,7 @@
     "@types/signature_pad": "^2.3.0",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
+    "@vue/eslint-config-typescript": "^11.0.0",
     "ace-builds": "1.2.2",
     "ajv": "6.12.3",
     "autoprefixer": "^10.4.17",
@@ -132,7 +134,7 @@
     "eslint-cli": "^1.1.1",
     "eslint-plugin-react": "7.30.1",
     "eslint-plugin-surveyjs": "file:eslint-surveyjs",
-    "eslint-plugin-vue": "^7.16.0",
+    "eslint-plugin-vue": "^9.3.0",
     "file-loader": "0.10.0",
     "generate-json-webpack-plugin": "^1.0.0",
     "get-func-name": "2.0.0",

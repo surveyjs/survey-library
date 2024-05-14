@@ -6,6 +6,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/utils";
 import { ActionContainer } from "./actions/container";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 /**
  * A class that describes the Yes/No (Boolean) question type.
@@ -62,6 +63,7 @@ export class QuestionBooleanModel extends Question {
       this.value = val == true ? this.getValueTrue() : this.getValueFalse();
       this.booleanValueRendered = val;
     }
+    this.updateThumbMargin();
   }
   public get defaultValue(): any {
     return this.getPropertyValue("defaultValue");
@@ -84,6 +86,31 @@ export class QuestionBooleanModel extends Question {
   }
   public get labelRenderedAriaID(): string {
     return this.isLabelRendered ? this.ariaTitleId : null;
+  }
+
+  @property() leftAnswerElement: HTMLElement;
+  @property() thumbMargin: string;
+
+  public updateThumbMargin(): void {
+    if (!this.isIndeterminate && this.leftAnswerElement) {
+      if (!this.swapOrder && this.value === this.getValueTrue() || this.swapOrder && this.value === this.getValueFalse()) {
+        const el = this.leftAnswerElement;
+        setTimeout(() => {
+          this.thumbMargin = el.clientWidth + (this.swapOrder ? 4 : 2) + "px";
+        }, 50);
+      }
+    }
+    this.thumbMargin = undefined;
+  }
+
+  public afterRender(el: HTMLElement) {
+    super.afterRender(el);
+    this.leftAnswerElement = el.querySelectorAll("." + this.cssClasses.sliderGhost)[0] as HTMLElement;
+    this.updateThumbMargin();
+  }
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
+    super.beforeDestroyQuestionElement(el);
+    this.leftAnswerElement = undefined;
   }
 
   //Obsolete
@@ -116,6 +143,13 @@ export class QuestionBooleanModel extends Question {
     return this.booleanValue !== null && this.booleanValue !== undefined;
   }
 
+  /**
+   * Specifies whether to swap the order of the Yes and No answers.
+   *
+   * Default value: `false`
+   *
+   * By default, the order is [ "No", "Yes"]. Enable this property to reorder the answers as follows: [ "Yes", "No" ].
+   */
   @property({ defaultValue: false }) swapOrder: boolean;
   get locLabelLeft(): LocalizableString {
     return this.swapOrder ? this.getLocalizableString("labelTrue") : this.getLocalizableString("labelFalse");
@@ -182,7 +216,9 @@ export class QuestionBooleanModel extends Question {
     return new CssClassBuilder()
       .append(css.item)
       .append(css.itemOnError, this.hasCssError())
-      .append(css.itemDisabled, this.isReadOnly)
+      .append(css.itemDisabled, this.isDisabledStyle)
+      .append(css.itemReadOnly, this.isReadOnlyStyle)
+      .append(css.itemPreview, this.isPreviewStyle)
       .append(css.itemHover, !this.isDesignMode)
       .append(css.itemChecked, !!this.booleanValue)
       .append(css.itemExchanged, !!this.swapOrder)
@@ -199,6 +235,9 @@ export class QuestionBooleanModel extends Question {
         item: this.cssClasses.checkboxItem,
         itemOnError: this.cssClasses.checkboxItemOnError,
         itemDisabled: this.cssClasses.checkboxItemDisabled,
+        itemDisable: this.cssClasses.checkboxItemDisabled,
+        itemReadOnly: this.cssClasses.checkboxItemReadOnly,
+        itemPreview: this.cssClasses.checkboxItemPreview,
         itemChecked: this.cssClasses.checkboxItemChecked,
         itemIndeterminate: this.cssClasses.checkboxItemIndeterminate
       }
@@ -208,7 +247,9 @@ export class QuestionBooleanModel extends Question {
   public getLabelCss(checked: boolean): string {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
-      .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isReadOnly)
+      .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isDisabledStyle)
+      .append(this.cssClasses.labelReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.labelPreview, this.isPreviewStyle)
       .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === !this.swapOrder)
       .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === this.swapOrder)
       .toString();
@@ -219,6 +260,13 @@ export class QuestionBooleanModel extends Question {
     if (!this.isDeterminated && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
     if (!this.booleanValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
     return this.cssClasses.svgIconId;
+  }
+
+  public get itemSvgIcon(): string {
+    if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
+      return this.cssClasses.itemPreviewSvgIconId;
+    }
+    return this.cssClasses.itemSvgIconId;
   }
 
   public get allowClick(): boolean {
@@ -248,8 +296,8 @@ export class QuestionBooleanModel extends Question {
   }
   private calculateBooleanValueByEvent(event: any, isRightClick: boolean) {
     let isRtl = false;
-    if ("undefined" !== typeof document) {
-      isRtl = document.defaultView.getComputedStyle(event.target).direction == "rtl";
+    if (DomDocumentHelper.isAvailable()) {
+      isRtl = DomDocumentHelper.getComputedStyle(event.target).direction == "rtl";
     }
     this.booleanValue = isRtl ? !isRightClick : isRightClick;
   }
@@ -279,6 +327,15 @@ export class QuestionBooleanModel extends Question {
     }
     if (css.radioItemChecked && value === this.booleanValue) {
       className = (className ? className + " " : "") + css.radioItemChecked;
+    }
+    if (this.isDisabledStyle) {
+      className += " " + css.radioItemDisabled;
+    }
+    if (this.isReadOnlyStyle) {
+      className += " " + css.radioItemReadOnly;
+    }
+    if (this.isPreviewStyle) {
+      className += " " + css.radioItemPreview;
     }
     return className;
   }

@@ -16,7 +16,7 @@ import { SurveyElementHeader } from "./element-header";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element | null;
-  renderError(key: string, error: SurveyError, cssClasses: any): JSX.Element;
+  renderError(key: string, error: SurveyError, cssClasses: any, element?: any): JSX.Element;
   questionTitleLocation(): string;
   questionErrorLocation(): string;
 }
@@ -27,7 +27,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     creator: ISurveyCreator,
     question: Question
   ): JSX.Element | any {
-    if (!question.isVisible) return null;
+    // if (!question.isVisible) return null;
     var customWidget = question.customWidget;
     if (!customWidget) {
       return creator.createQuestionElement(question);
@@ -91,15 +91,14 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     return (
       super.canRender() &&
       !!this.question &&
-      !!this.creator &&
-      this.question.isVisible
+      !!this.creator
     );
   }
 
   protected renderQuestionContent(): JSX.Element {
     let question = this.question;
     var contentStyle = {
-      display: !this.question.isCollapsed ? "" : "none",
+      display: this.question.renderedIsExpanded ? "" : "none",
     };
     var cssClasses = question.cssClasses;
     var questionRender = this.renderQuestion();
@@ -157,6 +156,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-required={this.question.ariaRequired}
           aria-invalid={this.question.ariaInvalid}
           aria-labelledby={question.ariaLabelledBy}
+          aria-describedby={question.ariaDescribedBy}
           aria-expanded={question.ariaExpanded === null ? undefined : question.ariaExpanded === "true"}
         >
           {errorsAboveQuestion}
@@ -256,7 +256,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     for (let i = 0; i < this.element.errors.length; i++) {
       const key: string = "error" + i;
       errors.push(
-        this.creator.renderError(key, this.element.errors[i], this.cssClasses)
+        this.creator.renderError(key, this.element.errors[i], this.cssClasses, this.element)
       );
     }
 

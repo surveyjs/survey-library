@@ -299,10 +299,9 @@ export class MatrixDropdownColumn extends Base
     return this.locTitle.textOrHtml;
   }
   /**
-   * Marks the column as required. If a respondent skips any cell in a required column, the matrix displays a validation error.
+   * Marks the column as required. If a respondent skips any cell in a required column, the matrix displays a [validation error](#requiredErrorText).
    *
    * If you want to mark the column as required based on a condition, specify the [`requiredIf`](#requiredIf) property.
-   * @see requiredErrorText
    * @see visible
    * @see readOnly
    */
@@ -437,11 +436,11 @@ export class MatrixDropdownColumn extends Base
    * @see defaultValueExpression
    * @see resetValueIf
    */
-  public get setValueExpession(): string {
-    return this.templateQuestion.setValueExpession;
+  public get setValueExpression(): string {
+    return this.templateQuestion.setValueExpression;
   }
-  public set setValueExpession(val: string) {
-    this.templateQuestion.setValueExpession = val;
+  public set setValueExpression(val: string) {
+    this.templateQuestion.setValueExpression = val;
   }
   /**
    * Specifies whether a respondent is required to provide a unique response for each question within this column.

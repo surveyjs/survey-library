@@ -6,7 +6,7 @@
     }"
   >
     <div :class="question.cssClasses.placeholder" v-show="question.needShowPlaceholder()">
-      <survey-string :locString="question.locPlaceholder"></survey-string>
+      <survey-string :locString="question.locRenderedPlaceholder"></survey-string>
     </div>
     <div>
       <img v-if="question.backgroundImage" :class="question.cssClasses.backgroundImage" :src="question.backgroundImage"

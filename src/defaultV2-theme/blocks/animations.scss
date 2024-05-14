@@ -1,0 +1,52 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+@keyframes changeHeight {
+  from {
+    height: var(--animation-height-from);
+  }
+  to {
+    height: var(--animation-height-to);
+  }
+}
+@keyframes moveInWithOverflow {
+  from {
+    overflow: hidden;
+    height: 0;
+  }
+  99% {
+    overflow: hidden;
+    height: var(--animation-height);
+  }
+  to {
+    overflow: visible;
+    height: var(--animation-height);
+  }
+}
+@keyframes moveIn {
+  from {
+    height: 0;
+  }
+
+  to {
+    height: var(--animation-height);
+  }
+}
+
+@keyframes paddingFadeIn {
+  from {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  to {
+    padding-bottom: var(--animation-padding-bottom);
+    padding-top: var(--animation-padding-top);
+  }
+}

@@ -1,5 +1,5 @@
 <template>
-  <div :class="model.getRootCss(container)" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
+  <div :class="model.getRootCss(container)"  :style="{'maxWidth': model.progressWidth}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
     <div v-if="canShowHeader" :class="survey.css.progressButtonsHeader">
       <div :class="survey.css.progressButtonsPageTitle" :title="model.headerText">{{ model.headerText }}</div>
     </div>
@@ -28,7 +28,7 @@
               :class="css.progressButtonsPageTitle"
               :title="page.renderedNavigationTitle"
             >
-              {{ page.renderedNavigationTitle }}
+              <survey-string :locString="page.locNavigationTitle" />
             </div>
             <div v-if="canShowItemTitles"
               :class="css.progressButtonsPageDescription"
@@ -36,6 +36,7 @@
             >
               {{ page.locNavigationDescription.renderedHtml }}
             </div>
+            <div :class="css.progressButtonsButton"><div :class="css.progressButtonsButtonBackground"></div><div :class="css.progressButtonsButtonContent"></div><span>{{model.getItemNumber(page)}}</span></div>
           </li>
         </ul>
       </div>

@@ -44,6 +44,20 @@ textarea {
   user-select: none;
 }
 
+.sd-input--readonly {
+  background-color: $background-dark;
+}
+
+.sd-input.sd-input--preview {
+  background: none;
+  box-shadow: none;
+  transition: none;
+  border-bottom: 1px solid $foreground;
+  border-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .sd-input::placeholder {
   color: $font-editorfont-placeholdercolor;
   -webkit-user-select: none;
@@ -56,6 +70,16 @@ textarea {
 .sd-input.sd-input--disabled::placeholder {
   color: $foreground;
   opacity: 0.25;
+}
+
+.sd-input.sd-input--readonly {
+  color: $foreground;
+  box-shadow: none;
+  transition: none;
+}
+
+.sd-input.sd-input--readonly::placeholder {
+  color: $foreground-light;
 }
 
 .sd-root--readonly .sd-input--disabled,

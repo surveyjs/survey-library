@@ -16,7 +16,7 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
             type="radio"
             name = { this.question.name }
             value = { value }
-            aria-describedby = { this.question.ariaDescribedBy }
+            aria-errormessage = { this.question.ariaErrormessage }
             checked={value === this.question.booleanValueRendered}
             disabled = { this.question.isInputReadOnly }
             className = { cssClasses.itemRadioControl }
@@ -44,8 +44,13 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
     return (
       <div className={cssClasses.rootRadio}>
         <fieldset role="presentation" className= { cssClasses.radioFieldset }>
-          {this.renderRadioItem(false, this.question.locLabelFalse)}
-          {this.renderRadioItem(true, this.question.locLabelTrue)}
+          {!this.question.swapOrder ?
+            (<>{this.renderRadioItem(false, this.question.locLabelFalse)}
+              {this.renderRadioItem(true, this.question.locLabelTrue)}</>)
+            :
+            (<>{this.renderRadioItem(true, this.question.locLabelTrue)}
+              {this.renderRadioItem(false, this.question.locLabelFalse)}</>)
+          }
         </fieldset>
       </div>
     );

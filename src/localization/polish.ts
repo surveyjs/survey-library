@@ -69,6 +69,7 @@ export var polishSurveyStrings = {
   savingData: "Zapisuję wyniki ankiety na serwerze...",
   savingDataError: "Wystąpił błąd i wyniki nie mogły zostać zapisane.",
   savingDataSuccess: "Wyniki zostały poprawnie zapisane!",
+  savingExceedSize: "Twoja odpowiedź przekracza 64 KB. Zmniejsz rozmiar plików i spróbuj ponownie lub skontaktuj się z właścicielem ankiety.",
   saveAgainButton: "Spróbuj ponownie",
   timerMin: "min",
   timerSec: "sek",
@@ -80,6 +81,7 @@ export var polishSurveyStrings = {
   timerLimitSurvey: "Spędziłeś {0} z {1}.",
   clearCaption: "Wyczyść",
   signaturePlaceHolder: "Podpisz tutaj",
+  signaturePlaceHolderReadOnly: "Brak podpisu",
   chooseFileCaption: "Wybierz plik",
   takePhotoCaption: "Zrób zdjęcie",
   photoPlaceholder: "Kliknij przycisk poniżej, aby zrobić zdjęcie aparatem.",
@@ -126,4 +128,5 @@ surveyLocalization.localeNames["pl"] = "polski";
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Anuluj"
 // refuseItemText: "Refuse to answer" => "Odmów odpowiedzi"
-// dontKnowItemText: "Don't know" => "Nie wiem"
+// dontKnowItemText: "Don't know" => "Nie wiem"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Twoja odpowiedź przekracza 64 KB. Zmniejsz rozmiar plików i spróbuj ponownie lub skontaktuj się z właścicielem ankiety."
+// signaturePlaceHolderReadOnly: "No signature" => "Brak podpisu"

@@ -88,8 +88,10 @@
 }
 
 .sd-imagepicker__item:focus-within .sd-imagepicker__image,
-.sd-imagepicker__item--allowhover .sd-imagepicker__image:hover {
-  opacity: 0.5;
+.sd-imagepicker__item--allowhover:not(.sd-imagepicker__item--readonly, .sd-imagepicker__item--preview) {
+  .sd-imagepicker__image:hover {
+    opacity: 0.5;
+  }
 }
 
 .sd-imagepicker__image {
@@ -129,8 +131,48 @@
   gap: calcSize(2);
   align-items: flex-start;
   padding-right: 0;
+
+  .sd-imagepicker__item {
+    width: 100%;
+  }
+
+  .sd-imagepicker__text {
+    width: 100%;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
 }
 
 .sd-selectbase__column.sd-imagepicker__column:not(:last-child) {
   padding-right: 0;
+}
+
+.sd-imagepicker__item--readonly {
+  .sd-imagepicker__check-icon {
+    fill: $foreground;
+  }
+}
+
+.sd-imagepicker__item--preview {
+  .sd-imagepicker__check-decorator {
+    display: none;
+  }
+
+  .sd-imagepicker__image {
+    /* Safari 6.0 - 9.0 */
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+    opacity: 0.25;
+  }
+
+  &.sd-imagepicker__item--checked {
+    .sd-imagepicker__image {
+      /* Safari 6.0 - 9.0 */
+      -webkit-filter: grayscale(0%);
+      filter: grayscale(0%);
+      opacity: 1;
+    }
+  }
 }

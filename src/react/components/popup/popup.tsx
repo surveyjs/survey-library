@@ -72,7 +72,6 @@ ReactElementFactory.Instance.registerElement(
 );
 
 export class PopupContainer extends SurveyElementBase<any, any> {
-  public prevIsVisible: boolean = false;
   constructor(props: any) {
     super(props);
   }
@@ -90,25 +89,24 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   };
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
-    if (!this.prevIsVisible && this.model.isVisible) {
+    if (!this.model.isPositionSet && this.model.isVisible) {
       this.model.updateOnShowing();
     }
-    this.prevIsVisible = this.model.isVisible;
   }
-  renderContainer(PopupBaseViewModel: PopupBaseViewModel): JSX.Element {
-    const headerPopup = PopupBaseViewModel.showHeader ? this.renderHeaderPopup(PopupBaseViewModel) : null;
-    const headerContent = !!PopupBaseViewModel.title ? this.renderHeaderContent() : null;
+  renderContainer(popupBaseViewModel: PopupBaseViewModel): JSX.Element {
+    const headerPopup = popupBaseViewModel.showHeader ? this.renderHeaderPopup(popupBaseViewModel) : null;
+    const headerContent = !!popupBaseViewModel.title ? this.renderHeaderContent() : null;
     const content = this.renderContent();
-    const footerContent = PopupBaseViewModel.showFooter ? this.renderFooter(this.model) : null;
+    const footerContent = popupBaseViewModel.showFooter ? this.renderFooter(this.model) : null;
     return (
       <div
         className="sv-popup__container"
         style={{
-          left: PopupBaseViewModel.left,
-          top: PopupBaseViewModel.top,
-          height: PopupBaseViewModel.height,
-          width: PopupBaseViewModel.width,
-          minWidth: PopupBaseViewModel.minWidth,
+          left: popupBaseViewModel.left,
+          top: popupBaseViewModel.top,
+          height: popupBaseViewModel.height,
+          width: popupBaseViewModel.width,
+          minWidth: popupBaseViewModel.minWidth,
         }}
         onClick={(ev: any) => {
           this.clickInside(ev);
@@ -212,11 +210,18 @@ export function showModal(
   return showDialog(options);
 }
 export function showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
-  dialogOptions.onHide = () => {
-    ReactDOM.unmountComponentAtNode(popupViewModel.container);
-    popupViewModel.dispose();
-  };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, rootElement);
+  const onVisibilityChangedCallback = (
+    _: PopupBaseViewModel,
+    options: { isVisible: boolean }
+  ) => {
+    if (!options.isVisible) {
+      ReactDOM.unmountComponentAtNode(popupViewModel.container);
+      popupViewModel.dispose();
+    }
+  };
+  popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);
+
   ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
   popupViewModel.model.isVisible = true;
 

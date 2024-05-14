@@ -73,6 +73,26 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check file question icon size", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const questionRoot = Selector(".sd-question");
+      await t.setFilesToUpload(Selector(".sd-file input"), ["files/Portfolio.pdf"]);
+      await t.click(".sd-file input[type=file] + div label");
+      await ClientFunction(() => {
+        (<any>window).survey.headerView = "advanced";
+        (<any>window).survey.applyTheme({
+          cssVariables: {
+            "--sjs-base-unit": "16px"
+          },
+          header: {
+          }
+        });
+      })();
+      await takeElementScreenshot("file-question-single-file-scaled.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Check file question with imageWidth/height", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
@@ -133,6 +153,31 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check file question - long names large font", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await ClientFunction(() => {
+        const question = (window as any).survey.getQuestionByName("file_question");
+        question.allowMultiple = true;
+
+        (<any>window).survey.applyTheme({
+          cssVariables: {
+            "--sjs-font-size": "20px"
+          }
+        });
+
+        question.value = [
+          {
+            "name": "item2_very_long_name_that_i_could_not_even_imagine_for_that_moment_and_to_be_honest_it_will_be_really_the_longest_file_name_in_the_world_really_really_lond_i_believe.pdf",
+            "type": "application/x-zip-compressed",
+            "content": "#item1.zip"
+          }];
+      })();
+
+      const questionRoot = Selector(".sd-question");
+      await takeElementScreenshot("file-question-long-name-font.png", questionRoot, t, comparer);
+    });
+  });
   test("Check file question mobile mode", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

@@ -1,6 +1,7 @@
 @import "./blocks/mixins.scss";
 @import "../common-styles/common-styles.scss";
 
+@import "blocks/animations.scss";
 @import "blocks/sd-element.scss";
 @import "blocks/sd-question.scss";
 @import "blocks/sd-error.scss";
@@ -86,7 +87,7 @@ body {
   width: 100%;
   height: 100%;
   overflow: auto;
-  position: static;
+  position: relative;
 }
 
 .sd-root-modern--mobile {

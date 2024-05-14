@@ -19,6 +19,7 @@ import { SurveyElement } from "../src/survey-element";
 import { Action } from "../src/actions/action";
 import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedErrorRow, QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
+import { AnimationGroup } from "../src/utils/animation";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -4042,14 +4043,22 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
         rowCount: 3,
         columns: ["1", "2"],
       },
+      {
+        type: "matrixdynamic",
+        name: "q2",
+        rowCount: 3,
+        columns: ["1", "2"],
+      },
     ],
   });
   survey.onMatrixAllowRemoveRow.add(function (sender, options) {
     options.allow = options.rowIndex % 2 == 0;
   });
-  var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const firstMatrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
+  assert.equal(firstMatrix.visibleRows.length, 3, "Three rows");
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
   assert.equal(matrix.canRemoveRows, true, "The row can be removed");
-  var table = matrix.renderedTable;
+  const table = matrix.renderedTable;
   assert.equal(
     table.rows[1].cells[2].isActionsCell,
     true,
@@ -6897,7 +6906,7 @@ QUnit.test("Detail panel, rendered table and className", function (assert) {
 
   assert.equal(
     rows[1].cells[1].className,
-    "sv_matrix_cell sv_matrix_cell_detail_rowtext",
+    "sv_matrix_cell sv-table__cell--row-text sv_matrix_cell_detail_rowtext",
     "row text css"
   );
   assert.equal(
@@ -7211,8 +7220,8 @@ QUnit.test("Row actions, rendered table and className", function (assert) {
     leftActions[0] instanceof Action,
     "actions in cell are instances of Action"
   );
-  assert.equal(rows[1].cells[1].className, "sv_matrix_cell", "text cell");
-  assert.equal(rows[1].cells[1].className, "sv_matrix_cell", "ordinary cell");
+  assert.equal(rows[1].cells[1].className, "sv_matrix_cell sv-table__cell--row-text", "text cell");
+  assert.equal(rows[1].cells[2].className, "sv_matrix_cell", "ordinary cell");
   assert.equal(
     rows[1].cells[3].className,
     "sv_matrix_cell sv_matrix_cell_actions",
@@ -9141,6 +9150,47 @@ QUnit.test("matrix dynamic expression & checkbox ValuePropertyName", function (a
   assert.equal(matrix.visibleRows.length, 2, "matrix rows #2");
   assert.deepEqual(matrix.value, [{ testItem: "Item 1", col1: "Item 1 - matrix" }, { testItem: "Item 2", col1: "Item 2 - matrix" }], "matrix value #2");
 });
+QUnit.test("matrix dynamic expression & checkbox valuePropertyName & sumInArray function", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [
+          "Item 1",
+          "Item 2"
+        ],
+        "valuePropertyName": "testItem"
+      },
+      {
+        "type": "matrixdynamic",
+        "name": "q2",
+        "valueName": "q1",
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text",
+            "inputType": "text"
+          }
+        ],
+        "rowCount": 0
+      },
+      {
+        "type": "expression",
+        "name": "q3",
+        "expression": "sumInArray({q1}, 'col1')"
+      }
+    ]
+  });
+  const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  const expression = survey.getQuestionByName("q3");
+  checkbox.renderedValue = ["Item 1", "Item 2"];
+  const rows = matrix.visibleRows;
+  rows[0].getQuestionByColumnName("col1").value = 5;
+  rows[1].getQuestionByColumnName("col1").value = 7;
+  assert.equal(expression.value, 12, "Calculate values correctly");
+});
 
 QUnit.test("Totals alingment", function (assert) {
   var json = {
@@ -9235,4 +9285,103 @@ QUnit.test("Totals alingment", function (assert) {
     renderedTable.footerRow.cells[3].cellQuestionWrapperClassName,
     "sd-table__question-wrapper sd-table__question-wrapper--expression sd-table__question-wrapper--center"
   );
+});
+QUnit.test("lockedRowCount property", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        allowRowsDragAndDrop: true,
+        rowCount: 4,
+        columns: ["col1"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.lockedRowCount = 2;
+  const rows = matrix.visibleRows;
+  assert.equal(matrix.canRemoveRow(rows[0]), false, "canRemoveRow, row#0");
+  assert.equal(matrix.canRemoveRow(rows[1]), false, "canRemoveRow, row#1");
+  assert.equal(matrix.canRemoveRow(rows[2]), true, "canRemoveRow, row#2");
+  assert.equal(matrix.canRemoveRow(rows[3]), true, "canRemoveRow, row#3");
+
+  const table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 3, "Drag handler cell + one column + actions cell");
+  assert.equal(table.rows[1].cells[0].isDragHandlerCell, false, "isDragHandlerCell, row#1");
+  assert.equal(table.rows[3].cells[0].isDragHandlerCell, false, "isDragHandlerCell, row#2");
+  assert.equal(table.rows[5].cells[0].isDragHandlerCell, true, "isDragHandlerCell, row#3");
+  assert.equal(table.rows[7].cells[0].isDragHandlerCell, true, "isDragHandlerCell, row#4");
+  assert.equal(table.rows[1].cells[0].isEmpty, true, "isEmpty, row#1");
+  assert.equal(table.rows[3].cells[0].isEmpty, true, "isEmpty, row#2");
+  assert.equal(table.rows[5].cells[0].isEmpty, false, "isEmpty, row#3");
+  assert.equal(table.rows[7].cells[0].isEmpty, false, "isEmpty, row#4");
+});
+
+QUnit.test("table: check renderedRows", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        columns: ["col1"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const renderedTable = matrix.renderedTable;
+  assert.equal(renderedTable.renderedRows.length, 4);
+  assert.deepEqual(renderedTable.renderedRows, renderedTable.rows);
+  matrix.addRow();
+  assert.equal(renderedTable.rows.length, 6);
+  assert.equal(renderedTable.renderedRows.length, 6);
+  matrix.removeRow(2);
+  assert.equal(renderedTable.rows.length, 4);
+  assert.equal(renderedTable.renderedRows.length, 4);
+});
+
+QUnit.test("table: check animation options", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        columns: ["col1"]
+      }
+    ]
+  });
+  survey.css = {
+    "matrixdynamic": {
+      rowFadeIn: "enter",
+      rowFadeOut: "leave",
+    }
+  };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const renderedTable = matrix.renderedTable;
+  assert.ok(renderedTable["renderedRowsAnimation"] instanceof AnimationGroup);
+  const options = renderedTable["getRenderedRowsAnimationOptions"]();
+  const tableHtmlElement = document.createElement("table");
+  const rowHtmlElement = document.createElement("tr");
+  const cellHtmlElement = document.createElement("td");
+  const questionHtmlElement = document.createElement("div");
+  cellHtmlElement.appendChild(questionHtmlElement);
+  rowHtmlElement.appendChild(cellHtmlElement);
+  tableHtmlElement.appendChild(rowHtmlElement);
+  document.body.appendChild(tableHtmlElement);
+  questionHtmlElement.style.height = "20px";
+
+  const enterOptions = options.getEnterOptions(renderedTable.rows[1]);
+  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(rowHtmlElement);
+  assert.equal(enterOptions.cssClass, "enter");
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "20px");
+
+  questionHtmlElement.style.height = "40px";
+  const leaveOptions = options.getLeaveOptions(renderedTable.rows[1]);
+  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(rowHtmlElement);
+  assert.equal(leaveOptions.cssClass, "leave");
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "40px");
+
+  tableHtmlElement.remove();
 });

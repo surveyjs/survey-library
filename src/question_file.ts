@@ -14,6 +14,7 @@ import { Camera } from "./utils/camera";
 import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { getRenderedSize } from "./utils/utils";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
 export function dataUrl2File(dataUrl: string, fileName: string, type: string) {
   const str = atob(dataUrl.split(",")[1]);
@@ -240,6 +241,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("takePhotoCaption", this, false, true);
+    this.createLocalizableString("clearCaption", this, false, true);
     this.actionsContainer = new ActionContainer();
     this.actionsContainer.locOwner = this;
     this.fileIndexAction = new Action({
@@ -300,6 +302,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       id: "sv-file-choose-file",
       iconSize: "auto",
       data: { question: this },
+      enabledIf: () => !this.isInputReadOnly,
       component: "sv-file-choose-btn"
     });
     this.startCameraAction = new Action({
@@ -317,7 +320,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       iconName: "icon-clear",
       id: "sv-file-clean",
       iconSize: "auto",
-      title: <string>(new ComputedUpdater<string>(() => this.clearButtonCaption) as any),
+      locTitle: this.locClearButtonCaption,
       showTitle: false,
       enabledIf: () => !this.isInputReadOnly,
       innerCss: <string>(new ComputedUpdater<string>(() => this.cssClasses.removeButton) as any),
@@ -533,12 +536,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("maxSize", val);
   }
   public chooseFile(event: MouseEvent): void {
-    const inputElement = document.getElementById(this.inputId) as HTMLInputElement;
+    if (!DomDocumentHelper.isAvailable()) return;
+
+    const inputElement = DomDocumentHelper.getDocument().getElementById(this.inputId) as HTMLInputElement;
     event.preventDefault();
     event.stopImmediatePropagation();
     if (inputElement) {
       if (this.survey) {
-        this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this });
+        this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this, elementType: this.getType(), propertyName: this.name });
       } else {
         inputElement.click();
       }
@@ -566,10 +571,20 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public set takePhotoCaption(val: string) { this.setLocalizableStringText("takePhotoCaption", val); }
   public get locTakePhotoCaption(): LocalizableString { return this.getLocalizableString("takePhotoCaption"); }
   @property({ localizable: { defaultStr: "replaceFileCaption" } }) replaceButtonCaption: string;
-  @property({ localizable: { defaultStr: "clearCaption" } }) clearButtonCaption: string;
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
+
+  public get clearButtonCaption(): string {
+    return this.getLocalizableStringText("clearCaption");
+  }
+  public set clearButtonCaption(value: string) {
+    this.setLocalizableStringText("clearCaption", value);
+  }
+  get locClearButtonCaption(): LocalizableString {
+    return this.getLocalizableString("clearCaption");
+  }
+
   /**
    * A placeholder text displayed when the File Upload question doesn't contain any files or photos to upload. Applies only when [`sourceType`](#sourceType) value is `"file-camera"`.
    * @see filePlaceholder
@@ -930,6 +945,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public get fileRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
+      .append(this.cssClasses.rootDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.rootReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.rootPreview, this.isPreviewStyle)
       .append(this.cssClasses.rootDragging, this.isDragging)
       .append(this.cssClasses.rootAnswered, this.isAnswered)
       .append(this.cssClasses.single, !this.allowMultiple)
@@ -946,7 +964,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
 
   private onChange(src: any) {
-    if (!(<any>window)["FileReader"]) return;
+    if (!DomWindowHelper.isFileReaderAvailable()) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
     let allowCount = this.allowMultiple ? src.files.length : 1;
@@ -1021,9 +1039,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
           const firstVisiblePage = Array.from(fileListElement.querySelectorAll(classesToSelector(this.cssClasses.page))).filter((_, index) => this.isPageVisible(index))[0];
           const firstVisibleItem = firstVisiblePage.querySelector(classesToSelector(this.cssClasses.preview));
 
-          this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(firstVisiblePage).gap));
+          this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisiblePage).gap));
           if(firstVisibleItem) {
-            this.calculatedItemWidth = Math.ceil(Number.parseFloat(window.getComputedStyle(firstVisibleItem).width));
+            this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem).width));
           }
         }
       }

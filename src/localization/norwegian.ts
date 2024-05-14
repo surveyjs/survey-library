@@ -69,6 +69,7 @@ export var norwegianSurveyStrings = {
   savingData: "Resultatene lagres på serveren ...",
   savingDataError: "Det oppsto en feil, og vi kunne ikke lagre resultatene.",
   savingDataSuccess: "Resultatene ble lagret!",
+  savingExceedSize: "Svaret ditt overstiger 64 kB. Reduser størrelsen på filen(e) din(e), og prøv på nytt, eller kontakt eieren av en spørreundersøkelse.",
   saveAgainButton: "Prøv igjen",
   timerMin: "min",
   timerSec: "sek",
@@ -80,6 +81,7 @@ export var norwegianSurveyStrings = {
   timerLimitSurvey: "Du har tilbrakt {0} av {1} totalt.",
   clearCaption: "Klar",
   signaturePlaceHolder: "Logg inn her",
+  signaturePlaceHolderReadOnly: "Ingen signatur",
   chooseFileCaption: "Velg Fil",
   takePhotoCaption: "Ta bilde",
   photoPlaceholder: "Klikk på knappen nedenfor for å ta et bilde med kameraet.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["no"] = "norsk";
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Annullere"
 // refuseItemText: "Refuse to answer" => "Nekter å svare"
-// dontKnowItemText: "Don't know" => "Vet ikke"
+// dontKnowItemText: "Don't know" => "Vet ikke"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Svaret ditt overstiger 64 kB. Reduser størrelsen på filen(e) din(e), og prøv på nytt, eller kontakt eieren av en spørreundersøkelse."
+// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"

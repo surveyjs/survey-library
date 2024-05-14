@@ -12,7 +12,7 @@
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
-      :aria-describedby="question.ariaDescribedBy"
+      :aria-errormessage="question.ariaErrormessage"
       :aria-expanded="
         question.ariaExpanded === null
           ? undefined

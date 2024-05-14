@@ -20,8 +20,16 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
     return this.handleClick !== undefined ? this.handleClick : true;
   }
 
+  protected override onModelChanged() {
+    super.onModelChanged();
+    this.previousModel?.resetResponsivityManager();
+    if (!!this.model.hasActions && !!this.container) {
+      this.model.initResponsivityManager(this.container.nativeElement);
+    }
+  }
+
   onClick(event: Event): void {
-    if(this.allowOnClick) {
+    if (this.allowOnClick) {
       event.stopPropagation();
     }
   }

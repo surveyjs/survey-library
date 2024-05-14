@@ -268,64 +268,27 @@ QUnit.test("PageModel.renderedNavigationTitle", function (assert) {
   assert.equal(survey.pages[3].renderedNavigationTitle, "NavPage 4", "page4");
 });
 
-QUnit.test("PageModel passed property", function (assert) {
-  var json = {
+QUnit.test("PageModel.renderedNavigationTitle & piped text", function (assert) {
+  const survey = new SurveyModel({
     pages: [
-      {
-        name: "page1",
-        elements: [
-          {
-            type: "text",
-            name: "question1",
-          },
-        ],
-      },
-      {
-        name: "page2",
-        elements: [
-          {
-            type: "text",
-            name: "question2",
-          },
-        ],
-      },
-      {
-        name: "page3",
-        elements: [
-          {
-            type: "text",
-            name: "question3",
-          },
-        ],
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  assert.equal(survey.pages[0].passed, false, "1) Page 1 isn't passed");
-  assert.equal(survey.pages[1].passed, false, "1) Page 2 isn't passed");
-  assert.equal(survey.pages[2].passed, false, "1) Page 3 isn't passed");
-
-  survey.nextPage();
-  assert.equal(survey.pages[0].passed, true, "2) Page 1 is passed");
-  assert.equal(survey.pages[1].passed, false, "2) Page 2 isn't passed");
-  assert.equal(survey.pages[2].passed, false, "2) Page 3 isn't passed");
-
-  survey.nextPage();
-  assert.equal(survey.pages[0].passed, true, "3) Page 1 is passed");
-  assert.equal(survey.pages[1].passed, true, "3) Page 2 is passed");
-  assert.equal(survey.pages[2].passed, false, "3) Page 3 isn't passed");
-
-  survey.prevPage();
-  assert.equal(survey.pages[0].passed, true, "4) Page 1 is passed");
-  assert.equal(survey.pages[1].passed, true, "4) Page 2 is passed");
-  assert.equal(survey.pages[2].passed, false, "4) Page 3 isn't passed");
-
-  survey.nextPage();
-  survey.completeLastPage();
-  assert.equal(survey.pages[0].passed, true, "5) Page 1 is passed");
-  assert.equal(survey.pages[1].passed, true, "5) Page 2 is passed");
-  assert.equal(survey.pages[2].passed, true, "5) Page 3 is passed");
+      { name: "page1", elements: [{ type: "text", name: "q1" }] },
+      { name: "page2", title: "Page 2", elements: [{ type: "text", name: "q2" }] },
+      { name: "page3", title: "Page 3", navigationTitle: "NavPage 3, {q1}", elements: [{ type: "text", name: "q3" }] },
+      { name: "page4", navigationTitle: "NavPage 4, {q2}", elements: [{ type: "text", name: "q4" }] },
+    ]
+  });
+  assert.equal(survey.pages[0].renderedNavigationTitle, "page1", "page1, #1");
+  assert.equal(survey.pages[1].renderedNavigationTitle, "Page 2", "page2, #1");
+  assert.equal(survey.pages[2].renderedNavigationTitle, "NavPage 3, ", "page3, #1");
+  assert.equal(survey.pages[3].renderedNavigationTitle, "NavPage 4, ", "page4, #1");
+  survey.setValue("q1", "val1");
+  survey.setValue("q2", "val2");
+  assert.equal(survey.pages[0].renderedNavigationTitle, "page1", "page1, #2");
+  assert.equal(survey.pages[1].renderedNavigationTitle, "Page 2", "page2, #2");
+  assert.equal(survey.pages[2].renderedNavigationTitle, "NavPage 3, val1", "page3, #2");
+  assert.equal(survey.pages[3].renderedNavigationTitle, "NavPage 4, val2", "page4, #2");
 });
+
 QUnit.test("Remove Page in design mode", function (assert) {
   var survey = new SurveyModel();
   survey.setDesignMode(true);
@@ -4179,6 +4142,26 @@ QUnit.test(
     assert.equal(survey.state, "completed");
   }
 );
+QUnit.test("goNextPageAutomatic and allowCompleteSurveyAutomatic=false", function (assert) {
+  const emptySurvey = new SurveyModel();
+  assert.equal(emptySurvey.allowCompleteSurveyAutomatic, true, "allowCompleteSurveyAutomatic value # 1");
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3] }] },
+      { elements: [{ type: "dropdown", name: "q2", choices: [1, 2, 3] }] }
+    ],
+    goNextPageAutomatic: true,
+    allowCompleteSurveyAutomatic: false
+  });
+  assert.equal(survey.allowCompleteSurveyAutomatic, false, "allowCompleteSurveyAutomatic value # 2");
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(survey.currentPageNo, 0, "curPage #1");
+  q1.value = 1;
+  assert.equal(survey.currentPageNo, 1, "curPage #2");
+  q2.value = 1;
+  assert.equal(survey.currentPageNo, 1, "curPage #2");
+});
 
 QUnit.test("goNextPageAutomatic and checkbox wiht valueName bug #70", function (
   assert
@@ -5015,7 +4998,7 @@ QUnit.test("customWidgets support displayValue", function (assert) {
     },
     getDisplayValue: (question: Question): string => {
       if (question.value === 1) return "one";
-      return null;
+      return "";
     },
   });
   var survey = twoPageSimplestSurvey();
@@ -5044,7 +5027,7 @@ QUnit.test("customWidgets camel name", function (assert) {
     },
   });
   if (!Serializer.findClass("camelName")) {
-    Serializer.addClass("camelName", [], null, "text");
+    Serializer.addClass("camelName", [], undefined, "text");
   }
 
   var survey = new SurveyModel({
@@ -15244,6 +15227,15 @@ QUnit.test("survey.allowResizeComment", function (assert) {
   survey.allowResizeComment = true;
   assert.equal(comment1.renderedAllowResize, true);
   assert.equal(comment2.renderedAllowResize, false);
+
+  comment1.readOnly = true;
+  assert.equal(comment1.renderedAllowResize, false);
+  comment1.readOnly = false;
+
+  survey.showPreview();
+  let comment1Preview = survey.getQuestionByName("comment1");
+  assert.equal(comment1Preview.renderedAllowResize, false);
+
 });
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
@@ -16003,6 +15995,7 @@ QUnit.test("Check navigation bar css update", function (assert) {
   assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
 });
 QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) {
+  settings.animationEnabled = true;
   const survey = new SurveyModel({
     "elements": [
       {
@@ -16038,6 +16031,7 @@ QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) 
 
   survey.fitToContainer = true;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root--compact sd-root-modern--full-container");
+  settings.animationEnabled = false;
 });
 
 QUnit.test("Check survey isMobile in design mode", function (assert) {
@@ -17970,7 +17964,7 @@ QUnit.test("check title classes when readOnly changed", function (assert) {
   const customDisabledClass = "custom_disabled_class";
   survey.css = {
     question: {
-      titleDisabled: customDisabledClass
+      titleReadOnly: customDisabledClass
     },
   };
   const question = survey.getQuestionByName("q1");
@@ -18558,6 +18552,62 @@ QUnit.test("survey.toJSON() doesn't work correctly if questionsOnPageMode=questi
   assert.equal(prepareJSON.pages[0].elements.length, 3, "prepareJSON elements count");
 
   assert.deepEqual(surveyJson, prepareJSON);
+});
+QUnit.test("defaultValue & visibleIf issues if questionsOnPageMode=questionPerPage is used #7932", function (assert) {
+  const surveyJson = {
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q1_1",
+            choices: ["A", "B"],
+            defaultValue: "A",
+          },
+          {
+            type: "text",
+            name: "q1_2",
+            visibleIf:
+              "{q1_1} equals 'A'",
+          },
+        ],
+      },
+      {
+        type: "panel",
+        name: "panel2",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q2_1",
+            choices: ["A", "B"],
+            defaultValue: "A",
+          },
+          {
+            type: "text",
+            name: "q2_2",
+            visibleIf:
+              "{q2_1} equals 'A'",
+          },
+        ],
+      }
+    ],
+    questionsOnPageMode: "questionPerPage",
+  };
+
+  const survey = new SurveyModel(surveyJson);
+  assert.deepEqual(survey.data, { q1_1: "A", q2_1: "A" }, "survey.data");
+  survey.setValue("q3", "B");
+  const q1_1 = survey.getQuestionByName("q1_1");
+  const q2_1 = survey.getQuestionByName("q2_1");
+  const q1_2 = survey.getQuestionByName("q1_2");
+  const q2_2 = survey.getQuestionByName("q2_2");
+
+  assert.equal(q1_1.value, "A", "q1_1.value");
+  assert.equal(q2_1.value, "A", "q2_1.value");
+  assert.equal(q1_2.visible, true, "q1_2.visible");
+  assert.equal(q2_2.visible, true, "q2_2.visible");
 });
 
 QUnit.test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, #7355", function (assert) {
@@ -19184,6 +19234,59 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
   }], "topBottom pages center");
 });
 
+QUnit.test("getContainerContent - show advinced hader on start page", function (assert) {
+  surveyCss.currentType = "defaultV2";
+  const json = {
+    showNavigationButtons: "none",
+    "firstPageIsStarted": true,
+    title: "My title",
+    pages: [
+      {
+        "elements": [
+          {
+            required: true,
+            "type": "rating",
+            "name": "satisfaction",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  const getContainerContent = getContainerContentFunction(survey);
+
+  assert.deepEqual(getContainerContent("header"), [], "empty header");
+  assert.deepEqual(getContainerContent("footer"), [], "empty footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "empty contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "empty contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "empty left");
+  assert.deepEqual(getContainerContent("right"), [], "empty right");
+  assert.deepEqual(getContainerContent("center"), [], "empty center");
+
+  survey.headerView = "advanced";
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header",
+    "index": -100
+  }], "advanced header");
+  assert.deepEqual(getContainerContent("footer"), [], "advanced footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "advanced contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "advanced contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "advanced left");
+  assert.deepEqual(getContainerContent("right"), [], "advanced right");
+  assert.deepEqual(getContainerContent("center"), [], "advanced center");
+});
+
 QUnit.test("survey.runExpressions(), #7694", function (assert) {
   function func1(params: any[]): any {
     return 1;
@@ -19244,13 +19347,22 @@ QUnit.test("survey.locale, default locale is not en and design-time, #7765", fun
 QUnit.test("onOpenFileChooser fires", function (assert) {
   const survey = new SurveyModel();
   let log = "";
+  let lastContext;
+  let lastContextElement;
+  let lastContextPropertyName;
   survey.onOpenFileChooser.add((s, o) => {
     log += "->onOpenFileChooser";
+    lastContextElement = o.element;
+    lastContextPropertyName = o.propertyName;
+    lastContext = (o as any).context;
     o.callback([]);
   });
   assert.equal(log, "");
-  survey.chooseFiles(document.createElement("input"), () => { });
+  survey.chooseFiles(document.createElement("input"), () => { }, { element: { a: 1 }, propertyName: "a" } as any);
   assert.equal(log, "->onOpenFileChooser");
+  assert.deepEqual(lastContext, { element: { a: 1 }, propertyName: "a" });
+  assert.deepEqual(lastContextElement, { a: 1 });
+  assert.equal(lastContextPropertyName, "a");
 });
 QUnit.test("Advanced header title/description color", function (assert) {
   const survey = new SurveyModel();
@@ -19298,6 +19410,7 @@ QUnit.test("Advanced header title/description color", function (assert) {
 });
 QUnit.test("Display mode in design time", function (assert) {
   const survey = new SurveyModel();
+  settings.animationEnabled = true;
   assert.equal(survey.css.rootReadOnly, "sd-root--readonly");
   assert.equal(survey.mode, "edit");
   assert.equal(survey.isDisplayMode, false);
@@ -19312,4 +19425,177 @@ QUnit.test("Display mode in design time", function (assert) {
   assert.equal(survey.mode, "display");
   assert.equal(survey.isDisplayMode, false);
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+  settings.animationEnabled = false;
 });
+
+QUnit.test("PageModel passed property", function (assert) {
+  var json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "question1",
+          },
+        ],
+      },
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "text",
+            name: "question2",
+          },
+        ],
+      },
+      {
+        name: "page3",
+        elements: [
+          {
+            type: "text",
+            name: "question3",
+          },
+        ],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  assert.equal(survey.pages[0].passed, false, "1) Page 1 isn't passed");
+  assert.equal(survey.pages[1].passed, false, "1) Page 2 isn't passed");
+  assert.equal(survey.pages[2].passed, false, "1) Page 3 isn't passed");
+
+  survey.nextPage();
+  assert.equal(survey.pages[0].passed, true, "2) Page 1 is passed");
+  assert.equal(survey.pages[1].passed, false, "2) Page 2 isn't passed");
+  assert.equal(survey.pages[2].passed, false, "2) Page 3 isn't passed");
+
+  survey.nextPage();
+  assert.equal(survey.pages[0].passed, true, "3) Page 1 is passed");
+  assert.equal(survey.pages[1].passed, true, "3) Page 2 is passed");
+  assert.equal(survey.pages[2].passed, false, "3) Page 3 isn't passed");
+
+  survey.prevPage();
+  assert.equal(survey.pages[0].passed, true, "4) Page 1 is passed");
+  assert.equal(survey.pages[1].passed, true, "4) Page 2 is passed");
+  assert.equal(survey.pages[2].passed, true, "4) Page 3 is passed");
+
+  survey.nextPage();
+  survey.completeLastPage();
+  assert.equal(survey.pages[0].passed, true, "5) Page 1 is passed");
+  assert.equal(survey.pages[1].passed, true, "5) Page 2 is passed");
+  assert.equal(survey.pages[2].passed, true, "5) Page 3 is passed");
+});
+
+QUnit.test("page passed", function (assert) {
+  var survey = new SurveyModel({
+    "pages": [
+      {
+        name: "page1",
+        "elements": [
+          {
+            "name": "q1",
+            "type": "radiogroup",
+            "choices": [1, 2, 3],
+          },
+        ],
+      },
+      {
+        name: "page2",
+        "elements": [
+          {
+            "name": "q2",
+            "type": "text",
+            "isRequired": true,
+          },
+          {
+            "name": "q3",
+            "type": "radiogroup",
+            choices: [1, 2, 3],
+          }
+        ]
+      },
+    ],
+  });
+  survey.nextPage();
+  assert.ok(survey.pages[0].passed, "First page passed");
+  assert.notOk(survey.pages[1].passed, "Second page not passed");
+  survey.prevPage();
+  assert.ok(survey.pages[0].passed, "First page passed");
+  assert.notOk(survey.pages[1].passed, "Second page not passed");
+  survey.nextPage();
+  assert.ok(survey.pages[0].passed, "First page passed");
+  assert.notOk(survey.pages[1].passed, "Second page not passed");
+  survey.getQuestionByName("q2").value = "entered text";
+  survey.prevPage();
+  assert.ok(survey.pages[0].passed, "First page passed");
+  assert.ok(survey.pages[1].passed, "Second page passed");
+});
+QUnit.test("showPreview & updateProgress & updateVisibleIndexes", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    showProgressBar: "top",
+    progressBarType: "buttons",
+    progressBarShowPageTitles: true,
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1" }]
+      },
+      {
+        elements: [
+          { type: "paneldynamic", name: "q2", panelCount: 10,
+            elements: [{ type: "text", name: "q3", visibleIf: "{q1} = 1" }]
+          },
+          { type: "text", name: "q4", visibleIf: "{q1} = 1" }
+        ]
+      }
+    ]
+  });
+  survey.data = { q1: 1 };
+  let progressCounter = 0;
+  let visibleChangedCounter = 0;
+  survey.onProgressText.add((sender, options) => {
+    progressCounter ++;
+  });
+  survey.onQuestionVisibleChanged.add((sender, options) => {
+    visibleChangedCounter ++;
+  });
+  survey.showPreview();
+  assert.equal(progressCounter, 1, "progressCounter");
+  assert.equal(visibleChangedCounter, 0, "visibleChangedCounter");
+});
+
+QUnit.test("showPreview & dynamic panel? single page", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "question1",
+            "defaultValue": [
+              {
+                "question2": "q"
+              }
+            ],
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question2"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "questionsOnPageMode": "singlePage",
+    "showPreviewBeforeComplete": "showAllQuestions"
+  });
+  survey.showPreview();
+  assert.notOk((survey.getQuestionByName("question1") as QuestionPanelDynamicModel).panels[0].showPanelAsPage);
+});
+

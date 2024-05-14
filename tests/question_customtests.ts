@@ -17,6 +17,7 @@ import { PanelModel } from "../src/panel";
 import { StylesManager } from "../src/stylesmanager";
 import { ArrayChanges, Base } from "../src/base";
 import { QuestionFileModel } from "../src/question_file";
+import { ConsoleWarnings } from "../src/console-warnings";
 
 export default QUnit.module("custom questions");
 
@@ -2265,6 +2266,38 @@ QUnit.test("Composite: with expression", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: with setValueIf & setValueExpression, bug#7888", function (assert) {
+  const json = {
+    name: "comp1",
+    elementsJSON: [
+      {
+        "type": "text",
+        "name": "q1"
+      },
+      {
+        "type": "text",
+        "name": "q2",
+        "enableIf": "{composite.q1} notempty",
+        "setValueIf": "{composite.q1} notempty",
+        "setValueExpression": "{composite.q1} + {composite.q1}"
+      }
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({ elements: [{ type: "comp1", name: "question1" }] });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const q1 = q.contentPanel.getQuestionByName("q1");
+  const q2 = q.contentPanel.getQuestionByName("q2");
+  assert.equal(q2.isEmpty(), true, "#1");
+  q1.value = 1;
+  assert.equal(q2.value, 2, "#2");
+  q1.value = 3;
+  assert.equal(q2.value, 6, "#3");
+  q1.clearValue();
+  assert.equal(q2.value, 6, "#4");
+
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: check valueToData and valueFromData callbacks", function (assert) {
   const json = {
     name: "test",
@@ -2949,5 +2982,291 @@ QUnit.test("file question in composite component doesn't show preview in preview
   assert.equal(file_q1.showPreviewContainer, true, "file_q1 #1");
   assert.equal(file_q2.showPreviewContainer, true, "file_q2 #1");
 
+  ComponentCollection.Instance.clear();
+});
+
+QUnit.test("Composite + Ranking", function (assert) {
+  const json = {
+    "elements": [{
+      "name": "q_composite",
+      "type": "compostite_witn_ranking"
+    }]
+  };
+  const comp_json = {
+    name: "compostite_witn_ranking",
+    showInToolbox: false,
+    internal: true,
+    elementsJSON: [
+      {
+        name: "q_ranking",
+        type: "ranking",
+        selectToRankEnabled: true,
+      }
+    ]
+  };
+  ComponentCollection.Instance.add(comp_json);
+
+  const survey = new SurveyModel(json);
+  const q_composite = survey.getQuestionByName("q_composite");
+  const q_ranking = q_composite.contentPanel.getQuestionByName("q_ranking");
+  q_ranking.choices = ["a", "b", "c", "d", "e"];
+  q_ranking.value = ["a", "b", "c"];
+
+  assert.equal(q_ranking.unRankingChoices.length, 2, "ranking value is correct (unrank list length) ['d', 'e']");
+  assert.equal(q_ranking.rankingChoices.length, 3, "ranking value is correct (rank list length) ['a', 'b', 'c'");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: showPreviewBeforeComplete Bug#8005", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3] },
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "question1" }],
+    showPreviewBeforeComplete: "showAllQuestions"
+  });
+  survey.getQuestionByName("question1").value = 1;
+  survey.showPreview();
+  assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
+  survey.completeLastPage();
+  assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: validate", function (assert) {
+  let errorText = "";
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3] },
+    getErrorText: (question): string => {
+      if(question.value !== 1) {
+        errorText = "val";
+        return "value should be 1";
+      }
+      return "";
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "question1" }],
+    showPreviewBeforeComplete: "showAllQuestions"
+  });
+  const q = survey.getQuestionByName("question1");
+  q.value = 2;
+  survey.validate();
+  assert.equal(errorText, "val", "errorText");
+  assert.equal(q.errors.length, 1, "Errors length #1");
+  assert.equal(q.errors[0].text, "value should be 1", "Error text");
+  q.value = 1;
+  assert.equal(q.errors.length, 0, "Errors length #2");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: validate", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3], visibleIf: "{composite.q1} notempty" },
+      { type: "text", name: "q3", choices: [1, 2, 3], visibleIf: "{composite.q2} notempty" }
+    ],
+    onValueChanged(question, name, newValue) {
+      if (name === "q1") {
+        question.contentPanel.getQuestionByName("q2").clearValue();
+      }
+      if (name === "q2") {
+        question.contentPanel.getQuestionByName("q3").value = newValue;
+      }
+    },
+    getErrorText: (question): string => {
+      const q1 = question.contentPanel.getQuestionByName("q1");
+      const q3 = question.contentPanel.getQuestionByName("q3");
+      if(!q1.isEmpty() && q3.isEmpty()) return "Select q2";
+      return "";
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" },
+      { type: "test", name: "q2", isRequired: true }
+    ]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCompositeModel>survey.getQuestionByName("q2");
+  survey.validate();
+  assert.equal(q1.errors.length, 0, "q1 errors #1");
+  assert.equal(q2.errors.length, 1, "q2 errors #1");
+  q1.contentPanel.getQuestionByName("q1").value = "val";
+  q2.contentPanel.getQuestionByName("q1").value = "val";
+  survey.validate();
+  assert.equal(q1.errors.length, 1, "q1 errors #2");
+  assert.equal(q1.errors[0].text, "Select q2", "q1 errors text #2");
+  assert.equal(q2.errors.length, 1, "q2 errors #2");
+  assert.equal(q2.errors[0].text, "Select q2", "q2 errors text #2");
+  q1.contentPanel.getQuestionByName("q2").value = 1;
+  q2.contentPanel.getQuestionByName("q2").value = 2;
+  assert.equal(q1.contentPanel.getQuestionByName("q3").value, 1, "q1.q3 value");
+  assert.equal(q2.contentPanel.getQuestionByName("q3").value, 2, "q2.q3 value");
+  survey.validate();
+  assert.equal(q1.errors.length, 0, "q1 errors #3");
+  assert.equal(q2.errors.length, 0, "q2 errors #3");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: update questions on a value change", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2" },
+      { type: "text", name: "q3" }
+    ],
+    onSetQuestionValue: (question, newValue: any): void => {
+      if(!!newValue && !!newValue.q3) {
+        question.contentPanel.getQuestionByName("q2").choices = [newValue.q3];
+      }
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" },
+    ]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const internalQ2 = q1.contentPanel.getQuestionByName("q2");
+  survey.data = { q1: { q1: 1, q3: 2 } };
+  assert.equal(internalQ2.choices.length, 1, "choices.length #1");
+  assert.equal(internalQ2.choices[0].value, 2, "choices[0].value #1");
+  q1.value = { q1: 1, q3: 3 };
+  assert.equal(internalQ2.choices.length, 1, "choices.length #2");
+  assert.equal(internalQ2.choices[0].value, 3, "choices[0].value #2");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: onValueChanging and survey.onValueChanging", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3] },
+      { type: "text", name: "q3", choices: [1, 2, 3] }
+    ],
+    onValueChanging(question, name, newValue) {
+      if (name === "q1") {
+        question.contentPanel.getQuestionByName("q2").clearValue();
+      }
+      if (name === "q2") {
+        question.contentPanel.getQuestionByName("q3").value = newValue;
+      }
+      return newValue;
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" }
+    ]
+  });
+  let onValueChangingData: any = undefined;
+  survey.onValueChanging.add((sender, options) => {
+    onValueChangingData = options.value;
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  q1.contentPanel.getQuestionByName("q1").value = "test1";
+  assert.deepEqual(onValueChangingData, { q1: "test1" }, "test #1");
+  q1.contentPanel.getQuestionByName("q2").value = 2;
+  assert.deepEqual(onValueChangingData, { q1: "test1", q2: 2, q3: 2 }, "test #2");
+  q1.contentPanel.getQuestionByName("q1").value = "test2";
+  assert.deepEqual(onValueChangingData, { q1: "test2" }, "test #3");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: onValueChanged and survey.data", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3] },
+      { type: "text", name: "q3", choices: [1, 2, 3] }
+    ],
+    onValueChanged(question, name, newValue) {
+      if (name === "q1") {
+        question.contentPanel.getQuestionByName("q2").clearValue();
+        question.contentPanel.getQuestionByName("q3").clearValue();
+      }
+      if (name === "q2") {
+        question.contentPanel.getQuestionByName("q3").value = newValue;
+      }
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  q1.contentPanel.getQuestionByName("q1").value = "test1";
+  assert.deepEqual(survey.data, { q1: { q1: "test1" } }, "test #1");
+  q1.contentPanel.getQuestionByName("q2").value = 2;
+  assert.deepEqual(survey.data, { q1: { q1: "test1", q2: 2, q3: 2 } }, "test #2");
+  q1.contentPanel.getQuestionByName("q1").value = "test2";
+  assert.deepEqual(survey.data, { q1: { q1: "test2" } }, "test #3");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: use incorrect json", function (assert) {
+  const prev = ConsoleWarnings.error;
+  const reportTexts = new Array<string>();
+  ConsoleWarnings.error = (text: string) => {
+    reportTexts.push(text);
+  };
+  ComponentCollection.Instance.add({
+    name: "test1",
+    questionJSON: { type: "panel", elements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3] }, { type: "text", name: "q2" }] },
+  });
+  ComponentCollection.Instance.add({
+    name: "test2",
+    questionJSON: { type: "page" },
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test1", name: "q1" }, { type: "test2", name: "q2" }]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCustomModel>survey.getQuestionByName("q2");
+
+  assert.equal(q1.contentQuestion.getType(), "dropdown", "q1 content type");
+  assert.equal(q2.contentQuestion.getType(), "text", "q2 content type");
+  assert.deepEqual(reportTexts, ["Could not create component: 'test1'. questionJSON should be a question.",
+    "Could not create component: 'test2'. questionJSON should be a question."], "check console errors");
+
+  ComponentCollection.Instance.clear();
+  ConsoleWarnings.error = prev;
+});
+QUnit.test("single component: inheritBaseProps - do not duplicate description property", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customdropdown",
+    inheritBaseProps: ["description"],
+    questionJSON: {
+      type: "dropdown",
+      description: {
+        en: "Custom Question",
+        de: "Aangepaste vraag"
+      },
+      choices: [1, 2, 3]
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customdropdown", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  assert.equal(q1.description, "Custom Question", "Get description from internal description");
+  survey.locale = "de";
+  assert.equal(q1.description, "Aangepaste vraag", "Get description from internal description for 'de'");
+  const props = Serializer.getPropertiesByObj(q1);
+  let descriptionCounter = 0;
+  props.forEach(prop => {
+    if(prop.name === "description") {
+      descriptionCounter ++;
+    }
+  });
+  assert.equal(descriptionCounter, 1, "We have one description property");
   ComponentCollection.Instance.clear();
 });

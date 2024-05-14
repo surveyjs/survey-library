@@ -250,6 +250,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
   public get hasFilteredValue(): boolean { return !!this.valuePropertyName; }
+  public getFilteredName(): any {
+    let res = super.getFilteredName();
+    if(this.hasFilteredValue) {
+      res += "-unwrapped";
+    }
+    return res;
+  }
   public getFilteredValue(): any {
     if(this.hasFilteredValue) return this.renderedValue;
     return super.getFilteredValue();
@@ -401,7 +408,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private getFirstUnknownIndex(newValue: any): number {
     if (!Array.isArray(newValue)) return -1;
     for (var i = 0; i < newValue.length; i++) {
-      if (this.hasUnknownValue(newValue[i], false, false)) return i;
+      if (this.hasUnknownValueItem(newValue[i], false, false)) return i;
     }
     return -1;
   }
@@ -460,6 +467,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public isItemInList(item: ItemValue): boolean {
     if (item == this.selectAllItem) return this.hasSelectAll;
     return super.isItemInList(item);
+  }
+  protected getDisplayValueEmpty(): string {
+    return ItemValue.getTextOrHtmlByValue(this.visibleChoices.filter(choice => choice != this.selectAllItemValue), undefined);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!Array.isArray(value))
@@ -545,7 +555,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return res;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    var json = super.getConditionJson();
+    const json = super.getConditionJson(operator, path);
     if (operator == "contains" || operator == "notcontains") {
       json["type"] = "radiogroup";
     }
@@ -602,7 +612,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!this.hasActiveChoices) return val;
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) return val;
-      if (this.hasUnknownValue(val[i], true, false)) {
+      if (this.hasUnknownValueItem(val[i], true, false)) {
         this.otherValue = val[i];
         var newVal = val.slice();
         newVal[i] = this.otherItem.value;

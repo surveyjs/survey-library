@@ -9,6 +9,7 @@ import { getIconNameFromProxy } from "../../src/utils/utils";
 import { PageModel } from "../../src/page";
 import { ComputedUpdater } from "../../src/base";
 import { SurveyModel } from "../../src/survey";
+import { surveyLocalization } from "../../src/surveyStrings";
 
 QUnit.test("Check that items are wrapped after set", (assert) => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
@@ -175,7 +176,7 @@ QUnit.test("Action title in list model", (assert) => {
     locTooltipName: "previewText"
   });
   const list = new ListModel([action1], () => { }, true);
-  const popupModel = new PopupModel("sv-list", list, "bottom", "center");
+  const popupModel = new PopupModel("sv-list", list, { verticalPosition: "bottom", horizontalPosition: "center" });
   survey.addNavigationItem({ id: "action1", title: "test", popupModel: popupModel });
   assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
   assert.equal(action1.title, "Select All", "Update action title en localization");
@@ -276,4 +277,21 @@ QUnit.test("createDropdownActionModel: title is not changed", (assert) => {
   list.onItemClick(items[10]);
   assert.equal(selectedValue, "10");
   assert.equal(dropdownAction.title, "Test");
+});
+QUnit.test("Action locTitleName doesn't work correctly, bug#8093", (assert) => {
+  const survey = new SurveyModel({ locale: "fr", elements: [{ type: "text", name: "q1" }] });
+  const enTranslations = surveyLocalization.getLocaleStrings("en");
+  const frTranslations = surveyLocalization.getLocaleStrings("fr");
+  enTranslations.clearPage = "Clear page";
+  frTranslations.clearPage = "Effacer la page";
+
+  const action1 = survey.addNavigationItem({
+    id: "clearPage",
+    locTitleName: "clearPage"
+  });
+  assert.equal(action1.title, "Effacer la page", "Clear page fr#1");
+  survey.locale = "";
+  assert.equal(action1.title, "Clear page", "Clear page en#1");
+  survey.locale = "fr";
+  assert.equal(action1.title, "Effacer la page", "Clear page fr#2");
 });

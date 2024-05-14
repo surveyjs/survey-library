@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-panel">
-  <!-- ko if: $data.isVisible -->
+  <!-- ko if: $data.getIsContentVisible() -->
   <div
     data-bind="attr: { id: id }, css: $data.getContainerCss(), event: {focusin: focusIn}"
   >
@@ -14,7 +14,7 @@
       <!-- ko template: { name: 'survey-question-errors', data: $data } -->
       <!-- /ko -->
     <!-- /ko -->
-    <!-- ko if: state != "collapsed" || isDesignMode -->
+    <!-- ko if: renderedIsExpanded -->
     <div
       data-bind="style: { paddingLeft: innerPaddingLeft }, css: cssClasses.panel.content, attr: {id:contentId}"
     >

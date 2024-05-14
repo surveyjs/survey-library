@@ -6,6 +6,7 @@ import { SurveyModel } from "../src/survey";
 import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { settings } from "../src/settings";
 export * from "../src/localization/german";
 
 export default QUnit.module("Base");
@@ -790,4 +791,28 @@ QUnit.test("base.resetPropertyValue() for localization string, #2, bug#7388", fu
   assert.equal(survey.completeText, "Abschließen", "default value de");
   survey.locale = "";
   assert.equal(survey.completeText, "Complete", "default value en");
+});
+
+QUnit.test("check animationAllowed", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        name: "q1",
+        type: "text"
+      }
+    ]
+  });
+  const question = survey.getAllQuestions()[0];
+  assert.notOk(question.animationAllowed);
+  settings.animationEnabled = true;
+  assert.ok(question.animationAllowed);
+  question.blockAnimations();
+  assert.notOk(question.animationAllowed);
+  question.blockAnimations();
+  assert.notOk(question.animationAllowed);
+  question.releaseAnimations();
+  assert.notOk(question.animationAllowed);
+  question.releaseAnimations();
+  assert.ok(question.animationAllowed);
+  settings.animationEnabled = false;
 });

@@ -2,12 +2,13 @@ import { Base, EventBase } from "./base";
 import { IAction } from "./actions/action";
 import { property } from "./jsonobject";
 import { VerticalPosition, HorizontalPosition, PositionMode } from "./utils/popup";
+import { ConsoleWarnings } from "./console-warnings";
 
 export interface IPopupOptionsBase {
   onHide?: () => void;
   onShow?: () => void;
-  onApply?: () => boolean;
   onCancel?: () => void;
+  onDispose?: () => void;
   cssClass?: string;
   title?: string;
   verticalPosition?: VerticalPosition;
@@ -22,27 +23,25 @@ export interface IDialogOptions extends IPopupOptionsBase {
   onApply: () => boolean;
   isFocusedContent?: boolean;
 }
-export interface IPopupModel<T = any> extends IDialogOptions {
-  contentComponentName: string;
-  contentComponentData: T;
-}
 
-export class PopupModel<T = any> extends Base {
+export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   public setWidthByTarget: boolean;
   public focusFirstInputSelector = "";
+  public locale: string;
+  public onCancel: () => void = () => { };
+  public onApply: () => boolean = () => { return true; };
+  public onHide: () => void = () => { };
+  public onShow: () => void = () => { };
+  public onDispose: () => void = () => { };
 
   @property() contentComponentName: string;
   @property() contentComponentData: T;
   @property({ defaultValue: "bottom" }) verticalPosition: VerticalPosition;
   @property({ defaultValue: "left" }) horizontalPosition: HorizontalPosition;
-  @property({ defaultValue: false }) showPointer: boolean;
+  @property({ defaultValue: true }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
   @property({ defaultValue: true }) isFocusedContent: boolean;
   @property({ defaultValue: true }) isFocusedContainer: boolean;
-  @property({ defaultValue: () => { } }) onCancel: () => void;
-  @property({ defaultValue: () => { return true; } }) onApply: () => boolean;
-  @property({ defaultValue: () => { } }) onHide: () => void;
-  @property({ defaultValue: () => { } }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
   @property({ defaultValue: "auto" }) overlayDisplayMode: "auto" | "overlay" | "dropdown-overlay";
@@ -61,31 +60,21 @@ export class PopupModel<T = any> extends Base {
   constructor(
     contentComponentName: string,
     contentComponentData: T,
-    verticalPosition: VerticalPosition = "bottom",
-    horizontalPosition: HorizontalPosition = "left",
-    showPointer: boolean = true,
-    isModal: boolean = false,
-    onCancel = () => { },
-    onApply = () => { return true; },
-    onHide = () => { },
-    onShow = () => { },
-    cssClass: string = "",
-    title: string = "",
-    private onDispose = () => { }
+    option1?: IPopupOptionsBase | any,
+    option2?: any
   ) {
     super();
     this.contentComponentName = contentComponentName;
     this.contentComponentData = contentComponentData;
-    this.verticalPosition = verticalPosition;
-    this.horizontalPosition = horizontalPosition;
-    this.showPointer = showPointer;
-    this.isModal = isModal;
-    this.onCancel = onCancel;
-    this.onApply = onApply;
-    this.onHide = onHide;
-    this.onShow = onShow;
-    this.cssClass = cssClass;
-    this.title = title;
+    if (!!option1 && typeof option1 === "string") {
+      this.verticalPosition = option1 as VerticalPosition;
+      this.horizontalPosition = option2;
+    } else if (!!option1) {
+      const popupOptions = option1 as IPopupOptionsBase;
+      for (var key in popupOptions) {
+        (<any>this)[key] = (<any>popupOptions)[key];
+      }
+    }
   }
   public get isVisible(): boolean {
     return this.getPropertyValue("isVisible", false);
@@ -130,6 +119,8 @@ export function createDialogOptions(
   cssClass?: string,
   title?: string,
   displayMode: "popup" | "overlay" = "popup"): IDialogOptions {
+  ConsoleWarnings.warn("The `showModal()` and `createDialogOptions()` methods are obsolete. Use the `showDialog()` method instead.");
+
   return <IDialogOptions>{
     componentName: componentName,
     data: data,

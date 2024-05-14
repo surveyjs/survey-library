@@ -109,6 +109,7 @@ export * from "./questions/matrixrequiredheader.component";
 export * from "./questions/expression.component";
 export * from "./questions/image.component";
 export * from "./components/brand-info/brand-info.component";
+export * from "./components/question-error/question-error.component";
 export * from "./questions/custom.component";
 export * from "./questions/composite.component";
 export * from "./base-angular";

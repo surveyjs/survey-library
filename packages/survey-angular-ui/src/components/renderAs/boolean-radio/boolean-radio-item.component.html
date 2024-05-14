@@ -2,10 +2,17 @@
   <label [class]="question.cssClasses.radioLabel">
     <input
       type="radio"
-      [attr.name]="question.name" [attr.aria-describedby]="question.ariaDescribedBy" [value]="value" [(ngModel)]="question.booleanValue"
+      [attr.name]="question.name" [attr.aria-errormessage]="question.ariaErrormessage" [value]="value" [(ngModel)]="question.booleanValue"
       [disabled]="question.isInputReadOnly" [class]="question.cssClasses.itemRadioControl || ''"
     />
-    <span *ngIf="question.cssClasses.materialRadioDecorator" [class]="question.cssClasses.materialRadioDecorator"></span>
+    <span *ngIf="question.cssClasses.materialRadioDecorator" [class]="question.cssClasses.materialRadioDecorator">
+      <svg
+        *ngIf="question.itemSvgIcon"
+        [class]="question.cssClasses.itemRadioDecorator"
+      >
+        <use [attr.xlink:href]="question.itemSvgIcon"></use>
+      </svg>
+    </span>
     <span [class]="question.cssClasses.radioControlLabel" [model]="locText" sv-ng-string>
     </span>
   </label>

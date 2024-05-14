@@ -102,7 +102,8 @@ QUnit.test("ListModel custom onFilter", assert => {
     new Action({ id: "test7", title: "test7" })
   ];
   const myObject = new MyObject(items);
-  const list = new ListModel([], () => { }, true, null, (text: string) => { myObject.myOnFilter(text); });
+  const list = new ListModel([], () => { }, true);
+  list.setOnFilterStringChangedCallback((text: string) => { myObject.myOnFilter(text); });
   assert.equal(list.renderedActions.length, 0);
 
   list.setItems(myObject.myItems);
@@ -142,7 +143,8 @@ QUnit.test("ListModel custom onFilter: item is not found when a search string co
     new Action({ id: "test7", title: "test7" })
   ];
   const myObject = new MyObject2(items);
-  const list = new ListModel([], () => { }, true, null, (text: string) => { myObject.myOnFilter(text); });
+  const list = new ListModel([], () => { }, true);
+  list.setOnFilterStringChangedCallback((text: string) => { myObject.myOnFilter(text); });
   assert.equal(list.renderedActions.length, 0, "#1");
   assert.equal(list.isEmpty, true, "#2");
 
@@ -342,11 +344,15 @@ QUnit.test("emptyText & isAllDataLoaded", function (assert) {
   assert.equal(list.emptyMessage, "No data to display");
 });
 
-QUnit.test("getItemClass", (assert) => {
+QUnit.test("getItemClass test", (assert) => {
   const items = createIActionArray(12);
   const list = new ListModel(items, () => { }, true);
   assert.equal(list.getItemClass(list.actions[0]), "sv-list__item");
 
+  list.textWrapEnabled = true;
+  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item-text--wrap");
+
+  list.textWrapEnabled = false;
   list.focusedItem = list.actions[0];
   assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item--focused");
 
@@ -361,7 +367,7 @@ QUnit.test("getItemClass", (assert) => {
   assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--disabled custom-css");
 });
 
-QUnit.test("getListClass", (assert) => {
+QUnit.test("getListClass test", (assert) => {
   const items = createIActionArray(12);
   const list = new ListModel(items, () => { }, true);
   assert.equal(list.getListClass(), "sv-list");

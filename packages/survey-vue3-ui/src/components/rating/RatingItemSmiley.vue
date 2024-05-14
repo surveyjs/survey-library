@@ -10,7 +10,7 @@
     <input
       type="radio"
       class="sv-visuallyhidden"
-      :name="question.name"
+      :name="question.questionName"
       :id="question.getInputId(index)"
       :value="item.value"
       :disabled="question.isInputReadOnly"
@@ -18,7 +18,7 @@
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
-      :aria-describedby="question.ariaDescribedBy"
+      :aria-errormessage="question.ariaErrormessage"
     />
     <sv-svg-icon
       :iconName="question.getItemSmileyIconName(item.itemValue)"

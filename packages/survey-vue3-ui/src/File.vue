@@ -9,7 +9,7 @@
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
-      :aria-describedby="question.ariaDescribedBy"
+      :aria-errormessage="question.ariaErrormessage"
       :multiple="question.allowMultiple"
       v-bind:title="question.inputTitle"
       v-bind:accept="question.acceptedTypes"

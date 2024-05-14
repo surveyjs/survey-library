@@ -17,7 +17,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
 
     const placeholder = this.question.renderedPlaceholder;
     if (this.question.isReadOnlyRenderDiv()) {
-      return <div>{this.question.value}</div>;
+      return <div>{this.question.inputValue}</div>;
     }
     const counter = !!this.question.getMaxLength() ? (<CharacterCounterComponent counter={this.question.characterCounter} remainingCharacterCounter={this.question.cssClasses.remainingCharacterCounter}></CharacterCounterComponent>) : null;
     return (
@@ -47,8 +47,9 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
           aria-required={this.question.a11y_input_ariaRequired}
           aria-label={this.question.a11y_input_ariaLabel}
           aria-labelledby={this.question.a11y_input_ariaLabelledBy}
-          aria-invalid={this.question.a11y_input_ariaInvalid}
           aria-describedby={this.question.a11y_input_ariaDescribedBy}
+          aria-invalid={this.question.a11y_input_ariaInvalid}
+          aria-errormessage={this.question.a11y_input_ariaErrormessage}
         />
         {counter}
       </>
@@ -63,6 +64,12 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         </div>:
         this.renderInput()
     );
+  }
+  protected setValueCore(newValue: any) {
+    this.question.inputValue = newValue;
+  }
+  protected getValueCore(): any {
+    return this.question.inputValue;
   }
   private renderDataList(): JSX.Element | null {
     if (!this.question.dataListId) return null;

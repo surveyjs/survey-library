@@ -3,6 +3,7 @@ import { IElement, IQuestion } from "./base-interfaces";
 import { PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { Question } from "./question";
+import { DomWindowHelper } from "./global_variables_utils";
 
 /**
  * The flow panel object. It is a container with flow layout where you can mix questions with markdown text.
@@ -113,17 +114,14 @@ export class FlowPanelModel extends PanelModel {
     }
   }
   private insertTextAtCursor(text: string, prevName: string = null): boolean {
-    if (
-      !this.isDesignMode ||
-      typeof document === "undefined" ||
-      !window.getSelection
-    )
-      return false;
-    let sel = window.getSelection();
+    if (!this.isDesignMode || !DomWindowHelper.isAvailable()) return false;
+
+    let sel = DomWindowHelper.getSelection();
     if (sel.getRangeAt && sel.rangeCount) {
       let range = sel.getRangeAt(0);
       range.deleteContents();
-      range.insertNode(document.createTextNode(text));
+      const textElement = new Text(text);
+      range.insertNode(textElement);
       var self = <any>this;
       if (self.getContent) {
         var str = self.getContent(prevName);

@@ -130,6 +130,49 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check panel expand/collapse - rtl", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "rtl");
+      })();
+
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        width: "900px",
+        questions: [
+          {
+            type: "panel",
+            name: "details",
+            title: "Please answer",
+            minWidth: "708px",
+            maxWidth: "708px",
+            width: "708px",
+            state: "collapsed",
+            elements: [
+              {
+                type: "text",
+                name: "question",
+              }
+            ]
+          },
+        ]
+      });
+
+      const panelRoot = Selector(".sd-panel");
+      await takeElementScreenshot("panel-collapse-rtl.png", panelRoot, t, comparer);
+      await t.click(panelRoot.find(".sd-panel__title"));
+      await takeElementScreenshot("panel-expand-rtl.png", panelRoot, t, comparer);
+
+      await t.resizeWindow(400, 1080);
+
+      await takeElementScreenshot("panel-expand-mobile-rtl.png", panelRoot, t, comparer);
+
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "ltr");
+      })();
+    });
+  });
+
   test("Check invisible panel when showInvisibleElements: true", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
@@ -207,6 +250,51 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page0",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ]
+          },
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "panel",
+                "name": "panel1",
+                "elements": [
+                  {
+                    "type": "text",
+                    "name": "question1"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+
+      await ClientFunction(() => {
+        var panel = window["survey"].getAllPanels()[0];
+        var locstr = new window["Survey"].LocalizableString(panel);
+        locstr.text = "Edit";
+        panel.footerActions.push({ id: "test", locTitle: locstr });
+      })();
+
+      await t.click(Selector("input[title=Next]"));
+      const panelRoot = Selector(".sd-panel");
+      await takeElementScreenshot("panel-with-actions.png", panelRoot, t, comparer);
+    });
+  });
+
+  test("Check preview mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
         "elements": [
           {
             type: "text",
@@ -221,11 +309,146 @@ frameworks.forEach(framework => {
         (<any>window).survey.showPreview();
       })();
       const panelRoot = Selector(".sd-panel");
-      await takeElementScreenshot("panel-with-actions.png", panelRoot, t, comparer);
+      await takeElementScreenshot("panel-preview-mode.png", panelRoot, t, comparer);
     });
   });
 
-  test("Check panel with actions", async (t) => {
+  test("Check preview mode for multi-rows", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page2",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question5",
+                "title": "First name"
+              },
+              {
+                "type": "text",
+                "name": "question6",
+                "startWithNewLine": false,
+                "title": "Last name"
+              },
+              {
+                "type": "text",
+                "name": "question7",
+                "title": "Address"
+              },
+              {
+                type: "panel",
+                "name": "dd",
+                "elements": [
+                  {
+                    "type": "text",
+                    "name": "question1",
+                    "title": "First name"
+                  },
+                  {
+                    "type": "text",
+                    "name": "question2",
+                    "startWithNewLine": false,
+                    "title": "Last name"
+                  },
+                  {
+                    "type": "text",
+                    "name": "question3",
+                    "title": "Address"
+                  },
+                ]
+              },
+            ]
+          },
+        ],
+        "showQuestionNumbers": "off",
+        "questionsOnPageMode": "singlePage",
+        "showPreviewBeforeComplete": "showAllQuestions",
+        "widthMode": "static",
+        "width": "800"
+      });
+      await ClientFunction(() => {
+        document.body.focus();
+        (<any>window).survey.showPreview();
+      })();
+      const panelRoot = Selector(".sd-panel--as-page");
+      await takeElementScreenshot("panel-preview-mode-multi.png", panelRoot, t, comparer);
+    });
+  });
+
+  test("Check preview mode for multi-rows Panelless", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page2",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question5",
+                "title": "First name"
+              },
+              {
+                "type": "text",
+                "name": "question6",
+                "startWithNewLine": false,
+                "title": "Last name"
+              },
+              {
+                "type": "text",
+                "name": "question7",
+                "title": "Address"
+              },
+              {
+                type: "panel",
+                "name": "dd",
+                "elements": [
+                  {
+                    "type": "text",
+                    "name": "question1",
+                    "title": "First name"
+                  },
+                  {
+                    "type": "text",
+                    "name": "question2",
+                    "startWithNewLine": false,
+                    "title": "Last name"
+                  },
+                  {
+                    "type": "text",
+                    "name": "question3",
+                    "title": "Address"
+                  },
+                ]
+              },
+            ]
+          },
+        ],
+        "showQuestionNumbers": "off",
+        "questionsOnPageMode": "singlePage",
+        "showPreviewBeforeComplete": "showAllQuestions",
+        "widthMode": "static",
+        "width": "800"
+      });
+      await ClientFunction(() => {
+        const themeJson = {
+          "isPanelless": true
+        };
+        window["survey"].applyTheme(themeJson);
+      })();
+      const panelRoot = Selector(".sd-panel--as-page");
+      await takeElementScreenshot("panel-multi-panelless.png", panelRoot, t, comparer);
+      await ClientFunction(() => {
+        document.body.focus();
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("panel-preview-mode-multi-panelless.png", panelRoot, t, comparer);
+    });
+  });
+
+  test("Two panels - one row, small screen", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(722, 1000);
       await initSurvey(framework, {

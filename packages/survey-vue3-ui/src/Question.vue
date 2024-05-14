@@ -9,6 +9,7 @@
     :aria-required="element.ariaRequired"
     :aria-invalid="element.ariaInvalid"
     :aria-labelledby="element.ariaLabelledBy"
+    :aria-describedby="element.ariaDescribedBy"
     :aria-expanded="
       element.ariaExpanded === null
         ? undefined
@@ -29,7 +30,7 @@
     <component :is="contentComponentName" v-bind="contentComponentData">
       <div
         :class="getContentClass(element) || undefined"
-        v-show="!element.isCollapsed"
+        v-show="element.renderedIsExpanded"
         role="presentation"
       >
         <survey-errors
@@ -38,11 +39,7 @@
           :location="'top'"
         />
 
-        <component
-          :is="componentName"
-          v-if="!element.isCollapsed"
-          :question="element"
-        />
+        <component :is="componentName" :question="element" />
         <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
           <div>
             <survey-string :locString="element.locCommentText" />
@@ -57,6 +54,7 @@
         <div
           v-if="element.hasDescriptionUnderInput"
           :class="element.cssClasses.descriptionUnderInput"
+          :id="element.ariaDescriptionId"
         >
           <survey-string :locString="element.locDescription" />
         </div>

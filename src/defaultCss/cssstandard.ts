@@ -208,6 +208,7 @@ export var defaultStandardCss = {
     headerCell: "sv_matrix_cell_header",
     row: "sv_matrix_row",
     rowAdditional: "sv-matrix__row--additional",
+    rowTextCell: "sv-table__cell--row-text",
     detailRow: "sv_matrix_detail_row",
     detailRowText: "sv_matrix_cell_detail_rowtext",
     detailCell: "sv_matrix_cell_detail",
@@ -335,7 +336,7 @@ export var defaultStandardCss = {
   file: {
     root: "sv_q_file",
     placeholderInput: "sv-visuallyhidden",
-    preview: "sv_q_file_preview",
+    previewItem: "sv_q_file_preview",
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv-visuallyhidden",
     removeFile: "sv_q_file_remove",

@@ -7,6 +7,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 import { classesToSelector } from "./utils/utils";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 export class ImageItemValue extends ItemValue implements ILocalizableOwner {
 
@@ -214,11 +215,12 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   /**
    * Specifies the height of containers for images or videos. Accepts positive numbers and CSS values.
    *
-   * Default value: undefined
+   * Default value: `auto`
    *
-   * Use the `imageFit` property to specify how to fit the images or videos into their containers.
+   * This property allows you to specify the exact image height. If you do not set it, the height will be calculated automatically based on the [`minImageHeight`](#minImageHeight) and [`maxImageHeight`](#maxImageHeight) values and available screen height.
+   *
+   * Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
    * @see imageWidth
-   * @see imageFit
    */
   public get imageHeight() {
     return this.getPropertyValue("imageHeight");
@@ -234,11 +236,12 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   /**
    * Specifies the width of containers for images or videos. Accepts positive numbers and CSS values.
    *
-   * Default value: 200
+   * Default value: `auto`
    *
-   * Use the `imageFit` property to specify how to fit the images or videos into their containers.
+   * This property allows you to specify the exact image width. If you do not set it, the width will be calculated automatically based on the [`minImageWidth`](#minImageWidth) and [`maxImageWidth`](#maxImageWidth) values and available screen width.
+   *
+   * Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
    * @see imageHeight
-   * @see imageFit
    */
   public get imageWidth() {
     return this.getPropertyValue("imageWidth");
@@ -301,9 +304,37 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
 
   //responsive mode
   @property({}) private isResponsiveValue = false;
+  /**
+   * Specifies a maximum width for image or video containers. Accepts positive numbers and CSS values.
+   *
+   * Default value: 400
+   *
+   * The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
+   */
   @property({}) public maxImageWidth: number;
+  /**
+   * Specifies a minimum width for image or video containers. Accepts positive numbers and CSS values.
+   *
+   * Default value: 200
+   *
+   * The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
+   */
   @property({}) public minImageWidth: number;
+  /**
+   * Specifies a maximum height for image or video containers. Accepts positive numbers and CSS values.
+   *
+   * Default value: 266
+   *
+   * The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
+   */
   @property({}) public maxImageHeight: number;
+  /**
+   * Specifies a minimum height for image or video containers. Accepts positive numbers and CSS values.
+   *
+   * Default value: 133
+   *
+   * The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
+   */
   @property({}) public minImageHeight: number;
 
   private get isResponsive() {
@@ -324,6 +355,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   protected needResponsiveness() {
     return this.supportResponsiveness() && this.isDefaultV2Theme;
+  }
+  public needResponsiveWidth() {
+    return this.colCount > 2;
   }
 
   private _width: number;
@@ -416,7 +450,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     const observedElement = el && selector ? el.querySelector(selector) : undefined;
     if (!!observedElement) {
       this.reCalcGapBetweenItemsCallback = () => {
-        this.gapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(observedElement).gap)) || 16;
+        this.gapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).gap)) || 16;
       };
       this.reCalcGapBetweenItemsCallback();
     }

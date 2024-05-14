@@ -17,6 +17,7 @@ export * from "../question_matrixdropdownbasetests";
 export * from "../question_paneldynamic_tests";
 export * from "../surveyserializationtests"; //
 export * from "../surveytests"; //
+export * from "../surveyServiceTests"; //
 export * from "../surveyWindowTests"; //
 export * from "../surveywidthmodetests"; //
 export * from "../surveytriggertests"; //
@@ -31,6 +32,7 @@ export * from "../question_multipletexttests";
 export * from "../question_expressiontests";
 export * from "../questionFileTests";
 export * from "../dragdroptests";
+export * from "../dragdropcoretests";
 export * from "../dragdrophelpertests";
 export * from "../expressions/expressionsTest"; //
 export * from "../expressions/expressionParserTest"; //
@@ -64,6 +66,15 @@ export * from "../components/liststests";
 export * from "../responsivityTests";
 export * from "../svgRegistryTests";
 export * from "../utilstests";
+export * from "../mask/input_mask_tests";
+export * from "../mask/mask_pattern_tests";
+export * from "../mask/mask_number_tests";
+export * from "../mask/mask_currency_tests";
+export * from "../mask/lexical_analyzer_tests";
+export * from "../mask/syntactic_analyzer_tests";
+export * from "../mask/mask_datetime_tests";
+export * from "../mask/mask_settings_tests";
+export * from "../mask/multipletext_mask_settings_tests";
 export * from "../stylesManagerTests";
 export * from "../headerTests";
 
@@ -72,3 +83,7 @@ import "../../src/localization/russian";
 import "../../src/localization/french";
 import "../../src/localization/finnish";
 import "../../src/localization/german";
+import { settings } from "../../src/settings";
+
+settings.animationEnabled = false;
+

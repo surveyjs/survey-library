@@ -1,12 +1,16 @@
-.sd-input.sd-tagbox:not(.sd-tagbox--empty):not(.sd-input--disabled) {
+.sd-input.sd-tagbox:not(.sd-tagbox--empty).sd-input--editable {
   height: auto;
   padding: calcSize(0.5);
   padding-inline-end: calcSize(6); //padding-right
   padding-inline-start: calcSize(0.5); //padding-left
 }
 
-.sd-tagbox.sd-input--disabled {
-  white-space: normal;
+.sd-tagbox{
+  &.sd-input--disabled,
+  &.sd-input--readonly,
+  &.sd-input--preview {
+    white-space: normal;
+  }
 }
 
 .sd-tagbox.sd-tagbox--empty {
@@ -34,6 +38,9 @@
   padding: calcSize(1) calcSize(1.5);
   background-color: $primary;
   border-radius: calcCornerRadius(0.5);
+
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .sv-tagbox__item-text {
@@ -41,6 +48,12 @@
   min-width: calcSize(5.5);
   text-align: center;
   font-weight: 600;
+
+  span {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
 }
 
 .sv-tagbox__item:hover,

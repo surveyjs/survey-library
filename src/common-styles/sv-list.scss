@@ -165,6 +165,11 @@ li:focus .sv-list__item.sv-list__item--selected {
   white-space: nowrap;
 }
 
+.sv-list__item-text--wrap span {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
 .sv-list__container {
   position: relative;
   display: flex;
@@ -204,6 +209,7 @@ li:focus .sv-list__item.sv-list__item--selected {
   background: $background;
   box-sizing: border-box;
   width: 100%;
+  min-width: calcSize(30);
   outline: none;
   font-size: calcFontSize(1);
   color: $foreground;

@@ -1,3 +1,4 @@
+import { DomDocumentHelper } from "./global_variables_utils";
 import { IDialogOptions } from "./popup";
 import { showConfirmDialog } from "./utils/utils";
 
@@ -15,17 +16,17 @@ const document = typeof globalThis !== "undefined" ? globalThis.document : (this
 const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment>(!!document ? {
   root: document,
 
-  _rootElement: document.body,
+  _rootElement: DomDocumentHelper.getBody(),
   get rootElement(): HTMLElement | ShadowRoot {
-    return this._rootElement ?? document.body;
+    return this._rootElement ?? DomDocumentHelper.getBody();
   },
   set rootElement(rootElement: HTMLElement | ShadowRoot) {
     (this._rootElement as any) = rootElement;
   },
 
-  _popupMountContainer: document.body,
+  _popupMountContainer: DomDocumentHelper.getBody(),
   get popupMountContainer(): HTMLElement | string {
-    return this._popupMountContainer ?? document.body;
+    return this._popupMountContainer ?? DomDocumentHelper.getBody();
   },
   set popupMountContainer(popupMountContainer: HTMLElement | string) {
     (this._popupMountContainer as any) = popupMountContainer;
@@ -77,7 +78,7 @@ export var settings = {
    * Nested properties:
    *
    * - `useLocalTimeZone`: `boolean`\
-   * Disable this property if you want internal SurveyJS functions to use methods that work with UTC date and time (`setUTCDate()` `setUTCHours()`, etc.) instead of methods that work with local date and time (`setYear`, `setHours()`, etc.). Default value: `true`.
+   * Disable this property if you want internal SurveyJS functions to use methods that work with UTC date and time (`setUTCDate()` `setUTCHours()`, etc.) instead of methods that work with local date and time (`setYear()`, `setHours()`, etc.). Default value: `true`.
    *
    * - `defaultLocaleName`: `string`\
    * A property key that stores a translation for the default locale. Default value: `"default"`.
@@ -231,7 +232,8 @@ export var settings = {
    * - `enabled`: `boolean`\
    * Specifies whether to add questions to the DOM only when they get into the viewport. Default value: `false`.
    *
-   * > Lazy rendering is an experimental feature that may not work as expected in all use cases.
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
+   * @see [SurveyModel.lazyRendering](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#lazyRendering)
    */
   lazyRender: {
     enabled: false,
@@ -637,7 +639,7 @@ export var settings = {
   showMaxLengthIndicator: true,
 
   /**
-   * Set to `false` to disable animations
+   * Specifies whether to animate survey elements.
    *
    * Default value: `true`
   */
@@ -729,5 +731,28 @@ export var settings = {
       "impp",
     ]
   },
-  legacyProgressBarView: false
+  legacyProgressBarView: false,
+  /**
+   * An object with properties that configure input masks.
+   *
+   * Nested properties:
+   *
+   * - `patternPlaceholderChar`: `string`\
+   * A symbol used as a placeholder for characters to be entered in [pattern masks](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern). Default value: `"_"`.
+   *
+   * - `patternEscapeChar`: `string`\
+   * A symbol used to insert literal representations of special characters in [pattern masks](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern). Default value: `"\\"`.
+   *
+   * - `patternDefinitions`: `<{ [key: string]: RegExp }>`\
+   * An object that maps placeholder symbols to regular expressions in [pattern masks](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern). Default value: `{ "9": /[0-9]/, "a": /[a-zA-Z]/, "#": /[a-zA-Z0-9]/ }`.
+   */
+  maskSettings: {
+    patternPlaceholderChar: "_",
+    patternEscapeChar: "\\",
+    patternDefinitions: <{ [key: string]: RegExp }>{
+      "9": /[0-9]/,
+      "a": /[a-zA-Z]/,
+      "#": /[a-zA-Z0-9]/
+    }
+  }
 };

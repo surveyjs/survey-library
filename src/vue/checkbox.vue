@@ -1,11 +1,12 @@
 <template>
-  <fieldset :class="question.getSelectBaseRootCss()" 
+  <fieldset :class="question.getSelectBaseRootCss()"
     :role="question.a11y_input_ariaRole"
     :aria-required="question.a11y_input_ariaRequired"
     :aria-label="question.a11y_input_ariaLabel"
     :aria-labelledby="question.a11y_input_ariaLabelledBy"
-    :aria-invalid="question.a11y_input_ariaInvalid"
     :aria-describedby="question.a11y_input_ariaDescribedBy"
+    :aria-invalid="question.a11y_input_ariaInvalid"
+    :aria-errormessage="question.a11y_input_ariaErrormessage"
   >
     <legend class="sv-hidden">{{question.locTitle.renderedHtml}}</legend>
     <component
@@ -27,20 +28,20 @@
     <div :class="question.cssClasses.rootRow" v-if="question.blockedRow">
     <component
       v-if="!question.hasColumns && question.blockedRow"
-      v-for="(item, index) in question.dataChoices"
+      v-for="item in question.dataChoices"
       :key="item.value"
       :is="question.itemComponent"
       :question="question"
       :item="item"
     ></component>
     </div>
-    <div 
+    <div
       v-if="question.hasColumns"
       :class="question.cssClasses.rootMultiColumn">
 
     <div
-      
       v-for="(column, colIndex) in question.columns"
+      v-bind:key="colIndex"
       :class="question.getColumnClass()"
       role="presentation"
     >
@@ -54,7 +55,7 @@
     </div>
     </div>
         <component
-        v-for="(item, index) in question.footItems"
+        v-for="item in question.footItems"
         v-if="question.hasFootItems"
         :key="item.value"
         :is="question.itemComponent"

@@ -1,4 +1,4 @@
-<div data-bind="css: model.getRootCss(container)" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
+<div data-bind="css: model.getRootCss(container), style: { maxWidth: model.progressWidth }" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
     <!-- ko if: canShowHeader -->
     <div data-bind="css: survey.css.progressButtonsHeader">
         <div data-bind="css: survey.css.progressButtonsPageTitle, text: model.headerText, attr: { title: model.headerText }"></div>
@@ -11,9 +11,10 @@
                 <li data-bind="css: $parent.model.getListElementCss($index()), click: $parent.model.isListElementClickable($index()) ? $parent.model.clickListElement : null, attr: { 'data-page-number' : $parent.model.getItemNumber($data) }">
                     <div data-bind="css: css.progressButtonsConnector"></div>
                     <!-- ko if: $parent.canShowItemTitles -->
-                    <div data-bind="css: css.progressButtonsPageTitle, text: renderedNavigationTitle, attr: { title: renderedNavigationTitle }"></div>
+                    <div data-bind="css: css.progressButtonsPageTitle, attr: { title: renderedNavigationTitle }"><!-- ko template: { name: 'survey-string', data: locNavigationTitle } --><!-- /ko --></div>
                     <div data-bind="css: css.progressButtonsPageDescription, text: locNavigationDescription.koRenderedHtml(), attr: { title: locNavigationDescription.koRenderedHtml() }"></div>
                     <!-- /ko -->
+                    <div data-bind="css: css.progressButtonsButton"><div data-bind="css: css.progressButtonsButtonBackground"></div><div data-bind="css: css.progressButtonsButtonContent"></div><span data-bind="text: $parent.model.getItemNumber($data)"></span></div>
                 </li>
             </ul>
         </div>

@@ -134,7 +134,7 @@
     },
     {
       "Name": "api",
-      "Title": "API",
+      "Title": "Form Library API",
       "Items": [
         {
           "Name": "surveymodel",
@@ -233,6 +233,10 @@
           "Title": "Multiple Text"
         },
         {
+          "Name": "multipletextitemmodel",
+          "title": "MultipleTextItemModel"
+        },
+        {
           "Name": "panelmodel",
           "Title": "Panel"
         },
@@ -255,6 +259,22 @@
         {
           "Name": "ICustomQuestionTypeConfiguration",
           "Title": "ICustomQuestionTypeConfiguration"
+        },
+        {
+          "Name": "inputmasknumeric",
+          "Title": "InputMaskNumeric"
+        },
+        {
+          "Name": "inputmaskcurrency",
+          "Title": "InputMaskCurrency"
+        },
+        {
+          "Name": "inputmaskdatetime",
+          "Title": "InputMaskDateTime"
+        },
+        {
+          "Name": "inputmaskpattern",
+          "Title": "InputMaskPattern"
         },
         {
           "Name": "settings",

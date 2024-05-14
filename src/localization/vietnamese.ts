@@ -69,6 +69,7 @@ export var vietnameseSurveyStrings = {
   savingData: "Kết quả đang lưu lại trên hệ thống...",
   savingDataError: "Có lỗi xảy ra và chúng ta không thể lưu kết quả.",
   savingDataSuccess: "Kết quả đã được lưu thành công!",
+  savingExceedSize: "Phản hồi của bạn vượt quá 64KB. Vui lòng giảm kích thước (các) tệp của bạn và thử lại hoặc liên hệ với chủ sở hữu khảo sát.",
   saveAgainButton: "Thử lại",
   timerMin: "phút",
   timerSec: "giây",
@@ -80,6 +81,7 @@ export var vietnameseSurveyStrings = {
   timerLimitSurvey: "Bạn đã sử dụng {0} / {1} trên toàn bộ.",
   clearCaption: "Xóa",
   signaturePlaceHolder: "Ký tên tại đây",
+  signaturePlaceHolderReadOnly: "Không có chữ ký",
   chooseFileCaption: "Chọn tập tin",
   takePhotoCaption: "Chụp ảnh",
   photoPlaceholder: "Nhấp vào nút bên dưới để chụp ảnh bằng máy ảnh.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["vi"] = "Việt Nam";
 // hideDetails: "Hide Details" => "Ẩn chi tiết"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Hủy"// refuseItemText: "Refuse to answer" => "Từ chối trả lời"
-// dontKnowItemText: "Don't know" => "Không biết"
+// dontKnowItemText: "Don't know" => "Không biết"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Phản hồi của bạn vượt quá 64KB. Vui lòng giảm kích thước (các) tệp của bạn và thử lại hoặc liên hệ với chủ sở hữu khảo sát."
+// signaturePlaceHolderReadOnly: "No signature" => "Không có chữ ký"

@@ -425,6 +425,13 @@ frameworks.forEach(framework => {
       await t.pressKey(" a b c tab");
       await t.click(Selector(".sd-paneldynamic__remove-btn"));
       await takeElementScreenshot("paneldynamic-confirm-dialog", Selector(".sv-popup--confirm-delete .sv-popup__body-content"), t, comparer);
+
+      await ClientFunction(() => {
+        const applyButton = document.querySelector("#apply");
+        const spanText = applyButton?.querySelector("span");
+        spanText && (spanText.innerText = "A very long long long long long text");
+      })();
+      await takeElementScreenshot("paneldynamic-confirm-dialog--long-button-text", Selector(".sv-popup--confirm-delete .sv-popup__body-content"), t, comparer);
     });
   });
   test("tab focused state for panel dynamic", async (t) => {

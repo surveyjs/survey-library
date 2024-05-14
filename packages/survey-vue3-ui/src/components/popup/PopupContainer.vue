@@ -54,11 +54,10 @@
 </template>
 <script lang="ts" setup>
 import { useBase } from "@/base";
-import { Model, type PopupBaseViewModel } from "survey-core";
+import type { PopupBaseViewModel } from "survey-core";
 import { onMounted, onUpdated } from "vue";
 
 const props = defineProps<{ model: PopupBaseViewModel }>();
-let prevIsVisible = false;
 const clickInside = (event: any) => {
   event.stopPropagation();
 };
@@ -67,10 +66,9 @@ useBase(() => props.model);
 
 onUpdated(() => {
   const model = props.model;
-  if (!prevIsVisible && model.isVisible) {
+  if (model.isVisible && !model.isPositionSet) {
     props.model.updateOnShowing();
   }
-  prevIsVisible = model.isVisible;
 });
 onMounted(() => {
   if (props.model.isVisible) {

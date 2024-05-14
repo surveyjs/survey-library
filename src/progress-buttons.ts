@@ -25,6 +25,9 @@ export class ProgressButtons extends Base {
     if (this.showItemNumbers && this.survey.css.progressButtonsNumbered) {
       result += " " + this.survey.css.progressButtonsNumbered;
     }
+    if (this.isFitToSurveyWidth) {
+      result += " " + this.survey.css.progressButtonsFitSurveyWidth;
+    }
     return result;
   }
   public getListElementCss(index: number | any): string {
@@ -79,10 +82,23 @@ export class ProgressButtons extends Base {
     const listContainerElement = element.querySelector("ul");
     if (!listContainerElement) return;
     const listContainerElements = element.querySelectorAll(".sd-progress-buttons__connector");
-    const connectorWidth = listContainerElement.clientWidth / (listContainerElement.children.length - 1) - 4;
+    const circleWidth = this.showItemNumbers ? 17 : 5;
+    const connectorWidth = listContainerElement.clientWidth / (listContainerElement.children.length - 1) - circleWidth;
     for (let i = 0; i < listContainerElements.length; i++) {
       (listContainerElements[i] as HTMLDivElement).style.width = connectorWidth + "px";
     }
+  }
+  public get isFitToSurveyWidth(): boolean {
+    if (surveyCss.currentType !== "defaultV2") {
+      return false;
+    }
+    return this.survey.progressBarInheritWidthFrom === "survey" && this.survey.widthMode == "static";
+  }
+  public get progressWidth(): string {
+    if (this.isFitToSurveyWidth) {
+      return this.survey.width;
+    }
+    return "";
   }
   public get showItemNumbers(): boolean {
     if (surveyCss.currentType !== "defaultV2") {

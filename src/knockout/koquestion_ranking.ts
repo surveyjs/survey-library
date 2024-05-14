@@ -26,6 +26,11 @@ export class QuestionRanking extends QuestionRankingModel {
     this.handlePointerDown(event, data, <HTMLElement>event.currentTarget);
     return true;
   };
+  public koHandlePointerUp = (data: ItemValue, event: PointerEvent) => {
+    if(!this.survey.isDesignMode) event.preventDefault();
+    this.handlePointerUp(event, data, <HTMLElement>event.currentTarget);
+    return true;
+  };
 }
 
 Serializer.overrideClassCreator("ranking", function() {

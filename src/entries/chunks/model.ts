@@ -2,6 +2,8 @@
 // import "../../main.scss";
 //import "../../modern.scss";
 
+import { DomWindowHelper } from "../../global_variables_utils";
+
 export var Version: string;
 export var ReleaseDate: string;
 Version = `${process.env.VERSION}`;
@@ -57,8 +59,9 @@ function checkPrefix(prefix: string): boolean {
   if (index < 0) return true;
   const ds = prefix.substring(index + s.length).toLowerCase().split(",");
   if (!Array.isArray(ds) || ds.length === 0) return true;
-  if (typeof window !== "undefined" && !!window.location && !!window.location.hostname) {
-    const hn = window.location.hostname.toLowerCase();
+  const location = DomWindowHelper.getLocation();
+  if (!!location && !!location.hostname) {
+    const hn = location.hostname.toLowerCase();
     ds.push("localhost");
     for (let i = 0; i < ds.length; i++) {
       if (hn.indexOf(ds[i]) > -1) return true;
@@ -136,6 +139,7 @@ export {
   JsonMissingTypeError,
   JsonMissingTypeErrorBase,
   JsonObject,
+  IJsonPropertyInfo,
   JsonObjectProperty,
   JsonRequiredPropertyError,
   JsonUnknownPropertyError,
@@ -280,6 +284,11 @@ export {
   sanitizeEditableContent,
   IAttachKey2clickOptions
 } from "../../utils/utils";
+export { InputMaskBase } from "../../mask/mask_base";
+export { InputMaskPattern } from "../../mask/mask_pattern";
+export { InputMaskNumeric } from "../../mask/mask_numeric";
+export { InputMaskDateTime } from "../../mask/mask_datetime";
+export { InputMaskCurrency } from "../../mask/mask_currency";
 export * from "../../utils/cssClassBuilder";
 
 export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../defaultCss/defaultV2Css";

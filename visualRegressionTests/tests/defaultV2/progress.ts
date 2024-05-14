@@ -137,8 +137,10 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
       await t.click(Selector("li").nth(1));
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top-buttons.png", Selector(".sd-container-modern"), t, comparer);
       await t.resizeWindow(500, 1080);
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top-buttons-mobile.png", Selector(".sd-container-modern"), t, comparer);
     });
   });
@@ -288,6 +290,73 @@ frameworks.forEach(framework => {
         });
       })();
       await takeElementScreenshot("survey-custom-navigation.png", Selector(".sd-container-modern"), t, comparer);
+    });
+  });
+  test("Check survey with progress top pages - hover", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      const progressBarItemsSelector = Selector(".sd-progress-buttons__list li");
+      await t.hover(progressBarItemsSelector.nth(0));
+      await takeElementScreenshot("survey-progress-bar-hover-visited.png", Selector(".sd-progress-buttons"), t, comparer); // title + progress
+      await t.hover(progressBarItemsSelector.nth(1));
+      await takeElementScreenshot("survey-progress-bar-hover-current.png", Selector(".sd-progress-buttons"), t, comparer); // title + progress
+      await t.hover(progressBarItemsSelector.nth(2));
+      await takeElementScreenshot("survey-progress-bar-hover-next.png", Selector(".sd-progress-buttons"), t, comparer); // title + progress
+    });
+  });
+  test("Check survey with progress top buttons - hover", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.progressBarShowPageNumbers = true;
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      const progressBarItemsSelector = Selector(".sd-progress-buttons__list li");
+      await t.hover(progressBarItemsSelector.nth(0));
+      await takeElementScreenshot("survey-progress-bar-buttons-hover-visited.png", Selector(".sd-progress-buttons"), t, comparer); // title + progress
+      await t.hover(progressBarItemsSelector.nth(1));
+      await takeElementScreenshot("survey-progress-bar-buttons-hover-current.png", Selector(".sd-progress-buttons"), t, comparer); // title + progress
+      await t.hover(progressBarItemsSelector.nth(2));
+      await takeElementScreenshot("survey-progress-bar-buttons-hover-next.png", Selector(".sd-progress-buttons"), t, comparer); // title + progress
+    });
+  });
+  test("Check survey with progress top - progressBarInheritWidthFrom modes", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.progressBarInheritWidthFrom = "survey";
+        (<any>window).survey.widthMode = "static";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await takeElementScreenshot("survey-progress-bar-top-survey-width-static.png", Selector(".sd-container-modern"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.width = "1400px";
+      })();
+      await t.resizeWindow(1900, 1000);
+      await t.wait(500);
+      await takeElementScreenshot("survey-progress-bar-top-survey-width-static-1400.png", Selector(".sd-container-modern"), t, comparer);
+    });
+  });
+  test("Check survey with progress top - RTL", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "rtl");
+      })();
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await takeElementScreenshot("survey-progress-bar-top-rtl.png", Selector(".sd-container-modern"), t, comparer); // title + progress
     });
   });
 });

@@ -1,7 +1,9 @@
 import { Helpers } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
 import { settings } from "./settings";
-import { EventBase } from "./base";
+import { Base, EventBase } from "./base";
+import { Serializer } from "./jsonobject";
+import { SurveyElementCore } from "./survey-element";
 
 export interface ILocalizableOwner {
   getLocale(): string;
@@ -31,6 +33,7 @@ export class LocalizableString implements ILocalizableString {
   }
   public static defaultRenderer = "sv-string-viewer";
   public static editableRenderer = "sv-string-editor";
+
   private values: any = {};
   private htmlValues = {};
   private renderedText: string;
@@ -44,6 +47,10 @@ export class LocalizableString implements ILocalizableString {
       this._localizationName = val;
       this.strChanged();
     }
+  }
+  private _allowLineBreaks: boolean = false;
+  public get allowLineBreaks(): boolean {
+    return this._allowLineBreaks;
   }
   public onGetTextCallback: (str: string) => string;
   public storeDefaultText: boolean;
@@ -60,6 +67,9 @@ export class LocalizableString implements ILocalizableString {
     public useMarkdown: boolean = false,
     public name?: string
   ) {
+    if (owner instanceof SurveyElementCore) {
+      this._allowLineBreaks = Serializer.findProperty((owner as SurveyElementCore).getType(), name)?.type == "text";
+    }
     this.onCreating();
   }
   public getIsMultiple(): boolean { return false; }

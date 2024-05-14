@@ -1,5 +1,6 @@
+import { DomDocumentHelper } from "../global_variables_utils";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
-import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
+import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_matrixdynamic";
 import { DragDropCore } from "./core";
 export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel> {
   protected get draggedElementType(): string {
@@ -9,8 +10,11 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   protected restoreUserSelectValue: string;
 
   protected onStartDrag(): void {
-    this.restoreUserSelectValue = document.body.style.userSelect;
-    document.body.style.userSelect = "none";
+    const _body = DomDocumentHelper.getBody();
+    if(!!_body) {
+      this.restoreUserSelectValue = _body.style.userSelect;
+      _body.style.userSelect = "none";
+    }
   }
 
   protected createDraggedElementShortcut(
@@ -18,7 +22,9 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     draggedElementNode: HTMLElement,
     event: PointerEvent
   ): HTMLElement {
-    const draggedElementShortcut: any = document.createElement("div");
+    const draggedElementShortcut: any = DomDocumentHelper.createElement("div");
+    if(!draggedElementShortcut) return;
+
     // draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
@@ -99,9 +105,12 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
     return dropTargetRenderedRow.row;
   }
-
+  public canInsertIntoThisRow(row: MatrixDynamicRowModel): boolean {
+    const lockedRows = this.parentElement.lockedRowCount;
+    return lockedRows <= 0 || row.rowIndex > lockedRows;
+  }
   protected isDropTargetValid(dropTarget: any, dropTargetNode?: HTMLElement): boolean {
-    return true;
+    return this.canInsertIntoThisRow(dropTarget);
   }
 
   protected calculateIsBottom(clientY: number): boolean {
@@ -115,7 +124,6 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     if (this.isDropTargetDoesntChanged(this.isBottom)) return;
-    if (this.dropTarget === this.draggedElement) return;
 
     let dropTargetIndex;
     let draggedElementIndex;
@@ -173,7 +181,10 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     this.parentElement.clearOnDrop();
     this.fromIndex = null;
     this.toIndex = null;
-    document.body.style.userSelect = this.restoreUserSelectValue || "initial";
+    const _body = DomDocumentHelper.getBody();
+    if(!!_body) {
+      _body.style.userSelect = this.restoreUserSelectValue || "initial";
+    }
     super.clear();
   }
 }

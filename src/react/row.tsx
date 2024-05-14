@@ -32,7 +32,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     return this.props.css;
   }
   protected canRender(): boolean {
-    return !!this.row && !!this.survey && !!this.creator && this.row.visible;
+    return !!this.row && !!this.survey && !!this.creator;
   }
   protected renderElementContent(): JSX.Element {
     const elements = this.row.visibleElements.map((element, elementIndex) => {
@@ -67,6 +67,9 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   componentDidMount() {
     super.componentDidMount();
     var el = this.rootRef.current;
+    if(this.rootRef.current) {
+      this.row.setRootElement(this.rootRef.current);
+    }
     if (!!el && !this.row.isNeedRender) {
       var rowContainerDiv = el;
       setTimeout(() => {
@@ -76,9 +79,10 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
-
     if (nextProps.row !== this.row) {
       nextProps.row.isNeedRender = this.row.isNeedRender;
+      nextProps.row.setRootElement(this.rootRef.current);
+      this.row.setRootElement(undefined);
       this.stopLazyRendering();
     }
     this.recalculateCss();
@@ -90,6 +94,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
+    this.row.setRootElement(undefined);
     this.stopLazyRendering();
   }
 

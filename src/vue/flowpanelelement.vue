@@ -3,8 +3,8 @@
     <component v-if="!question" :is="tagName">
       <survey-flowpanelelement
         v-for="elNode in nodes"
-        :key="elementId"
-        :node="elNode"
+        :key="elNode.id"
+        :node="elNode.node"
         :panel="panel"
         css="css"
       />
@@ -33,9 +33,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question } from "survey-core";
-import { SurveyModel } from "survey-core";
-import { FlowPanelModel } from "survey-core";
+import { Question, SurveyModel, FlowPanelModel } from "survey-core";
 import { getComponentName } from "./question";
 
 @Component
@@ -47,10 +45,10 @@ export class FlowPanelElement extends Vue {
   private elementIdValue: string;
   public question: Question = null;
   public tagName: string = "span";
-  public nodes: Array<Node> = [];
+  public nodes: Array<{ node: Node, id: string }> = [];
   public text: string = "";
   public style: any = {};
-  
+
   private getStyle(nodeType: string) {
     var style: any = {};
     if (nodeType.toLowerCase() === "b") {
@@ -64,7 +62,7 @@ export class FlowPanelElement extends Vue {
     }
     return style;
   }
-  public get elementId(): string {
+  public getElementId(): string {
     if (!this.elementIdValue) {
       if (!FlowPanelElement.idValue) {
         FlowPanelElement.idValue = 0;
@@ -106,10 +104,10 @@ export class FlowPanelElement extends Vue {
     }
     return true;
   }
-  private getChildDomNodes(node: Node): Array<Node> {
-    var domNodes = [];
+  private getChildDomNodes(node: Node): Array<{ node: Node, id: string }> {
+    var domNodes: Array<{ node: Node, id: string }> = [];
     for (var i = 0; i < node.childNodes.length; i++) {
-      domNodes.push(node.childNodes[i]);
+      domNodes.push({ node: node.childNodes[i], id: this.getElementId() });
     }
     return domNodes;
   }

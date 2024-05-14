@@ -1,9 +1,10 @@
 import { IAction } from "./actions/action";
 import { Base } from "./base";
+import { DomDocumentHelper } from "./global_variables_utils";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { ListModel } from "./list";
-import { PopupModel } from "./popup";
+import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionDropdownModel } from "./question_dropdown";
 import { settings } from "./settings";
@@ -86,12 +87,14 @@ export class DropdownListModel extends Base {
   }
 
   protected createPopup(): void {
-    this._popupModel = new PopupModel("sv-list", { model: this.listModel }, "bottom", "center", false);
+    const popupOptions: IPopupOptionsBase = { verticalPosition: "bottom", horizontalPosition: "center", showPointer: false };
+    this._popupModel = new PopupModel("sv-list", { model: this.listModel }, popupOptions);
     this._popupModel.displayMode = IsTouch ? "overlay" : "popup";
     this._popupModel.positionMode = "fixed";
     this._popupModel.isFocusedContainer = false;
     this._popupModel.isFocusedContent = IsTouch;
     this._popupModel.setWidthByTarget = !IsTouch;
+    this._popupModel.locale = this.question.getLocale();
     this.updatePopupFocusFirstInputSelector();
     this.listModel.registerPropertyChangedHandlers(["showFilter"], () => {
       this.updatePopupFocusFirstInputSelector();
@@ -103,6 +106,7 @@ export class DropdownListModel extends Base {
       }
       if (option.isVisible && this.question.choicesLazyLoadEnabled) {
         this.listModel.actions = [];
+        this.resetItemsSettings();
         this.updateQuestionChoices();
       }
 
@@ -137,6 +141,10 @@ export class DropdownListModel extends Base {
     }
   }
 
+  private setTextWrapEnabled(newValue: boolean): void {
+    this.listModel.textWrapEnabled = newValue;
+  }
+
   protected popupRecalculatePosition(isResetHeight: boolean): void {
     setTimeout(() => {
       this.popupModel.recalculatePosition(isResetHeight);
@@ -146,11 +154,19 @@ export class DropdownListModel extends Base {
   protected onHidePopup(): void {
     this.resetFilterString();
     this.question.suggestedItem = null;
-    this.listModel.refresh();
   }
 
   protected getAvailableItems(): Array<ItemValue> {
     return this.question.visibleChoices;
+  }
+  protected setOnTextSearchCallbackForListModel(listModel: ListModel<ItemValue>) {
+    listModel.setOnTextSearchCallback((item: ItemValue, textToSearch: string) => {
+      if (this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
+      let textInLow = item.text.toLocaleLowerCase();
+      textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
+      const index = textInLow.indexOf(textToSearch.toLocaleLowerCase());
+      return this.question.searchMode == "startsWith" ? index == 0 : index > -1;
+    });
   }
   protected createListModel(): ListModel<ItemValue> {
     const visibleItems = this.getAvailableItems();
@@ -162,14 +178,8 @@ export class DropdownListModel extends Base {
         this.popupModel.isVisible = false;
       };
     }
-    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.question.choicesLazyLoadEnabled ? this.listModelFilterStringChanged : undefined, this.listElementId);
-    res.setOnTextSearchCallback((item: ItemValue, textToSearch: string) => {
-      if (this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
-      let textInLow = item.text.toLocaleLowerCase();
-      textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
-      const index = textInLow.indexOf(textToSearch.toLocaleLowerCase());
-      return this.question.searchMode == "startsWith" ? index == 0 : index > -1;
-    });
+    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.listElementId);
+    this.setOnTextSearchCallbackForListModel(res);
     res.renderElements = false;
     res.forceShowFilter = true;
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
@@ -186,6 +196,7 @@ export class DropdownListModel extends Base {
       }
     });
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
+    model.actions.forEach(a => a.disableTabStop = true);
   }
   public updateCssClasses(popupCssClass: string, listCssClasses: any): void {
     this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.popupCssClasses).toString();
@@ -348,15 +359,15 @@ export class DropdownListModel extends Base {
   };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
-    if ("undefined" !== typeof document) {
-      this.htmlCleanerElement = document.createElement("div");
-    }
+    this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
     question.onPropertyChanged.add(this.qustionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
     this.updateAfterListModelCreated(this.listModel);
+    this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
     this.setSearchEnabled(this.question.searchEnabled);
+    this.setTextWrapEnabled(this.question.textWrapEnabled);
     this.createPopup();
     this.resetItemsSettings();
   }
@@ -377,10 +388,14 @@ export class DropdownListModel extends Base {
     return IsTouch ? "none" : "text";
   }
 
-  public setSearchEnabled(newValue: boolean) {
+  public setSearchEnabled(newValue: boolean): void {
     this.listModel.searchEnabled = IsTouch;
     this.listModel.showSearchClearButton = IsTouch;
     this.searchEnabled = newValue;
+  }
+
+  public setChoicesLazyLoadEnabled(newValue: boolean): void {
+    this.listModel.setOnFilterStringChangedCallback(newValue ? this.listModelFilterStringChanged : undefined);
   }
 
   public updateItems(): void {
@@ -403,8 +418,8 @@ export class DropdownListModel extends Base {
     if (options.name == "value") {
       this.showInputFieldComponent = this.question.showInputFieldComponent;
     }
-    if(options.name == "choicesLazyLoadEnabled" && options.newValue) {
-      this.listModel.setOnFilterStringChangedCallback(this.listModelFilterStringChanged);
+    if(options.name == "textWrapEnabled") {
+      this.setTextWrapEnabled(options.newValue);
     }
   }
   protected focusItemOnClickAndPopup() {

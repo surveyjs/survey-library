@@ -3,6 +3,7 @@ import { settings, ISurveyEnvironment } from "./../settings";
 import { IDialogOptions } from "../popup";
 import { surveyLocalization } from "../surveyStrings";
 import { PopupBaseViewModel } from "../popup-view-model";
+import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
@@ -38,16 +39,14 @@ function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: (
   callbackFunc(confirmAction(message));
 }
 function detectIEBrowser(): boolean {
-  if (typeof window === "undefined") return false;
-  const ua: string = window.navigator.userAgent;
+  const ua: string = navigator.userAgent;
   const oldIe: number = ua.indexOf("MSIE ");
   const elevenIe: number = ua.indexOf("Trident/");
   return oldIe > -1 || elevenIe > -1;
 }
 function detectIEOrEdge(): boolean {
-  if (typeof window === "undefined") return false;
   if (typeof (<any>detectIEOrEdge).isIEOrEdge === "undefined") {
-    const ua: string = window.navigator.userAgent;
+    const ua: string = navigator.userAgent;
     const msie: number = ua.indexOf("MSIE ");
     const trident: number = ua.indexOf("Trident/");
     const edge: number = ua.indexOf("Edge/");
@@ -73,19 +72,13 @@ function loadFileFromBase64(b64Data: string, fileName: string): void {
     }
     // write the ArrayBuffer to a blob, and you're done
     const bb: Blob = new Blob([ab], { type: mimeString });
-    if (
-      typeof window !== "undefined" &&
-      window.navigator &&
-      (<any>window.navigator)["msSaveBlob"]
-    ) {
-      (<any>window.navigator)["msSaveOrOpenBlob"](bb, fileName);
+    if (!!navigator && (<any>navigator)["msSaveBlob"]) {
+      (<any>navigator)["msSaveOrOpenBlob"](bb, fileName);
     }
   } catch (err) { }
 }
 function isMobile(): boolean {
-  return (
-    typeof window !== "undefined" && typeof window.orientation !== "undefined"
-  );
+  return (DomWindowHelper.isAvailable() && DomWindowHelper.hasOwn("orientation"));
 }
 
 const isShadowDOM = (rootElement: Document | ShadowRoot | HTMLElement): rootElement is ShadowRoot => {
@@ -112,7 +105,7 @@ function isElementVisible(
   const elementRect: DOMRect = element.getBoundingClientRect();
   const viewHeight: number = Math.max(
     clientHeight,
-    window.innerHeight
+    DomWindowHelper.getInnerHeight()
   );
   const topWin: number = -threshold;
   const bottomWin: number = viewHeight + threshold;
@@ -163,8 +156,9 @@ function scrollElementByChildId(id: string) {
 }
 
 function navigateToUrl(url: string): void {
-  if (!url || typeof window === "undefined" || !window.location) return;
-  window.location.href = url;
+  const location = DomWindowHelper.getLocation();
+  if (!url || !location) return;
+  location.href = url;
 }
 
 function wrapUrlForBackgroundImage(url: string): string {
@@ -206,7 +200,7 @@ function createSvg(
     return;
   } else {
     if (!titleElement) {
-      titleElement = document.createElementNS("http://www.w3.org/2000/svg", "title");
+      titleElement = DomDocumentHelper.getDocument().createElementNS("http://www.w3.org/2000/svg", "title");
       svgElem.appendChild(titleElement);
     }
   }
@@ -316,7 +310,7 @@ export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOpt
 
 function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
   if (!element) return;
-  if (!getComputedStyle) getComputedStyle = (elt: Element) => { return window.getComputedStyle(elt); };
+  if (!getComputedStyle) getComputedStyle = (elt: Element) => { return DomDocumentHelper.getComputedStyle(elt); };
 
   const style = getComputedStyle(element);
   element.style.height = "auto";
@@ -366,9 +360,9 @@ function findParentByClassNames(element: HTMLElement, classNames: Array<string>)
     }
   }
 }
-export function sanitizeEditableContent(element: any) {
-  if (window.getSelection && document.createRange && element.childNodes.length > 0) {
-    const selection = document.getSelection();
+export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean = true) {
+  if (DomWindowHelper.isAvailable() && DomDocumentHelper.isAvailable() && element.childNodes.length > 0) {
+    const selection = DomWindowHelper.getSelection();
     if (selection.rangeCount == 0) {
       return;
     }
@@ -378,14 +372,31 @@ export function sanitizeEditableContent(element: any) {
     range.setEndAfter(element.lastChild);
     selection.removeAllRanges();
     selection.addRange(range);
-    const tail_len = selection.toString().replace(/\n/g, "").length;
+    let tail = selection.toString();
+    let innerText = element.innerText;
+    tail = tail.replace(/\r/g, "");
+    if (cleanLineBreaks) {
+      tail = tail.replace(/\n/g, "");
+      innerText = innerText.replace(/\n/g, "");
+    }
+    const tail_len = tail.length;
 
-    element.innerText = element.innerText.replace(/\n/g, "");
-    range = document.createRange();
-    range.setStart(element.childNodes[0], element.innerText.length - tail_len);
-    range.collapse(true);
+    element.innerText = innerText;
+    range = DomDocumentHelper.getDocument().createRange();
+
+    range.setStart(element.firstChild, 0);
+    range.setEnd(element.firstChild, 0);
+
     selection.removeAllRanges();
     selection.addRange(range);
+
+    while (selection.toString().length < innerText.length - tail_len) {
+      const selLen = selection.toString().length;
+      (selection as any).modify("extend", "forward", "character");
+      if (selection.toString().length == selLen) break;
+    }
+    range = selection.getRangeAt(0);
+    range.setStart(range.endContainer, range.endOffset);
   }
 }
 function mergeValues(src: any, dest: any) {
@@ -437,15 +448,19 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
   applyBtn.title = applyTitle || surveyLocalization.getString("ok", locale);
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
-  popupViewModel.width = "452px";
+  configConfirmDialog(popupViewModel);
   return true;
 }
 
+export function configConfirmDialog(popupViewModel: PopupBaseViewModel): void {
+  popupViewModel.width = "min-content";
+}
+
 function chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void): void {
-  if (!window || !window["FileReader"]) return;
+  if (!DomWindowHelper.isFileReaderAvailable()) return;
   input.value = "";
   input.onchange = (event) => {
-    if (!window["FileReader"]) return;
+    if (!DomWindowHelper.isFileReaderAvailable()) return;
     if (!input || !input.files || input.files.length < 1) return;
     let files = [];
     for (let i = 0; i < input.files.length; i++) {

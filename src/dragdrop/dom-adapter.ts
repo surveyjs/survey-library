@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import { findScrollableParent, isShadowDOM } from "../utils/utils";
 import { IsMobile, IsTouch } from "../utils/devices";
 import { settings, ISurveyEnvironment } from "../settings";
@@ -24,6 +25,7 @@ export interface IDragDropDOMAdapter {
   startDrag(event: PointerEvent, draggedElement: any, parentElement: any, draggedElementNode: HTMLElement, preventSaveTargetNode: boolean): void;
   draggedElementShortcut: HTMLElement;
   rootContainer: HTMLElement;
+  documentOrShadowRoot: Document | ShadowRoot;
 }
 
 export class DragDropDOMAdapter implements IDragDropDOMAdapter {
@@ -42,9 +44,12 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
 
   constructor(private dd: IDragDropEngine, private longTap: boolean = true, private fitToContainer:boolean = false) {}
 
+  public get documentOrShadowRoot(): Document | ShadowRoot {
+    return settings.environment.root;
+  }
   private get rootElement() {
     if(isShadowDOM(settings.environment.root)) {
-      return settings.environment.root.host;
+      return this.rootContainer || settings.environment.root.host;
     } else {
       return this.rootContainer || settings.environment.root.documentElement || document.body;
     }
@@ -127,6 +132,9 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     let rootElementX = this.rootElement.getBoundingClientRect().x;
     let rootElementY = this.rootElement.getBoundingClientRect().y;
 
+    let rootElementScrollLeft = this.rootElement.scrollLeft;
+    let rootElementScrollTop = this.rootElement.scrollTop;
+
     this.doScroll(event.clientY, event.clientX);
 
     const shortcutHeight = this.draggedElementShortcut.offsetHeight;
@@ -150,8 +158,8 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     const clientY = event.clientY;
 
     if (!!this.fitToContainer) {
-      rootElementX = clientX - pageX;
-      rootElementY = clientY - pageY;
+      rootElementX -= rootElementScrollLeft;
+      rootElementY -= rootElementScrollTop;
     }
 
     const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(clientY, shortcutHeight, shortcutYOffset);
@@ -210,18 +218,13 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private getShortcutRightCoordinate(currentX: number, shortcutWidth: number, shortcutXOffset: number):number {
     return currentX + shortcutWidth - shortcutXOffset;
   }
-  private doScroll(clientY: number, clientX: number) {
-    cancelAnimationFrame(this.scrollIntervalId);
+
+  protected requestAnimationFrame(callback: any) {
+    return requestAnimationFrame(callback);
+  }
+
+  protected scrollByDrag(scrollableParentNode: HTMLElement, clientY: number, clientX: number) {
     const startScrollBoundary = 100;
-
-    const displayProp = this.draggedElementShortcut.style.display;
-    //this.draggedElementShortcut.hidden = true;
-    this.draggedElementShortcut.style.display = "none";
-    let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
-    //this.draggedElementShortcut.hidden = false;
-    this.draggedElementShortcut.style.display = displayProp || "block";
-
-    let scrollableParentNode = findScrollableParent(dragOverNode);
 
     let top: number;
     let bottom: number;
@@ -241,19 +244,39 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     }
 
     const repeat = () => {
-      if (clientY - top <= startScrollBoundary) {
+      const isTop = clientY - top <= startScrollBoundary;
+      const isBottom = bottom - clientY <= startScrollBoundary;
+      const isLeft = clientX - left <= startScrollBoundary;
+      const isRight = right - clientX <= startScrollBoundary;
+      if (isTop && !isLeft && !isRight) {
         scrollableParentNode.scrollTop -= 15;
-      } else if (bottom - clientY <= startScrollBoundary) {
+      } else if (isBottom && !isLeft && !isRight) {
         scrollableParentNode.scrollTop += 15;
-      } else if (right - clientX <= startScrollBoundary) {
+      } else if (isRight && !isTop && !isBottom) {
         scrollableParentNode.scrollLeft += 15;
-      } else if (clientX - left <= startScrollBoundary) {
+      } else if (isLeft && !isTop && !isBottom) {
         scrollableParentNode.scrollLeft -= 15;
       }
-      this.scrollIntervalId = requestAnimationFrame(repeat);
+      this.scrollIntervalId = this.requestAnimationFrame(repeat);
     };
-    this.scrollIntervalId = requestAnimationFrame(repeat);
+    this.scrollIntervalId = this.requestAnimationFrame(repeat);
   }
+
+  private doScroll(clientY: number, clientX: number) {
+    cancelAnimationFrame(this.scrollIntervalId);
+
+    const displayProp = this.draggedElementShortcut.style.display;
+    //this.draggedElementShortcut.hidden = true;
+    this.draggedElementShortcut.style.display = "none";
+    let dragOverNode = <HTMLElement>this.documentOrShadowRoot.elementFromPoint(clientX, clientY);
+    //this.draggedElementShortcut.hidden = false;
+    this.draggedElementShortcut.style.display = displayProp || "block";
+
+    let scrollableParentNode = findScrollableParent(dragOverNode);
+
+    this.scrollByDrag(scrollableParentNode, clientY, clientX);
+  }
+
   private dragOver = (event: PointerEvent) => {
     this.moveShortcutElement(event);
     this.draggedElementShortcut.style.cursor = "grabbing";

@@ -77,8 +77,9 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             aria-required={this.question.a11y_input_ariaRequired}
             aria-label={this.question.a11y_input_ariaLabel}
             aria-labelledby={this.question.a11y_input_ariaLabelledBy}
-            aria-invalid={this.question.a11y_input_ariaInvalid}
             aria-describedby={this.question.a11y_input_ariaDescribedBy}
+            aria-invalid={this.question.a11y_input_ariaInvalid}
+            aria-errormessage={this.question.a11y_input_ariaErrormessage}
           />
           <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, this.question.swapOrder)}>
             <span className={this.question.getLabelCss(this.question.swapOrder)}>
@@ -86,7 +87,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             </span>
           </div>
           <div className={cssClasses.switch} onClick={this.handleOnSwitchClick}>
-            <span className={cssClasses.slider}>
+            <span className={cssClasses.slider} style={{ marginLeft: this.question.thumbMargin }}>
               {
                 this.question.isDeterminated && cssClasses.sliderText ?
                   <span className={cssClasses.sliderText}>{this.renderLocString(this.question.getCheckedLabel())}</span>

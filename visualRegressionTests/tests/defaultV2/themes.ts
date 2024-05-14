@@ -466,4 +466,122 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-theme-mobile-popup-input-size.png", popupContainer, t, comparer);
     });
   });
+
+  test("HTML default color", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 3000);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "html",
+                "name": "question1",
+                "html": "HTML on surface"
+              },
+              {
+                "type": "panel",
+                "name": "panel1",
+                "title": "Panel",
+                "elements": [
+                  {
+                    "type": "html",
+                    "name": "question2",
+                    "html": "HTML in panel"
+                  }
+                ]
+              }
+            ],
+            "title": "Page"
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-general-forecolor": "red",
+            "--sjs-general-dim-forecolor": "blue"
+          }
+        });
+      })();
+
+      await takeElementScreenshot("survey-html-theme.png", Selector(".sd-page"), t, comparer);
+    });
+  });
+
+  test("Matrix many columns", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "focusFirstQuestionAutomatic": false,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrixdynamic",
+                "name": "matrix",
+                "columns": [
+                  {
+                    "name": "col1"
+                  },
+                  {
+                    "name": "col2"
+                  },
+                  {
+                    "name": "col3"
+                  },
+                  {
+                    "name": "col5"
+                  },
+                  {
+                    "name": "col6"
+                  },
+                  {
+                    "name": "col6"
+                  },
+                  {
+                    "name": "col7"
+                  },
+                  {
+                    "name": "col8"
+                  },
+                  {
+                    "name": "col9"
+                  },
+                  {
+                    "name": "col10"
+                  },
+                  {
+                    "name": "col11"
+                  },
+                  {
+                    "name": "col12"
+                  }
+                ],
+                "rows": [
+                  "item1",
+                  "item2"
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
+      await ClientFunction(() => {
+        (<any>window).survey.isCompact = true;
+        (<any>window).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-general-backcolor-dim": "blue"
+          }
+        });
+      })();
+      const questionRoot = Selector(".sd-body");
+      await takeElementScreenshot("question-matrix-dropdown-columns-theme.png", questionRoot, t, comparer);
+    });
+  });
+
 });

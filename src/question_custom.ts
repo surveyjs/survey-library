@@ -18,6 +18,9 @@ import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
+import { SurveyError } from "./survey-error";
+import { CustomError } from "./error";
+import { ConsoleWarnings } from "./console-warnings";
 
 /**
  * An interface used to create custom question types.
@@ -243,6 +246,13 @@ export interface ICustomQuestionTypeConfiguration {
    * @see questionJSON
    */
   createQuestion?: any;
+  /**
+   * A function that allows you to display different error texts based on conditions.
+   * @param question A custom question. Use the `question.value` property to access the question's value.
+   * @returns An error text.
+   */
+  getErrorText?: (question: Question) => string;
+  onSetQuestionValue?: (question: Question, newValue: any) => void;
   valueToQuestion?: (val: any) => any;
   valueFromQuestion?: (val: any) => any;
   getValue?: (val: any) => any;
@@ -294,6 +304,10 @@ export class ComponentQuestionJSON {
     if (!this.json.onUpdateQuestionCssClasses) return;
     this.json.onUpdateQuestionCssClasses(question, element, css);
   }
+  public onSetQuestionValue(question: Question, newValue: any): void {
+    if (!this.json.onSetQuestionValue) return;
+    this.json.onSetQuestionValue(question, newValue);
+  }
   public onPropertyChanged(
     question: Question,
     propertyName: string,
@@ -309,6 +323,10 @@ export class ComponentQuestionJSON {
   public onValueChanging(question: Question, name: string, newValue: any): any {
     if (!this.json.onValueChanging) return newValue;
     return this.json.onValueChanging(question, name, newValue);
+  }
+  public onGetErrorText(question: Question): string {
+    if (!this.json.getErrorText) return undefined;
+    return this.json.getErrorText(question);
   }
   public onItemValuePropertyChanged(
     question: Question,
@@ -594,10 +612,22 @@ export abstract class QuestionCustomModelBase extends Question
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateElementCss();
+    if (!!this.customQuestion) {
+      this.customQuestion.onSetQuestionValue(this, newValue);
+    }
   }
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);
     this.updateElementCss();
+  }
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged);
+    if (!!this.customQuestion) {
+      const text = this.customQuestion.onGetErrorText(this);
+      if(!!text) {
+        errors.push(new CustomError(text, this));
+      }
+    }
   }
   //ISurveyImpl
   getSurveyData(): ISurveyData {
@@ -612,6 +642,9 @@ export abstract class QuestionCustomModelBase extends Question
   }
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if (!this.data) return;
+    if (!!this.customQuestion) {
+      this.customQuestion.onValueChanged(this, name, newValue);
+    }
     var newName = this.convertDataName(name);
     let valueForSurvey = this.convertDataValue(name, newValue);
     if(this.valueToDataCallback) {
@@ -625,9 +658,6 @@ export abstract class QuestionCustomModelBase extends Question
     );
     this.updateIsAnswered();
     this.updateElementCss();
-    if (!!this.customQuestion) {
-      this.customQuestion.onValueChanged(this, name, newValue);
-    }
   }
   protected getQuestionByName(name: string): IQuestion {
     return undefined;
@@ -814,14 +844,14 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       if (!qType || !Serializer.findClass(qType))
         throw "type attribute in questionJSON is empty or incorrect";
       res = <Question>Serializer.createClass(qType);
-      this.initElement(res);
       res.fromJSON(json.questionJSON);
+      res = this.checkCreatedQuestion(res);
     } else {
       if (!!json.createQuestion) {
-        res = json.createQuestion();
-        this.initElement(res);
+        res = this.checkCreatedQuestion(json.createQuestion());
       }
     }
+    this.initElement(res);
     if (!!res) {
       res.isContentElement = true;
       if (!res.name) {
@@ -834,6 +864,18 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       res.setValueChangedDirectlyCallback = (val: boolean): void => { this.setValueChangedDirectly(val); };
     }
 
+    return res;
+  }
+  private checkCreatedQuestion(res: Question): Question {
+    if(!res) return res;
+    if(!res.isQuestion) {
+      if(Array.isArray(res.questions) && res.questions.length > 0) {
+        res = res.questions[0];
+      } else {
+        res = Serializer.createClass("text");
+      }
+      ConsoleWarnings.error("Could not create component: '" + this.getType() + "'. questionJSON should be a question.");
+    }
     return res;
   }
   public onSurveyLoad() {
@@ -850,11 +892,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
   }
   protected convertDataName(name: string): string {
-    if (!this.contentQuestion) return super.convertDataName(name);
-    var newName = name.replace(
-      this.contentQuestion.getValueName(),
-      this.getValueName()
-    );
+    const q = this.contentQuestion;
+    if (!q || name === this.getValueName()) return super.convertDataName(name);
+    var newName = name.replace(q.getValueName(), this.getValueName());
     return newName.indexOf(this.getValueName()) == 0
       ? newName
       : super.convertDataName(name);
@@ -1097,6 +1137,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       }
     }
   }
+  onSurveyValueChanged(newValue: any): void {
+    super.onSurveyValueChanged(newValue);
+    const val = !!newValue ? newValue : {};
+    if (!!this.contentPanel) {
+      this.contentPanel.questions.forEach(q => {
+        q.onSurveyValueChanged(val[q.getValueName()]);
+      });
+    }
+  }
   getValue(name: string): any {
     var val = this.value;
     return !!val ? val[name] : null;
@@ -1120,6 +1169,14 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.setNewValueIntoQuestion(name, newValue);
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
+    this.runPanelTriggers(QuestionCompositeModel.ItemVariableName + "." + name, newValue);
+  }
+  private runPanelTriggers(name: string, value: any): void {
+    if(!!this.contentPanel) {
+      this.contentPanel.questions.forEach(q => {
+        q.runTriggers(name, value);
+      });
+    }
   }
   getFilteredValues(): any {
     const values = !!this.data ? this.data.getFilteredValues() : {};
@@ -1170,7 +1227,8 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.contentPanel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
   }
   protected convertDataValue(name: string, newValue: any): any {
-    var val = this.getValueForContentPanel(this.value);
+    var val = !!this.contentPanel && !this.isEditingSurveyElement ?
+      this.contentPanel.getValue() : this.getValueForContentPanel(this.value);
     if (!val) val = {};
     if (this.isValueEmpty(newValue) && !this.isEditingSurveyElement) {
       delete val[name];

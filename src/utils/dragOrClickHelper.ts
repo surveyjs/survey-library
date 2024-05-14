@@ -1,4 +1,6 @@
-import { IsTouch } from "survey-core";
+import { IsTouch } from "./devices";
+import { DomDocumentHelper } from "../global_variables_utils";
+
 export class DragOrClickHelper {
   private pointerDownEvent:any;
   private currentTarget: any;
@@ -19,7 +21,7 @@ export class DragOrClickHelper {
     this.currentTarget = pointerDownEvent.currentTarget;
     this.startX = pointerDownEvent.pageX;
     this.startY = pointerDownEvent.pageY;
-    document.addEventListener("pointermove", this.tryToStartDrag);
+    DomDocumentHelper.addEventListener("pointermove", this.tryToStartDrag);
     this.currentTarget.addEventListener("pointerup", this.onPointerUp);
     this.itemModel = itemModel;
   }
@@ -48,7 +50,7 @@ export class DragOrClickHelper {
   }
   private clearListeners() {
     if (!this.pointerDownEvent) return;
-    document.removeEventListener("pointermove", this.tryToStartDrag);
+    DomDocumentHelper.removeEventListener("pointermove", this.tryToStartDrag);
     this.currentTarget.removeEventListener("pointerup", this.onPointerUp);
   }
 }

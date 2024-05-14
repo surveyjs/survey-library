@@ -218,6 +218,14 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property() searchMode: "contains" | "startsWith";
 
+  /**
+   * Specifies whether to wrap long texts in choice options onto a new line.
+   *
+   * Default value: `true`
+   *
+   * Disable this property if you want the texts to be truncated with ellipsis.
+   */
+  @property() textWrapEnabled: boolean;
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;
   /**
@@ -225,20 +233,27 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesLazyLoadPageSize
    * @see SurveyModel.onChoicesLazyLoad
    */
-  @property() choicesLazyLoadEnabled: boolean;
+  @property({
+    onSet: (newValue: boolean, target: QuestionDropdownModel) => {
+      if (!!target.dropdownListModel) {
+        target.dropdownListModel.setChoicesLazyLoadEnabled(newValue);
+      }
+    }
+  }) choicesLazyLoadEnabled: boolean;
   /**
    * Specifies the number of choice items to load at a time when choices are loaded on demand.
    * @see choicesLazyLoadEnabled
    * @see SurveyModel.onChoicesLazyLoad
    */
   @property() choicesLazyLoadPageSize: number;
-
   public getControlClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
       .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
       .append(this.cssClasses.controlInputFieldComponent, !!this.inputFieldComponentName)
       .toString();
   }
@@ -356,6 +371,7 @@ Serializer.addClass(
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },
     { name: "autocomplete", alternativeName: "autoComplete", choices: settings.questions.dataList, },
+    { name: "textWrapEnabled:boolean", default: true },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },

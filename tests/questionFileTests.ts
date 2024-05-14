@@ -1900,9 +1900,28 @@ QUnit.test("Acton takePhoto should be serialiazed", function (assert) {
     ]
   });
   const question = <QuestionFileModel>survey.getAllQuestions()[0];
-  const action = question.takePictureAction;
-  assert.equal(action.title, "Take Photo", "en");
+  assert.equal(question.takePictureAction.title, "Take Photo", "en");
+  assert.equal(question.startCameraAction.title, "Take Photo", "en");
+  assert.equal(question.cleanAction.title, "Clear", "en");
   survey.locale = "de";
-  assert.equal(action.title, "Foto machen", "de");
+  assert.equal(question.takePictureAction.title, "Foto machen", "de");
+  assert.equal(question.startCameraAction.title, "Foto machen", "de");
+  assert.equal(question.cleanAction.title, "Auswahl entfernen", "de");
+});
+
+QUnit.test("Choose file action should have disabled class", function (assert) {
+  const survey = new SurveyModel({
+    mode: "display",
+    elements: [
+      { type: "file", name: "q1", maxSize: 3 },
+    ]
+  });
+  survey.css = defaultV2Css;
+  const question = <QuestionFileModel>survey.getAllQuestions()[0];
+  assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled", "Disabled");
+  survey.mode = "edit";
+  assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-action sd-file__choose-btn--text", "Enabled");
+  survey.mode = "display";
+  assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled", "Disabled");
 });
 

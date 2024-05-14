@@ -9,6 +9,16 @@
     border: 1px dashed $border;
 }
 
+.sd-question--readonly,
+.sd-question--preview {
+    .sjs_sp_container {
+        border: none;
+    }
+
+    .sjs_sp_placeholder {
+        color: $foreground;
+    }
+}
 .sjs_sp_controls.sd-signaturepad__controls {
     right: calcSize(1);
     top: calcSize(1);

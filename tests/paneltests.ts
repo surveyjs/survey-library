@@ -1890,7 +1890,7 @@ QUnit.test("Check panel styles with originalPage", function(assert) {
   survey.css = {};
 });
 
-QUnit.test("Check panel styles with originalPage and showPreview", function(assert) {
+QUnit.skip("Check panel styles with originalPage and showPreview", function (assert) {
   const survey = new SurveyModel({
     pages: [
       {

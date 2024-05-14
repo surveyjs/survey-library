@@ -591,7 +591,7 @@ frameworks.forEach(framework => {
           {
             name: "name",
             type: "text",
-            title: "Text long  long long long long long long long long long long long long long long",
+            title: "Text long long long long long long long long long long long long long long long",
             placeHolder: "Jon Snow",
             isRequired: true
           }
@@ -903,6 +903,32 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check question - multiline description", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => {
+        document.body.focus();
+        document.body.style.setProperty("--base-unit", "4px");
+      });
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            name: "q1",
+            type: "text",
+            title: "Question",
+            description: "First Line\nSecond Line"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-multiline-description.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Question descriptionLocation property", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
@@ -990,4 +1016,88 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-empty-title-height.png", questionRows.nth(0), t, comparer);
     });
   });
+
+  test("Question content scroll", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "radiogroup",
+                "name": "question2",
+                "choices": [
+                  {
+                    "value": "Item 1",
+                    "text": "11111111111111111111111"
+                  },
+                  {
+                    "value": "Item 2",
+                    "text": "2222222222222222222222222222"
+                  },
+                  {
+                    "value": "Item 3",
+                    "text": "333333333333333"
+                  },
+                  {
+                    "value": "Item 4",
+                    "text": "44444444444444444444444444444"
+                  },
+                  {
+                    "value": "Item 5",
+                    "text": "555555555555555555555555"
+                  },
+                  {
+                    "value": "Item 6",
+                    "text": "6666666666666"
+                  },
+                  {
+                    "value": "Item 7",
+                    "text": "7777777777777777777777777"
+                  },
+                  {
+                    "value": "Item 8",
+                    "text": "88888888888888888888888888888888888888"
+                  }
+                ],
+                "colCount": 3
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "650"
+      });
+      const question = Selector(".sd-question");
+      await takeElementScreenshot("question-multicolumn-overflow.png", question, t, comparer);
+    });
+  });
+  test("Question title linebreak", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question2",
+                "title": "Line\nbreak",
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "650"
+      });
+      const question = Selector(".sd-question");
+      await takeElementScreenshot("question-title-linebreak.png", question, t, comparer);
+    });
+  });
+
 });

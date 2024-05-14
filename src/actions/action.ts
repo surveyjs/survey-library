@@ -171,13 +171,14 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
       innerPopupModel.toggleVisibility();
     },
     listOptions.allowSelection,
-    listOptions.selectedItem,
-    listOptions.onFilterStringChangedCallback
+    listOptions.selectedItem
   );
   listModel.locOwner = locOwner;
-  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title, () => {
-    listModel.dispose();
-  });
+  listModel.setOnFilterStringChangedCallback(listOptions.onFilterStringChangedCallback);
+
+  const options = popupOptions || {};
+  options.onDispose = () => { listModel.dispose(); };
+  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, options);
   innerPopupModel.displayMode = popupOptions?.displayMode as any;
 
   const newActionOptions = Object.assign({}, actionOptions, {
@@ -201,7 +202,11 @@ export function getActionDropdownButtonTarget(container: HTMLElement): HTMLEleme
 }
 
 export abstract class BaseAction extends Base implements IAction {
+  private static renderedId = 1;
+  private static getNextRendredId(): number { return BaseAction.renderedId++; }
   private cssClassesValue: any;
+  private rendredIdValue = BaseAction.getNextRendredId();
+  private ownerValue: ILocalizableOwner;
   @property() tooltip: string;
   @property() showTitle: boolean;
   @property() innerCss: string;
@@ -212,7 +217,6 @@ export abstract class BaseAction extends Base implements IAction {
   @property() needSeparator: boolean;
   @property() template: string;
   @property({ defaultValue: "large" }) mode: actionModeType;
-  public owner: ILocalizableOwner;
   @property() visibleIndex: number;
   @property() disableTabStop: boolean;
   @property() disableShrink: boolean;
@@ -224,11 +228,19 @@ export abstract class BaseAction extends Base implements IAction {
   public id: string;
   public removePriority: number;
   @property() iconName: string;
-  @property() iconSize: number = 24;
+  @property({ defaultValue: 24 }) iconSize: number;
   @property() css?: string
   minDimension: number;
   maxDimension: number;
 
+  public get renderedId(): number { return this.rendredIdValue; }
+  public get owner(): ILocalizableOwner { return this.ownerValue; }
+  public set owner(val: ILocalizableOwner) {
+    if (val !== this.owner) {
+      this.ownerValue = val;
+      this.locStrsChanged();
+    }
+  }
   public get visible(): boolean {
     return this.getVisible();
   }
@@ -339,9 +351,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
-        if (key !== "locTitle") {
-          (<any>this)[key] = (<any>innerItem)[key];
-        }
+        if (key === "locTitle" || key === "title" && !!this.locTitle && !!this.title) continue;
+        (<any>this)[key] = (<any>innerItem)[key];
       }
     }
     if (!!this.locTitleName) {
@@ -458,6 +469,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return this._component;
   }
   public dispose(): void {
+    this.updateCallback = undefined;
     this.action = undefined;
     super.dispose();
     if (this.popupModel) {

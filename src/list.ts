@@ -15,6 +15,7 @@ export let defaultListCss = {
   itemWithIcon: "sv-list__item--with-icon",
   itemDisabled: "sv-list__item--disabled",
   itemFocused: "sv-list__item--focused",
+  itemTextWrap: "sv-list__item-text--wrap",
   itemIcon: "sv-list__item-icon",
   itemSeparator: "sv-list__item-separator",
   itemBody: "sv-list__item-body",
@@ -37,6 +38,7 @@ export interface IListModel {
 export class ListModel<T extends BaseAction = Action> extends ActionContainer<T> {
   private listContainerHtmlElement: HTMLElement;
   private loadingIndicatorValue: T;
+  private onFilterStringChangedCallback?: (text: string) => void;
 
   @property({
     defaultValue: true,
@@ -58,6 +60,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   @property({ defaultValue: true }) isAllDataLoaded: boolean;
   @property({ defaultValue: false }) showSearchClearButton: boolean;
   @property({ defaultValue: true }) renderElements: boolean;
+  @property({ defaultValue: false }) textWrapEnabled: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
@@ -105,7 +108,6 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     public onSelectionChanged: (item: T, ...params: any[]) => void,
     public allowSelection: boolean,
     selectedItem?: IAction,
-    private onFilterStringChangedCallback?: (text: string) => void,
     public elementId?: string
   ) {
     super();
@@ -113,10 +115,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.selectedItem = selectedItem;
   }
   private onTextSearchCallback: (item: T, textToSearch: string) => boolean;
-  public setOnFilterStringChangedCallback(callback: (text: string) => void) {
+  public setOnFilterStringChangedCallback(callback: (text: string) => void): void {
     this.onFilterStringChangedCallback = callback;
   }
-  public setOnTextSearchCallback(callback: (item: T, textToSearch: string) => boolean) {
+  public setOnTextSearchCallback(callback: (item: T, textToSearch: string) => boolean): void {
     this.onTextSearchCallback = callback;
   }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
@@ -178,6 +180,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
       .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
       .append(this.cssClasses.itemSelected, this.isItemSelected(itemValue))
+      .append(this.cssClasses.itemTextWrap, this.textWrapEnabled)
       .append(itemValue.css)
       .toString();
   };

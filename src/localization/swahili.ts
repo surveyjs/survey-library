@@ -69,6 +69,7 @@ export var swahiliStrings = {
   savingData: "Matokeo yamehifadhiwa kwa seva...",
   savingDataError: "Kosa limetokea na hatukuweza kuhifadhi matokeo.",
   savingDataSuccess: "Matokeo yamehifadhiwa!",
+  savingExceedSize: "Jibu lako ni zaidi ya 64KB. Tafadhali punguza ukubwa wa faili yako na jaribu tena au wasiliana na mmiliki wa utafiti.",
   saveAgainButton: "Jaribu tena",
   timerMin: "dakika",
   timerSec: "sekunde",
@@ -80,6 +81,7 @@ export var swahiliStrings = {
   timerLimitSurvey: "Umetumia {0} ya {1} kwa jumla.",
   clearCaption: "Ondoa",
   signaturePlaceHolder: "Ingia hapa",
+  signaturePlaceHolderReadOnly: "Hakuna saini",
   chooseFileCaption: "Chagua faili",
   takePhotoCaption: "Chukua Picha",
   photoPlaceholder: "Bonyeza kitufe hapa chini ili kupiga picha kwa kutumia kamera.",
@@ -138,4 +140,5 @@ surveyLocalization.localeNames["sw"] = "swahili";
 // ok: "OK" => "Sawa kabisa"
 // cancel: "Cancel" => "Katisha"
 // refuseItemText: "Refuse to answer" => "Kukataa kujibu"
-// dontKnowItemText: "Don't know" => "Sijui"
+// dontKnowItemText: "Don't know" => "Sijui"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jibu lako ni zaidi ya 64KB. Tafadhali punguza ukubwa wa faili yako na jaribu tena au wasiliana na mmiliki wa utafiti."
+// signaturePlaceHolderReadOnly: "No signature" => "Hakuna saini"

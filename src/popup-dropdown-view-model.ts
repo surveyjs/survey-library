@@ -6,6 +6,7 @@ import { PopupBaseViewModel } from "./popup-view-model";
 import { IsTouch } from "./utils/devices";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   private scrollEventCallBack = (event: any) => {
@@ -22,8 +23,13 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.isTablet = width >= PopupDropdownViewModel.tabletSizeBreakpoint;
   }
   private resizeEventCallback = () => {
-    const visualViewport = window.visualViewport;
-    document.documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
+    if(!DomWindowHelper.isAvailable()) return;
+
+    const visualViewport = DomWindowHelper.getVisualViewport();
+    const documentElement = DomDocumentHelper.getDocumentElement();
+    if(!!documentElement && !!visualViewport) {
+      documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
+    }
   }
   private resizeWindowCallback = () => {
     if(!this.isOverlay) {
@@ -46,7 +52,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     if (!popupContainer) return;
     const fixedPopupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer) as HTMLElement;
     const scrollContent = <HTMLElement>popupContainer.querySelector(this.scrollingContentSelector);
-    const popupComputedStyle = window.getComputedStyle(popupContainer);
+    const popupComputedStyle = DomDocumentHelper.getComputedStyle(popupContainer);
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
     let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
@@ -56,15 +62,15 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
     let actualHorizontalPosition = this.getActualHorizontalPosition();
 
-    if (!!window) {
-      const heightValues = [height, window.innerHeight * 0.9, window.visualViewport?.height];
+    if (DomWindowHelper.isAvailable()) {
+      const heightValues = [height, DomWindowHelper.getInnerHeight() * 0.9, DomWindowHelper.getVisualViewport()?.height];
       height = Math.ceil(Math.min(...heightValues.filter((each) => typeof each === "number")));
       verticalPosition = PopupUtils.updateVerticalPosition(
         targetElementRect,
         height,
         this.model.verticalPosition,
         this.model.showPointer,
-        window.innerHeight
+        DomWindowHelper.getInnerHeight()
       );
     }
     this.popupDirection = PopupUtils.calculatePopupDirection(
@@ -81,11 +87,11 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       this.model.positionMode
     );
 
-    if (!!window) {
+    if (DomWindowHelper.isAvailable()) {
       const newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(
         pos.top,
         height,
-        window.innerHeight,
+        DomWindowHelper.getInnerHeight(),
         verticalPosition
       );
       if (!!newVerticalDimensions) {
@@ -100,7 +106,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
           pos.left,
           width,
-          window.innerWidth,
+          DomWindowHelper.getInnerWidth(),
           actualHorizontalPosition,
           this.model.positionMode,
           { left: marginLeft, right: marginRight }
@@ -136,8 +142,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   protected getActualHorizontalPosition(): "left" | "center" | "right" {
     let actualHorizontalPosition = this.model.horizontalPosition;
-    if ("undefined" !== typeof document) {
-      let isRtl = !!document && document.defaultView.getComputedStyle(document.body).direction == "rtl";
+    if (DomDocumentHelper.isAvailable()) {
+      let isRtl = DomDocumentHelper.getComputedStyle(DomDocumentHelper.getBody()).direction == "rtl";
       if (isRtl) {
         if (this.model.horizontalPosition === "left") {
           actualHorizontalPosition = "right";
@@ -154,7 +160,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       .append("sv-popup--dropdown-overlay", this.isOverlay && this.model.overlayDisplayMode !== "overlay")
       .append("sv-popup--tablet", this.isTablet && this.isOverlay)
       .append("sv-popup--show-pointer", !this.isOverlay && this.showHeader)
-      .append(`sv-popup--${this.popupDirection}`, !this.isOverlay && this.showHeader);
+      .append(`sv-popup--${this.popupDirection}`, !this.isOverlay && (this.showHeader || this.popupDirection == "top" || this.popupDirection == "bottom"));
   }
   protected getShowHeader(): boolean {
     return this.model.showPointer && !this.isOverlay;
@@ -194,20 +200,21 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
 
     this.switchFocus();
-    window.addEventListener("resize", this.resizeWindowCallback);
+    DomWindowHelper.addEventListener("resize", this.resizeWindowCallback);
     if (this.shouldCreateResizeCallback) {
-      window.visualViewport.addEventListener("resize", this.resizeEventCallback);
+      DomWindowHelper.getVisualViewport().addEventListener("resize", this.resizeEventCallback);
       if (this.container) {
         this.container.addEventListener("touchstart", this.touchStartEventCallback);
         this.container.addEventListener("touchmove", this.touchMoveEventCallback);
       }
-      this.calculateIsTablet(window.innerWidth, window.innerHeight);
+      this.calculateIsTablet(DomWindowHelper.getInnerWidth(), DomWindowHelper.getInnerHeight());
       this.resizeEventCallback();
     }
-    window.addEventListener("scroll", this.scrollEventCallBack);
+    DomWindowHelper.addEventListener("scroll", this.scrollEventCallBack);
+    this._isPositionSetValue = true;
   }
   private get shouldCreateResizeCallback(): boolean {
-    return !!window.visualViewport && this.isOverlay && IsTouch;
+    return !!DomWindowHelper.getVisualViewport() && this.isOverlay && IsTouch;
   }
 
   public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {
@@ -226,15 +233,15 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   public updateOnHiding(): void {
     super.updateOnHiding();
-    window.removeEventListener("resize", this.resizeWindowCallback);
+    DomWindowHelper.removeEventListener("resize", this.resizeWindowCallback);
     if (this.shouldCreateResizeCallback) {
-      window.visualViewport.removeEventListener("resize", this.resizeEventCallback);
+      DomWindowHelper.getVisualViewport().removeEventListener("resize", this.resizeEventCallback);
       if (this.container) {
         this.container.removeEventListener("touchstart", this.touchStartEventCallback);
         this.container.removeEventListener("touchmove", this.touchMoveEventCallback);
       }
     }
-    window.removeEventListener("scroll", this.scrollEventCallBack);
+    DomWindowHelper.removeEventListener("scroll", this.scrollEventCallBack);
 
     if (!this.isDisposed) {
       this.top = undefined;

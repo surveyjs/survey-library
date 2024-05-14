@@ -7,14 +7,15 @@
         [attr.aria-required]="model.a11y_input_ariaRequired"
         [attr.aria-label]="model.a11y_input_ariaLabel"
         [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
-        [attr.aria-invalid]="model.a11y_input_ariaInvalid"
         [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
+        [attr.aria-invalid]="model.a11y_input_ariaInvalid"
+        [attr.aria-errormessage]="model.a11y_input_ariaErrormessage"
         [class]="model.cssClasses.control" [disabled]="model.isInputReadOnly"  [indeterminate]="model.isIndeterminate" [value]="model.booleanValue" [(ngModel)]="model.booleanValue" />
       <div [class]="model.cssClasses.sliderGhost" (click)="model.onLabelClick($event, model.swapOrder)">
         <span [class]="model.getLabelCss(model.swapOrder)" [model]="model.locLabelLeft" sv-ng-string></span>
       </div>
       <div [class]="model.cssClasses.switch" (click)="model.onSwitchClickModel($event)">
-        <span [class]="model.cssClasses.slider">
+        <span [class]="model.cssClasses.slider" [style.marginLeft]="model.thumbMargin">
             <span *ngIf="model.cssClasses.sliderText && model.isDeterminated" [class]="model.cssClasses.sliderText" [model]="model.getCheckedLabel()" sv-ng-string></span>
         </span>
       </div>

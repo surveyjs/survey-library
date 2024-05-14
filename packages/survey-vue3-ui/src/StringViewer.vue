@@ -1,10 +1,10 @@
 <template>
   <span
-    class="sv-string-viewer"
+    :class="className"
     v-if="locString.hasHtml"
     v-html="renderedHtml"
   ></span>
-  <span class="sv-string-viewer" v-else>{{ renderedHtml }}</span>
+  <span :class="className" v-else>{{ renderedHtml }}</span>
 </template>
 
 <script lang="ts" setup>
@@ -14,4 +14,5 @@ const props = defineProps<{
   locString: LocalizableString;
 }>();
 const renderedHtml = useLocString(() => props.locString);
+const className = props.locString.allowLineBreaks ? "sv-string-viewer sv-string-viewer--multiline" : "sv-string-viewer";
 </script>

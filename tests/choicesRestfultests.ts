@@ -1046,7 +1046,7 @@ QUnit.test(
     assert.equal(question.visibleChoices[0].text, "AAA");
     assert.equal(onStrChangedCounter, 1);
     assert.equal(titleQuestion.locTitle.renderedHtml, "test:AAA", "Use title, items are loaded");
-    assert.equal(onPageStrChangedCounter, 1, "for page");
+    assert.equal(onPageStrChangedCounter, 2, "for page and for navigation");
     assert.equal(page.locTitle.renderedHtml, "pagetest:AAA", "Use title, items are loaded, for page");
     question.value = "B";
     assert.equal(titleQuestion.locTitle.renderedHtml, "test:BBB", "Use title, set new value");

@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import * as ko from "knockout";
 import { Base, SurveyModel, SvgRegistry, doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOptions, settings } from "survey-core";
 import { SurveyElement } from "survey-core";
@@ -58,6 +59,13 @@ export class SurveyImplementor extends ImplementorBase {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) this.survey.afterRenderHeader(el);
     };
+    this.survey["koProcessedCompletedHtml"] = <any>ko.observable(this.survey.processedCompletedHtml);
+    (this.survey.locCompletedHtml as any)["koRenderedHtml"].subscribe(() => {
+      this.survey["koProcessedCompletedHtml"](this.survey.processedCompletedHtml);
+    });
+    this.survey.registerPropertyChangedHandlers(["state"],
+      () => { this.survey["koProcessedCompletedHtml"](this.survey.processedCompletedHtml); }
+    );
     this.survey.disposeCallback = () => {
       this.dispose();
     };

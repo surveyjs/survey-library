@@ -19599,3 +19599,33 @@ QUnit.test("showPreview & dynamic panel? single page", function (
   assert.notOk((survey.getQuestionByName("question1") as QuestionPanelDynamicModel).panels[0].showPanelAsPage);
 });
 
+QUnit.test("check panel's visibleRows are updated sync when running condidtions after loading from json", (assert) => {
+  settings.animationEnabled = true;
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "panel",
+        "name": "nps-panel",
+        "elements": [
+          {
+            "type": "rating",
+            "name": "nps-score",
+            "rateMin": 0,
+            "rateMax": 10,
+          },
+          {
+            "type": "comment",
+            "name": "disappointing-experience",
+            "visibleIf": "{nps-score} <= 5",
+          },
+        ]
+      },
+    ],
+    "showQuestionNumbers": false,
+    "questionsOnPageMode": "questionPerPage"
+  });
+  const panel = survey.getPanelByName("nps-panel");
+  assert.equal(panel.visibleRows.length, 1);
+  assert.equal(panel.visibleRows[0].visibleElements[0].name, "nps-score");
+  settings.animationEnabled = false;
+});

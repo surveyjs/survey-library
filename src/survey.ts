@@ -7526,45 +7526,45 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, this.progressBarComponentName)) {
-        const headerLayoutElement = this.findLayoutElement("advanced-header");
-        const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
-        let isBelowHeader = !advHeader || advHeader.hasBackground;
-        if (isStrCiEqual(this.showProgressBar, "aboveHeader")) {
-          isBelowHeader = false;
-        }
-        if (isStrCiEqual(this.showProgressBar, "belowHeader")) {
-          isBelowHeader = true;
-        }
-        if (container === "header" && !isBelowHeader) {
-          layoutElement.index = -150;
-          if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
-            containerLayoutElements.push(layoutElement);
+        if (this.questionsOnPageMode != "singlePage") {
+          const headerLayoutElement = this.findLayoutElement("advanced-header");
+          const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
+          let isBelowHeader = !advHeader || advHeader.hasBackground;
+          if (isStrCiEqual(this.showProgressBar, "aboveHeader")) {
+            isBelowHeader = false;
           }
-        }
-        if (container === "center" && isBelowHeader) {
-          if (!!layoutElement.index) {
-            delete layoutElement.index;
+          if (isStrCiEqual(this.showProgressBar, "belowHeader")) {
+            isBelowHeader = true;
           }
-          if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
-            containerLayoutElements.push(layoutElement);
+          if (container === "header" && !isBelowHeader) {
+            layoutElement.index = -150;
+            if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
+              containerLayoutElements.push(layoutElement);
+            }
           }
-        }
-        if (container === "footer") {
-          if (this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
-            containerLayoutElements.push(layoutElement);
+          if (container === "center" && isBelowHeader) {
+            if (!!layoutElement.index) {
+              delete layoutElement.index;
+            }
+            if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
+              containerLayoutElements.push(layoutElement);
+            }
+          }
+          if (container === "footer") {
+            if (this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
+              containerLayoutElements.push(layoutElement);
+            }
           }
         }
       } else if (isStrCiEqual(layoutElement.id, "buttons-navigation")) {
-        if (this.questionsOnPageMode != "singlePage") {
-          if (container === "contentTop") {
-            if (["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
-              containerLayoutElements.push(layoutElement);
-            }
+        if (container === "contentTop") {
+          if (["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
+            containerLayoutElements.push(layoutElement);
           }
-          if (container === "contentBottom") {
-            if (["bottom", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
-              containerLayoutElements.push(layoutElement);
-            }
+        }
+        if (container === "contentBottom") {
+          if (["bottom", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
+            containerLayoutElements.push(layoutElement);
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {

@@ -19631,8 +19631,10 @@ QUnit.test("check panel's visibleRows are updated sync when running condidtions 
   settings.animationEnabled = false;
 });
 
-QUnit.test("getContainerContent - do not show buttons navigation in the single page mode", function (assert) {
+QUnit.test("getContainerContent - do not show buttons progress in the single page mode", function (assert) {
   const json = {
+    showNavigationButtons: "none",
+    showProgressBar: "auto",
     pages: [
       {
         "elements": [
@@ -19650,21 +19652,23 @@ QUnit.test("getContainerContent - do not show buttons navigation in the single p
 
   assert.equal(survey.questionsOnPageMode, "standard");
   assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("center"), [{
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
+  }], "Progress is shown");
   assert.deepEqual(getContainerContent("footer"), [], "");
   assert.deepEqual(getContainerContent("contentTop"), [], "");
-  assert.deepEqual(getContainerContent("contentBottom"), [{
-    "component": "sv-action-bar",
-    "id": "buttons-navigation"
-  }], "Buttons navigation is shown");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "");
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
 
   survey.questionsOnPageMode = "singlePage";
 
   assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("center"), [], "Buttons progress is not shown in the single page mode");
   assert.deepEqual(getContainerContent("footer"), [], "");
   assert.deepEqual(getContainerContent("contentTop"), [], "");
-  assert.deepEqual(getContainerContent("contentBottom"), [], "No buttons navigation in the single page mode");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "");
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
 });

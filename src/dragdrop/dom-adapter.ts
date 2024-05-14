@@ -157,10 +157,9 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     const clientX = event.clientX;
     const clientY = event.clientY;
 
-    if (!!this.fitToContainer) {
-      rootElementX -= rootElementScrollLeft;
-      rootElementY -= rootElementScrollTop;
-    }
+    //https://github.com/surveyjs/survey-creator/issues/5484
+    rootElementX -= rootElementScrollLeft;
+    rootElementY -= rootElementScrollTop;
 
     const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(clientY, shortcutHeight, shortcutYOffset);
     const shortcutRightCoordinate = this.getShortcutRightCoordinate(clientX, shortcutWidth, shortcutXOffset);

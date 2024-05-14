@@ -216,7 +216,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       getKey(item: ItemValue) {
         return item.value;
       },
-      isAnimationEnabled: () => this.animationAllowed && !this.isDesignMode && this.isVisible,
+      isAnimationEnabled: () => this.animationAllowed && !this.isDesignMode && this.isVisible && !!this.domNode,
       getReorderOptions: (item: ItemValue, movedForward: boolean) => {
         let cssClass = "";
         if(item !== this.currentDropTarget) {
@@ -249,7 +249,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
           }
         }
         const index = isRankingChoices ? this.renderedRankingChoices.indexOf(item) : this.renderedUnRankingChoices.indexOf(item);
-        return this.getWrapperElement()?.querySelector(`${containerSelector} [data-sv-drop-target-ranking-item='${index}']`);
+        return this.domNode?.querySelector(`${containerSelector} [data-sv-drop-target-ranking-item='${index}']`);
       }
     };
   }
@@ -457,6 +457,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
   //cross framework destroy
   public beforeDestroyQuestionElement(el: HTMLElement): void {
+    this.domNode = undefined;
     super.beforeDestroyQuestionElement(el);
   }
 
@@ -532,6 +533,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private focusItem = (index: number, container?: string) => {
+    if(!this.domNode) return;
     if (this.selectToRankEnabled && container) {
       const containerSelector = "[data-ranking='" + container + "']";
       const itemsNodes: any = this.domNode.querySelectorAll(

@@ -19544,7 +19544,8 @@ QUnit.test("showPreview & updateProgress & updateVisibleIndexes", function (
       },
       {
         elements: [
-          { type: "paneldynamic", name: "q2", panelCount: 10,
+          {
+            type: "paneldynamic", name: "q2", panelCount: 10,
             elements: [{ type: "text", name: "q3", visibleIf: "{q1} = 1" }]
           },
           { type: "text", name: "q4", visibleIf: "{q1} = 1" }
@@ -19556,10 +19557,10 @@ QUnit.test("showPreview & updateProgress & updateVisibleIndexes", function (
   let progressCounter = 0;
   let visibleChangedCounter = 0;
   survey.onProgressText.add((sender, options) => {
-    progressCounter ++;
+    progressCounter++;
   });
   survey.onQuestionVisibleChanged.add((sender, options) => {
-    visibleChangedCounter ++;
+    visibleChangedCounter++;
   });
   survey.showPreview();
   assert.equal(progressCounter, 1, "progressCounter");
@@ -19628,4 +19629,42 @@ QUnit.test("check panel's visibleRows are updated sync when running condidtions 
   assert.equal(panel.visibleRows.length, 1);
   assert.equal(panel.visibleRows[0].visibleElements[0].name, "nps-score");
   settings.animationEnabled = false;
+});
+
+QUnit.test("getContainerContent - do not show buttons navigation in the single page mode", function (assert) {
+  const json = {
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  const getContainerContent = getContainerContentFunction(survey);
+
+  assert.equal(survey.questionsOnPageMode, "standard");
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "buttons-navigation"
+  }], "Buttons navigation is shown");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+
+  survey.questionsOnPageMode = "singlePage";
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "No buttons navigation in the single page mode");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
 });

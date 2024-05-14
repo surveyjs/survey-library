@@ -6556,7 +6556,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.checkIsCurrentPageHasErrors(false)) return;
     const curPage = this.currentPage;
     const goNextPage = () => {
-      if(curPage !== this.currentPage) return;
+      if (curPage !== this.currentPage) return;
       if (!this.isLastPage) {
         this.nextPage();
       } else {
@@ -7555,14 +7555,16 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (isStrCiEqual(layoutElement.id, "buttons-navigation")) {
-        if (container === "contentTop") {
-          if (["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
-            containerLayoutElements.push(layoutElement);
+        if (this.questionsOnPageMode != "singlePage") {
+          if (container === "contentTop") {
+            if (["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
+              containerLayoutElements.push(layoutElement);
+            }
           }
-        }
-        if (container === "contentBottom") {
-          if (["bottom", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
-            containerLayoutElements.push(layoutElement);
+          if (container === "contentBottom") {
+            if (["bottom", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
+              containerLayoutElements.push(layoutElement);
+            }
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {

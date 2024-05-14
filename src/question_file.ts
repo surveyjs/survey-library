@@ -1,4 +1,4 @@
-import { IPlainDataOptions } from "./base-interfaces";
+import { IPlainDataOptions, ISurveyImpl } from "./base-interfaces";
 import { IQuestionPlainData, Question } from "./question";
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -368,7 +368,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     super.updateElementCssCore(cssClasses);
     this.prevFileAction.iconName = this.cssClasses.leftIconId;
     this.nextFileAction.iconName = this.cssClasses.rightIconId;
-    //this.mobileFileNavigator.cssClasses = this.survey.getCss().actionBar;
+    this.updateCurrentMode();
   }
   private getFileIndexCaption(): string {
     return this.getLocalizationFormatString("indexText", this.indexToShow + 1, this.pagesCount);
@@ -933,11 +933,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.actionsContainer.cssClasses.itemAsIcon = classes.contextButton;
     this.actionsContainer.containerCss = classes.actionsContainer;
     return classes;
-  }
-  //todo remove in v2
-  public updateElementCss(reNew?: boolean): void {
-    super.updateElementCss(reNew);
-    this.updateCurrentMode();
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();

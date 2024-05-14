@@ -82,9 +82,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const isFromContainer = containerType === "from";
 
     if (isToContainer) {
-      isEmpty = this.rankingChoices.length === 0;
+      isEmpty = this.renderedRankingChoices.length === 0;
     } else if (isFromContainer) {
-      isEmpty = this.unRankingChoices.length === 0;
+      isEmpty = this.renderedUnRankingChoices.length === 0;
     }
 
     return new CssClassBuilder()
@@ -225,14 +225,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         return { cssClass };
       },
       getLeaveOptions: (item: ItemValue) => {
-        const choices = isRankingChoices ? this.rankingChoices : this.unRankingChoices;
+        const choices = isRankingChoices ? this.renderedRankingChoices : this.renderedUnRankingChoices;
         if(this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {
           return { cssClass: "sv-ranking-item--animate-item-removing-empty" };
         }
         return { cssClass: "sv-ranking-item--animate-item-removing" };
       },
       getEnterOptions: (item: ItemValue) => {
-        const choices = isRankingChoices ? this.rankingChoices : this.unRankingChoices;
+        const choices = isRankingChoices ? this.renderedRankingChoices : this.renderedUnRankingChoices;
         if(this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {
           return { cssClass: "sv-ranking-item--animate-item-adding-empty" };
         }

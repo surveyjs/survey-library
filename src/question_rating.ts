@@ -862,7 +862,7 @@ export class QuestionRatingModel extends Question {
     return true;
   }
   protected onBeforeSetCompactRenderer(): void {
-    if (!this.dropdownListModel) {
+    if (!this.dropdownListModelValue) {
       this.dropdownListModel = new DropdownListModel(this);
     }
   }
@@ -883,6 +883,9 @@ export class QuestionRatingModel extends Question {
     this.updateElementCss();
   }
   public get dropdownListModel(): DropdownListModel {
+    if (this.renderAs === "dropdown") {
+    this.onBeforeSetCompactRenderer();
+    }
     return this.dropdownListModelValue;
   }
   protected updateCssClasses(res: any, css: any) {

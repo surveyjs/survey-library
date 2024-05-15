@@ -158,18 +158,34 @@ const getProcessedCompletedHtml = () => {
   return processedCompletedHtmlValue.value;
 };
 
-useBase(() => vueSurvey.value);
-
-onMounted(() => {
-  if (!vueSurvey.value) return;
+const setupSurvey = (model:SurveyModel) => {
+  if (!model) return;
   var el = root.value;
-  if (el) vueSurvey.value.afterRenderSurvey(el);
-  vueSurvey.value.renderCallback = () => {
+  if (el) model.afterRenderSurvey(el);
+  model.renderCallback = () => {
     updater.value++;
     getCurrentInstance()?.proxy?.$forceUpdate();
   };
-  vueSurvey.value.startTimerFromUI();
+  model.startTimerFromUI();
+};
+
+useBase(
+  () => vueSurvey.value,
+  (newValue: SurveyModel, oldValue?: SurveyModel) => {
+    if (newValue && oldValue) {
+      setupSurvey(newValue);
+    }
+  },
+  (model: SurveyModel) => {
+    model.stopTimer();
+    model.renderCallback = undefined as any;
+  }
+);
+
+onMounted(() => {
+  setupSurvey(vueSurvey.value);
 });
+
 onUnmounted(() => {
   vueSurvey.value.stopTimer();
   vueSurvey.value.renderCallback = undefined as any;

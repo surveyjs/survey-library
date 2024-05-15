@@ -18,9 +18,6 @@ export class DropdownComponent extends BaseAngular implements OnInit {
 
   override ngOnInit(): void {
     super.ngOnInit();
-    if (!this.model.dropdownListModel) {
-      this.model.dropdownListModel = new DropdownListModel(this.model);
-    }
   }
 
   click(event: any) {

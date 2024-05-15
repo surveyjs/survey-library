@@ -130,10 +130,6 @@ import { computed, onMounted, onUpdated, ref } from "vue";
 const props = defineProps<{ question: Question }>();
 const inputElement = ref<HTMLElement>(null as any);
 const model = computed(() => {
-  const question = props.question;
-  if (!question.dropdownListModel) {
-    question.dropdownListModel = new DropdownListModel(question);
-  }
   return props.question.dropdownListModel;
 });
 const click = (event: any) => {

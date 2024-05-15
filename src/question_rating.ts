@@ -861,6 +861,11 @@ export class QuestionRatingModel extends Question {
   protected supportResponsiveness(): boolean {
     return true;
   }
+  protected onBeforeSetCompactRenderer(): void {
+    if (!this.dropdownListModel) {
+      this.dropdownListModel = new DropdownListModel(this);
+    }
+  }
   protected getCompactRenderAs(): string {
     return (this.displayMode == "buttons") ? "default" : "dropdown";
   }

@@ -1,5 +1,5 @@
 <template>
-  <div :class="page.css">
+  <div :class="page.css" :id="page.id">
     <sv-file-item
       v-for="item of page.items"
       :key="item"

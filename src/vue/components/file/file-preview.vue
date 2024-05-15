@@ -5,8 +5,8 @@
   >
       <sv-file-page
         v-if="question.supportFileNavigator"
-        v-for="page in question.pages"
-        :key="page"
+        v-for="page in question.renderedPages"
+        :key="page.id"
         :page="page"
         :question="question"
       ></sv-file-page>

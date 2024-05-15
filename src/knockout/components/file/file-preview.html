@@ -1,7 +1,7 @@
 <!-- ko if: question.koHasValue && question.showPreviewContainer -->
 <div data-bind="css: question.cssClasses.fileList, visible: question.koHasValue">
   <!-- ko if: question.supportFileNavigator -->
-  <!-- ko foreach: question.pages -->
+  <!-- ko foreach: question.renderedPages -->
   <!-- ko component: { name: 'sv-file-page', params: { model: $data } } -->
   <!-- /ko -->
   <!-- /ko -->

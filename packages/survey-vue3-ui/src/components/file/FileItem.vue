@@ -1,5 +1,5 @@
 <template>
-  <span v-show="item" :class="question.cssClasses.preview">
+  <span v-show="item" :class="question.cssClasses.previewItem">
     <div
       v-if="item.name && question.cssClasses.fileSign"
       :class="question.cssClasses.fileSign"

@@ -1,5 +1,5 @@
 <!-- ko with: model -->
-<div data-bind="css: css" >
+<div data-bind="css: css, attr: { id: id }">
   <!-- ko foreach: $data.items -->
       <!-- ko component: { name: 'sv-file-item', params: { item: $data, question: question } } -->
       <!-- /ko -->

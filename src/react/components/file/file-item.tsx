@@ -36,7 +36,7 @@ export class SurveyFileItem extends SurveyElementBase<{ question: QuestionFileMo
     const val = this.item;
     return (
       <span
-        className={this.question.cssClasses.preview}
+        className={this.question.cssClasses.previewItem}
       >
         {this.renderFileSign(this.question.cssClasses.fileSign, val)}
         <div className={this.question.getImageWrapperCss(val)}>

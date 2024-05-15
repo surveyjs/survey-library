@@ -15,6 +15,7 @@ import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { getRenderedSize } from "./utils/utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { AnimationTab, IAnimationConsumer } from "./utils/animation";
 
 export function dataUrl2File(dataUrl: string, fileName: string, type: string) {
   const str = atob(dataUrl.split(",")[1]);
@@ -145,30 +146,19 @@ export class QuestionFileModelBase extends Question {
  */
 
 export class QuestionFilePage extends Base {
+  private static pageCounter = 0;
+  private static getId() {
+    return "sv_sfp_" + QuestionFilePage.pageCounter++;
+  }
   @propertyArray({}) public items: Array<any>
+  public id: string;
   constructor(private question: QuestionFileModel, private index: number) {
     super();
-  }
-  private get nextPageIndex() {
-    return this.index == this.question.pages.length - 1 ? 0 : this.index + 1;
-  }
-  private get prevPageIndex() {
-    return this.index == 0 ? this.question.pages.length - 1 : this.index - 1;
+    this.id = QuestionFilePage.getId();
   }
   get css(): string {
-    const isLeavingRight = this.prevPageIndex == this.question.indexToShow && this.question.navigationDirection == "left";
-    const isLeavingLeft = this.nextPageIndex == this.question.indexToShow && this.question.navigationDirection == "right";
-    const isAnimationEnabled = settings.animationEnabled;
-    const pageClass = this.question.cssClasses.page;
-    return new CssClassBuilder()
-      .append(pageClass)
-      .append(`${pageClass}--enter-from-left`, isAnimationEnabled && this.index === this.question.indexToShow && (this.question.navigationDirection == "left" || this.question.navigationDirection == "left-delete"))
-      .append(`${pageClass}--enter-from-right`, isAnimationEnabled && this.index === this.question.indexToShow && this.question.navigationDirection == "right")
-      .append(`${pageClass}--leave-to-left`, isAnimationEnabled && isLeavingLeft)
-      .append(`${pageClass}--leave-to-right`, isAnimationEnabled && isLeavingRight)
-      .append(`${pageClass}--hidden`, (this.index !== this.question.indexToShow) && (!isAnimationEnabled || !(isLeavingLeft || isLeavingRight))).toString();
+    return this.question.cssClasses.page;
   }
-
 }
 export class QuestionFileModel extends QuestionFileModelBase {
   @property() isDragging: boolean = false;
@@ -176,7 +166,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @propertyArray({}) public pages: QuestionFilePage[];
 
   navigationDirection: "left" | "right" | "left-delete";
-  @property({ defaultValue: 0 }) indexToShow: number;
+  @property({ defaultValue: 0, onSet: (val, target) =>{
+    target.updateRenderedPages();
+  } }) indexToShow: number;
   @property({
     defaultValue: 1, onSet: (_, target) => {
       target.updateFileNavigator();
@@ -414,9 +406,16 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.indexToShow = this.previewValue.length && ((this.indexToShow + this.pagesCount) % this.pagesCount) || 0;
     this.fileIndexAction.title = this.getFileIndexCaption();
   }
+  private updateRenderedPages() {
+    if(this.pages && this.pages[this.indexToShow]) {
+      this.renderedPages = [this.pages[this.indexToShow]];
+    }
+  }
   private updatePages() {
+    this.blockAnimations();
     let currentPage: QuestionFilePage;
     this.pages = [];
+    this.renderedPages = [];
     this.previewValue.forEach((val, index) => {
       if(index % this.pageSize == 0) {
         currentPage = new QuestionFilePage(this, this.pages.length);
@@ -424,6 +423,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
       }
       currentPage.items.push(val);
     });
+    this.releaseAnimations();
+    this.updateRenderedPages();
   }
   private prevPreviewLength = 0;
   private previewValueChanged() {
@@ -1014,6 +1015,45 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private getFileListSelector(): string {
     return classesToSelector(this.cssClasses.fileList);
   }
+
+  @propertyArray() private _renderedPages: Array<QuestionFilePage> = [];
+
+  public get renderedPages(): Array<QuestionFilePage> {
+    return this._renderedPages;
+  }
+  public set renderedPages(val: Array<QuestionFilePage>) {
+    this.pagesAnimation.sync(val);
+  }
+
+  private getPagesAnimationOptions(): IAnimationConsumer<[QuestionFilePage]> {
+    return {
+      getEnterOptions: (page: QuestionFilePage) => {
+        const pageClass = this.cssClasses.page;
+        return { cssClass: pageClass ? new CssClassBuilder()
+          .append(`${pageClass}--enter-from-left`, this.navigationDirection == "left" || this.navigationDirection == "left-delete")
+          .append(`${pageClass}--enter-from-right`, this.navigationDirection == "right").toString(): ""
+        };
+      },
+      getLeaveOptions: (page: QuestionFilePage) => {
+        const pageClass = this.cssClasses.page;
+        return {
+          cssClass: pageClass ? new CssClassBuilder()
+            .append(`${pageClass}--leave-to-left`, this.navigationDirection == "right")
+            .append(`${pageClass}--leave-to-right`, this.navigationDirection == "left").toString() : ""
+        };
+      },
+      getAnimatedElement: (page: QuestionFilePage) => {
+        return this.rootElement?.querySelector(`#${page.id}`);
+      },
+      isAnimationEnabled: () => {
+        return this.animationAllowed && !!this.rootElement;
+      }
+    };
+  }
+  private pagesAnimation = new AnimationTab<QuestionFilePage>(this.getPagesAnimationOptions(), (val) => {
+    this._renderedPages = val;
+  }, () => this.renderedPages);
+
   private calcAvailableItemsCount = (availableWidth: number, itemWidth: number, gap: number): number => {
     let itemsCount = Math.floor(availableWidth / (itemWidth + gap));
     if ((itemsCount + 1) * (itemWidth + gap) - gap <= availableWidth) itemsCount++;
@@ -1037,7 +1077,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
         if(fileListElement) {
           const firstVisiblePage = Array.from(fileListElement.querySelectorAll(classesToSelector(this.cssClasses.page))).filter((_, index) => this.isPageVisible(index))[0];
-          const firstVisibleItem = firstVisiblePage.querySelector(classesToSelector(this.cssClasses.preview));
+          const firstVisibleItem = firstVisiblePage.querySelector(classesToSelector(this.cssClasses.previewItem));
 
           this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisiblePage).gap));
           if(firstVisibleItem) {
@@ -1052,6 +1092,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
     return false;
   }
+
   //#region
   // web-based methods
   private rootElement: HTMLElement;

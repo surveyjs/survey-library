@@ -573,6 +573,7 @@ export var settings = {
     dontKnowItem: [3],
     otherItem: [4]
   },
+  choicesSeparator: ", ",
   /**
    * A list of supported validators by question type.
    */

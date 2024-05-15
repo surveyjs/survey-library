@@ -1156,7 +1156,7 @@ export class QuestionSelectBase extends Question {
         }
       }
     }
-    return strs.join(", ");
+    return strs.join(settings.choicesSeparator);
   }
   private getItemDisplayValue(item: ItemValue, val?: any): string {
     if (item === this.otherItem) {

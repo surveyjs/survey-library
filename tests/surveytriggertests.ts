@@ -729,3 +729,95 @@ QUnit.test("runexpression trigger and isNextPage", function(assert) {
 
   FunctionFactory.Instance.unregister("calcCust");
 });
+QUnit.test("runexpression trigger and calculated values, Bug#8273 Case#1", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      }
+    ],
+    calculatedValues: [
+      { name: "calc1", expression: "{q1} = 'abc'" }
+    ],
+    triggers: [
+      {
+        "type": "runexpression",
+        "expression": "{calc1} = true",
+        "runExpression": "10",
+        "setToName": "q2"
+      },
+      {
+        "type": "runexpression",
+        "expression": "{calc1} = false",
+        "runExpression": "20",
+        "setToName": "q2"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const calcVal = survey.calculatedValues[0];
+  assert.equal(calcVal.value, false, "calcValue.val #1");
+  assert.equal(q2.value, 20, "q2.value #1");
+  q1.value = "a";
+  assert.equal(calcVal.value, false, "calcValue.val #2");
+  assert.equal(q2.value, 20, "q2.value #2");
+  q1.value = "abc";
+  assert.equal(calcVal.value, true, "calcValue.val #3");
+  assert.equal(q2.value, 10, "q2.value #3");
+  q1.value = "abcd";
+  assert.equal(calcVal.value, false, "calcValue.val #4");
+  assert.equal(q2.value, 20, "q2.value #4");
+});
+QUnit.test("runexpression trigger and calculated values, Bug#8273 Case#2", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      }
+    ],
+    calculatedValues: [
+      { name: "calcVal.1", expression: "{q1} = 'abc'" },
+      { name: "calcVal.2", expression: "{q1} = 'd'" }
+    ],
+    triggers: [
+      {
+        "type": "runexpression",
+        "expression": "{calcVal.1} = true",
+        "runExpression": "10",
+        "setToName": "q2"
+      },
+      {
+        "type": "runexpression",
+        "expression": "{calcVal.2} = true",
+        "runExpression": "20",
+        "setToName": "q2"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const calcVal1 = survey.calculatedValues[0];
+  const calcVal2 = survey.calculatedValues[1];
+  assert.equal(calcVal1.value, false, "calcVal1.val #1");
+  assert.equal(calcVal2.value, false, "calcVal2.val #1");
+  assert.equal(q2.value, undefined, "q2.value #1");
+  q1.value = "a";
+  assert.equal(calcVal1.value, false, "calcVal1.val #2");
+  assert.equal(calcVal2.value, false, "calcVal2.val #2");
+  assert.equal(q2.value, undefined, "q2.value #2");
+  q1.value = "abc";
+  assert.equal(calcVal1.value, true, "calcVal1.val #3");
+  assert.equal(calcVal2.value, false, "calcVal2.val #3");
+  assert.equal(q2.value, "10", "q2.value #3");
+  q1.value = "d";
+  assert.equal(calcVal1.value, false, "calcVal1.val #4");
+  assert.equal(calcVal2.value, true, "calcVal2.val #4");
+  assert.equal(q2.value, "20", "q2.value #4");
+});

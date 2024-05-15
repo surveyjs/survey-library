@@ -6378,14 +6378,20 @@ export class SurveyModel extends SurveyElementCore
    */
   public setVariable(name: string, newValue: any): void {
     if (!name) return;
+    const oldValue = this.getVariable(name);
     if (!!this.valuesHash) {
       delete this.valuesHash[name];
     }
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
-    this.runConditionOnValueChanged(name, newValue);
-    this.onVariableChanged.fire(this, { name: name, value: newValue });
+    if(!Helpers.isTwoValueEquals(oldValue, newValue)) {
+      this.runConditionOnValueChanged(name, newValue);
+      var triggerKeys: { [index: string]: any } = {};
+      triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
+      this.checkTriggers(triggerKeys, false, false, name);
+      this.onVariableChanged.fire(this, { name: name, value: newValue });
+    }
   }
   /**
    * Returns the names of all variables in the survey.
@@ -6556,7 +6562,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.checkIsCurrentPageHasErrors(false)) return;
     const curPage = this.currentPage;
     const goNextPage = () => {
-      if(curPage !== this.currentPage) return;
+      if (curPage !== this.currentPage) return;
       if (!this.isLastPage) {
         this.nextPage();
       } else {
@@ -7526,32 +7532,34 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, this.progressBarComponentName)) {
-        const headerLayoutElement = this.findLayoutElement("advanced-header");
-        const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
-        let isBelowHeader = !advHeader || advHeader.hasBackground;
-        if (isStrCiEqual(this.showProgressBar, "aboveHeader")) {
-          isBelowHeader = false;
-        }
-        if (isStrCiEqual(this.showProgressBar, "belowHeader")) {
-          isBelowHeader = true;
-        }
-        if (container === "header" && !isBelowHeader) {
-          layoutElement.index = -150;
-          if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
-            containerLayoutElements.push(layoutElement);
+        if (this.questionsOnPageMode != "singlePage") {
+          const headerLayoutElement = this.findLayoutElement("advanced-header");
+          const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
+          let isBelowHeader = !advHeader || advHeader.hasBackground;
+          if (isStrCiEqual(this.showProgressBar, "aboveHeader")) {
+            isBelowHeader = false;
           }
-        }
-        if (container === "center" && isBelowHeader) {
-          if (!!layoutElement.index) {
-            delete layoutElement.index;
+          if (isStrCiEqual(this.showProgressBar, "belowHeader")) {
+            isBelowHeader = true;
           }
-          if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
-            containerLayoutElements.push(layoutElement);
+          if (container === "header" && !isBelowHeader) {
+            layoutElement.index = -150;
+            if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
+              containerLayoutElements.push(layoutElement);
+            }
           }
-        }
-        if (container === "footer") {
-          if (this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
-            containerLayoutElements.push(layoutElement);
+          if (container === "center" && isBelowHeader) {
+            if (!!layoutElement.index) {
+              delete layoutElement.index;
+            }
+            if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
+              containerLayoutElements.push(layoutElement);
+            }
+          }
+          if (container === "footer") {
+            if (this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
+              containerLayoutElements.push(layoutElement);
+            }
           }
         }
       } else if (isStrCiEqual(layoutElement.id, "buttons-navigation")) {

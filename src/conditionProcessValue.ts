@@ -62,8 +62,11 @@ export class ProcessValue {
   }
   public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
     for (var i = 0; i < usedNames.length; i++) {
-      var name = usedNames[i];
+      const name = usedNames[i];
+      if(!name) continue;
+      const lowerName = name.toLowerCase();
       if (keys.hasOwnProperty(name)) return true;
+      if(name !== lowerName && keys.hasOwnProperty(lowerName)) return true;
       var firstName = this.getFirstName(name);
       if (!keys.hasOwnProperty(firstName)) continue;
       if (name === firstName) return true;

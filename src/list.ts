@@ -170,15 +170,12 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public onItemHover = (itemValue: T): void => {
     this.actions.forEach(action => {
       if (action === itemValue && !!itemValue.popupModel) {
-        itemValue.popupModel.isVisible = true;
+        itemValue.showPopup();
         this.addScrollEventListener(() => {
-          itemValue.popupModel.isVisible = false;
+          itemValue.hidePopup();
         });
-        // itemValue.popupModel.isFocusedContent = !isUserAction || listModel.showFilter;
-        // itemValue.popupModel.toggleVisibility();
-        // listModel.scrollToSelectedItem();
       } else if (!!action.popupModel && action.popupModel.isVisible) {
-        action.popupModel.isVisible = false;
+        itemValue.hidePopup();
       }
     });
   }

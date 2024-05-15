@@ -386,14 +386,18 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.markerIconName = "icon-next_16x16";
     this.component = "sv-list-item-group";
     this.items = [...items];
-    const { innerPopupModel, listModel }: { innerPopupModel: PopupModel<any>, listModel: ListModel<Action> } =
+    const { popupModel, listModel }: { popupModel: PopupModel<any>, listModel: ListModel<Action> } =
       createPopupModelWithListModel(
-        { items: items, onSelectionChanged: onSelectionChanged },
+        { items: items, onSelectionChanged: onSelectionChanged, searchEnabled: false },
         { horizontalPosition: "right", showPointer: false }
       );
-    innerPopupModel.cssClass = "sv-popup-inner";
-    listModel.searchEnabled = false;
-    this.popupModel = innerPopupModel;
+    popupModel.cssClass = "sv-popup-inner";
+    this.popupModel = popupModel;
+    const originalAction = this.action;
+    this.action = (context?: any, isUserAction?: boolean) => {
+      if (!!originalAction) originalAction(context, isUserAction);
+      this.hidePopup();
+    };
   }
 
   location?: string;

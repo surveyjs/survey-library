@@ -4711,6 +4711,64 @@ QUnit.test("showInMultipleColumns and hasOther properties", function (assert) {
   cell.question.comment = "";
   assert.notOk(matrix.value, "Reset comment value");
 });
+QUnit.test("showInMultipleColumns and showNoneItem property", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            showInMultipleColumns: true,
+            showNoneItem: true,
+            noneText: "None abc",
+            choices: [1, 2, 3]
+          },
+          { name: "col2", cellType: "comment" }
+        ],
+        rows: ["row1", "row2"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 1 + 3 + 1 + 1, "header: row value + 3 choices + none item + one column");
+  assert.equal(matrix.renderedTable.rows[1].cells.length, 1 + 3 + 1 + 1, "first row: row value + 3 choices + none item + one column");
+  assert.equal(matrix.renderedTable.headerRow.cells[4].locTitle.text, "None abc", "Column text is correct");
+  const cell = matrix.renderedTable.rows[1].cells[4];
+  assert.equal(cell.question.getType(), "checkbox", "question is checkbox");
+  assert.equal(cell.question.showNoneItem, true, "showNoneItem is set");
+});
+QUnit.test("showInMultipleColumns  and showNoneItem property properties & choices from question Bug#8279", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            showInMultipleColumns: true,
+            showNoneItem: true,
+            noneText: "None abc"
+          },
+          { name: "col2", cellType: "comment" }
+        ],
+        choices: [1, 2, 3],
+        rows: ["row1", "row2"]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 1 + 3 + 1 + 1, "header: row value + 3 choices + none item + one column");
+  assert.equal(matrix.renderedTable.rows[1].cells.length, 1 + 3 + 1 + 1, "first row: row value + 3 choices + none item  + one column");
+  assert.equal(matrix.renderedTable.headerRow.cells[4].locTitle.text, "None abc", "Column text is correct");
+  const cell = matrix.renderedTable.rows[1].cells[4];
+  assert.equal(cell.question.getType(), "checkbox", "question is checkbox");
+  assert.equal(cell.question.showNoneItem, true, "showNoneItem is set");
+});
 QUnit.test("showInMultipleColumns and hasOther properties, change in run-time", function (assert) {
   const survey = new SurveyModel({
     elements: [

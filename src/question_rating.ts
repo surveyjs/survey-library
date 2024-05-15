@@ -884,7 +884,7 @@ export class QuestionRatingModel extends Question {
   }
   public get dropdownListModel(): DropdownListModel {
     if (this.renderAs === "dropdown") {
-    this.onBeforeSetCompactRenderer();
+      this.onBeforeSetCompactRenderer();
     }
     return this.dropdownListModelValue;
   }

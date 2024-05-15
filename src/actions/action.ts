@@ -389,7 +389,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     const { innerPopupModel, listModel }: { innerPopupModel: PopupModel<any>, listModel: ListModel<Action> } =
       createPopupModelWithListModel(
         { items: items, onSelectionChanged: onSelectionChanged },
-        { horizontalPosition: "right", showPointer: false }
+        { horizontalPosition: "right", showPointer: false, canShrink: false }
       );
     innerPopupModel.cssClass = "sv-popup-inner";
     listModel.searchEnabled = false;

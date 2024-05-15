@@ -295,3 +295,10 @@ QUnit.test("Action locTitleName doesn't work correctly, bug#8093", (assert) => {
   survey.locale = "fr";
   assert.equal(action1.title, "Effacer la page", "Clear page fr#2");
 });
+QUnit.test("Action subitems popup canShrink property", function (assert) {
+  const action = new Action({ id: "test2", title: "test2" });
+  const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
+  (action as Action).setItems(subitems, () => { });
+
+  assert.notOk(action.popupModel.canShrink);
+});

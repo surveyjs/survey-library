@@ -98,7 +98,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         pos.top,
         height,
         DomWindowHelper.getInnerHeight(),
-        verticalPosition
+        verticalPosition,
+        this.model.canShrink
       );
       if (!!newVerticalDimensions) {
         this.height = newVerticalDimensions.height + "px";

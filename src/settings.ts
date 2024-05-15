@@ -419,6 +419,7 @@ export var settings = {
    * A separator used in a shorthand notation that specifies a value and display text for an [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) object: `"value|text"`.
    *
    * Default value: `"|"`
+   * @see [settings.choicesSeparator](https://surveyjs.io/form-library/documentation/api-reference/settings#choicesSeparator)
    */
   itemValueSeparator: "|",
   /**
@@ -573,6 +574,12 @@ export var settings = {
     dontKnowItem: [3],
     otherItem: [4]
   },
+  /**
+   * One or several characters used to separate choice options in a list.
+   *
+   * Default value: `", "`
+   * @see [settings.itemValueSeparator](https://surveyjs.io/form-library/documentation/api-reference/settings#itemValueSeparator)
+   */
   choicesSeparator: ", ",
   /**
    * A list of supported validators by question type.

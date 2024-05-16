@@ -252,7 +252,7 @@ export abstract class BaseAction extends Base implements IAction {
   public get renderedId(): number { return this.rendredIdValue; }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
   public set owner(val: ILocalizableOwner) {
-    if(val !== this.owner) {
+    if (val !== this.owner) {
       this.ownerValue = val;
       this.locStrsChanged();
     }
@@ -389,7 +389,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     const { popupModel, listModel }: { popupModel: PopupModel<any>, listModel: ListModel<Action> } =
       createPopupModelWithListModel(
         { items: items, onSelectionChanged: onSelectionChanged, searchEnabled: false },
-        { horizontalPosition: "right", showPointer: false }
+        { horizontalPosition: "right", showPointer: false, canShrink: false }
       );
     popupModel.cssClass = "sv-popup-inner";
     this.popupModel = popupModel;

@@ -950,6 +950,27 @@ QUnit.test("Check getCorrectedVerticalDimensions if both directions do not fit",
   assert.equal(newVerticalDimensions.top, 10);
 });
 
+QUnit.test("Check getCorrectedVerticalDimensions if both directions do not fit and canShrink = false", (assert) => {
+  let newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(-20, 200, 300, "bottom", false);
+  assert.equal(newVerticalDimensions.height, 200);
+  assert.equal(newVerticalDimensions.top, 0);
+
+  newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(150, 200, 300, "bottom", false);
+  assert.equal(newVerticalDimensions.height, 200);
+  assert.equal(newVerticalDimensions.top, 100 - PopupUtils.bottomIndent);
+
+  newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(150, 450, 300, "bottom", false);
+  assert.equal(newVerticalDimensions.height, 300 - PopupUtils.bottomIndent);
+  assert.equal(newVerticalDimensions.top, 0);
+
+  newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(10, 200, 300, "bottom", false);
+  assert.notOk(newVerticalDimensions);
+
+  newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(10, 200, 300, "top", false);
+  assert.equal(newVerticalDimensions.height, 200);
+  assert.equal(newVerticalDimensions.top, 10);
+});
+
 QUnit.test("Check updateHorizontalDimensions", (assert) => {
   let newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "center");
   assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - center - fitting left out - width");
@@ -1309,6 +1330,43 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
   assert.equal(viewModel.width, "560px", "width");
   assert.equal(viewModel.left, "200px", "left");
   assert.equal(viewModel.top, "178px", "top");
+
+  viewModel.dispose();
+  targetElement.remove();
+});
+
+QUnit.skip("PopupModel overflow content and canShrink position calculate", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "left", showPointer: false });
+  model.setWidthByTarget = true;
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "130px";
+  targetElement.style.left = "0px";
+  targetElement.style.height = "10px";
+  addElementIntoBody(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = getPopupContainer(viewModel.container);
+  popupContainer.style.width = "200px";
+  popupContainer.style.height = "700px";
+
+  (<any>window).innerWidth = 1000;
+  (<any>window).innerHeight = 800;
+  model.toggleVisibility();
+
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.top, "130px", "top");
+  assert.equal(viewModel.height, "654px", "height");
+
+  viewModel.model.canShrink = false;
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.top, "84px", "top");
+  assert.equal(viewModel.height, "700px", "height");
 
   viewModel.dispose();
   targetElement.remove();

@@ -57,17 +57,23 @@ export class PopupUtils {
     top: number,
     height: number,
     windowHeight: number,
-    verticalPosition: VerticalPosition
+    verticalPosition: VerticalPosition,
+    canShrink: boolean = true
   ) {
     let result;
+    const maxHeight = windowHeight - PopupUtils.bottomIndent;
     if(verticalPosition === "top") {
       result = { height: height, top: top };
     }
     if (top < 0) {
-      result = { height: height + top, top: 0 };
+      result = { height: canShrink ? height + top : height, top: 0 };
     } else if (height + top > windowHeight) {
-      let newHeight = Math.min(height, windowHeight - top - PopupUtils.bottomIndent);
-      result = { height: newHeight, top: top };
+      let newHeight = Math.min(height, maxHeight - top);
+      result = { height: canShrink ? newHeight : height, top: canShrink ? top : top - (height - newHeight) };
+    }
+    if (result) {
+      result.height = Math.min(result.height, maxHeight);
+      result.top = Math.max(result.top, 0);
     }
     return result;
   }

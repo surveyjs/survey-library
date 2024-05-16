@@ -15,6 +15,7 @@ export interface IPopupOptionsBase {
   horizontalPosition?: HorizontalPosition;
   showPointer?: boolean;
   isModal?: boolean;
+  canShrink?: boolean;
   displayMode?: "popup" | "overlay";
 }
 export interface IDialogOptions extends IPopupOptionsBase {
@@ -40,6 +41,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   @property({ defaultValue: "left" }) horizontalPosition: HorizontalPosition;
   @property({ defaultValue: true }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
+  @property({ defaultValue: true }) canShrink: boolean;
   @property({ defaultValue: true }) isFocusedContent: boolean;
   @property({ defaultValue: true }) isFocusedContainer: boolean;
   @property({ defaultValue: "" }) cssClass: string;

@@ -95,6 +95,14 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   public toggleVisibility(): void {
     this.isVisible = !this.isVisible;
   }
+  public show(): void {
+    if (!this.isVisible)
+      this.isVisible = true;
+  }
+  public hide(): void {
+    if (this.isVisible)
+      this.isVisible = false;
+  }
   public recalculatePosition(isResetHeight: boolean): void {
     this.onRecalculatePosition.fire(this, { isResetHeight: isResetHeight });
   }

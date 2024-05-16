@@ -5,7 +5,7 @@ import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getRenderedStyleSize, getRenderedSize } from "./utils/utils";
 
-const youtubeTags = ["youtube.com", "youtu.be"];
+const youtubeDomains = ["www.youtube.com", "m.youtube.com", "youtube.com", "youtu.be"];
 const videoSuffics = [".mp4", ".mov", ".wmv", ".flv", ".avi", ".mkv"];
 const youtubeUrl = "https://www.youtube.com/";
 const youtubeEmbed = "embed";
@@ -13,8 +13,9 @@ const youtubeEmbed = "embed";
 function isUrlYoutubeVideo(url: string): boolean {
   if (!url) return false;
   url = url.toLowerCase();
-  for (let i = 0; i < youtubeTags.length; i++) {
-    if (url.indexOf(youtubeTags[i]) !== -1) return true;
+  url = url.replace(/^https?:\/\//, "");
+  for (let i = 0; i < youtubeDomains.length; i++) {
+    if (url.indexOf(youtubeDomains[i] + "/") === 0) return true;
   }
   return false;
 }
@@ -31,7 +32,7 @@ export class QuestionImageModel extends QuestionNonValue {
     super(name);
     const locImageLink = this.createLocalizableString("imageLink", this, false);
     locImageLink.onGetTextCallback = (text: string): string => {
-      return getCorrectImageLink(text);
+      return getCorrectImageLink(text, this.contentMode == "youtube");
     };
     this.createLocalizableString("altText", this, false);
     this.registerPropertyChangedHandlers(["contentMode", "imageLink"], () => this.calculateRenderedMode());
@@ -203,8 +204,9 @@ export class QuestionImageModel extends QuestionNonValue {
   }
 }
 
-function getCorrectImageLink(val: string): string {
-  if(!val || !isUrlYoutubeVideo(val)) return val;
+function getCorrectImageLink(val: string, isYouTube: boolean): string {
+  if (!val || !isUrlYoutubeVideo(val)) return isYouTube ? "" : val;
+  //if(!val || !isUrlYoutubeVideo(val)) return val;
   let res = val.toLocaleLowerCase();
   if(res.indexOf(youtubeEmbed) > -1) return val;
   let id = "";

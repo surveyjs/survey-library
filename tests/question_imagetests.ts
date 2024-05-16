@@ -33,6 +33,18 @@ QUnit.test("Check youtube video rendered mode", function (assert) {
   const question = new QuestionImageModel("q1");
   question.imageLink = "https://www.youtube.com/embed/tgbNymZ7vqY";
   assert.equal(question.renderedMode, "youtube");
+  question.imageLink = "https://youtube.com/embed/tgbNymZ7vqY";
+  assert.equal(question.renderedMode, "youtube");
+  question.imageLink = "m.youtube.com/embed/tgbNymZ7vqY";
+  assert.equal(question.renderedMode, "youtube");
+  question.imageLink = "youtube.com/embed/tgbNymZ7vqY";
+  assert.equal(question.renderedMode, "youtube");
+  question.imageLink = "youtu.be/tgbNymZ7vqY";
+  assert.equal(question.renderedMode, "youtube");
+  question.imageLink = "youtu.bee/tgbNymZ7vqY";
+  assert.equal(question.renderedMode, "image");
+  question.imageLink = "javascript:(alert('youtu.be'))";
+  assert.equal(question.renderedMode, "image");
   question.imageLink = "abcd";
   assert.equal(question.renderedMode, "image");
   question.imageLink = "https://youtu.be/tgbNymZ7vqY";
@@ -46,6 +58,24 @@ QUnit.test("Check NOT youtube video rendered mode", function (assert) {
   assert.equal(question.renderedMode, "image");
   question.imageLink = "videoUrl.avi";
   assert.equal(question.renderedMode, "video");
+});
+QUnit.test("Check youtube video imagelink", function (assert) {
+  const question = new QuestionImageModel("q1");
+  question.contentMode = "youtube";
+  question.imageLink = "https://www.youtube.com/embed/tgbNymZ7vqY";
+  assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/tgbNymZ7vqY");
+  question.imageLink = "javascript:alert('a')";
+  assert.equal(question.locImageLink.renderedHtml, "");
+  question.imageLink = "https://youtu.be/tgbNymZ7vqY";
+  assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/tgbNymZ7vqY");
+  question.imageLink = "javascript:alert('youtube.com')";
+  assert.equal(question.locImageLink.renderedHtml, "");
+  question.imageLink = "youtube.com.org";
+  assert.equal(question.locImageLink.renderedHtml, "");
+
+  question.contentMode = "image";
+  question.imageLink = "videoUrl.mov";
+  assert.equal(question.locImageLink.renderedHtml, "videoUrl.mov");
 });
 
 QUnit.test("Image adaptive mode", function (assert) {

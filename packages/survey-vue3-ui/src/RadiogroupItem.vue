@@ -9,6 +9,7 @@
         :aria-errormessage="question.ariaErrormessage"
         v-model="renderedValue"
         :disabled="!question.getItemEnabled(item)"
+        :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl"
       /><span
         v-if="question.cssClasses.materialDecorator"

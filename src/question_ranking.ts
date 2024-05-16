@@ -211,7 +211,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.value = newValue;
   }
 
-  private getChoicesAnimation(isRankingChoices: boolean): IAnimationGroupConsumer<ItemValue> {
+  private getChoicesAnimationOptions(isRankingChoices: boolean): Required<IAnimationGroupConsumer<ItemValue>> {
     return {
       getKey(item: ItemValue) {
         return item.value;
@@ -254,13 +254,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     };
   }
 
-  private _rankingChoicesAnimation = new AnimationGroup(this.getChoicesAnimation(true), (val) => {
+  private _rankingChoicesAnimation = new AnimationGroup(this.getChoicesAnimationOptions(true), (val) => {
     this._renderedRankingChoices = val;
   }, () => this.renderedRankingChoices)
   public get rankingChoicesAnimation(): AnimationGroup<ItemValue> {
     return this._rankingChoicesAnimation;
   }
-  private _unRankingChoicesAnimation = new AnimationGroup(this.getChoicesAnimation(false), (val) => {
+  private _unRankingChoicesAnimation = new AnimationGroup(this.getChoicesAnimationOptions(false), (val) => {
     this._renderedUnRankingChoices = val;
   }, () => this.renderedUnRankingChoices)
   public get unRankingChoicesAnimation(): AnimationGroup<ItemValue> {

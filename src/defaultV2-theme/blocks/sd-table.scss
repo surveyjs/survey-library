@@ -14,6 +14,8 @@
 .sd-table__cell {
   border-top: calcSize(1) solid transparent;
   border-bottom: calcSize(1) solid transparent;
+  border-left: none;
+  border-right: none;
   background-clip: padding-box;
 }
 

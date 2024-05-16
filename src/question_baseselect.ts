@@ -799,6 +799,9 @@ export class QuestionSelectBase extends Question {
     this.isLockVisibleChoices = !!question && question.name === val;
     if (!!question && question.name !== val) {
       question.removeDependedQuestion(this);
+      if(this.isDesignMode && !this.isLoadingFromJson && !!val) {
+        this.setPropertyValue("choicesFromQuestion", undefined);
+      }
     }
     this.setPropertyValue("choicesFromQuestion", val);
     this.isLockVisibleChoices = false;
@@ -1156,7 +1159,7 @@ export class QuestionSelectBase extends Question {
         }
       }
     }
-    return strs.join(", ");
+    return strs.join(settings.choicesSeparator);
   }
   private getItemDisplayValue(item: ItemValue, val?: any): string {
     if (item === this.otherItem) {

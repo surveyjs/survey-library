@@ -98,7 +98,10 @@ export {
   ISurveyLayoutElement,
   IPlainDataOptions as IPlainData,
   IShortcutText,
-  ILoadFromJSONOptions
+  ILoadFromJSONOptions,
+  ISaveToJSONOptions,
+  HorizontalAlignment,
+  VerticalAlignment
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
 export { SurveyElementCore, SurveyElement, DragTypeOverMeEnum } from "../../survey-element";

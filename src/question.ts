@@ -2551,13 +2551,17 @@ export class Question extends SurveyElement<Question>
   protected getDesktopRenderAs(): string {
     return "default";
   }
+  protected onBeforeSetCompactRenderer(): void { }
+  protected onBeforeSetDesktopRenderer(): void { }
   protected processResponsiveness(requiredWidth: number, availableWidth: number): any {
     availableWidth = Math.round(availableWidth);
     if (Math.abs(requiredWidth - availableWidth) > 2) {
       const oldRenderAs = this.renderAs;
       if (requiredWidth > availableWidth) {
+        this.onBeforeSetCompactRenderer();
         this.renderAs = this.getCompactRenderAs();
       } else {
+        this.onBeforeSetDesktopRenderer();
         this.renderAs = this.getDesktopRenderAs();
       }
       return oldRenderAs !== this.renderAs;

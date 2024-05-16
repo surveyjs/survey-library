@@ -342,12 +342,12 @@ export abstract class BaseAction extends Base implements IAction {
   }
   public showPopup(): void {
     if (!!this.popupModel) {
-      this.popupModel.isVisible = true;
+      this.popupModel.show();
     }
   }
   public hidePopup(): void {
     if (!!this.popupModel) {
-      this.popupModel.isVisible = false;
+      this.popupModel.hide();
     }
   }
   protected abstract getEnabled(): boolean;

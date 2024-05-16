@@ -161,53 +161,50 @@ export interface IAction {
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
 }
 export function createDropdownActionModel(actionOptions: IAction, dropdownOptions: IActionDropdownPopupOptions, locOwner?: ILocalizableOwner): Action {
-  return createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions, locOwner);
+  dropdownOptions.locOwner = locOwner;
+  return createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions);
 }
-export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase, locOwner?: ILocalizableOwner): Action {
-  const oldSelectionChanged = listOptions.onSelectionChanged;
+
+export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase): Action {
+  const originalSelectionChanged = listOptions.onSelectionChanged;
   listOptions.onSelectionChanged = (item: Action, ...params: any[]) => {
     if (newAction.hasTitle) { newAction.title = item.title; }
-    oldSelectionChanged(item, params);
+    originalSelectionChanged(item, params);
   };
-
-  const { innerPopupModel, listModel }: { innerPopupModel: PopupModel<any>, listModel: ListModel<Action> } =
-    createPopupModelWithListModel(listOptions, popupOptions);
-  listModel.locOwner = locOwner;
+  const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
 
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
-    popupModel: innerPopupModel,
+    popupModel: popupModel,
     action: (action: IAction, isUserAction: boolean) => {
       !!(actionOptions.action) && actionOptions.action();
-      innerPopupModel.isFocusedContent = !isUserAction || listModel.showFilter;
-      innerPopupModel.toggleVisibility();
-      listModel.scrollToSelectedItem();
+      popupModel.isFocusedContent = !isUserAction;
+      popupModel.show();
     },
   });
   const newAction: Action = new Action(newActionOptions);
-  newAction.data = listModel;
+  newAction.data = popupModel.contentComponentData?.model;
 
   return newAction;
 }
 
-export function createPopupModelWithListModel(listOptions: IListModel, popupOptions: IPopupOptionsBase) {
-  const listModel: ListModel = new ListModel(
-    listOptions.items,
-    (item: Action) => {
-      listOptions.onSelectionChanged(item);
-      innerPopupModel.toggleVisibility();
-    },
-    listOptions.allowSelection,
-    listOptions.selectedItem
-  );
-  listModel.setOnFilterStringChangedCallback(listOptions.onFilterStringChangedCallback);
+export function createPopupModelWithListModel(listOptions: IListModel, popupOptions: IPopupOptionsBase): PopupModel {
+  const listModel: ListModel = new ListModel(listOptions as any);
+  listModel.onSelectionChanged = (item: Action) => {
+    listOptions.onSelectionChanged(item);
+    popupModel.hide();
+  };
 
-  const options = popupOptions || {};
-  options.onDispose = () => { listModel.dispose(); };
-  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, options);
-  innerPopupModel.displayMode = popupOptions?.displayMode as any;
+  const _popupOptions = popupOptions || {};
+  _popupOptions.onDispose = () => { listModel.dispose(); };
+  const popupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, _popupOptions);
+  popupModel.onShow = () => {
+    popupModel.isFocusedContent = popupModel.isFocusedContent || listModel.showFilter;
+    if (!!_popupOptions.onShow) _popupOptions.onShow();
+    listModel.scrollToSelectedItem();
+  };
 
-  return { innerPopupModel, listModel };
+  return popupModel;
 }
 
 export function getActionDropdownButtonTarget(container: HTMLElement): HTMLElement {
@@ -343,6 +340,16 @@ export abstract class BaseAction extends Base implements IAction {
     }
     return args.isTrusted;
   }
+  public showPopup(): void {
+    if (!!this.popupModel) {
+      this.popupModel.isVisible = true;
+    }
+  }
+  public hidePopup(): void {
+    if (!!this.popupModel) {
+      this.popupModel.isVisible = false;
+    }
+  }
   protected abstract getEnabled(): boolean;
   protected abstract setEnabled(val: boolean): void;
   protected abstract getVisible(): boolean;
@@ -386,11 +393,10 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.markerIconName = "icon-next_16x16";
     this.component = "sv-list-item-group";
     this.items = [...items];
-    const { popupModel, listModel }: { popupModel: PopupModel<any>, listModel: ListModel<Action> } =
-      createPopupModelWithListModel(
-        { items: items, onSelectionChanged: onSelectionChanged, searchEnabled: false },
-        { horizontalPosition: "right", showPointer: false, canShrink: false }
-      );
+    const popupModel = createPopupModelWithListModel(
+      { items: items, onSelectionChanged: onSelectionChanged, searchEnabled: false },
+      { horizontalPosition: "right", showPointer: false, canShrink: false }
+    );
     popupModel.cssClass = "sv-popup-inner";
     this.popupModel = popupModel;
     const originalAction = this.action;

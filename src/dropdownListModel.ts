@@ -3,7 +3,7 @@ import { Base } from "./base";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
-import { ListModel } from "./list";
+import { IListModel, ListModel } from "./list";
 import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionDropdownModel } from "./question_dropdown";
@@ -175,10 +175,17 @@ export class DropdownListModel extends Base {
       _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
         if (this.question.searchEnabled) this.applyInputString(item as ItemValue);
-        this.popupModel.isVisible = false;
+        this.popupModel.hide();
       };
     }
-    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.listElementId);
+    const listOptions: IListModel = {
+      items: visibleItems,
+      onSelectionChanged: _onSelectionChanged,
+      allowSelection: false,
+      locOwner: this.question,
+      elementId: this.listElementId
+    };
+    const res = new ListModel<ItemValue>(listOptions as any);
     this.setOnTextSearchCallbackForListModel(res);
     res.renderElements = false;
     res.forceShowFilter = true;
@@ -189,7 +196,6 @@ export class DropdownListModel extends Base {
   }
   protected updateAfterListModelCreated(model: ListModel<ItemValue>): void {
     model.isItemSelected = (action: ItemValue) => !!action.selected;
-    model.locOwner = this.question;
     model.onPropertyChanged.add((sender: any, options: any) => {
       if (options.name == "hasVerticalScroller") {
         this.hasScroll = options.newValue;
@@ -220,7 +226,7 @@ export class DropdownListModel extends Base {
     this.filteredItems = options.filteredChoices;
 
     if (!!this.filterString && !this.popupModel.isVisible) {
-      this.popupModel.isVisible = true;
+      this.popupModel.show();
     }
     const updateAfterFilterStringChanged = () => {
       this.setFilterStringToListModel(this.filterString);
@@ -429,7 +435,7 @@ export class DropdownListModel extends Base {
 
   public onClear(event: any): void {
     this.question.clearValue();
-    this._popupModel.isVisible = false;
+    this._popupModel.hide();
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -490,17 +496,15 @@ export class DropdownListModel extends Base {
       event.preventDefault();
       event.stopPropagation();
     } else if (event.keyCode === 40) {
-      if (!this.popupModel.isVisible) {
-        this.popupModel.toggleVisibility();
-      }
+      this.popupModel.show();
       this.changeSelectionWithKeyboard(false);
       event.preventDefault();
       event.stopPropagation();
     } if (event.keyCode === 9) {
-      this.popupModel.isVisible = false;
+      this.popupModel.hide();
     } else if (!this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
       if (event.keyCode === 32) {
-        this.popupModel.toggleVisibility();
+        this.popupModel.show();
         this.changeSelectionWithKeyboard(false);
       }
       if (event.keyCode === 13) {
@@ -510,7 +514,7 @@ export class DropdownListModel extends Base {
       event.stopPropagation();
     } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.question.searchEnabled || !this.inputString))) {
       if (event.keyCode === 13 && this.question.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
-        this._popupModel.isVisible = false;
+        this._popupModel.hide();
         this.onClear(event);
       }
       else {
@@ -524,7 +528,7 @@ export class DropdownListModel extends Base {
         this.onClear(event);
       }
     } else if (event.keyCode === 27) {
-      this._popupModel.isVisible = false;
+      this._popupModel.hide();
       this.hintString = "";
       this.onEscape();
     } else {
@@ -552,11 +556,11 @@ export class DropdownListModel extends Base {
   onBlur(event: any): void {
     this.focused = false;
     if (this.popupModel.isVisible && IsTouch) {
-      this._popupModel.isVisible = true;
+      this._popupModel.show();
       return;
     }
     doKey2ClickBlur(event);
-    this._popupModel.isVisible = false;
+    this._popupModel.hide();
     this.resetFilterString();
     this.inputString = null;
     this.hintString = "";

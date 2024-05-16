@@ -175,7 +175,7 @@ QUnit.test("Action title in list model", (assert) => {
     locTitleName: "selectAllItemText",
     locTooltipName: "previewText"
   });
-  const list = new ListModel([action1], () => { }, true);
+  const list = new ListModel({ items: [action1], onSelectionChanged: () => { }, allowSelection: true } as any);
   const popupModel = new PopupModel("sv-list", list, { verticalPosition: "bottom", horizontalPosition: "center" });
   survey.addNavigationItem({ id: "action1", title: "test", popupModel: popupModel });
   assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
@@ -239,7 +239,7 @@ QUnit.test("createDropdownActionModel: switch action title", (assert) => {
   let selectedValue;
   const dropdownAction = createDropdownActionModel(
     { title: "Test", showTitle: true },
-    { items: items, onSelectionChanged: (item: Action) => { selectedValue = item.id; } }
+    { items: items, onSelectionChanged: (item: IAction) => { selectedValue = item.id; } }
   );
   const list: ListModel = dropdownAction.popupModel.contentComponentData.model as ListModel;
 
@@ -263,7 +263,7 @@ QUnit.test("createDropdownActionModel: title is not changed", (assert) => {
   let selectedValue;
   const dropdownAction = createDropdownActionModel(
     { title: "Test", showTitle: false, iconName: "test-icon" },
-    { items: items, onSelectionChanged: (item: Action) => { selectedValue = item.id; } }
+    { items: items, onSelectionChanged: (item: IAction) => { selectedValue = item.id; } }
   );
   const list: ListModel = dropdownAction.popupModel.contentComponentData.model as ListModel;
 

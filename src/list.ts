@@ -5,6 +5,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
 import { getFirstVisibleChild } from "./utils/utils";
 import { settings } from "./settings";
+import { ILocalizableOwner } from "./localizablestring";
 
 export let defaultListCss = {
   root: "sv-list__container",
@@ -30,16 +31,20 @@ export let defaultListCss = {
 };
 export interface IListModel {
   items: Array<IAction>;
-  onSelectionChanged: (item: Action, ...params: any[]) => void;
+  onSelectionChanged: (item: IAction, ...params: any[]) => void;
   allowSelection?: boolean;
+  searchEnabled?: boolean;
   selectedItem?: IAction;
+  elementId?: string;
+  locOwner?: ILocalizableOwner;
   onFilterStringChangedCallback?: (text: string) => void;
-  onTextSearchCallback?: (text: string, textToSearch: string) => boolean;
+  onTextSearchCallback?: (item: IAction, textToSearch: string) => boolean;
 }
 export class ListModel<T extends BaseAction = Action> extends ActionContainer<T> {
   private listContainerHtmlElement: HTMLElement;
   private loadingIndicatorValue: T;
-  private onFilterStringChangedCallback?: (text: string) => void;
+  private onFilterStringChangedCallback: (text: string) => void;
+  private onTextSearchCallback: (item: IAction, textToSearch: string) => boolean;
 
   @property({
     defaultValue: true,
@@ -120,17 +125,35 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
 
   constructor(
-    items: Array<IAction>,
-    public onSelectionChanged: (item: T, ...params: any[]) => void,
-    public allowSelection: boolean,
+    items: Array<IAction> | IListModel,
+    public onSelectionChanged?: (item: T, ...params: any[]) => void,
+    public allowSelection?: boolean,
     selectedItem?: IAction,
     public elementId?: string
   ) {
     super();
-    this.setItems(items);
-    this.selectedItem = selectedItem;
+    if (Object.keys(items).indexOf("items") !== -1) {
+      const options = (items as any) as IListModel;
+      Object.keys(options).forEach((key: keyof IListModel) => {
+        switch (key) {
+          case "items":
+            this.setItems(options.items);
+            break;
+          case "onFilterStringChangedCallback":
+            this.setOnFilterStringChangedCallback(options.onFilterStringChangedCallback);
+            break;
+          case "onTextSearchCallback":
+            this.setOnTextSearchCallback(options.onTextSearchCallback);
+            break;
+          default:
+            (this as any)[key] = options[key];
+        }
+      });
+    } else {
+      this.setItems(items as Array<IAction>);
+      this.selectedItem = selectedItem;
+    }
   }
-  private onTextSearchCallback: (item: T, textToSearch: string) => boolean;
   public setOnFilterStringChangedCallback(callback: (text: string) => void): void {
     this.onFilterStringChangedCallback = callback;
   }
@@ -139,7 +162,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     super.setItems(items, sortByVisibleIndex);
-    if(this.elementId) {
+    if (this.elementId) {
       this.renderedActions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
     }
     if (!this.isAllDataLoaded && !!this.actions.length) {
@@ -192,7 +215,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return this.areSameItems(this.focusedItem, itemValue);
   };
   protected areSameItems(item1: IAction, item2: IAction): boolean {
-    if(!!this.areSameItemsCallback) return this.areSameItemsCallback(item1, item2);
+    if (!!this.areSameItemsCallback) return this.areSameItemsCallback(item1, item2);
     return !!item1 && !!item2 && item1.id == item2.id;
   }
 
@@ -356,7 +379,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
 
   public dispose(): void {
     super.dispose();
-    if(!!this.loadingIndicatorValue) {
+    if (!!this.loadingIndicatorValue) {
       this.loadingIndicatorValue.dispose();
     }
     this.listContainerHtmlElement = undefined;

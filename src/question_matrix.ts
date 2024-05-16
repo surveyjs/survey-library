@@ -21,6 +21,8 @@ export interface IMatrixData {
   cssClasses: any;
   isDisabledStyle: boolean;
   isInputReadOnly: boolean;
+  isDisabledAttr: boolean;
+  isReadOnlyAttr: boolean;
   hasErrorInRow(row: MatrixRowModel): boolean;
 }
 
@@ -68,6 +70,8 @@ export class MatrixRowModel extends Base {
     this.setPropertyValue("value", val);
   }
   public get isReadOnly(): boolean { return !this.item.enabled || this.data.isInputReadOnly; }
+  public get isReadOnlyAttr(): boolean { return this.data.isReadOnlyAttr; }
+  public get isDisabledAttr(): boolean { return !this.item.enabled || this.data.isDisabledAttr; }
   public get rowTextClasses(): string {
     return new CssClassBuilder().append(this.data.cssClasses.rowTextCell).toString();
   }

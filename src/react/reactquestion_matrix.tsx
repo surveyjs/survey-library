@@ -246,7 +246,8 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
       className={this.cssClasses.itemValue}
       name={this.row.fullName}
       value={this.column.value}
-      disabled={this.row.isReadOnly}
+      disabled={this.row.isDisabledAttr}
+      readOnly={this.row.isReadOnlyAttr}
       checked={isChecked}
       onChange={this.handleOnChange}
       aria-required={this.question.a11y_input_ariaRequired}

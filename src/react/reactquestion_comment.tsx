@@ -30,8 +30,8 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
         <textarea
           id={this.question.inputId}
           className={this.question.className}
-          disabled={this.question.isInputReadOnly}
-          readOnly={this.question.isInputReadOnly}
+          disabled={this.question.isDisabledAttr}
+          readOnly={this.question.isReadOnlyAttr}
           ref={(textarea) => (this.setControl(textarea))}
           maxLength={this.question.getMaxLength()}
           placeholder={placeholder}

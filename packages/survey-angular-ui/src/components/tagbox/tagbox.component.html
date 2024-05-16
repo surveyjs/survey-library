@@ -1,6 +1,6 @@
 <div [class]="model.cssClasses.selectWrapper" (click)="click($event)">
     <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.noTabIndex ? null : 0" [class]="model.getControlClass()"
-        [attr.disabled]="model.isInputReadOnly ? true : null" (blur)="blur($event)"
+        [attr.disabled]="model.isDisabledAttr ? true : null" (blur)="blur($event)"
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
         [attr.aria-errormessage]="model.ariaErrormessage" [attr.role]="model.ariaRole"
@@ -23,7 +23,12 @@
         </div>
     </div>
     <sv-ng-popup *ngIf="!model.isReadOnly" [popupModel]="model.popupModel"></sv-ng-popup>
-    <div disabled *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId">
+    <div *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId"
+    [attr.tabindex]="model.isDisabledAttr ? null : 0"
+    [attr.disabled]="model.isDisabledAttr ? true : null"
+    [attr.aria-label]="model.a11y_input_ariaLabel"
+    [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
+    [attr.aria-describedby]="model.a11y_input_ariaDescribedBy">
         <sv-ng-string *ngIf="model.locReadOnlyText" [model]="model.locReadOnlyText"></sv-ng-string>
     </div>
     <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton" (pointerdown)="chevronPointerDown($event)" aria-hidden="true">

@@ -124,9 +124,6 @@ export class DropdownComponent extends BaseVue {
     return this.question.dropdownListModel;
   }
   getModel() {
-    if (!this.question.dropdownListModel) {
-      this.question.dropdownListModel = new DropdownListModel(this.question);
-    }
     return this.model;
   }
 

@@ -1044,7 +1044,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private getMultipleColumnChoices(column: MatrixDropdownColumn): any {
     var choices = column.templateQuestion.choices;
     if (!!choices && Array.isArray(choices) && choices.length == 0)
-      return this.matrix.choices;
+      return [].concat(this.matrix.choices, column.getVisibleMultipleChoices());
     choices = column.getVisibleMultipleChoices();
     if (!choices || !Array.isArray(choices)) return null;
     return choices;

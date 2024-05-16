@@ -1,6 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ConsoleWarnings } from "./console-warnings";
+import { ConditionRunner } from "./conditions";
 
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
@@ -129,13 +130,17 @@ function avg(params: any[]): any {
 FunctionFactory.Instance.register("avg", avg);
 
 function getInArrayParams(params: any[]): any {
-  if (params.length != 2) return null;
-  var arr = params[0];
+  if (params.length < 2 || params.length > 3) return null;
+  const arr = params[0];
   if (!arr) return null;
   if (!Array.isArray(arr) && !Array.isArray(Object.keys(arr))) return null;
-  var name = params[1];
+  const name = params[1];
   if (typeof name !== "string" && !(name instanceof String)) return null;
-  return { data: arr, name: name };
+  let expression = params.length === 3 ? params[2] : undefined;
+  if (typeof expression !== "string" && !(expression instanceof String)) {
+    expression = undefined;
+  }
+  return { data: arr, name: name, expression: expression };
 }
 
 function convertToNumber(val: any): number {
@@ -143,8 +148,9 @@ function convertToNumber(val: any): number {
   return val;
 }
 function processItemInArray(item: any, name: string, res: number,
-  func: (res: number, val: number) => number, needToConvert: boolean): number {
+  func: (res: number, val: number) => number, needToConvert: boolean, condition: ConditionRunner): number {
   if(!item || Helpers.isValueEmpty(item[name])) return res;
+  if(condition && !condition.run(item)) return res;
   const val = needToConvert ? convertToNumber(item[name]) : 1;
   return func(res, val);
 }
@@ -154,14 +160,18 @@ function calcInArray(
 ): any {
   var v = getInArrayParams(params);
   if (!v) return undefined;
+  let condition = !!v.expression ? new ConditionRunner(v.expression) : undefined;
+  if(condition && condition.isAsync) {
+    condition = undefined;
+  }
   var res = undefined;
   if (Array.isArray(v.data)) {
     for (var i = 0; i < v.data.length; i++) {
-      res = processItemInArray(v.data[i], v.name, res, func, needToConvert);
+      res = processItemInArray(v.data[i], v.name, res, func, needToConvert, condition);
     }
   } else {
     for (var key in v.data) {
-      res = processItemInArray(v.data[key], v.name, res, func, needToConvert);
+      res = processItemInArray(v.data[key], v.name, res, func, needToConvert, condition);
     }
   }
   return res;

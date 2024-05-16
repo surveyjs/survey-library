@@ -120,6 +120,10 @@ export class InputMaskNumeric extends InputMaskBase {
     return result;
   }
 
+  private numericalCompositionIsEmpty(number: INumericalComposition): boolean {
+    return !number.integralPart && !number.fractionalPart;
+  }
+
   public displayNumber(parsedNumber: INumericalComposition, insertThousandsSeparator = true, matchWholeMask: boolean = false): string {
     let displayIntegralPart = parsedNumber.integralPart;
     if(insertThousandsSeparator && !!displayIntegralPart) {
@@ -224,8 +228,9 @@ export class InputMaskNumeric extends InputMaskBase {
     return displayText;
   }
 
-  private getNumberUnmaskedValue(str: string): number {
+  private getNumberUnmaskedValue(str: string): number | undefined {
     const parsedNumber = this.parseNumber(str);
+    if (this.numericalCompositionIsEmpty(parsedNumber)) return undefined;
     return this.convertNumber(parsedNumber);
   }
 

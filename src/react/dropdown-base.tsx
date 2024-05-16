@@ -56,9 +56,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         {this.renderReadOnlyElement()}
       </div>;
     } else {
-      if (!(this.question as any)["dropdownListModel"]) {
-        (this.question as any)["dropdownListModel"] = new DropdownListModel(this.question);
-      }
       selectElement = <>
         {this.renderInput(this.question["dropdownListModel"])}
         <Popup model={this.question?.dropdownListModel?.popupModel}></Popup>

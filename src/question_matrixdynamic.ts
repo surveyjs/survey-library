@@ -66,11 +66,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     sender: QuestionMatrixDynamicModel
   ) => any;
   private rowCounter = 0;
-  private initialRowCount: number = 2;
+  private initialRowCount: number;
   private setRowCountValueFromData: boolean = false;
 
   constructor(name: string) {
     super(name);
+    this.initialRowCount = this.getDefaultPropertyValue("rowCount");
     this.createLocalizableString("confirmDeleteText", this, false, "confirmDelete");
     var locAddRowText = this.createLocalizableString("addRowText", this);
     locAddRowText.onGetTextCallback = (text: string): string => {
@@ -826,6 +827,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.setPropertyValueDirectly("rowCount", val.length);
     return true;
+  }
+  updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    this.setRowCountValueFromData = true;
+    super.updateValueFromSurvey(newValue, clearData);
+    this.setRowCountValueFromData = false;
   }
   protected onBeforeValueChanged(val: any) {
     if (!val || !Array.isArray(val)) return;

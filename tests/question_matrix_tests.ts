@@ -348,3 +348,35 @@ QUnit.test("matrix isAllRowRequired & isRequired & getItemClass #7963", function
   question.value = { row1: "col1" };
   assert.equal(question.getItemClass(row, column).indexOf(itemError) > -1, false, "itemError doesn't exist");
 });
+QUnit.test("matrix isAllRowRequired  & getItemClass", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1", "col2"],
+        rows: ["row1", "row2"],
+        isAllRowRequired: true
+      },
+    ],
+  });
+  const itemError = "required_row_error";
+  survey.css = { matrix: { row: "row", rowError: "row_error", itemOnError: itemError } };
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  const column1 = question.columns[0];
+  const column2 = question.columns[1];
+  question.visibleRows[0].cellClick(column1);
+  let row = question.visibleRows[1];
+  assert.equal(question.getItemClass(row, column1).indexOf(itemError) > -1, false, "itemError doesn't exist in column 1, #1");
+  assert.equal(question.getItemClass(row, column2).indexOf(itemError) > -1, false, "itemError doesn't exist in column 2, #1");
+  survey.completeLastPage();
+  assert.equal(survey.state, "running", "There is an error");
+  row = question.visibleRows[1];
+  assert.equal(question.getItemClass(row, column1).indexOf(itemError) > -1, true, "itemError exists in column 1, #2");
+  assert.equal(question.getItemClass(row, column2).indexOf(itemError) > -1, true, "itemError exists in column 2, #2");
+  row = question.visibleRows[1];
+  row.cellClick(column2);
+  row = question.visibleRows[1];
+  assert.equal(question.getItemClass(row, column1).indexOf(itemError) > -1, false, "itemError doesn't exist in column 1, #3");
+  assert.equal(question.getItemClass(row, column2).indexOf(itemError) > -1, false, "itemError doesn't exist in column 2, #3");
+});

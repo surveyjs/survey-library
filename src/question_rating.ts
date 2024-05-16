@@ -78,6 +78,9 @@ export class QuestionRatingModel extends Question {
       () => {
         this.updateColors((this.survey as SurveyModel).themeVariables);
       });
+    this.registerFunctionOnPropertiesValueChanged(["displayMode"], () => {
+      this.updateRenderAsBasedOnDisplayMode(true);
+    });
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.rateValues.length === 0) {
@@ -499,18 +502,26 @@ export class QuestionRatingModel extends Question {
   * [View Demo](https://surveyjs.io/form-library/examples/ui-adaptation-modes-for-rating-scale/ (linkStyle))
   * @see rateType
   */
-  @property({
-    onSet: (val: string, target: QuestionRatingModel) => {
-      if (!target.isDesignMode) {
-        if (val === "dropdown") {
-          target.renderAs = "dropdown";
-        } else {
-          target.renderAs = "default";
-        }
+  @property() displayMode: "dropdown" | "buttons" | "auto";
+  private updateRenderAsBasedOnDisplayMode(isOnChange?: boolean): void {
+    if(this.isDesignMode) {
+      if(isOnChange || this.renderAs === "dropdown") {
+        this.renderAs = "default";
+      }
+    } else {
+      if(isOnChange || this.displayMode !== "auto") {
+        this.renderAs = this.displayMode === "dropdown" ? "dropdown": "default";
       }
     }
-  }) displayMode: "dropdown" | "buttons" | "auto";
-
+  }
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    if(this.renderAs === "dropdown" && this.displayMode === "auto") {
+      this.displayMode = this.renderAs;
+    } else {
+      this.updateRenderAsBasedOnDisplayMode();
+    }
+  }
   /**
   * Specifies the alignment of [`minRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#minRateDescription) and [`maxRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#maxRateDescription) texts.
   *
@@ -850,6 +861,11 @@ export class QuestionRatingModel extends Question {
   protected supportResponsiveness(): boolean {
     return true;
   }
+  protected onBeforeSetCompactRenderer(): void {
+    if (!this.dropdownListModelValue) {
+      this.dropdownListModel = new DropdownListModel(this);
+    }
+  }
   protected getCompactRenderAs(): string {
     return (this.displayMode == "buttons") ? "default" : "dropdown";
   }
@@ -867,6 +883,9 @@ export class QuestionRatingModel extends Question {
     this.updateElementCss();
   }
   public get dropdownListModel(): DropdownListModel {
+    if (this.renderAs === "dropdown") {
+      this.onBeforeSetCompactRenderer();
+    }
     return this.dropdownListModelValue;
   }
   protected updateCssClasses(res: any, css: any) {
@@ -894,6 +913,7 @@ export class QuestionRatingModel extends Question {
     super.setSurveyImpl(value, isLight);
     if (!this.survey) return;
     this.updateColors((this.survey as SurveyModel).themeVariables);
+    this.updateRenderAsBasedOnDisplayMode();
   }
   public dispose(): void {
     super.dispose();

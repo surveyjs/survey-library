@@ -100,8 +100,12 @@
     },
     {
       "Name": "customize-question-types",
-      "Title": "Customize Question Types",
+      "Title": "Customize Questions",
       "Items": [
+        {
+          "Name": "customize-question-types-add-custom-properties-to-a-form",
+          "Title": "Add Custom Properties"
+        },
         {
           "Name": "customize-question-types-create-specialized-question-types",
           "Title": "Create Specialized Question Types"

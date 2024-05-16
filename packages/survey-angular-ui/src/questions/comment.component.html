@@ -1,7 +1,7 @@
 <textarea
 *ngIf="!model.isReadOnlyRenderDiv()"
-[readonly]="model.isInputReadOnly"
-[attr.disabled]="model.renderedInputDisabled"
+[readonly]="model.isReadOnlyAttr"
+[disabled]="model.isDisabledAttr"
 [id]="model.inputId"
 [attr.maxlength]="model.getMaxLength()"
 [attr.cols]="model.cols"

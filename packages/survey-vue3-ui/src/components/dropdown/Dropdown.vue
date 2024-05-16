@@ -95,7 +95,6 @@
       :model="question.dropdownListModel.popupModel"
     ></sv-popup>
     <div
-      disabled
       v-else
       :id="question.inputId"
       :aria-label="question.a11y_input_ariaLabel"

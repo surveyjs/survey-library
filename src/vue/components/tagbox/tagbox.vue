@@ -44,7 +44,7 @@
       </div>
     </div>
     <sv-popup v-if="!question.isReadOnly" :model="model.popupModel"></sv-popup>
-    <div disabled v-else :id="question.inputId"
+    <div v-else :id="question.inputId"
       :aria-label="question.a11y_input_ariaLabel"
       :aria-labelledby="question.a11y_input_ariaLabelledBy"
       :aria-describedby="question.a11y_input_ariaDescribedBy"

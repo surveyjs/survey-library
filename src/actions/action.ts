@@ -156,6 +156,8 @@ export interface IAction {
   items?: Array<IAction>;
   markerIconName?: string;
   markerIconSize?: number;
+  showPopup?: () => void;
+  hidePopup?: () => void;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -399,11 +401,6 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     );
     popupModel.cssClass = "sv-popup-inner";
     this.popupModel = popupModel;
-    const originalAction = this.action;
-    this.action = (context?: any, isUserAction?: boolean) => {
-      if (!!originalAction) originalAction(context, isUserAction);
-      this.hidePopup();
-    };
   }
 
   location?: string;

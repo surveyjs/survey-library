@@ -198,7 +198,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
           itemValue.hidePopup();
         });
       } else if (!!action.popupModel && action.popupModel.isVisible) {
-        itemValue.hidePopup();
+        action.hidePopup();
       }
     });
   }

@@ -8,7 +8,7 @@ const environment = args.env;
 
 export const frameworks = environment
   ? [environment]
-  : ["knockout", "react", "vue"];
+  : [/*"knockout", "react", "vue", */"jquery-ui"];
 // eslint-disable-next-line no-console
 console.log("Frameworks: " + frameworks.join(", "));
 export const url = "http://127.0.0.1:8080/examples_test/default/";
@@ -58,6 +58,11 @@ export const initSurvey = ClientFunction(
     if (framework === "knockout") {
       document.getElementById("surveyElement").innerHTML = "";
       model.render("surveyElement");
+    } else if (framework === "jquery-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      window["$"]("#surveyElement").Survey({
+        model: model
+      });
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));

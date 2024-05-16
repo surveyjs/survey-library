@@ -836,13 +836,13 @@ QUnit.test("Question File responsive", (assert) => {
   assert.equal(q1.pages[0].items.length, 1);
   assert.equal(q1.pages[1].items.length, 1);
 
-  assert.equal(q1.pages[0].css, "sd-file__page sd-file__page--leave-to-right");
-  assert.equal(q1.pages[1].css, "sd-file__page sd-file__page--enter-from-left");
+  assert.equal(q1.pages[0].css, "sd-file__page");
+  assert.equal(q1.pages[1].css, "sd-file__page");
 
   q1["nextFileAction"].action();
 
-  assert.equal(q1.pages[0].css, "sd-file__page sd-file__page--enter-from-right");
-  assert.equal(q1.pages[1].css, "sd-file__page sd-file__page--leave-to-left");
+  assert.equal(q1.pages[0].css, "sd-file__page");
+  assert.equal(q1.pages[1].css, "sd-file__page");
 
   assert.equal(q1.fileNavigatorVisible, true);
   q1.clear();
@@ -1289,29 +1289,27 @@ QUnit.test("Check file question navigator with different items count visible", (
   assert.equal(question.pages.length, 2);
   assert.equal(question.pages[0].items.length, 3);
   assert.equal(question.pages[1].items.length, 1);
-  assert.ok(question.pages[0].css.includes("sd-file__page--hidden"));
-  assert.notOk(question.pages[1].css.includes("sd-file__page--hidden"));
   question["prevFileAction"].action();
   assert.equal(question.indexToShow, 0);
   assert.equal(question["fileIndexAction"].title, "1 of 2");
-  assert.equal(question.pages[0].css, "sd-file__page sd-file__page--enter-from-left");
-  assert.equal(question.pages[1].css, "sd-file__page sd-file__page--leave-to-right");
+  assert.equal(question.pages[0].css, "sd-file__page");
+  assert.equal(question.pages[1].css, "sd-file__page");
   question["nextFileAction"].action();
   assert.equal(question.indexToShow, 1);
   assert.equal(question["fileIndexAction"].title, "2 of 2");
-  assert.equal(question.pages[0].css, "sd-file__page sd-file__page--leave-to-left");
-  assert.equal(question.pages[1].css, "sd-file__page sd-file__page--enter-from-right");
+  assert.equal(question.pages[0].css, "sd-file__page");
+  assert.equal(question.pages[1].css, "sd-file__page");
   question["nextFileAction"].action();
   assert.equal(question.indexToShow, 0);
   assert.equal(question["fileIndexAction"].title, "1 of 2");
-  assert.equal(question.pages[0].css, "sd-file__page sd-file__page--enter-from-right");
-  assert.equal(question.pages[1].css, "sd-file__page sd-file__page--leave-to-left");
+  assert.equal(question.pages[0].css, "sd-file__page");
+  assert.equal(question.pages[1].css, "sd-file__page");
   question["prevFileAction"].action();
   assert.equal(question.indexToShow, 1);
   assert.equal(question["fileIndexAction"].title, "2 of 2");
 
-  assert.equal(question.pages[0].css, "sd-file__page sd-file__page--leave-to-right");
-  assert.equal(question.pages[1].css, "sd-file__page sd-file__page--enter-from-left");
+  assert.equal(question.pages[0].css, "sd-file__page");
+  assert.equal(question.pages[1].css, "sd-file__page");
 
   //check index position on load files
   question.loadFiles([{ name: "f5", type: "t5" } as any, { name: "f6", type: "t6" } as any]);
@@ -1340,8 +1338,6 @@ QUnit.test("Check file question navigator with different items count visible", (
   assert.equal(question.pages.length, 2);
   assert.equal(question.pages[0].items.length, 2);
   assert.equal(question.pages[1].items.length, 2);
-  assert.ok(question.pages[0].css.includes("sd-file__page--hidden"));
-  assert.notOk(question.pages[1].css.includes("sd-file__page--hidden"));
   question.pageSize = 1;
   assert.equal(question.indexToShow, 1);
   assert.equal(question["fileIndexAction"].title, "2 of 4");
@@ -1350,10 +1346,6 @@ QUnit.test("Check file question navigator with different items count visible", (
   assert.equal(question.pages[1].items.length, 1);
   assert.equal(question.pages[2].items.length, 1);
   assert.equal(question.pages[3].items.length, 1);
-  assert.ok(question.pages[0].css.includes("sd-file__page--hidden"));
-  assert.notOk(question.pages[1].css.includes("sd-file__page--hidden"));
-  assert.ok(question.pages[2].css.includes("sd-file__page--hidden"));
-  assert.ok(question.pages[3].css.includes("sd-file__page--hidden"));
 });
 QUnit.test("Check file question processResponsiveness method", (assert) => {
   const json = {
@@ -1925,3 +1917,248 @@ QUnit.test("Choose file action should have disabled class", function (assert) {
   assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled", "Disabled");
 });
 
+QUnit.test("Check renderedPages property", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        title: "Please upload your photo 1",
+        name: "image1",
+        storeDataAsText: false,
+        showPreview: true,
+      },
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  const q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+  q1.pageSize = 1;
+  survey.onDownloadFile.add((survey, options) => {
+    options.callback("success", "data:image/jpeg;base64,FILECONTENT1");
+  });
+  survey.data = {
+    image1: { name: "item1" },
+  };
+  assert.equal(q1.pages.length, 1);
+  assert.equal(q1.pages[0].items.length, 1);
+  assert.equal(q1.pages[0].items[0].name, "item1");
+
+  survey.data = {
+    image1: [{ name: "item1" }, { name: "item2" }, { name: "item3" }],
+  };
+  q1.indexToShow = 0;
+  assert.equal(q1.pages.length, 3);
+  assert.equal(q1.pages[0].items.length, 1);
+  assert.equal(q1.pages[0].items[0].name, "item1");
+
+  assert.equal(q1.pages[1].items.length, 1);
+  assert.equal(q1.pages[1].items[0].name, "item2");
+
+  assert.equal(q1.pages[2].items.length, 1);
+  assert.equal(q1.pages[2].items[0].name, "item3");
+
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item1");
+
+  q1["prevFileAction"].action();
+  assert.equal(q1.navigationDirection, "left");
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item3");
+
+  q1["nextFileAction"].action();
+  assert.equal(q1.navigationDirection, "right");
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item1");
+
+  q1["nextFileAction"].action();
+  assert.equal(q1.navigationDirection, "right");
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item2");
+
+  q1["prevFileAction"].action();
+  assert.equal(q1.navigationDirection, "left");
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item1");
+
+  q1.removeFile("item1");
+  assert.equal(q1.navigationDirection, undefined);
+  assert.equal(q1.pages.length, 2);
+  assert.equal(q1.pages[0].items.length, 1);
+  assert.equal(q1.pages[0].items[0].name, "item2");
+
+  assert.equal(q1.pages[1].items.length, 1);
+  assert.equal(q1.pages[1].items[0].name, "item3");
+
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item2");
+
+  q1["nextFileAction"].action();
+  q1.removeFile("item3");
+  assert.equal(q1.navigationDirection, "left-delete");
+  assert.equal(q1.pages.length, 1);
+  assert.equal(q1.pages[0].items.length, 1);
+  assert.equal(q1.pages[0].items[0].name, "item2");
+
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item2");
+});
+
+QUnit.test("Check renderedPages property", function (assert) {
+  const json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        title: "Please upload your photo 1",
+        name: "image1",
+        storeDataAsText: false,
+        showPreview: true,
+      },
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  const q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+  q1.pageSize = 1;
+  survey.onDownloadFile.add((survey, options) => {
+    options.callback("success", "data:image/jpeg;base64,FILECONTENT1");
+  });
+  survey.data = {
+    image1: { name: "item1" },
+  };
+  assert.equal(q1.pages.length, 1);
+  assert.equal(q1.pages[0].items.length, 1);
+  assert.equal(q1.pages[0].items[0].name, "item1");
+
+  survey.data = {
+    image1: [{ name: "item1" }, { name: "item2" }, { name: "item3" }],
+  };
+  q1.indexToShow = 0;
+  assert.equal(q1.pages.length, 3);
+  assert.equal(q1.pages[0].items.length, 1);
+  assert.equal(q1.pages[0].items[0].name, "item1");
+
+  assert.equal(q1.pages[1].items.length, 1);
+  assert.equal(q1.pages[1].items[0].name, "item2");
+
+  assert.equal(q1.pages[2].items.length, 1);
+  assert.equal(q1.pages[2].items[0].name, "item3");
+
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item1");
+
+  q1["prevFileAction"].action();
+  assert.equal(q1.navigationDirection, "left");
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item3");
+
+  q1["nextFileAction"].action();
+  assert.equal(q1.navigationDirection, "right");
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item1");
+
+  q1["nextFileAction"].action();
+  assert.equal(q1.navigationDirection, "right");
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item2");
+
+  q1["prevFileAction"].action();
+  assert.equal(q1.navigationDirection, "left");
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item1");
+
+  q1.removeFile("item1");
+  assert.equal(q1.navigationDirection, undefined);
+  assert.equal(q1.pages.length, 2);
+  assert.equal(q1.pages[0].items.length, 1);
+  assert.equal(q1.pages[0].items[0].name, "item2");
+
+  assert.equal(q1.pages[1].items.length, 1);
+  assert.equal(q1.pages[1].items[0].name, "item3");
+
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item2");
+
+  q1["nextFileAction"].action();
+  q1.removeFile("item3");
+  assert.equal(q1.navigationDirection, "left-delete");
+  assert.equal(q1.pages.length, 1);
+  assert.equal(q1.pages[0].items.length, 1);
+  assert.equal(q1.pages[0].items[0].name, "item2");
+
+  assert.equal(q1.renderedPages.length, 1);
+  assert.equal(q1.renderedPages[0].items.length, 1);
+  assert.equal(q1.renderedPages[0].items[0].name, "item2");
+});
+
+QUnit.test("Check pageAnimationOptions", (assert) => {
+  const json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        title: "Please upload your photo 1",
+        name: "image1",
+        storeDataAsText: false,
+        showPreview: true,
+      },
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  survey.css = defaultV2Css;
+  const q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+  const fpNavigationOptions = q1["getPagesAnimationOptions"]();
+  settings.animationEnabled = true;
+  survey.data = {
+    image1: [{ name: "item1" }, { name: "item2" }, { name: "item3" }],
+  };
+  q1["rootElement"] = document.createElement("div");
+
+  //check animation enabled
+  assert.ok(fpNavigationOptions.isAnimationEnabled());
+  q1["rootElement"] = undefined as any;
+  assert.notOk(fpNavigationOptions.isAnimationEnabled());
+  q1["rootElement"] = document.createElement("div");
+  assert.ok(fpNavigationOptions.isAnimationEnabled());
+  settings.animationEnabled = false;
+  assert.notOk(fpNavigationOptions.isAnimationEnabled());
+  settings.animationEnabled = true;
+  assert.ok(fpNavigationOptions.isAnimationEnabled());
+
+  //check enter options
+  assert.equal(fpNavigationOptions.getEnterOptions(q1.pages[0]).cssClass, "");
+  q1.navigationDirection = "left";
+  assert.equal(fpNavigationOptions.getEnterOptions(q1.pages[0]).cssClass, "sd-file__page--enter-from-left");
+  q1.navigationDirection = "right";
+  assert.equal(fpNavigationOptions.getEnterOptions(q1.pages[0]).cssClass, "sd-file__page--enter-from-right");
+  q1.navigationDirection = "left-delete";
+  assert.equal(fpNavigationOptions.getEnterOptions(q1.pages[0]).cssClass, "sd-file__page--enter-from-left");
+
+  //check leave options
+
+  q1.navigationDirection = undefined as any;
+  assert.equal(fpNavigationOptions.getLeaveOptions(q1.pages[0]).cssClass, "");
+  q1.navigationDirection = "left-delete";
+  assert.equal(fpNavigationOptions.getLeaveOptions(q1.pages[0]).cssClass, "");
+  q1.navigationDirection = "left";
+  assert.equal(fpNavigationOptions.getLeaveOptions(q1.pages[0]).cssClass, "sd-file__page--leave-to-right");
+  q1.navigationDirection = "right";
+  assert.equal(fpNavigationOptions.getLeaveOptions(q1.pages[0]).cssClass, "sd-file__page--leave-to-left");
+
+  settings.animationEnabled = false;
+});

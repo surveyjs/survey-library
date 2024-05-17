@@ -149,7 +149,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       var val = this.value;
       if (!val) return;
       if (!Array.isArray(val) || val.length == 0) {
-        this.clearValue();
+        this.clearValue(true);
         return;
       }
       var newValue = [];
@@ -160,7 +160,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       }
       if (newValue.length == val.length) return;
       if (newValue.length == 0) {
-        this.clearValue();
+        this.clearValue(true);
       } else {
         this.value = newValue;
       }

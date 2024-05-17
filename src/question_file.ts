@@ -453,15 +453,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
     this.prevPreviewLength = this.previewValue.length;
   }
-  public isPageVisible(index: number): boolean {
-    return this.indexToShow == index;
-  }
-  public isPreviewVisible(index: number): boolean {
-    return true;
-    // const isFileNavigatorVisible = this.fileNavigatorVisible;
-    // const isPreviewVisible = (this.indexToShow * this.pageSize <= index && index < (this.indexToShow + 1) * this.pageSize);
-    // return !isFileNavigatorVisible || isPreviewVisible;
-  }
 
   public getType(): string {
     return "file";
@@ -1071,12 +1062,13 @@ export class QuestionFileModel extends QuestionFileModelBase {
         const fileListSelector = this.getFileListSelector();
         const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
         if(fileListElement) {
-          const firstVisiblePage = Array.from(fileListElement.querySelectorAll(classesToSelector(this.cssClasses.page))).filter((_, index) => this.isPageVisible(index))[0];
-          const firstVisibleItem = firstVisiblePage.querySelector(classesToSelector(this.cssClasses.previewItem));
-
-          this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisiblePage).gap));
-          if(firstVisibleItem) {
-            this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem).width));
+          const visiblePage = fileListElement.querySelector(classesToSelector(this.cssClasses.page));
+          if(visiblePage) {
+            const firstVisibleItem = visiblePage.querySelector(classesToSelector(this.cssClasses.previewItem));
+            this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(visiblePage).gap));
+            if(firstVisibleItem) {
+              this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem).width));
+            }
           }
         }
       }

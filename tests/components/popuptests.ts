@@ -562,10 +562,8 @@ QUnit.test("PopupViewModel dispose", (assert) => {
     trace += "->onShow";
   };
 
-  model.toggleVisibility();
-  //viewModel.isVisible(!viewModel.isVisible());
-  assert.equal(trace, "->onShow");
-
+  model.isVisible = true;
+  assert.equal(trace, "");
   assert.equal(!!viewModel.container, false);
   assert.equal(container.tagName, "DIV");
   assert.notEqual(container.innerHTML.indexOf('<div class="sv-popup"'), 0);

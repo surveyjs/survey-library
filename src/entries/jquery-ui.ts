@@ -2,13 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import jQuery from "jquery";
 
-import { Survey, PopupSurvey } from "./react-ui-model";
-export { Survey } from "./react-ui-model";
-export * from "./core-wo-model";
-
-// themes settings
-export * from "./plugins";
-
+import { Survey, PopupSurvey } from "./jquery-ui-model";
 // localization
 import "./chunks/localization";
 
@@ -54,4 +48,24 @@ function doPopupSurvey(props: any): void {
 
 SurveyModel.platform = "jquery";
 
-export * from "./react";
+// // themes settings
+// export * from "./plugins";
+
+// export * from "./core";
+
+// // localization
+// import "./chunks/localization";
+
+// export * from "./jquery-ui-model";
+
+export * from "./core-wo-model";
+export * from "./jquery-ui-model";
+
+export { SurveyModel as Model } from "survey-core";
+
+export * from "../utils/responsivity-manager";
+export { unwrap } from "../utils/utils";
+
+import { checkLibraryVersion } from "survey-core";
+
+checkLibraryVersion(`${process.env.VERSION}`, "survey-jquery-ui");

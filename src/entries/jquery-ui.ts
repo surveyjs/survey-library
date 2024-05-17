@@ -48,18 +48,8 @@ function doPopupSurvey(props: any): void {
 
 SurveyModel.platform = "jquery";
 
-// // themes settings
-// export * from "./plugins";
-
-// export * from "./core";
-
-// // localization
-// import "./chunks/localization";
-
-// export * from "./jquery-ui-model";
-
-export * from "./core-wo-model";
 export * from "./jquery-ui-model";
+export * from "./core-export";
 
 export { SurveyModel as Model } from "survey-core";
 

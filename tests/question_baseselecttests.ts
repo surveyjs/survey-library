@@ -1534,6 +1534,51 @@ QUnit.test("Infinitive loop error by using carryForward, Bug#8232", function (as
   assert.equal(q2.visibleChoices.length, 5, "q2.visibleChoices");
   assert.equal(q2.isVisible, true, "q2 is visible");
 });
+QUnit.test("Change carryForwardQuestionType to let question banner in creator that something is changed, Bug#5495-in-Creator", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    {
+      type: "checkbox",
+      name: "q1",
+    },
+    {
+      type: "checkbox",
+      name: "q2",
+    },
+    {
+      type: "checkbox",
+      name: "q3",
+      choicesFromQuestion: "q1"
+    }],
+  });
+  survey.setDesignMode(true);
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  let counterOn = 0;
+  let counterOff = 0;
+  q3.registerFunctionOnPropertyValueChanged("carryForwardQuestionType", () => {
+    if(q3.isUsingCarryForward) {
+      counterOn++;
+    } else {
+      counterOff ++;
+    }
+  });
+  q3.choicesFromQuestion = "q2";
+  assert.equal(counterOn, 1, "counterOn #1");
+  assert.equal(counterOff, 1, "counterOff #1");
+  q3.choicesFromQuestion = "q1";
+  assert.equal(counterOn, 2, "counterOn #2");
+  assert.equal(counterOff, 2, "counterOff #2");
+  survey.setDesignMode(false);
+  q3.choicesFromQuestion = "q2";
+  assert.equal(counterOn, 2, "counterOn #3");
+  assert.equal(counterOff, 2, "counterOff #3");
+  q3.choicesFromQuestion = "";
+  survey.setDesignMode(false);
+  q3.choicesFromQuestion = "q2";
+  counterOn = 0;
+  counterOff = 0;
+  assert.equal(counterOn, 0, "counterOn #4");
+  assert.equal(counterOff, 0, "counterOff #4");
+});
 QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-1", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "paneldynamic", name: "q1", valueName: "sharedData",

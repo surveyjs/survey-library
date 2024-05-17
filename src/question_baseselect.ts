@@ -799,6 +799,9 @@ export class QuestionSelectBase extends Question {
     this.isLockVisibleChoices = !!question && question.name === val;
     if (!!question && question.name !== val) {
       question.removeDependedQuestion(this);
+      if(this.isDesignMode && !this.isLoadingFromJson && !!val) {
+        this.setPropertyValue("choicesFromQuestion", undefined);
+      }
     }
     this.setPropertyValue("choicesFromQuestion", val);
     this.isLockVisibleChoices = false;

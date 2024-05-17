@@ -1,4 +1,4 @@
-import { StylesManager } from "survey-core";
+import { StylesManager, settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -234,6 +234,58 @@ registerMarkupTests(
     snapshot: "imagepicker-colCount-1-v2",
     before: () => { StylesManager.applyTheme("defaultV2"); },
     after: () => StylesManager.applyTheme("default"),
+  },
+  {
+    name: "Test image picker readonly question markup",
+    json: {
+      questions: [
+        {
+          "type": "imagepicker",
+          "name": "question1",
+          "choices": [
+            {
+              "value": "item1",
+              "imageLink": "#item1.jpg"
+            },
+            {
+              "value": "item2",
+              "imageLink": "#item2.jpg"
+            }
+          ],
+          titleLocation: "hidden",
+          showLabel: true
+        }
+      ],
+      mode: "display"
+    },
+    snapshot: "imagepicker-readonly",
+  },
+  {
+    name: "Test image picker disabled question markup",
+    json: {
+      questions: [
+        {
+          "type": "imagepicker",
+          "name": "question1",
+          "choices": [
+            {
+              "value": "item1",
+              "imageLink": "#item1.jpg"
+            },
+            {
+              "value": "item2",
+              "imageLink": "#item2.jpg"
+            }
+          ],
+          titleLocation: "hidden",
+          showLabel: true
+        }
+      ],
+    },
+    initSurvey: (survey) => survey.setDesignMode(true),
+    before: () => { settings.supportCreatorV2 = true; },
+    after: () => { settings.supportCreatorV2 = false; },
+    snapshot: "imagepicker-disabled",
   },
   ]
 );

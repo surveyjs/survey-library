@@ -199,6 +199,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
             checked={isChecked}
             value={item.value}
             disabled={!this.question.getItemEnabled(item)}
+            readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
             aria-required={this.question.ariaRequired}
             aria-label={this.question.ariaLabel}

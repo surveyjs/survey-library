@@ -487,6 +487,38 @@ QUnit.test("column.isUnique, support settings.comparator.caseSensitive", functio
     "There is ann error, abc!=Abc case-sensitive, isUniqueCaseSensitive = false"
   );
 });
+QUnit.test("Matrixdynamic duplicationError in detailPanel", function (assert) {
+  var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
+  matrix.rowCount = 2;
+  matrix.columns.push(new MatrixDropdownColumn("column1"));
+  matrix.columns.push(new MatrixDropdownColumn("column2"));
+  matrix.detailPanelMode = "underRow";
+  matrix.detailPanel.addNewQuestion("text", "col_q1");
+  matrix.keyName = "col_q1";
+  assert.equal(matrix.hasErrors(), false, "No errors");
+  matrix.value = [{ col_q1: "val1" }, {}];
+  assert.equal(
+    matrix.hasErrors(),
+    false,
+    "There is no errors, row[0].column1=val1"
+  );
+  matrix.value = [{ col_q1: "val1" }, { col_q1: "val1" }];
+  assert.equal(
+    matrix.hasErrors(),
+    true,
+    "There is the error, row[0].column1=val1 and row[1].column2=val1"
+  );
+  const rows = matrix.visibleRows;
+  assert.equal(rows[0].isDetailPanelShowing, false, "detail panel row0 is not showing");
+  assert.equal(rows[1].isDetailPanelShowing, true, "detail panel row1 is showing");
+  const row1Q = rows[1].detailPanel.getQuestionByName("col_q1");
+  assert.equal(row1Q.errors.length, 1, "There is one error in the second row: errors.length");
+  assert.equal(row1Q.errors[0].visible, true, "There is one error in the second row: error is visible");
+  assert.equal(row1Q.hasVisibleErrors, true, "There is one error in the second row: hasVisibleErrors");
+  matrix.value = [{ column1: "val1" }, { column1: "val2" }];
+  assert.equal(matrix.hasErrors(), false, "There is no errors, row[0].column1=val1 and row[1].column2=val2");
+});
+
 QUnit.test("Matrixdynamic hasOther column", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");
   question.choices = [1, 2, 3];

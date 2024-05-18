@@ -2060,47 +2060,57 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   private isValueDuplicated(): boolean {
     if (!this.generatedVisibleRows) return false;
-    var columns = this.getUniqueColumns();
+    var names = this.getUniqueColumnsNames();
     var res = false;
-    for (var i = 0; i < columns.length; i++) {
-      res = this.isValueInColumnDuplicated(columns[i]) || res;
+    for (var i = 0; i < names.length; i++) {
+      res = this.isValueInColumnDuplicated(names[i]) || res;
     }
     return res;
   }
-  private isValueInColumnDuplicated(column: MatrixDropdownColumn): boolean {
+  private isValueInColumnDuplicated(columnName: string): boolean {
     var keyValues = <Array<any>>[];
     var res = false;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       res =
         this.isValueDuplicatedInRow(
           this.generatedVisibleRows[i],
-          column,
+          columnName,
           keyValues
         ) || res;
     }
     return res;
   }
-  protected getUniqueColumns(): Array<MatrixDropdownColumn> {
-    var res = new Array<MatrixDropdownColumn>();
+  protected getUniqueColumnsNames(): Array<string> {
+    var res = new Array<string>();
     for (var i = 0; i < this.columns.length; i++) {
       if (this.columns[i].isUnique) {
-        res.push(this.columns[i]);
+        res.push(this.columns[i].name);
       }
     }
     return res;
   }
   private isValueDuplicatedInRow(
     row: MatrixDropdownRowModelBase,
-    column: MatrixDropdownColumn,
+    columnName: string,
     keyValues: Array<any>
   ): boolean {
-    var question = row.getQuestionByColumn(column);
-    if (!question || question.isEmpty()) return false;
-    var value = question.value;
-    for (var i = 0; i < keyValues.length; i++) {
-      if (Helpers.isTwoValueEquals(value, keyValues[i], true, this.isUniqueCaseSensitive)) {
-        this.addDuplicationError(question);
-        return true;
+    const value = row.getValue(columnName);
+    if(!this.isValueEmpty(value)) {
+      for (var i = 0; i < keyValues.length; i++) {
+        if (Helpers.isTwoValueEquals(value, keyValues[i], true, this.isUniqueCaseSensitive)) {
+          let question = row.getQuestionByName(columnName);
+          if(!question && this.detailPanel.getQuestionByName(columnName)) {
+            row.showDetailPanel();
+            if(row.detailPanel) {
+              question = row.detailPanel.getQuestionByName(columnName);
+            }
+          }
+          if(question) {
+            row.showDetailPanel();
+            this.addDuplicationError(question);
+          }
+          return true;
+        }
       }
     }
     keyValues.push(value);

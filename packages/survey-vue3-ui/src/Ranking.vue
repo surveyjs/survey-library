@@ -2,7 +2,7 @@
   <div :class="question.rootClass" ref="root">
     <template v-if="!question.selectToRankEnabled">
       <component
-        v-for="(item, index) in question.rankingChoices"
+        v-for="(item, index) in question.renderedRankingChoices"
         :key="item.value + '-' + index + '-item'"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"

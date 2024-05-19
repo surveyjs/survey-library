@@ -327,38 +327,18 @@ QUnit.test("Matrixdynamic duplicationError", function (assert) {
     true,
     "There is the error, row[0].column1=val1 and row[1].column2=val1"
   );
-  assert.equal(
-    question.visibleRows[0].getQuestionByColumnName("column1").errors.length,
-    0,
-    "There is no errors in the first row: errors.length"
-  );
-  assert.equal(
-    question.visibleRows[0].getQuestionByColumnName("column1").hasVisibleErrors,
-    false,
-    "There is no errors in the first row: hasVisibleErrors"
-  );
-  assert.equal(
-    question.visibleRows[1].getQuestionByColumnName("column1").errors.length,
-    1,
-    "There is one error in the second row: errors.length"
-  );
-  assert.equal(
-    question.visibleRows[1].getQuestionByColumnName("column1").errors[0]
-      .visible,
-    true,
-    "There is one error in the second row: error is visible"
-  );
-  assert.equal(
-    question.visibleRows[1].getQuestionByColumnName("column1").hasVisibleErrors,
-    true,
-    "There is one error in the second row: hasVisibleErrors"
-  );
+  assert.equal(question.visibleRows[0].getQuestionByColumnName("column1").errors.length,
+    1, "There is an error in the first row: errors.length");
+  assert.equal(question.visibleRows[0].getQuestionByColumnName("column1").hasVisibleErrors,
+    true, "There is an error in the first row: hasVisibleErrors");
+  assert.equal(question.visibleRows[1].getQuestionByColumnName("column1").errors.length,
+    1, "There is one error in the second row: errors.length");
+  assert.equal(question.visibleRows[1].getQuestionByColumnName("column1").errors[0].visible,
+    true, "There is one error in the second row: error is visible");
+  assert.equal(question.visibleRows[1].getQuestionByColumnName("column1").hasVisibleErrors,
+    true, "There is one error in the second row: hasVisibleErrors");
   question.value = [{ column1: "val1" }, { column1: "val2" }];
-  assert.equal(
-    question.hasErrors(),
-    false,
-    "There is no errors, row[0].column1=val1 and row[1].column2=val2"
-  );
+  assert.equal(question.hasErrors(), false, "There is no errors, row[0].column1=val1 and row[1].column2=val2");
 });
 QUnit.test("Matrixdynamic column.isUnique, matrixdynamic", function (assert) {
   var question = new QuestionMatrixDynamicModel("q1");
@@ -379,11 +359,8 @@ QUnit.test("Matrixdynamic column.isUnique, matrixdynamic", function (assert) {
     true,
     "There is the error, row[0].column1=val1 and row[1].column2=val1"
   );
-  assert.equal(
-    question.visibleRows[0].getQuestionByColumnName("column1").errors.length,
-    0,
-    "There is no errors in the first row"
-  );
+  assert.equal(question.visibleRows[0].getQuestionByColumnName("column1").errors.length,
+    1, "There is error in the first row");
   assert.equal(
     question.visibleRows[1].getQuestionByColumnName("column1").errors.length,
     1,
@@ -407,9 +384,7 @@ QUnit.test("Matrixdynamic column.isUnique, matrixdynamic", function (assert) {
   );
   assert.equal(
     question.visibleRows[0].getQuestionByColumnName("column3").errors.length,
-    0,
-    "There is no errors in the first row"
-  );
+    1, "There is an error in the first row");
   assert.equal(
     question.visibleRows[1].getQuestionByColumnName("column3").errors.length,
     1,
@@ -434,21 +409,14 @@ QUnit.test("Matrixdynamic column.isUnique, matrixdropdown", function (assert) {
     "There is no errors, row[0].column1=val1"
   );
   question.value = { row1: { column1: "val1" }, row2: { column1: "val1" } };
-  assert.equal(
-    question.hasErrors(),
-    true,
-    "There is the error, row[0].column1=val1 and row[1].column2=val1"
-  );
+  assert.equal(question.hasErrors(),
+    true, "There is the error, row[0].column1=val1 and row[1].column2=val1");
   assert.equal(
     question.visibleRows[0].getQuestionByColumnName("column1").errors.length,
-    0,
-    "There is no errors in the first row"
-  );
+    1, "There is an error in the first row");
   assert.equal(
     question.visibleRows[1].getQuestionByColumnName("column1").errors.length,
-    1,
-    "There is one error in the second row"
-  );
+    1, "There is one error in the second row");
   question.value = { row1: { column1: "val1" }, row2: { column1: "val2" } };
   assert.equal(
     question.hasErrors(),
@@ -509,7 +477,7 @@ QUnit.test("Matrixdynamic duplicationError in detailPanel", function (assert) {
     "There is the error, row[0].column1=val1 and row[1].column2=val1"
   );
   const rows = matrix.visibleRows;
-  assert.equal(rows[0].isDetailPanelShowing, false, "detail panel row0 is not showing");
+  assert.equal(rows[0].isDetailPanelShowing, true, "detail panel row0 is showing");
   assert.equal(rows[1].isDetailPanelShowing, true, "detail panel row1 is showing");
   const row1Q = rows[1].detailPanel.getQuestionByName("col_q1");
   assert.equal(row1Q.errors.length, 1, "There is one error in the second row: errors.length");
@@ -517,6 +485,56 @@ QUnit.test("Matrixdynamic duplicationError in detailPanel", function (assert) {
   assert.equal(row1Q.hasVisibleErrors, true, "There is one error in the second row: hasVisibleErrors");
   matrix.value = [{ column1: "val1" }, { column1: "val2" }];
   assert.equal(matrix.hasErrors(), false, "There is no errors, row[0].column1=val1 and row[1].column2=val2");
+});
+
+QUnit.test("Matrixdynamic: remove duplicationError in cells and in detailPanels", function (assert) {
+  var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
+  const col = new MatrixDropdownColumn("col1");
+  matrix.columns.push(col);
+  col.isUnique = true;
+  matrix.columns.push(new MatrixDropdownColumn("col2"));
+  matrix.detailPanelMode = "underRow";
+  matrix.detailPanel.addNewQuestion("text", "col_q1");
+  matrix.keyName = "col_q1";
+  matrix.value = [{ col1: 3, col_q1: 3 }, { col1: 3, col_q1: 3 }, { col1: 3, col_q1: 3 }];
+  assert.equal(matrix.hasErrors(), true, "There are errors");
+  const rows = matrix.visibleRows;
+  assert.equal(rows[0].isDetailPanelShowing, true, "detail panel row0 is showing");
+  assert.equal(rows[1].isDetailPanelShowing, true, "detail panel row1 is showing");
+  assert.equal(rows[2].isDetailPanelShowing, true, "detail panel row2 is showing");
+  const row0Cell = rows[0].cells[0].question;
+  const row1Cell = rows[1].cells[0].question;
+  const row2Cell = rows[2].cells[0].question;
+  rows[0].showDetailPanel();
+  const row0Q = rows[0].detailPanel.getQuestionByName("col_q1");
+  const row1Q = rows[1].detailPanel.getQuestionByName("col_q1");
+  const row2Q = rows[2].detailPanel.getQuestionByName("col_q1");
+  assert.equal(row0Cell.errors.length, 1, "row0 cell has error, #1");
+  assert.equal(row1Cell.errors.length, 1, "row1 cell has error, #1");
+  assert.equal(row2Cell.errors.length, 1, "row2 cell has error, #1");
+  assert.equal(row0Q.errors.length, 1, "row0 detail panel question has error, #1");
+  assert.equal(row1Q.errors.length, 1, "row1 detail panel question has error, #1");
+  assert.equal(row2Q.errors.length, 1, "row2 detail panel question has error, #1");
+
+  row0Cell.value = 1;
+  row0Q.value = 1;
+  assert.equal(row0Cell.errors.length, 0, "row0 cell has no errors, #2");
+  assert.equal(row1Cell.errors.length, 1, "row1 cell has error, #2");
+  assert.equal(row2Cell.errors.length, 1, "row2 cell has error, #2");
+  assert.equal(row0Q.errors.length, 0, "row0 detail panel question no errors, #2");
+  assert.equal(row1Q.errors.length, 1, "row1 detail panel question has error, #2");
+  assert.equal(row2Q.errors.length, 1, "row2 detail panel question has error, #2");
+
+  row1Cell.value = 2;
+  row1Q.value = 2;
+  assert.equal(row0Cell.errors.length, 0, "row0 cell has no errors, #3");
+  assert.equal(row1Cell.errors.length, 0, "row1 cell has  no errors, #3");
+  assert.equal(row2Cell.errors.length, 0, "row2 cell has  no errors, #3");
+  assert.equal(row0Q.errors.length, 0, "row0 detail panel question has  no errors, #3");
+  assert.equal(row1Q.errors.length, 0, "row1 detail panel question has  no errors, #3");
+  assert.equal(row2Q.errors.length, 0, "row2 detail panel question has  no errors, #3");
+
+  assert.equal(matrix.hasErrors(), false, "There are no errors");
 });
 
 QUnit.test("Matrixdynamic hasOther column", function (assert) {

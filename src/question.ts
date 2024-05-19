@@ -2112,6 +2112,7 @@ export class Question extends SurveyElement<Question>
     return new CustomError(error, this.survey);
   }
   public removeError(error: SurveyError): void {
+    if(!error) return;
     var errors = this.errors;
     var index = errors.indexOf(error);
     if (index !== -1) errors.splice(index, 1);

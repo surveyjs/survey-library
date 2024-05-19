@@ -2063,7 +2063,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     var names = this.getUniqueColumnsNames();
     var res = false;
     for (var i = 0; i < names.length; i++) {
-      res = this.isValueInColumnDuplicated(names[i]) || res;
+      res = this.isValueInColumnDuplicated(names[i], true) || res;
     }
     return res;
   }
@@ -2076,9 +2076,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return res;
   }
-  private isValueInColumnDuplicated(columnName: string): boolean {
+  private isValueInColumnDuplicated(columnName: string, showErrors: boolean): boolean {
     const rows = this.getDuplicatedRows(columnName);
-    this.showDuplicatedErrorsInRows(rows, columnName);
+    if(showErrors) {
+      this.showDuplicatedErrorsInRows(rows, columnName);
+    }
     this.removeDuplicatedErrorsInRows(rows, columnName);
     return rows.length > 0;
   }
@@ -2306,8 +2308,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
     if(this.getUniqueColumnsNames().indexOf(columnName) > -1) {
-      const rows = this.getDuplicatedRows(columnName);
-      this.removeDuplicatedErrorsInRows(rows, columnName);
+      this.isValueInColumnDuplicated(columnName, !!rowObj);
     }
   }
   private getNewValueOnRowChanged(

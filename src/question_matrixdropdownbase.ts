@@ -1710,21 +1710,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     cellQuestion: Question
   ): boolean {
     if (!this.generatedVisibleRows) return false;
-    var res = false;
-    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      var row = this.generatedVisibleRows[i];
-      if (checkedRow === row) continue;
-      if (Helpers.isTwoValueEquals(row.getValue(cellQuestion.name), cellQuestion.value, true, this.isUniqueCaseSensitive)) {
-        res = true;
-        break;
-      }
-    }
-    if (res) {
-      this.addDuplicationError(cellQuestion);
-    } else {
-      cellQuestion.clearErrors();
-    }
-    return res;
+    return this.isValueInColumnDuplicated(cellQuestion.name, true, checkedRow);
   }
   /**
    * Assigns values to a row.
@@ -2076,21 +2062,27 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return res;
   }
-  private isValueInColumnDuplicated(columnName: string, showErrors: boolean): boolean {
+  private isValueInColumnDuplicated(columnName: string, showErrors: boolean, row?: MatrixDropdownRowModelBase): boolean {
     const rows = this.getDuplicatedRows(columnName);
     if(showErrors) {
       this.showDuplicatedErrorsInRows(rows, columnName);
     }
     this.removeDuplicatedErrorsInRows(rows, columnName);
-    return rows.length > 0;
+    return !!row ? rows.indexOf(row) > -1 : rows.length > 0;
   }
   private getDuplicatedRows(columnName: string): Array<MatrixDropdownRowModelBase> {
     const keyValues: HashTable<Array<MatrixDropdownRowModelBase>> = {};
     const res: Array<MatrixDropdownRowModelBase> = [];
     const rows = this.generatedVisibleRows;
     for (var i = 0; i < rows.length; i++) {
-      const rowVal = this.getRowValue(i);
-      let val = !!rowVal ? rowVal[columnName] : undefined;
+      let val = undefined;
+      const question = rows[i].getQuestionByName(columnName);
+      if(!!question) {
+        val = question.value;
+      } else {
+        const rowVal = this.getRowValue(i);
+        val = !!rowVal ? rowVal[columnName] : undefined;
+      }
       if(!this.isValueEmpty(val)) {
         if(!this.isUniqueCaseSensitive && typeof val === "string") {
           val = val.toLocaleLowerCase();

@@ -1224,6 +1224,43 @@ QUnit.test("Edit choices in matrix dynamic column, unique in detail panel", func
   assert.equal(row0Q.errors.length, 0, "No errors");
   assert.equal(question.choices[0].value, "Item4", "value is changed");
 });
+QUnit.test("Edit choices in matrix dynamic column, check errors", function (assert) {
+  const question = new QuestionDropdownModel("q1");
+  question.choices = ["Item1", "Item2", "Item3"];
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        rowCount: 0,
+        keyName: "value",
+        columns: [
+          { cellType: "text", name: "value", isRequired: true, isUnique: true },
+          { cellType: "text", name: "text" }
+        ]
+      },
+    ],
+    checkErrorsMode: "onValueChanging"
+  });
+  survey.editingObj = question;
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  assert.equal(matrix.rowCount, 3, "There are 3 items");
+  const rows = matrix.visibleRows;
+  const row0Q = rows[0].cells[0].question;
+  const row1Q = rows[1].cells[0].question;
+  row0Q.value = "Item2";
+  assert.equal(row0Q.errors.length, 1, "row0Q errors, #1");
+  assert.equal(row1Q.errors.length, 1, "row1Q errors, #1");
+  row0Q.clearValue();
+  assert.equal(row0Q.errors.length, 1, "row0Q errors, #2");
+  assert.equal(row1Q.errors.length, 1, "row1Q errors, #2");
+  row0Q.value = "Item2";
+  assert.equal(row0Q.errors.length, 1, "row0Q errors, #3");
+  assert.equal(row1Q.errors.length, 1, "row1Q errors, #3");
+  row1Q.value = "Item4";
+  assert.equal(row0Q.errors.length, 0, "row0Q errors, #4");
+  assert.equal(row1Q.errors.length, 0, "row1Q errors, #4");
+});
 QUnit.test("Edit question.page property", function (assert) {
   var questionSurvey = new SurveyModel();
   questionSurvey.addNewPage("page1");

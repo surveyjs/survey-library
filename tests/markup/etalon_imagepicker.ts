@@ -245,11 +245,11 @@ registerMarkupTests(
           "choices": [
             {
               "value": "item1",
-              "imageLink": "#item1.jpg"
+              "imageLink": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
             },
             {
               "value": "item2",
-              "imageLink": "#item2.jpg"
+              "imageLink": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
             }
           ],
           titleLocation: "hidden",
@@ -270,11 +270,11 @@ registerMarkupTests(
           "choices": [
             {
               "value": "item1",
-              "imageLink": "#item1.jpg"
+              "imageLink": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
             },
             {
               "value": "item2",
-              "imageLink": "#item2.jpg"
+              "imageLink": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
             }
           ],
           titleLocation: "hidden",

@@ -18,12 +18,16 @@ sv-popup {
   height: 100vh;
 }
 
+.sv-dropdown-popup {
+  height: 0;
+}
+
 .sv-popup.sv-popup-inner {
   height: 0;
 }
 
-.sv-dropdown-popup {
-  height: 0;
+.sv-popup-inner .sv-popup__container {
+  margin-top: calcSize(-1);
 }
 
 .sv-popup__container {

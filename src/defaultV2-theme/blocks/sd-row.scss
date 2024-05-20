@@ -33,18 +33,12 @@
     margin-top: var(--sd-base-vertical-padding);
     --animate-margin: var(--sd-base-vertical-padding);
   }
-  & ~ .sd-page__row.sd-row.sd-row--fade-in.sd-row--fade-in {
-    margin-top: 0;
-  }
 }
 
 .sd-row.sd-page__row:not(.sd-row--compact) {
   & ~ .sd-row.sd-page__row:not(.sd-row--compact) {
     margin-top: calcSize(2);
     --animate-margin: #{calcSize(2)};
-  }
-  & ~ .sd-page__row.sd-row.sd-row--fade-in.sd-row--fade-in {
-    margin-top: 0;
   }
 }
 
@@ -118,21 +112,15 @@
     margin-top: var(--animate-margin);
   }
 }
-.sd-row.sd-row--fade-in {
-  margin-top: 0;
-}
+
 .sd-row--fade-in {
   animation-fill-mode: forwards;
   animation-name: fadeIn, moveInWithOverflow, marginFadeIn;
   min-height: 0 !important;
   opacity: 0;
-  height: 0;
   animation-timing-function: $ease-out;
   animation-delay: $row-fade-in-delay, 0s, 0s;
   animation-duration: $row-fade-in-duration, $row-move-in-duration, $row-move-in-duration;
-}
-.sd-row--delayed-fade-in {
-  animation-delay: calc(#{$row-fade-in-delay} + #{$row-fade-in-animation-delay}), $row-fade-in-animation-delay, $row-fade-in-animation-delay;
 }
 
 .sd-row--fade-out {

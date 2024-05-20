@@ -93,9 +93,7 @@ frameworks.forEach((framework) => {
     .withText("Battery life");
 
   test("ranking: simple using", async (t) => {
-    await t.dragToElement(PriceItem, BatteryItem, {
-      destinationOffsetY: 0,
-    });
+    await t.dragToElement(PriceItem, BatteryItem);
     await t.wait(300);
     let data = await getData();
     await t.expect(data["smartphone-features"]).eql([
@@ -109,7 +107,6 @@ frameworks.forEach((framework) => {
     ]);
   });
 
-  //todo
   test("ranking: predeficed data", async (t) => {
     await setData({
       "smartphone-features": [
@@ -123,7 +120,7 @@ frameworks.forEach((framework) => {
       ],
     });
     await t.dragToElement(PriceItem, BatteryItem, {
-      destinationOffsetY: -1,
+      destinationOffsetY: 0,
       offsetY: 0,
       speed: 0.1
     });
@@ -140,9 +137,7 @@ frameworks.forEach((framework) => {
     ]);
 
     await setData(null);
-    await t.dragToElement(PriceItem, BatteryItem, {
-      destinationOffsetY: 0
-    });
+    await t.dragToElement(PriceItem, BatteryItem);
     await t.wait(300);
     data = await getData();
     await t.expect(data["smartphone-features"]).eql([
@@ -155,7 +150,7 @@ frameworks.forEach((framework) => {
       "Processor power",
     ]);
   });
-  //todo
+
   test("ranking: carry forward", async (t) => {
     await t.hover(PriceItem);
     await t.drag(PriceItem, 0, -300, {
@@ -199,7 +194,7 @@ frameworks.forEach((framework) => {
     await t.expect(typeof data.bestcar).ok();
 
     await t.hover(rankAudiItem);
-    await t.dragToElement(rankAudiItem, rankMercedesBenzItem, { offsetY: 0, destinationOffsetY: -1, speed: 0.1 });
+    await t.dragToElement(rankAudiItem, rankMercedesBenzItem, { offsetY: 0, destinationOffsetY: 0, speed: 0.1 });
     data = await getData();
 
     await t.expect(data.bestcar).eql(["Mercedes-Benz", "Audi", "Toyota"]);

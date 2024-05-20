@@ -270,6 +270,8 @@ export class Base {
    * A new value for the property.
    * - `options.oldValue`: `any`\
    * An old value of the property. If the property is an array, `oldValue` contains the same array as `newValue` does.
+   *
+   * If you need to add and remove property change event handlers dynamically, use the [`registerPropertyChangedHandlers`](#registerPropertyChangedHandlers) and [`unregisterPropertyChangedHandlers`](#unregisterPropertyChangedHandlers) methods instead.
    */
   public onPropertyChanged: EventBase<Base> = this.addEvent<Base>();
   /**
@@ -761,9 +763,11 @@ export class Base {
     return res;
   }
   /**
-   * Registers a function to call when a property value changes.
+   * Registers a single value change handler for one or multiple properties.
+   *
+   * The `registerPropertyChangedHandlers` and [`unregisterPropertyChangedHandlers`](#unregisterPropertyChangedHandlers) methods allow you to manage property change event handlers dynamically. If you only need to attach an event handler without removing it afterwards, you can use the [`onPropertyChanged`](#onPropertyChanged) event instead.
    * @param propertyNames An array of one or multiple property names.
-   * @param handler A function to call when one of the listed properties change.
+   * @param handler A function to call when one of the listed properties change. Accepts a new property value as an argument.
    * @param key *(Optional)* A key that identifies the current registration. If a function for one of the properties is already registered with the same key, the function will be overwritten. You can also use the key to subsequently unregister handlers.
    * @see unregisterPropertyChangedHandlers
    */

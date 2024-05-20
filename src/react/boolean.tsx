@@ -87,7 +87,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             </span>
           </div>
           <div className={cssClasses.switch} onClick={this.handleOnSwitchClick}>
-            <span className={cssClasses.slider}>
+            <span className={cssClasses.slider} style={{ marginLeft: this.question.thumbMargin }}>
               {
                 this.question.isDeterminated && cssClasses.sliderText ?
                   <span className={cssClasses.sliderText}>{this.renderLocString(this.question.getCheckedLabel())}</span>

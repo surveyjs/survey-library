@@ -4711,6 +4711,64 @@ QUnit.test("showInMultipleColumns and hasOther properties", function (assert) {
   cell.question.comment = "";
   assert.notOk(matrix.value, "Reset comment value");
 });
+QUnit.test("showInMultipleColumns and showNoneItem property", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            showInMultipleColumns: true,
+            showNoneItem: true,
+            noneText: "None abc",
+            choices: [1, 2, 3]
+          },
+          { name: "col2", cellType: "comment" }
+        ],
+        rows: ["row1", "row2"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 1 + 3 + 1 + 1, "header: row value + 3 choices + none item + one column");
+  assert.equal(matrix.renderedTable.rows[1].cells.length, 1 + 3 + 1 + 1, "first row: row value + 3 choices + none item + one column");
+  assert.equal(matrix.renderedTable.headerRow.cells[4].locTitle.text, "None abc", "Column text is correct");
+  const cell = matrix.renderedTable.rows[1].cells[4];
+  assert.equal(cell.question.getType(), "checkbox", "question is checkbox");
+  assert.equal(cell.question.showNoneItem, true, "showNoneItem is set");
+});
+QUnit.test("showInMultipleColumns  and showNoneItem property properties & choices from question Bug#8279", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            showInMultipleColumns: true,
+            showNoneItem: true,
+            noneText: "None abc"
+          },
+          { name: "col2", cellType: "comment" }
+        ],
+        choices: [1, 2, 3],
+        rows: ["row1", "row2"]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 1 + 3 + 1 + 1, "header: row value + 3 choices + none item + one column");
+  assert.equal(matrix.renderedTable.rows[1].cells.length, 1 + 3 + 1 + 1, "first row: row value + 3 choices + none item  + one column");
+  assert.equal(matrix.renderedTable.headerRow.cells[4].locTitle.text, "None abc", "Column text is correct");
+  const cell = matrix.renderedTable.rows[1].cells[4];
+  assert.equal(cell.question.getType(), "checkbox", "question is checkbox");
+  assert.equal(cell.question.showNoneItem, true, "showNoneItem is set");
+});
 QUnit.test("showInMultipleColumns and hasOther properties, change in run-time", function (assert) {
   const survey = new SurveyModel({
     elements: [
@@ -9384,4 +9442,54 @@ QUnit.test("table: check animation options", function (assert) {
   assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "40px");
 
   tableHtmlElement.remove();
+});
+QUnit.test("set data from the survey", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [{ name: "col1" }]
+      }
+    ]
+  });
+  survey.data = { matrix: [{ col1: 1 }] };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 1, "There one row");
+});
+QUnit.test("set data from the survey and default row count is 0", function (assert) {
+  const prop = Serializer.findProperty("matrixdynamic", "rowCount");
+  const prevValue = prop.defaultValue;
+  assert.equal(prevValue, 2, "The default rowCount value is 2");
+  prop.defaultValue = 0;
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [{ name: "col1" }]
+      }
+    ]
+  });
+  survey.data = { matrix: [{ col1: 1 }] };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 1, "There one row");
+  Serializer.findProperty("matrixdynamic", "rowCount").defaultValue = 2;
+  prop.defaultValue = prevValue;
+});
+QUnit.test("set data from the defaultValue and ignore rowCount", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 3,
+        defaultValue: [{ col1: 1 }],
+        columns: [{ name: "col1" }]
+      }
+    ]
+  });
+  survey.data = { matrix: [{ col1: 1 }] };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 1, "There one row");
 });

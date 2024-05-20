@@ -12,7 +12,7 @@ import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownM
 import { ActionContainer } from "./actions/container";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { settings } from "./settings";
-import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
+import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 
 export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
@@ -233,7 +233,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   protected getIsAnimationAllowed(): boolean {
     return super.getIsAnimationAllowed() && this.matrix.animationAllowed;
   }
-  private getRenderedRowsAnimationOptions(): IAnimationConsumer<[QuestionMatrixDropdownRenderedRow]> {
+  private getRenderedRowsAnimationOptions(): IAnimationGroupConsumer<QuestionMatrixDropdownRenderedRow> {
     const beforeAnimationRun = (el: HTMLElement) => {
       el.querySelectorAll(":scope > td > *").forEach((el:HTMLElement) => {
         el.style.setProperty("--animation-height", el.offsetHeight + "px");
@@ -1044,7 +1044,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private getMultipleColumnChoices(column: MatrixDropdownColumn): any {
     var choices = column.templateQuestion.choices;
     if (!!choices && Array.isArray(choices) && choices.length == 0)
-      return this.matrix.choices;
+      return [].concat(this.matrix.choices, column.getVisibleMultipleChoices());
     choices = column.getVisibleMultipleChoices();
     if (!choices || !Array.isArray(choices)) return null;
     return choices;

@@ -3,6 +3,7 @@ import { DragDropChoices } from "./choices";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { IsMobile } from "../utils/devices";
 import { DomDocumentHelper } from "../global_variables_utils";
+import { QuestionRankingModel } from "../question_ranking";
 export class DragDropRankingChoices extends DragDropChoices {
   protected get draggedElementType(): string {
     return "ranking-item";
@@ -63,72 +64,67 @@ export class DragDropRankingChoices extends DragDropChoices {
     dropTargetNode?: HTMLElement
   ): boolean {
     const choices = this.parentElement.rankingChoices;
-
-    const dropTargetIndex = choices.indexOf(this.dropTarget);
-    const draggedElementIndex = choices.indexOf(this.draggedElement);
-
-    if (draggedElementIndex > dropTargetIndex && dropTargetNode.classList.contains("sv-dragdrop-moveup")) {
-      this.parentElement.dropTargetNodeMove = null;
-      return false;
-    }
-
-    if (draggedElementIndex < dropTargetIndex && dropTargetNode.classList.contains("sv-dragdrop-movedown")) {
-      this.parentElement.dropTargetNodeMove = null;
-      return false;
-    }
-
     if (choices.indexOf(dropTarget) === -1)
       // shouldn't allow to drop on "adorners" (selectall, none, other)
       return false;
 
     return true;
   }
-  protected calculateIsBottom(clientY: number): boolean {
-    const choices = this.parentElement.rankingChoices;
-    return (
-      choices.indexOf(this.dropTarget) - choices.indexOf(this.draggedElement) >
-      0
-    );
+  protected calculateIsBottom(clientY: number, dropTargetNode?: HTMLElement): boolean {
+    if(this.dropTarget instanceof ItemValue && this.draggedElement !== this.dropTarget) {
+      const rect = dropTargetNode.getBoundingClientRect();
+      return clientY >= rect.y + rect.height / 2;
+    }
+    return super.calculateIsBottom(clientY);
   }
 
   protected doDragOver = (): any => {
     const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".sv-ranking-item");
     node.style.cursor = "grabbing";
   };
+  public getIndixies(model: any, fromChoicesArray: Array<ItemValue>, toChoicesArray: Array<ItemValue>) {
+    let fromIndex = fromChoicesArray.indexOf(this.draggedElement);
+    let toIndex = toChoicesArray.indexOf(this.dropTarget);
+
+    if (toIndex === -1) {
+      const length = model.value.length;
+      toIndex = length;
+    } else if(fromChoicesArray == toChoicesArray) {
+      if(!this.isBottom && fromIndex < toIndex) toIndex--;
+      if(this.isBottom && fromIndex > toIndex) toIndex ++;
+    } else if(fromChoicesArray != toChoicesArray) {
+      if(this.isBottom) toIndex++;
+    }
+
+    return { fromIndex, toIndex };
+  }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
-    const choices = this.parentElement.rankingChoices;
-    const dropTargetIndex = choices.indexOf(this.dropTarget);
-    const draggedElementIndex = choices.indexOf(this.draggedElement);
+    const { fromIndex, toIndex } = this.getIndixies(this.parentElement, this.parentElement.rankingChoices, this.parentElement.rankingChoices);
+    this.reorderRankedItem(this.parentElement as QuestionRankingModel, fromIndex, toIndex);
+  }
 
-    choices.splice(draggedElementIndex, 1);
-    choices.splice(dropTargetIndex, 0, this.draggedElement);
-    this.parentElement.setPropertyValue("rankingChoices", choices);
-    //return;
-    this.updateDraggedElementShortcut(dropTargetIndex + 1);
+  public reorderRankedItem = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void => {
+    if(fromIndex == toIndex) return;
+    const rankingChoices = questionModel.rankingChoices;
+    const item = rankingChoices[fromIndex];
+    questionModel.isValueSetByUser = true;
 
-    if (draggedElementIndex !== dropTargetIndex) {
-      dropTargetNode.classList.remove("sv-dragdrop-moveup");
-      dropTargetNode.classList.remove("sv-dragdrop-movedown");
-      this.parentElement.dropTargetNodeMove = null;
-    }
+    rankingChoices.splice(fromIndex, 1);
+    rankingChoices.splice(toIndex, 0, item);
 
-    if (draggedElementIndex > dropTargetIndex) {
-      this.parentElement.dropTargetNodeMove = "down";
-    }
-
-    if (draggedElementIndex < dropTargetIndex) {
-      this.parentElement.dropTargetNodeMove = "up";
-    }
+    this.updateDraggedElementShortcut(toIndex + 1);
   }
 
   protected updateDraggedElementShortcut(newIndex: number) {
-    const newIndexText = newIndex !== null ? newIndex + "" : "";
-    // TODO should avoid direct DOM manipulation, do through the frameworks instead
-    const indexNode: HTMLElement = this.domAdapter.draggedElementShortcut.querySelector(
-      ".sv-ranking-item__index"
-    );
-    indexNode.innerText = newIndexText;
+    if(this.domAdapter?.draggedElementShortcut) {
+      const newIndexText = newIndex !== null ? newIndex + "" : "";
+      // TODO should avoid direct DOM manipulation, do through the frameworks instead
+      const indexNode: HTMLElement = this.domAdapter.draggedElementShortcut.querySelector(
+        ".sv-ranking-item__index"
+      );
+      indexNode.innerText = newIndexText;
+    }
   }
 
   protected ghostPositionChanged(): void {

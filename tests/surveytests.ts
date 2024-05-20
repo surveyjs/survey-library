@@ -1881,7 +1881,70 @@ QUnit.test("onValueChanging event", function (assert) {
     "onValueChanging event allows to change value"
   );
 });
-QUnit.test("onValueChanging event - do not allow clear value, #1542", function (
+QUnit.test("onValueChanging event for comment, #8292", function (
+  assert
+) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page");
+  const q1 = page.addNewQuestion("text", "q1");
+  q1.showCommentArea = true;
+  let oldComment, newComment, questionName;
+  survey.onValueChanging.add((sender, options) => {
+    if (options.name == "q1-Comment") {
+      questionName = options.question.name;
+      oldComment = options.oldValue;
+      newComment = options.value;
+    }
+  });
+  q1.comment = "abc";
+  assert.equal(questionName, "q1", "question name #1");
+  assert.equal(q1.comment, "abc", "comment value #1");
+  assert.equal(newComment, "abc", "newComment #1");
+  q1.comment = "abcd";
+  assert.equal(q1.comment, "abcd", "comment value #2");
+  assert.equal(newComment, "abcd", "newComment #2");
+  assert.equal(oldComment, "abc", "newComment #2");
+});
+
+QUnit.test("onValueChanging event - do not allow clear value, #8292", function (
+  assert
+) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page");
+  const q1 = page.addNewQuestion("text", "q1");
+  q1.showCommentArea = true;
+  let counter = 0;
+  let oldComment, newComment, questionName;
+  survey.onValueChanging.add((sender, options) => {
+    if (options.name === "q1-Comment") {
+      counter ++;
+      questionName = options.question.name;
+      if(!options.value) {
+        options.value = options.oldValue;
+      }
+      oldComment = options.oldValue;
+      newComment = options.value;
+    }
+  });
+  let onValueChangedValue;
+  survey.onValueChanged.add((sender, options) => {
+    if (options.name === "q1-Comment") {
+      onValueChangedValue = options.value;
+    }
+  });
+  q1.comment = "abc";
+  assert.equal(counter, 1, "counter #1");
+  assert.equal(q1.comment, "abc", "comment value #1");
+  q1.comment = "";
+  assert.equal(questionName, "q1", "question.name #2");
+  assert.equal(oldComment, "abc", "oldComment #2");
+  assert.equal(newComment, "abc", "newComment #2");
+  assert.equal(counter, 2, "counter #2");
+  assert.equal(q1.comment, "abc", "comment value #2");
+  assert.equal(survey.getComment("q1"), "abc", "survey.getComment value #2");
+  assert.equal(onValueChangedValue, "abc", "onValueChanged options.value");
+});
+QUnit.test("onValueChanging event - do not allow clear value in comment, #1542", function (
   assert
 ) {
   var survey = new SurveyModel();

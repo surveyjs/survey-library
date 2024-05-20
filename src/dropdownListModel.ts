@@ -428,7 +428,7 @@ export class DropdownListModel extends Base {
   }
 
   public onClear(event: any): void {
-    this.question.clearValue();
+    this.question.clearValue(true);
     this._popupModel.isVisible = false;
     if (event) {
       event.preventDefault();

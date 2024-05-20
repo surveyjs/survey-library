@@ -411,10 +411,10 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.runCondition(values, newProps);
     }
   }
-  public clearValue(): void {
+  public clearValue(keepComment?: boolean): void {
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
-      questions[i].clearValue();
+      questions[i].clearValue(keepComment);
     }
   }
   public onAnyValueChanged(name: string, questionName: string): void {

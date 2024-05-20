@@ -1,4 +1,4 @@
-import { StylesManager } from "survey-core";
+import { StylesManager, settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -135,6 +135,30 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-single-zip-ro",
+  },
+  {
+    name: "Test single file question disabled (default)",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+          defaultValue: [
+            {
+              "name": "item1.zip",
+              "type": "application/x-zip-compressed",
+              "content": "#item1.zip"
+            },
+          ],
+        }
+      ]
+    },
+    initSurvey: (survey) => survey.setDesignMode(true),
+    before: () => { settings.supportCreatorV2 = true; },
+    after: () => { settings.supportCreatorV2 = false; },
+    snapshot: "file-single-zip-disabled",
   },
   // defaultV2
   {

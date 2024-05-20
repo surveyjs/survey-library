@@ -2,7 +2,7 @@
   <div :class="question.fileRootCss" ref="root">
     <input
       :class="question.cssClasses.fileInput"
-      v-if="!question.isReadOnly && question.hasFileUI"
+      v-if="(!question.isReadOnlyAttr && !question.isDisabledAttr) && question.hasFileUI"
       tabindex="-1"
       type="file"
       :id="question.inputId"
@@ -14,6 +14,16 @@
       v-bind:title="question.inputTitle"
       v-bind:accept="question.acceptedTypes"
       :capture="(question.renderCapture as any)"
+    />
+    <input
+      v-if="question.isReadOnly"
+      type="file"
+      readonly
+      :id="question.inputId"
+      :class="question.getReadOnlyFileCss()"
+      :multiple="question.allowMultiple"
+      :placeholder="question.title"
+      style="color: transparent"
     />
     <input
       v-if="question.isReadOnly"

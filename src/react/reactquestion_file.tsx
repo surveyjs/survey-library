@@ -28,36 +28,53 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       this.question.cssClasses.removeButtonBottom
     ): null;
     const fileNavigator = this.question.fileNavigatorVisible?(<SurveyActionBar model = {this.question.fileNavigator}></SurveyActionBar>) : null;
-    const fileInput = (
-      this.isDisplayMode ?
-        <input
-          type="file"
-          disabled={this.isDisplayMode}
-          className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
-          id={this.question.inputId}
-          ref={input => (this.setControl(input))}
-          style={!this.isDisplayMode ? {} : { color: "transparent" }}
-          multiple={this.question.allowMultiple}
-          placeholder={this.question.title}
-          accept={this.question.acceptedTypes}
-        /> : this.question.hasFileUI ?
-          <input
-            type="file"
-            disabled={this.isDisplayMode}
-            tabIndex={-1}
-            className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
-            id={this.question.inputId}
-            ref={input => (this.setControl(input))}
-            style={!this.isDisplayMode ? {} : { color: "transparent" }}
-            aria-required={this.question.ariaRequired}
-            aria-label={this.question.ariaLabel}
-            aria-invalid={this.question.ariaInvalid}
-            aria-errormessage={this.question.ariaErrormessage}
-            multiple={this.question.allowMultiple}
-            title={this.question.inputTitle}
-            accept={this.question.acceptedTypes}
-            capture={this.question.renderCapture}
-          /> : null);
+    let fileInput;
+    if (this.question.isReadOnlyAttr) {
+      fileInput = <input
+        readOnly
+        type="file"
+        className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
+        id={this.question.inputId}
+        ref={input => (this.setControl(input))}
+        style={!this.isDisplayMode ? {} : { color: "transparent" }}
+        multiple={this.question.allowMultiple}
+        placeholder={this.question.title}
+        accept={this.question.acceptedTypes}
+      />;
+    } else if (this.question.isDisabledAttr) {
+      fileInput = <input
+        disabled
+        type="file"
+        className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
+        id={this.question.inputId}
+        ref={input => (this.setControl(input))}
+        style={!this.isDisplayMode ? {} : { color: "transparent" }}
+        multiple={this.question.allowMultiple}
+        placeholder={this.question.title}
+        accept={this.question.acceptedTypes}
+      />;
+    } else if (this.question.hasFileUI) {
+      fileInput = <input
+        type="file"
+        disabled={this.isDisplayMode}
+        tabIndex={-1}
+        className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
+        id={this.question.inputId}
+        ref={input => (this.setControl(input))}
+        style={!this.isDisplayMode ? {} : { color: "transparent" }}
+        aria-required={this.question.ariaRequired}
+        aria-label={this.question.ariaLabel}
+        aria-invalid={this.question.ariaInvalid}
+        aria-errormessage={this.question.ariaErrormessage}
+        multiple={this.question.allowMultiple}
+        title={this.question.inputTitle}
+        accept={this.question.acceptedTypes}
+        capture={this.question.renderCapture}
+      />;
+    } else {
+      fileInput = null;
+    }
+
     return (
       <div className={this.question.fileRootCss}>
         {fileInput}

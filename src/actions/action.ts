@@ -180,7 +180,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     popupModel: popupModel,
     action: (action: IAction, isUserAction: boolean) => {
       !!(actionOptions.action) && actionOptions.action();
-      popupModel.isFocusedContent = !isUserAction;
+      popupModel.isFocusedContent = popupModel.isFocusedContent || !isUserAction;
       popupModel.show();
     },
   });
@@ -200,8 +200,8 @@ export function createPopupModelWithListModel(listOptions: IListModel, popupOpti
   const _popupOptions = popupOptions || {};
   _popupOptions.onDispose = () => { listModel.dispose(); };
   const popupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, _popupOptions);
+  popupModel.isFocusedContent = listModel.showFilter;
   popupModel.onShow = () => {
-    popupModel.isFocusedContent = popupModel.isFocusedContent || listModel.showFilter;
     if (!!_popupOptions.onShow) _popupOptions.onShow();
     listModel.scrollToSelectedItem();
   };

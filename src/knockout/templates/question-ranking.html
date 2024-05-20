@@ -1,7 +1,7 @@
 <script type="text/html" id="survey-question-ranking">
    <!-- ko ifnot: question.selectToRankEnabled -->
   <div data-bind="css: question.rootClass">
-    <!-- ko foreach: { data: question.renderedRankingChoices, as: 'item', afterRender: question.koAfterRender } -->
+    <!-- ko foreach: { data: question.rankingChoices, as: 'item', afterRender: question.koAfterRender } -->
       <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { number: question.getNumberByIndex($index()), componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-ranking-item', data: item } } } -->
       <!-- /ko -->
     <!-- /ko -->
@@ -11,11 +11,11 @@
   <!-- ko if: question.selectToRankEnabled -->
   <div data-bind="css: question.rootClass">
     <div data-bind="css: question.getContainerClasses('from')" data-ranking="from-container">
-      <!-- ko foreach: { data: question.renderedUnRankingChoices, as: 'item', afterRender: question.koAfterRender } -->
+      <!-- ko foreach: { data: question.unRankingChoices, as: 'item', afterRender: question.koAfterRender } -->
         <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { number: '', componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-ranking-item', data: item } } } -->
         <!-- /ko -->
       <!-- /ko -->
-      <!-- ko if: question.renderedUnRankingChoices.length === 0 -->
+      <!-- ko if: question.unRankingChoices.length === 0 -->
         <div data-bind="css: cssClasses.containerPlaceholder">
             <!-- ko template: { name: 'survey-string', data: question.locSelectToRankEmptyRankedAreaText } -->
             <!-- /ko -->
@@ -24,11 +24,11 @@
     </div>
     <div data-bind="css: cssClasses.containersDivider"></div>
     <div data-bind="css: question.getContainerClasses('to')" data-ranking="to-container">
-      <!-- ko foreach: { data: question.renderedRankingChoices, as: 'item', afterRender: question.koAfterRender } -->
+      <!-- ko foreach: { data: question.rankingChoices, as: 'item', afterRender: question.koAfterRender } -->
         <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { number: question.getNumberByIndex($index()), componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-ranking-item', data: item } } } -->
         <!-- /ko -->
       <!-- /ko -->
-      <!-- ko if: question.renderedRankingChoices.length === 0 -->
+      <!-- ko if: question.rankingChoices.length === 0 -->
       <div data-bind="css: cssClasses.containerPlaceholder">
           <!-- ko template: { name: 'survey-string', data: question.locSelectToRankEmptyUnrankedAreaText } -->
           <!-- /ko -->

@@ -2179,7 +2179,11 @@ export class SurveyModel extends SurveyElementCore
    * An image to display in the background of the survey or form. Accepts a base64 or URL string value.
    * @see backgroundOpacity
    */
-  @property() backgroundImage: string;
+  @property({
+    onSet: (newValue, target: SurveyModel) => {
+      target.updateCss();
+    }
+  }) backgroundImage: string;
   @property() renderBackgroundImage: string;
   private updateRenderBackgroundImage(): void {
     const path = this.backgroundImage;
@@ -2213,7 +2217,8 @@ export class SurveyModel extends SurveyElementCore
   public updateWrapperFormCss(): void {
     this.wrapperFormCss = new CssClassBuilder()
       .append(this.css.rootWrapper)
-      .append(this.css.rootWrapperFixed, this.backgroundImageAttachment === "fixed")
+      .append(this.css.rootWrapperHasImage, !!this.backgroundImage)
+      .append(this.css.rootWrapperFixed, !!this.backgroundImage && this.backgroundImageAttachment === "fixed")
       .toString();
   }
   /**

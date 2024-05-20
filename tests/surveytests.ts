@@ -19672,3 +19672,13 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
+QUnit.test("Display mode in design time", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.wrapperFormCss, "sd-root-modern__wrapper");
+
+  survey.backgroundImage = "abc";
+  assert.equal(survey.wrapperFormCss, "sd-root-modern__wrapper sd-root-modern__wrapper--has-image");
+
+  survey.backgroundImageAttachment = "fixed";
+  assert.equal(survey.wrapperFormCss, "sd-root-modern__wrapper sd-root-modern__wrapper--has-image sd-root-modern__wrapper--fixed");
+});

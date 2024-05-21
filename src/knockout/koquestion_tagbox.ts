@@ -24,7 +24,7 @@ export class QuestionTagbox extends QuestionTagboxModel {
     this.koAllSelected.subscribe((newValue: any) => {
       if (this.isAllSelectedUpdating) return;
       if (newValue) this.selectAll();
-      else this.clearValue();
+      else this.clearValue(true);
     });
   }
   protected onBaseCreating() {

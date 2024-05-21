@@ -26,7 +26,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.createNewArray("rankingChoices");
     this.createNewArray("unRankingChoices");
     this.registerFunctionOnPropertyValueChanged("selectToRankEnabled", () => {
-      this.clearValue();
+      this.clearValue(true);
       this.setDragDropRankingChoices();
       this.updateRankingChoicesSync();
     });

@@ -11,7 +11,7 @@
     type="button"
     [class]="model.cssClasses.clearButton"
     [title]="model.clearButtonCaption"
-    (click)="model.clearValue()"
+    (click)="model.clearValue(true)"
   >
     <span *ngIf="!model.cssClasses.clearButtonIconId">✖</span>
     <svg

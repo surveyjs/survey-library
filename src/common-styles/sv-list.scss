@@ -39,6 +39,7 @@
 }
 
 .sv-list__item-body {
+  position: relative;
   width: 100%;
   align-items: center;
   box-sizing: border-box;
@@ -110,7 +111,8 @@
 }
 
 .sv-list-item__marker-icon {
-  float: right;
+  position: absolute;
+    right: calcSize(1);
   flex-shrink: 0;
   padding: calcSize(0.5);
 

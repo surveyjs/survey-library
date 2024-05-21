@@ -107,39 +107,6 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   if (test.before)
     test.before();
   platform.survey = platform.surveyFactory(test.json);
-  platform.survey.getAllQuestions().map((q, i) => {
-    q.id = "testid" + i;
-    if(q.getType() === "paneldynamic") {
-      q.panels.forEach((p, j) => {
-        p.id = q.id + "panel" + j;
-        p.questions.forEach((pq, k)=> {
-          pq.id = p.id + "question" + k;
-        });
-      });
-    }
-    if(q.getType() == "matrix" && platform.name == "Knockout") {
-      //need to update rows full names
-      q.onRowsChanged();
-    }
-    if(q.getType() === "matrixdynamic" || q.getType() === "matrixdropdown") {
-      q.renderedTable.rows.forEach((row: any, rowIndex: number) => {
-        if(row.row) {
-          row.row.idValue = `${q.id}row${rowIndex}`;
-        }
-        row.cells.forEach((cell: any, cellIndex: number) => {
-          if(cell.hasQuestion) {
-            cell.question.id = `${q.id}row${rowIndex}cell${cellIndex}`;
-          }
-        });
-      });
-    }
-  });
-  platform.survey.getAllPanels().map((p: PanelModel, i: number) => {
-    p.id = "testidp" + i;
-  });
-  platform.survey.pages.map((p: PanelModel, i: number) => {
-    p.id = "testidpage" + i;
-  });
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey: SurveyModel, options: any) {
     setTimeout(() => {
@@ -247,6 +214,44 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   platform.survey.focusFirstQuestionAutomatic = false;
   if (test.initSurvey)
     test.initSurvey(platform.survey);
+  platform.survey.getAllQuestions().map((q, i) => {
+    q.id = "testid" + i;
+    if(q.getType() === "paneldynamic") {
+      q.panels.forEach((p, j) => {
+        p.id = q.id + "panel" + j;
+        p.questions.forEach((pq, k)=> {
+          pq.id = p.id + "question" + k;
+        });
+      });
+    }
+    if(q.getType() == "matrix" && platform.name == "Knockout") {
+      //need to update rows full names
+      q.onRowsChanged();
+    }
+    if(q.getType() === "matrixdynamic" || q.getType() === "matrixdropdown") {
+      q.renderedTable.rows.forEach((row: any, rowIndex: number) => {
+        if(row.row) {
+          row.row.idValue = `${q.id}row${rowIndex}`;
+        }
+        row.cells.forEach((cell: any, cellIndex: number) => {
+          if(cell.hasQuestion) {
+            cell.question.id = `${q.id}row${rowIndex}cell${cellIndex}`;
+          }
+        });
+      });
+    }
+    if(q.getType() === "file") {
+      q.pages.forEach((p, j) => {
+        p.id = q.id + "page" + j;
+      });
+    }
+  });
+  platform.survey.getAllPanels().map((p: PanelModel, i: number) => {
+    p.id = "testidp" + i;
+  });
+  platform.survey.pages.map((p: PanelModel, i: number) => {
+    p.id = "testidpage" + i;
+  });
   platform.render(platform.survey, surveyElement);
 }
 

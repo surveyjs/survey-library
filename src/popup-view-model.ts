@@ -33,14 +33,22 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     this.onVisibilityChanged.fire(this, { isVisible: val });
   }
 
+  private updateBeforeShowing(): void {
+    this.model.onShow();
+  }
+  private updateAfterHiding(): void {
+    this.model.onHiding();
+  }
   private visibilityAnimation: AnimationBoolean = new AnimationBoolean(this, (val) => {
     if(this._isVisible !== val) {
       if(!val) {
         this.updateOnHiding();
         this.updateIsVisible(val);
+        this.updateAfterHiding();
         this._isPositionSetValue = false;
       }
       else {
+        this.updateBeforeShowing();
         this.updateIsVisible(val);
       }
     }
@@ -55,7 +63,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   getAnimatedElement(): HTMLElement {
     return this.getAnimationContainer();
   }
-  isAnimationEnabled (): boolean {
+  isAnimationEnabled(): boolean {
     return this.model.displayMode !== "overlay" && settings.animationEnabled;
   }
 
@@ -63,11 +71,11 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     return <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);
   }
 
-  public set isVisible(val: boolean) {
-    this.visibilityAnimation.sync(val);
-  }
   public get isVisible(): boolean {
     return this._isVisible;
+  }
+  public set isVisible(val: boolean) {
+    this.visibilityAnimation.sync(val);
   }
 
   public onVisibilityChanged = new EventBase<PopupBaseViewModel, any>();

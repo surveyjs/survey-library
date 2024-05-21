@@ -85,12 +85,6 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     }
     this.setPropertyValue("isVisible", value);
     this.onVisibilityChanged.fire(this, { model: this, isVisible: value });
-    if (this.isVisible) {
-      this.onShow();
-    } else {
-      this.refreshInnerModel();
-      this.onHide();
-    }
   }
   public toggleVisibility(): void {
     this.isVisible = !this.isVisible;
@@ -102,6 +96,10 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     const options = { actions: footerActions };
     this.onFooterActionsCreated.fire(this, options);
     return options.actions;
+  }
+  public onHiding(): void {
+    this.refreshInnerModel();
+    this.onHide();
   }
   public dispose(): void {
     super.dispose();

@@ -336,8 +336,8 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public getInputId() {
     return this.inputId + "_0";
   }
-  public clearValue(): void {
-    super.clearValue();
+  public clearValue(keepComment?: boolean): void {
+    super.clearValue(keepComment);
     this.lastSelectedItemValue = null;
     this.dropdownListModel?.clear();
   }
@@ -349,7 +349,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   onKeyUp(event: any): void {
     const char: number = event.which || event.keyCode;
     if (char === 46) {
-      this.clearValue();
+      this.clearValue(true);
       event.preventDefault();
       event.stopPropagation();
     }

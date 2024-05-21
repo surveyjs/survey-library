@@ -77,7 +77,7 @@
         :class="question.cssClasses.clearButton"
         v-on:click="
           () => {
-            question.clearValue();
+            question.clearValue(true);
           }
         "
         :value="question.clearButtonCaption"

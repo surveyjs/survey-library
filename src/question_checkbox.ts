@@ -137,7 +137,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (val) {
       this.selectAll();
     } else {
-      this.clearValue();
+      this.clearValue(true);
     }
   }
   public toggleSelectAll(): void {
@@ -502,7 +502,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         if (this.hasComment) {
           this.value = null;
         } else {
-          this.clearValue();
+          this.clearValue(true);
         }
       }
       this.isChangingValueOnClearIncorrect = false;
@@ -532,7 +532,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!hasChanged) return;
     this.isChangingValueOnClearIncorrect = true;
     if (newValue.length == 0) {
-      this.clearValue();
+      this.clearValue(true);
     } else {
       this.value = newValue;
     }

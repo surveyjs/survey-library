@@ -5623,7 +5623,7 @@ export class SurveyModel extends SurveyElementCore
     page.name = name;
     return page;
   }
-  protected questionOnValueChanging(valueName: string, newValue: any): any {
+  protected questionOnValueChanging(valueName: string, newValue: any, questionValueName?: string): any {
     if (!!this.editingObj) {
       const prop = Serializer.findProperty(this.editingObj.getType(), valueName);
       if (!!prop) newValue = prop.settingValue(this.editingObj, newValue);
@@ -5631,7 +5631,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.onValueChanging.isEmpty) return newValue;
     var options = {
       name: valueName,
-      question: <Question>this.getQuestionByValueName(valueName),
+      question: <Question>this.getQuestionByValueName(questionValueName || valueName),
       value: this.getUnbindValue(newValue),
       oldValue: this.getValue(valueName),
     };
@@ -6600,7 +6600,8 @@ export class SurveyModel extends SurveyElementCore
   public setComment(name: string, newValue: string, locNotification: any = false): void {
     if (!newValue) newValue = "";
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
-    var commentName = name + this.commentSuffix;
+    const commentName = name + this.commentSuffix;
+    newValue = this.questionOnValueChanging(commentName, newValue, name);
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, commentName);
     } else {
@@ -6626,6 +6627,10 @@ export class SurveyModel extends SurveyElementCore
         question: question,
         value: newValue,
       });
+      question.comment = newValue;
+      if(question.comment != newValue) {
+        question.comment = newValue;
+      }
     }
   }
   /**

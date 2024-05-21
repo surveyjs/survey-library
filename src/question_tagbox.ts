@@ -246,8 +246,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       this.dropdownListModel.dispose();
     }
   }
-  public clearValue(): void {
-    super.clearValue();
+  public clearValue(keepComment?: boolean): void {
+    super.clearValue(keepComment);
     this.dropdownListModel?.clear();
   }
   public get showClearButton(): boolean {

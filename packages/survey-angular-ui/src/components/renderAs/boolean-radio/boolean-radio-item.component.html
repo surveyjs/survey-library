@@ -3,7 +3,7 @@
     <input
       type="radio"
       [attr.name]="question.name" [attr.aria-errormessage]="question.ariaErrormessage" [value]="value" [(ngModel)]="question.booleanValue"
-      [disabled]="question.isInputReadOnly" [class]="question.cssClasses.itemRadioControl || ''"
+      [disabled]="model.isDisabledAttr" [readonly]="model.isReadOnlyAttr" [class]="question.cssClasses.itemRadioControl || ''"
     />
     <span *ngIf="question.cssClasses.materialRadioDecorator" [class]="question.cssClasses.materialRadioDecorator">
       <svg

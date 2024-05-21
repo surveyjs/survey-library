@@ -18,7 +18,8 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
             value = { value }
             aria-errormessage = { this.question.ariaErrormessage }
             checked={value === this.question.booleanValueRendered}
-            disabled = { this.question.isInputReadOnly }
+            disabled={this.question.isDisabledAttr}
+            readOnly={this.question.isReadOnlyAttr}
             className = { cssClasses.itemRadioControl }
             onChange={ this.handleOnChange }
           />

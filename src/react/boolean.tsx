@@ -70,7 +70,8 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             }
             id={this.question.inputId}
             className={cssClasses.control}
-            disabled={this.isDisplayMode}
+            disabled={this.question.isDisabledAttr}
+            readOnly={this.question.isReadOnlyAttr}
             checked={this.question.booleanValue || false}
             onChange={this.handleOnChange}
             role={this.question.a11y_input_ariaRole}

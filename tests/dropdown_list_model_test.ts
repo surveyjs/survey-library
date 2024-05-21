@@ -418,7 +418,7 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
-  const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel);
+  const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel); // need for popupModel.onHide
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   const event = {
@@ -709,7 +709,7 @@ QUnit.test("change selection on keyboard", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
-  const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel);
+  const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel); // need for popupModel.onHide
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   dropdownListModel.onClick(null);

@@ -34,7 +34,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   protected getDefaultItemComponent(): string {
-    return "";
+    return "survey-ranking-item";
   }
 
   public getType(): string {

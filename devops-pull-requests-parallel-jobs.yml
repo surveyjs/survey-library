@@ -303,7 +303,7 @@ jobs:
         npm run testcafe:ci:vue3
       displayName: "run functional tests"
 
-- job: JqueryUI-Preact
+- job: JqueryUIPreact
   steps:
     - checkout: self
       persistCredentials: true

@@ -9,6 +9,8 @@ import { englishStrings } from "../../src/localization/english";
 import { germanSurveyStrings } from "../../src/localization/german";
 import { settings, ISurveyEnvironment } from "../../src/settings";
 import { AnimationOptions, AnimationUtils } from "../../src/utils/animation";
+import { ListModel } from "../../src/list";
+import { Action, IAction } from "../../src/actions/action";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -562,10 +564,8 @@ QUnit.test("PopupViewModel dispose", (assert) => {
     trace += "->onShow";
   };
 
-  model.toggleVisibility();
-  //viewModel.isVisible(!viewModel.isVisible());
-  assert.equal(trace, "->onShow");
-
+  model.isVisible = true;
+  assert.equal(trace, "");
   assert.equal(!!viewModel.container, false);
   assert.equal(container.tagName, "DIV");
   assert.notEqual(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
@@ -1752,4 +1752,85 @@ QUnit.test("PopupViewModel: check getShouldRunAnimation method", (assert) => {
   model.displayMode = "overlay";
   assert.notOk(viewModel.isAnimationEnabled());
   settings.animationEnabled = false;
+});
+
+QUnit.test("Сheck the sequence of method calls", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const done4 = assert.async();
+  const done5 = assert.async();
+  const done6 = assert.async();
+
+  settings.animationEnabled = true;
+  const animationTimeOut = 1;
+  const oldQueueMicrotask = window.queueMicrotask;
+  window.queueMicrotask = (callback) => { setTimeout(() => callback(), animationTimeOut); };
+
+  let log = "";
+  const items: Array<Action> = [new Action({ id: "test", action: () => { } })];
+  const listModel = new ListModel(items, () => { model.isVisible = false; }, true);
+
+  const originalRefresh = ListModel.prototype["refresh"];
+  ListModel.prototype["refresh"] = function () {
+    log += "listModel.refresh->";
+    originalRefresh.call(this);
+  };
+
+  const popupOptions = {
+    onShow: () => { log += "onShow:(viewModel.isVisible == " + viewModel.isVisible.toString() + ")->"; },
+    onHide: () => { log += "onHide:(viewModel.isVisible == " + viewModel.isVisible.toString() + ")"; },
+    onCancel: () => { log += "onCancel->"; },
+    onDispose: () => { log += "onDispose"; }
+  };
+  const model: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions);
+  const viewModel: TestAnimationPopupViewModel = new TestAnimationPopupViewModel(model);
+  viewModel.logger = { log: "" };
+  viewModel.onVisibilityChanged.add((_: PopupBaseViewModel, options: { isVisible: boolean }) => {
+    log += "onVisibilityChanged:(viewModel.isVisible == " + options.isVisible + ")->";
+  });
+  assert.equal(log, "");
+
+  model.isVisible = true;
+  setTimeout(() => {
+    assert.equal(log, "onShow:(viewModel.isVisible == false)->onVisibilityChanged:(viewModel.isVisible == true)->", "popup show");
+
+    log = "";
+    model.isVisible = false;
+    setTimeout(() => {
+      assert.equal(log, "onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)", "popup hide");
+
+      model.isVisible = true;
+      setTimeout(() => {
+        log = "";
+        listModel.onItemClick(items[0]);
+        setTimeout(() => {
+          assert.equal(log, "onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)", "item click");
+
+          model.isVisible = true;
+          setTimeout(() => {
+            log = "";
+            viewModel.cancel();
+            setTimeout(() => {
+              assert.equal(log, "onCancel->onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)", "click cancel");
+
+              log = "";
+              model.dispose();
+              assert.equal(log, "onDispose");
+
+              settings.animationEnabled = false;
+              window.queueMicrotask = oldQueueMicrotask;
+
+              done6();
+            }, animationTimeOut + 1);
+            done5();
+          }, animationTimeOut + 1);
+          done4();
+        }, animationTimeOut + 1);
+        done3();
+      }, animationTimeOut + 1);
+      done2();
+    }, animationTimeOut + 1);
+    done1();
+  }, animationTimeOut + 1);
 });

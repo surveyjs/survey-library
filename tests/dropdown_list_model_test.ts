@@ -5,6 +5,7 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyModel } from "../src/survey";
 import { _setIsTouch } from "../src/utils/devices";
+import { PopupDropdownViewModel } from "../src/popup-dropdown-view-model";
 
 export default QUnit.module("DropdownListModel");
 
@@ -417,6 +418,7 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
+  const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel); // need for popupModel.onHide
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   const event = {
@@ -707,6 +709,7 @@ QUnit.test("change selection on keyboard", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
+  const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel); // need for popupModel.onHide
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   dropdownListModel.onClick(null);

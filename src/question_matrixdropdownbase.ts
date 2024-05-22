@@ -411,10 +411,10 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.runCondition(values, newProps);
     }
   }
-  public clearValue(): void {
+  public clearValue(keepComment?: boolean): void {
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
-      questions[i].clearValue();
+      questions[i].clearValue(keepComment);
     }
   }
   public onAnyValueChanged(name: string, questionName: string): void {
@@ -1710,21 +1710,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     cellQuestion: Question
   ): boolean {
     if (!this.generatedVisibleRows) return false;
-    var res = false;
-    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      var row = this.generatedVisibleRows[i];
-      if (checkedRow === row) continue;
-      if (Helpers.isTwoValueEquals(row.getValue(cellQuestion.name), cellQuestion.value, true, this.isUniqueCaseSensitive)) {
-        res = true;
-        break;
-      }
-    }
-    if (res) {
-      this.addDuplicationError(cellQuestion);
-    } else {
-      cellQuestion.clearErrors();
-    }
-    return res;
+    return this.isValueInColumnDuplicated(cellQuestion.name, true, checkedRow);
   }
   /**
    * Assigns values to a row.
@@ -2060,57 +2046,99 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   private isValueDuplicated(): boolean {
     if (!this.generatedVisibleRows) return false;
-    var columns = this.getUniqueColumns();
+    var names = this.getUniqueColumnsNames();
     var res = false;
-    for (var i = 0; i < columns.length; i++) {
-      res = this.isValueInColumnDuplicated(columns[i]) || res;
+    for (var i = 0; i < names.length; i++) {
+      res = this.isValueInColumnDuplicated(names[i], true) || res;
     }
     return res;
   }
-  private isValueInColumnDuplicated(column: MatrixDropdownColumn): boolean {
-    var keyValues = <Array<any>>[];
-    var res = false;
-    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      res =
-        this.isValueDuplicatedInRow(
-          this.generatedVisibleRows[i],
-          column,
-          keyValues
-        ) || res;
-    }
-    return res;
-  }
-  protected getUniqueColumns(): Array<MatrixDropdownColumn> {
-    var res = new Array<MatrixDropdownColumn>();
+  protected getUniqueColumnsNames(): Array<string> {
+    var res = new Array<string>();
     for (var i = 0; i < this.columns.length; i++) {
       if (this.columns[i].isUnique) {
-        res.push(this.columns[i]);
+        res.push(this.columns[i].name);
       }
     }
     return res;
   }
-  private isValueDuplicatedInRow(
-    row: MatrixDropdownRowModelBase,
-    column: MatrixDropdownColumn,
-    keyValues: Array<any>
-  ): boolean {
-    var question = row.getQuestionByColumn(column);
-    if (!question || question.isEmpty()) return false;
-    var value = question.value;
-    for (var i = 0; i < keyValues.length; i++) {
-      if (Helpers.isTwoValueEquals(value, keyValues[i], true, this.isUniqueCaseSensitive)) {
-        this.addDuplicationError(question);
-        return true;
+  private isValueInColumnDuplicated(columnName: string, showErrors: boolean, row?: MatrixDropdownRowModelBase): boolean {
+    const rows = this.getDuplicatedRows(columnName);
+    if(showErrors) {
+      this.showDuplicatedErrorsInRows(rows, columnName);
+    }
+    this.removeDuplicatedErrorsInRows(rows, columnName);
+    return !!row ? rows.indexOf(row) > -1 : rows.length > 0;
+  }
+  private getDuplicatedRows(columnName: string): Array<MatrixDropdownRowModelBase> {
+    const keyValues: HashTable<Array<MatrixDropdownRowModelBase>> = {};
+    const res: Array<MatrixDropdownRowModelBase> = [];
+    const rows = this.generatedVisibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      let val = undefined;
+      const question = rows[i].getQuestionByName(columnName);
+      if(!!question) {
+        val = question.value;
+      } else {
+        const rowVal = this.getRowValue(i);
+        val = !!rowVal ? rowVal[columnName] : undefined;
+      }
+      if(!this.isValueEmpty(val)) {
+        if(!this.isUniqueCaseSensitive && typeof val === "string") {
+          val = val.toLocaleLowerCase();
+        }
+        if(!keyValues[val]) {
+          keyValues[val] = [];
+        }
+        keyValues[val].push(rows[i]);
       }
     }
-    keyValues.push(value);
-    return false;
+    for(let key in keyValues) {
+      if(keyValues[key].length > 1) {
+        keyValues[key].forEach(row => res.push(row));
+      }
+    }
+    return res;
+  }
+  private showDuplicatedErrorsInRows(duplicatedRows: Array<MatrixDropdownRowModelBase>, columnName: string): void {
+    duplicatedRows.forEach(row => {
+      let question = row.getQuestionByName(columnName);
+      if(!question && this.detailPanel.getQuestionByName(columnName)) {
+        row.showDetailPanel();
+        if(row.detailPanel) {
+          question = row.detailPanel.getQuestionByName(columnName);
+        }
+      }
+      if(question) {
+        row.showDetailPanel();
+        this.addDuplicationError(question);
+      }
+    });
+  }
+  private removeDuplicatedErrorsInRows(duplicatedRows: Array<MatrixDropdownRowModelBase>, columnName: string): void {
+    this.generatedVisibleRows.forEach(row => {
+      if(duplicatedRows.indexOf(row) < 0) {
+        const question = row.getQuestionByName(columnName);
+        if(question) {
+          this.removeDuplicationError(question);
+        }
+      }
+    });
+  }
+  private getDuplicationError(question: Question): SurveyError {
+    const errors = question.errors;
+    for(let i = 0; i < errors.length; i ++) {
+      if(errors[i].getErrorType() === "keyduplicationerror") return errors[i];
+    }
+    return null;
   }
   private addDuplicationError(question: Question) {
-    const keyError = question.errors.find(error => error.getErrorType() === "keyduplicationerror");
-    if (!keyError) {
+    if (!this.getDuplicationError(question)) {
       question.addError(new KeyDuplicationError(this.keyDuplicationError, this));
     }
+  }
+  private removeDuplicationError(question: Question) {
+    question.removeError(this.getDuplicationError(question));
   }
   public getFirstQuestionToFocus(withError: boolean): Question {
     return this.getFirstCellQuestion(withError);
@@ -2243,12 +2271,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return options.value;
   }
-  onRowChanged(
-    row: MatrixDropdownRowModelBase,
-    columnName: string,
-    newRowValue: any,
-    isDeletingValue: boolean
-  ) {
+  onRowChanged(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
     var rowObj = !!columnName ? this.getRowObj(row) : null;
     if (!!rowObj) {
       var columnValue = null;
@@ -2275,6 +2298,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       if (columnName) {
         this.onCellValueChanged(row, columnName, combine.rowValue);
       }
+    }
+    if(this.getUniqueColumnsNames().indexOf(columnName) > -1) {
+      this.isValueInColumnDuplicated(columnName, !!rowObj);
     }
   }
   private getNewValueOnRowChanged(

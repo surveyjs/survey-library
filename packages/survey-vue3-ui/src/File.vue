@@ -16,7 +16,7 @@
       :capture="(question.renderCapture as any)"
     />
     <input
-      v-if="question.isReadOnly"
+      v-if="question.isReadOnlyAttr"
       type="file"
       readonly
       :id="question.inputId"
@@ -26,7 +26,7 @@
       style="color: transparent"
     />
     <input
-      v-if="question.isReadOnly"
+      v-if="question.isDisabledAttr"
       type="file"
       disabled
       :id="question.inputId"

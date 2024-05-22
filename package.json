@@ -9,7 +9,7 @@
     "testcafe_ci": "testcafe -c 4 -q chrome:headless testCafe/ --app \"http-server --silent\" --reporter minimal",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
     "testcafe:ko": "http-server --silent & testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --reporter minimal --env=knockout",
-    "testcafe:testcafe:jquery_ui": "http-server --silent & testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --reporter minimal --env=jquery_ui",
+    "testcafe:jquery_ui": "http-server --silent & testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --reporter minimal --env=jquery_ui",
     "testcafe:react": "http-server --silent & testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --reporter minimal --env=react",
     "testcafe:vue": "http-server --silent & testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --reporter minimal --env=vue",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",

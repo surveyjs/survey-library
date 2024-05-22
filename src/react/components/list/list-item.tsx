@@ -3,7 +3,6 @@ import { ListModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { attachKey2click } from "../../reactSurvey";
-import { SvgIcon } from "../svg-icon/svg-icon";
 
 interface IListItemProps {
   model: ListModel;
@@ -29,36 +28,15 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
       paddingInlineStart: this.model.getItemIndent(this.item)
     };
     const className = this.model.getItemClass(this.item);
-    const content: Array<JSX.Element> = [];
-    if (!this.item.component) {
-      const text = this.renderLocString(this.item.locTitle, undefined, "locString");
-      if(this.item.iconName) {
-        const icon = <SvgIcon
-          key={1}
-          className={this.model.cssClasses.itemIcon}
-          iconName={this.item.iconName}
-          size={this.item.iconSize}
-          aria-label={this.item.title}
-        ></SvgIcon>;
-        content.push(icon);
-        content.push(<span key={2}>{text}</span>);
-      } else {
-        content.push(text);
-      }
-    } else {
-      const newElement = ReactElementFactory.Instance.createElement(this.item.component, { item: this.item, key: this.item.id });
-      if(!!newElement) {
-        content.push(newElement);
-      }
-    }
-
+    const itemContent = this.item.component || "sv-list-item-content";
+    const newElement = ReactElementFactory.Instance.createElement(itemContent, { item: this.item, key: this.item.id, model: this.model });
     const contentWrap =
         <div
           style={contentWrapStyle}
           className={this.model.cssClasses.itemBody}
           title={this.item.locTitle.calculatedText}
         >
-          {content}
+          {newElement}
         </div>;
     const separator = this.item.needSeparator ? <div className = {this.model.cssClasses.itemSeparator}/>:null;
     const isVisible = this.model.isItemVisible(this.item);

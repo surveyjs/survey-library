@@ -29,7 +29,7 @@ import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
 import { DragDropInfo } from "./drag-drop-helper-v1";
-import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
+import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PageModel } from "./page";
 
@@ -118,7 +118,7 @@ export class QuestionRowModel extends Base {
   protected getIsAnimationAllowed(): boolean {
     return super.getIsAnimationAllowed() && this.visible && this.panel?.animationAllowed;
   }
-  private getVisibleElementsAnimationOptions(): IAnimationGroupConsumer<IElement> {
+  private getVisibleElementsAnimationOptions(): IAnimationConsumer<[IElement]> {
     const beforeRunAnimation = (el: HTMLElement) => {
       el.style.setProperty("--animation-height", el.offsetHeight + "px");
       el.style.setProperty("--animation-width", getElementWidth(el) + "px");
@@ -303,7 +303,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.onRowVisibleChanged();
     row.onVisibleChangedCallback = () => this.onRowVisibleChanged();
   }
-  private getRowsAnimationOptions(): IAnimationGroupConsumer<QuestionRowModel> {
+  private getRowsAnimationOptions(): IAnimationConsumer<[QuestionRowModel]> {
     const beforeRunAnimation = (el: HTMLElement) => {
       el.style.setProperty("--animation-height", el.offsetHeight + "px");
     };
@@ -315,10 +315,9 @@ export class PanelModelBase extends SurveyElement<Question>
           onBeforeRunAnimation: beforeRunAnimation
         };
       },
-      getEnterOptions: (_: QuestionRowModel, animationInfo) => {
-        const cssClasses = this.cssClasses;
+      getEnterOptions: (_: QuestionRowModel) => {
         return {
-          cssClass: new CssClassBuilder().append(cssClasses.rowFadeIn).append(cssClasses.rowDelayedFadeIn, animationInfo.isDeletingRunning).toString(),
+          cssClass: this.cssClasses.rowFadeIn,
           onBeforeRunAnimation: beforeRunAnimation
         };
       }
@@ -555,7 +554,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("visibleIf", val);
   }
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "", rowFadeIn: "", rowFadeOut: "", rowDelayedFadeIn: "", rowMultiple: "", pageRow: "", rowCompact: "" };
+    var classes = { panel: {}, error: {}, row: "", rowFadeIn: "", rowFadeOut: "", rowFadeOutActive: "", rowMultiple: "", pageRow: "", rowCompact: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageRow) {
@@ -573,8 +572,8 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!!css.rowFadeOut) {
       classes.rowFadeOut = css.rowFadeOut;
     }
-    if (!!css.rowDelayedFadeIn) {
-      classes.rowDelayedFadeIn = css.rowDelayedFadeIn;
+    if (!!css.rowFadeOutActive) {
+      classes.rowFadeOutActive = css.rowFadeOutActive;
     }
     if (!!css.rowMultiple) {
       classes.rowMultiple = css.rowMultiple;

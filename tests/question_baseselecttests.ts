@@ -2032,3 +2032,38 @@ QUnit.test("radiogroup.getConditionJson, bug#8226", (assert) => {
   res.name = "q2";
   assert.deepEqual(q2.getConditionJson(), res, "q2");
 });
+QUnit.test("dropdown.clearValue(true) for showCommentArea & showOtherItem, bug#8226", (assert) => {
+  var json = {
+    questions: [
+      { type: "dropdown", name: "q1", showCommentArea: true, choices: [1, 2] },
+      { type: "dropdown", name: "q2", showOtherItem: true, choices: [1, 2] },
+      { type: "dropdown", name: "q3", showCommentArea: true, showOtherItem: true, choices: [1, 2] },
+      { type: "dropdown", name: "q4", showOtherItem: true, storeOthersAsComment: false, choices: [1, 2] }
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  q1.value = 1;
+  q1.comment = "abc";
+  q1.clearValue(true);
+  q2.value = "other";
+  q2.comment = "abc";
+  q2.clearValue(true);
+  q3.value = "val";
+  q3.comment = "abc";
+  q3.clearValue(true);
+  q4.value = "val";
+  q4.clearValue(true);
+
+  assert.equal(q1.value, undefined, "q1.value");
+  assert.equal(q1.comment, "abc", "q1.comment");
+  assert.equal(q2.value, undefined, "q2.value");
+  assert.notOk(q2.comment, "q2.comment");
+  assert.equal(q3.value, undefined, "q3.value");
+  assert.equal(q3.comment, "abc", "q3.comment");
+  assert.equal(q4.value, undefined, "q4.value");
+  assert.notOk(q4.comment, "q4.comment");
+});

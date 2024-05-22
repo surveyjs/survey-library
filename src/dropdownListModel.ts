@@ -279,7 +279,7 @@ export class DropdownListModel extends Base {
   }
 
   private cleanHtml(html: string): string {
-    if(!this.htmlCleanerElement) return "";
+    if (!this.htmlCleanerElement) return "";
     this.htmlCleanerElement.innerHTML = html;
     return this.htmlCleanerElement.textContent;
   }
@@ -424,7 +424,7 @@ export class DropdownListModel extends Base {
     if (options.name == "value") {
       this.showInputFieldComponent = this.question.showInputFieldComponent;
     }
-    if(options.name == "textWrapEnabled") {
+    if (options.name == "textWrapEnabled") {
       this.setTextWrapEnabled(options.newValue);
     }
   }
@@ -434,7 +434,7 @@ export class DropdownListModel extends Base {
   }
 
   public onClear(event: any): void {
-    this.question.clearValue();
+    this.question.clearValue(true);
     this._popupModel.hide();
     if (event) {
       event.preventDefault();

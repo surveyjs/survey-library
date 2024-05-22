@@ -1529,14 +1529,17 @@ export class Question extends SurveyElement<Question>
    * @see value
    * @see comment
    */
-  public clearValue(): void {
+  public clearValue(keepComment?: boolean): void {
     if (this.value !== undefined) {
       this.value = undefined;
     }
-    if (!!this.comment) {
+    if (!!this.comment && keepComment !== true) {
       this.comment = undefined;
     }
     this.setValueChangedDirectly(false);
+  }
+  clearValueOnly(): void {
+    this.clearValue(true);
   }
   public unbindValue(): void {
     this.clearValue();
@@ -2112,6 +2115,7 @@ export class Question extends SurveyElement<Question>
     return new CustomError(error, this.survey);
   }
   public removeError(error: SurveyError): void {
+    if(!error) return;
     var errors = this.errors;
     var index = errors.indexOf(error);
     if (index !== -1) errors.splice(index, 1);

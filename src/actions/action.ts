@@ -166,7 +166,6 @@ export function createDropdownActionModel(actionOptions: IAction, dropdownOption
   dropdownOptions.locOwner = locOwner;
   return createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions);
 }
-
 export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase): Action {
   const originalSelectionChanged = listOptions.onSelectionChanged;
   listOptions.onSelectionChanged = (item: Action, ...params: any[]) => {

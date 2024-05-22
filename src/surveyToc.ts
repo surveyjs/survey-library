@@ -1,7 +1,7 @@
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { DomDocumentHelper } from "./global_variables_utils";
-import { ListModel } from "./list";
+import { IListModel, ListModel } from "./list";
 import { PageModel } from "./page";
 import { PanelModelBase } from "./panel";
 import { PopupModel } from "./popup";
@@ -31,19 +31,21 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
       visible: <any>new ComputedUpdater(() => page.isVisible && !((<any>page)["isStartPage"]))
     });
   });
-  var listModel = new ListModel(
-    items,
-    item => {
+  const selectedItem = items.filter(i => !!survey.currentPage && i.id === survey.currentPage.name)[0] || items.filter(i => i.id === pagesSource[0].name)[0];
+  const listOptions: IListModel = {
+    items: items,
+    onSelectionChanged: item => {
       if (!!<any>item.action()) {
         listModel.selectedItem = item;
       }
     },
-    true,
-    items.filter(i => !!survey.currentPage && i.id === survey.currentPage.name)[0] || items.filter(i => i.id === pagesSource[0].name)[0]
-  );
+    allowSelection: true,
+    searchEnabled: false,
+    locOwner: survey,
+    selectedItem: selectedItem
+  };
+  var listModel = new ListModel(listOptions as any);
   listModel.allowSelection = false;
-  listModel.locOwner = survey;
-  listModel.searchEnabled = false;
   survey.onCurrentPageChanged.add((s, o) => {
     listModel.selectedItem = items.filter(i => !!survey.currentPage && i.id === survey.currentPage.name)[0];
   });

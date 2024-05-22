@@ -9,8 +9,10 @@ import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { settings } from "../src/settings";
 import { _setIsTouch } from "../src/utils/devices";
+import { StylesManager } from "../src/stylesmanager";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -255,6 +257,7 @@ QUnit.test("Do not process responsiveness if displayMode: 'dropdown' and set ren
   container.remove();
 });
 QUnit.test("check getItemClass in display mode", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -375,6 +378,7 @@ QUnit.test("Check dropdownListModel isItemSelected works correctly", (assert) =>
 
 });
 QUnit.test("check stars highlighting", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -390,47 +394,47 @@ QUnit.test("check stars highlighting", (assert) => {
   q1.cssClasses.itemStarHighlighted = "sv_q_high";
   q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
   q1.cssClasses.itemStarSelected = "";
-  q1.cssClasses.itemStarDisabled = "";
   q1.value = 2;
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "", "value=2 index=0");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "", "value=2 index=1");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "", "value=2 index=2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "", "value=2 index=3");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "value=2 index=4");
 
   q1.onItemMouseIn(q1.renderedRateItems[3]);
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_high");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_high");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "", "mouseIn #1 index=0");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "", "mouseIn #1 index=1");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_high", "mouseIn #1 index=2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_high", "mouseIn #1 index=3");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "mouseIn #1 index=4");
 
   q1.onItemMouseOut(q1.renderedRateItems[3]);
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "", "onItemMouseOut #1 index=0");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "", "onItemMouseOut #1 index=1");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "", "onItemMouseOut #1 index=2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "", "onItemMouseOut #1 index=3");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "onItemMouseOut #1 index=4");
 
   q1.value = 4;
   q1.onItemMouseIn(q1.renderedRateItems[1]);
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_unhigh");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_unhigh");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "", "mouseIn #2 index=0");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "", "mouseIn #2 index=1");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_unhigh", "mouseIn #2 index=2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_unhigh", "mouseIn #2 index=3");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "mouseIn #2 index=4");
 
   q1.onItemMouseOut(q1.renderedRateItems[1]);
   survey.mode = "display";
   q1.onItemMouseIn(q1.renderedRateItems[1]);
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "", "survey.mode=display index=0");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "", "survey.mode=display index=1");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "", "survey.mode=display index=2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "", "survey.mode=display index=3");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "survey.mode=display index=4");
 });
 
 QUnit.test("check stars highlighting design mode", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -462,6 +466,7 @@ QUnit.test("check stars highlighting design mode", (assert) => {
 });
 
 QUnit.test("check stars highlighting on touch device", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -495,6 +500,7 @@ QUnit.test("check stars highlighting on touch device", (assert) => {
 });
 
 QUnit.test("check stars styles", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -528,6 +534,7 @@ QUnit.test("check stars styles", (assert) => {
 });
 
 QUnit.test("check smiley styles", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -575,6 +582,7 @@ QUnit.test("check smiley styles", (assert) => {
 });
 
 QUnit.test("check stars for rateValues", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     elements: [
       {
@@ -674,6 +682,7 @@ QUnit.test("check smileys for min/max", (assert) => {
 });
 
 QUnit.test("check smileys styles", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -733,6 +742,7 @@ QUnit.test("rating smileys max item count", (assert) => {
 });
 
 QUnit.test("check fixed width styles", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -760,6 +770,7 @@ QUnit.test("check fixed width styles", (assert) => {
 });
 
 QUnit.test("check fixed width styles - rate values", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -1289,6 +1300,7 @@ QUnit.test("rating colors", (assert) => {
 });
 
 QUnit.test("check rating in-matrix mode styles", (assert) => {
+  StylesManager.applyTheme("default");
   var json = {
     elements: [
       {
@@ -1350,6 +1362,7 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
 });
 
 QUnit.test("check rating in-matrix mode styles", (assert) => {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({ questions: [{ type: "rating", name: "q1" }] });
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
   q1.cssClasses.root = "sv_q";
@@ -1362,6 +1375,7 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
 });
 
 QUnit.test("check rating display-mode styles", (assert) => {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({ questions: [{ type: "rating", name: "q1" }] });
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
   q1.cssClasses.root = "sv_q-root";

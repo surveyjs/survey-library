@@ -10,7 +10,7 @@
         :id="question.inputId"
         :indeterminate.prop="question.isIndeterminate"
         :disabled="question.isDisabledAttr"
-        :read-only="question.isReadOnlyAttr"
+        :readonly="question.isReadOnlyAttr"
         :role="question.a11y_input_ariaRole"
         :aria-required="question.a11y_input_ariaRequired"
         :aria-label="question.a11y_input_ariaLabel"

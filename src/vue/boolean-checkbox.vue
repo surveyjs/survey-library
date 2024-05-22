@@ -11,7 +11,7 @@
           :id="question.inputId"
           :indeterminate.prop="question.isIndeterminate"
           :disabled="question.isDisabledAttr"
-          :read-only="question.isReadOnlyAttr"
+          :readonly="question.isReadOnlyAttr"
           :aria-required="question.ariaRequired"
           :aria-label="question.ariaLabel"
           :aria-invalid="question.ariaInvalid"

@@ -3,7 +3,7 @@ import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("header");
 
-const surveyWithLogoTitkleAndDescription = new SurveyModel({
+const getSurveyWithLogoTitleAndDescription = () => new SurveyModel({
   title: "Survey New Design Test",
   description: "Survey Description",
   logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
@@ -121,7 +121,7 @@ QUnit.test("backgroundImageStyle",
 
 QUnit.test("grid cells - defaults", function (assert) {
   const cover = new Cover();
-  cover.survey = surveyWithLogoTitkleAndDescription;
+  cover.survey = getSurveyWithLogoTitleAndDescription();
 
   cover.cells.forEach(cell => {
     assert.equal(cell.showLogo, cell["positionX"] === "right" && cell["positionY"] === "top", "logo in top right");
@@ -154,7 +154,7 @@ QUnit.test("grid cells - defaults", function (assert) {
 
 QUnit.test("grid cells - all elements center+middle", function (assert) {
   const cover = new Cover();
-  cover.survey = surveyWithLogoTitkleAndDescription;
+  cover.survey = getSurveyWithLogoTitleAndDescription();
 
   cover.logoPositionX = "center";
   cover.logoPositionY = "middle";

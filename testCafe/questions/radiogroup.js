@@ -520,4 +520,27 @@ frameworks.forEach(framework => {
     const surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult, { q1: "item2", "q1-Comment": "ABCDEF" });
   });
+  test("Do not clear comment area on clicking Clear button #8287", async t => {
+    const clearButton = Selector("input[value=Clear]");
+    const currentJson = {
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["item1", "item2", "item3"],
+          showClearButton: true,
+          showCommentArea: true
+        }
+      ]
+    };
+    await initSurvey(framework, currentJson);
+
+    await t.click("input[value=item2]")
+      .typeText(Selector("textarea"), "ABC")
+      .click(clearButton)
+      .click("input[value=Complete]");
+
+    let surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({ "q1-Comment": "ABC" });
+  });
 });

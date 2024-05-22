@@ -3,7 +3,7 @@ import { ComputedUpdater } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
-import { MultiSelectListModel } from "./multiSelectListModel";
+import { IMultiSelectListModel, MultiSelectListModel } from "./multiSelectListModel";
 import { Question } from "./question";
 import { settings } from "./settings";
 import { IsTouch } from "./utils/devices";
@@ -62,7 +62,14 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
         }
       };
     }
-    const res = new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.listElementId);
+    const listOptions: IMultiSelectListModel = {
+      items: visibleItems,
+      onSelectionChanged: _onSelectionChanged,
+      allowSelection: false,
+      locOwner: this.question,
+      elementId: this.listElementId
+    };
+    const res = new MultiSelectListModel<ItemValue>(listOptions);
     res.actions.forEach(a => a.disableTabStop = true);
     this.setOnTextSearchCallbackForListModel(res);
     res.forceShowFilter = true;

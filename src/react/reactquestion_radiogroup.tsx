@@ -22,7 +22,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
           <input
             type="button"
             className={this.question.cssClasses.clearButton}
-            onClick={() => this.question.clearValue()}
+            onClick={() => this.question.clearValue(true)}
             value={this.question.clearButtonCaption}
           />
         </div>

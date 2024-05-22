@@ -762,13 +762,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return setRowCount < this.minRowCount;
   }
-  protected getUniqueColumns(): Array<MatrixDropdownColumn> {
-    var res = super.getUniqueColumns();
-    if (!!this.keyName) {
-      let column = this.getColumnByName(this.keyName);
-      if (!!column && res.indexOf(column) < 0) {
-        res.push(column);
-      }
+  protected getUniqueColumnsNames(): Array<string> {
+    var res = super.getUniqueColumnsNames();
+    const name = this.keyName;
+    if (!!name && res.indexOf(name) < 0) {
+      res.push(name);
     }
     return res;
   }

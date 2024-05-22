@@ -572,8 +572,8 @@ export class QuestionSelectBase extends Question {
       this.isSettingComment = false;
     }
   }
-  public clearValue() {
-    super.clearValue();
+  public clearValue(keepComment?: boolean) {
+    super.clearValue(keepComment);
     this.prevOtherValue = undefined;
   }
   updateCommentFromSurvey(newValue: any): any {
@@ -1667,7 +1667,7 @@ export class QuestionSelectBase extends Question {
   protected clearIncorrectValuesCore() {
     var val = this.value;
     if (this.canClearValueAnUnknown(val)) {
-      this.clearValue();
+      this.clearValue(true);
     }
   }
   protected canClearValueAnUnknown(val: any): boolean {
@@ -1676,7 +1676,7 @@ export class QuestionSelectBase extends Question {
   }
   protected clearDisabledValuesCore() {
     if (this.isValueDisabled(this.value)) {
-      this.clearValue();
+      this.clearValue(true);
     }
   }
   clearUnusedValues() {

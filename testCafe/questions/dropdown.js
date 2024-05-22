@@ -2171,3 +2171,33 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk();
   });
 });
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await t.resizeWindow(800, 600);
+      const json = {
+        elements: [
+          {
+            type: "dropdown",
+            name: "q1",
+            choices: ["item1", "item2", "item3"],
+            showCommentArea: true
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+    }
+  );
+  test("Do not clear comment area on clicking Clear button #8287", async (t) => {
+    await t
+      .click(questionDropdownSelect)
+      .click(Selector(".sv-list__item span").withText("item2").filterVisible())
+      .typeText(Selector("textarea"), "ABC")
+      .click(clearButton)
+      .click("input[value=Complete]");
+
+    let surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({ "q1-Comment": "ABC" });
+  });
+});

@@ -158,43 +158,49 @@ export interface IAction {
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
 }
 export function createDropdownActionModel(actionOptions: IAction, dropdownOptions: IActionDropdownPopupOptions, locOwner?: ILocalizableOwner): Action {
-  return createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions, locOwner);
+  dropdownOptions.locOwner = locOwner;
+  return createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions);
 }
-export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase, locOwner?: ILocalizableOwner): Action {
-  const listModel: ListModel = new ListModel(
-    listOptions.items,
-    (item: Action) => {
-      if (newAction.hasTitle) {
-        newAction.title = item.title;
-      }
-      listOptions.onSelectionChanged(item);
-      innerPopupModel.toggleVisibility();
-    },
-    listOptions.allowSelection,
-    listOptions.selectedItem
-  );
-  listModel.locOwner = locOwner;
-  listModel.setOnFilterStringChangedCallback(listOptions.onFilterStringChangedCallback);
-
-  const options = popupOptions || {};
-  options.onDispose = () => { listModel.dispose(); };
-  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, options);
-  innerPopupModel.displayMode = popupOptions?.displayMode as any;
+export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase): Action {
+  const originalSelectionChanged = listOptions.onSelectionChanged;
+  listOptions.onSelectionChanged = (item: Action, ...params: any[]) => {
+    if (newAction.hasTitle) { newAction.title = item.title; }
+    originalSelectionChanged(item, params);
+  };
+  const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
 
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
-    popupModel: innerPopupModel,
+    popupModel: popupModel,
     action: (action: IAction, isUserAction: boolean) => {
       !!(actionOptions.action) && actionOptions.action();
-      innerPopupModel.isFocusedContent = !isUserAction || listModel.showFilter;
-      innerPopupModel.toggleVisibility();
-      listModel.scrollToSelectedItem();
+      popupModel.isFocusedContent = popupModel.isFocusedContent || !isUserAction;
+      popupModel.show();
     },
   });
   const newAction: Action = new Action(newActionOptions);
-  newAction.data = listModel;
+  newAction.data = popupModel.contentComponentData?.model;
 
   return newAction;
+}
+
+export function createPopupModelWithListModel(listOptions: IListModel, popupOptions: IPopupOptionsBase): PopupModel {
+  const listModel: ListModel = new ListModel(listOptions as any);
+  listModel.onSelectionChanged = (item: Action) => {
+    listOptions.onSelectionChanged(item);
+    popupModel.hide();
+  };
+
+  const _popupOptions = popupOptions || {};
+  _popupOptions.onDispose = () => { listModel.dispose(); };
+  const popupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, _popupOptions);
+  popupModel.isFocusedContent = listModel.showFilter;
+  popupModel.onShow = () => {
+    if (!!_popupOptions.onShow) _popupOptions.onShow();
+    listModel.scrollToSelectedItem();
+  };
+
+  return popupModel;
 }
 
 export function getActionDropdownButtonTarget(container: HTMLElement): HTMLElement {

@@ -113,6 +113,11 @@ export const initSurveyPopup = ClientFunction(
       popupSurvey.closeOnCompleteTimeout = -1;
       popupSurvey.allowFullScreen = true;
       popupSurvey.show();
+    } else if (framework === "jquery-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      window["$"]("#surveyElement").Survey({
+        model: model
+      });
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));

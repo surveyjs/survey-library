@@ -722,7 +722,7 @@ Serializer.addClass(
       },
       isSerializable: true
     },
-    { name: "itemComponent", visible: false, default: "" }
+    { name: "itemComponent", visible: false, default: "survey-ranking-item" }
   ],
   function () {
     return new QuestionRankingModel("");

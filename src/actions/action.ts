@@ -351,6 +351,53 @@ export abstract class BaseAction extends Base implements IAction {
       this.popupModel.hide();
     }
   }
+
+  @property({ defaultValue: false }) isPressed: boolean;
+  @property({ defaultValue: false }) isHovered: boolean;
+
+  public get classNames(): string {
+    return new CssClassBuilder()
+      .append("svc-toolbox__tool")
+      .append(this.css)
+      .append("svc-toolbox__tool--hovered", this.isHovered)
+      .append("svc-toolbox__tool--pressed", this.isPressed)
+      .toString();
+  }
+
+  private showPopupTimeout: NodeJS.Timeout;
+  private hidePopupTimeout: NodeJS.Timeout;
+  private clearPopupTimeouts() {
+    if (this.showPopupTimeout) clearTimeout(this.showPopupTimeout);
+    if (this.hidePopupTimeout) clearTimeout(this.hidePopupTimeout);
+  }
+  public showPopupDelayed(delay: number) {
+
+    this.clearPopupTimeouts();
+    this.showPopupTimeout = setTimeout(() => {
+      this.clearPopupTimeouts();
+
+      this.showPopup();
+
+    }, delay);
+  }
+
+  public hidePopupDelayed(delay: number) {
+    if (this.popupModel?.isVisible) {
+
+      this.clearPopupTimeouts();
+      this.hidePopupTimeout = setTimeout(() => {
+        this.clearPopupTimeouts();
+
+        this.hidePopup();
+        this.isHovered = false;
+
+      }, delay);
+    } else {
+      this.clearPopupTimeouts();
+      this.isHovered = false;
+    }
+  }
+
   protected abstract getEnabled(): boolean;
   protected abstract setEnabled(val: boolean): void;
   protected abstract getVisible(): boolean;

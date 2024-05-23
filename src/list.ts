@@ -190,17 +190,14 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   };
 
-  public onItemHover = (itemValue: T): void => {
-    this.actions.forEach(action => {
-      if (action === itemValue && !!itemValue.popupModel) {
-        itemValue.showPopup();
-        this.addScrollEventListener(() => {
-          itemValue.hidePopup();
-        });
-      } else if (!!action.popupModel && action.popupModel.isVisible) {
-        action.hidePopup();
-      }
+  protected popupAfterShowCallback(itemValue: T) {
+    this.addScrollEventListener(() => {
+      itemValue.hidePopup();
     });
+  }
+
+  public onItemHover = (itemValue: T): void => {
+    this.mouseOverHandler(itemValue);
   }
 
   public isItemDisabled: (itemValue: T) => boolean = (itemValue: T) => {

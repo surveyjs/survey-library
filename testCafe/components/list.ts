@@ -133,7 +133,6 @@ frameworks.forEach(async framework => {
       .expect(popupSelector.exists).ok()
       .expect(listInput.exists).notOk()
       .expect(visibleItems.count).eql(10)
-      .debug()
       .click(getActionByText("Open popup")) // close popup
       .click(getActionByText("Set items"))
       .click(getActionByText("Open popup"))

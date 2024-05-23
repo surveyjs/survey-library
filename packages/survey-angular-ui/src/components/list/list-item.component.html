@@ -3,7 +3,8 @@
     <ng-container *ngIf="model.needSeparator">
     <div [class]="listModel.cssClasses.itemSeparator"></div>
     </ng-container>
-    <div [class]="listModel.cssClasses.itemBody" [style.paddingInlineStart]="paddingLeft" [attr.title]="model.locTitle.calculatedText">
+    <div [class]="listModel.cssClasses.itemBody" [style.paddingInlineStart]="paddingLeft" [attr.title]="model.locTitle.calculatedText"
+    (mouseover)="listModel.onItemHover(model)">
     <ng-template [component]="{ name: model.component || 'sv-list-item-content', data: { model: model, listModel: listModel } }"></ng-template>
     </div>
   </li>

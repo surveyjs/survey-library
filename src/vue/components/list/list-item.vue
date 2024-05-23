@@ -6,7 +6,8 @@
     <div v-if="item.needSeparator" v-bind:class="model.cssClasses.itemSeparator" />
 
     <div :style="{ paddingInlineStart: model.getItemIndent(item) }" v-bind:class="model.cssClasses.itemBody"
-      :title="item.locTitle.calculatedText">
+      :title="item.locTitle.calculatedText"
+      @mouseover="(e) => model.onItemHover(item)">
       <sv-svg-icon v-if="item.iconName && !item.component" v-bind:class="model.cssClasses.itemIcon"
         :iconName="item.iconName" :size="item.iconSize"></sv-svg-icon>
       <survey-string v-if="!item.component" :locString="item.locTitle" />

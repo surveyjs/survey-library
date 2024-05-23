@@ -20,6 +20,7 @@
       :style="{ paddingInlineStart: model.getItemIndent(item) }"
       v-bind:class="model.cssClasses.itemBody"
       :title="item.locTitle.calculatedText"
+      @mouseover="(e) => model.onItemHover(item)"
     >
       <component :is="item.component || 'sv-list-item-content'" :item="item" :model="model">
       </component>

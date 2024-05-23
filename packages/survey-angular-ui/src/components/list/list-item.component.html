@@ -4,7 +4,8 @@
     <div [class]="listModel.cssClasses.itemSeparator"></div>
     </ng-container>
     <div [class]="listModel.cssClasses.itemBody" [style.paddingInlineStart]="paddingLeft" [attr.title]="model.locTitle.calculatedText"
-    (mouseover)="listModel.onItemHover(model)">
+    (mouseover)="listModel.onItemHover(model)"
+    (mouseleave)="listModel.onItemLeave(model)">
     <ng-template [component]="{ name: model.component || 'sv-list-item-content', data: { model: model, listModel: listModel } }"></ng-template>
     </div>
   </li>

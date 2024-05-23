@@ -56,7 +56,9 @@
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: background-color $transition-duration, color $transition-duration;
+  transition:
+    background-color $transition-duration,
+    color $transition-duration;
 }
 
 .sv-list__item.sv-list__item--focused:not(.sv-list__item--selected) {
@@ -80,6 +82,7 @@
   outline: none;
 }
 
+.sv-list__item--hovered > .sv-list__item-body,
 .sv-list__item-body:hover,
 .sv-list__item-body:focus {
   background-color: $background-dark;

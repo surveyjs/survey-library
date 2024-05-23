@@ -4,7 +4,7 @@ data-bind="css: $data.model.getItemClass($data.item), attr: { id: $data.item.ele
   <!-- ko if: $data.item.needSeparator -->
   <div data-bind="css: $data.model.cssClasses.itemSeparator"></div>
   <!-- /ko -->
-  <div data-bind="style: { paddingInlineStart: $data.model.getItemIndent($data.item) }, css: $data.model.cssClasses.itemBody, attr: { title: $data.item.locTitle.calculatedText }, event: { mouseover: function(m, e) { $data.hover(e, $data); return true; } }">
+  <div data-bind="style: { paddingInlineStart: $data.model.getItemIndent($data.item) }, css: $data.model.cssClasses.itemBody, attr: { title: $data.item.locTitle.calculatedText }, event: { mouseover: function(m, e) { $data.hover(e, $data); return true; }, mouseleave: function(m, e) { $data.leave(e, $data); return true; } }">
   <!-- ko component: { name: $data.item.component || 'sv-list-item-content', params: { item: $data.item, model: $data.model } } -->
   <!-- /ko -->
   </div>

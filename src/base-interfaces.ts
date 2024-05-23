@@ -225,7 +225,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     element: ISurveyElement,
     question: IQuestion,
     page: IPage,
-    id: string, scrollIfVisible?: boolean
+    id: string, scrollIfVisible?: boolean,
+    scrollIntoViewOptions?: ScrollIntoViewOptions
   ): any;
   runExpression(expression: string): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;

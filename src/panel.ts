@@ -1428,17 +1428,7 @@ export class PanelModelBase extends SurveyElement<Question>
     if(this.isCollapsed) {
       this.questions.forEach(q => q.onHidingContent());
     }
-    if(this.survey != null && !this.isLoadingFromJson && this.isExpanded && prevState === "collapsed") {
-      const q = this.getFirstQuestionToFocus(false);
-      if(!!q) {
-        setTimeout(() => {
-          if(!this.isDisposed && !!this.survey) {
-            this.survey.scrollElementToTop(q, q, null, q.inputId, false);
-          }
-        }, 15);
       }
-    }
-  }
 
   /**
    * Returns `true` if the panel/page is visible or the survey is currently in design mode.
@@ -2091,6 +2081,18 @@ export class PanelModel extends PanelModelBase implements IElement {
     const panel = <any>this;
     if (!!panel.originalPage) return true;
     return panel.survey.isShowingPreview && panel.survey.isSinglePage && !!panel.parent && !!panel.parent.originalPage;
+  }
+protected onElementExpanded(elementIsRendered: boolean): void {
+    if(this.survey != null && !this.isLoadingFromJson) {
+      const q = this.getFirstQuestionToFocus(false);
+      if(!!q) {
+        setTimeout(() => {
+          if(!this.isDisposed && !!this.survey) {
+            this.survey.scrollElementToTop(q, q, null, q.inputId, false, { behavior: "smooth" });
+          }
+        }, elementIsRendered ? 0: 15);
+      }
+    }
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()

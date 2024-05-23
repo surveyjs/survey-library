@@ -55,7 +55,12 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }, () => this._isVisible);
 
   getLeaveOptions(): AnimationOptions {
-    return { cssClass: "sv-popup--animate-leave" };
+    return { cssClass: "sv-popup--animate-leave",
+      onBeforeRunAnimation: (el) => {
+        el.setAttribute("inert", "");
+      },
+      onAfterRunAnimation: (el) => el.removeAttribute("inert")
+    };
   }
   getEnterOptions(): AnimationOptions {
     return { cssClass: "sv-popup--animate-enter" };

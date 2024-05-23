@@ -404,3 +404,45 @@ frameworks.forEach((framework) => {
   });
 });
 
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "name": "matrix",
+            "rowCount": 3,
+            "allowRemoveRows": false,
+            "columns": [
+              {
+                "name": "col1",
+                "cellType": "text"
+              },
+              {
+                "name": "col2",
+                "cellType": "text",
+                "visibleIf": "{row.col1} = 1"
+              }
+            ]
+          }
+        ]
+      });
+    }
+  );
+  test("visibleIf columns", async (t) => {
+    const textSelector = Selector("input").withAttribute("type", "text").filterVisible();
+    await t
+      .expect(textSelector.count).eql(3)
+      .typeText(textSelector.nth(0), "1")
+      .pressKey("Tab")
+      .expect(textSelector.count).eql(4)
+      .typeText(textSelector.nth(2), "1")
+      .pressKey("Tab")
+      .expect(textSelector.count).eql(5)
+      .typeText(textSelector.nth(4), "1")
+      .pressKey("Tab")
+      .expect(textSelector.count).eql(6);
+  });
+});
+

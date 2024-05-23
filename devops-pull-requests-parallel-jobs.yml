@@ -343,8 +343,8 @@ jobs:
       displayName: "Build Core"
 
     - script: |
-        npm run build_jquery_ui_prod
-      displayName: "Build jquery_ui_prod"
+        npm run build_jquery-ui_prod
+      displayName: "Build jquery-ui_prod"
 
     - script: |
         npm run test:postcss
@@ -359,10 +359,10 @@ jobs:
       displayName: "eslint check"
 
     # - script: |
-    #     npm run test:jquery_ui:single
+    #     npm run test:jquery-ui:single
     #   displayName: "run markup tests"
 
     - script: |
-        npm run testcafe:jquery_ui
+        npm run testcafe:jquery-ui
       displayName: "run functional tests"
 

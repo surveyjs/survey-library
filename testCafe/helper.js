@@ -243,7 +243,43 @@ export const registerCustomItemComponent = ClientFunction(
           return window["React"].createElement(ItemTemplateComponent, props);
         }
       );
-    } else if (framework === "vue") {
+    } else if (framework === "jquery-ui") {
+      class ItemTemplateComponent extends window["preact"].Component {
+        render() {
+          const item = this.props.item;
+          var Survey = window["SurveyJquery"];
+          item.iconName = "icon-defaultfile";
+          item.hint = item.title + " - Description";
+
+          /* eslint-disable */
+          return (
+            <div
+              className="my-list-item"
+              style={{ display: "flex" }}
+              title={item.hint}
+            >
+              {" "}
+              <span>
+                {" "}
+                <Survey.SvgIcon
+                  iconName={item.iconName}
+                  size={item.iconSize}
+                ></Survey.SvgIcon>{" "}
+              </span>{" "}
+              <span>{item.title}</span>{" "}
+            </div>
+          );
+          /* eslint-enable */
+        }
+      }
+      window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+        "new-item",
+        (props) => {
+          return window["preact"].createElement(ItemTemplateComponent, props);
+        }
+      );
+    }
+    else if (framework === "vue") {
       window["Vue"].component("new-item", {
         props: {
           item: {},

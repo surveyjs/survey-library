@@ -976,7 +976,7 @@ export class SurveyModel extends SurveyElementCore
     this.onPopupVisibleChanged.add((_, opt) => {
       if (opt.visible) {
         this.onScrollCallback = () => {
-          opt.popup.toggleVisibility();
+          opt.popup.hide();
         };
       } else {
         this.onScrollCallback = undefined;

@@ -47,3 +47,4 @@ import "../../localization/ukrainian";
 import "../../localization/vietnamese";
 import "../../localization/welsh";
 import "../../localization/telugu";
+import "../../localization/philippines";

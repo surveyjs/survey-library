@@ -10,7 +10,7 @@ const oldValueMINELEMENTCOUNT = ListModel.MINELEMENTCOUNT;
 QUnit.test("ListModel less than or equal to MINELEMENTCOUNT", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;
   const items = createIActionArray(4);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
 
   assert.equal(list.renderedActions.length, 4);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 4);
@@ -23,7 +23,7 @@ QUnit.test("ListModel greater MINELEMENTCOUNT", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;
   const items = createIActionArray(7);
   items.push(<IAction>{ id: "test8", title: "test8", visible: false });
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
 
   assert.equal(list.renderedActions.length, 8);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 7);
@@ -43,7 +43,7 @@ QUnit.test("ListModel greater MINELEMENTCOUNT", function (assert) {
 QUnit.test("ListModel reassign items", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;
   const items = createIActionArray(4);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
 
   assert.equal(list.renderedActions.length, 4);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 4);
@@ -59,13 +59,13 @@ QUnit.test("ListModel reassign items", function (assert) {
 });
 
 QUnit.test("hasText method", assert => {
-  const listModel = new ListModel([], () => { }, true);
+  const list = new ListModel({ items: [], onSelectionChanged: () => { }, allowSelection: true } as any);
   const item = new Action({ id: "1", title: "Best test1" });
-  assert.ok(listModel["hasText"](item, "test"));
-  assert.ok(listModel["hasText"](item, "1"));
-  assert.notOk(listModel["hasText"](item, "test2"));
-  assert.ok(listModel["hasText"](item, "Best"));
-  assert.ok(listModel["hasText"](item, "best"));
+  assert.ok(list["hasText"](item, "test"));
+  assert.ok(list["hasText"](item, "1"));
+  assert.notOk(list["hasText"](item, "test2"));
+  assert.ok(list["hasText"](item, "Best"));
+  assert.ok(list["hasText"](item, "best"));
 });
 
 class MyObject {
@@ -102,7 +102,7 @@ QUnit.test("ListModel custom onFilter", assert => {
     new Action({ id: "test7", title: "test7" })
   ];
   const myObject = new MyObject(items);
-  const list = new ListModel([], () => { }, true);
+  const list = new ListModel({ items: [], onSelectionChanged: () => { }, allowSelection: true } as any);
   list.setOnFilterStringChangedCallback((text: string) => { myObject.myOnFilter(text); });
   assert.equal(list.renderedActions.length, 0);
 
@@ -143,7 +143,7 @@ QUnit.test("ListModel custom onFilter: item is not found when a search string co
     new Action({ id: "test7", title: "test7" })
   ];
   const myObject = new MyObject2(items);
-  const list = new ListModel([], () => { }, true);
+  const list = new ListModel({ items: [], onSelectionChanged: () => { }, allowSelection: true } as any);
   list.setOnFilterStringChangedCallback((text: string) => { myObject.myOnFilter(text); });
   assert.equal(list.renderedActions.length, 0, "#1");
   assert.equal(list.isEmpty, true, "#2");
@@ -167,7 +167,7 @@ QUnit.test("ListModel custom onFilter: item is not found when a search string co
 
 QUnit.test("ListModel shows placeholder if there are no visible elements", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
 
   assert.equal(list.renderedActions.length, 12);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 12);
@@ -180,7 +180,7 @@ QUnit.test("ListModel shows placeholder if there are no visible elements", funct
 
 QUnit.test("ListModel focus item", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
 
   assert.equal(list.renderedActions.length, 12);
   assert.equal(list.focusedItem, undefined);
@@ -197,7 +197,7 @@ QUnit.test("ListModel focus item", function (assert) {
 
 QUnit.test("focusNextVisibleItem item", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   list.focusedItem = list.actions[list.actions.length - 1];
 
   list.focusNextVisibleItem();
@@ -209,7 +209,7 @@ QUnit.test("focusNextVisibleItem item", function (assert) {
 
 QUnit.test("focusNextVisibleItem item + filtration", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   list.filterString = "1";
 
   assert.equal(list.visibleItems.length, 3);
@@ -223,7 +223,7 @@ QUnit.test("focusNextVisibleItem item + filtration", function (assert) {
 
 QUnit.test("focusPrevVisibleItem item", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   list.focusedItem = list.actions[0];
 
   list.focusPrevVisibleItem();
@@ -234,7 +234,7 @@ QUnit.test("focusPrevVisibleItem item", function (assert) {
 });
 QUnit.test("focusPrevVisibleItem item + filtration", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   list.filterString = "1";
   assert.equal(list.visibleItems.length, 3);
 
@@ -250,7 +250,7 @@ QUnit.test("focusPrevVisibleItem item + filtration", function (assert) {
 
 QUnit.test("focusNextVisibleItem item if there is selected item", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true, items[2]);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true, selectedItem: items[2] } as any);
 
   list.focusNextVisibleItem();
   assert.ok(list.focusedItem === list.actions[2]);
@@ -258,7 +258,7 @@ QUnit.test("focusNextVisibleItem item if there is selected item", function (asse
 
 QUnit.test("selectFocusedItem", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   list.filterString = "1";
   list.focusNextVisibleItem();
   assert.ok(list.focusedItem === list.actions[1]);
@@ -269,7 +269,7 @@ QUnit.test("selectFocusedItem", function (assert) {
 });
 QUnit.test("onMouseMove", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   list.filterString = "1";
   list.focusNextVisibleItem();
   assert.ok(list.focusedItem === list.actions[1]);
@@ -279,7 +279,7 @@ QUnit.test("onMouseMove", function (assert) {
 });
 QUnit.test("add/remove scrollHandler", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   let result = 0;
 
   const element = createListContainerHtmlElement();
@@ -307,7 +307,7 @@ QUnit.test("add/remove scrollHandler", function (assert) {
 });
 QUnit.test("onLastItemRended & hasVerticalScroller", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   const element = createListContainerHtmlElement();
   list.initListContainerHtmlElement(element);
 
@@ -321,7 +321,7 @@ QUnit.test("onLastItemRended & hasVerticalScroller", function (assert) {
 
 QUnit.test("onLastItemRended & hasVerticalScroller & isAllDataLoaded", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   const element = createListContainerHtmlElement();
   list.initListContainerHtmlElement(element);
   list.isAllDataLoaded = false;
@@ -336,7 +336,7 @@ QUnit.test("onLastItemRended & hasVerticalScroller & isAllDataLoaded", function 
 
 QUnit.test("emptyText & isAllDataLoaded", function (assert) {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   list.isAllDataLoaded = false;
   assert.equal(list.emptyMessage, "Loading...");
 
@@ -346,7 +346,7 @@ QUnit.test("emptyText & isAllDataLoaded", function (assert) {
 
 QUnit.test("getItemClass test", (assert) => {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   assert.equal(list.getItemClass(list.actions[0]), "sv-list__item");
 
   list.textWrapEnabled = true;
@@ -369,7 +369,7 @@ QUnit.test("getItemClass test", (assert) => {
 
 QUnit.test("getListClass test", (assert) => {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   assert.equal(list.getListClass(), "sv-list");
 
   list.filterString = "test";
@@ -381,7 +381,7 @@ QUnit.test("getListClass test", (assert) => {
 
 QUnit.test("allow show selected item with disabled selection", (assert) => {
   const items = createIActionArray(12);
-  const list = new ListModel(items, () => { }, false);
+  const list = new ListModel({ items: [], onSelectionChanged: () => { }, allowSelection: false } as any);
   assert.equal(list.selectedItem, undefined, "no selected item");
   assert.equal(list.isItemSelected(items[0] as any), false, "selected item is false");
 
@@ -393,7 +393,7 @@ QUnit.test("ListModel filter & comparator.normalize text (brouillé=brouille)", 
   const items: Array<IAction> = [];
   items.push(<IAction>{ id: "test1", title: "brouillé" });
   items.push(<IAction>{ id: "test1", title: "lle" });
-  const list = new ListModel(items, () => { }, true);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   list.filterString = "le";
   let filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
   assert.equal(filteredActions.length, 1, "one item by default");

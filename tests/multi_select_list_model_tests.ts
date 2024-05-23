@@ -12,7 +12,7 @@ QUnit.test("MultiSelectListModel", function (assert) {
     <IAction>{ id: "test3", title: "test3" },
     <IAction>{ id: "test4", title: "test4" }
   ];
-  const multiSelectList = new MultiSelectListModel(items, () => { }, true, selectedItems);
+  const multiSelectList = new MultiSelectListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true, selectedItems: selectedItems });
 
   assert.equal(multiSelectList.renderedActions.length, 4);
   assert.equal(multiSelectList.renderedActions.filter(item => item.visible).length, 4);
@@ -40,7 +40,7 @@ QUnit.test("MultiSelectListModel onSelectionChanged added item", function (asser
     <IAction>{ id: "test3", title: "test3" },
     <IAction>{ id: "test4", title: "test4" }
   ];
-  const multiSelectList = new MultiSelectListModel(items, onSelectionChanged, true, selectedItems);
+  const multiSelectList = new MultiSelectListModel({ items: items, onSelectionChanged: onSelectionChanged, allowSelection: true, selectedItems: selectedItems });
 
   assert.equal(selectedItems.length, 0);
 
@@ -63,7 +63,7 @@ QUnit.test("MultiSelectListModel onSelectionChanged removed item", function (ass
     <IAction>{ id: "test3", title: "test3" },
     <IAction>{ id: "test4", title: "test4" }
   ];
-  const multiSelectList = new MultiSelectListModel(items, onSelectionChanged, true, selectedItems);
+  const multiSelectList = new MultiSelectListModel({ items: items, onSelectionChanged: onSelectionChanged, allowSelection: true, selectedItems: selectedItems });
   selectedItems.push(multiSelectList.renderedActions[1]);
   selectedItems.push(multiSelectList.renderedActions[2]);
 
@@ -82,7 +82,7 @@ QUnit.test("MultiSelectListModel isSelectedItem", function (assert) {
     <IAction>{ id: "test3", title: "test3" },
     <IAction>{ id: "test4", title: "test4" }
   ];
-  const multiSelectList = new MultiSelectListModel(items, () => {}, true, selectedItems);
+  const multiSelectList = new MultiSelectListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true, selectedItems: selectedItems });
   selectedItems.push(multiSelectList.renderedActions[1]);
   selectedItems.push(multiSelectList.renderedActions[2]);
 
@@ -95,7 +95,7 @@ QUnit.test("MultiSelectListModel isSelectedItem", function (assert) {
 
 QUnit.test("selectFocusedItem", function (assert) {
   const items = createIActionArray(12);
-  const list = new MultiSelectListModel(items, () => { }, true);
+  const list = new MultiSelectListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true });
   list.filterString = "1";
   list.focusNextVisibleItem();
   assert.ok(list.focusedItem === list.actions[1]);
@@ -108,7 +108,7 @@ QUnit.test("selectFocusedItem", function (assert) {
 
 QUnit.test("selectFocusedItem & hideSelectedItems", function (assert) {
   const items = createIActionArray(12);
-  const list = new MultiSelectListModel(items, () => { }, true);
+  const list = new MultiSelectListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true });
   list.hideSelectedItems = true;
   list.filterString = "1";
   list.focusNextVisibleItem();
@@ -122,7 +122,7 @@ QUnit.test("selectFocusedItem & hideSelectedItems", function (assert) {
 
 QUnit.test("focusNextVisibleItem item if there is selected items", function (assert) {
   const items = createIActionArray(12);
-  const list = new MultiSelectListModel(items, () => { }, true, [items[2]]);
+  const list = new MultiSelectListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true, selectedItems: [items[2]] });
 
   list.focusNextVisibleItem();
   assert.ok(list.focusedItem === list.actions[2]);
@@ -130,7 +130,7 @@ QUnit.test("focusNextVisibleItem item if there is selected items", function (ass
 
 QUnit.test("isEmpty & hideSelectedItems", function (assert) {
   const items = createIActionArray(2);
-  const multiSelectList = new MultiSelectListModel(items, () => { }, true);
+  const multiSelectList = new MultiSelectListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true });
   multiSelectList.hideSelectedItems = true;
 
   assert.equal(multiSelectList.selectedItems.length, 0, "selectedItems count 1");

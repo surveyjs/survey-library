@@ -302,3 +302,5 @@ jobs:
     - script: |
         npm run testcafe:ci:vue3
       displayName: "run functional tests"
+
+

@@ -1,7 +1,10 @@
 import { property } from "./jsonobject";
 import { Action, BaseAction, IAction } from "./actions/action";
-import { ListModel } from "./list";
+import { IListModel, ListModel } from "./list";
 
+export interface IMultiSelectListModel extends IListModel {
+  selectedItems?: Array<IAction>;
+}
 export class MultiSelectListModel<T extends BaseAction = Action> extends ListModel<T> {
   public selectedItems: Array<IAction>;
   @property() hideSelectedItems: boolean;
@@ -13,9 +16,9 @@ export class MultiSelectListModel<T extends BaseAction = Action> extends ListMod
     });
   }
 
-  constructor(items: Array<IAction>, onSelectionChanged: (item: T, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, elementId?: string) {
-    super(items, onSelectionChanged, allowSelection, undefined, elementId);
-    this.setSelectedItems(selectedItems || []);
+  constructor(options: IMultiSelectListModel) {
+    super(options as any);
+    this.setSelectedItems(options.selectedItems || []);
   }
 
   public onItemClick = (item: T) => {

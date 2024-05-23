@@ -124,6 +124,7 @@ export class QuestionRowModel extends Base {
       el.style.setProperty("--animation-width", getElementWidth(el) + "px");
     };
     return {
+      getRerenderEvent: () => this.onElementRerendered,
       isAnimationEnabled: () => this.animationAllowed,
       getAnimatedElement: (element: IElement) => (element as any as SurveyElement).getWrapperElement(),
       getLeaveOptions: (element: IElement) => {
@@ -308,6 +309,7 @@ export class PanelModelBase extends SurveyElement<Question>
       el.style.setProperty("--animation-height", el.offsetHeight + "px");
     };
     return {
+      getRerenderEvent: () => this.onElementRerendered,
       isAnimationEnabled: () => this.animationAllowed,
       getAnimatedElement: (row: QuestionRowModel) => row.getRootElement(),
       getLeaveOptions: (_: QuestionRowModel) => {
@@ -1428,7 +1430,7 @@ export class PanelModelBase extends SurveyElement<Question>
     if(this.isCollapsed) {
       this.questions.forEach(q => q.onHidingContent());
     }
-      }
+  }
 
   /**
    * Returns `true` if the panel/page is visible or the survey is currently in design mode.
@@ -2082,7 +2084,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     if (!!panel.originalPage) return true;
     return panel.survey.isShowingPreview && panel.survey.isSinglePage && !!panel.parent && !!panel.parent.originalPage;
   }
-protected onElementExpanded(elementIsRendered: boolean): void {
+  protected onElementExpanded(elementIsRendered: boolean): void {
     if(this.survey != null && !this.isLoadingFromJson) {
       const q = this.getFirstQuestionToFocus(false);
       if(!!q) {

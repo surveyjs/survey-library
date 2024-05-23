@@ -397,6 +397,11 @@ QUnit.test("Ranking: test animation options", (assert) => {
   //test isAnimationEnabled
   question["domNode"] = document.createElement("div");
   settings.animationEnabled = true;
+  question.enableOnElementRenderedEvent();
+  assert.ok(rcAnimationOptions.isAnimationEnabled());
+  question.disableOnElementRenderedEvent();
+  assert.notOk(rcAnimationOptions.isAnimationEnabled());
+  question.enableOnElementRenderedEvent();
   assert.ok(rcAnimationOptions.isAnimationEnabled());
   question["domNode"] = undefined as any;
   assert.notOk(rcAnimationOptions.isAnimationEnabled());

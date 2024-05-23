@@ -216,6 +216,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       getKey(item: ItemValue) {
         return item.value;
       },
+      getRerenderEvent: () => {
+        return this.onElementRerendered;
+      },
       isAnimationEnabled: () => this.animationAllowed && !this.isDesignMode && this.isVisible && !!this.domNode,
       getReorderOptions: (item: ItemValue, movedForward: boolean) => {
         let cssClass = "";

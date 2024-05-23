@@ -1,6 +1,7 @@
-import { DomWindowHelper } from "../global_variables_utils";
 import { debounce } from "./taskmanager";
 import { compareArrays } from "./utils";
+import { EventBase, Base } from "../base";
+import { DomWindowHelper } from "../global_variables_utils";
 
 export interface AnimationOptions{
   cssClass: string;
@@ -13,6 +14,7 @@ export interface IAnimationConsumer<T extends Array<any> = []> {
   getEnterOptions?(...args: T): AnimationOptions;
   getAnimatedElement(...args: T): HTMLElement;
   isAnimationEnabled(): boolean;
+  getRerenderEvent(): EventBase<Base>;
 }
 
 interface IGroupAnimationInfo {
@@ -67,7 +69,7 @@ export class AnimationUtils {
     let cancelTimeout: any;
     let animationsCount = this.getAnimationsCount(element);
     const onEndCallback = (isCancel: boolean = true) => {
-      options.onAfterRunAnimation && options.onAfterRunAnimation(element);
+      this.afterAnimationRun(element, options);
       callback(isCancel);
       clearTimeout(cancelTimeout);
       this.removeCancelCallback(onEndCallback);
@@ -85,7 +87,14 @@ export class AnimationUtils {
         onEndCallback(false);
       }, this.getAnimationDuration(element) + 10);
     } else {
+      this.afterAnimationRun(element, options);
       callback(true);
+    }
+  }
+
+  protected afterAnimationRun(element: HTMLElement, options: AnimationOptions | AnimationOptions): void {
+    if(element && options) {
+      options.onAfterRunAnimation && options.onAfterRunAnimation(element);
     }
   }
 
@@ -116,26 +125,21 @@ export class AnimationUtils {
     }
   }
 
-  protected onNextRender(callback: () => void, runEarly?: () => boolean, isCancel: boolean = false): void {
+  protected onNextRender(callback: (isCancel?: boolean) => void, isCancel: boolean = false): void {
     if(!isCancel && DomWindowHelper.isAvailable()) {
       const cancelCallback = () => {
-        callback();
+        callback(true);
         cancelAnimationFrame(latestRAF);
       };
       let latestRAF = DomWindowHelper.requestAnimationFrame(() => {
-        if(runEarly && runEarly()) {
-          callback();
+        latestRAF = DomWindowHelper.requestAnimationFrame(() => {
+          callback(false);
           this.removeCancelCallback(cancelCallback);
-        } else {
-          latestRAF = DomWindowHelper.requestAnimationFrame(() => {
-            callback();
-            this.removeCancelCallback(cancelCallback);
-          });
-        }
+        });
       });
       this.addCancelCallback(cancelCallback);
     } else {
-      callback();
+      callback(true);
     }
   }
 
@@ -148,16 +152,12 @@ export class AnimationUtils {
 
 export class AnimationPropertyUtils extends AnimationUtils {
   public onEnter(options: IAnimationConsumer): void {
-    this.onNextRender(
-      () => {
-        const htmlElement = options.getAnimatedElement();
-        const enterOptions: AnimationOptions = options.getEnterOptions ? options.getEnterOptions() : {} as any;
-        this.beforeAnimationRun(htmlElement, enterOptions);
-        this.runAnimation(htmlElement, enterOptions, () => {
-          this.clearHtmlElement(htmlElement, enterOptions);
-        });
-      },
-      () => !!options.getAnimatedElement());
+    const htmlElement = options.getAnimatedElement();
+    const enterOptions: AnimationOptions = options.getEnterOptions ? options.getEnterOptions() : {} as any;
+    this.beforeAnimationRun(htmlElement, enterOptions);
+    this.runAnimation(htmlElement, enterOptions, () => {
+      this.clearHtmlElement(htmlElement, enterOptions);
+    });
   }
   public onLeave(options: IAnimationConsumer, callback: () => void): void {
     const htmlElement = options.getAnimatedElement();
@@ -167,62 +167,58 @@ export class AnimationPropertyUtils extends AnimationUtils {
       callback();
       this.onNextRender(() => {
         this.clearHtmlElement(htmlElement, leaveOptions);
-      }, undefined, isCancel);
+      }, isCancel);
     });
   }
 }
 export class AnimationGroupUtils<T> extends AnimationUtils {
   public runGroupAnimation(options: IAnimationGroupConsumer<T>, addedItems: Array<T>, removedItems: Array<T>, reorderedItems: Array<{ item: T, movedForward: boolean }>, callback?: () => void): void {
-    this.onNextRender(
-      () => {
-        const info: IGroupAnimationInfo = {
-          isAddingRunning: addedItems.length > 0,
-          isDeletingRunning: removedItems.length > 0,
-          isReorderingRunning: reorderedItems.length > 0
-        };
-        const addedHtmlElements = addedItems.map((el) => options.getAnimatedElement(el));
-        const enterOptions: Array<AnimationOptions> = addedItems.map((el) => options.getEnterOptions ? options.getEnterOptions(el, info) : {} as any);
-        const removedHtmlElements = removedItems.map((el) => options.getAnimatedElement(el));
-        const leaveOptions: Array<AnimationOptions> = removedItems.map((el) => options.getLeaveOptions ? options.getLeaveOptions(el, info) : {} as any);
-        const reorderedHtmlElements = reorderedItems.map(el => options.getAnimatedElement(el.item));
-        const reorderedOptions: Array<AnimationOptions> = reorderedItems.map(el => options.getReorderOptions ? options.getReorderOptions(el.item, el.movedForward, info) : {} as any);
-        addedItems.forEach((_, i) => {
-          this.beforeAnimationRun(addedHtmlElements[i], enterOptions[i]);
-        });
-        removedItems.forEach((_, i) => {
-          this.beforeAnimationRun(removedHtmlElements[i], leaveOptions[i]);
-        });
-        reorderedItems.forEach((_, i) => {
-          this.beforeAnimationRun(reorderedHtmlElements[i], reorderedOptions[i]);
-        });
-        let counter = addedItems.length + removedItems.length + reorderedHtmlElements.length;
-        const onAnimationEndCallback = (isCancel: boolean) => {
-          if(--counter <=0) {
-            callback && callback();
-            this.onNextRender(() => {
-              addedItems.forEach((_, i) => {
-                this.clearHtmlElement(addedHtmlElements[i], enterOptions[i]);
-              });
-              removedItems.forEach((_, i) => {
-                this.clearHtmlElement(removedHtmlElements[i], leaveOptions[i]);
-              });
-              reorderedItems.forEach((_, i) => {
-                this.clearHtmlElement(reorderedHtmlElements[i], reorderedOptions[i]);
-              });
-            }, undefined, isCancel);
-          }
-        };
-        addedItems.forEach((_, i) => {
-          this.runAnimation(addedHtmlElements[i], enterOptions[i], onAnimationEndCallback);
-        });
-        removedItems.forEach((_, i) => {
-          this.runAnimation(removedHtmlElements[i], leaveOptions[i], onAnimationEndCallback);
-        });
-        reorderedItems.forEach((_, i) => {
-          this.runAnimation(reorderedHtmlElements[i], reorderedOptions[i], onAnimationEndCallback);
-        });
-      },
-      () => (addedItems.length == 0 || addedItems.some(el => !!options.getAnimatedElement(el))) && (reorderedItems.length == 0 || reorderedItems.some(el => !!options.getAnimatedElement(el.item))));
+    const info: IGroupAnimationInfo = {
+      isAddingRunning: addedItems.length > 0,
+      isDeletingRunning: removedItems.length > 0,
+      isReorderingRunning: reorderedItems.length > 0
+    };
+    const addedHtmlElements = addedItems.map((el) => options.getAnimatedElement(el));
+    const enterOptions: Array<AnimationOptions> = addedItems.map((el) => options.getEnterOptions ? options.getEnterOptions(el, info) : {} as any);
+    const removedHtmlElements = removedItems.map((el) => options.getAnimatedElement(el));
+    const leaveOptions: Array<AnimationOptions> = removedItems.map((el) => options.getLeaveOptions ? options.getLeaveOptions(el, info) : {} as any);
+    const reorderedHtmlElements = reorderedItems.map(el => options.getAnimatedElement(el.item));
+    const reorderedOptions: Array<AnimationOptions> = reorderedItems.map(el => options.getReorderOptions ? options.getReorderOptions(el.item, el.movedForward, info) : {} as any);
+    addedItems.forEach((_, i) => {
+      this.beforeAnimationRun(addedHtmlElements[i], enterOptions[i]);
+    });
+    removedItems.forEach((_, i) => {
+      this.beforeAnimationRun(removedHtmlElements[i], leaveOptions[i]);
+    });
+    reorderedItems.forEach((_, i) => {
+      this.beforeAnimationRun(reorderedHtmlElements[i], reorderedOptions[i]);
+    });
+    let counter = addedItems.length + removedItems.length + reorderedHtmlElements.length;
+    const onAnimationEndCallback = (isCancel: boolean) => {
+      if(--counter <=0) {
+        callback && callback();
+        this.onNextRender(() => {
+          addedItems.forEach((_, i) => {
+            this.clearHtmlElement(addedHtmlElements[i], enterOptions[i]);
+          });
+          removedItems.forEach((_, i) => {
+            this.clearHtmlElement(removedHtmlElements[i], leaveOptions[i]);
+          });
+          reorderedItems.forEach((_, i) => {
+            this.clearHtmlElement(reorderedHtmlElements[i], reorderedOptions[i]);
+          });
+        }, isCancel);
+      }
+    };
+    addedItems.forEach((_, i) => {
+      this.runAnimation(addedHtmlElements[i], enterOptions[i], onAnimationEndCallback);
+    });
+    removedItems.forEach((_, i) => {
+      this.runAnimation(removedHtmlElements[i], leaveOptions[i], onAnimationEndCallback);
+    });
+    reorderedItems.forEach((_, i) => {
+      this.runAnimation(reorderedHtmlElements[i], reorderedOptions[i], onAnimationEndCallback);
+    });
   }
 }
 
@@ -230,6 +226,34 @@ export abstract class AnimationProperty<T, S extends IAnimationConsumer<any> = I
   constructor(protected animationOptions: S, protected update: (val: T, isTempUpdate?: boolean) => void, protected getCurrentValue: () => T) {
   }
   protected animation: AnimationUtils;
+  protected onNextRender(callback: () => void, onCancel?: () => void): void {
+    const rerenderEvent = this.animationOptions.getRerenderEvent();
+    if(!rerenderEvent) {
+      const raf = requestAnimationFrame(() => {
+        callback();
+        this.cancelCallback = undefined;
+      });
+      this.cancelCallback = () => {
+        onCancel && onCancel();
+        cancelAnimationFrame(raf);
+        this.cancelCallback = undefined;
+      };
+    } else {
+      const clear = () => {
+        rerenderEvent.remove(nextRenderCallback);
+        this.cancelCallback = undefined;
+      };
+      const nextRenderCallback = () => {
+        callback();
+        clear();
+      };
+      this.cancelCallback = () => {
+        onCancel && onCancel();
+        clear();
+      };
+      rerenderEvent.add(nextRenderCallback);
+    }
+  }
   protected abstract _sync(newValue: T): void;
   private _debouncedSync = debounce((newValue: T) => {
     this.animation.cancel();
@@ -243,7 +267,9 @@ export abstract class AnimationProperty<T, S extends IAnimationConsumer<any> = I
       this.update(newValue);
     }
   }
-  cancel() {
+  private cancelCallback: () => void;
+  cancel(): void {
+    this.cancelCallback && this.cancelCallback();
     this.animation.cancel();
     this._debouncedSync.cancel();
   }
@@ -254,8 +280,10 @@ export class AnimationBoolean extends AnimationProperty<boolean> {
   protected _sync(newValue: boolean): void {
     if(newValue !== this.getCurrentValue()) {
       if(newValue) {
+        this.onNextRender(() => {
+          this.animation.onEnter(this.animationOptions);
+        });
         this.update(newValue);
-        this.animation.onEnter(this.animationOptions);
       } else {
         this.animation.onLeave(this.animationOptions, () => {
           this.update(newValue);
@@ -273,12 +301,22 @@ export class AnimationGroup<T> extends AnimationProperty<Array<T>, IAnimationGro
     const oldValue = this.getCurrentValue();
     try {
       const { addedItems, deletedItems, reorderedItems, mergedItems } = compareArrays(oldValue, newValue, this.animationOptions.getKey ?? ((item: T) => item));
-      if(deletedItems.length <= 0 || reorderedItems.length > 0 || addedItems.length > 0) this.update(mergedItems);
-      this.animation.runGroupAnimation(this.animationOptions, addedItems, deletedItems, reorderedItems, () => {
-        if(deletedItems.length > 0) {
+      const runAnimationCallback = () => {
+        this.animation.runGroupAnimation(this.animationOptions, addedItems, deletedItems, reorderedItems, () => {
+          if(deletedItems.length > 0) {
+            this.update(newValue);
+          }
+        });
+      };
+      if(deletedItems.length <= 0 || reorderedItems.length > 0 || addedItems.length > 0) {
+        this.onNextRender(runAnimationCallback, () => {
           this.update(newValue);
-        }
-      });
+        });
+        this.update(mergedItems);
+      } else {
+        runAnimationCallback();
+      }
+
     } catch {
       this.update(newValue);
     }
@@ -293,10 +331,12 @@ export class AnimationTab<T> extends AnimationProperty<Array<T>, IAnimationGroup
     const oldValue = [].concat(this.getCurrentValue());
     if(oldValue[0] !== newValue[0]) {
       const tempValue = !!this.mergeValues ? this.mergeValues(newValue, oldValue) : [].concat(oldValue, newValue);
+      this.onNextRender(() => {
+        this.animation.runGroupAnimation(this.animationOptions, newValue, oldValue, [], () => {
+          this.update(newValue);
+        });
+      }, () => this.update(newValue));
       this.update(tempValue, true);
-      this.animation.runGroupAnimation(this.animationOptions, newValue, oldValue, [], () => {
-        this.update(newValue);
-      });
     } else {
       this.update(newValue);
     }

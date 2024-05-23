@@ -632,6 +632,7 @@ export class QuestionPanelDynamicModel extends Question
         .toString();
     };
     return {
+      getRerenderEvent: () => this.onElementRerendered,
       getAnimatedElement: (panel) => {
         if(panel && this.cssContent) {
           const contentSelector = classesToSelector(this.cssContent);

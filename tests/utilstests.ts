@@ -5,6 +5,7 @@ import { mouseInfo } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
 import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationTab, AnimationUtils, IAnimationConsumer, IAnimationGroupConsumer } from "../src/utils/animation";
+import { EventBase } from "../src/base";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
@@ -392,6 +393,7 @@ QUnit.test("Test animation utils: enter animation", (assert) => {
   document.body.appendChild(htmlElement);
   let log = "";
   const animationOptions: IAnimationConsumer = {
+    getRerenderEvent: () => new EventBase(),
     getLeaveOptions() {
       return {} as any;
     },
@@ -435,6 +437,7 @@ QUnit.test("Test animation utils: leave animation", (assert) => {
   document.body.appendChild(htmlElement);
   let log = "";
   const animationOptions: IAnimationConsumer = {
+    getRerenderEvent: () => new EventBase(),
     getLeaveOptions() {
       return {
         onAfterRunAnimation: (element) => {
@@ -490,6 +493,7 @@ QUnit.test("Test animation utils: group enter animation", (assert) => {
   });
   let log = "";
   const animationOptions: IAnimationGroupConsumer<number> = {
+    getRerenderEvent: () => new EventBase(),
     getEnterOptions(i) {
       return {
         onAfterRunAnimation: (element) => {
@@ -548,6 +552,7 @@ QUnit.test("Test animation utils: group leave animation", (assert) => {
   });
   let log = "";
   const animationOptions: IAnimationGroupConsumer<number> = {
+    getRerenderEvent: () => new EventBase(),
     getLeaveOptions(i) {
       {
         return {
@@ -608,7 +613,9 @@ QUnit.test("Test animation property: boolean", (assert) => {
   element.style.animationDuration = "1s";
   document.body.appendChild(element);
   let log = "";
+  const rerenderEvent = new EventBase();
   const animation = new AnimationBoolean({
+    getRerenderEvent: () => rerenderEvent as any,
     getEnterOptions: () => {
       return {
         onBeforeRunAnimation: () => {
@@ -642,6 +649,7 @@ QUnit.test("Test animation property: boolean", (assert) => {
     log += `->updated: ${val}`;
   }, () => value);
   animation["_sync"](true);
+  animation["animationOptions"].getRerenderEvent().fire(undefined as any, undefined);
   element.dispatchEvent(new AnimationEvent("animationend"));
   assert.equal(log, "->updated: true->before-enter->after-enter");
 
@@ -664,7 +672,9 @@ QUnit.test("Test animation property: array", (assert) => {
     return element;
   });
   let log = "";
+  const rerenderEvent = new EventBase();
   const animation = new AnimationGroup<number>({
+    getRerenderEvent: () => rerenderEvent as any,
     getEnterOptions: (i) => {
       return {
         onBeforeRunAnimation: () => {
@@ -698,6 +708,7 @@ QUnit.test("Test animation property: array", (assert) => {
     log += `->updated: ${val}`;
   }, () => elements);
   animation["_sync"]([0, 1, 2, 3]);
+  animation["animationOptions"].getRerenderEvent().fire(undefined as any, undefined);
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
   assert.equal(log, "->updated: 0,1,2,3->before-enter_1->before-enter_2->after-enter_1->after-enter_2");
@@ -723,7 +734,9 @@ QUnit.test("Test animation tab", (assert) => {
     return element;
   });
   let log = "";
+  const rerenderEvent = new EventBase();
   const animation = new AnimationTab<number>({
+    getRerenderEvent: () => rerenderEvent as any,
     getEnterOptions: (i) => {
       return {
         onBeforeRunAnimation: () => {
@@ -759,15 +772,23 @@ QUnit.test("Test animation tab", (assert) => {
     return ([] as number[]).concat(newValue, oldValue);
   },);
   animation["_sync"]([1]);
+  assert.deepEqual(elements, [1, 0]);
+  assert.equal(log, "->updated: 1,0");
+  log = "";
+  animation["animationOptions"].getRerenderEvent().fire(undefined as any, undefined);
   htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
-  assert.equal(log, "->updated: 1,0->before-enter_1->before-leave_0->after-leave_0->after-enter_1->updated: 1");
+  assert.equal(log, "->before-enter_1->before-leave_0->after-leave_0->after-enter_1->updated: 1");
   assert.deepEqual(elements, [1]);
   log = "";
   animation["_sync"]([0]);
+  assert.deepEqual(elements, [0, 1]);
+  assert.equal(log, "->updated: 0,1");
+  log = "";
+  animation["animationOptions"].getRerenderEvent().fire(undefined as any, undefined);
   htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
-  assert.equal(log, "->updated: 0,1->before-enter_0->before-leave_1->after-enter_0->after-leave_1->updated: 0");
+  assert.equal(log, "->before-enter_0->before-leave_1->after-enter_0->after-leave_1->updated: 0");
   assert.deepEqual(elements, [0]);
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
@@ -783,7 +804,8 @@ QUnit.test("Check onNextRender and cancel", (assert) => {
     let rafId = ++id;
     latestCb = () => { log+= `->running: ${id}`; cb(); };
     log+= `->raf: ${rafId}`;
-    return rafId; };
+    return rafId;
+  };
   window.cancelAnimationFrame = (id) => { log+= `->canceled: ${id}`; };
   const animation = new AnimationUtils();
   animation["onNextRender"](() => {
@@ -811,14 +833,6 @@ QUnit.test("Check onNextRender and cancel", (assert) => {
   animation.cancel();
   assert.equal(log, "");
 
-  id = 0;
-  log = "";
-  animation["onNextRender"](() => {
-    log+="->updated";
-  }, () => true);
-  latestCb();
-  assert.equal(log, "->raf: 1->running: 1->updated");
-
   window.requestAnimationFrame = oldRequestAnimationFrame;
   window.cancelAnimationFrame = oldCancelAnimationFrame;
 });
@@ -828,6 +842,7 @@ QUnit.test("Test animation property: check latest update persists", (assert) => 
   let value: boolean = false;
   let animationEnabled = false;
   const animation = new AnimationBoolean({
+    getRerenderEvent: () => new EventBase(),
     getEnterOptions: () => {
       return {
         cssClass: "enter",
@@ -915,4 +930,79 @@ QUnit.test("test compareArrays function", (assert) => {
 
   assert.throws(() => compareArrays([{ value: 0 }, { value: 0 }], [], (item) => item.value), new Error("keys must be unique"));
   assert.throws(() => compareArrays([], [{ value: 1 }, { value: 1 }], (item) => item.value), new Error("keys must be unique"));
+});
+
+QUnit.test("test onNextRender function", (assert) => {
+  let rerenderEvent = new EventBase();
+  const animation = new AnimationBoolean({
+    getRerenderEvent() {
+      return rerenderEvent;
+    }
+  } as any, () => {}, () => undefined as any);
+
+  let log = "";
+  animation["onNextRender"](() => {
+    log+= "->callback";
+  }, () => {
+    log+= "->cancelled";
+  });
+  assert.equal(log, "");
+  rerenderEvent.fire(undefined, undefined);
+  assert.equal(log, "->callback");
+  assert.ok(rerenderEvent.isEmpty);
+  assert.notOk(!!animation["cancelCallback"]);
+
+  log ="";
+  animation["onNextRender"](() => {
+    log+= "->callback";
+  }, () => {
+    log+= "->cancelled";
+  });
+  assert.equal(log, "");
+  animation.cancel();
+  assert.equal(log, "->cancelled");
+  assert.ok(rerenderEvent.isEmpty);
+  assert.notOk(!!animation["cancelCallback"]);
+
+  log = "";
+  rerenderEvent = undefined as any;
+  let latestRafCb: any;
+  let rafId = 0;
+  const oldRequestAnimationFrame = window.requestAnimationFrame;
+  const oldCancelAnimationFrame = window.cancelAnimationFrame;
+  window.requestAnimationFrame = ((cb) => {
+    rafId++;
+    latestRafCb = () => { log+= `->running: ${rafId}`; cb(); };
+    log+= `->raf: ${rafId}`;
+    return rafId;
+  }) as any;
+  window.cancelAnimationFrame = (() => {
+    log+= `->canceled raf: ${rafId}`;
+  }) as any;
+
+  animation["onNextRender"](() => {
+    log+= "->callback";
+  }, () => {
+    log+= "->cancelled";
+  });
+  assert.equal(log, "->raf: 1");
+  log = "";
+  latestRafCb();
+  assert.equal(log, "->running: 1->callback");
+  assert.notOk(!!animation["cancelCallback"]);
+
+  log ="";
+  animation["onNextRender"](() => {
+    log+= "->callback";
+  }, () => {
+    log+= "->cancelled";
+  });
+  assert.equal(log, "->raf: 2");
+  log = "";
+  animation.cancel();
+  assert.equal(log, "->cancelled->canceled raf: 2");
+  assert.notOk(!!animation["cancelCallback"]);
+
+  window.requestAnimationFrame = oldRequestAnimationFrame;
+  window.cancelAnimationFrame = oldCancelAnimationFrame;
 });

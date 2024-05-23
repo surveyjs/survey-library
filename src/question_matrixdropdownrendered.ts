@@ -243,6 +243,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       isAnimationEnabled: () => {
         return this.animationAllowed;
       },
+      getRerenderEvent: () => this.onElementRerendered,
       getAnimatedElement(el: QuestionMatrixDropdownRenderedRow) {
         return el.getRootElement();
       },

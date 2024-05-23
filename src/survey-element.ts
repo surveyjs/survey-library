@@ -1063,7 +1063,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private get isAnimatingCollapseExpand() {
     return this._isAnimatingCollapseExpand || this._renderedIsExpanded != this.isExpanded;
   }
-protected onElementExpanded(elementIsRendered: boolean) {
+  protected onElementExpanded(elementIsRendered: boolean) {
   }
   private getExpandCollapseAnimationOptions(): IAnimationConsumer {
     const beforeRunAnimation = (el: HTMLElement) => {
@@ -1074,6 +1074,7 @@ protected onElementExpanded(elementIsRendered: boolean) {
       this.isAnimatingCollapseExpand = false;
     };
     return {
+      getRerenderEvent: () => this.onElementRerendered,
       getEnterOptions: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
         return {
@@ -1121,9 +1122,9 @@ protected onElementExpanded(elementIsRendered: boolean) {
     }
   }, () => this.renderedIsExpanded);
   public set renderedIsExpanded(val: boolean) {
-const oldValue = this._renderedIsExpanded;
+    const oldValue = this._renderedIsExpanded;
     this.animationCollapsed.sync(val);
-if(!this.isExpandCollapseAnimationEnabled && !oldValue && this.renderedIsExpanded) {
+    if(!this.isExpandCollapseAnimationEnabled && !oldValue && this.renderedIsExpanded) {
       this.onElementExpanded(false);
     }
   }

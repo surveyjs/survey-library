@@ -68,6 +68,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
           this.update(key);
         }
       };
+      stateElement.enableOnElementRenderedEvent();
     }
   }
   private unMakeBaseElementAngular(stateElement?: Base) {
@@ -82,6 +83,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
           val["onArrayChanged"] = () => { };
         }
       });
+      stateElement.disableOnElementRenderedEvent();
     }
   }
 
@@ -109,6 +111,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
   protected detectChanges() {
     this.getChangeDetectorRef().detectChanges();
+    this.getModel().afterRerender();
   }
 
   protected getShouldReattachChangeDetector(): boolean {

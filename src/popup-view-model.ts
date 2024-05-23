@@ -71,6 +71,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   isAnimationEnabled(): boolean {
     return this.model.displayMode !== "overlay" && settings.animationEnabled;
   }
+  getRerenderEvent (): EventBase<Base> { return this.onElementRerendered; }
 
   private getAnimationContainer(): HTMLElement {
     return <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);

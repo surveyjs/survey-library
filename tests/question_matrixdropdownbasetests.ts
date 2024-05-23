@@ -2,6 +2,7 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { SurveyModel } from "../src/survey";
 export * from "../src/localization/german";
@@ -1173,4 +1174,57 @@ QUnit.test("survey.onMatrixDetailPanelVisibleChanged event", function (assert) {
   assert.equal(qDetail.title, "Question 1", "set title");
   row.hideDetailPanel();
   assert.deepEqual(actions, ["show:0", "hide:0"], "check actions");
+});
+QUnit.test("column.visibleIf", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 3,
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text"
+          },
+          {
+            "name": "col2",
+            "cellType": "text",
+            "visibleIf": "{row.col1} = 1"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const column: MatrixDropdownColumn = matrix.columns[1];
+  const rows = matrix.visibleRows;
+  const row0Cell1 = rows[0].cells[0].question;
+  const row1Cell1 = rows[1].cells[0].question;
+  const row2Cell1 = rows[2].cells[0].question;
+  const row0Cell2 = rows[0].cells[1].question;
+  const row1Cell2 = rows[1].cells[1].question;
+  const row2Cell2 = rows[2].cells[1].question;
+  assert.equal(column.isColumnVisible, false, "column is invisible #1");
+  assert.equal(column.hasVisibleCell, false, "column cells are invisible, #1");
+  row0Cell1.value = 1;
+  assert.equal(column.isColumnVisible, true, "column is visible #1");
+  assert.equal(row0Cell2.isVisible, true, "row0Cell2.isVisible #1");
+  assert.equal(row1Cell2.isVisible, false, "row1Cell2.isVisible #1");
+  assert.equal(row2Cell2.isVisible, false, "row2Cell2.isVisible #1");
+  row0Cell1.value = 2;
+  assert.equal(column.isColumnVisible, false, "column is invisible #2");
+  row1Cell1.value = 1;
+  assert.equal(column.isColumnVisible, true, "column is visible #2");
+  assert.equal(row0Cell2.isVisible, false, "row0Cell2.isVisible #2");
+  assert.equal(row1Cell2.isVisible, true, "row1Cell2.isVisible #2");
+  assert.equal(row2Cell2.isVisible, false, "row2Cell2.isVisible #2");
+  row2Cell1.value = 1;
+  assert.equal(row0Cell2.isVisible, false, "row0Cell2.isVisible #2");
+  assert.equal(row1Cell2.isVisible, true, "row1Cell2.isVisible #3");
+  assert.equal(row2Cell2.isVisible, true, "row2Cell2.isVisible #3");
+  row0Cell1.value = 1;
+  assert.equal(row0Cell2.isVisible, true, "row0Cell2.isVisible #4");
+  assert.equal(row1Cell2.isVisible, true, "row1Cell2.isVisible #3");
+  assert.equal(row2Cell2.isVisible, true, "row2Cell2.isVisible #3");
 });

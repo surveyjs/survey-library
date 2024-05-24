@@ -82,9 +82,8 @@
   outline: none;
 }
 
-.sv-list__item--hovered > .sv-list__item-body,
-.sv-list__item-body:hover,
-.sv-list__item-body:focus {
+.sv-list__item:focus .sv-list__item-body,
+.sv-list__item--hovered > .sv-list__item-body {
   background-color: $background-dark;
 }
 

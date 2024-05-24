@@ -2812,8 +2812,7 @@ Serializer.addClass("question", [
     visibleIf: function (obj: any) {
       return obj.showCommentArea;
     },
-    serializationProperty: "locCommentText",
-    layout: "row",
+    serializationProperty: "locCommentText"
   },
   {
     name: "commentPlaceholder",

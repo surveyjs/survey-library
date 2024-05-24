@@ -1318,6 +1318,22 @@ QUnit.test("Do not notify survey on changing newItem.value", function (
   assert.equal(counter, 2, "Do not react on newItem properties changes, #4");
   settings.supportCreatorV2 = false;
 });
+QUnit.test("Remove newItem from the list if it is false", function (
+  assert
+) {
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [{ type: "checkbox", name: "q", choices: [1] }]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q");
+  assert.equal(q.visibleChoices.length, 1 + 4, "#1");
+  q.newItem.setIsVisible(false);
+  assert.equal(q.visibleChoices.length, 1 + 3, "#2");
+  q.newItem.setIsVisible(true);
+  assert.equal(q.visibleChoices.length, 1 + 4, "#3");
+});
 QUnit.test("displayValue & otherItem", function (assert) {
   const survey = new SurveyModel({
     elements: [

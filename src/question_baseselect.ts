@@ -1040,8 +1040,12 @@ export class QuestionSelectBase extends Question {
     if (!this.newItemValue) {
       this.newItemValue = this.createItemValue("newitem"); //TODO
       this.newItemValue.isGhost = true;
+      this.newItemValue.registerFunctionOnPropertyValueChanged("isVisible", () => {
+        this.updateVisibleChoices();
+      });
     }
-    if (!this.isUsingCarryForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
+    if (this.newItemValue.isVisible && !this.isUsingCarryForward
+      && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
       this.footItemsCount = 1;
       items.push(this.newItemValue);
     }

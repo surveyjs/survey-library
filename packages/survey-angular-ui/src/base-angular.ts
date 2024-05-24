@@ -111,7 +111,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
   protected detectChanges() {
     this.getChangeDetectorRef().detectChanges();
-    this.getModel().afterRerender();
+    if(this.getModel()) {
+      this.getModel().afterRerender();
+    }
   }
 
   protected getShouldReattachChangeDetector(): boolean {

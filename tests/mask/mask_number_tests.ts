@@ -736,3 +736,161 @@ QUnit.test("numeric with custom settings processInput: insert characters", funct
   assert.equal(result.value, "1 234", "type #2.0");
   assert.equal(result.caretPosition, 5, "type #2.0");
 });
+QUnit.test("numeric processInput: min & max - small range", function (assert) {
+  const maskInstance = new InputMaskNumeric();
+  maskInstance.allowNegativeValues = false;
+  maskInstance.min = 3;
+  maskInstance.max = 7;
+
+  let result = maskInstance.processInput({ insertedChars: "8", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+  assert.equal(result.value, "", "try type 8");
+  assert.equal(result.caretPosition, 0, "try type 8");
+
+  result = maskInstance.processInput({ insertedChars: "2", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+  assert.equal(result.value, "", "try type 2");
+  assert.equal(result.caretPosition, 0, "try type 2");
+
+  result = maskInstance.processInput({ insertedChars: "5", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+  assert.equal(result.value, "5", "insert 5");
+  assert.equal(result.caretPosition, 1, "insert 5");
+
+  maskInstance.allowNegativeValues = false;
+  maskInstance.min = 43;
+  maskInstance.max = 47;
+
+  result = maskInstance.processInput({ insertedChars: "3", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+  assert.equal(result.value, "", "try type 3");
+  assert.equal(result.caretPosition, 0, "try type 3");
+
+  result = maskInstance.processInput({ insertedChars: "4", selectionStart: 0, selectionEnd: 0, prevValue: "", inputDirection: "forward" });
+  assert.equal(result.value, "4", "type 4");
+  assert.equal(result.caretPosition, 1, "type 4");
+
+  result = maskInstance.processInput({ insertedChars: "1", selectionStart: 1, selectionEnd: 1, prevValue: "4", inputDirection: "forward" });
+  assert.equal(result.value, "4", "try type 1");
+  assert.equal(result.caretPosition, 1, "try type 1");
+
+  result = maskInstance.processInput({ insertedChars: "9", selectionStart: 1, selectionEnd: 1, prevValue: "4", inputDirection: "forward" });
+  assert.equal(result.value, "4", "try type 9");
+  assert.equal(result.caretPosition, 1, "try type 9");
+
+  result = maskInstance.processInput({ insertedChars: "6", selectionStart: 1, selectionEnd: 1, prevValue: "4", inputDirection: "forward" });
+  assert.equal(result.value, "46", "insert 6");
+  assert.equal(result.caretPosition, 2, "insert 6");
+
+});
+
+QUnit.test("numeric validateNumber: min & max - small range positive", function (assert) {
+  const maskInstance = new InputMaskNumeric();
+  maskInstance.allowNegativeValues = false;
+  maskInstance.min = 3;
+  maskInstance.max = 7;
+
+  const number: any = {};
+  number.integralPart = "8";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
+  number.integralPart = "2";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
+  number.integralPart = "5";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
+  maskInstance.allowNegativeValues = false;
+  maskInstance.min = 43;
+  maskInstance.max = 47;
+
+  number.integralPart = "3";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
+  number.integralPart = "2";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
+  number.integralPart = "4";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
+  number.integralPart = "42";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.integralPart = "48";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.integralPart = "43";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.integralPart = "45";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+});
+
+QUnit.test("numeric validateNumber: min & max - small range negative", function (assert) {
+  const maskInstance = new InputMaskNumeric();
+  const number: any = {};
+
+  maskInstance.allowNegativeValues = true;
+  maskInstance.max = -43;
+  maskInstance.min = -47;
+
+  number.isNegative = true;
+  number.integralPart = "3";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
+  number.integralPart = "2";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
+  number.integralPart = "4";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
+  number.integralPart = "42";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.integralPart = "48";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.integralPart = "43";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.integralPart = "45";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+});
+
+QUnit.test("numeric validateNumber: min & max - small range fractial negative", function (assert) {
+  const maskInstance = new InputMaskNumeric();
+  maskInstance.allowNegativeValues = false;
+  maskInstance.max = -2.63;
+  maskInstance.min = -2.67;
+  maskInstance.precision = 2;
+
+  const number: any = {};
+
+  number.integralPart = "2";
+  number.isNegative = true;
+  number.hasDecimalSeparator = true;
+
+  number.fractionalPart = "62";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.fractionalPart = "68";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.fractionalPart = "63";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.fractionalPart = "65";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+});
+
+QUnit.test("numeric validateNumber: min & max - small range fractial positive", function (assert) {
+  const maskInstance = new InputMaskNumeric();
+  maskInstance.allowNegativeValues = true;
+  maskInstance.min = 2.63;
+  maskInstance.max = 2.67;
+  maskInstance.precision = 2;
+
+  const number: any = {};
+
+  number.integralPart = "2";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
+  number.hasDecimalSeparator = true;
+  assert.ok(maskInstance.validateNumber(number, false), "test with dot " + maskInstance.convertNumber(number));
+
+  number.fractionalPart = "62";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.fractionalPart = "68";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.fractionalPart = "63";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.fractionalPart = "65";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+});

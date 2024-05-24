@@ -15,17 +15,19 @@
       data-ranking="from-container"
     >
       <component
-        v-for="(item, index) in question.unRankingChoices"
+        v-for="(item, index) in question.renderedUnRankingChoices"
         :key="item.value + '-' + index + '-item'"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index, true)"
       ></component>
 
       <div
-        v-if="question.unRankingChoices.length === 0"
+        v-if="question.renderedUnRankingChoices.length === 0"
         :class="question.cssClasses.containerPlaceholder"
       >
-        <survey-string :locString="question.locSelectToRankEmptyRankedAreaText"></survey-string>
+        <survey-string
+          :locString="question.locSelectToRankEmptyRankedAreaText"
+        ></survey-string>
       </div>
     </div>
 
@@ -40,17 +42,19 @@
       data-ranking="to-container"
     >
       <component
-        v-for="(item, index) in question.rankingChoices"
+        v-for="(item, index) in question.renderedRankingChoices"
         :key="item.value + '-' + index + '-item'"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"
       ></component>
 
       <div
-        v-if="question.rankingChoices.length === 0"
+        v-if="question.renderedRankingChoices.length === 0"
         :class="question.cssClasses.containerPlaceholder"
       >
-        <survey-string :locString="question.locSelectToRankEmptyUnrankedAreaText"></survey-string>
+        <survey-string
+          :locString="question.locSelectToRankEmptyUnrankedAreaText"
+        ></survey-string>
       </div>
     </div>
   </div>

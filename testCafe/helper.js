@@ -181,6 +181,31 @@ export const registerCustomToolboxComponent = ClientFunction(
           return window["React"].createElement(CustomActionButton, props);
         }
       );
+    } else if (framework === "jquery-ui") {
+      const preact = window["SurveyJquery"]["preact"];
+      window.React = { createElement: preact.createElement };
+
+      class CustomActionButton extends preact.Component {
+        click = () => {
+          this.props.item.action();
+        };
+        render() {
+          return (
+            // eslint-disable-next-line react/react-in-jsx-scope
+            <span className="my-custom-action-class" onClick={this.click}>
+              {" "}
+              {this.props.item.title}
+            </span>
+          );
+        }
+      }
+
+      window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+        "svc-custom-action",
+        (props) => {
+          return preact.createElement(CustomActionButton, props);
+        }
+      );
     } else if (framework === "vue") {
       window["Vue"].component("svc-custom-action", {
         props: {
@@ -244,7 +269,9 @@ export const registerCustomItemComponent = ClientFunction(
         }
       );
     } else if (framework === "jquery-ui") {
-      class ItemTemplateComponent extends window["preact"].Component {
+      const preact = window["SurveyJquery"]["preact"];
+      window.React = { createElement: preact.createElement };
+      class ItemTemplateComponent extends preact.Component {
         render() {
           const item = this.props.item;
           var Survey = window["SurveyJquery"];
@@ -275,7 +302,7 @@ export const registerCustomItemComponent = ClientFunction(
       window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
         "new-item",
         (props) => {
-          return window["preact"].createElement(ItemTemplateComponent, props);
+          return preact.createElement(ItemTemplateComponent, props);
         }
       );
     }

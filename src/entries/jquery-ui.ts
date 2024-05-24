@@ -48,6 +48,8 @@ function doPopupSurvey(props: any): void {
 
 SurveyModel.platform = "jquery";
 
+export const preact: any = React;
+
 export * from "./jquery-ui-model";
 export * from "./core-export";
 

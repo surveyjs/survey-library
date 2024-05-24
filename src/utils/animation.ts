@@ -269,9 +269,9 @@ export abstract class AnimationProperty<T, S extends IAnimationConsumer<any> = I
   }
   private cancelCallback: () => void;
   cancel(): void {
+    this._debouncedSync.cancel();
     this.cancelCallback && this.cancelCallback();
     this.animation.cancel();
-    this._debouncedSync.cancel();
   }
 }
 
@@ -308,13 +308,17 @@ export class AnimationGroup<T> extends AnimationProperty<Array<T>, IAnimationGro
           }
         });
       };
-      if(deletedItems.length <= 0 || reorderedItems.length > 0 || addedItems.length > 0) {
-        this.onNextRender(runAnimationCallback, () => {
-          this.update(newValue);
-        });
-        this.update(mergedItems);
+      if([addedItems, deletedItems, reorderedItems].some((arr) => arr.length > 0)) {
+        if(deletedItems.length <= 0 || reorderedItems.length > 0 || addedItems.length > 0) {
+          this.onNextRender(runAnimationCallback, () => {
+            this.update(newValue);
+          });
+          this.update(mergedItems);
+        } else {
+          runAnimationCallback();
+        }
       } else {
-        runAnimationCallback();
+        this.update(newValue);
       }
 
     } catch {

@@ -1203,8 +1203,9 @@ export class Event<CallbackFunction extends Function, Sender, Options> {
   }
   public fire(sender: Sender, options: Options): void {
     if (!this.callbacks) return;
-    for (var i = 0; i < this.callbacks.length; i++) {
-      this.callbacks[i](sender, options);
+    const callbacks = [].concat(this.callbacks);
+    for (var i = 0; i < callbacks.length; i++) {
+      callbacks[i](sender, options);
       if (!this.callbacks) return;
     }
   }

@@ -16,6 +16,7 @@ export let defaultListCss = {
   itemWithIcon: "sv-list__item--with-icon",
   itemDisabled: "sv-list__item--disabled",
   itemFocused: "sv-list__item--focused",
+  itemHovered: "sv-list__item--hovered",
   itemTextWrap: "sv-list__item-text--wrap",
   itemIcon: "sv-list__item-icon",
   itemMarkerIcon: "sv-list-item__marker-icon",
@@ -190,17 +191,17 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   };
 
-  public onItemHover = (itemValue: T): void => {
-    this.actions.forEach(action => {
-      if (action === itemValue && !!itemValue.popupModel) {
-        itemValue.showPopup();
-        this.addScrollEventListener(() => {
-          itemValue.hidePopup();
-        });
-      } else if (!!action.popupModel && action.popupModel.isVisible) {
-        action.hidePopup();
-      }
+  protected popupAfterShowCallback(itemValue: T) {
+    this.addScrollEventListener(() => {
+      itemValue.hidePopup();
     });
+  }
+
+  public onItemHover = (itemValue: T): void => {
+    this.mouseOverHandler(itemValue);
+  }
+  public onItemLeave(itemValue: T) {
+    itemValue.hidePopupDelayed(this.subItemsHideDelay);
   }
 
   public isItemDisabled: (itemValue: T) => boolean = (itemValue: T) => {
@@ -232,6 +233,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
       .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
       .append(this.cssClasses.itemSelected, this.isItemSelected(itemValue))
+      .append(this.cssClasses.itemHovered, itemValue.isHovered)
       .append(this.cssClasses.itemTextWrap, this.textWrapEnabled)
       .append(itemValue.css)
       .toString();

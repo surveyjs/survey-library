@@ -21,6 +21,9 @@ ko.components.register("sv-list-item", {
           if (event.type === "mouseover") {
             data.model.onItemHover(data.item);
           }
+        },
+        leave: (event: MouseEvent, data: any) => {
+          data.model.onItemLeave(data.item);
         }
       };
     },

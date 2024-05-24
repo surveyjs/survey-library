@@ -21,6 +21,7 @@
       v-bind:class="model.cssClasses.itemBody"
       :title="item.locTitle.calculatedText"
       @mouseover="(e) => model.onItemHover(item)"
+      @mouseover="(e) => model.onItemLeave(item)"
     >
       <component :is="item.component || 'sv-list-item-content'" :item="item" :model="model">
       </component>

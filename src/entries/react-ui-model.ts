@@ -80,6 +80,7 @@ export { SurveyQuestionCustom, SurveyQuestionComposite } from "../react/reactque
 
 export { Popup } from "../react/components/popup/popup";
 export { ListItemContent } from "../react/components/list/list-item-content";
+export { ListItemGroup } from "../react/components/list/list-item-group";
 export { List } from "../react/components/list/list";
 export { TitleActions } from "../react/components/title/title-actions";
 export { TitleElement } from "../react/components/title/title-element";

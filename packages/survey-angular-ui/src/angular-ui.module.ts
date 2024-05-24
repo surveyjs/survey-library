@@ -46,6 +46,8 @@ import { SurveyHeaderComponent } from "./components/survey-header/survey-header.
 import { DynamicHeadComponent } from "./components/element-title/dynamic-head.component";
 import { ListComponent } from "./components/list/list.component";
 import { ListItemComponent } from "./components/list/list-item.component";
+import { ListItemContentComponent } from "./components/list/list-item-content.component";
+import { ListItemGroupComponent } from "./components/list/list-item-group.component";
 import { RatingItemComponent } from "./components/rating/rating-item.component";
 import { RatingItemStarComponent } from "./components/rating/rating-item-star.component";
 import { RatingItemSmileyComponent } from "./components/rating/rating-item-smiley.component";
@@ -121,7 +123,6 @@ import { HeaderMobileComponent } from "./components/header/header-mobile.compone
 import { ChooseFileBtn } from "./components/file/choose-file.component";
 import { FilePreviewComponent } from "./components/file/file-preview.component";
 import { SvgBundleComponent } from "./svgbundle.component";
-import { ListItemContentComponent } from "./components/list/list-item-content.component";
 
 @NgModule({
   declarations: [
@@ -130,7 +131,7 @@ import { ListItemContentComponent } from "./components/list/list-item-content.co
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
-    CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
+    CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentOtherComponent, ElementHeaderComponent, ElementTitleActionsComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
@@ -152,7 +153,7 @@ import { ListItemContentComponent } from "./components/list/list-item-content.co
     CharacterCounterComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
-    CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
+    CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentOtherComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,

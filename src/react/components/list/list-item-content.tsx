@@ -38,6 +38,16 @@ export class ListItemContent extends SurveyElementBase<IListItemProps, any> {
       content.push(text);
     }
 
+    if(this.item.markerIconName) {
+      const icon = <SvgIcon
+        key={1}
+        className={this.item.cssClasses.itemMarkerIcon}
+        iconName={this.item.markerIconName}
+        size={this.item.markerIconSize}
+      ></SvgIcon>;
+      content.push(icon);
+    }
+
     return <>
       {content}
     </>;

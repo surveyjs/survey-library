@@ -12,6 +12,8 @@
       <sv-svg-icon v-if="item.iconName && !item.component" v-bind:class="model.cssClasses.itemIcon"
         :iconName="item.iconName" :size="item.iconSize"></sv-svg-icon>
       <survey-string v-if="!item.component" :locString="item.locTitle" />
+      <sv-svg-icon v-if="item.markerIconName && !item.component" v-bind:class="item.cssClasses.itemMarkerIcon"
+        :iconName="item.markerIconName" :size="item.markerIconSize"></sv-svg-icon>
       <component v-if="item.component" :is="item.component" :item="item"> </component>
     </div>
   </li>

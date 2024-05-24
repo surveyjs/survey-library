@@ -6,6 +6,12 @@
     :size="item.iconSize"
   ></sv-svg-icon>
   <survey-string :locString="item.locTitle" />
+  <sv-svg-icon
+    v-if="item.markerIconName"
+    v-bind:class="item.cssClasses.itemMarkerIcon"
+    :iconName="item.markerIconName"
+    :size="item.markerIconSize"
+  ></sv-svg-icon>
 </template>
 
 <script lang="ts" setup>

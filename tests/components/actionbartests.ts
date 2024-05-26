@@ -300,5 +300,14 @@ QUnit.test("Action subitems popup canShrink property", function (assert) {
   const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
   (action as Action).setItems(subitems, () => { });
 
-  assert.notOk(action.popupModel.canShrink);
+  assert.notOk(action.popupModel.canShrink, "popub model for subitems should not shrink");
+});
+
+QUnit.test("Action setItems popup canShrink property", function (assert) {
+  const action = new Action({ id: "test2", title: "test2" });
+  const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
+  let event = "";
+  (action as Action).setItems(subitems, (item) => { event = item.title; });
+  action.popupModel.contentComponentData.model.onItemClick(action.items[1]);
+  assert.equal(event, "test29");
 });

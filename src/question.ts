@@ -996,6 +996,7 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.hasErrorBottom, hasError && this.getErrorLocation() == "bottom")
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
+      .append(cssClasses.noPointerEventsMode, this.isReadOnlyAttr)
       .toString();
   }
   public get cssHeader(): string {

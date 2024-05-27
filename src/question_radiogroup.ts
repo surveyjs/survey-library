@@ -63,6 +63,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return !this.isDefaultV2Theme && this.canShowClearButton;
   }
   public clickItemHandler(item: ItemValue): void {
+    if (this.isReadOnlyAttr) return;
     this.renderedValue = item.value;
   }
 

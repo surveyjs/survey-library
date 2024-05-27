@@ -383,7 +383,9 @@
 .sd-question--table.sd-element--nested {
   overflow-x: visible;
 }
-
+.sd-question--table .sd-question__header--location--left {
+  z-index: 12;
+}
 .sd-table-wrapper {
   display: flex;
   margin: 0 calc(-1 * var(--sd-base-padding));

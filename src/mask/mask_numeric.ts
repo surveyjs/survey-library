@@ -166,11 +166,47 @@ export class InputMaskNumeric extends InputMaskBase {
       if(Number.isNaN(value)) {
         return true;
       }
+      if (value >= min && value <= max) return true;
       if (!matchWholeMask) {
+        if (!number.hasDecimalSeparator) {
+          let test_high = value;
+          let test_low = value;
+          if (value >= 0) {
+            if (value + 1 > min && value <= max) return true;
+            while (true) {
+              test_high = test_high * 10 + 9;
+              test_low = test_low * 10;
+              if (test_low > max) {
+                break;
+              }
+              if (test_high > min) {
+                return true;
+              }
+            }
+            return false;
+          }
+          if (value < 0) {
+            if (value >= min && value - 1 < max) return true;
+            while (true) {
+              test_high = test_high * 10;
+              test_low = test_low * 10 - 9;
+              if (test_high < min) {
+                break;
+              }
+              if (test_low < max) {
+                return true;
+              }
+            }
+            return false;
+          }
+        } else {
+          const delta = 0.1 ** (number.fractionalPart || "").length;
+          if (value >= 0) return value + delta > min && value <= max;
+          if (value < 0) return value >= min && value - delta < max;
+        }
         return value >= 0 && value <= max || value < 0 && value >= min;
-      } else {
-        return value >= min && value <= max;
       }
+      return false;
     }
     return true;
   }

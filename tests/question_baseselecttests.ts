@@ -646,6 +646,25 @@ QUnit.test("checkbox vs valuePropertyName, check selectAll and none & refuse & d
   q.renderedValue = ["none", "apple"];
   assert.deepEqual(q.value, [{ fruit: "apple" }], "#17");
 });
+QUnit.test("checkbox:readonly:clickItemHandler", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit",
+        showNoneItem: true,
+        defaultValue: ["banana"],
+        readOnly: true,
+        hasSelectAll: true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.clickItemHandler(q.choices[2], true);
+  assert.deepEqual(q.value, ["banana"], "nothing changed");
+});
 QUnit.test("checkbox vs valuePropertyName, check hasOther", (assert) => {
   const survey = new SurveyModel({
     elements: [

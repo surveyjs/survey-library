@@ -317,6 +317,7 @@ frameworks.forEach(framework => {
       await t
         .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
         .click(clickButton.withText("Overlay with title"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("popup-overlay-short-list-with-title.png", null, t, comparer);
     });
   });
@@ -332,6 +333,7 @@ frameworks.forEach(framework => {
       await t
         .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
         .click(clickButton.withText("Overlay with title"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("popup-overlay-long-list-with-title.png", null, t, comparer);
     });
   });

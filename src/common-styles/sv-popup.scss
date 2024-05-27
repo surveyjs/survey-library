@@ -295,10 +295,6 @@ sv-popup {
   .sv-list__filter {
     margin-bottom: calcSize(1);
   }
-  
-  .sv-list__item--hovered > .sv-list__item-body {
-    background-color: $background-dark;
-  }
 
   .sv-popup__shadow {
     box-shadow: $shadow-medium;

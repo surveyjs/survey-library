@@ -36,6 +36,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
           className={this.model.cssClasses.itemBody}
           title={this.item.locTitle.calculatedText}
           onMouseOver={(event: any) => { this.model.onItemHover(this.item); }}
+          onMouseLeave={(event: any) => { this.model.onItemLeave(this.item); }}
         >
           {newElement}
         </div>;

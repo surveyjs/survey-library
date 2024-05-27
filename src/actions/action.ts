@@ -355,15 +355,6 @@ export abstract class BaseAction extends Base implements IAction {
   @property({ defaultValue: false }) isPressed: boolean;
   @property({ defaultValue: false }) isHovered: boolean;
 
-  public get classNames(): string {
-    return new CssClassBuilder()
-      .append("svc-toolbox__tool")
-      .append(this.css)
-      .append("svc-toolbox__tool--hovered", this.isHovered)
-      .append("svc-toolbox__tool--pressed", this.isPressed)
-      .toString();
-  }
-
   private showPopupTimeout: NodeJS.Timeout;
   private hidePopupTimeout: NodeJS.Timeout;
   private clearPopupTimeouts() {

@@ -19,7 +19,7 @@
             </svg>
           </div>
         <div :class="cssClasses.controlLabel">
-          <survey-string :locString="text" />
+          <component :is="question.itemComponent" :locString="text"></component>
         </div>
       </div>
     </div>

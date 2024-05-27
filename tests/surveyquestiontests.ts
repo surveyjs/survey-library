@@ -6798,7 +6798,7 @@ QUnit.test("itemComponent default values and de/serialization", function (assert
   const q5 = <QuestionDropdownModel>survey.getQuestionByName("q5");
   assert.equal(q1.itemComponent, "survey-radiogroup-item", "radiogroup item");
   assert.equal(q2.itemComponent, "survey-checkbox-item", "checkbox item");
-  assert.equal(q3.itemComponent, "survey-ranking-item", "ranking item");
+  assert.equal(q3.itemComponent, "survey-string", "ranking item");
   assert.equal(q4.itemComponent, "", "tagbox item");
   assert.equal(q5.itemComponent, "", "dropdown item");
 

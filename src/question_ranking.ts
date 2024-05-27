@@ -34,7 +34,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   protected getDefaultItemComponent(): string {
-    return "survey-ranking-item";
+    return "survey-string";
   }
 
   public getType(): string {
@@ -722,7 +722,7 @@ Serializer.addClass(
       },
       isSerializable: true
     },
-    { name: "itemComponent", visible: false, default: "survey-ranking-item" }
+    { name: "itemComponent", visible: false, default: "survey-string" }
   ],
   function () {
     return new QuestionRankingModel("");

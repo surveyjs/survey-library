@@ -5791,7 +5791,7 @@ export class SurveyModel extends SurveyElementCore
   private isTriggerIsRunning: boolean = false;
   private triggerValues: any = null;
   private triggerKeys: any = null;
-  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, name?: string) {
+  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, name?: string): void {
     if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
     if (this.isTriggerIsRunning) {
       this.triggerValues = this.getFilteredValues();
@@ -5823,6 +5823,12 @@ export class SurveyModel extends SurveyElementCore
       this.updateButtonsVisibility();
     }
     this.isTriggerIsRunning = false;
+  }
+  private checkTriggersAndRunConditions(name: string, newValue: any, oldValue: any): void {
+    var triggerKeys: { [index: string]: any } = {};
+    triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
+    this.runConditionOnValueChanged(name, newValue);
+    this.checkTriggers(triggerKeys, false, false, name);
   }
   private get hasRequiredValidQuestionTrigger(): boolean {
     for (let i = 0; i < this.triggers.length; i++) {
@@ -6391,10 +6397,7 @@ export class SurveyModel extends SurveyElementCore
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
     if(!Helpers.isTwoValueEquals(oldValue, newValue)) {
-      this.runConditionOnValueChanged(name, newValue);
-      var triggerKeys: { [index: string]: any } = {};
-      triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
-      this.checkTriggers(triggerKeys, false, false, name);
+      this.checkTriggersAndRunConditions(name, newValue, oldValue);
       this.onVariableChanged.fire(this, { name: name, value: newValue });
     }
   }
@@ -6496,10 +6499,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateQuestionValue(name, newValue);
     if (locNotification === true || this.isDisposed || this.isRunningElementsBindings) return;
     questionName = questionName || name;
-    var triggerKeys: { [index: string]: any } = {};
-    triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
-    this.runConditionOnValueChanged(name, newValue);
-    this.checkTriggers(triggerKeys, false, false, name);
+    this.checkTriggersAndRunConditions(name, newValue, oldValue);
     if (allowNotifyValueChanged)
       this.notifyQuestionOnValueChanged(name, newValue, questionName);
     if (locNotification !== "text") {
@@ -6615,7 +6615,7 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if (!locNotification) {
-      this.runConditionOnValueChanged(name, this.getValue(name));
+      this.checkTriggersAndRunConditions(name, this.getValue(name), undefined);
     }
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);

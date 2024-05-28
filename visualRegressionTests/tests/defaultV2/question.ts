@@ -734,6 +734,28 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Remaining character counter inputType is email - mobile view", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        questions: [
+          {
+            name: "name",
+            type: "text",
+            inputType: "email",
+            maxLength: 25,
+            defaultValue: "Tewwwwwwwwwwwwwwwwwwwwst"
+          }]
+      });
+      await takeElementScreenshot("question-text-email-character-counter-with-focus.png", Selector(".sd-question"), t, comparer);
+
+      await t.resizeWindow(350, 900);
+      await takeElementScreenshot("question-text-email-character-counter-mobile-view-with-focus.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+
   test("Remaining character counter matrixdynamic", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);

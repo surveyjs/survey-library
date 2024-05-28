@@ -781,4 +781,30 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-matrixdropdown-totals.png", Selector(".sd-question"), t, comparer);
     });
   });
+
+  test("Check matrixdynamic with totals in one column in mobile mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        elements: [
+          {
+            "type": "matrixdynamic", "name": "question1",
+            "columns": [
+              { "name": "rowIndexCol", "title": " ", "cellType": "expression", "totalType": "count", "totalFormat": "Total = {0}", "expression": "{rowIndex}" },
+              { "name": "Column 1" },
+              { "name": "Column 2" },
+              { "name": "Column 3" }
+            ],
+            "choices": [1, 2, 3, 4, 5]
+          },
+        ]
+      });
+      await ClientFunction(() => {
+        document.body.focus();
+      })();
+      await takeElementScreenshot("responsiveness-matrixdynamic-totals.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+
 });

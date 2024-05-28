@@ -1138,9 +1138,6 @@ sv-popup {
 .sv-popup.sv-popup-inner {
   height: 0;
 }
-.sv-popup-inner .sv-popup__container {
-  margin-top: calc(-1 * var(--base-unit, 8px));
-}
 
 .sv-popup__container {
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);

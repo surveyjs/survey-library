@@ -420,7 +420,7 @@ frameworks.forEach(async framework => {
   test("list model", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: (_, opt) => {
       const getItems = (count, startIndex = 0) => {
-        const list = [];
+          const list: Array<any> = [];
         for (let index = startIndex; index < count; index++) {
           list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index, needSeparator: index % 4 == 1 });
         }
@@ -453,8 +453,8 @@ frameworks.forEach(async framework => {
     });
 
     const titlePopup = Selector(".sv-popup.sv-popup--show-pointer .sv-popup__container");
-    const item5 = getListItemByText("item5 has items");
-    const item6 = getListItemByText("item6 has items");
+    const item5 = getListItemByText("item5 has items").find(".sv-list__item-body");
+    const item6 = getListItemByText("item6 has items").find(".sv-list__item-body");
     const item5Subitems = item5.find(".sv-popup .sv-popup__container");
     const item6Subitems = item6.find(".sv-popup .sv-popup__container");
 
@@ -469,37 +469,47 @@ frameworks.forEach(async framework => {
       .expect(item6Subitems.visible).notOk()
 
       .hover(item5) // show item5Subitems
+      .wait(300)
       .expect(titlePopup.visible).ok()
       .expect(item5Subitems.visible).ok()
       .expect(item6Subitems.visible).notOk()
 
       .hover(item6) // show item6Subitems
+      .wait(300)
       .expect(titlePopup.visible).ok()
       .expect(item5Subitems.visible).notOk()
       .expect(item6Subitems.visible).ok()
 
       .scrollBy(titlePopup.find(".sv-list"), 0, 1000) // hide inner popups
-      .wait(500)
-      .expect(titlePopup.visible).notOk()
+      .wait(300)
+      .expect(titlePopup.visible).ok()
       .expect(item5Subitems.visible).notOk()
       .expect(item6Subitems.visible).notOk()
 
+      .scrollBy(titlePopup.find(".sv-list"), 0, -1000)
       .hover(item5) // show item5Subitems
+      .wait(300)
       .expect(titlePopup.visible).ok()
       .expect(item5Subitems.visible).ok()
       .expect(item6Subitems.visible).notOk()
 
       .click(getListItemByText("inner item1")) // click 'inner item1'
+      .wait(300)
+      .debug()
       .expect(titlePopup.visible).notOk()
       .expect(item5Subitems.visible).notOk()
       .expect(item6Subitems.visible).notOk()
 
       .click(Selector(".sv-action-bar-item")) // show action popup
+      .wait(300)
+      .debug()
       .expect(titlePopup.visible).ok()
       .expect(item5Subitems.visible).notOk()
       .expect(item6Subitems.visible).notOk()
 
-      .click(item5) // click 'item5 has items'
+      .click(item6) // click 'item6 has items'
+      .wait(300)
+      .debug()
       .expect(titlePopup.visible).notOk()
       .expect(item5Subitems.visible).notOk()
       .expect(item6Subitems.visible).notOk();

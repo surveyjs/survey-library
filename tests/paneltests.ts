@@ -12,7 +12,7 @@ import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
 import { IElement } from "../src/base-interfaces";
 import { StylesManager } from "../src/stylesmanager";
-import { assert } from "console";
+import { SurveyElement } from "../src/survey-element";
 
 export default QUnit.module("Panel");
 
@@ -343,55 +343,51 @@ QUnit.test("Panel with paneldynamic error focus", function (assert) {
   );
 });
 
-QUnit.test(
-  "Required panel error focus/not focus - T3101 - Stop focus when page has error",
-  function (assert) {
-    const json = {
-      elements: [
-        { type: "checkbox", name: "chk0" },
-        {
-          name: "p1",
-          type: "panel",
-          isRequired: true,
-          elements: [
-            { type: "checkbox", name: "chk1", isRequired: true },
-            {
-              type: "panel",
-              name: "panel",
-              elements: [
-                { type: "checkbox", name: "textinpd", isRequired: true },
-              ],
-            },
-          ],
-        },
-      ],
-    };
-    const survey = new SurveyModel(json);
-    const page = survey.currentPage;
+QUnit.test("Required panel error focus/not focus - T3101 - Stop focus when page has error", function (assert) {
+  var focusedQuestionId = "";
+  const oldFunc = SurveyElement.FocusElement;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    focusedQuestionId = elId;
+    return true;
+  };
+  const json = {
+    elements: [
+      { type: "text", name: "chk0" },
+      {
+        name: "p1",
+        type: "panel",
+        isRequired: true,
+        elements: [
+          { type: "text", name: "chk1", isRequired: true },
+          {
+            type: "panel",
+            name: "panel",
+            elements: [
+              { type: "text", name: "textinpd", isRequired: true },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const page = survey.currentPage;
 
-    let rec = {
-      focuseOnFirstError: true,
-      firstErrorQuestion: <any>null,
-    };
-    page.hasErrors(true, true, rec);
-    assert.equal(
-      rec.firstErrorQuestion.name,
-      "chk1",
-      "scroll to first question in the dynamicpanel instead of dynamicpanel itself"
-    );
+  const rec = {
+    focuseOnFirstError: true,
+    firstErrorQuestion: <any>null,
+  };
+  page.hasErrors(true, true, rec);
+  assert.equal(rec.firstErrorQuestion.name, "chk1", "scroll to first question in the dynamicpanel instead of dynamicpanel itself");
+  assert.equal(rec.firstErrorQuestion.inputId, focusedQuestionId, "focus the question");
 
-    rec = {
-      focuseOnFirstError: false,
-      firstErrorQuestion: <any>null,
-    };
-    page.hasErrors(true, false, rec);
-    assert.equal(
-      !rec.firstErrorQuestion,
-      true,
-      "don't scroll to question - T3101 - Stop focus when page has error"
-    );
-  }
-);
+  focusedQuestionId = "";
+  rec.focuseOnFirstError = false;
+  rec.firstErrorQuestion = null;
+  page.hasErrors(true, false, rec);
+  assert.notOk(focusedQuestionId, "don't scroll to question - T3101 - Stop focus when page has error");
+  SurveyElement.FocusElement = oldFunc;
+});
 
 QUnit.test("Panel.getValue()", function (assert) {
   const survey = new SurveyModel();

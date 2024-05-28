@@ -72,6 +72,36 @@ function addDropdownTitleAction(_, opt) {
   opt.titleActions = [item];
 }
 
+function addDropdownActionWithSubItems(_, opt) {
+  let subitems: Array<any> = [];
+  for (let index = 0; index < 7; index++) {
+    subitems[index] = { id: index, title: "inner item" + index };
+  }
+
+  let items: Array<any> = [];
+  for (let index = 0; index < 40; index++) {
+    items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
+  }
+  items[5].setItems([...subitems], (item) => { let value = item.id; });
+  items[5].title += " has items";
+  items[6].setItems([...subitems], (item) => { let value = item.id; });
+  items[6].title += " has items";
+
+  const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+    { title: "Subitems", showTitle: true },
+    {
+      items: items,
+      showPointer: true,
+      verticalPosition: "bottom",
+      horizontalPosition: "center",
+      onSelectionChanged: (item, ...params) => {
+        let value = item.id;
+      }
+    }
+  );
+  opt.titleActions = [dropdownWithSearchAction];
+}
+
 const popupSelector = Selector(".sv-popup .sv-popup__container");
 const popupModalSelector = Selector(".sv-popup.sv-popup--modal");
 const clickButton = Selector(".sv-action-bar-item");
@@ -415,5 +445,63 @@ frameworks.forEach(async framework => {
 
       .pressKey("down")
       .expect(getListItemByText("item1").focused).ok();
+  });
+
+  test("popup with inner popup", async t => {
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: addDropdownActionWithSubItems
+    });
+
+    const titlePopup = Selector(".sv-popup.sv-popup--show-pointer .sv-popup__container");
+    const item5 = getListItemByText("item5 has items");
+    const item6 = getListItemByText("item6 has items");
+    const item5Subitems = item5.find(".sv-popup .sv-popup__container");
+    const item6Subitems = item6.find(".sv-popup .sv-popup__container");
+
+    await t
+      .expect(titlePopup.visible).notOk()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).notOk()
+
+      .click(Selector(".sv-action-bar-item")) // show action popup
+      .expect(titlePopup.visible).ok()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).notOk()
+
+      .hover(item5) // show item5Subitems
+      .expect(titlePopup.visible).ok()
+      .expect(item5Subitems.visible).ok()
+      .expect(item6Subitems.visible).notOk()
+
+      .hover(item6) // show item6Subitems
+      .expect(titlePopup.visible).ok()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).ok()
+
+      .scrollBy(titlePopup.find(".sv-list"), 0, 1000) // hide inner popups
+      .wait(500)
+      .expect(titlePopup.visible).notOk()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).notOk()
+
+      .hover(item5) // show item5Subitems
+      .expect(titlePopup.visible).ok()
+      .expect(item5Subitems.visible).ok()
+      .expect(item6Subitems.visible).notOk()
+
+      .click(getListItemByText("inner item1")) // click 'inner item1'
+      .expect(titlePopup.visible).notOk()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).notOk()
+
+      .click(Selector(".sv-action-bar-item")) // show action popup
+      .expect(titlePopup.visible).ok()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).notOk()
+
+      .click(item5) // click 'item5 has items'
+      .expect(titlePopup.visible).notOk()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).notOk();
   });
 });

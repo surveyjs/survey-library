@@ -15,9 +15,7 @@ const theme = "defaultV2";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-      await applyTheme(theme);
-    });
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => { await applyTheme(theme); });
 
   test("Check question without title", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {

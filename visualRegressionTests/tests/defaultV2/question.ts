@@ -885,6 +885,7 @@ frameworks.forEach(framework => {
   });
   test("Check question with big number", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
         focusFirstQuestionAutomatic: true,
         questionStartIndex: "1.1.1",

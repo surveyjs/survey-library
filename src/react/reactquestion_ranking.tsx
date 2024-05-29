@@ -178,10 +178,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   }
 
   protected renderElement(): JSX.Element {
-    let controlLabel = this.text;
-    if (this.question.itemComponent !== "survey-string") {
-      controlLabel = ReactElementFactory.Instance.createElement(this.question.itemComponent, { text: this.text, item: this.item, question: this.question });
-    }
+    let itemContentComponent = ReactElementFactory.Instance.createElement(this.question.itemContentComponent, { text: this.text, cssClasses: this.cssClasses });
     return (
       <div
         tabIndex={this.itemTabIndex}
@@ -210,13 +207,31 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
             <div className={this.question.getItemIndexClasses(this.item)}>
               {(!this.unrankedItem && this.indexText) ? this.indexText : this.renderEmptyIcon()}
             </div>
-            <div className={this.cssClasses.controlLabel}>{controlLabel}</div>
+            {itemContentComponent}
           </div>
         </div>
       </div>
     );
   }
 }
+
+export class SurveyQuestionRankingItemContent extends ReactSurveyElement {
+  protected get text(): string {
+    return this.props.text;
+  }
+
+  protected get cssClasses(): any {
+    return this.props.cssClasses;
+  }
+
+  protected renderElement(): JSX.Element {
+    return <div className={this.cssClasses.controlLabel}>{this.text}</div>;
+  }
+}
+
+ReactQuestionFactory.Instance.registerQuestion("survey-ranking-item-content", (props) => {
+  return React.createElement(SurveyQuestionRankingItemContent, props);
+});
 
 ReactQuestionFactory.Instance.registerQuestion("ranking", (props) => {
   return React.createElement(SurveyQuestionRanking, props);

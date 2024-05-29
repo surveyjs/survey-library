@@ -70,10 +70,16 @@
       </div>
         <!-- /ko -->
         <div data-bind="css: question.cssClasses.controlLabel">
-          <!-- ko template: { name: question.itemComponent, data: $data.locText } -->
+          <div></div>
+          <!-- ko template: { name: question.itemContentComponent, data: $data } -->
           <!-- /ko -->
         </div>
       </div>
     </div>
   </div>
+</script>
+
+<script type="text/html" id="survey-ranking-item-content">
+    <!-- ko template: { name: 'survey-string', data: $data.locText } -->
+    <!-- /ko -->
 </script>

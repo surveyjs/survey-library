@@ -2973,8 +2973,10 @@ QUnit.test("return correct uniquePropertyName", function (assert) {
 QUnit.test("default value inheritance", function (assert) {
   const checkboxProp = Serializer.findProperty("checkbox", "itemComponent");
   const rankingProp = Serializer.findProperty("ranking", "itemComponent");
+  const rankingPropContent = Serializer.findProperty("ranking", "itemContentComponent");
   assert.equal(checkboxProp.defaultValue, "survey-checkbox-item", "survey-checkbox-item default");
-  assert.equal(rankingProp.defaultValue, "survey-string", "ranking default is empty");
+  assert.equal(rankingProp.defaultValue, "", "ranking default is empty");
+  assert.equal(rankingPropContent.defaultValue, "survey-ranking-item-content", "ranking default is empty");
 });
 QUnit.test("Do not load choices and rows without value", function (assert) {
   const q = new QuestionCheckboxModel("q1");

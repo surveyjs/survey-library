@@ -19,7 +19,7 @@
             </svg>
           </div>
         <div :class="cssClasses.controlLabel">
-          <component :is="question.itemComponent" :locString="text"></component>
+          <component :is="question.itemContentComponent" :text="text" :cssClasses="cssClasses"></component>
         </div>
       </div>
     </div>

@@ -34,7 +34,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   protected getDefaultItemComponent(): string {
-    return "survey-string";
+    return "";
   }
 
   public getType(): string {
@@ -573,6 +573,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   /**
+   * The name of a component used to render items.
+   */
+  public get itemContentComponent(): string {
+    return this.getPropertyValue("itemContentComponent", "survey-ranking-item-content");
+  }
+  public set itemContentComponent(value: string) {
+    this.setPropertyValue("itemContentComponent", value);
+  }
+
+  /**
    * Specifies whether users can select choices they want to rank.
    *
    * When you enable this property, the Ranking question displays two areas for ranked and unranked choices. To order choices, users should first drag them from the unranked to the ranked area. Use this mode if you want to let users order only the choices they select.
@@ -722,7 +732,8 @@ Serializer.addClass(
       },
       isSerializable: true
     },
-    { name: "itemComponent", visible: false, default: "survey-string" }
+    { name: "itemComponent", visible: false, default: "" },
+    { name: "itemContentComponent", visible: false, default: "survey-ranking-item-content" },
   ],
   function () {
     return new QuestionRankingModel("");

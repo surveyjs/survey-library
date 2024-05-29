@@ -123,7 +123,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   protected afterUpdate(isSync: boolean = false): void {
     this.setIsRendering(false);
     const model = this.getModel();
-    if(model) {
+    if(model && !this.isDestroyed) {
       model.afterRerender();
     }
   }

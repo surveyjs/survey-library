@@ -918,7 +918,7 @@ export class PanelModelBase extends SurveyElement<Question>
       } else {
         var question = <Question>element;
         if (!question.validate(rec.fireCallback, rec)) {
-          if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {
+          if (!rec.firstErrorQuestion) {
             rec.firstErrorQuestion = question;
           }
           rec.result = true;

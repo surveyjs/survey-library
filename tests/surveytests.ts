@@ -14069,6 +14069,41 @@ QUnit.test("Focus errored question when checkErrorsMode: `onComplete` & panel re
   assert.equal(survey.getQuestionByName("q1").inputId, focusedQuestionId, "panel is required");
   SurveyElement.FocusElement = oldFunc;
 });
+QUnit.test("Do not focus errored question when checkErrorsMode: `onComplete` + focusOnFirstError = false, Bug#8322", function (assert) {
+  var focusedQuestionId = "";
+  const oldFunc = SurveyElement.FocusElement;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    focusedQuestionId = elId;
+    return true;
+  };
+
+  const survey = new SurveyModel({
+    checkErrorsMode: "onComplete",
+    focusOnFirstError: false,
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q0" },
+          { type: "text", name: "q1", isRequired: true },
+        ],
+      },
+      {
+        elements: [{ type: "text", name: "q2", isRequired: true }],
+      },
+      {
+        elements: [{ type: "text", name: "q3", isRequired: true }],
+      },
+    ],
+  });
+  survey.nextPage();
+  survey.nextPage();
+  focusedQuestionId = "";
+  survey.completeLastPage();
+  survey.afterRenderPage(<HTMLElement>{});
+  assert.equal(survey.currentPageNo, 0, "The first page is active");
+  assert.notOk(focusedQuestionId, "do not focus any question");
+  SurveyElement.FocusElement = oldFunc;
+});
 QUnit.test(
   "onServerValidateQuestions doesn't get called for the last page when showPreviewBeforeComplete is set, Bug#2546",
   function (assert) {

@@ -16,11 +16,27 @@ export interface ISize {
   height: number;
 }
 
+export class Rect implements ISize, INumberPosition {
+  constructor(private x: number, private y: number, public width: number, public height: number) { }
+  public get left(): number {
+    return this.x;
+  }
+  public get top(): number {
+    return this.y;
+  }
+  public get right(): number {
+    return this.x + this.width;
+  }
+  public get bottom(): number {
+    return this.y + this.height;
+  }
+}
+
 export class PopupUtils {
   public static bottomIndent = 16;
 
   public static calculatePosition(
-    targetRect: ClientRect,
+    targetRect: Rect,
     height: number,
     width: number,
     verticalPosition: VerticalPosition,
@@ -123,7 +139,7 @@ export class PopupUtils {
   }
 
   public static updateVerticalPosition(
-    targetRect: ClientRect,
+    targetRect: Rect,
     height: number,
     horizontalPosition: HorizontalPosition,
     verticalPosition: VerticalPosition,
@@ -144,7 +160,7 @@ export class PopupUtils {
   }
 
   public static updateHorizontalPosition(
-    targetRect: ClientRect,
+    targetRect: Rect,
     width: number,
     horizontalPosition: HorizontalPosition,
     windowWidth: number
@@ -178,7 +194,7 @@ export class PopupUtils {
 
   //called when showPointer  is true
   public static calculatePointerTarget(
-    targetRect: ClientRect,
+    targetRect: Rect,
     top: number,
     left: number,
     verticalPosition: VerticalPosition,

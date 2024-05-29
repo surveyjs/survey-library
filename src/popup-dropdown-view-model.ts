@@ -1,5 +1,5 @@
 import { property } from "./jsonobject";
-import { PopupUtils, IPosition } from "./utils/popup";
+import { PopupUtils, IPosition, Rect } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
@@ -45,14 +45,17 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.preventScrollOuside(event, this.clientY - event.changedTouches[0].clientY);
   }
 
-  protected getAvailableAreaRect() {
-    if (this.areaElement) return this.areaElement.getBoundingClientRect();
-    return new DOMRect(0, 0, DomWindowHelper.getInnerWidth(), DomWindowHelper.getInnerHeight());
+  protected getAvailableAreaRect(): Rect {
+    if (this.areaElement) {
+      const areaRect = this.areaElement.getBoundingClientRect();
+      return new Rect(areaRect.x, areaRect.y, areaRect.width, areaRect.height);
+    }
+    return new Rect(0, 0, DomWindowHelper.getInnerWidth(), DomWindowHelper.getInnerHeight());
   }
-  protected getTargetElementRect() {
+  protected getTargetElementRect(): Rect {
     const rect = this.targetElement.getBoundingClientRect();
     const areaRect = this.getAvailableAreaRect();
-    return new DOMRect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
+    return new Rect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
   }
 
   private _updatePosition() {

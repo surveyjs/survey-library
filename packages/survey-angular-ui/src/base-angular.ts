@@ -111,9 +111,6 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
   protected detectChanges() {
     this.getChangeDetectorRef().detectChanges();
-    if(this.getModel()) {
-      this.getModel().afterRerender();
-    }
   }
 
   protected getShouldReattachChangeDetector(): boolean {
@@ -125,6 +122,10 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
   protected afterUpdate(isSync: boolean = false): void {
     this.setIsRendering(false);
+    const model = this.getModel();
+    if(model) {
+      model.afterRerender();
+    }
   }
   ngAfterViewChecked(): void {
     this.setIsRendering(false);

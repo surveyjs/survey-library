@@ -449,7 +449,7 @@ frameworks.forEach(async framework => {
       .expect(getListItemByText("item1").focused).ok();
   });
 
-  test("popup with inner popup", async t => {
+  test("popup with subitems", async t => {
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: addDropdownActionWithSubItems
     });

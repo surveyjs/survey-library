@@ -1,5 +1,6 @@
 import { Selector } from "testcafe";
 import { frameworks, initSurvey, url, url_test, takeElementScreenshot, applyTheme, wrapVisualTest, resetHoverToBody } from "../../helper";
+import { getListItemByText } from "../../../testCafe/helper";
 
 const title = "Popup Screenshot";
 fixture`${title}`.page`${url}`;
@@ -188,6 +189,36 @@ function addActionsWithOverlayPopupLongList(_, opt) {
   );
   overlayWithTypePopupAction.popupModel.overlayDisplayMode = "overlay";
   opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
+}
+
+function addDropdownActionWithSubItems(_, opt) {
+  let subitems: Array<any> = [];
+  for (let index = 0; index < 7; index++) {
+    subitems[index] = { id: index, title: "inner item" + index };
+  }
+
+  let items: Array<any> = [];
+  for (let index = 0; index < 10; index++) {
+    items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
+  }
+  items[5].setItems([...subitems], (item) => { let value = item.id; });
+  items[5].title += " has items";
+  items[6].setItems([...subitems], (item) => { let value = item.id; });
+  items[6].title += " has items";
+
+  const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+    { title: "Subitems", showTitle: true },
+    {
+      items: items,
+      showPointer: true,
+      verticalPosition: "bottom",
+      horizontalPosition: "center",
+      onSelectionChanged: (item, ...params) => {
+        let value = item.id;
+      }
+    }
+  );
+  opt.titleActions = [dropdownWithSearchAction];
 }
 
 frameworks.forEach(framework => {
@@ -436,6 +467,37 @@ frameworks.forEach(framework => {
         .click(".sv-dots__item");
 
       await takeElementScreenshot("popup-search-width.png", Selector(".sv-popup .sv-popup__container"), t, comparer);
+    });
+  });
+  test("Popup with subitems", async t => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1300, 650);
+
+      await initSurvey(framework, json, {
+        onGetQuestionTitleActions: addDropdownActionWithSubItems
+      });
+
+      const titlePopup = Selector(".sv-popup.sv-popup--show-pointer");
+      const item5 = getListItemByText("item5 has items").find(".sv-list__item-body");
+
+      await t
+        .click(Selector(".sv-action")) // show action popup
+        .hover(item5) // show item5Subitems
+        .wait(300);
+      await takeElementScreenshot("popup-with-subitems-right.png", titlePopup, t, comparer);
+
+      await t
+        .hover(getListItemByText("inner item0").nth(1)) // show item6Subitems
+        .wait(300);
+      await takeElementScreenshot("popup-with-subitems-right-hover-sub-item.png", titlePopup, t, comparer);
+
+      await t
+        .resizeWindow(1000, 650)
+        .wait(300)
+        .hover(item5) // show item5Subitems;
+        .wait(300);
+      await takeElementScreenshot("popup-with-subitems-left.png", titlePopup, t, comparer);
+
     });
   });
 });

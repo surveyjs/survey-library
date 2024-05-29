@@ -922,6 +922,8 @@ export class Question extends SurveyElement<Question>
       this.updateCommentElements();
     }
     this.checkForResponsiveness(el);
+
+    if (this.isReadOnlyAttr) this.disableKeyboardForReadonlyQuestions(el);
   }
   public afterRenderCore(el: HTMLElement): void {
   }
@@ -2556,6 +2558,21 @@ export class Question extends SurveyElement<Question>
       this.resizeObserver.observe(el);
     }
   }
+
+  private disableKeyboardForReadonlyQuestions(el: HTMLElement) {
+    if (!el) return;
+    const inputs = el.querySelectorAll("input");
+    inputs.forEach((input)=>{
+      if (input) {
+        input.addEventListener("keydown", (e:any)=>{
+          if (e.key === "Tab") return;
+          e.preventDefault();
+          e.stopPropagation();
+        });
+      }
+    });
+  }
+
   protected getCompactRenderAs(): string {
     return "default";
   }

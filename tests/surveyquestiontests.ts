@@ -4988,6 +4988,19 @@ QUnit.test("question.isInputTextUpdate", function (assert) {
   question.inputType = "number";
   assert.equal(question.isInputTextUpdate, true, "inputType = number");
 });
+QUnit.test("question.isInputTextUpdate && mask", function (assert) {
+  const survey = new SurveyModel({
+    textUpdateMode: "onTyping",
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2", maskType: "numeric" }
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  assert.equal(q1.isInputTextUpdate, true, "survey.textUpdateMode == onTyping");
+  assert.equal(q2.isInputTextUpdate, false, "maskType is not 'none'");
+});
 QUnit.test("matirix and survey.onValueChanged event, Bug#2408", function (
   assert
 ) {

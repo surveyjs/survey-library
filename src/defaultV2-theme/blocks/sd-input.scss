@@ -161,6 +161,10 @@ textarea {
   box-sizing: content-box;
   width: calc(100% - 4 * #{$base-unit});
   height: multiply(1.5, $font-editorfont-size);
+
+  &.sd-text__character-counter:focus-within {
+    width: calc(100% - 10 * #{$base-unit});
+  }
 }
 
 .sd-input[type="range"]::-webkit-slider-runnable-track {

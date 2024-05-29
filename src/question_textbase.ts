@@ -75,9 +75,8 @@ export class QuestionTextBase extends Question {
   public set textUpdateMode(val: string) {
     this.setPropertyValue("textUpdateMode", val);
   }
-  public get isSurveyInputTextUpdate(): boolean {
-    if (this.textUpdateMode == "default")
-      return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
+  protected getIsInputTextUpdate(): boolean {
+    if (this.textUpdateMode == "default") return super.getIsInputTextUpdate();
     return this.textUpdateMode == "onTyping";
   }
   public get renderedPlaceholder(): string {

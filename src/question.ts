@@ -2244,7 +2244,7 @@ export class Question extends SurveyElement<Question>
   protected isTextValue(): boolean {
     return false;
   }
-  public get isSurveyInputTextUpdate(): boolean {
+  protected getIsInputTextUpdate(): boolean {
     return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
   }
   get requireStrictCompare(): boolean { return false; }
@@ -2252,7 +2252,7 @@ export class Question extends SurveyElement<Question>
     return this.isInputTextUpdate ? "text" : false;
   }
   public get isInputTextUpdate(): boolean {
-    return this.isSurveyInputTextUpdate && this.isTextValue();
+    return this.getIsInputTextUpdate() && this.isTextValue();
   }
   protected setNewValueInData(newValue: any): void {
     newValue = this.valueToData(newValue);
@@ -2298,7 +2298,7 @@ export class Question extends SurveyElement<Question>
       this.data.setComment(
         this.getValueName(),
         newValue,
-        this.isSurveyInputTextUpdate ? "text" : false
+        this.getIsInputTextUpdate() ? "text" : false
       );
     }
   }

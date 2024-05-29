@@ -1149,7 +1149,7 @@ export class Base {
     return this.getIsAnimationAllowed();
   }
   protected getIsAnimationAllowed(): boolean {
-    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed;
+    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRenderedEvent);
   }
   private animationAllowedLock: number = 0;
   public blockAnimations(): void {
@@ -1157,6 +1157,22 @@ export class Base {
   }
   public releaseAnimations(): void {
     this.animationAllowedLock++;
+  }
+  //remove when knockout obsolete
+  public supportOnElementRenderedEvent = true;
+  public onElementRenderedEventEnabled = false;
+  public enableOnElementRenderedEvent(): void {
+    this.onElementRenderedEventEnabled = true;
+  }
+  public disableOnElementRenderedEvent(): void {
+    this.onElementRenderedEventEnabled = false;
+  }
+  protected _onElementRerendered: EventBase<Base> = new EventBase();
+  public get onElementRerendered(): EventBase<Base> {
+    return this.supportOnElementRenderedEvent && this.onElementRenderedEventEnabled ? this._onElementRerendered : undefined;
+  }
+  public afterRerender(): void {
+    this.onElementRerendered.fire(this, undefined);
   }
 }
 
@@ -1187,8 +1203,9 @@ export class Event<CallbackFunction extends Function, Sender, Options> {
   }
   public fire(sender: Sender, options: Options): void {
     if (!this.callbacks) return;
-    for (var i = 0; i < this.callbacks.length; i++) {
-      this.callbacks[i](sender, options);
+    const callbacks = [].concat(this.callbacks);
+    for (var i = 0; i < callbacks.length; i++) {
+      callbacks[i](sender, options);
       if (!this.callbacks) return;
     }
   }

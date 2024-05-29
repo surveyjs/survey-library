@@ -29,7 +29,7 @@ import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
 import { DragDropInfo } from "./drag-drop-helper-v1";
-import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
+import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PageModel } from "./page";
 
@@ -118,12 +118,13 @@ export class QuestionRowModel extends Base {
   protected getIsAnimationAllowed(): boolean {
     return super.getIsAnimationAllowed() && this.visible && this.panel?.animationAllowed;
   }
-  private getVisibleElementsAnimationOptions(): IAnimationConsumer<[IElement]> {
+  private getVisibleElementsAnimationOptions(): IAnimationGroupConsumer<IElement> {
     const beforeRunAnimation = (el: HTMLElement) => {
       el.style.setProperty("--animation-height", el.offsetHeight + "px");
       el.style.setProperty("--animation-width", getElementWidth(el) + "px");
     };
     return {
+      getRerenderEvent: () => this.onElementRerendered,
       isAnimationEnabled: () => this.animationAllowed,
       getAnimatedElement: (element: IElement) => (element as any as SurveyElement).getWrapperElement(),
       getLeaveOptions: (element: IElement) => {
@@ -303,11 +304,12 @@ export class PanelModelBase extends SurveyElement<Question>
     this.onRowVisibleChanged();
     row.onVisibleChangedCallback = () => this.onRowVisibleChanged();
   }
-  private getRowsAnimationOptions(): IAnimationConsumer<[QuestionRowModel]> {
+  private getRowsAnimationOptions(): IAnimationGroupConsumer<QuestionRowModel> {
     const beforeRunAnimation = (el: HTMLElement) => {
       el.style.setProperty("--animation-height", el.offsetHeight + "px");
     };
     return {
+      getRerenderEvent: () => this.onElementRerendered,
       isAnimationEnabled: () => this.animationAllowed,
       getAnimatedElement: (row: QuestionRowModel) => row.getRootElement(),
       getLeaveOptions: (_: QuestionRowModel) => {
@@ -315,9 +317,10 @@ export class PanelModelBase extends SurveyElement<Question>
           onBeforeRunAnimation: beforeRunAnimation
         };
       },
-      getEnterOptions: (_: QuestionRowModel) => {
+      getEnterOptions: (_: QuestionRowModel, animationInfo) => {
+        const cssClasses = this.cssClasses;
         return {
-          cssClass: this.cssClasses.rowFadeIn,
+          cssClass: new CssClassBuilder().append(cssClasses.rowFadeIn).append(cssClasses.rowDelayedFadeIn, animationInfo.isDeletingRunning).toString(),
           onBeforeRunAnimation: beforeRunAnimation
         };
       }
@@ -554,7 +557,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("visibleIf", val);
   }
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "", rowFadeIn: "", rowFadeOut: "", rowFadeOutActive: "", rowMultiple: "", pageRow: "", rowCompact: "" };
+    var classes = { panel: {}, error: {}, row: "", rowFadeIn: "", rowFadeOut: "", rowDelayedFadeIn: "", rowMultiple: "", pageRow: "", rowCompact: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageRow) {
@@ -572,8 +575,8 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!!css.rowFadeOut) {
       classes.rowFadeOut = css.rowFadeOut;
     }
-    if (!!css.rowFadeOutActive) {
-      classes.rowFadeOutActive = css.rowFadeOutActive;
+    if (!!css.rowDelayedFadeIn) {
+      classes.rowDelayedFadeIn = css.rowDelayedFadeIn;
     }
     if (!!css.rowMultiple) {
       classes.rowMultiple = css.rowMultiple;
@@ -1427,16 +1430,6 @@ export class PanelModelBase extends SurveyElement<Question>
     if(this.isCollapsed) {
       this.questions.forEach(q => q.onHidingContent());
     }
-    if(this.survey != null && !this.isLoadingFromJson && this.isExpanded && prevState === "collapsed") {
-      const q = this.getFirstQuestionToFocus(false);
-      if(!!q) {
-        setTimeout(() => {
-          if(!this.isDisposed && !!this.survey) {
-            this.survey.scrollElementToTop(q, q, null, q.inputId, false);
-          }
-        }, 15);
-      }
-    }
   }
 
   /**
@@ -2090,6 +2083,18 @@ export class PanelModel extends PanelModelBase implements IElement {
     const panel = <any>this;
     if (!!panel.originalPage) return true;
     return panel.survey.isShowingPreview && panel.survey.isSinglePage && !!panel.parent && !!panel.parent.originalPage;
+  }
+  protected onElementExpanded(elementIsRendered: boolean): void {
+    if(this.survey != null && !this.isLoadingFromJson) {
+      const q = this.getFirstQuestionToFocus(false);
+      if(!!q) {
+        setTimeout(() => {
+          if(!this.isDisposed && !!this.survey) {
+            this.survey.scrollElementToTop(q, q, null, q.inputId, false, { behavior: "smooth" });
+          }
+        }, elementIsRendered ? 0: 15);
+      }
+    }
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()

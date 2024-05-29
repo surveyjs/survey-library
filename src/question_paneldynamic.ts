@@ -30,7 +30,7 @@ import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
-import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer } from "./utils/animation";
+import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -632,6 +632,7 @@ export class QuestionPanelDynamicModel extends Question
         .toString();
     };
     return {
+      getRerenderEvent: () => this.onElementRerendered,
       getAnimatedElement: (panel) => {
         if(panel && this.cssContent) {
           const contentSelector = classesToSelector(this.cssContent);
@@ -673,7 +674,7 @@ export class QuestionPanelDynamicModel extends Question
     };
   }
 
-  private _panelsAnimations: AnimationProperty<Array<PanelModel>, [PanelModel]>;
+  private _panelsAnimations: AnimationProperty<Array<PanelModel>, IAnimationGroupConsumer<PanelModel>>;
   private disablePanelsAnimations() {
     this.panelsCore.forEach((panel) => {
       panel.blockAnimations();
@@ -694,7 +695,7 @@ export class QuestionPanelDynamicModel extends Question
     }, () => this._renderedPanels);
   }
 
-  get panelsAnimation(): AnimationProperty<Array<PanelModel>, [PanelModel]> {
+  get panelsAnimation(): AnimationProperty<Array<PanelModel>, IAnimationGroupConsumer<PanelModel>> {
     if(!this._panelsAnimations) {
       this.updatePanelsAnimation();
     }

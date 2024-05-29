@@ -358,6 +358,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     return this.cell.headers;
   }
   protected renderQuestion(): JSX.Element {
+    if(!this.question.isVisible) return <></>;
     if (!this.cell.isChoice)
       return SurveyQuestion.renderQuestionBody(this.creator, this.question);
     if (this.cell.isOtherChoice) return this.renderOtherComment();

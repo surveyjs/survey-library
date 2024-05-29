@@ -4,6 +4,7 @@ import { SurveyModel } from "../src/survey";
 import { settings as Settings, settings } from "../src/settings";
 import { Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
+import { sassFalse } from "sass";
 
 export default QUnit.module("question ranking");
 
@@ -254,10 +255,16 @@ QUnit.test("Ranking: design mode", function (assert) {
 
   var upCalled = 0, downCalled = 0, preventDefaultCalled = 0;
   var q = <QuestionRankingModel>survey.getQuestionByName("q");
-  q["handleArrowKeys"] = (index, choice, isDown) => {
-    if (isDown) downCalled++;
-    else upCalled++;
-  };
+  q["focusItem"] = () => {};
+  q.dragDropRankingChoices = {
+    reorderRankedItem: (question, fromIndex: number, toIndex: number) => {
+      if(fromIndex < toIndex) {
+        downCalled++;
+      } else if(fromIndex > toIndex) {
+        upCalled++;
+      }
+    }
+  } as any;
   function preventDefault() { preventDefaultCalled++; }
 
   q.handleKeydown(<any>{ key: "ArrowUp", preventDefault: preventDefault }, q.choices[1]);
@@ -312,6 +319,144 @@ QUnit.test("Ranking: selectToRank key navigation with animation", function (asse
   assert.deepEqual(q.rankingChoices.map((item) => item.value), []);
 
   (window as any).event = undefined;
+  settings.animationEnabled = false;
+});
+
+QUnit.test("Ranking: check renderedRankingChoices are updated when rankingChoices changing", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q",
+        choices: ["a", "b", "c"],
+      },
+    ],
+  });
+  const question = <QuestionRankingModel>survey.getAllQuestions()[0];
+  assert.deepEqual(question.renderedRankingChoices.map(item => item.value), ["a", "b", "c"]);
+  question.value = ["b", "a", "c"];
+  assert.deepEqual(question.renderedRankingChoices.map(item => item.value), ["b", "a", "c"]);
+  question.value = ["a", "c", "b"];
+  assert.deepEqual(question.renderedRankingChoices.map(item => item.value), ["a", "c", "b"]);
+  question.value = undefined;
+  assert.deepEqual(question.renderedRankingChoices.map(item => item.value), ["a", "b", "c"]);
+  question.rankingChoices.pop();
+  assert.deepEqual(question.renderedRankingChoices.map(item => item.value), ["a", "b"]);
+  question.rankingChoices.push(new ItemValue("c"));
+  assert.deepEqual(question.renderedRankingChoices.map(item => item.value), ["a", "b", "c"]);
+});
+
+QUnit.test("Ranking: check rendered rankingChoices and unRankingChoices are updated when rankingChoices and unRankingChoices changing", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q",
+        choices: ["a", "b", "c"],
+        selectToRankEnabled: true
+      },
+    ],
+  });
+  const question = <QuestionRankingModel>survey.getAllQuestions()[0];
+  assert.deepEqual(question.renderedUnRankingChoices.map(item => item.value), ["a", "b", "c"]);
+  assert.deepEqual(question.renderedRankingChoices.map(item => item.value), []);
+  question.value = ["b", "c"];
+  assert.deepEqual(question.renderedUnRankingChoices.map(item => item.value), ["a"]);
+  assert.deepEqual(question.renderedRankingChoices.map(item => item.value), ["b", "c"]);
+  question.value = ["c", "b"];
+  assert.deepEqual(question.renderedUnRankingChoices.map(item => item.value), ["a"]);
+  assert.deepEqual(question.renderedRankingChoices.map(item => item.value), ["c", "b"]);
+  question.value = ["a"];
+  assert.deepEqual(question.renderedUnRankingChoices.map(item => item.value), ["b", "c"]);
+  assert.deepEqual(question.renderedRankingChoices.map(item => item.value), ["a"]);
+  question.value = undefined;
+  assert.deepEqual(question.renderedUnRankingChoices.map(item => item.value), ["a", "b", "c"]);
+  assert.deepEqual(question.renderedRankingChoices.map(item => item.value), []);
+  question.unRankingChoices.pop();
+  assert.deepEqual(question.renderedUnRankingChoices.map(item => item.value), ["a", "b"]);
+  question.unRankingChoices.push(new ItemValue("c"));
+  assert.deepEqual(question.renderedUnRankingChoices.map(item => item.value), ["a", "b", "c"]);
+});
+
+QUnit.test("Ranking: test animation options", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q",
+        choices: ["a", "b"],
+        selectToRankEnabled: true
+      },
+    ],
+  });
+  const question = <QuestionRankingModel>survey.getAllQuestions()[0];
+  question.value = ["a"];
+  const rcAnimationOptions = question["getChoicesAnimationOptions"](true);
+  const ucAnimationOptions = question["getChoicesAnimationOptions"](false);
+
+  //test isAnimationEnabled
+  question["domNode"] = document.createElement("div");
+  settings.animationEnabled = true;
+  question.enableOnElementRenderedEvent();
+  assert.ok(rcAnimationOptions.isAnimationEnabled());
+  question.disableOnElementRenderedEvent();
+  assert.notOk(rcAnimationOptions.isAnimationEnabled());
+  question.enableOnElementRenderedEvent();
+  assert.ok(rcAnimationOptions.isAnimationEnabled());
+  question["domNode"] = undefined as any;
+  assert.notOk(rcAnimationOptions.isAnimationEnabled());
+  question["domNode"] = document.createElement("div");
+  assert.ok(rcAnimationOptions.isAnimationEnabled());
+  question.visible = false;
+  assert.notOk(rcAnimationOptions.isAnimationEnabled());
+  question.visible = true;
+  assert.ok(rcAnimationOptions.isAnimationEnabled());
+  settings.animationEnabled = false;
+  assert.notOk(rcAnimationOptions.isAnimationEnabled());
+  settings.animationEnabled = true;
+  assert.ok(rcAnimationOptions.isAnimationEnabled());
+
+  //test enterOptions
+  assert.equal(rcAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass, "sv-ranking-item--animate-item-adding");
+  assert.equal(ucAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass, "sv-ranking-item--animate-item-adding");
+
+  assert.equal(rcAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass, "sv-ranking-item--animate-item-adding");
+  assert.equal(ucAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass, "sv-ranking-item--animate-item-adding");
+
+  question.selectToRankAreasLayout = "vertical";
+
+  assert.equal(rcAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass, "sv-ranking-item--animate-item-adding");
+  assert.equal(ucAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass, "sv-ranking-item--animate-item-adding");
+
+  assert.equal(rcAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass, "sv-ranking-item--animate-item-adding-empty");
+  assert.equal(ucAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass, "sv-ranking-item--animate-item-adding-empty");
+
+  //test leave options
+  question.selectToRankAreasLayout = "horizontal";
+  assert.equal(rcAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass, "sv-ranking-item--animate-item-removing");
+  assert.equal(ucAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass, "sv-ranking-item--animate-item-removing");
+
+  assert.equal(rcAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass, "sv-ranking-item--animate-item-removing");
+  assert.equal(ucAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass, "sv-ranking-item--animate-item-removing");
+
+  question.selectToRankAreasLayout = "vertical";
+
+  assert.equal(rcAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass, "sv-ranking-item--animate-item-removing");
+  assert.equal(ucAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass, "sv-ranking-item--animate-item-removing");
+
+  assert.equal(rcAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass, "sv-ranking-item--animate-item-removing-empty");
+  assert.equal(ucAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass, "sv-ranking-item--animate-item-removing-empty");
+
+  //test reorder options
+  question.value = ["a", "b"];
+  question.currentDropTarget = question.rankingChoices[0];
+
+  assert.equal(rcAnimationOptions.getReorderOptions(question.rankingChoices[0], false).cssClass, "");
+  assert.equal(rcAnimationOptions.getReorderOptions(question.rankingChoices[0], true).cssClass, "");
+
+  assert.equal(rcAnimationOptions.getReorderOptions(question.rankingChoices[1], false).cssClass, "sv-dragdrop-moveup");
+  assert.equal(rcAnimationOptions.getReorderOptions(question.rankingChoices[1], true).cssClass, "sv-dragdrop-movedown");
+
   settings.animationEnabled = false;
 });
 

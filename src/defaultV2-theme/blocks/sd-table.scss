@@ -142,9 +142,11 @@
           &.sd-item--checked .sd-item__decorator {
             background-color: $primary;
           }
+
           &.sd-item--readonly.sd-item--checked .sd-item__decorator {
             background-color: $background;
           }
+
           &.sd-item--preview.sd-item--preview .sd-item__decorator {
             background-color: transparent;
           }
@@ -379,9 +381,14 @@
   position: relative;
   overflow-x: auto;
 }
+
 .sd-question--table.sd-element--collapsed,
 .sd-question--table.sd-element--nested {
   overflow-x: visible;
+}
+
+.sd-question--table .sd-question__header--location--left {
+  z-index: 12;
 }
 
 .sd-table-wrapper {
@@ -420,6 +427,7 @@
   .sd-table {
     background-color: $background-dim;
   }
+
   .sd-table-wrapper {
 
     &:before,
@@ -427,7 +435,7 @@
       background-color: $background-dim;
     }
   }
-  
+
   .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child {
     .sd-action-bar {
       background-color: $background-dim;
@@ -443,6 +451,7 @@
     background-color: $background-dim;
   }
 }
+
 .sd-question--table {
 
   &>.sd-question__header,
@@ -585,7 +594,8 @@
       padding-top: calcSize(5);
 
       &::before {
-        top: calcSize(-2);
+        // top: calcSize(-2);
+        background-color: transparent;
       }
     }
   }
@@ -628,6 +638,10 @@
   .sd-table__cell:first-of-type,
   .sd-matrix__cell {
     margin-top: 0;
+  }
+
+  .sd-table__cell--footer:not(.sd-question--answered) {
+    display: none;
   }
 
   .sd-table__cell {

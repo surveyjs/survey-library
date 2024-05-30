@@ -16,8 +16,8 @@ const theme = "defaultV2";
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-  });
+      await applyTheme(theme);
+    });
 
   test("Check expression question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
@@ -42,6 +42,35 @@ frameworks.forEach(framework => {
       });
       await takeElementScreenshot("expression-title-left.png", Selector(".sd-question[data-name=q1]"), t, comparer);
       await takeElementScreenshot("expression-title-top.png", Selector(".sd-question[data-name=q2]"), t, comparer);
+    });
+  });
+
+  test("Expression text breaks into lines", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              },
+              {
+                "type": "expression",
+                "name": "question2",
+                "startWithNewLine": false,
+                "expression": "currentDate()"
+              }
+            ]
+          }
+        ],
+        "widthMode": "static",
+        "width": "800px"
+      });
+      await takeElementScreenshot("expression-word-breaks.png", Selector(".sd-question[data-name=question2]"), t, comparer);
     });
   });
 

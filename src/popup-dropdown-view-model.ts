@@ -1,5 +1,5 @@
 import { property } from "./jsonobject";
-import { PopupUtils, IPosition } from "./utils/popup";
+import { PopupUtils, IPosition, Rect } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
@@ -45,9 +45,23 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.preventScrollOuside(event, this.clientY - event.changedTouches[0].clientY);
   }
 
+  protected getAvailableAreaRect(): Rect {
+    if (this.areaElement) {
+      const areaRect = this.areaElement.getBoundingClientRect();
+      return new Rect(areaRect.x, areaRect.y, areaRect.width, areaRect.height);
+    }
+    return new Rect(0, 0, DomWindowHelper.getInnerWidth(), DomWindowHelper.getInnerHeight());
+  }
+  protected getTargetElementRect(): Rect {
+    const rect = this.targetElement.getBoundingClientRect();
+    const areaRect = this.getAvailableAreaRect();
+    return new Rect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
+  }
+
   private _updatePosition() {
     if (!this.targetElement) return;
-    const targetElementRect = this.targetElement.getBoundingClientRect();
+    const targetElementRect = this.getTargetElementRect();
+    const area = this.getAvailableAreaRect();
     const popupContainer = <HTMLElement>this.container?.querySelector(this.containerSelector);
     if (!popupContainer) return;
     const fixedPopupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer) as HTMLElement;
@@ -68,9 +82,16 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       verticalPosition = PopupUtils.updateVerticalPosition(
         targetElementRect,
         height,
+        this.model.horizontalPosition,
         this.model.verticalPosition,
-        this.model.showPointer,
-        DomWindowHelper.getInnerHeight()
+        area.height
+      );
+
+      actualHorizontalPosition = PopupUtils.updateHorizontalPosition(
+        targetElementRect,
+        width,
+        this.model.horizontalPosition,
+        area.width
       );
     }
     this.popupDirection = PopupUtils.calculatePopupDirection(
@@ -83,7 +104,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       width + marginLeft + marginRight,
       verticalPosition,
       actualHorizontalPosition,
-      this.showHeader,
       this.model.positionMode
     );
 
@@ -91,8 +111,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       const newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(
         pos.top,
         height,
-        DomWindowHelper.getInnerHeight(),
-        verticalPosition
+        area.height,
+        verticalPosition,
+        this.model.canShrink
       );
       if (!!newVerticalDimensions) {
         this.height = newVerticalDimensions.height + "px";
@@ -122,6 +143,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       pos.top -= rect.top;
       pos.left -= rect.left;
     }
+
+    pos.left += area.left;
+    pos.top += area.top;
+
     this.left = pos.left + "px";
     this.top = pos.top + "px";
 
@@ -174,15 +199,16 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   private recalculatePositionHandler: (_: any, options: { isResetHeight: boolean }) => void;
 
-  constructor(model: PopupModel, public targetElement?: HTMLElement) {
+  constructor(model: PopupModel, public targetElement?: HTMLElement, public areaElement?: HTMLElement) {
     super(model);
     this.model.onRecalculatePosition.add(this.recalculatePositionHandler);
   }
-  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null): void {
+  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null, areaElement?: HTMLElement | null): void {
     super.setComponentElement(componentRoot);
 
     if (!!componentRoot && !!componentRoot.parentElement && !this.isModal) {
       this.targetElement = targetElement || componentRoot.parentElement;
+      this.areaElement = areaElement;
     }
   }
   public resetComponentElement() {

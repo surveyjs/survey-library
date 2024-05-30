@@ -83,6 +83,8 @@ import ActionBarSeparator from "./components/action-bar/ActionBarSeparator.vue";
 
 import List from "./components/list/List.vue";
 import ListItem from "./components/list/ListItem.vue";
+import ListItemContent from "./components/list/ListItemContent.vue";
+import ListItemGroup from "./components/list/ListItemGroup.vue";
 
 import Popup from "./components/popup/Popup.vue";
 import PopupContainer from "./components/popup/PopupContainer.vue";
@@ -240,6 +242,8 @@ function registerComponents(app: App) {
   app.component("sv-action-bar-separator", ActionBarSeparator);
 
   app.component("sv-list", List);
+  app.component("sv-list-item-content", ListItemContent);
+  app.component("sv-list-item-group", ListItemGroup);
   app.component("sv-list-item", ListItem);
 
   app.component("sv-popup", Popup);

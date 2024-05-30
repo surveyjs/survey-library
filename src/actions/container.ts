@@ -147,6 +147,25 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
       this.sortItems();
     }
   }
+  @property({ defaultValue: 300 }) subItemsShowDelay: number;
+  @property({ defaultValue: 300 }) subItemsHideDelay: number;
+  protected popupAfterShowCallback(itemValue: T): void {
+
+  }
+
+  public mouseOverHandler(itemValue: T): void {
+    itemValue.isHovered = true;
+    this.actions.forEach(action => {
+      if (action === itemValue && !!itemValue.popupModel) {
+        itemValue.showPopupDelayed(this.subItemsShowDelay);
+        this.popupAfterShowCallback(itemValue);
+
+      } else if (!!action.popupModel && action.popupModel.isVisible) {
+        action.hidePopupDelayed(this.subItemsHideDelay);
+      }
+    });
+  }
+
   public initResponsivityManager(container: HTMLDivElement, delayedUpdateFunction?: (callback: () => void) => void): void {
     return;
   }

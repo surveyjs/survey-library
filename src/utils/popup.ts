@@ -16,16 +16,31 @@ export interface ISize {
   height: number;
 }
 
+export class Rect implements ISize, INumberPosition {
+  constructor(private x: number, private y: number, public width: number, public height: number) { }
+  public get left(): number {
+    return this.x;
+  }
+  public get top(): number {
+    return this.y;
+  }
+  public get right(): number {
+    return this.x + this.width;
+  }
+  public get bottom(): number {
+    return this.y + this.height;
+  }
+}
+
 export class PopupUtils {
   public static bottomIndent = 16;
 
   public static calculatePosition(
-    targetRect: ClientRect,
+    targetRect: Rect,
     height: number,
     width: number,
     verticalPosition: VerticalPosition,
     horizontalPosition: HorizontalPosition,
-    showPointer: boolean,
     positionMode: PositionMode = "flex"
   ): INumberPosition {
     let currentLeft = targetRect.left;
@@ -43,13 +58,11 @@ export class PopupUtils {
     else if (verticalPosition == "top") currentTop = targetRect.top - height;
     else currentTop = targetRect.bottom;
 
-    if (showPointer) {
-      if (horizontalPosition != "center" && verticalPosition != "middle") {
-        if (verticalPosition == "top") {
-          currentTop = currentTop + targetRect.height;
-        } else {
-          currentTop = currentTop - targetRect.height;
-        }
+    if (horizontalPosition != "center" && verticalPosition != "middle") {
+      if (verticalPosition == "top") {
+        currentTop = currentTop + targetRect.height;
+      } else {
+        currentTop = currentTop - targetRect.height;
       }
     }
 
@@ -60,17 +73,23 @@ export class PopupUtils {
     top: number,
     height: number,
     windowHeight: number,
-    verticalPosition: VerticalPosition
+    verticalPosition: VerticalPosition,
+    canShrink: boolean = true
   ) {
     let result;
+    const maxHeight = windowHeight - PopupUtils.bottomIndent;
     if(verticalPosition === "top") {
       result = { height: height, top: top };
     }
     if (top < 0) {
-      result = { height: height + top, top: 0 };
+      result = { height: canShrink ? height + top : height, top: 0 };
     } else if (height + top > windowHeight) {
-      let newHeight = Math.min(height, windowHeight - top - PopupUtils.bottomIndent);
-      result = { height: newHeight, top: top };
+      let newHeight = Math.min(height, maxHeight - top);
+      result = { height: canShrink ? newHeight : height, top: canShrink ? top : top - (height - newHeight) };
+    }
+    if (result) {
+      result.height = Math.min(result.height, maxHeight);
+      result.top = Math.max(result.top, 0);
     }
     return result;
   }
@@ -120,31 +139,44 @@ export class PopupUtils {
   }
 
   public static updateVerticalPosition(
-    targetRect: ClientRect,
+    targetRect: Rect,
     height: number,
+    horizontalPosition: HorizontalPosition,
     verticalPosition: VerticalPosition,
-    showPointer: boolean,
     windowHeight: number
   ): VerticalPosition {
-    let deltaTop =
-      height - (targetRect.top + (showPointer ? targetRect.height : 0));
-    let deltaBottom =
-      height +
-      targetRect.bottom -
-      (showPointer ? targetRect.height : 0) -
-      windowHeight;
+    if (verticalPosition === "middle") return verticalPosition;
+
+    let deltaTop = height - (targetRect.top + (horizontalPosition !== "center" ? targetRect.height : 0));
+    let deltaBottom = height + targetRect.bottom - (horizontalPosition !== "center" ? targetRect.height : 0) - windowHeight;
     if (deltaTop > 0 && deltaBottom <= 0 && verticalPosition == "top") {
       verticalPosition = "bottom";
-    } else if (
-      deltaBottom > 0 &&
-      deltaTop <= 0 &&
-      verticalPosition == "bottom"
-    ) {
+    } else if (deltaBottom > 0 && deltaTop <= 0 && verticalPosition == "bottom") {
       verticalPosition = "top";
     } else if (deltaBottom > 0 && deltaTop > 0) {
       verticalPosition = deltaTop < deltaBottom ? "top" : "bottom";
     }
     return verticalPosition;
+  }
+
+  public static updateHorizontalPosition(
+    targetRect: Rect,
+    width: number,
+    horizontalPosition: HorizontalPosition,
+    windowWidth: number
+  ): HorizontalPosition {
+    if (horizontalPosition === "center") return horizontalPosition;
+
+    let deltaLeft = width - targetRect.left;
+    let deltaRight = width + targetRect.right - windowWidth;
+    if (deltaLeft > 0 && deltaRight <= 0 && horizontalPosition == "left") {
+      horizontalPosition = "right";
+    } else if (deltaRight > 0 && deltaLeft <= 0 && horizontalPosition == "right") {
+      horizontalPosition = "left";
+    } else if (deltaRight > 0 && deltaLeft > 0) {
+      horizontalPosition = deltaLeft < deltaRight ? "left" : "right";
+    }
+    return horizontalPosition;
   }
 
   public static calculatePopupDirection(
@@ -162,7 +194,7 @@ export class PopupUtils {
 
   //called when showPointer  is true
   public static calculatePointerTarget(
-    targetRect: ClientRect,
+    targetRect: Rect,
     top: number,
     left: number,
     verticalPosition: VerticalPosition,

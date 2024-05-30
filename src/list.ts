@@ -16,8 +16,10 @@ export let defaultListCss = {
   itemWithIcon: "sv-list__item--with-icon",
   itemDisabled: "sv-list__item--disabled",
   itemFocused: "sv-list__item--focused",
+  itemHovered: "sv-list__item--hovered",
   itemTextWrap: "sv-list__item-text--wrap",
   itemIcon: "sv-list__item-icon",
+  itemMarkerIcon: "sv-list-item__marker-icon",
   itemSeparator: "sv-list__item-separator",
   itemBody: "sv-list__item-body",
   itemsContainer: "sv-list",
@@ -83,6 +85,21 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public isItemVisible(item: T): boolean {
     return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filterString));
   }
+
+  protected getRenderedActions(): Array<T> {
+    let actions = super.getRenderedActions();
+
+    if (this.filterString) {
+      let newActions = [] as Array<T>;
+      actions.forEach(action => {
+        newActions.push(action);
+        if (action.items) action.items.forEach(item => newActions.push(item as T));
+      });
+      return newActions;
+    }
+
+    return actions;
+  }
   public get visibleItems(): Array<T> {
     return this.visibleActions.filter(item => this.isItemVisible(item));
   }
@@ -146,7 +163,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     super.setItems(items, sortByVisibleIndex);
-    if(this.elementId) {
+    if (this.elementId) {
       this.renderedActions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
     }
     if (!this.isAllDataLoaded && !!this.actions.length) {
@@ -174,6 +191,19 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   };
 
+  protected popupAfterShowCallback(itemValue: T) {
+    this.addScrollEventListener(() => {
+      itemValue.hidePopup();
+    });
+  }
+
+  public onItemHover = (itemValue: T): void => {
+    this.mouseOverHandler(itemValue);
+  }
+  public onItemLeave(itemValue: T) {
+    itemValue.hidePopupDelayed(this.subItemsHideDelay);
+  }
+
   public isItemDisabled: (itemValue: T) => boolean = (itemValue: T) => {
     return itemValue.enabled !== undefined && !itemValue.enabled;
   };
@@ -186,7 +216,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return this.areSameItems(this.focusedItem, itemValue);
   };
   protected areSameItems(item1: IAction, item2: IAction): boolean {
-    if(!!this.areSameItemsCallback) return this.areSameItemsCallback(item1, item2);
+    if (!!this.areSameItemsCallback) return this.areSameItemsCallback(item1, item2);
     return !!item1 && !!item2 && item1.id == item2.id;
   }
 
@@ -203,6 +233,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
       .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
       .append(this.cssClasses.itemSelected, this.isItemSelected(itemValue))
+      .append(this.cssClasses.itemHovered, itemValue.isHovered)
       .append(this.cssClasses.itemTextWrap, this.textWrapEnabled)
       .append(itemValue.css)
       .toString();
@@ -350,7 +381,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
 
   public dispose(): void {
     super.dispose();
-    if(!!this.loadingIndicatorValue) {
+    if (!!this.loadingIndicatorValue) {
       this.loadingIndicatorValue.dispose();
     }
     this.listContainerHtmlElement = undefined;

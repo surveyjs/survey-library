@@ -203,7 +203,7 @@ frameworks.forEach((framework) => {
       colorPalette: "light",
       cssVariables: {
       },
-    })
+    });
     await t.expect(Selector(".sd-title").visible).ok();
     await t.expect(Selector(".sv-header").visible).notOk();
   });

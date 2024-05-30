@@ -252,13 +252,13 @@ export const registerCustomItemContentComponent = ClientFunction(
       window["ko"].components.register("new-item-content", {
         viewModel: {
           createViewModel: function (params, componentInfo) {
-            return { text: params.text };
+            return { locText: params.item.locText };
           },
         },
         template: `
           <div class="sv-ranking-item__text" style="display: flex; align-items: center; gap: 8px;">
             <sv-svg-icon params="iconName: 'icon-next_16x16', size: '16'" style="display: flex;"></sv-svg-icon>
-            <!-- ko template: { name: 'survey-string', data: text } -->
+            <!-- ko template: { name: 'survey-string', data: locText } -->
             <!-- /ko -->
           </div>
         `
@@ -266,7 +266,7 @@ export const registerCustomItemContentComponent = ClientFunction(
     } else if (framework === "react") {
       class ItemContentTemplateComponent extends React.Component {
         render() {
-          const TextComponent = this.props.text;
+          const locText = this.props.item.locText;
           const styles = {
             "display": "flex",
             "alignItems": "center",
@@ -275,7 +275,7 @@ export const registerCustomItemContentComponent = ClientFunction(
           return (
             <div className="sv-ranking-item__text" style={styles}>
               <Survey.SvgIcon iconName={"icon-next_16x16"} size={16}></Survey.SvgIcon>
-              <span>{TextComponent}</span>
+              {Survey.SurveyElementBase.renderLocString(locText)}
             </div>
           );
         }
@@ -289,13 +289,12 @@ export const registerCustomItemContentComponent = ClientFunction(
     } else if (framework === "vue") {
       Vue.component("new-item-content", {
         props: {
-          text: "",
-          cssClasses: ""
+          item: {}
         },
         template: `
         <div class="sv-ranking-item__text" :style="{display: 'flex', alignItems: 'center', gap: '8px'}">
             <sv-svg-icon iconName="icon-next_16x16" size = "16"></sv-svg-icon>
-            <survey-string :locString="text" />
+            <survey-string :locString="item.locText" />
         </div>
         `
       });

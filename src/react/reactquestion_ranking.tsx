@@ -1,6 +1,7 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
+  SurveyElementBase,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
 import { QuestionRankingModel, SurveyModel, ItemValue } from "survey-core";
@@ -178,7 +179,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   }
 
   protected renderElement(): JSX.Element {
-    let itemContentComponent = ReactElementFactory.Instance.createElement(this.question.itemContentComponent, { text: this.text, cssClasses: this.cssClasses });
+    let itemContentComponent = ReactElementFactory.Instance.createElement(this.question.itemContentComponent, { item: this.item, cssClasses: this.cssClasses });
     return (
       <div
         tabIndex={this.itemTabIndex}
@@ -216,8 +217,8 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
 }
 
 export class SurveyQuestionRankingItemContent extends ReactSurveyElement {
-  protected get text(): string {
-    return this.props.text;
+  protected get item(): ItemValue {
+    return this.props.item;
   }
 
   protected get cssClasses(): any {
@@ -225,11 +226,11 @@ export class SurveyQuestionRankingItemContent extends ReactSurveyElement {
   }
 
   protected renderElement(): JSX.Element {
-    return <div className={this.cssClasses.controlLabel}>{this.text}</div>;
+    return <div className={this.cssClasses.controlLabel}>{SurveyElementBase.renderLocString(this.item.locText)}</div>;
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("survey-ranking-item-content", (props) => {
+ReactElementFactory.Instance.registerElement("survey-ranking-item-content", props => {
   return React.createElement(SurveyQuestionRankingItemContent, props);
 });
 

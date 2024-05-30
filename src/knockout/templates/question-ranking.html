@@ -70,7 +70,7 @@
         </div>
         <!-- /ko -->
 
-        <!-- ko component: { name: question.itemContentComponent, params: { cssClasses: question.cssClasses, text: $data.locText } } -->
+        <!-- ko component: { name: question.itemContentComponent, params: { cssClasses: question.cssClasses, item: $data } } -->
         <!-- /ko -->
       </div>
     </div>
@@ -79,7 +79,7 @@
 
 <script type="text/html" id="survey-ranking-item-content">
     <div data-bind="css: $parent.cssClasses.controlLabel">
-        <!-- ko template: { name: 'survey-string', data: $parent.text } -->
+        <!-- ko template: { name: 'survey-string', data: $parent.item.locText } -->
         <!-- /ko -->
     </div>
 </script>

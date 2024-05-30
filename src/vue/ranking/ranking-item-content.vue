@@ -1,15 +1,16 @@
 <template>
     <div :class="cssClasses.controlLabel">
-      <survey-string :locString="text" />
+      <survey-string :locString="item.locText" />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
+import { ItemValue } from "survey-core";
 @Component
 export class RankingItemContent extends Vue {
-  @Prop() text: string;
+  @Prop() item: ItemValue;
   @Prop() cssClasses: any
 }
 Vue.component("survey-ranking-item-content", RankingItemContent);

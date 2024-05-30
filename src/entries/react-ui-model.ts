@@ -29,6 +29,7 @@ export {
 export {
   SurveyQuestionRanking,
   SurveyQuestionRankingItem,
+  SurveyQuestionRankingItemContent
 } from "../react/reactquestion_ranking";
 
 export { RatingItem } from "../react/components/rating/rating-item";

@@ -309,7 +309,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test.only("Ranking custom content component", async (t) => {
+  test("Ranking custom content component", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await registerCustomItemContentComponent(framework);
       await t.resizeWindow(1920, 1080);

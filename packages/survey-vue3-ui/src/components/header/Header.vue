@@ -1,5 +1,5 @@
 <template>
-  <div :class="model.headerClasses" :style="{ height: model.renderedHeight }">
+  <div v-if="survey.headerView === 'advanced'" :class="model.headerClasses" :style="{ height: model.renderedHeight }">
     <div
       v-if="!!model.backgroundImage"
       :class="model.backgroundImageClasses"

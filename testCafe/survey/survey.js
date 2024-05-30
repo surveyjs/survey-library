@@ -159,4 +159,52 @@ frameworks.forEach((framework) => {
     await t.click("#sv-nav-preview input");
     await t.click("#sv-nav-complete input");
   });
+  test("Do not show advanced header if not set headerView === 'advanced'", async (t) => {
+    await initSurvey(framework, {
+      "title": "NPS Survey Question",
+      "logo": "https://api.surveyjs.io/private/Surveys/files?name=bdf16c7e-fa1e-4e31-9d82-a6df1982c224",
+      "logoWidth": "200px",
+      "logoHeight": "80px",
+      "logoFit": "cover",
+      "logoPosition": "right",
+      "elements": [
+        {
+          "type": "rating",
+          "name": "nps-score",
+          "title": "On a scale from 0 to 10, how likely are you to recommend us to a friend or colleague?",
+          "rateMin": 0,
+          "rateMax": 10,
+          "minRateDescription": "Very unlikely",
+          "maxRateDescription": "Very likely"
+        },
+      ],
+    });
+    await applyTheme({
+      backgroundImage:
+        "https://api.surveyjs.io/private/Surveys/files?name=4ffde38f-2bb3-4f57-aa0d-d5c7003e8ab1",
+      backgroundImageFit: "cover",
+      backgroundImageAttachment: "scroll",
+      header: {
+        height: 256,
+        inheritWidthFrom: "container",
+        textAreaWidth: 512,
+        overlapEnabled: false,
+        backgroundImageOpacity: 1,
+        backgroundImageFit: "cover",
+        logoPositionX: "right",
+        logoPositionY: "top",
+        titlePositionX: "left",
+        titlePositionY: "bottom",
+        descriptionPositionX: "left",
+        descriptionPositionY: "bottom",
+      },
+      themeName: "molisana",
+      isPanelless: false,
+      colorPalette: "light",
+      cssVariables: {
+      },
+    })
+    await t.expect(Selector(".sd-title").visible).ok();
+    await t.expect(Selector(".sv-header").visible).notOk();
+  });
 });

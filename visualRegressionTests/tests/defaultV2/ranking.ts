@@ -311,7 +311,6 @@ frameworks.forEach(framework => {
 
   test.only("Ranking custom content component", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-
       await registerCustomItemContentComponent(framework);
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
@@ -326,7 +325,6 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await t.debug();
       const itemContent = Selector(".sv-ranking-item").nth(0).find(".sv-ranking-item__text");
       await takeElementScreenshot("question-ranking-custom-item-content.png", itemContent, t, comparer);
     });

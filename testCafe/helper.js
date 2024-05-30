@@ -256,7 +256,7 @@ export const registerCustomItemContentComponent = ClientFunction(
           },
         },
         template: `
-          <div class="sv-ranking-item__text" style="display: flex; align-items: center; gap: 8px;}">
+          <div class="sv-ranking-item__text" style="display: flex; align-items: center; gap: 8px;">
             <sv-svg-icon params="iconName: 'icon-next_16x16', size: '16'" style="display: flex;"></sv-svg-icon>
             <!-- ko template: { name: 'survey-string', data: text } -->
             <!-- /ko -->

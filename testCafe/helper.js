@@ -8,7 +8,7 @@ const environment = args.env;
 
 export const frameworks = environment
   ? [environment]
-  : ["knockout"/*, "react", "vue"*/];
+  : ["knockout", "react", "vue"];
 // eslint-disable-next-line no-console
 console.log("Frameworks: " + frameworks.join(", "));
 export const url = "http://127.0.0.1:8080/examples_test/default/";
@@ -241,6 +241,63 @@ export const registerCustomItemComponent = ClientFunction(
         },
         template:
           '<div class="my-list-item" style="display:flex;" v-bind:title="item.hint" ><span><sv-svg-icon :iconName="item.iconName" :size = "item.iconSize"></sv-svg-icon></span><span v-bind:class="item.getActionBarItemTitleCss()">{{ item.title }}</span></div>',
+      });
+    }
+  }
+);
+
+export const registerCustomItemContentComponent = ClientFunction(
+  (framework, json, events, isDesignMode, props) => {
+    if (framework === "knockout") {
+      window["ko"].components.register("new-item-content", {
+        viewModel: {
+          createViewModel: function (params, componentInfo) {
+            return { text: params.text };
+          },
+        },
+        template: `
+          <div class="sv-ranking-item__text" style="display: flex; align-items: center; gap: 8px;}">
+            <sv-svg-icon params="iconName: 'icon-next_16x16', size: '16'" style="display: flex;"></sv-svg-icon>
+            <!-- ko template: { name: 'survey-string', data: text } -->
+            <!-- /ko -->
+          </div>
+        `
+      });
+    } else if (framework === "react") {
+      class ItemContentTemplateComponent extends React.Component {
+        render() {
+          const TextComponent = this.props.text;
+          const styles = {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": "8px"
+          };
+          return (
+            <div className="sv-ranking-item__text" style={styles}>
+              <Survey.SvgIcon iconName={"icon-next_16x16"} size={16}></Survey.SvgIcon>
+              <span>{TextComponent}</span>
+            </div>
+          );
+        }
+      }
+      window["Survey"].ReactElementFactory.Instance.registerElement(
+        "new-item-content",
+        (props) => {
+          return window["React"].createElement(ItemContentTemplateComponent, props);
+        }
+      );
+    } else if (framework === "vue") {
+      Vue.component("new-item-content", {
+        props: {
+          text: "",
+          cssClasses: ""
+        },
+        template: `
+        <div class="sv-ranking-item__text" :style="{display: 'flex', alignItems: 'center', gap: '8px'}">
+            <sv-svg-icon iconName="icon-next_16x16" size = "16"></sv-svg-icon>
+            <survey-string :locString="text" />
+        </div>
+        `
       });
     }
   }

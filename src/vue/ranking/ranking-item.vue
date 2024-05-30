@@ -18,9 +18,7 @@
                 <use :xlink:href="question.dashSvgIcon"></use>
             </svg>
           </div>
-        <div :class="cssClasses.controlLabel">
-          <component :is="question.itemContentComponent" :text="text" :cssClasses="cssClasses"></component>
-        </div>
+        <component :is="question.itemContentComponent" :text="text" :cssClasses="cssClasses"></component>
       </div>
     </div>
   </div>

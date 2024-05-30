@@ -67,19 +67,19 @@
         <svg>
           <use data-bind="attr:{'xlink:href':question.dashSvgIcon}" xlink:href=''></use>
         </svg>
-      </div>
-        <!-- /ko -->
-        <div data-bind="css: question.cssClasses.controlLabel">
-          <div></div>
-          <!-- ko template: { name: question.itemContentComponent, data: $data } -->
-          <!-- /ko -->
         </div>
+        <!-- /ko -->
+
+        <!-- ko component: { name: question.itemContentComponent, params: { cssClasses: question.cssClasses, text: $data.locText } } -->
+        <!-- /ko -->
       </div>
     </div>
   </div>
 </script>
 
 <script type="text/html" id="survey-ranking-item-content">
-    <!-- ko template: { name: 'survey-string', data: $data.locText } -->
-    <!-- /ko -->
+    <div data-bind="css: $parent.cssClasses.controlLabel">
+        <!-- ko template: { name: 'survey-string', data: $parent.text } -->
+        <!-- /ko -->
+    </div>
 </script>

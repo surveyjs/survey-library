@@ -1,14 +1,14 @@
 <template>
   <div :class="cssClasses.controlLabel">
-    <survey-string :locString="text" />
+    <survey-string :locString="item.locText" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { LocalizableString } from "survey-core";
+import type { ItemValue } from "survey-core";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{
-  text: LocalizableString;
+  item: ItemValue;
   cssClasses: any;
 }>();
 </script>

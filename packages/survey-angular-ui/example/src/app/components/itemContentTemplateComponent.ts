@@ -1,13 +1,13 @@
 import { Component, Input } from "@angular/core";
 import { AngularComponentFactory } from "survey-angular-ui";
-import { LocalizableString } from "survey-core";
+import { ItemValue } from "survey-core";
 
 @Component({
   selector: "sv-new-item-content",
   templateUrl: "./itemContentTemplateComponent.html"
 })
 export class AngularItemContentTemplateComponent {
-  @Input() text!: LocalizableString;
+  @Input() item!: ItemValue;
   @Input() cssClasses: any;
 }
 

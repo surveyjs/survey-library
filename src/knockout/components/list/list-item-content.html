@@ -1,0 +1,10 @@
+<!-- ko if: $data.item.iconName -->
+<!-- ko component: { name: "sv-svg-icon", params: { iconName: $data.item.iconName, size: $data.item.iconSize, css: $data.model.cssClasses.itemIcon } }-->
+<!-- /ko -->
+<!-- /ko -->
+<!-- ko template: { name: 'survey-string', data: $data.item.locTitle } -->
+<!-- /ko -->
+<!-- ko if: $data.item.markerIconName -->
+<!-- ko component: { name: 'sv-svg-icon', params: { css: $data.item.cssClasses.itemMarkerIcon, iconName: $data.item.markerIconName, size: $data.item.markerIconSize } } -->
+<!-- /ko -->
+<!-- /ko -->

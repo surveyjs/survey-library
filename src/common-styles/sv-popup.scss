@@ -22,6 +22,14 @@ sv-popup {
   height: 0;
 }
 
+.sv-popup.sv-popup-inner {
+  height: 0;
+}
+
+.sv-popup-inner .sv-popup__container {
+  margin-top: calcSize(-1);
+}
+
 .sv-popup__container {
   background-color: $background-dim;
   box-shadow: $shadow-large;

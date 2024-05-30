@@ -153,6 +153,11 @@ export interface IAction {
   ariaExpanded?: boolean;
   ariaRole?: string;
   elementId?: string;
+  items?: Array<IAction>;
+  markerIconName?: string;
+  markerIconSize?: number;
+  showPopup?: () => void;
+  hidePopup?: () => void;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -208,6 +213,7 @@ export function getActionDropdownButtonTarget(container: HTMLElement): HTMLEleme
 }
 
 export abstract class BaseAction extends Base implements IAction {
+  items?: IAction[];
   private static renderedId = 1;
   private static getNextRendredId(): number { return BaseAction.renderedId++; }
   private cssClassesValue: any;
@@ -235,6 +241,8 @@ export abstract class BaseAction extends Base implements IAction {
   public removePriority: number;
   @property() iconName: string;
   @property({ defaultValue: 24 }) iconSize: number;
+  @property() markerIconName: string;
+  @property() markerIconSize: number = 16;
   @property() css?: string
   minDimension: number;
   maxDimension: number;
@@ -333,6 +341,54 @@ export abstract class BaseAction extends Base implements IAction {
     }
     return args.isTrusted;
   }
+  public showPopup(): void {
+    if (!!this.popupModel) {
+      this.popupModel.show();
+    }
+  }
+  public hidePopup(): void {
+    if (!!this.popupModel) {
+      this.popupModel.hide();
+    }
+  }
+
+  @property({ defaultValue: false }) isPressed: boolean;
+  @property({ defaultValue: false }) isHovered: boolean;
+
+  private showPopupTimeout: NodeJS.Timeout;
+  private hidePopupTimeout: NodeJS.Timeout;
+  private clearPopupTimeouts() {
+    if (this.showPopupTimeout) clearTimeout(this.showPopupTimeout);
+    if (this.hidePopupTimeout) clearTimeout(this.hidePopupTimeout);
+  }
+  public showPopupDelayed(delay: number) {
+
+    this.clearPopupTimeouts();
+    this.showPopupTimeout = setTimeout(() => {
+      this.clearPopupTimeouts();
+
+      this.showPopup();
+
+    }, delay);
+  }
+
+  public hidePopupDelayed(delay: number) {
+    if (this.popupModel?.isVisible) {
+
+      this.clearPopupTimeouts();
+      this.hidePopupTimeout = setTimeout(() => {
+        this.clearPopupTimeouts();
+
+        this.hidePopup();
+        this.isHovered = false;
+
+      }, delay);
+    } else {
+      this.clearPopupTimeouts();
+      this.isHovered = false;
+    }
+  }
+
   protected abstract getEnabled(): boolean;
   protected abstract setEnabled(val: boolean): void;
   protected abstract getVisible(): boolean;
@@ -372,6 +428,18 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private createLocTitle(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
+  public setItems(items: Array<IAction>, onSelectionChanged: (item: Action, ...params: any[]) => void): void {
+    this.markerIconName = "icon-next_16x16";
+    this.component = "sv-list-item-group";
+    this.items = [...items];
+    const popupModel = createPopupModelWithListModel(
+      { items: items, onSelectionChanged: onSelectionChanged, searchEnabled: false },
+      { horizontalPosition: "right", showPointer: false, canShrink: false }
+    );
+    popupModel.cssClass = "sv-popup-inner";
+    this.popupModel = popupModel;
+  }
+
   location?: string;
   @property() id: string;
   @property({

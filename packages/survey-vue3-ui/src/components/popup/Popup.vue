@@ -9,6 +9,7 @@ import { PopupModel, createPopupViewModel } from "survey-core";
 import { shallowRef, ref, onMounted, watch, onUnmounted } from "vue";
 const props = defineProps<{
   getTarget?: (el: HTMLElement) => HTMLElement;
+  getArea?: (el: HTMLElement) => HTMLElement;
   model: PopupModel;
 }>();
 const popupViewModel = shallowRef();
@@ -30,7 +31,8 @@ onMounted(() => {
   const container = root.value;
   popupViewModel.value.setComponentElement(
     container,
-    props.getTarget ? props.getTarget(container) : undefined
+    props.getTarget ? props.getTarget(container) : undefined,
+    props.getArea ? props.getArea(container) : undefined
   );
 });
 onUnmounted(() => {

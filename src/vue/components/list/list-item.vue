@@ -6,10 +6,15 @@
     <div v-if="item.needSeparator" v-bind:class="model.cssClasses.itemSeparator" />
 
     <div :style="{ paddingInlineStart: model.getItemIndent(item) }" v-bind:class="model.cssClasses.itemBody"
-      :title="item.locTitle.calculatedText">
-      <sv-svg-icon v-if="item.iconName && !item.component" v-bind:class="model.cssClasses.itemIcon"
+      :title="item.locTitle.calculatedText"
+      @mouseover="(e) => model.onItemHover(item)"
+      @mouseleave="(e) => model.onItemLeave(item)">
+      <sv-svg-icon v-if="item.iconName && isDefaultItem" v-bind:class="model.cssClasses.itemIcon"
         :iconName="item.iconName" :size="item.iconSize"></sv-svg-icon>
-      <survey-string v-if="!item.component" :locString="item.locTitle" />
+      <survey-string v-if="isDefaultItem" :locString="item.locTitle" />
+      <sv-svg-icon v-if="item.markerIconName" v-bind:class="item.cssClasses.itemMarkerIcon"
+        :iconName="item.markerIconName" :size="item.markerIconSize"></sv-svg-icon>
+      <sv-popup v-if="item.popupModel && isDefaultItem" :model="item.popupModel"></sv-popup>
       <component v-if="item.component" :is="item.component" :item="item"> </component>
     </div>
   </li>
@@ -34,6 +39,9 @@ export class ListItem extends BaseVue {
   }
   get elementId() {
     return (this.item as IAction)?.elementId;
+  }
+  get isDefaultItem(): boolean {
+    return !this.item.component || this.item.component === "sv-list-item-group";
   }
   public click(event: any) {
     this.model.onItemClick(this.item as any);

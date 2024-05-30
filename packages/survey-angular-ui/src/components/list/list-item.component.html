@@ -3,15 +3,10 @@
     <ng-container *ngIf="model.needSeparator">
     <div [class]="listModel.cssClasses.itemSeparator"></div>
     </ng-container>
-    <div [class]="listModel.cssClasses.itemBody" [style.paddingInlineStart]="paddingLeft" [attr.title]="model.locTitle.calculatedText">
-    <ng-container *ngIf="!model.component">
-      <svg *ngIf="model.iconName" [class]="listModel.cssClasses.itemIcon" [iconName]="model.iconName" [size]="model.iconSize"
-        sv-ng-svg-icon></svg>
-      <sv-ng-string [model]="model.locTitle"></sv-ng-string>
-    </ng-container>
-    <ng-container *ngIf="model.component">
-      <ng-template [component]="{ name: model.component, data: { model: model } }"></ng-template>
-    </ng-container>
+    <div [class]="listModel.cssClasses.itemBody" [style.paddingInlineStart]="paddingLeft" [attr.title]="model.locTitle.calculatedText"
+    (mouseover)="listModel.onItemHover(model)"
+    (mouseleave)="listModel.onItemLeave(model)">
+    <ng-template [component]="{ name: model.component || 'sv-list-item-content', data: { model: model, listModel: listModel } }"></ng-template>
     </div>
   </li>
 </ng-template>

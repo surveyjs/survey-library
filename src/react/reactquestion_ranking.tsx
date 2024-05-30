@@ -32,22 +32,22 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
           ref={(root) => (this.setControl(root))}
         >
           <div className={this.question.getContainerClasses("from")} data-ranking="from-container">
-            {this.getItems(this.question.unRankingChoices, unrankedItem)}
-            {this.question.unRankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.renderLocString(this.question.locSelectToRankEmptyRankedAreaText)} </div> : null}
+            {this.getItems(this.question.renderedUnRankingChoices, unrankedItem)}
+            {this.question.renderedUnRankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.renderLocString(this.question.locSelectToRankEmptyRankedAreaText)} </div> : null}
           </div>
 
           <div className={this.question.cssClasses.containersDivider}></div>
 
           <div className={this.question.getContainerClasses("to")} data-ranking="to-container">
             {this.getItems()}
-            {this.question.rankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.renderLocString(this.question.locSelectToRankEmptyUnrankedAreaText)} </div> : null}
+            {this.question.renderedRankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.renderLocString(this.question.locSelectToRankEmptyUnrankedAreaText)} </div> : null}
           </div>
         </div>
       );
     }
   }
 
-  protected getItems(choices: any = this.question.rankingChoices, unrankedItem?: boolean): Array<any> {
+  protected getItems(choices: any = this.question.renderedRankingChoices, unrankedItem?: boolean): Array<any> {
     const items: Array<JSX.Element> = [];
     for (let i = 0; i < choices.length; i++) {
       const item = choices[i];

@@ -55,3 +55,7 @@ $font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-f
     background-color: $background-dim;
   }
 }
+
+.sd-title+.sv-components-row>.sv-components-column .sv_progress-toc {
+  margin-top: 2px;
+}

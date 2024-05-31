@@ -170,7 +170,9 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   const originalSelectionChanged = listOptions.onSelectionChanged;
   listOptions.onSelectionChanged = (item: Action, ...params: any[]) => {
     if (newAction.hasTitle) { newAction.title = item.title; }
-    originalSelectionChanged(item, params);
+    if (originalSelectionChanged) {
+      originalSelectionChanged(item, params);
+    }
   };
   const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
 
@@ -192,7 +194,9 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
 export function createPopupModelWithListModel(listOptions: IListModel, popupOptions: IPopupOptionsBase): PopupModel {
   const listModel: ListModel = new ListModel(listOptions as any);
   listModel.onSelectionChanged = (item: Action) => {
-    listOptions.onSelectionChanged(item);
+    if (listOptions.onSelectionChanged) {
+      listOptions.onSelectionChanged(item);
+    }
     popupModel.hide();
   };
 

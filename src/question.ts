@@ -1194,7 +1194,7 @@ export class Question extends SurveyElement<Question>
   }
   private focuscore(onError: boolean = false, scrollIfVisible?: boolean): void {
     if (!!this.survey) {
-      this.expandAllParents(this);
+      this.expandAllParents();
       this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible);
     }
     var id = !onError
@@ -1204,13 +1204,16 @@ export class Question extends SurveyElement<Question>
       this.fireCallback(this.focusCallback);
     }
   }
-  private expandAllParents(element: IElement) {
+  public expandAllParents(): void {
+    this.expandAllParentsCore(this);
+  }
+  private expandAllParentsCore(element: IElement) {
     if (!element) return;
     if (element.isCollapsed) {
       element.expand();
     }
-    this.expandAllParents((<any>element).parent);
-    this.expandAllParents((<any>element).parentQuestion);
+    this.expandAllParentsCore((<any>element).parent);
+    this.expandAllParentsCore((<any>element).parentQuestion);
   }
   public focusIn(): void {
     if (!this.survey || this.isDisposed || this.isContainer) return;

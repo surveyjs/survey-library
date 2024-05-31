@@ -592,7 +592,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    * The name of a component used to render items.
    */
   public get itemContentComponent(): string {
-    return this.getPropertyValue("itemContentComponent", "survey-ranking-item-content");
+    return this.getPropertyValue("itemContentComponent", "sv-ranking-item-content");
   }
   public set itemContentComponent(value: string) {
     this.setPropertyValue("itemContentComponent", value);
@@ -749,7 +749,7 @@ Serializer.addClass(
       isSerializable: true
     },
     { name: "itemComponent", visible: false, default: "" },
-    { name: "itemContentComponent", visible: false, default: "survey-ranking-item-content" },
+    { name: "itemContentComponent", visible: false, default: "sv-ranking-item-content" },
   ],
   function () {
     return new QuestionRankingModel("");

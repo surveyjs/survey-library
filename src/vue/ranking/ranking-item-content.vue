@@ -1,7 +1,7 @@
 <template>
-    <div :class="cssClasses.controlLabel">
-      <survey-string :locString="item.locText" />
-    </div>
+  <div :class="cssClasses.controlLabel">
+    <survey-string :locString="item.locText" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -13,6 +13,6 @@ export class RankingItemContent extends Vue {
   @Prop() item: ItemValue;
   @Prop() cssClasses: any
 }
-Vue.component("survey-ranking-item-content", RankingItemContent);
+Vue.component("sv-ranking-item-content", RankingItemContent);
 export default RankingItemContent;
 </script>

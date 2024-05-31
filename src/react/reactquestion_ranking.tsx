@@ -230,7 +230,7 @@ export class SurveyQuestionRankingItemContent extends ReactSurveyElement {
   }
 }
 
-ReactElementFactory.Instance.registerElement("survey-ranking-item-content", props => {
+ReactElementFactory.Instance.registerElement("sv-ranking-item-content", props => {
   return React.createElement(SurveyQuestionRankingItemContent, props);
 });
 

@@ -18,7 +18,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   public static renderQuestionDescription(question: Question | PanelModel): JSX.Element {
     var descriptionText = SurveyElementBase.renderLocString(question.locDescription);
-    return <div style={question.hasDescription ? undefined : { display: "none" } } id={question.ariaDescriptionId} className={question.cssDescription}>{descriptionText}</div>;
+    return <div style={question.hasDescription ? undefined : { display: "none" }} id={question.ariaDescriptionId} className={question.cssDescription}>{descriptionText}</div>;
   }
   private changedStatePropNameValue: string | undefined;
   constructor(props: any) {
@@ -32,6 +32,9 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     this.makeBaseElementsReact();
+    this.getStateElements().forEach((el) => {
+      el.afterRerender();
+    });
   }
   private _allowComponentUpdate = true;
   protected allowComponentUpdate() {
@@ -41,8 +44,8 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   protected denyComponentUpdate() {
     this._allowComponentUpdate = false;
   }
-  shouldComponentUpdate(nextProps:any, nextState:any):boolean {
-    if(this._allowComponentUpdate) {
+  shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    if (this._allowComponentUpdate) {
       this.unMakeBaseElementsReact();
     }
     return this._allowComponentUpdate;
@@ -56,7 +59,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     var res = this.renderElement();
     this.startEndRendering(-1);
 
-    if(!!res) {
+    if (!!res) {
       res = this.wrapElement(res);
     }
 
@@ -68,8 +71,8 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   protected get isRendering(): boolean {
     var stateEls: Array<any> = this.getRenderedElements();
-    for(let stateEl of stateEls) {
-      if(stateEl.reactRendering > 0) return true;
+    for (let stateEl of stateEls) {
+      if (stateEl.reactRendering > 0) return true;
     }
     return false;
   }
@@ -78,7 +81,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   private startEndRendering(val: number) {
     var stateEls: Array<any> = this.getRenderedElements();
-    for(let stateEl of stateEls) {
+    for (let stateEl of stateEls) {
       if (!stateEl.reactRendering) stateEl.reactRendering = 0;
       stateEl.reactRendering += val;
     }
@@ -95,12 +98,14 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private makeBaseElementsReact() {
     var els = this.getStateElements();
     for (var i = 0; i < els.length; i++) {
+      els[i].enableOnElementRenderedEvent();
       this.makeBaseElementReact(els[i]);
     }
   }
   private unMakeBaseElementsReact() {
     var els = this.getStateElements();
     for (var i = 0; i < els.length; i++) {
+      els[i].disableOnElementRenderedEvent();
       this.unMakeBaseElementReact(els[i]);
     }
   }
@@ -125,6 +130,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private canMakeReact(stateElement: Base): boolean {
     return !!stateElement && !!stateElement.iteratePropertiesHash;
   }
+
   private makeBaseElementReact(stateElement: Base) {
     if (!this.canMakeReact(stateElement)) return;
     stateElement.iteratePropertiesHash((hash, key) => {
@@ -171,7 +177,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       var val: any = hash[key];
       if (Array.isArray(val)) {
         var val: any = val;
-        val["onArrayChanged"] = () => {};
+        val["onArrayChanged"] = () => { };
       }
     });
   }
@@ -264,7 +270,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
     return wrapper ?? element;
   }
   public setControl(element: HTMLElement | null): void {
-    if(!!element) {
+    if (!!element) {
       this.control = element;
     }
   }

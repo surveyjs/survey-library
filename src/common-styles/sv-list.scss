@@ -39,6 +39,7 @@
 }
 
 .sv-list__item-body {
+  position: relative;
   width: 100%;
   align-items: center;
   box-sizing: border-box;
@@ -55,7 +56,9 @@
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: background-color $transition-duration, color $transition-duration;
+  transition:
+    background-color $transition-duration,
+    color $transition-duration;
 }
 
 .sv-list__item.sv-list__item--focused:not(.sv-list__item--selected) {
@@ -76,11 +79,12 @@
 
 .sv-list__item:hover,
 .sv-list__item:focus {
-  .sv-list__item-body {
-    background-color: $background-dark;
-  }
-
   outline: none;
+}
+
+.sv-list__item:focus .sv-list__item-body,
+.sv-list__item--hovered > .sv-list__item-body {
+  background-color: $background-dark;
 }
 
 .sv-list__item--with-icon.sv-list__item--with-icon {
@@ -99,6 +103,21 @@
   flex-shrink: 0;
   width: calcSize(3);
   height: calcSize(3);
+
+  svg {
+    display: block;
+  }
+
+  use {
+    fill: $foreground-light;
+  }
+}
+
+.sv-list-item__marker-icon {
+  position: absolute;
+  right: calcSize(1);
+  flex-shrink: 0;
+  padding: calcSize(0.5);
 
   svg {
     display: block;
@@ -134,7 +153,7 @@
 .sv-list__item.sv-list__item--selected.sv-list__item--focused,
 .sv-multi-select-list .sv-list__item.sv-list__item--selected.sv-list__item--focused,
 li:focus .sv-list__item.sv-list__item--selected {
-  .sv-list__item-body {
+  & > .sv-list__item-body {
     background-color: $primary;
     color: $primary-foreground;
     font-weight: 600;

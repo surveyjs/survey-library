@@ -179,6 +179,7 @@ export var defaultV2Css = {
   rowMultiple: "sd-row--multiple",
   rowCompact: "sd-row--compact",
   rowFadeIn: "sd-row--fade-in",
+  rowDelayedFadeIn: "sd-row--delayed-fade-in",
   rowFadeOut: "sd-row--fade-out",
   pageRow: "sd-page__row",
   question: {
@@ -581,6 +582,7 @@ export var defaultV2Css = {
     dragElementDecorator: "sd-drag-element__svg",
     iconDragElement: "#icon-v2dragelement_16x16",
     footer: "sd-matrixdynamic__footer",
+    footerTotalCell: "sd-table__cell sd-table__cell--footer-total",
     emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
     iconDrag: "sv-matrixdynamic__drag-icon",
     ghostRow: "sv-matrix-row--drag-drop-ghost-mod",

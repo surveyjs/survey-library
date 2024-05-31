@@ -1307,6 +1307,51 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix--single-page.png", pageElement, t, comparer);
     });
   });
+  test("Matrix title location left", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "Journeys",
+            "elements": [
+              {
+                "type": "matrixdynamic",
+                "name": "question2",
+                "title": "Please enter some information",
+                "titleLocation": "left",
+                "columns": [
+                  {
+                    "name": "Column 2",
+                    "cellType": "text"
+                  },
+                  {
+                    "name": "Column 3",
+                    "cellType": "radiogroup"
+                  }
+                ],
+                "choices": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "rowCount": 0
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off"
+      });
+      //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
+      const pageElement = Selector(".sd-page");
+
+      await takeElementScreenshot("question-matrix--title-left.png", pageElement, t, comparer);
+    });
+  });
+
   test("Check mobile multi select matrix with showHeader: false", async (t) => {
     await t.resizeWindow(600, 1080);
     await wrapVisualTest(t, async (t, comparer) => {

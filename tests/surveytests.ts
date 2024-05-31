@@ -14069,6 +14069,41 @@ QUnit.test("Focus errored question when checkErrorsMode: `onComplete` & panel re
   assert.equal(survey.getQuestionByName("q1").inputId, focusedQuestionId, "panel is required");
   SurveyElement.FocusElement = oldFunc;
 });
+QUnit.test("Do not focus errored question when checkErrorsMode: `onComplete` + focusOnFirstError = false, Bug#8322", function (assert) {
+  var focusedQuestionId = "";
+  const oldFunc = SurveyElement.FocusElement;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    focusedQuestionId = elId;
+    return true;
+  };
+
+  const survey = new SurveyModel({
+    checkErrorsMode: "onComplete",
+    focusOnFirstError: false,
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q0" },
+          { type: "text", name: "q1", isRequired: true },
+        ],
+      },
+      {
+        elements: [{ type: "text", name: "q2", isRequired: true }],
+      },
+      {
+        elements: [{ type: "text", name: "q3", isRequired: true }],
+      },
+    ],
+  });
+  survey.nextPage();
+  survey.nextPage();
+  focusedQuestionId = "";
+  survey.completeLastPage();
+  survey.afterRenderPage(<HTMLElement>{});
+  assert.equal(survey.currentPageNo, 0, "The first page is active");
+  assert.notOk(focusedQuestionId, "do not focus any question");
+  SurveyElement.FocusElement = oldFunc;
+});
 QUnit.test(
   "onServerValidateQuestions doesn't get called for the last page when showPreviewBeforeComplete is set, Bug#2546",
   function (assert) {
@@ -14915,69 +14950,58 @@ QUnit.test(
   }
 );
 
-QUnit.test(
-  "Skip trigger test and navigate back",
-  function (assert) {
-    var focusedQuestions = [];
-    var oldFunc = SurveyElement.FocusElement;
-    SurveyElement.FocusElement = function (elId: string): boolean {
-      focusedQuestions.push(elId);
-      return true;
-    };
-    var survey = new SurveyModel({
-      pages: [
-        {
-          name: "page1",
-          elements: [
-            {
-              type: "radiogroup",
-              name: "q1",
-              choices: ["item1", "item2", "item3"],
-            },
-          ],
-        },
-        {
-          name: "page2",
-          elements: [
-            {
-              type: "text",
-              name: "q2",
-            }
-          ],
-        },
-        {
-          name: "page3",
-          elements: [
-            {
-              type: "text",
-              name: "q3",
-            },
-          ],
-        },
-      ],
-      triggers: [
-        {
-          type: "skip",
-          expression: "{q1} = 'item2'",
-          gotoName: "q3",
-        },
-      ],
-    });
-    survey.getQuestionByName("q1").value = "item2";
-    assert.equal(survey.currentPage.name, "page3", "We moved to another page");
-    survey.prevPage();
-    assert.equal(survey.currentPage.name, "page1", "We returned to first page skipping second");
-    survey.getQuestionByName("q1").value = "item1";
-    survey.nextPage();
-    assert.equal(survey.currentPage.name, "page2", "We moved to second page");
-    survey.nextPage();
-    assert.equal(survey.currentPage.name, "page3", "We moved to third page");
-    survey.prevPage();
-    assert.equal(survey.currentPage.name, "page2", "We returned to second page");
-
-    SurveyElement.FocusElement = oldFunc;
-  }
-);
+QUnit.test("Skip trigger test and navigate back", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            choices: ["item1", "item2", "item3"],
+          },
+        ],
+      },
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "text",
+            name: "q2",
+          }
+        ],
+      },
+      {
+        name: "page3",
+        elements: [
+          {
+            type: "text",
+            name: "q3",
+          },
+        ],
+      },
+    ],
+    triggers: [
+      {
+        type: "skip",
+        expression: "{q1} = 'item2'",
+        gotoName: "q3",
+      },
+    ],
+  });
+  survey.getQuestionByName("q1").value = "item2";
+  assert.equal(survey.currentPage.name, "page3", "We moved to another page");
+  survey.prevPage();
+  assert.equal(survey.currentPage.name, "page1", "We returned to first page skipping second");
+  survey.getQuestionByName("q1").value = "item1";
+  survey.nextPage();
+  assert.equal(survey.currentPage.name, "page2", "We moved to second page");
+  survey.nextPage();
+  assert.equal(survey.currentPage.name, "page3", "We moved to third page");
+  survey.prevPage();
+  assert.equal(survey.currentPage.name, "page2", "We returned to second page");
+});
 
 QUnit.test("Two skip triggers test", function (assert) {
   var focusedQuestions: Array<string> = [];
@@ -15031,8 +15055,53 @@ QUnit.test("Two skip triggers test", function (assert) {
     "The third question is focused"
   );
   SurveyElement.FocusElement = oldFunc;
-}
-);
+});
+QUnit.test("Skip trigger and 'other' value", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            showOtherItem: true,
+            choices: ["item1", "item2", "item3"],
+          },
+        ],
+      },
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "text",
+            name: "q2",
+          }
+        ],
+      },
+      {
+        name: "page3",
+        elements: [
+          {
+            type: "text",
+            name: "q3",
+          },
+        ],
+      },
+    ],
+    triggers: [
+      {
+        type: "skip",
+        expression: "{q1} = 'other'",
+        gotoName: "q3",
+      },
+    ],
+  });
+  survey.getQuestionByName("q1").value = "other";
+  assert.equal(survey.currentPage.name, "page1", "We are still on the first page");
+  survey.getQuestionByName("q1").comment = "abc";
+  assert.equal(survey.currentPage.name, "page3", "We moved to another page");
+});
 QUnit.test(
   "Test SurveyElement isPage, isPanel and isQuestion properties",
   function (assert) {

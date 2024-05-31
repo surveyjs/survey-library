@@ -63,7 +63,6 @@ export class QuestionBooleanModel extends Question {
       this.value = val == true ? this.getValueTrue() : this.getValueFalse();
       this.booleanValueRendered = val;
     }
-    this.updateThumbMargin();
   }
   public get defaultValue(): any {
     return this.getPropertyValue("defaultValue");
@@ -253,6 +252,16 @@ export class QuestionBooleanModel extends Question {
       .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === !this.swapOrder)
       .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === this.swapOrder)
       .toString();
+  }
+
+  updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    super.updateValueFromSurvey(newValue, clearData);
+    this.updateThumbMargin();
+  }
+
+  protected onValueChanged(): void {
+    super.onValueChanged();
+    this.updateThumbMargin();
   }
 
   public get svgIcon(): string {

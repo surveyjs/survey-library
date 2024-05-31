@@ -15,9 +15,7 @@ const theme = "defaultV2";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-  });
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => { await applyTheme(theme); });
 
   test("Check question without title", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
@@ -734,6 +732,28 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Remaining character counter inputType is email - mobile view", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        questions: [
+          {
+            name: "name",
+            type: "text",
+            inputType: "email",
+            maxLength: 25,
+            defaultValue: "Tewwwwwwwwwwwwwwwwwwwwst"
+          }]
+      });
+      await takeElementScreenshot("question-text-email-character-counter-with-focus.png", Selector(".sd-question"), t, comparer);
+
+      await t.resizeWindow(350, 900);
+      await takeElementScreenshot("question-text-email-character-counter-mobile-view-with-focus.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+
   test("Remaining character counter matrixdynamic", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
@@ -849,6 +869,7 @@ frameworks.forEach(framework => {
 
   test("Check question with indent", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
         focusFirstQuestionAutomatic: true,
         questions: [
@@ -864,6 +885,7 @@ frameworks.forEach(framework => {
   });
   test("Check question with big number", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
         focusFirstQuestionAutomatic: true,
         questionStartIndex: "1.1.1",

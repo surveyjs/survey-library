@@ -729,27 +729,27 @@ QUnit.test("Get/set language dialect", function (assert) {
   locString.setJson({
     default: "Default",
     en: "English",
-    "en-UK": "English UK",
+    "en-GB": "English GB",
     pt: "Portuguese"
   });
   assert.equal(locString.renderedHtml, "Default", "default locale");
   owner.locale = "en";
   assert.equal(locString.renderedHtml, "English", "en locale");
-  owner.locale = "en-UK";
-  assert.equal(locString.renderedHtml, "English UK", "en-UK locale");
+  owner.locale = "en-GB";
+  assert.equal(locString.renderedHtml, "English GB", "en-GB locale");
   owner.locale = "pt";
   assert.equal(locString.renderedHtml, "Portuguese", "pt locale");
   owner.locale = "pt-BR";
   assert.equal(locString.renderedHtml, "Portuguese", "pt-BR locale");
   locString.text = "Portuguese BR";
-  owner.locale = "en-UK";
+  owner.locale = "en-GB";
   locString.text = "English";
   assert.deepEqual(locString.getJson(), {
     default: "Default",
     en: "English",
     pt: "Portuguese",
     "pt-BR": "Portuguese BR"
-  }, "Remove en-UK");
+  }, "Remove en-GB");
   owner.locale = "en";
   locString.text = "Default";
   assert.deepEqual(locString.getJson(), {
@@ -757,14 +757,14 @@ QUnit.test("Get/set language dialect", function (assert) {
     pt: "Portuguese",
     "pt-BR": "Portuguese BR"
   }, "Remove en");
-  owner.locale = "en-UK";
-  locString.text = "English UK";
+  owner.locale = "en-GB";
+  locString.text = "English GB";
   assert.deepEqual(locString.getJson(), {
     default: "Default",
-    "en-UK": "English UK",
+    "en-GB": "English GB",
     pt: "Portuguese",
     "pt-BR": "Portuguese BR"
-  }, "Add en-UK");
+  }, "Add en-GB");
 });
 QUnit.test("Do not reset values in any locale", function (assert) {
   settings.storeDuplicatedTranslations = true;

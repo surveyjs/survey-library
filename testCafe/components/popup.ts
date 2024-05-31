@@ -72,6 +72,36 @@ function addDropdownTitleAction(_, opt) {
   opt.titleActions = [item];
 }
 
+function addDropdownActionWithSubItems(_, opt) {
+  let subitems: Array<any> = [];
+  for (let index = 0; index < 7; index++) {
+    subitems[index] = { id: index, title: "inner item" + index };
+  }
+
+  let items: Array<any> = [];
+  for (let index = 0; index < 40; index++) {
+    items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
+  }
+  items[5].setItems([...subitems], (item) => { let value = item.id; });
+  items[5].title += " has items";
+  items[6].setItems([...subitems], (item) => { let value = item.id; });
+  items[6].title += " has items";
+
+  const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+    { title: "Subitems", showTitle: true },
+    {
+      items: items,
+      showPointer: true,
+      verticalPosition: "bottom",
+      horizontalPosition: "center",
+      onSelectionChanged: (item, ...params) => {
+        let value = item.id;
+      }
+    }
+  );
+  opt.titleActions = [dropdownWithSearchAction];
+}
+
 const popupSelector = Selector(".sv-popup .sv-popup__container");
 const popupModalSelector = Selector(".sv-popup.sv-popup--modal");
 const clickButton = Selector(".sv-action-bar-item");
@@ -250,7 +280,7 @@ frameworks.forEach(async framework => {
   });
 
   test("not hide modal popup after scroll", async t => {
-    let choices:Array<string> = [];
+    let choices: Array<string> = [];
     for (let index = 0; index < 50; index++) {
       choices[index] = "item" + index;
     }
@@ -336,7 +366,7 @@ frameworks.forEach(async framework => {
   });
   test("check popup with filter", async t => {
     const currentAddDropdownTitleAction = (_, opt) => {
-      if(opt.question.name !== "actions_question") return;
+      if (opt.question.name !== "actions_question") return;
 
       let items: Array<any> = [];
       for (let index = 0; index < 20; index++) {
@@ -388,20 +418,22 @@ frameworks.forEach(async framework => {
   });
 
   test("list model", async t => {
-    await initSurvey(framework, json, { onGetQuestionTitleActions: (_, opt) => {
-      const getItems = (count, startIndex = 0) => {
-        const list = [];
-        for (let index = startIndex; index < count; index++) {
-          list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index, needSeparator: index % 4 == 1 });
-        }
-        return list;
-      };
-      const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
-        { title: "Long List", showTitle: true },
-        { items: getItems(40), showPointer: true }
-      );
-      opt.titleActions = [dropdownWithSearchAction];
-    } });
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: (_, opt) => {
+        const getItems = (count, startIndex = 0) => {
+          const list: Array<any> = [];
+          for (let index = startIndex; index < count; index++) {
+            list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index, needSeparator: index % 4 == 1 });
+          }
+          return list;
+        };
+        const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+          { title: "Long List", showTitle: true },
+          { items: getItems(40), showPointer: true }
+        );
+        opt.titleActions = [dropdownWithSearchAction];
+      }
+    });
 
     const listItems = Selector(".sv-list__item").filterVisible();
 
@@ -415,5 +447,65 @@ frameworks.forEach(async framework => {
 
       .pressKey("down")
       .expect(getListItemByText("item1").focused).ok();
+  });
+
+  test("popup with subitems", async t => {
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: addDropdownActionWithSubItems
+    });
+
+    const titlePopup = Selector(".sv-popup.sv-popup--show-pointer .sv-popup__container");
+    const item5 = getListItemByText("item5 has items").find(".sv-list__item-body");
+    const item6 = getListItemByText("item6 has items").find(".sv-list__item-body");
+    const item5Subitems = item5.find(".sv-popup .sv-popup__container");
+    const item6Subitems = item6.find(".sv-popup .sv-popup__container");
+
+    await t
+      .expect(titlePopup.visible).notOk()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).notOk()
+
+      .click(Selector(".sv-action-bar-item")) // show action popup
+      .expect(titlePopup.visible).ok()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).notOk()
+
+      .hover(item5) // show item5Subitems
+      .wait(300)
+      .expect(titlePopup.visible).ok()
+      .expect(item5Subitems.visible).ok()
+      .expect(item6Subitems.visible).notOk()
+
+      .hover(item6) // show item6Subitems
+      .wait(300)
+      .expect(titlePopup.visible).ok()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).ok()
+
+      .scrollBy(titlePopup.find(".sv-list"), 0, 1000) // hide inner popups
+      .wait(300)
+      .expect(titlePopup.visible).ok()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).notOk()
+
+      .scrollBy(titlePopup.find(".sv-list"), 0, -1000)
+      .hover(item5) // show item5Subitems
+      .wait(300)
+      .expect(titlePopup.visible).ok()
+      .expect(item5Subitems.visible).ok()
+      .expect(item6Subitems.visible).notOk()
+
+      .expect(getListItemByText("inner item1").count).eql(2)
+      .click(getListItemByText("inner item1").nth(1)) // click 'inner item1'
+      .wait(300)
+      .expect(titlePopup.visible).ok()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).notOk()
+
+      .click(item6) // click 'item6 has items'
+      .wait(300)
+      .expect(titlePopup.visible).notOk()
+      .expect(item5Subitems.visible).notOk()
+      .expect(item6Subitems.visible).notOk();
   });
 });

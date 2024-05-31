@@ -90,10 +90,16 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     let actions = super.getRenderedActions();
 
     if (this.filterString) {
-      let newActions = [] as Array<T>;
+      let newActions: Array<T> = [];
       actions.forEach(action => {
         newActions.push(action);
-        if (action.items) action.items.forEach(item => newActions.push(item as T));
+        if (action.items) {
+          action.items.forEach(item => {
+            const a = new Action(item);
+            a.iconName = action.iconName;
+            newActions.push(a as IAction as T);
+          });
+        }
       });
       return newActions;
     }

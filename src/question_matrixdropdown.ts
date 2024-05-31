@@ -149,9 +149,11 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   private defaultValuesInRows: any = {};
   protected clearGeneratedRows(): void {
     if (!this.generatedVisibleRows) return;
-    this.generatedVisibleRows.forEach(row => {
-      this.defaultValuesInRows[row.rowName] = row.getNamesWithDefaultValues();
-    });
+    if(!this.isDisposed) {
+      this.generatedVisibleRows.forEach(row => {
+        this.defaultValuesInRows[row.rowName] = row.getNamesWithDefaultValues();
+      });
+    }
     super.clearGeneratedRows();
   }
   private getRowValueForCreation(val: any, rowValue: any): any {

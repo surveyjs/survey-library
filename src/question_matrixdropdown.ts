@@ -146,6 +146,24 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     super.clearValueIfInvisibleCore(reason);
     this.clearInvisibleValuesInRows();
   }
+  private defaultValuesInRows: any = {};
+  protected clearGeneratedRows(): void {
+    if (!this.generatedVisibleRows) return;
+    this.generatedVisibleRows.forEach(row => {
+      this.defaultValuesInRows[row.rowName] = row.getNamesWithDefaultValues();
+    });
+    super.clearGeneratedRows();
+  }
+  private getRowValueForCreation(val: any, rowValue: any): any {
+    const res = val[rowValue];
+    if(!res) return res;
+    const names = this.defaultValuesInRows[rowValue];
+    if(!Array.isArray(names) || names.length === 0) return res;
+    names.forEach(name => {
+      delete res[name];
+    });
+    return res;
+  }
   protected generateRows(): Array<MatrixDropdownRowModel> {
     var result = new Array<MatrixDropdownRowModel>();
     var rows = !!this.filteredRows ? this.filteredRows : this.rows;
@@ -153,8 +171,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     var val = this.value;
     if (!val) val = {};
     for (var i = 0; i < rows.length; i++) {
-      if (this.isValueEmpty(rows[i].value)) continue;
-      result.push(this.createMatrixRow(rows[i], val[rows[i].value]));
+      const row = rows[i];
+      if (this.isValueEmpty(row.value)) continue;
+      result.push(this.createMatrixRow(row, this.getRowValueForCreation(val, row.value)));
     }
     return result;
   }

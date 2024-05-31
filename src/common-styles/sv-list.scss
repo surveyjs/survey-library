@@ -90,7 +90,7 @@
 .sv-list__item--with-icon.sv-list__item--with-icon {
   padding: 0;
 
-  .sv-list__item-body {
+  & > .sv-list__item-body {
     padding-top: calcSize(1.5);
     padding-bottom: calcSize(1.5);
     gap: calcSize(2);

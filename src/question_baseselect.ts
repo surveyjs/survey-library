@@ -584,6 +584,7 @@ export class QuestionSelectBase extends Question {
     return this.getPropertyValue("renderedValue", null);
   }
   public set renderedValue(val: any) {
+    if (this.isReadOnlyAttr) return;
     this.setPropertyValue("renderedValue", val);
     var val = this.rendredValueToData(val);
     if (!this.isTwoValueEquals(val, this.value)) {

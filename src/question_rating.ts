@@ -831,6 +831,7 @@ export class QuestionRatingModel extends Question {
     return false;
   }
   public get renderedValue(): any {
+    if (this.isReadOnlyAttr) return;
     return this.value;
   }
   public set renderedValue(val: any) {

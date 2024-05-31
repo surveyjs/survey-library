@@ -162,6 +162,10 @@ li:focus .sv-list__item.sv-list__item--selected {
   .sv-list__item-icon use {
     fill: $background;
   }
+
+  .sv-list-item__marker-icon use {
+    fill: $primary-foreground;
+  }
 }
 
 .sv-multi-select-list .sv-list__item.sv-list__item--selected,

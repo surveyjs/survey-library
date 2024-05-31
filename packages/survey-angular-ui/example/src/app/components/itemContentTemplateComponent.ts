@@ -1,12 +1,13 @@
 import { Component, Input } from "@angular/core";
-import { AngularComponentFactory } from "survey-angular-ui";
+import { AngularComponentFactory, EmbeddedViewContentComponent } from "survey-angular-ui";
 import { ItemValue } from "survey-core";
 
 @Component({
   selector: "sv-new-item-content",
-  templateUrl: "./itemContentTemplateComponent.html"
+  templateUrl: "./itemContentTemplateComponent.html",
+  styles: [":host { display: none; }"]
 })
-export class AngularItemContentTemplateComponent {
+export class AngularItemContentTemplateComponent extends EmbeddedViewContentComponent {
   @Input() item!: ItemValue;
   @Input() cssClasses: any;
 }

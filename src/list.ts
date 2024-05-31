@@ -32,7 +32,7 @@ export let defaultListCss = {
 };
 export interface IListModel {
   items: Array<IAction>;
-  onSelectionChanged: (item: IAction, ...params: any[]) => void;
+  onSelectionChanged?: (item: IAction, ...params: any[]) => void;
   allowSelection?: boolean;
   searchEnabled?: boolean;
   selectedItem?: IAction;
@@ -185,6 +185,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.isExpanded = false;
     if (this.allowSelection) {
       this.selectedItem = itemValue;
+    }
+    const action = (itemValue as IAction).action;
+    if (!!action) {
+      action(itemValue);
     }
     if (!!this.onSelectionChanged) {
       this.onSelectionChanged(itemValue);

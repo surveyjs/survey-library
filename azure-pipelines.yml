@@ -3,22 +3,15 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-trigger:
-  batch: true
-  branches:
-    exclude:
-      - master
-  tags:
-    exclude:
-      - v*.*.*
+#trigger only "by hand"
+trigger: none
+pr: none
 
 pool:
   vmImage: "ubuntu-latest"
 
 jobs:
-
-- job: Core
-
+- job: JqueryUIPreact
   steps:
     - checkout: self
       persistCredentials: true
@@ -28,116 +21,56 @@ jobs:
       inputs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
-  
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm install
-      displayName: "npm install"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+        path: $(Build.SourcesDirectory)/node_modules
+        cacheHitVar: NPM_CACHE_RESTORED
+      displayName: Cache NPMs
+
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
         npm run build-plugins
       displayName: "Build Core"
 
-
-- job: Knockout
-  dependsOn: Core
-  steps:
-    - checkout: self
-      persistCredentials: true
-      clean: true
-
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "14.x"
-      displayName: "Install Node.js"
+    - script: |
+        npm run build_jquery-ui_prod
+      displayName: "Build jquery-ui_prod"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm install
-      displayName: "npm install"
+        npm run test:postcss
+      displayName: "check postcss compatibility"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run build_core
-        npm run build_i18n
-        npm run build-plugins
-        npm run build_knockout_ui
-        npm run build_knockout_prod
-      displayName: "Build Knockout"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
         npm run testsingle
       displayName: "run unit tests"
+    
+    - script: |
+        npm run lint
+      displayName: "eslint check"
+
+    # - script: |
+    #     npm run test:jquery-ui:single
+    #   displayName: "run markup tests"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run testcafe:ko
+        npm run testcafe:jquery-ui
       displayName: "run functional tests"
 
-
-- job: React
-  dependsOn: Core
-  steps:
-    - checkout: self
-      persistCredentials: true
-      clean: true
-
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "14.x"
-      displayName: "Install Node.js"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm install
-      displayName: "npm install"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run build_core
-        npm run build_i18n
-        npm run build-plugins
-        npm run build_react_ui
-        npm run build_react_prod
-      displayName: "Build React"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run testcafe:react
-      displayName: "run functional tests"
-
-
-- job: Vue
-  dependsOn: Core
-  steps:
-    - checkout: self
-      persistCredentials: true
-      clean: true
-
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "14.x"
-      displayName: "Install Node.js"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm install
-      displayName: "npm install"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run build_core
-        npm run build_i18n
-        npm run build-plugins
-        npm run build_vue_ui
-        npm run build_vue_prod
-      displayName: "Build Vue"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run testcafe:vue
-      displayName: "Vue functional tests"

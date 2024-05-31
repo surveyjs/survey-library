@@ -8,7 +8,7 @@ const environment = args.env;
 
 export const frameworks = environment
   ? [environment]
-  : ["knockout", "react", "vue"];
+  : ["knockout", "react", "vue"/*, "jquery-ui"*/];
 // eslint-disable-next-line no-console
 console.log("Frameworks: " + frameworks.join(", "));
 export const url = "http://127.0.0.1:8080/examples_test/default/";
@@ -33,8 +33,6 @@ export const initSurvey = ClientFunction(
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
 
-    window["Survey"].settings.animationEnabled = false;
-
     const model = new window["Survey"].Model(json);
     model.setDesignMode(isDesignMode);
     const surveyComplete = function (model) {
@@ -58,6 +56,11 @@ export const initSurvey = ClientFunction(
     if (framework === "knockout") {
       document.getElementById("surveyElement").innerHTML = "";
       model.render("surveyElement");
+    } else if (framework === "jquery-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      window["$"]("#surveyElement").Survey({
+        model: model
+      });
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
@@ -96,8 +99,6 @@ export const initSurveyPopup = ClientFunction(
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
 
-    window["Survey"].settings.animationEnabled = false;
-
     const popupSurvey = new window["Survey"].PopupSurveyModel(json);
     const model = popupSurvey.survey;
     model.setDesignMode(isDesignMode);
@@ -108,6 +109,11 @@ export const initSurveyPopup = ClientFunction(
       popupSurvey.closeOnCompleteTimeout = -1;
       popupSurvey.allowFullScreen = true;
       popupSurvey.show();
+    } else if (framework === "jquery-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      window["$"]("#surveyElement").Survey({
+        model: model
+      });
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
@@ -169,6 +175,31 @@ export const registerCustomToolboxComponent = ClientFunction(
         "svc-custom-action",
         (props) => {
           return window["React"].createElement(CustomActionButton, props);
+        }
+      );
+    } else if (framework === "jquery-ui") {
+      const preact = window["SurveyJquery"]["preact"];
+      window.React = { createElement: preact.createElement };
+
+      class CustomActionButton extends preact.Component {
+        click = () => {
+          this.props.item.action();
+        };
+        render() {
+          return (
+            // eslint-disable-next-line react/react-in-jsx-scope
+            <span className="my-custom-action-class" onClick={this.click}>
+              {" "}
+              {this.props.item.title}
+            </span>
+          );
+        }
+      }
+
+      window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+        "svc-custom-action",
+        (props) => {
+          return preact.createElement(CustomActionButton, props);
         }
       );
     } else if (framework === "vue") {
@@ -233,7 +264,45 @@ export const registerCustomItemComponent = ClientFunction(
           return window["React"].createElement(ItemTemplateComponent, props);
         }
       );
-    } else if (framework === "vue") {
+    } else if (framework === "jquery-ui") {
+      const preact = window["SurveyJquery"]["preact"];
+      window.React = { createElement: preact.createElement };
+      class ItemTemplateComponent extends preact.Component {
+        render() {
+          const item = this.props.item;
+          var Survey = window["SurveyJquery"];
+          item.iconName = "icon-defaultfile";
+          item.hint = item.title + " - Description";
+
+          /* eslint-disable */
+          return (
+            <div
+              className="my-list-item"
+              style={{ display: "flex" }}
+              title={item.hint}
+            >
+              {" "}
+              <span>
+                {" "}
+                <Survey.SvgIcon
+                  iconName={item.iconName}
+                  size={item.iconSize}
+                ></Survey.SvgIcon>{" "}
+              </span>{" "}
+              <span>{item.title}</span>{" "}
+            </div>
+          );
+          /* eslint-enable */
+        }
+      }
+      window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+        "new-item",
+        (props) => {
+          return preact.createElement(ItemTemplateComponent, props);
+        }
+      );
+    }
+    else if (framework === "vue") {
       window["Vue"].component("new-item", {
         props: {
           item: {},

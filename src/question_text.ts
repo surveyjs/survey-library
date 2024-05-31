@@ -478,11 +478,14 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return this.step;
   }
+  protected getIsInputTextUpdate(): boolean {
+    return this.maskTypeIsEmpty ? super.getIsInputTextUpdate() : false;
+  }
   supportGoNextPageAutomatic(): boolean {
-    return !this.isSurveyInputTextUpdate &&
+    return !this.getIsInputTextUpdate() &&
       ["date", "datetime-local"].indexOf(this.inputType) < 0;
   }
-  public supportGoNextPageError() {
+  public supportGoNextPageError(): boolean {
     return ["date", "datetime-local"].indexOf(this.inputType) < 0;
   }
   /**

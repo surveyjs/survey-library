@@ -1197,7 +1197,7 @@ export class Question extends SurveyElement<Question>
   }
   private focuscore(onError: boolean = false, scrollIfVisible?: boolean): void {
     if (!!this.survey) {
-      this.expandAllParents(this);
+      this.expandAllParents();
       this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible);
     }
     var id = !onError
@@ -1207,13 +1207,16 @@ export class Question extends SurveyElement<Question>
       this.fireCallback(this.focusCallback);
     }
   }
-  private expandAllParents(element: IElement) {
+  public expandAllParents(): void {
+    this.expandAllParentsCore(this);
+  }
+  private expandAllParentsCore(element: IElement) {
     if (!element) return;
     if (element.isCollapsed) {
       element.expand();
     }
-    this.expandAllParents((<any>element).parent);
-    this.expandAllParents((<any>element).parentQuestion);
+    this.expandAllParentsCore((<any>element).parent);
+    this.expandAllParentsCore((<any>element).parentQuestion);
   }
   public focusIn(): void {
     if (!this.survey || this.isDisposed || this.isContainer) return;
@@ -2253,7 +2256,7 @@ export class Question extends SurveyElement<Question>
   protected isTextValue(): boolean {
     return false;
   }
-  public get isSurveyInputTextUpdate(): boolean {
+  protected getIsInputTextUpdate(): boolean {
     return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
   }
   get requireStrictCompare(): boolean { return false; }
@@ -2261,7 +2264,7 @@ export class Question extends SurveyElement<Question>
     return this.isInputTextUpdate ? "text" : false;
   }
   public get isInputTextUpdate(): boolean {
-    return this.isSurveyInputTextUpdate && this.isTextValue();
+    return this.getIsInputTextUpdate() && this.isTextValue();
   }
   protected setNewValueInData(newValue: any): void {
     newValue = this.valueToData(newValue);
@@ -2307,7 +2310,7 @@ export class Question extends SurveyElement<Question>
       this.data.setComment(
         this.getValueName(),
         newValue,
-        this.isSurveyInputTextUpdate ? "text" : false
+        this.getIsInputTextUpdate() ? "text" : false
       );
     }
   }

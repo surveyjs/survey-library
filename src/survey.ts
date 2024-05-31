@@ -3875,7 +3875,7 @@ export class SurveyModel extends SurveyElementCore
     }
     var visPages = this.visiblePages;
     var res = true;
-    const rec = { fireCallback: fireCallback, focuseOnFirstError: focusOnFirstError, firstErrorQuestion: <any>null, result: false };
+    const rec = { fireCallback: fireCallback, focusOnFirstError: focusOnFirstError, firstErrorQuestion: <any>null, result: false };
     for (var i = 0; i < visPages.length; i++) {
       if (!visPages[i].validate(fireCallback, focusOnFirstError, rec)) {
         res = false;
@@ -5142,7 +5142,7 @@ export class SurveyModel extends SurveyElementCore
     element: ISurveyElement,
     question: Question,
     page: PageModel,
-    id: string, scrollIfVisible?: boolean
+    id: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions
   ): any {
     const options: ScrollingElementToTopEvent = {
       element: element,
@@ -5153,7 +5153,7 @@ export class SurveyModel extends SurveyElementCore
     };
     this.onScrollingElementToTop.fire(this, options);
     if (!options.cancel) {
-      SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible);
+      SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions);
     }
   }
 

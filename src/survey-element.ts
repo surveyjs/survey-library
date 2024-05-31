@@ -166,11 +166,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean): boolean {
+  public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions): boolean {
     const { root } = settings.environment;
     if (!elementId || typeof root === "undefined") return false;
     const el = root.getElementById(elementId);
-    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible);
+    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions);
   }
   public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions): boolean {
     if (!el || !el.scrollIntoView) return false;
@@ -1063,7 +1063,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private get isAnimatingCollapseExpand() {
     return this._isAnimatingCollapseExpand || this._renderedIsExpanded != this.isExpanded;
   }
-
+  protected onElementExpanded(elementIsRendered: boolean) {
+  }
   private getExpandCollapseAnimationOptions(): IAnimationConsumer {
     const beforeRunAnimation = (el: HTMLElement) => {
       this.isAnimatingCollapseExpand = true;
@@ -1073,12 +1074,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.isAnimatingCollapseExpand = false;
     };
     return {
+      getRerenderEvent: () => this.onElementRerendered,
       getEnterOptions: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
         return {
           cssClass: cssClasses.contentFadeIn,
           onBeforeRunAnimation: beforeRunAnimation,
-          onAfterRunAnimation: afterRunAnimation,
+          onAfterRunAnimation: (el) => {
+            afterRunAnimation(el);
+            this.onElementExpanded(true);
+          },
         };
       },
       getLeaveOptions: () => {
@@ -1098,8 +1103,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         }
         return undefined;
       },
-      isAnimationEnabled: () => this.animationAllowed && !this.isDesignMode
+      isAnimationEnabled: () => this.isExpandCollapseAnimationEnabled
     };
+  }
+
+  private get isExpandCollapseAnimationEnabled() {
+    return this.animationAllowed && !this.isDesignMode;
   }
 
   private animationCollapsed = new AnimationBoolean(this.getExpandCollapseAnimationOptions(), (val) => {
@@ -1113,7 +1122,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }, () => this.renderedIsExpanded);
   public set renderedIsExpanded(val: boolean) {
+    const oldValue = this._renderedIsExpanded;
     this.animationCollapsed.sync(val);
+    if(!this.isExpandCollapseAnimationEnabled && !oldValue && this.renderedIsExpanded) {
+      this.onElementExpanded(false);
+    }
   }
 
   public get renderedIsExpanded(): boolean {

@@ -598,6 +598,7 @@ frameworks.forEach((framework) => {
       .expect(listItems.filterVisible().count).eql(55)
 
       .click(getListItemByText("55"))
+      .wait(500)
       .click(tagboxQuestion2)
       .expect(tagbox2.find(".sv-list__empty-container").visible).ok()
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)

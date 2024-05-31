@@ -55,7 +55,12 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }, () => this._isVisible);
 
   getLeaveOptions(): AnimationOptions {
-    return { cssClass: "sv-popup--animate-leave" };
+    return { cssClass: "sv-popup--animate-leave",
+      onBeforeRunAnimation: (el) => {
+        el.setAttribute("inert", "");
+      },
+      onAfterRunAnimation: (el) => el.removeAttribute("inert")
+    };
   }
   getEnterOptions(): AnimationOptions {
     return { cssClass: "sv-popup--animate-enter" };
@@ -66,6 +71,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   isAnimationEnabled(): boolean {
     return this.model.displayMode !== "overlay" && settings.animationEnabled;
   }
+  getRerenderEvent (): EventBase<Base> { return this.onElementRerendered; }
 
   private getAnimationContainer(): HTMLElement {
     return <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);
@@ -302,7 +308,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
       getElement(settings.environment.popupMountContainer).appendChild(container);
     }
   }
-  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null): void {
+  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null, areaElement?: HTMLElement | null): void {
     if (!!componentRoot) {
       this.containerElement = componentRoot;
     }

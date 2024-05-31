@@ -30,7 +30,7 @@
     <component :is="contentComponentName" v-bind="contentComponentData">
       <div
         :class="getContentClass(element) || undefined"
-        v-show="element.renderedIsExpanded"
+        :style="{ display: !element.renderedIsExpanded ? 'none' : undefined }"
         role="presentation"
       >
         <survey-errors

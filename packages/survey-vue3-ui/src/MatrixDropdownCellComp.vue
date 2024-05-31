@@ -107,16 +107,18 @@ const getCellStyle = () => {
   return null;
 };
 const getCellIndex = () => (props.cell as any).index || "";
-const onVisibilityChanged = () =>
-  (isVisible.value = props.cell.question.isVisible);
+const onVisibilityChanged = () => {
+  if (!props.cell.hasQuestion || !props.question || !props.question.survey)
+    return;
+  isVisible.value = props.cell.question.isVisible;
+};
 const getComponentName = (element: Question | any) => {
   return getComponent(element);
 };
-
+onVisibilityChanged();
 onMounted(() => {
   if (!props.cell.hasQuestion || !props.question || !props.question.survey)
     return;
-  onVisibilityChanged();
   props.cell.question.registerPropertyChangedHandlers(["isVisible"], () => {
     onVisibilityChanged();
   });

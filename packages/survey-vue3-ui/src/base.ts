@@ -11,6 +11,9 @@ import {
   type Ref,
   onBeforeUnmount,
   watchEffect,
+  nextTick,
+  onBeforeUpdate,
+  onUpdated,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});
@@ -51,6 +54,7 @@ export function makeReactive(surveyElement: Base) {
       }
     };
   }
+  surveyElement.enableOnElementRenderedEvent();
   (surveyElement as any).__vueImplemented++;
 }
 
@@ -67,6 +71,7 @@ export function unMakeReactive(surveyElement?: Base) {
       }
     });
     delete (surveyElement as any).__vueImplemented;
+    surveyElement.disableOnElementRenderedEvent();
     surveyElement.createArrayCoreHandler = undefined as any;
     surveyElement.getPropertyValueCoreHandler = undefined as any;
     surveyElement.setPropertyValueCoreHandler = undefined as any;
@@ -94,6 +99,9 @@ export function useBase<T extends Base>(
       immediate: true,
     }
   );
+  onUpdated(() => {
+    getModel().afterRerender();
+  });
   onBeforeUnmount(() => {
     const model = getModel();
     if (model) {

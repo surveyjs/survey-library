@@ -1917,9 +1917,9 @@ QUnit.test("onValueChanging event - do not allow clear value, #8292", function (
   let oldComment, newComment, questionName;
   survey.onValueChanging.add((sender, options) => {
     if (options.name === "q1-Comment") {
-      counter ++;
+      counter++;
       questionName = options.question.name;
-      if(!options.value) {
+      if (!options.value) {
         options.value = options.oldValue;
       }
       oldComment = options.oldValue;
@@ -17100,11 +17100,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   };
 
   let survey = new SurveyModel(json);
-  function getContainerContent(container: LayoutElementContainer) {
-    let result = survey.getContainerContent(container);
-    result.forEach(item => delete item["data"]);
-    return result;
-  }
+  const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.showNavigationButtons, "bottom");
   assert.equal(survey.progressBarType, "pages");
@@ -17524,11 +17520,7 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
   };
 
   let survey = new SurveyModel(json);
-  function getContainerContent(container: LayoutElementContainer) {
-    let result = survey.getContainerContent(container);
-    result.forEach(item => delete item["data"]);
-    return result;
-  }
+  const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [], "");
   assert.deepEqual(getContainerContent("footer"), [], "");
@@ -17590,11 +17582,7 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
   };
 
   let survey = new SurveyModel(json);
-  function getContainerContent(container: LayoutElementContainer) {
-    let result = survey.getContainerContent(container);
-    result.forEach(item => delete item["data"]);
-    return result;
-  }
+  const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [], "");
   assert.deepEqual(getContainerContent("footer"), [], "");

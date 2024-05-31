@@ -1,7 +1,7 @@
 import { Action } from "../src/actions/action";
 import { PageModel } from "../src/page";
 import { SurveyModel } from "../src/survey";
-import { createTOCListModel, getTocRootCss } from "../src/surveyToc";
+import { TOCModel, createTOCListModel, getTocRootCss } from "../src/surveyToc";
 
 export default QUnit.module("TOC");
 
@@ -49,6 +49,16 @@ QUnit.test("TOC root CSS", function (assert) {
   let survey: SurveyModel = new SurveyModel({});
 
   let tocRootCss = getTocRootCss(survey);
+  assert.equal("sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky", tocRootCss, "toc left css");
+
+  survey.tocLocation = "right";
+  tocRootCss = getTocRootCss(survey);
+  assert.equal("sv_progress-toc sv_progress-toc--right sv_progress-toc--sticky", tocRootCss, "toc right css");
+
+  TOCModel.StickyPosition = false;
+  survey.tocLocation = "left";
+
+  tocRootCss = getTocRootCss(survey);
   assert.equal("sv_progress-toc sv_progress-toc--left", tocRootCss, "toc left css");
 
   survey.tocLocation = "right";

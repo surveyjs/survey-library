@@ -51,7 +51,7 @@ jobs:
       displayName: "Build Core"
 
     - script: |
-        npm run build_jquery-ui_prod
+        npm run build_jquery_ui_prod
       displayName: "Build jquery-ui_prod"
 
     - script: |

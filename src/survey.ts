@@ -1017,10 +1017,12 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-progress-requiredquestions",
       data: this
     });
+    const tocModel = new TOCModel(this);
     this.addLayoutElement({
       id: "toc-navigation",
       component: "sv-navigation-toc",
-      data: new TOCModel(this)
+      data: tocModel,
+      processResponsiveness: width => tocModel.updateStickyTOCSize(this.rootElement)
     });
     this.layoutElements.push({
       id: "buttons-navigation",

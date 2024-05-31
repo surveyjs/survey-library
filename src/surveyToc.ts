@@ -53,18 +53,52 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
 }
 
 export function getTocRootCss(survey: SurveyModel, isMobile = false): string {
+  let rootCss = TOCModel.RootStyle;
   if (isMobile) {
-    return "sv_progress-toc sv_progress-toc--mobile";
+    return rootCss + " " + TOCModel.RootStyle + "--mobile";
   }
-  return "sv_progress-toc" + (" sv_progress-toc--" + (survey.tocLocation || "").toLowerCase());
+  rootCss += (" " + TOCModel.RootStyle + "--" + (survey.tocLocation || "").toLowerCase());
+  if (TOCModel.StickyPosition) {
+    rootCss += " " + TOCModel.RootStyle + "--sticky";
+  }
+  return rootCss;
 }
 
 export class TOCModel {
+  public static RootStyle = "sv_progress-toc";
+  public static StickyPosition = true;
   constructor(public survey: SurveyModel) {
     this.listModel = createTOCListModel(survey, () => { this.popupModel.isVisible = false; });
     this.popupModel = new PopupModel("sv-list", { model: this.listModel });
     this.popupModel.overlayDisplayMode = "overlay";
     this.popupModel.displayMode = <any>new ComputedUpdater(() => this.isMobile ? "overlay" : "popup");
+    if (TOCModel.StickyPosition) {
+      survey.onAfterRenderSurvey.add((s, o) => this.initStickyTOCSubscriptions(o.htmlElement));
+      this.initStickyTOCSubscriptions(survey.rootElement);
+    }
+  }
+
+  private initStickyTOCSubscriptions(rootElement: HTMLElement) {
+    if (TOCModel.StickyPosition && !!rootElement) {
+      rootElement.addEventListener("scroll", (event) => {
+        this.updateStickyTOCSize(rootElement);
+      });
+      this.updateStickyTOCSize(rootElement);
+    }
+  }
+
+  public updateStickyTOCSize(rootElement: HTMLElement): void {
+    if (TOCModel.StickyPosition && !!rootElement) {
+      const tocRootElement = rootElement.querySelector("." + TOCModel.RootStyle) as HTMLDivElement;
+      if (!!tocRootElement) {
+        const rootHeight = rootElement.getBoundingClientRect().height;
+        const titleSelector = this.survey.headerView === "advanced" ? ".sv-header" : ".sv_custom_header+div div." + (this.survey.css.title || "sd-title");
+        const titleElement = rootElement.querySelector(titleSelector) as HTMLDivElement;
+        const titleElementHeight = titleElement ? titleElement.getBoundingClientRect().height : 0;
+        const scrollCompensationHeight = rootElement.scrollTop > titleElementHeight ? 0 : titleElementHeight - rootElement.scrollTop;
+        tocRootElement.style.height = (rootHeight - scrollCompensationHeight - 2) + "px";
+      }
+    }
   }
 
   get isMobile(): boolean {

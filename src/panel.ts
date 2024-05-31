@@ -854,15 +854,12 @@ export class PanelModelBase extends SurveyElement<Question>
       ? rec
       : {
         fireCallback: fireCallback,
-        focuseOnFirstError: focusOnFirstError,
+        focusOnFirstError: focusOnFirstError,
         firstErrorQuestion: <any>null,
         result: false,
       };
     if(rec.result !== true) rec.result = false;
     this.hasErrorsCore(rec);
-    if (rec.focuseOnFirstError && rec.firstErrorQuestion) {
-      rec.firstErrorQuestion.focus(true);
-    }
     return !rec.result;
   }
   public validateContainerOnly(): void {
@@ -871,7 +868,7 @@ export class PanelModelBase extends SurveyElement<Question>
       this.parent.validateContainerOnly();
     }
   }
-  private hasErrorsInPanels(rec: any) {
+  private hasErrorsInPanels(rec: any): void {
     var errors = <Array<any>>[];
     this.hasRequiredError(rec, errors);
     if (this.survey) {
@@ -894,7 +891,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return text;
   }
 
-  private hasRequiredError(rec: any, errors: Array<SurveyError>) {
+  private hasRequiredError(rec: any, errors: Array<SurveyError>): void {
     if (!this.isRequired) return;
     var visQuestions = <Array<any>>[];
     this.addQuestionsToList(visQuestions, true);
@@ -904,13 +901,14 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     rec.result = true;
     errors.push(new OneAnswerRequiredError(this.requiredErrorText, this));
-    if (rec.focuseOnFirstError && !rec.firstErrorQuestion) {
+    if (rec.focusOnFirstError && !rec.firstErrorQuestion) {
       rec.firstErrorQuestion = visQuestions[0];
     }
   }
-  protected hasErrorsCore(rec: any) {
-    var elements = this.elements;
-    var element = null;
+  protected hasErrorsCore(rec: any): void {
+    const elements = this.elements;
+    let element = null;
+    let firstErroredEl = null;
     for (var i = 0; i < elements.length; i++) {
       element = elements[i];
 
@@ -921,6 +919,9 @@ export class PanelModelBase extends SurveyElement<Question>
       } else {
         var question = <Question>element;
         if (!question.validate(rec.fireCallback, rec)) {
+          if(!firstErroredEl) {
+            firstErroredEl = question;
+          }
           if (!rec.firstErrorQuestion) {
             rec.firstErrorQuestion = question;
           }
@@ -930,6 +931,19 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     this.hasErrorsInPanels(rec);
     this.updateContainsErrors();
+    if(!firstErroredEl && this.errors.length > 0) {
+      firstErroredEl = this.getFirstQuestionToFocus(false, true);
+      if(!rec.firstErrorQuestion) {
+        rec.firstErrorQuestion = firstErroredEl;
+      }
+    }
+    if(rec.fireCallback && firstErroredEl) {
+      if(firstErroredEl === rec.firstErrorQuestion && rec.focusOnFirstError) {
+        firstErroredEl.focus(true);
+      } else {
+        firstErroredEl.expandAllParents();
+      }
+    }
   }
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();
@@ -1937,12 +1951,6 @@ export class PanelModel extends PanelModelBase implements IElement {
   private notifySurveyOnVisibilityChanged() {
     if (this.survey != null && !this.isLoadingFromJson) {
       this.survey.panelVisibilityChanged(this, this.isVisible);
-    }
-  }
-  protected hasErrorsCore(rec: any) {
-    super.hasErrorsCore(rec);
-    if (this.isCollapsed && rec.result && rec.fireCallback) {
-      this.expand();
     }
   }
   protected getRenderedTitle(str: string): string {

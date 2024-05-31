@@ -1933,7 +1933,7 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < panels.length; i++) {
       var pnlError = panels[i].hasErrors(
         fireCallback,
-        !!rec && rec.focuseOnFirstError,
+        !!rec && rec.focusOnFirstError,
         rec
       );
       pnlError = this.isValueDuplicated(panels[i], keyValues, rec, fireCallback) || pnlError;

@@ -77,10 +77,9 @@ sv-popup {
   background-color: $background-dim-light;
   padding: calcSize(4);
   height: auto;
-
-  .sv-popup__body-footer {
-    padding-bottom: 2px;
-  }
+}
+.sv-popup--modal .sv-popup__body-footer .sv-footer-action-bar {
+  overflow: visible;
 }
 
 .sv-popup--confirm-delete {

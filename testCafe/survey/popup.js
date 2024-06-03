@@ -43,6 +43,11 @@ const initPopupSurvey = ClientFunction(
       });
     } else if (framework === "angular" || framework == "vue3") {
       window.setSurvey(model, true, false);
+    } else if (framework === "jquery-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      window["$"]("#surveyElement").PopupSurvey({
+        model: model
+      });
     }
     window["survey"] = model;
   }

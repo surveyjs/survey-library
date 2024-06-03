@@ -2,7 +2,11 @@ import { frameworks, url } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "customCss";
 const initSurvey = ClientFunction((framework, json) => {
-  window["Survey"].defaultBootstrapCss.navigationButton = "btn btn-primary";
+  if (typeof window["Survey"].defaultBootstrapCss !== "undefined") {
+    window["Survey"].defaultBootstrapCss.navigationButton = "btn btn-primary";
+  } else if (!!window["SurveyBootstrap"] && typeof window["SurveyBootstrap"].defaultBootstrapCss !== "undefined") {
+    window["SurveyBootstrap"].defaultCss.navigationButton = "btn btn-primary";
+  }
   window["Survey"].StylesManager.applyTheme("bootstrap");
 
   var model = new window["Survey"].Model(json);
@@ -38,6 +42,12 @@ const initSurvey = ClientFunction((framework, json) => {
   } else if (framework === "angular" || framework === "vue3") {
     model.css = myCss;
     window.setSurvey(model);
+  } else if (framework === "jquery-ui") {
+    model.css = myCss;
+    document.getElementById("surveyElement").innerHTML = "";
+    window["$"]("#surveyElement").Survey({
+      model: model
+    });
   }
   window["survey"] = model;
 });

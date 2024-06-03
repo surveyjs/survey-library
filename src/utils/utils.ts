@@ -325,6 +325,7 @@ function preventDefaults(event: any) {
   event.stopPropagation();
 }
 function classesToSelector(str: string): string {
+  if(!str) return str;
   const re = /\s*?([\w-]+)\s*?/g;
   return str.replace(re, ".$1");
 }

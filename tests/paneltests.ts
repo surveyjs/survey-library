@@ -328,7 +328,7 @@ QUnit.test("Panel with paneldynamic error focus", function (assert) {
   };
   const survey = new SurveyModel(json);
   const rec = {
-    focuseOnFirstError: true,
+    focusOnFirstError: true,
     firstErrorQuestion: <any>null,
   };
   const panel = survey.getPanelByName("p1");
@@ -373,16 +373,16 @@ QUnit.test("Required panel error focus/not focus - T3101 - Stop focus when page 
   const survey = new SurveyModel(json);
   const page = survey.currentPage;
 
-  const rec = {
-    focuseOnFirstError: true,
-    firstErrorQuestion: <any>null,
+  const rec: any = {
+    fireCallback: true,
+    focusOnFirstError: true
   };
   page.hasErrors(true, true, rec);
   assert.equal(rec.firstErrorQuestion.name, "chk1", "scroll to first question in the dynamicpanel instead of dynamicpanel itself");
-  assert.equal(rec.firstErrorQuestion.inputId, focusedQuestionId, "focus the question");
+  assert.equal(focusedQuestionId, rec.firstErrorQuestion.inputId, "focus the question");
 
   focusedQuestionId = "";
-  rec.focuseOnFirstError = false;
+  rec.focusOnFirstError = false;
   rec.firstErrorQuestion = null;
   page.hasErrors(true, false, rec);
   assert.notOk(focusedQuestionId, "don't scroll to question - T3101 - Stop focus when page has error");
@@ -2707,4 +2707,81 @@ QUnit.test("Check insert function: insert between rows", (assert) => {
   assert.deepEqual(page.rows[6].visibleElements.map(q => q.name), ["q5", "q6"]);
 
   assert.equal(calledBuildRows, 0);
+});
+QUnit.test("Do not expand panels on validation that doesn't have an error Bug#8341", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1",
+        "isRequired": true
+      },
+      {
+        "type": "panel",
+        "name": "panel1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ],
+        "title": "Title",
+        "state": "collapsed"
+      },
+      {
+        "type": "panel",
+        "name": "panel2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3",
+            "isRequired": true
+          }
+        ],
+        "title": "Title",
+        "state": "collapsed"
+      },
+      {
+        "type": "panel",
+        "name": "panel3",
+        "elements": [
+          {
+            "type": "panel",
+            "name": "panel4",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question4",
+                "isRequired": true
+              }
+            ],
+            "title": "Title",
+            "state": "collapsed"
+          }
+        ],
+        "title": "Title",
+        "state": "collapsed"
+      },
+      {
+        "type": "panel",
+        "name": "panel5",
+        "isRequired": true,
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ],
+        "title": "Title",
+        "state": "collapsed"
+      },
+    ]
+  });
+  survey.validate(true, true);
+  const panels = survey.getAllPanels();
+  assert.equal(panels[0].isCollapsed, true, "The panel should rename collapsed");
+  assert.equal(panels[1].isExpanded, true, "The panel should be expanded, it has error inside, #1");
+  assert.equal(panels[2].isExpanded, true, "The panel should be expanded, it has error inside, #2");
+  assert.equal(panels[3].isExpanded, true, "The panel should be expanded, it has error inside, #3");
+  assert.equal(panels[4].isExpanded, true, "The panel should be expanded, panel is required, #4");
 });

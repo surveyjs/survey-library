@@ -3877,7 +3877,7 @@ export class SurveyModel extends SurveyElementCore
     }
     var visPages = this.visiblePages;
     var res = true;
-    const rec = { fireCallback: fireCallback, focuseOnFirstError: focusOnFirstError, firstErrorQuestion: <any>null, result: false };
+    const rec = { fireCallback: fireCallback, focusOnFirstError: focusOnFirstError, firstErrorQuestion: <any>null, result: false };
     for (var i = 0; i < visPages.length; i++) {
       if (!visPages[i].validate(fireCallback, focusOnFirstError, rec)) {
         res = false;

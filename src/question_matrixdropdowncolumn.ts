@@ -786,6 +786,13 @@ export class MatrixDropdownColumn extends Base
           json[prop] = this.jsonObj[prop];
         });
       }
+      if(json["choicesOrder"] === "random") {
+        json["choicesOrder"] = "none";
+        const visChoices = this.templateQuestion["visibleChoices"];
+        if(Array.isArray(visChoices)) {
+          json["choices"] = visChoices;
+        }
+      }
 
       new JsonObject().toObject(json, question);
       question.isContentElement = this.templateQuestion.isContentElement;
@@ -806,8 +813,11 @@ export class MatrixDropdownColumn extends Base
       this.updateIsRenderedRequired(newValue);
     }
     if (!this.colOwner || this.isLoadingFromJson) return;
-    if (this.isShowInMultipleColumns && ["visibleChoices", "choices"].indexOf(name) > -1) {
-      this.colOwner.onShowInMultipleColumnsChanged(this);
+    if (this.isShowInMultipleColumns) {
+      if(name === "choicesOrder") return;
+      if(["visibleChoices", "choices"].indexOf(name) > -1) {
+        this.colOwner.onShowInMultipleColumnsChanged(this);
+      }
     }
     if (!Serializer.hasOriginalProperty(this, name)) return;
     this.colOwner.onColumnPropertyChanged(this, name, newValue);

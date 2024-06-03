@@ -7507,7 +7507,7 @@ QUnit.test("Questions are randomized", function (assert) {
 
 class HelpTest {
   public static randomizeArray<T>(array: Array<T>): Array<T> {
-    if (array.length < 2) return;
+    if (array.length < 2) return array;
     const el0 = array[0];
     array.splice(0, 1, array[array.length - 1]);
     array.splice(array.length - 1, 1, el0);

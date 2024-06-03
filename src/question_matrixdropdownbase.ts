@@ -385,18 +385,22 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       }
     }
     res.row = this.getAllValues();
+    this.applyRowVariablesToValues(res, this.rowIndex);
     return res;
   }
   getFilteredProperties(): any {
     return { survey: this.getSurvey(), row: this };
+  }
+  private applyRowVariablesToValues(res: any, rowIndex: number): void {
+    res[MatrixDropdownRowModelBase.IndexVariableName] = rowIndex;
+    res[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     if (!!this.data) {
       values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.value;
     }
     const rowIndex = this.rowIndex;
-    values[MatrixDropdownRowModelBase.IndexVariableName] = rowIndex;
-    values[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
+    this.applyRowVariablesToValues(values, rowIndex);
     const newProps = Helpers.createCopy(properties);
     newProps[MatrixDropdownRowModelBase.RowVariableName] = this;
     const rowValues = rowIndex > 0 ? this.data.getRowValue(this.rowIndex - 1) : this.value;
@@ -410,6 +414,15 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     if (!!this.detailPanel) {
       this.detailPanel.runCondition(values, newProps);
     }
+  }
+  public getNamesWithDefaultValues(): Array<string> {
+    const res: Array<string> = [];
+    this.questions.forEach(q => {
+      if(q.isValueDefault) {
+        res.push(q.getValueName());
+      }
+    });
+    return res;
   }
   public clearValue(keepComment?: boolean): void {
     var questions = this.questions;
@@ -1154,7 +1167,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.renderedTableValue = null;
     this.fireCallback(this.onRenderedTableResetCallback);
   }
-  protected clearGeneratedRows() {
+  protected clearGeneratedRows(): void {
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.generatedVisibleRows[i].dispose();

@@ -1858,6 +1858,9 @@ export class Question extends SurveyElement<Question>
     if (this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     this.setDefaultValue();
   }
+  public get isValueDefault(): boolean {
+    return !this.isEmpty() && (this.isTwoValueEquals(this.defaultValue, this.value) || !this.isValueChangedDirectly && !!this.defaultValueExpression);
+  }
   protected get isClearValueOnHidden(): boolean {
     const clearIf = this.getClearIfInvisible();
     if (clearIf === "none" || clearIf === "onComplete") return false;
@@ -1931,8 +1934,8 @@ export class Question extends SurveyElement<Question>
         });
       };
     }
-    if (!values) values = this.data.getFilteredValues();
-    if (!properties) properties = this.data.getFilteredProperties();
+    if (!values) values = this.defaultValueExpression ? this.data.getFilteredValues() : {};
+    if (!properties) properties = this.defaultValueExpression ? this.data.getFilteredProperties() : {};
     if (!!runner && runner.canRun) {
       runner.onRunComplete = (res) => {
         if (res == undefined) res = this.defaultValue;

@@ -1228,3 +1228,120 @@ QUnit.test("column.visibleIf", function (assert) {
   assert.equal(row1Cell2.isVisible, true, "row1Cell2.isVisible #3");
   assert.equal(row2Cell2.isVisible, true, "row2Cell2.isVisible #3");
 });
+QUnit.test("defaultValueExpression & regeneration of rows", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        defaultValue: 5
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            defaultValueExpression: "{q1}"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const question = survey.getQuestionByName("q1");
+  assert.equal(matrix.visibleRows[0].cells[0].question.value, 5, "question value #1");
+  question.value = 10;
+  const id = matrix.visibleRows[0].id;
+  assert.equal(matrix.visibleRows[0].cells[0].question.value, 10, "question value #2");
+  matrix.addColumn("col2");
+  assert.notEqual(matrix.visibleRows[0].id, id, "It is a new row");
+  question.value = 15;
+  assert.equal(matrix.visibleRows[0].cells[0].question.value, 15, "question value #3");
+});
+QUnit.test("defaultValueExpression & using rowvalue in it", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        defaultValue: 5
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            defaultValueExpression: "{q1}"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const question = survey.getQuestionByName("q1");
+  assert.equal(matrix.visibleRows[0].cells[0].question.value, 5, "question value #1");
+  question.value = 10;
+  const id = matrix.visibleRows[0].id;
+  assert.equal(matrix.visibleRows[0].cells[0].question.value, 10, "question value #2");
+  matrix.addColumn("col2");
+  assert.notEqual(matrix.visibleRows[0].id, id, "It is a new row");
+  question.value = 15;
+  assert.equal(matrix.visibleRows[0].cells[0].question.value, 15, "question value #3");
+});
+QUnit.test("defaultValueExpression & using rowvalue in it", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        defaultValue: 5
+      },
+      {
+        type: "text",
+        name: "q2",
+        defaultValue: 10
+      },
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            defaultValueExpression: "iif({rowvalue} = 'row1', {q1}, iif({rowvalue} = 'row2', {q2}))"
+          },
+          { name: "col2", cellType: "text" }
+        ],
+        rows: [
+          { value: "row1", visibleIf: "{q1} > 1" },
+          { value: "row2", visibleIf: "{q2} > 1" }]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(matrix.visibleRows[0].cells[0].question.value, 5, "cell1 value #1");
+  assert.equal(matrix.visibleRows[1].cells[0].question.value, 10, "cell1 value #1");
+  matrix.visibleRows[0].cells[1].question.value = 12;
+  q1.value = 15;
+  q2.value = 20;
+  assert.equal(matrix.visibleRows[0].cells[0].question.value, 15, "cell1 value #2");
+  assert.equal(matrix.visibleRows[1].cells[0].question.value, 20, "cell1 value #2");
+  q1.value = 0;
+  assert.equal(matrix.visibleRows.length, 1, "visible rows count #1");
+  const id = matrix.visibleRows[0].id;
+  q1.value = 30;
+  q2.value = 50;
+  assert.notEqual(matrix.visibleRows[0].id, id, "It is a new row");
+  assert.equal(matrix.visibleRows.length, 2, "visible rows count #2");
+  assert.equal(matrix.visibleRows[0].cells[1].question.value, 12, "Keep value in the standard cell");
+  assert.equal(matrix.visibleRows[0].cells[0].question.value, 30, "cell1 value #3");
+  assert.equal(matrix.visibleRows[1].cells[0].question.value, 50, "cell1 value #3");
+});

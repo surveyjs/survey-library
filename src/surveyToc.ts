@@ -88,9 +88,13 @@ export class TOCModel {
   }
 
   public updateStickyTOCSize(rootElement: HTMLElement): void {
-    if (!this.isMobile && TOCModel.StickyPosition && !!rootElement) {
-      const tocRootElement = rootElement.querySelector("." + TOCModel.RootStyle) as HTMLDivElement;
-      if (!!tocRootElement) {
+    if (!rootElement) {
+      return;
+    }
+    const tocRootElement = rootElement.querySelector("." + TOCModel.RootStyle) as HTMLDivElement;
+    if (!!tocRootElement) {
+      tocRootElement.style.height = "";
+      if (!this.isMobile && TOCModel.StickyPosition && !!rootElement) {
         const rootHeight = rootElement.getBoundingClientRect().height;
         const titleSelector = this.survey.headerView === "advanced" ? ".sv-header" : ".sv_custom_header+div div." + (this.survey.css.title || "sd-title");
         const titleElement = rootElement.querySelector(titleSelector) as HTMLDivElement;

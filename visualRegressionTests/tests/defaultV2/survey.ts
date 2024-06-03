@@ -698,19 +698,77 @@ frameworks.forEach(framework => {
       await initSurvey(framework, json);
       await takeElementScreenshot("survey-navigation-toc-left.png", Selector(".sv-components-row"), t, comparer);
 
-      await t.resizeWindow(1600, 800);
-      await ClientFunction(() => {
-        window["survey"].tocLocation = "right";
-      })();
-      await t.resizeWindow(1600, 900);
-      await takeElementScreenshot("survey-navigation-toc-right.png", Selector(".sv-components-row"), t, comparer);
-
       await t.click(".sd-item__control-label");
       await t.click(".sd-navigation__next-btn");
       await t.click(".sd-item__control-label");
       await t.click(".sd-navigation__next-btn");
       await t.click(".sd-navigation__complete-btn");
       await takeElementScreenshot("survey-completed-no-toc.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.resizeWindow(1920, 1080);
+    });
+  });
+  test("TOC survey navigation right", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 900);
+      const json = {
+        focusFirstQuestionAutomatic: true,
+        title: "Software developer survey.",
+        showTOC: true,
+        tocLocation: "right",
+        pages: [
+          {
+            "title": "What operating system do you use?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "opSystem",
+                "title": "OS",
+                "hasOther": true,
+                "isRequired": true,
+                "choices": ["Windows", "Linux", "Macintosh OSX"]
+              }
+            ]
+          }, {
+            "title": "What language(s) are you currently using?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "langs",
+                "title": "Please select from the list",
+                "isRequired": true,
+                "choices": [
+                  "Javascript",
+                  "Java",
+                  "Python",
+                  "CSS",
+                  "PHP",
+                  "Ruby",
+                  "C++",
+                  "C",
+                  "Shell",
+                  "C#",
+                ]
+              }
+            ]
+          }, {
+            "title": "Please enter your name and e-mail",
+            "elements": [
+              {
+                "type": "text",
+                "name": "name",
+                "title": "Name:"
+              }, {
+                "type": "text",
+                "name": "email",
+                "title": "Your e-mail"
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-navigation-toc-right.png", Selector(".sv-components-row"), t, comparer);
 
       await t.resizeWindow(1920, 1080);
     });

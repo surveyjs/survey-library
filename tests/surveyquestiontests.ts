@@ -7781,3 +7781,37 @@ QUnit.test("QuestionImagePickerModel.needResponsiveWidth", function (assert) {
   q.colCount = 3;
   assert.equal(q.needResponsiveWidth(), true, "Responsive in auto mode for several columns");
 });
+QUnit.test("question.isDefaultValue", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { name: "q1", type: "text", defaultValue: 1 },
+      { name: "q2", type: "text", defaultValueExpression: "1 + 1" },
+      { name: "q3", type: "text", defaultValueExpression: "{q1} + {q2}" },
+      { name: "q4", type: "text" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  assert.equal(q1.value, 1, "q1 value is 1");
+  assert.equal(q1.isValueDefault, true, "q1 #1");
+  assert.equal(q2.isValueDefault, true, "q2 #1");
+  assert.equal(q3.isValueDefault, true, "q3 #1");
+  assert.equal(q4.isValueDefault, false, "q4 #1");
+  q1.value = "";
+  assert.equal(q1.isValueDefault, false, "q1 #2");
+  assert.equal(q2.isValueDefault, true, "q2 #2");
+  assert.equal(q3.isValueDefault, true, "q3 #2");
+  assert.equal(q4.isValueDefault, false, "q4 #2");
+  q2.value = 4;
+  assert.equal(q1.isValueDefault, false, "q1 #3");
+  assert.equal(q2.isValueDefault, false, "q2 #3");
+  assert.equal(q3.isValueDefault, true, "q3 #3");
+  assert.equal(q4.isValueDefault, false, "q4 #3");
+  q3.value = 10;
+  assert.equal(q1.isValueDefault, false, "q1 #4");
+  assert.equal(q2.isValueDefault, false, "q2 #4");
+  assert.equal(q3.isValueDefault, false, "q3 #4");
+  assert.equal(q4.isValueDefault, false, "q4 #4");
+});

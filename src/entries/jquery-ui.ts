@@ -22,27 +22,27 @@ jQuery["fn"].extend({
 function doPopupSurvey(props: any): void {
   return this.each(function () {
     var model: Survey = props.model;
-    const survey = React.createElement(Survey, { ...props });
+    const survey = React.createElement(PopupSurvey, { ...props });
     ReactDOM.render(survey, this);
 
-    var popupSurvey = props.popupModel || new PopupSurvey(model);
+    // var popupSurvey = props.popupModel || new PopupSurvey(model);
 
-    if (props.expanded !== undefined) {
-      popupSurvey.isExpanded = props.expanded;
-    }
-    if (props.isExpanded !== undefined) {
-      popupSurvey.isExpanded = props.isExpanded;
-    }
-    if (props.allowClose !== undefined) {
-      popupSurvey.allowClose = props.allowClose;
-    }
-    if (props.allowFullScreen !== undefined) {
-      popupSurvey.allowFullScreen = props.allowFullScreen;
-    }
-    if (props.closeOnCompleteTimeout !== undefined) {
-      popupSurvey.closeOnCompleteTimeout = props.closeOnCompleteTimeout;
-    }
-    popupSurvey.show();
+    // if (props.expanded !== undefined) {
+    //   popupSurvey.isExpanded = props.expanded;
+    // }
+    // if (props.isExpanded !== undefined) {
+    //   popupSurvey.isExpanded = props.isExpanded;
+    // }
+    // if (props.allowClose !== undefined) {
+    //   popupSurvey.allowClose = props.allowClose;
+    // }
+    // if (props.allowFullScreen !== undefined) {
+    //   popupSurvey.allowFullScreen = props.allowFullScreen;
+    // }
+    // if (props.closeOnCompleteTimeout !== undefined) {
+    //   popupSurvey.closeOnCompleteTimeout = props.closeOnCompleteTimeout;
+    // }
+    // popupSurvey.show();
   });
 }
 

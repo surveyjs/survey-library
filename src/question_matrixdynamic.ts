@@ -6,8 +6,6 @@ import {
   MatrixDropdownRowModelBase,
   IMatrixDropdownData
 } from "./question_matrixdropdownbase";
-import { surveyLocalization } from "./surveyStrings";
-import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
 import { IAction } from "./actions/action";
@@ -17,9 +15,7 @@ import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
-import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
-import { Helpers } from "./helpers";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   private dragOrClickHelper: DragOrClickHelper;

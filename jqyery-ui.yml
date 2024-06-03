@@ -71,6 +71,6 @@ jobs:
     #   displayName: "run markup tests"
 
     - script: |
-        npm run testcafe:jquery-ui
+        npm run testcafe:jquery-ui:ci
       displayName: "run functional tests"
 

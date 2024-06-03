@@ -96,7 +96,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
         if (action.items) {
           action.items.forEach(item => {
             const a = new Action(item);
-            a.iconName = action.iconName;
+            if (!a.iconName) { a.iconName = action.iconName; }
             newActions.push(a as IAction as T);
           });
         }

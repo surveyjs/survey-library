@@ -88,7 +88,7 @@ export class TOCModel {
   }
 
   public updateStickyTOCSize(rootElement: HTMLElement): void {
-    if (TOCModel.StickyPosition && !!rootElement) {
+    if (!this.isMobile && TOCModel.StickyPosition && !!rootElement) {
       const tocRootElement = rootElement.querySelector("." + TOCModel.RootStyle) as HTMLDivElement;
       if (!!tocRootElement) {
         const rootHeight = rootElement.getBoundingClientRect().height;

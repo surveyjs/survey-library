@@ -698,9 +698,11 @@ frameworks.forEach(framework => {
       await initSurvey(framework, json);
       await takeElementScreenshot("survey-navigation-toc-left.png", Selector(".sv-components-row"), t, comparer);
 
+      await t.resizeWindow(1600, 800);
       await ClientFunction(() => {
         window["survey"].tocLocation = "right";
       })();
+      await t.resizeWindow(1600, 900);
       await takeElementScreenshot("survey-navigation-toc-right.png", Selector(".sv-components-row"), t, comparer);
 
       await t.click(".sd-item__control-label");

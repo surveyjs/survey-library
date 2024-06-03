@@ -8,6 +8,7 @@
       :key="question.inputId + '_' + index"
       v-show="val && question.isPreviewVisible(index)"
       :class="question.cssClasses.previewItem"
+      @click="question.doDownloadFileFromContainer($event)"
     >
       <div
         v-if="val.name && question.cssClasses.fileSign"
@@ -41,7 +42,7 @@
         <div
           v-if="val.name && !question.isReadOnly"
           :class="question.getRemoveButtonCss()"
-          @click="question.doRemoveFile(val)"
+          @click="question.doRemoveFile(val, $event)"
         >
           <span :class="question.cssClasses.removeFile">{{
             question.removeFileCaption

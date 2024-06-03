@@ -55,10 +55,14 @@ class QuestionFileImplementor extends QuestionImplementor {
       this.question.doClean(getOriginalEvent(event));
     });
     this.setCallbackFunc("doremovefile", (data: any, event: any) => {
-      this.question.doRemoveFile(data);
+      this.question.doRemoveFile(data, event);
     });
     this.setCallbackFunc("dodownload", (data: any, event: any) => {
       this.question.doDownloadFile(getOriginalEvent(event), data);
+      return true;
+    });
+    this.setCallbackFunc("dodownloadFromContainer", (data: any, event: any) => {
+      this.question.doDownloadFileFromContainer(getOriginalEvent(event), data);
       return true;
     });
   }

@@ -75,12 +75,12 @@
   z-index: 2;
 }
 
-.sd-boolean--checked .sd-boolean__thumb {
+.sd-boolean--checked:not(.sd-boolean--exchanged) .sd-boolean__thumb {
   margin-left: 50%;
 }
 
 .sd-boolean--exchanged {
-  .sd-boolean__thumb {
+  &:not(.sd-boolean--checked) .sd-boolean__thumb {
     margin-left: calc(50% + calcSize(0.5));
   }
 

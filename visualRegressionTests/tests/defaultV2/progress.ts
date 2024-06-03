@@ -359,4 +359,19 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-progress-bar-top-rtl.png", Selector(".sd-container-modern"), t, comparer); // title + progress
     });
   });
+
+  test("Check survey with progress and bootstrap", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await ClientFunction(() => {
+        document.head.insertAdjacentHTML("beforeend", "<style>* { box-sizing: border-box; }</style>");
+      })();
+      await t.resizeWindow(800, 1080);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await takeElementScreenshot("survey-progress-bar-bootstrap.png", Selector(".sd-progress-buttons__list"), t, comparer); // title + progress
+    });
+  });
 });

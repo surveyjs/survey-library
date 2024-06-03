@@ -340,7 +340,7 @@ QUnit.test("Run age function, Bug#2562", function(assert) {
   assert.equal(runner.run(values), 79, "one day till 80");
 });
 QUnit.test("Run dateDiff by years function", function(assert) {
-  const runner = new ExpressionRunner("dateDiff({birthday}, {currentDate})");
+  const runner = new ExpressionRunner("dateDiff({birthday}, {currentDate}, 'years')");
   const values = { birthday: new Date(1974, 10, 10), currentDate: new Date(2014, 11, 11) };
   assert.equal(runner.run(values), 40, "Use the second parameter");
 });
@@ -362,7 +362,7 @@ QUnit.test("Run dateDiff by months", function(assert) {
   assert.equal(runner.run(values), 2 * 12, "Use the second parameter, #2");
 });
 QUnit.test("Run dateDiff by days", function(assert) {
-  var runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'days')");
+  var runner = new ExpressionRunner("dateDiff({d1}, {d2})");
   var d1 = new Date("2021-01-01");
   var d2 = new Date("2021-02-02");
   const values = { d1: d1, d2: d2 };

@@ -249,13 +249,13 @@ function dateDiffMonths(date1Param: any, date2Param: any, type: string): number 
 }
 function age(params: any[]): number {
   if(!Array.isArray(params) || params.length < 1 || !params[0]) return null;
-  return dateDiffMonths(params[0], undefined, params.length > 1 ? params[1] : "");
+  return dateDiffMonths(params[0], undefined, (params.length > 1 ? params[1] : "") || "years");
 }
 FunctionFactory.Instance.register("age", age);
 
 function dateDiff(params: any[]): any {
   if(!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
-  return dateDiffMonths(params[0], params[1], params.length > 2 ? params[2] : "");
+  return dateDiffMonths(params[0], params[1], (params.length > 2 ? params[2] : "") || "days");
 }
 FunctionFactory.Instance.register("dateDiff", dateDiff);
 

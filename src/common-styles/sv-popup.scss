@@ -215,6 +215,7 @@ sv-popup {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  position: relative;
 }
 
 .sv-popup--show-pointer.sv-popup--top {

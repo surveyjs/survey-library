@@ -339,7 +339,37 @@ QUnit.test("Run age function, Bug#2562", function(assert) {
   values.birthday = date;
   assert.equal(runner.run(values), 79, "one day till 80");
 });
-
+QUnit.test("Run dateDiff by years function", function(assert) {
+  const runner = new ExpressionRunner("dateDiff({birthday}, {currentDate})");
+  const values = { birthday: new Date(1974, 10, 10), currentDate: new Date(2014, 11, 11) };
+  assert.equal(runner.run(values), 40, "Use the second parameter");
+});
+QUnit.test("Run age by months function", function(assert) {
+  const runner = new ExpressionRunner("age({birthday}, 'months')");
+  var date = new Date(Date.now());
+  date.setFullYear(date.getFullYear() - 10);
+  const values = { birthday: date };
+  assert.equal(runner.run(values), 10 * 12, "10 years old, bithday is today");
+  date = new Date(date.getTime() + 60 * 60 * 24 * 1000);
+  values.birthday = date;
+  assert.equal(runner.run(values), 9 * 12 + 11, "9 years + 11 months");
+});
+QUnit.test("Run dateDiff by months", function(assert) {
+  const runner = new ExpressionRunner("dateDiff({birthday}, {currentDate}, 'months')");
+  const values = { birthday: new Date(2012, 10, 10), currentDate: new Date(2014, 11, 11) };
+  assert.equal(runner.run(values), 2 * 12 + 1, "Use the second parameter, #1");
+  values.currentDate = new Date(2014, 11, 9);
+  assert.equal(runner.run(values), 2 * 12, "Use the second parameter, #2");
+});
+QUnit.test("Run dateDiff by days", function(assert) {
+  var runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'days')");
+  var d1 = new Date("2021-01-01");
+  var d2 = new Date("2021-02-02");
+  const values = { d1: d1, d2: d2 };
+  assert.equal(runner.run(values), 32, "32 days");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.run(values), null, "a value is undefined");
+});
 QUnit.test("Run getYear() function", function(assert) {
   var runner = new ExpressionRunner("getYear({birthday})");
   var values = { birthday: new Date(1974, 1, 1) };

@@ -1,5 +1,5 @@
 import { ClientFunction, fixture, Selector, test } from "testcafe";
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, urlV2, applyTheme } from "../helper";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
 const title = "imagepicker";
@@ -102,5 +102,46 @@ frameworks.forEach((framework) => {
     assert.equal(questionValue, undefined);
     json = JSON.parse(await getQuestionJson());
     assert.equal(json.title, newTitle);
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
+    async (ctx) => {
+      const json = {
+        questions: [
+          {
+            "type": "imagepicker",
+            "name": "imagepicker",
+            "titleLocation": "hidden",
+            "choices": [
+              {
+                "value": "lion",
+                "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+                "text": "Lion"
+              },
+              {
+                "value": "giraffe",
+                "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg",
+                "text": "Giraffe"
+              }
+            ],
+            "readOnly": true,
+            "defaultValue": "lion"
+          }
+        ]
+      };
+      await applyTheme("defaultV2");
+      await initSurvey(framework, json);
+    }
+  );
+
+  test("readonly:keyboard disabled", async (t) => {
+    await t.pressKey("tab").pressKey("right");
+    const getValue = ClientFunction(()=>{
+      return window["survey"].getAllQuestions()[0].value;
+    });
+    const value = await getValue();
+    await t.expect(value).eql("lion", "value doesn't change");
   });
 });

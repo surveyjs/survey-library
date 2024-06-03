@@ -14,6 +14,7 @@ export class ImagePickerItemComponent extends BaseAngular<ImageItemValue> implem
     return this.model;
   }
   onChange(event: any) {
+    if (this.question.isReadOnlyAttr) return;
     if (this.question.multiSelect) {
       if (event.target.checked) {
         this.question.value = this.question.value.concat(event.target.value);

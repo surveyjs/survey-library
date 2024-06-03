@@ -587,4 +587,13 @@ frameworks.forEach((framework) => {
     await t.expect(input.checked).eql(false);
     await t.expect(Selector("input[value=BMW]").checked).eql(true);
   });
+
+  test("readonly:keyboard disabled", async (t) => {
+    await t.pressKey("tab").pressKey("down");
+    const getValue = ClientFunction(()=>{
+      return window["survey"].getAllQuestions()[0].value;
+    });
+    const value = await getValue();
+    await t.expect(value).eql("BMW", "value doesn't change");
+  });
 });

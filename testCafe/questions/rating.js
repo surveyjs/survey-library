@@ -310,4 +310,13 @@ frameworks.forEach((framework) => {
     await t.expect(label1.hasClass("sd-rating__item--selected")).eql(false);
     await t.expect(label3.hasClass("sd-rating__item--selected")).eql(true);
   });
+
+  test("readonly:keyboard disabled", async (t) => {
+    await t.pressKey("tab").pressKey("right");
+    const getValue = ClientFunction(()=>{
+      return window["survey"].getAllQuestions()[0].value;
+    });
+    const value = await getValue();
+    await t.expect(value).eql(3, "value doesn't change");
+  });
 });

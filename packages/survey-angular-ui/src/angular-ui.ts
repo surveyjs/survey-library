@@ -85,6 +85,7 @@ export * from "./errors.component";
 export * from "./utils/dynamic.directive";
 export * from "./questions/ranking.component";
 export * from "./questions/ranking-item.component";
+export * from "./questions/ranking-item-content.component";
 export * from "./survey-string.component";
 export * from "./string-editor.component";
 export * from "./components/paneldynamic-actions/paneldynamic-add-btn.component";

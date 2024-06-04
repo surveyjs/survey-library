@@ -24,9 +24,8 @@
           <use [attr.xlink:href]="question.dashSvgIcon"></use>
         </svg> 
       </div></ng-template>
-      <div [class]="question.cssClasses.controlLabel">
-        <sv-ng-string [model]="model.locText"></sv-ng-string>
-      </div>
+
+      <ng-template [component]="{ name: question.itemContentComponent, data: { item: model, cssClasses: question.cssClasses } }"></ng-template>
     </div>
   </div>
 </div>

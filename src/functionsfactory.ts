@@ -235,21 +235,29 @@ function getDate(params: any[]): any {
 }
 FunctionFactory.Instance.register("getDate", getDate);
 
-function age(params: any[]): any {
-  if (!params && params.length < 1) return null;
-  if (!params[0]) return null;
-  const birthDate = new Date(params[0]);
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  if(age > 0) {
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age -= 1;
-    }
+function dateDiffMonths(date1Param: any, date2Param: any, type: string): number {
+  if(type === "days") return diffDays([date1Param, date2Param]);
+  const date1 = !!date1Param ? new Date(date1Param) : new Date();
+  const date2 = !!date2Param ? new Date(date2Param) : new Date();
+  const age = date2.getFullYear() - date1.getFullYear();
+  type = type || "years";
+  let ageInMonths = age * 12 + date2.getMonth() - date1.getMonth();
+  if (date2.getDate() < date1.getDate()) {
+    ageInMonths -= 1;
   }
-  return age;
+  return type === "months" ? ageInMonths : ~~(ageInMonths / 12);
+}
+function age(params: any[]): number {
+  if(!Array.isArray(params) || params.length < 1 || !params[0]) return null;
+  return dateDiffMonths(params[0], undefined, (params.length > 1 ? params[1] : "") || "years");
 }
 FunctionFactory.Instance.register("age", age);
+
+function dateDiff(params: any[]): any {
+  if(!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
+  return dateDiffMonths(params[0], params[1], (params.length > 2 ? params[2] : "") || "days");
+}
+FunctionFactory.Instance.register("dateDiff", dateDiff);
 
 function isContainerReadyCore(container: any): boolean {
   if (!container) return false;

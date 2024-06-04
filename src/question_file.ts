@@ -1065,7 +1065,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     event.stopPropagation();
     const currentTarget = event.currentTarget as HTMLElement;
     if(currentTarget && currentTarget.getElementsByTagName) {
-      currentTarget.getElementsByTagName("a")[0].click();
+      const link = currentTarget.getElementsByTagName("a")[0];
+      link?.click();
     }
   }
   doDownloadFile = (event: any, data: any) => {

@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getData, setData } from "../helper";
+import { frameworks, url, initSurvey, getData, setData, urlV2, applyTheme } from "../helper";
 import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "ranking";
 
@@ -337,5 +337,34 @@ frameworks.forEach((framework) => {
       rankingQ.selectToRankEnabled = false;
     });
     await setSelectToRankDisabled();
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
+    async (ctx) => {
+      const json = {
+        questions: [
+          {
+            "type": "ranking",
+            "name": "ranking",
+            "choices": ["Ford", "BMW"],
+            "readOnly": true,
+            "defaultValue": ["BMW", "Ford"]
+          },
+        ]
+      };
+      await applyTheme("defaultV2");
+      await initSurvey(framework, json);
+    }
+  );
+
+  test("readonly:keyboard disabled", async (t) => {
+    await t.pressKey("tab").pressKey("down");
+    const getValue = ClientFunction(()=>{
+      return window["survey"].getAllQuestions()[0].value;
+    });
+    const value = await getValue();
+    await t.expect(value).eql(["BMW", "Ford"]);
   });
 });

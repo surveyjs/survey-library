@@ -7,7 +7,7 @@
           :name="question.questionName"
           :value="item.value"
           :id="question.getItemId(item)"
-          v-model="question.value"
+          v-model="value"
           :disabled="!question.getItemEnabled(item)"
           :readonly="question.isReadOnlyAttr"
           v-bind:aria-required="question.ariaRequired"
@@ -22,7 +22,7 @@
           :name="question.questionName"
           :value="item.value"
           :id="question.getItemId(item)"
-          v-model="question.value"
+          v-model="value"
           :disabled="!question.getItemEnabled(item)"
           :readonly="question.isReadOnlyAttr"
           v-bind:aria-required="question.ariaRequired"
@@ -92,6 +92,14 @@ export class ImagePickerItem extends QuestionVue<QuestionImagePickerModel> {
   }
   getModel() {
     return this.item;
+  }
+  get value() {
+    return this.question.value;
+  }
+  set value(value) {
+    const question = this.question;
+    if (question.isReadOnlyAttr) return;
+    question.value = value;
   }
 }
 Vue.component("survey-imagepicker-item", ImagePickerItem);

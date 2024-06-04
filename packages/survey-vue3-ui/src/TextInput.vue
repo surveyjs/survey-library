@@ -2,7 +2,8 @@
   <input
     v-if="!question.getMaxLength()"
     :ref="(el)=>getRef(el as HTMLElement)"
-    :disabled="question.isInputReadOnly"
+    :disabled="question.isDisabledAttr"
+    :readonly="question.isReadOnlyAttr"
     :class="question.getControlClass()"
     :type="question.inputType"
     :maxlength="question.getMaxLength()"
@@ -31,7 +32,8 @@
   />
   <div v-else :ref="(el)=>getRef(el as HTMLElement)">
     <input
-      :disabled="question.isInputReadOnly"
+      :disabled="question.isDisabledAttr"
+      :readonly="question.isReadOnlyAttr"
       :class="question.getControlClass()"
       :type="question.inputType"
       :maxlength="question.getMaxLength()"

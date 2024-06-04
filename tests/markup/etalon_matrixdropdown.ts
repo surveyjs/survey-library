@@ -1,5 +1,5 @@
 import { registerMarkupTests } from "./helper";
-import { StylesManager } from "survey-core";
+import { StylesManager, settings } from "survey-core";
 
 registerMarkupTests(
   [
@@ -25,6 +25,52 @@ registerMarkupTests(
       before: () => StylesManager.applyTheme("defaultV2"),
       after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdropdown"
+    },
+    {
+      name: "Test matrixdropdown readonly",
+      json: {
+        elements: [
+          {
+            titleLocation: "hidden",
+            readOnly: true,
+            cellType: "text",
+            "type": "matrixdropdown",
+            "name": "m",
+            "columns": ["Col 1", "Col 2"],
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }
+        ]
+      },
+
+      before: () => StylesManager.applyTheme("defaultV2"),
+      after: () => StylesManager.applyTheme("default"),
+      snapshot: "matrixdropdown-readonly"
+    },
+    {
+      name: "Test matrixdropdown disabled",
+      json: {
+        elements: [
+          {
+            titleLocation: "hidden",
+            cellType: "text",
+            "type": "matrixdropdown",
+            "name": "m",
+            "columns": ["Col 1", "Col 2"],
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }
+        ]
+      }
+      ,
+      initSurvey: (survey) => survey.setDesignMode(true),
+      before: () => { settings.supportCreatorV2 = true; StylesManager.applyTheme("defaultV2"); },
+      after: () => { settings.supportCreatorV2 = false; StylesManager.applyTheme("default"); },
+      snapshot: "matrixdropdown-disabled"
     },
     {
       name: "Test matrixdropdown vertical",

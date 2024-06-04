@@ -584,6 +584,7 @@ export class QuestionSelectBase extends Question {
     return this.getPropertyValue("renderedValue", null);
   }
   public set renderedValue(val: any) {
+    if (this.isReadOnlyAttr) return;
     this.setPropertyValue("renderedValue", val);
     var val = this.rendredValueToData(val);
     if (!this.isTwoValueEquals(val, this.value)) {
@@ -1885,7 +1886,7 @@ export class QuestionSelectBase extends Question {
     return this.name + "_" + this.id;
   }
   public getItemEnabled(item: ItemValue) {
-    return !this.isInputReadOnly && item.isEnabled;
+    return !this.isDisabledAttr && item.isEnabled;
   }
   protected rootElement: HTMLElement;
   public afterRender(el: HTMLElement) {

@@ -34,6 +34,24 @@ registerMarkupTests(
     snapshot: "comment-readonly",
   },
   {
+    name: "Test Comment question disabled markup",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "comment",
+          title: "Question title",
+          placeholder: "placeholder text",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    initSurvey: (survey) => { survey.setDesignMode(true); },
+    before: () => { settings.supportCreatorV2 = true; },
+    after: () => { settings.supportCreatorV2 = false; },
+    snapshot: "comment-disabled"
+  },
+  {
     name: "Test Comment question Read-only DIV markup",
     json: {
       mode: "display",

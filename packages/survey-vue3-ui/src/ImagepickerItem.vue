@@ -7,8 +7,9 @@
         :name="question.questionName"
         :value="item.value"
         :id="question.getItemId(item)"
-        v-model="question.value"
+        v-model="value"
         :disabled="!question.getItemEnabled(item)"
+        :readonly="question.isReadOnlyAttr"
         v-bind:aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
@@ -21,8 +22,9 @@
         :name="question.questionName"
         :value="item.value"
         :id="question.getItemId(item)"
-        v-model="question.value"
+        v-model="value"
         :disabled="!question.getItemEnabled(item)"
+        :readonly="question.isReadOnlyAttr"
         v-bind:aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
@@ -114,6 +116,7 @@
 <script lang="ts" setup>
 import type { ImageItemValue, QuestionImagePickerModel } from "survey-core";
 import { useBase, useLocString } from "./base";
+import { computed } from "vue";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{
   question: QuestionImagePickerModel;
@@ -122,6 +125,16 @@ const props = defineProps<{
 const getItemClass = (item: any) => {
   return props.question.getItemClass(item);
 };
+const value = computed({
+  get() {
+    return props.question.value;
+  },
+  set(value) {
+    const question = props.question;
+    if (question.isReadOnlyAttr) return;
+    question.value = value;
+  },
+});
 useBase(() => props.item);
 const imageLink = useLocString(() => props.item.locImageLink);
 </script>

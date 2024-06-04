@@ -103,6 +103,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
   }
 
   handleOnChange(event: any) {
+    if (this.question.isReadOnlyAttr) return;
     if (this.question.multiSelect) {
       if (event.target.checked) {
         this.question.value = this.question.value.concat(event.target.value);
@@ -199,6 +200,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
             checked={isChecked}
             value={item.value}
             disabled={!this.question.getItemEnabled(item)}
+            readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
             aria-required={this.question.ariaRequired}
             aria-label={this.question.ariaLabel}

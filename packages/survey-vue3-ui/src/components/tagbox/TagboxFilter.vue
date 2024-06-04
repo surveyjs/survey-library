@@ -19,7 +19,7 @@
         v-model="model.inputStringRendered"
         :class="question.cssClasses.filterStringInput"
         :placeholder="model.filterStringPlaceholder"
-        :disabled="question.isInputReadOnly"
+        :disabled="question.isDisabledAttr"
         :inputmode="model.inputMode"
         :role="model.filterStringEnabled ? question.ariaRole : undefined"
         :aria-expanded="

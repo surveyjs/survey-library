@@ -72,6 +72,7 @@ export class QuestionImplementor extends ImplementorBase {
     return this.question.value;
   }
   protected setKoValue(val: any) {
+    if (this.question.isReadOnlyAttr) return;
     this.question.value = val;
   }
   protected onSurveyLoad() {}

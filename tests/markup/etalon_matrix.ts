@@ -1,5 +1,5 @@
 import { registerMarkupTests } from "./helper";
-import { StylesManager } from "survey-core";
+import { StylesManager, settings } from "survey-core";
 
 registerMarkupTests(
   [
@@ -61,6 +61,68 @@ registerMarkupTests(
       before: () => StylesManager.applyTheme("defaultV2"),
       after: () => StylesManager.applyTheme("default"),
       snapshot: "matrix-v2",
+      excludePlatform: "Vue"
+    },
+    {
+      name: "Test matrix question markup readonly",
+      json: {
+        "elements": [
+          {
+            "type": "matrix",
+            "name": "matrix",
+            "titleLocation": "hidden",
+            readOnly: true,
+            "columns": [
+              {
+                "value": "col_1",
+              }, {
+                "value": "col_2",
+              },
+            ],
+            "rows": [
+              {
+                "value": "row_1",
+              }, {
+                "value": "row_2",
+              },
+            ]
+          }
+        ]
+      },
+      before: () => StylesManager.applyTheme("defaultV2"),
+      after: () => StylesManager.applyTheme("default"),
+      snapshot: "matrix-v2-readonly",
+      excludePlatform: "Vue"
+    },
+    {
+      name: "Test matrix question disabled",
+      json: {
+        "elements": [
+          {
+            "type": "matrix",
+            "name": "matrix",
+            "titleLocation": "hidden",
+            "columns": [
+              {
+                "value": "col_1",
+              }, {
+                "value": "col_2",
+              },
+            ],
+            "rows": [
+              {
+                "value": "row_1",
+              }, {
+                "value": "row_2",
+              },
+            ]
+          }
+        ]
+      },
+      initSurvey: (survey) => survey.setDesignMode(true),
+      before: () => { settings.supportCreatorV2 = true; StylesManager.applyTheme("defaultV2"); },
+      after: () => { settings.supportCreatorV2 = false; StylesManager.applyTheme("default"); },
+      snapshot: "matrix-v2-disabled",
       excludePlatform: "Vue"
     },
     {

@@ -239,6 +239,7 @@ export var defaultV2Css = {
     disabled: "sd-question--disabled",
     readOnly: "sd-question--readonly",
     preview: "sd-question--preview",
+    noPointerEventsMode: "sd-question--no-pointer-events",
     errorsContainer: "sd-element__erbox sd-question__erbox",
     errorsContainerTop: "sd-element__erbox--above-element sd-question__erbox--above-question",
     errorsContainerBottom: "sd-question__erbox--below-question"

@@ -219,6 +219,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             id={id}
             style={this.inputStyle}
             disabled={!this.question.getItemEnabled(this.item)}
+            readOnly={this.question.isReadOnlyAttr}
             checked={isChecked}
             onChange={this.handleOnChange}
           />

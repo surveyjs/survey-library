@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, urlV2, applyTheme } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -279,5 +279,44 @@ frameworks.forEach((framework) => {
         }
       });
     });
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
+    async (ctx) => {
+      const json = {
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            readOnly: true,
+            defaultValue: "3",
+            title: "How satisfied are you with the Product?",
+            mininumRateDescription: "Not Satisfied",
+            maximumRateDescription: "Completely satisfied"
+          }
+        ]
+      };
+      await applyTheme("defaultV2");
+      await initSurvey(framework, json);
+    }
+  );
+
+  test("readonly", async (t) => {
+    const label1 = Selector("label").withText("1");
+    const label3 = Selector("label").withText("3");
+    await t.click(label1);
+    await t.expect(label1.hasClass("sd-rating__item--selected")).eql(false);
+    await t.expect(label3.hasClass("sd-rating__item--selected")).eql(true);
+  });
+
+  test("readonly:keyboard disabled", async (t) => {
+    await t.pressKey("tab").pressKey("right");
+    const getValue = ClientFunction(()=>{
+      return window["survey"].getAllQuestions()[0].value;
+    });
+    const value = await getValue();
+    await t.expect(value).eql(3, "value doesn't change");
   });
 });

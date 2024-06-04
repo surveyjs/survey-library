@@ -29,7 +29,8 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               }
               id={this.question.inputId}
               className={cssClasses.controlCheckbox}
-              disabled={this.isDisplayMode}
+              disabled={this.question.isDisabledAttr}
+              readOnly={this.question.isReadOnlyAttr}
               checked={this.question.booleanValue || false}
               onChange={this.handleOnChange}
               aria-required={this.question.ariaRequired}

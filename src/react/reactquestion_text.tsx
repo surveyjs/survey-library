@@ -24,7 +24,9 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
       <>
         <input
           id={this.question.inputId}
-          disabled={this.isDisplayMode}
+          // disabled={this.isDisplayMode}
+          disabled={this.question.isDisabledAttr}
+          readOnly={this.question.isReadOnlyAttr}
           className={inputClass}
           type={this.question.inputType}
           //ref={this.controlRef}

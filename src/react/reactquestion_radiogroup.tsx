@@ -209,6 +209,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             checked={this.isChecked}
             value={this.item.value}
             disabled={!this.question.getItemEnabled(this.item)}
+            readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
           />
           {

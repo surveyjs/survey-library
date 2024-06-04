@@ -4,7 +4,7 @@
       v-if="!question.isReadOnly"
       :id="question.inputId"
       :tabindex="model.noTabIndex ? undefined : 0"
-      v-bind:disabled="question.isInputReadOnly"
+      v-bind:disabled="question.isDisabledAttr"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
@@ -44,7 +44,12 @@
       </div>
     </div>
     <sv-popup v-if="!question.isReadOnly" :model="model.popupModel"></sv-popup>
-    <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
+    <div v-else :id="question.inputId"
+      :aria-label="question.a11y_input_ariaLabel"
+      :aria-labelledby="question.a11y_input_ariaLabelledBy"
+      :aria-describedby="question.a11y_input_ariaDescribedBy"
+      :tabindex="model.isDisabledAttr ? undefined : 0"
+      :class="question.getControlClass()">
       <survey-string
         v-if="question.locReadOnlyText"
         :locString="question.locReadOnlyText"

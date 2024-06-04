@@ -610,6 +610,7 @@ export class QuestionRatingModel extends Question {
     return !isNaN(val) ? parseFloat(val) : val;
   }
   public setValueFromClick(value: any) {
+    if (this.isReadOnlyAttr) return;
     if (this.value === parseFloat(value)) {
       this.clearValue(true);
     } else {

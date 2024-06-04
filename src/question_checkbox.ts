@@ -158,6 +158,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.renderedValue = val;
   }
   public clickItemHandler(item: ItemValue, checked?: boolean): void {
+    if (this.isReadOnlyAttr) return;
     if(item === this.selectAllItem) {
       if(checked === true || checked === false) {
         this.isAllSelected = checked;

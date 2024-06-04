@@ -1,6 +1,7 @@
   <template>
     <input v-if="!question.getMaxLength()"
-    :disabled="question.isInputReadOnly"
+    :disabled="question.isDisabledAttr"
+    :readonly="question.isReadOnlyAttr"
     :class="question.getControlClass()"
     :type="question.inputType"
     :maxlength="question.getMaxLength()"
@@ -29,7 +30,8 @@
   />
     <div v-else>
       <input
-        :disabled="question.isInputReadOnly"
+        :disabled="question.isDisabledAttr"
+        :readonly="question.isReadOnlyAttr"
         :class="question.getControlClass()"
         :type="question.inputType"
         :maxlength="question.getMaxLength()"

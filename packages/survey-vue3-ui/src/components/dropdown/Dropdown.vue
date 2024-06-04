@@ -3,7 +3,7 @@
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
-      :disabled="question.isInputReadOnly ? true : null"
+      :disabled="question.isDisabledAttr ? true : null"
       :tabindex="model.noTabIndex ? undefined : 0"
       @keydown="keyhandler"
       @blur="blur"
@@ -51,7 +51,7 @@
           type="text"
           ref="inputElement"
           v-bind:class="question.cssClasses.filterStringInput"
-          v-bind:disabled="question.isInputReadOnly"
+          v-bind:disabled="question.isDisabledAttr"
           autocomplete="off"
           :inputmode="model.inputMode"
           :role="model.filterStringEnabled ? question.ariaRole : undefined"
@@ -95,9 +95,12 @@
       :model="question.dropdownListModel.popupModel"
     ></sv-popup>
     <div
-      disabled
       v-else
       :id="question.inputId"
+      :aria-label="question.a11y_input_ariaLabel"
+      :aria-labelledby="question.a11y_input_ariaLabelledBy"
+      :aria-describedby="question.a11y_input_ariaDescribedBy"
+      :tabindex="question.isDisabledAttr ? undefined : 0"
       :class="question.getControlClass()"
     >
       <survey-string

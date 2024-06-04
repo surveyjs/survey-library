@@ -2,8 +2,8 @@
   <textarea
     ref="root"
     v-if="!question.isReadOnlyRenderDiv() && !question.getMaxLength()"
-    :readonly="question.isInputReadOnly"
-    :disabled="question.isInputReadOnly"
+    :readonly="question.isReadOnlyAttr"
+    :disabled="question.isDisabledAttr"
     :value="question.value"
     :id="question.inputId"
     :maxlength="question.getMaxLength()"
@@ -35,8 +35,8 @@
     v-else-if="!question.isReadOnlyRenderDiv() && question.getMaxLength()"
   >
     <textarea
-      :readonly="question.isInputReadOnly"
-      :disabled="question.isInputReadOnly"
+      :readonly="question.isReadOnlyAttr"
+      :disabled="question.isDisabledAttr"
       :value="question.value"
       :id="question.inputId"
       :maxlength="question.getMaxLength()"

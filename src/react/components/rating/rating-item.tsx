@@ -44,7 +44,8 @@ export class RatingItem extends RatingItemBase {
           name={this.question.questionName}
           id={this.question.getInputId(this.index)}
           value={this.item.value}
-          disabled={this.isDisplayMode}
+          disabled={this.question.isDisabledAttr}
+          readOnly={this.question.isReadOnlyAttr}
           checked={this.question.value == this.item.value}
           onClick={this.props.handleOnClick}
           onChange={() => { }}

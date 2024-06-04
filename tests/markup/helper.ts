@@ -330,6 +330,8 @@ function clearAttributes(el: Element, removeIds = false) {
   }
   if(el.hasAttribute("readonly"))
     el.setAttribute("readonly", "");
+  if (el.hasAttribute("disabled"))
+    el.setAttribute("disabled", "");
   if(el.hasAttribute("ng-reflect-value")) {
     el.setAttribute("value", <string>el.getAttribute("ng-reflect-value"));
   }

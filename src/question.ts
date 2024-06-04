@@ -996,6 +996,7 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.hasErrorBottom, hasError && this.getErrorLocation() == "bottom")
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
+      .append(cssClasses.noPointerEventsMode, this.isReadOnlyAttr)
       .toString();
   }
   public get cssHeader(): string {
@@ -1357,11 +1358,17 @@ export class Question extends SurveyElement<Question>
     }
     return this.isReadOnly || this.isDesignModeV2;
   }
-  public get renderedInputReadOnly() {
+  public get renderedInputReadOnly(): string {
     return this.isInputReadOnly ? "" : undefined;
   }
-  public get renderedInputDisabled() {
+  public get renderedInputDisabled(): string {
     return this.isInputReadOnly ? "" : undefined;
+  }
+  public get isReadOnlyAttr(): boolean {
+    return this.isReadOnly;
+  }
+  public get isDisabledAttr(): boolean {
+    return this.isDesignModeV2;
   }
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
@@ -2555,6 +2562,7 @@ export class Question extends SurveyElement<Question>
       this.resizeObserver.observe(el);
     }
   }
+
   protected getCompactRenderAs(): string {
     return "default";
   }

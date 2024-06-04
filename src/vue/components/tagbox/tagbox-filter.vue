@@ -21,7 +21,7 @@
                 v-model="model.inputStringRendered"
                 v-bind:class="question.cssClasses.filterStringInput"
                 v-bind:placeholder="model.filterStringPlaceholder"
-                v-bind:disabled="question.isInputReadOnly"
+                v-bind:disabled="question.isDisabledAttr"
                 :inputmode="model.inputMode"
                 :role="model.filterStringEnabled ? question.ariaRole : null"
                 :aria-expanded="question.ariaExpanded"

@@ -465,6 +465,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public handleKeydown = (event: KeyboardEvent, choice: ItemValue): void => {
+    if (this.isReadOnlyAttr) return;
     if (!this.isDesignMode) {
       const key: any = event.key;
       const index = this.rankingChoices.indexOf(choice);

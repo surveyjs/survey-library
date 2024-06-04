@@ -7,7 +7,8 @@
         :value="value"
         :checked="value === question.booleanValueRendered"
         :aria-errormessage="question.ariaErrormessage"
-        :disabled="question.isInputReadOnly"
+        :disabled="question.isDisabledAttr"
+        :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemRadioControl"
         @change="handleChange"
       />

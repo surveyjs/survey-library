@@ -2,6 +2,16 @@
   position: relative;
 }
 
+.sd-question--no-pointer-events {
+
+  .sd-selectbase,
+  .sd-rating {
+    label {
+      pointer-events: none;
+    }
+  }
+}
+
 .sd-element__erbox--above-element {
   margin-bottom: calcSize(1);
 }

@@ -253,7 +253,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         }
         const index = isRankingChoices ? this.renderedRankingChoices.indexOf(item) : this.renderedUnRankingChoices.indexOf(item);
         return this.domNode?.querySelector(`${containerSelector} [data-sv-drop-target-ranking-item='${index}']`);
-      }
+      },
+      allowSyncRemovalAddition: true
     };
   }
 

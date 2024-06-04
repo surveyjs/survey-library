@@ -27,6 +27,7 @@ export interface IAnimationGroupConsumer<T> extends IAnimationConsumer<[T]> {
   getEnterOptions?(item: T, info?: IGroupAnimationInfo): AnimationOptions;
   getReorderOptions?(item: T, movedForward: boolean, info?: IGroupAnimationInfo): AnimationOptions;
   getKey?: (item: T) => any;
+  allowSyncRemovalAddition?: boolean;
 }
 
 export class AnimationUtils {
@@ -229,15 +230,19 @@ export abstract class AnimationProperty<T, S extends IAnimationConsumer<any> = I
   protected onNextRender(callback: () => void, onCancel?: () => void): void {
     const rerenderEvent = this.animationOptions.getRerenderEvent();
     if(!rerenderEvent) {
-      const raf = requestAnimationFrame(() => {
-        callback();
-        this.cancelCallback = undefined;
-      });
-      this.cancelCallback = () => {
-        onCancel && onCancel();
-        cancelAnimationFrame(raf);
-        this.cancelCallback = undefined;
-      };
+      if(DomWindowHelper.isAvailable()) {
+        const raf = DomWindowHelper.requestAnimationFrame(() => {
+          callback();
+          this.cancelCallback = undefined;
+        });
+        this.cancelCallback = () => {
+          onCancel && onCancel();
+          cancelAnimationFrame(raf);
+          this.cancelCallback = undefined;
+        };
+      } else {
+        throw new Error("Can't get next render");
+      }
     } else {
       const clear = () => {
         rerenderEvent.remove(nextRenderCallback);
@@ -257,7 +262,11 @@ export abstract class AnimationProperty<T, S extends IAnimationConsumer<any> = I
   protected abstract _sync(newValue: T): void;
   private _debouncedSync = debounce((newValue: T) => {
     this.animation.cancel();
-    this._sync(newValue);
+    try {
+      this._sync(newValue);
+    } catch {
+      this.update(newValue);
+    }
   })
   sync(newValue: T): void {
     if(this.animationOptions.isAnimationEnabled()) {
@@ -299,29 +308,29 @@ export class AnimationGroup<T> extends AnimationProperty<Array<T>, IAnimationGro
   protected animation: AnimationGroupUtils<T> = new AnimationGroupUtils();
   protected _sync (newValue: Array<T>): void {
     const oldValue = this.getCurrentValue();
-    try {
-      const { addedItems, deletedItems, reorderedItems, mergedItems } = compareArrays(oldValue, newValue, this.animationOptions.getKey ?? ((item: T) => item));
-      const runAnimationCallback = () => {
-        this.animation.runGroupAnimation(this.animationOptions, addedItems, deletedItems, reorderedItems, () => {
-          if(deletedItems.length > 0) {
-            this.update(newValue);
-          }
-        });
-      };
-      if([addedItems, deletedItems, reorderedItems].some((arr) => arr.length > 0)) {
-        if(deletedItems.length <= 0 || reorderedItems.length > 0 || addedItems.length > 0) {
-          this.onNextRender(runAnimationCallback, () => {
-            this.update(newValue);
-          });
-          this.update(mergedItems);
-        } else {
-          runAnimationCallback();
+    const allowSyncRemovalAddition = this.animationOptions.allowSyncRemovalAddition ?? true;
+    let { addedItems, deletedItems, reorderedItems, mergedItems } = compareArrays(oldValue, newValue, this.animationOptions.getKey ?? ((item: T) => item));
+    if(!allowSyncRemovalAddition && (reorderedItems.length > 0 || addedItems.length > 0)) {
+      deletedItems = [];
+      mergedItems = newValue;
+    }
+    const runAnimationCallback = () => {
+      this.animation.runGroupAnimation(this.animationOptions, addedItems, deletedItems, reorderedItems, () => {
+        if(deletedItems.length > 0) {
+          this.update(newValue);
         }
+      });
+    };
+    if([addedItems, deletedItems, reorderedItems].some((arr) => arr.length > 0)) {
+      if(deletedItems.length <= 0 || reorderedItems.length > 0 || addedItems.length > 0) {
+        this.onNextRender(runAnimationCallback, () => {
+          this.update(newValue);
+        });
+        this.update(mergedItems);
       } else {
-        this.update(newValue);
+        runAnimationCallback();
       }
-
-    } catch {
+    } else {
       this.update(newValue);
     }
   }
@@ -341,6 +350,7 @@ export class AnimationTab<T> extends AnimationProperty<Array<T>, IAnimationGroup
         });
       }, () => this.update(newValue));
       this.update(tempValue, true);
+
     } else {
       this.update(newValue);
     }

@@ -68,16 +68,5 @@ const props = defineProps<{ question: QuestionMatrixDropdownModelBase }>();
 const table = computed(() => {
   return props.question.renderedTable;
 });
-useBase(
-  () => table.value,
-  (newValue) => {
-    const instance = getCurrentInstance();
-    newValue.renderedRowsChangedCallback = () => {
-      instance?.proxy?.$forceUpdate();
-    };
-  },
-  (value) => {
-    value.renderedRowsChangedCallback = () => {};
-  }
-);
+useBase(() => table.value);
 </script>

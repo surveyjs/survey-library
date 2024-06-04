@@ -1,9 +1,10 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase
+  SurveyElementBase,
+  SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { SurveyElementErrors, SurveyQuestion, SurveyQuestionAndErrorsCell, SurveyQuestionErrorCell } from "./reactquestion";
+import { ISurveyCreator, SurveyQuestion, SurveyQuestionAndErrorsCell, SurveyQuestionErrorCell } from "./reactquestion";
 import {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
@@ -11,7 +12,7 @@ import {
   MatrixDropdownColumn,
   AdaptiveActionContainer,
   Question,
-  Base
+  Base,
 } from "survey-core";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
@@ -22,80 +23,38 @@ import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-act
 import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { ReactElementFactory } from "./element-factory";
 
-export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
-  constructor(props: any) {
-    super(props);
-    //Create rendered table in contructor and not on rendering
-    const table = this.question.renderedTable;
-    this.state = this.getState();
+class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMatrixDropdownModelBase, wrapCell: (cell: QuestionMatrixDropdownRenderedCell, element: JSX.Element, reason: string) => JSX.Element, creator: ISurveyCreator}, any> {
+  protected get question() {
+    return this.props.question;
   }
-  protected get question(): QuestionMatrixDropdownModelBase {
-    return this.questionBase as QuestionMatrixDropdownModelBase;
+  protected get creator() {
+    return this.props.creator;
   }
-  private getState(prevState: any = null) {
-    return { rowCounter: !prevState ? 0 : prevState.rowCounter + 1 };
+  protected get table() {
+    return this.question.renderedTable;
   }
-  private updateStateOnCallback() {
-    if (this.isRendering) return;
-    this.setState(this.getState(this.state));
+  protected getStateElement() {
+    return this.table;
   }
-  componentDidMount() {
-    super.componentDidMount();
-    this.question.visibleRowsChangedCallback = () => {
-      this.updateStateOnCallback();
-    };
-    this.question.onRenderedTableResetCallback = () => {
-      this.question.renderedTable.renderedRowsChangedCallback = () => {
-        this.updateStateOnCallback();
-      };
-      this.updateStateOnCallback();
-    };
-    this.question.renderedTable.renderedRowsChangedCallback = () => {
-      this.updateStateOnCallback();
-    };
-  }
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    this.question.visibleRowsChangedCallback = () => {};
-    this.question.onRenderedTableResetCallback = () => {};
-    this.question.renderedTable.renderedRowsChangedCallback = () => {};
-  }
-  protected renderElement(): JSX.Element {
-    return this.renderTableDiv();
-  }
-  renderTableDiv(): JSX.Element {
-    var header = this.renderHeader();
-    var footers = this.renderFooter();
-    var rows = this.renderRows();
-    var divStyle = this.question.showHorizontalScroll
-      ? ({ overflowX: "scroll" } as React.CSSProperties)
-      : ({} as React.CSSProperties);
-    return (
-      <div style={divStyle} className={this.question.cssClasses.tableWrapper} ref={(root) => (this.setControl(root))}>
-        <table className={this.question.getTableCss()}>
-          {header}
-          {rows}
-          {footers}
-        </table>
-      </div>
-    );
+  protected wrapCell(cell: QuestionMatrixDropdownRenderedCell, element: JSX.Element, reason: string): JSX.Element {
+    return this.props.wrapCell(cell, element, reason);
   }
   renderHeader(): JSX.Element | null {
-    var table = this.question.renderedTable;
+    const table = this.question.renderedTable;
     if (!table.showHeader) return null;
-    var headers: any[] = [];
-    var cells = table.headerRow.cells;
+    const headers: any[] = [];
+    const cells = table.headerRow.cells;
     for (var i = 0; i < cells.length; i++) {
-      var cell = cells[i];
-      var key = "column" + i;
-      var columnStyle: any = {};
+      const cell = cells[i];
+      const key = "column" + i;
+      const columnStyle: any = {};
       if (!!cell.width) {
         columnStyle.width = cell.width;
       }
       if (!!cell.minWidth) {
         columnStyle.minWidth = cell.minWidth;
       }
-      var cellContent = this.renderCellContent(cell, "column-header", {});
+      const cellContent = this.renderCellContent(cell, "column-header", {});
       const header = cell.hasTitle ?
         <th className={cell.className} key={key} style={columnStyle}> {cellContent} </th>
         : <td className={cell.className} key={key} style={columnStyle}></td>;
@@ -108,9 +67,9 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     );
   }
   renderFooter(): JSX.Element | null {
-    var table = this.question.renderedTable;
+    const table = this.question.renderedTable;
     if (!table.showFooter) return null;
-    var row = this.renderRow(
+    const row = this.renderRow(
       "footer",
       table.footerRow,
       this.question.cssClasses,
@@ -119,9 +78,9 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     return <tfoot>{row}</tfoot>;
   }
   renderRows(): JSX.Element {
-    var cssClasses = this.question.cssClasses;
-    var rows:Array<JSX.Element> = [];
-    var renderedRows = this.question.renderedTable.renderedRows;
+    const cssClasses = this.question.cssClasses;
+    const rows:Array<JSX.Element> = [];
+    const renderedRows = this.question.renderedTable.renderedRows;
     for (var i = 0; i < renderedRows.length; i++) {
       rows.push(
         this.renderRow(renderedRows[i].id, renderedRows[i], cssClasses)
@@ -135,13 +94,13 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     cssClasses: any,
     reason?: string
   ): JSX.Element {
-    var matrixrow:Array<JSX.Element> = [];
-    var cells = row.cells;
+    const matrixrow:Array<JSX.Element> = [];
+    const cells = row.cells;
 
     for (var i = 0; i < cells.length; i++) {
       matrixrow.push(this.renderCell(cells[i], i, cssClasses, reason));
     }
-    var key = "row" + keyValue;
+    const key = "row" + keyValue;
 
     return (
       <React.Fragment key={key}>
@@ -156,7 +115,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     cssClasses: any,
     reason?: string
   ): JSX.Element {
-    var key = "cell" + index;
+    const key = "cell" + index;
     if (cell.hasQuestion) {
       return (
         <SurveyQuestionMatrixDropdownCell
@@ -172,8 +131,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     if(!calcReason) {
       calcReason = cell.hasTitle ? "row-header" : "";
     }
-    var cellContent = this.renderCellContent(cell, calcReason, cssClasses);
-    var cellStyle: any = null;
+    const cellContent = this.renderCellContent(cell, calcReason, cssClasses);
+    let cellStyle: any = null;
     if (!!cell.width || !!cell.minWidth) {
       cellStyle = {};
       if (!!cell.width) cellStyle.width = cell.width;
@@ -198,8 +157,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     reason: string,
     cssClasses: any
   ): JSX.Element | null {
-    var cellContent: JSX.Element | null = null;
-    var cellStyle: any = null;
+    let cellContent: JSX.Element | null = null;
+    let cellStyle: any = null;
     if (!!cell.width || !!cell.minWidth) {
       cellStyle = {};
       if (!!cell.width) cellStyle.width = cell.width;
@@ -254,6 +213,60 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       </>
     );
     return this.wrapCell(cell, readyCell, reason);
+  }
+  protected renderElement(): JSX.Element | null {
+    const header = this.renderHeader();
+    const footers = this.renderFooter();
+    const rows = this.renderRows();
+    return (
+      <table className={this.question.getTableCss()}>
+        {header}
+        {rows}
+        {footers}
+      </table>
+    );
+  }
+}
+
+export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
+  constructor(props: any) {
+    super(props);
+    //Create rendered table in contructor and not on rendering
+    const table = this.question.renderedTable;
+    this.state = this.getState();
+  }
+  protected get question(): QuestionMatrixDropdownModelBase {
+    return this.questionBase as QuestionMatrixDropdownModelBase;
+  }
+  private getState(prevState: any = null) {
+    return { rowCounter: !prevState ? 0 : prevState.rowCounter + 1 };
+  }
+  private updateStateOnCallback() {
+    if (this.isRendering) return;
+    this.setState(this.getState(this.state));
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.question.onRenderedTableResetCallback = () => {
+      this.updateStateOnCallback();
+    };
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    this.question.onRenderedTableResetCallback = () => {};
+  }
+  protected renderElement(): JSX.Element {
+    return this.renderTableDiv();
+  }
+  renderTableDiv(): JSX.Element {
+    var divStyle = this.question.showHorizontalScroll
+      ? ({ overflowX: "scroll" } as React.CSSProperties)
+      : ({} as React.CSSProperties);
+    return (
+      <div style={divStyle} className={this.question.cssClasses.tableWrapper} ref={(root) => (this.setControl(root))}>
+        <SurveyQuestionMatrixTable question={this.question} creator={this.creator} wrapCell={(cell, element, reason) => this.wrapCell(cell, element, reason)}></SurveyQuestionMatrixTable>
+      </div>
+    );
   }
 }
 

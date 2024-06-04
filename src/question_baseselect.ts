@@ -1131,6 +1131,7 @@ export class QuestionSelectBase extends Question {
     return questionPlainData;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if(!this.useDisplayValuesInDynamicTexts) return value;
     return this.getChoicesDisplayValue(this.visibleChoices, value);
   }
   protected getDisplayValueEmpty(): string {

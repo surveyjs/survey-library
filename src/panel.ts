@@ -126,6 +126,7 @@ export class QuestionRowModel extends Base {
     return {
       getRerenderEvent: () => this.onElementRerendered,
       isAnimationEnabled: () => this.animationAllowed,
+      allowSyncRemovalAddition: false,
       getAnimatedElement: (element: IElement) => (element as any as SurveyElement).getWrapperElement(),
       getLeaveOptions: (element: IElement) => {
         const surveyElement = element as unknown as SurveyElement;
@@ -146,8 +147,8 @@ export class QuestionRowModel extends Base {
     };
   }
   public visibleElementsAnimation: AnimationGroup<IElement> = new AnimationGroup(this.getVisibleElementsAnimationOptions(), (value) => {
+    this.setWidth(value);
     this.setPropertyValue("visibleElements", value);
-    this.setWidth();
   }, () => this.visibleElements);
   public set visibleElements(val: Array<IElement>) {
     if(!val.length) {
@@ -195,10 +196,10 @@ export class QuestionRowModel extends Base {
   public get index(): number {
     return this.panel.rows.indexOf(this);
   }
-  private setWidth() {
-    var visCount = this.visibleElements.length;
+  private setWidth(visibleElement: Array<IElement>) {
+    var visCount = visibleElement.length;
     if (visCount == 0) return;
-    const isSingleInRow = this.visibleElements.length === 1;
+    const isSingleInRow = visibleElement.length === 1;
     var counter = 0;
     var preSetWidthElements = [];
     for (var i = 0; i < this.elements.length; i++) {

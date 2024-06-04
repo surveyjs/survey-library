@@ -170,7 +170,9 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   const originalSelectionChanged = listOptions.onSelectionChanged;
   listOptions.onSelectionChanged = (item: Action, ...params: any[]) => {
     if (newAction.hasTitle) { newAction.title = item.title; }
-    originalSelectionChanged(item, params);
+    if (originalSelectionChanged) {
+      originalSelectionChanged(item, params);
+    }
   };
   const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
 
@@ -192,7 +194,9 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
 export function createPopupModelWithListModel(listOptions: IListModel, popupOptions: IPopupOptionsBase): PopupModel {
   const listModel: ListModel = new ListModel(listOptions as any);
   listModel.onSelectionChanged = (item: Action) => {
-    listOptions.onSelectionChanged(item);
+    if (listOptions.onSelectionChanged) {
+      listOptions.onSelectionChanged(item);
+    }
     popupModel.hide();
   };
 
@@ -428,7 +432,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private createLocTitle(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
-  public setItems(items: Array<IAction>, onSelectionChanged: (item: Action, ...params: any[]) => void): void {
+  public setItems(items: Array<IAction>, onSelectionChanged?: (item: Action, ...params: any[]) => void): void {
     this.markerIconName = "icon-next_16x16";
     this.component = "sv-list-item-group";
     this.items = [...items];

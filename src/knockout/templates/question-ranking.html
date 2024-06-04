@@ -67,12 +67,11 @@
         <svg>
           <use data-bind="attr:{'xlink:href':question.dashSvgIcon}" xlink:href=''></use>
         </svg>
-      </div>
-        <!-- /ko -->
-        <div data-bind="css: question.cssClasses.controlLabel">
-          <!-- ko template: { name: 'survey-string', data: $data.locText } -->
-          <!-- /ko -->
         </div>
+        <!-- /ko -->
+
+        <!-- ko component: { name: question.itemContentComponent, params: { cssClasses: question.cssClasses, item: $data } } -->
+        <!-- /ko -->
       </div>
     </div>
   </div>

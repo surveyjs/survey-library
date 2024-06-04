@@ -2,9 +2,10 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
-import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { MatrixDynamicRowModel, QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { SurveyModel } from "../src/survey";
+import { Helpers } from "../src/helpers";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -1344,4 +1345,43 @@ QUnit.test("defaultValueExpression & using rowvalue in it", function (assert) {
   assert.equal(matrix.visibleRows[0].cells[1].question.value, 12, "Keep value in the standard cell");
   assert.equal(matrix.visibleRows[0].cells[0].question.value, 30, "cell1 value #3");
   assert.equal(matrix.visibleRows[1].cells[0].question.value, 50, "cell1 value #3");
+});
+QUnit.test("showInMultipleColumns & random choices, Bug#8348", function (assert) {
+  let index = 0;
+  class HelpTest {
+    public static randomizeArray<T>(array: Array<T>): Array<T> {
+      if (array.length < 2) return array;
+      const el0 = array[index];
+      array.splice(0, 1, array[array.length - index - 1]);
+      array.splice(array.length - index - 1, 1, el0);
+      index = (index + 1) % array.length;
+      return array;
+    }
+  }
+  const oldFunc = Helpers.randomizeArray;
+  Helpers.randomizeArray = HelpTest.randomizeArray;
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "column",
+            "cellType": "radiogroup",
+            "showInMultipleColumns": true,
+            "choices": ["col1", "col2", "col3", "col4", "col5"],
+            "choicesOrder": "random"
+          }
+        ],
+        "rows": ["row1", "row2"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rows = matrix.renderedTable.rows;
+  assert.equal(matrix.columns[0].templateQuestion.visibleChoices[0].value, "col5", "column tempate");
+  assert.equal(rows[0].cells[1].question.visibleChoices[0].value, "col5", "row1 question");
+  assert.equal(rows[1].cells[1].question.visibleChoices[0].value, "col5", "row2 question");
+  Helpers.randomizeArray = oldFunc;
 });

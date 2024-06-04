@@ -32,7 +32,7 @@ export let defaultListCss = {
 };
 export interface IListModel {
   items: Array<IAction>;
-  onSelectionChanged: (item: IAction, ...params: any[]) => void;
+  onSelectionChanged?: (item: IAction, ...params: any[]) => void;
   allowSelection?: boolean;
   searchEnabled?: boolean;
   selectedItem?: IAction;
@@ -90,10 +90,16 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     let actions = super.getRenderedActions();
 
     if (this.filterString) {
-      let newActions = [] as Array<T>;
+      let newActions: Array<T> = [];
       actions.forEach(action => {
         newActions.push(action);
-        if (action.items) action.items.forEach(item => newActions.push(item as T));
+        if (action.items) {
+          action.items.forEach(item => {
+            const a = new Action(item);
+            if (!a.iconName) { a.iconName = action.iconName; }
+            newActions.push(a as IAction as T);
+          });
+        }
       });
       return newActions;
     }
@@ -185,6 +191,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.isExpanded = false;
     if (this.allowSelection) {
       this.selectedItem = itemValue;
+    }
+    const action = (itemValue as IAction).action;
+    if (!!action) {
+      action(itemValue);
     }
     if (!!this.onSelectionChanged) {
       this.onSelectionChanged(itemValue);

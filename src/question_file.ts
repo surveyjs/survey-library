@@ -1049,7 +1049,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
     this.clear();
   }
-  doRemoveFile(data: any) {
+  doRemoveFile(data: any, event: any) {
+    event.stopPropagation();
     if (this.needConfirmRemoveFile) {
       confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); }, undefined, this.getLocale(), this.survey.rootElement);
       return;
@@ -1060,7 +1061,15 @@ export class QuestionFileModel extends QuestionFileModelBase {
     const previewIndex = this.previewValue.indexOf(data);
     this.removeFileByContent(previewIndex === -1 ? data : this.value[previewIndex]);
   }
+  doDownloadFileFromContainer = (event: MouseEvent) => {
+    event.stopPropagation();
+    const currentTarget = event.currentTarget as HTMLElement;
+    if(currentTarget && currentTarget.getElementsByTagName) {
+      currentTarget.getElementsByTagName("a")[0].click();
+    }
+  }
   doDownloadFile = (event: any, data: any) => {
+    event.stopPropagation();
     if (detectIEOrEdge()) {
       event.preventDefault();
       loadFileFromBase64(data.content, data.name);

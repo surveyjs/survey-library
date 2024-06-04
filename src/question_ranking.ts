@@ -589,6 +589,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   /**
+   * The name of a component used to render items.
+   */
+  public get itemContentComponent(): string {
+    return this.getPropertyValue("itemContentComponent", "sv-ranking-item-content");
+  }
+  public set itemContentComponent(value: string) {
+    this.setPropertyValue("itemContentComponent", value);
+  }
+
+  /**
    * Specifies whether users can select choices they want to rank.
    *
    * When you enable this property, the Ranking question displays two areas for ranked and unranked choices. To order choices, users should first drag them from the unranked to the ranked area. Use this mode if you want to let users order only the choices they select.
@@ -738,7 +748,8 @@ Serializer.addClass(
       },
       isSerializable: true
     },
-    { name: "itemComponent", visible: false, default: "" }
+    { name: "itemComponent", visible: false, default: "" },
+    { name: "itemContentComponent", visible: false, default: "sv-ranking-item-content" },
   ],
   function () {
     return new QuestionRankingModel("");

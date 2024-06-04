@@ -101,6 +101,7 @@
         z-index: -1;
         border: calcSize(0.5) solid transparent;
         border-radius: 50%;
+        box-sizing: content-box;
       }
     }
   }

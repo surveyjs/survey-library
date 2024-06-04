@@ -22,7 +22,7 @@ export class ListItemGroup extends SurveyElementBase<IListItemProps, any> {
   render(): JSX.Element | null {
     if (!this.item) return null;
 
-    const newElement = ReactElementFactory.Instance.createElement("sv-list-item-content", { item: this.item, key: this.item.id, model: this.model });
+    const newElement = ReactElementFactory.Instance.createElement("sv-list-item-content", { item: this.item, key: "content" + this.item.id, model: this.model });
     return <>
       {newElement}
       <Popup model={this.item?.popupModel}></Popup>

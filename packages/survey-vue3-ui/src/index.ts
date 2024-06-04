@@ -32,6 +32,7 @@ import TagboxFilter from "./components/tagbox/TagboxFilter.vue";
 import TagboxItem from "./components/tagbox/TagboxItem.vue";
 import Ranking from "./Ranking.vue";
 import RankingItem from "./RankingItem.vue";
+import RankingItemContent from "./RankingItemContent.vue";
 import Rating from "./Rating.vue";
 import RatingItem from "./components/rating/RatingItem.vue";
 import RatingItemSmiley from "./components/rating/RatingItemSmiley.vue";
@@ -183,6 +184,7 @@ function registerComponents(app: App) {
   app.component("sv-tagbox-filter", TagboxFilter);
   app.component("survey-ranking", Ranking);
   app.component("survey-ranking-item", RankingItem);
+  app.component("sv-ranking-item-content", RankingItemContent);
   app.component("survey-rating", Rating);
   app.component("sv-rating-item", RatingItem);
   app.component("sv-rating-item-smiley", RatingItemSmiley);

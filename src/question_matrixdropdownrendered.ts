@@ -220,10 +220,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private hasRemoveRowsValue: boolean;
   private rowsActions: Array<Array<IAction>>;
   private cssClasses: any;
-  public renderedRowsChangedCallback = (): void => { };
   @propertyArray({
     onPush: (_: any, i: number, target: QuestionMatrixDropdownRenderedTable) => {
-      target.renderedRowsChangedCallback();
       target.updateRenderedRows();
     },
     onRemove: (_: any, i: number, target: QuestionMatrixDropdownRenderedTable) => {
@@ -262,7 +260,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private renderedRowsAnimation = new AnimationGroup(this.getRenderedRowsAnimationOptions(), (val) => {
     this._renderedRows = val;
-    this.renderedRowsChangedCallback();
   }, () => this._renderedRows)
 
   public get renderedRows(): Array<QuestionMatrixDropdownRenderedRow> {

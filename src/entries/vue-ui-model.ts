@@ -16,6 +16,7 @@ export { RatingDropdown } from "../vue/rating-dropdown.vue";
 export { Comment } from "../vue/comment.vue";
 export { Ranking } from "../vue/ranking/ranking.vue";
 export { RankingItem } from "../vue/ranking/ranking-item.vue";
+export { RankingItemContent } from "../vue/ranking/ranking-item-content.vue";
 export { Checkbox } from "../vue/checkbox.vue";
 export { CheckboxItem } from "../vue/checkboxitem.vue";
 export { ButtonGroup } from "../vue/buttongroup.vue";

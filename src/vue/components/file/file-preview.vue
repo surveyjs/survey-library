@@ -4,6 +4,7 @@
       v-for="(val, index) in question.previewValue"
       :key="question.inputId + '_' + index"
       v-show="val && isPreviewVisible(index)"
+      @click="question.doDownloadFileFromContainer($event)"
       :class="question.cssClasses.previewItem"
     >
       <div
@@ -38,7 +39,7 @@
         <div
           v-if="val.name && !question.isReadOnly"
           :class="question.getRemoveButtonCss()"
-          @click="question.doRemoveFile(val)"
+          @click="question.doRemoveFile(val, $event)"
         >
           <span :class="question.cssClasses.removeFile">{{
             question.removeFileCaption

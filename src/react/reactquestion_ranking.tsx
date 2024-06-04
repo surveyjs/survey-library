@@ -1,11 +1,13 @@
 import * as React from "react";
 import {
   ReactSurveyElement,
+  SurveyElementBase,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
 import { QuestionRankingModel, SurveyModel, ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
+import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionRanking extends SurveyQuestionElementBase {
   protected get question(): QuestionRankingModel {
@@ -103,6 +105,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     const index = i;
     const indexText: string = this.question.getNumberByIndex(index);
     const tabIndex: number = this.question.getItemTabIndex(item);
+
     const renderedItem = (
       <SurveyQuestionRankingItem
         key={item.value}
@@ -176,6 +179,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   }
 
   protected renderElement(): JSX.Element {
+    let itemContentComponent = ReactElementFactory.Instance.createElement(this.question.itemContentComponent, { item: this.item, cssClasses: this.cssClasses });
     return (
       <div
         tabIndex={this.itemTabIndex}
@@ -204,13 +208,31 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
             <div className={this.question.getItemIndexClasses(this.item)}>
               {(!this.unrankedItem && this.indexText) ? this.indexText : this.renderEmptyIcon()}
             </div>
-            <div className={this.cssClasses.controlLabel}>{this.text}</div>
+            {itemContentComponent}
           </div>
         </div>
       </div>
     );
   }
 }
+
+export class SurveyQuestionRankingItemContent extends ReactSurveyElement {
+  protected get item(): ItemValue {
+    return this.props.item;
+  }
+
+  protected get cssClasses(): any {
+    return this.props.cssClasses;
+  }
+
+  protected renderElement(): JSX.Element {
+    return <div className={this.cssClasses.controlLabel}>{SurveyElementBase.renderLocString(this.item.locText)}</div>;
+  }
+}
+
+ReactElementFactory.Instance.registerElement("sv-ranking-item-content", props => {
+  return React.createElement(SurveyQuestionRankingItemContent, props);
+});
 
 ReactQuestionFactory.Instance.registerQuestion("ranking", (props) => {
   return React.createElement(SurveyQuestionRanking, props);

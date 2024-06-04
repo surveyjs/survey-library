@@ -40,3 +40,25 @@
 .sd-context-btn:disabled {
   opacity: 0.25;
 }
+.sd-context-btn--small {
+  padding: calcSize(1);
+  svg {
+    width: multiply(1, $font-editorfont-size);
+    height: multiply(1, $font-editorfont-size);
+  }
+}
+.sd-context-btn--with-border {
+  border: 1px solid $border-inside;
+}
+.sd-context-btn--colorful:focus,
+.sd-context-btn--colorful:hover {
+  border-color: $primary;
+  background: linear-gradient($primary-light, $primary-light), linear-gradient($background, $background);
+  &.sd-context-btn--with-border {
+    border-color: $primary;
+  }
+  &.sd-context-btn--negative {
+    border-color: $red;
+    background: linear-gradient($red-light, $red-light), linear-gradient($background, $background);
+  }
+}

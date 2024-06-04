@@ -369,10 +369,10 @@ QUnit.test("QuestionFile remove files with the same name", function (assert) {
   const fileData2 = { name: "f1", content: "data2" };
   survey.data = { image1: [fileData1, fileData2] };
 
-  q1.doRemoveFile(fileData2);
+  q1.doRemoveFile(fileData2, { stopPropagation: () => {} });
   assert.deepEqual(survey.data, { image1: [{ name: "f1", content: "data1" }] });
 
-  q1.doRemoveFile(fileData1);
+  q1.doRemoveFile(fileData1, { stopPropagation: () => {} });
   assert.deepEqual(survey.data, {});
 });
 
@@ -924,7 +924,7 @@ QUnit.test("preview item index on last file removed", (assert) => {
   q["prevFileAction"].action();
   assert.equal(q.indexToShow, 2, "We're on 3rd image");
   assert.equal(q["fileIndexAction"].title, "3 of 3", "We're on the last item");
-  q.doRemoveFile(q.value[2]);
+  q.doRemoveFile(q.value[2], { stopPropagation: () => {} });
   assert.equal(q.indexToShow, 1, "We're on 2nd image");
   assert.equal(q["fileIndexAction"].title, "2 of 2", "We're on the last item again");
 });
@@ -1122,7 +1122,7 @@ QUnit.test("QuestionFile remove file by preview value", function (assert) {
   };
 
   assert.deepEqual(q1.previewValue.length, 2);
-  q1.doRemoveFile(q1.previewValue[1]);
+  q1.doRemoveFile(q1.previewValue[1], { stopPropagation: () => {} });
 
   assert.deepEqual(q1.previewValue.length, 1);
   assert.deepEqual(survey.data, {

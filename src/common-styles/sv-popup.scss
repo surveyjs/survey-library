@@ -26,8 +26,12 @@ sv-popup {
   height: 0;
 }
 
-.sv-popup-inner .sv-popup__container {
+.sv-popup-inner > .sv-popup__container {
   margin-top: calcSize(-1);
+}
+
+.sv-list__item--with-icon .sv-popup-inner > .sv-popup__container {
+  margin-top: calcSize(-0.5);
 }
 
 .sv-popup__container {

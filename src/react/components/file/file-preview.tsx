@@ -36,6 +36,7 @@ export class SurveyFilePreview extends SurveyElementBase<{ question: QuestionFil
         <span
           key={this.question.inputId + "_" + index}
           className={this.question.cssClasses.previewItem}
+          onClick={(event) => this.question.doDownloadFileFromContainer(event as any)}
           style={{ display: this.question.isPreviewVisible(index) ? undefined : "none" }}
         >
           {this.renderFileSign(this.question.cssClasses.fileSign, val)}
@@ -50,7 +51,7 @@ export class SurveyFilePreview extends SurveyElementBase<{ question: QuestionFil
               <SvgIcon iconName={this.question.cssClasses.defaultImageIconId} size={"auto"} className={this.question.cssClasses.defaultImage}></SvgIcon>
             ):null)}
             {val.name && !this.question.isReadOnly ? (
-              <div className={this.question.getRemoveButtonCss()} onClick={() => this.question.doRemoveFile(val)}>
+              <div className={this.question.getRemoveButtonCss()} onClick={(event) => this.question.doRemoveFile(val, event)}>
                 <span
                   className={this.question.cssClasses.removeFile}
                 >

@@ -26,21 +26,21 @@ export class ListItemContent extends SurveyElementBase<IListItemProps, any> {
     const text = this.renderLocString(this.item.locTitle, undefined, "locString");
     if(this.item.iconName) {
       const icon = <SvgIcon
-        key={1}
+        key={"icon"}
         className={this.model.cssClasses.itemIcon}
         iconName={this.item.iconName}
         size={this.item.iconSize}
         aria-label={this.item.title}
       ></SvgIcon>;
       content.push(icon);
-      content.push(<span key={2}>{text}</span>);
+      content.push(<span key={"text"}>{text}</span>);
     } else {
       content.push(text);
     }
 
     if(this.item.markerIconName) {
       const icon = <SvgIcon
-        key={1}
+        key={"marker"}
         className={this.item.cssClasses.itemMarkerIcon}
         iconName={this.item.markerIconName}
         size={this.item.markerIconSize}

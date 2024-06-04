@@ -440,3 +440,30 @@ QUnit.test("ListModel search in subitems", function (assert) {
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
 });
+QUnit.test("ListModel onItemClick", function (assert) {
+
+  let items: Array<Action> = [];
+  for (let index = 0; index < 4; ++index) {
+    items.push(new Action({ id: "test" + index, title: "test" + index }));
+  }
+  let actionCalled = 0;
+  let selectCalled = 0;
+  items[1].action = () => {
+    actionCalled++;
+  };
+  const list = new ListModel({
+    items: items,
+    onSelectionChanged: () => {
+      selectCalled++;
+    },
+    allowSelection: true
+  } as any);
+
+  list.onItemClick(items[0]);
+  assert.equal(actionCalled, 0);
+  assert.equal(selectCalled, 1);
+
+  list.onItemClick(items[1]);
+  assert.equal(actionCalled, 1);
+  assert.equal(selectCalled, 2);
+});

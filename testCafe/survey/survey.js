@@ -84,6 +84,13 @@ frameworks.forEach((framework) => {
     })();
     await t.expect(Selector("span").withText("question1").visible).ok();
   });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`
+    .page`${url_test}${themeName}/${framework}`.beforeEach(async (t) => {
+    await t.resizeWindow(1600, 900);
+  });
   test("Check matrix fail when showing preview", async (t) => {
     await initSurvey(framework, {
       showPreviewBeforeComplete: "showAnsweredQuestions",

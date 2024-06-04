@@ -11,6 +11,7 @@
     "testcafe:ko": "http-server --silent & testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --reporter minimal --env=knockout",
     "testcafe:jquery-ui": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome testCafe/ --app \"http-server --silent\" --env=jquery-ui",
     "testcafe:jquery-ui:ci": "http-server --silent & testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --reporter minimal --env=jquery-ui",
+    "vrt:jquery-ui:ci": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=jquery-ui",
     "testcafe:react": "http-server --silent & testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --reporter minimal --env=react",
     "testcafe:vue": "http-server --silent & testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --reporter minimal --env=vue",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",

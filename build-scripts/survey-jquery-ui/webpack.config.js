@@ -38,7 +38,7 @@ const config = {
   plugins: [
     new DtsGeneratorPlugin({
       tsConfigPath: "./build-scripts/survey-jquery-ui/tsconfig.typing.jquery-ui.json",
-      filePath: "build/survey-jquery-ui/survey.jquery-ui.d.ts",
+      filePath: "build/survey-jquery-ui/survey-jquery-ui.d.ts",
       moduleName: "survey-jquery-ui",
       importName: "entries/jquery-ui"
     }),
@@ -48,5 +48,5 @@ const config = {
 module.exports = function (options) {
   options.platform = "jquery-ui";
   options.libraryName = "SurveyJquery";
-  return merge(webpackCommonConfigCreator(options, packageJson, "survey.jquery.ui"), config);
+  return merge(webpackCommonConfigCreator(options, packageJson, "survey-jquery-ui"), config);
 }

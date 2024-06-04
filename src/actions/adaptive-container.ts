@@ -79,20 +79,11 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       tooltip: surveyLocalization.getString("more"),
     }, {
       items: [],
-      onSelectionChanged: (item: T) => {
-        this.hiddenItemSelected(item);
-      },
       allowSelection: false
     });
   }
   public get hiddenItemsListModel(): ListModel {
     return this.dotsItem.data as ListModel;
-  }
-
-  protected hiddenItemSelected(item: T): void {
-    if (!!item && typeof item.action === "function") {
-      item.action();
-    }
   }
 
   protected onSet() {

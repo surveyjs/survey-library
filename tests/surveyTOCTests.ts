@@ -1,11 +1,11 @@
 import { Action } from "../src/actions/action";
 import { PageModel } from "../src/page";
 import { SurveyModel } from "../src/survey";
-import { createTOCListModel, getTocRootCss } from "../src/surveyToc";
+import { TOCModel, createTOCListModel, getTocRootCss } from "../src/surveyToc";
 
 export default QUnit.module("TOC");
 
-QUnit.test("TOC follow nav buttons", function (assert) {
+QUnit.test("follow nav buttons", function (assert) {
   let json: any = {
     "pages": [
       {
@@ -45,18 +45,30 @@ QUnit.test("TOC follow nav buttons", function (assert) {
   assert.equal("page2", tocListModel.selectedItem.id, "Page 2 is current after navigation");
 });
 
-QUnit.test("TOC root CSS", function (assert) {
+QUnit.test("root CSS", function (assert) {
   let survey: SurveyModel = new SurveyModel({});
 
   let tocRootCss = getTocRootCss(survey);
+  assert.equal("sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky", tocRootCss, "toc left css");
+
+  survey.tocLocation = "right";
+  tocRootCss = getTocRootCss(survey);
+  assert.equal("sv_progress-toc sv_progress-toc--right sv_progress-toc--sticky", tocRootCss, "toc right css");
+
+  TOCModel.StickyPosition = false;
+  survey.tocLocation = "left";
+
+  tocRootCss = getTocRootCss(survey);
   assert.equal("sv_progress-toc sv_progress-toc--left", tocRootCss, "toc left css");
 
   survey.tocLocation = "right";
   tocRootCss = getTocRootCss(survey);
   assert.equal("sv_progress-toc sv_progress-toc--right", tocRootCss, "toc right css");
+
+  TOCModel.StickyPosition = true;
 });
 
-QUnit.test("TOC pages visibility", function (assert) {
+QUnit.test("pages visibility", function (assert) {
   let json: any = {
     "pages": [
       {
@@ -98,7 +110,7 @@ QUnit.test("TOC pages visibility", function (assert) {
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[1].name, "Page 1 is invisible, page 2 is the first");
 });
 
-QUnit.test("TOC pages visibility, do not include start page into TOC, bug #6192", function (assert) {
+QUnit.test("pages visibility, do not include start page into TOC, bug #6192", function (assert) {
   let json: any = {
     "firstPageIsStarted": true,
     "pages": [
@@ -141,7 +153,7 @@ QUnit.test("TOC pages visibility, do not include start page into TOC, bug #6192"
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible, page 1 is the first");
 });
 
-QUnit.test("TOC pages navigation with start page, bug #6327", function (assert) {
+QUnit.test("pages navigation with start page, bug #6327", function (assert) {
   let json: any = {
     "firstPageIsStarted": true,
     "pages": [
@@ -191,7 +203,7 @@ QUnit.test("TOC pages navigation with start page, bug #6327", function (assert) 
   assert.equal(survey.currentPage.name, "page3", "Current page is 3");
 });
 
-QUnit.test("TOC questionsOnPageMode singlePage", function (assert) {
+QUnit.test("questionsOnPageMode singlePage", function (assert) {
   let json: any = {
     "questionsOnPageMode": "singlePage",
     "pages": [
@@ -232,7 +244,7 @@ QUnit.test("TOC questionsOnPageMode singlePage", function (assert) {
   assert.equal(tocListModel.visibleItems[2].id, survey.pages[0].elements[2].name, "Page 3");
 });
 
-QUnit.test("TOC respects markup", function (assert) {
+QUnit.test("respects markup", function (assert) {
   let json: any = {
     "pages": [
       {
@@ -290,7 +302,7 @@ QUnit.test("TOC respects markup", function (assert) {
   assert.equal(tocListModel.visibleItems[3].locTitle.textOrHtml, "page4", "Page 4");
 });
 
-QUnit.test("TOC shouldn't affect page title", function (assert) {
+QUnit.test("shouldn't affect page title", function (assert) {
   let json: any = {
     "pages": [
       {
@@ -319,7 +331,7 @@ QUnit.test("TOC shouldn't affect page title", function (assert) {
   assert.equal(page.locTitle.textOrHtml, "Page 1 title", "Page 1 title");
 });
 
-QUnit.test("TOC shouldn't show search", function (assert) {
+QUnit.test("shouldn't show search", function (assert) {
   let json: any = {
     "pages": [
       {
@@ -337,6 +349,7 @@ QUnit.test("TOC shouldn't show search", function (assert) {
   const tocListModel = createTOCListModel(survey);
   assert.equal(tocListModel.searchEnabled, false, "Search in TOC should be disabled");
 });
+
 QUnit.test("survey.tryNavigateToPage", function (assert) {
   let json: any = {
     "pages": [
@@ -409,11 +422,56 @@ QUnit.test("survey.tryNavigateToPage", function (assert) {
   assert.equal(survey.tryNavigateToPage(survey.pages[3]), true, "navigate #8");
   assert.equal(survey.currentPageNo, 3, "currentPageNo #9");
 });
-QUnit.test("TOC should be created for survey with no current page", function (assert) {
+
+QUnit.test("should be created for survey with no current page", function (assert) {
   let json: any = { "logoPosition": "right", "pages": [{ "name": "page1", "elements": [{ "type": "panel", "name": "panel1", "width": "1180px" }] }] };
   const survey: SurveyModel = new SurveyModel(json);
   assert.equal(survey.pages.length, 1);
   assert.equal(survey.currentPageNo, -1);
   const tocListModel = createTOCListModel(survey);
   assert.ok(!!tocListModel, "TOC model should be created");
+});
+
+QUnit.test("updateStickyTOCSize", function (assert) {
+  TOCModel.StickyPosition = true;
+  const survey: SurveyModel = new SurveyModel({});
+  const tocModel = new TOCModel(survey);
+  const rootElementWithTitle = document.createElement("div");
+
+  rootElementWithTitle.innerHTML = `<div class="sv_custom_header"></div>
+                                    <div class="sd-container-modern">
+                                      <div class="sd-title sd-container-modern__title"></div>
+                                      <div class="sv-components-row">
+                                        <div class="sv-components-column">
+                                          <div class="sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky"></div>
+                                        </div>
+                                        <div class="sv-components-column">
+                                        </div>
+                                      </div>
+                                    </div>`;
+  const titleElement = rootElementWithTitle.querySelector(".sd-title") as HTMLDivElement;
+  titleElement.getBoundingClientRect = () => ({
+    height: 40,
+  } as any);
+  const tocRootElement = rootElementWithTitle.querySelector(".sv_progress-toc") as HTMLDivElement;
+  assert.equal(tocRootElement.style.height, "", "No height set");
+
+  const mockRootEl: any = {
+    querySelector: s => rootElementWithTitle.querySelector(s),
+    getBoundingClientRect: () => ({
+      height: 200,
+    }),
+    scrollTop: 0,
+    style: {}
+  };
+  tocModel.updateStickyTOCSize(mockRootEl);
+  assert.equal(tocRootElement.style.height, "158px", "Height updated");
+
+  mockRootEl.scrollTop = 60;
+  tocModel.updateStickyTOCSize(mockRootEl);
+  assert.equal(tocRootElement.style.height, "198px", "Height updated to full container");
+
+  mockRootEl.scrollTop = 20;
+  tocModel.updateStickyTOCSize(mockRootEl);
+  assert.equal(tocRootElement.style.height, "178px", "Height updated to half title");
 });

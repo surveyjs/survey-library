@@ -5119,6 +5119,39 @@ QUnit.test("checkbox vs valuePropertyName and display text", (assert) => {
   assert.equal(p1_q1.locTitle.renderedHtml, "apple", "title for question in panel1");
   assert.equal(p2_q1.locTitle.renderedHtml, "orange", "title for question in panel2");
 });
+QUnit.test("checkbox vs valuePropertyName and display text and useDisplayValuesInDynamicTexts = false", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
+        valueName: "data1",
+        valuePropertyName: "fruit",
+        useDisplayValuesInDynamicTexts: false
+      },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        valueName: "data1",
+        templateTitle: "{panel.fruit}",
+        templateElements: [
+          { type: "text", name: "panel_q1", title: "{panel.fruit}" },
+        ],
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  q.renderedValue = [1, 3];
+  assert.equal(panel.panelCount, 2, "There are two panels");
+  assert.equal(panel.panels[0].locTitle.renderedHtml, 1, "panel1 title");
+  assert.equal(panel.panels[1].locTitle.renderedHtml, 3, "panel2 title");
+  const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
+  const p2_q1 = panel.panels[1].getQuestionByName("panel_q1");
+  assert.equal(p1_q1.locTitle.renderedHtml, 1, "title for question in panel1");
+  assert.equal(p2_q1.locTitle.renderedHtml, 3, "title for question in panel2");
+});
 QUnit.test("Incorrect default value in panel dynamic", (assert) => {
   const survey = new SurveyModel({
     elements: [

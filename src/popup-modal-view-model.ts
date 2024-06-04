@@ -15,6 +15,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   protected createFooterActionBar(): void {
     super.createFooterActionBar();
 
+    this.footerToolbar.containerCss = "sv-footer-action-bar";
     this.footerToolbarValue.addAction(<IAction>{
       id: "apply",
       visibleIndex: 20,

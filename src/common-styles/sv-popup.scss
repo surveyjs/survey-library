@@ -86,6 +86,9 @@ sv-popup {
     padding-bottom: 2px;
   }
 }
+.sv-popup--modal .sv-popup__body-footer .sv-footer-action-bar {
+  overflow: visible;
+}
 
 .sv-popup--confirm-delete {
   .sv-popup__shadow {

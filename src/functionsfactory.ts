@@ -5,12 +5,12 @@ import { ConditionRunner } from "./conditions";
 
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
-  private functionHash: HashTable<(params: any[]) => any> = {};
+  private functionHash: HashTable<(params: any[], originalParams?: any[]) => any> = {};
   private isAsyncHash: HashTable<boolean> = {};
 
   public register(
     name: string,
-    func: (params: any[]) => any,
+    func: (params: any[], originalParams?: any[]) => any,
     isAsync: boolean = false
   ): void {
     this.functionHash[name] = func;
@@ -40,7 +40,8 @@ export class FunctionFactory {
   public run(
     name: string,
     params: any[],
-    properties: HashTable<any> = null
+    properties: HashTable<any> = null,
+    originalParams: any[]
   ): any {
     var func = this.functionHash[name];
     if (!func) {
@@ -56,7 +57,7 @@ export class FunctionFactory {
         (<any>classRunner)[key] = properties[key];
       }
     }
-    return classRunner.func(params);
+    return classRunner.func(params, originalParams);
   }
 }
 
@@ -129,16 +130,22 @@ function avg(params: any[]): any {
 }
 FunctionFactory.Instance.register("avg", avg);
 
-function getInArrayParams(params: any[]): any {
+function getInArrayParams(params: any[], originalParams: any[]): any {
   if (params.length < 2 || params.length > 3) return null;
   const arr = params[0];
   if (!arr) return null;
   if (!Array.isArray(arr) && !Array.isArray(Object.keys(arr))) return null;
   const name = params[1];
   if (typeof name !== "string" && !(name instanceof String)) return null;
-  let expression = params.length === 3 ? params[2] : undefined;
+  let expression = params.length > 2 ? params[2] : undefined;
   if (typeof expression !== "string" && !(expression instanceof String)) {
     expression = undefined;
+  }
+  if(!expression) {
+    const operand = Array.isArray(originalParams) && originalParams.length > 2 ? originalParams[2] : undefined;
+    if(operand && !!operand.toString()) {
+      expression = operand.toString();
+    }
   }
   return { data: arr, name: name, expression: expression };
 }
@@ -155,10 +162,10 @@ function processItemInArray(item: any, name: string, res: number,
   return func(res, val);
 }
 function calcInArray(
-  params: any[],
+  params: any[], originalParams: any[],
   func: (res: number, val: number) => number, needToConvert: boolean = true
 ): any {
-  var v = getInArrayParams(params);
+  var v = getInArrayParams(params, originalParams);
   if (!v) return undefined;
   let condition = !!v.expression ? new ConditionRunner(v.expression) : undefined;
   if(condition && condition.isAsync) {
@@ -177,8 +184,8 @@ function calcInArray(
   return res;
 }
 
-function sumInArray(params: any[]): any {
-  var res = calcInArray(params, function(res: number, val: number): number {
+function sumInArray(params: any[], originalParams: any[]): any {
+  var res = calcInArray(params, originalParams, function(res: number, val: number): number {
     if (res == undefined) res = 0;
     if(val == undefined || val == null) return res;
     return Helpers.correctAfterPlusMinis(res, val, res + val);
@@ -187,8 +194,8 @@ function sumInArray(params: any[]): any {
 }
 FunctionFactory.Instance.register("sumInArray", sumInArray);
 
-function minInArray(params: any[]): any {
-  return calcInArray(params, function(res: number, val: number): number {
+function minInArray(params: any[], originalParams: any[]): any {
+  return calcInArray(params, originalParams, function(res: number, val: number): number {
     if (res == undefined) return val;
     if(val == undefined || val == null) return res;
     return res < val ? res : val;
@@ -196,8 +203,8 @@ function minInArray(params: any[]): any {
 }
 FunctionFactory.Instance.register("minInArray", minInArray);
 
-function maxInArray(params: any[]): any {
-  return calcInArray(params, function(res: number, val: number): number {
+function maxInArray(params: any[], originalParams: any[]): any {
+  return calcInArray(params, originalParams, function(res: number, val: number): number {
     if (res == undefined) return val;
     if(val == undefined || val == null) return res;
     return res > val ? res : val;
@@ -205,8 +212,8 @@ function maxInArray(params: any[]): any {
 }
 FunctionFactory.Instance.register("maxInArray", maxInArray);
 
-function countInArray(params: any[]): any {
-  var res = calcInArray(params, function(res: number, val: number): number {
+function countInArray(params: any[], originalParams: any[]): any {
+  var res = calcInArray(params, originalParams, function(res: number, val: number): number {
     if (res == undefined) res = 0;
     if(val == undefined || val == null) return res;
     return res + 1;
@@ -215,10 +222,10 @@ function countInArray(params: any[]): any {
 }
 FunctionFactory.Instance.register("countInArray", countInArray);
 
-function avgInArray(params: any[]): any {
-  var count = countInArray(params);
+function avgInArray(params: any[], originalParams: any[]): any {
+  var count = countInArray(params, originalParams);
   if (count == 0) return 0;
-  return sumInArray(params) / count;
+  return sumInArray(params, originalParams) / count;
 }
 FunctionFactory.Instance.register("avgInArray", avgInArray);
 

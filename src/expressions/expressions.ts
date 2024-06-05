@@ -379,7 +379,8 @@ export class FunctionOperand extends Operand {
     return FunctionFactory.Instance.run(
       this.originalValue,
       this.parameters.evaluate(processValue),
-      processValue.properties
+      processValue.properties,
+      this.parameters.values
     );
   }
 

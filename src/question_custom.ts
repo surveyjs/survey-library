@@ -1231,7 +1231,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       this.contentPanel.getValue() : this.getValueForContentPanel(this.value);
     if (!val) val = {};
     if(!val.getType) {
-      val = JSON.parse(JSON.stringify(val));
+      val = Helpers.getUnbindValue(val);
     }
     if (this.isValueEmpty(newValue) && !this.isEditingSurveyElement) {
       delete val[name];

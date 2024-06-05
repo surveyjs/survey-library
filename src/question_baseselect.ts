@@ -151,6 +151,9 @@ export class QuestionSelectBase extends Question {
       ItemValue.locStrsChanged(this.choicesFromUrl);
       ItemValue.locStrsChanged(this.visibleChoices);
     }
+    if(this.isUsingCarryForward) {
+      ItemValue.locStrsChanged(this.visibleChoices);
+    }
   }
   public get otherValue(): string {
     if(!this.showCommentArea) return this.comment;

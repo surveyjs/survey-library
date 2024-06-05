@@ -1276,6 +1276,12 @@ QUnit.test("Carry Forward and localization, bug#6352", function (assert) {
   assert.equal(q2.visibleChoices.length, 1);
   assert.deepEqual(q2.visibleChoices[0].locText.getJson(), { default: "A de", en: "A en" });
   assert.equal(q2.visibleChoices[0].text, "A en");
+  let counter = 0;
+  q2.visibleChoices[0].locText.onStringChanged.add((sender, options) => {
+    counter ++;
+  });
+  survey.locale = "de";
+  assert.equal(counter, 1, "Fire str changed");
   surveyLocalization.defaultLocale = "en";
 });
 QUnit.test("Carry Forward and keepIncorrectValues, bug#6490", function (assert) {

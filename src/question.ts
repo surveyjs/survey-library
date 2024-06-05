@@ -682,6 +682,12 @@ export class Question extends SurveyElement<Question>
       this.clearValueIfInvisible();
     }
   }
+  public getTitleWidth(): string {
+    if (this.getTitleLocation() === "left") {
+      if (!!this.parent) return this.parent.getQuestionTitleWidth();
+    }
+    return undefined;
+  }
   /**
    * Returns title location calculated based on the question's `titleLocation` property and the `questionTitleLocation` property of the question's containers (survey, page, or panel).
    * @see titleLocation

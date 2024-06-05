@@ -1,7 +1,7 @@
 import { Selector, ClientFunction } from "testcafe";
 import { url, frameworks, initSurvey, url_test, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
-const title = "Dropdown Screenshot";
+const title = "ButtonGroup Screenshot";
 
 fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
@@ -23,6 +23,13 @@ const registerButtongroup = ClientFunction((framework) => {
       return (<any>window).React.createElement(Survey.SurveyQuestionButtonGroup, props);
     });
   }
+  if (framework === "jquery-ui") {
+    const SurveyJquery = (<any>window).SurveyJquery;
+    const preact = window["SurveyJquery"]["preact"];
+    SurveyJquery.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
+      return preact.createElement(SurveyJquery.SurveyQuestionButtonGroup, props);
+    });
+  }
   if (framework === "knockout") {
     Survey.Serializer.overrideClassCreator("buttongroup", function () {
       return new Survey.QuestionButtonGroup("");
@@ -42,7 +49,7 @@ frameworks.forEach(framework => {
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await applyTheme(theme);
   });
-  test("Check dropdown question", async (t) => {
+  test("Check buttongroup question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await registerButtongroup(framework);

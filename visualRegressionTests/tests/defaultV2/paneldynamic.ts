@@ -434,6 +434,13 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("paneldynamic-confirm-dialog--long-button-text", Selector(".sv-popup--confirm-delete .sv-popup__body-content"), t, comparer);
     });
   });
+});
+
+frameworks.forEach(framework => {
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
+    await applyTheme(theme);
+  });
   test("tab focused state for panel dynamic", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);

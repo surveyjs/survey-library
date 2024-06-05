@@ -111,8 +111,11 @@ export const initSurveyPopup = ClientFunction(
       popupSurvey.show();
     } else if (framework === "jquery-ui") {
       document.getElementById("surveyElement").innerHTML = "";
-      window["$"]("#surveyElement").Survey({
-        model: model
+      window["$"]("#surveyElement").PopupSurvey({
+        model: model,
+        isExpanded: true,
+        allowClose: true,
+        allowFullScreen: true
       });
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
@@ -357,6 +360,31 @@ export const registerCustomItemContentComponent = ClientFunction(
         "new-item-content",
         (props) => {
           return window["React"].createElement(ItemContentTemplateComponent, props);
+        }
+      );
+    } else if (framework === "jquery-ui") {
+      const preact = window["SurveyJquery"]["preact"];
+      window.React = { createElement: preact.createElement };
+      class ItemContentTemplateComponent extends preact.Component {
+        render() {
+          const locText = this.props.item.locText;
+          const styles = {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": "8px"
+          };
+          return (
+            <div className="sv-ranking-item__text" style={styles}>
+              <SurveyJquery.SvgIcon iconName={"icon-next_16x16"} size={16}></SurveyJquery.SvgIcon>
+              {SurveyJquery.SurveyElementBase.renderLocString(locText)}
+            </div>
+          );
+        }
+      }
+      window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+        "new-item-content",
+        (props) => {
+          return preact.createElement(ItemContentTemplateComponent, props);
         }
       );
     } else if (framework === "vue") {

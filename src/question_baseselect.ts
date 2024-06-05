@@ -155,11 +155,19 @@ export class QuestionSelectBase extends Question {
       ItemValue.locStrsChanged(this.visibleChoices);
     }
   }
+  private prevOtherErrorValue: string;
+  private updatePrevOtherErrorValue(val: string): void {
+    const oldVal = this.otherValue;
+    if(val !== oldVal) {
+      this.prevOtherErrorValue = oldVal;
+    }
+  }
   public get otherValue(): string {
     if(!this.showCommentArea) return this.comment;
     return this.otherValueCore;
   }
   public set otherValue(val: string) {
+    this.updatePrevOtherErrorValue(val);
     if(!this.showCommentArea) {
       this.comment = val;
     } else {
@@ -545,6 +553,7 @@ export class QuestionSelectBase extends Question {
   }
   private isSettingComment: boolean = false;
   protected setQuestionComment(newValue: string): void {
+    this.updatePrevOtherErrorValue(newValue);
     if(this.showCommentArea) {
       super.setQuestionComment(newValue);
       return;
@@ -1342,7 +1351,8 @@ export class QuestionSelectBase extends Question {
     isOnValueChanged: boolean
   ) {
     super.onCheckForErrors(errors, isOnValueChanged);
-    if (!this.hasOther || !this.isOtherSelected || this.otherValue) return;
+    if (!this.hasOther || !this.isOtherSelected || this.otherValue
+      || isOnValueChanged && !this.prevOtherErrorValue) return;
     const otherEmptyError = new OtherEmptyError(this.otherErrorText, this);
     otherEmptyError.onUpdateErrorTextCallback = err => { err.text = this.otherErrorText; };
     errors.push(otherEmptyError);

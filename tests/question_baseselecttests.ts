@@ -1098,6 +1098,17 @@ QUnit.test("selectbase and otherValue/comment + same values", (assert) => {
   assert.deepEqual(["item33"], q2.value, "q2 value, #5");
   assert.equal("item33", q2.otherValue, "q2 otherValue, #6");
 });
+QUnit.test("selectbase, showOtherItem & checkErrorsMode: 'onValueChanged'", (assert) => {
+  const survey = new SurveyModel({ elements: [
+    { type: "radiogroup", name: "q1", showOtherItem: true, choices: ["item1", "item2", "item3"] },
+  ], checkErrorsMode: "onValueChanged" });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  q1.renderedValue = "other";
+  assert.equal(q1.errors.length, 0, "We do not have errors yet");
+  survey.completeLastPage();
+  assert.equal(q1.errors.length, 1, "There is an error");
+  assert.equal(survey.state, "running", "Still running");
+});
 QUnit.test("selectbase, otherValue&question-Comment", (assert) => {
   const survey = new SurveyModel({ elements: [
     { type: "dropdown", name: "q1", showOtherItem: true, choices: ["item1", "item2", "item3"] },

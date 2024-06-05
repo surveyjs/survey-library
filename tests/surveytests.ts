@@ -13043,9 +13043,17 @@ QUnit.test(
     });
     var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
     q1.value = q1.otherItem.value;
+    assert.equal(q1.errors.length, 0, "There is no error yet");
+    q1.comment = "some value1";
+    assert.equal(q1.errors.length, 0, "There is no error - there is a value");
+    q1.comment = "";
     assert.equal(q1.errors.length, 1, "There is an error right now");
-    q1.comment = "some value";
-    assert.equal(q1.errors.length, 0, "There is no error now");
+    q1.comment = "some value2";
+    assert.equal(q1.errors.length, 0, "There is no error again");
+    q1.value = 1;
+    q1.value = q1.otherItem.value;
+    assert.equal(q1.comment, "", "Comment is empty");
+    assert.equal(q1.errors.length, 0, "There is no error - comment was cleaned");
   }
 );
 QUnit.test(

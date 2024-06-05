@@ -1230,6 +1230,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     var val = !!this.contentPanel && !this.isEditingSurveyElement ?
       this.contentPanel.getValue() : this.getValueForContentPanel(this.value);
     if (!val) val = {};
+    if(!val.getType) {
+      val = Helpers.getUnbindValue(val);
+    }
     if (this.isValueEmpty(newValue) && !this.isEditingSurveyElement) {
       delete val[name];
     } else {

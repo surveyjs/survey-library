@@ -19,10 +19,13 @@ export class SurveyElementHeader extends React.Component<any, any> {
 
     const additionalTitleToolbarElement = element.hasAdditionalTitleToolbar ? <SurveyActionBar model={element.additionalTitleToolbar}></SurveyActionBar> : null;
 
-    const width = element.getTitleWidth && element.getTitleWidth();
+    const headerStyle = { width: undefined };
+    if(element instanceof Question) {
+      headerStyle.width = element.titleWidth;
+    }
 
     return (
-      <div className={element.cssHeader} onClick={(e) => element.clickTitleFunction && element.clickTitleFunction(e.nativeEvent)} style={{ width: width }}>
+      <div className={element.cssHeader} onClick={(e) => element.clickTitleFunction && element.clickTitleFunction(e.nativeEvent)} style={headerStyle}>
         {title}
         {description}
         {additionalTitleToolbarElement}

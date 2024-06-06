@@ -682,7 +682,7 @@ export class Question extends SurveyElement<Question>
       this.clearValueIfInvisible();
     }
   }
-  public getTitleWidth(): string {
+  public get titleWidth(): string {
     if (this.getTitleLocation() === "left") {
       if (!!this.parent) return this.parent.getQuestionTitleWidth();
     }

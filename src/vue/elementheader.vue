@@ -1,5 +1,5 @@
 <template>
-  <div :class="element.cssHeader" @click="clickTitleFunction">
+  <div :class="element.cssHeader" @click="clickTitleFunction" :style="{ width: element.titleWidth }">
     <survey-element-title :element="element" :css="css" />
     <div v-if="element.hasDescriptionUnderTitle" v-show="element.hasDescription" :class="element.cssDescription"
       :id="element.ariaDescriptionId">

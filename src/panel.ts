@@ -1105,7 +1105,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.survey ? this.survey.questionTitleLocation : "top";
   }
   @property() questionTitleWidth: string;
-  protected getQuestionTitleWidth(): string {
+  getQuestionTitleWidth(): string {
     return this.questionTitleWidth || this.parent && this.parent.getQuestionTitleWidth();
   }
   protected getStartIndex(): string {
@@ -2138,6 +2138,9 @@ Serializer.addClass(
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",
+    {
+      name: "questionTitleWidth"
+    },
     {
       name: "questionTitleLocation",
       default: "default",

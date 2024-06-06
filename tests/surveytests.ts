@@ -6887,6 +6887,28 @@ QUnit.test("Define questionTitleLocation on Panel/Page level", function (
   assert.equal(q.getTitleLocation(), "top", "get from survey again");
 });
 
+QUnit.test("Define questionTitleWidth on Panel/Page level", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page");
+  const panel = page.addNewPanel("panel");
+  const panel2 = panel.addNewPanel("panel2");
+  const q = <Question>panel2.addNewQuestion("text");
+  page.questionTitleLocation = "left";
+
+  assert.equal(q.titleWidth, undefined, "init");
+  page.questionTitleWidth = "500px";
+  assert.equal(q.titleWidth, "500px", "get from page");
+
+  panel.questionTitleWidth = "50%";
+  assert.equal(q.titleWidth, "50%", "get from panel");
+
+  panel2.questionTitleWidth = "200px";
+  assert.equal(q.titleWidth, "200px", "get from panel2");
+
+  q.titleLocation = "top";
+  assert.equal(q.titleWidth, undefined, "titleWidth available if titleLocation is left");
+});
+
 QUnit.test("Question property.page getChoices", function (assert) {
   var property = Serializer.findProperty("questionbase", "page");
   assert.ok(property, "page property is here");

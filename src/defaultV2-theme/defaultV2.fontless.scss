@@ -117,3 +117,15 @@ body {
 .sv-popup .sv-popup__scrolling-content {
   @include scrollRules;
 }
+
+@mixin stickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  background-color: $background-dim;
+  box-shadow: $shadow-medium, $shadow-small;
+}
+
+.sv-components-container-center {
+  @include stickyHeader;
+}

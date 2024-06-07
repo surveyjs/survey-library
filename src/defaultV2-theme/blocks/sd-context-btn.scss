@@ -48,17 +48,29 @@
   }
 }
 .sd-context-btn--with-border {
-  border: 1px solid $border-inside;
+  --box-shadow-color: #{$border-inside};
+  box-shadow: 0 0 0 1px var(--box-shadow-color);
+}
+.sd-context-btn--colorful {
+  use {
+    fill: $primary;
+  }
+  &.sd-context-btn--negative {
+    use {
+      fill: red;
+    }
+  }
 }
 .sd-context-btn--colorful:focus,
 .sd-context-btn--colorful:hover {
-  border-color: $primary;
   background: linear-gradient($primary-light, $primary-light), linear-gradient($background, $background);
-  &.sd-context-btn--with-border {
-    border-color: $primary;
-  }
   &.sd-context-btn--negative {
-    border-color: $red;
     background: linear-gradient($red-light, $red-light), linear-gradient($background, $background);
+  }
+  &.sd-context-btn--with-border {
+    --box-shadow-color: #{$primary};
+    &.sd-context-btn--negative {
+      --box-shadow-color: #{$red};
+    }
   }
 }

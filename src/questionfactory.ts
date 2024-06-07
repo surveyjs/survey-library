@@ -26,8 +26,8 @@ export class QuestionFactory {
     var itemName = surveyLocalization.getString("multipletext_itemname");
     return [itemName + "1", itemName + "2"];
   }
-  public registerQuestion(questionType: string, questionCreator: (name: string) => Question): void {
-    ElementFactory.Instance.registerElement(questionType, questionCreator);
+  public registerQuestion(questionType: string, questionCreator: (name: string) => Question, showInToolbox: boolean = true): void {
+    ElementFactory.Instance.registerElement(questionType, questionCreator, showInToolbox);
   }
   public registerCustomQuestion(questionType: string) : void {
     ElementFactory.Instance.registerCustomQuestion(questionType);
@@ -48,18 +48,18 @@ export class QuestionFactory {
 
 export class ElementFactory {
   public static Instance: ElementFactory = new ElementFactory();
-  private creatorHash: HashTable<(name: string) => IElement> = {};
+  private creatorHash: HashTable<{showInToolbox: boolean, creator: (name: string) => IElement}> = {};
 
-  public registerElement(elementType: string, elementCreator: (name: string) => IElement): void {
-    this.creatorHash[elementType] = elementCreator;
+  public registerElement(elementType: string, elementCreator: (name: string) => IElement, showInToolbox: boolean = true): void {
+    this.creatorHash[elementType] = { showInToolbox: showInToolbox, creator: elementCreator };
   }
-  public registerCustomQuestion = (questionType: string) : void => {
+  public registerCustomQuestion = (questionType: string, showInToolbox: boolean = true) : void => {
     const creator = (name: string): Question => {
       const el = Serializer.createClass(questionType);
       if(!!el) el.name = name;
       return el;
     };
-    this.registerElement(questionType, creator);
+    this.registerElement(questionType, creator, showInToolbox);
   }
   public clear(): void {
     this.creatorHash = {};
@@ -70,18 +70,26 @@ export class ElementFactory {
       Serializer.removeClass(elementType);
     }
   }
+  public getAllToolboxTypes(): Array<string> {
+    return this.getAllTypesCore(true);
+  }
   public getAllTypes(): Array<string> {
-    var result = new Array<string>();
-    for (var key in this.creatorHash) {
-      result.push(key);
-    }
-    return result.sort();
+    return this.getAllTypesCore(false);
   }
   public createElement(elementType: string, name: string): IElement {
-    var creator = this.creatorHash[elementType];
-    if (!!creator) return creator(name);
+    var item = this.creatorHash[elementType];
+    if (!!item && !!item.creator) return item.creator(name);
     const compJSON = ComponentCollection.Instance.getCustomQuestionByName(elementType);
     if(!!compJSON) return ComponentCollection.Instance.createQuestion(name, compJSON);
     return null;
+  }
+  private getAllTypesCore(showInToolboxOnly: boolean): Array<string> {
+    var result = new Array<string>();
+    for (var key in this.creatorHash) {
+      if(!showInToolboxOnly || this.creatorHash[key].showInToolbox) {
+        result.push(key);
+      }
+    }
+    return result.sort();
   }
 }

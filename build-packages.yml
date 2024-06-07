@@ -849,12 +849,14 @@ jobs:
       displayName: "npm run release"
 
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
         npm run build-plugins
       displayName: "Build Core"
 
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run build_jquery_ui
       displayName: "Build jquery-ui"
 

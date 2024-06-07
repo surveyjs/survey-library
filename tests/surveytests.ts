@@ -2,7 +2,7 @@ import { Base } from "../src/base";
 import { SurveyElement } from "../src/survey-element";
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
-import { PanelModel } from "../src/panel";
+import { PanelModel, QuestionRowModel } from "../src/panel";
 import { QuestionFactory } from "../src/questionfactory";
 import { Question } from "../src/question";
 import { QuestionHtmlModel } from "../src/question_html";
@@ -14899,7 +14899,59 @@ QUnit.test("getQuestionContentWrapperComponentName", function (assert) {
     "default component"
   );
 });
-
+QUnit.test("onElementWrapperComponentName event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }, { type: "checkbox", name: "q2", choices: [1, 2] }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  survey.onElementWrapperComponentName.add((sender, options) => {
+    if(options.wrapperName === "component" && options.reason === "test1") {
+      options.componentName += "#1";
+    }
+    if(options.wrapperName === "content-component" && options.reason === undefined) {
+      options.componentName += "#2";
+    }
+    if(options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
+      options.componentName += "#3";
+    }
+    if(options.wrapperName === "itemvalue" && options.item?.value === 1) {
+      options.componentName += "#4";
+    }
+  });
+  assert.equal(survey.getElementWrapperComponentName(q1, "test1"), "sv-template-renderer#1", "#1");
+  assert.equal(survey.getQuestionContentWrapperComponentName(q1), "sv-template-renderer#2", "#2");
+  assert.equal(survey.getRowWrapperComponentName(new QuestionRowModel(survey.pages[0])), "sv-template-renderer#3", "#3");
+  assert.equal(survey.getItemValueWrapperComponentName(q2.choices[0], q2), "sv-template-renderer#4", "#4");
+});
+QUnit.test("onElementWrapperComponentName event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }, { type: "checkbox", name: "q2", choices: [1, 2] },
+      { type: "matrixdynamic", name: "q3", rowCount: 1, columns: [{ name: "col1" }] }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q3");
+  survey.onElementWrapperComponentData.add((sender, options) => {
+    if(options.wrapperName === "component" && options.reason === "test1") {
+      options.data = "#1";
+    }
+    if(options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
+      options.data = "#2";
+    }
+    if(options.wrapperName === "itemvalue" && options.item?.value === 1) {
+      options.data = "#3";
+    }
+    if(options.wrapperName === "cell" && options.element.name === "col1") {
+      options.data = "#4";
+    }
+  });
+  assert.equal(survey.getElementWrapperComponentData(q1, "test1"), "#1", "#1");
+  assert.equal(survey.getRowWrapperComponentData(new QuestionRowModel(survey.pages[0])), "#2", "#2");
+  assert.equal(survey.getItemValueWrapperComponentData(q2.choices[0], q2), "#3", "#3");
+  assert.equal(survey.getMatrixCellTemplateData(q3.visibleRows[0].cells[0]), "#4", "#4");
+});
 QUnit.test(
   "Skip trigger test and auto focus first question on the page",
   function (assert) {

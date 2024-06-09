@@ -3,7 +3,7 @@ import { SurveyElement } from "../src/survey-element";
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { PanelModel } from "../src/panel";
-import { QuestionFactory } from "../src/questionfactory";
+import { ElementFactory, QuestionFactory } from "../src/questionfactory";
 import { Question } from "../src/question";
 import { QuestionHtmlModel } from "../src/question_html";
 import { QuestionImageModel } from "../src/question_image";
@@ -29,7 +29,7 @@ import {
   MultipleTextItemModel,
 } from "../src/question_multipletext";
 import { QuestionMatrixModel } from "../src/question_matrix";
-import { ISurveyData, LayoutElementContainer } from "../src/base-interfaces";
+import { IElement, ISurveyData, LayoutElementContainer } from "../src/base-interfaces";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
@@ -5130,6 +5130,17 @@ QUnit.test("Create custom widget from addQuestion", function (assert) {
   CustomWidgetCollection.Instance.clear();
   Serializer.removeClass(cType);
   QuestionFactory.Instance.unregisterElement(cType);
+});
+QUnit.test("ElementFactory.getAllToolboxTypes()", function (assert) {
+  let defaultToolboxNames = ElementFactory.Instance.getAllToolboxTypes();
+  let defaultNames = ElementFactory.Instance.getAllTypes();
+  assert.deepEqual(defaultToolboxNames, defaultNames, "They are the same by default");
+  const type = "toolbox-test-type";
+  ElementFactory.Instance.registerElement(type, (name: string): IElement => { return new PanelModel(name); }, false);
+  defaultToolboxNames = ElementFactory.Instance.getAllToolboxTypes();
+  defaultNames = ElementFactory.Instance.getAllTypes();
+  assert.equal(defaultToolboxNames.length + 1, defaultNames.length, "We do use the new type for toolbox");
+  ElementFactory.Instance.unregisterElement(type);
 });
 QUnit.test("readOnlyCallback, bug #1818", function (assert) {
   CustomWidgetCollection.Instance.clear();

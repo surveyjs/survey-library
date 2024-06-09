@@ -304,9 +304,6 @@ jobs:
       displayName: "run functional tests"
 
 - job: JqueryUI
-  dependsOn:
-    - NPMCache
-
   steps:
     - checkout: self
     - checkout: EmptyRepo

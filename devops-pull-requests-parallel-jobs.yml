@@ -306,7 +306,6 @@ jobs:
 - job: JqueryUI
   steps:
     - checkout: self
-    - checkout: EmptyRepo
       persistCredentials: true
       clean: true
 

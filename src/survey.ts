@@ -3223,7 +3223,6 @@ export class SurveyModel extends SurveyElementCore
       this.currentPageChanged(newPage, oldValue);
     }
   }
-
   public tryNavigateToPage(page: PageModel): boolean {
     if (this.isDesignMode) return false;
     const index = this.visiblePages.indexOf(page);

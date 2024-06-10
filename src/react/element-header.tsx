@@ -19,7 +19,7 @@ export class SurveyElementHeader extends React.Component<any, any> {
 
     const additionalTitleToolbarElement = element.hasAdditionalTitleToolbar ? <SurveyActionBar model={element.additionalTitleToolbar}></SurveyActionBar> : null;
 
-    const headerStyle = { width: undefined };
+    const headerStyle: any = { width: undefined };
     if(element instanceof Question) {
       headerStyle.width = element.titleWidth;
     }

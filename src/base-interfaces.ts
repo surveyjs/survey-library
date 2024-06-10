@@ -324,6 +324,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   getQuestionTitleWidth(): string;
   getQuestionStartIndex(): string;
   getQuestionErrorLocation(): string;
+  getColumsForElement(el: IElement): Array<any>;
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;

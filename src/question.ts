@@ -2722,6 +2722,7 @@ Serializer.addClass("question", [
   { name: "width" },
   { name: "minWidth", defaultFunc: () => settings.minWidth },
   { name: "maxWidth", defaultFunc: () => settings.maxWidth },
+  { name: "colSpan" },
   { name: "startWithNewLine:boolean", default: true, layout: "row" },
   { name: "indent:number", default: 0, choices: [0, 1, 2, 3], layout: "row" },
   {

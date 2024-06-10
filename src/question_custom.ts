@@ -719,6 +719,9 @@ export abstract class QuestionCustomModelBase extends Question
   getQuestionTitleWidth(): string {
     return undefined;
   }
+  getColumsForElement(el: IElement): Array<any> {
+    return [];
+  }
   getQuestionStartIndex(): string {
     return this.getStartIndex();
   }

@@ -1132,7 +1132,7 @@ export class PanelModelBase extends SurveyElement<Question>
       if (!userDefinedRow && curRowSpan > maxRowColSpan) maxRowColSpan = curRowSpan;
     });
 
-    const oneColumnWidth = Math.floor(10000 / maxRowColSpan) / 100;
+    const oneColumnWidth = 100 / maxRowColSpan;
     const columns = [];
     for (let index = 0; index < maxRowColSpan; index++) {
       columns.push({ width: oneColumnWidth });

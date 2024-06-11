@@ -684,7 +684,17 @@ export class Question extends SurveyElement<Question>
   }
   public get titleWidth(): string {
     if (this.getTitleLocation() === "left") {
-      if (!!this.parent) return this.parent.getQuestionTitleWidth();
+      const percentWidth = this.getPercentQuestionTitleWidth();
+      if (!percentWidth && !!this.parent) return this.parent.getQuestionTitleWidth();
+      const columns = this.parent.getColumsForElement(this as any);
+      return (percentWidth / columns.length) + "%";
+    }
+    return undefined;
+  }
+  getPercentQuestionTitleWidth(): number {
+    const width = !!this.parent && this.parent.getQuestionTitleWidth();
+    if (!!width && width[width.length - 1] === "%") {
+      return parseInt(width);
     }
     return undefined;
   }

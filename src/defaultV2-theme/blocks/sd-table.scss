@@ -663,10 +663,12 @@
 
   .sd-table__responsive-title {
     padding-bottom: calcSize(1);
-    content: attr(data-responsive-title);
     font-weight: 600;
     display: block;
     text-align: left;
+    .sv-string-viewer {
+      white-space: normal;
+    }
   }
 
   .sd-table--no-header {

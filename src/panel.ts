@@ -296,6 +296,8 @@ export class PanelModelBase extends SurveyElement<Question>
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<Question> = new Array<Question>();
   private _columns: any = undefined;
+  private _totalColSpan: number;
+
   addElementCallback: (element: IElement) => void;
   removeElementCallback: (element: IElement) => void;
   onGetQuestionTitleLocation: () => string;
@@ -1130,12 +1132,13 @@ export class PanelModelBase extends SurveyElement<Question>
       if (!userDefinedRow && curRowSpan > maxRowColSpan) maxRowColSpan = curRowSpan;
     });
 
-    const oneColumnWidth = (100 / maxRowColSpan) * 100 / 100;
+    const oneColumnWidth = Math.floor(10000 / maxRowColSpan) / 100;
     const columns = [];
     for (let index = 0; index < maxRowColSpan; index++) {
       columns.push({ width: oneColumnWidth });
     }
     this._columns = columns;
+    this._totalColSpan = maxRowColSpan;
   }
   public getColumsForElement(el: IElement): Array<any> {
     const row = this.findRowByElement(el);
@@ -1144,7 +1147,15 @@ export class PanelModelBase extends SurveyElement<Question>
     for (let index = 0; index < elementIndex; index++) {
       startIndex += ((row.elements[index] as any)["colSpan"] || 1);
     }
-    return this.columns.slice(startIndex, startIndex + ((el as any)["colSpan"] || 1));
+    let currentColSpan = (el as any)["colSpan"];
+    if (!currentColSpan && elementIndex === row.elements.length - 1) {
+      let usedSpans = 0;
+      for (let index = 0; index < row.elements.length - 1; index++) {
+        usedSpans += ((el as any)["colSpan"] || 1);
+      }
+      currentColSpan = this._totalColSpan - usedSpans;
+    }
+    return this.columns.slice(startIndex, startIndex + (currentColSpan || 1));
   }
   protected getStartIndex(): string {
     if (!!this.parent) return this.parent.getQuestionStartIndex();

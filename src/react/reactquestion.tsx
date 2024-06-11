@@ -338,6 +338,13 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
       }
     }
   }
+  protected renderCellContent(): JSX.Element {
+    return (
+      <div className={this.props.cell.cellQuestionWrapperClassName}>
+        {this.renderQuestion()}
+      </div>
+    );
+  }
   protected renderElement(): JSX.Element {
     var style = this.getCellStyle();
     const cell = this.props.cell;
@@ -347,17 +354,11 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
         ref={this.cellRef}
         className={this.itemCss}
         colSpan={cell.colSpans}
-        data-responsive-title={this.getHeaderText()}
         title={cell.getTitle()}
         style={style}
         onFocus={focusIn}
       >
-        {this.wrapCell(this.props.cell,
-          (
-            <div className={this.props.cell.cellQuestionWrapperClassName}>
-              {this.renderQuestion()}
-            </div>)
-        )}
+        {this.wrapCell(this.props.cell, this.renderCellContent())}
       </td>
     );
   }

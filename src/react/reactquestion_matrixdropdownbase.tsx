@@ -138,14 +138,12 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
       if (!!cell.width) cellStyle.width = cell.width;
       if (!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
     }
-
     return (
       <td
         className={cell.className}
         key={key}
         style={cellStyle}
         colSpan={cell.colSpans}
-        data-responsive-title={cell.headers}
         title={cell.getTitle()}
       >
         {cellContent}
@@ -369,6 +367,14 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
 
   protected getHeaderText(): string {
     return this.cell.headers;
+  }
+  protected renderCellContent() {
+    const content = super.renderCellContent();
+    const responsiveTitle = this.cell.showResponsiveTitle ? (<span className={this.cell.responsiveTitleCss}>{this.renderLocString(this.cell.responsiveLocTitle)}</span>) : null;
+    return <>
+      {responsiveTitle}
+      {content}
+    </>;
   }
   protected renderQuestion(): JSX.Element {
     if(!this.question.isVisible) return <></>;

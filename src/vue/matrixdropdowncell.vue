@@ -1,7 +1,6 @@
 <template>
   <td
     :class="cell.className"
-    :data-responsive-title="getHeaders()"
     :title="cell.getTitle()"
     :style="getCellStyle()"
     :colspan="cell.colSpans"
@@ -22,6 +21,9 @@
       :question="cell.panel"
       :css="question.cssClasses"
     ></component>
+    <span v-if="cell.showResponsiveTitle" :class="cell.responsiveTitleCss">
+      <survey-string :locString="cell.responsiveLocTitle" />
+    </span>
     <div v-if="cell.hasQuestion" :class="cell.cellQuestionWrapperClassName">
       <component
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"

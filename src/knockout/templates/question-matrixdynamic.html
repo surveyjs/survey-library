@@ -48,8 +48,13 @@
 </script>
 <script type="text/html" id="survey-matrixdropdown-cell">
   <td
-    data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { 'data-responsive-title': headers, title: $data.getTitle(), colspan: $data.colSpans }, event: {focusin: $data.focusIn }"
+    data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { title: $data.getTitle(), colspan: $data.colSpans }, event: {focusin: $data.focusIn }"
   >
+    <!-- ko if: $data.showResponsiveTitle -->
+    <span data-bind="css: $data.responsiveTitleCss">
+        <!-- ko template: { name: 'survey-string', data: $data.responsiveLocTitle } --><!-- /ko -->
+    </span>
+    <!-- /ko -->
     <!-- ko if: $data.matrix -->
     <div data-bind="visible: question.isVisible, css: cellQuestionWrapperClassName">
       <!-- ko if: $data.isOtherChoice -->
@@ -129,13 +134,13 @@
         </td>
         <!-- /ko -->
         <!-- ko if: $data.isActionsCell -->
-        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }">
+        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, title: $data.getTitle() }">
           <!-- ko component: { name: 'sv-action-bar', params: { model: $data.item.getData(), handleClick: false } } -->
           <!-- /ko -->
         </td>
         <!-- /ko -->
         <!-- ko if: $data.isEmpty -->
-        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }"></td>
+        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, title: $data.getTitle() }"></td>
         <!-- /ko -->
         <!-- ko if: $data.hasPanel -->
         <td data-bind="css: $data.className, attr: { colspan: $data.colSpans }">
@@ -147,7 +152,7 @@
         </td>
         <!-- /ko -->
         <!-- ko if: $data.isErrorsCell -->
-        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }">
+        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, title: $data.getTitle() }">
             <!-- ko template: { name: 'survey-question-errors', data: $data.question, as: 'question' } -->
             <!-- /ko -->
         </td>
@@ -157,7 +162,7 @@
         <!-- /ko -->
         <!-- ko if: $data.hasTitle -->
         <td
-          data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }"
+          data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { colspan: $data.colSpans, title: $data.getTitle() }"
         >
           <!-- ko component: { name: question.getRowHeaderWrapperComponentName($data), params: { componentData:  question.getRowHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
           <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->

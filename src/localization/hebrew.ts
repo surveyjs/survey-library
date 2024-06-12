@@ -12,7 +12,7 @@ export var hebrewSurveyStrings = {
   refuseItemText: "מסרבים לענות",
   dontKnowItemText: "לא יודע",
   selectAllItemText: "בחר הכל",
-  progressText: "דף {1} מתוך {0}",
+  progressText: "דף {0} מתוך {1}",
   indexText: "{0} מתוך {1}",
   panelDynamicProgressText: "הקלטה {0} מתוך {1}",
   panelDynamicTabTextFormat: "לוח {panelIndex}",

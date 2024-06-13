@@ -7688,6 +7688,14 @@ export class SurveyModel extends SurveyElementCore
 
   private onScrollCallback: () => void;
   public onScroll(): void {
+    if (!!this.rootElement) {
+      const topStickyContainer = this.rootElement.querySelector(".sv-components-container-center");
+      if (!!topStickyContainer && topStickyContainer.getBoundingClientRect().y <= this.rootElement.getBoundingClientRect().y) {
+        this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
+      } else {
+        this.rootElement.classList && this.rootElement.classList.remove("sv-root--sticky-top");
+      }
+    }
     if (this.onScrollCallback) {
       this.onScrollCallback();
     }

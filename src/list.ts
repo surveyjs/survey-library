@@ -192,12 +192,12 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if (this.allowSelection) {
       this.selectedItem = itemValue;
     }
+    if (!!this.onSelectionChanged) {
+      this.onSelectionChanged(itemValue);
+    }
     const action = (itemValue as IAction).action;
     if (!!action) {
       action(itemValue);
-    }
-    if (!!this.onSelectionChanged) {
-      this.onSelectionChanged(itemValue);
     }
   };
 

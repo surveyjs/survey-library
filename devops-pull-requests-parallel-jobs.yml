@@ -306,7 +306,6 @@ jobs:
 - job: JqueryUI
   steps:
     - checkout: self
-    - checkout: EmptyRepo
       persistCredentials: true
       clean: true
 
@@ -317,7 +316,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+        SourceFolder: "$(Build.SourcesDirectory)/"
         Contents: "package.json"
         TargetFolder: "$(Build.SourcesDirectory)/Temp/"
         OverWrite: true
@@ -325,7 +324,7 @@ jobs:
     - task: Cache@2
       inputs:
         key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/survey-library/node_modules
+        path: $(Build.SourcesDirectory)/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
@@ -359,11 +358,11 @@ jobs:
       inputs:
         command: install
         verbose: false
-        workingDir: $(Build.SourcesDirectory)/survey-library
+        workingDir: $(Build.SourcesDirectory)
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library
+        cd $(Build.SourcesDirectory)
         npm run release -- --release-as $(SurveyJSVersion)
         git status
       displayName: "npm run release"
@@ -379,7 +378,6 @@ jobs:
       displayName: "Build jquery-ui"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library
         npm run testcafe:jquery-ui:ci
       displayName: "run functional tests"
 

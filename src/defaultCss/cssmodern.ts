@@ -325,6 +325,7 @@ export var modernCss = {
   matrixdropdown: {
     root: "sv-table sv-matrixdropdown",
     cell: "sv-table__cell",
+    cellResponsiveTitle: "sv-table__responsive-title",
     headerCell: "sv-table__cell sv-table__cell--header",
     row: "sv-table__row",
     rowTextCell: "sv-table__cell--row-text",
@@ -343,6 +344,7 @@ export var modernCss = {
   matrixdynamic: {
     root: "sv-table sv-matrixdynamic",
     cell: "sv-table__cell",
+    cellResponsiveTitle: "sv-table__responsive-title",
     headerCell: "sv-table__cell sv-table__cell--header",
     button: "sv-btn",
     buttonAdd: "sv-matrixdynamic__add-btn",

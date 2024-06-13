@@ -41,15 +41,8 @@
 
               table.sv_q_matrix_dropdown,
               table.sv_q_matrix_dynamic {
-                td {
-                  &:before {
-                    content: attr(data-responsive-title);
-                  }
-                }
-                .sv-table__cell--row-text {
-                  &::before {
-                    content: none;
-                  }
+                .sv_matrix_cell_responsive_title {
+                  display: block;
                 }
               }
 

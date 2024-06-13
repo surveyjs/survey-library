@@ -168,10 +168,10 @@ export class InputMaskNumeric extends InputMaskBase {
       }
       if (value >= min && value <= max) return true;
       if (!matchWholeMask) {
-        if (!number.hasDecimalSeparator) {
+        if (!number.hasDecimalSeparator && value != 0) {
           let test_high = value;
           let test_low = value;
-          if (value >= 0) {
+          if (value > 0) {
             if (value + 1 > min && value <= max) return true;
             while (true) {
               test_high = test_high * 10 + 9;

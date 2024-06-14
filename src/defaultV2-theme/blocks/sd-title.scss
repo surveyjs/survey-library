@@ -15,8 +15,6 @@
   font-family: $font-family;
   gap: calcSize(4);
   box-shadow: 0px 2px 0px $primary;
-  position: relative;
-  z-index: 1;
 
   .sd-logo.sv-logo--right {
     margin-left: auto;

@@ -121,8 +121,6 @@ body {
 @mixin stickyHeader {
   position: sticky;
   top: 0;
-  z-index: 15;
-  background-color: $background-dim;
 }
 
 .sv-components-container-center {
@@ -131,6 +129,8 @@ body {
 
 .sv-root--sticky-top {
   .sv-components-container-center {
+    z-index: 15;
+    background-color: $background-dim;
     box-shadow: $shadow-medium, $shadow-small;
   }
 }

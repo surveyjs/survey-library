@@ -39,3 +39,13 @@
 .sd-body__progress--bottom .sd-progress__text {
   margin-top: calcSize(-3.5);
 }
+
+.sv-root--sticky-top {
+  .sd-progress__text {
+    padding: calcSize(1) calcSize(1.5);
+    border-radius: calcSize(0.5);
+    opacity: 0.75;
+    background: $background;
+    box-shadow: $shadow-medium, $shadow-small;
+  }
+}

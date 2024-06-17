@@ -2139,7 +2139,10 @@ Serializer.addClass(
     "enableIf:condition",
     "requiredIf:condition",
     {
-      name: "questionTitleWidth"
+      name: "questionTitleWidth",
+      visibleIf: function (obj: any) {
+        return !!obj && obj["getQuestionTitleLocation"]() === "left";
+      }
     },
     {
       name: "questionTitleLocation",

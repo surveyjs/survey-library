@@ -102,7 +102,7 @@
     "prepare": "husky install",
     "test:postcss": "postcss build/survey-core/defaultV2.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -o defaultV2.postcss.css && rimraf defaultV2.postcss.css"
   },
-  "version": "1.10.6",
+  "version": "1.11.2",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

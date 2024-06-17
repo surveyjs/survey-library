@@ -787,6 +787,10 @@ QUnit.test("numeric validateNumber: min & max - small range positive", function 
   maskInstance.max = 7;
 
   const number: any = {};
+
+  number.integralPart = "0";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
   number.integralPart = "8";
   assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
 
@@ -799,6 +803,9 @@ QUnit.test("numeric validateNumber: min & max - small range positive", function 
   maskInstance.allowNegativeValues = false;
   maskInstance.min = 43;
   maskInstance.max = 47;
+
+  number.integralPart = "0";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
 
   number.integralPart = "3";
   assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
@@ -826,6 +833,9 @@ QUnit.test("numeric validateNumber: min & max - small range negative", function 
   maskInstance.allowNegativeValues = true;
   maskInstance.max = -43;
   maskInstance.min = -47;
+
+  number.integralPart = "0";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
 
   number.isNegative = true;
   number.integralPart = "3";
@@ -880,6 +890,31 @@ QUnit.test("numeric validateNumber: min & max - small range fractial positive", 
   const number: any = {};
 
   number.integralPart = "2";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+
+  number.hasDecimalSeparator = true;
+  assert.ok(maskInstance.validateNumber(number, false), "test with dot " + maskInstance.convertNumber(number));
+
+  number.fractionalPart = "62";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.fractionalPart = "68";
+  assert.notOk(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.fractionalPart = "63";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+  number.fractionalPart = "65";
+  assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
+});
+
+QUnit.test("numeric validateNumber: min & max - small range fractial positive less 1", function (assert) {
+  const maskInstance = new InputMaskNumeric();
+  maskInstance.allowNegativeValues = true;
+  maskInstance.min = 0.63;
+  maskInstance.max = 0.67;
+  maskInstance.precision = 2;
+
+  const number: any = {};
+
+  number.integralPart = "0";
   assert.ok(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number));
 
   number.hasDecimalSeparator = true;

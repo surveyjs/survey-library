@@ -1019,3 +1019,16 @@ export interface PopupVisibleChangedEvent extends QuestionEventMixin {
    */
   visible: boolean;
 }
+
+export interface ElementWrapperComponentEventMixin {
+  element: any;
+  wrapperName: string;
+  reason?: string;
+  item?: ItemValue;
+}
+export interface ElementWrapperComponentNameEvent extends ElementWrapperComponentEventMixin {
+  componentName: string;
+}
+export interface ElementWrapperComponentDataEvent extends ElementWrapperComponentEventMixin {
+  data: any;
+}

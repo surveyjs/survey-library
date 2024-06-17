@@ -168,7 +168,7 @@ $matrix-row-fade-out-duration: var(--sjs-matrix-row-fade-out-duration, 100ms);
 $matrix-row-move-out-duration: var(--sjs-matrix-row-move-out-duration, 250ms);
 $matrix-row-move-out-delay: var(--sjs-matrix-row-move-out-delay, 100ms);
 
-$matrix-detail-row-fade-in-duration: var(--sjs--fade-in-duration, 500ms);
+$matrix-detail-row-fade-in-duration: var(--sjs-matrix-detail-row-fade-in-duration, 500ms);
 $matrix-detail-row-move-in-duration: var(--sjs-matrix-detail-row-move-in-duration, 150ms);
 $matrix-detail-row-fade-in-delay: var(--sjs-matrix-detail-row-fade-in-delay, 150ms);
 $matrix-detail-row-fade-out-duration: var(--sjs-matrix-detail-row-fade-out-duration, 150ms);
@@ -194,7 +194,6 @@ $pd-tab-add-fade-in-delay: var(--sjs-pd-tab-add-fade-in-delay, 250ms);
 $pd-tab-remove-fade-out-duration: var(--sjs-pd-tab-remove-fade-out-duration, 150ms);
 $pd-tab-remove-fade-out-delay: var(--sjs-pd-tab-remove-fade-out-delay, 0ms);
 $pd-tab-remove-fade-in-delay: var(--sjs-pd-tab-remove-fade-in-delay, 150ms);
-
 
 $pd-list-fade-in-duration: var(--sjs-pd-list-fade-in-duration, 500ms);
 $pd-list-move-in-duration: var(--sjs-pd-list-move-in-duration, 250ms);

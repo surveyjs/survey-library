@@ -102,7 +102,7 @@ export class Cover extends Base {
       .toString();
   }
   public fromTheme(theme: ITheme): void {
-    super.fromJSON(theme.header);
+    super.fromJSON(theme.header || {});
     if (!!theme.cssVariables) {
       this.backgroundColor = theme.cssVariables["--sjs-header-backcolor"];
       this.titleColor = theme.cssVariables["--sjs-font-headertitle-color"];

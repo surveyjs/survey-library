@@ -48,6 +48,13 @@ frameworks.forEach(framework => {
   test("Expression text breaks into lines", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
+      await ClientFunction(() => {
+        function currentTestDate() {
+          return new Date(2024, 5, 30, 9, 10, 36);
+        }
+        window["Survey"].FunctionFactory.Instance.register("currentTestDate", currentTestDate);
+      })();
+
       await initSurvey(framework, {
         "logoPosition": "right",
         "pages": [
@@ -62,7 +69,7 @@ frameworks.forEach(framework => {
                 "type": "expression",
                 "name": "question2",
                 "startWithNewLine": false,
-                "expression": "currentDate()"
+                "expression": "currentTestDate()"
               }
             ]
           }

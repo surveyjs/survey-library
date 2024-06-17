@@ -1,7 +1,6 @@
 <template>
   <td
     :class="cell.className"
-    :data-responsive-title="getHeaders()"
     :title="cell.getTitle()"
     :style="getCellStyle()"
     :colspan="cell.colSpans"
@@ -22,6 +21,9 @@
       :question="cell.panel"
       :css="question.cssClasses"
     ></component>
+    <span v-if="cell.showResponsiveTitle" :class="cell.responsiveTitleCss">
+      <survey-string :locString="cell.responsiveLocTitle" />
+    </span>
     <div v-if="cell.hasQuestion" :class="cell.cellQuestionWrapperClassName">
       <component
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"
@@ -55,13 +57,14 @@
       />
     </div>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
-    <span v-if="!!cell.requiredText" :class="question.cssClasses.cellRequiredText">{{ cell.requiredText }}</span>
+    <span v-if="!!getRequiredText()" :class="question.cssClasses.cellRequiredText">{{ getRequiredText() }}</span>
   </td>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
+import BaseVue from "./base";
 import {
   Question,
   QuestionMatrixDropdownRenderedCell,
@@ -70,7 +73,7 @@ import {
 import { getComponentName } from "./question";
 
 @Component
-export class MatrixDropdownCellComp extends Vue {
+export class MatrixDropdownCellComp extends BaseVue {
   @Prop() question: Question;
   @Prop() cell: QuestionMatrixDropdownRenderedCell;
 
@@ -78,8 +81,17 @@ export class MatrixDropdownCellComp extends Vue {
   getComponentName(element: Question | any) {
     return getComponentName(element);
   }
-  getHeaders(): string {
-    return this.cell.headers;
+  getModel() {
+    if(this.cell.hasQuestion) {
+      return this.cell.question;
+    }
+    if(!!this.cell.column) {
+      return this.cell.column;
+    }
+    return null as any;
+  }
+  getRequiredText(): string {
+    return this.cell.requiredText;
   }
   getCellStyle() {
     if (!!this.cell.width || !!this.cell.minWidth)

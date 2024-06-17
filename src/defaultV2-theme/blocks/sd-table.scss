@@ -493,7 +493,7 @@
 
   &.sd-element--nested > .sd-question__content,
   &:not(.sd-element--with-frame):not(.sd-element--nested) {
-    padding-right: calc(var(--sd-base-padding));
+    padding-right: var(--sd-base-padding);
     margin-right: calc(-1 * var(--sd-base-padding));
     padding-left: var(--sd-base-padding);
     margin-left: calc(-1 * var(--sd-base-padding));

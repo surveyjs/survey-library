@@ -7635,10 +7635,7 @@ export class SurveyModel extends SurveyElementCore
 
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
-        this.removeLayoutElement("advanced-header");
-        const advHeader = new Cover();
-        advHeader.fromTheme(theme);
-        this.insertAdvancedHeader(advHeader);
+        return;
       }
       if (key === "isPanelless") {
         this.isCompact = theme[key];
@@ -7646,6 +7643,12 @@ export class SurveyModel extends SurveyElementCore
         (this as any)[key] = theme[key];
       }
     });
+    if (this.headerView === "advanced" || "header" in theme) {
+      this.removeLayoutElement("advanced-header");
+      const advHeader = new Cover();
+      advHeader.fromTheme(theme);
+      this.insertAdvancedHeader(advHeader);
+    }
     this.themeChanged(theme);
   }
   public themeChanged(theme: ITheme): void {

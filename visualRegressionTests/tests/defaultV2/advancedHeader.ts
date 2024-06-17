@@ -132,4 +132,45 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-advanced-header-background-custom-set.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
+
+  test("Check header background color modes", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "description": "Building your own form management\nsystem has never been easier.",
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "radiogroup",
+                "name": "question1",
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ]
+              }
+            ]
+          }
+        ]
+      });
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-header-backcolor": "transparent"
+          },
+          "header": {
+            "inheritWidthFrom": "survey"
+          },
+          "headerView": "advanced"
+        });
+      })();
+      await t.wait(500);
+      await resetFocusToBody();
+      await takeElementScreenshot("survey-advanced-header-text-alignment.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
 });

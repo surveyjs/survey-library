@@ -18128,7 +18128,7 @@ QUnit.test("getContainerContent - header elements order", function (assert) {
     container: "header",
     component: "sv-custom",
   });
-  survey.applyTheme({ header: {} } as any);
+  survey.applyTheme({ "headerView": "advanced" } as any);
 
   assert.deepEqual(getContainerContent("header"), [
     {
@@ -18143,6 +18143,18 @@ QUnit.test("getContainerContent - header elements order", function (assert) {
       "id": "custom"
     }
   ], "advanved header first, progress next");
+});
+
+QUnit.test("restore header css variable if header is default", function (assert) {
+  const json = {
+    title: "Title",
+    elements: [{ "type": "rating", "name": "satisfaction" }]
+  };
+  let survey = new SurveyModel(json);
+  survey.applyTheme({ "headerView": "advanced", cssVariables: { "--sjs-header-backcolor": "transparent" } } as any);
+
+  const cover = survey.findLayoutElement("advanced-header").data as Cover;
+  assert.equal(cover.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
 });
 
 QUnit.test("check title classes when readOnly changed", function (assert) {

@@ -69,7 +69,3 @@ $font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-f
   overflow-y: auto;
   top: 0;
 }
-
-.sv-header__overlap~div .sv_progress-toc:not(.sv_progress-toc--mobile) {
-  margin-top: calcSize(14);
-}

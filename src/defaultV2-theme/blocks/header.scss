@@ -4,8 +4,15 @@
 }
 
 .sv-header__overlap {
-  margin-bottom: calcSize(-14);
   padding-bottom: calcSize(8);
+
+  &~div {
+
+    .sd-body,
+    .sv-body {
+      margin-top: calcSize(-14);
+    }
+  }
 }
 
 .sv-header__overlap.sv-header__without-background {

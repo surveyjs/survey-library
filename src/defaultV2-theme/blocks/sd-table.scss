@@ -493,11 +493,17 @@
 
   &.sd-element--nested > .sd-question__content,
   &:not(.sd-element--with-frame):not(.sd-element--nested) {
-    padding-right: var(--sd-base-padding);
+    padding-right: calc(var(--sd-base-padding));
     margin-right: calc(-1 * var(--sd-base-padding));
     padding-left: var(--sd-base-padding);
     margin-left: calc(-1 * var(--sd-base-padding));
     box-sizing: content-box;
+  }
+}
+
+.sd-row--multiple {
+  .sd-question--table.sd-element--nested > .sd-question__content {
+    padding-right: calc(var(--sd-base-padding) + 2px);
   }
 }
 

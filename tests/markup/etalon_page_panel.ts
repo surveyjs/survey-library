@@ -220,6 +220,29 @@ registerMarkupTest(
     snapshot: "page-swnl-title-v2",
   });
 
+registerMarkupTest({
+  name: "Test Page - start with new line Title",
+  json: {
+    "pages": [
+      {
+        "name": "page1",
+        "questionTitleLocation": "left",
+        "questionTitleWidth": "500px",
+        "elements": [
+          {
+            "type": "text",
+            "name": "name",
+            "title": "Employee name:",
+          }
+        ]
+      }]
+  },
+  before: () => StylesManager.applyTheme("defaultV2"),
+  after: () => StylesManager.applyTheme("default"),
+  event: "onAfterRenderPage",
+  snapshot: "page-questionTitleWidth",
+});
+
 registerMarkupTest(
   {
     name: "Test Panel - Panel/Questions titles and descriptions",

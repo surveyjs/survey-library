@@ -52,7 +52,7 @@
             <use :xlink:href="question.dashSvgIcon"></use>
           </svg>
         </div>
-        <component :is="question.itemContentComponent" :item="item" :cssClasses="question.cssClasses"></component>
+        <component :is="question.itemContent" :item="item" :cssClasses="question.cssClasses"></component>
       </div>
     </div>
   </div>

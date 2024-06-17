@@ -179,7 +179,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   }
 
   protected renderElement(): JSX.Element {
-    let itemContentComponent = ReactElementFactory.Instance.createElement(this.question.itemContentComponent, { item: this.item, cssClasses: this.cssClasses });
+    let itemContent = ReactElementFactory.Instance.createElement(this.question.itemContent, { item: this.item, cssClasses: this.cssClasses });
     return (
       <div
         tabIndex={this.itemTabIndex}
@@ -208,7 +208,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
             <div className={this.question.getItemIndexClasses(this.item)}>
               {(!this.unrankedItem && this.indexText) ? this.indexText : this.renderEmptyIcon()}
             </div>
-            {itemContentComponent}
+            {itemContent}
           </div>
         </div>
       </div>

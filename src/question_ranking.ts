@@ -590,7 +590,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    * The name of a component used to render items.
    */
   protected getDefaultItemComponent(): string {
-    return "sv-ranking-item-content";
+    return "sv-ranking-item";
   }
 
   /**
@@ -743,7 +743,7 @@ Serializer.addClass(
       },
       isSerializable: true
     },
-    { name: "itemComponent", visible: false, default: "sv-ranking-item-content" },
+    { name: "itemComponent", visible: false, default: "sv-ranking-item" },
   ],
   function () {
     return new QuestionRankingModel("");

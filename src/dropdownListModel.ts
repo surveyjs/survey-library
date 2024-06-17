@@ -409,7 +409,7 @@ export class DropdownListModel extends Base {
   }
 
   public onClick(event: any): void {
-    if (this.question.readOnly || this.question.isDesignMode) return;
+    if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
     this.question.focus();

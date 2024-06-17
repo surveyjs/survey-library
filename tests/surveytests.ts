@@ -14474,6 +14474,48 @@ QUnit.test("onTextRenderAs event", function (assert) {
   assert.equal(locString.renderAs, customRendererView);
   assert.equal(renderAs, customRendererView);
 });
+QUnit.test("onElementWrapperComponentName event vs string getRenderer", function (assert) {
+  const survey = new SurveyModel();
+  const questionName = "any question";
+  const locString = new LocalizableString(survey, false, "name");
+
+  let renderAs = survey.getRenderer(questionName);
+
+  const customRendererView = "my-custom-renderer-view";
+  const customRendererEdit = "my-custom-renderer-edit";
+  survey.onElementWrapperComponentName.add((s, e) => {
+    if(e.wrapperName !== "string") return;
+    if (s.isDesignMode) e.componentName = customRendererEdit;
+    else e.componentName = customRendererView;
+  });
+
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererView);
+  assert.equal(renderAs, customRendererView);
+
+  survey.setDesignMode(true);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererEdit);
+  assert.equal(renderAs, customRendererEdit);
+
+  survey.setDesignMode(false);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererView);
+  assert.equal(renderAs, customRendererView);
+});
+QUnit.test("onElementWrapperComponentData event vs getRendererContextForString", function (assert) {
+  const survey = new SurveyModel();
+  survey.addNewPage("page1");
+  const locString = new LocalizableString(survey, false, "name");
+
+  survey.onElementWrapperComponentData.add((s, e) => {
+    if(e.wrapperName !== "string") return;
+    e.data = { str: e.data, el: e.element };
+  });
+  const res = survey.getRendererContextForString(survey.pages[0], locString);
+  assert.equal(res.str.name, "name", "string is correct");
+  assert.equal(res.el.name, "page1", "element is correct");
+});
 
 QUnit.test("Make inputs read-only in design-mode for V2", function (assert) {
   settings.supportCreatorV2 = true;

@@ -1920,13 +1920,14 @@ export class SurveyModel extends SurveyElementCore
     return this.getRendererContextForString(this, locStr);
   }
   public getRendererForString(element: Question | PanelModel | PageModel | SurveyModel, name: string): string {
-    const renderAs = this.getBuiltInRendererForString(element, name);
+    let renderAs = this.getBuiltInRendererForString(element, name);
+    renderAs = this.elementWrapperComponentNameCore(renderAs, element, "string");
     const options: TextRenderAsEvent = { element: element, name: name, renderAs: renderAs };
     this.onTextRenderAs.fire(this, options);
     return options.renderAs;
   }
-  public getRendererContextForString(element: Base, locStr: LocalizableString) {
-    return locStr;
+  public getRendererContextForString(element: Base, locStr: LocalizableString): any {
+    return this.elementWrapperDataCore(locStr, element, "string");
   }
   getExpressionDisplayValue(
     question: Question,

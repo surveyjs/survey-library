@@ -32,10 +32,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.dragOrClickHelper = new DragOrClickHelper(this.startDrag);
   }
 
-  protected getDefaultItemComponent(): string {
-    return "";
-  }
-
   public getType(): string {
     return "ranking";
   }
@@ -593,11 +589,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   /**
    * The name of a component used to render items.
    */
-  public get itemContentComponent(): string {
-    return this.getPropertyValue("itemContentComponent", "sv-ranking-item-content");
-  }
-  public set itemContentComponent(value: string) {
-    this.setPropertyValue("itemContentComponent", value);
+  protected getDefaultItemComponent(): string {
+    return "sv-ranking-item-content";
   }
 
   /**
@@ -750,8 +743,7 @@ Serializer.addClass(
       },
       isSerializable: true
     },
-    { name: "itemComponent", visible: false, default: "" },
-    { name: "itemContentComponent", visible: false, default: "sv-ranking-item-content" },
+    { name: "itemComponent", visible: false, default: "sv-ranking-item-content" },
   ],
   function () {
     return new QuestionRankingModel("");

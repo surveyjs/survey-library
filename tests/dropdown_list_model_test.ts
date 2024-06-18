@@ -893,10 +893,9 @@ QUnit.test("Dropdown should not be open on click in design mode", (assert) => {
 
 QUnit.test("Dropdown should not be open on click in preview mode", (assert) => {
   const survey = new SurveyModel(jsonDropdown);
-  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-
-  question.value = "item9";
   survey.showPreview();
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
   const dropdownListModel = question.dropdownListModel;
   const popupModel = dropdownListModel.popupModel;

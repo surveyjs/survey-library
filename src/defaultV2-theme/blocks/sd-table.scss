@@ -501,6 +501,12 @@
   }
 }
 
+.sd-row--multiple {
+  .sd-question--table.sd-element--nested > .sd-question__content {
+    padding-right: calc(var(--sd-base-padding) + 2px);
+  }
+}
+
 .sd-question--scroll {
   overflow-x: scroll;
 }

@@ -1,5 +1,5 @@
 <template>
-  <div :class="element.cssHeader" @click="clickTitleFunction">
+  <div :class="element.cssHeader" @click="clickTitleFunction" :style="titleStyle">
     <survey-element-title :element="element" :css="css" />
     <div v-if="element.hasDescriptionUnderTitle" v-show="element.hasDescription" :class="element.cssDescription"
       :id="element.ariaDescriptionId">
@@ -23,6 +23,14 @@ export class ElementHeader extends Vue {
     if(typeof (<any>this.element).clickTitleFunction === "function") {
       (<any>this.element).clickTitleFunction(e);
     }
+  }
+
+  get titleStyle() {
+    const headerStyle: any = { width: undefined };
+    if("titleWidth" in this.element) {
+      headerStyle.width = this.element.titleWidth;
+    }
+    return headerStyle;
   }
 }
 Vue.component("survey-element-header", ElementHeader);

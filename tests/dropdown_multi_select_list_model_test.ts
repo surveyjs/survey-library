@@ -355,5 +355,14 @@ QUnit.test("tagbox hint after deselect", function (assert) {
   dropdownListModel.keyHandler(event);
   assert.deepEqual(question.value, []);
   assert.equal(dropdownListModel.hintString, "item1", "item3 hintString again");
+});
 
+QUnit.test("tagbox placeholder not updated", function (assert) {
+  const survey = new SurveyModel(jsonTagbox);
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  assert.equal(dropdownListModel.filterStringPlaceholder, "Select...");
+
+  question.placeholder = "Choose...";
+  assert.equal(dropdownListModel.filterStringPlaceholder, "Choose...");
 });

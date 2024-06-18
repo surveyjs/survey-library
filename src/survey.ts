@@ -1921,7 +1921,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public getRendererForString(element: Question | PanelModel | PageModel | SurveyModel, name: string): string {
     let renderAs = this.getBuiltInRendererForString(element, name);
-    renderAs = this.elementWrapperComponentNameCore(renderAs, element, "string");
+    renderAs = this.elementWrapperComponentNameCore(renderAs, element, "string", name);
     const options: TextRenderAsEvent = { element: element, name: name, renderAs: renderAs };
     this.onTextRenderAs.fire(this, options);
     return options.renderAs;

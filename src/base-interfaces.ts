@@ -322,6 +322,7 @@ export interface IParentElement {
 export interface IPanel extends ISurveyElement, IParentElement {
   getChildrenLayoutType(): string;
   getQuestionTitleLocation(): string;
+  getQuestionTitleWidth(): string;
   getQuestionStartIndex(): string;
   getQuestionErrorLocation(): string;
   parent: IPanel;

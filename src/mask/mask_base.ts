@@ -18,6 +18,12 @@ export class InputMaskBase extends Base implements IInputMask {
    */
   @property() saveMaskedValue: boolean;
 
+  public owner: ISurvey;
+
+  public getSurvey(live: boolean = false): ISurvey {
+    return this.owner as any;
+  }
+
   public getType(): string {
     return "masksettings";
   }

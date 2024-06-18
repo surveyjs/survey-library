@@ -89,7 +89,7 @@ export class DropdownListModel extends Base {
   protected createPopup(): void {
     const popupOptions: IPopupOptionsBase = { verticalPosition: "bottom", horizontalPosition: "center", showPointer: false };
     this._popupModel = new PopupModel("sv-list", { model: this.listModel }, popupOptions);
-    this._popupModel.displayMode = this.question.survey.isMobile ? "overlay" : "popup";
+    this._popupModel.displayMode = IsTouch ? "overlay" : "popup";
     this._popupModel.positionMode = "fixed";
     this._popupModel.isFocusedContainer = false;
     this._popupModel.isFocusedContent = IsTouch;

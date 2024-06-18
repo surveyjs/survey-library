@@ -99,6 +99,7 @@ export var georgianSurveyStrings = {
   emptyMessage: "მონაცემები არ არის საჩვენებლად",
   noEntriesText: "ჯერ არ არის ჩანაწერები.\nდააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ დაამატოთ ახალი ჩანაწერი.",
   noEntriesReadonlyText: "არ არსებობს ჩანაწერები.",
+  tabTitlePlaceholder: "ახალი პანელი",
   more: "სრულად",
   tagboxDoneButtonCaption: "კარგი",
   selectToRankEmptyRankedAreaText: "ყველა არჩევანი რანჟირებულია",
@@ -194,4 +195,4 @@ surveyLocalization.localeNames["ka"] = "ქართული";
 // cancel: "Cancel" => "გაუქმება"
 // refuseItemText: "Refuse to answer" => "უარი პასუხზე"
 // dontKnowItemText: "Don't know" => "არ ვიცი"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "თქვენი პასუხი აღემატება 64KB. გთხოვთ, შეამციროთ თქვენი ფაილ(ებ)ის ზომა და სცადოთ ხელახლა ან დაუკავშირდეთ გამოკითხვის მფლობელს."
-// signaturePlaceHolderReadOnly: "No signature" => "ხელმოწერა არ არის"
+// signaturePlaceHolderReadOnly: "No signature" => "ხელმოწერა არ არის"// tabTitlePlaceholder: "New Panel" => "ახალი პანელი"

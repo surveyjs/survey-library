@@ -99,6 +99,7 @@ export var polishSurveyStrings = {
   emptyMessage: "Brak danych do wyświetlenia",
   noEntriesText: "Nie ma jeszcze wpisów.\nKliknij przycisk poniżej, aby dodać nowy wpis.",
   noEntriesReadonlyText: "Brak wpisów.",
+  tabTitlePlaceholder: "Nowy panel",
   more: "Więcej",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Wszystkie wybory są uszeregowane",
@@ -129,4 +130,4 @@ surveyLocalization.localeNames["pl"] = "polski";
 // cancel: "Cancel" => "Anuluj"
 // refuseItemText: "Refuse to answer" => "Odmów odpowiedzi"
 // dontKnowItemText: "Don't know" => "Nie wiem"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Twoja odpowiedź przekracza 64 KB. Zmniejsz rozmiar plików i spróbuj ponownie lub skontaktuj się z właścicielem ankiety."
-// signaturePlaceHolderReadOnly: "No signature" => "Brak podpisu"
+// signaturePlaceHolderReadOnly: "No signature" => "Brak podpisu"// tabTitlePlaceholder: "New Panel" => "Nowy panel"

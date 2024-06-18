@@ -99,6 +99,7 @@ export var turkishSurveyStrings = {
   emptyMessage: "Görüntülenecek veri yok",
   noEntriesText: "Henüz giriş yok.\nYeni bir giriş eklemek için aşağıdaki düğmeyi tıklayın.",
   noEntriesReadonlyText: "Giriş yok.",
+  tabTitlePlaceholder: "Yeni Panel",
   more: "Daha fazla",
   tagboxDoneButtonCaption: "TAMAM",
   selectToRankEmptyRankedAreaText: "Tüm seçenekler sıralanmıştır",
@@ -122,4 +123,4 @@ surveyLocalization.localeNames["tr"] = "türkçe";
 // ok: "OK" => "TAMAM"
 // cancel: "Cancel" => "İptal"// refuseItemText: "Refuse to answer" => "Cevap vermeyi reddet"
 // dontKnowItemText: "Don't know" => "Bilmiyorum"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Yanıtınız 64 KB'ı aşıyor. Lütfen dosyalarınızın boyutunu küçültün ve tekrar deneyin veya bir anket sahibiyle iletişime geçin."
-// signaturePlaceHolderReadOnly: "No signature" => "İmza yok"
+// signaturePlaceHolderReadOnly: "No signature" => "İmza yok"// tabTitlePlaceholder: "New Panel" => "Yeni Panel"

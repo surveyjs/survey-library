@@ -99,6 +99,7 @@ export var greekSurveyStrings = {
   emptyMessage: "Δεν υπάρχουν δεδομένα προς εμφάνιση",
   noEntriesText: "Δεν υπάρχουν ακόμη εγγραφές.\nΚάντε κλικ στο κουμπί παρακάτω για να προσθέσετε μια νέα εγγραφή.",
   noEntriesReadonlyText: "Δεν υπάρχουν καταχωρήσεις.",
+  tabTitlePlaceholder: "Νέο πάνελ",
   more: "Περισσότερα",
   tagboxDoneButtonCaption: "ΟΚ",
   selectToRankEmptyRankedAreaText: "Όλες οι επιλογές κατατάσσονται",
@@ -126,4 +127,4 @@ surveyLocalization.localeNames["gr"] = "ελληνικά";
 // cancel: "Cancel" => "Ακυρώνω"
 // refuseItemText: "Refuse to answer" => "Αρνηθείτε να απαντήσετε"
 // dontKnowItemText: "Don't know" => "Δεν ξέρω"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Η απάντησή σας υπερβαίνει τα 64KB. Μειώστε το μέγεθος των αρχείων σας και προσπαθήστε ξανά ή επικοινωνήστε με έναν κάτοχο έρευνας."
-// signaturePlaceHolderReadOnly: "No signature" => "Χωρίς υπογραφή"
+// signaturePlaceHolderReadOnly: "No signature" => "Χωρίς υπογραφή"// tabTitlePlaceholder: "New Panel" => "Νέο πάνελ"

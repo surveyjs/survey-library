@@ -99,6 +99,7 @@ export var lithuaniaSurveyStrings = {
   emptyMessage: "Nėra rodomų duomenų",
   noEntriesText: "Įrašų dar nėra.\nSpustelėkite žemiau esantį mygtuką, kad pridėtumėte naują įrašą.",
   noEntriesReadonlyText: "Įrašų nėra.",
+  tabTitlePlaceholder: "Naujas skydelis",
   more: "Daugiau",
   tagboxDoneButtonCaption: "GERAI",
   selectToRankEmptyRankedAreaText: "Visi pasirinkimai yra reitinguojami",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["lt"] = "lietuvių";
 // cancel: "Cancel" => "Atšaukti"
 // refuseItemText: "Refuse to answer" => "Atsisakyti atsakyti"
 // dontKnowItemText: "Don't know" => "Nežinau"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jūsų atsakymas viršija 64 KB. Sumažinkite failo (-ų) dydį ir bandykite dar kartą arba susisiekite su apklausos savininku."
-// signaturePlaceHolderReadOnly: "No signature" => "Nėra parašo"
+// signaturePlaceHolderReadOnly: "No signature" => "Nėra parašo"// tabTitlePlaceholder: "New Panel" => "Naujas skydelis"

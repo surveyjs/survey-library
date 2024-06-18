@@ -6190,6 +6190,9 @@ QUnit.test("templateVisibleIf & renderMode: tab, templateTabTitle&tabTitlePlaceh
   panel.panels[1].getQuestionByName("q1").clearValue();
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "item1", "#7");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Empty value", "#8");
+  panel.locTabTitlePlaceholder.clear();
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "item1", "#9");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "New Panel", "#10");
 });
 QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   const survey = new SurveyModel({

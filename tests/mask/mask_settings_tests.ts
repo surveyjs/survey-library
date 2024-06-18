@@ -86,6 +86,28 @@ QUnit.test("Switch mask type", function (assert) {
   assert.equal(q.maskSettings instanceof InputMaskBase, true);
 });
 
+QUnit.test("Switch input type", function (assert) {
+  const testInput = document.createElement("input");
+  const q = new QuestionTextModel("q1");
+  q["input"] = testInput;
+  assert.ok(q.maskTypeIsEmpty);
+  assert.ok(!q["maskInputAdapter"]);
+
+  q.maskType = "pattern";
+  assert.ok(!q.maskTypeIsEmpty);
+  assert.ok(q["maskInputAdapter"]);
+
+  q.inputType = "date";
+  assert.ok(q.maskTypeIsEmpty);
+  assert.ok(!q["maskInputAdapter"]);
+
+  q.inputType = "text";
+  assert.ok(!q.maskTypeIsEmpty);
+  assert.ok(q["maskInputAdapter"]);
+
+  testInput.remove();
+});
+
 QUnit.test("Datetime mask: value & inputValue", function (assert) {
   const q = new QuestionTextModel("q1");
   q.maskType = "datetime";

@@ -15,9 +15,29 @@
   }
 }
 
+.sd-root-modern--mobile .sv-header__overlap {
+  padding-bottom: calcSize(2);
+
+  &~div {
+
+    .sd-body,
+    .sv-body {
+      margin-top: calcSize(-5);
+    }
+  }
+}
+
 .sv-header__overlap.sv-header__without-background {
   margin-bottom: 0;
   padding-bottom: 0;
+
+  &~div {
+
+    .sd-body,
+    .sv-body {
+      margin-top: 0;
+    }
+  }
 }
 
 .sv-header__without-background {
@@ -26,11 +46,6 @@
   .sv-header__content {
     padding-bottom: 0;
   }
-}
-
-.sd-root-modern--mobile .sv-header__overlap {
-  margin-bottom: calcSize(-5);
-  padding-bottom: calcSize(2);
 }
 
 .sv-header__content {

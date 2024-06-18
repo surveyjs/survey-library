@@ -99,6 +99,7 @@ export var icelandicSurveyStrings = {
   emptyMessage: "Engin gögn til að birta",
   noEntriesText: "Það eru engar færslur ennþá.\nSmelltu á hnappinn hér að neðan til að bæta við nýrri færslu.",
   noEntriesReadonlyText: "Það eru engar færslur.",
+  tabTitlePlaceholder: "Nýtt spjald",
   more: "Fleiri",
   tagboxDoneButtonCaption: "ÓKEI",
   selectToRankEmptyRankedAreaText: "Öllum valkostum er raðað",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["is"] = "íslenska";
 // cancel: "Cancel" => "Afturkalla"
 // refuseItemText: "Refuse to answer" => "Neita að svara"
 // dontKnowItemText: "Don't know" => "Veit ekki"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Svar þitt fer yfir 64KB. Vinsamlegast minnkaðu stærð skráa þinna og reyndu aftur eða hafðu samband við eiganda könnunarinnar."
-// signaturePlaceHolderReadOnly: "No signature" => "Engin undirskrift"
+// signaturePlaceHolderReadOnly: "No signature" => "Engin undirskrift"// tabTitlePlaceholder: "New Panel" => "Nýtt spjald"

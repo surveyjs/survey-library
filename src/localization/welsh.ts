@@ -99,6 +99,7 @@ export var welshSurveyStrings = {
   emptyMessage: "Dim data i'w arddangos",
   noEntriesText: "Nid oes unrhyw gofnodion hyd yn hyn.\nCliciwch y botwm isod i ychwanegu cofnod newydd.",
   noEntriesReadonlyText: "Nid oes unrhyw gofnodion.",
+  tabTitlePlaceholder: "Panel newydd",
   more: "Rhagor",
   tagboxDoneButtonCaption: "OCÊ",
   selectToRankEmptyRankedAreaText: "Mae'r holl ddewisiadau yn cael eu rhestru",
@@ -140,4 +141,4 @@ surveyLocalization.localeNames["cy"] = "cymraeg";
 // ok: "OK" => "OCÊ"
 // cancel: "Cancel" => "Canslo"// refuseItemText: "Refuse to answer" => "Gwrthod ateb"
 // dontKnowItemText: "Don't know" => "Ddim yn gwybod"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Mae eich ymateb yn fwy na 64KB. Lleihau maint eich ffeil(au) a cheisiwch eto neu cysylltwch â pherchennog yr arolwg."
-// signaturePlaceHolderReadOnly: "No signature" => "Dim llofnod"
+// signaturePlaceHolderReadOnly: "No signature" => "Dim llofnod"// tabTitlePlaceholder: "New Panel" => "Panel newydd"

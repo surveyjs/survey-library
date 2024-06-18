@@ -284,7 +284,7 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelNextText", this, false, "pageNextText");
     this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
     this.createLocalizableString("templateTabTitle", this, true, "panelDynamicTabTextFormat");
-    this.createLocalizableString("tabTitlePlaceholder", this, true);
+    this.createLocalizableString("tabTitlePlaceholder", this, true, "tabTitlePlaceholder");
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });

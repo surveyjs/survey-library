@@ -99,6 +99,7 @@ export var serbianStrings = {
   emptyMessage: "Nema podataka za prikazivanje",
   noEntriesText: "Još uvek nema stavki.\nKliknite na dugme ispod da biste dodali novu stavku.",
   noEntriesReadonlyText: "Nema stavki.",
+  tabTitlePlaceholder: "Nova tabla",
   more: "Viљe",
   tagboxDoneButtonCaption: "U redu",
   selectToRankEmptyRankedAreaText: "Svi izbori su rangirani",
@@ -136,4 +137,4 @@ surveyLocalization.localeNames["rs"] = "Srpski";
 // cancel: "Cancel" => "Otkaži"
 // refuseItemText: "Refuse to answer" => "Odbijanje odgovora"
 // dontKnowItemText: "Don't know" => "Ne znam"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaš odgovor premašuje 64KB. Smanjite veličinu datoteka i pokušajte ponovo ili se obratite vlasniku ankete."
-// signaturePlaceHolderReadOnly: "No signature" => "Bez potpisa"
+// signaturePlaceHolderReadOnly: "No signature" => "Bez potpisa"// tabTitlePlaceholder: "New Panel" => "Nova tabla"

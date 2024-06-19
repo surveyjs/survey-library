@@ -167,7 +167,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       }
     } else {
       if(this.isNoneItem(item)) {
-        this.renderedValue = [item.value];
+        this.renderedValue = checked ? [item.value] : [];
       } else {
         const newValue: Array<any> = [].concat(this.renderedValue || []);
         const index = newValue.indexOf(item.value);

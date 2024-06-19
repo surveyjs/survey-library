@@ -99,6 +99,7 @@ export var hindiStrings = {
   emptyMessage: "प्रदर्शित करने के लिए कोई डेटा नहीं",
   noEntriesText: "अभी तक कोई प्रविष्टियां नहीं हैं।\nनई प्रविष्टि जोड़ने के लिए नीचे दिए गए बटन पर क्लिक करें.",
   noEntriesReadonlyText: "कोई प्रविष्टियाँ नहीं हैं.",
+  tabTitlePlaceholder: "नया पैनल",
   more: "अधिक",
   tagboxDoneButtonCaption: "ठीक है",
   selectToRankEmptyRankedAreaText: "सभी विकल्पों को रैंक किया गया है",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["hi"] = "hindi";
 // ok: "OK" => "ठीक है"
 // cancel: "Cancel" => "रद्द करना"// refuseItemText: "Refuse to answer" => "जवाब देने से इनकार"
 // dontKnowItemText: "Don't know" => "नहीं मालूम"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "आपकी प्रतिक्रिया 64KB से अधिक है। कृपया अपनी फ़ाइल(फ़ाइलों) का आकार घटाएँ और पुन: प्रयास करें या सर्वेक्षण स्वामी से संपर्क करें."
-// signaturePlaceHolderReadOnly: "No signature" => "कोई हस्ताक्षर नहीं"
+// signaturePlaceHolderReadOnly: "No signature" => "कोई हस्ताक्षर नहीं"// tabTitlePlaceholder: "New Panel" => "नया पैनल"

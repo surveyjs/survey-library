@@ -26,60 +26,60 @@ Quizzes can include any question type supported by the SurveyJS Form Library. Th
 
 ```js
 const surveyJson = {
-    title: "American History",
-    pages: [{
-        elements: [{
-            type: "radiogroup",
-            name: "civilwar",
-            title: "When was the American Civil War?",
-            choices: [
-                "1796-1803", "1810-1814", "1861-1865", "1939-1945"
-            ],
-            correctAnswer: "1861-1865"
-        }]
-    }, {
-        elements: [{
-            type: "radiogroup",
-            name: "libertyordeath",
-            title: "Whose quote is this: \"Give me liberty, or give me death\"?",
-            choicesOrder: "random",
-            choices: [
-                "John Hancock", "James Madison", "Patrick Henry", "Samuel Adams"
-            ],
-            correctAnswer: "Patrick Henry"
-        }]
-    }, {
-        elements: [{
-            type: "radiogroup",
-            name: "magnacarta",
-            title: "What is Magna Carta?",
-            choicesOrder: "random",
-            choices: [
-                "The foundation of the British parliamentary system",
-                "The Great Seal of the monarchs of England",
-                "The French Declaration of the Rights of Man",
-                "The charter signed by the Pilgrims on the Mayflower"
-            ],
-            correctAnswer: "The foundation of the British parliamentary system"
-        }]
+  title: "American History",
+  pages: [{
+    elements: [{
+      type: "radiogroup",
+      name: "civilwar",
+      title: "When was the American Civil War?",
+      choices: [
+        "1796-1803", "1810-1814", "1861-1865", "1939-1945"
+      ],
+      correctAnswer: "1861-1865"
     }]
+  }, {
+    elements: [{
+      type: "radiogroup",
+      name: "libertyordeath",
+      title: "Whose quote is this: \"Give me liberty, or give me death\"?",
+      choicesOrder: "random",
+      choices: [
+        "John Hancock", "James Madison", "Patrick Henry", "Samuel Adams"
+      ],
+      correctAnswer: "Patrick Henry"
+    }]
+  }, {
+    elements: [{
+      type: "radiogroup",
+      name: "magnacarta",
+      title: "What is Magna Carta?",
+      choicesOrder: "random",
+      choices: [
+        "The foundation of the British parliamentary system",
+        "The Great Seal of the monarchs of England",
+        "The French Declaration of the Rights of Man",
+        "The charter signed by the Pilgrims on the Mayflower"
+      ],
+      correctAnswer: "The foundation of the British parliamentary system"
+    }]
+  }]
 };
 ```
 
 ## Specify Time Limits
 
-You can set time limits for a page and for the entire quiz. Use the following properties to do this:
+You can set time limits for a page and for the entire quiz using the following properties:
 
-- [`Survey.maxTimeToFinish`](https://surveyjs.io/Documentation/Library?id=surveymodel#maxTimeToFinish)      
-Time limit to finish the entire survey.
+- [`SurveyModel.maxTimeToFinish`](https://surveyjs.io/Documentation/Library?id=surveymodel#maxTimeToFinish)      
+A time limit to finish the entire survey.
 
-- [`Survey.maxTimeToFinishPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#maxTimeToFinishPage)      
-Time limit to finish one page.
+- [`SurveyModel.maxTimeToFinishPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#maxTimeToFinishPage)      
+A time limit to finish one page.
 
-- [`Page.maxTimeToFinish`](https://surveyjs.io/Documentation/Library?id=pagemodel#maxTimeToFinish)        
-Time limit to finish a specific page. Overrides the survey's `maxTimeToFinishPage` property.
+- [`PageModel.maxTimeToFinish`](https://surveyjs.io/Documentation/Library?id=pagemodel#maxTimeToFinish)      
+A time limit to finish a specific page. Overrides the survey's `maxTimeToFinishPage` property.
 
-These properties specify the time limit in seconds. If the time limit is negative or 0, it does not apply.
+These properties specify time limits in seconds. If a time limit is negative or 0, it does not apply. A survey with a page time limit doesn't display the Previous Page button, disallowing users to return to previous pages.
 
 The timer starts when a user begins the quiz. You can call the `stopTimer()` and `startTimer()` methods to suspend and resume the timer programmatically:
 
@@ -95,7 +95,7 @@ To display elapsed and remaining time, set the `showTimerPanel` property to `top
 
 ```js
 const surveyJson = {
-    showTimerPanel: "top"
+  showTimerPanel: "top"
 };
 ```
 
@@ -103,7 +103,7 @@ The timer panel can include information about time spent on the current page, on
 
 ```js
 const surveyJson = {
-    showTimerPanelMode: "all" // or "page" | "survey"
+  showTimerPanelMode: "all" // or "page" | "survey"
 };
 ```
 
@@ -112,47 +112,47 @@ const surveyJson = {
 
 ```js
 const surveyJson = {
-    title: "American History",
-    showProgressBar: "bottom",
-    showTimerPanel: "top",
-    maxTimeToFinishPage: 10,
-    maxTimeToFinish: 25,
-    pages: [{
-        elements: [{
-            type: "radiogroup",
-            name: "civilwar",
-            title: "When was the American Civil War?",
-            choices: [
-                "1796-1803", "1810-1814", "1861-1865", "1939-1945"
-            ],
-            correctAnswer: "1861-1865"
-        }]
-    }, {
-        elements: [{
-            type: "radiogroup",
-            name: "libertyordeath",
-            title: "Whose quote is this: \"Give me liberty, or give me death\"?",
-            choicesOrder: "random",
-            choices: [
-                "John Hancock", "James Madison", "Patrick Henry", "Samuel Adams"
-            ],
-            correctAnswer: "Patrick Henry"
-        }]
-    }, {
-        elements: [{
-            type: "radiogroup",
-            name: "magnacarta",
-            title: "What is Magna Carta?",
-            choicesOrder: "random",
-            choices: [
-                "The foundation of the British parliamentary system",
-                "The Great Seal of the monarchs of England",
-                "The French Declaration of the Rights of Man",
-                "The charter signed by the Pilgrims on the Mayflower"
-            ],
-            correctAnswer: "The foundation of the British parliamentary system"
-        }]
+  title: "American History",
+  showProgressBar: "bottom",
+  showTimerPanel: "top",
+  maxTimeToFinishPage: 10,
+  maxTimeToFinish: 25,
+  pages: [{
+    elements: [{
+      type: "radiogroup",
+      name: "civilwar",
+      title: "When was the American Civil War?",
+      choices: [
+        "1796-1803", "1810-1814", "1861-1865", "1939-1945"
+      ],
+      correctAnswer: "1861-1865"
     }]
+  }, {
+    elements: [{
+      type: "radiogroup",
+      name: "libertyordeath",
+      title: "Whose quote is this: \"Give me liberty, or give me death\"?",
+      choicesOrder: "random",
+      choices: [
+        "John Hancock", "James Madison", "Patrick Henry", "Samuel Adams"
+      ],
+      correctAnswer: "Patrick Henry"
+    }]
+  }, {
+    elements: [{
+      type: "radiogroup",
+      name: "magnacarta",
+      title: "What is Magna Carta?",
+      choicesOrder: "random",
+      choices: [
+        "The foundation of the British parliamentary system",
+        "The Great Seal of the monarchs of England",
+        "The French Declaration of the Rights of Man",
+        "The charter signed by the Pilgrims on the Mayflower"
+      ],
+      correctAnswer: "The foundation of the British parliamentary system"
+    }]
+  }]
 };
 ```
 </details>
@@ -163,21 +163,21 @@ A start page is used to show an introduction to your quiz. Configure the start p
 
 ```js
 const surveyJson = {
-    pages: [{
-        elements: [{
-            type: "html",
-            html: "You are about to start a quiz on American history. <br>You will have 10 seconds for every question and 25 seconds to end the quiz.<br>Enter your name below and click <b>Start Quiz</b> to begin."
-        }, {
-            type: "text",
-            name: "username",
-            titleLocation: "hidden",
-            isRequired: true
-        }]
-    },
-    // ...
-    // Other quiz pages are configured here
-    // ...
-    ]
+  pages: [{
+    elements: [{
+      type: "html",
+      html: "You are about to start a quiz on American history. <br>You will have 10 seconds for every question and 25 seconds to end the quiz.<br>Enter your name below and click <b>Start Quiz</b> to begin."
+    }, {
+      type: "text",
+      name: "username",
+      titleLocation: "hidden",
+      isRequired: true
+    }]
+  },
+  // ...
+  // Other quiz pages are configured here
+  // ...
+  ]
 };
 ```
 
@@ -185,8 +185,8 @@ Enable the [`firstPageIsStarted`](https://surveyjs.io/Documentation/Library?id=s
 
 ```js
 const surveyJson = {
-    firstPageIsStarted: true,
-    startSurveyText: "Start Quiz",
+  firstPageIsStarted: true,
+  startSurveyText: "Start Quiz",
 };
 ```
 
@@ -195,59 +195,59 @@ const surveyJson = {
 
 ```js
 const surveyJson = {
-    title: "American History",
-    showProgressBar: "bottom",
-    showTimerPanel: "top",
-    maxTimeToFinishPage: 10,
-    maxTimeToFinish: 25,
-    firstPageIsStarted: true,
-    startSurveyText: "Start Quiz",
-    pages: [{
-        elements: [{
-            type: "html",
-            html: "You are about to start a quiz on American history. <br>You will have 10 seconds for every question and 25 seconds to end the quiz.<br>Enter your name below and click <b>Start Quiz</b> to begin."
-        }, {
-            type: "text",
-            name: "username",
-            titleLocation: "hidden",
-            isRequired: true
-        }]
+  title: "American History",
+  showProgressBar: "bottom",
+  showTimerPanel: "top",
+  maxTimeToFinishPage: 10,
+  maxTimeToFinish: 25,
+  firstPageIsStarted: true,
+  startSurveyText: "Start Quiz",
+  pages: [{
+    elements: [{
+      type: "html",
+      html: "You are about to start a quiz on American history. <br>You will have 10 seconds for every question and 25 seconds to end the quiz.<br>Enter your name below and click <b>Start Quiz</b> to begin."
     }, {
-        elements: [{
-            type: "radiogroup",
-            name: "civilwar",
-            title: "When was the American Civil War?",
-            choices: [
-                "1796-1803", "1810-1814", "1861-1865", "1939-1945"
-            ],
-            correctAnswer: "1861-1865"
-        }]
-    }, {
-        elements: [{
-            type: "radiogroup",
-            name: "libertyordeath",
-            title: "Whose quote is this: \"Give me liberty, or give me death\"?",
-            choicesOrder: "random",
-            choices: [
-                "John Hancock", "James Madison", "Patrick Henry", "Samuel Adams"
-            ],
-            correctAnswer: "Patrick Henry"
-        }]
-    }, {
-        elements: [{
-            type: "radiogroup",
-            name: "magnacarta",
-            title: "What is Magna Carta?",
-            choicesOrder: "random",
-            choices: [
-                "The foundation of the British parliamentary system",
-                "The Great Seal of the monarchs of England",
-                "The French Declaration of the Rights of Man",
-                "The charter signed by the Pilgrims on the Mayflower"
-            ],
-            correctAnswer: "The foundation of the British parliamentary system"
-        }]
+      type: "text",
+      name: "username",
+      titleLocation: "hidden",
+      isRequired: true
     }]
+  }, {
+    elements: [{
+      type: "radiogroup",
+      name: "civilwar",
+      title: "When was the American Civil War?",
+      choices: [
+        "1796-1803", "1810-1814", "1861-1865", "1939-1945"
+      ],
+      correctAnswer: "1861-1865"
+    }]
+  }, {
+    elements: [{
+      type: "radiogroup",
+      name: "libertyordeath",
+      title: "Whose quote is this: \"Give me liberty, or give me death\"?",
+      choicesOrder: "random",
+      choices: [
+        "John Hancock", "James Madison", "Patrick Henry", "Samuel Adams"
+      ],
+      correctAnswer: "Patrick Henry"
+    }]
+  }, {
+    elements: [{
+      type: "radiogroup",
+      name: "magnacarta",
+      title: "What is Magna Carta?",
+      choicesOrder: "random",
+      choices: [
+        "The foundation of the British parliamentary system",
+        "The Great Seal of the monarchs of England",
+        "The French Declaration of the Rights of Man",
+        "The charter signed by the Pilgrims on the Mayflower"
+      ],
+      correctAnswer: "The foundation of the British parliamentary system"
+    }]
+  }]
 };
 ```
 </details>
@@ -262,7 +262,7 @@ Quiz results are displayed on the [complete page](https://surveyjs.io/Documentat
 
 ```js
 const surveyJson = {
-    completedHtml: "<h4>You got <b>{correctAnswers}</b> out of <b>{questionCount}</b> correct answers.</h4>",
+  completedHtml: "<h4>You got <b>{correctAnswers}</b> out of <b>{questionCount}</b> correct answers.</h4>",
 };
 ```
 
@@ -270,13 +270,13 @@ Your application may require multiple versions of the complete page. For example
 
 ```js
 const surveyJson = {
-    completedHtmlOnCondition: [{
-        expression: "{correctAnswers} == 0",
-        html: "<h4>Unfortunately, none of your answers are correct. Please try again.</h4>"
-    }, {
-        expression: "{correctAnswers} == {questionCount}",
-        html: "<h4>Congratulations! You answered all the questions correctly!</h4>"
-    }]
+  completedHtmlOnCondition: [{
+    expression: "{correctAnswers} == 0",
+    html: "<h4>Unfortunately, none of your answers are correct. Please try again.</h4>"
+  }, {
+    expression: "{correctAnswers} == {questionCount}",
+    html: "<h4>Congratulations! You answered all the questions correctly!</h4>"
+  }]
 };
 ```
 
@@ -287,67 +287,67 @@ The `completedHtml` and `completedHtmlOnCondition` properties can be used togeth
 
 ```js
 const surveyJson = {
-    title: "American History",
-    showProgressBar: "bottom",
-    showTimerPanel: "top",
-    maxTimeToFinishPage: 10,
-    maxTimeToFinish: 25,
-    firstPageIsStarted: true,
-    startSurveyText: "Start Quiz",
-    pages: [{
-        elements: [{
-            type: "html",
-            html: "You are about to start a quiz on American history. <br>You will have 10 seconds for every question and 25 seconds to end the quiz.<br>Enter your name below and click <b>Start Quiz</b> to begin."
-        }, {
-            type: "text",
-            name: "username",
-            titleLocation: "hidden",
-            isRequired: true
-        }]
+  title: "American History",
+  showProgressBar: "bottom",
+  showTimerPanel: "top",
+  maxTimeToFinishPage: 10,
+  maxTimeToFinish: 25,
+  firstPageIsStarted: true,
+  startSurveyText: "Start Quiz",
+  pages: [{
+    elements: [{
+      type: "html",
+      html: "You are about to start a quiz on American history. <br>You will have 10 seconds for every question and 25 seconds to end the quiz.<br>Enter your name below and click <b>Start Quiz</b> to begin."
     }, {
-        elements: [{
-            type: "radiogroup",
-            name: "civilwar",
-            title: "When was the American Civil War?",
-            choices: [
-                "1796-1803", "1810-1814", "1861-1865", "1939-1945"
-            ],
-            correctAnswer: "1861-1865"
-        }]
-    }, {
-        elements: [{
-            type: "radiogroup",
-            name: "libertyordeath",
-            title: "Whose quote is this: \"Give me liberty, or give me death\"?",
-            choicesOrder: "random",
-            choices: [
-                "John Hancock", "James Madison", "Patrick Henry", "Samuel Adams"
-            ],
-            correctAnswer: "Patrick Henry"
-        }]
-    }, {
-        elements: [{
-            type: "radiogroup",
-            name: "magnacarta",
-            title: "What is Magna Carta?",
-            choicesOrder: "random",
-            choices: [
-                "The foundation of the British parliamentary system",
-                "The Great Seal of the monarchs of England",
-                "The French Declaration of the Rights of Man",
-                "The charter signed by the Pilgrims on the Mayflower"
-            ],
-            correctAnswer: "The foundation of the British parliamentary system"
-        }]
-    }],
-    completedHtml: "<h4>You got <b>{correctAnswers}</b> out of <b>{questionCount}</b> correct answers.</h4>",
-    completedHtmlOnCondition: [{
-        expression: "{correctAnswers} == 0",
-        html: "<h4>Unfortunately, none of your answers are correct. Please try again.</h4>"
-    }, {
-        expression: "{correctAnswers} == {questionCount}",
-        html: "<h4>Congratulations! You answered all the questions correctly!</h4>"
+      type: "text",
+      name: "username",
+      titleLocation: "hidden",
+      isRequired: true
     }]
+  }, {
+    elements: [{
+      type: "radiogroup",
+      name: "civilwar",
+      title: "When was the American Civil War?",
+      choices: [
+        "1796-1803", "1810-1814", "1861-1865", "1939-1945"
+      ],
+      correctAnswer: "1861-1865"
+    }]
+  }, {
+    elements: [{
+      type: "radiogroup",
+      name: "libertyordeath",
+      title: "Whose quote is this: \"Give me liberty, or give me death\"?",
+      choicesOrder: "random",
+      choices: [
+        "John Hancock", "James Madison", "Patrick Henry", "Samuel Adams"
+      ],
+      correctAnswer: "Patrick Henry"
+    }]
+  }, {
+    elements: [{
+      type: "radiogroup",
+      name: "magnacarta",
+      title: "What is Magna Carta?",
+      choicesOrder: "random",
+      choices: [
+        "The foundation of the British parliamentary system",
+        "The Great Seal of the monarchs of England",
+        "The French Declaration of the Rights of Man",
+        "The charter signed by the Pilgrims on the Mayflower"
+      ],
+      correctAnswer: "The foundation of the British parliamentary system"
+    }]
+  }],
+  completedHtml: "<h4>You got <b>{correctAnswers}</b> out of <b>{questionCount}</b> correct answers.</h4>",
+  completedHtmlOnCondition: [{
+    expression: "{correctAnswers} == 0",
+    html: "<h4>Unfortunately, none of your answers are correct. Please try again.</h4>"
+  }, {
+    expression: "{correctAnswers} == {questionCount}",
+    html: "<h4>Congratulations! You answered all the questions correctly!</h4>"
+  }]
 };
 ```
 </details>

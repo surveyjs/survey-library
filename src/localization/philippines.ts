@@ -1,4 +1,3 @@
-// Uncomment the line below if you create a custom dictionary
 import { surveyLocalization } from "survey-core";
 
 export var philippinesStrings = {
@@ -100,12 +99,13 @@ export var philippinesStrings = {
   emptyMessage: "walang maipakitang datos",
   noEntriesText: "Wala pang entry.\nI-click ang button sa ibaba para magdagdag ng bagong entry.",
   noEntriesReadonlyText: "Walang entry",
+  tabTitlePlaceholder: "Bagong Panel",
   more: "Higit pa",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Ang lahat ng mga pagpipilian ay pinili para sa pagraranggo",
   selectToRankEmptyUnrankedAreaText: "I-drag ang mga pagpipilian dito upang i-rank ang mga ito",
   ok: "OK",
-  cancel: "Kanselahin",
+  cancel: "Kanselahin"
 };
 
 // Uncomment the lines below if you create a custom dictionary.
@@ -113,3 +113,7 @@ export var philippinesStrings = {
 // Replace `englishStrings` with the name of the variable that contains the custom dictionary.
 surveyLocalization.locales["fil"] = philippinesStrings;
 surveyLocalization.localeNames["fil"] = "Filipino";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// tabTitlePlaceholder: "New Panel" => "Bagong Panel"

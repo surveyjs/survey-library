@@ -99,6 +99,7 @@ export var hungarianSurveyStrings = {
   emptyMessage: "Nincs megjeleníthető adat",
   noEntriesText: "Még nincsenek bejegyzések.\nKattintson az alábbi gombra egy új bejegyzés hozzáadásához.",
   noEntriesReadonlyText: "Nincsenek bejegyzések.",
+  tabTitlePlaceholder: "Új panel",
   more: "Több",
   tagboxDoneButtonCaption: "OKÉ",
   selectToRankEmptyRankedAreaText: "Minden választási lehetőség rangsorolva van",
@@ -140,4 +141,4 @@ surveyLocalization.localeNames["hu"] = "magyar";
 // cancel: "Cancel" => "Érvénytelenít"
 // refuseItemText: "Refuse to answer" => "A válaszadás megtagadása"
 // dontKnowItemText: "Don't know" => "Nem tudom"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "A válasz meghaladja a 64 KB-ot. Kérjük, csökkentse a fájl(ok) méretét, és próbálja újra, vagy lépjen kapcsolatba egy felmérés tulajdonosával."
-// signaturePlaceHolderReadOnly: "No signature" => "Nincs aláírás"
+// signaturePlaceHolderReadOnly: "No signature" => "Nincs aláírás"// tabTitlePlaceholder: "New Panel" => "Új panel"

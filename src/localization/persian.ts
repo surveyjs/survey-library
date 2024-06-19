@@ -99,6 +99,7 @@ export var persianSurveyStrings = {
   emptyMessage: "داده ای برای نمایش وجود ندارد",
   noEntriesText: "هنوز هیچ ورودی وجود ندارد.\nروی دکمه زیر کلیک کنید تا یک ورودی جدید اضافه شود.",
   noEntriesReadonlyText: "هیچ ورودی وجود ندارد.",
+  tabTitlePlaceholder: "پنل جدید",
   more: "بیشتر",
   tagboxDoneButtonCaption: "باشه",
   selectToRankEmptyRankedAreaText: "همه انتخاب ها رتبه بندی می شوند",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["fa"] = "فارْسِى";
 // cancel: "Cancel" => "لغو"
 // refuseItemText: "Refuse to answer" => "امتناع از پاسخ دادن"
 // dontKnowItemText: "Don't know" => "نمی دانم"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "پاسخ شما بیش از 64KB است. لطفا اندازه فایل(های) خود را کاهش دهید و دوباره تلاش کنید یا با صاحب نظرسنجی تماس بگیرید."
-// signaturePlaceHolderReadOnly: "No signature" => "بدون امضا"
+// signaturePlaceHolderReadOnly: "No signature" => "بدون امضا"// tabTitlePlaceholder: "New Panel" => "پنل جدید"

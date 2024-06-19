@@ -99,6 +99,7 @@ export var romanianSurveyStrings: any = {
   emptyMessage: "Nu există date de afișat",
   noEntriesText: "Nu există încă intrări.\nFaceți clic pe butonul de mai jos pentru a adăuga o intrare nouă.",
   noEntriesReadonlyText: "Nu există intrări.",
+  tabTitlePlaceholder: "Panou nou",
   more: "Mai mult",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Toate opțiunile sunt clasificate",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["ro"] = "română";
 // cancel: "Cancel" => "Anula"
 // refuseItemText: "Refuse to answer" => "Refuză să răspundă"
 // dontKnowItemText: "Don't know" => "Nu ştiu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Răspunsul tău depășește 64KB. Reduceți dimensiunea fișierelor și încercați din nou sau contactați un proprietar de sondaj."
-// signaturePlaceHolderReadOnly: "No signature" => "Fără semnătură"
+// signaturePlaceHolderReadOnly: "No signature" => "Fără semnătură"// tabTitlePlaceholder: "New Panel" => "Panou nou"

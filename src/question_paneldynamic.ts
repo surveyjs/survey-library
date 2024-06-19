@@ -284,7 +284,7 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelNextText", this, false, "pageNextText");
     this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
     this.createLocalizableString("templateTabTitle", this, true, "panelDynamicTabTextFormat");
-    this.createLocalizableString("tabTitlePlaceholder", this, true);
+    this.createLocalizableString("tabTitlePlaceholder", this, true, "tabTitlePlaceholder");
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
@@ -416,6 +416,7 @@ export class QuestionPanelDynamicModel extends Question
    *
    * [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
    * @see templateTitle
+   * @see tabTitlePlaceholder
    * @see renderMode
    */
   public get templateTabTitle(): string {
@@ -427,6 +428,11 @@ export class QuestionPanelDynamicModel extends Question
   get locTemplateTabTitle(): LocalizableString {
     return this.getLocalizableString("templateTabTitle");
   }
+  /**
+   * A placeholder for tab titles that applies when the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) expression doesn't produce a meaningful value.
+   *
+   * Default value: `"New Panel"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization))
+   */
   public get tabTitlePlaceholder(): string {
     return this.locTabTitlePlaceholder.text;
   }

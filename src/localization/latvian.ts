@@ -99,6 +99,7 @@ export var latvianSurveyStrings = {
   emptyMessage: "Nav datu, ko rādīt",
   noEntriesText: "Vēl nav neviena ieraksta.\nNoklikšķiniet uz zemāk esošās pogas, lai pievienotu jaunu ierakstu.",
   noEntriesReadonlyText: "Ierakstu nav.",
+  tabTitlePlaceholder: "Jauns panelis",
   more: "Vairāk",
   tagboxDoneButtonCaption: "LABI",
   selectToRankEmptyRankedAreaText: "Visas izvēles ir sarindotas",
@@ -129,4 +130,4 @@ surveyLocalization.localeNames["lv"] = "latviešu";
 // cancel: "Cancel" => "Atcelt"
 // refuseItemText: "Refuse to answer" => "Atteikties atbildēt"
 // dontKnowItemText: "Don't know" => "Es nezinu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jūsu atbilde pārsniedz 64 KB. Lūdzu, samaziniet sava(-u) faila(-u) lielumu un mēģiniet vēlreiz vai sazinieties ar aptaujas īpašnieku."
-// signaturePlaceHolderReadOnly: "No signature" => "Nav paraksta"
+// signaturePlaceHolderReadOnly: "No signature" => "Nav paraksta"// tabTitlePlaceholder: "New Panel" => "Jauns panelis"

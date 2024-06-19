@@ -188,7 +188,17 @@ export class Trigger extends Base {
   }
   protected getUsedVariables(): string[] {
     if(!this.conditionRunner) return [];
-    return this.conditionRunner.getVariables();
+    const res = this.conditionRunner.getVariables();
+    if(Array.isArray(res)) {
+      const unw = "-unwrapped";
+      for(let i = res.length -1; i >= 0; i--) {
+        const s = res[i];
+        if(s.endsWith(unw)) {
+          res.push(s.substring(0, s.length - unw.length));
+        }
+      }
+    }
+    return res;
   }
   private createConditionRunner() {
     if (!!this.conditionRunner) return;

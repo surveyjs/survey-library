@@ -99,6 +99,7 @@ export var estonianSurveyStrings = {
   emptyMessage: "Kuvatavaid andmeid pole",
   noEntriesText: "Sissekandeid veel ei ole.\nUue kirje lisamiseks klõpsake allolevat nuppu.",
   noEntriesReadonlyText: "Kirjeid ei ole.",
+  tabTitlePlaceholder: "Uus paneel",
   more: "Rohkem",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Kõik valikud on järjestatud",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["et"] = "eesti keel";
 // cancel: "Cancel" => "Tühistama"
 // refuseItemText: "Refuse to answer" => "Keeldu vastamast"
 // dontKnowItemText: "Don't know" => "Ei tea"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Teie vastus ületab 64 KB. Vähendage faili(de) mahtu ja proovige uuesti või võtke ühendust uuringu omanikuga."
-// signaturePlaceHolderReadOnly: "No signature" => "Allkiri puudub"
+// signaturePlaceHolderReadOnly: "No signature" => "Allkiri puudub"// tabTitlePlaceholder: "New Panel" => "Uus paneel"

@@ -99,6 +99,7 @@ export var bulgarianStrings = {
   emptyMessage: "Няма данни за показване",
   noEntriesText: "Все още няма записи.\nЩракнете върху бутона по-долу, за да добавите нов запис.",
   noEntriesReadonlyText: "Няма записи.",
+  tabTitlePlaceholder: "Нов панел",
   more: "Още",
   tagboxDoneButtonCaption: "Добре",
   selectToRankEmptyRankedAreaText: "Всички възможности за избор са класирани",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["bg"] = "български";
 // cancel: "Cancel" => "Отмени"
 // refuseItemText: "Refuse to answer" => "Отказва да отговори"
 // dontKnowItemText: "Don't know" => "Не знам"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Вашият отговор надхвърля 64KB. Намалете размера на вашите файлове и опитайте отново или се свържете със собственика на проучването."
-// signaturePlaceHolderReadOnly: "No signature" => "Няма подпис"
+// signaturePlaceHolderReadOnly: "No signature" => "Няма подпис"// tabTitlePlaceholder: "New Panel" => "Нов панел"

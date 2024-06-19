@@ -99,6 +99,7 @@ export var kazakhStrings = {
   emptyMessage: "Көрсетілетін деректер жоқ",
   noEntriesText: "Әзірге жазбалар жоқ.\nЖаңа жазбаны қосу үшін төмендегі түймешігіңді басыңыз.",
   noEntriesReadonlyText: "Жазбалар жоқ.",
+  tabTitlePlaceholder: "Жаңа панель",
   more: "Қосымша",
   tagboxDoneButtonCaption: "ЖАҚСЫ",
   selectToRankEmptyRankedAreaText: "Барлық таңдаулар ранжирленген",
@@ -140,4 +141,4 @@ surveyLocalization.localeNames["kk"] = "Kazakh";
 // cancel: "Cancel" => "Болдырмау"
 // refuseItemText: "Refuse to answer" => "Жауап беруден бас тарту"
 // dontKnowItemText: "Don't know" => "Білмеймін"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Сіздің жауабыңыз 64КБ-тан асады. Файлдың өлшемін азайтып, қайталап көріңіз немесе сауалнама иесіне хабарласыңыз."
-// signaturePlaceHolderReadOnly: "No signature" => "Қолдың No"
+// signaturePlaceHolderReadOnly: "No signature" => "Қолдың No"// tabTitlePlaceholder: "New Panel" => "Жаңа панель"

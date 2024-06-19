@@ -99,6 +99,7 @@ export var croatianStrings = {
   emptyMessage: "Nema podataka za prikaz",
   noEntriesText: "Još nema unosa.\nKliknite donji gumb da biste dodali novi unos.",
   noEntriesReadonlyText: "Nema unosa.",
+  tabTitlePlaceholder: "Nova ploča",
   more: "Više",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Svi izbori su rangirani",
@@ -139,4 +140,4 @@ surveyLocalization.localeNames["hr"] = "hrvatski";
 // cancel: "Cancel" => "Otkazati"
 // refuseItemText: "Refuse to answer" => "Odbijte odgovoriti"
 // dontKnowItemText: "Don't know" => "Ne znam"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaš odgovor premašuje 64KB. Smanjite veličinu datoteka i pokušajte ponovno ili se obratite vlasniku upitnika."
-// signaturePlaceHolderReadOnly: "No signature" => "Bez potpisa"
+// signaturePlaceHolderReadOnly: "No signature" => "Bez potpisa"// tabTitlePlaceholder: "New Panel" => "Nova ploča"

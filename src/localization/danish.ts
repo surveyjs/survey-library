@@ -99,6 +99,7 @@ export var danishSurveyStrings = {
   emptyMessage: "Ingen data at vise",
   noEntriesText: "Der er endnu ingen tilmeldinger.\nKlik på knappen nedenfor for at tilføje en ny post.",
   noEntriesReadonlyText: "Der er ingen poster.",
+  tabTitlePlaceholder: "Nyt panel",
   more: "Mere",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Alle valg er rangeret",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["da"] = "dansk";
 // cancel: "Cancel" => "Aflyse"
 // refuseItemText: "Refuse to answer" => "Nægt at svare"
 // dontKnowItemText: "Don't know" => "Ved ikke"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Dit svar overstiger 64 KB. Reducer størrelsen på din(e) fil(er), og prøv igen, eller kontakt en undersøgelsesejer."
-// signaturePlaceHolderReadOnly: "No signature" => "Ingen underskrift"
+// signaturePlaceHolderReadOnly: "No signature" => "Ingen underskrift"// tabTitlePlaceholder: "New Panel" => "Nyt panel"

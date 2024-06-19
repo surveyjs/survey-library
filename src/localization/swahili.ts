@@ -99,6 +99,7 @@ export var swahiliStrings = {
   emptyMessage: "Hakuna data ya kuonyesha",
   noEntriesText: "Hakuna maingizo kwa sasa.\nBofya kitufe hapa chini ili kuongeza ingizo jipya.",
   noEntriesReadonlyText: "Hakuna viingilio.",
+  tabTitlePlaceholder: "Jopo Jipya",
   more: "Zaidi",
   tagboxDoneButtonCaption: "Sawa kabisa",
   selectToRankEmptyRankedAreaText: "Chaguzi zote zimeorodheshwa",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["sw"] = "swahili";
 // cancel: "Cancel" => "Katisha"
 // refuseItemText: "Refuse to answer" => "Kukataa kujibu"
 // dontKnowItemText: "Don't know" => "Sijui"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jibu lako ni zaidi ya 64KB. Tafadhali punguza ukubwa wa faili yako na jaribu tena au wasiliana na mmiliki wa utafiti."
-// signaturePlaceHolderReadOnly: "No signature" => "Hakuna saini"
+// signaturePlaceHolderReadOnly: "No signature" => "Hakuna saini"// tabTitlePlaceholder: "New Panel" => "Jopo Jipya"

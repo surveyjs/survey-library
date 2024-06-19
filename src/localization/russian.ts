@@ -99,6 +99,7 @@ export var russianSurveyStrings = {
   emptyMessage: "Нет данных для отображения",
   noEntriesText: "Пока нет записей.\nНажмите кнопку ниже, чтобы добавить новую запись.",
   noEntriesReadonlyText: "Записей нет.",
+  tabTitlePlaceholder: "Новая панель",
   more: "Больше",
   tagboxDoneButtonCaption: "Хорошо",
   selectToRankEmptyRankedAreaText: "Все варианты ранжируются",
@@ -125,4 +126,4 @@ surveyLocalization.localeNames["ru"] = "русский";
 // showDetails: "Show Details" => "Показать подробности"
 // hideDetails: "Hide Details" => "Скрыть подробности"
 // cancel: "Cancel" => "Отмена"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ваш ответ превышает 64 КБ. Уменьшите размер файла (файлов) и повторите попытку или обратитесь к владельцу опроса."
-// signaturePlaceHolderReadOnly: "No signature" => "Без подписи"
+// signaturePlaceHolderReadOnly: "No signature" => "Без подписи"// tabTitlePlaceholder: "New Panel" => "Новая панель"

@@ -99,6 +99,7 @@ export var slovakSurveyStrings = {
   emptyMessage: "Žiadne údaje na zobrazenie",
   noEntriesText: "K dispozícii ešte nie sú žiadne zadania.\nKliknutím na nasledujúce tlačidlo pridajte nové zadanie.",
   noEntriesReadonlyText: "Nie sú k dispozícii žiadne záznamy.",
+  tabTitlePlaceholder: "Nový panel",
   more: "Viacej",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Všetky možnosti sú zoradené",
@@ -131,4 +132,4 @@ surveyLocalization.localeNames["sk"] = "slovak";
 // cancel: "Cancel" => "Zrušiť"
 // refuseItemText: "Refuse to answer" => "Odmietnuť odpovedať"
 // dontKnowItemText: "Don't know" => "Neviem"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaša odpoveď presahuje 64 kB. Zmenšite veľkosť svojich súborov a skúste to znova alebo kontaktujte vlastníka prieskumu."
-// signaturePlaceHolderReadOnly: "No signature" => "Bez podpisu"
+// signaturePlaceHolderReadOnly: "No signature" => "Bez podpisu"// tabTitlePlaceholder: "New Panel" => "Nový panel"

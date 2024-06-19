@@ -1920,13 +1920,14 @@ export class SurveyModel extends SurveyElementCore
     return this.getRendererContextForString(this, locStr);
   }
   public getRendererForString(element: Question | PanelModel | PageModel | SurveyModel, name: string): string {
-    const renderAs = this.getBuiltInRendererForString(element, name);
+    let renderAs = this.getBuiltInRendererForString(element, name);
+    renderAs = this.elementWrapperComponentNameCore(renderAs, element, "string", name);
     const options: TextRenderAsEvent = { element: element, name: name, renderAs: renderAs };
     this.onTextRenderAs.fire(this, options);
     return options.renderAs;
   }
-  public getRendererContextForString(element: Base, locStr: LocalizableString) {
-    return locStr;
+  public getRendererContextForString(element: Base, locStr: LocalizableString): any {
+    return this.elementWrapperDataCore(locStr, element, "string");
   }
   getExpressionDisplayValue(
     question: Question,
@@ -4805,6 +4806,15 @@ export class SurveyModel extends SurveyElementCore
     });
     this.rootElement = htmlElement;
     this.addScrollEventListener();
+
+    if (DomDocumentHelper.isAvailable()) {
+      const fonts = (DomDocumentHelper.getDocument() as any).fonts;
+      if (fonts) {
+        fonts.ready.then(() => {
+          this.triggerResponsiveness(true);
+        });
+      }
+    }
   }
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;

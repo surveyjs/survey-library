@@ -99,6 +99,7 @@ export var czechSurveyStrings = {
   emptyMessage: "Žádná data k zobrazení",
   noEntriesText: "Zatím nejsou žádné záznamy.\nKliknutím na tlačítko níže přidáte novou položku.",
   noEntriesReadonlyText: "Nejsou zde žádné položky.",
+  tabTitlePlaceholder: "Nový panel",
   more: "Více",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Všechny možnosti jsou seřazeny",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["cs"] = "čeština";
 // cancel: "Cancel" => "Zrušit"
 // refuseItemText: "Refuse to answer" => "Odmítnout odpovědět"
 // dontKnowItemText: "Don't know" => "Nevím"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaše odpověď překračuje 64 kB. Zmenšete prosím velikost svých souborů a zkuste to znovu nebo kontaktujte vlastníka průzkumu."
-// signaturePlaceHolderReadOnly: "No signature" => "Bez podpisu"
+// signaturePlaceHolderReadOnly: "No signature" => "Bez podpisu"// tabTitlePlaceholder: "New Panel" => "Nový panel"

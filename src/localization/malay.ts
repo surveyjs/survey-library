@@ -99,6 +99,7 @@ export var malaySurveyStrings = {
   emptyMessage: "Tiada data untuk dipaparkan",
   noEntriesText: "Belum ada entri.\nKlik butang di bawah untuk menambahkan entri.",
   noEntriesReadonlyText: "Tiada penyertaan.",
+  tabTitlePlaceholder: "Panel Baru",
   more: "Lebih banyak",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Semua pilihan disenaraikan",
@@ -131,4 +132,4 @@ surveyLocalization.localeNames["ms"] = "melayu";
 // cancel: "Cancel" => "Batal"
 // refuseItemText: "Refuse to answer" => "Enggan menjawab"
 // dontKnowItemText: "Don't know" => "Tak tahu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jawapan anda melebihi 64KB. Sila kurangkan saiz fail anda dan cuba lagi atau hubungi pemilik tinjauan."
-// signaturePlaceHolderReadOnly: "No signature" => "Tiada tandatangan"
+// signaturePlaceHolderReadOnly: "No signature" => "Tiada tandatangan"// tabTitlePlaceholder: "New Panel" => "Panel Baru"

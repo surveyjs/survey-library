@@ -99,6 +99,7 @@ export var spanishSurveyStrings = {
   emptyMessage: "No hay datos para mostrar",
   noEntriesText: "Aún no hay entradas.\nHaga clic en el botón de abajo para agregar una nueva entrada.",
   noEntriesReadonlyText: "No hay entradas.",
+  tabTitlePlaceholder: "Nuevo panel",
   more: "Más",
   tagboxDoneButtonCaption: "De acuerdo",
   selectToRankEmptyRankedAreaText: "Todas las opciones están clasificadas",
@@ -129,4 +130,4 @@ surveyLocalization.localeNames["es"] = "español";
 // cancel: "Cancel" => "Cancelar"
 // refuseItemText: "Refuse to answer" => "Negarse a responder"
 // dontKnowItemText: "Don't know" => "No sé"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Su respuesta supera los 64 KB. Reduzca el tamaño de su(s) archivo(s) e inténtelo de nuevo o póngase en contacto con el propietario de una encuesta."
-// signaturePlaceHolderReadOnly: "No signature" => "Sin firma"
+// signaturePlaceHolderReadOnly: "No signature" => "Sin firma"// tabTitlePlaceholder: "New Panel" => "Nuevo panel"

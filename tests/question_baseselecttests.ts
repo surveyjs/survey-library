@@ -2119,3 +2119,63 @@ QUnit.test("dropdown.clearValue(true) for showCommentArea & showOtherItem, bug#8
   assert.equal(q4.value, undefined, "q4.value");
   assert.notOk(q4.comment, "q4.comment");
 });
+QUnit.test("valuePropertyName & complete trigger, bug#8434", (assert) => {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "checkbox",
+            "name": "models",
+            "choices": [1, 2, 3],
+            "showNoneItem": true,
+            "valuePropertyName": "model_id"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{models-unwrapped} = ['none']"
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("models");
+  assert.equal(survey.calcIsCompleteButtonVisible(), false, "#1");
+  q.renderedValue = ["none"];
+  assert.equal(survey.calcIsCompleteButtonVisible(), true, "#2");
+  q.renderedValue = [1];
+  assert.equal(survey.calcIsCompleteButtonVisible(), false, "#3");
+  q.renderedValue = ["none"];
+  assert.equal(survey.calcIsCompleteButtonVisible(), true, "#4");
+});
+QUnit.test("Unselect none item, bug#8438", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, 2, 3],
+        "showNoneItem": true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.clickItemHandler(q.noneItem, true);
+  assert.deepEqual(q.value, ["none"], "#1");
+  q.clickItemHandler(q.noneItem, false);
+  assert.equal(q.isEmpty(), true, "#2");
+  q.clickItemHandler(q.noneItem, true);
+  assert.deepEqual(q.value, ["none"], "#3");
+});

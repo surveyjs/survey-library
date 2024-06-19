@@ -1,4 +1,5 @@
 import { Base } from "../base";
+import { ISurvey } from "../base-interfaces";
 import { JsonObject, Serializer, property } from "../jsonobject";
 import { IInputMask, IMaskedInputResult, ITextInputParams } from "./mask_utils";
 
@@ -18,6 +19,12 @@ export class InputMaskBase extends Base implements IInputMask {
    */
   @property() saveMaskedValue: boolean;
 
+  public owner: ISurvey;
+
+  public getSurvey(live: boolean = false): ISurvey {
+    return this.owner as any;
+  }
+
   public getType(): string {
     return "masksettings";
   }
@@ -34,7 +41,7 @@ export class InputMaskBase extends Base implements IInputMask {
     const properties = Serializer.getProperties(this.getType());
     properties.forEach(property => {
       const currentValue = (this as any)[property.name];
-      if(!property.isDefaultValue(currentValue)) {
+      if (!property.isDefaultValue(currentValue)) {
         res[property.name] = currentValue;
       }
     });
@@ -56,7 +63,7 @@ Serializer.addClass(
   [
     {
       name: "saveMaskedValue:boolean",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         if (!obj) return false;
         return obj.getType() !== "masksettings";
       },

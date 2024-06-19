@@ -99,6 +99,7 @@ export var vietnameseSurveyStrings = {
   emptyMessage: "Không có dữ liệu để hiển thị",
   noEntriesText: "Chưa có mục nào.\nNhấp vào nút bên dưới để thêm mục nhập mới.",
   noEntriesReadonlyText: "Không có mục.",
+  tabTitlePlaceholder: "Bảng điều khiển mới",
   more: "Nhiều hơn",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Tất cả các lựa chọn được xếp hạng",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["vi"] = "Việt Nam";
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Hủy"// refuseItemText: "Refuse to answer" => "Từ chối trả lời"
 // dontKnowItemText: "Don't know" => "Không biết"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Phản hồi của bạn vượt quá 64KB. Vui lòng giảm kích thước (các) tệp của bạn và thử lại hoặc liên hệ với chủ sở hữu khảo sát."
-// signaturePlaceHolderReadOnly: "No signature" => "Không có chữ ký"
+// signaturePlaceHolderReadOnly: "No signature" => "Không có chữ ký"// tabTitlePlaceholder: "New Panel" => "Bảng điều khiển mới"

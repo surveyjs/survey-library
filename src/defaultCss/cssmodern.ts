@@ -2,6 +2,7 @@ import { surveyCss } from "./defaultV2Css";
 
 export var modernCss = {
   root: "sv-root-modern",
+  rootProgress: "sv-progress",
   timerRoot: "sv-body__timer",
   container: "sv-container-modern",
   header: "sv-title sv-container-modern__title",

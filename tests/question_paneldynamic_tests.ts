@@ -6161,6 +6161,39 @@ QUnit.test("templateVisibleIf & renderMode: tab, additionalTitleToolbar&template
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2-2 a");
   assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "#3-3 a");
 });
+QUnit.test("templateVisibleIf & renderMode: tab, templateTabTitle&tabTitlePlaceholder in JSON", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 2,
+        renderMode: "tab",
+        tabTitlePlaceholder: "Empty value",
+        templateTabTitle: "{panel.q1}"
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.equal(panelTabToolbar.actions.length, 2, "There are two panels");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Empty value", "#1");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Empty value", "#2");
+  panel.panels[1].getQuestionByName("q1").value = "item2";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Empty value", "#3");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "item2", "#4");
+  panel.panels[0].getQuestionByName("q1").value = "item1";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "item1", "#5");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "item2", "#6");
+  panel.panels[1].getQuestionByName("q1").clearValue();
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "item1", "#7");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Empty value", "#8");
+  panel.locTabTitlePlaceholder.clear();
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "item1", "#9");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "New Panel", "#10");
+});
 QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   const survey = new SurveyModel({
     elements: [

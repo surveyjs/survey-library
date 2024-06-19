@@ -99,6 +99,7 @@ export var ukrainianSurveyStrings = {
   emptyMessage: "Немає даних для відображення",
   noEntriesText: "Записів поки немає.\nНатисніть кнопку нижче, щоб додати новий запис.",
   noEntriesReadonlyText: "Записів немає.",
+  tabTitlePlaceholder: "Нова панель",
   more: "Більше",
   tagboxDoneButtonCaption: "ГАРАЗД",
   selectToRankEmptyRankedAreaText: "Всі варіанти ранжуються",
@@ -140,4 +141,4 @@ surveyLocalization.localeNames["ua"] = "українська";
 // ok: "OK" => "ГАРАЗД"
 // cancel: "Cancel" => "Скасувати"// refuseItemText: "Refuse to answer" => "Відмовтеся відповідати"
 // dontKnowItemText: "Don't know" => "Не знаю"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ваша відповідь перевищує 64 КБ. Будь ласка, зменшіть розмір файлу (файлів) і повторіть спробу або зв'яжіться з власником опитування."
-// signaturePlaceHolderReadOnly: "No signature" => "Без підпису"
+// signaturePlaceHolderReadOnly: "No signature" => "Без підпису"// tabTitlePlaceholder: "New Panel" => "Нова панель"

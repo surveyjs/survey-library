@@ -99,6 +99,7 @@ export var urduSurveyStrings = {
   emptyMessage: "ظاہر کرنے کے لئے کوئی ڈیٹا نہیں",
   noEntriesText: "ابھی تک کوئی اندراج نہیں ہے.\nنیا اندراج شامل کرنے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔",
   noEntriesReadonlyText: "کوئی اندراج نہیں ہے.",
+  tabTitlePlaceholder: "نیا پینل",
   more: "زیادہ",
   tagboxDoneButtonCaption: "ٹھيک ہے",
   selectToRankEmptyRankedAreaText: "تمام اختیارات کی درجہ بندی کی جاتی ہے",
@@ -133,4 +134,4 @@ surveyLocalization.localeNames["ur"] = "Urdu";
 // ok: "OK" => "ٹھيک ہے"
 // cancel: "Cancel" => "منسوخ"// refuseItemText: "Refuse to answer" => "جواب دینے سے انکار"
 // dontKnowItemText: "Don't know" => "معلوم نہيں"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "آپ کا جواب 64KB سے تجاوز کر گیا ہے۔ براہ کرم اپنی فائل کا سائز کم کریں اور دوبارہ کوشش کریں یا سروے کے مالک سے رابطہ کریں۔"
-// signaturePlaceHolderReadOnly: "No signature" => "کوئی دستخط نہیں"
+// signaturePlaceHolderReadOnly: "No signature" => "کوئی دستخط نہیں"// tabTitlePlaceholder: "New Panel" => "نیا پینل"

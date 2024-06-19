@@ -99,6 +99,7 @@ export var japaneseSurveyStrings = {
   emptyMessage: "表示するデータがありません",
   noEntriesText: "エントリはまだありません。\n下のボタンをクリックして、新しいエントリを追加します。",
   noEntriesReadonlyText: "エントリはありません。",
+  tabTitlePlaceholder: "新規パネル",
   more: "もっとその",
   tagboxDoneButtonCaption: "わかりました",
   selectToRankEmptyRankedAreaText: "すべての選択肢がランク付けされます",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["ja"] = "日本語";
 // cancel: "Cancel" => "キャンセル"
 // refuseItemText: "Refuse to answer" => "回答を拒否する"
 // dontKnowItemText: "Don't know" => "わかりません"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "回答は 64 KB を超えています。ファイルのサイズを小さくしてもう一度お試しいただくか、アンケートの所有者にお問い合わせください。"
-// signaturePlaceHolderReadOnly: "No signature" => "署名なし"
+// signaturePlaceHolderReadOnly: "No signature" => "署名なし"// tabTitlePlaceholder: "New Panel" => "新規パネル"

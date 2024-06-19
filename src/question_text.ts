@@ -65,7 +65,7 @@ export class QuestionTextModel extends QuestionTextBase {
   @property() inputTextAlignment: "left" | "right" | "auto";
 
   get maskTypeIsEmpty(): boolean {
-    return this.maskType === "none";
+    return this.maskType === "none" || this.inputType !== "text";
   }
 
   /**
@@ -100,6 +100,7 @@ export class QuestionTextModel extends QuestionTextBase {
       maskClassName = "masksettings";
     }
     const inputMask = Serializer.createClass(maskClassName);
+    inputMask.owner = this.survey;
     return inputMask;
   }
 
@@ -151,6 +152,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.max = undefined;
       this.step = undefined;
     }
+    this.updateMaskAdapter();
   }
   public getMaxLength(): any {
     if(!this.isTextInput) return null;

@@ -99,6 +99,7 @@ export var norwegianSurveyStrings = {
   emptyMessage: "Ingen data å vise",
   noEntriesText: "Det er ingen oppføringer ennå.\nKlikk på knappen nedenfor for å legge til en ny oppføring.",
   noEntriesReadonlyText: "Det er ingen oppføringer.",
+  tabTitlePlaceholder: "Nytt panel",
   more: "Mer",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Alle valg er rangert",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["no"] = "norsk";
 // cancel: "Cancel" => "Annullere"
 // refuseItemText: "Refuse to answer" => "Nekter å svare"
 // dontKnowItemText: "Don't know" => "Vet ikke"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Svaret ditt overstiger 64 kB. Reduser størrelsen på filen(e) din(e), og prøv på nytt, eller kontakt eieren av en spørreundersøkelse."
-// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"
+// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"// tabTitlePlaceholder: "New Panel" => "Nytt panel"

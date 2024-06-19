@@ -99,6 +99,7 @@ export var thaiStrings = {
   emptyMessage: "ไม่มีข้อมูลที่จะแสดง",
   noEntriesText: "ยังไม่มีรายการ\nคลิกปุ่มด้านล่างเพื่อเพิ่มรายการใหม่",
   noEntriesReadonlyText: "ไม่มีรายการ",
+  tabTitlePlaceholder: "แผงใหม่",
   more: "อีก",
   tagboxDoneButtonCaption: "ตกลง, ได้",
   selectToRankEmptyRankedAreaText: "ตัวเลือกทั้งหมดจะถูกจัดอันดับ",
@@ -140,4 +141,4 @@ surveyLocalization.localeNames["th"] = "ไทย";
 // ok: "OK" => "ตกลง, ได้"
 // cancel: "Cancel" => "ยกเลิก"// refuseItemText: "Refuse to answer" => "ปฏิเสธที่จะตอบ"
 // dontKnowItemText: "Don't know" => "ไม่ทราบ"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "คําตอบของคุณเกิน 64KB โปรดลดขนาดไฟล์ของคุณแล้วลองอีกครั้งหรือติดต่อเจ้าของแบบสํารวจ"
-// signaturePlaceHolderReadOnly: "No signature" => "ไม่มีลายเซ็น"
+// signaturePlaceHolderReadOnly: "No signature" => "ไม่มีลายเซ็น"// tabTitlePlaceholder: "New Panel" => "แผงใหม่"

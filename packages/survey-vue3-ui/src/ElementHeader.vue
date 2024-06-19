@@ -1,5 +1,5 @@
 <template>
-  <div :class="element.cssHeader" @click="clickTitleFunction">
+  <div :class="element.cssHeader" @click="clickTitleFunction" :style="getStyle()">
     <survey-element-title :element="element" :css="css" />
     <div v-if="element.hasDescriptionUnderTitle" v-show="element.hasDescription" :class="element.cssDescription"
       :id="element.ariaDescriptionId">
@@ -17,5 +17,12 @@ const clickTitleFunction = (e: any) => {
   if (typeof props.element.clickTitleFunction === "function") {
     props.element.clickTitleFunction(e);
   }
+};
+const getStyle = () => {
+  const headerStyle: any = { width: undefined };
+  if("titleWidth" in props.element) {
+    headerStyle.width = props.element.titleWidth;
+  }
+  return headerStyle;
 };
 </script>

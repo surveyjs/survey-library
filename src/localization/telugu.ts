@@ -99,6 +99,7 @@ export var teluguStrings = {
   emptyMessage: "డిస్ ప్లే చేయడానికి డేటా లేదు",
   noEntriesText: "ఇంకా ఎలాంటి ఎంట్రీలు లేవు.\nకొత్త ఎంట్రీని జోడించడం కొరకు దిగువ బటన్ మీద క్లిక్ చేయండి.",
   noEntriesReadonlyText: "ఎలాంటి ఎంట్రీలు లేవు.",
+  tabTitlePlaceholder: "కొత్త ప్యానెల్",
   more: "ఎక్కువ",
   tagboxDoneButtonCaption: "సరే",
   selectToRankEmptyRankedAreaText: "అన్ని ఎంపికలు ర్యాంక్ చేయబడతాయి",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["tel"] = "Telugu";
 // ok: "OK" => "సరే"
 // cancel: "Cancel" => "రద్దు"// refuseItemText: "Refuse to answer" => "సమాధానం ఇవ్వడానికి నిరాకరించండి"
 // dontKnowItemText: "Don't know" => "తెలియదు"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "మీ ప్రతిస్పందన 64KBని మించిపోయింది. దయచేసి మీ ఫైల్(లు) పరిమాణాన్ని తగ్గించండి మరియు మళ్లీ ప్రయత్నించండి లేదా సర్వే యజమానిని సంప్రదించండి."
-// signaturePlaceHolderReadOnly: "No signature" => "సంతకం లేదు"
+// signaturePlaceHolderReadOnly: "No signature" => "సంతకం లేదు"// tabTitlePlaceholder: "New Panel" => "కొత్త ప్యానెల్"

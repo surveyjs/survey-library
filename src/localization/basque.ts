@@ -99,6 +99,7 @@ export var basqueSurveyStrings = {
   emptyMessage: "Ez daturik erakusteko",
   noEntriesText: "Oraindik ez sarrerarik.\nKlik beheko botoian klik egin sarrera berri bat eransteko.",
   noEntriesReadonlyText: "Ez sarrerarik.",
+  tabTitlePlaceholder: "Panel berria",
   more: "Gehiago",
   tagboxDoneButtonCaption: "Ados",
   selectToRankEmptyRankedAreaText: "Aukera guztiak sailkatuta daude",
@@ -134,4 +135,4 @@ surveyLocalization.localeNames["eu"] = "Euskara";
 // cancel: "Cancel" => "Ezeztatu"
 // refuseItemText: "Refuse to answer" => "Erantzuteari uko egin"
 // dontKnowItemText: "Don't know" => "Ez dakit"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Erantzuna 64 KB-tik gorakoa da. Murriztu artxiboaren tamaina, eta berriro saiatu edo jarri harremanetan inkesta baten jabearekin."
-// signaturePlaceHolderReadOnly: "No signature" => "Sinadurarik gabe"
+// signaturePlaceHolderReadOnly: "No signature" => "Sinadurarik gabe"// tabTitlePlaceholder: "New Panel" => "Panel berria"

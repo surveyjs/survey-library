@@ -99,6 +99,7 @@ export var koreanStrings = {
   emptyMessage: "표시할 데이터가 없습니다.",
   noEntriesText: "아직 항목이 없습니다.\n새 항목을 추가하려면 아래 버튼을 클릭하세요.",
   noEntriesReadonlyText: "항목이 없습니다.",
+  tabTitlePlaceholder: "새 패널",
   more: "더보기",
   tagboxDoneButtonCaption: "그래",
   selectToRankEmptyRankedAreaText: "모든 선택 항목이 순위가 매겨집니다.",
@@ -128,4 +129,4 @@ surveyLocalization.localeNames["ko"] = "한국어";
 // cancel: "Cancel" => "취소"
 // refuseItemText: "Refuse to answer" => "대답 거부"
 // dontKnowItemText: "Don't know" => "모르다"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "응답이 64KB를 초과합니다. 파일 크기를 줄인 후 다시 시도하거나 설문조사 소유자에게 문의하세요."
-// signaturePlaceHolderReadOnly: "No signature" => "서명 없음"
+// signaturePlaceHolderReadOnly: "No signature" => "서명 없음"// tabTitlePlaceholder: "New Panel" => "새 패널"

@@ -872,7 +872,7 @@ QUnit.test("lazy loading clear value", function (assert) {
   assert.equal(dropdownListModel.inputStringRendered, "");
 });
 
-QUnit.test("Dropdown should noy be open on click in design mode", (assert) => {
+QUnit.test("Dropdown should not be open on click in design mode", (assert) => {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
@@ -890,6 +890,20 @@ QUnit.test("Dropdown should noy be open on click in design mode", (assert) => {
   dropdownListModel.onClick(new Event("click"));
   assert.notOk(dropdownListModel.popupModel.isVisible);
 });
+
+QUnit.test("Dropdown should not be open on click in preview mode", (assert) => {
+  const survey = new SurveyModel(jsonDropdown);
+  survey.showPreview();
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+
+  const dropdownListModel = question.dropdownListModel;
+  const popupModel = dropdownListModel.popupModel;
+  assert.notOk(popupModel.isVisible);
+  dropdownListModel.onClick(new Event("click"));
+  assert.notOk(popupModel.isVisible);
+});
+
 QUnit.test("order & locale change", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "dropdown", name: "q1", choicesOrder: "asc",

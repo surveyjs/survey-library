@@ -99,6 +99,7 @@ export var dutchSurveyStrings = {
   emptyMessage: "Geen gegevens om weer te geven",
   noEntriesText: "Er zijn nog geen inzendingen.\nKlik op de onderstaande knop om een nieuw item toe te voegen.",
   noEntriesReadonlyText: "Er zijn geen inzendingen.",
+  tabTitlePlaceholder: "Nieuw paneel",
   more: "Meer",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Alle keuzes zijn gerangschikt",
@@ -139,4 +140,4 @@ surveyLocalization.localeNames["nl"] = "nederlands";
 // cancel: "Cancel" => "Annuleren"
 // refuseItemText: "Refuse to answer" => "Weiger te antwoorden"
 // dontKnowItemText: "Don't know" => "Weet niet"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Uw antwoord is groter dan 64 kB. Verklein de grootte van uw bestand(en) en probeer het opnieuw of neem contact op met een enquête-eigenaar."
-// signaturePlaceHolderReadOnly: "No signature" => "Geen handtekening"
+// signaturePlaceHolderReadOnly: "No signature" => "Geen handtekening"// tabTitlePlaceholder: "New Panel" => "Nieuw paneel"

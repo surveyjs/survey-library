@@ -99,6 +99,7 @@ export var germanSurveyStrings = {
   emptyMessage: "Es gibt noch keine Daten.",
   noEntriesText: "Es gibt noch keine Einträge.\nKlicken Sie auf die Schaltfläche unten, um einen neuen Eintrag hinzuzufügen.",
   noEntriesReadonlyText: "Es gibt keine Einträge.",
+  tabTitlePlaceholder: "Neues Panel",
   more: "Mehr",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Alle Auswahlmöglichkeiten sind in einer Rangfolge angeordnet",
@@ -112,3 +113,4 @@ surveyLocalization.localeNames["de"] = "deutsch";
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
+// tabTitlePlaceholder: "New Panel" => "Neues Panel"

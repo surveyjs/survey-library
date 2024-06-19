@@ -99,6 +99,7 @@ export var simplifiedChineseSurveyStrings = {
   emptyMessage: "没有要显示的数据",
   noEntriesText: "尚无条目。\n单击下面的按钮以添加新条目。",
   noEntriesReadonlyText: "没有条目。",
+  tabTitlePlaceholder: "新面板",
   more: "更多",
   tagboxDoneButtonCaption: "还行",
   selectToRankEmptyRankedAreaText: "所有选择均已排名",
@@ -135,4 +136,4 @@ surveyLocalization.localeNames["zh-cn"] = "简体中文";
 // cancel: "Cancel" => "取消"
 // refuseItemText: "Refuse to answer" => "拒绝回答"
 // dontKnowItemText: "Don't know" => "不知道"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "您的回复超过 64KB。请减小文件的大小，然后重试或联系调查所有者。"
-// signaturePlaceHolderReadOnly: "No signature" => "无签名"
+// signaturePlaceHolderReadOnly: "No signature" => "无签名"// tabTitlePlaceholder: "New Panel" => "新面板"

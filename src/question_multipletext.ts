@@ -810,6 +810,9 @@ export class QuestionMultipleTextModel extends Question
   getQuestionTitleLocation(): string {
     return "left";
   }
+  getQuestionTitleWidth(): string {
+    return undefined;
+  }
   getQuestionStartIndex(): string {
     return this.getStartIndex();
   }

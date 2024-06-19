@@ -99,6 +99,7 @@ export var frenchSurveyStrings = {
   emptyMessage: "Aucune donnée à afficher",
   noEntriesText: "Il n'y a pas encore d'entrées.\nCliquez sur le bouton ci-dessous pour ajouter une nouvelle entrée.",
   noEntriesReadonlyText: "Il n’y a pas d’entrées.",
+  tabTitlePlaceholder: "Nouveau panneau",
   more: "Plus",
   tagboxDoneButtonCaption: "D’ACCORD",
   selectToRankEmptyRankedAreaText: "Tous les choix sont classés",
@@ -129,4 +130,4 @@ surveyLocalization.localeNames["fr"] = "français";
 // cancel: "Cancel" => "Annuler"
 // refuseItemText: "Refuse to answer" => "Refuser de répondre"
 // dontKnowItemText: "Don't know" => "Sais pas"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Votre réponse dépasse 64 Ko. Veuillez réduire la taille de votre ou vos fichiers et réessayer ou contacter un propriétaire de sondage."
-// signaturePlaceHolderReadOnly: "No signature" => "Pas de signature"
+// signaturePlaceHolderReadOnly: "No signature" => "Pas de signature"// tabTitlePlaceholder: "New Panel" => "Nouveau panneau"

@@ -120,7 +120,7 @@
   fill: $foreground;
   font-size: calcFontSize(1);
   box-shadow: $shadow-small, inset 0 0 0 0px $background;
-  transition: border $transition-duration, box-shadow $transition-duration, background-color $transition-duration;
+  transition: box-shadow $transition-duration, background-color $transition-duration;
 }
 
 .sd-rating__item--fixed-size {
@@ -202,19 +202,18 @@ legend+sv-ng-rating-item+.sd-rating__item {
 }
 
 .sd-rating__item:focus-within {
-  border: 2px solid $primary;
+  box-shadow: 0 0 0 2px $primary;
 }
 
 .sd-rating__item--selected {
   background-color: $primary;
-  border: 2px solid $primary;
   color: $primary-foreground;
   font-weight: 600;
-  box-shadow: 0px 1px 2px transparent;
+  box-shadow: 0 0 0 2px $primary;
 }
 
 .sd-rating__item--selected:focus-within {
-  box-shadow: $shadow-small-reset, inset 0 0 0 2px $background;
+  box-shadow: $shadow-small-reset, inset 0 0 0 2px $background, 0 0 0 2px $primary;
 }
 
 .sd-rating__item-smiley {
@@ -519,7 +518,6 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   display: inline-block;
-  border: 2px solid transparent;
   box-sizing: border-box;
   transition: color $transition-duration;
 
@@ -547,6 +545,15 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
   &.sd-rating__item--fixed-size {
     min-width: calcSize(3);
+  }
+  &::after {
+    display: block;
+    content: attr(data-text);
+    font-weight: 600;
+    height: 0;
+    color: transparent;
+    overflow: hidden;
+    visibility: hidden;
   }
 }
 

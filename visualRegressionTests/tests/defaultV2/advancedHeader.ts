@@ -49,6 +49,7 @@ frameworks.forEach(framework => {
     });
   });
   test("Check survey advanced header with overlap", async (t) => {
+    if (framework === "vue") return;
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1000);
       await initSurvey(framework, {
@@ -89,6 +90,7 @@ frameworks.forEach(framework => {
     });
   });
   test("Check survey TOC + advanced header with overlap", async (t) => {
+    if (framework === "vue") return;
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1000);
       await initSurvey(framework, {

@@ -44,6 +44,10 @@ describe("etalon tests", () => {
       imports: [SurveyModule],
     }).compileComponents();
     TestBed.inject(SurveyModule);
+    Object.defineProperty(document, "fonts", {
+      get: () => { return { ready: { then: () => {} } }; },
+      configurable: true,
+    });
     (<any>window).ResizeObserver = function () {
       return {
         observe: () => {},

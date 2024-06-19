@@ -37,12 +37,22 @@ export var mouseInfo = {
   hasMouse: true
 };
 
-const pointerMatches = (typeof matchMedia !== "undefined" && !!matchMedia && matchMedia("(pointer:fine)")) || undefined;
-mouseInfo.hasMouse = !!pointerMatches && !!pointerMatches.matches;
+const matchMediaMethod: MatchMediaMethod = DomWindowHelper.matchMedia;
+mouseInfo.hasMouse = detectMouseSupport(matchMediaMethod);
 
 export let IsTouch = mouseInfo.isTouch;
 
 //for tests
 export function _setIsTouch(val: boolean): void {
   IsTouch = val;
+}
+
+export type MatchMediaMethod = ((query:string) => {matches:boolean} | null) | null;
+export function detectMouseSupport(matchMedia: MatchMediaMethod):boolean {
+  if (!matchMedia) return false;
+
+  const pointerQuery = matchMedia("(pointer:fine)");
+  const hoverQuery = matchMedia("(any-hover:hover)");
+
+  return !!pointerQuery && pointerQuery.matches || !!hoverQuery && hoverQuery.matches;
 }

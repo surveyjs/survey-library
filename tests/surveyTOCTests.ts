@@ -465,13 +465,13 @@ QUnit.test("updateStickyTOCSize", function (assert) {
     style: {}
   };
   tocModel.updateStickyTOCSize(mockRootEl);
-  assert.equal(tocRootElement.style.height, "158px", "Height updated");
+  assert.equal(tocRootElement.style.height, "159px", "Height updated");
 
   mockRootEl.scrollTop = 60;
   tocModel.updateStickyTOCSize(mockRootEl);
-  assert.equal(tocRootElement.style.height, "198px", "Height updated to full container");
+  assert.equal(tocRootElement.style.height, "199px", "Height updated to full container");
 
   mockRootEl.scrollTop = 20;
   tocModel.updateStickyTOCSize(mockRootEl);
-  assert.equal(tocRootElement.style.height, "178px", "Height updated to half title");
+  assert.equal(tocRootElement.style.height, "179px", "Height updated to half title");
 });

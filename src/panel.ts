@@ -1104,6 +1104,11 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.parent) return this.parent.getQuestionTitleLocation();
     return this.survey ? this.survey.questionTitleLocation : "top";
   }
+  /**
+   * Sets consistent width for question titles in CSS values. Applies only when [`questionTitleLocation`](#questionTitleLocation) evaluates to `"left"`.
+   *
+   * Default value: `undefined`
+   */
   @property() questionTitleWidth: string;
   getQuestionTitleWidth(): string {
     return this.questionTitleWidth || this.parent && this.parent.getQuestionTitleWidth();

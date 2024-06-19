@@ -15002,7 +15002,7 @@ QUnit.test("onElementWrapperComponentName event", function (assert) {
 QUnit.test("onElementWrapperComponentName event", function (assert) {
   const survey = new SurveyModel({
     elements: [{ type: "text", name: "q1" }, { type: "checkbox", name: "q2", choices: [1, 2] },
-    { type: "matrixdynamic", name: "q3", rowCount: 1, columns: [{ name: "col1" }] }
+      { type: "matrixdynamic", name: "q3", rowCount: 1, columns: [{ name: "col1" }] }
     ]
   });
   const q1 = survey.getQuestionByName("q1");

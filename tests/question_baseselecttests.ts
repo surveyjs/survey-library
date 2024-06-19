@@ -2160,3 +2160,22 @@ QUnit.test("valuePropertyName & complete trigger, bug#8434", (assert) => {
   q.renderedValue = ["none"];
   assert.equal(survey.calcIsCompleteButtonVisible(), true, "#4");
 });
+QUnit.test("Unselect none item, bug#8438", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, 2, 3],
+        "showNoneItem": true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.clickItemHandler(q.noneItem, true);
+  assert.deepEqual(q.value, ["none"], "#1");
+  q.clickItemHandler(q.noneItem, false);
+  assert.equal(q.isEmpty(), true, "#2");
+  q.clickItemHandler(q.noneItem, true);
+  assert.deepEqual(q.value, ["none"], "#3");
+});

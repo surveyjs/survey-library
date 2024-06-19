@@ -179,7 +179,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   }
 
   protected renderElement(): JSX.Element {
-    let itemContent = ReactElementFactory.Instance.createElement(this.question.itemContent, { item: this.item, cssClasses: this.cssClasses });
+    let itemContent = ReactElementFactory.Instance.createElement(this.question.itemComponent, { item: this.item, cssClasses: this.cssClasses });
     return (
       <div
         tabIndex={this.itemTabIndex}
@@ -230,7 +230,7 @@ export class SurveyQuestionRankingItemContent extends ReactSurveyElement {
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-ranking-item-content", props => {
+ReactElementFactory.Instance.registerElement("sv-ranking-item", props => {
   return React.createElement(SurveyQuestionRankingItemContent, props);
 });
 

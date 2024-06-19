@@ -95,16 +95,20 @@ QUnit.test("Switch input type", function (assert) {
   assert.ok(!q["maskInputAdapter"]);
 
   q.maskType = "pattern";
-  assert.ok(!q.maskTypeIsEmpty);
-  assert.ok(q["maskInputAdapter"]);
+  assert.ok(!q.maskTypeIsEmpty, "maskType = pattern");
+  assert.ok(q["maskInputAdapter"], "maskType = pattern");
 
   q.inputType = "date";
-  assert.ok(q.maskTypeIsEmpty);
-  assert.ok(!q["maskInputAdapter"]);
+  assert.ok(q.maskTypeIsEmpty, "inputType = date");
+  assert.ok(!q["maskInputAdapter"], "inputType = date");
 
   q.inputType = "text";
-  assert.ok(!q.maskTypeIsEmpty);
-  assert.ok(q["maskInputAdapter"]);
+  assert.ok(!q.maskTypeIsEmpty, "inputType = text");
+  assert.ok(q["maskInputAdapter"], "inputType = text");
+
+  q.inputType = "tel";
+  assert.ok(!q.maskTypeIsEmpty, "inputType = tel");
+  assert.ok(q["maskInputAdapter"], "inputType = tel");
 
   testInput.remove();
 });

@@ -65,7 +65,11 @@ export class QuestionTextModel extends QuestionTextBase {
   @property() inputTextAlignment: "left" | "right" | "auto";
 
   get maskTypeIsEmpty(): boolean {
-    return this.maskType === "none" || this.inputType !== "text";
+    switch (this.inputType) {
+      case "text": return this.maskType === "none";
+      case "tel": return this.maskType !== "pattern";
+      default: return true;
+    }
   }
 
   /**

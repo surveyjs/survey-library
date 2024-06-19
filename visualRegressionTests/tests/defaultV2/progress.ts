@@ -374,4 +374,70 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-progress-bar-bootstrap.png", Selector(".sd-progress-buttons__list"), t, comparer); // title + progress
     });
   });
+
+  test("Check survey with progress top pages - sticky", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        title: "Survey Title",
+        showProgressBar: "top",
+        progressBarType: "pages",
+        // progressBarShowPageNumbers: true,
+        pages: [
+          {
+            name: "p1",
+            elements: [
+              { type: "text", name: "q1" }, { type: "text", name: "q1" }, { type: "text", name: "q1" }, { type: "text", name: "q1" }, { type: "text", name: "q1" },
+            ]
+          },
+          {
+            name: "p2",
+            elements: [
+              { type: "text", name: "q1" }, { type: "text", name: "q1" }, { type: "text", name: "q1" }, { type: "text", name: "q1" }, { type: "text", name: "q1" },
+            ]
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (document.querySelector("#surveyElement") as HTMLElement).style.height = "calc(100vh - 32px)";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await t.resizeWindow(800, 600);
+      await t.scroll(".sd-root-modern--full-container", 0, 500);
+      await t.wait(1000);
+      await takeElementScreenshot("survey-progress-bar-top-pages-sticky.png", Selector("#surveyElement"), t, comparer);
+    });
+  });
+
+  test("Check survey with progress top questions - sticky", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        title: "Survey Title",
+        showProgressBar: "top",
+        progressBarType: "questions",
+        pages: [
+          {
+            name: "p1",
+            elements: [
+              { type: "text", name: "q1" }, { type: "text", name: "q1" }, { type: "text", name: "q1" }, { type: "text", name: "q1" }, { type: "text", name: "q1" },
+            ]
+          },
+          {
+            name: "p2",
+            elements: [
+              { type: "text", name: "q2" }, { type: "text", name: "q2" }, { type: "text", name: "q2" }, { type: "text", name: "q2" }, { type: "text", name: "q2" },
+            ]
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (document.querySelector("#surveyElement") as HTMLElement).style.height = "calc(100vh - 32px)";
+        (<any>window).survey.data = { q1: "answer" };
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await t.resizeWindow(800, 600);
+      await t.scroll(".sd-root-modern--full-container", 0, 500);
+      await t.wait(1000);
+      await takeElementScreenshot("survey-progress-bar-top-questions-sticky.png", Selector("#surveyElement"), t, comparer);
+    });
+  });
 });

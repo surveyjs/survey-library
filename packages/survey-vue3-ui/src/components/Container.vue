@@ -1,6 +1,6 @@
 <template>
   <template v-if="components.length > 0">
-    <div class="sv-components-column" v-if="needRenderWrapper">
+    <div v-if="needRenderWrapper" :class="['sv-components-column', 'sv-components-container-' + container]">
       <template v-for="(component, index) in components">
         <component
           :is="component.component"

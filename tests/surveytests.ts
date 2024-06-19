@@ -14506,7 +14506,7 @@ QUnit.test("onElementWrapperComponentName event vs string getRenderer", function
   const customRendererView = "my-custom-renderer-view";
   const customRendererEdit = "my-custom-renderer-edit";
   survey.onElementWrapperComponentName.add((s, e) => {
-    if(e.wrapperName !== "string") return;
+    if (e.wrapperName !== "string") return;
     if (s.isDesignMode) e.componentName = customRendererEdit;
     else e.componentName = customRendererView;
   });
@@ -14531,7 +14531,7 @@ QUnit.test("onElementWrapperComponentData event vs getRendererContextForString",
   const locString = new LocalizableString(survey, false, "name");
 
   survey.onElementWrapperComponentData.add((s, e) => {
-    if(e.wrapperName !== "string") return;
+    if (e.wrapperName !== "string") return;
     e.data = { str: e.data, el: e.element };
   });
   const res = survey.getRendererContextForString(survey.pages[0], locString);
@@ -14981,16 +14981,16 @@ QUnit.test("onElementWrapperComponentName event", function (assert) {
   const q1 = survey.getQuestionByName("q1");
   const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
   survey.onElementWrapperComponentName.add((sender, options) => {
-    if(options.wrapperName === "component" && options.reason === "test1") {
+    if (options.wrapperName === "component" && options.reason === "test1") {
       options.componentName += "#1";
     }
-    if(options.wrapperName === "content-component" && options.reason === undefined) {
+    if (options.wrapperName === "content-component" && options.reason === undefined) {
       options.componentName += "#2";
     }
-    if(options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
+    if (options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
       options.componentName += "#3";
     }
-    if(options.wrapperName === "itemvalue" && options.item?.value === 1) {
+    if (options.wrapperName === "itemvalue" && options.item?.value === 1) {
       options.componentName += "#4";
     }
   });
@@ -15009,16 +15009,16 @@ QUnit.test("onElementWrapperComponentName event", function (assert) {
   const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
   const q3 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q3");
   survey.onElementWrapperComponentData.add((sender, options) => {
-    if(options.wrapperName === "component" && options.reason === "test1") {
+    if (options.wrapperName === "component" && options.reason === "test1") {
       options.data = "#1";
     }
-    if(options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
+    if (options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
       options.data = "#2";
     }
-    if(options.wrapperName === "itemvalue" && options.item?.value === 1) {
+    if (options.wrapperName === "itemvalue" && options.item?.value === 1) {
       options.data = "#3";
     }
-    if(options.wrapperName === "cell" && options.element.name === "col1") {
+    if (options.wrapperName === "cell" && options.element.name === "col1") {
       options.data = "#4";
     }
   });
@@ -16246,7 +16246,7 @@ QUnit.test("Check rootCss property", function (assert) {
     ]
   });
   survey.css = { root: "test-root-class" };
-  assert.equal(survey.rootCss, "test-root-class");
+  assert.equal(survey.rootCss, "test-root-class sv_progress--pages");
 });
 
 QUnit.test("Check navigation bar css update", function (assert) {
@@ -16272,32 +16272,32 @@ QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) 
     ]
   });
   survey.css = defaultV2Css;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--full-container");
 
   survey.fitToContainer = false;
-  assert.equal(survey.getRootCss(), "sd-root-modern");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages");
 
   survey.setIsMobile(true);
   survey.fitToContainer = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
 
   survey.fitToContainer = false;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile");
 
   survey.mode = "display";
   survey.fitToContainer = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
 
   survey.fitToContainer = false;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly");
 
   survey.mode = "edit";
   survey.setIsMobile(false);
   survey["isCompact"] = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root--compact");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root--compact");
 
   survey.fitToContainer = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root--compact sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root--compact sd-root-modern--full-container");
   settings.animationEnabled = false;
 });
 
@@ -19681,7 +19681,7 @@ QUnit.test("Display mode in design time", function (assert) {
   assert.equal(survey.css.rootReadOnly, "sd-root--readonly");
   assert.equal(survey.mode, "edit");
   assert.equal(survey.isDisplayMode, false);
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--full-container");
 
   survey.mode = "display";
   assert.equal(survey.mode, "display");
@@ -19691,7 +19691,7 @@ QUnit.test("Display mode in design time", function (assert) {
   survey.setDesignMode(true);
   assert.equal(survey.mode, "display");
   assert.equal(survey.isDisplayMode, false);
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--full-container");
   settings.animationEnabled = false;
 });
 
@@ -19939,7 +19939,7 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
-QUnit.test("Display mode in design time", function (assert) {
+QUnit.test("Display mode in design time 2", function (assert) {
   const survey = new SurveyModel();
   assert.equal(survey.wrapperFormCss, "sd-root-modern__wrapper");
 

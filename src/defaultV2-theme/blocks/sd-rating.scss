@@ -526,6 +526,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     margin-top: calcSize(1.25);
     margin-bottom: calcSize(1.25);
     color: $font-questiondescription-color;
+    border: 2px solid rgba(0, 0, 0, 0);
   }
 
   &.sd-rating__min-text {

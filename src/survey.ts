@@ -4807,15 +4807,6 @@ export class SurveyModel extends SurveyElementCore
     });
     this.rootElement = htmlElement;
     this.addScrollEventListener();
-
-    if (DomDocumentHelper.isAvailable()) {
-      const fonts = (DomDocumentHelper.getDocument() as any).fonts;
-      if (fonts) {
-        fonts.ready.then(() => {
-          this.triggerResponsiveness(true);
-        });
-      }
-    }
   }
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;

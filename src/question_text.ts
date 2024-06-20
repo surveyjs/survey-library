@@ -66,8 +66,8 @@ export class QuestionTextModel extends QuestionTextBase {
 
   get maskTypeIsEmpty(): boolean {
     switch (this.inputType) {
+      case "tel":
       case "text": return this.maskType === "none";
-      case "tel": return this.maskType !== "pattern";
       default: return true;
     }
   }
@@ -777,7 +777,7 @@ Serializer.addClass(
       visibleIndex: 0,
       dependsOn: "inputType",
       visibleIf: (obj: any) => {
-        return obj.inputType === "text";
+        return obj.inputType === "text" || obj.inputType === "tel";
       }
     },
     {
@@ -786,7 +786,7 @@ Serializer.addClass(
       visibleIndex: 1,
       dependsOn: "inputType",
       visibleIf: (obj: any) => {
-        return obj.inputType === "text";
+        return obj.inputType === "text" || obj.inputType === "tel";
       },
       onGetValue: function (obj: any) {
         return obj.maskSettings.getData();

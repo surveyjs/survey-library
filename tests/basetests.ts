@@ -816,3 +816,18 @@ QUnit.test("check animationAllowed", function (assert) {
   assert.ok(question.animationAllowed);
   settings.animationEnabled = false;
 });
+
+QUnit.test("check afterRerender function", (assert) => {
+  const survey = new SurveyModel({});
+  assert.notOk(!!survey.onElementRerendered);
+  survey.afterRerender();
+  survey.enableOnElementRenderedEvent();
+  let log = "";
+  survey.onElementRerendered.add(() => log += "->callback");
+  survey.afterRerender();
+  assert.equal(log, "->callback");
+  log = "";
+  survey.disableOnElementRenderedEvent();
+  survey.afterRerender();
+  assert.equal(log, "");
+});

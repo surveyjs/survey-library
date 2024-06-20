@@ -319,7 +319,7 @@ frameworks.forEach(framework => {
           {
             type: "ranking",
             name: "ranking_question",
-            itemContent: "new-item-content",
+            itemComponent: "new-item-content",
             choices: ["item1", "item2", "item3", "item4"],
             readOnly: "true"
           }

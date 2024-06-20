@@ -12,6 +12,7 @@ export var surveyCss: any = {
 
 export var defaultV2Css = {
   root: "sd-root-modern",
+  rootProgress: "sd-progress",
   rootMobile: "sd-root-modern--mobile",
   rootAnimationDisabled: "sd-root-modern--animation-disabled",
   rootReadOnly: "sd-root--readonly",

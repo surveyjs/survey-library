@@ -3888,7 +3888,7 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if (!!rec.firstErrorQuestion && (focusOnFirstError || changeCurrentPage)) {
-      if(focusOnFirstError) {
+      if (focusOnFirstError) {
         rec.firstErrorQuestion.focus(true);
       } else {
         this.currentPage = rec.firstErrorQuestion.page;
@@ -4769,6 +4769,7 @@ export class SurveyModel extends SurveyElementCore
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.css.root)
+      .append(this.css.rootProgress + "--" + this.progressBarType)
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
       .append(this.css.rootReadOnly, this.mode === "display" && !this.isDesignMode)
@@ -6405,7 +6406,7 @@ export class SurveyModel extends SurveyElementCore
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
-    if(!Helpers.isTwoValueEquals(oldValue, newValue)) {
+    if (!Helpers.isTwoValueEquals(oldValue, newValue)) {
       this.checkTriggersAndRunConditions(name, newValue, oldValue);
       this.onVariableChanged.fire(this, { name: name, value: newValue });
     }
@@ -6637,7 +6638,7 @@ export class SurveyModel extends SurveyElementCore
         value: newValue,
       });
       question.comment = newValue;
-      if(question.comment != newValue) {
+      if (question.comment != newValue) {
         question.comment = newValue;
       }
     }
@@ -7449,13 +7450,13 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private elementWrapperComponentNameCore(componentName: string, element: any, wrapperName: string, reason?: string, item?: ItemValue): string {
-    if(this.onElementWrapperComponentName.isEmpty) return componentName;
+    if (this.onElementWrapperComponentName.isEmpty) return componentName;
     const options = { componentName: componentName, element: element, wrapperName: wrapperName, reason: reason, item: item };
     this.onElementWrapperComponentName.fire(this, options);
     return options.componentName;
   }
   private elementWrapperDataCore(data: any, element: any, wrapperName: string, reason?: string, item?: ItemValue): any {
-    if(this.onElementWrapperComponentData.isEmpty) return data;
+    if (this.onElementWrapperComponentData.isEmpty) return data;
     const options = { data: data, element: element, wrapperName: wrapperName, reason: reason, item: item };
     this.onElementWrapperComponentData.fire(this, options);
     return options.data;
@@ -7692,6 +7693,14 @@ export class SurveyModel extends SurveyElementCore
 
   private onScrollCallback: () => void;
   public onScroll(): void {
+    if (!!this.rootElement) {
+      const topStickyContainer = this.rootElement.querySelector(".sv-components-container-center");
+      if (!!topStickyContainer && topStickyContainer.getBoundingClientRect().y <= this.rootElement.getBoundingClientRect().y) {
+        this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
+      } else {
+        this.rootElement.classList && this.rootElement.classList.remove("sv-root--sticky-top");
+      }
+    }
     if (this.onScrollCallback) {
       this.onScrollCallback();
     }

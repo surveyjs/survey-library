@@ -1,7 +1,7 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
 import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, mergeValues, compareArrays } from "../src/utils/utils";
-import { mouseInfo } from "../src/utils/devices";
+import { mouseInfo, detectMouseSupport, MatchMediaMethod } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
 import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationTab, AnimationUtils, IAnimationConsumer, IAnimationGroupConsumer } from "../src/utils/animation";
@@ -236,6 +236,36 @@ QUnit.test(
     if (!hasTouchEvent) {
       window["ontouchstart"] = undefined;
     }
+  }
+);
+
+QUnit.test(
+  "utils: devices: detectMouseSupport",
+  function (assert) {
+    let result;
+
+    let matchMediaFunction: MatchMediaMethod = null;
+    result = detectMouseSupport(matchMediaFunction);
+    assert.equal(result, false, "no matchMedia function");
+
+    matchMediaFunction = ()=> { return null; };
+    result = detectMouseSupport(matchMediaFunction);
+    assert.equal(result, false, "matchMedia might return null at some environments");
+
+    matchMediaFunction = (query:string) => {
+      if (query === "(pointer:fine)") return { matches: true };
+      return { matches: false };
+    };
+    result = detectMouseSupport(matchMediaFunction);
+    assert.equal(result, true, "matchMedia pointer:fine");
+
+    matchMediaFunction = (query:string) => {
+      if (query === "(pointer:fine)") return { matches: false };
+      if (query === "(any-hover:hover)") return { matches: true };
+      return { matches: false };
+    };
+    result = detectMouseSupport(matchMediaFunction);
+    assert.equal(result, true, "matchMedia any-hover:hover");
   }
 );
 

@@ -820,10 +820,10 @@ QUnit.test("lazy loading: several loading", assert => {
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
-QUnit.test("lazy loading + change filter string + debouncedInputValue", assert => {
+QUnit.test("lazy loading + change filter string + dropdownSearchDelay ", assert => {
   const newValueDebouncedInputValue = 2 * onChoicesLazyLoadCallbackTimeOut;
-  const oldValueDebouncedInputValue = settings.debouncedInputValue;
-  settings.debouncedInputValue = newValueDebouncedInputValue;
+  const oldValueDebouncedInputValue = settings.dropdownSearchDelay;
+  settings.dropdownSearchDelay = newValueDebouncedInputValue;
   const done1 = assert.async();
   const done2 = assert.async();
   const done3 = assert.async();
@@ -864,7 +864,7 @@ QUnit.test("lazy loading + change filter string + debouncedInputValue", assert =
           assert.equal(question.choices.length, 25, "filter is 22 after request");
           assert.equal(question.choices[0].value, 22, "filter is 22 after request");
 
-          settings.debouncedInputValue = oldValueDebouncedInputValue;
+          settings.dropdownSearchDelay = oldValueDebouncedInputValue;
           done4();
         }, onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue);
         done3();

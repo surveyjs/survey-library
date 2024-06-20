@@ -81,14 +81,14 @@ export class DropdownListModel extends Base {
     const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
     if (!this.itemsSettings.skip || isUpdate) {
 
-      if (!!this.filterString && settings.debouncedInputValue > 0) {
+      if (!!this.filterString && settings.dropdownSearchDelay > 0) {
         if (!!this.timer) {
           clearTimeout(this.timer);
           this.timer = undefined;
         }
         this.timer = setTimeout(() => {
           this.loadQuestionChoices(callbackAfterItemsLoaded);
-        }, settings.debouncedInputValue);
+        }, settings.dropdownSearchDelay);
       } else {
         this.loadQuestionChoices(callbackAfterItemsLoaded);
       }

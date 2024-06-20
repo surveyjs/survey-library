@@ -15,6 +15,15 @@ const props = defineProps<{
 const popupViewModel = shallowRef();
 const root = ref<HTMLElement>(null as any);
 
+const setContainerElement = () => {
+  const container = root.value;
+  popupViewModel.value.setComponentElement(
+    container,
+    props.getTarget ? props.getTarget(container) : undefined,
+    props.getArea ? props.getArea(container) : undefined
+  );
+};
+
 watch(
   () => props.model,
   (newValue) => {
@@ -22,18 +31,14 @@ watch(
       popupViewModel.value.dispose();
     }
     popupViewModel.value = createPopupViewModel(newValue, undefined as any);
+    setContainerElement();
   },
   { immediate: true }
 );
 useBase(() => popupViewModel.value);
 
 onMounted(() => {
-  const container = root.value;
-  popupViewModel.value.setComponentElement(
-    container,
-    props.getTarget ? props.getTarget(container) : undefined,
-    props.getArea ? props.getArea(container) : undefined
-  );
+  setContainerElement();
 });
 onUnmounted(() => {
   popupViewModel.value.dispose();

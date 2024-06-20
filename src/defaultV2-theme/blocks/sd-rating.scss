@@ -209,11 +209,11 @@ legend+sv-ng-rating-item+.sd-rating__item {
   background-color: $primary;
   color: $primary-foreground;
   font-weight: 600;
-  box-shadow: 0 0 0 2px $primary;
+  box-shadow: 0 0 0 0px $primary;
 }
 
 .sd-rating__item--selected:focus-within {
-  box-shadow: $shadow-small-reset, inset 0 0 0 2px $background, 0 0 0 2px $primary;
+  box-shadow: $shadow-small-reset, inset 0 0 0 4px $background, 0 0 0 2px $primary;
 }
 
 .sd-rating__item-smiley {

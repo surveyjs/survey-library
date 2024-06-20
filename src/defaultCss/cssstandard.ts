@@ -2,6 +2,7 @@ import { surveyCss } from "./defaultV2Css";
 
 export var defaultStandardCss = {
   root: "sv_main sv_default_css",
+  rootProgress: "sv_progress",
   container: "sv_container",
   header: "sv_header",
   bodyContainer: "sv-components-row",

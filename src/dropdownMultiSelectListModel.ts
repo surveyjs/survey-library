@@ -192,7 +192,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
 
   protected onPropertyChangedHandler(sender: any, options: any) {
     super.onPropertyChangedHandler(sender, options);
-    if (options.name === "value" || options.name === "renderedValue") {
+    if (options.name === "value" || options.name === "renderedValue" || options.name === "placeholder") {
       this.syncFilterStringPlaceholder();
     }
   }

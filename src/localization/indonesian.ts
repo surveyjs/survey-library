@@ -99,6 +99,7 @@ export var indonesianStrings = {
   emptyMessage: "Tidak ada data untuk ditampilkan",
   noEntriesText: "Belum ada entri.\nKlik tombol di bawah ini untuk menambahkan entri baru.",
   noEntriesReadonlyText: "Tidak ada entri.",
+  tabTitlePlaceholder: "Panel Baru",
   more: "Lebih",
   tagboxDoneButtonCaption: "OKE",
   selectToRankEmptyRankedAreaText: "Semua pilihan diberi peringkat",
@@ -141,4 +142,4 @@ surveyLocalization.localeNames["id"] = "bahasa Indonesia";
 // cancel: "Cancel" => "Membatalkan"
 // refuseItemText: "Refuse to answer" => "Menolak untuk menjawab"
 // dontKnowItemText: "Don't know" => "Tidak tahu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Respons Anda melebihi 64 KB. Harap kurangi ukuran file Anda dan coba lagi atau hubungi pemilik survei."
-// signaturePlaceHolderReadOnly: "No signature" => "Tidak ada tanda tangan"
+// signaturePlaceHolderReadOnly: "No signature" => "Tidak ada tanda tangan"// tabTitlePlaceholder: "New Panel" => "Panel Baru"

@@ -18,6 +18,7 @@
   padding: calcSize(4) calcSize(5) calcSize(2) calcSize(5);
   display: flex;
   flex-direction: column;
+  transition: 0.25s padding ease-out;
 }
 
 .sd-progress-buttons__list-container {
@@ -271,6 +272,13 @@
     padding: calcSize(2) calcSize(3);
   }
 }
+
+.sv-root--sticky-top {
+  .sd-progress-buttons {
+    padding: calcSize(2) calcSize(5);
+  }
+}
+
 
 .sd-progress-buttons--fit-survey-width {
   max-width: calcSize(90);

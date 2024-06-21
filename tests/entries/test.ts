@@ -87,4 +87,4 @@ import "../../src/localization/german";
 import { settings } from "../../src/settings";
 
 settings.animationEnabled = false;
-
+settings.dropdownSearchDelay = 0;

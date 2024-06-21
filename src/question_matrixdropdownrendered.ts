@@ -98,6 +98,15 @@ export class QuestionMatrixDropdownRenderedCell {
   public get cellQuestionWrapperClassName(): string {
     return this.cell.getQuestionWrapperClassName(this.matrix.cssClasses.cellQuestionWrapper);
   }
+  public get showResponsiveTitle(): boolean {
+    return this.hasQuestion && this.matrix?.isMobile;
+  }
+  public get responsiveTitleCss(): string {
+    return new CssClassBuilder().append(this.matrix.cssClasses.cellResponsiveTitle).toString();
+  }
+  public get responsiveLocTitle(): LocalizableString {
+    return this.cell.column.locTitle;
+  }
   public get headers(): string {
     if (this.cell && this.cell.column) {
       if (this.matrix.IsMultiplyColumn(this.cell.column)) {

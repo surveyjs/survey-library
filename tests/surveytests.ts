@@ -2,8 +2,8 @@ import { Base } from "../src/base";
 import { SurveyElement } from "../src/survey-element";
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
-import { PanelModel } from "../src/panel";
-import { QuestionFactory } from "../src/questionfactory";
+import { PanelModel, QuestionRowModel } from "../src/panel";
+import { ElementFactory, QuestionFactory } from "../src/questionfactory";
 import { Question } from "../src/question";
 import { QuestionHtmlModel } from "../src/question_html";
 import { QuestionImageModel } from "../src/question_image";
@@ -29,7 +29,7 @@ import {
   MultipleTextItemModel,
 } from "../src/question_multipletext";
 import { QuestionMatrixModel } from "../src/question_matrix";
-import { ISurveyData, LayoutElementContainer } from "../src/base-interfaces";
+import { IElement, ISurveyData, LayoutElementContainer } from "../src/base-interfaces";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
@@ -5130,6 +5130,17 @@ QUnit.test("Create custom widget from addQuestion", function (assert) {
   CustomWidgetCollection.Instance.clear();
   Serializer.removeClass(cType);
   QuestionFactory.Instance.unregisterElement(cType);
+});
+QUnit.test("ElementFactory.getAllToolboxTypes()", function (assert) {
+  let defaultToolboxNames = ElementFactory.Instance.getAllToolboxTypes();
+  let defaultNames = ElementFactory.Instance.getAllTypes();
+  assert.deepEqual(defaultToolboxNames, defaultNames, "They are the same by default");
+  const type = "toolbox-test-type";
+  ElementFactory.Instance.registerElement(type, (name: string): IElement => { return new PanelModel(name); }, false);
+  defaultToolboxNames = ElementFactory.Instance.getAllToolboxTypes();
+  defaultNames = ElementFactory.Instance.getAllTypes();
+  assert.equal(defaultToolboxNames.length + 1, defaultNames.length, "We do use the new type for toolbox");
+  ElementFactory.Instance.unregisterElement(type);
 });
 QUnit.test("readOnlyCallback, bug #1818", function (assert) {
   CustomWidgetCollection.Instance.clear();
@@ -13065,9 +13076,17 @@ QUnit.test(
     });
     var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
     q1.value = q1.otherItem.value;
+    assert.equal(q1.errors.length, 0, "There is no error yet");
+    q1.comment = "some value1";
+    assert.equal(q1.errors.length, 0, "There is no error - there is a value");
+    q1.comment = "";
     assert.equal(q1.errors.length, 1, "There is an error right now");
-    q1.comment = "some value";
-    assert.equal(q1.errors.length, 0, "There is no error now");
+    q1.comment = "some value2";
+    assert.equal(q1.errors.length, 0, "There is no error again");
+    q1.value = 1;
+    q1.value = q1.otherItem.value;
+    assert.equal(q1.comment, "", "Comment is empty");
+    assert.equal(q1.errors.length, 0, "There is no error - comment was cleaned");
   }
 );
 QUnit.test(
@@ -14477,6 +14496,48 @@ QUnit.test("onTextRenderAs event", function (assert) {
   assert.equal(locString.renderAs, customRendererView);
   assert.equal(renderAs, customRendererView);
 });
+QUnit.test("onElementWrapperComponentName event vs string getRenderer", function (assert) {
+  const survey = new SurveyModel();
+  const questionName = "any question";
+  const locString = new LocalizableString(survey, false, "name");
+
+  let renderAs = survey.getRenderer(questionName);
+
+  const customRendererView = "my-custom-renderer-view";
+  const customRendererEdit = "my-custom-renderer-edit";
+  survey.onElementWrapperComponentName.add((s, e) => {
+    if (e.wrapperName !== "string") return;
+    if (s.isDesignMode) e.componentName = customRendererEdit;
+    else e.componentName = customRendererView;
+  });
+
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererView);
+  assert.equal(renderAs, customRendererView);
+
+  survey.setDesignMode(true);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererEdit);
+  assert.equal(renderAs, customRendererEdit);
+
+  survey.setDesignMode(false);
+  renderAs = survey.getRenderer(questionName);
+  assert.equal(locString.renderAs, customRendererView);
+  assert.equal(renderAs, customRendererView);
+});
+QUnit.test("onElementWrapperComponentData event vs getRendererContextForString", function (assert) {
+  const survey = new SurveyModel();
+  survey.addNewPage("page1");
+  const locString = new LocalizableString(survey, false, "name");
+
+  survey.onElementWrapperComponentData.add((s, e) => {
+    if (e.wrapperName !== "string") return;
+    e.data = { str: e.data, el: e.element };
+  });
+  const res = survey.getRendererContextForString(survey.pages[0], locString);
+  assert.equal(res.str.name, "name", "string is correct");
+  assert.equal(res.el.name, "page1", "element is correct");
+});
 
 QUnit.test("Make inputs read-only in design-mode for V2", function (assert) {
   settings.supportCreatorV2 = true;
@@ -14913,7 +14974,59 @@ QUnit.test("getQuestionContentWrapperComponentName", function (assert) {
     "default component"
   );
 });
-
+QUnit.test("onElementWrapperComponentName event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }, { type: "checkbox", name: "q2", choices: [1, 2] }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  survey.onElementWrapperComponentName.add((sender, options) => {
+    if (options.wrapperName === "component" && options.reason === "test1") {
+      options.componentName += "#1";
+    }
+    if (options.wrapperName === "content-component" && options.reason === undefined) {
+      options.componentName += "#2";
+    }
+    if (options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
+      options.componentName += "#3";
+    }
+    if (options.wrapperName === "itemvalue" && options.item?.value === 1) {
+      options.componentName += "#4";
+    }
+  });
+  assert.equal(survey.getElementWrapperComponentName(q1, "test1"), "sv-template-renderer#1", "#1");
+  assert.equal(survey.getQuestionContentWrapperComponentName(q1), "sv-template-renderer#2", "#2");
+  assert.equal(survey.getRowWrapperComponentName(new QuestionRowModel(survey.pages[0])), "sv-template-renderer#3", "#3");
+  assert.equal(survey.getItemValueWrapperComponentName(q2.choices[0], q2), "sv-template-renderer#4", "#4");
+});
+QUnit.test("onElementWrapperComponentName event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }, { type: "checkbox", name: "q2", choices: [1, 2] },
+      { type: "matrixdynamic", name: "q3", rowCount: 1, columns: [{ name: "col1" }] }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q3");
+  survey.onElementWrapperComponentData.add((sender, options) => {
+    if (options.wrapperName === "component" && options.reason === "test1") {
+      options.data = "#1";
+    }
+    if (options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
+      options.data = "#2";
+    }
+    if (options.wrapperName === "itemvalue" && options.item?.value === 1) {
+      options.data = "#3";
+    }
+    if (options.wrapperName === "cell" && options.element.name === "col1") {
+      options.data = "#4";
+    }
+  });
+  assert.equal(survey.getElementWrapperComponentData(q1, "test1"), "#1", "#1");
+  assert.equal(survey.getRowWrapperComponentData(new QuestionRowModel(survey.pages[0])), "#2", "#2");
+  assert.equal(survey.getItemValueWrapperComponentData(q2.choices[0], q2), "#3", "#3");
+  assert.equal(survey.getMatrixCellTemplateData(q3.visibleRows[0].cells[0]), "#4", "#4");
+});
 QUnit.test(
   "Skip trigger test and auto focus first question on the page",
   function (assert) {
@@ -16133,7 +16246,7 @@ QUnit.test("Check rootCss property", function (assert) {
     ]
   });
   survey.css = { root: "test-root-class" };
-  assert.equal(survey.rootCss, "test-root-class");
+  assert.equal(survey.rootCss, "test-root-class sv_progress--pages");
 });
 
 QUnit.test("Check navigation bar css update", function (assert) {
@@ -16159,32 +16272,32 @@ QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) 
     ]
   });
   survey.css = defaultV2Css;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--full-container");
 
   survey.fitToContainer = false;
-  assert.equal(survey.getRootCss(), "sd-root-modern");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages");
 
   survey.setIsMobile(true);
   survey.fitToContainer = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
 
   survey.fitToContainer = false;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile");
 
   survey.mode = "display";
   survey.fitToContainer = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
 
   survey.fitToContainer = false;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly");
 
   survey.mode = "edit";
   survey.setIsMobile(false);
   survey["isCompact"] = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root--compact");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root--compact");
 
   survey.fitToContainer = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root--compact sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root--compact sd-root-modern--full-container");
   settings.animationEnabled = false;
 });
 
@@ -18079,7 +18192,7 @@ QUnit.test("getContainerContent - header elements order", function (assert) {
     container: "header",
     component: "sv-custom",
   });
-  survey.applyTheme({ header: {} } as any);
+  survey.applyTheme({ "headerView": "advanced" } as any);
 
   assert.deepEqual(getContainerContent("header"), [
     {
@@ -18094,6 +18207,18 @@ QUnit.test("getContainerContent - header elements order", function (assert) {
       "id": "custom"
     }
   ], "advanved header first, progress next");
+});
+
+QUnit.test("restore header css variable if header is default", function (assert) {
+  const json = {
+    title: "Title",
+    elements: [{ "type": "rating", "name": "satisfaction" }]
+  };
+  let survey = new SurveyModel(json);
+  survey.applyTheme({ "headerView": "advanced", cssVariables: { "--sjs-header-backcolor": "transparent" } } as any);
+
+  const cover = survey.findLayoutElement("advanced-header").data as Cover;
+  assert.equal(cover.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
 });
 
 QUnit.test("check title classes when readOnly changed", function (assert) {
@@ -19556,7 +19681,7 @@ QUnit.test("Display mode in design time", function (assert) {
   assert.equal(survey.css.rootReadOnly, "sd-root--readonly");
   assert.equal(survey.mode, "edit");
   assert.equal(survey.isDisplayMode, false);
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--full-container");
 
   survey.mode = "display";
   assert.equal(survey.mode, "display");
@@ -19566,7 +19691,7 @@ QUnit.test("Display mode in design time", function (assert) {
   survey.setDesignMode(true);
   assert.equal(survey.mode, "display");
   assert.equal(survey.isDisplayMode, false);
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--full-container");
   settings.animationEnabled = false;
 });
 
@@ -19814,7 +19939,7 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
-QUnit.test("Display mode in design time", function (assert) {
+QUnit.test("Display mode in design time 2", function (assert) {
   const survey = new SurveyModel();
   assert.equal(survey.wrapperFormCss, "sd-root-modern__wrapper");
 

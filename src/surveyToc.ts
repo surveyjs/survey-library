@@ -100,7 +100,7 @@ export class TOCModel {
         const titleElement = rootElement.querySelector(titleSelector) as HTMLDivElement;
         const titleElementHeight = titleElement ? titleElement.getBoundingClientRect().height : 0;
         const scrollCompensationHeight = rootElement.scrollTop > titleElementHeight ? 0 : titleElementHeight - rootElement.scrollTop;
-        tocRootElement.style.height = (rootHeight - scrollCompensationHeight - 2) + "px";
+        tocRootElement.style.height = (rootHeight - scrollCompensationHeight - 1) + "px";
       }
     }
   }

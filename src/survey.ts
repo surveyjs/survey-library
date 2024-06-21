@@ -64,7 +64,8 @@ import {
   MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent,
   DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent,
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
-  ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent
+  ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
+  OpenFileChooserEvent, ElementWrapperComponentNameEvent, ElementWrapperComponentDataEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -532,7 +533,7 @@ export class SurveyModel extends SurveyElementCore
   public onUpdatePageCssClasses: EventBase<SurveyModel, UpdatePageCssClassesEvent> = this.addEvent<SurveyModel, UpdatePageCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a choice item in Radio Button Group, Checkboxes, and Dropdown questions. Use it to override default CSS classes applied to choice items.
+   * An event that is raised before rendering a choice item in Radio Button Group and Checkboxes questions. Use it to override default CSS classes applied to choice items.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -843,6 +844,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onPopupVisibleChanged: EventBase<SurveyModel, PopupVisibleChangedEvent> = this.addEvent<SurveyModel, PopupVisibleChangedEvent>();
 
+  public onElementWrapperComponentName: EventBase<SurveyModel, ElementWrapperComponentNameEvent> = this.addEvent<SurveyModel, ElementWrapperComponentNameEvent>();
+  public onElementWrapperComponentData: EventBase<SurveyModel, ElementWrapperComponentDataEvent> = this.addEvent<SurveyModel, ElementWrapperComponentDataEvent>();
   //#endregion
 
   constructor(jsonObj: any = null, renderedElement: any = null) {
@@ -1917,13 +1920,14 @@ export class SurveyModel extends SurveyElementCore
     return this.getRendererContextForString(this, locStr);
   }
   public getRendererForString(element: Question | PanelModel | PageModel | SurveyModel, name: string): string {
-    const renderAs = this.getBuiltInRendererForString(element, name);
+    let renderAs = this.getBuiltInRendererForString(element, name);
+    renderAs = this.elementWrapperComponentNameCore(renderAs, element, "string", name);
     const options: TextRenderAsEvent = { element: element, name: name, renderAs: renderAs };
     this.onTextRenderAs.fire(this, options);
     return options.renderAs;
   }
-  public getRendererContextForString(element: Base, locStr: LocalizableString) {
-    return locStr;
+  public getRendererContextForString(element: Base, locStr: LocalizableString): any {
+    return this.elementWrapperDataCore(locStr, element, "string");
   }
   getExpressionDisplayValue(
     question: Question,
@@ -3884,7 +3888,7 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if (!!rec.firstErrorQuestion && (focusOnFirstError || changeCurrentPage)) {
-      if(focusOnFirstError) {
+      if (focusOnFirstError) {
         rec.firstErrorQuestion.focus(true);
       } else {
         this.currentPage = rec.firstErrorQuestion.page;
@@ -4765,6 +4769,7 @@ export class SurveyModel extends SurveyElementCore
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.css.root)
+      .append(this.css.rootProgress + "--" + this.progressBarType)
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
       .append(this.css.rootReadOnly, this.mode === "display" && !this.isDesignMode)
@@ -6401,7 +6406,7 @@ export class SurveyModel extends SurveyElementCore
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
-    if(!Helpers.isTwoValueEquals(oldValue, newValue)) {
+    if (!Helpers.isTwoValueEquals(oldValue, newValue)) {
       this.checkTriggersAndRunConditions(name, newValue, oldValue);
       this.onVariableChanged.fire(this, { name: name, value: newValue });
     }
@@ -6633,7 +6638,7 @@ export class SurveyModel extends SurveyElementCore
         value: newValue,
       });
       question.comment = newValue;
-      if(question.comment != newValue) {
+      if (question.comment != newValue) {
         question.comment = newValue;
       }
     }
@@ -7430,7 +7435,7 @@ export class SurveyModel extends SurveyElementCore
     this.focusingQuestionInfo = undefined;
   }
 
-  public questionEditFinishCallback(question: Question, event: any) {
+  public questionEditFinishCallback(question: Question, event: any): void {
     const enterKeyAction = this.enterKeyAction || settings.enterKeyAction;
     if (enterKeyAction == "loseFocus") event.target.blur();
     if (enterKeyAction == "moveToNextEditor") {
@@ -7444,40 +7449,45 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-
+  private elementWrapperComponentNameCore(componentName: string, element: any, wrapperName: string, reason?: string, item?: ItemValue): string {
+    if (this.onElementWrapperComponentName.isEmpty) return componentName;
+    const options = { componentName: componentName, element: element, wrapperName: wrapperName, reason: reason, item: item };
+    this.onElementWrapperComponentName.fire(this, options);
+    return options.componentName;
+  }
+  private elementWrapperDataCore(data: any, element: any, wrapperName: string, reason?: string, item?: ItemValue): any {
+    if (this.onElementWrapperComponentData.isEmpty) return data;
+    const options = { data: data, element: element, wrapperName: wrapperName, reason: reason, item: item };
+    this.onElementWrapperComponentData.fire(this, options);
+    return options.data;
+  }
   public getElementWrapperComponentName(element: any, reason?: string): string {
-    if (reason === "logo-image") {
-      return "sv-logo-image";
-    }
-    return SurveyModel.TemplateRendererComponentName;
+    const res = reason === "logo-image" ? "sv-logo-image" : SurveyModel.TemplateRendererComponentName;
+    return this.elementWrapperComponentNameCore(res, element, "component", reason);
   }
   public getQuestionContentWrapperComponentName(element: any): string {
-    return SurveyModel.TemplateRendererComponentName;
+    return this.elementWrapperComponentNameCore(SurveyModel.TemplateRendererComponentName, element, "content-component");
   }
   public getRowWrapperComponentName(row: QuestionRowModel): string {
-    return SurveyModel.TemplateRendererComponentName;
+    return this.elementWrapperComponentNameCore(SurveyModel.TemplateRendererComponentName, row, "row");
+  }
+  public getItemValueWrapperComponentName(item: ItemValue, question: QuestionSelectBase): string {
+    return this.elementWrapperComponentNameCore(SurveyModel.TemplateRendererComponentName, question, "itemvalue", undefined, item);
   }
   public getElementWrapperComponentData(element: any, reason?: string): any {
-    return element;
+    return this.elementWrapperDataCore(element, element, "component", reason);
   }
   public getRowWrapperComponentData(row: QuestionRowModel): any {
-    return row;
+    return this.elementWrapperDataCore(row, row, "row");
   }
-  public getItemValueWrapperComponentName(
-    item: ItemValue,
-    question: QuestionSelectBase
-  ): string {
-    return SurveyModel.TemplateRendererComponentName;
+  public getItemValueWrapperComponentData(item: ItemValue, question: QuestionSelectBase): any {
+    return this.elementWrapperDataCore(item, question, "itemvalue", undefined, item);
   }
-  public getItemValueWrapperComponentData(
-    item: ItemValue,
-    question: QuestionSelectBase
-  ): any {
-    return item;
+  public getMatrixCellTemplateData(cell: any): any {
+    const res: any = cell.question;
+    return this.elementWrapperDataCore(res, res, "cell");
   }
-  public getMatrixCellTemplateData(cell: any) {
-    return cell.question;
-  }
+
   public searchText(text: string): Array<IFindElement> {
     if (!!text) text = text.toLowerCase();
     var res: Array<IFindElement> = [];
@@ -7627,10 +7637,7 @@ export class SurveyModel extends SurveyElementCore
 
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
-        this.removeLayoutElement("advanced-header");
-        const advHeader = new Cover();
-        advHeader.fromTheme(theme);
-        this.insertAdvancedHeader(advHeader);
+        return;
       }
       if (key === "isPanelless") {
         this.isCompact = theme[key];
@@ -7638,6 +7645,12 @@ export class SurveyModel extends SurveyElementCore
         (this as any)[key] = theme[key];
       }
     });
+    if (this.headerView === "advanced" || "header" in theme) {
+      this.removeLayoutElement("advanced-header");
+      const advHeader = new Cover();
+      advHeader.fromTheme(theme);
+      this.insertAdvancedHeader(advHeader);
+    }
     this.themeChanged(theme);
   }
   public themeChanged(theme: ITheme): void {
@@ -7680,6 +7693,14 @@ export class SurveyModel extends SurveyElementCore
 
   private onScrollCallback: () => void;
   public onScroll(): void {
+    if (!!this.rootElement) {
+      const topStickyContainer = this.rootElement.querySelector(".sv-components-container-center");
+      if (!!topStickyContainer && topStickyContainer.getBoundingClientRect().y <= this.rootElement.getBoundingClientRect().y) {
+        this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
+      } else {
+        this.rootElement.classList && this.rootElement.classList.remove("sv-root--sticky-top");
+      }
+    }
     if (this.onScrollCallback) {
       this.onScrollCallback();
     }

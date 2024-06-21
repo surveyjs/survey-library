@@ -19,7 +19,7 @@ const clickTitleFunction = (e: any) => {
   }
 };
 const getStyle = () => {
-  const headerStyle = { width: undefined };
+  const headerStyle: any = { width: undefined };
   if("titleWidth" in props.element) {
     headerStyle.width = props.element.titleWidth;
   }

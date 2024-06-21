@@ -99,6 +99,7 @@ export var italianSurveyStrings = {
   emptyMessage: "Nessun dato da visualizzare",
   noEntriesText: "Non ci sono ancora voci.\nFai clic sul pulsante qui sotto per aggiungere una nuova voce.",
   noEntriesReadonlyText: "Non ci sono voci.",
+  tabTitlePlaceholder: "Nuovo pannello",
   more: "Più",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Tutte le scelte sono classificate",
@@ -129,4 +130,4 @@ surveyLocalization.localeNames["it"] = "italiano";
 // cancel: "Cancel" => "Annulla"
 // refuseItemText: "Refuse to answer" => "Rifiuta di rispondere"
 // dontKnowItemText: "Don't know" => "Non lo so"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "La tua risposta supera i 64 KB. Riduci le dimensioni dei tuoi file e riprova o contatta il proprietario di un'indagine."
-// signaturePlaceHolderReadOnly: "No signature" => "Nessuna firma"
+// signaturePlaceHolderReadOnly: "No signature" => "Nessuna firma"// tabTitlePlaceholder: "New Panel" => "Nuovo pannello"

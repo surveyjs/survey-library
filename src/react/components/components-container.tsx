@@ -16,7 +16,7 @@ export class ComponentsContainer extends React.Component<any, any> {
         })}
       </>;
     }
-    return <div className="sv-components-column">
+    return <div className={"sv-components-column" + " sv-components-container-" + this.props.container}>
       {components.map(component => {
         return ReactElementFactory.Instance.createElement(component.component as string, { survey: this.props.survey, model: component.data, container: this.props.container, key: component.id });
       })}

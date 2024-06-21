@@ -67,9 +67,6 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   }
 
   getComponentName(element: Question) { return getComponentName(element); }
-  getHeaders(): string {
-    return this.cell.headers;
-  }
   getCellStyle() {
     if (!!this.cell.width || !!this.cell.minWidth)
       return { width: this.cell.width, minWidth: this.cell.minWidth };

@@ -99,6 +99,7 @@ export var swedishSurveyStrings = {
   emptyMessage: "Ingen data finns",
   noEntriesText: "Det finns inga värden än.\nKlicka på knappen nedan för att lägga till nytt värde.",
   noEntriesReadonlyText: "Det finns inga poster.",
+  tabTitlePlaceholder: "Ny panel",
   more: "Mer",
   tagboxDoneButtonCaption: "OKEJ",
   selectToRankEmptyRankedAreaText: "Alla val rangordnas",
@@ -129,4 +130,4 @@ surveyLocalization.localeNames["sv"] = "svenska";
 // cancel: "Cancel" => "Annullera"
 // refuseItemText: "Refuse to answer" => "Vägra svara"
 // dontKnowItemText: "Don't know" => "Vet inte"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ditt svar överskrider 64 kB. Minska storleken på dina filer och försök igen eller kontakta en undersökningsägare."
-// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"
+// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"// tabTitlePlaceholder: "New Panel" => "Ny panel"

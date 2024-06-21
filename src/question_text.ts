@@ -65,7 +65,11 @@ export class QuestionTextModel extends QuestionTextBase {
   @property() inputTextAlignment: "left" | "right" | "auto";
 
   get maskTypeIsEmpty(): boolean {
-    return this.maskType === "none";
+    switch (this.inputType) {
+      case "tel":
+      case "text": return this.maskType === "none";
+      default: return true;
+    }
   }
 
   /**
@@ -100,6 +104,7 @@ export class QuestionTextModel extends QuestionTextBase {
       maskClassName = "masksettings";
     }
     const inputMask = Serializer.createClass(maskClassName);
+    inputMask.owner = this.survey;
     return inputMask;
   }
 
@@ -151,6 +156,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.max = undefined;
       this.step = undefined;
     }
+    this.updateMaskAdapter();
   }
   public getMaxLength(): any {
     if(!this.isTextInput) return null;
@@ -771,7 +777,7 @@ Serializer.addClass(
       visibleIndex: 0,
       dependsOn: "inputType",
       visibleIf: (obj: any) => {
-        return obj.inputType === "text";
+        return obj.inputType === "text" || obj.inputType === "tel";
       }
     },
     {
@@ -780,7 +786,7 @@ Serializer.addClass(
       visibleIndex: 1,
       dependsOn: "inputType",
       visibleIf: (obj: any) => {
-        return obj.inputType === "text";
+        return obj.inputType === "text" || obj.inputType === "tel";
       },
       onGetValue: function (obj: any) {
         return obj.maskSettings.getData();

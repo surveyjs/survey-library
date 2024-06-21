@@ -12,7 +12,7 @@ export var hebrewSurveyStrings = {
   refuseItemText: "מסרבים לענות",
   dontKnowItemText: "לא יודע",
   selectAllItemText: "בחר הכל",
-  progressText: "דף {1} מתוך {0}",
+  progressText: "דף {0} מתוך {1}",
   indexText: "{0} מתוך {1}",
   panelDynamicProgressText: "הקלטה {0} מתוך {1}",
   panelDynamicTabTextFormat: "לוח {panelIndex}",
@@ -99,6 +99,7 @@ export var hebrewSurveyStrings = {
   emptyMessage: "אין נתונים להצגה",
   noEntriesText: "אין עדיין ערכים.\nלחץ על הלחצן למטה כדי להוסיף ערך חדש.",
   noEntriesReadonlyText: "אין ערכים.",
+  tabTitlePlaceholder: "פאנל חדש",
   more: "עוד",
   tagboxDoneButtonCaption: "אוקיי",
   selectToRankEmptyRankedAreaText: "כל האפשרויות מדורגות",
@@ -142,4 +143,4 @@ surveyLocalization.localeNames["he"] = "עברית";
 // refuseItemText: "Refuse to answer" => "מסרבים לענות"
 // dontKnowItemText: "Don't know" => "לא יודע"
 // savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "תגובתך עולה על 64KB. הקטן את גודל הקבצים שלך ונסה שוב או פנה לבעלים של סקר."
-// signaturePlaceHolderReadOnly: "No signature" => "אין חתימה"
+// signaturePlaceHolderReadOnly: "No signature" => "אין חתימה"// tabTitlePlaceholder: "New Panel" => "פאנל חדש"

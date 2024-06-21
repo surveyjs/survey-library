@@ -5,6 +5,7 @@ import { InputMaskCurrency } from "../../src/mask/mask_currency";
 import { QuestionTextModel } from "../../src/question_text";
 import { Serializer } from "../../src/jsonobject";
 import { SurveyModel } from "../../src/survey";
+import { ArrayChanges, Base } from "../../src/base";
 
 export default QUnit.module("Question text: Input mask");
 
@@ -84,6 +85,32 @@ QUnit.test("Switch mask type", function (assert) {
   q.maskType = "none";
   assert.equal(q.maskType, "none");
   assert.equal(q.maskSettings instanceof InputMaskBase, true);
+});
+
+QUnit.test("Switch input type", function (assert) {
+  const testInput = document.createElement("input");
+  const q = new QuestionTextModel("q1");
+  q["input"] = testInput;
+  assert.ok(q.maskTypeIsEmpty);
+  assert.ok(!q["maskInputAdapter"]);
+
+  q.maskType = "pattern";
+  assert.ok(!q.maskTypeIsEmpty, "maskType = pattern");
+  assert.ok(q["maskInputAdapter"], "maskType = pattern");
+
+  q.inputType = "date";
+  assert.ok(q.maskTypeIsEmpty, "inputType = date");
+  assert.ok(!q["maskInputAdapter"], "inputType = date");
+
+  q.inputType = "text";
+  assert.ok(!q.maskTypeIsEmpty, "inputType = text");
+  assert.ok(q["maskInputAdapter"], "inputType = text");
+
+  q.inputType = "tel";
+  assert.ok(!q.maskTypeIsEmpty, "inputType = tel");
+  assert.ok(q["maskInputAdapter"], "inputType = tel");
+
+  testInput.remove();
 });
 
 QUnit.test("Datetime mask: value & inputValue", function (assert) {
@@ -252,4 +279,38 @@ QUnit.test("isNumeric: load form data", function (assert) {
   assert.equal(q1.inputValue, "10 000,99");
   assert.equal(q2.value, "10000.99");
   assert.equal(q2.inputValue, "10 000,99");
+});
+
+QUnit.test("mask settings changes trigger survey.onPropertyValueChangedCallback", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1",
+            "maskType": "numeric",
+            "maskSettings": {
+              "thousandsSeparator": "."
+            }
+          }
+        ]
+      }
+    ]
+  });
+  let propName = "not triggered";
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: ArrayChanges
+  ) => {
+    propName += "->name:" + name;
+  };
+
+  const maskedQuestion = survey.getQuestionByName("question1") as QuestionTextModel;
+  (maskedQuestion.maskSettings as any).thousandsSeparator = "-";
+  assert.equal(propName, "not triggered->name:thousandsSeparator");
 });

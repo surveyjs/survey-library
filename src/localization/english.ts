@@ -100,6 +100,7 @@ export var englishStrings = {
   emptyMessage: "No data to display",
   noEntriesText: "No entries yet.\nClick the button below to add a new entry.",
   noEntriesReadonlyText: "No entries",
+  tabTitlePlaceholder: "New Panel",
   more: "More",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "All choices are selected for ranking",

@@ -1098,6 +1098,17 @@ QUnit.test("selectbase and otherValue/comment + same values", (assert) => {
   assert.deepEqual(["item33"], q2.value, "q2 value, #5");
   assert.equal("item33", q2.otherValue, "q2 otherValue, #6");
 });
+QUnit.test("selectbase, showOtherItem & checkErrorsMode: 'onValueChanged'", (assert) => {
+  const survey = new SurveyModel({ elements: [
+    { type: "radiogroup", name: "q1", showOtherItem: true, choices: ["item1", "item2", "item3"] },
+  ], checkErrorsMode: "onValueChanged" });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  q1.renderedValue = "other";
+  assert.equal(q1.errors.length, 0, "We do not have errors yet");
+  survey.completeLastPage();
+  assert.equal(q1.errors.length, 1, "There is an error");
+  assert.equal(survey.state, "running", "Still running");
+});
 QUnit.test("selectbase, otherValue&question-Comment", (assert) => {
   const survey = new SurveyModel({ elements: [
     { type: "dropdown", name: "q1", showOtherItem: true, choices: ["item1", "item2", "item3"] },
@@ -2107,4 +2118,64 @@ QUnit.test("dropdown.clearValue(true) for showCommentArea & showOtherItem, bug#8
   assert.equal(q3.comment, "abc", "q3.comment");
   assert.equal(q4.value, undefined, "q4.value");
   assert.notOk(q4.comment, "q4.comment");
+});
+QUnit.test("valuePropertyName & complete trigger, bug#8434", (assert) => {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "checkbox",
+            "name": "models",
+            "choices": [1, 2, 3],
+            "showNoneItem": true,
+            "valuePropertyName": "model_id"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{models-unwrapped} = ['none']"
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("models");
+  assert.equal(survey.calcIsCompleteButtonVisible(), false, "#1");
+  q.renderedValue = ["none"];
+  assert.equal(survey.calcIsCompleteButtonVisible(), true, "#2");
+  q.renderedValue = [1];
+  assert.equal(survey.calcIsCompleteButtonVisible(), false, "#3");
+  q.renderedValue = ["none"];
+  assert.equal(survey.calcIsCompleteButtonVisible(), true, "#4");
+});
+QUnit.test("Unselect none item, bug#8438", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, 2, 3],
+        "showNoneItem": true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.clickItemHandler(q.noneItem, true);
+  assert.deepEqual(q.value, ["none"], "#1");
+  q.clickItemHandler(q.noneItem, false);
+  assert.equal(q.isEmpty(), true, "#2");
+  q.clickItemHandler(q.noneItem, true);
+  assert.deepEqual(q.value, ["none"], "#3");
 });

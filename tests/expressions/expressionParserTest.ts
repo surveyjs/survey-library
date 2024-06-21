@@ -721,6 +721,16 @@ QUnit.test("ExpressionRunner: sumInArray with conditional logic", function(asser
   var values = { a: [{ val1: 1, val2: 4 }, { val1: 2, val2: 3 }, { val1: 3, val2: 5 }] };
   assert.equal(runner.run(values), 4, "1 + 3");
 });
+QUnit.test("ExpressionRunner: sumInArray with conditional logic as operand", function(assert) {
+  var runner = new ExpressionRunner("sumInArray({a}, 'val1', {val2} > 3)");
+  var values = { a: [{ val1: 1, val2: 4 }, { val1: 2, val2: 3 }, { val1: 3, val2: 5 }] };
+  assert.equal(runner.run(values), 4, "1 + 3");
+});
+QUnit.test("ExpressionRunner: countInArray with conditional logic & strings", function(assert) {
+  var runner = new ExpressionRunner("sumInArray({a}, 'val1', {val2} <> 'item1')");
+  var values = { a: [{ val1: 1, val2: "item2" }, { val1: 2, val2: "item1" }, { val1: 3, val2: "item3" }] };
+  assert.equal(runner.run(values), 4, "1 + 3");
+});
 
 QUnit.test("ExpressionRunner: countInArray", function(assert) {
   var runner = new ExpressionRunner("countInArray({a}, 'val1')");

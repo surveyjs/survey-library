@@ -2,6 +2,7 @@ import { surveyCss } from "./defaultV2Css";
 
 export var defaultStandardCss = {
   root: "sv_main sv_default_css",
+  rootProgress: "sv_progress",
   container: "sv_container",
   header: "sv_header",
   bodyContainer: "sv-components-row",
@@ -205,6 +206,7 @@ export var defaultStandardCss = {
   matrixdropdown: {
     root: "sv_q_matrix_dropdown",
     cell: "sv_matrix_cell",
+    cellResponsiveTitle: "sv_matrix_cell_responsive_title",
     headerCell: "sv_matrix_cell_header",
     row: "sv_matrix_row",
     rowAdditional: "sv-matrix__row--additional",
@@ -229,6 +231,7 @@ export var defaultStandardCss = {
     iconRemove: "",
     iconDrag: "sv-matrixdynamic__drag-icon",
     cell: "sv_matrix_cell",
+    cellResponsiveTitle: "sv_matrix_cell_responsive_title",
     headerCell: "sv_matrix_cell_header",
     row: "sv_matrix_row",
     detailRow: "sv_matrix_detail_row",

@@ -482,7 +482,7 @@ Returns the sum of numbers taken from a specified data field. This data field is
 
 The following code sums up values from a `"total"` matrix column but includes only the rows with a `"categoryId"` column equaling 1:
 
-*Example*: `"expression": "sumInArray({matrixdynamic}, 'total', '{categoryId} = 1')"`
+*Example*: `"expression": "sumInArray({matrixdynamic}, 'total', {categoryId} = 1)"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L164-L171 (linkStyle))
 
@@ -496,7 +496,7 @@ Returns the maximum of numbers taken from a specified data field. This data fiel
 
 The following code finds a maximum value within a `"quantity"` matrix column, but the value should be under 100:
 
-*Example*: `"expression": "maxInArray({matrixdynamic}, 'quantity', '{quantity} < 100')"`
+*Example*: `"expression": "maxInArray({matrixdynamic}, 'quantity', {quantity} < 100)"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L181-L187 (linkStyle))
 
@@ -510,7 +510,7 @@ Returns the minimum of numbers taken from a specified data field. This data fiel
 
 The following code finds a minimum value within a `"quantity"` matrix column but searches for it only in the rows with a `"categoryId"` column equaling 1 and includes only positive values:
 
-*Example*: `"expression": "minInArray({matrixdynamic}, 'quantity', '{quantity} > 0 and {categoryId} = 1')"`
+*Example*: `"expression": "minInArray({matrixdynamic}, 'quantity', {quantity} > 0 and {categoryId} = 1)"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L173-L179 (linkStyle))
 
@@ -524,7 +524,7 @@ Returns the average of numbers taken from a specified data field. This data fiel
 
 The following code finds an average of values within a `"quantity"` matrix column, excluding zeroes:
 
-*Example*: `"expression": "avgInArray({matrixdynamic}, 'quantity', '{quantity} > 0')"`
+*Example*: `"expression": "avgInArray({matrixdynamic}, 'quantity', {quantity} > 0)"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L198-L203 (linkStyle))  
 
@@ -538,7 +538,7 @@ Returns the total number of array items in which a specified data field has a va
 
 The following code finds the total number of matrix rows with a `"quantity"` column value greater than zero but includes only the rows with a `"categoryId"` column equaling 1:
 
-*Example*: `"expression": "countInArray({matrixdynamic}, 'quantity', '{quantity} > 0 and {categoryId} = 1')"`
+*Example*: `"expression": "countInArray({matrixdynamic}, 'quantity', {quantity} > 0 and {categoryId} = 1)"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L189-L196 (linkStyle))
 

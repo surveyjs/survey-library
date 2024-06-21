@@ -49,6 +49,11 @@ export class DomWindowHelper {
     if(!DomWindowHelper.isAvailable()) return;
     window.removeEventListener(type, listener);
   }
+
+  public static matchMedia(mediaQueryString: string): {matches:boolean} | null {
+    if(!DomWindowHelper.isAvailable() || typeof window.matchMedia === "undefined") return null;
+    return window.matchMedia(mediaQueryString);
+  }
 }
 
 export class DomDocumentHelper {

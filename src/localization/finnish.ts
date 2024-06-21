@@ -99,6 +99,7 @@ export var finnishSurveyStrings = {
   emptyMessage: "Ei näytettäviä tietoja",
   noEntriesText: "Merkintöjä ei ole vielä.\nLisää uusi merkintä napsauttamalla alla olevaa painiketta.",
   noEntriesReadonlyText: "Merkintöjä ei ole.",
+  tabTitlePlaceholder: "Uusi paneeli",
   more: "Enemmän",
   tagboxDoneButtonCaption: "OKEI",
   selectToRankEmptyRankedAreaText: "Kaikki valinnat asetetaan paremmuusjärjestykseen",
@@ -129,4 +130,4 @@ surveyLocalization.localeNames["fi"] = "suomi";
 // cancel: "Cancel" => "Perua"
 // refuseItemText: "Refuse to answer" => "Kieltäydy vastaamasta"
 // dontKnowItemText: "Don't know" => "Ei tiedä"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vastauksesi ylittää 64 kt. Pienennä tiedostojesi kokoa ja yritä uudelleen tai ota yhteyttä kyselyn omistajaan."
-// signaturePlaceHolderReadOnly: "No signature" => "Ei allekirjoitusta"
+// signaturePlaceHolderReadOnly: "No signature" => "Ei allekirjoitusta"// tabTitlePlaceholder: "New Panel" => "Uusi paneeli"

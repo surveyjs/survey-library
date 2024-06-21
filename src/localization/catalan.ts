@@ -99,6 +99,7 @@ export var catalanSurveyStrings = {
   emptyMessage: "No hi ha dades per mostrar",
   noEntriesText: "Encara no hi ha entrades.\nFeu clic al botó següent per afegir una entrada nova.",
   noEntriesReadonlyText: "No hi ha entrades.",
+  tabTitlePlaceholder: "Nou Panell",
   more: "Més",
   tagboxDoneButtonCaption: "D'ACORD",
   selectToRankEmptyRankedAreaText: "Totes les opcions estan classificades",
@@ -181,4 +182,4 @@ surveyLocalization.localeNames["ca"] = "català";
 // cancel: "Cancel" => "Cancel·lar"
 // refuseItemText: "Refuse to answer" => "Negar-se a respondre"
 // dontKnowItemText: "Don't know" => "No sé"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "La teva resposta supera els 64KB. Reduïu la mida dels fitxers i torneu-ho a provar o poseu-vos en contacte amb el propietari de l'enquesta."
-// signaturePlaceHolderReadOnly: "No signature" => "Sense signatura"
+// signaturePlaceHolderReadOnly: "No signature" => "Sense signatura"// tabTitlePlaceholder: "New Panel" => "Nou Panell"

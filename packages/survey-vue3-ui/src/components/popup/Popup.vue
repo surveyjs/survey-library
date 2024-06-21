@@ -17,11 +17,13 @@ const root = ref<HTMLElement>(null as any);
 
 const setContainerElement = () => {
   const container = root.value;
-  popupViewModel.value.setComponentElement(
-    container,
-    props.getTarget ? props.getTarget(container) : undefined,
-    props.getArea ? props.getArea(container) : undefined
-  );
+  if (container) {
+    popupViewModel.value.setComponentElement(
+      container,
+      props.getTarget ? props.getTarget(container) : undefined,
+      props.getArea ? props.getArea(container) : undefined
+    );
+  }
 };
 
 watch(

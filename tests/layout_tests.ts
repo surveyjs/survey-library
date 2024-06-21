@@ -125,3 +125,42 @@ QUnit.test("columns generate - title width", function (assert) {
   assert.deepEqual(q3.titleWidth, "12.5%");
   assert.deepEqual(q4.titleWidth, "25%");
 });
+
+QUnit.test("user columns de/serialization", function (assert) {
+  const surveyModel = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        layoutColumns: [{
+          "width": "40%",
+        }, {
+          "width": "45%",
+          "questionTitleWidth": "200px"
+        }]
+      }]
+  });
+  const page = surveyModel.pages[0];
+
+  assert.deepEqual(page.layoutColumns.length, 2);
+  assert.deepEqual(page.layoutColumns[0].width, "40%");
+  assert.deepEqual(page.layoutColumns[0].questionTitleWidth, undefined);
+  assert.deepEqual(page.layoutColumns[1].width, "45%");
+  assert.deepEqual(page.layoutColumns[1].questionTitleWidth, "200px");
+
+  page.layoutColumns[0].width = "70%";
+  page.layoutColumns[0].questionTitleWidth = "300px";
+  const result = surveyModel.toJSON();
+  assert.deepEqual(result, {
+    pages: [
+      {
+        name: "page1",
+        layoutColumns: [{
+          "questionTitleWidth": "300px",
+          "width": "70%",
+        }, {
+          "questionTitleWidth": "200px",
+          "width": "45%",
+        }],
+      }]
+  });
+});

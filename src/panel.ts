@@ -1,4 +1,4 @@
-import { property, Serializer } from "./jsonobject";
+import { property, propertyArray, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import {
@@ -295,8 +295,10 @@ export class PanelModelBase extends SurveyElement<Question>
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<Question> = new Array<Question>();
-  private _columns: any = undefined;
+  private _columns: Array<PanelLayoutColumnModel> = undefined;
   private _totalColSpan: number;
+
+  @propertyArray() layoutColumns: Array<PanelLayoutColumnModel>;
 
   addElementCallback: (element: IElement) => void;
   removeElementCallback: (element: IElement) => void;
@@ -1116,7 +1118,7 @@ export class PanelModelBase extends SurveyElement<Question>
   getQuestionTitleWidth(): string {
     return this.questionTitleWidth || this.parent && this.parent.getQuestionTitleWidth();
   }
-  public get columns() {
+  public get columns(): Array<PanelLayoutColumnModel> {
     if (!this._columns) {
       this.generateColumns();
     }
@@ -1138,9 +1140,9 @@ export class PanelModelBase extends SurveyElement<Question>
     });
 
     const oneColumnWidth = 100 / maxRowColSpan;
-    const columns = [];
+    const columns: Array<PanelLayoutColumnModel> = [];
     for (let index = 0; index < maxRowColSpan; index++) {
-      columns.push({ width: oneColumnWidth });
+      columns.push(new PanelLayoutColumnModel(oneColumnWidth));
     }
     this._columns = columns;
     this._totalColSpan = maxRowColSpan;
@@ -2203,6 +2205,10 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "top", "bottom", "left", "hidden"],
     },
+    {
+      name: "layoutColumns",
+      type: "panellayoutcolumn[]"
+    },
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
     {
@@ -2270,3 +2276,20 @@ Serializer.addClass(
 ElementFactory.Instance.registerElement("panel", (name) => {
   return new PanelModel(name);
 });
+
+export class PanelLayoutColumnModel extends Base {
+  @property() width: any;
+  @property() questionTitleWidth: string;
+
+  constructor(width?: any) {
+    super();
+    this.width = width;
+  }
+
+  public getType(): string {
+    return "panellayoutcolumn";
+  }
+}
+
+Serializer.addClass("panellayoutcolumn",
+  ["width", "questionTitleWidth"]);

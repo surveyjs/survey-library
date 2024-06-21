@@ -533,7 +533,7 @@ export class SurveyModel extends SurveyElementCore
   public onUpdatePageCssClasses: EventBase<SurveyModel, UpdatePageCssClassesEvent> = this.addEvent<SurveyModel, UpdatePageCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a choice item in Radio Button Group, Checkboxes, and Dropdown questions. Use it to override default CSS classes applied to choice items.
+   * An event that is raised before rendering a choice item in Radio Button Group and Checkboxes questions. Use it to override default CSS classes applied to choice items.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *

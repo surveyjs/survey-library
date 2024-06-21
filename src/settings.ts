@@ -434,6 +434,7 @@ export var settings = {
    * This setting applies to all TagBox questions on a page. You can use the [closeOnSelect](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model#closeOnSelect) property to specify the same setting for an individual TagBox question.
    */
   tagboxCloseOnSelect: false,
+  dropdownSearchDelay: 500,
   /**
    * A function that activates a browser confirm dialog.
    *

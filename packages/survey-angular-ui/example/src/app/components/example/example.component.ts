@@ -1,17 +1,7 @@
 import { Component, ViewEncapsulation } from "@angular/core";
 import { SurveyModel, StylesManager } from "survey-core";
-const json = {
-  showQuestionNumbers: "off",
-  questions: [
-    {
-      type: "ranking",
-      name: "ranking_question",
-      itemComponent: "new-item-content",
-      choices: ["item1", "item2", "item3", "item4"],
-      readOnly: "true"
-    }
-  ]
-};
+const json = require("../../../assets/survey.json");
+
 @Component({
   selector: "example",
   templateUrl: "./example.component.html",

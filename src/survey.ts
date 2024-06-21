@@ -1700,6 +1700,8 @@ export class SurveyModel extends SurveyElementCore
    * - `"onValueChanged"` - Triggers validation each time a question value is changed.
    * - `"onComplete"` - Triggers validation when a user clicks the Complete button. If previous pages contain errors, the survey switches to the page with the first error.
    *
+   * > The `"onValueChanged"` doesn't work with date input fields because of the way browsers process date values. In most browsers, the value is considered changed as soon as a user starts entering the date in a text input field. This means that a user may only enter the day without having the chance to enter the month and year before validation is triggered. For this reason, date input fields are validated before the survey is switched to the next page or completed.
+   *
    * Refer to the following help topic for more information: [Data Validation](https://surveyjs.io/form-library/documentation/data-validation).
    * @see validationEnabled
    * @see validationAllowSwitchPages

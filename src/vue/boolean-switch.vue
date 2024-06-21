@@ -32,7 +32,7 @@
         :class="question.cssClasses.switch"
         v-on:click="onSwitchClick($event)"
       >
-        <span :class="question.cssClasses.slider" :style="{ marginLeft: question.thumbMargin }">
+        <span :class="question.cssClasses.slider">
           <span v-if="question.cssClasses.sliderText && question.isDeterminated" :class="question.cssClasses.sliderText">
             <survey-string :locString="question.getCheckedLabel()"></survey-string>
           </span>

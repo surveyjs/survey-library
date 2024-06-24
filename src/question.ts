@@ -2526,7 +2526,7 @@ export class Question extends SurveyElement<Question>
     if (!!el && this.isDefaultRendering()) {
       const scrollableSelector = this.getObservedElementSelector();
       if (!scrollableSelector) return;
-      const defaultRootEl: HTMLElement = el.querySelector(scrollableSelector) || el.matches(scrollableSelector) && el;
+      const defaultRootEl: HTMLElement = el.querySelector(scrollableSelector) || el as any != window && el.matches(scrollableSelector) && el;
       if (!defaultRootEl) return;
       let isProcessed = false;
       let requiredWidth: number = undefined;
@@ -2537,7 +2537,7 @@ export class Question extends SurveyElement<Question>
           isProcessed = false;
         }
         const callback = () => {
-          const rootEl: HTMLElement = el.querySelector(scrollableSelector) || el.matches(scrollableSelector) && el;
+          const rootEl: HTMLElement = el.querySelector(scrollableSelector) || el as any != window && el.matches(scrollableSelector) && el;
           if (!requiredWidth && this.isDefaultRendering()) {
             requiredWidth = rootEl.scrollWidth;
           }

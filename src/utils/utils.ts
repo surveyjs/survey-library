@@ -331,7 +331,7 @@ function classesToSelector(str: string): string {
 }
 
 function getElementWidth(el: HTMLElement) {
-  return el as any != window && !!getComputedStyle ? Number.parseFloat(getComputedStyle(el).width) : el.offsetWidth;
+  return !!getComputedStyle ? Number.parseFloat(getComputedStyle(el).width) : el.offsetWidth;
 }
 
 function isContainerVisible(el: HTMLElement) {

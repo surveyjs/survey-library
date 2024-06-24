@@ -1139,15 +1139,35 @@ export class PanelModelBase extends SurveyElement<Question>
       if (!userDefinedRow && curRowSpan > maxRowColSpan) maxRowColSpan = curRowSpan;
     });
 
-    const oneColumnWidth = 100 / maxRowColSpan;
-    const columns: Array<PanelLayoutColumnModel> = [];
-    for (let index = 0; index < maxRowColSpan; index++) {
-      columns.push(new PanelLayoutColumnModel(oneColumnWidth));
+    const columns = [].concat(this.layoutColumns);
+    if (maxRowColSpan <= this.layoutColumns.length) {
+      maxRowColSpan = this.layoutColumns.length;
+    } else {
+      for (let index = this.layoutColumns.length; index < maxRowColSpan; index++) {
+        columns.push(new PanelLayoutColumnModel());
+      }
     }
     this._columns = columns;
     this._totalColSpan = maxRowColSpan;
+
+    let remainingSpace = 0, remainingColCount = 0;
+    columns.forEach(col => {
+      if (!col.width) {
+        remainingColCount++;
+      } else {
+        remainingSpace += col.width;
+      }
+    });
+    if (!!remainingColCount) {
+      const oneColumnWidth = (100 - remainingSpace) / remainingColCount;
+      for (let index = 0; index < maxRowColSpan; index++) {
+        if (!columns[index].width) {
+          columns[index].width = oneColumnWidth;
+        }
+      }
+    }
   }
-  public getColumsForElement(el: IElement): Array<any> {
+  public getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
     const row = this.findRowByElement(el);
     const elementIndex = row.elements.indexOf(el);
     let startIndex = 0;
@@ -2278,10 +2298,10 @@ ElementFactory.Instance.registerElement("panel", (name) => {
 });
 
 export class PanelLayoutColumnModel extends Base {
-  @property() width: any;
+  @property() width: number;
   @property() questionTitleWidth: string;
 
-  constructor(width?: any) {
+  constructor(width?: number) {
     super();
     this.width = width;
   }

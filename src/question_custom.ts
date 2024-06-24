@@ -12,7 +12,7 @@ import {
   IProgressInfo
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
-import { PanelModel } from "./panel";
+import { PanelLayoutColumnModel, PanelModel } from "./panel";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";
@@ -719,7 +719,7 @@ export abstract class QuestionCustomModelBase extends Question
   getQuestionTitleWidth(): string {
     return undefined;
   }
-  getColumsForElement(el: IElement): Array<any> {
+  getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
     return [];
   }
   getQuestionStartIndex(): string {

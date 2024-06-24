@@ -132,9 +132,9 @@ QUnit.test("user columns de/serialization", function (assert) {
       {
         name: "page1",
         layoutColumns: [{
-          "width": "40%",
+          "width": 40,
         }, {
-          "width": "45%",
+          "width": 45,
           "questionTitleWidth": "200px"
         }]
       }]
@@ -142,12 +142,12 @@ QUnit.test("user columns de/serialization", function (assert) {
   const page = surveyModel.pages[0];
 
   assert.deepEqual(page.layoutColumns.length, 2);
-  assert.deepEqual(page.layoutColumns[0].width, "40%");
+  assert.deepEqual(page.layoutColumns[0].width, 40);
   assert.deepEqual(page.layoutColumns[0].questionTitleWidth, undefined);
-  assert.deepEqual(page.layoutColumns[1].width, "45%");
+  assert.deepEqual(page.layoutColumns[1].width, 45);
   assert.deepEqual(page.layoutColumns[1].questionTitleWidth, "200px");
 
-  page.layoutColumns[0].width = "70%";
+  page.layoutColumns[0].width = 70;
   page.layoutColumns[0].questionTitleWidth = "300px";
   const result = surveyModel.toJSON();
   assert.deepEqual(result, {
@@ -156,11 +156,136 @@ QUnit.test("user columns de/serialization", function (assert) {
         name: "page1",
         layoutColumns: [{
           "questionTitleWidth": "300px",
-          "width": "70%",
+          "width": 70,
         }, {
           "questionTitleWidth": "200px",
-          "width": "45%",
+          "width": 45,
         }],
       }]
   });
+});
+
+QUnit.test("apply columns from layoutColumns #1", function (assert) {
+  const surveyModel = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        layoutColumns: [{
+          "width": 40,
+        }],
+        elements: [
+          {
+            "name": "q1",
+            "type": "text",
+          }, {
+            "name": "q2",
+            "type": "text",
+            "startWithNewLine": false
+          }
+        ]
+      }]
+  });
+  const page = surveyModel.pages[0];
+  const q1 = surveyModel.getQuestionByName("q1");
+  const q2 = surveyModel.getQuestionByName("q2");
+
+  assert.deepEqual(page.columns.length, 2);
+  assert.deepEqual(page.columns[0].width, 40);
+  assert.deepEqual(page.columns[1].width, 60);
+
+  assert.equal(q1.rootStyle["flexBasis"], "40%");
+  assert.equal(q2.rootStyle["flexBasis"], "60%");
+});
+
+QUnit.test("apply columns from layoutColumns #2", function (assert) {
+  const surveyModel = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        layoutColumns: [{
+          "width": 20,
+        }, {
+          "width": 30,
+        }, {
+          "width": 25,
+        }, {
+          "width": 25,
+        }],
+        elements: [
+          {
+            "name": "q1",
+            "type": "text",
+          }, {
+            "name": "q2",
+            "type": "text",
+            "startWithNewLine": false
+          }, {
+            "name": "q3",
+            "type": "text",
+            "startWithNewLine": false
+          }
+        ]
+      }]
+  });
+  const page = surveyModel.pages[0];
+  const q1 = surveyModel.getQuestionByName("q1");
+  const q2 = surveyModel.getQuestionByName("q2");
+  const q3 = surveyModel.getQuestionByName("q3");
+
+  assert.deepEqual(page.columns.length, 4);
+  assert.deepEqual(page.columns[0].width, 20);
+  assert.deepEqual(page.columns[1].width, 30);
+  assert.deepEqual(page.columns[2].width, 25);
+  assert.deepEqual(page.columns[3].width, 25);
+
+  assert.equal(q1.rootStyle["flexBasis"], "20%", "q1 rootStyle flexBasis");
+  assert.equal(q2.rootStyle["flexBasis"], "30%", "q2 rootStyle flexBasis");
+  assert.equal(q3.rootStyle["flexBasis"], "50%", "q3 rootStyle flexBasis");
+});
+
+QUnit.test("apply columns from layoutColumns with given colSpan", function (assert) {
+  const surveyModel = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        layoutColumns: [{
+          "width": 20,
+        }, {
+          "width": 30,
+        }, {
+          "width": 25,
+        }, {
+          "width": 25,
+        }],
+        elements: [
+          {
+            "name": "q1",
+            "type": "text",
+          }, {
+            "name": "q2",
+            "type": "text",
+            "startWithNewLine": false
+          }, {
+            "name": "q3",
+            "type": "text",
+            "colSpan": 1,
+            "startWithNewLine": false
+          }
+        ]
+      }]
+  });
+  const page = surveyModel.pages[0];
+  const q1 = surveyModel.getQuestionByName("q1");
+  const q2 = surveyModel.getQuestionByName("q2");
+  const q3 = surveyModel.getQuestionByName("q3");
+
+  assert.deepEqual(page.columns.length, 4);
+  assert.deepEqual(page.columns[0].width, 20);
+  assert.deepEqual(page.columns[1].width, 30);
+  assert.deepEqual(page.columns[2].width, 25);
+  assert.deepEqual(page.columns[3].width, 25);
+
+  assert.equal(q1.rootStyle["flexBasis"], "20%", "q1 rootStyle flexBasis");
+  assert.equal(q2.rootStyle["flexBasis"], "30%", "q2 rootStyle flexBasis");
+  assert.equal(q3.rootStyle["flexBasis"], "25%", "q3 rootStyle flexBasis");
 });

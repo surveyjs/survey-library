@@ -8,7 +8,7 @@ import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { SurveyError } from "./survey-error";
 import { Base } from "./base";
 import { IAction } from "./actions/action";
-import { PanelModel } from "./panel";
+import { PanelLayoutColumnModel, PanelModel } from "./panel";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { DragDropAllowEvent } from "./survey-events-api";
 import { PopupModel } from "./popup";
@@ -324,7 +324,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   getQuestionTitleWidth(): string;
   getQuestionStartIndex(): string;
   getQuestionErrorLocation(): string;
-  getColumsForElement(el: IElement): Array<any>;
+  getColumsForElement(el: IElement): Array<PanelLayoutColumnModel>;
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;

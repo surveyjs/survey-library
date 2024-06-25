@@ -19949,3 +19949,31 @@ QUnit.test("Display mode in design time 2", function (assert) {
   survey.backgroundImageAttachment = "fixed";
   assert.equal(survey.wrapperFormCss, "sd-root-modern__wrapper sd-root-modern__wrapper--has-image sd-root-modern__wrapper--fixed");
 });
+QUnit.test("Delete panel with questions", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "panel",
+        "name": "panel1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+    ]
+  });
+  assert.ok(survey.getPanelByName("panel1"), "#1");
+  assert.ok(survey.getQuestionByName("question1"), "#2");
+  assert.ok(survey.getQuestionByName("question2"), "#3");
+  survey.getQuestionByName("question2").delete();
+  assert.notOk(survey.getQuestionByName("question2"), "#4");
+  survey.getPanelByName("panel1").delete();
+  assert.notOk(survey.getPanelByName("panel1"), "#5");
+  assert.notOk(survey.getQuestionByName("question1"), "#6");
+});

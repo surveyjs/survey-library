@@ -3,7 +3,7 @@ import { AngularComponentFactory, EmbeddedViewContentComponent } from "survey-an
 import { ItemValue } from "survey-core";
 
 @Component({
-  selector: "sv-new-item-content",
+  selector: "sv-ranking-item",
   templateUrl: "./itemContentTemplateComponent.html",
   styles: [":host { display: none; }"]
 })

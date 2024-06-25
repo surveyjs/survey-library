@@ -684,9 +684,11 @@ export class Question extends SurveyElement<Question>
   }
   public get titleWidth(): string {
     if (this.getTitleLocation() === "left") {
+      const columns = this.parent.getColumsForElement(this as any);
+      if (!!columns[0].questionTitleWidth) return columns[0].questionTitleWidth;
+
       const percentWidth = this.getPercentQuestionTitleWidth();
       if (!percentWidth && !!this.parent) return this.parent.getQuestionTitleWidth();
-      const columns = this.parent.getColumsForElement(this as any);
       return (percentWidth / columns.length) + "%";
     }
     return undefined;
@@ -2732,7 +2734,7 @@ Serializer.addClass("question", [
   { name: "width" },
   { name: "minWidth", defaultFunc: () => settings.minWidth },
   { name: "maxWidth", defaultFunc: () => settings.maxWidth },
-  { name: "colSpan" },
+  { name: "colSpan:number", default: 1, minValue: 1 },
   { name: "startWithNewLine:boolean", default: true, layout: "row" },
   { name: "indent:number", default: 0, choices: [0, 1, 2, 3], layout: "row" },
   {

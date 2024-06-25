@@ -2226,8 +2226,8 @@ Serializer.addClass(
       choices: ["default", "top", "bottom", "left", "hidden"],
     },
     {
-      name: "layoutColumns",
-      type: "panellayoutcolumn[]"
+      name: "layoutColumns:panellayoutcolumns",
+      className: "panellayoutcolumn", isArray: true
     },
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
@@ -2312,4 +2312,6 @@ export class PanelLayoutColumnModel extends Base {
 }
 
 Serializer.addClass("panellayoutcolumn",
-  ["width", "questionTitleWidth"]);
+  ["width:number", "questionTitleWidth"],
+  (value: any) => new PanelLayoutColumnModel(value)
+);

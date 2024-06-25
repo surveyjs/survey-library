@@ -948,17 +948,27 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   get rootStyle() {
     let style: { [index: string]: any } = {};
-    const columns = this.parent.getColumsForElement(this as any);
-    const _width = columns.reduce((sum, col) => col.width + sum, 0);
-    let minWidth = this.minWidth;
-    if (minWidth != "auto") minWidth = "min(100%, " + minWidth + ")";
-    if (this.allowRootStyle && this.renderWidth) {
-      // style["width"] = this.renderWidth;
-      style["flexGrow"] = 1;
-      style["flexShrink"] = 1;
-      style["flexBasis"] = (_width + "%"); // this.renderWidth;
-      style["minWidth"] = minWidth;
-      style["maxWidth"] = this.maxWidth;
+    let _width;
+    if (!!this.parent) {
+      const columns = this.parent.getColumsForElement(this as any);
+      _width = columns.reduce((sum, col) => col.width + sum, 0);
+      if (!!_width && _width !== 100) {
+        style["flexGrow"] = 0;
+        style["flexShrink"] = 0;
+        style["flexBasis"] = _width + "%";
+      }
+    }
+    if (Object.keys(style).length == 0) {
+      let minWidth = this.minWidth;
+      if (minWidth != "auto") minWidth = "min(100%, " + minWidth + ")";
+      if (this.allowRootStyle && this.renderWidth) {
+        // style["width"] = this.renderWidth;
+        style["flexGrow"] = 1;
+        style["flexShrink"] = 1;
+        style["flexBasis"] = this.renderWidth;
+        style["minWidth"] = minWidth;
+        style["maxWidth"] = this.maxWidth;
+      }
     }
     return style;
   }

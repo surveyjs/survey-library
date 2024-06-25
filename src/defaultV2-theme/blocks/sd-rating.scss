@@ -321,8 +321,8 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 }
 
 .sd-rating__item-smiley:focus-within {
-  border-color: $background;
-  box-shadow: $shadow-small-reset, 0 0 0 2px $primary;
+  border: none;
+  box-shadow: $shadow-small-reset, 0 0 0 2px var(--sd-rating-item-color, $primary);
 }
 
 .sd-rating__item-smiley--selected {

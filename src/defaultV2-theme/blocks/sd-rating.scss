@@ -223,12 +223,16 @@ legend+sv-ng-rating-item+.sd-rating__item {
   padding: calcSize(1.25);
   box-sizing: border-box;
   min-width: calcSize(6);
+  min-height: calcSize(6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   border: 2px solid $border;
   color: $foreground;
   fill: $border;
   box-shadow: $shadow-small-reset, inset 0 0 0 0px $background;
-  transition: border $transition-duration, box-shadow $transition-duration, background-color $transition-duration;
+  transition: box-shadow $transition-duration, background-color $transition-duration;
 
   svg {
     display: block;
@@ -240,6 +244,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
 .sd-rating__item-smiley--small {
   padding: calcSize(0.625);
   min-width: calcSize(3);
+  min-height: calcSize(3);
   border-width: 1px;
 
   svg {
@@ -248,8 +253,12 @@ legend+sv-ng-rating-item+.sd-rating__item {
   }
 }
 
+.sd-rating__item-smiley--small:focus-within {
+  box-shadow: 0 0 0 1px var(--sd-rating-item-color, $primary);
+}
+
 .sd-rating__item-smiley--small.sd-rating__item-smiley--selected:focus-within {
-  box-shadow: inset 0 0 0 1px $background;
+  box-shadow: inset 0 0 0 2px $background, 0 0 0 1px var(--sd-rating-item-color, $primary);
 }
 
 legend+.sd-rating__item-smiley,
@@ -258,7 +267,9 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 }
 
 .sd-rating__item-smiley--scale-colored {
-  transition: border $transition-duration, box-shadow $transition-duration, opacity $transition-duration, background-color $transition-duration;
+  border-color: var(--sd-rating-item-color, $primary);
+  fill: var(--sd-rating-item-color, $primary);
+  transition: box-shadow $transition-duration, opacity $transition-duration, background-color $transition-duration;
 }
 
 .sd-rating__item-smiley--error {
@@ -310,24 +321,28 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 }
 
 .sd-rating__item-smiley:focus-within {
-  border-color: $primary;
+  border-color: $background;
+  box-shadow: $shadow-small-reset, 0 0 0 2px $primary;
 }
 
 .sd-rating__item-smiley--selected {
-  background-color: $primary;
-  border-color: $primary;
+  background-color: var(--sd-rating-item-color, $primary);
+  border-color: var(--sd-rating-item-color, $primary);
   fill: $primary-foreground;
   font-weight: 600;
 }
 
 .sd-rating__item-smiley--selected:focus-within {
-  box-shadow: $shadow-small-reset, inset 0 0 0 2px $background;
+  border: 0px solid $background;
+  box-shadow: $shadow-small-reset, inset 0 0 0 4px $background, 0 0 0 2px var(--sd-rating-item-color, $primary);
 }
 
 .sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected) {
   opacity: 0.25;
 
   &.sd-rating__item-smiley--allowhover:hover {
+    background-color: var(--sd-rating-item-color-light, $background-dark);
+    border-color: var(--sd-rating-item-color, $border);
     opacity: 0.5;
   }
 }

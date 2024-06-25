@@ -712,17 +712,11 @@ export class QuestionRatingModel extends Question {
   public getItemStyle(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
     if (this.scaleColorMode === "monochrome" && this.rateColorMode == "default" ||
       this.isPreviewStyle ||
-      this.isReadOnlyStyle) return { borderColor: null, fill: null, backgroundColor: null };
+      this.isReadOnlyStyle) return {};
     const index = this.visibleRateValues.indexOf(item);
     const color = this.getRenderedItemColor(index, false);
-    if (this.value != this.renderedRateItems[index].value) {
-      const colorLight = this.getRenderedItemColor(index, true);
-      if (highlight == "highlighted" && this.scaleColorMode === "colored") return { borderColor: color, fill: color, backgroundColor: colorLight };
-      if (this.scaleColorMode === "colored" && this.errors.length == 0) return { borderColor: color, fill: color, backgroundColor: null };
-      return { borderColor: null, fill: null, backgroundColor: null };
-    } else {
-      return { borderColor: color, fill: null, backgroundColor: color };
-    }
+    const colorLight = highlight == "highlighted" && this.scaleColorMode === "colored" && this.getRenderedItemColor(index, true);
+    return colorLight ? { "--sd-rating-item-color": color, "--sd-rating-item-color-light": colorLight } : { "--sd-rating-item-color": color };
   }
 
   public getItemClass(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {

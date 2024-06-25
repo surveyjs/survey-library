@@ -2190,7 +2190,7 @@ export class Question extends SurveyElement<Question>
       }
     }
   }
-  protected hasRequiredError(): boolean {
+  public hasRequiredError(): boolean {
     return this.isRequired && this.isEmpty();
   }
   private validatorRunner: ValidatorRunner;
@@ -2668,7 +2668,7 @@ export class Question extends SurveyElement<Question>
   public get a11y_input_ariaRole(): string {
     return null;
   }
-  public get a11y_input_ariaRequired(): "true" | "false" {
+  public get a11y_input_ariaRequired(): "true" | "false" | null {
     return this.isRequired ? "true" : "false";
   }
   public get a11y_input_ariaInvalid(): "true" | "false" {

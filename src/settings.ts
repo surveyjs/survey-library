@@ -429,11 +429,18 @@ export var settings = {
    */
   ratingMaximumRateValueCount: 20,
   /**
-   * Specifies whether to close the drop-down menu of a [TagBox](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) question after a user selects a value.
+   * Specifies whether to close the drop-down menu of a [Multi-Select Dropdown (Tag Box)](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) question after a user selects a value.
    *
-   * This setting applies to all TagBox questions on a page. You can use the [closeOnSelect](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model#closeOnSelect) property to specify the same setting for an individual TagBox question.
+   * This setting applies to all Multi-Select Dropdown questions on a web page. You can use the [`closeOnSelect`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model#closeOnSelect) property to specify the same setting for an individual Multi-Select Dropdown question.
    */
   tagboxCloseOnSelect: false,
+  /**
+   * A time interval in milliseconds between the last entered character and the beginning of search in [Single-](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/) and [Multi-Select Dropdown](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) questions. Applies only to questions with the [`choicesLazyLoadEnabled`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#choicesLazyLoadEnabled) property set to `true`.
+   *
+   * Default value: 500
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
+   */
   dropdownSearchDelay: 500,
   /**
    * A function that activates a browser confirm dialog.

@@ -253,7 +253,10 @@ legend+sv-ng-rating-item+.sd-rating__item {
   }
 }
 
-.sd-rating__item-smiley--small:focus-within {
+.sd-rating__item-smiley--small:not(.sd-rating__item-smiley--selected):focus-within {
+  box-shadow: 0 0 0 1px $primary;
+}
+.sd-rating__item-smiley--colored.sd-rating__item-smiley--small:not(.sd-rating__item-smiley--selected):focus-within {
   box-shadow: 0 0 0 1px var(--sd-rating-item-color, $primary);
 }
 
@@ -276,6 +279,9 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   background-color: $red-light;
   border-color: transparent;
   fill: $foreground-light;
+  &:hover {
+    fill: var(--sd-rating-item-color, $foreground-light);
+  }
 
   &.sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected) {
     opacity: initial;
@@ -292,7 +298,8 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 }
 
 .sd-rating__item-smiley.sd-rating__item-smiley--readonly {
-  //
+  fill: $border;
+  border-color: $border;
 }
 
 .sd-rating__item-smiley.sd-rating__item-smiley--selected.sd-rating__item-smiley--readonly {
@@ -322,7 +329,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-smiley:focus-within {
   border: none;
-  box-shadow: $shadow-small-reset, 0 0 0 2px var(--sd-rating-item-color, $primary);
+  box-shadow: $shadow-small-reset, 0 0 0 2px $primary;
 }
 
 .sd-rating__item-smiley--selected {
@@ -355,6 +362,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected):focus-within {
   opacity: 1;
+  box-shadow: $shadow-small-reset, 0 0 0 2px var(--sd-rating-item-color, $primary);
 }
 
 .sd-rating__item-smiley--scale-colored {

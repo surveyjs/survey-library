@@ -1172,7 +1172,7 @@ export class Base {
     return this.supportOnElementRenderedEvent && this.onElementRenderedEventEnabled ? this._onElementRerendered : undefined;
   }
   public afterRerender(): void {
-    this.onElementRerendered.fire(this, undefined);
+    this.onElementRerendered?.fire(this, undefined);
   }
 }
 

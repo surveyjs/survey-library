@@ -356,7 +356,7 @@ QUnit.test("lazy loading: several loading", assert => {
   assert.equal(question.choicesLazyLoadEnabled, true);
   assert.equal(question.choices.length, 0);
 
-  question.dropdownListModel.popupModel.toggleVisibility();
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.equal(question.choices.length, 30);
     assert.equal(question.choices[0].value, 1);
@@ -380,6 +380,61 @@ QUnit.test("lazy loading: several loading", assert => {
       done2();
     }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
+    done1();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});
+
+QUnit.test("lazy loading + change filter string + dropdownSearchDelay ", assert => {
+  const newValueDebouncedInputValue = 2 * onChoicesLazyLoadCallbackTimeOut;
+  const oldValueDebouncedInputValue = settings.dropdownSearchDelay;
+  settings.dropdownSearchDelay = newValueDebouncedInputValue;
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const done4 = assert.async();
+
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+
+  question.dropdownListModel.popupModel.show();
+  assert.equal(question.choices.length, 0, "show popup before request");
+
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25, "show popup after request");
+    assert.equal(question.choices[0].value, 1, "show popup after request");
+
+    question.dropdownListModel.filterString = "2";
+    setTimeout(() => {
+      assert.equal(question.choices.length, 25, "filter is 2");
+      assert.equal(question.choices[0].value, 1, "filter is 2");
+
+      question.dropdownListModel.filterString = "22";
+      setTimeout(() => {
+        assert.equal(question.choices.length, 25, "filter is 22 before request");
+        assert.equal(question.choices[0].value, 1, "filter is 22 before request");
+
+        setTimeout(() => {
+          assert.equal(question.choices.length, 25, "filter is 22 after request");
+          assert.equal(question.choices[0].value, 22, "filter is 22 after request");
+
+          settings.dropdownSearchDelay = oldValueDebouncedInputValue;
+          done4();
+        }, onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue);
+        done3();
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+      done2();
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
     done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
@@ -435,7 +490,7 @@ QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
   assert.equal(question.visibleChoices[0].id, "other");
   assert.equal(question.visibleChoices[0].value, "other");
 
-  question.dropdownListModel.popupModel.isVisible = true;
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.equal(question.visibleChoices.length, 71);
     assert.equal(question.visibleChoices[0].value, 1);
@@ -472,7 +527,7 @@ QUnit.test("lazy loading: A value disappears when open tagbox popup again", asse
   assert.equal(question.choicesLazyLoadEnabled, true);
   assert.equal(question.choices.length, 0);
 
-  question.dropdownListModel.popupModel.toggleVisibility();
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.equal(question.choices.length, 30);
     assert.equal(question.choices[0].value, 1);
@@ -497,7 +552,7 @@ QUnit.test("lazy loading: A value disappears when open tagbox popup again", asse
       assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 1");
       assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 1");
 
-      question.dropdownListModel.popupModel.toggleVisibility();
+      question.dropdownListModel.popupModel.hide();
       assert.deepEqual(question.value, [29, 56]);
       assert.equal(question.selectedItems.length, 2, "selected items length 2");
       assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 2");
@@ -505,7 +560,7 @@ QUnit.test("lazy loading: A value disappears when open tagbox popup again", asse
       assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 2");
       assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 2");
 
-      question.dropdownListModel.popupModel.toggleVisibility();
+      question.dropdownListModel.popupModel.show();
       assert.deepEqual(question.value, [29, 56]);
       assert.equal(question.selectedItems.length, 2, "selected items length 3");
       assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 3");
@@ -555,7 +610,8 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
       "type": "text",
       "name": "q2",
       "title": "{q1}"
-    }] };
+    }]
+  };
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
@@ -585,7 +641,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
   assert.equal(questionTitle.locTitle.textOrHtml, "DisplayText_52, DisplayText_55", "display text is correct");
 
-  question.dropdownListModel.popupModel.isVisible = true;
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.equal(question.choices.length, 25);
     assert.equal(question.choices[0].value, 1);
@@ -637,7 +693,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
   assert.equal(question.selectedItems[1].value.id, 55, "question.selectedItems[1] value");
   assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
 
-  question.dropdownListModel.popupModel.isVisible = true;
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.equal(question.choices.length, 25);
     assert.equal(question.choices[0].value, 1);
@@ -689,7 +745,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
   assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
   assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
 
-  question.dropdownListModel.popupModel.isVisible = true;
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.equal(question.choices.length, 25);
     assert.equal(question.choices[0].value, 1);
@@ -750,7 +806,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
   assert.equal(question.choices.length, 0);
   assert.deepEqual(question.value, [52, 55]);
 
-  question.dropdownListModel.popupModel.isVisible = true;
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.equal(question.choices.length, 25);
     assert.deepEqual(question.value, [52, 55]);
@@ -797,7 +853,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
   assert.equal(question.choices.length, 0);
   assert.deepEqual(question.value, [52, 55]);
 
-  question.dropdownListModel.popupModel.isVisible = true;
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.equal(question.choices.length, 25);
     assert.deepEqual(question.value, [52, 55]);
@@ -836,7 +892,7 @@ QUnit.test("lazy loading + change filter string", assert => {
   assert.equal(itemsSettings.totalCount, 0);
   assert.equal(itemsSettings.items.length, 0);
 
-  question.dropdownListModel.popupModel.toggleVisibility();
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.equal(question.choices.length, 25);
     assert.equal(question.choices[0].value, 1);
@@ -901,7 +957,7 @@ QUnit.test("lazy loading + change listModel filter string", assert => {
   assert.equal(itemsSettings.totalCount, 0);
   assert.equal(itemsSettings.items.length, 0);
 
-  question.dropdownListModel.popupModel.toggleVisibility();
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.equal(question.choices.length, 25);
     assert.equal(question.choices[0].value, 1);
@@ -961,14 +1017,14 @@ QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
   const listModel = dropdownListModel["listModel"];
   const actions = listModel.actions;
 
-  popupModel.toggleVisibility();
+  popupModel.show();
   assert.notOk(doneAction.enabled);
   listModel.onItemClick(actions[0]);
   assert.ok(doneAction.enabled);
   doneAction.action();
   assert.deepEqual(question.value, ["Item 1"]);
 
-  popupModel.toggleVisibility();
+  popupModel.show();
   assert.notOk(doneAction.enabled);
   listModel.onItemClick(actions[1]);
   assert.ok(doneAction.enabled);
@@ -976,7 +1032,7 @@ QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
   cancelAction.action();
   assert.deepEqual(question.value, ["Item 1"]);
 
-  popupModel.toggleVisibility();
+  popupModel.show();
   assert.notOk(doneAction.enabled);
   listModel.onItemClick(actions[0]);
   assert.ok(doneAction.enabled);
@@ -1346,7 +1402,7 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
   assert.equal(question.choicesLazyLoadEnabled, true);
   assert.equal(question.choices.length, 0);
 
-  question.dropdownListModel.popupModel.toggleVisibility();
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.deepEqual(question.value, [1]);
     assert.equal(question.choices.length, 30);
@@ -1361,14 +1417,14 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
     for(let index = 2; index < list.actions.length - 1; index++) {
       assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before clear");
     }
-    question.dropdownListModel.popupModel.isVisible = false;
+    question.dropdownListModel.popupModel.hide();
     question.dropdownListModel.onClear({
       keyCode: 0,
       preventDefault: () => { },
       stopPropagation: () => { }
     });
 
-    question.dropdownListModel.popupModel.toggleVisibility();
+    question.dropdownListModel.popupModel.show();
     setTimeout(() => {
       assert.deepEqual(question.value, [], "question value is empty");
       list.onItemClick(list.actions[0]);
@@ -1414,7 +1470,7 @@ QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unsel
   assert.equal(question.choicesLazyLoadEnabled, true);
   assert.equal(question.choices.length, 0);
 
-  question.dropdownListModel.popupModel.toggleVisibility();
+  question.dropdownListModel.popupModel.show();
   setTimeout(() => {
     assert.deepEqual(question.value, [1]);
     assert.equal(question.choices.length, 30);
@@ -1429,8 +1485,8 @@ QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unsel
     for(let index = 2; index < list.actions.length - 1; index++) {
       assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before unselecting choice");
     }
-    question.dropdownListModel.popupModel.isVisible = false;
-    question.dropdownListModel.popupModel.toggleVisibility();
+    question.dropdownListModel.popupModel.hide;
+    question.dropdownListModel.popupModel.show();
     setTimeout(() => {
       assert.deepEqual(question.value, [1, 2], "question value is [1, 2]");
       assert.ok(list.actions[0].enabled, "action 1 is enabled");

@@ -533,7 +533,7 @@ export class SurveyModel extends SurveyElementCore
   public onUpdatePageCssClasses: EventBase<SurveyModel, UpdatePageCssClassesEvent> = this.addEvent<SurveyModel, UpdatePageCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a choice item in Radio Button Group, Checkboxes, and Dropdown questions. Use it to override default CSS classes applied to choice items.
+   * An event that is raised before rendering a choice item in Radio Button Group and Checkboxes questions. Use it to override default CSS classes applied to choice items.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -1699,6 +1699,8 @@ export class SurveyModel extends SurveyElementCore
    * - `"onNextPage"` (default) - Triggers validation before the survey is switched to the next page or completed.
    * - `"onValueChanged"` - Triggers validation each time a question value is changed.
    * - `"onComplete"` - Triggers validation when a user clicks the Complete button. If previous pages contain errors, the survey switches to the page with the first error.
+   *
+   * > The `"onValueChanged"` doesn't work with date input fields because of the way browsers process date values. In most browsers, the value is considered changed as soon as a user starts entering the date in a text input field. This means that a user may only enter the day without having the chance to enter the month and year before validation is triggered. For this reason, date input fields are validated before the survey is switched to the next page or completed.
    *
    * Refer to the following help topic for more information: [Data Validation](https://surveyjs.io/form-library/documentation/data-validation).
    * @see validationEnabled
@@ -4807,15 +4809,6 @@ export class SurveyModel extends SurveyElementCore
     });
     this.rootElement = htmlElement;
     this.addScrollEventListener();
-
-    if (DomDocumentHelper.isAvailable()) {
-      const fonts = (DomDocumentHelper.getDocument() as any).fonts;
-      if (fonts) {
-        fonts.ready.then(() => {
-          this.triggerResponsiveness(true);
-        });
-      }
-    }
   }
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;

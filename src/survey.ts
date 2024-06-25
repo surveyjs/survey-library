@@ -1858,6 +1858,9 @@ export class SurveyModel extends SurveyElementCore
     this.localeChanged();
     this.onLocaleChangedEvent.fire(this, this.locale);
   }
+  public get localeDir(): string {
+    return surveyLocalization.localeDirections[this.locale];
+  }
   /**
    * Returns an array of locales whose translations are used in the survey.
    *

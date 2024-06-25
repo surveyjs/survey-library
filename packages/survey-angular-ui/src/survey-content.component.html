@@ -1,5 +1,5 @@
 <ng-template #template>
-  <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()" [style]="model.themeVariables">
+  <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()" [style]="model.themeVariables" [lang]="model.locale || 'en'" [dir]="model.localeDir">
     <sv-svg-bundle *ngIf="model.needRenderIcons"></sv-svg-bundle>
     <div [class]="model.wrapperFormCss">
       <div *ngIf="!!model.renderBackgroundImage" [class]="model.css.rootBackgroundImage" [style]="model.backgroundImageStyle"></div>

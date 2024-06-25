@@ -1,3 +1,4 @@
+import { surveyLocalization } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -47,6 +48,30 @@ registerMarkupTests(
         return el.outerHTML;
       },
       snapshot: "survey-theme-variables"
+    }, {
+      name: "Test Survey language and direction",
+      json: {
+        questions: [
+          {
+            "type": "html",
+            "name": "q1",
+            "html": "<div></div>"
+          }
+        ]
+      },
+      event: "onAfterRenderSurvey",
+      initSurvey: (survey) => {
+        surveyLocalization.locales["tst"] = {};
+        surveyLocalization.localeDirections["tst"] = "rtl";
+
+        survey.locale = "tst";
+      },
+      getSnapshot: el => {
+        el.innerHTML = "";
+        el.removeAttribute("data-bind");
+        return el.outerHTML;
+      },
+      snapshot: "survey-lang-dir"
     }, {
       name: "Test Survey backgroundImage",
       json: {

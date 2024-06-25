@@ -435,7 +435,7 @@ export var settings = {
    */
   tagboxCloseOnSelect: false,
   /**
-   * A time interval between the last entered character and the beginning of search in [Single-](https://surveyjs.io/form-library/examples/dropdown-menu-load-data-from-restful-service/) and [Multi-Select Dropdown](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) questions. Applies only to questions with the [`choicesByUrl`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#choicesByUrl) property specified or the [`choicesLazyLoadEnabled`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#choicesLazyLoadEnabled) property set to `true`.
+   * A time interval in milliseconds between the last entered character and the beginning of search in [Single-](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/) and [Multi-Select Dropdown](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) questions. Applies only to questions with the [`choicesLazyLoadEnabled`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#choicesLazyLoadEnabled) property set to `true`.
    *
    * Default value: 500
    *

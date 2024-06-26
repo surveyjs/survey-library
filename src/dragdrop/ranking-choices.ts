@@ -82,10 +82,10 @@ export class DragDropRankingChoices extends DragDropChoices {
     const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".sv-ranking-item");
     node.style.cursor = "grabbing";
   };
-  public getIndixies(model: any, fromChoicesArray: Array<ItemValue>, toChoicesArray: Array<ItemValue>) {
+  public getIndices(model: any, fromChoicesArray: Array<ItemValue>, toChoicesArray: Array<ItemValue>) {
     let fromIndex = fromChoicesArray.indexOf(this.draggedElement);
     let toIndex = toChoicesArray.indexOf(this.dropTarget);
-    if(fromIndex < 0) {
+    if(fromIndex < 0 && !!this.draggedElement) {
       this.draggedElement = ItemValue.getItemByValue(fromChoicesArray, this.draggedElement.value) || this.draggedElement;
       fromIndex = fromChoicesArray.indexOf(this.draggedElement);
     }
@@ -103,7 +103,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
-    const { fromIndex, toIndex } = this.getIndixies(this.parentElement, this.parentElement.rankingChoices, this.parentElement.rankingChoices);
+    const { fromIndex, toIndex } = this.getIndices(this.parentElement, this.parentElement.rankingChoices, this.parentElement.rankingChoices);
     this.reorderRankedItem(this.parentElement as QuestionRankingModel, fromIndex, toIndex);
   }
 

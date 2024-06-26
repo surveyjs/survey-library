@@ -1953,6 +1953,10 @@ export class QuestionSelectBase extends Question {
   }
   /**
    * The name of a component used to render items.
+   *
+   * [View Dropdown Demo](https://surveyjs.io/form-library/examples/dropdown-box-with-custom-items/ (linkStyle))
+   *
+   * [View Ranking Demo](https://surveyjs.io/form-library/examples/dropdown-box-with-custom-items/ (linkStyle))
    */
   public get itemComponent(): string {
     return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());

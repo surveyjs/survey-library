@@ -279,7 +279,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   background-color: $red-light;
   border-color: transparent;
   fill: $foreground-light;
-  &:hover {
+  &.sd-rating__item-smiley--scale-colored:hover {
     fill: var(--sd-rating-item-color, $foreground-light);
   }
 

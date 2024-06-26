@@ -1630,7 +1630,7 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
         question: "matrix",
       },
       { name: "matrix[0].col2", text: "Matrix[0].col2", question: "matrix" },
-      { name: "row.col2", text: "row.col2", question: "matrix" },
+      { name: "row.col2", text: "row.col2", question: "matrix", context: "col1" },
     ],
     "addConditionObjectsByContext work correctly for matrix dynamic with context"
   );
@@ -1700,7 +1700,7 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCo
   question.addConditionObjectsByContext(objs, question.columns[0]);
   updateObjsQuestions(objs);
   assert.deepEqual(objs,
-    [{ name: "row.col2", text: "row.col2", question: "matrix" }],
+    [{ name: "row.col2", text: "row.col2", question: "matrix", context: "col1" }],
     "addConditionObjectsByContext work correctly for matrix dynamic with context"
   );
   objs = [];
@@ -1784,9 +1784,7 @@ QUnit.test("matrixDropdown.addConditionObjectsByContext", function (assert) {
   question.title = "Matrix";
   question.rows[0].text = "Row 1";
   question.addConditionObjectsByContext(objs, null);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [
@@ -1815,9 +1813,7 @@ QUnit.test("matrixDropdown.addConditionObjectsByContext", function (assert) {
   );
   objs = [];
   question.addConditionObjectsByContext(objs, question.columns[0]);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [
@@ -1841,18 +1837,13 @@ QUnit.test("matrixDropdown.addConditionObjectsByContext", function (assert) {
         text: "Matrix.row2.col2",
         question: "matrix",
       },
-      { name: "row.col2", text: "row.col2", question: "matrix" },
+      { name: "row.col2", text: "row.col2", question: "matrix", context: "col1" },
     ],
     "addConditionObjectsByContext work correctly for matrix dropdown with context"
   );
   objs = [];
   question.addConditionObjectsByContext(objs, true);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-    if (!!objs[i].context) {
-      objs[i].context = objs[i].context.name;
-    }
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [

@@ -586,9 +586,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("longTap", val);
   }
 
-  /**
-   * The name of a component used to render items.
-   */
   protected getDefaultItemComponent(): string {
     return "sv-ranking-item";
   }

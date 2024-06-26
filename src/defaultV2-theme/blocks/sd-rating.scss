@@ -178,6 +178,9 @@ legend+sv-ng-rating-item+.sd-rating__item {
   border: 1px solid transparent;
   box-shadow: none;
   transform: none;
+  &:focus-within {
+    box-shadow: none;
+  }
 
   .sd-rating__item-text.sd-rating__item-text {
     color: $foreground;
@@ -308,23 +311,30 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   background-color: unset;
 }
 
-.sd-rating__item-smiley.sd-rating__item-smiley--preview {
-  border-color: $foreground;
-  border-width: 1px;
+.sd-rating__item-smiley.sd-rating__item-smiley--preview.sd-rating__item-smiley--preview.sd-rating__item-smiley--preview {
+  border: 1px solid $foreground;
   fill: $foreground;
+  &:focus-within {
+    box-shadow: none;
+  }
 
   svg {
     margin: 1px;
   }
 }
 
-.sd-rating__item-smiley.sd-rating__item-smiley--selected.sd-rating__item-smiley--preview {
+.sd-rating__item-smiley.sd-rating__item-smiley--selected.sd-rating__item-smiley--preview.sd-rating__item-smiley--preview {
   fill: $background;
   background-color: $foreground;
 }
 .sd-rating__item-smiley--allowhover:hover {
   background-color: $background-dark;
   border-color: $border;
+}
+
+.sd-rating__item-smiley:focus-within {
+  border: none;
+  box-shadow: $shadow-small-reset, 0 0 0 2px $primary;
 }
 
 .sd-rating__item-smiley:focus-within {
@@ -363,6 +373,10 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 .sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected):focus-within {
   opacity: 1;
   box-shadow: $shadow-small-reset, 0 0 0 2px var(--sd-rating-item-color, $primary);
+}
+.sd-rating__item-smiley--scale-colored.sd-rating__item-smiley--small:not(.sd-rating__item-smiley--selected):focus-within {
+  opacity: 1;
+  box-shadow: $shadow-small-reset, 0 0 0 1px var(--sd-rating-item-color, $primary);
 }
 
 .sd-rating__item-smiley--scale-colored {
@@ -490,7 +504,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     fill: $foreground;
   }
 }
-.sd-rating__item-star:focus-within {
+.sd-rating__item-star:not(.sd-rating__item-star--preview):focus-within {
   svg {
     stroke: $primary;
     fill: transparent;
@@ -518,7 +532,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   }
 }
 
-.sd-rating__item-star--selected:focus-within {
+.sd-rating__item-star--selected:not(.sd-rating__item-star--preview):focus-within {
   svg {
     stroke: $primary;
     fill: $primary;

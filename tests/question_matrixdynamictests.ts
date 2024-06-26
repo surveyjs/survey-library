@@ -2959,7 +2959,8 @@ QUnit.test(
   }
 );
 QUnit.test("columnsVisibleIf produce the bug, Bug#1540", function (assert) {
-  var json = {
+  assert.equal(Serializer.findProperty("matrixdynamic", "columnsVisibleIf").visible, false, "The property is invisible");
+  const json = {
     pages: [
       {
         name: "page1",

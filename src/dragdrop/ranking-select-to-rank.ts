@@ -78,7 +78,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   ): void {
     const questionModel: any = this.parentElement;
 
-    let { fromIndex, toIndex } = this.getIndixies(questionModel, fromChoicesArray, toChoicesArray);
+    let { fromIndex, toIndex } = this.getIndices(questionModel, fromChoicesArray, toChoicesArray);
 
     rankFunction(questionModel, fromIndex, toIndex, dropTargetNode);
   }

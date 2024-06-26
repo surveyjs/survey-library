@@ -46,6 +46,7 @@ registerMarkupTests(
         el.innerHTML = "";
         el.removeAttribute("data-bind");
         el.removeAttribute("lang");
+        el.removeAttribute("dir");
         return el.outerHTML;
       },
       snapshot: "survey-theme-variables"

@@ -45,6 +45,7 @@ registerMarkupTests(
       getSnapshot: el => {
         el.innerHTML = "";
         el.removeAttribute("data-bind");
+        el.removeAttribute("lang");
         return el.outerHTML;
       },
       snapshot: "survey-theme-variables"
@@ -69,7 +70,7 @@ registerMarkupTests(
       getSnapshot: el => {
         el.innerHTML = "";
         el.removeAttribute("data-bind");
-        return el.outerHTML;
+        return JSON.stringify({ lang: el.lang, dir: el.dir });
       },
       snapshot: "survey-lang-dir"
     }, {

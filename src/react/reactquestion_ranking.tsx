@@ -52,41 +52,39 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     const items: Array<JSX.Element> = [];
     for (let i = 0; i < choices.length; i++) {
       const item = choices[i];
-      if(!!item && !item.isDisposed) {
-        items.push(
-          this.renderItem(
-            item,
-            i,
-            (event: PointerEvent) => {
-              this.question.handleKeydown.call(this.question, event, item);
-            },
-            (event: any) => {
-              event.persist();
-              //event.preventDefault();
-              this.question.handlePointerDown.call(
-                this.question,
-                event,
-                item,
-                event.currentTarget
-              );
-            },
-            (event: any) => {
-              event.persist();
-              //event.preventDefault();
-              this.question.handlePointerUp.call(
-                this.question,
-                event,
-                item,
-                event.currentTarget
-              );
-            },
-            this.question.cssClasses,
-            this.question.getItemClass(item),
-            this.question,
-            unrankedItem
-          )
-        );
-      }
+      items.push(
+        this.renderItem(
+          item,
+          i,
+          (event: PointerEvent) => {
+            this.question.handleKeydown.call(this.question, event, item);
+          },
+          (event: any) => {
+            event.persist();
+            //event.preventDefault();
+            this.question.handlePointerDown.call(
+              this.question,
+              event,
+              item,
+              event.currentTarget
+            );
+          },
+          (event: any) => {
+            event.persist();
+            //event.preventDefault();
+            this.question.handlePointerUp.call(
+              this.question,
+              event,
+              item,
+              event.currentTarget
+            );
+          },
+          this.question.cssClasses,
+          this.question.getItemClass(item),
+          this.question,
+          unrankedItem
+        )
+      );
     }
     return items;
   }

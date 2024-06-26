@@ -376,7 +376,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return new DragDropRankingChoices(this.survey, null, this.longTap);
   }
 
-  private draggedChoise: ItemValue;
+  private draggedChoiceValue: any;
   private draggedTargetNode: HTMLElement;
   public handlePointerDown = (
     event: PointerEvent,
@@ -394,14 +394,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.canStartDragDueItemEnabled(choice)
     )
     {
-      this.draggedChoise = choice;
+      this.draggedChoiceValue = choice.value;
       this.draggedTargetNode = node;
       this.dragOrClickHelper.onPointerDown(event);
     }
   };
 
   public startDrag = (event: PointerEvent): void => {
-    this.dragDropRankingChoices.startDrag(event, this.draggedChoise, this, this.draggedTargetNode);
+    const choice = ItemValue.getItemByValue(this.activeChoices, this.draggedChoiceValue);
+    this.dragDropRankingChoices.startDrag(event, choice, this, this.draggedTargetNode);
   }
 
   public handlePointerUp = (

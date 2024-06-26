@@ -85,7 +85,10 @@ export class DragDropRankingChoices extends DragDropChoices {
   public getIndixies(model: any, fromChoicesArray: Array<ItemValue>, toChoicesArray: Array<ItemValue>) {
     let fromIndex = fromChoicesArray.indexOf(this.draggedElement);
     let toIndex = toChoicesArray.indexOf(this.dropTarget);
-
+    if(fromIndex < 0) {
+      this.draggedElement = ItemValue.getItemByValue(fromChoicesArray, this.draggedElement.value) || this.draggedElement;
+      fromIndex = fromChoicesArray.indexOf(this.draggedElement);
+    }
     if (toIndex === -1) {
       const length = model.value.length;
       toIndex = length;

@@ -525,7 +525,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   }
 }
 
-.sd-rating__item-star--selected.sd-rating__item-star--unhighlighted:focus-within {
+.sd-rating__item-star--selected:not(.sd-rating__item-star--preview).sd-rating__item-star--unhighlighted:focus-within {
   svg {
     stroke: $border;
     fill: $border;

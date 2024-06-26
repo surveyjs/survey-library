@@ -107,7 +107,7 @@ export class Survey extends SurveyElementBase<any, any>
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
 
     return (
-      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables}>
+      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables} lang={this.survey.locale || "en"} dir={this.survey.localeDir}>
         {this.survey.needRenderIcons ? <SvgBundleComponent></SvgBundleComponent> : null }
         <div className={this.survey.wrapperFormCss}>
           {backgroundImage}

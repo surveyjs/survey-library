@@ -4,7 +4,7 @@
 </script>
 
 <script type="text/html" id="survey-content-template">
-  <div data-bind="css: rootCss, elementStyle: themeVariables">
+  <div data-bind="css: rootCss, elementStyle: themeVariables, attr: { lang: locale || 'en', dir: localeDir }">
     <!-- ko if: needRenderIcons -->
       <!-- ko component: { name: 'sv-svg-bundle'} -->
       <!-- /ko -->

@@ -1115,6 +1115,21 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.parent) return this.parent.getQuestionTitleLocation();
     return this.survey ? this.survey.questionTitleLocation : "top";
   }
+  availableQuestionTitleWidth(): boolean {
+    const questionTitleLocation = this.getQuestionTitleLocation();
+    if (questionTitleLocation === "left") return true;
+    return this.hasElementWithTitleLocationLeft();
+  }
+  hasElementWithTitleLocationLeft(): boolean {
+    const result = this.elements.some(el => {
+      if (el instanceof PanelModelBase) {
+        return el.hasElementWithTitleLocationLeft();
+      } else if (el instanceof Question) {
+        return el.getTitleLocation() === "left";
+      }
+    });
+    return result;
+  }
   /**
    * Sets consistent width for question titles in CSS values. Applies only when [`questionTitleLocation`](#questionTitleLocation) evaluates to `"left"`.
    *
@@ -2161,7 +2176,7 @@ Serializer.addClass(
     {
       name: "questionTitleWidth",
       visibleIf: function (obj: any) {
-        return !!obj && obj["getQuestionTitleLocation"]() === "left";
+        return !!obj && obj["availableQuestionTitleWidth"]();
       }
     },
     {

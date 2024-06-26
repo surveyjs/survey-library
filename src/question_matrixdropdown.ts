@@ -31,6 +31,8 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   public get locText(): LocalizableString {
     return this.item.locText;
   }
+  public isRowEnabled(): boolean { return this.item.isEnabled; }
+  protected isRowHasEnabledCondition(): boolean { return !!this.item.enableIf; }
 }
 /**
   * A class that describes the Multi-Select Matrix question type. Multi-Select Matrix allows you to use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Text](https://surveyjs.io/form-library/documentation/questiontextmodel), and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types as cell editors.

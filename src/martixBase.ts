@@ -217,6 +217,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       properties,
       !showInvisibile
     );
+    ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
     if (this.filteredRows.length === this.rows.length) {
       this.filteredRows = null;
     }

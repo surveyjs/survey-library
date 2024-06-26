@@ -1356,11 +1356,13 @@ export class Question extends SurveyElement<Question>
   public get requireUpdateCommentValue(): boolean {
     return this.hasComment || this.hasOther;
   }
+  public readOnlyCallback: () => boolean;
   public get isReadOnly(): boolean {
     const isParentReadOnly = !!this.parent && this.parent.isReadOnly;
     const isPareQuestionReadOnly = !!this.parentQuestion && this.parentQuestion.isReadOnly;
     const isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
-    return this.readOnly || isParentReadOnly || isSurveyReadOnly || isPareQuestionReadOnly;
+    const callbackVal = !!this.readOnlyCallback && this.readOnlyCallback();
+    return this.readOnly || isParentReadOnly || isSurveyReadOnly || isPareQuestionReadOnly || callbackVal;
   }
   public get isInputReadOnly(): boolean {
     if (this.forceIsInputReadOnly !== undefined) {

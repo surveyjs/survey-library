@@ -2,10 +2,11 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
-import { MatrixDynamicRowModel, QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { SurveyModel } from "../src/survey";
 import { Helpers } from "../src/helpers";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -1345,6 +1346,117 @@ QUnit.test("defaultValueExpression & using rowvalue in it", function (assert) {
   assert.equal(matrix.visibleRows[0].cells[1].question.value, 12, "Keep value in the standard cell");
   assert.equal(matrix.visibleRows[0].cells[0].question.value, 30, "cell1 value #3");
   assert.equal(matrix.visibleRows[1].cells[0].question.value, 50, "cell1 value #3");
+});
+QUnit.test("rows enableIf property, #8461", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1"
+      },
+      {
+        type: "text",
+        name: "q2"
+      },
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          { name: "col1", cellType: "text" },
+          { name: "col2", cellType: "text", enableIf: "{row.col1} > 10" }
+        ],
+        rows: [
+          { value: "row1", enableIf: "{q1} > 10" },
+          { value: "row2", enableIf: "{q2} > 10" }],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q4" }]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const rows = matrix.visibleRows;
+  assert.equal(rows[0].isRowEnabled(), false, "row1 enabled #1");
+  assert.equal(rows[1].isRowEnabled(), false, "row2 enabled #1");
+  const row1Col1Cell = rows[0].getQuestionByName("col1");
+  const row1Col2Cell = rows[0].getQuestionByName("col2");
+  const row2Col1Cell = rows[1].getQuestionByName("col1");
+  const row2Col2Cell = rows[1].getQuestionByName("col2");
+
+  rows[0].showDetailPanel();
+  rows[1].showDetailPanel();
+  const panel1 = rows[0].detailPanel;
+  const panel2 = rows[1].detailPanel;
+
+  assert.equal(row1Col1Cell.isReadOnly, true, "row1Col1Cell #1");
+  assert.equal(row1Col2Cell.isReadOnly, true, "row1Col2Cell #1");
+  assert.equal(row2Col1Cell.isReadOnly, true, "row2Col1Cell #1");
+  assert.equal(row2Col2Cell.isReadOnly, true, "row2Col2Cell #1");
+  assert.equal(panel1.isReadOnly, true, "panel1 #1");
+  assert.equal(panel2.isReadOnly, true, "panel2 #1");
+  q1.value = 11;
+  assert.equal(rows[0].isRowEnabled(), true, "row1 enabled #2");
+  assert.equal(rows[1].isRowEnabled(), false, "row2 enabled #2");
+  assert.equal(row1Col1Cell.isReadOnly, false, "row1Col1Cell #2");
+  assert.equal(row1Col2Cell.isReadOnly, true, "row1Col2Cell #2");
+  assert.equal(row2Col1Cell.isReadOnly, true, "row2Col1Cell #2");
+  assert.equal(row2Col2Cell.isReadOnly, true, "row2Col2Cell #2");
+  assert.equal(panel1.isReadOnly, false, "panel1 #2");
+  assert.equal(panel2.isReadOnly, true, "panel2 #2");
+  q2.value = 11;
+  assert.equal(rows[0].isRowEnabled(), true, "row1 enabled #3");
+  assert.equal(rows[1].isRowEnabled(), true, "row2 enabled #3");
+  assert.equal(row1Col1Cell.isReadOnly, false, "row1Col1Cell #3");
+  assert.equal(row1Col2Cell.isReadOnly, true, "row1Col2Cell #3");
+  assert.equal(row2Col1Cell.isReadOnly, false, "row2Col1Cell #3");
+  assert.equal(row2Col2Cell.isReadOnly, true, "row2Col2Cell #3");
+  assert.equal(panel1.isReadOnly, false, "panel1 #3");
+  assert.equal(panel2.isReadOnly, false, "panel2 #3");
+  row1Col1Cell.value = 11;
+  assert.equal(row1Col1Cell.isReadOnly, false, "row1Col1Cell #4");
+  assert.equal(row1Col2Cell.isReadOnly, false, "row1Col2Cell #4");
+  assert.equal(row2Col1Cell.isReadOnly, false, "row2Col1Cell #4");
+  assert.equal(row2Col2Cell.isReadOnly, true, "row2Col2Cell #4");
+  assert.equal(panel1.isReadOnly, false, "panel1 #4");
+  assert.equal(panel2.isReadOnly, false, "panel2 #4");
+  row2Col1Cell.value = 11;
+  assert.equal(row1Col1Cell.isReadOnly, false, "row1Col1Cell #5");
+  assert.equal(row1Col2Cell.isReadOnly, false, "row1Col2Cell #5");
+  assert.equal(row2Col1Cell.isReadOnly, false, "row2Col1Cell #5");
+  assert.equal(row2Col2Cell.isReadOnly, false, "row2Col2Cell #5");
+  assert.equal(panel1.isReadOnly, false, "panel1 #5");
+  assert.equal(panel2.isReadOnly, false, "panel2 #5");
+  q1.value = 1;
+  assert.equal(rows[0].isRowEnabled(), false, "row1 enabled #6");
+  assert.equal(rows[1].isRowEnabled(), true, "row2 enabled #6");
+  assert.equal(row1Col1Cell.isReadOnly, true, "row1Col1Cell #6");
+  assert.equal(row1Col2Cell.isReadOnly, true, "row1Col2Cell #6");
+  assert.equal(row2Col1Cell.isReadOnly, false, "row2Col1Cell #6");
+  assert.equal(row2Col2Cell.isReadOnly, false, "row2Col2Cell #6");
+  assert.equal(panel1.isReadOnly, true, "panel1 #6");
+  assert.equal(panel2.isReadOnly, false, "panel2 #6");
+  row2Col1Cell.value = 1;
+  assert.equal(row1Col1Cell.isReadOnly, true, "row1Col1Cell #7");
+  assert.equal(row1Col2Cell.isReadOnly, true, "row1Col2Cell #7");
+  assert.equal(row2Col1Cell.isReadOnly, false, "row2Col1Cell #7");
+  assert.equal(row2Col2Cell.isReadOnly, true, "row2Col2Cell #7");
+  assert.equal(panel1.isReadOnly, true, "panel1 #7");
+  assert.equal(panel2.isReadOnly, false, "panel2 #7");
+  matrix.readOnly = true;
+  assert.equal(row1Col1Cell.isReadOnly, true, "row1Col1Cell #8");
+  assert.equal(row1Col2Cell.isReadOnly, true, "row1Col2Cell #8");
+  assert.equal(row2Col1Cell.isReadOnly, true, "row2Col1Cell #8");
+  assert.equal(row2Col2Cell.isReadOnly, true, "row2Col2Cell #8");
+  assert.equal(panel1.isReadOnly, true, "panel1 #8");
+  assert.equal(panel2.isReadOnly, true, "panel2 #8");
+  matrix.readOnly = false;
+  assert.equal(row1Col1Cell.isReadOnly, true, "row1Col1Cell #9");
+  assert.equal(row1Col2Cell.isReadOnly, true, "row1Col2Cell #9");
+  assert.equal(row2Col1Cell.isReadOnly, false, "row2Col1Cell #9");
+  assert.equal(row2Col2Cell.isReadOnly, true, "row2Col2Cell #9");
+  assert.equal(panel1.isReadOnly, true, "panel1 #9");
+  assert.equal(panel2.isReadOnly, false, "panel2 #9");
 });
 QUnit.test("showInMultipleColumns & random choices, Bug#8348", function (assert) {
   let index = 0;

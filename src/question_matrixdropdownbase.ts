@@ -2563,6 +2563,7 @@ Serializer.addClass(
       visible: false,
       isLightSerializable: false,
     },
+    { name: "columnsVisibleIf", visible: false },
     {
       name: "detailPanelMode",
       choices: ["none", "underRow", "underRowSingle"],

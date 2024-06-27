@@ -60,13 +60,14 @@ export class QuestionCommentModel extends QuestionTextBase {
    * @see autoGrow
    */
   public get allowResize(): boolean {
-    return this.getPropertyValue("allowResize");
+    const value = this.getPropertyValue("allowResize");
+    return value === null ? (this.survey && this.survey.allowResizeComment) : value;
   }
   public set allowResize(val: boolean) {
     this.setPropertyValue("allowResize", val);
   }
   public get renderedAllowResize(): boolean {
-    return this.allowResize && (this.survey && this.survey.allowResizeComment) && !this.isPreviewStyle && !this.isReadOnlyStyle;
+    return this.allowResize && !this.isPreviewStyle && !this.isReadOnlyStyle;
   }
   public get resizeStyle() {
     return this.renderedAllowResize ? "both" : "none";
@@ -138,8 +139,8 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "onBlur", "onTyping"],
     },
-    { name: "autoGrow:boolean" },
-    { name: "allowResize:boolean", default: true },
+    { name: "autoGrow:boolean", default: null },
+    { name: "allowResize:boolean", default: null },
     { name: "acceptCarriageReturn:boolean", default: true, visible: false }
   ],
   function () {

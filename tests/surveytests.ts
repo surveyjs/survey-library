@@ -15025,7 +15025,7 @@ QUnit.test("onElementWrapperComponentName event", function (assert) {
 QUnit.test("onElementWrapperComponentName event", function (assert) {
   const survey = new SurveyModel({
     elements: [{ type: "text", name: "q1" }, { type: "checkbox", name: "q2", choices: [1, 2] },
-      { type: "matrixdynamic", name: "q3", rowCount: 1, columns: [{ name: "col1" }] }
+    { type: "matrixdynamic", name: "q3", rowCount: 1, columns: [{ name: "col1" }] }
     ]
   });
   const q1 = survey.getQuestionByName("q1");
@@ -15487,7 +15487,7 @@ QUnit.test("survey.autoGrowComment", function (assert) {
   assert.equal(comment1.autoGrow, false);
   assert.equal(comment2.autoGrow, true);
 });
-QUnit.test("survey.allowResizeComment", function (assert) {
+QUnit.only("survey.allowResizeComment", function (assert) {
   let json = {
     allowResizeComment: false,
     pages: [
@@ -15507,16 +15507,16 @@ QUnit.test("survey.allowResizeComment", function (assert) {
     ]
   };
   let survey = new SurveyModel(json);
-  let comment1 = survey.getQuestionByName("comment1");
-  let comment2 = survey.getQuestionByName("comment2");
+  let comment1 = survey.getQuestionByName("comment1") as QuestionCommentModel;
+  let comment2 = survey.getQuestionByName("comment2") as QuestionCommentModel;
 
   assert.equal(survey.allowResizeComment, false);
-  assert.equal(comment1.renderedAllowResize, false);
-  assert.equal(comment2.renderedAllowResize, false);
+  assert.equal(comment1.renderedAllowResize, false, "comment1 survey.allowResizeComment = false");
+  assert.equal(comment2.renderedAllowResize, false, "comment2 survey.allowResizeComment = false");
 
   survey.allowResizeComment = true;
-  assert.equal(comment1.renderedAllowResize, true);
-  assert.equal(comment2.renderedAllowResize, false);
+  assert.equal(comment1.renderedAllowResize, true, "comment1 survey.allowResizeComment = true");
+  assert.equal(comment2.renderedAllowResize, false, "comment2 survey.allowResizeComment = true");
 
   comment1.readOnly = true;
   assert.equal(comment1.renderedAllowResize, false);
@@ -15525,8 +15525,46 @@ QUnit.test("survey.allowResizeComment", function (assert) {
   survey.showPreview();
   let comment1Preview = survey.getQuestionByName("comment1");
   assert.equal(comment1Preview.renderedAllowResize, false);
-
 });
+
+QUnit.only("survey.allowResizeComment & survey.autoGrowComment override this properties for individual properties", function (assert) {
+  let json = {
+    allowResizeComment: false,
+    autoGrowComment: false,
+    pages: [
+      {
+        elements: [
+          {
+            type: "comment",
+            name: "comment1",
+            autoGrow: true,
+            allowResize: true
+          },
+          {
+            type: "comment",
+            name: "comment2",
+          }
+        ]
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let comment1 = survey.getQuestionByName("comment1") as QuestionCommentModel;
+  let comment2 = survey.getQuestionByName("comment2") as QuestionCommentModel;
+
+  assert.equal(comment1.renderedAllowResize, true, "comment1 survey.allowResizeComment = false");
+  assert.equal(comment1.autoGrow, true, "comment1 survey.autoGrowComment = false");
+  assert.equal(comment2.renderedAllowResize, false, "comment2 survey.allowResizeComment = false");
+  assert.equal(comment2.autoGrow, false, "comment2 survey.autoGrowComment = false");
+
+  survey.allowResizeComment = true;
+  survey.autoGrowComment = true;
+  assert.equal(comment1.renderedAllowResize, true, "comment1 survey.allowResizeComment = true");
+  assert.equal(comment1.autoGrow, true, "comment1 survey.autoGrowComment = true");
+  assert.equal(comment2.renderedAllowResize, true, "comment2 survey.allowResizeComment = true");
+  assert.equal(comment2.autoGrow, true, "comment2 survey.autoGrowComment = true");
+});
+
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
     getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },

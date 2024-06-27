@@ -120,7 +120,7 @@
   fill: $foreground;
   font-size: calcFontSize(1);
   box-shadow: $shadow-small, inset 0 0 0 0px $background;
-  transition: border $transition-duration, box-shadow $transition-duration, background-color $transition-duration;
+  transition: box-shadow $transition-duration, background-color $transition-duration;
 }
 
 .sd-rating__item--fixed-size {
@@ -178,6 +178,9 @@ legend+sv-ng-rating-item+.sd-rating__item {
   border: 1px solid transparent;
   box-shadow: none;
   transform: none;
+  &:focus-within {
+    box-shadow: none;
+  }
 
   .sd-rating__item-text.sd-rating__item-text {
     color: $foreground;
@@ -202,19 +205,18 @@ legend+sv-ng-rating-item+.sd-rating__item {
 }
 
 .sd-rating__item:focus-within {
-  border: 2px solid $primary;
+  box-shadow: 0 0 0 2px $primary;
 }
 
 .sd-rating__item--selected {
   background-color: $primary;
-  border: 2px solid $primary;
   color: $primary-foreground;
   font-weight: 600;
-  box-shadow: 0px 1px 2px transparent;
+  box-shadow: 0 0 0 0px $primary;
 }
 
 .sd-rating__item--selected:focus-within {
-  box-shadow: $shadow-small-reset, inset 0 0 0 2px $background;
+  box-shadow: $shadow-small-reset, inset 0 0 0 4px $background, 0 0 0 2px $primary;
 }
 
 .sd-rating__item-smiley {
@@ -224,12 +226,16 @@ legend+sv-ng-rating-item+.sd-rating__item {
   padding: calcSize(1.25);
   box-sizing: border-box;
   min-width: calcSize(6);
+  min-height: calcSize(6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   border: 2px solid $border;
   color: $foreground;
   fill: $border;
   box-shadow: $shadow-small-reset, inset 0 0 0 0px $background;
-  transition: border $transition-duration, box-shadow $transition-duration, background-color $transition-duration;
+  transition: box-shadow $transition-duration, background-color $transition-duration;
 
   svg {
     display: block;
@@ -241,6 +247,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
 .sd-rating__item-smiley--small {
   padding: calcSize(0.625);
   min-width: calcSize(3);
+  min-height: calcSize(3);
   border-width: 1px;
 
   svg {
@@ -249,8 +256,15 @@ legend+sv-ng-rating-item+.sd-rating__item {
   }
 }
 
+.sd-rating__item-smiley--small:not(.sd-rating__item-smiley--selected):focus-within {
+  box-shadow: 0 0 0 1px $primary;
+}
+.sd-rating__item-smiley--colored.sd-rating__item-smiley--small:not(.sd-rating__item-smiley--selected):focus-within {
+  box-shadow: 0 0 0 1px var(--sd-rating-item-color, $primary);
+}
+
 .sd-rating__item-smiley--small.sd-rating__item-smiley--selected:focus-within {
-  box-shadow: inset 0 0 0 1px $background;
+  box-shadow: inset 0 0 0 2px $background, 0 0 0 1px var(--sd-rating-item-color, $primary);
 }
 
 legend+.sd-rating__item-smiley,
@@ -259,13 +273,18 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 }
 
 .sd-rating__item-smiley--scale-colored {
-  transition: border $transition-duration, box-shadow $transition-duration, opacity $transition-duration, background-color $transition-duration;
+  border-color: var(--sd-rating-item-color, $primary);
+  fill: var(--sd-rating-item-color, $primary);
+  transition: box-shadow $transition-duration, opacity $transition-duration, background-color $transition-duration;
 }
 
 .sd-rating__item-smiley--error {
   background-color: $red-light;
   border-color: transparent;
   fill: $foreground-light;
+  &.sd-rating__item-smiley--scale-colored:hover {
+    fill: var(--sd-rating-item-color, $foreground-light);
+  }
 
   &.sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected) {
     opacity: initial;
@@ -282,7 +301,8 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 }
 
 .sd-rating__item-smiley.sd-rating__item-smiley--readonly {
-  //
+  fill: $border;
+  border-color: $border;
 }
 
 .sd-rating__item-smiley.sd-rating__item-smiley--selected.sd-rating__item-smiley--readonly {
@@ -291,17 +311,19 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   background-color: unset;
 }
 
-.sd-rating__item-smiley.sd-rating__item-smiley--preview {
-  border-color: $foreground;
-  border-width: 1px;
+.sd-rating__item-smiley.sd-rating__item-smiley--preview.sd-rating__item-smiley--preview.sd-rating__item-smiley--preview {
+  border: 1px solid $foreground;
   fill: $foreground;
+  &:focus-within {
+    box-shadow: none;
+  }
 
   svg {
     margin: 1px;
   }
 }
 
-.sd-rating__item-smiley.sd-rating__item-smiley--selected.sd-rating__item-smiley--preview {
+.sd-rating__item-smiley.sd-rating__item-smiley--selected.sd-rating__item-smiley--preview.sd-rating__item-smiley--preview {
   fill: $background;
   background-color: $foreground;
 }
@@ -311,24 +333,33 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 }
 
 .sd-rating__item-smiley:focus-within {
-  border-color: $primary;
+  border: none;
+  box-shadow: $shadow-small-reset, 0 0 0 2px $primary;
+}
+
+.sd-rating__item-smiley:focus-within {
+  border: none;
+  box-shadow: $shadow-small-reset, 0 0 0 2px $primary;
 }
 
 .sd-rating__item-smiley--selected {
-  background-color: $primary;
-  border-color: $primary;
+  background-color: var(--sd-rating-item-color, $primary);
+  border-color: var(--sd-rating-item-color, $primary);
   fill: $primary-foreground;
   font-weight: 600;
 }
 
 .sd-rating__item-smiley--selected:focus-within {
-  box-shadow: $shadow-small-reset, inset 0 0 0 2px $background;
+  border: 0px solid $background;
+  box-shadow: $shadow-small-reset, inset 0 0 0 4px $background, 0 0 0 2px var(--sd-rating-item-color, $primary);
 }
 
 .sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected) {
   opacity: 0.25;
 
   &.sd-rating__item-smiley--allowhover:hover {
+    background-color: var(--sd-rating-item-color-light, $background-dark);
+    border-color: var(--sd-rating-item-color, $border);
     opacity: 0.5;
   }
 }
@@ -341,6 +372,11 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected):focus-within {
   opacity: 1;
+  box-shadow: $shadow-small-reset, 0 0 0 2px var(--sd-rating-item-color, $primary);
+}
+.sd-rating__item-smiley--scale-colored.sd-rating__item-smiley--small:not(.sd-rating__item-smiley--selected):focus-within {
+  opacity: 1;
+  box-shadow: $shadow-small-reset, 0 0 0 1px var(--sd-rating-item-color, $primary);
 }
 
 .sd-rating__item-smiley--scale-colored {
@@ -468,7 +504,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     fill: $foreground;
   }
 }
-.sd-rating__item-star:focus-within {
+.sd-rating__item-star:not(.sd-rating__item-star--preview):focus-within {
   svg {
     stroke: $primary;
     fill: transparent;
@@ -489,14 +525,14 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   }
 }
 
-.sd-rating__item-star--selected.sd-rating__item-star--unhighlighted:focus-within {
+.sd-rating__item-star--selected:not(.sd-rating__item-star--preview).sd-rating__item-star--unhighlighted:focus-within {
   svg {
     stroke: $border;
     fill: $border;
   }
 }
 
-.sd-rating__item-star--selected:focus-within {
+.sd-rating__item-star--selected:not(.sd-rating__item-star--preview):focus-within {
   svg {
     stroke: $primary;
     fill: $primary;
@@ -519,7 +555,6 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   display: inline-block;
-  border: 2px solid transparent;
   box-sizing: border-box;
   transition: color $transition-duration;
 
@@ -528,6 +563,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     margin-top: calcSize(1.25);
     margin-bottom: calcSize(1.25);
     color: $font-questiondescription-color;
+    border: 2px solid rgba(0, 0, 0, 0);
   }
 
   &.sd-rating__min-text {
@@ -547,6 +583,15 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
   &.sd-rating__item--fixed-size {
     min-width: calcSize(3);
+  }
+  &::after {
+    display: block;
+    content: attr(data-text);
+    font-weight: 600;
+    height: 0;
+    color: transparent;
+    overflow: hidden;
+    visibility: hidden;
   }
 }
 

@@ -54,7 +54,7 @@ export class RatingItem extends RatingItemBase {
           aria-invalid={this.question.ariaInvalid}
           aria-errormessage={this.question.ariaErrormessage}
         />
-        <span className={this.question.cssClasses.itemText}>{itemText}</span>
+        <span className={this.question.cssClasses.itemText} data-text={this.item.text}>{itemText}</span>
       </label>
     );
   }

@@ -1207,11 +1207,11 @@ QUnit.test("rating colors without css vars", (assert) => {
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
 
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { "--sd-rating-item-color": null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { "--sd-rating-item-color": null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { "--sd-rating-item-color": null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { "--sd-rating-item-color": null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { "--sd-rating-item-color": null });
 });
 
 QUnit.test("rating colors", (assert) => {
@@ -1236,59 +1236,61 @@ QUnit.test("rating colors", (assert) => {
   q1.value = 4;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: "rgba(200, 20, 10, 1)", borderColor: "rgba(200, 20, 10, 1)", backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { fill: "rgba(227, 117, 5, 1)", borderColor: "rgba(227, 117, 5, 1)", backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { fill: "rgba(255, 215, 0, 1)", borderColor: "rgba(255, 215, 0, 1)", backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: "rgba(132, 207, 10, 1)", backgroundColor: "rgba(132, 207, 10, 1)" });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: "rgba(10, 200, 20, 1)", borderColor: "rgba(10, 200, 20, 1)", backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
 
   q1.readOnly = true;
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), {}, "ro 1");
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), {}, "ro 2");
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), {}, "ro 3");
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), {}, "ro 4");
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), {}, "ro 5");
   q1.readOnly = false;
 
   survey.showPreview();
   let qp = <QuestionRatingModel>survey.getQuestionByName("q1");
-  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[1]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[2]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[3]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[4]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[0]), {}, "pv 1");
+  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[1]), {}, "pv 2");
+  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[2]), {}, "pv 3");
+  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[3]), {}, "pv 4");
+  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[4]), {}, "pv 5");
   survey.cancelPreview();
 
   q1.onItemMouseIn(q1.renderedRateItems[1]);
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1], q1.renderedRateItems[1].highlight), { fill: "rgba(227, 117, 5, 1)", borderColor: "rgba(227, 117, 5, 1)", backgroundColor: "rgba(227, 117, 5, 0.2)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1], q1.renderedRateItems[1].highlight), { "--sd-rating-item-color": "rgba(227, 117, 5, 1)", "--sd-rating-item-color-light": "rgba(227, 117, 5, 0.2)" });
   q1.onItemMouseOut(q1.renderedRateItems[1]);
 
   q1.scaleColorMode = "monochrome";
   q1.onItemMouseIn(q1.renderedRateItems[1]);
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1], q1.renderedRateItems[1].highlight), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1], q1.renderedRateItems[1].highlight), { "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
   q1.onItemMouseOut(q1.renderedRateItems[1]);
 
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: "rgba(132, 207, 10, 1)", backgroundColor: "rgba(132, 207, 10, 1)" });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
 
   q1.scaleColorMode = "monochrome";
   q1.rateColorMode = "default";
 
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: null, backgroundColor: null });
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), {});
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), {});
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), {});
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), {});
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), {});
 
   q1.value = null;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
   q1.isRequired = true;
   q1.validate();
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), {
+    "--sd-rating-item-color": "rgba(200, 20, 10, 1)"
+  });
 
   document.documentElement.style.setProperty("--sd-rating-bad-color", null);
   document.documentElement.style.setProperty("--sd-rating-normal-color", null);

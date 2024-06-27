@@ -10,7 +10,7 @@ export class RatingItemSmiley extends RatingItemBase {
   render(): JSX.Element | null {
     return (
       <label onMouseDown={this.handleOnMouseDown}
-        style={this.question.getItemStyle(this.item.itemValue, this.item.highlight)}
+        style={this.question.getItemStyle(this.item.itemValue, this.item.highlight) as any}
         className={this.question.getItemClass(this.item.itemValue)}
         onMouseOver={e => this.question.onItemMouseIn(this.item)}
         onMouseOut={e => this.question.onItemMouseOut(this.item)}

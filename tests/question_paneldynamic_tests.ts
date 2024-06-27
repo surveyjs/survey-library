@@ -1860,7 +1860,35 @@ QUnit.test("panelDynamic.addConditionObjectsByContext + nested dynamic panel + c
   assert.equal(objs[2].text, "panel.nq2", "text #2");
   assert.equal(objs[3].name, "question1[0].question5", "value #3");
 });
-
+QUnit.test("matrixdropdown.addConditionObjectsByContext + in nested paneldynamic + context, Bug#8475", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "matrixdropdown",
+            "name": "matrix1",
+            "columns": [
+              { "cellType": "text", "name": "col1" },
+              { "cellType": "text", "name": "col2" },
+              { "cellType": "text", "name": "col3" }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  const rootPanel = survey.getQuestionByName("panel1");
+  const nestedMatrix = rootPanel.template.getQuestionByName("matrix1");
+  const column = nestedMatrix.columns[0];
+  const objs: IConditionObject[] = [];
+  rootPanel.addConditionObjectsByContext(objs, column);
+  assert.equal(objs.length, 2, "There should be 4 elements");
+  assert.equal(objs[0].name, "row.col2", "value #0");
+  assert.equal(objs[1].name, "row.col3", "value #1");
+});
 QUnit.test("matrixDynamic.getConditionJson", function(assert) {
   var panel = new QuestionPanelDynamicModel("panel");
   (<QuestionCheckboxModel>(

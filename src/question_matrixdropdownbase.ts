@@ -1837,11 +1837,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return questionPlainData;
   }
-  public addConditionObjectsByContext(
-    objects: Array<IConditionObject>,
-    context: any
-  ) {
-    var hasContext = !!context ? context === true || this.columns.indexOf(context) > -1 : false;
+  public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
+    const hasColumnContext = !!context && this.columns.indexOf(context) > -1;
+    const hasContext = context === true || hasColumnContext;
     const rowsIndeces = this.getConditionObjectsRowIndeces();
     if (hasContext) {
       rowsIndeces.push(-1);
@@ -1863,8 +1861,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
           text: prefixTitle + column.fullTitle,
           question: this
         };
+
         if (index === -1 && context === true) {
           obj.context = this;
+        } else {
+          if(hasColumnContext && prefixName.startsWith("row.")) {
+            obj.context = context;
+          }
         }
         objects.push(obj);
       }

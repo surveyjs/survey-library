@@ -18,7 +18,6 @@
   padding: calcSize(4) calcSize(5) calcSize(2) calcSize(5);
   display: flex;
   flex-direction: column;
-  transition: 0.25s padding ease-out;
 }
 
 .sd-progress-buttons__list-container {
@@ -81,14 +80,14 @@
 
       .sd-progress-buttons__button-background {
         position: absolute;
-        width: 100%;
-        height: 100%;
+        width: calcSize(2.5);
+        height: calcSize(2);
         top: calcSize(-0.5);
-        left: calcSize(-0.5);
+        left: calcSize(-1.25);
         background-color: $background-dim;
         z-index: -2;
-        border: calcSize(0.5) solid $background-dim;
-        border-radius: 50%;
+        // border: calcSize(0.5) solid $background-dim;
+        // border-radius: 50%;
       }
 
       .sd-progress-buttons__button-content {
@@ -109,10 +108,14 @@
 
   li:hover .sd-progress-buttons__button {
     color: $primary;
-    padding: calcSize(0.25);
+    padding: calcSize(0.5);
     margin: calcSize(0.25);
-    border: calcSize(0.75) solid $primary;
+    border: calcSize(0.5) solid $primary;
     background-color: $primary-foreground;
+
+    .sd-progress-buttons__button-background {
+      left: calcSize(-0.75);
+    }
 
     .sd-progress-buttons__button-content {
       top: calcSize(-0.75);
@@ -149,8 +152,12 @@
       border: calcSize(0.5) solid $primary;
       background-color: $primary-foreground;
       color: $primary;
-      padding: calcSize(0.25);
-      margin: calcSize(0.5);
+      padding: calcSize(0.5);
+      margin: calcSize(0.25);
+
+      .sd-progress-buttons__button-background {
+        left: calcSize(-0.75);
+      }
 
       .sd-progress-buttons__button-content {
         border: calcSize(0.5) solid $primary;
@@ -236,10 +243,16 @@
       .sd-progress-buttons__button {
         width: calcSize(2);
         height: calcSize(2);
+
+        .sd-progress-buttons__button-background {
+          height: calcSize(3);
+          width: calcSize(4.5);
+        }
+
       }
 
       &:hover .sd-progress-buttons__button {
-        padding: calcSize(0.25);
+        padding: calcSize(0.5);
       }
     }
   }

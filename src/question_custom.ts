@@ -265,6 +265,8 @@ export interface ICustomQuestionTypeConfiguration {
    * A new value for the question.
    *
    * Unlike the [`onValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/icustomquestiontypeconfiguration#onValueChanged) function, which is called only when the question value is changed in the UI, `onValueSet` is called when the value is changed in code as well.
+   *
+   * [View Demo](https://surveyjs.io/survey-creator/examples/smart-search-input/ (linkStyle))
    */
   onValueSet?: (question: Question, newValue: any) => void;
   onSetQuestionValue?: (question: Question, newValue: any) => void;

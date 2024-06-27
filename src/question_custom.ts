@@ -173,7 +173,7 @@ export interface ICustomQuestionTypeConfiguration {
     newValue: any
   ): void;
   /**
-   * A function that is called after the question value is changed.
+   * A function that is called after the question value is changed in the UI.
    *
    * Parameters:
    *
@@ -183,10 +183,12 @@ export interface ICustomQuestionTypeConfiguration {
    * The question's [name](https://surveyjs.io/Documentation/Library?id=Question#name).
    * - `newValue`: `any`\
    * A new value for the question.
+   *
+   * If you want to perform some actions when the value is changed in code as well as in the UI, implement the [`onValueSet`](https://surveyjs.io/form-library/documentation/api-reference/icustomquestiontypeconfiguration#onValueSet) function.
    */
   onValueChanged?(question: Question, name: string, newValue: any): void;
   /**
-   * A function that is called before a question value is changed.
+   * A function that is called before a question value is changed in the UI.
    *
    * This function should return the value you want to save: `newValue`, a custom value, or `undefined` if you want to clear the question value.
    *
@@ -252,6 +254,18 @@ export interface ICustomQuestionTypeConfiguration {
    * @returns An error text.
    */
   getErrorText?: (question: Question) => string;
+  /**
+   * A function that is called after the question value is set.
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * A custom question.
+   * - `newValue`: `any`\
+   * A new value for the question.
+   *
+   * Unlike the [`onValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/icustomquestiontypeconfiguration#onValueChanged) function, which is called only when the question value is changed in the UI, `onValueSet` is called when the value is changed in code as well.
+   */
   onValueSet?: (question: Question, newValue: any) => void;
   onSetQuestionValue?: (question: Question, newValue: any) => void;
   valueToQuestion?: (val: any) => any;

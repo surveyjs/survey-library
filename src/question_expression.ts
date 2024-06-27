@@ -78,7 +78,7 @@ export class QuestionExpressionModel extends Question {
   protected canCollectErrors(): boolean {
     return true;
   }
-  protected hasRequiredError(): boolean {
+  public hasRequiredError(): boolean {
     return false;
   }
   private createRunner(): ExpressionRunner {

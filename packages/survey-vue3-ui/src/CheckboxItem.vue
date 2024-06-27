@@ -3,7 +3,6 @@
     <label :class="question.getLabelClass(item)">
       <input
         type="checkbox"
-        role="option"
         :name="question.name + item.id"
         :checked="question.isItemSelected(item)"
         @input="
@@ -16,6 +15,7 @@
         :disabled="!question.getItemEnabled(item)"
         :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl"
+        :required="question.hasRequiredError()"
       /><span
         v-if="question.cssClasses.materialDecorator"
         :class="question.cssClasses.materialDecorator"

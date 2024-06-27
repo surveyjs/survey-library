@@ -659,7 +659,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return true;
   }
   public get a11y_input_ariaRole(): string {
-    return "listbox";
+    return "group";
+  }
+  public get a11y_input_ariaRequired(): "true" | "false" {
+    return null;
   }
   // EO a11y
 }

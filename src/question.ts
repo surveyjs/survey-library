@@ -2196,7 +2196,7 @@ export class Question extends SurveyElement<Question>
       }
     }
   }
-  protected hasRequiredError(): boolean {
+  public hasRequiredError(): boolean {
     return this.isRequired && this.isEmpty();
   }
   private validatorRunner: ValidatorRunner;

@@ -1,7 +1,7 @@
 <textarea *ngIf="!question.isReadOnlyRenderDiv()" [id]="question.commentId" [attr.maxlength]="question.getOthersMaxLength()"  [attr.aria-required]="question.ariaRequired || question.a11y_input_ariaRequired" [attr.aria-label]="question.ariaLabel || question.a11y_input_ariaLabel" [attr.placeholder]="question.renderedCommentPlaceholder" 
   [value]="comment"
   [style.resize]="question.resizeStyle"
-  [attr.rows]="question.rowCount"
+  [attr.rows]="question.commentAreaRows"
   [disabled]="question.isInputReadOnly"
   (change)="question.onCommentChange($event)"
   (input)="question.onCommentInput($event)"

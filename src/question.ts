@@ -1480,7 +1480,7 @@ export class Question extends SurveyElement<Question>
     if (!this.survey || !expression) return undefined;
     return this.survey.runExpression(expression);
   }
-  get rowCount(): number {
+  get commentAreaRows(): number {
     return this.survey && this.survey.commentAreaRows;
   }
   private get autoGrowComment(): boolean {

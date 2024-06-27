@@ -10,7 +10,7 @@
     :class="question.cssClasses.other"
     :value="question.comment"
     :maxlength="question.getOthersMaxLength()"
-    :rows="question.rowCount"
+    :rows="question.commentAreaRows"
     :placeholder="question.renderedCommentPlaceholder"
     :aria-label="question.ariaLabel || question.a11y_input_ariaLabel"
     :aria-required="question.ariaRequired || question.a11y_input_ariaRequired"

@@ -117,7 +117,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         ref={(textarea) => (this.setControl(textarea))}
         disabled={this.isDisplayMode}
         maxLength={question.getOthersMaxLength()}
-        rows={question.rowCount}
+        rows={question.commentAreaRows}
         placeholder={this.getPlaceholder()}
         onBlur={(e) => { this.onCommentChange(e); }}
         onInput={(e) => this.onCommentInput(e)}

@@ -8,7 +8,7 @@
       :class="question.cssClasses.other || commentClass"
       :value="question.otherValue"
       :maxlength="question.getOthersMaxLength()"
-      :rows="question.rowCount"
+      :rows="question.commentAreaRows"
       :placeholder="question.otherPlaceholder"
       :aria-label="question.ariaLabel || question.a11y_input_ariaLabel"
       :aria-required="question.ariaRequired || question.a11y_input_ariaRequired"

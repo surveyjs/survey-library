@@ -23,6 +23,7 @@
 .sd-progress-buttons__list-container {
   display: flex;
   overflow: hidden;
+  margin: 0 calcSize(-0.75);
 }
 
 .sd-progress-buttons__connector {
@@ -232,6 +233,10 @@
 }
 
 .sd-progress-buttons--numbered {
+  .sd-progress-buttons__list-container {
+    margin: 0 calcSize(-1);
+  }
+
   .sd-progress-buttons__list {
     li {
       &:not(:first-child)>.sd-progress-buttons__connector {
@@ -255,6 +260,12 @@
         padding: calcSize(0.5);
       }
     }
+  }
+}
+
+.sd-progress-buttons--with-titles {
+  .sd-progress-buttons__list-container {
+    margin: 0;
   }
 }
 

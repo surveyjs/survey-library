@@ -241,6 +241,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.registerPropertyChangedHandlers(["isReadOnly"], () => { this.onReadOnlyChanged(); });
     this.registerPropertyChangedHandlers(["errors"], () => { this.updateVisibleErrors(); });
     this.registerPropertyChangedHandlers(["isSingleInRow"], () => { this.updateElementCss(false); });
+    this.registerPropertyChangedHandlers(["minWidth", "maxWidth", "renderWidth", "allowRootStyle", "parent"], () => { this.updateRootStyle(); });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -945,8 +946,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   @property({ defaultValue: true }) allowRootStyle: boolean;
+  @property() rootStyle: any;
 
-  get rootStyle() {
+  public updateRootStyle(): void {
     let style: { [index: string]: any } = {};
     let _width;
     if (!!this.parent) {
@@ -970,7 +972,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         style["maxWidth"] = this.maxWidth;
       }
     }
-    return style;
+    this.rootStyle = style;
   }
   private isContainsSelection(el: any) {
     let elementWithSelection: any = undefined;

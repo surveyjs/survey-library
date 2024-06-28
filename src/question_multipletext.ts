@@ -817,6 +817,7 @@ export class QuestionMultipleTextModel extends Question
   getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
     return [];
   }
+  updateColumns() { }
   getQuestionStartIndex(): string {
     return this.getStartIndex();
   }

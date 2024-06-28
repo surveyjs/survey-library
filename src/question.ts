@@ -12,7 +12,7 @@ import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
-import { PanelModel } from "./panel";
+import { PanelModel, PanelModelBase } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -121,6 +121,7 @@ export class Question extends SurveyElement<Question>
   public themeChanged(theme: ITheme): void { }
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
+  @property() colSpan: number;
 
   constructor(name: string) {
     super(name);
@@ -174,6 +175,7 @@ export class Question extends SurveyElement<Question>
       this.updateQuestionCss();
     });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
+    this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
   }
   protected getDefaultTitle(): string { return this.name; }
   protected createLocTitleProperty(): LocalizableString {
@@ -2734,7 +2736,7 @@ Serializer.addClass("question", [
   { name: "width" },
   { name: "minWidth", defaultFunc: () => settings.minWidth },
   { name: "maxWidth", defaultFunc: () => settings.maxWidth },
-  { name: "colSpan:number", default: 1, minValue: 1 },
+  { name: "colSpan:number", minValue: 1 },
   { name: "startWithNewLine:boolean", default: true, layout: "row" },
   { name: "indent:number", default: 0, choices: [0, 1, 2, 3], layout: "row" },
   {

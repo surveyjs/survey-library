@@ -96,6 +96,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     value: any,
     displayValue: string
   ): string;
+  isGridLayoutMode: boolean;
   isDisplayMode: boolean;
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;
@@ -292,6 +293,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   clearErrors(): any;
   dispose(): void;
   needResponsiveWidth(): boolean;
+  updateRootStyle(): void;
 }
 
 export interface IQuestion extends IElement, ISurveyErrorOwner {
@@ -325,6 +327,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   getQuestionStartIndex(): string;
   getQuestionErrorLocation(): string;
   getColumsForElement(el: IElement): Array<PanelLayoutColumnModel>;
+  updateColumns(): void;
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;

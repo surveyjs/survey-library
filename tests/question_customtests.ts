@@ -3118,7 +3118,7 @@ QUnit.test("Composite: update questions on a value change", function (assert) {
       { type: "dropdown", name: "q2" },
       { type: "text", name: "q3" }
     ],
-    onSetQuestionValue: (question, newValue: any): void => {
+    onValueSet: (question, newValue: any): void => {
       if(!!newValue && !!newValue.q3) {
         question.contentPanel.getQuestionByName("q2").choices = [newValue.q3];
       }

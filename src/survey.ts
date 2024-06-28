@@ -1742,6 +1742,13 @@ export class SurveyModel extends SurveyElementCore
   public set allowResizeComment(val: boolean) {
     this.setPropertyValue("allowResizeComment", val);
   }
+
+  public get commentAreaRows(): number {
+    return this.getPropertyValue("commentAreaRows");
+  }
+  public set commentAreaRows(val: number) {
+    this.setPropertyValue("commentAreaRows", val);
+  }
   /**
    * Specifies when to update the question value in questions with a text input field.
    *
@@ -7934,6 +7941,7 @@ Serializer.addClass("survey", [
   },
   { name: "autoGrowComment:boolean", default: false },
   { name: "allowResizeComment:boolean", default: true },
+  { name: "commentAreaRows:number", minValue: 1 },
   {
     name: "startSurveyText",
     serializationProperty: "locStartSurveyText",

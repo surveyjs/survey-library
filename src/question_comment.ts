@@ -1,5 +1,5 @@
 import { Question } from "./question";
-import { Serializer } from "./jsonobject";
+import { Serializer, property } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { QuestionTextBase } from "./question_textbase";
@@ -48,26 +48,39 @@ export class QuestionCommentModel extends QuestionTextBase {
    * @see allowResize
    */
   public get autoGrow(): boolean {
-    return this.getPropertyValue("autoGrow") || (this.survey && this.survey.autoGrowComment);
+    return this.getPropertyValue("autoGrow");
   }
   public set autoGrow(val: boolean) {
     this.setPropertyValue("autoGrow", val);
   }
+  public getAutoGrow(): boolean {
+    return this.autoGrow || (this.survey && this.survey.autoGrowComment);
+  }
   /**
-   * Specifies whether to display a resize handle for the comment area.
-   *
-   * Default value: `true` (inherited from `SurveyModel`'s [`allowResizeComment`](https://surveyjs.io/form-library/documentation/surveymodel#allowResizeComment) property)
-   * @see autoGrow
+   * Depricated, please use resize
    */
   public get allowResize(): boolean {
-    const value = this.getPropertyValue("allowResize");
-    return value === null ? (this.survey && this.survey.allowResizeComment) : value;
+    return this.getPropertyValue("allowResize");
   }
   public set allowResize(val: boolean) {
     this.setPropertyValue("allowResize", val);
   }
+  /**
+   * Specifies whether to display a resize handle for the comment area.
+   *
+   * Default value: `inherit` (inherited from `SurveyModel`'s [`allowResizeComment`](https://surveyjs.io/form-library/documentation/surveymodel#allowResizeComment) property)
+   * @see autoGrow
+   */
+  @property() resize: "both" | "none" | "inherit";
+
   public get renderedAllowResize(): boolean {
-    return this.allowResize && !this.isPreviewStyle && !this.isReadOnlyStyle;
+    let allowResize = false;
+    if (this.resize === "inherit") {
+      allowResize = (this.survey && this.survey.allowResizeComment);
+    } else {
+      allowResize = this.resize === "both";
+    }
+    return allowResize && !this.isPreviewStyle && !this.isReadOnlyStyle;
   }
   public get resizeStyle() {
     return this.renderedAllowResize ? "both" : "none";
@@ -82,7 +95,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     super.afterRenderQuestionElement(el);
   }
   public updateElement(): void {
-    if (this.element && this.autoGrow) {
+    if (this.element && this.getAutoGrow()) {
       setTimeout(() => increaseHeightByContent(this.element), 1);
     }
   }
@@ -139,8 +152,9 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "onBlur", "onTyping"],
     },
-    { name: "autoGrow:boolean", default: null },
-    { name: "allowResize:boolean", default: null },
+    { name: "autoGrow:boolean" },
+    { name: "allowResize:boolean", visible: false },
+    { name: "resize", default: "inherit", choices: ["both", "none", "inherit"] },
     { name: "acceptCarriageReturn:boolean", default: true, visible: false }
   ],
   function () {

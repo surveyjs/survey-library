@@ -97,7 +97,7 @@ export class ProgressButtons extends Base {
   }
   public get progressWidth(): string {
     if (this.isFitToSurveyWidth) {
-      return this.survey.width;
+      return this.survey.renderedWidth;
     }
     return "";
   }

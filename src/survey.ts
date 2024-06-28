@@ -2901,6 +2901,12 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
     this.updateAllQuestionsValue(clearData);
   }
+  public get isSurvey(): boolean { return true; }
+  public getData(options?: { includePages?: boolean, includePanels?: boolean}): any {
+    const opt = options || { includePages: false, includePanels: false };
+    if(!opt.includePages && !opt.includePanels) return this.data;
+    return this.getStructuredData(!!opt.includePages, !opt.includePanels ? (opt.includePages ? 1 : 0) : -1);
+  }
   public getStructuredData(includePages: boolean = true, level: number = -1): any {
     if (level === 0) return this.data;
     const data: any = {};

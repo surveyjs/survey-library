@@ -82,9 +82,9 @@ function addDropdownActionWithSubItems(_, opt) {
   for (let index = 0; index < 40; index++) {
     items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
   }
-  items[5].setItems([...subitems], (item) => { let value = item.id; });
+  items[5].setSubItems({ items: [...subitems] });
   items[5].title += " has items";
-  items[6].setItems([...subitems], (item) => { let value = item.id; });
+  items[6].setSubItems({ items: [...subitems] });
   items[6].title += " has items";
 
   const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(

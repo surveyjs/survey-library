@@ -47,11 +47,17 @@ export class QuestionCommentModel extends QuestionTextBase {
    * Default value: `false` (inherited from `SurveyModel`'s [`autoGrowComment`](https://surveyjs.io/form-library/documentation/surveymodel#autoGrowComment) property)
    * @see allowResize
    */
-  public get autoGrow(): boolean {
-    return this.getPropertyValue("autoGrow") || (this.survey && this.survey.autoGrowComment);
+  public get autoGrow(): boolean | undefined {
+    return this.getPropertyValueWithoutDefault("autoGrow");
   }
-  public set autoGrow(val: boolean) {
-    this.setPropertyValue("autoGrow", val);
+  public set autoGrow(val: boolean | undefined) {
+    if(val !== this.autoGrow) {
+      this.setPropertyValueDirectly("autoGrow", val);
+    }
+  }
+  public get renderedAutoGrow(): boolean {
+    const autoGrow = this.autoGrow;
+    return autoGrow === undefined && this.survey ? this.survey.autoGrowComment : !!autoGrow;
   }
   /**
    * Specifies whether to display a resize handle for the comment area.
@@ -59,15 +65,18 @@ export class QuestionCommentModel extends QuestionTextBase {
    * Default value: `true` (inherited from `SurveyModel`'s [`allowResizeComment`](https://surveyjs.io/form-library/documentation/surveymodel#allowResizeComment) property)
    * @see autoGrow
    */
-  public get allowResize(): boolean {
-    const value = this.getPropertyValue("allowResize");
-    return value === null ? (this.survey && this.survey.allowResizeComment) : value;
+  public get allowResize(): boolean | undefined {
+    return this.getPropertyValueWithoutDefault("allowResize");
   }
-  public set allowResize(val: boolean) {
-    this.setPropertyValue("allowResize", val);
+  public set allowResize(val: boolean | undefined) {
+    if(val !== this.allowResize) {
+      this.setPropertyValueDirectly("allowResize", val);
+    }
   }
   public get renderedAllowResize(): boolean {
-    return this.allowResize && !this.isPreviewStyle && !this.isReadOnlyStyle;
+    const res = this.allowResize;
+    const allowResize = res === undefined && this.survey ? this.survey.allowResizeComment : !!res;
+    return allowResize && !this.isPreviewStyle && !this.isReadOnlyStyle;
   }
   public get resizeStyle() {
     return this.renderedAllowResize ? "both" : "none";
@@ -139,8 +148,8 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "onBlur", "onTyping"],
     },
-    { name: "autoGrow:boolean", default: null },
-    { name: "allowResize:boolean", default: null },
+    { name: "autoGrow:boolean", defaultFunc: () => undefined },
+    { name: "allowResize:boolean", defaultFunc: () => undefined },
     { name: "acceptCarriageReturn:boolean", default: true, visible: false }
   ],
   function () {

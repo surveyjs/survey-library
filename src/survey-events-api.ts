@@ -931,6 +931,7 @@ export interface DragDropAllowEvent {
    * A Boolean property that you can set to `false` if you want to cancel the drag and drop operation.
    */
   allow: boolean;
+  allowMultipleElementsInRow?: boolean;
   /**
    * Obsolete. Use `options.draggedElement` instead.
    */

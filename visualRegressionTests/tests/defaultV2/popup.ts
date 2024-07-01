@@ -201,9 +201,9 @@ function addDropdownActionWithSubItems(_, opt) {
   for (let index = 0; index < 10; index++) {
     items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
   }
-  items[5].setItems([...subitems], (item) => { let value = item.id; });
+  items[5].setSubItems({ items: [...subitems] });
   items[5].title += " has items";
-  items[6].setItems([...subitems], (item) => { let value = item.id; });
+  items[6].setSubItems({ items: [...subitems] });
   items[6].title += " has items";
 
   const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
@@ -213,6 +213,37 @@ function addDropdownActionWithSubItems(_, opt) {
       showPointer: true,
       verticalPosition: "bottom",
       horizontalPosition: "center",
+      onSelectionChanged: (item, ...params) => {
+        let value = item.id;
+      }
+    }
+  );
+  opt.titleActions = [dropdownWithSearchAction];
+}
+
+function addDropdownActionWithSubItemsAndSelectedItems(_, opt) {
+  let subitems: Array<any> = [];
+  for (let index = 0; index < 7; index++) {
+    subitems[index] = { id: index, title: "inner item" + index };
+  }
+
+  let items: Array<any> = [];
+  for (let index = 0; index < 10; index++) {
+    items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
+  }
+  items[5].setSubItems({ items: [...subitems], selectedItem: subitems[3] });
+  items[5].title += " has items";
+  items[6].setSubItems({ items: [...subitems] });
+  items[6].title += " has items";
+
+  const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+    { title: "Subitems", showTitle: true },
+    {
+      items: items,
+      showPointer: true,
+      verticalPosition: "bottom",
+      horizontalPosition: "center",
+      selectedItem: items[5],
       onSelectionChanged: (item, ...params) => {
         let value = item.id;
       }
@@ -497,7 +528,24 @@ frameworks.forEach(framework => {
         .hover(item5) // show item5Subitems;
         .wait(300);
       await takeElementScreenshot("popup-with-subitems-left.png", titlePopup, t, comparer);
+    });
+  });
+  test("Popup with subitems and selected elements", async t => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1300, 650);
 
+      await initSurvey(framework, json, {
+        onGetQuestionTitleActions: addDropdownActionWithSubItemsAndSelectedItems
+      });
+
+      const titlePopup = Selector(".sv-popup.sv-popup--show-pointer");
+      const item5 = getListItemByText("item5 has items").find(".sv-list__item-body");
+
+      await t
+        .click(Selector(".sv-action")) // show action popup
+        .hover(item5) // show item5Subitems
+        .wait(300);
+      await takeElementScreenshot("popup-with-subitems-with-selected-elements.png", titlePopup, t, comparer);
     });
   });
 });

@@ -415,7 +415,7 @@ QUnit.test("ListModel search in subitems", function (assert) {
   }
 
   const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
-  (items[2] as Action).setItems(subitems, () => { });
+  (items[2] as Action).setSubItems({ items: subitems });
   const list = new ListModel(items, () => { }, true);
   let filteredActions;
   filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));

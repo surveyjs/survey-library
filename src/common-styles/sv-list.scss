@@ -177,6 +177,18 @@ li:focus .sv-list__item.sv-list__item--selected {
   }
 }
 
+.sv-list__item.sv-list__item--selected.sv-list__item--group {
+  & > .sv-list__item-body {
+    background-color: $primary-light;
+    color: $font-questiontitle-color;
+    font-weight: 400;
+
+    use {
+      fill: $foreground-light;
+    }
+  }
+}
+
 .sv-list__item.sv-list__item--disabled {
   .sv-list__item-body {
     cursor: default;

@@ -50,7 +50,7 @@ registerMarkupTests(
               verticalPosition: "bottom", horizontalPosition: "center", items: items,
               onSelectionChanged: (item, ...params) => { }
             });
-          items[1].setSubItems({ itesm: [{ id: "11", title: "text11" }, { id: "21", title: "text21" }] });
+          items[1].setSubItems({ items: [{ id: "11", title: "text11" }, { id: "21", title: "text21" }] });
           opt.titleActions = [item];
         });
       },

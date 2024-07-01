@@ -548,7 +548,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateTextAlign(style: any) {
     if (this.inputTextAlignment !== "auto") {
       style.textAlign = this.inputTextAlignment;
-    } else if (this.maskSettings.getTextAlignment() !== "auto") {
+    } else if (!this.maskTypeIsEmpty && this.maskSettings.getTextAlignment() !== "auto") {
       style.textAlign = this.maskSettings.getTextAlignment();
     }
   }

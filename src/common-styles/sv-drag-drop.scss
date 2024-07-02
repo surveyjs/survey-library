@@ -47,7 +47,7 @@
   font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));
 }
 
-.sv-drag-drop-choices-shortcut__content {
+.sv-drag-drop-choices-shortcut__content.sv-drag-drop-choices-shortcut__content {
   min-width: 100px;
   box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
   background-color: var(--sjs-general-backcolor, var(--background, #fff));

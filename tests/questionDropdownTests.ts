@@ -2059,3 +2059,63 @@ QUnit.test("Dropdown choicesLazyLoadEnabled into matrixdynamic", function (asser
     done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
+
+QUnit.test("Rapidly Changing Search Filter", (assert) => {
+  const newValueDebouncedInputValue = 2 * onChoicesLazyLoadCallbackTimeOut;
+  const oldValueDebouncedInputValue = settings.dropdownSearchDelay;
+  settings.dropdownSearchDelay = newValueDebouncedInputValue;
+
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const done4 = assert.async();
+  let filterValue = "";
+  let filterValueLog = "";
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true,
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((sender, option) => {
+    filterValueLog += (option.filter + "->");
+    callback(sender, option);
+  });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+
+  filterValue = "1";
+  dropdownListModel.inputStringRendered = filterValue;
+  setTimeout(() => {
+    assert.equal(question.choices.length, 0);
+    assert.equal(filterValueLog, "", "filter value 1");
+
+    filterValue += "2";
+    dropdownListModel.inputStringRendered = filterValue;
+    setTimeout(() => {
+      assert.equal(question.choices.length, 0);
+      assert.equal(filterValueLog, "", "filter value 12");
+
+      filterValue += "3";
+      dropdownListModel.inputStringRendered = filterValue;
+      setTimeout(() => {
+        assert.equal(filterValueLog, "123->", "filter value 123 #1");
+        assert.equal(question.choices.length, 0);
+
+        setTimeout(() => {
+          assert.equal(filterValueLog, "123->", "filter value 123 #2");
+          assert.equal(question.choices.length, 25);
+
+          settings.dropdownSearchDelay = oldValueDebouncedInputValue;
+          done4();
+        }, callbackTimeOutDelta + onChoicesLazyLoadCallbackTimeOut);
+        done3();
+      }, callbackTimeOutDelta + newValueDebouncedInputValue);
+      done2();
+    }, callbackTimeOutDelta);
+    done1();
+  }, callbackTimeOutDelta);
+});

@@ -247,7 +247,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this.updateSelectedItemValues();
     }
 
-    return this.validateItemValues(itemValues);
+    const validValues = this.validateItemValues(itemValues);
+    return validValues;
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
   public get hasFilteredValue(): boolean { return !!this.valuePropertyName; }

@@ -904,6 +904,19 @@ QUnit.test("Dropdown should not be open on click in preview mode", (assert) => {
   assert.notOk(popupModel.isVisible);
 });
 
+QUnit.test("Dropdown should not be open on click in display mode", (assert) => {
+  const survey = new SurveyModel(jsonDropdown);
+  survey.mode = "display";
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+
+  const dropdownListModel = question.dropdownListModel;
+  const popupModel = dropdownListModel.popupModel;
+  assert.notOk(popupModel.isVisible);
+  dropdownListModel.onClick(new Event("click"));
+  assert.notOk(popupModel.isVisible);
+});
+
 QUnit.test("order & locale change", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "dropdown", name: "q1", choicesOrder: "asc",

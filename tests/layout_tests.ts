@@ -165,6 +165,33 @@ QUnit.test("user columns de/serialization", function (assert) {
   });
 });
 
+QUnit.test("layout columns de/serialization", function (assert) {
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1"
+          },
+          {
+            "type": "text",
+            "name": "q2",
+            "colSpan": 2,
+            "startWithNewLine": false
+          }
+        ],
+      }]
+  };
+  const surveyModel = new SurveyModel(json);
+  const page = surveyModel.pages[0];
+  assert.equal(page.layoutColumns.length, 3);
+
+  const result = surveyModel.toJSON();
+  assert.deepEqual(result, json);
+});
+
 QUnit.test("apply columns from layoutColumns #1", function (assert) {
   const surveyModel = new SurveyModel({
     pages: [
@@ -288,4 +315,42 @@ QUnit.test("apply columns from layoutColumns with given colSpan", function (asse
   assert.equal(q1.rootStyle["flexBasis"], "20%", "q1 rootStyle flexBasis");
   assert.equal(q2.rootStyle["flexBasis"], "30%", "q2 rootStyle flexBasis");
   assert.equal(q3.rootStyle["flexBasis"], "25%", "q3 rootStyle flexBasis");
+});
+
+QUnit.test("check question width if column width is set for only one column", function (assert) {
+  const surveyModel = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1"
+          },
+          {
+            "type": "text",
+            "name": "q2",
+            "colSpan": 2,
+            "startWithNewLine": false
+          }
+        ],
+        "layoutColumns": [
+          { "width": 25 },
+          {},
+          {}
+        ]
+      }
+    ],
+  });
+  const page = surveyModel.pages[0];
+  const q1 = surveyModel.getQuestionByName("q1");
+  const q2 = surveyModel.getQuestionByName("q2");
+
+  assert.deepEqual(page.columns.length, 3);
+  assert.deepEqual(page.columns[0].width, 25);
+  assert.deepEqual(page.columns[1].width, 37.5);
+  assert.deepEqual(page.columns[2].width, 37.5);
+
+  assert.equal(q1.rootStyle["flexBasis"], "25%", "q1 rootStyle flexBasis");
+  assert.equal(q2.rootStyle["flexBasis"], "75%", "q2 rootStyle flexBasis");
 });

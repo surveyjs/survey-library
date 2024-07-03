@@ -14,6 +14,9 @@ export class PanelLayoutColumnModel extends Base {
   public getType(): string {
     return "panellayoutcolumn";
   }
+  public isEmpty(): boolean {
+    return !this.width && !this.questionTitleWidth;
+  }
 }
 
 Serializer.addClass("panellayoutcolumn",

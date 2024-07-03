@@ -1876,6 +1876,15 @@ export class PanelModelBase extends SurveyElement<Question>
     return new CssClassBuilder().append(cssClasses.error.root).toString();
   }
 
+  public getSerializableColumnsValue(): Array<PanelLayoutColumnModel> {
+    let tailIndex = this.layoutColumns.length;
+    for (let index = this.layoutColumns.length - 1; index >= 0; index--) {
+      if (this.layoutColumns[index].isEmpty()) {
+        tailIndex = index;
+      }
+    }
+    return this.layoutColumns.slice(0, tailIndex);
+  }
   public dispose(): void {
     super.dispose();
     if (this.rows) {
@@ -2266,6 +2275,7 @@ Serializer.addClass(
     {
       name: "layoutColumns:panellayoutcolumns",
       className: "panellayoutcolumn", isArray: true,
+      onSerializeValue: (obj: any): any => { return obj.getSerializableColumnsValue(); }
     },
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },

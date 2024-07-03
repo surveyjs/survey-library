@@ -6290,9 +6290,11 @@ QUnit.test("templateVisibleIf & tabs action click, bug#8430", function (assert) 
   assert.equal(panel.additionalTitleToolbar.visibleActions.length, 4, "There are 4 visible tabs");
   panel.panels[1].getQuestionByName("q1").value = "a";
   assert.equal(panel.currentIndex, 0, "Current Index 0");
+  const panelId = panel.panels[2].id;
   assert.equal(panel.additionalTitleToolbar.visibleActions.length, 3, "There are 3 visible tabs");
   panel.additionalTitleToolbar.visibleActions[1].action();
   assert.equal(panel.currentIndex, 1, "Current Index 1");
+  assert.equal(panel.currentPanel.id, panelId, "Select the correct panel");
 });
 QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function (assert) {
   const survey = new SurveyModel({

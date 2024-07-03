@@ -154,10 +154,13 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   protected updateVisibilityBasedOnRows(): void {
     if ((<any>this).hideIfRowsEmpty) {
-      this.visible =
-        this.rows.length > 0 &&
-        (!this.filteredRows || this.filteredRows.length > 0);
+      this.onVisibleChanged();
     }
+  }
+  protected isVisibleCore(): boolean {
+    const res = super.isVisibleCore();
+    if(!res || !(<any>this).hideIfRowsEmpty) return res;
+    return this.rows.length > 0 && (!this.filteredRows || this.filteredRows.length > 0);
   }
   protected shouldRunColumnExpression(): boolean {
     return !this.survey || !this.survey.areInvisibleElementsShowing;

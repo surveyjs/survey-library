@@ -145,6 +145,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   onSurveyLoad(): void {
     this.blockAnimations();
     super.onSurveyLoad();
+    this.updateRankingChoices();
     this.releaseAnimations();
   }
 

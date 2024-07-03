@@ -1721,6 +1721,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * You can override this property for individual Long Text questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
    * @see allowResizeComment
+   * @see commentAreaRows
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");
@@ -1735,6 +1736,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * You can override this property for individual Long Text questions: [`allowResize`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#allowResize).
    * @see autoGrowComment
+   * @see commentAreaRows
    */
   public get allowResizeComment(): boolean {
     return this.getPropertyValue("allowResizeComment");
@@ -1743,6 +1745,15 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("allowResizeComment", val);
   }
 
+  /**
+   * Specifies the visible height of comment areas, measured in lines. Applies to the questions with the [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/question#showCommentArea) or [`showOtherItem`](https://surveyjs.io/form-library/documentation/api-reference/question#showOtherItem) property enabled.
+   *
+   * Default value: 2
+   *
+   * The value of this property is passed on to the `rows` attribute of the underlying `<textarea>` element.
+   * @see autoGrowComment
+   * @see allowResizeComment
+   */
   public get commentAreaRows(): number {
     return this.getPropertyValue("commentAreaRows");
   }

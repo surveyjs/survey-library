@@ -222,6 +222,7 @@ QUnit.test("apply columns from layoutColumns #2", function (assert) {
           }, {
             "name": "q3",
             "type": "text",
+            "colSpan": 2,
             "startWithNewLine": false
           }
         ]
@@ -279,11 +280,10 @@ QUnit.test("apply columns from layoutColumns with given colSpan", function (asse
   const q2 = surveyModel.getQuestionByName("q2");
   const q3 = surveyModel.getQuestionByName("q3");
 
-  assert.deepEqual(page.columns.length, 4);
+  assert.deepEqual(page.columns.length, 3);
   assert.deepEqual(page.columns[0].width, 20);
   assert.deepEqual(page.columns[1].width, 30);
   assert.deepEqual(page.columns[2].width, 25);
-  assert.deepEqual(page.columns[3].width, 25);
 
   assert.equal(q1.rootStyle["flexBasis"], "20%", "q1 rootStyle flexBasis");
   assert.equal(q2.rootStyle["flexBasis"], "30%", "q2 rootStyle flexBasis");

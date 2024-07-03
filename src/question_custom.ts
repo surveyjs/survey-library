@@ -12,7 +12,8 @@ import {
   IProgressInfo
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
-import { PanelLayoutColumnModel, PanelModel } from "./panel";
+import { PanelModel } from "./panel";
+import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";

@@ -32,6 +32,7 @@ import { DragDropInfo } from "./drag-drop-helper-v1";
 import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PageModel } from "./page";
+import { PanelLayoutColumnModel } from "./panel-layout-column";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -1077,6 +1078,47 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
+  private calcMaxRowColSpan(): number {
+    let maxRowColSpan = 0;
+    this.rows.forEach(row => {
+      let curRowSpan = 0;
+      let userDefinedRow = false;
+      row.elements.forEach(el => {
+        if (!!el.width) {
+          userDefinedRow = true;
+        }
+        curRowSpan += ((el as any)["colSpan"] || 1);
+      });
+
+      if (!userDefinedRow && curRowSpan > maxRowColSpan) maxRowColSpan = curRowSpan;
+    });
+    return maxRowColSpan;
+  }
+  private syncColumns(): void {
+    const columns: Array<PanelLayoutColumnModel> = [];
+    this.layoutColumns.forEach(col => {
+      columns.push(new PanelLayoutColumnModel(col.width, col.questionTitleWidth));
+    });
+    this._columns = columns;
+  }
+  private updateColumnWidth(columns: Array<PanelLayoutColumnModel>, maxRowColSpan: number): void {
+    let remainingSpace = 0, remainingColCount = 0;
+    columns.forEach(col => {
+      if (!col.width) {
+        remainingColCount++;
+      } else {
+        remainingSpace += col.width;
+      }
+    });
+    if (!!remainingColCount) {
+      const oneColumnWidth = (100 - remainingSpace) / remainingColCount;
+      for (let index = 0; index < maxRowColSpan; index++) {
+        if (!columns[index].width) {
+          columns[index].width = oneColumnWidth;
+        }
+      }
+    }
+  }
   private onColumnPropertyValueChangedCallback = (
     name: string,
     oldValue: any,
@@ -1141,54 +1183,24 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!this._columns) {
       this.generateColumns();
     }
-    return this._columns;
+    return this._columns || [];
   }
   protected generateColumns(): void {
-    let maxRowColSpan = 0;
-    this.rows.forEach(row => {
-      let curRowSpan = 0;
-      let userDefinedRow = false;
-      row.elements.forEach(el => {
-        if (!!el.width) {
-          userDefinedRow = true;
-        }
-        curRowSpan += ((el as any)["colSpan"] || 1);
-      });
+    let maxRowColSpan = this.calcMaxRowColSpan();
+    if (maxRowColSpan < 2) return;
 
-      if (!userDefinedRow && curRowSpan > maxRowColSpan) maxRowColSpan = curRowSpan;
-    });
-
-    let columns = [].concat(this.layoutColumns);
     if (maxRowColSpan <= this.layoutColumns.length) {
-      // maxRowColSpan = this.layoutColumns.length;
-      columns = this.layoutColumns.slice(0, maxRowColSpan);
+      this.layoutColumns.splice(maxRowColSpan, this.layoutColumns.length - maxRowColSpan);
     } else {
       for (let index = this.layoutColumns.length; index < maxRowColSpan; index++) {
         const newCol = new PanelLayoutColumnModel();
         newCol.onPropertyValueChangedCallback = this.onColumnPropertyValueChangedCallback;
-        columns.push(newCol);
+        this.layoutColumns.push(newCol);
       }
     }
-    this._columns = columns;
+    this.syncColumns();
     this._totalColSpan = maxRowColSpan;
-
-    let remainingSpace = 0, remainingColCount = 0;
-    columns.forEach(col => {
-      if (!col.width) {
-        remainingColCount++;
-      } else {
-        remainingSpace += col.width;
-      }
-    });
-    if (!!remainingColCount) {
-      const oneColumnWidth = (100 - remainingSpace) / remainingColCount;
-      for (let index = 0; index < maxRowColSpan; index++) {
-        if (!columns[index].width) {
-          columns[index].width = oneColumnWidth;
-        }
-      }
-    }
-    this.layoutColumns = columns;
+    this.updateColumnWidth(this._columns, maxRowColSpan);
   }
   public getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
     const row = this.findRowByElement(el);
@@ -2253,7 +2265,7 @@ Serializer.addClass(
     },
     {
       name: "layoutColumns:panellayoutcolumns",
-      className: "panellayoutcolumn", isArray: true
+      className: "panellayoutcolumn", isArray: true,
     },
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
@@ -2322,22 +2334,3 @@ Serializer.addClass(
 ElementFactory.Instance.registerElement("panel", (name) => {
   return new PanelModel(name);
 });
-
-export class PanelLayoutColumnModel extends Base {
-  @property() width: number;
-  @property() questionTitleWidth: string;
-
-  constructor(width?: number) {
-    super();
-    this.width = width;
-  }
-
-  public getType(): string {
-    return "panellayoutcolumn";
-  }
-}
-
-Serializer.addClass("panellayoutcolumn",
-  ["width:number", "questionTitleWidth"],
-  (value: any) => new PanelLayoutColumnModel(value)
-);

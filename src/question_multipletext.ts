@@ -21,7 +21,7 @@ import { HashTable, Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
-import { PanelLayoutColumnModel } from "./panel";
+import { PanelLayoutColumnModel } from "./panel-layout-column";
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;

@@ -6273,6 +6273,27 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   assert.equal(getNextBtn().visible, true, "nextButton #6");
   survey.css = oldCss;
 });
+QUnit.test("templateVisibleIf & tabs action click, bug#8430", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" }
+        ],
+        panelCount: 4,
+        templateVisibleIf: "{panel.q1}!='a'",
+        renderMode: "tab"
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.additionalTitleToolbar.visibleActions.length, 4, "There are 4 visible tabs");
+  panel.panels[1].getQuestionByName("q1").value = "a";
+  assert.equal(panel.currentIndex, 0, "Current Index 0");
+  assert.equal(panel.additionalTitleToolbar.visibleActions.length, 3, "There are 3 visible tabs");
+  panel.additionalTitleToolbar.visibleActions[1].action();
+  assert.equal(panel.currentIndex, 1, "Current Index 1");
+});
 QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function (assert) {
   const survey = new SurveyModel({
     elements: [

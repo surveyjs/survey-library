@@ -53,8 +53,14 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
     this.isBottom = null;
 
+    if (typeof this.onShortcutCreated === "function") {
+      this.onShortcutCreated(draggedElementShortcut);
+    }
+
     return draggedElementShortcut;
   }
+
+  public onShortcutCreated: (node: HTMLElement) => void;
 
   private createImagePickerShortcut(item: ImageItemValue, text: string, draggedElementNode: HTMLElement, event: PointerEvent) {
     const draggedElementShortcut: any = DomDocumentHelper.createElement("div");

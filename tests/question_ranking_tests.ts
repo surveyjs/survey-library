@@ -753,4 +753,22 @@ QUnit.test("Ranking: check SelectToRankEmptyRankedAreaText & SelectToRankEmptyUn
   assert.equal(question.selectToRankEmptyRankedAreaText, "empty ranked");
   assert.equal(question.selectToRankEmptyUnrankedAreaText, "empty unranked");
 });
+QUnit.test("Response is reset on changing questionsOnPageMode", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        choices: [1, 2, 3]
+      },
+    ],
+  });
+  survey.data = { q1: [3, 1, 2] };
+  survey.questionsOnPageMode = "singlePage";
+  const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.value, [3, 1, 2], "#1");
+  assert.deepEqual(q1.renderedValue, [3, 1, 2], "#2");
+  assert.deepEqual(q1.rankingChoices[0].value, 3, "#3");
+  assert.deepEqual(q1.renderedRankingChoices[0].value, 3, "#4");
+});
 // EO selectToRankEnabled

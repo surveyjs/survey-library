@@ -1087,7 +1087,7 @@ export class PanelModelBase extends SurveyElement<Question>
         if (!!el.width) {
           userDefinedRow = true;
         }
-        curRowSpan += ((el as any)["colSpan"] || 1);
+        curRowSpan += (el.colSpan || 1);
       });
 
       if (!userDefinedRow && curRowSpan > maxRowColSpan) maxRowColSpan = curRowSpan;
@@ -1209,17 +1209,19 @@ export class PanelModelBase extends SurveyElement<Question>
     const elementIndex = row.elements.indexOf(el);
     let startIndex = 0;
     for (let index = 0; index < elementIndex; index++) {
-      startIndex += ((row.elements[index] as any)["colSpan"] || 1);
+      startIndex += row.elements[index].colSpan;
     }
-    let currentColSpan = (el as any)["colSpan"];
+    let currentColSpan = (el as any).getPropertyValueWithoutDefault("colSpan");
     if (!currentColSpan && elementIndex === row.elements.length - 1) {
       let usedSpans = 0;
       for (let index = 0; index < row.elements.length - 1; index++) {
-        usedSpans += ((el as any)["colSpan"] || 1);
+        usedSpans += row.elements[index].colSpan;
       }
       currentColSpan = this._totalColSpan - usedSpans;
     }
-    return this.columns.slice(startIndex, startIndex + (currentColSpan || 1));
+    const result = this.columns.slice(startIndex, startIndex + (currentColSpan || 1));
+    (el as any).setPropertyValue("effectiveColSpan", result.length);
+    return result;
   }
   protected getStartIndex(): string {
     if (!!this.parent) return this.parent.getQuestionStartIndex();

@@ -1,7 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { roundTo2Decimals } from "../src/utils/utils";
 
-export default QUnit.module("Layout");
+export default QUnit.module("Layout:");
 
 QUnit.test("columns generate - simple", function (assert) {
   const surveyModel = new SurveyModel({
@@ -35,10 +35,14 @@ QUnit.test("columns generate - simple", function (assert) {
   assert.equal(page.columns.length, 3);
   assert.equal(roundTo2Decimals(page.columns[0].width), 33.33);
 
-  assert.deepEqual(page.getColumsForElement(q1), [page.columns[0]]);
-  assert.deepEqual(page.getColumsForElement(q2), [page.columns[1], page.columns[1]]);
-  assert.deepEqual(page.getColumsForElement(q3), [page.columns[0]]);
-  assert.deepEqual(page.getColumsForElement(q4), [page.columns[1], page.columns[1]]);
+  assert.equal(page.getColumsForElement(q1).length, 1);
+  assert.deepEqual(page.getColumsForElement(q1), [page.columns[0]], "q1");
+  assert.equal(page.getColumsForElement(q2).length, 2);
+  assert.deepEqual(page.getColumsForElement(q2), [page.columns[1], page.columns[1]], "q2");
+  assert.equal(page.getColumsForElement(q3).length, 1);
+  assert.deepEqual(page.getColumsForElement(q3), [page.columns[0]], "q3");
+  assert.equal(page.getColumsForElement(q4).length, 2);
+  assert.deepEqual(page.getColumsForElement(q4), [page.columns[1], page.columns[1]], "q4");
 });
 
 QUnit.test("columns generate - complex", function (assert) {
@@ -353,4 +357,44 @@ QUnit.test("check question width if column width is set for only one column", fu
 
   assert.equal(q1.rootStyle["flexBasis"], "25%", "q1 rootStyle flexBasis");
   assert.equal(q2.rootStyle["flexBasis"], "75%", "q2 rootStyle flexBasis");
+});
+
+QUnit.test("effectiveColSpan #1", assert => {
+  const surveyModel = new SurveyModel({
+    "questions": [
+      {
+        "type": "text",
+        "name": "q1"
+      },
+      {
+        "type": "text",
+        "name": "q2",
+        "colSpan": 2,
+        "startWithNewLine": false
+      },
+      {
+        "type": "text",
+        "name": "q3"
+      },
+      {
+        "type": "text",
+        "name": "q4",
+        "startWithNewLine": false
+      }
+    ]
+  });
+
+  const q3 = surveyModel.getQuestionByName("q3");
+  const q4 = surveyModel.getQuestionByName("q4");
+
+  assert.equal(q3.colSpan, 1, "q3 colSpan #1");
+  assert.equal(q3.effectiveColSpan, 1, "q3 effectiveColSpan #1");
+  assert.equal(q4.colSpan, 1, "q4 colSpan #1");
+  assert.equal(q4.effectiveColSpan, 2, "q4 effectiveColSpan #1");
+
+  q3.effectiveColSpan = 2;
+  assert.equal(q3.colSpan, 2, "q3 colSpan #2");
+  assert.equal(q3.effectiveColSpan, 2, "q3 effectiveColSpan #2");
+  assert.equal(q4.colSpan, 1, "q4 colSpan #2");
+  assert.equal(q4.effectiveColSpan, 1, "q4 effectiveColSpan #2");
 });

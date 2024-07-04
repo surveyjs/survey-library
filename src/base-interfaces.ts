@@ -281,6 +281,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   isCollapsed: boolean;
   rightIndent: number;
   startWithNewLine: boolean;
+  colSpan?: number;
   registerPropertyChangedHandlers(propertyNames: Array<string>, handler: any, key: string): void;
   registerFunctionOnPropertyValueChanged(name: string, func: any, key: string): void;
   unRegisterFunctionOnPropertyValueChanged(name: string, key: string): void;

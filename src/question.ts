@@ -121,7 +121,18 @@ export class Question extends SurveyElement<Question>
   public themeChanged(theme: ITheme): void { }
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
-  @property() colSpan: number;
+  @property({
+    onSet: (newValue, target) => {
+      target.colSpan = newValue;
+    }
+  }) effectiveColSpan: number;
+
+  public get colSpan(): number {
+    return this.getPropertyValue("colSpan", 1);
+  }
+  public set colSpan(val: number) {
+    this.setPropertyValue("colSpan", val);
+  }
 
   constructor(name: string) {
     super(name);
@@ -2737,7 +2748,11 @@ Serializer.addClass("question", [
   { name: "width" },
   { name: "minWidth", defaultFunc: () => settings.minWidth },
   { name: "maxWidth", defaultFunc: () => settings.maxWidth },
-  { name: "colSpan:number", minValue: 1 },
+  {
+    name: "colSpan:number", visible: false,
+    onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },
+  },
+  { name: "effectiveColSpan:number", minValue: 1, isSerializable: false },
   { name: "startWithNewLine:boolean", default: true, layout: "row" },
   { name: "indent:number", default: 0, choices: [0, 1, 2, 3], layout: "row" },
   {

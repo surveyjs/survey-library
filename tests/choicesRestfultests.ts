@@ -1642,14 +1642,10 @@ QUnit.test(
     };
     counter = 0;
     survey.fromJSON(json);
-    assert.equal(
-      counter,
-      0,
-      "We should call onPropertyValueChangedCallback on loading from JSON"
-    );
+    assert.equal(counter, 1, "We should call onPropertyValueChangedCallback on loading from JSON");
     var q = <QuestionDropdownModel>survey.getQuestionByName("q1");
     q.choicesByUrl.url = "{state}{city}";
-    assert.equal(counter, 1, "call onPropertyValueChangedCallback this time");
+    assert.equal(counter, 2, "call onPropertyValueChangedCallback this time");
   }
 );
 

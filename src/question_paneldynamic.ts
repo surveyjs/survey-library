@@ -1541,9 +1541,10 @@ export class QuestionPanelDynamicModel extends Question
     }
     return -1;
   }
-  private getPanelIndexById(id: string): number {
-    for (var i = 0; i < this.panelsCore.length; i++) {
-      if (this.panelsCore[i].id === id) return i;
+  private getPanelVisibleIndexById(id: string): number {
+    const visPanels = this.visiblePanelsCore;
+    for (var i = 0; i < visPanels.length; i++) {
+      if (visPanels[i].id === id) return i;
     }
     return -1;
   }
@@ -2423,14 +2424,14 @@ export class QuestionPanelDynamicModel extends Question
       return options.title;
     };
     locTitle.sharedData = this.locTemplateTabTitle;
-    const isActive = this.getPanelIndexById(panel.id) === this.currentIndex;
+    const isActive = this.getPanelVisibleIndexById(panel.id) === this.currentIndex;
     const newItem = new Action({
       id: panel.id,
       pressed: isActive,
       locTitle: locTitle,
       disableHide: isActive,
       action: () => {
-        this.currentIndex = this.getPanelIndexById(newItem.id);
+        this.currentIndex = this.getPanelVisibleIndexById(newItem.id);
       }
     });
     return newItem;

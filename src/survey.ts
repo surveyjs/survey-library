@@ -2902,7 +2902,20 @@ export class SurveyModel extends SurveyElementCore
     this.updateAllQuestionsValue(clearData);
   }
   public get isSurvey(): boolean { return true; }
-  public getData(options?: { includePages?: boolean, includePanels?: boolean}): any {
+  /**
+   * Returns an object with survey results.
+   *
+   * If you want to get a survey results object that mirrors the survey structure, call the `getData()` method with an object that has the `includePages` and `includePanels` properties enabled. Without this object, the `getData()` method returns the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property value.
+   *
+   * ```js
+   * import { Model } from "survey-core";
+   *
+   * const surveyJson = { ... };
+   * const survey = new Model(surveyJson);
+   * survey.getData({ includePages: true, includePanels: true });
+   * ```
+   */
+  public getData(options?: { includePages?: boolean, includePanels?: boolean }): any {
     const opt = options || { includePages: false, includePanels: false };
     if(!opt.includePages && !opt.includePanels) return this.data;
     return this.getStructuredData(!!opt.includePages, !opt.includePanels ? (opt.includePages ? 1 : 0) : -1);

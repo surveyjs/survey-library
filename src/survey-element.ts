@@ -37,6 +37,26 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
     return this.createLocalizableString("title", this, true);
   }
   /**
+   * Returns `true` if the survey element is a page.
+   * @see Base.getType
+   */
+  public get isPage(): boolean { return false; }
+  /**
+   * Returns `true` if the survey element is a panel.
+   * @see Base.getType
+   */
+  public get isPanel(): boolean { return false; }
+  /**
+   * Returns `true` if the survey element is a question.
+   * @see Base.getType
+   */
+  public get isQuestion(): boolean { return false; }
+  /**
+   * Returns `true` if the element is a survey.
+   * @see Base.getType
+   */
+  public get isSurvey(): boolean { return false; }
+  /**
    * A title for the survey element. If `title` is undefined, the `name` property value is displayed instead.
    *
    * Empty pages and panels do not display their titles or names.
@@ -669,27 +689,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public setVisibleIndex(index: number): number {
     return 0;
-  }
-  /**
-   * Returns `true` if the survey element is a page.
-   * @see Base.getType
-   */
-  public get isPage(): boolean {
-    return false;
-  }
-  /**
-   * Returns `true` if the survey element is a panel.
-   * @see Base.getType
-   */
-  public get isPanel(): boolean {
-    return false;
-  }
-  /**
-   * Returns `true` if the survey element is a question.
-   * @see Base.getType
-   */
-  public get isQuestion(): boolean {
-    return false;
   }
   public delete(doDispose: boolean): void { }
   //ILocalizableOwner

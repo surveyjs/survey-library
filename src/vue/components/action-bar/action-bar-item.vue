@@ -4,10 +4,15 @@
     type="button"
     v-on:click="
       (args) => {
-        item.action(item, !!args.pointerType);
+        item.doAction(args);
       }
     "
     v-on:keyup="
+      (evt) => {
+        evt.stopPropagation();
+      }
+    "
+    v-on:focus="
       (evt) => {
         evt.stopPropagation();
       }

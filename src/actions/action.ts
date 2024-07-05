@@ -502,6 +502,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.locTooltipChanged();
     this.locStrChangedInPopupModel();
   }
+  public doAction(args: any): boolean {
+    const evt = !!args.originalEvent ? args.originalEvent : args;
+    this.action(this, evt.isTrusted);
+    evt.preventDefault();
+    evt.stopPropagation();
+    return true;
+  }
   private locStrChangedInPopupModel(): void {
     if (!this.popupModel || !this.popupModel.contentComponentData || !this.popupModel.contentComponentData.model) return;
     const model = this.popupModel.contentComponentData.model;

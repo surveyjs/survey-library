@@ -297,7 +297,6 @@ export class PanelModelBase extends SurveyElement<Question>
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<Question> = new Array<Question>();
   private _columns: Array<PanelLayoutColumnModel> = undefined;
-  private _totalColSpan: number;
 
   @propertyArray() layoutColumns: Array<PanelLayoutColumnModel>;
 
@@ -1094,27 +1093,21 @@ export class PanelModelBase extends SurveyElement<Question>
     });
     return maxRowColSpan;
   }
-  private syncColumns(): void {
-    const columns: Array<PanelLayoutColumnModel> = [];
-    this.layoutColumns.forEach(col => {
-      columns.push(new PanelLayoutColumnModel(col.width, col.questionTitleWidth));
-    });
-    this._columns = columns;
-  }
-  private updateColumnWidth(columns: Array<PanelLayoutColumnModel>, maxRowColSpan: number): void {
+  private updateColumnWidth(columns: Array<PanelLayoutColumnModel>): void {
     let remainingSpace = 0, remainingColCount = 0;
     columns.forEach(col => {
       if (!col.width) {
         remainingColCount++;
       } else {
         remainingSpace += col.width;
+        col.setPropertyValue("effectiveWidth", col.width);
       }
     });
     if (!!remainingColCount) {
       const oneColumnWidth = (100 - remainingSpace) / remainingColCount;
-      for (let index = 0; index < maxRowColSpan; index++) {
+      for (let index = 0; index < columns.length; index++) {
         if (!columns[index].width) {
-          columns[index].width = oneColumnWidth;
+          columns[index].setPropertyValue("effectiveWidth", oneColumnWidth);
         }
       }
     }
@@ -1126,6 +1119,7 @@ export class PanelModelBase extends SurveyElement<Question>
     sender: Base,
     arrayChanges: ArrayChanges
   ) => {
+    this.updateColumnWidth(this.layoutColumns);
     this.updateRootStyle();
   }
   public updateColumns() {
@@ -1189,18 +1183,19 @@ export class PanelModelBase extends SurveyElement<Question>
     let maxRowColSpan = this.calcMaxRowColSpan();
     if (maxRowColSpan < 2) return;
 
+    let columns = [].concat(this.layoutColumns);
     if (maxRowColSpan <= this.layoutColumns.length) {
-      this.layoutColumns.splice(maxRowColSpan, this.layoutColumns.length - maxRowColSpan);
+      columns = this.layoutColumns.slice(0, maxRowColSpan);
     } else {
       for (let index = this.layoutColumns.length; index < maxRowColSpan; index++) {
         const newCol = new PanelLayoutColumnModel();
         newCol.onPropertyValueChangedCallback = this.onColumnPropertyValueChangedCallback;
-        this.layoutColumns.push(newCol);
+        columns.push(newCol);
       }
     }
-    this.syncColumns();
-    this._totalColSpan = maxRowColSpan;
-    this.updateColumnWidth(this._columns, maxRowColSpan);
+    this._columns = columns;
+    this.updateColumnWidth(columns);
+    this.layoutColumns = columns;
   }
   public getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
     const row = this.findRowByElement(el);
@@ -1217,7 +1212,7 @@ export class PanelModelBase extends SurveyElement<Question>
       for (let index = 0; index < row.elements.length - 1; index++) {
         usedSpans += row.elements[index].colSpan;
       }
-      currentColSpan = this._totalColSpan - usedSpans;
+      currentColSpan = this.layoutColumns.length - usedSpans;
     }
     const result = this.columns.slice(startIndex, startIndex + (currentColSpan || 1));
     (el as any).setPropertyValue("effectiveColSpan", result.length);

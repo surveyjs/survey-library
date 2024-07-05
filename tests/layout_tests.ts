@@ -33,7 +33,8 @@ QUnit.test("columns generate - simple", function (assert) {
 
   assert.equal(page.rows.length, 2, "There are two rows");
   assert.equal(page.columns.length, 3);
-  assert.equal(roundTo2Decimals(page.columns[0].width), 33.33);
+  assert.equal(page.columns[0].width, undefined);
+  assert.equal(roundTo2Decimals(page.columns[0].effectiveWidth), 33.33);
 
   assert.equal(page.getColumsForElement(q1).length, 1);
   assert.deepEqual(page.getColumsForElement(q1), [page.columns[0]], "q1");
@@ -76,7 +77,8 @@ QUnit.test("columns generate - complex", function (assert) {
 
   assert.equal(page.rows.length, 2, "There are two rows");
   assert.equal(page.columns.length, 3);
-  assert.equal(roundTo2Decimals(page.columns[0].width), 33.33);
+  assert.equal(page.columns[0].width, undefined);
+  assert.equal(roundTo2Decimals(page.columns[0].effectiveWidth), 33.33);
 
   assert.deepEqual(page.getColumsForElement(q1), [page.columns[0]]);
   assert.deepEqual(page.getColumsForElement(q2), [page.columns[1], page.columns[1]]);
@@ -222,7 +224,9 @@ QUnit.test("apply columns from layoutColumns #1", function (assert) {
 
   assert.deepEqual(page.columns.length, 2);
   assert.deepEqual(page.columns[0].width, 40);
-  assert.deepEqual(page.columns[1].width, 60);
+  assert.deepEqual(page.columns[0].effectiveWidth, 40);
+  assert.deepEqual(page.columns[1].width, undefined);
+  assert.deepEqual(page.columns[1].effectiveWidth, 60);
 
   assert.equal(q1.rootStyle["flexBasis"], "40%");
   assert.equal(q2.rootStyle["flexBasis"], "60%");
@@ -352,8 +356,11 @@ QUnit.test("check question width if column width is set for only one column", fu
 
   assert.deepEqual(page.columns.length, 3);
   assert.deepEqual(page.columns[0].width, 25);
-  assert.deepEqual(page.columns[1].width, 37.5);
-  assert.deepEqual(page.columns[2].width, 37.5);
+  assert.deepEqual(page.columns[0].effectiveWidth, 25);
+  assert.deepEqual(page.columns[1].width, undefined);
+  assert.deepEqual(page.columns[1].effectiveWidth, 37.5);
+  assert.deepEqual(page.columns[2].width, undefined);
+  assert.deepEqual(page.columns[2].effectiveWidth, 37.5);
 
   assert.equal(q1.rootStyle["flexBasis"], "25%", "q1 rootStyle flexBasis");
   assert.equal(q2.rootStyle["flexBasis"], "75%", "q2 rootStyle flexBasis");
@@ -397,4 +404,68 @@ QUnit.test("effectiveColSpan #1", assert => {
   assert.equal(q3.effectiveColSpan, 2, "q3 effectiveColSpan #2");
   assert.equal(q4.colSpan, 1, "q4 colSpan #2");
   assert.equal(q4.effectiveColSpan, 1, "q4 effectiveColSpan #2");
+});
+
+QUnit.test("columns effectiveWidth #1", assert => {
+  const surveyModel = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1"
+          },
+          {
+            "type": "text",
+            "name": "q2",
+            "colSpan": 2,
+            "startWithNewLine": false
+          },
+          {
+            "type": "text",
+            "name": "q5",
+            "startWithNewLine": false
+          },
+          {
+            "type": "text",
+            "name": "q3"
+          },
+          {
+            "type": "text",
+            "name": "q4",
+            "startWithNewLine": false
+          }
+        ],
+        "layoutColumns": [
+          {
+            "width": 25
+          },
+          {
+            "width": 30
+          },
+          {
+            "width": 35
+          }
+        ]
+      }
+    ]
+  });
+
+  const page = surveyModel.pages[0];
+
+  assert.equal(page.layoutColumns.length, 4);
+  assert.equal(page.layoutColumns[0].effectiveWidth, 25);
+  assert.equal(page.layoutColumns[1].effectiveWidth, 30);
+  assert.equal(page.layoutColumns[2].effectiveWidth, 35);
+  assert.equal(page.layoutColumns[3].effectiveWidth, 10);
+  assert.equal(page.layoutColumns[3].width, undefined);
+
+  page.layoutColumns[0].effectiveWidth = 20;
+  assert.equal(page.layoutColumns[0].effectiveWidth, 20);
+  assert.equal(page.layoutColumns[0].width, 20);
+  assert.equal(page.layoutColumns[1].effectiveWidth, 30);
+  assert.equal(page.layoutColumns[2].effectiveWidth, 35);
+  assert.equal(page.layoutColumns[3].effectiveWidth, 15);
+  assert.equal(page.layoutColumns[3].width, undefined);
 });

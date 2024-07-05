@@ -32,10 +32,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.dragOrClickHelper = new DragOrClickHelper(this.startDrag);
   }
 
-  protected getDefaultItemComponent(): string {
-    return "";
-  }
-
   public getType(): string {
     return "ranking";
   }
@@ -149,6 +145,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   onSurveyLoad(): void {
     this.blockAnimations();
     super.onSurveyLoad();
+    this.updateRankingChoices();
     this.releaseAnimations();
   }
 
@@ -380,7 +377,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return new DragDropRankingChoices(this.survey, null, this.longTap);
   }
 
-  private draggedChoise: ItemValue;
+  private draggedChoiceValue: any;
   private draggedTargetNode: HTMLElement;
   public handlePointerDown = (
     event: PointerEvent,
@@ -398,14 +395,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.canStartDragDueItemEnabled(choice)
     )
     {
-      this.draggedChoise = choice;
+      this.draggedChoiceValue = choice.value;
       this.draggedTargetNode = node;
       this.dragOrClickHelper.onPointerDown(event);
     }
   };
 
   public startDrag = (event: PointerEvent): void => {
-    this.dragDropRankingChoices.startDrag(event, this.draggedChoise, this, this.draggedTargetNode);
+    const choice = ItemValue.getItemByValue(this.activeChoices, this.draggedChoiceValue);
+    this.dragDropRankingChoices.startDrag(event, choice, this, this.draggedTargetNode);
   }
 
   public handlePointerUp = (
@@ -590,14 +588,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("longTap", val);
   }
 
-  /**
-   * The name of a component used to render items.
-   */
-  public get itemContentComponent(): string {
-    return this.getPropertyValue("itemContentComponent", "sv-ranking-item-content");
-  }
-  public set itemContentComponent(value: string) {
-    this.setPropertyValue("itemContentComponent", value);
+  protected getDefaultItemComponent(): string {
+    return "sv-ranking-item";
   }
 
   /**
@@ -750,8 +742,7 @@ Serializer.addClass(
       },
       isSerializable: true
     },
-    { name: "itemComponent", visible: false, default: "" },
-    { name: "itemContentComponent", visible: false, default: "sv-ranking-item-content" },
+    { name: "itemComponent", visible: false, default: "sv-ranking-item" },
   ],
   function () {
     return new QuestionRankingModel("");

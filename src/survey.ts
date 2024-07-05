@@ -1700,6 +1700,8 @@ export class SurveyModel extends SurveyElementCore
    * - `"onValueChanged"` - Triggers validation each time a question value is changed.
    * - `"onComplete"` - Triggers validation when a user clicks the Complete button. If previous pages contain errors, the survey switches to the page with the first error.
    *
+   * > The `"onValueChanged"` doesn't work with date input fields because of the way browsers process date values. In most browsers, the value is considered changed as soon as a user starts entering the date in a text input field. This means that a user may only enter the day without having the chance to enter the month and year before validation is triggered. For this reason, date input fields are validated before the survey is switched to the next page or completed.
+   *
    * Refer to the following help topic for more information: [Data Validation](https://surveyjs.io/form-library/documentation/data-validation).
    * @see validationEnabled
    * @see validationAllowSwitchPages
@@ -1719,6 +1721,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * You can override this property for individual Long Text questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
    * @see allowResizeComment
+   * @see commentAreaRows
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");
@@ -1733,12 +1736,29 @@ export class SurveyModel extends SurveyElementCore
    *
    * You can override this property for individual Long Text questions: [`allowResize`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#allowResize).
    * @see autoGrowComment
+   * @see commentAreaRows
    */
   public get allowResizeComment(): boolean {
     return this.getPropertyValue("allowResizeComment");
   }
   public set allowResizeComment(val: boolean) {
     this.setPropertyValue("allowResizeComment", val);
+  }
+
+  /**
+   * Specifies the visible height of comment areas, measured in lines. Applies to the questions with the [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/question#showCommentArea) or [`showOtherItem`](https://surveyjs.io/form-library/documentation/api-reference/question#showOtherItem) property enabled.
+   *
+   * Default value: 2
+   *
+   * The value of this property is passed on to the `rows` attribute of the underlying `<textarea>` element.
+   * @see autoGrowComment
+   * @see allowResizeComment
+   */
+  public get commentAreaRows(): number {
+    return this.getPropertyValue("commentAreaRows");
+  }
+  public set commentAreaRows(val: number) {
+    this.setPropertyValue("commentAreaRows", val);
   }
   /**
    * Specifies when to update the question value in questions with a text input field.
@@ -1855,6 +1875,9 @@ export class SurveyModel extends SurveyElementCore
     this.notifyElementsOnAnyValueOrVariableChanged("locale");
     this.localeChanged();
     this.onLocaleChangedEvent.fire(this, this.locale);
+  }
+  public get localeDir(): string {
+    return surveyLocalization.localeDirections[this.locale];
   }
   /**
    * Returns an array of locales whose translations are used in the survey.
@@ -7929,6 +7952,7 @@ Serializer.addClass("survey", [
   },
   { name: "autoGrowComment:boolean", default: false },
   { name: "allowResizeComment:boolean", default: true },
+  { name: "commentAreaRows:number", minValue: 1 },
   {
     name: "startSurveyText",
     serializationProperty: "locStartSurveyText",

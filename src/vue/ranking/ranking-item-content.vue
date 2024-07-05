@@ -13,6 +13,6 @@ export class RankingItemContent extends Vue {
   @Prop() item: ItemValue;
   @Prop() cssClasses: any
 }
-Vue.component("sv-ranking-item-content", RankingItemContent);
+Vue.component("sv-ranking-item", RankingItemContent);
 export default RankingItemContent;
 </script>

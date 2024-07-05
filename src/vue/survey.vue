@@ -1,6 +1,7 @@
 <template>
   <div :class="survey.getRootCss()"
     :style="vueSurvey.themeVariables"
+    :lang="vueSurvey.locale || 'en'" :dir="vueSurvey.localeDir"
     >
     <sv-svg-bundle v-if="vueSurvey.needRenderIcons"></sv-svg-bundle>
     <div :class="vueSurvey.wrapperFormCss">

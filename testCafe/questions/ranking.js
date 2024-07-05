@@ -368,3 +368,45 @@ frameworks.forEach((framework) => {
     await t.expect(value).eql(["BMW", "Ford"]);
   });
 });
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
+    async (ctx) => {
+      const json = {
+        elements: [
+          {
+            type: "checkbox",
+            name: "q1",
+            choices: ["Item1", "Item2", "Item3"],
+            showOtherItem: true,
+          },
+          {
+            type: "ranking",
+            name: "q2",
+            choicesFromQuestion: "q1",
+            choicesFromQuestionMode: "selected",
+          },
+        ],
+      };
+      await applyTheme("defaultV2");
+      await initSurvey(framework, json);
+    }
+  );
+
+  test("Carry forward error with others Bug#8462", async (t) => {
+    await t.click(Selector(".sv-string-viewer").withText("Item1"))
+      .click(Selector(".sv-string-viewer").withText("Item3"))
+      .click(Selector(".sv-string-viewer").withText("Other (describe)"))
+      .click(Selector("textarea"))
+      .pressKey("A B C");
+    const item1 = Selector("span").withText("q2").parent("[data-name]").find("span").withText("Item1");
+
+    await t.hover(item1);
+    await t.drag(item1, 5, 40, { speed: 0.1 });
+    const getValue = ClientFunction(()=>{
+      return window["survey"].getAllQuestions()[0].value;
+    });
+
+    const value = await getValue();
+    await t.expect(value).eql(["Item1", "Item3", "other"]);
+  });
+});

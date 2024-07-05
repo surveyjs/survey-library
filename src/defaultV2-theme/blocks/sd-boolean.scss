@@ -6,11 +6,15 @@
   padding: calcSize(0.5);
   background-color: $editor-background;
   border-radius: calcSize(12.5);
-  box-shadow: $shadow-inner, 0 0 0 0px $primary;
+  box-shadow:
+    $shadow-inner,
+    0 0 0 0px $primary;
   transition: box-shadow $transition-duration;
 
   &.sd-boolean--allowhover:focus-within {
-    box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
+    box-shadow:
+      $shadow-inner-reset,
+      0 0 0 2px $primary;
   }
 }
 
@@ -57,11 +61,14 @@
 }
 
 .sd-boolean__thumb {
+  position: absolute;
+  left: calcSize(0.5);
+  transform: translateX(0);
   background-color: $question-background;
   box-shadow: $shadow-small;
   border-radius: calcSize(12.5);
   transition-duration: 0.2s;
-  transition-property: margin-left;
+  transition-property: transform, left;
   transition-timing-function: linear;
   color: $primary;
   font-weight: 600;
@@ -75,15 +82,13 @@
   z-index: 2;
 }
 
-.sd-boolean--checked:not(.sd-boolean--exchanged) .sd-boolean__thumb {
-  margin-left: 50%;
+.sd-boolean--checked:not(.sd-boolean--exchanged) .sd-boolean__thumb,
+.sd-boolean--exchanged:not(.sd-boolean--checked) .sd-boolean__thumb {
+  left: calc(100% - calc(0.5 * #{$base-unit}));
+  transform: translateX(-100%);
 }
 
 .sd-boolean--exchanged {
-  &:not(.sd-boolean--checked) .sd-boolean__thumb {
-    margin-left: calc(50% + calcSize(0.5));
-  }
-
   &.sd-boolean:not(.sd-boolean--checked):not(sd-boolean--indeterminate) .sd-boolean__label--false,
   &.sd-boolean.sd-boolean--checked .sd-boolean__label--true {
     color: $font-editorfont-placeholdercolor;
@@ -132,15 +137,12 @@
     .sd-boolean__thumb {
       margin-left: auto;
     }
-
-
   }
 
   .sd-checkbox__label--preview {
     color: $foreground;
   }
 }
-
 
 .sd-boolean__thumb-ghost {
   z-index: 1;

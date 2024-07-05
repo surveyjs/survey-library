@@ -82,17 +82,8 @@ const getItemValueComponentData = (
   index?: number,
   unrankedItem?: boolean
 ) => {
-  const itemComponentProperty =
-    props.question.getPropertyByName("itemComponent");
-  const isDefaultItemComponent = itemComponentProperty.isDefaultValue(
-    props.question.itemComponent
-  );
-  const itemComponent = isDefaultItemComponent
-    ? "survey-ranking-item"
-    : props.question.itemComponent;
-
   return {
-    componentName: itemComponent,
+    componentName: "survey-ranking-item",
     componentData: {
       question: props.question,
       item,

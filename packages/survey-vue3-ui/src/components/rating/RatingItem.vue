@@ -18,7 +18,7 @@
       :aria-invalid="question.ariaInvalid"
       :aria-errormessage="question.ariaErrormessage"
     />
-    <span :class="question.cssClasses.itemText">
+    <span :class="question.cssClasses.itemText" :data-text="item.text">
       <survey-string :locString="item.locText" />
     </span>
   </label>

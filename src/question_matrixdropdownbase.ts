@@ -67,6 +67,7 @@ export interface IMatrixDropdownData {
   onTotalValueChanged(): any;
   getSurvey(): ISurvey;
   getDataFilteredValues(): any;
+  isMatrixReadOnly(): boolean;
 }
 
 export class MatrixDropdownCell {
@@ -96,7 +97,8 @@ export class MatrixDropdownCell {
     row: MatrixDropdownRowModelBase,
     data: IMatrixDropdownData
   ): Question {
-    var res = data.createQuestion(this.row, this.column);
+    const res = data.createQuestion(this.row, this.column);
+    res.readOnlyCallback = (): boolean => !this.row.isRowEnabled();
     res.validateValueCallback = function () {
       return data.validateCell(row, column.name, row.value);
     };
@@ -266,6 +268,8 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public get text(): any {
     return this.rowName;
   }
+  public isRowEnabled(): boolean { return true; }
+  protected isRowHasEnabledCondition(): boolean { return false; }
   public get value(): any {
     var result: any = {};
     var questions = this.questions;
@@ -413,6 +417,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     if (!!this.detailPanel) {
       this.detailPanel.runCondition(values, newProps);
+    }
+    if(this.isRowHasEnabledCondition()) {
+      this.onQuestionReadOnlyChanged();
     }
   }
   public getNamesWithDefaultValues(): Array<string> {
@@ -670,14 +677,15 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       oldValue
     );
   }
-  public onQuestionReadOnlyChanged(parentIsReadOnly: boolean) {
+  public onQuestionReadOnlyChanged() {
     const questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
       const q = questions[i];
       q.setPropertyValue("isReadOnly", q.isReadOnly);
     }
     if (!!this.detailPanel) {
-      this.detailPanel.readOnly = parentIsReadOnly;
+      const parentIsReadOnly = !!this.data && this.data.isMatrixReadOnly();
+      this.detailPanel.readOnly = parentIsReadOnly || !this.isRowEnabled();
     }
   }
   private validationValues: any;
@@ -1829,11 +1837,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return questionPlainData;
   }
-  public addConditionObjectsByContext(
-    objects: Array<IConditionObject>,
-    context: any
-  ) {
-    var hasContext = !!context ? context === true || this.columns.indexOf(context) > -1 : false;
+  public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
+    const hasColumnContext = !!context && this.columns.indexOf(context) > -1;
+    const hasContext = context === true || hasColumnContext;
     const rowsIndeces = this.getConditionObjectsRowIndeces();
     if (hasContext) {
       rowsIndeces.push(-1);
@@ -1855,8 +1861,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
           text: prefixTitle + column.fullTitle,
           question: this
         };
+
         if (index === -1 && context === true) {
           obj.context = this;
+        } else {
+          if(hasColumnContext && prefixName.startsWith("row.")) {
+            obj.context = context;
+          }
         }
         objects.push(obj);
       }
@@ -2180,7 +2191,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     super.onReadOnlyChanged();
     if (!this.generateRows) return;
     for (var i = 0; i < this.visibleRows.length; i++) {
-      this.visibleRows[i].onQuestionReadOnlyChanged(this.isReadOnly);
+      this.visibleRows[i].onQuestionReadOnlyChanged();
     }
   }
 
@@ -2423,7 +2434,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     if (this.isDesignMode) return this.detailPanel;
     var panel = this.createNewDetailPanel();
-    panel.readOnly = this.isReadOnly;
+    panel.readOnly = this.isReadOnly || !row.isRowEnabled();
     panel.setSurveyImpl(row);
     var json = this.detailPanel.toJSON();
     new JsonObject().toObject(json, panel);
@@ -2475,6 +2486,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       return data.getTextProcessor();
     return null;
   }
+  isMatrixReadOnly(): boolean { return this.isReadOnly; }
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (index >= this.visibleRows.length) return null;
     return this.visibleRows[index].getQuestionByName(name);
@@ -2551,6 +2563,7 @@ Serializer.addClass(
       visible: false,
       isLightSerializable: false,
     },
+    { name: "columnsVisibleIf", visible: false },
     {
       name: "detailPanelMode",
       choices: ["none", "underRow", "underRowSingle"],

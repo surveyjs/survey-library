@@ -159,9 +159,6 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
       if (action === itemValue && !!itemValue.popupModel) {
         itemValue.showPopupDelayed(this.subItemsShowDelay);
         this.popupAfterShowCallback(itemValue);
-
-      } else if (!!action.popupModel && action.popupModel.isVisible) {
-        action.hidePopupDelayed(this.subItemsHideDelay);
       }
     });
   }

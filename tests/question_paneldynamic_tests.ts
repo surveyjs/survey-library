@@ -1860,7 +1860,35 @@ QUnit.test("panelDynamic.addConditionObjectsByContext + nested dynamic panel + c
   assert.equal(objs[2].text, "panel.nq2", "text #2");
   assert.equal(objs[3].name, "question1[0].question5", "value #3");
 });
-
+QUnit.test("matrixdropdown.addConditionObjectsByContext + in nested paneldynamic + context, Bug#8475", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "matrixdropdown",
+            "name": "matrix1",
+            "columns": [
+              { "cellType": "text", "name": "col1" },
+              { "cellType": "text", "name": "col2" },
+              { "cellType": "text", "name": "col3" }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  const rootPanel = survey.getQuestionByName("panel1");
+  const nestedMatrix = rootPanel.template.getQuestionByName("matrix1");
+  const column = nestedMatrix.columns[0];
+  const objs: IConditionObject[] = [];
+  rootPanel.addConditionObjectsByContext(objs, column);
+  assert.equal(objs.length, 2, "There should be 4 elements");
+  assert.equal(objs[0].name, "row.col2", "value #0");
+  assert.equal(objs[1].name, "row.col3", "value #1");
+});
 QUnit.test("matrixDynamic.getConditionJson", function(assert) {
   var panel = new QuestionPanelDynamicModel("panel");
   (<QuestionCheckboxModel>(
@@ -6244,6 +6272,29 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   assert.equal(panel.canAddPanel, false, "canAddPanel #6");
   assert.equal(getNextBtn().visible, true, "nextButton #6");
   survey.css = oldCss;
+});
+QUnit.test("templateVisibleIf & tabs action click, bug#8430", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" }
+        ],
+        panelCount: 4,
+        templateVisibleIf: "{panel.q1}!='a'",
+        renderMode: "tab"
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.additionalTitleToolbar.visibleActions.length, 4, "There are 4 visible tabs");
+  panel.panels[1].getQuestionByName("q1").value = "a";
+  assert.equal(panel.currentIndex, 0, "Current Index 0");
+  const panelId = panel.panels[2].id;
+  assert.equal(panel.additionalTitleToolbar.visibleActions.length, 3, "There are 3 visible tabs");
+  panel.additionalTitleToolbar.visibleActions[1].action();
+  assert.equal(panel.currentIndex, 1, "Current Index 1");
+  assert.equal(panel.currentPanel.id, panelId, "Select the correct panel");
 });
 QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function (assert) {
   const survey = new SurveyModel({

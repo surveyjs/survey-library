@@ -24,7 +24,6 @@ import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
-import { Panel } from "./knockout/kopage";
 import { PanelModel } from "./panel";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.

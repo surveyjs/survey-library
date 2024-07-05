@@ -110,6 +110,7 @@ export var arabicSurveyStrings = {
 
 surveyLocalization.locales["ar"] = arabicSurveyStrings;
 surveyLocalization.localeNames["ar"] = "العربية";
+surveyLocalization.localeDirections["ar"] = "rtl";
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

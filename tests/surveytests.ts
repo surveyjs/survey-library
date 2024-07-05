@@ -6920,6 +6920,29 @@ QUnit.test("Define questionTitleWidth on Panel/Page level", function (assert) {
   assert.equal(q.titleWidth, undefined, "titleWidth available if titleLocation is left");
 });
 
+QUnit.test("availableQuestionTitleWidth on Panel/Page", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page");
+  const panel = page.addNewPanel("panel");
+  const panel2 = panel.addNewPanel("panel2");
+  const q = <Question>panel.addNewQuestion("text");
+
+  assert.equal(page.availableQuestionTitleWidth(), false, "page");
+  assert.equal(panel.availableQuestionTitleWidth(), false, "panel1");
+  assert.equal(panel2.availableQuestionTitleWidth(), false, "panel2");
+
+  q.titleLocation = "left";
+  assert.equal(page.availableQuestionTitleWidth(), true, "page");
+  assert.equal(panel.availableQuestionTitleWidth(), true, "panel1");
+  assert.equal(panel2.availableQuestionTitleWidth(), false, "panel2");
+
+  q.titleLocation = "top";
+  page.questionTitleLocation = "left";
+  assert.equal(page.availableQuestionTitleWidth(), true, "page");
+  assert.equal(panel.availableQuestionTitleWidth(), true, "panel1");
+  assert.equal(panel2.availableQuestionTitleWidth(), true, "panel2");
+});
+
 QUnit.test("Question property.page getChoices", function (assert) {
   var property = Serializer.findProperty("questionbase", "page");
   assert.ok(property, "page property is here");
@@ -19948,4 +19971,32 @@ QUnit.test("Display mode in design time 2", function (assert) {
 
   survey.backgroundImageAttachment = "fixed";
   assert.equal(survey.wrapperFormCss, "sd-root-modern__wrapper sd-root-modern__wrapper--has-image sd-root-modern__wrapper--fixed");
+});
+QUnit.test("Delete panel with questions", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "panel",
+        "name": "panel1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+    ]
+  });
+  assert.ok(survey.getPanelByName("panel1"), "#1");
+  assert.ok(survey.getQuestionByName("question1"), "#2");
+  assert.ok(survey.getQuestionByName("question2"), "#3");
+  survey.getQuestionByName("question2").delete();
+  assert.notOk(survey.getQuestionByName("question2"), "#4");
+  survey.getPanelByName("panel1").delete();
+  assert.notOk(survey.getPanelByName("panel1"), "#5");
+  assert.notOk(survey.getQuestionByName("question1"), "#6");
 });

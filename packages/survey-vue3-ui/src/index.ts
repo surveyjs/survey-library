@@ -184,7 +184,7 @@ function registerComponents(app: App) {
   app.component("sv-tagbox-filter", TagboxFilter);
   app.component("survey-ranking", Ranking);
   app.component("survey-ranking-item", RankingItem);
-  app.component("sv-ranking-item-content", RankingItemContent);
+  app.component("sv-ranking-item", RankingItemContent);
   app.component("survey-rating", Rating);
   app.component("sv-rating-item", RatingItem);
   app.component("sv-rating-item-smiley", RatingItemSmiley);

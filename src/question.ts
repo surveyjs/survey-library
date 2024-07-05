@@ -50,6 +50,10 @@ class TriggerExpressionInfo {
   runSecondCheck: (keys: any) => boolean = (keys: any): boolean => false;
 }
 
+function querySelectorIncludingSelf(el: HTMLElement, selector: string): HTMLElement {
+  return el.querySelector(selector) || el as any != DomWindowHelper.getWindow() && el.matches(selector) && el;
+}
+
 /**
  * A base class for all questions.
  */
@@ -541,9 +545,7 @@ export class Question extends SurveyElement<Question>
     if(!this.setValueExpressionRunner) {
       this.setValueExpressionRunner = new ExpressionRunner(this.setValueExpression);
       this.setValueExpressionRunner.onRunComplete = (res: any): void => {
-        if(!this.isTwoValueEquals(this.value, res)) {
-          this.value = res;
-        }
+        this.runExpressionSetValue(res);
       };
     } else {
       this.setValueExpressionRunner.expression = this.setValueExpression;
@@ -1378,11 +1380,13 @@ export class Question extends SurveyElement<Question>
   public get requireUpdateCommentValue(): boolean {
     return this.hasComment || this.hasOther;
   }
+  public readOnlyCallback: () => boolean;
   public get isReadOnly(): boolean {
     const isParentReadOnly = !!this.parent && this.parent.isReadOnly;
     const isPareQuestionReadOnly = !!this.parentQuestion && this.parentQuestion.isReadOnly;
     const isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
-    return this.readOnly || isParentReadOnly || isSurveyReadOnly || isPareQuestionReadOnly;
+    const callbackVal = !!this.readOnlyCallback && this.readOnlyCallback();
+    return this.readOnly || isParentReadOnly || isSurveyReadOnly || isPareQuestionReadOnly || callbackVal;
   }
   public get isInputReadOnly(): boolean {
     if (this.forceIsInputReadOnly !== undefined) {
@@ -1501,6 +1505,9 @@ export class Question extends SurveyElement<Question>
   protected runExpression(expression: string): any {
     if (!this.survey || !expression) return undefined;
     return this.survey.runExpression(expression);
+  }
+  get commentAreaRows(): number {
+    return this.survey && this.survey.commentAreaRows;
   }
   private get autoGrowComment(): boolean {
     return this.survey && this.survey.autoGrowComment;
@@ -1949,7 +1956,7 @@ export class Question extends SurveyElement<Question>
     properties: HashTable<any> = null
   ): void {
     const func = (val: any) => {
-      this.runExpressionSetValue(val, setFunc);
+      this.runExpressionSetValueCore(val, setFunc);
     };
     if (!this.runDefaultValueExpression(runner, values, properties, func)) {
       func(defaultValue);
@@ -1958,19 +1965,22 @@ export class Question extends SurveyElement<Question>
   protected convertFuncValuetoQuestionValue(val: any): any {
     return Helpers.convertValToQuestionVal(val);
   }
-  private runExpressionSetValue(val: any, setFunc?: (val: any) => void): void {
+  private runExpressionSetValueCore(val: any, setFunc?: (val: any) => void): void {
     setFunc(this.convertFuncValuetoQuestionValue(val));
+  }
+  private runExpressionSetValue(val: any): void {
+    this.runExpressionSetValueCore(val, (val: any): void => {
+      if (!this.isTwoValueEquals(this.value, val)) {
+        this.value = val;
+      }
+    });
   }
   private runDefaultValueExpression(runner: ExpressionRunner, values: HashTable<any> = null,
     properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
     if (!runner || !this.data) return false;
     if (!setFunc) {
       setFunc = (val: any): void => {
-        this.runExpressionSetValue(val, (val: any): void => {
-          if (!this.isTwoValueEquals(this.value, val)) {
-            this.value = val;
-          }
-        });
+        this.runExpressionSetValue(val);
       };
     }
     if (!values) values = this.defaultValueExpression ? this.data.getFilteredValues() : {};
@@ -2216,7 +2226,7 @@ export class Question extends SurveyElement<Question>
       }
     }
   }
-  protected hasRequiredError(): boolean {
+  public hasRequiredError(): boolean {
     return this.isRequired && this.isEmpty();
   }
   private validatorRunner: ValidatorRunner;
@@ -2552,7 +2562,7 @@ export class Question extends SurveyElement<Question>
     if (!!el && this.isDefaultRendering()) {
       const scrollableSelector = this.getObservedElementSelector();
       if (!scrollableSelector) return;
-      const defaultRootEl = el.querySelector(scrollableSelector);
+      const defaultRootEl: HTMLElement = querySelectorIncludingSelf(el, scrollableSelector);
       if (!defaultRootEl) return;
       let isProcessed = false;
       let requiredWidth: number = undefined;
@@ -2563,7 +2573,7 @@ export class Question extends SurveyElement<Question>
           isProcessed = false;
         }
         const callback = () => {
-          const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+          const rootEl: HTMLElement = querySelectorIncludingSelf(el, scrollableSelector);
           if (!requiredWidth && this.isDefaultRendering()) {
             requiredWidth = rootEl.scrollWidth;
           }
@@ -2587,8 +2597,10 @@ export class Question extends SurveyElement<Question>
       });
       this.onMobileChangedCallback = () => {
         setTimeout(() => {
-          const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-          this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+          const rootEl = querySelectorIncludingSelf(el, scrollableSelector);
+          if (rootEl) {
+            this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+          }
         }, 0);
       };
       this.resizeObserver.observe(el);

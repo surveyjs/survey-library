@@ -106,6 +106,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isUpdateValueTextOnTyping: boolean;
   autoGrowComment: boolean;
   allowResizeComment: boolean;
+  commentAreaRows: number;
 
   state: string;
   isLazyRendering: boolean;

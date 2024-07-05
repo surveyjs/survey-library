@@ -2,6 +2,7 @@
   <div
     :class="vueSurvey.getRootCss()"
     :style="vueSurvey.themeVariables"
+    :lang="vueSurvey.locale || 'en'" :dir="vueSurvey.localeDir"
     ref="root"
   >
     <sv-svg-bundle v-if="vueSurvey.needRenderIcons"></sv-svg-bundle>

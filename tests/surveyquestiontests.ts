@@ -6811,8 +6811,7 @@ QUnit.test("itemComponent default values and de/serialization", function (assert
   const q5 = <QuestionDropdownModel>survey.getQuestionByName("q5");
   assert.equal(q1.itemComponent, "survey-radiogroup-item", "radiogroup item");
   assert.equal(q2.itemComponent, "survey-checkbox-item", "checkbox item");
-  assert.equal(q3.itemComponent, "", "ranking item");
-  assert.equal(q3.itemContentComponent, "sv-ranking-item-content", "ranking item");
+  assert.equal(q3.itemComponent, "sv-ranking-item", "ranking item");
   assert.equal(q4.itemComponent, "", "tagbox item");
   assert.equal(q5.itemComponent, "", "dropdown item");
 
@@ -6933,6 +6932,43 @@ QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime-local' i
   let prefix = d.getFullYear() + "-";
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.inputType, "datetime-local", "inputType is correct");
+  assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime-local has year");
+  assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime-local has time");
+  assert.equal(q2.displayValue.indexOf(prefix), 0, "datetime-local has year");
+  assert.equal(q2.displayValue.indexOf(":") < 0, true, "date has no time");
+});
+QUnit.test("setValueExpression, currentDate() and 'date'+'datetime-local' inputtype, Bug#8471", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text",
+      "inputType": "datetime-local",
+      "setValueIf": "{q3} > 10",
+      "setValueExpression": "currentDate()"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "inputType": "date",
+      "setValueIf": "{q3} > 10",
+      "setValueExpression": "currentDate()"
+    },
+    { "name": "q3", "type": "text" }
+    ] });
+  const d = new Date();
+  let prefix = d.getFullYear() + "-";
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.isEmpty(), true, "q1 is Empty");
+  assert.equal(q2.isEmpty(), true, "q2 is Empty");
+  survey.setValue("q3", 11);
+  assert.equal(q1.isEmpty(), false, "q1 is not Empty");
+  assert.equal(q2.isEmpty(), false, "q2 is not Empty");
+  assert.ok(q1.displayValue, "q1 has displayValue");
+  assert.ok(q2.displayValue, "q2 has displayValue");
   assert.equal(q1.inputType, "datetime-local", "inputType is correct");
   assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime-local has year");
   assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime-local has time");

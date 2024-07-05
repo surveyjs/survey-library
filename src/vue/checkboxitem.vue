@@ -2,14 +2,14 @@
   <div role="presentation" :class="question.getItemClass(item)">
     <label :class="question.getLabelClass(item)">
       <input
-        type="checkbox" role="option" :name="question.name+item.id"
+        type="checkbox" :name="question.name+item.id"
         :checked="question.isItemSelected(item)"
         @input="
           (e) => {
             question.clickItemHandler(item, e.target.checked);
           }
         "
-        :value="item.value"
+        :value="item.value" :required="question.hasRequiredError()"
         :id="question.getItemId(item)" :disabled="!question.getItemEnabled(item)" :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl" /><span
         v-if="question.cssClasses.materialDecorator" :class="question.cssClasses.materialDecorator">

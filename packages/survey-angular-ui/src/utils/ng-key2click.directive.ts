@@ -23,9 +23,6 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
   private blur (evt: any) {
     doKey2ClickBlur(evt);
   }
-  private focus (evt: any) {
-    evt.stopPropagation();
-  }
   constructor(private el: ElementRef) {
     this.subscribeEventListeners();
   }
@@ -41,7 +38,6 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
     this.element.addEventListener("keyup", this.onkeyup.bind(this));
     this.element.addEventListener("keydown", this.onkeydown.bind(this));
     this.element.addEventListener("blur", this.blur);
-    this.element.addEventListener("focus", this.focus);
 
     this.isSubscribed = true;
   }
@@ -52,7 +48,6 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
     this.element.removeEventListener("keyup", this.onkeyup.bind(this));
     this.element.removeEventListener("keydown", this.onkeydown.bind(this));
     this.element.removeEventListener("blur", this.blur);
-    this.element.removeEventListener("focus", this.focus);
 
     this.isSubscribed = false;
   }

@@ -319,7 +319,8 @@ export function attachKey2click(element: JSX.Element, viewModel?: any, options: 
         return false;
       },
       onKeyDown: (evt: any) => doKey2ClickDown(evt, options),
-      onBlur: (evt: any) => doKey2ClickBlur(evt)
+      onBlur: (evt: any) => doKey2ClickBlur(evt),
+      onFocus: (evt: any) => evt.stopPropagation()
     }
   );
 }

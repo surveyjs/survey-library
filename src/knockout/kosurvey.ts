@@ -320,5 +320,6 @@ ko.bindingHandlers["key2click"] = {
     };
     element.onkeydown = (evt: any) => doKey2ClickDown(evt, options);
     element.onblur = (evt: any) => doKey2ClickBlur(evt);
+    element.onfocus = (evt: any) => evt.stopPropagation();
   },
 };

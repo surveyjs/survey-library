@@ -2127,14 +2127,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private showDuplicatedErrorsInRows(duplicatedRows: Array<MatrixDropdownRowModelBase>, columnName: string): void {
     duplicatedRows.forEach(row => {
       let question = row.getQuestionByName(columnName);
-      if(!question && this.detailPanel.getQuestionByName(columnName)) {
+      const inDetailPanel = this.detailPanel.getQuestionByName(columnName);
+      if(!question && inDetailPanel) {
         row.showDetailPanel();
         if(row.detailPanel) {
           question = row.detailPanel.getQuestionByName(columnName);
         }
       }
       if(question) {
-        row.showDetailPanel();
+        if(inDetailPanel) {
+          row.showDetailPanel();
+        }
         this.addDuplicationError(question);
       }
     });

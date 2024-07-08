@@ -199,7 +199,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     }
   }
   protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
-    if(this.choicesLazyLoadEnabled && !this.dropdownListModel?.isAllDataLoaded) {
+    if (this.choicesLazyLoadEnabled) {
       return this.createItemValue(value, text);
     } else {
       return super.getItemIfChoicesNotContainThisValue(value, text);

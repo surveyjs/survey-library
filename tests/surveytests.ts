@@ -18026,6 +18026,30 @@ QUnit.test("getStructuredData function", function (assert) {
   }, "includePages: false, level: 3");
 
 });
+QUnit.test("getData function", function (assert) {
+  const survey = new SurveyModel(structedDataSurveyJSON);
+  survey.setValue("q1", 100);
+  survey.setValue("q2", 200);
+  survey.setValue("q3", 300);
+  survey.setValue("q21", 2100);
+  survey.setValue("q22", 2200);
+  const data = survey.data;
+  assert.deepEqual(survey.getData(), data, "survey.getData()");
+  assert.deepEqual(survey.getData({}), data, "survey.getData({})");
+  assert.deepEqual(survey.getData({ includePages: false, includePanels: false }), data, "survey.getData({ includePages: false, includePanels: false })");
+  assert.deepEqual(survey.getData({ includePages: true, includePanels: false }), {
+    page1: { q1: 100, q2: 200, q3: 300 },
+    page2: { q21: 2100, q22: 2200 },
+  }, "survey.getData({ includePages: true, includePanels: false })");
+  assert.deepEqual(survey.getData({ includePages: true, includePanels: true }), {
+    page1: { q1: 100, panel1: { q2: 200, panel2: { q3: 300 } } },
+    page2: { q21: 2100, panel21: { q22: 2200 } },
+  }, "survey.getData({ includePages: true, includePanels: true })");
+  assert.deepEqual(survey.getData({ includePages: false, includePanels: true }), {
+    q1: 100, panel1: { q2: 200, panel2: { q3: 300 } },
+    q21: 2100, panel21: { q22: 2200 },
+  }, "survey.getData({ includePages: true, includePanels: true })");
+});
 QUnit.test("setStructuredData function", function (assert) {
   const survey = new SurveyModel(structedDataSurveyJSON);
   survey.setStructuredData({

@@ -1,6 +1,7 @@
 <textarea *ngIf="!question.isReadOnlyRenderDiv()" [id]="otherId" [attr.maxlength]="question.getOthersMaxLength()"  [attr.aria-required]="question.ariaRequired || question.a11y_input_ariaRequired" [attr.aria-label]="question.ariaLabel || question.a11y_input_ariaLabel" [attr.placeholder]="otherPlaceholder" 
   [value]="otherValue"
   [style.resize]="question.resizeStyle"
+  [attr.rows]="question.commentAreaRows"
   [disabled]="question.isInputReadOnly"
   (change)="onOtherValueChange($event)"
   (input)="onOtherValueInput($event)"

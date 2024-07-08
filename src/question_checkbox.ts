@@ -247,7 +247,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this.updateSelectedItemValues();
     }
 
-    return this.validateItemValues(itemValues);
+    const validValues = this.validateItemValues(itemValues);
+    return validValues;
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
   public get hasFilteredValue(): boolean { return !!this.valuePropertyName; }
@@ -659,7 +660,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return true;
   }
   public get a11y_input_ariaRole(): string {
-    return "listbox";
+    return "group";
+  }
+  public get a11y_input_ariaRequired(): "true" | "false" {
+    return null;
   }
   // EO a11y
 }

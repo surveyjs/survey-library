@@ -215,6 +215,17 @@ QUnit.test("Currency mask: text aligment", function (assert) {
   assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "left" });
 });
 
+QUnit.test("Text aligment inputType is date, maskType is numeric", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.fromJSON({
+    "type": "text",
+    "name": "since-date",
+    "inputType": "date",
+    "maskType": "numeric"
+  });
+  assert.deepEqual(q.inputStyle, { width: "" });
+});
+
 class IntegerMask extends InputMaskNumeric {
   public getType(): string {
     return "integermask";

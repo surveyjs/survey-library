@@ -24,7 +24,6 @@ import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
-import { Panel } from "./knockout/kopage";
 import { PanelModel } from "./panel";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
@@ -37,6 +36,26 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   protected createLocTitleProperty(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
+  /**
+   * Returns `true` if the survey element is a page.
+   * @see Base.getType
+   */
+  public get isPage(): boolean { return false; }
+  /**
+   * Returns `true` if the survey element is a panel.
+   * @see Base.getType
+   */
+  public get isPanel(): boolean { return false; }
+  /**
+   * Returns `true` if the survey element is a question.
+   * @see Base.getType
+   */
+  public get isQuestion(): boolean { return false; }
+  /**
+   * Returns `true` if the element is a survey.
+   * @see Base.getType
+   */
+  public get isSurvey(): boolean { return false; }
   /**
    * A title for the survey element. If `title` is undefined, the `name` property value is displayed instead.
    *
@@ -670,27 +689,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public setVisibleIndex(index: number): number {
     return 0;
-  }
-  /**
-   * Returns `true` if the survey element is a page.
-   * @see Base.getType
-   */
-  public get isPage(): boolean {
-    return false;
-  }
-  /**
-   * Returns `true` if the survey element is a panel.
-   * @see Base.getType
-   */
-  public get isPanel(): boolean {
-    return false;
-  }
-  /**
-   * Returns `true` if the survey element is a question.
-   * @see Base.getType
-   */
-  public get isQuestion(): boolean {
-    return false;
   }
   public delete(doDispose: boolean): void { }
   //ILocalizableOwner

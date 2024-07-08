@@ -110,5 +110,30 @@ registerMarkupTests(
     },
     snapshot: "comment-into-question-allowResize",
   },
+  {
+    name: "Test Survey commentAreaRows is 3",
+    json: {
+      commentAreaRows: 3,
+      pages: [
+        {
+          name: "page1",
+          elements: [{
+            type: "radiogroup",
+            name: "name",
+            defaultValue: "other",
+            showOtherItem: true,
+            showCommentArea: true,
+            titleLocation: "hidden",
+            choices: [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ],
+          }],
+        },
+      ],
+    },
+    snapshot: "comment-into-question-commentAreaRows",
+  },
   ]
 );

@@ -24,12 +24,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     if(!draggedElementShortcut) return;
 
     // draggedElementShortcut.innerText = text;
-    draggedElementShortcut.style.cssText = ` 
-          cursor: grabbing;
-          position: absolute;
-          z-index: 10000;
-          font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));
-        `;
+    draggedElementShortcut.className = "sv-drag-drop-choices-shortcut";
 
     const isDeepClone = true;
     const clone = <HTMLElement>(
@@ -37,14 +32,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
         .closest("[data-sv-drop-target-item-value]")
         .cloneNode(isDeepClone)
     );
-    clone.style.cssText = `
-      min-width: 100px;
-      box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
-      background-color: var(--sjs-general-backcolor, var(--background, #fff));
-      border-radius: calc(4.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
-      padding-right: calc(2* var(--sjs-base-unit, var(--base-unit, 8px)));
-      margin-left: 0;
-    `;
+    clone.classList.add("sv-drag-drop-choices-shortcut__content");
 
     const dragIcon: any = clone.querySelector(".svc-item-value-controls__drag-icon");
     dragIcon.style.visibility = "visible";
@@ -65,8 +53,14 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
     this.isBottom = null;
 
+    if (typeof this.onShortcutCreated === "function") {
+      this.onShortcutCreated(draggedElementShortcut);
+    }
+
     return draggedElementShortcut;
   }
+
+  public onShortcutCreated: (node: HTMLElement) => void;
 
   private createImagePickerShortcut(item: ImageItemValue, text: string, draggedElementNode: HTMLElement, event: PointerEvent) {
     const draggedElementShortcut: any = DomDocumentHelper.createElement("div");

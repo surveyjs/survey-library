@@ -327,7 +327,7 @@ const onChoicesLazyLoadCallbackTimeOut = 5;
 const callbackTimeOutDelta = 1;
 
 const callback = (_, opt) => {
-  const total = 70;
+  const total = opt.filter == "888" ? 17 : 70;
   setTimeout(() => {
     if (opt.skip + opt.take < total) {
       opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), total);
@@ -1632,4 +1632,66 @@ QUnit.test("Create tag box from json, dropdownListModel instance", (assert) => {
   });
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   assert.ok(question.dropdownListModel, "It is created");
+});
+
+QUnit.test("Prevoiusly selected options disappear", (assert) => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const done4 = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "defaultValue": [5],
+      "choicesLazyLoadEnabled": true,
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.deepEqual(question.value, [5], "question value");
+  assert.equal(question.selectedItems.length, 1);
+  assert.equal(question.selectedChoices.length, 1);
+
+  question.dropdownListModel.popupModel.show();
+  setTimeout(() => {
+    dropdownListModel.inputStringRendered = "777";
+    assert.deepEqual(question.value, [5], "question value");
+    assert.equal(question.selectedItems.length, 1);
+    assert.equal(question.selectedChoices.length, 1);
+
+    setTimeout(() => {
+      list.onItemClick(list.actions[0]);
+      assert.deepEqual(question.value, [5, 777], "question value");
+      assert.equal(question.selectedItems.length, 2);
+      assert.equal(question.selectedChoices.length, 2);
+
+      setTimeout(() => {
+        dropdownListModel.inputStringRendered = "888";
+        assert.deepEqual(question.value, [5, 777], "question value");
+        assert.equal(question.selectedItems.length, 2);
+        assert.equal(question.selectedChoices.length, 2);
+
+        setTimeout(() => {
+          assert.deepEqual(question.value, [5, 777], "question value");
+          assert.equal(question.selectedItems.length, 2);
+          assert.equal(question.selectedChoices.length, 2);
+
+          done4();
+        }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+        done3();
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+      done2();
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+    done1();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });

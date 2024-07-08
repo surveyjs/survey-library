@@ -1721,6 +1721,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * You can override this property for individual Long Text questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
    * @see allowResizeComment
+   * @see commentAreaRows
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");
@@ -1735,12 +1736,29 @@ export class SurveyModel extends SurveyElementCore
    *
    * You can override this property for individual Long Text questions: [`allowResize`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#allowResize).
    * @see autoGrowComment
+   * @see commentAreaRows
    */
   public get allowResizeComment(): boolean {
     return this.getPropertyValue("allowResizeComment");
   }
   public set allowResizeComment(val: boolean) {
     this.setPropertyValue("allowResizeComment", val);
+  }
+
+  /**
+   * Specifies the visible height of comment areas, measured in lines. Applies to the questions with the [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/question#showCommentArea) or [`showOtherItem`](https://surveyjs.io/form-library/documentation/api-reference/question#showOtherItem) property enabled.
+   *
+   * Default value: 2
+   *
+   * The value of this property is passed on to the `rows` attribute of the underlying `<textarea>` element.
+   * @see autoGrowComment
+   * @see allowResizeComment
+   */
+  public get commentAreaRows(): number {
+    return this.getPropertyValue("commentAreaRows");
+  }
+  public set commentAreaRows(val: number) {
+    this.setPropertyValue("commentAreaRows", val);
   }
   /**
    * Specifies when to update the question value in questions with a text input field.
@@ -2893,6 +2911,25 @@ export class SurveyModel extends SurveyElementCore
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
     this.updateAllQuestionsValue(clearData);
+  }
+  public get isSurvey(): boolean { return true; }
+  /**
+   * Returns an object with survey results.
+   *
+   * If you want to get a survey results object that mirrors the survey structure, call the `getData()` method with an object that has the `includePages` and `includePanels` properties enabled. Without this object, the `getData()` method returns the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property value.
+   *
+   * ```js
+   * import { Model } from "survey-core";
+   *
+   * const surveyJson = { ... };
+   * const survey = new Model(surveyJson);
+   * survey.getData({ includePages: true, includePanels: true });
+   * ```
+   */
+  public getData(options?: { includePages?: boolean, includePanels?: boolean }): any {
+    const opt = options || { includePages: false, includePanels: false };
+    if(!opt.includePages && !opt.includePanels) return this.data;
+    return this.getStructuredData(!!opt.includePages, !opt.includePanels ? (opt.includePages ? 1 : 0) : -1);
   }
   public getStructuredData(includePages: boolean = true, level: number = -1): any {
     if (level === 0) return this.data;
@@ -7934,6 +7971,7 @@ Serializer.addClass("survey", [
   },
   { name: "autoGrowComment:boolean", default: false },
   { name: "allowResizeComment:boolean", default: true },
+  { name: "commentAreaRows:number", minValue: 1 },
   {
     name: "startSurveyText",
     serializationProperty: "locStartSurveyText",

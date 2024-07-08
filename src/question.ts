@@ -532,9 +532,7 @@ export class Question extends SurveyElement<Question>
     if(!this.setValueExpressionRunner) {
       this.setValueExpressionRunner = new ExpressionRunner(this.setValueExpression);
       this.setValueExpressionRunner.onRunComplete = (res: any): void => {
-        if(!this.isTwoValueEquals(this.value, res)) {
-          this.value = res;
-        }
+        this.runExpressionSetValue(res);
       };
     } else {
       this.setValueExpressionRunner.expression = this.setValueExpression;
@@ -1482,6 +1480,9 @@ export class Question extends SurveyElement<Question>
     if (!this.survey || !expression) return undefined;
     return this.survey.runExpression(expression);
   }
+  get commentAreaRows(): number {
+    return this.survey && this.survey.commentAreaRows;
+  }
   private get autoGrowComment(): boolean {
     return this.survey && this.survey.autoGrowComment;
   }
@@ -1929,7 +1930,7 @@ export class Question extends SurveyElement<Question>
     properties: HashTable<any> = null
   ): void {
     const func = (val: any) => {
-      this.runExpressionSetValue(val, setFunc);
+      this.runExpressionSetValueCore(val, setFunc);
     };
     if (!this.runDefaultValueExpression(runner, values, properties, func)) {
       func(defaultValue);
@@ -1938,19 +1939,22 @@ export class Question extends SurveyElement<Question>
   protected convertFuncValuetoQuestionValue(val: any): any {
     return Helpers.convertValToQuestionVal(val);
   }
-  private runExpressionSetValue(val: any, setFunc?: (val: any) => void): void {
+  private runExpressionSetValueCore(val: any, setFunc?: (val: any) => void): void {
     setFunc(this.convertFuncValuetoQuestionValue(val));
+  }
+  private runExpressionSetValue(val: any): void {
+    this.runExpressionSetValueCore(val, (val: any): void => {
+      if (!this.isTwoValueEquals(this.value, val)) {
+        this.value = val;
+      }
+    });
   }
   private runDefaultValueExpression(runner: ExpressionRunner, values: HashTable<any> = null,
     properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
     if (!runner || !this.data) return false;
     if (!setFunc) {
       setFunc = (val: any): void => {
-        this.runExpressionSetValue(val, (val: any): void => {
-          if (!this.isTwoValueEquals(this.value, val)) {
-            this.value = val;
-          }
-        });
+        this.runExpressionSetValue(val);
       };
     }
     if (!values) values = this.defaultValueExpression ? this.data.getFilteredValues() : {};
@@ -2196,7 +2200,7 @@ export class Question extends SurveyElement<Question>
       }
     }
   }
-  protected hasRequiredError(): boolean {
+  public hasRequiredError(): boolean {
     return this.isRequired && this.isEmpty();
   }
   private validatorRunner: ValidatorRunner;

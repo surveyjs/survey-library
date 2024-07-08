@@ -213,7 +213,6 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           <input
             className={this.cssClasses.itemControl}
             type="checkbox"
-            role="option"
             name={this.question.name + this.item.id}
             value={this.item.value}
             id={id}
@@ -222,6 +221,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             readOnly={this.question.isReadOnlyAttr}
             checked={isChecked}
             onChange={this.handleOnChange}
+            required={this.question.hasRequiredError()}
           />
           {
             this.cssClasses.materialDecorator ?

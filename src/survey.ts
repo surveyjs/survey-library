@@ -3084,14 +3084,14 @@ export class SurveyModel extends SurveyElementCore
       values[key] = this.getDataValueCore(this.valuesHash, key);
     }
     for (let question of this.getAllQuestions()) {
-        if (question.hasFilteredValue) {
-          values[question.getFilteredName()] = question.getFilteredValue();
-        }
+      if (question.hasFilteredValue) {
+        values[question.getFilteredName()] = question.getFilteredValue();
+      }
     }
     return values;
   }
   private addCalculatedValuesIntoFilteredValues(values: {
-    [index: string]: CalculatedValue['value'],
+    [index: string]: CalculatedValue["value"],
   }) {
     for (let calculatedValue of this.calculatedValues) {
       values[calculatedValue.name] = calculatedValue.value;

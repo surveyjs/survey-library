@@ -53,6 +53,8 @@ export * from "./core-export";
 
 export { SurveyModel as Model } from "survey-core";
 
+export * from "../utils/responsivity-manager";
+
 import { checkLibraryVersion } from "survey-core";
 
 checkLibraryVersion(`${process.env.VERSION}`, "survey-jquery-ui");

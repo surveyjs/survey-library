@@ -252,7 +252,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
   public get hasFilteredValue(): boolean { return !!this.valuePropertyName; }
-  public getFilteredName(): any {
+  public getFilteredName(): string {
     let res = super.getFilteredName();
     if(this.hasFilteredValue) {
       res += "-unwrapped";

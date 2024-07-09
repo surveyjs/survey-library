@@ -1540,7 +1540,7 @@ export class Question extends SurveyElement<Question>
   }
   public get hasFilteredValue(): boolean { return false; }
   public getFilteredValue(): any { return this.value; }
-  public getFilteredName(): any { return this.getValueName(); }
+  public getFilteredName(): string { return this.getValueName(); }
   public get valueForSurvey(): any {
     if (!!this.valueToDataCallback) {
       return this.valueToDataCallback(this.value);

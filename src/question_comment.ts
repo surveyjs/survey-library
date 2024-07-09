@@ -46,12 +46,10 @@ export class QuestionCommentModel extends QuestionTextBase {
    * @see allowResize
    */
   public get autoGrow(): boolean | undefined {
-    return this.getPropertyValueWithoutDefault("autoGrow");
+    return this.getPropertyValue("autoGrow");
   }
   public set autoGrow(val: boolean | undefined) {
-    if(val !== this.autoGrow) {
-      this.setPropertyValueDirectly("autoGrow", val);
-    }
+    this.setPropertyValue("autoGrow", val);
   }
   public get renderedAutoGrow(): boolean {
     const autoGrow = this.autoGrow;
@@ -63,12 +61,10 @@ export class QuestionCommentModel extends QuestionTextBase {
    * @see autoGrow
    */
   public get allowResize(): boolean | undefined {
-    return this.getPropertyValueWithoutDefault("allowResize");
+    return this.getPropertyValue("allowResize");
   }
   public set allowResize(val: boolean | undefined) {
-    if(val !== this.allowResize) {
-      this.setPropertyValueDirectly("allowResize", val);
-    }
+    this.setPropertyValue("allowResize", val);
   }
   public get renderedAllowResize(): boolean {
     const res = this.allowResize;

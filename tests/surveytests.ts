@@ -15597,6 +15597,13 @@ QUnit.test("survey.allowResizeComment & survey.autoGrowComment override this pro
   assert.equal(comment3.renderedAutoGrow, false, "comment2 survey.autoGrowComment = true, #10");
 });
 
+QUnit.test("getDefaultPropertyValue for comment properties autoGrow & allowResize", function (assert) {
+  let comment = new QuestionCommentModel("q1");
+
+  assert.strictEqual(comment.getDefaultPropertyValue("autoGrow"), undefined, "autoGrow");
+  assert.strictEqual(comment.getDefaultPropertyValue("allowResize"), undefined, "allowResize");
+});
+
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
     getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },

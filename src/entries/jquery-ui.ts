@@ -3,10 +3,8 @@ import * as ReactDOM from "react-dom";
 import jQuery from "jquery";
 
 import { Survey, PopupSurvey } from "./jquery-ui-model";
-// localization
-import "./chunks/localization";
 
-import { SurveyModel } from "./core";
+import { SurveyModel } from "survey-core";
 
 jQuery["fn"].extend({
   Survey: function (props: any) {
@@ -54,9 +52,6 @@ export * from "./jquery-ui-model";
 export * from "./core-export";
 
 export { SurveyModel as Model } from "survey-core";
-
-export * from "../utils/responsivity-manager";
-export { unwrap } from "../utils/utils";
 
 import { checkLibraryVersion } from "survey-core";
 

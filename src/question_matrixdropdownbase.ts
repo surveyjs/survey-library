@@ -1925,9 +1925,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     for (var i = 0; i < this.columns.length; i++) {
       const col = this.columns[i];
       if (!col.templateQuestion.hasInput) continue;
+      const hasValue = !Helpers.isValueEmpty(rowValue[col.name]);
+      if(!hasValue && !!col.templateQuestion.visibleIf) continue;
       res.questionCount += 1;
       res.requiredQuestionCount += col.isRequired;
-      const hasValue = !Helpers.isValueEmpty(rowValue[col.name]);
       res.answeredQuestionCount += hasValue ? 1 : 0;
       res.requiredAnsweredQuestionCount += hasValue && col.isRequired ? 1 : 0;
     }

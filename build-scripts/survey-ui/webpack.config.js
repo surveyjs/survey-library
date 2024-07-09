@@ -5,7 +5,6 @@ const DtsGeneratorPlugin = require("../webpack-dts-generator");
 const { merge } = require("webpack-merge");
 var packageJson = require("./package.json");
 var path = require("path");
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const config = {
   entry: {
@@ -43,7 +42,6 @@ const config = {
       moduleName: "survey-ui",
       importName: "entries/ui"
     }),
-    new BundleAnalyzerPlugin()
   ],
 };
 

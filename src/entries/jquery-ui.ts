@@ -4,7 +4,7 @@ import jQuery from "jquery";
 
 import { Survey, PopupSurvey } from "./jquery-ui-model";
 
-import { SurveyModel } from "survey-core";
+import { SurveyModel } from "./core";
 
 jQuery["fn"].extend({
   Survey: function (props: any) {

@@ -8,7 +8,6 @@ import { attachKey2click } from "./reactSurvey";
 import { LoadingIndicatorComponent } from "./components/loading-indicator";
 import { SurveyAction } from "./components/action-bar/action-bar-item";
 import { ReactElementFactory } from "./element-factory";
-import { SurveyFileChooseButton } from "../entries/react-ui-model";
 
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {

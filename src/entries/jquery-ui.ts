@@ -16,6 +16,7 @@ jQuery["fn"].extend({
   PopupSurvey: doPopupSurvey,
   SurveyWindow: doPopupSurvey
 });
+
 function doPopupSurvey(props: any): void {
   return this.each(function () {
     var model: Survey = props.model;
@@ -23,8 +24,11 @@ function doPopupSurvey(props: any): void {
     ReactDOM.render(survey, this);
   });
 }
+
 SurveyModel.platform = "jquery";
+
 export const preact: any = React;
+
 export * from "./jquery-ui-model";
 export * from "./core-export";
 

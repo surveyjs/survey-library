@@ -3,6 +3,8 @@ import * as ReactDOM from "react-dom";
 import jQuery from "jquery";
 
 import { Survey, PopupSurvey } from "./jquery-ui-model";
+// localization
+import "./chunks/localization";
 
 import { SurveyModel } from "./core";
 
@@ -16,15 +18,12 @@ jQuery["fn"].extend({
   PopupSurvey: doPopupSurvey,
   SurveyWindow: doPopupSurvey
 });
-
 function doPopupSurvey(props: any): void {
   return this.each(function () {
     var model: Survey = props.model;
     const survey = React.createElement(PopupSurvey, { ...props });
     ReactDOM.render(survey, this);
-
     // var popupSurvey = props.popupModel || new PopupSurvey(model);
-
     // if (props.expanded !== undefined) {
     //   popupSurvey.isExpanded = props.expanded;
     // }
@@ -43,11 +42,8 @@ function doPopupSurvey(props: any): void {
     // popupSurvey.show();
   });
 }
-
 SurveyModel.platform = "jquery";
-
 export const preact: any = React;
-
 export * from "./jquery-ui-model";
 export * from "./core-export";
 

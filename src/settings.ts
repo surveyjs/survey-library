@@ -770,5 +770,6 @@ export var settings = {
       "a": /[a-zA-Z]/,
       "#": /[a-zA-Z0-9]/
     }
-  }
+  },
+  storeUtcDates: false
 };

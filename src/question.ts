@@ -1542,10 +1542,19 @@ export class Question extends SurveyElement<Question>
   public getFilteredValue(): any { return this.value; }
   public getFilteredName(): any { return this.getValueName(); }
   public get valueForSurvey(): any {
+    return this.valueForSurveyCore(this.value);
+  }
+  protected valueForSurveyCore(val: any): any {
     if (!!this.valueToDataCallback) {
-      return this.valueToDataCallback(this.value);
+      return this.valueToDataCallback(val);
     }
-    return this.value;
+    return val;
+  }
+  protected valueFromDataCore(val: any): any {
+    if (!!this.valueFromDataCallback) {
+      return this.valueFromDataCallback(val);
+    }
+    return val;
   }
   /**
    * Sets the question's `value` and `comment` properties to `undefined`.
@@ -2337,9 +2346,7 @@ export class Question extends SurveyElement<Question>
   //IQuestion
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     newValue = this.getUnbindValue(newValue);
-    if (!!this.valueFromDataCallback) {
-      newValue = this.valueFromDataCallback(newValue);
-    }
+    newValue = this.valueFromDataCore(newValue);
     if (!this.checkIsValueCorrect(newValue)) return;
     const isEmpty = this.isValueEmpty(newValue);
     if(!isEmpty && this.defaultValueExpression) {

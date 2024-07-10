@@ -150,6 +150,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   maxOthersLength: number;
   clearValueOnDisableItems: boolean;
 
+  maxTimeToFinishPage: number;
+
   uploadFiles(
     question: IQuestion,
     name: string,

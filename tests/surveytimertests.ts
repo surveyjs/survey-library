@@ -1,7 +1,5 @@
-import { PageModel } from "../src/page";
 import { SurveyModel } from "../src/survey";
-import { SurveyTimer, surveyTimerFunctions } from "../src/surveytimer";
-import { SurveyTimerModel } from "../src/surveyTimerModel";
+import { SurveyTimer, surveyTimerFunctions, SurveyTimerEvent } from "../src/surveytimer";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("SurveyTimer");
@@ -10,10 +8,12 @@ surveyTimerFunctions.setTimeout = function(func: () => any): number {
   return 1;
 };
 surveyTimerFunctions.clearTimeout = function(timerId: number) {};
+let nowValue = 1000000000;
+surveyTimerFunctions.now = function(): number { nowValue += 1000; return nowValue; };
 
 QUnit.test("Test timer event", function(assert) {
   var counter = 0;
-  var func = function() {
+  var func = function(sender: SurveyTimer, event: SurveyTimerEvent) {
     counter++;
   };
   SurveyTimer.instance.start(func);
@@ -22,6 +22,25 @@ QUnit.test("Test timer event", function(assert) {
   SurveyTimer.instance.stop(func);
   doTimer(3);
   assert.equal(counter, 5, "Timer was stopped nothing happened");
+});
+
+function doTimer(count: number, suspendedSeconds: number = 0) {
+  nowValue += suspendedSeconds * 1000;
+  for (var i = 0; i < count; i++) {
+    SurveyTimer.instance.doTimer();
+  }
+}
+
+QUnit.test("Test suspended timer event", function(assert) {
+  var seconds = 0;
+  var func = function(sender: SurveyTimer, options: SurveyTimerEvent) {
+    seconds += options.seconds;
+  };
+  SurveyTimer.instance.start(func);
+  doTimer(5);
+  assert.equal(seconds, 5, "#1");
+  doTimer(1, 7);
+  assert.equal(seconds, 5 + 1 + 7, "#2");
 });
 
 QUnit.test("Spent time on survey", function(assert) {
@@ -40,6 +59,28 @@ QUnit.test("Spent time on survey", function(assert) {
   assert.equal(survey.timeSpent, 15, "Timer called 15 times");
   survey.doComplete();
   doTimer(5);
+  assert.equal(survey.timeSpent, 15, "Timer called still 15 times");
+  survey.clear();
+  assert.equal(survey.timeSpent, 0, "reset value");
+  survey.stopTimer();
+});
+
+QUnit.test("Spent time on survey with suspended timer", function(assert) {
+  var survey = new SurveyModel();
+  survey.startTimer();
+  assert.equal(survey.timeSpent, 0, "Timer was  not started");
+  doTimer(1, 4);
+  assert.equal(survey.timeSpent, 5, "Timer called 5 times");
+  doTimer(1, 4);
+  assert.equal(survey.timeSpent, 10, "Timer called 10 times");
+  survey.stopTimer();
+  doTimer(1, 4);
+  assert.equal(survey.timeSpent, 10, "Timer still called 10 times");
+  survey.startTimer();
+  doTimer(1, 4);
+  assert.equal(survey.timeSpent, 15, "Timer called 15 times");
+  survey.doComplete();
+  doTimer(1, 4);
   assert.equal(survey.timeSpent, 15, "Timer called still 15 times");
   survey.clear();
   assert.equal(survey.timeSpent, 0, "reset value");
@@ -87,6 +128,74 @@ QUnit.test("Spent time on pages", function(assert) {
   survey.stopTimer();
 });
 
+QUnit.test("Spent time on pages with suspended timer, #1", function(assert) {
+  var survey = new SurveyModel();
+  var page1 = survey.addNewPage();
+  var page2 = survey.addNewPage();
+  page1.addNewQuestion("text");
+  page2.addNewQuestion("text");
+  page1.maxTimeToFinish = 9;
+  page2.maxTimeToFinish = 8;
+  survey.startTimer();
+  assert.equal(page1.timeSpent, 0, "page1.timeSpent #1");
+  assert.equal(survey.timeSpent, 0, "survey.timeSpent #1");
+  doTimer(1, 4);
+  assert.equal(page1.timeSpent, 5, "page1.timeSpent #2");
+  assert.equal(survey.timeSpent, 5, "survey.timeSpent #2");
+  doTimer(1, 10);
+  assert.equal(page1.timeSpent, 9, "page1.timeSpent #3");
+  assert.equal(survey.timeSpent, 9, "survey.timeSpent #3");
+  assert.equal(survey.currentPageNo, 1, "survey.currentPageNo #1");
+  assert.equal(page2.timeSpent, 0, "page2, timeSpent #1");
+  doTimer(1, 20);
+  assert.equal(page2.timeSpent, 8, "page2, timeSpent #2");
+  assert.equal(survey.timeSpent, 17, "survey.timeSpent #4");
+  assert.equal(survey.state, "completed", "The survey is completed");
+  survey.stopTimer();
+});
+QUnit.test("Spent time on pages with suspended timer, #2", function(assert) {
+  var survey = new SurveyModel();
+  survey.maxTimeToFinish = 15;
+  var page1 = survey.addNewPage();
+  var page2 = survey.addNewPage();
+  page1.addNewQuestion("text");
+  page2.addNewQuestion("text");
+  page1.maxTimeToFinish = 9;
+  page2.maxTimeToFinish = 8;
+  survey.startTimer();
+  assert.equal(page1.timeSpent, 0, "page1.timeSpent #1");
+  assert.equal(survey.timeSpent, 0, "survey.timeSpent #1");
+  doTimer(1);
+  doTimer(1);
+  doTimer(1, 40);
+  assert.equal(page1.timeSpent, 9, "page1.timeSpent #2");
+  assert.equal(survey.timeSpent, 9, "survey.timeSpent #2");
+  assert.equal(survey.currentPageNo, 1, "survey.currentPageNo #1");
+  assert.equal(page2.timeSpent, 0, "page2, timeSpent #1");
+  assert.equal(survey.state, "running", "The survey is completed");
+  survey.stopTimer();
+});
+QUnit.test("Spent time on pages with suspended timer, #3", function(assert) {
+  var survey = new SurveyModel();
+  survey.maxTimeToFinish = 15;
+  survey.maxTimeToFinishPage = 10;
+  var page1 = survey.addNewPage();
+  var page2 = survey.addNewPage();
+  page1.addNewQuestion("text");
+  page2.addNewQuestion("text");
+  survey.startTimer();
+  assert.equal(page1.timeSpent, 0, "page1.timeSpent #1");
+  assert.equal(survey.timeSpent, 0, "survey.timeSpent #1");
+  doTimer(1);
+  doTimer(1);
+  doTimer(1, 40);
+  assert.equal(page1.timeSpent, 10, "page1.timeSpent #2");
+  assert.equal(survey.timeSpent, 10, "survey.timeSpent #2");
+  assert.equal(survey.currentPageNo, 1, "survey.currentPageNo #1");
+  assert.equal(page2.timeSpent, 0, "page2, timeSpent #1");
+  assert.equal(survey.state, "running", "The survey is completed");
+  survey.stopTimer();
+});
 QUnit.test("Complete survey by timer", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage();
@@ -102,6 +211,24 @@ QUnit.test("Complete survey by timer", function(assert) {
   doTimer(6);
   assert.equal(survey.state, "completed", "The state is completed");
   assert.equal(survey.timeSpent, 10, "Timer called 5 times");
+  survey.stopTimer();
+});
+
+QUnit.test("Complete survey by timer with suspended", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage();
+  survey.addNewPage();
+  survey.pages[0].addNewQuestion("text");
+  survey.pages[1].addNewQuestion("text");
+  survey.maxTimeToFinish = 10;
+  survey.startTimer();
+  assert.equal(survey.state, "running", "The state is running");
+  doTimer(1, 4);
+  assert.equal(survey.state, "running", "The state is still running");
+  assert.equal(survey.timeSpent, 5, "Timer called 5 times");
+  doTimer(1, 5);
+  assert.equal(survey.state, "completed", "The state is completed");
+  assert.equal(survey.timeSpent, 10, "Timer called 10 times");
   survey.stopTimer();
 });
 
@@ -123,6 +250,28 @@ QUnit.test("Complete pages by timer", function(assert) {
   assert.equal(survey.state, "running", "The state is still running");
   assert.equal(survey.currentPage.name, "p2", "The second first page");
   doTimer(5);
+  assert.equal(survey.state, "completed", "The survey is completed");
+  survey.stopTimer();
+});
+
+QUnit.test("Complete pages by timer with suspended", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("p1");
+  survey.addNewPage("p2");
+  survey.pages[0].addNewQuestion("text");
+  survey.pages[1].addNewQuestion("text");
+  survey.maxTimeToFinishPage = 10;
+  survey.pages[1].maxTimeToFinish = 5;
+  survey.startTimer();
+  assert.equal(survey.state, "running", "The state is running");
+  assert.equal(survey.currentPage.name, "p1", "The first page");
+  doTimer(1, 4);
+  assert.equal(survey.state, "running", "The state is still running");
+  assert.equal(survey.currentPage.name, "p1", "The first page");
+  doTimer(1, 4);
+  assert.equal(survey.state, "running", "The state is still running");
+  assert.equal(survey.currentPage.name, "p2", "The second first page");
+  doTimer(1, 4);
   assert.equal(survey.state, "completed", "The survey is completed");
   survey.stopTimer();
 });
@@ -270,12 +419,6 @@ QUnit.test("Allow to modify timeSpent property", (assert) => {
   assert.equal(survey.timeSpent, 20, "Timer has been updated successfully");
   survey.stopTimer();
 });
-
-function doTimer(count: number) {
-  for (var i = 0; i < count; i++) {
-    SurveyTimer.instance.doTimer();
-  }
-}
 
 QUnit.test("Test SurveyTimerModel", function(assert) {
   const survey = new SurveyModel();

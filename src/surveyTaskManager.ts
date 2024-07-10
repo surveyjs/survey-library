@@ -1,10 +1,5 @@
-import { ISurvey } from "./base-interfaces";
 import { Base, EventBase } from "./base";
-import { SurveyTimer } from "./surveytimer";
 import { property } from "./jsonobject";
-import { PageModel } from "./page";
-import { SurveyModel } from "./survey";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 class SurveyTaskModel {
   private timestamp: Date;
@@ -31,7 +26,7 @@ export class SurveyTaskManagerModel extends Base {
     return task;
   }
 
-  public waitAndExecute(action: any) {
+  public waitAndExecute(action: any): void {
     if(!this.hasActiveTasks) {
       action();
       return;

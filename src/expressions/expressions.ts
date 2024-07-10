@@ -9,7 +9,7 @@ export abstract class Operand {
   }
   public abstract getType(): string;
   public abstract evaluate(processValue?: ProcessValue): any;
-  public abstract setVariables(variables: Array<string>): any;
+  public abstract getVariables(): Array<string>;
   public hasFunction(): boolean {
     return false;
   }
@@ -110,9 +110,11 @@ export class BinaryOperand extends Operand {
     );
   }
 
-  public setVariables(variables: Array<string>) {
-    if (this.left != null) this.left.setVariables(variables);
-    if (this.right != null) this.right.setVariables(variables);
+  public getVariables(): string[] {
+    return [
+      ...this.left?.getVariables() ?? [],
+      ...this.right?.getVariables() ?? []
+    ];
   }
 
   public hasFunction(): boolean {
@@ -179,8 +181,9 @@ export class UnaryOperand extends Operand {
     let value = this.expression.evaluate(processValue);
     return this.consumer.call(this, value);
   }
-  public setVariables(variables: Array<string>) {
-    this.expression.setVariables(variables);
+
+  public getVariables(): Array<string> {
+    return this.expression.getVariables();
   }
 }
 
@@ -213,10 +216,8 @@ export class ArrayOperand extends Operand {
     });
   }
 
-  public setVariables(variables: Array<string>) {
-    this.values.forEach((el) => {
-      el.setVariables(variables);
-    });
+  public getVariables(): string[] {
+    return this.values.flatMap(v => v.getVariables());
   }
 
   public hasFunction(): boolean {
@@ -258,6 +259,10 @@ export class Const extends Operand {
   public get requireStrictCompare(): boolean { return false; }
   public evaluate(): any {
     return this.getCorrectValue(this.value);
+  }
+
+  public getVariables(): string[] {
+    return [];
   }
 
   public setVariables(variables: Array<string>) {}
@@ -332,6 +337,10 @@ export class Variable extends Const {
       ? this.getCorrectValue(this.valueInfo.value)
       : null;
   }
+
+  public getVariables(): string[] {
+    return [this.variableName];
+  }
   public setVariables(variables: Array<string>) {
     variables.push(this.variableName);
   }
@@ -392,9 +401,10 @@ export class FunctionOperand extends Operand {
     return this.originalValue + "(" + this.parameters.toString(func) + ")";
   }
 
-  public setVariables(variables: Array<string>) {
-    this.parameters.setVariables(variables);
+  public getVariables(): string[] {
+    return this.parameters.getVariables();
   }
+
   public get isReady() {
     return this.isReadyValue;
   }

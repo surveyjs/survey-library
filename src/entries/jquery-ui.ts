@@ -4,8 +4,6 @@ import jQuery from "jquery";
 
 import { Survey, PopupSurvey } from "./jquery-ui-model";
 
-import { SurveyModel } from "survey-core";
-
 jQuery["fn"].extend({
   Survey: function (props: any) {
     return this.each(function () {
@@ -25,15 +23,13 @@ function doPopupSurvey(props: any): void {
   });
 }
 
+import { SurveyModel, checkLibraryVersion } from "survey-core";
 SurveyModel.platform = "jquery";
 
 export const preact: any = React;
 
 export * from "./jquery-ui-model";
 export * from "./core-export";
-
 export { SurveyModel as Model } from "survey-core";
-
-import { checkLibraryVersion } from "survey-core";
 
 checkLibraryVersion(`${process.env.VERSION}`, "survey-jquery-ui");

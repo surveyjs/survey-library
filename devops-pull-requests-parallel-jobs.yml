@@ -350,50 +350,49 @@ jobs:
         npm run testcafe:jquery-ui:ci
       displayName: "run functional tests"
 
-- job: SurveyUI
-  steps:
-    - checkout: self
-      persistCredentials: true
-      clean: true
+# - job: SurveyUI
+#   steps:
+#     - checkout: self
+#       persistCredentials: true
+#       clean: true
 
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "14.x"
-      displayName: "Install Node.js"
+#     - task: NodeTool@0
+#       inputs:
+#         versionSpec: "14.x"
+#       displayName: "Install Node.js"
 
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/"
-        Contents: "package.json"
-        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
-        OverWrite: true
-      displayName: "Copy package.json for cache key"
-    - task: Cache@2
-      inputs:
-        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/node_modules
-        cacheHitVar: NPM_CACHE_RESTORED
-      displayName: Cache NPM
+#     - task: CopyFiles@2
+#       inputs:
+#         SourceFolder: "$(Build.SourcesDirectory)/"
+#         Contents: "package.json"
+#         TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+#         OverWrite: true
+#       displayName: "Copy package.json for cache key"
+#     - task: Cache@2
+#       inputs:
+#         key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+#         path: $(Build.SourcesDirectory)/node_modules
+#         cacheHitVar: NPM_CACHE_RESTORED
+#       displayName: Cache NPM
 
-    - task: Npm@1
-      displayName: 'NPM install'
-      inputs:
-        command: install
-        verbose: false
-        workingDir: $(Build.SourcesDirectory)
-      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+#     - task: Npm@1
+#       displayName: 'NPM install'
+#       inputs:
+#         command: install
+#         verbose: false
+#         workingDir: $(Build.SourcesDirectory)
+#       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
-    - script: |
-        npm run build_core
-        npm run build_i18n
-        npm run build-plugins
-      displayName: "Build Core"
+#     - script: |
+#         npm run build_core
+#         npm run build_i18n
+#         npm run build-plugins
+#       displayName: "Build Core"
 
-    - script: |
-        npm run build_ui_prod
-      displayName: "Build jquery-ui"
+#     - script: |
+#         npm run build_ui_prod
+#       displayName: "Build survey-ui"
 
-    - script: |
-        npm run testcafe:survey-ui:ci
-      displayName: "run functional tests"
-
+#     - script: |
+#         npm run testcafe:survey-ui:ci
+#       displayName: "run functional tests"

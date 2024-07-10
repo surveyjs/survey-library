@@ -61,6 +61,9 @@ export const initSurvey = ClientFunction(
       window["$"]("#surveyElement").Survey({
         model: model
       });
+    } else if (framework === "survey-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
@@ -117,6 +120,9 @@ export const initSurveyPopup = ClientFunction(
         allowClose: true,
         allowFullScreen: true
       });
+    } else if (framework === "survey-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      SurveyUI.renderPopupSurvey(model, document.getElementById("surveyElement"));
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
@@ -180,8 +186,8 @@ export const registerCustomToolboxComponent = ClientFunction(
           return window["React"].createElement(CustomActionButton, props);
         }
       );
-    } else if (framework === "jquery-ui") {
-      const preact = window["SurveyJquery"]["preact"];
+    } else if (framework === "jquery-ui" || framework === "survey-ui") {
+      const preact = (window["SurveyJquery"] || window["SurveyUI"])["preact"];
       window.React = { createElement: preact.createElement };
 
       class CustomActionButton extends preact.Component {
@@ -199,7 +205,7 @@ export const registerCustomToolboxComponent = ClientFunction(
         }
       }
 
-      window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+      (window["SurveyJquery"] || window["SurveyUI"]).ReactElementFactory.Instance.registerElement(
         "svc-custom-action",
         (props) => {
           return preact.createElement(CustomActionButton, props);
@@ -267,8 +273,8 @@ export const registerCustomItemComponent = ClientFunction(
           return window["React"].createElement(ItemTemplateComponent, props);
         }
       );
-    } else if (framework === "jquery-ui") {
-      const preact = window["SurveyJquery"]["preact"];
+    } else if (framework === "jquery-ui" || framework === "survey-ui") {
+      const preact = (window["SurveyJquery"] || window["SurveyUI"])["preact"];
       window.React = { createElement: preact.createElement };
       class ItemTemplateComponent extends preact.Component {
         render() {
@@ -298,7 +304,7 @@ export const registerCustomItemComponent = ClientFunction(
           /* eslint-enable */
         }
       }
-      window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+      (window["SurveyJquery"] || window["SurveyUI"]).ReactElementFactory.Instance.registerElement(
         "new-item",
         (props) => {
           return preact.createElement(ItemTemplateComponent, props);
@@ -362,8 +368,8 @@ export const registerCustomItemContentComponent = ClientFunction(
           return window["React"].createElement(ItemContentTemplateComponent, props);
         }
       );
-    } else if (framework === "jquery-ui") {
-      const preact = window["SurveyJquery"]["preact"];
+    } else if (framework === "jquery-ui" || framework === "survey-ui") {
+      const preact = (window["SurveyJquery"] || window["SurveyUI"])["preact"];
       window.React = { createElement: preact.createElement };
       class ItemContentTemplateComponent extends preact.Component {
         render() {
@@ -381,7 +387,7 @@ export const registerCustomItemContentComponent = ClientFunction(
           );
         }
       }
-      window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+      (window["SurveyJquery"] || window["SurveyUI"]).ReactElementFactory.Instance.registerElement(
         "new-item-content",
         (props) => {
           return preact.createElement(ItemContentTemplateComponent, props);

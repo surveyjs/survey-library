@@ -3,6 +3,8 @@ import * as ReactDOM from "react-dom";
 import jQuery from "jquery";
 
 import { Survey, PopupSurvey } from "./jquery-ui-model";
+// localization
+import "./chunks/localization";
 
 import { SurveyModel } from "./core";
 

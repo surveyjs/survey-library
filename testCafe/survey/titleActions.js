@@ -361,3 +361,42 @@ frameworks.forEach((framework) => {
       })()).gt(0);
   });
 });
+
+function addTitleActionForFocus(_, opt) {
+  opt.titleActions = [{
+    title: "main_action",
+    action: () => {},
+    onFocus: (isMouse, event) => {
+      opt.question.value = isMouse ? "focus_mouse" : "focus_keyboard";
+      event.stopPropagation();
+    }
+  }];
+}
+
+frameworks.forEach(async framework => {
+  fixture`${framework} ${title}`
+    .page`${url_test}${themeName}/${framework}`.beforeEach(async (t) => {
+    await applyTheme(themeName);
+  });
+
+  test("Check Action focus", async t => {
+    await initSurvey(framework, {
+      elements: [
+        {
+          type: "text",
+          name: "q1"
+        }
+      ]
+    }, { onGetQuestionTitleActions: addTitleActionForFocus });
+    const action = Selector(".sv-action");
+
+    await t
+      .wait(1000)
+      .click(action)
+      .expect(Selector("input").value).eql("focus_mouse")
+      .pressKey("tab")
+      .expect(Selector("input").value).eql("focus_mouse")
+      .pressKey("shift+tab")
+      .expect(Selector("input").value).eql("focus_keyboard");
+  });
+});

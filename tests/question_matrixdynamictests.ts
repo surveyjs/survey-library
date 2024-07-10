@@ -486,6 +486,33 @@ QUnit.test("Matrixdynamic duplicationError in detailPanel", function (assert) {
   matrix.value = [{ column1: "val1" }, { column1: "val2" }];
   assert.equal(matrix.hasErrors(), false, "There is no errors, row[0].column1=val1 and row[1].column2=val2");
 });
+QUnit.test("Matrixdynamic duplicationError and no errors in detailPanel, do not expand panels", function (assert) {
+  var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
+  matrix.rowCount = 2;
+  matrix.columns.push(new MatrixDropdownColumn("column1"));
+  matrix.columns.push(new MatrixDropdownColumn("column2"));
+  matrix.detailPanelMode = "underRow";
+  matrix.detailPanel.addNewQuestion("text", "col_q1");
+  matrix.columns[0].isUnique = true;
+  assert.equal(matrix.hasErrors(), false, "No errors");
+  matrix.value = [{ column1: "val1" }, {}];
+  assert.equal(
+    matrix.hasErrors(),
+    false,
+    "There is no errors, row[0].column1=val1"
+  );
+  const rows = matrix.visibleRows;
+  assert.equal(rows[0].isDetailPanelShowing, false, "detail panel row0 is showing, #1");
+  assert.equal(rows[1].isDetailPanelShowing, false, "detail panel row1 is showing, #2");
+  rows[1].getQuestionByName("column1").value = "val1";
+  assert.equal(
+    matrix.hasErrors(),
+    true,
+    "There is the error, row[0].column1=val1 and row[1].column2=val1"
+  );
+  assert.equal(rows[0].isDetailPanelShowing, false, "detail panel row0 is showing, #3");
+  assert.equal(rows[1].isDetailPanelShowing, false, "detail panel row1 is showing, #4");
+});
 
 QUnit.test("Matrixdynamic: remove duplicationError in cells and in detailPanels", function (assert) {
   var matrix = new QuestionMatrixDynamicModel("matrixDymanic");

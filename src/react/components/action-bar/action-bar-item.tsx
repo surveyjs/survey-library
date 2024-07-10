@@ -91,6 +91,8 @@ export class SurveyActionBarItem extends SurveyElementBase<
         className={className}
         type="button"
         disabled={this.item.disabled}
+        onMouseDown={() => this.item.doMouseDown()}
+        onFocus={(args) => this.item.doFocus(args)}
         onClick={(args) => this.item.doAction(args)}
         title={title}
         tabIndex={tabIndex}

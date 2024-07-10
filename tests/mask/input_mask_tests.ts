@@ -149,3 +149,18 @@ QUnit.test("Change property mask => update display value", function (assert) {
 
   testInput.remove();
 });
+
+QUnit.test("Input mask + autocomplete", function (assert) {
+  const testInput = document.createElement("input");
+  const inputMaskPattern = new InputMaskPattern();
+  inputMaskPattern.pattern = "999-99-99";
+  let adapter = new InputElementAdapter(inputMaskPattern, testInput, "");
+  assert.equal(testInput.value, "___-__-__");
+
+  testInput.focus();
+  testInput.value = "+123456789";
+  testInput.dispatchEvent(new Event("change"));
+  assert.equal(testInput.value, "123-45-67");
+
+  testInput.remove();
+});

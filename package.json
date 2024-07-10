@@ -27,6 +27,8 @@
     "build_jquery_prod": "webpack --config ./build-scripts/survey-jquery/webpack.config.js --env.buildType prod && webpack --config ./build-scripts/survey-jquery/webpack.themes.config.js --env.buildType prod",
     "build_jquery_ui_dev": "webpack --config ./build-scripts/survey-jquery-ui/webpack.config.js --env.buildType dev && webpack --config ./build-scripts/survey-jquery-ui/webpack.themes.config.js --env.buildType dev",
     "build_jquery_ui_prod": "webpack --config ./build-scripts/survey-jquery-ui/webpack.config.js --env.buildType prod && webpack --config ./build-scripts/survey-jquery-ui/webpack.themes.config.js --env.buildType prod",
+    "build_ui_dev": "webpack --config ./build-scripts/survey-ui/webpack.config.js --env.buildType dev && webpack --config ./build-scripts/survey-ui/webpack.themes.config.js --env.buildType dev",
+    "build_ui_prod": "webpack --config ./build-scripts/survey-ui/webpack.config.js --env.buildType prod && webpack --config ./build-scripts/survey-ui/webpack.themes.config.js --env.buildType prod",
     "build_angular_dev": "webpack --config ./build-scripts/survey-angular/webpack.config.js --env.buildType dev",
     "build_angular_prod": "webpack --config ./build-scripts/survey-angular/webpack.config.js --env.buildType prod",
     "build_i18n_dev": "webpack --config ./build-scripts/survey-core/webpack.i18n.js --env.buildType dev",
@@ -59,6 +61,7 @@
     "build_i18n": "npm run build_i18n_dev && npm run build_i18n_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_jquery_ui": "npm run build_jquery_ui_dev && npm run build_jquery_ui_prod",
+    "build_ui": "npm run build_ui_dev && npm run build_ui_prod",
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod && rimraf build/survey-angular/ts3.4 && downlevel-dts build/survey-angular build/survey-angular/ts3.4",
     "watch:core:dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev --watch",
     "watch:core:prod": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType prod --watch",
@@ -102,7 +105,7 @@
     "prepare": "husky install",
     "test:postcss": "postcss build/survey-core/defaultV2.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -o defaultV2.postcss.css && rimraf defaultV2.postcss.css"
   },
-  "version": "1.11.5",
+  "version": "1.11.6",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

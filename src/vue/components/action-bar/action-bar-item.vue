@@ -12,6 +12,12 @@
         evt.stopPropagation();
       }
     "
+    v-on:mousedown="
+      () => { item.doMouseDown(); }
+    "
+    v-on:focus="
+      (event) => { item.doFocus(event); }
+    "
     v-bind:disabled="item.disabled"
     v-bind:title="item.tooltip || item.title"
     v-bind:aria-checked="item.ariaChecked"

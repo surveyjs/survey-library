@@ -65,6 +65,7 @@ import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
 import { ITheme } from "../src/themes";
 import { Cover } from "../src/header";
+import { DomWindowHelper } from "../src/global_variables_utils";
 
 export default QUnit.module("Survey");
 
@@ -20047,4 +20048,22 @@ QUnit.test("Delete panel with questions", (assert) => {
   survey.getPanelByName("panel1").delete();
   assert.notOk(survey.getPanelByName("panel1"), "#5");
   assert.notOk(survey.getQuestionByName("question1"), "#6");
+});
+
+QUnit.test("survey navigateToUrl encode url", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ],
+    "navigateToUrl": "javascript:alert(2)",
+  });
+
+  const location: Location = {} as any;
+  DomWindowHelper.getLocation = <any>(() => location);
+
+  survey.doComplete();
+  assert.equal(location.href, "javascript%3Aalert(2)", "encoded URL");
 });

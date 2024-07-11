@@ -346,7 +346,24 @@ export class QuestionTextModel extends QuestionTextBase {
       this._inputValue = this.maskInstance.getMaskedValue(this.value);
     }
   }
-
+  private hasToConvertToUTC(val: any): boolean {
+    return settings.storeUtcDates && this.isDateTimeLocaleType() && !!val;
+  }
+  protected valueForSurveyCore(val: any): any {
+    if(this.hasToConvertToUTC(val)) {
+      val = new Date(val).toISOString();
+    }
+    return super.valueForSurveyCore(val);
+  }
+  protected valueFromDataCore(val: any): any {
+    if(this.hasToConvertToUTC(val)) {
+      const d = new Date(val);
+      const locale_d = new Date(d.getTime() - d.getTimezoneOffset() * 60 * 1000);
+      let res = locale_d.toISOString();
+      val = res.substring(0, res.length - 2);
+    }
+    return super.valueFromDataCore(val);
+  }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
@@ -431,7 +448,10 @@ export class QuestionTextModel extends QuestionTextBase {
     );
   }
   private get isDateInputType(): boolean {
-    return this.inputType === "date" || this.inputType === "datetime-local";
+    return this.inputType === "date" || this.isDateTimeLocaleType();
+  }
+  private isDateTimeLocaleType(): boolean {
+    return this.inputType === "datetime-local";
   }
   private getCalculatedMinMax(minMax: any): any {
     if (this.isValueEmpty(minMax)) return minMax;
@@ -488,11 +508,10 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.maskTypeIsEmpty ? super.getIsInputTextUpdate() : false;
   }
   supportGoNextPageAutomatic(): boolean {
-    return !this.getIsInputTextUpdate() &&
-      ["date", "datetime-local"].indexOf(this.inputType) < 0;
+    return !this.getIsInputTextUpdate() && !this.isDateInputType;
   }
   public supportGoNextPageError(): boolean {
-    return ["date", "datetime-local"].indexOf(this.inputType) < 0;
+    return !this.isDateInputType;
   }
   /**
    * An array of predefined options from which users can select. This property configures an HTML [`<datalist>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist) element and associates it with the underlying `input` element.

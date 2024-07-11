@@ -759,6 +759,9 @@ export abstract class QuestionCustomModelBase extends Question
   validateContainerOnly(): void {
     // do nothing
   }
+  onQuestionValueChanged(el: IElement): void {
+    // do nothing
+  }
   getQuestionErrorLocation(): string {
     return this.getErrorLocation();
   }

@@ -4417,7 +4417,7 @@ export class SurveyModel extends SurveyElementCore
   private calcIsShowPrevButton(): boolean {
     if (this.isFirstPage || !this.showPrevButton || this.state !== "running") return false;
     var page = this.visiblePages[this.currentPageNo - 1];
-    return this.getPageMaxTimeToFinish(page) <= 0;
+    return page && page.getMaxTimeToFinish() <= 0;
   }
   private calcIsShowNextButton(): boolean {
     return this.state === "running" && !this.isLastPage && !this.canBeCompletedByTrigger;
@@ -7185,7 +7185,7 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return { spent: 0, limit: 0 };
     let pageSpent = page.timeSpent;
     let surveySpent = this.timeSpent;
-    let pageLimitSec = this.getPageMaxTimeToFinish(page);
+    let pageLimitSec = page.getMaxTimeToFinish();
     let surveyLimit = this.maxTimeToFinish;
     if (this.showTimerPanelMode == "page") {
       return { spent: pageSpent, limit: pageLimitSec };
@@ -7212,7 +7212,7 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return "";
     var pageSpent = this.getDisplayTime(page.timeSpent);
     var surveySpent = this.getDisplayTime(this.timeSpent);
-    var pageLimitSec = this.getPageMaxTimeToFinish(page);
+    var pageLimitSec = page.getMaxTimeToFinish();
     var pageLimit = this.getDisplayTime(pageLimitSec);
     var surveyLimit = this.getDisplayTime(this.maxTimeToFinish);
     if (this.showTimerPanelMode == "page")
@@ -7245,7 +7245,7 @@ export class SurveyModel extends SurveyElementCore
     pageSpent: string,
     pageLimit: string
   ): string {
-    return this.getPageMaxTimeToFinish(page) > 0
+    return !!page && page.getMaxTimeToFinish() > 0
       ? this.getLocalizationFormatString("timerLimitPage", pageSpent, pageLimit)
       : this.getLocalizationFormatString("timerSpentPage", pageSpent, pageLimit);
   }
@@ -7355,19 +7355,14 @@ export class SurveyModel extends SurveyElementCore
   public set maxTimeToFinishPage(val: number) {
     this.setPropertyValue("maxTimeToFinishPage", val);
   }
-  private getPageMaxTimeToFinish(page: PageModel) {
-    if (!page || page.maxTimeToFinish < 0) return 0;
-    return page.maxTimeToFinish > 0
-      ? page.maxTimeToFinish
-      : this.maxTimeToFinishPage;
-  }
   private doTimer(page: PageModel): void {
     this.onTimer.fire(this, {});
-    if (this.maxTimeToFinish > 0 && this.maxTimeToFinish == this.timeSpent) {
+    if (this.maxTimeToFinish > 0 && this.maxTimeToFinish <= this.timeSpent) {
+      this.timeSpent = this.maxTimeToFinish;
       this.completeLastPage();
     }
     if (page) {
-      var pageLimit = this.getPageMaxTimeToFinish(page);
+      var pageLimit = page.getMaxTimeToFinish();
       if (pageLimit > 0 && pageLimit == page.timeSpent) {
         if (this.isLastPage) {
           this.completeLastPage();

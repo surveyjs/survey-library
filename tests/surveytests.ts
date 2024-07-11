@@ -939,6 +939,30 @@ QUnit.test("progressText, 'requiredQuestions' type and design mode", function (
   assert.equal(survey.getProgressTypeComponent(), "sv-progress-requiredquestions", "requiredQuestions component");
   assert.equal(survey.progressText, "Answered 0/2 questions");
 });
+QUnit.test("progressText, 'questions' type, invisible cells and data", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    progressBarType: "questions",
+    elements: [
+      { type: "matrixdynamic", name: "matrix",
+        columns: [
+          { cellType: "text", name: "col1" },
+          { cellType: "boolean", name: "col2" },
+          { cellType: "text", name: "col3", visibleIf: "{row.col2}=true" },
+        ]
+      }
+    ]
+  });
+  survey.data = { matrix: [{ col1: "abc1", col2: true, col3: "edf1" }, { col1: "abc1", col2: false }] };
+  assert.equal(survey.progressText, "Answered 5/5 questions", "#1");
+  const matrix = survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  rows[1].getQuestionByName("col2").value = true;
+  assert.equal(survey.progressText, "Answered 5/6 questions", "#2");
+  rows[1].getQuestionByName("col3").value = "abc";
+  assert.equal(survey.progressText, "Answered 6/6 questions", "#3");
+});
 QUnit.test("progressText, 'requiredQuestions' type and required matrix dropdown, bug#5375", function (
   assert
 ) {

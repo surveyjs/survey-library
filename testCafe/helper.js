@@ -368,8 +368,8 @@ export const registerCustomItemContentComponent = ClientFunction(
           return window["React"].createElement(ItemContentTemplateComponent, props);
         }
       );
-    } else if (framework === "jquery-ui" || framework === "survey-ui") {
-      const preact = (window["SurveyJquery"] || window["SurveyUI"])["preact"];
+    } else if (framework === "jquery-ui") {
+      const preact = window["SurveyJquery"]["preact"];
       window.React = { createElement: preact.createElement };
       class ItemContentTemplateComponent extends preact.Component {
         render() {
@@ -387,7 +387,32 @@ export const registerCustomItemContentComponent = ClientFunction(
           );
         }
       }
-      (window["SurveyJquery"] || window["SurveyUI"]).ReactElementFactory.Instance.registerElement(
+      window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+        "new-item-content",
+        (props) => {
+          return preact.createElement(ItemContentTemplateComponent, props);
+        }
+      );
+    } else if (framework === "survey-ui") {
+      const preact = window["SurveyUI"]["preact"];
+      window.React = { createElement: preact.createElement };
+      class ItemContentTemplateComponent extends preact.Component {
+        render() {
+          const locText = this.props.item.locText;
+          const styles = {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": "8px"
+          };
+          return (
+            <div className="sv-ranking-item__text" style={styles}>
+              <SurveyUI.SvgIcon iconName={"icon-next_16x16"} size={16}></SurveyUI.SvgIcon>
+              {SurveyUI.SurveyElementBase.renderLocString(locText)}
+            </div>
+          );
+        }
+      }
+      window["SurveyUI"].ReactElementFactory.Instance.registerElement(
         "new-item-content",
         (props) => {
           return preact.createElement(ItemContentTemplateComponent, props);

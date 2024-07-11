@@ -2815,3 +2815,61 @@ QUnit.test("panel check title in design mode", function (assert) {
   survey.css.panel.titleHidden = oldCss;
   survey.css.root = oldRootCss;
 });
+QUnit.test("Check if errors disappered in the closest questions on changing the question, checkErrorsMode: 'onValueChanged', Bug#8539", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "text", name: "q1",
+        validators: [{ type: "expression", expression: "{q1} + {q2} <= 10" }]
+      },
+      { type: "text", name: "q3" },
+      {
+        type: "text", name: "q2",
+        validators: [{ type: "expression", expression: "{q1} + {q2} <= 10" }]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = 5;
+  q2.value = 6;
+  assert.equal(q1.errors.length, 0, "q1.errors #1");
+  assert.equal(q2.errors.length, 1, "q2.errors #1");
+  q1.value = 3;
+  assert.equal(q1.errors.length, 0, "q1.errors #2");
+  assert.equal(q2.errors.length, 0, "q2.errors #2");
+  q1.value = 7;
+  assert.equal(q1.errors.length, 1, "q1.errors #3");
+  assert.equal(q2.errors.length, 0, "q2.errors #3");
+  q2.value = 2;
+  assert.equal(q1.errors.length, 0, "q1.errors #4");
+  assert.equal(q2.errors.length, 0, "q2.errors #4");
+});
+QUnit.test("Check if errors disappered in the closest questions on changing the question, Bug#8539", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text", name: "q1",
+        validators: [{ type: "expression", expression: "{q1} + {q2} <= 10" }]
+      },
+      { type: "text", name: "q3" },
+      {
+        type: "text", name: "q2",
+        validators: [{ type: "expression", expression: "{q1} + {q2} <= 10" }]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = 5;
+  q2.value = 6;
+  assert.equal(q1.errors.length, 0, "q1.errors #1");
+  assert.equal(q2.errors.length, 0, "q2.errors #1");
+  assert.equal(survey.completeLastPage(), false, "Could not complete");
+  assert.equal(q1.errors.length, 1, "q1.errors #2");
+  assert.equal(q2.errors.length, 1, "q2.errors #2");
+  q1.value = 1;
+  assert.equal(q1.errors.length, 0, "q1.errors #3");
+  assert.equal(q2.errors.length, 0, "q2.errors #3");
+});

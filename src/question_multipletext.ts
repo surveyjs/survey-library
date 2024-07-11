@@ -832,6 +832,9 @@ export class QuestionMultipleTextModel extends Question
   validateContainerOnly(): void {
     // do nothing
   }
+  onQuestionValueChanged(el: IElement): void {
+    // do nothing
+  }
   public getItemLabelCss(item: MultipleTextItemModel): string {
     return new CssClassBuilder()
       .append(this.cssClasses.itemLabel)

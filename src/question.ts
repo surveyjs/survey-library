@@ -2262,6 +2262,9 @@ export class Question extends SurveyElement<Question>
       this.updateQuestionCss();
     }
     this.isOldAnswered = undefined;
+    if(this.parent) {
+      this.parent.onQuestionValueChanged(this);
+    }
   }
   private checkIsValueCorrect(val: any): boolean {
     const res = this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isNewValueCorrect(val);

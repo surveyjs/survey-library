@@ -391,9 +391,8 @@ jobs:
 
     - script: |
         npm run build_ui_prod
-      displayName: "Build jquery-ui"
+      displayName: "Build survey-ui"
 
     - script: |
         npm run testcafe:survey-ui:ci
       displayName: "run functional tests"
-

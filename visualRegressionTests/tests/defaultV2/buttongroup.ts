@@ -54,8 +54,8 @@ const registerButtongroup = ClientFunction((framework) => {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-      await applyTheme(theme);
-    });
+    await applyTheme(theme);
+  });
   test("Check buttongroup question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

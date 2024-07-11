@@ -279,7 +279,7 @@ export const registerCustomItemComponent = ClientFunction(
       class ItemTemplateComponent extends preact.Component {
         render() {
           const item = this.props.item;
-          var Survey = window["SurveyJquery"];
+          var Survey = window["SurveyJquery"] || window["SurveyUI"];
           item.iconName = "icon-defaultfile";
           item.hint = item.title + " - Description";
 

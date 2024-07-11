@@ -25,9 +25,16 @@ const registerButtongroup = ClientFunction((framework) => {
   }
   if (framework === "jquery-ui") {
     const SurveyJquery = (<any>window).SurveyJquery;
-    const preact = window["SurveyJquery"]["preact"];
+    const preact = SurveyJquery["preact"];
     SurveyJquery.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
       return preact.createElement(SurveyJquery.SurveyQuestionButtonGroup, props);
+    });
+  }
+  if (framework === "survey-ui") {
+    const SurveyUI = (<any>window).SurveyUI;
+    const preact = SurveyUI["preact"];
+    SurveyUI.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
+      return preact.createElement(SurveyUI.SurveyQuestionButtonGroup, props);
     });
   }
   if (framework === "knockout") {
@@ -47,8 +54,8 @@ const registerButtongroup = ClientFunction((framework) => {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-  });
+      await applyTheme(theme);
+    });
   test("Check buttongroup question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

@@ -57,8 +57,8 @@
       position: absolute;
       bottom: calcSize(1.125);
       // right: 50%;
-      right: calc(50% + 7px);
-      width: calc(100% - 14px);
+      right: calc(50% + 9px);
+      width: calc(100% - 18px);
       pointer-events: none;
     }
 
@@ -241,8 +241,8 @@
     li {
       &:not(:first-child)>.sd-progress-buttons__connector {
         bottom: calcSize(2.175);
-        right: calc(50% + 14px);
-        width: calc(100% - 28px);
+        right: calc(50% + 18px);
+        width: calc(100% - 36px);
       }
 
       .sd-progress-buttons__button {

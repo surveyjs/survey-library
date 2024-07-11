@@ -122,7 +122,11 @@ export const initSurveyPopup = ClientFunction(
       });
     } else if (framework === "survey-ui") {
       document.getElementById("surveyElement").innerHTML = "";
-      SurveyUI.renderPopupSurvey(model, document.getElementById("surveyElement"));
+      SurveyUI.renderPopupSurvey(model, document.getElementById("surveyElement"), {
+        isExpanded: true,
+        allowClose: true,
+        allowFullScreen: true
+      });
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));

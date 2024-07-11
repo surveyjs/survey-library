@@ -49,7 +49,6 @@ const initPopupSurvey = ClientFunction(
         model: model
       });
     } else if (framework === "survey-ui") {
-      model.css = myCss;
       document.getElementById("surveyElement").innerHTML = "";
       window["SurveyUI"].renderPopupSurvey(model, document.getElementById("surveyElement"));
     }

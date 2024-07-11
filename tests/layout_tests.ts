@@ -1,3 +1,4 @@
+import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
 import { roundTo2Decimals } from "../src/utils/utils";
 
@@ -468,4 +469,135 @@ QUnit.test("columns effectiveWidth #1", assert => {
   assert.equal(page.layoutColumns[2].effectiveWidth, 35);
   assert.equal(page.layoutColumns[3].effectiveWidth, 15);
   assert.equal(page.layoutColumns[3].width, undefined);
+});
+
+QUnit.test("colSpan for first row", assert => {
+  const surveyModel = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q4"
+          },
+          {
+            "type": "text",
+            "name": "q1"
+          },
+          {
+            "type": "text",
+            "name": "q2",
+            "colSpan": 2,
+            "startWithNewLine": false
+          },
+          {
+            "type": "text",
+            "name": "q3"
+          }
+        ]
+      }
+    ]
+  });
+
+  const q1 = surveyModel.getQuestionByName("q1");
+  const q2 = surveyModel.getQuestionByName("q2");
+  const q3 = surveyModel.getQuestionByName("q3");
+  const q4 = surveyModel.getQuestionByName("q4");
+  const page = surveyModel.pages[0];
+
+  assert.equal(page.layoutColumns.length, 3);
+  assert.equal(q1.effectiveColSpan, 1, "q1 effectiveColSpan");
+  assert.equal(q2.effectiveColSpan, 2, "q2 effectiveColSpan");
+  assert.equal(q3.effectiveColSpan, 3, "q3 effectiveColSpan");
+  assert.equal(q4.effectiveColSpan, 3, "q4 effectiveColSpan");
+});
+
+QUnit.test("expand last question in row whitch does not have colSpan set", assert => {
+  const surveyModel = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+          {
+            "type": "text",
+            "name": "question2",
+            "startWithNewLine": false
+          },
+          {
+            "type": "text",
+            "name": "question3",
+            "startWithNewLine": false
+          },
+          {
+            "type": "text",
+            "name": "question4",
+            "startWithNewLine": false
+          },
+          {
+            "type": "text",
+            "name": "question5",
+            "startWithNewLine": false
+          },
+          {
+            "type": "text",
+            "name": "question9"
+          },
+          {
+            "type": "text",
+            "name": "question10",
+            "colSpan": 2,
+            "startWithNewLine": false
+          }
+        ]
+      }
+    ]
+  });
+
+  const q9 = surveyModel.getQuestionByName("question9");
+  const q10 = surveyModel.getQuestionByName("question10");
+  const page = surveyModel.pages[0];
+
+  assert.equal(page.layoutColumns.length, 5);
+  assert.equal(q9.effectiveColSpan, 3, "q9 effectiveColSpan");
+  assert.equal(q10.effectiveColSpan, 2, "q10 effectiveColSpan");
+});
+
+QUnit.test("recalculate column width after question added", assert => {
+  const surveyModel = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+          {
+            "type": "text",
+            "name": "question2",
+            "startWithNewLine": false
+          }
+        ]
+      }
+    ]
+  });
+
+  const page = surveyModel.pages[0];
+
+  assert.equal(page.layoutColumns.length, 2);
+  assert.equal(page.layoutColumns[0].effectiveWidth, 50);
+  assert.equal(page.layoutColumns[1].effectiveWidth, 50);
+
+  const q3 = new QuestionTextModel("q3");
+  q3.startWithNewLine = false;
+  page.addElement(q3, 2);
+  assert.equal(page.layoutColumns.length, 3);
+  assert.equal(page.layoutColumns[0].effectiveWidth, 33.33);
+  assert.equal(page.layoutColumns[1].effectiveWidth, 33.33);
+  assert.equal(page.layoutColumns[2].effectiveWidth, 33.33);
 });

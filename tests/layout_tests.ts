@@ -138,12 +138,12 @@ QUnit.test("user columns de/serialization", function (assert) {
     pages: [
       {
         name: "page1",
-        layoutColumns: [{
-          "width": 40,
-        }, {
-          "width": 45,
-          "questionTitleWidth": "200px"
-        }]
+        layoutColumns: [
+          { "width": 40, },
+          {
+            "width": 45,
+            "questionTitleWidth": "200px"
+          }]
       }]
   });
   const page = surveyModel.pages[0];
@@ -178,10 +178,7 @@ QUnit.test("layout columns de/serialization", function (assert) {
       {
         name: "page1",
         "elements": [
-          {
-            "type": "text",
-            "name": "q1"
-          },
+          { "type": "text", "name": "q1" },
           {
             "type": "text",
             "name": "q2",
@@ -204,18 +201,12 @@ QUnit.test("apply columns from layoutColumns #1", function (assert) {
     pages: [
       {
         name: "page1",
-        layoutColumns: [{
-          "width": 40,
-        }],
+        layoutColumns: [
+          { "width": 40 }
+        ],
         elements: [
-          {
-            "name": "q1",
-            "type": "text",
-          }, {
-            "name": "q2",
-            "type": "text",
-            "startWithNewLine": false
-          }
+          { "name": "q1", "type": "text", },
+          { "name": "q2", "type": "text", "startWithNewLine": false }
         ]
       }]
   });
@@ -238,24 +229,16 @@ QUnit.test("apply columns from layoutColumns #2", function (assert) {
     pages: [
       {
         name: "page1",
-        layoutColumns: [{
-          "width": 20,
-        }, {
-          "width": 30,
-        }, {
-          "width": 25,
-        }, {
-          "width": 25,
-        }],
+        layoutColumns: [
+          { "width": 20, },
+          { "width": 30, },
+          { "width": 25, },
+          { "width": 25, }
+        ],
         elements: [
+          { "name": "q1", "type": "text", },
+          { "name": "q2", "type": "text", "startWithNewLine": false },
           {
-            "name": "q1",
-            "type": "text",
-          }, {
-            "name": "q2",
-            "type": "text",
-            "startWithNewLine": false
-          }, {
             "name": "q3",
             "type": "text",
             "colSpan": 2,
@@ -285,24 +268,16 @@ QUnit.test("apply columns from layoutColumns with given colSpan", function (asse
     pages: [
       {
         name: "page1",
-        layoutColumns: [{
-          "width": 20,
-        }, {
-          "width": 30,
-        }, {
-          "width": 25,
-        }, {
-          "width": 25,
-        }],
+        layoutColumns: [
+          { "width": 20, },
+          { "width": 30, },
+          { "width": 25, },
+          { "width": 25, }
+        ],
         elements: [
+          { "name": "q1", "type": "text", },
+          { "name": "q2", "type": "text", "startWithNewLine": false },
           {
-            "name": "q1",
-            "type": "text",
-          }, {
-            "name": "q2",
-            "type": "text",
-            "startWithNewLine": false
-          }, {
             "name": "q3",
             "type": "text",
             "colSpan": 1,
@@ -332,10 +307,7 @@ QUnit.test("check question width if column width is set for only one column", fu
       {
         "name": "page1",
         "elements": [
-          {
-            "type": "text",
-            "name": "q1"
-          },
+          { "type": "text", "name": "q1" },
           {
             "type": "text",
             "name": "q2",
@@ -370,20 +342,14 @@ QUnit.test("check question width if column width is set for only one column", fu
 QUnit.test("effectiveColSpan #1", assert => {
   const surveyModel = new SurveyModel({
     "questions": [
-      {
-        "type": "text",
-        "name": "q1"
-      },
+      { "type": "text", "name": "q1" },
       {
         "type": "text",
         "name": "q2",
         "colSpan": 2,
         "startWithNewLine": false
       },
-      {
-        "type": "text",
-        "name": "q3"
-      },
+      { "type": "text", "name": "q3" },
       {
         "type": "text",
         "name": "q4",
@@ -413,41 +379,21 @@ QUnit.test("columns effectiveWidth #1", assert => {
       {
         "name": "page1",
         "elements": [
-          {
-            "type": "text",
-            "name": "q1"
-          },
+          { "type": "text", "name": "q1" },
           {
             "type": "text",
             "name": "q2",
             "colSpan": 2,
             "startWithNewLine": false
           },
-          {
-            "type": "text",
-            "name": "q5",
-            "startWithNewLine": false
-          },
-          {
-            "type": "text",
-            "name": "q3"
-          },
-          {
-            "type": "text",
-            "name": "q4",
-            "startWithNewLine": false
-          }
+          { "type": "text", "name": "q5", "startWithNewLine": false },
+          { "type": "text", "name": "q3" },
+          { "type": "text", "name": "q4", "startWithNewLine": false }
         ],
         "layoutColumns": [
-          {
-            "width": 25
-          },
-          {
-            "width": 30
-          },
-          {
-            "width": 35
-          }
+          { "width": 25 },
+          { "width": 30 },
+          { "width": 35 }
         ]
       }
     ]
@@ -477,24 +423,13 @@ QUnit.test("colSpan for first row", assert => {
       {
         "name": "page1",
         "elements": [
+          { "type": "text", "name": "q4" },
+          { "type": "text", "name": "q1" },
           {
-            "type": "text",
-            "name": "q4"
+            "type": "text", "name": "q2",
+            "colSpan": 2, "startWithNewLine": false
           },
-          {
-            "type": "text",
-            "name": "q1"
-          },
-          {
-            "type": "text",
-            "name": "q2",
-            "colSpan": 2,
-            "startWithNewLine": false
-          },
-          {
-            "type": "text",
-            "name": "q3"
-          }
+          { "type": "text", "name": "q3" }
         ]
       }
     ]
@@ -519,34 +454,12 @@ QUnit.test("expand last question in row whitch does not have colSpan set", asser
       {
         "name": "page1",
         "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          },
-          {
-            "type": "text",
-            "name": "question2",
-            "startWithNewLine": false
-          },
-          {
-            "type": "text",
-            "name": "question3",
-            "startWithNewLine": false
-          },
-          {
-            "type": "text",
-            "name": "question4",
-            "startWithNewLine": false
-          },
-          {
-            "type": "text",
-            "name": "question5",
-            "startWithNewLine": false
-          },
-          {
-            "type": "text",
-            "name": "question9"
-          },
+          { "type": "text", "name": "question1" },
+          { "type": "text", "name": "question2", "startWithNewLine": false },
+          { "type": "text", "name": "question3", "startWithNewLine": false },
+          { "type": "text", "name": "question4", "startWithNewLine": false },
+          { "type": "text", "name": "question5", "startWithNewLine": false },
+          { "type": "text", "name": "question9" },
           {
             "type": "text",
             "name": "question10",
@@ -573,15 +486,8 @@ QUnit.test("recalculate column width after question added", assert => {
       {
         "name": "page1",
         "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          },
-          {
-            "type": "text",
-            "name": "question2",
-            "startWithNewLine": false
-          }
+          { "type": "text", "name": "question1" },
+          { "type": "text", "name": "question2", "startWithNewLine": false }
         ]
       }
     ]
@@ -600,4 +506,45 @@ QUnit.test("recalculate column width after question added", assert => {
   assert.equal(page.layoutColumns[0].effectiveWidth, 33.33);
   assert.equal(page.layoutColumns[1].effectiveWidth, 33.33);
   assert.equal(page.layoutColumns[2].effectiveWidth, 33.33);
+});
+
+QUnit.test("question root style", function (assert) {
+  const surveyModel = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [{ "name": "q1", "type": "text" }]
+      }
+    ]
+  });
+  const page = surveyModel.pages[0];
+  const q1 = surveyModel.getQuestionByName("q1");
+
+  assert.deepEqual(q1.rootStyle, {
+    "flexBasis": "100%",
+    "flexGrow": 1,
+    "flexShrink": 1,
+    "maxWidth": "100%",
+    "minWidth": "min(100%, 300px)"
+  });
+
+  const q2 = new QuestionTextModel("q2");
+  q2.startWithNewLine = false;
+  page.addElement(q2, 1);
+
+  assert.deepEqual(q1.rootStyle, {
+    "flexBasis": "50%",
+    "flexGrow": 0,
+    "flexShrink": 0,
+    "maxWidth": undefined,
+    "minWidth": undefined
+  });
+
+  assert.deepEqual(q2.rootStyle, {
+    "flexBasis": "50%",
+    "flexGrow": 0,
+    "flexShrink": 0,
+    "maxWidth": undefined,
+    "minWidth": undefined
+  });
 });

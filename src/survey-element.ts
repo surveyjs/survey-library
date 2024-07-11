@@ -956,6 +956,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         style["flexGrow"] = 0;
         style["flexShrink"] = 0;
         style["flexBasis"] = _width + "%";
+        style["minWidth"] = undefined;
+        style["maxWidth"] = undefined;
       }
     }
     if (Object.keys(style).length == 0) {

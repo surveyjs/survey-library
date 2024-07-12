@@ -19,8 +19,8 @@ const registerButtongroup = ClientFunction((framework) => {
     return new Survey.QuestionButtonGroupModel(name);
   });
   if (framework === "react") {
-    Survey.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
-      return (<any>window).React.createElement(Survey.SurveyQuestionButtonGroup, props);
+    (<any>window).SurveyReact.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
+      return (<any>window).React.createElement((<any>window).SurveyReact.SurveyQuestionButtonGroup, props);
     });
   }
   if (framework === "jquery-ui") {

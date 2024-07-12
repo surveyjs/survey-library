@@ -25,7 +25,7 @@ const initSurvey = ClientFunction((framework, json) => {
     model.render("surveyElement");
   } else if (framework === "react") {
     window["ReactDOM"].render(
-      window["React"].createElement(window["Survey"].Survey, {
+      window["React"].createElement(window["SurveyReact"].Survey, {
         model: model,
         css: myCss,
       }),

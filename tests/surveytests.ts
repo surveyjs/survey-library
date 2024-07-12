@@ -65,6 +65,7 @@ import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
 import { ITheme } from "../src/themes";
 import { Cover } from "../src/header";
+import { DomWindowHelper } from "../src/global_variables_utils";
 
 export default QUnit.module("Survey");
 
@@ -6608,6 +6609,49 @@ QUnit.test("surveyId + clientId", function (assert) {
     "The survey was completed before"
   );
   var q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.name, "q1", "The survey created from the string");
+});
+
+QUnit.test("surveyId + clientId several page render", function (assert) {
+  let log = "";
+  let curState = "";
+  const json = { questions: [{ type: "text", name: "q1" }] };
+  class dxSurveyServiceTester extends dxSurveyService {
+    public getSurveyJsonAndIsCompleted(surveyId: string, clientId: string, onLoad: (success: boolean, surveyJson: any, result: string, response: any) => void) {
+      if (onLoad) {
+        onLoad(true, json, clientId, "");
+      }
+    }
+  }
+  class SurveyTester extends SurveyModel {
+    protected createSurveyService(): dxSurveyService {
+      return new dxSurveyServiceTester();
+    }
+    protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
+      super.propertyValueChanged(name, oldValue, newValue, arrayChanges);
+      if (name === "isLoading" || name === "state" || name === "activePage") {
+        log += ("-> " + name + ":" + newValue);
+      }
+    }
+    protected onLoadSurveyFromService(): void {
+      super.onLoadSurveyFromService();
+      curState = this.state;
+      assert.equal(curState, "loading");
+    }
+    protected setPropertyValueDirectly(name: string, val: any): void {
+      if (name === "activePage" && !!val) {
+        assert.ok(this.activePage === undefined, "this.activePage undefined");
+        assert.ok(!!val, "new activePage");
+      }
+      super.setPropertyValueDirectly(name, val);
+    }
+  }
+
+  let survey = new SurveyTester({ surveyId: "surveyDummyId", clientId: "completed" });
+  assert.equal(survey.state, "completedbefore", "The survey is running");
+  assert.equal(log, "-> state:empty-> state:loading-> isLoading:true-> activePage:page1-> state:completedbefore-> isLoading:false");
+
+  let q1 = survey.getQuestionByName("q1");
   assert.equal(q1.name, "q1", "The survey created from the string");
 });
 
@@ -15500,16 +15544,40 @@ QUnit.test("survey.autoGrowComment", function (assert) {
     ]
   };
   let survey = new SurveyModel(json);
-  let comment1 = survey.getQuestionByName("comment1");
-  let comment2 = survey.getQuestionByName("comment2");
+  let comment1 = survey.getQuestionByName("comment1") as QuestionCommentModel;
+  let comment2 = survey.getQuestionByName("comment2") as QuestionCommentModel;
 
-  assert.equal(survey.autoGrowComment, true);
-  assert.equal(comment1.autoGrow, true);
-  assert.equal(comment2.autoGrow, true);
+  assert.equal(survey.autoGrowComment, true, "#1");
+  assert.equal(comment1.renderedAutoGrow, true, "#2");
+  assert.equal(comment2.renderedAutoGrow, true, "#3");
 
   survey.autoGrowComment = false;
-  assert.equal(comment1.autoGrow, false);
-  assert.equal(comment2.autoGrow, true);
+  assert.equal(comment1.renderedAutoGrow, false, "#4");
+  assert.equal(comment2.renderedAutoGrow, true, "#5");
+});
+QUnit.test("save comment autoGrow && autoResize", function (assert) {
+  let json = {
+    autoGrowComment: true,
+    pages: [
+      {
+        elements: [
+          {
+            type: "comment",
+            name: "q1",
+          }
+        ]
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let question = survey.getQuestionByName("q1") as QuestionCommentModel;
+  assert.deepEqual(question.toJSON(), { name: "q1" }, "#1");
+  question.allowResize = false;
+  question.autoGrow = false;
+  assert.deepEqual(question.toJSON(), { name: "q1", allowResize: false, autoGrow: false }, "#2");
+  question.allowResize = true;
+  question.autoGrow = true;
+  assert.deepEqual(question.toJSON(), { name: "q1", allowResize: true, autoGrow: true }, "#3");
 });
 QUnit.test("survey.allowResizeComment", function (assert) {
   let json = {
@@ -15531,26 +15599,79 @@ QUnit.test("survey.allowResizeComment", function (assert) {
     ]
   };
   let survey = new SurveyModel(json);
-  let comment1 = survey.getQuestionByName("comment1");
-  let comment2 = survey.getQuestionByName("comment2");
+  let comment1 = survey.getQuestionByName("comment1") as QuestionCommentModel;
+  let comment2 = survey.getQuestionByName("comment2") as QuestionCommentModel;
 
   assert.equal(survey.allowResizeComment, false);
-  assert.equal(comment1.renderedAllowResize, false);
-  assert.equal(comment2.renderedAllowResize, false);
+  assert.equal(comment1.renderedAllowResize, false, "comment1 survey.allowResizeComment = false, #1");
+  assert.equal(comment2.renderedAllowResize, false, "comment2 survey.allowResizeComment = false, #2");
 
   survey.allowResizeComment = true;
-  assert.equal(comment1.renderedAllowResize, true);
-  assert.equal(comment2.renderedAllowResize, false);
+  assert.equal(comment1.renderedAllowResize, true, "comment1 survey.allowResizeComment = true, #3");
+  assert.equal(comment2.renderedAllowResize, false, "comment2 survey.allowResizeComment = true, #4");
 
   comment1.readOnly = true;
-  assert.equal(comment1.renderedAllowResize, false);
+  assert.equal(comment1.renderedAllowResize, false, "#5");
   comment1.readOnly = false;
 
   survey.showPreview();
   let comment1Preview = survey.getQuestionByName("comment1");
-  assert.equal(comment1Preview.renderedAllowResize, false);
-
+  assert.equal(comment1Preview.renderedAllowResize, false, "#6");
 });
+
+QUnit.test("survey.allowResizeComment & survey.autoGrowComment override this properties for individual properties", function (assert) {
+  let json = {
+    allowResizeComment: false,
+    autoGrowComment: false,
+    pages: [
+      {
+        elements: [
+          {
+            type: "comment",
+            name: "comment1",
+            autoGrow: true,
+            allowResize: true
+          },
+          {
+            type: "comment",
+            name: "comment2",
+          },
+          {
+            type: "comment",
+            name: "comment3",
+            autoGrow: false
+          }
+        ]
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let comment1 = survey.getQuestionByName("comment1") as QuestionCommentModel;
+  let comment2 = survey.getQuestionByName("comment2") as QuestionCommentModel;
+  let comment3 = survey.getQuestionByName("comment3") as QuestionCommentModel;
+
+  assert.equal(comment1.renderedAllowResize, true, "comment1 survey.allowResizeComment = false, #1");
+  assert.equal(comment1.renderedAutoGrow, true, "comment1 survey.autoGrowComment = false, #2");
+  assert.equal(comment2.renderedAllowResize, false, "comment2 survey.allowResizeComment = false, #3");
+  assert.equal(comment2.renderedAutoGrow, false, "comment2 survey.autoGrowComment = false, #4");
+  assert.equal(comment3.renderedAutoGrow, false, "comment2 survey.autoGrowComment = false, #5");
+
+  survey.allowResizeComment = true;
+  survey.autoGrowComment = true;
+  assert.equal(comment1.renderedAllowResize, true, "comment1 survey.allowResizeComment = true, #6");
+  assert.equal(comment1.renderedAutoGrow, true, "comment1 survey.autoGrowComment = true, #7");
+  assert.equal(comment2.renderedAllowResize, true, "comment2 survey.allowResizeComment = true, #8");
+  assert.equal(comment2.renderedAutoGrow, true, "comment2 survey.autoGrowComment = true, #9");
+  assert.equal(comment3.renderedAutoGrow, false, "comment2 survey.autoGrowComment = true, #10");
+});
+
+QUnit.test("getDefaultPropertyValue for comment properties autoGrow & allowResize", function (assert) {
+  let comment = new QuestionCommentModel("q1");
+
+  assert.strictEqual(comment.getDefaultPropertyValue("autoGrow"), undefined, "autoGrow");
+  assert.strictEqual(comment.getDefaultPropertyValue("allowResize"), undefined, "allowResize");
+});
+
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
     getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
@@ -20069,4 +20190,21 @@ QUnit.test("_isElementShouldBeSticky", (assert) => {
 
   rootElement.scrollTop = 0;
   assert.notOk(survey._isElementShouldBeSticky(""), "empty selector - always false (no scroll)");
+});
+QUnit.test("survey navigateToUrl encode url", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ],
+    "navigateToUrl": "javascript:alert(2)",
+  });
+
+  const location: Location = {} as any;
+  DomWindowHelper.getLocation = <any>(() => location);
+
+  survey.doComplete();
+  assert.equal(location.href, "javascript%3Aalert(2)", "encoded URL");
 });

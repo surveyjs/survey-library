@@ -3330,7 +3330,9 @@ export class SurveyModel extends SurveyElementCore
   }
   private updateActivePage(): void {
     const newPage = this.isShowStartingPage ? this.startedPage : this.currentPage;
-    this.setPropertyValue("activePage", newPage);
+    if (newPage !== this.activePage) {
+      this.setPropertyValue("activePage", newPage);
+    }
   }
   private onStateAndCurrentPageChanged(): void {
     this.updateActivePage();
@@ -6073,11 +6075,11 @@ export class SurveyModel extends SurveyElementCore
           isCompleted: string,
           response: any
         ) {
-          self.isLoading = false;
           if (success) {
             self.isCompletedBefore = isCompleted == "completed";
             self.loadSurveyFromServiceJson(json);
           }
+          self.isLoading = false;
         }
       );
     } else {
@@ -6086,10 +6088,10 @@ export class SurveyModel extends SurveyElementCore
         result: string,
         response: any
       ) {
-        self.isLoading = false;
         if (success) {
           self.loadSurveyFromServiceJson(result);
         }
+        self.isLoading = false;
       });
     }
   }

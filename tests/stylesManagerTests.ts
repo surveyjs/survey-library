@@ -1,4 +1,4 @@
-import { bootstrapThemeName } from "../src/entries/plugins";
+import { bootstrapThemeName } from "../src/plugins/themes/bootstrap/theme-settings";
 import { StylesManager } from "../src/stylesmanager";
 import { Logger } from "../src/utils/utils";
 

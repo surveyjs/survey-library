@@ -1,4 +1,5 @@
-import { bootstrapThemeName } from "../src/plugins/themes/bootstrap/theme-settings";
+// eslint-disable-next-line surveyjs/no-imports-from-entries
+import { bootstrapThemeName } from "../src/entries/plugins";
 import { StylesManager } from "../src/stylesmanager";
 import { Logger } from "../src/utils/utils";
 

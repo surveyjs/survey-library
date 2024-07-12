@@ -541,8 +541,12 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   protected correctValueType(newValue: any): any {
     if (!newValue) return newValue;
-    if (this.inputType == "number" || this.inputType == "range") {
+    if (this.inputType === "number" || this.inputType === "range") {
       return Helpers.isNumber(newValue) ? Helpers.getNumber(newValue) : "";
+    }
+    if(this.inputType === "month") {
+      const d = new Date(newValue);
+      return d.getFullYear() + "-" + (d.getMonth() + 1);
     }
     return newValue;
   }

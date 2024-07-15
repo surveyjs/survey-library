@@ -39,7 +39,7 @@ SurveyModel.platform = "ui";
 
 export const preact: any = React;
 
-export * from "./ui-model";
+export * from "./react-ui-model";
 export * from "./core-export";
 
 export { SurveyModel as Model } from "survey-core";

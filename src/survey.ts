@@ -7731,10 +7731,20 @@ export class SurveyModel extends SurveyElementCore
   disposeCallback: () => void;
 
   private onScrollCallback: () => void;
+  // private _lastScrollTop = 0;
+  public _isElementShouldBeSticky(selector: string): boolean {
+    if (!selector) return false;
+    const topStickyContainer = this.rootElement.querySelector(selector);
+    if (!!topStickyContainer) {
+      // const scrollDirection = this.rootElement.scrollTop > this._lastScrollTop ? "down" : "up";
+      // this._lastScrollTop = this.rootElement.scrollTop;
+      return this.rootElement.scrollTop > 0 && topStickyContainer.getBoundingClientRect().y <= this.rootElement.getBoundingClientRect().y;
+    }
+    return false;
+  }
   public onScroll(): void {
     if (!!this.rootElement) {
-      const topStickyContainer = this.rootElement.querySelector(".sv-components-container-center");
-      if (!!topStickyContainer && topStickyContainer.getBoundingClientRect().y <= this.rootElement.getBoundingClientRect().y) {
+      if (this._isElementShouldBeSticky(".sv-components-container-center")) {
         this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
       } else {
         this.rootElement.classList && this.rootElement.classList.remove("sv-root--sticky-top");

@@ -20169,7 +20169,28 @@ QUnit.test("Delete panel with questions", (assert) => {
   assert.notOk(survey.getPanelByName("panel1"), "#5");
   assert.notOk(survey.getQuestionByName("question1"), "#6");
 });
+QUnit.test("_isElementShouldBeSticky", (assert) => {
+  const survey = new SurveyModel({});
+  const topStickyContainer: any = {
+    getBoundingClientRect: () => ({ y: 64 })
+  };
+  const rootElement: any = {
+    getBoundingClientRect: () => ({ y: 64 }),
+    querySelector: () => topStickyContainer,
+    scrollTop: 0
+  };
+  survey.rootElement = rootElement;
 
+  assert.notOk(survey._isElementShouldBeSticky(".test"), "no scrolling");
+
+  rootElement.scrollTop = 50;
+  assert.ok(survey._isElementShouldBeSticky(".test"), "content is scrolled");
+
+  assert.notOk(survey._isElementShouldBeSticky(""), "empty selector - always false (with scroll)");
+
+  rootElement.scrollTop = 0;
+  assert.notOk(survey._isElementShouldBeSticky(""), "empty selector - always false (no scroll)");
+});
 QUnit.test("survey navigateToUrl encode url", function (assert) {
   var survey = new SurveyModel({
     questions: [

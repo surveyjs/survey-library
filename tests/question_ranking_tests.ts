@@ -207,6 +207,40 @@ QUnit.test("Ranking: Carry Forward and unrankIfChoicesChanged", function(assert)
   assert.equal(rankingQuestion.value.length, 2, "after user's arrengement unrank should stop working");
 });
 
+QUnit.test("Ranking: Carry Forward: Default Value", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "defaultValue": [1, 2, 3],
+        "choices": [1, 2, 3, 4]
+      },
+      {
+        "type": "ranking",
+        "name": "q2",
+        "defaultValue": [1, 2, 3],
+        "choicesFromQuestion": "q1",
+        "choicesFromQuestionMode": "selected"
+      }
+    ]
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
+
+  assert.deepEqual(survey.data, {
+    q1: [1, 2, 3],
+    q2: [1, 2, 3],
+  });
+
+  q1.value = [1, 2];
+
+  assert.deepEqual(survey.data, {
+    q1: [1, 2],
+    q2: [1, 2],
+  });
+});
+
 QUnit.test("Ranking: CorrectAnswer, Bug#3720", function(assert) {
   var survey = new SurveyModel({
     elements: [

@@ -13,10 +13,11 @@
     z-index: 100;
     max-height: 50vh;
     overflow: auto;
-    @include scrollRules;
     box-sizing: border-box;
     background: $background-dim;
     width: calc(100% - calcSize(4)) !important;
+
+    @include scrollRules;
 }
 
 .sv_window_root-content {

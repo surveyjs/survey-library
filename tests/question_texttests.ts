@@ -458,3 +458,13 @@ QUnit.test("settings.storeUtcDates = true, #8542", function(assert) {
   assert.equal(q1.value.indexOf("Z"), -1, "Has no z symbol");
   settings.storeUtcDates = false;
 });
+QUnit.test("inputType='month' and today function, #8552", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      { "type": "text", "name": "q1", "defaultValueExpression": "today()", "inputType": "month" },
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  const etalon = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
+  assert.equal(q1.value, etalon, "today works correctly for month input");
+});

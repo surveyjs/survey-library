@@ -3330,7 +3330,9 @@ export class SurveyModel extends SurveyElementCore
   }
   private updateActivePage(): void {
     const newPage = this.isShowStartingPage ? this.startedPage : this.currentPage;
-    this.setPropertyValue("activePage", newPage);
+    if (newPage !== this.activePage) {
+      this.setPropertyValue("activePage", newPage);
+    }
   }
   private onStateAndCurrentPageChanged(): void {
     this.updateActivePage();
@@ -6073,11 +6075,11 @@ export class SurveyModel extends SurveyElementCore
           isCompleted: string,
           response: any
         ) {
-          self.isLoading = false;
           if (success) {
             self.isCompletedBefore = isCompleted == "completed";
             self.loadSurveyFromServiceJson(json);
           }
+          self.isLoading = false;
         }
       );
     } else {
@@ -6086,10 +6088,10 @@ export class SurveyModel extends SurveyElementCore
         result: string,
         response: any
       ) {
-        self.isLoading = false;
         if (success) {
           self.loadSurveyFromServiceJson(result);
         }
+        self.isLoading = false;
       });
     }
   }
@@ -7729,10 +7731,20 @@ export class SurveyModel extends SurveyElementCore
   disposeCallback: () => void;
 
   private onScrollCallback: () => void;
+  // private _lastScrollTop = 0;
+  public _isElementShouldBeSticky(selector: string): boolean {
+    if (!selector) return false;
+    const topStickyContainer = this.rootElement.querySelector(selector);
+    if (!!topStickyContainer) {
+      // const scrollDirection = this.rootElement.scrollTop > this._lastScrollTop ? "down" : "up";
+      // this._lastScrollTop = this.rootElement.scrollTop;
+      return this.rootElement.scrollTop > 0 && topStickyContainer.getBoundingClientRect().y <= this.rootElement.getBoundingClientRect().y;
+    }
+    return false;
+  }
   public onScroll(): void {
     if (!!this.rootElement) {
-      const topStickyContainer = this.rootElement.querySelector(".sv-components-container-center");
-      if (!!topStickyContainer && topStickyContainer.getBoundingClientRect().y <= this.rootElement.getBoundingClientRect().y) {
+      if (this._isElementShouldBeSticky(".sv-components-container-center")) {
         this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
       } else {
         this.rootElement.classList && this.rootElement.classList.remove("sv-root--sticky-top");

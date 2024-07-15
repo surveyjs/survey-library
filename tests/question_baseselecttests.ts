@@ -1311,6 +1311,8 @@ QUnit.test("Carry Forward and keepIncorrectValues, bug#6490", function (assert) 
 });
 QUnit.test("Check isUsingCarryForward on deleting question", function (assert) {
   const survey = new SurveyModel();
+  const defaultValueProp = Serializer.findProperty("dropdown", "defaultValue");
+  const correctAnswerProp = Serializer.findProperty("dropdown", "correctAnswer");
   survey.setDesignMode(true);
   survey.fromJSON({ elements: [
     { type: "dropdown", name: "q1", choices: ["B", "A", "D", "C"] },
@@ -1320,9 +1322,14 @@ QUnit.test("Check isUsingCarryForward on deleting question", function (assert) {
   const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
   assert.equal(q2.choicesFromQuestion, "q1", "set correctly");
   assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
+  assert.equal(defaultValueProp.isVisible("", q2), false, "defaultValueProp.isVisible #1");
+  assert.equal(correctAnswerProp.isVisible("", q2), false, "correctAnswerProp.isVisible #1");
+
   q1.delete();
   assert.notOk(q2.choicesFromQuestion, "it is empty");
   assert.equal(q2.isUsingCarryForward, false, "Carryforward flag is unset");
+  assert.equal(defaultValueProp.isVisible("", q2), true, "defaultValueProp.isVisible #2");
+  assert.equal(correctAnswerProp.isVisible("", q2), true, "correctAnswerProp.isVisible #2");
 });
 QUnit.test("Do not notify survey on changing newItem.value", function (
   assert

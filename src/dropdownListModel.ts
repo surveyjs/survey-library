@@ -420,7 +420,7 @@ export class DropdownListModel extends Base {
     if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
-    this.question.focus();
+    this.question.focusInputElement(false);
   }
   public chevronPointerDown(event: any): void {
     if (this._popupModel.isVisible) {

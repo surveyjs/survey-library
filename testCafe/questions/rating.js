@@ -285,25 +285,26 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
     async (ctx) => {
-      const json = {
-        questions: [
-          {
-            type: "rating",
-            name: "satisfaction",
-            readOnly: true,
-            defaultValue: "3",
-            title: "How satisfied are you with the Product?",
-            mininumRateDescription: "Not Satisfied",
-            maximumRateDescription: "Completely satisfied"
-          }
-        ]
-      };
       await applyTheme("defaultV2");
-      await initSurvey(framework, json);
     }
   );
 
   test("readonly", async (t) => {
+    const json = {
+      questions: [
+        {
+          type: "rating",
+          name: "satisfaction",
+          readOnly: true,
+          defaultValue: "3",
+          title: "How satisfied are you with the Product?",
+          mininumRateDescription: "Not Satisfied",
+          maximumRateDescription: "Completely satisfied"
+        }
+      ]
+    };
+    await initSurvey(framework, json);
+
     const label1 = Selector("label").withText("1");
     const label3 = Selector("label").withText("3");
     await t.click(label1);
@@ -312,11 +313,80 @@ frameworks.forEach((framework) => {
   });
 
   test("readonly:keyboard disabled", async (t) => {
+    const json = {
+      questions: [
+        {
+          type: "rating",
+          name: "satisfaction",
+          readOnly: true,
+          defaultValue: "3",
+          title: "How satisfied are you with the Product?",
+          mininumRateDescription: "Not Satisfied",
+          maximumRateDescription: "Completely satisfied"
+        }
+      ]
+    };
+    await initSurvey(framework, json);
+
     await t.pressKey("tab").pressKey("right");
     const getValue = ClientFunction(()=>{
       return window["survey"].getAllQuestions()[0].value;
     });
     const value = await getValue();
     await t.expect(value).eql(3, "value doesn't change");
+  });
+
+  test("Do not scroll the window if question has a large title text", async (t) => {
+    await t.resizeWindow(375, 667);
+    await initSurvey(framework, {
+      "pages": [
+        {
+          "name": "page1",
+          "title": "Product Concept",
+          "description": "Di bagian ini Anda akan diperkenalkan dengan konsep aplikasi yang ingin kami bangun. Segala masukan yang Anda berikan dalam pertanyaan-pertanyaan di bawah akan sangat berharga bagi kami untuk memenuhi kebutuhan berjualan online Anda, maka mohon jawab pertanyaan berikut dengan seksama ",
+          "elements": [
+            {
+              "type": "rating",
+              "name": "pertanyaan6",
+              "title": "Pada skala berikut, di mana  berarti sangat tidak puas dan  berarti sangat puas, bagaimana Anda menilai kemampuan kepemimpinan proyek dari software engineer dalam tim Anda? Pertimbangkan beberapa faktor berikut dalam penilaian Anda: perencanaan proyek yang efektif, koordinasi yang baik dengan anggota tim, kemampuan dalam menyelesaikan masalah yang muncul selama proyek, serta keterampilan komunikasi yang jelas dengan pemangku kepentingan. Jika memungkinkan, tambahkan komentar atau saran untuk perbaikan.",
+              "description": "<p><em>(Ilustrasi diatas adalah contoh display website yang dapat Anda bangun sendiri melalui aplikasi ini)</em></p>",
+              "rateType": "smileys",
+              "autoGenerate": false,
+              "rateValues": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+            },
+            {
+              "type": "comment",
+              "name": "pertanyaan9",
+              "title": "Dalam pandangan Anda, bagaimana Anda menilai kemampuan kepemimpinan proyek dari software engineer dalam tim Anda? Mohon berikan penilaian berdasarkan beberapa faktor seperti kemampuan perencanaan proyek, koordinasi dengan anggota tim, kemampuan menyelesaikan masalah yang muncul selama proyek berlangsung, serta keterampilan komunikasi dengan pemangku kepentingan. Selain itu, silakan berikan contoh konkret dari pengalaman Anda dan saran spesifik yang dapat membantu meningkatkan efektivitas kepemimpinan mereka di masa depan.",
+              "isRequired": true,
+              "autoGrow": true
+            },
+          ]
+        }
+      ]
+    });
+
+    const getWindowScrollY = ClientFunction(() => { return window.scrollY; });
+
+    let scrollY = await getWindowScrollY();
+    await t
+      .expect(scrollY).eql(0)
+      .scroll(0, 650);
+
+    scrollY = await getWindowScrollY();
+    await t
+      .expect(scrollY).within(649, 672)
+      .click(Selector(".sd-dropdown"));
+
+    scrollY = await getWindowScrollY();
+    await t.expect(scrollY).within(649, 672);
+
+    await t.resizeWindow(1920, 1080);
   });
 });

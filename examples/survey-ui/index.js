@@ -976,7 +976,8 @@ function init() {
       "result: " + JSON.stringify(result.data);
   });
 
-  SurveyUI.renderSurvey(survey, document.getElementById("surveyElement"));
+  // SurveyUI.renderSurvey(survey, document.getElementById("surveyElement"));
+  survey.render(document.getElementById("surveyElement"));
 }
 
 if (!window["%hammerhead%"]) {

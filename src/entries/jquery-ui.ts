@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import jQuery from "jquery";
 
-import { Survey, PopupSurvey } from "./jquery-ui-model";
+import { Survey, PopupSurvey } from "./react-ui-model";
 
 import { SurveyModel, checkLibraryVersion } from "survey-core";
 

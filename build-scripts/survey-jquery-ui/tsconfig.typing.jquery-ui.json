@@ -27,6 +27,6 @@
     "skipLibCheck": true
   },
   "include": [
-    "../../src/entries/jquery-ui-model.ts"
+    "../../src/entries/react-ui-model.ts"
   ],
 }

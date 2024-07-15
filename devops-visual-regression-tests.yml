@@ -116,6 +116,10 @@ jobs:
   
   - script: |
       npm run build_react_prod
+      npm run build_core
+      npm run build_react_ui
+      npm run build_i18n
+      npm run build-plugins
     displayName: 'build prod'
 
   - script: |

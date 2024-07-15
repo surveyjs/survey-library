@@ -2073,6 +2073,7 @@ Serializer.addClass(
         return !obj.choicesFromQuestion;
       },
     },
+
     {
       name: "choicesByUrl:restfull",
       className: "choicesByUrl",
@@ -2092,6 +2093,8 @@ Serializer.addClass(
         return !obj.choicesFromQuestion;
       },
     },
+    { name: "defaultValue:value", visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion" },
+    { name: "correctAnswer:value", visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion" },
     { name: "separateSpecialChoices:boolean", visible: false },
     { name: "showOtherItem:boolean", alternativeName: "hasOther" },
     { name: "showNoneItem:boolean", alternativeName: "hasNone" },
@@ -2151,8 +2154,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", true, false],
       visible: false,
-    },
-    // { name: "itemComponent", visible: false }
+    }
   ],
   null,
   "question"

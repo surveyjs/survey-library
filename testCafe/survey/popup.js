@@ -27,7 +27,7 @@ const initPopupSurvey = ClientFunction(
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       window["ReactDOM"].render(
-        window["React"].createElement(window["Survey"].PopupSurvey, {
+        window["React"].createElement(window["SurveyReact"].PopupSurvey, {
           model: model,
           onComplete: surveyComplete,
         }),

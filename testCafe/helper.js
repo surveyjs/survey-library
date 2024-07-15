@@ -69,7 +69,7 @@ export const initSurvey = ClientFunction(
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
-        window["React"].createElement(window["Survey"].Survey, {
+        window["React"].createElement(window["SurveyReact"].Survey, {
           model: model,
           onComplete: surveyComplete,
         }),
@@ -132,7 +132,7 @@ export const initSurveyPopup = ClientFunction(
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
-        window["React"].createElement(window["Survey"].PopupSurvey, {
+        window["React"].createElement(window["SurveyReact"].PopupSurvey, {
           model: model,
           isExpanded: true,
           allowClose: true,
@@ -184,7 +184,7 @@ export const registerCustomToolboxComponent = ClientFunction(
         }
       }
 
-      window["Survey"].ReactElementFactory.Instance.registerElement(
+      window["SurveyReact"].ReactElementFactory.Instance.registerElement(
         "svc-custom-action",
         (props) => {
           return window["React"].createElement(CustomActionButton, props);
@@ -260,10 +260,10 @@ export const registerCustomItemComponent = ClientFunction(
               {" "}
               <span>
                 {" "}
-                <Survey.SvgIcon
+                <SurveyReact.SvgIcon
                   iconName={item.iconName}
                   size={item.iconSize}
-                ></Survey.SvgIcon>{" "}
+                ></SurveyReact.SvgIcon>{" "}
               </span>{" "}
               <span>{item.title}</span>{" "}
             </div>
@@ -271,7 +271,7 @@ export const registerCustomItemComponent = ClientFunction(
           /* eslint-enable */
         }
       }
-      window["Survey"].ReactElementFactory.Instance.registerElement(
+      window["SurveyReact"].ReactElementFactory.Instance.registerElement(
         "new-item",
         (props) => {
           return window["React"].createElement(ItemTemplateComponent, props);
@@ -360,13 +360,13 @@ export const registerCustomItemContentComponent = ClientFunction(
           };
           return (
             <div className="sv-ranking-item__text" style={styles}>
-              <Survey.SvgIcon iconName={"icon-next_16x16"} size={16}></Survey.SvgIcon>
-              {Survey.SurveyElementBase.renderLocString(locText)}
+              <SurveyReact.SvgIcon iconName={"icon-next_16x16"} size={16}></SurveyReact.SvgIcon>
+              {SurveyReact.SurveyElementBase.renderLocString(locText)}
             </div>
           );
         }
       }
-      window["Survey"].ReactElementFactory.Instance.registerElement(
+      window["SurveyReact"].ReactElementFactory.Instance.registerElement(
         "new-item-content",
         (props) => {
           return window["React"].createElement(ItemContentTemplateComponent, props);

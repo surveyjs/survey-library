@@ -100,7 +100,7 @@ frameworks.forEach((framework) => {
           window.setSurvey = setSurvey;
           if(!!survey) {
             // eslint-disable-next-line react/react-in-jsx-scope, no-undef, react/jsx-no-undef
-            return <Survey.Survey model={survey}></Survey.Survey>;
+            return <SurveyReact.Survey model={survey}></SurveyReact.Survey>;
           } else {
             return null;
           }

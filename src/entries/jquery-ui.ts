@@ -26,6 +26,14 @@ function doPopupSurvey(props: any): void {
 }
 
 SurveyModel.platform = "jquery";
+SurveyModel.prototype["render"] = function (element: any = null) {
+  if (this.renderCallback) {
+    this.renderCallback();
+  } else {
+    const survey = React.createElement(Survey, { model: this });
+    ReactDOM.render(survey, element);
+  }
+};
 
 export const preact: any = React;
 

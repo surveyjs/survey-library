@@ -36,6 +36,13 @@ if (!!jQuery) {
 }
 
 SurveyModel.platform = "ui";
+SurveyModel.prototype["render"] = function (element: any = null) {
+  if (this.renderCallback) {
+    this.renderCallback();
+  } else {
+    renderSurvey(this, element);
+  }
+};
 
 export const preact: any = React;
 

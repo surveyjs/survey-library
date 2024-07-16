@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 // import jQuery from "jquery";
 
-import { Survey, PopupSurvey } from "./ui-model";
+import { Survey, PopupSurvey } from "./react-ui-model";
 import { SurveyModel } from "survey-core";
 
 const jQuery = window["jQuery"] || window["$"];
@@ -36,10 +36,17 @@ if (!!jQuery) {
 }
 
 SurveyModel.platform = "ui";
+SurveyModel.prototype["render"] = function (element: any = null) {
+  if (this.renderCallback) {
+    this.renderCallback();
+  } else {
+    renderSurvey(this, element);
+  }
+};
 
 export const preact: any = React;
 
-export * from "./ui-model";
+export * from "./react-ui-model";
 export * from "./core-export";
 
 export { SurveyModel as Model } from "survey-core";

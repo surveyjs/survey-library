@@ -115,8 +115,10 @@ jobs:
       verbose: false
     condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
-  - script: |
+  - powershell: |
       npm run build_react_prod
+      npm run build_core
+      npm run build_react_ui
     displayName: 'build prod'
 
   - script: |

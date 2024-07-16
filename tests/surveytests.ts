@@ -6984,6 +6984,9 @@ QUnit.test("Define questionTitleWidth on Panel/Page level", function (assert) {
   panel2.questionTitleWidth = "200px";
   assert.equal(q.titleWidth, "200px", "get from panel2");
 
+  panel2.questionTitleWidth = "300";
+  assert.equal(q.titleWidth, "300px", "titleWidth with px");
+
   q.titleLocation = "top";
   assert.equal(q.titleWidth, undefined, "titleWidth available if titleLocation is left");
 });

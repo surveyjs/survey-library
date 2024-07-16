@@ -686,7 +686,11 @@ export class Question extends SurveyElement<Question>
   }
   public get titleWidth(): string {
     if (this.getTitleLocation() === "left") {
-      if (!!this.parent) return this.parent.getQuestionTitleWidth();
+      if (!!this.parent) {
+        let width = this.parent.getQuestionTitleWidth() as any;
+        if (width && !isNaN(width)) width = width + "px";
+        return width;
+      }
     }
     return undefined;
   }

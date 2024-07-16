@@ -1531,3 +1531,22 @@ QUnit.test("Check if errors disappered in the cells in the current row on changi
   assert.equal(q1.errors.length, 0, "q1 errors #2");
   assert.equal(q2.errors.length, 0, "q2 errors #2");
 });
+QUnit.test("choices property visibility, Bug#8560", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix"
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const prop = Serializer.findProperty("matrixdynamic", "choices");
+  assert.equal(prop.isVisible("", matrix), true, "#1");
+  matrix.cellType = "text";
+  assert.equal(prop.isVisible("", matrix), false, "#2");
+  matrix.cellType = "checkbox";
+  assert.equal(prop.isVisible("", matrix), true, "#3");
+  matrix.cellType = "comment";
+  assert.equal(prop.isVisible("", matrix), false, "#4");
+});

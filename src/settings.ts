@@ -771,5 +771,12 @@ export var settings = {
       "#": /[a-zA-Z0-9]/
     }
   },
+  /**
+   * Specifies whether to store date-time values in the following format: `"YYYY-MM-DDThh:mm:ss.sssZ"`. Applies only to form fields with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"datetime-local"`.
+   *
+   * Default value: `false`
+   *
+   * If you enable this setting, a survey will convert date-time values from a respondent's local time to UTC. Default values for `datetime-local` form fields (if you specify them) should also adhere to the format listed above.
+   */
   storeUtcDates: false
 };

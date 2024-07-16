@@ -1245,6 +1245,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     val = val.toLowerCase();
     this.setPropertyValue("cellType", val);
   }
+  isSelectCellType(): boolean {
+    return Serializer.isDescendantOf(this.cellType, "selectbase");
+  }
   private updateColumnsCellType() {
     for (var i = 0; i < this.columns.length; i++) {
       this.columns[i].defaultCellTypeChanged();
@@ -2589,7 +2592,7 @@ Serializer.addClass(
     },
     { name: "horizontalScroll:boolean", visible: false, },
     {
-      name: "choices:itemvalue[]", uniqueProperty: "value",
+      name: "choices:itemvalue[]", uniqueProperty: "value", visibleIf: (obj): boolean => obj.isSelectCellType()
     },
     { name: "placeholder", alternativeName: "optionsCaption", serializationProperty: "locPlaceholder" },
     {

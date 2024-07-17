@@ -252,6 +252,20 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public static CreateDisabledDesignElements: boolean = false;
   public disableDesignActions: boolean =
     SurveyElement.CreateDisabledDesignElements;
+
+  @property({
+    onSet: (newValue, target) => {
+      target.colSpan = newValue;
+    }
+  }) effectiveColSpan: number;
+
+  public get colSpan(): number {
+    return this.getPropertyValue("colSpan", 1);
+  }
+  public set colSpan(val: number) {
+    this.setPropertyValue("colSpan", val);
+  }
+
   constructor(name: string) {
     super();
     this.name = name;
@@ -1102,7 +1116,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       },
       getLeaveOptions: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
-        return { cssClass: cssClasses.contentFadeOut,
+        return {
+          cssClass: cssClasses.contentFadeOut,
           onBeforeRunAnimation: beforeRunAnimation,
           onAfterRunAnimation: afterRunAnimation
         };

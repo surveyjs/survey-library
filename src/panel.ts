@@ -320,7 +320,8 @@ export class PanelModelBase extends SurveyElement<Question>
       isAnimationEnabled: () => this.animationAllowed,
       getAnimatedElement: (row: QuestionRowModel) => row.getRootElement(),
       getLeaveOptions: (_: QuestionRowModel) => {
-        return { cssClass: this.cssClasses.rowFadeOut,
+        return {
+          cssClass: this.cssClasses.rowFadeOut,
           onBeforeRunAnimation: beforeRunAnimation
         };
       },
@@ -1156,6 +1157,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.updateRootStyle();
   }
   public updateRootStyle() {
+    super.updateRootStyle();
     this.elements?.forEach(el => el.updateRootStyle());
   }
   public updateCustomWidgets() {
@@ -1225,8 +1227,6 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   protected generateColumns(): void {
     let maxRowColSpan = this.calcMaxRowColSpan();
-    if (maxRowColSpan < 2) return;
-
     let columns = [].concat(this.layoutColumns);
     if (maxRowColSpan <= this.layoutColumns.length) {
       columns = this.layoutColumns.slice(0, maxRowColSpan);
@@ -1938,13 +1938,14 @@ export class PanelModelBase extends SurveyElement<Question>
   }
 
   public getSerializableColumnsValue(): Array<PanelLayoutColumnModel> {
-    let tailIndex = this.layoutColumns.length;
+    let tailIndex = -1;
     for (let index = this.layoutColumns.length - 1; index >= 0; index--) {
-      if (this.layoutColumns[index].isEmpty()) {
+      if (!this.layoutColumns[index].isEmpty()) {
         tailIndex = index;
+        break;
       }
     }
-    return this.layoutColumns.slice(0, tailIndex);
+    return this.layoutColumns.slice(0, tailIndex + 1);
   }
   public dispose(): void {
     super.dispose();
@@ -1979,6 +1980,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     });
     this.registerPropertyChangedHandlers(
       ["indent", "innerIndent", "rightIndent"], () => { this.onIndentChanged(); });
+    this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
   }
   public getType(): string {
     return "panel";
@@ -2372,6 +2374,11 @@ Serializer.addClass(
     "width",
     { name: "minWidth", defaultFunc: () => "auto" },
     { name: "maxWidth", defaultFunc: () => settings.maxWidth },
+    {
+      name: "colSpan:number", visible: false,
+      onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },
+    },
+    { name: "effectiveColSpan:number", minValue: 1, isSerializable: false },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     { name: "indent:number", default: 0, choices: [0, 1, 2, 3], visible: false },
     {

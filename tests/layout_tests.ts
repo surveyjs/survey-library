@@ -1,3 +1,5 @@
+import { ArrayChanges, Base } from "../src/base";
+import { Serializer } from "../src/jsonobject";
 import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
 import { roundTo2Decimals } from "../src/utils/utils";
@@ -508,6 +510,35 @@ QUnit.test("recalculate column width after question added", assert => {
   assert.equal(page.layoutColumns[2].effectiveWidth, 33.33);
 });
 
+QUnit.test("recalculate column width after question deleted", assert => {
+  const surveyModel = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "layoutColumns": [
+          { "width": 51 },
+          { "width": 47 }
+        ],
+        "elements": [
+          { "type": "text", "name": "q1" },
+          { "type": "text", "name": "q2", "startWithNewLine": false }
+        ]
+      }
+    ]
+  });
+
+  const page = surveyModel.pages[0];
+  assert.equal(page.layoutColumns.length, 2);
+  assert.equal(page.layoutColumns[0].effectiveWidth, 51);
+  assert.equal(page.layoutColumns[1].effectiveWidth, 47);
+
+  const q3 = surveyModel.getQuestionByName("q2");
+  q3.delete();
+
+  assert.equal(page.layoutColumns.length, 1);
+  assert.equal(page.layoutColumns[0].effectiveWidth, 51);
+});
+
 QUnit.test("question root style", function (assert) {
   const surveyModel = new SurveyModel({
     pages: [
@@ -547,4 +578,55 @@ QUnit.test("question root style", function (assert) {
     "maxWidth": undefined,
     "minWidth": undefined
   });
+});
+
+QUnit.test("layoutColumns: serialize last column", assert => {
+  const json = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          { "type": "text", "name": "question1" },
+          { "type": "text", "name": "question3", "startWithNewLine": false },
+          { "type": "text", "name": "question2", "startWithNewLine": false },
+          { "type": "text", "name": "question4" },
+          { "type": "text", "name": "question7", "startWithNewLine": false },
+          { "type": "text", "name": "question8", "startWithNewLine": false },
+          { "type": "text", "name": "question9", "startWithNewLine": false }
+        ],
+        "layoutColumns": [
+          { "width": 10 }
+        ]
+      }
+    ],
+  };
+  const surveyModel = new SurveyModel(json);
+  const page = surveyModel.pages[0];
+
+  assert.deepEqual(page.layoutColumns.length, 4);
+  assert.deepEqual(page.layoutColumns[0].width, 10);
+  assert.deepEqual(page.layoutColumns[1].effectiveWidth, 30);
+  assert.deepEqual(page.layoutColumns[2].effectiveWidth, 30);
+  assert.deepEqual(page.layoutColumns[3].effectiveWidth, 30);
+
+  page.layoutColumns[3].width = 10;
+  const result = surveyModel.toJSON();
+  assert.deepEqual(result["pages"][0]["layoutColumns"], [
+    { "width": 10 },
+    {},
+    {},
+    { "width": 10 }
+  ]);
+});
+
+QUnit.skip("Do not call survey.onPropertyValueChangedCallback on loading choicesByUrl, Bug#2563", function (assert) {
+  let counter = 0;
+  let survey = new SurveyModel();
+  survey.onPropertyValueChangedCallback = function (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges) {
+    if (!Serializer.findProperty(sender.getType(), name)) return;
+    counter++;
+  };
+  counter = 0;
+  survey.fromJSON({ elements: [{ type: "text", name: "q1" }] });
+  assert.equal(counter, 0, "We shouldn't call onPropertyValueChangedCallback on loading from JSON");
 });

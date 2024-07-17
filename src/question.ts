@@ -125,18 +125,6 @@ export class Question extends SurveyElement<Question>
   public themeChanged(theme: ITheme): void { }
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
-  @property({
-    onSet: (newValue, target) => {
-      target.colSpan = newValue;
-    }
-  }) effectiveColSpan: number;
-
-  public get colSpan(): number {
-    return this.getPropertyValue("colSpan", 1);
-  }
-  public set colSpan(val: number) {
-    this.setPropertyValue("colSpan", val);
-  }
 
   constructor(name: string) {
     super(name);

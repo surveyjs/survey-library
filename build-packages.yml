@@ -953,18 +953,18 @@ jobs:
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm run build_ui
-      displayName: "Build survey-ui"
+        npm run build_js_ui
+      displayName: "Build survey-js-ui"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm run testcafe:survey-ui:ci
+        npm run testcafe:survey-js-ui:ci
       displayName: "run functional tests"
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-ui"
-        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-ui"
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-js-ui"
+        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-js-ui"
 
     - task: PublishBuildArtifacts@1
       inputs:

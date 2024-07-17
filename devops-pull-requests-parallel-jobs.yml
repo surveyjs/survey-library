@@ -394,9 +394,9 @@ jobs:
       displayName: "Build Core"
 
     - script: |
-        npm run build_ui_prod
-      displayName: "Build survey-ui"
+        npm run build_js_ui_prod
+      displayName: "Build survey-js-ui"
 
     - script: |
-        npm run testcafe:survey-ui:ci
+        npm run testcafe:survey-js-ui:ci
       displayName: "run functional tests"

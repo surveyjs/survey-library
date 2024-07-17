@@ -48,7 +48,7 @@ const initSurvey = ClientFunction((framework, json) => {
     window["$"]("#surveyElement").Survey({
       model: model
     });
-  } else if (framework === "survey-ui") {
+  } else if (framework === "survey-js-ui") {
     model.css = myCss;
     document.getElementById("surveyElement").innerHTML = "";
     window["SurveyUI"].renderSurvey(model, document.getElementById("surveyElement"));

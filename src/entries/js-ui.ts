@@ -35,7 +35,7 @@ if (!!jQuery) {
   });
 }
 
-SurveyModel.platform = "ui";
+SurveyModel.platform = "js-ui";
 SurveyModel.prototype["render"] = function (element: any = null) {
   if (this.renderCallback) {
     this.renderCallback();
@@ -53,4 +53,4 @@ export { SurveyModel as Model } from "survey-core";
 
 import { checkLibraryVersion } from "survey-core";
 
-checkLibraryVersion(`${process.env.VERSION}`, "survey-ui");
+checkLibraryVersion(`${process.env.VERSION}`, "survey-js-ui");

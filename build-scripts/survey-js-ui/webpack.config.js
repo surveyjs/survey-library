@@ -32,16 +32,16 @@ const config = {
   },
   plugins: [
     new DtsGeneratorPlugin({
-      tsConfigPath: "./build-scripts/survey-ui/tsconfig.typing.ui.json",
-      filePath: "build/survey-ui/survey-ui.d.ts",
-      moduleName: "survey-ui",
-      importName: "entries/ui"
+      tsConfigPath: "./build-scripts/survey-js-ui/tsconfig.typing.ui.json",
+      filePath: "build/survey-js-ui/survey-js-ui.d.ts",
+      moduleName: "survey-js-ui",
+      importName: "entries/js-ui"
     }),
   ],
 };
 
 module.exports = function (options) {
-  options.platform = "ui";
+  options.platform = "js-ui";
   options.libraryName = "SurveyUI";
-  return merge(webpackCommonConfigCreator(options, packageJson, "survey-ui"), config);
+  return merge(webpackCommonConfigCreator(options, packageJson, "survey-js-ui"), config);
 }

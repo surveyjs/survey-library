@@ -48,7 +48,7 @@ const initPopupSurvey = ClientFunction(
       window["$"]("#surveyElement").PopupSurvey({
         model: model
       });
-    } else if (framework === "survey-ui") {
+    } else if (framework === "survey-js-ui") {
       document.getElementById("surveyElement").innerHTML = "";
       window["SurveyUI"].renderPopupSurvey(model, document.getElementById("surveyElement"));
     }

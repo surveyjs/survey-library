@@ -8052,6 +8052,48 @@ QUnit.test("Drag&drop and column visibleIf", function (assert) {
   assert.equal(renderedRows[0].cells[1].question.value, "c", "rendred.cell[1,0].value #2");
 });
 
+QUnit.only("Drag&drop row with dropdown and column visibleIf", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        allowRowsDragAndDrop: true,
+        columns: [{ name: "col1", cellType: "dropdown", "choices": ["a", "b", "c"] }, { name: "col2", cellType: "text", visibleIf: "{row.col1}='a'" }]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let rows = matrix.visibleRows;
+  let row1Col1ListModel = rows[0].cells[0].question.dropdownListModel.listModel;
+  let row2Col1ListModel = rows[1].cells[0].question.dropdownListModel.listModel;
+  row1Col1ListModel.onItemClick(row1Col1ListModel.actions[0]);
+  row2Col1ListModel.onItemClick(row2Col1ListModel.actions[2]);
+  rows[0].cells[1].question.value = "b";
+
+  assert.equal(rows[0].cells[0].question.value, "a", "cell[0,0].value #1");
+  assert.equal(rows[0].cells[0].question.dropdownListModel.inputString, "a", "cell[0,0].dropdownListModel.inputString #1");
+  assert.equal(rows[0].cells[1].question.value, "b", "cell[0,1].value #1");
+  assert.equal(rows[0].cells[1].question.isVisible, true, "cell[0,1].isVisible #1");
+  assert.equal(rows[1].cells[0].question.value, "c", "cell[1,0].value #1");
+  assert.equal(rows[1].cells[1].question.isVisible, false, "cell[1,1].isVisible #1");
+
+  matrix.moveRowByIndex(1, 0);
+  rows = matrix.visibleRows;
+  assert.equal(rows[0].cells[0].question.value, "c", "cell[1,0].value #2");
+  assert.equal(rows[0].cells[1].question.isVisible, false, "cell[1,1].isVisible #2");
+  assert.equal(rows[1].cells[0].question.value, "a", "cell[0,0].value #2");
+  assert.equal(rows[1].cells[0].question.dropdownListModel.inputString, "a", "cell[0,0].dropdownListModel.inputString #2");
+  assert.equal(rows[1].cells[0].question.dropdownListModel.inputStringRendered, "a", "cell[0,0].dropdownListModel.inputStringRendered #2");
+  assert.equal(rows[1].cells[1].question.value, "b", "cell[0,1].value #2");
+  assert.equal(rows[1].cells[1].question.isVisible, true, "cell[0,1].isVisible #2");
+  assert.deepEqual(matrix.value, [{ col1: "c" }, { col1: "a", col2: "b" }], "matrix.value #2");
+  const renderedRows = matrix.renderedTable.rows;
+  assert.equal(renderedRows.length, 4, "There are 4 rendered rows");
+  assert.equal(renderedRows[0].cells.length, 4, "There are 4 cells in row");
+  assert.equal(renderedRows[0].cells[1].question.value, "c", "rendred.cell[1,0].value #2");
+});
+
 QUnit.test("QuestionMatrixDropdownRenderedRow isAdditionalClasses", (assert) => {
   const rowClass = "rowClass";
   const detailRowClass = "detailRowClass";

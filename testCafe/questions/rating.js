@@ -387,6 +387,10 @@ frameworks.forEach((framework) => {
     scrollY = await getWindowScrollY();
     await t.expect(scrollY).within(649, 672);
 
+    await t.click(Selector(".sd-dropdown"));
+    scrollY = await getWindowScrollY();
+    await t.expect(scrollY).within(649, 672);
+
     await t.resizeWindow(1920, 1080);
   });
 });

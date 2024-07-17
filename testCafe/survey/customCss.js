@@ -25,7 +25,7 @@ const initSurvey = ClientFunction((framework, json) => {
     model.render("surveyElement");
   } else if (framework === "react") {
     window["ReactDOM"].render(
-      window["React"].createElement(window["Survey"].Survey, {
+      window["React"].createElement(window["SurveyReact"].Survey, {
         model: model,
         css: myCss,
       }),
@@ -48,6 +48,10 @@ const initSurvey = ClientFunction((framework, json) => {
     window["$"]("#surveyElement").Survey({
       model: model
     });
+  } else if (framework === "survey-ui") {
+    model.css = myCss;
+    document.getElementById("surveyElement").innerHTML = "";
+    window["SurveyUI"].renderSurvey(model, document.getElementById("surveyElement"));
   }
   window["survey"] = model;
 });

@@ -5,7 +5,10 @@
 }
 
 .sv-container-modern__title {
+  color: var(--main-color, $main-color);
   padding-left: 0.55em;
+  padding-top: 5em;
+  padding-bottom: 0.9375em;
 
   @media only screen and (min-width: 1000px) {
     margin-right: 5%;
@@ -16,10 +19,6 @@
     margin-right: 10px;
     margin-left: 10px;
   }
-
-  color: var(--main-color, $main-color);
-  padding-top: 5em;
-  padding-bottom: 0.9375em;
 }
 
 .sv-container-modern__title h3 {

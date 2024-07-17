@@ -152,6 +152,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   maxOthersLength: number;
   clearValueOnDisableItems: boolean;
 
+  maxTimeToFinishPage: number;
+
   uploadFiles(
     question: IQuestion,
     name: string,
@@ -337,6 +339,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   elements: Array<IElement>;
   ensureRowsVisibility(): void;
   validateContainerOnly(): void;
+  onQuestionValueChanged(el: IElement): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStartPage: boolean;

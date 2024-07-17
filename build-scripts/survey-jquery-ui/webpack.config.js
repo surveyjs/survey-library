@@ -7,11 +7,6 @@ var packageJson = require("./package.json");
 var path = require("path");
 
 const config = {
-  entry: {
-    survey: path.resolve(__dirname, "../../src/main.scss"),
-    modern: path.resolve(__dirname, "../../src/modern.scss"),
-    defaultV2: path.resolve(__dirname, "../../src/defaultV2-theme/defaultV2.scss")
-  },
   resolve: {
     alias: {
       "react": "preact/compat",

@@ -1,6 +1,6 @@
 import { ISurvey } from "./base-interfaces";
 import { Base, EventBase } from "./base";
-import { SurveyTimer } from "./surveytimer";
+import { SurveyTimer, SurveyTimerEvent } from "./surveytimer";
 import { property } from "./jsonobject";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
@@ -38,7 +38,7 @@ export class SurveyTimerModel extends Base {
     this.survey.onCurrentPageChanged.add(() => {
       this.update();
     });
-    this.timerFunc = (): void => { this.doTimer(); };
+    this.timerFunc = (sender: SurveyTimer, options: SurveyTimerEvent): void => { this.doTimer(options.seconds); };
     this.setIsRunning(true);
     this.update();
     SurveyTimer.instance.start(this.timerFunc);
@@ -58,12 +58,16 @@ export class SurveyTimerModel extends Base {
     this.updateText();
     this.updateProgress();
   }
-  private doTimer(): void {
+  private doTimer(seconds: number): void {
     var page = <PageModel>(<ISurvey><any>this.survey).currentPage;
     if (page) {
-      page.timeSpent = page.timeSpent + 1;
+      const pageMaxTime = page.getMaxTimeToFinish();
+      if(pageMaxTime > 0 && pageMaxTime < page.timeSpent + seconds) {
+        seconds = pageMaxTime - page.timeSpent;
+      }
+      page.timeSpent = page.timeSpent + seconds;
     }
-    this.spent = this.spent + 1;
+    this.spent = this.spent + seconds;
     this.update();
     if (this.onTimer) {
       this.onTimer(page);

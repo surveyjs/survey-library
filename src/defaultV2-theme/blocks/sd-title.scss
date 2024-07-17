@@ -96,6 +96,10 @@
   }
 }
 
+.sd-root--compact .sd-title .sv-title-actions {
+  width: 100%;
+}
+
 .sd-action-title-bar {
   flex: 1 9 auto;
   min-width: calcSize(6);

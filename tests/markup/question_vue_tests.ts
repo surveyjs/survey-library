@@ -1,6 +1,7 @@
 
 import { testQuestionMarkup } from "./helper";
 import { markupTests } from "./etalon";
+// eslint-disable-next-line surveyjs/no-imports-from-entries
 import { Model as VueModel, Survey as SurveyVue } from "../../src/entries/vue";
 import Vue from "vue/dist/vue.js";
 
@@ -29,7 +30,7 @@ var platformDescriptor = {
 export default QUnit.module("Base");
 
 markupTests.forEach(markupTest => {
-  if(markupTest.excludePlatform === platformDescriptor.name) {
+  if (markupTest.excludePlatform === platformDescriptor.name) {
     QUnit.skip(markupTest.name, function (assert) {
       testQuestionMarkup(assert, markupTest, platformDescriptor);
     });

@@ -61,12 +61,15 @@ export const initSurvey = ClientFunction(
       window["$"]("#surveyElement").Survey({
         model: model
       });
+    } else if (framework === "survey-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
-        window["React"].createElement(window["Survey"].Survey, {
+        window["React"].createElement(window["SurveyReact"].Survey, {
           model: model,
           onComplete: surveyComplete,
         }),
@@ -117,12 +120,19 @@ export const initSurveyPopup = ClientFunction(
         allowClose: true,
         allowFullScreen: true
       });
+    } else if (framework === "survey-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      SurveyUI.renderPopupSurvey(model, document.getElementById("surveyElement"), {
+        isExpanded: true,
+        allowClose: true,
+        allowFullScreen: true
+      });
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
-        window["React"].createElement(window["Survey"].PopupSurvey, {
+        window["React"].createElement(window["SurveyReact"].PopupSurvey, {
           model: model,
           isExpanded: true,
           allowClose: true,
@@ -174,14 +184,14 @@ export const registerCustomToolboxComponent = ClientFunction(
         }
       }
 
-      window["Survey"].ReactElementFactory.Instance.registerElement(
+      window["SurveyReact"].ReactElementFactory.Instance.registerElement(
         "svc-custom-action",
         (props) => {
           return window["React"].createElement(CustomActionButton, props);
         }
       );
-    } else if (framework === "jquery-ui") {
-      const preact = window["SurveyJquery"]["preact"];
+    } else if (framework === "jquery-ui" || framework === "survey-ui") {
+      const preact = (window["SurveyJquery"] || window["SurveyUI"])["preact"];
       window.React = { createElement: preact.createElement };
 
       class CustomActionButton extends preact.Component {
@@ -199,7 +209,7 @@ export const registerCustomToolboxComponent = ClientFunction(
         }
       }
 
-      window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+      (window["SurveyJquery"] || window["SurveyUI"]).ReactElementFactory.Instance.registerElement(
         "svc-custom-action",
         (props) => {
           return preact.createElement(CustomActionButton, props);
@@ -250,10 +260,10 @@ export const registerCustomItemComponent = ClientFunction(
               {" "}
               <span>
                 {" "}
-                <Survey.SvgIcon
+                <SurveyReact.SvgIcon
                   iconName={item.iconName}
                   size={item.iconSize}
-                ></Survey.SvgIcon>{" "}
+                ></SurveyReact.SvgIcon>{" "}
               </span>{" "}
               <span>{item.title}</span>{" "}
             </div>
@@ -261,19 +271,19 @@ export const registerCustomItemComponent = ClientFunction(
           /* eslint-enable */
         }
       }
-      window["Survey"].ReactElementFactory.Instance.registerElement(
+      window["SurveyReact"].ReactElementFactory.Instance.registerElement(
         "new-item",
         (props) => {
           return window["React"].createElement(ItemTemplateComponent, props);
         }
       );
-    } else if (framework === "jquery-ui") {
-      const preact = window["SurveyJquery"]["preact"];
+    } else if (framework === "jquery-ui" || framework === "survey-ui") {
+      const preact = (window["SurveyJquery"] || window["SurveyUI"])["preact"];
       window.React = { createElement: preact.createElement };
       class ItemTemplateComponent extends preact.Component {
         render() {
           const item = this.props.item;
-          var Survey = window["SurveyJquery"];
+          var Survey = window["SurveyJquery"] || window["SurveyUI"];
           item.iconName = "icon-defaultfile";
           item.hint = item.title + " - Description";
 
@@ -298,7 +308,7 @@ export const registerCustomItemComponent = ClientFunction(
           /* eslint-enable */
         }
       }
-      window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+      (window["SurveyJquery"] || window["SurveyUI"]).ReactElementFactory.Instance.registerElement(
         "new-item",
         (props) => {
           return preact.createElement(ItemTemplateComponent, props);
@@ -350,13 +360,13 @@ export const registerCustomItemContentComponent = ClientFunction(
           };
           return (
             <div className="sv-ranking-item__text" style={styles}>
-              <Survey.SvgIcon iconName={"icon-next_16x16"} size={16}></Survey.SvgIcon>
-              {Survey.SurveyElementBase.renderLocString(locText)}
+              <SurveyReact.SvgIcon iconName={"icon-next_16x16"} size={16}></SurveyReact.SvgIcon>
+              {SurveyReact.SurveyElementBase.renderLocString(locText)}
             </div>
           );
         }
       }
-      window["Survey"].ReactElementFactory.Instance.registerElement(
+      window["SurveyReact"].ReactElementFactory.Instance.registerElement(
         "new-item-content",
         (props) => {
           return window["React"].createElement(ItemContentTemplateComponent, props);
@@ -382,6 +392,31 @@ export const registerCustomItemContentComponent = ClientFunction(
         }
       }
       window["SurveyJquery"].ReactElementFactory.Instance.registerElement(
+        "new-item-content",
+        (props) => {
+          return preact.createElement(ItemContentTemplateComponent, props);
+        }
+      );
+    } else if (framework === "survey-ui") {
+      const preact = window["SurveyUI"]["preact"];
+      window.React = { createElement: preact.createElement };
+      class ItemContentTemplateComponent extends preact.Component {
+        render() {
+          const locText = this.props.item.locText;
+          const styles = {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": "8px"
+          };
+          return (
+            <div className="sv-ranking-item__text" style={styles}>
+              <SurveyUI.SvgIcon iconName={"icon-next_16x16"} size={16}></SurveyUI.SvgIcon>
+              {SurveyUI.SurveyElementBase.renderLocString(locText)}
+            </div>
+          );
+        }
+      }
+      window["SurveyUI"].ReactElementFactory.Instance.registerElement(
         "new-item-content",
         (props) => {
           return preact.createElement(ItemContentTemplateComponent, props);

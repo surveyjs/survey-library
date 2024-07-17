@@ -889,6 +889,21 @@ export class PanelModelBase extends SurveyElement<Question>
       this.parent.validateContainerOnly();
     }
   }
+  onQuestionValueChanged(el: IElement): void {
+    const index = this.questions.indexOf(<any>el);
+    if(index < 0) return;
+    const dif = 5;
+    const max = this.questions.length - 1;
+    const start = index - dif > 0 ? index - dif : 0;
+    const end = index + dif < max ? index + dif : max;
+    for(let i = start; i <= end; i ++) {
+      if(i === index) continue;
+      const q = this.questions[i];
+      if(q.errors.length > 0 && q.validate(false)) {
+        q.validate(true);
+      }
+    }
+  }
   private hasErrorsInPanels(rec: any): void {
     var errors = <Array<any>>[];
     this.hasRequiredError(rec, errors);

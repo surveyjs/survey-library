@@ -411,7 +411,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     }
     if(this.isLocalizable) return value === null || value === undefined;
     return (
-      (value === false && (this.type == "boolean" || this.type == "switch")) ||
+      (value === false && (this.type == "boolean" || this.type == "switch") && !this.defaultValueFunc) ||
       value === "" || Helpers.isValueEmpty(value)
     );
   }

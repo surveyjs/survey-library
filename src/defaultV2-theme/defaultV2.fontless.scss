@@ -60,8 +60,6 @@ body {
 }
 
 .sd-root-modern {
-  @include scrollRules;
-
   -webkit-font-smoothing: antialiased;
   --sd-mobile-width: 600px;
   --sd-timer-size: calc(18 * #{$base-unit});
@@ -69,6 +67,8 @@ body {
   font-family: $font-family;
   background-color: $background-dim;
   position: relative;
+
+  @include scrollRules;
 
   form {
     // z-index: 1;

@@ -1497,3 +1497,56 @@ QUnit.test("showInMultipleColumns & random choices, Bug#8348", function (assert)
   assert.equal(rows[1].cells[1].question.visibleChoices[0].value, "col5", "row2 question");
   Helpers.randomizeArray = oldFunc;
 });
+QUnit.test("Check if errors disappered in the cells in the current row on changing cell value, Bug#8539", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1", cellType: "text",
+            validators: [{ type: "expression", expression: "{row.col1} + {row.col2} <= 10" }]
+          },
+          { name: "col3", cellType: "text" },
+          {
+            name: "col2", cellType: "text",
+            validators: [{ type: "expression", expression: "{row.col1} + {row.col2} <= 10" }]
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const q1 = row.cells[0].question;
+  const q2 = row.cells[2].question;
+  q1.value = 7;
+  q2.value = 7;
+  matrix.validate(true);
+  assert.equal(q1.errors.length, 1, "q1 errors #1");
+  assert.equal(q2.errors.length, 1, "q2 errors #1");
+  q2.value = 1;
+  assert.equal(q1.errors.length, 0, "q1 errors #2");
+  assert.equal(q2.errors.length, 0, "q2 errors #2");
+});
+QUnit.test("choices property visibility, Bug#8560", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix"
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const prop = Serializer.findProperty("matrixdynamic", "choices");
+  assert.equal(prop.isVisible("", matrix), true, "#1");
+  matrix.cellType = "text";
+  assert.equal(prop.isVisible("", matrix), false, "#2");
+  matrix.cellType = "checkbox";
+  assert.equal(prop.isVisible("", matrix), true, "#3");
+  matrix.cellType = "comment";
+  assert.equal(prop.isVisible("", matrix), false, "#4");
+});

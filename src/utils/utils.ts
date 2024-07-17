@@ -157,7 +157,7 @@ function scrollElementByChildId(id: string) {
 function navigateToUrl(url: string): void {
   const location = DomWindowHelper.getLocation();
   if (!url || !location) return;
-  location.href = url;
+  location.href = encodeURIComponent(url);
 }
 
 function wrapUrlForBackgroundImage(url: string): string {

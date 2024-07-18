@@ -619,6 +619,72 @@ QUnit.test("layoutColumns: serialize last column", assert => {
   ]);
 });
 
+QUnit.test("layoutColumns: questions with visibleIf", assert => {
+  const json = {
+    "questions": [
+      { "type": "text", "name": "q1" },
+      {
+        "type": "radiogroup",
+        "name": "q2",
+        "startWithNewLine": false,
+        "choices": ["Yes", "No"],
+        "colCount": 0
+      },
+      {
+        "type": "text",
+        "name": "q3",
+        "visibleIf": "{q2} = 'Yes'",
+        "startWithNewLine": false,
+      },
+      {
+        "type": "text",
+        "name": "q4",
+        "visibleIf": "{q2} = 'No'",
+        "startWithNewLine": false,
+      },
+      {
+        "type": "text",
+        "name": "q5",
+        "visibleIf": "{q2} = 'No'",
+        "startWithNewLine": false,
+      },
+      {
+        "type": "text",
+        "name": "q6",
+        "visibleIf": "{q2} = 'No' and {q5} = 'Yes'",
+        "startWithNewLine": false,
+      }
+    ]
+  };
+  const surveyModel = new SurveyModel(json);
+  const page = surveyModel.pages[0];
+  const q1 = surveyModel.getQuestionByName("q1");
+  const q2 = surveyModel.getQuestionByName("q2");
+  const q3 = surveyModel.getQuestionByName("q3");
+  const q4 = surveyModel.getQuestionByName("q4");
+  const q5 = surveyModel.getQuestionByName("q5");
+  const q6 = surveyModel.getQuestionByName("q6");
+
+  assert.deepEqual(page.layoutColumns.length, 6);
+  assert.equal(q1.visible, true, "q1 visible");
+  assert.equal(q2.visible, true, "q2 visible");
+  assert.equal(q3.visible, false, "q3 visible");
+  assert.equal(q4.visible, false, "q4 visible");
+  assert.equal(q5.visible, false, "q5 visible");
+  assert.equal(q6.visible, false, "q6 visible");
+
+  assert.equal(q1.effectiveColSpan, 1, "q1 effectiveColSpan");
+  assert.equal(q2.effectiveColSpan, 1, "q2 effectiveColSpan");
+
+  q2.value = "No";
+  assert.equal(q1.visible, true, "q1 visible");
+  assert.equal(q2.visible, true, "q2 visible");
+  assert.equal(q3.visible, false, "q3 visible");
+  assert.equal(q4.visible, true, "q4 visible");
+  assert.equal(q5.visible, true, "q5 visible");
+  assert.equal(q6.visible, false, "q6 visible");
+});
+
 QUnit.skip("Do not call survey.onPropertyValueChangedCallback on loading choicesByUrl, Bug#2563", function (assert) {
   let counter = 0;
   let survey = new SurveyModel();

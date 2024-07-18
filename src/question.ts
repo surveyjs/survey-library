@@ -1210,13 +1210,15 @@ export class Question extends SurveyElement<Question>
       this.expandAllParents();
       this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible);
     }
-    var id = !onError
-      ? this.getFirstInputElementId()
-      : this.getFirstErrorInputElementId();
+    this.focusInputElement(onError);
+  }
+  focusInputElement(onError: boolean): void {
+    const id = !onError ? this.getFirstInputElementId() : this.getFirstErrorInputElementId();
     if (SurveyElement.FocusElement(id)) {
       this.fireCallback(this.focusCallback);
     }
   }
+
   public expandAllParents(): void {
     this.expandAllParentsCore(this);
   }

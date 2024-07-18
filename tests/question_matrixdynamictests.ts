@@ -8052,7 +8052,7 @@ QUnit.test("Drag&drop and column visibleIf", function (assert) {
   assert.equal(renderedRows[0].cells[1].question.value, "c", "rendred.cell[1,0].value #2");
 });
 
-QUnit.only("Drag&drop row with dropdown and column visibleIf", function (assert) {
+QUnit.test("Drag&drop row with dropdown and column visibleIf", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -8070,9 +8070,16 @@ QUnit.only("Drag&drop row with dropdown and column visibleIf", function (assert)
   row1Col1ListModel.onItemClick(row1Col1ListModel.actions[0]);
   row2Col1ListModel.onItemClick(row2Col1ListModel.actions[2]);
   rows[0].cells[1].question.value = "b";
+  matrix.renderedTable.rows.forEach(row => {
+    row.cells.forEach(cell => {
+      if (cell.hasQuestion) cell.question?.afterRenderCore({} as any);
+    });
+  });
 
   assert.equal(rows[0].cells[0].question.value, "a", "cell[0,0].value #1");
-  assert.equal(rows[0].cells[0].question.dropdownListModel.inputString, "a", "cell[0,0].dropdownListModel.inputString #1");
+  assert.equal(rows[1].cells[0].question.showSelectedItemLocText, true, "cell[0,0].showSelectedItemLocText #1");
+  assert.equal(rows[0].cells[0].question.dropdownListModel.inputString, "", "cell[0,0].dropdownListModel.inputString #1");
+  assert.equal(rows[0].cells[0].question.dropdownListModel.showHintString, "", "cell[0,0].dropdownListModel.showHintString #1");
   assert.equal(rows[0].cells[1].question.value, "b", "cell[0,1].value #1");
   assert.equal(rows[0].cells[1].question.isVisible, true, "cell[0,1].isVisible #1");
   assert.equal(rows[1].cells[0].question.value, "c", "cell[1,0].value #1");
@@ -8083,8 +8090,9 @@ QUnit.only("Drag&drop row with dropdown and column visibleIf", function (assert)
   assert.equal(rows[0].cells[0].question.value, "c", "cell[1,0].value #2");
   assert.equal(rows[0].cells[1].question.isVisible, false, "cell[1,1].isVisible #2");
   assert.equal(rows[1].cells[0].question.value, "a", "cell[0,0].value #2");
-  assert.equal(rows[1].cells[0].question.dropdownListModel.inputString, "a", "cell[0,0].dropdownListModel.inputString #2");
-  assert.equal(rows[1].cells[0].question.dropdownListModel.inputStringRendered, "a", "cell[0,0].dropdownListModel.inputStringRendered #2");
+  assert.equal(rows[1].cells[0].question.showSelectedItemLocText, true, "cell[0,0].showSelectedItemLocText #2");
+  assert.equal(rows[1].cells[0].question.dropdownListModel.inputString, "", "cell[0,0].dropdownListModel.inputString #2");
+  assert.equal(rows[0].cells[0].question.dropdownListModel.showHintString, "", "cell[0,0].dropdownListModel.showHintString #2");
   assert.equal(rows[1].cells[1].question.value, "b", "cell[0,1].value #2");
   assert.equal(rows[1].cells[1].question.isVisible, true, "cell[0,1].isVisible #2");
   assert.deepEqual(matrix.value, [{ col1: "c" }, { col1: "a", col2: "b" }], "matrix.value #2");

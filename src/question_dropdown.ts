@@ -342,6 +342,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.dropdownListModel?.clear();
   }
 
+  public afterRenderCore(el: any): void {
+    super.afterRenderCore(el);
+    if (!!this.dropdownListModelValue) {
+      this.dropdownListModelValue.clear();
+    }
+  }
+
   onClick(e: any): void {
     !!this.onOpenedCallBack && this.onOpenedCallBack();
   }

@@ -8,6 +8,7 @@ export default QUnit.module("Layout:");
 
 QUnit.test("columns generate - simple", function (assert) {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     elements: [{
       "name": "q1",
       "type": "text",
@@ -51,6 +52,7 @@ QUnit.test("columns generate - simple", function (assert) {
 
 QUnit.test("columns generate - complex", function (assert) {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     elements: [{
       "name": "q1",
       "type": "text",
@@ -91,6 +93,7 @@ QUnit.test("columns generate - complex", function (assert) {
 
 QUnit.test("columns generate - title width", function (assert) {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     pages: [
       {
         name: "page1",
@@ -137,6 +140,7 @@ QUnit.test("columns generate - title width", function (assert) {
 
 QUnit.test("user columns de/serialization", function (assert) {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     pages: [
       {
         name: "page1",
@@ -160,6 +164,7 @@ QUnit.test("user columns de/serialization", function (assert) {
   page.layoutColumns[0].questionTitleWidth = "300px";
   const result = surveyModel.toJSON();
   assert.deepEqual(result, {
+    gridLayoutEnabled: true,
     pages: [
       {
         name: "page1",
@@ -176,6 +181,7 @@ QUnit.test("user columns de/serialization", function (assert) {
 
 QUnit.test("layout columns de/serialization", function (assert) {
   const json = {
+    gridLayoutEnabled: true,
     pages: [
       {
         name: "page1",
@@ -200,6 +206,7 @@ QUnit.test("layout columns de/serialization", function (assert) {
 
 QUnit.test("apply columns from layoutColumns #1", function (assert) {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     pages: [
       {
         name: "page1",
@@ -228,6 +235,7 @@ QUnit.test("apply columns from layoutColumns #1", function (assert) {
 
 QUnit.test("apply columns from layoutColumns #2", function (assert) {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     pages: [
       {
         name: "page1",
@@ -267,6 +275,7 @@ QUnit.test("apply columns from layoutColumns #2", function (assert) {
 
 QUnit.test("apply columns from layoutColumns with given colSpan", function (assert) {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     pages: [
       {
         name: "page1",
@@ -305,6 +314,7 @@ QUnit.test("apply columns from layoutColumns with given colSpan", function (asse
 
 QUnit.test("check question width if column width is set for only one column", function (assert) {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     "pages": [
       {
         "name": "page1",
@@ -343,6 +353,7 @@ QUnit.test("check question width if column width is set for only one column", fu
 
 QUnit.test("effectiveColSpan #1", assert => {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     "questions": [
       { "type": "text", "name": "q1" },
       {
@@ -377,6 +388,7 @@ QUnit.test("effectiveColSpan #1", assert => {
 
 QUnit.test("columns effectiveWidth #1", assert => {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     "pages": [
       {
         "name": "page1",
@@ -421,6 +433,7 @@ QUnit.test("columns effectiveWidth #1", assert => {
 
 QUnit.test("colSpan for first row", assert => {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     "pages": [
       {
         "name": "page1",
@@ -452,6 +465,7 @@ QUnit.test("colSpan for first row", assert => {
 
 QUnit.test("expand last question in row whitch does not have colSpan set", assert => {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     "pages": [
       {
         "name": "page1",
@@ -484,6 +498,7 @@ QUnit.test("expand last question in row whitch does not have colSpan set", asser
 
 QUnit.test("recalculate column width after question added", assert => {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     "pages": [
       {
         "name": "page1",
@@ -512,6 +527,7 @@ QUnit.test("recalculate column width after question added", assert => {
 
 QUnit.test("recalculate column width after question deleted", assert => {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     "pages": [
       {
         "name": "page1",
@@ -541,6 +557,7 @@ QUnit.test("recalculate column width after question deleted", assert => {
 
 QUnit.test("question root style", function (assert) {
   const surveyModel = new SurveyModel({
+    gridLayoutEnabled: true,
     pages: [
       {
         name: "page1",
@@ -582,6 +599,7 @@ QUnit.test("question root style", function (assert) {
 
 QUnit.test("layoutColumns: serialize last column", assert => {
   const json = {
+    gridLayoutEnabled: true,
     "pages": [
       {
         "name": "page1",
@@ -621,6 +639,7 @@ QUnit.test("layoutColumns: serialize last column", assert => {
 
 QUnit.test("layoutColumns: questions with visibleIf", assert => {
   const json = {
+    gridLayoutEnabled: true,
     "questions": [
       { "type": "text", "name": "q1" },
       {
@@ -687,7 +706,7 @@ QUnit.test("layoutColumns: questions with visibleIf", assert => {
 
 QUnit.skip("Do not call survey.onPropertyValueChangedCallback on loading choicesByUrl, Bug#2563", function (assert) {
   let counter = 0;
-  let survey = new SurveyModel();
+  let survey = new SurveyModel({ gridLayoutEnabled: true });
   survey.onPropertyValueChangedCallback = function (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges) {
     if (!Serializer.findProperty(sender.getType(), name)) return;
     counter++;

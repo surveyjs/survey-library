@@ -7102,7 +7102,7 @@ export class SurveyModel extends SurveyElementCore
   public set showTimerPanelMode(val: string) {
     this.setPropertyValue("showTimerPanelMode", val);
   }
-  @property() isGridLayoutMode: boolean;
+  @property() gridLayoutEnabled: boolean;
   /**
     * Specifies how to calculate the survey width.
     *
@@ -8064,7 +8064,7 @@ Serializer.addClass("survey", [
     default: "auto",
     choices: ["auto", "static", "responsive"],
   },
-  { name: "isGridLayoutMode:boolean", default: true, visible: false },
+  { name: "gridLayoutEnabled:boolean", default: false, visible: false },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: true, visible: false },
   { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },

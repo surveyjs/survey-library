@@ -1621,7 +1621,7 @@ QUnit.test(
   function(assert) {
     var counter = 0;
     var survey = new SurveyModel();
-    survey.isGridLayoutMode = false;
+    survey.gridLayoutEnabled = false;
     survey.onPropertyValueChangedCallback = function(
       name: string,
       oldValue: any,

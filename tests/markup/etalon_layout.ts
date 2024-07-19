@@ -5,6 +5,7 @@ registerMarkupTest(
   {
     name: "Layout mode - start with new line with panel",
     json: {
+      gridLayoutEnabled: true,
       "elements": [
         {
           type: "html",
@@ -40,6 +41,7 @@ registerMarkupTest(
   {
     name: "Layout mode - start with new line",
     json: {
+      gridLayoutEnabled: true,
       "elements": [
         {
           type: "html",
@@ -68,6 +70,7 @@ registerMarkupTest(
   {
     name: "Layout mode - start with new line with panel and titles",
     json: {
+      gridLayoutEnabled: true,
       "elements": [
         {
           type: "text",
@@ -99,6 +102,7 @@ registerMarkupTest(
   {
     name: "Layout mode - start with new line Title",
     json: {
+      gridLayoutEnabled: true,
       "elements": [
         {
           type: "text",

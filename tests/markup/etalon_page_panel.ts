@@ -89,7 +89,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line with panel",
     json: {
-      isGridLayoutMode: false,
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "html",
@@ -125,7 +125,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line",
     json: {
-      isGridLayoutMode: false,
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "html",
@@ -154,7 +154,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line with panel and titles",
     json: {
-      isGridLayoutMode: false,
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "text",
@@ -203,7 +203,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line Title",
     json: {
-      isGridLayoutMode: false,
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "text",

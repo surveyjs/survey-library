@@ -1249,7 +1249,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   public getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
     const row = this.findRowByElement(el);
-    if (!row || !this.survey || !this.survey.isGridLayoutMode) return [];
+    if (!row || !this.survey || !this.survey.gridLayoutEnabled) return [];
 
     let lastExpandableElementIndex = row.elements.length - 1;
     while (lastExpandableElementIndex >= 0) {

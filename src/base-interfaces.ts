@@ -97,7 +97,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     value: any,
     displayValue: string
   ): string;
-  isGridLayoutMode: boolean;
+  gridLayoutEnabled: boolean;
   isDisplayMode: boolean;
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;

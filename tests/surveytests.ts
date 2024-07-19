@@ -20248,3 +20248,24 @@ QUnit.test("survey navigateToUrl encode url", function (assert) {
   survey.doComplete();
   assert.equal(location.href, "javascript%3Aalert(2)", "encoded URL");
 });
+QUnit.test("Question is not in the hash with it is on the first page & questionsOnPageMode is 'questionPerPage', Bug#8583", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [{
+      "elements": [{
+        "type": "text",
+        "name": "q1"
+      }
+      ]
+    },
+    {
+      "elements": [{
+        "type": "text",
+        "name": "q2"
+      }] }],
+    "firstPageIsStarted": true,
+    "questionsOnPageMode": "questionPerPage",
+  });
+
+  const q = survey.getQuestionByName("q1");
+  assert.equal(q.name, "q1", "q1 name is here");
+});

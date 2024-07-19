@@ -10,7 +10,7 @@ export interface IPropertyDecoratorOptions<T = any> {
   localizable?:
   | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string }
   | boolean;
-  onSet?: (val: T, objectInstance: any) => void;
+  onSet?: (val: T, objectInstance: any, prevVal?: T) => void;
 }
 
 function ensureLocString(
@@ -85,9 +85,10 @@ export function property(options: IPropertyDecoratorOptions = {}) {
         },
         set: function (val: any) {
           const newValue = processComputedUpdater(this, val);
+          const prevValue = this.getPropertyValue(key);
           this.setPropertyValue(key, newValue);
           if (!!options && options.onSet) {
-            options.onSet(newValue, this);
+            options.onSet(newValue, this, prevValue);
           }
         },
       });

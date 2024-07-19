@@ -567,6 +567,10 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   return { reorderedItems, deletedItems, addedItems, mergedItems };
 }
 
+export function roundTo2Decimals(number: number): number {
+  return Math.round(number * 100) / 100;
+}
+
 export {
   mergeValues,
   getElementWidth,

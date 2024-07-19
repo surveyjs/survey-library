@@ -70,23 +70,22 @@
 }
 
 .sv-dropdown__hint-prefix {
+  opacity: 0.5;
+
   span {
     word-break: unset;
     line-height: 28px;
   }
-
-  opacity: 0.5;
 }
 
 .sv-dropdown__hint-suffix {
   display: flex;
+  opacity: 0.5;
 
   span {
     word-break: unset;
     line-height: 28px;
   }
-
-  opacity: 0.5;
 }
 .sv-dropdown_clean-button {
   padding: 3px 12px;

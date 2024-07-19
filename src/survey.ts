@@ -3330,7 +3330,9 @@ export class SurveyModel extends SurveyElementCore
   }
   private updateActivePage(): void {
     const newPage = this.isShowStartingPage ? this.startedPage : this.currentPage;
-    this.setPropertyValue("activePage", newPage);
+    if (newPage !== this.activePage) {
+      this.setPropertyValue("activePage", newPage);
+    }
   }
   private onStateAndCurrentPageChanged(): void {
     this.updateActivePage();
@@ -4415,7 +4417,7 @@ export class SurveyModel extends SurveyElementCore
   private calcIsShowPrevButton(): boolean {
     if (this.isFirstPage || !this.showPrevButton || this.state !== "running") return false;
     var page = this.visiblePages[this.currentPageNo - 1];
-    return this.getPageMaxTimeToFinish(page) <= 0;
+    return page && page.getMaxTimeToFinish() <= 0;
   }
   private calcIsShowNextButton(): boolean {
     return this.state === "running" && !this.isLastPage && !this.canBeCompletedByTrigger;
@@ -6073,11 +6075,11 @@ export class SurveyModel extends SurveyElementCore
           isCompleted: string,
           response: any
         ) {
-          self.isLoading = false;
           if (success) {
             self.isCompletedBefore = isCompleted == "completed";
             self.loadSurveyFromServiceJson(json);
           }
+          self.isLoading = false;
         }
       );
     } else {
@@ -6086,10 +6088,10 @@ export class SurveyModel extends SurveyElementCore
         result: string,
         response: any
       ) {
-        self.isLoading = false;
         if (success) {
           self.loadSurveyFromServiceJson(result);
         }
+        self.isLoading = false;
       });
     }
   }
@@ -7100,7 +7102,7 @@ export class SurveyModel extends SurveyElementCore
   public set showTimerPanelMode(val: string) {
     this.setPropertyValue("showTimerPanelMode", val);
   }
-
+  @property() gridLayoutEnabled: boolean;
   /**
     * Specifies how to calculate the survey width.
     *
@@ -7183,7 +7185,7 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return { spent: 0, limit: 0 };
     let pageSpent = page.timeSpent;
     let surveySpent = this.timeSpent;
-    let pageLimitSec = this.getPageMaxTimeToFinish(page);
+    let pageLimitSec = page.getMaxTimeToFinish();
     let surveyLimit = this.maxTimeToFinish;
     if (this.showTimerPanelMode == "page") {
       return { spent: pageSpent, limit: pageLimitSec };
@@ -7210,7 +7212,7 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return "";
     var pageSpent = this.getDisplayTime(page.timeSpent);
     var surveySpent = this.getDisplayTime(this.timeSpent);
-    var pageLimitSec = this.getPageMaxTimeToFinish(page);
+    var pageLimitSec = page.getMaxTimeToFinish();
     var pageLimit = this.getDisplayTime(pageLimitSec);
     var surveyLimit = this.getDisplayTime(this.maxTimeToFinish);
     if (this.showTimerPanelMode == "page")
@@ -7243,7 +7245,7 @@ export class SurveyModel extends SurveyElementCore
     pageSpent: string,
     pageLimit: string
   ): string {
-    return this.getPageMaxTimeToFinish(page) > 0
+    return !!page && page.getMaxTimeToFinish() > 0
       ? this.getLocalizationFormatString("timerLimitPage", pageSpent, pageLimit)
       : this.getLocalizationFormatString("timerSpentPage", pageSpent, pageLimit);
   }
@@ -7353,19 +7355,14 @@ export class SurveyModel extends SurveyElementCore
   public set maxTimeToFinishPage(val: number) {
     this.setPropertyValue("maxTimeToFinishPage", val);
   }
-  private getPageMaxTimeToFinish(page: PageModel) {
-    if (!page || page.maxTimeToFinish < 0) return 0;
-    return page.maxTimeToFinish > 0
-      ? page.maxTimeToFinish
-      : this.maxTimeToFinishPage;
-  }
   private doTimer(page: PageModel): void {
     this.onTimer.fire(this, {});
-    if (this.maxTimeToFinish > 0 && this.maxTimeToFinish == this.timeSpent) {
+    if (this.maxTimeToFinish > 0 && this.maxTimeToFinish <= this.timeSpent) {
+      this.timeSpent = this.maxTimeToFinish;
       this.completeLastPage();
     }
     if (page) {
-      var pageLimit = this.getPageMaxTimeToFinish(page);
+      var pageLimit = page.getMaxTimeToFinish();
       if (pageLimit > 0 && pageLimit == page.timeSpent) {
         if (this.isLastPage) {
           this.completeLastPage();
@@ -7734,10 +7731,20 @@ export class SurveyModel extends SurveyElementCore
   disposeCallback: () => void;
 
   private onScrollCallback: () => void;
+  // private _lastScrollTop = 0;
+  public _isElementShouldBeSticky(selector: string): boolean {
+    if (!selector) return false;
+    const topStickyContainer = this.rootElement.querySelector(selector);
+    if (!!topStickyContainer) {
+      // const scrollDirection = this.rootElement.scrollTop > this._lastScrollTop ? "down" : "up";
+      // this._lastScrollTop = this.rootElement.scrollTop;
+      return this.rootElement.scrollTop > 0 && topStickyContainer.getBoundingClientRect().y <= this.rootElement.getBoundingClientRect().y;
+    }
+    return false;
+  }
   public onScroll(): void {
     if (!!this.rootElement) {
-      const topStickyContainer = this.rootElement.querySelector(".sv-components-container-center");
-      if (!!topStickyContainer && topStickyContainer.getBoundingClientRect().y <= this.rootElement.getBoundingClientRect().y) {
+      if (this._isElementShouldBeSticky(".sv-components-container-center")) {
         this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
       } else {
         this.rootElement.classList && this.rootElement.classList.remove("sv-root--sticky-top");
@@ -8057,6 +8064,7 @@ Serializer.addClass("survey", [
     default: "auto",
     choices: ["auto", "static", "responsive"],
   },
+  { name: "gridLayoutEnabled:boolean", default: false, visible: false },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: true, visible: false },
   { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },

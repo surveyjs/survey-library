@@ -13,6 +13,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { PanelModel } from "./panel";
+import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";
@@ -740,6 +741,10 @@ export abstract class QuestionCustomModelBase extends Question
   getQuestionTitleWidth(): string {
     return undefined;
   }
+  getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
+    return [];
+  }
+  updateColumns() { }
   getQuestionStartIndex(): string {
     return this.getStartIndex();
   }
@@ -757,6 +762,9 @@ export abstract class QuestionCustomModelBase extends Question
     // do nothing
   }
   validateContainerOnly(): void {
+    // do nothing
+  }
+  onQuestionValueChanged(el: IElement): void {
     // do nothing
   }
   getQuestionErrorLocation(): string {

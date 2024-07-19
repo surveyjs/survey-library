@@ -1616,9 +1616,13 @@ QUnit.test(
   }
 );
 
-function updateObjsQuestions(objs: Array<any>): void {
+function updateObjsQuestions(objs: Array<any>, removeQuestion: boolean = false): void {
   for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
+    if(removeQuestion) {
+      delete objs[i].question;
+    } else {
+      objs[i].question = objs[i].question.name;
+    }
     if (!!objs[i].context) {
       objs[i].context = objs[i].context.name;
     }
@@ -1750,7 +1754,7 @@ QUnit.test(
     question.title = "Matrix";
     question.addColumn("col1", "Column 1");
     question.addConditionObjectsByContext(objs, null);
-    for (var i = 0; i < objs.length; i++) delete objs[i].question;
+    updateObjsQuestions(objs, true);
     assert.deepEqual(
       objs,
       [
@@ -1766,7 +1770,7 @@ QUnit.test(
 
     objs = [];
     question.addConditionObjectsByContext(objs, null);
-    for (var i = 0; i < objs.length; i++) delete objs[i].question;
+    updateObjsQuestions(objs, true);
     assert.deepEqual(
       objs,
       [
@@ -1780,7 +1784,7 @@ QUnit.test(
     question.rowCount = 4;
     objs = [];
     question.addConditionObjectsByContext(objs, null);
-    for (var i = 0; i < objs.length; i++) delete objs[i].question;
+    updateObjsQuestions(objs, true);
     assert.deepEqual(
       objs,
       [
@@ -1918,6 +1922,65 @@ QUnit.test("matrixDynamic.getConditionJson", function (assert) {
   assert.equal(json.type, "checkbox", "column 2 get type");
   json = question.getConditionJson("contains", "[0].col2");
   assert.equal(json.type, "radiogroup", "column 2 get type for contains");
+});
+QUnit.test("matrixDropdown.addConditionObjectsByContext, detail panel", function (assert) {
+  var objs = [];
+  var question = new QuestionMatrixDynamicModel("matrix");
+  question.title = "Matrix";
+  question.addColumn("col1", "Column 1");
+  question.detailPanel.addNewQuestion("text", "q1").title = "Question 1";
+  question.detailPanelMode = "underRow";
+  question.addConditionObjectsByContext(objs, null);
+  updateObjsQuestions(objs, true);
+  assert.deepEqual(
+    objs,
+    [
+      {
+        name: "matrix[0].col1",
+        text: "Matrix[0].Column 1",
+      },
+      {
+        name: "matrix[0].q1",
+        text: "Matrix[0].Question 1",
+      },
+    ],
+    "addConditionObjectsByContext work correctly for matrix dynamic, #1"
+  );
+  objs = [];
+  question.addConditionObjectsByContext(objs, question.columns[0]);
+  updateObjsQuestions(objs, true);
+  assert.deepEqual(
+    objs,
+    [
+      {
+        name: "matrix[0].col1",
+        text: "Matrix[0].Column 1",
+      },
+      {
+        name: "matrix[0].q1",
+        text: "Matrix[0].Question 1",
+      },
+      {
+        context: "col1",
+        name: "row.q1",
+        text: "row.Question 1",
+      },
+    ],
+    "addConditionObjectsByContext work correctly for matrix dynamic, #2"
+  );
+});
+
+QUnit.test("matrixDynamic.getConditionJson, detail panel", function (assert) {
+  var names = [];
+  var question = new QuestionMatrixDynamicModel("matrix");
+  question.addColumn("col1").cellType = "dropdown";
+  question.addColumn("col2").cellType = "dropdown";
+  question.detailPanel.addNewQuestion("dropdown", "q1").choices = [1, 2];
+  question.detailPanelMode = "underRow";
+  question.rowCount = 2;
+  var json = question.getConditionJson("equals", "[0].q1");
+  assert.deepEqual(json.choices, [1, 2], "column 1 get choices");
+  assert.equal(json.type, "dropdown", "column 1 get type");
 });
 
 QUnit.test("matrixDynamic.clearInvisibleValues", function (assert) {
@@ -7954,6 +8017,39 @@ QUnit.test("allowRowsDragAndDrop &mode=display", function (assert) {
   assert.equal(matrix.renderedTable.isRowsDragAndDrop, false, "#1");
   survey.mode = "edit";
   assert.equal(matrix.renderedTable.isRowsDragAndDrop, true, "#2");
+});
+QUnit.test("Drag&drop and column visibleIf", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        allowRowsDragAndDrop: true,
+        columns: [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text", visibleIf: "{row.col1}='a'" }]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.value = [{ col1: "a", col2: "b" }, { col1: "c" }];
+  let rows = matrix.visibleRows;
+  assert.equal(rows[0].cells[0].question.value, "a", "cell[0,0].value #1");
+  assert.equal(rows[0].cells[1].question.value, "b", "cell[0,1].value #1");
+  assert.equal(rows[0].cells[1].question.isVisible, true, "cell[0,1].isVisible #1");
+  assert.equal(rows[1].cells[0].question.value, "c", "cell[1,0].value #1");
+  assert.equal(rows[1].cells[1].question.isVisible, false, "cell[1,1].isVisible #1");
+
+  matrix.moveRowByIndex(1, 0);
+  rows = matrix.visibleRows;
+  assert.equal(rows[0].cells[0].question.value, "c", "cell[1,0].value #2");
+  assert.equal(rows[0].cells[1].question.isVisible, false, "cell[1,1].isVisible #2");
+  assert.equal(rows[1].cells[0].question.value, "a", "cell[0,0].value #2");
+  assert.equal(rows[1].cells[1].question.value, "b", "cell[0,1].value #2");
+  assert.equal(rows[1].cells[1].question.isVisible, true, "cell[0,1].isVisible #2");
+  assert.deepEqual(matrix.value, [{ col1: "c" }, { col1: "a", col2: "b" }], "matrix.value #2");
+  const renderedRows = matrix.renderedTable.rows;
+  assert.equal(renderedRows.length, 4, "There are 4 rendered rows");
+  assert.equal(renderedRows[0].cells.length, 4, "There are 4 cells in row");
+  assert.equal(renderedRows[0].cells[1].question.value, "c", "rendred.cell[1,0].value #2");
 });
 
 QUnit.test("QuestionMatrixDropdownRenderedRow isAdditionalClasses", (assert) => {

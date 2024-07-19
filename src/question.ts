@@ -125,6 +125,7 @@ export class Question extends SurveyElement<Question>
   public themeChanged(theme: ITheme): void { }
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
+  @property() ariaExpanded: "true" | "false";
 
   constructor(name: string) {
     super(name);
@@ -2680,9 +2681,7 @@ export class Question extends SurveyElement<Question>
       return null;
     }
   }
-  public get ariaExpanded(): string {
-    return null;
-  }
+
   public get ariaErrormessage(): string {
     if (this.isNewA11yStructure) return null;
 

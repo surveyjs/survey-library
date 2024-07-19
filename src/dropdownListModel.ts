@@ -129,6 +129,7 @@ export class DropdownListModel extends Base {
           this.resetItemsSettings();
         }
       }
+      this.question.ariaExpanded = option.isVisible ? "true" : "false";
       this.question.processPopupVisiblilityChanged(this.popupModel, option.isVisible);
     });
   }
@@ -374,6 +375,7 @@ export class DropdownListModel extends Base {
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
+    this.question.ariaExpanded = "false";
     question.onPropertyChanged.add(this.questionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 

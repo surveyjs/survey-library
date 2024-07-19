@@ -26,7 +26,6 @@ export class InputElementAdapter {
   clickHandler = (event: any) => {
     if (this.inputElement.value == this.inputMaskInstance.getMaskedValue("")) {
       this.inputElement.setSelectionRange(0, 0);
-      event.preventDefault();
     }
   };
 

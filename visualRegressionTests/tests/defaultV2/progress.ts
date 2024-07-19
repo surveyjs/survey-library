@@ -440,4 +440,110 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-progress-bar-top-questions-sticky.png", Selector("#surveyElement"), t, comparer);
     });
   });
+
+  test("Check progress top buttons sticky has background", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1400, 800);
+      await initSurvey(framework, {
+        "title": "Sample Survey",
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "boolean",
+                "name": "question1",
+                "title": "Show Page 2?",
+                "defaultValue": "true"
+              },
+              {
+                "type": "radiogroup",
+                "name": "question4",
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3",
+                  "Item 4",
+                  "Item 5",
+                  "Item 6",
+                  "Item 7"
+                ]
+              },
+              {
+                "type": "matrixdropdown",
+                "name": "question5",
+                "columns": [
+                  {
+                    "name": "Column 1"
+                  },
+                  {
+                    "name": "Column 2"
+                  },
+                  {
+                    "name": "Column 3"
+                  }
+                ],
+                "choices": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "rows": [
+                  "Row 1",
+                  "Row 2",
+                  "Row 3",
+                  "Row 4",
+                  "Row 5",
+                  "Row 6",
+                  "Row 7",
+                  "Row 8",
+                  "Row 9",
+                  "Row 10"
+                ]
+              }
+            ],
+            "title": "Page 1"
+          },
+          {
+            "name": "page2",
+            "elements": [
+              {
+                "type": "boolean",
+                "name": "question2",
+                "title": "Show Page 3?",
+                "defaultValue": "true"
+              }
+            ],
+            "visibleIf": "{question1} = true",
+            "title": "Page 2"
+          },
+          {
+            "name": "page3",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question3"
+              },
+            ],
+            "visibleIf": "{question2} = true",
+            "title": "Page 3"
+          }
+        ],
+        "showProgressBar": "belowheader",
+        "progressBarType": "buttons",
+        "progressBarShowPageTitles": true,
+        "widthMode": "static",
+        "width": "800px"
+      });
+      await ClientFunction(() => {
+        (document.querySelector("#surveyElement") as HTMLElement).style.height = "calc(100vh - 32px)";
+      })();
+      await t.scroll(".sd-root-modern--full-container", 0, 300);
+      await t.wait(1000);
+      await takeElementScreenshot("survey-progress-bar-top-buttons-sticky-background.png", Selector("#surveyElement"), t, comparer);
+    });
+  });
 });

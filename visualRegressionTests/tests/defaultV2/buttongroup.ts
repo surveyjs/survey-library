@@ -30,7 +30,7 @@ const registerButtongroup = ClientFunction((framework) => {
       return preact.createElement(SurveyJquery.SurveyQuestionButtonGroup, props);
     });
   }
-  if (framework === "survey-ui") {
+  if (framework === "survey-js-ui") {
     const SurveyUI = (<any>window).SurveyUI;
     const preact = SurveyUI["preact"];
     SurveyUI.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {

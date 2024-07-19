@@ -61,7 +61,7 @@ export const initSurvey = ClientFunction(
       window["$"]("#surveyElement").Survey({
         model: model
       });
-    } else if (framework === "survey-ui") {
+    } else if (framework === "survey-js-ui") {
       document.getElementById("surveyElement").innerHTML = "";
       SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
     } else if (framework === "react") {
@@ -120,7 +120,7 @@ export const initSurveyPopup = ClientFunction(
         allowClose: true,
         allowFullScreen: true
       });
-    } else if (framework === "survey-ui") {
+    } else if (framework === "survey-js-ui") {
       document.getElementById("surveyElement").innerHTML = "";
       SurveyUI.renderPopupSurvey(model, document.getElementById("surveyElement"), {
         isExpanded: true,
@@ -190,7 +190,7 @@ export const registerCustomToolboxComponent = ClientFunction(
           return window["React"].createElement(CustomActionButton, props);
         }
       );
-    } else if (framework === "jquery-ui" || framework === "survey-ui") {
+    } else if (framework === "jquery-ui" || framework === "survey-js-ui") {
       const preact = (window["SurveyJquery"] || window["SurveyUI"])["preact"];
       window.React = { createElement: preact.createElement };
 
@@ -277,7 +277,7 @@ export const registerCustomItemComponent = ClientFunction(
           return window["React"].createElement(ItemTemplateComponent, props);
         }
       );
-    } else if (framework === "jquery-ui" || framework === "survey-ui") {
+    } else if (framework === "jquery-ui" || framework === "survey-js-ui") {
       const preact = (window["SurveyJquery"] || window["SurveyUI"])["preact"];
       window.React = { createElement: preact.createElement };
       class ItemTemplateComponent extends preact.Component {
@@ -397,7 +397,7 @@ export const registerCustomItemContentComponent = ClientFunction(
           return preact.createElement(ItemContentTemplateComponent, props);
         }
       );
-    } else if (framework === "survey-ui") {
+    } else if (framework === "survey-js-ui") {
       const preact = window["SurveyUI"]["preact"];
       window.React = { createElement: preact.createElement };
       class ItemContentTemplateComponent extends preact.Component {

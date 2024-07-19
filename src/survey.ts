@@ -4297,7 +4297,7 @@ export class SurveyModel extends SurveyElementCore
   private isLockingUpdateOnPageModes: boolean;
   private setupPagesForPageModes(isSinglePage: boolean, isFirstLoad: boolean) {
     this.questionHashesClear();
-    if(!isSinglePage && this.firstPageIsStarted && this.pages.length > 0) {
+    if(this.firstPageIsStarted && this.pages.length > 0) {
       this.pages[0].questions.forEach(q => this.questionHashesAdded(q));
     }
     this.isLockingUpdateOnPageModes = !isFirstLoad;

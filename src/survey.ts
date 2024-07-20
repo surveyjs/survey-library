@@ -2903,7 +2903,8 @@ export class SurveyModel extends SurveyElementCore
     }
     if (data) {
       for (var key in data) {
-        this.setDataValueCore(this.valuesHash, key, data[key]);
+        const dataKey = typeof key === "string" ? key.trim() : key;
+        this.setDataValueCore(this.valuesHash, dataKey, data[key]);
       }
     }
     this.updateAllQuestionsValue(clearData);

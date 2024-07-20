@@ -1981,6 +1981,9 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.registerPropertyChangedHandlers(
       ["indent", "innerIndent", "rightIndent"], () => { this.onIndentChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
+    this.registerPropertyChangedHandlers(["title", "description"], () => {
+      this.calcHasHeader();
+    });
   }
   public getType(): string {
     return "panel";
@@ -1994,13 +1997,21 @@ export class PanelModel extends PanelModelBase implements IElement {
     }
     return super.getSurvey(live);
   }
-  onSurveyLoad() {
+  public get hasHeader(): boolean {
+    return this.getPropertyValue("hasHeader");
+  }
+  private calcHasHeader(): void {
+    this.setPropertyValue("hasHeader", this.hasTitle || this.hasDescription && !!this.description);
+  }
+  onSurveyLoad(): void {
     super.onSurveyLoad();
     this.onIndentChanged();
+    this.calcHasHeader();
   }
-  protected onSetData() {
+  protected onSetData(): void {
     super.onSetData();
     this.onIndentChanged();
+    this.calcHasHeader();
   }
   public get isPanel(): boolean {
     return true;

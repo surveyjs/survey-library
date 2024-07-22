@@ -29,11 +29,11 @@ sv-brand-info, .sv-brand-info {
 }
 
 .sv-brand-info__logo {
+  display: inline-block;
+
   img {
     width: 118px;
   }
-
-  display: inline-block;
 }
 
 .sv-brand-info__terms {

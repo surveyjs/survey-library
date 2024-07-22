@@ -111,6 +111,10 @@ jobs:
 
     - script: |
         npm run build_react_prod
+        npm run build_core
+        npm run build_i18n
+        npm run build-plugins
+        npm run build_react_ui
       displayName: "Build React"
 
     - script: |
@@ -390,9 +394,9 @@ jobs:
       displayName: "Build Core"
 
     - script: |
-        npm run build_ui_prod
-      displayName: "Build survey-ui"
+        npm run build_js_ui_prod
+      displayName: "Build survey-js-ui"
 
     - script: |
-        npm run testcafe:survey-ui:ci
+        npm run testcafe:survey-js-ui:ci
       displayName: "run functional tests"

@@ -115,8 +115,12 @@ jobs:
       verbose: false
     condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
-  - script: |
+  - powershell: |
       npm run build_react_prod
+      npm run build_core
+      npm run build_i18n
+      npm run build-plugins
+      npm run build_react_ui
     displayName: 'build prod'
 
   - script: |
@@ -436,6 +440,73 @@ jobs:
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_JqueryUI_VRT/'
       ArtifactName: 'Library_JqueryUI_VRT'
+      publishLocation: 'Container'
+    condition: always()
+    displayName: 'publish vrt artifacts'
+
+- job: SurveyUI
+  steps:
+  - checkout: self
+
+  - task: PowerShell@2
+    displayName: 'update Google Chrome to latest'
+    inputs:
+      targetType: 'inline'
+      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '14.x'
+    displayName: 'Install Node.js'
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/"
+      Contents: "package.json"
+      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+      OverWrite: true
+    displayName: "Copy package.json for cache key"
+  - task: Cache@2
+    inputs:
+      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+      path: $(Build.SourcesDirectory)/node_modules
+      cacheHitVar: NPM_CACHE_RESTORED
+    displayName: Cache NPM
+
+  - task: Npm@1
+    displayName: 'NPM install'
+    inputs:
+      command: install
+      verbose: false
+    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+  - script: |
+      npm run build_core
+      npm run build_i18n
+      npm run build-plugins
+    displayName: "Build Core"
+
+  - script: |
+      npm run build_js_ui_prod
+    displayName: "Build survey-js-ui"
+
+  - script: |
+      npm run vrt:survey-js-ui:ci
+    displayName: "Visual Regression Tests"
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_SurveyUI_VRT'
+      OverWrite: true
+    condition: always()
+    displayName: 'copy vrt artifacts'
+  
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_SurveyUI_VRT/'
+      ArtifactName: 'Library_SurveyUI_VRT'
       publishLocation: 'Container'
     condition: always()
     displayName: 'publish vrt artifacts'

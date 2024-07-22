@@ -14,13 +14,12 @@
     }
 
     & .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__header {
+        padding-top: var(--sd-base-vertical-padding);
         padding-bottom: 0;
 
         &:after {
             display: none;
         }
-
-        padding-top: var(--sd-base-vertical-padding);
 
         & > .sd-panel__title {
             color: $foreground-light;

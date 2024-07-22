@@ -771,5 +771,34 @@ export var settings = {
       "#": /[a-zA-Z0-9]/
     }
   },
+  /**
+   * Specifies whether to store date-time values in the following format: `"YYYY-MM-DDThh:mm:ss.sssZ"`. Applies only to form fields with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"datetime-local"`.
+   *
+   * Default value: `false`
+   *
+   * If you enable this setting, date-time values are converted from local time to UTC when they are saved to the survey's [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) object, while the question values remain in local time. Therefore, when you specify default values using a question's [`defaultValue`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#defaultValue) property, you need to use local time, but if you specify them using the `data` object, use a UTC date-time value in the following format: `"YYYY-MM-DDThh:mm:ss.sssZ"`.
+   *
+   * ```js
+   * const surveyJson = {
+   *   "elements": [{
+   *     "name": "datetime",
+   *     "type": "text",
+   *     "title": "Select a date and time",
+   *     "inputType": "datetime-local",
+   *     "defaultValue": "2024-07-16T12:15:00" // Local date-time value
+   *   }]
+   * }
+   * ```
+   *
+   * ```js
+   * import { Model } from "survey-core";
+   * const surveyJson = { ... }
+   * const survey = new Model(surveyJson);
+   *
+   * survey.data = {
+   *   datetime: "2024-07-16T12:15:00.000Z" // UTC date-time value
+   * }
+   * ```
+   */
   storeUtcDates: false
 };

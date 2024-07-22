@@ -500,6 +500,7 @@ export class Base {
     const prop = this.getPropertyByName(name);
     if(!prop || prop.isCustom && this.isCreating) return undefined;
     const dValue = prop.defaultValue;
+    if (!!prop.defaultValueFunc) return dValue;
     if (!this.isPropertyEmpty(dValue) && !Array.isArray(dValue)) return dValue;
     const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
     if(locStr && locStr.localizationName) return this.getLocalizationString(locStr.localizationName);
@@ -887,6 +888,8 @@ export class Base {
     }
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
+        const prop = this.getPropertyByName(key);
+        if(!prop || !prop.isSerializable) continue;
         let items = this.getPropertyValue(key);
         if (!items || !items.length) continue;
         for (let i = 0; i < items.length; i++) {

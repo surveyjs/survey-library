@@ -9,6 +9,7 @@ import { SurveyError } from "./survey-error";
 import { Base } from "./base";
 import { IAction } from "./actions/action";
 import { PanelModel } from "./panel";
+import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { DragDropAllowEvent } from "./survey-events-api";
 import { PopupModel } from "./popup";
@@ -96,6 +97,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     value: any,
     displayValue: string
   ): string;
+  gridLayoutEnabled: boolean;
   isDisplayMode: boolean;
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;
@@ -282,6 +284,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   isCollapsed: boolean;
   rightIndent: number;
   startWithNewLine: boolean;
+  colSpan?: number;
   registerPropertyChangedHandlers(propertyNames: Array<string>, handler: any, key: string): void;
   registerFunctionOnPropertyValueChanged(name: string, func: any, key: string): void;
   unRegisterFunctionOnPropertyValueChanged(name: string, key: string): void;
@@ -295,6 +298,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   clearErrors(): any;
   dispose(): void;
   needResponsiveWidth(): boolean;
+  updateRootStyle(): void;
 }
 
 export interface IQuestion extends IElement, ISurveyErrorOwner {
@@ -327,6 +331,8 @@ export interface IPanel extends ISurveyElement, IParentElement {
   getQuestionTitleWidth(): string;
   getQuestionStartIndex(): string;
   getQuestionErrorLocation(): string;
+  getColumsForElement(el: IElement): Array<PanelLayoutColumnModel>;
+  updateColumns(): void;
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;

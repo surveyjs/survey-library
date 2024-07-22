@@ -15,9 +15,9 @@
 }
 
 .sd-list__item.sd-list__item--focused:not(.sd-list__item--selected) {
+  outline: none;
+
   .sd-list__item-body {
     padding-block: calcSize(1.25);
   }
-
-  outline: none;
 }

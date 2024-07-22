@@ -21,6 +21,7 @@ import { HashTable, Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
+import { PanelLayoutColumnModel } from "./panel-layout-column";
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
@@ -813,6 +814,10 @@ export class QuestionMultipleTextModel extends Question
   getQuestionTitleWidth(): string {
     return undefined;
   }
+  getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
+    return [];
+  }
+  updateColumns() { }
   getQuestionStartIndex(): string {
     return this.getStartIndex();
   }

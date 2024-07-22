@@ -157,7 +157,7 @@ function scrollElementByChildId(id: string) {
 function navigateToUrl(url: string): void {
   const location = DomWindowHelper.getLocation();
   if (!url || !location) return;
-  location.href = url;
+  location.href = encodeURIComponent(url);
 }
 
 function wrapUrlForBackgroundImage(url: string): string {
@@ -565,6 +565,10 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   });
 
   return { reorderedItems, deletedItems, addedItems, mergedItems };
+}
+
+export function roundTo2Decimals(number: number): number {
+  return Math.round(number * 100) / 100;
 }
 
 export {

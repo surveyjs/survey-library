@@ -3074,31 +3074,31 @@ export class SurveyModel extends SurveyElementCore
     }
     return result;
   }
-  getFilteredValues(): any {
-    var values: { [index: string]: any } = {};
-    for (var key in this.variablesHash) values[key] = this.variablesHash[key];
+
+  getFilteredValues(): Record<string, any> {
+    const values: { [index: string]: any } = {
+      ...this.variablesHash,
+
+    };
     this.addCalculatedValuesIntoFilteredValues(values);
-    var keys = this.getValuesKeys();
-    for (var i = 0; i < keys.length; i++) {
-      var key = keys[i];
+    for (let key of this.getValuesKeys()) {
       values[key] = this.getDataValueCore(this.valuesHash, key);
     }
-    this.getAllQuestions().forEach(q => {
-      if (q.hasFilteredValue) {
-        values[q.getFilteredName()] = q.getFilteredValue();
+    for (let question of this.getAllQuestions()) {
+      if (question.hasFilteredValue) {
+        values[question.getFilteredName()] = question.getFilteredValue();
       }
-    });
-
+    }
     return values;
   }
   private addCalculatedValuesIntoFilteredValues(values: {
-    [index: string]: any,
+    [index: string]: CalculatedValue["value"],
   }) {
-    var caclValues = this.calculatedValues;
-    for (var i = 0; i < caclValues.length; i++)
-      values[caclValues[i].name] = caclValues[i].value;
+    for (let calculatedValue of this.calculatedValues) {
+      values[calculatedValue.name] = calculatedValue.value;
+    }
   }
-  getFilteredProperties(): any {
+  getFilteredProperties(): { survey: SurveyModel } {
     return { survey: this };
   }
   private getValuesKeys(): Array<string> {

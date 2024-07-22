@@ -888,6 +888,8 @@ export class Base {
     }
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
+        const prop = this.getPropertyByName(key);
+        if(!prop || !prop.isSerializable) continue;
         let items = this.getPropertyValue(key);
         if (!items || !items.length) continue;
         for (let i = 0; i < items.length; i++) {

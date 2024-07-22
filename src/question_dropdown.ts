@@ -288,10 +288,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get popupModel(): PopupModel {
     return this.dropdownListModel?.popupModel;
   }
-  public get ariaExpanded(): string {
-    const popupModel = this.popupModel;
-    return !!popupModel && popupModel.isVisible ? "true" : "false";
-  }
 
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
   public onOpenedCallBack(): void {
@@ -340,6 +336,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     super.clearValue(keepComment);
     this.lastSelectedItemValue = null;
     this.dropdownListModel?.clear();
+  }
+
+  public afterRenderCore(el: any): void {
+    super.afterRenderCore(el);
+    if (!!this.dropdownListModelValue) {
+      this.dropdownListModelValue.clear();
+    }
   }
 
   onClick(e: any): void {

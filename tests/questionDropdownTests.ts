@@ -517,13 +517,13 @@ QUnit.test("showSelectedItemLocText", assert => {
   survey.setDesignMode(true);
   survey.fromJSON(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  assert.equal(question.showSelectedItemLocText, false);
+  assert.equal(question.showSelectedItemLocText, false, "#1");
 
   question.value = 1;
-  assert.equal(question.showSelectedItemLocText, true);
+  assert.equal(question.showSelectedItemLocText, true, "#2");
 
   question.itemComponent = "my-item";
-  assert.equal(question.showSelectedItemLocText, false);
+  assert.equal(question.showSelectedItemLocText, false, "#3");
 });
 QUnit.test("selectedItemLocText, hasOther & storeOthersAsComment=false, Bug#3800", assert => {
   const json = {

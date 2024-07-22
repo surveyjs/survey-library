@@ -20290,3 +20290,18 @@ QUnit.test("Question is not in the hash with it is on the first page & questions
   const q = survey.getQuestionByName("q1");
   assert.equal(q.name, "q1", "q1 name is here");
 });
+QUnit.test("Trim key in setting the data, Bug#8586", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1\n" },
+      { type: "text", name: "\nq2 " },
+      { type: "text", name: " q3\n\n" },
+      { type: "text", name: "\nq4\n" }
+    ]
+  });
+  survey.data = { "q1\n": "a", "\nq2 ": "b", " q3\n\n": "c", q4: "d" };
+  assert.equal(survey.getQuestionByName("q1").value, "a", "q1.value");
+  assert.equal(survey.getQuestionByName("q2").value, "b", "q2.value");
+  assert.equal(survey.getQuestionByName("q3").value, "c", "q3.value");
+  assert.equal(survey.getQuestionByName("q4").value, "d", "q3.value");
+});

@@ -57,7 +57,9 @@ export class SurveyPanel extends SurveyPanelBase {
     );
   }
   protected renderHeader() {
-    if (!this.panel.hasHeader) return null;
+    if (!this.panel.hasTitle && !this.panel.hasDescription) {
+      return null;
+    }
     return <SurveyElementHeader element={this.panel}></SurveyElementHeader>;
   }
   protected wrapElement(element: JSX.Element): JSX.Element {

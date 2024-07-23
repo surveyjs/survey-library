@@ -1981,6 +1981,9 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.registerPropertyChangedHandlers(
       ["indent", "innerIndent", "rightIndent"], () => { this.onIndentChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
+    this.registerPropertyChangedHandlers(["title"], () => {
+      this.calcHasTextInTitle();
+    });
   }
   public getType(): string {
     return "panel";
@@ -1994,13 +1997,21 @@ export class PanelModel extends PanelModelBase implements IElement {
     }
     return super.getSurvey(live);
   }
-  onSurveyLoad() {
+  get hasTextInTitle(): boolean {
+    return this.getPropertyValue("hasTextInTitle");
+  }
+  private calcHasTextInTitle(): void {
+    this.setPropertyValue("hasTextInTitle", !!this.title);
+  }
+  onSurveyLoad(): void {
     super.onSurveyLoad();
     this.onIndentChanged();
+    this.calcHasTextInTitle();
   }
-  protected onSetData() {
+  protected onSetData(): void {
     super.onSetData();
     this.onIndentChanged();
+    this.calcHasTextInTitle();
   }
   public get isPanel(): boolean {
     return true;
@@ -2247,7 +2258,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   public get cssTitle(): string {
     return new CssClassBuilder()
       .append(this.getCssTitle(this.cssClasses.panel))
-      .append(this.cssClasses.panel.titleHidden, !this.title && this.isDesignMode)
+      .append(this.cssClasses.panel.titleHidden, !this.hasTextInTitle && this.isDesignMode)
       .toString();
   }
   public get showErrorsAbovePanel(): boolean {

@@ -157,7 +157,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-invalid={this.question.ariaInvalid}
           aria-labelledby={question.ariaLabelledBy}
           aria-describedby={question.ariaDescribedBy}
-          aria-expanded={question.ariaExpanded === null ? undefined : question.ariaExpanded === "true"}
+          aria-expanded={question.ariaExpanded}
         >
           {errorsAboveQuestion}
           {headerTop}

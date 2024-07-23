@@ -303,7 +303,7 @@ export abstract class BaseAction extends Base implements IAction {
     return this.enabled !== undefined && !this.enabled;
   }
   public get canShrink() {
-    return !!this.iconName;
+    return !this.disableShrink && !!this.iconName;
   }
   public get hasTitle(): boolean {
     return (

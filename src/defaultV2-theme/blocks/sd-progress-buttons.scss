@@ -312,7 +312,7 @@
     li {
       &:not(:first-child)>.sd-progress-buttons__connector {
         right: unset;
-        left: calc(50% + 4px);
+        left: calc(50% + 10px);
       }
     }
   }
@@ -322,7 +322,7 @@
       li {
         &:not(:first-child)>.sd-progress-buttons__connector {
           right: unset;
-          left: calc(50% + 8px);
+          left: calc(50% + 20px);
         }
       }
     }

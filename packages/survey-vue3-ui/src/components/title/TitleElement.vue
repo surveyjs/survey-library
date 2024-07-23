@@ -1,7 +1,7 @@
 <template>
   <component
     v-if="element.hasTitle"
-    v-bind:is="element.titleTagName"
+    :is="element.titleTagName"
     :class="element.cssTitle"
     v-bind:aria-label="element.titleAriaLabel"
     v-bind:id="element.ariaTitleId"
@@ -14,20 +14,23 @@
       }
     "
   >
-    <survey-element-title-content
+    <SurveyVueComponent
+      :name="'survey-element-title-content'"
       v-if="!element.hasTitleActions"
       :element="element"
       :css="css"
-    ></survey-element-title-content>
-    <sv-title-actions
+    ></SurveyVueComponent>
+    <SurveyVueComponent
+      :name="'sv-title-actions'"
       v-if="element.hasTitleActions"
       :element="element"
       :css="css"
-    ></sv-title-actions>
+    ></SurveyVueComponent>
   </component>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import { doKey2ClickUp, type SurveyElementCore } from "survey-core";
 defineProps<{
   element: SurveyElementCore;

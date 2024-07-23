@@ -52,18 +52,19 @@
             <use :xlink:href="question.dashSvgIcon"></use>
           </svg>
         </div>
-        <component :is="question.itemComponent" :item="item" :cssClasses="question.cssClasses"></component>
+        <SurveyVueComponent
+          :name="question.itemComponent"
+          :item="item"
+          :cssClasses="question.cssClasses"
+        ></SurveyVueComponent>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type {
-  ItemValue,
-  LocalizableString,
-  QuestionRankingModel,
-} from "survey-core";
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import type { ItemValue, QuestionRankingModel } from "survey-core";
 import { useBase } from "./base";
 import { computed } from "vue";
 defineOptions({ inheritAttrs: false });

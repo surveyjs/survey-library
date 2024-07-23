@@ -1,29 +1,33 @@
 <template>
   <template v-if="components.length > 0">
-    <div v-if="needRenderWrapper" :class="['sv-components-column', 'sv-components-container-' + container]">
-      <template v-for="(component, index) in components">
-        <component
-          :is="component.component"
+    <div
+      v-if="needRenderWrapper"
+      :class="['sv-components-column', 'sv-components-container-' + container]"
+    >
+      <template v-for="component in components" :key="component.id">
+        <SurveyVueComponent
+          :name="component.component"
           :survey="survey"
           :container="container"
           :model="component.data"
-        ></component>
+        ></SurveyVueComponent>
       </template>
     </div>
     <template v-else>
-      <template v-for="(component, index) in components">
-        <component
-          :is="component.component"
+      <template v-for="component in components" :key="component.id">
+        <SurveyVueComponent
+          :name="component.component"
           :survey="survey"
           :container="container"
           :model="component.data"
-        ></component>
+        ></SurveyVueComponent>
       </template>
     </template>
   </template>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import { computed } from "vue";
 import type { SurveyModel } from "survey-core";
 

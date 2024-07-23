@@ -1,12 +1,12 @@
 <template>
   <div :class="question.rootClass" ref="root">
     <template v-if="!question.selectToRankEnabled">
-      <component
+      <SurveyVueComponent
         v-for="(item, index) in question.renderedRankingChoices"
         :key="item.value + '-' + index + '-item'"
-        :is="getItemValueComponentName(item)"
+        :name="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"
-      ></component>
+      ></SurveyVueComponent>
     </template>
 
     <div
@@ -14,20 +14,21 @@
       :class="question.getContainerClasses('from')"
       data-ranking="from-container"
     >
-      <component
+      <SurveyVueComponent
         v-for="(item, index) in question.renderedUnRankingChoices"
         :key="item.value + '-' + index + '-item'"
-        :is="getItemValueComponentName(item)"
+        :name="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index, true)"
-      ></component>
+      ></SurveyVueComponent>
 
       <div
         v-if="question.renderedUnRankingChoices.length === 0"
         :class="question.cssClasses.containerPlaceholder"
       >
-        <survey-string
+        <SurveyVueComponent
+          :name="'survey-string'"
           :locString="question.locSelectToRankEmptyRankedAreaText"
-        ></survey-string>
+        ></SurveyVueComponent>
       </div>
     </div>
 
@@ -41,26 +42,28 @@
       :class="question.getContainerClasses('to')"
       data-ranking="to-container"
     >
-      <component
+      <SurveyVueComponent
         v-for="(item, index) in question.renderedRankingChoices"
         :key="item.value + '-' + index + '-item'"
-        :is="getItemValueComponentName(item)"
+        :name="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"
-      ></component>
+      ></SurveyVueComponent>
 
       <div
         v-if="question.renderedRankingChoices.length === 0"
         :class="question.cssClasses.containerPlaceholder"
       >
-        <survey-string
+        <SurveyVueComponent
+          :name="'survey-string'"
           :locString="question.locSelectToRankEmptyUnrankedAreaText"
-        ></survey-string>
+        ></SurveyVueComponent>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { ItemValue, QuestionRankingModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

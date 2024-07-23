@@ -15,12 +15,16 @@
       :class="question.cssClasses.footerButtonsContainer"
       v-if="question.footerToolbar.visibleActions.length"
     >
-      <sv-action-bar :model="question.footerToolbar" />
+      <SurveyVueComponent
+        :name="'sv-action-bar'"
+        :model="question.footerToolbar"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { QuestionPanelDynamicModel } from "survey-core";
 defineProps<{
   question: QuestionPanelDynamicModel;

@@ -7,11 +7,15 @@
     aria-live="polite"
   >
     <span>{{ model.message }}</span>
-    <sv-action-bar :model="model.actionBar"></sv-action-bar>
+    <SurveyVueComponent
+      :name="'sv-action-bar'"
+      :model="model.actionBar"
+    ></SurveyVueComponent>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { Notifier } from "survey-core";
 import { useBase } from "./base";
 

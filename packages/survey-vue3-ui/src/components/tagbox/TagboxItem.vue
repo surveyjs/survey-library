@@ -1,22 +1,24 @@
 <template>
   <div class="sv-tagbox__item" :key="item.key">
     <div class="sv-tagbox__item-text">
-      <survey-string :locString="item.locText" />
+      <SurveyVueComponent :name="'survey-string'" :locString="item.locText" />
     </div>
     <div
       v-bind:class="question.cssClasses.cleanItemButton"
       v-on:click="removeItem"
     >
-      <sv-svg-icon
+      <SurveyVueComponent
+        :name="'sv-svg-icon'"
         v-bind:class="question.cssClasses.cleanItemButtonSvg"
         :iconName="question.cssClasses.cleanItemButtonIconId"
         :size="'auto'"
-      ></sv-svg-icon>
+      ></SurveyVueComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import { useBase } from "@/base";
 import type { ItemValue, QuestionTagboxModel } from "survey-core";
 

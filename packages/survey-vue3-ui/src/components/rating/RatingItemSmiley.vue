@@ -21,15 +21,17 @@
       :aria-invalid="question.ariaInvalid"
       :aria-errormessage="question.ariaErrormessage"
     />
-    <sv-svg-icon
+    <SurveyVueComponent
+      :name="'sv-svg-icon'"
       :iconName="question.getItemSmileyIconName(item.itemValue)"
       :size="'auto'"
       :title="item.text"
-    ></sv-svg-icon>
+    ></SurveyVueComponent>
   </label>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { IRatingItemProps } from "./rating";
 import { useBase } from "@/base";
 

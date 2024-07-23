@@ -7,16 +7,18 @@
     v-key2click
     v-on:click="question.chooseFile($event)"
   >
-    <sv-svg-icon
+    <SurveyVueComponent
+      :name="'sv-svg-icon'"
       v-if="question.cssClasses.chooseFileIconId"
       :title="question.chooseButtonText"
       :iconName="question.cssClasses.chooseFileIconId"
       :size="'auto'"
-    ></sv-svg-icon>
+    ></SurveyVueComponent>
     <span>{{ question.chooseButtonText }}</span>
   </label>
 </template>
 <script setup lang="ts">
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { QuestionFileModel, Action } from "survey-core";
 import { computed } from "vue";
 const props = defineProps<{
@@ -24,6 +26,6 @@ const props = defineProps<{
   item?: Action;
 }>();
 const question = computed(
-  () => props.data?.question || props.item.data.question
+  () => props.data?.question || props.item?.data.question
 );
 </script>

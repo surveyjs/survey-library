@@ -43,7 +43,10 @@
               :class="css.progressButtonsPageTitle"
               :title="page.renderedNavigationTitle"
             >
-              <survey-string :locString="page.locNavigationTitle" />
+              <SurveyVueComponent
+                :name="'survey-string'"
+                :locString="page.locNavigationTitle"
+              />
             </div>
             <div
               v-if="canShowItemTitles"
@@ -78,13 +81,13 @@
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import {
   type SurveyModel,
   ProgressButtons,
   ProgressButtonsResponsivityManager,
-  IProgressButtonsViewModel,
 } from "survey-core";
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = defineProps<{
   survey: SurveyModel;
@@ -97,7 +100,7 @@ const canShowFooter = ref(false);
 const canShowItemTitles = ref(true);
 const progressButtonsListContainer = ref<HTMLElement>();
 const css = computed(() => props.survey.css);
-let respManager: ProgressButtonsResponsivityManager = null;
+let respManager: ProgressButtonsResponsivityManager = null as any;
 
 const clickScrollButton = (isLeftScroll: boolean) => {
   let element: any = progressButtonsListContainer.value;

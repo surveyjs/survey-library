@@ -2,7 +2,10 @@
   <div :class="getCssClass()">
     <div style="clear: both" :class="getCssClass()">
       <div :class="question.cssClasses.progressContainer">
-        <sv-paneldynamic-prev-btn :data="{ question: question }" />
+        <SurveyVueComponent
+          :name="'sv-paneldynamic-prev-btn'"
+          :data="{ question: question }"
+        />
         <div
           :class="question.cssClasses.progress"
           v-if="question.isRangeShowing"
@@ -13,15 +16,25 @@
             role="progressbar"
           ></div>
         </div>
-        <sv-paneldynamic-next-btn :data="{ question: question }" />
+        <SurveyVueComponent
+          :name="'sv-paneldynamic-next-btn'"
+          :data="{ question: question }"
+        />
       </div>
-      <sv-paneldynamic-add-btn :data="{ question: question }" />
-      <sv-paneldynamic-progress-text :data="{ question: question }" />
+      <SurveyVueComponent
+        :name="'sv-paneldynamic-add-btn'"
+        :data="{ question: question }"
+      />
+      <SurveyVueComponent
+        :name="'sv-paneldynamic-progress-text'"
+        :data="{ question: question }"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { QuestionPanelDynamicModel } from "survey-core";
 const props = defineProps<{
   question: QuestionPanelDynamicModel;

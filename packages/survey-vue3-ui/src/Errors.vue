@@ -7,9 +7,9 @@
     :id="element.id + '_errors'"
     ref="root"
   >
-    <component
+    <SurveyVueComponent
       v-for="(error, index) in element.errors"
-      :is="element.survey['questionErrorComponent']"
+      :name="element.survey['questionErrorComponent']"
       :element="element"
       :key="'error_' + index"
       :errorKey="'error_' + index"
@@ -20,10 +20,11 @@
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { PanelModel, Question } from "survey-core";
 import { ref } from "vue";
 
-const props = defineProps<{
+defineProps<{
   element: Question | PanelModel;
   location?: string;
 }>();

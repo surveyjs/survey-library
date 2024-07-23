@@ -15,14 +15,17 @@
                 width: question.columnMinWidth,
               }"
             >
-              <component
-                :is="question.getColumnHeaderWrapperComponentName(column)"
+              <SurveyVueComponent
+                :name="question.getColumnHeaderWrapperComponentName(column)"
                 :componentData="
                   question.getColumnHeaderWrapperComponentData(column)
                 "
               >
-                <survey-string :locString="column.locText" />
-              </component>
+                <SurveyVueComponent
+                  :name="'survey-string'"
+                  :locString="column.locText"
+                />
+              </SurveyVueComponent>
             </th>
           </tr>
         </thead>
@@ -40,12 +43,15 @@
                 width: question.rowTitleWidth,
               }"
             >
-              <component
-                :is="question.getRowHeaderWrapperComponentName(row)"
+              <SurveyVueComponent
+                :name="question.getRowHeaderWrapperComponentName(row)"
                 :componentData="question.getRowHeaderWrapperComponentData(row)"
               >
-                <survey-string :locString="row.locText" />
-              </component>
+                <SurveyVueComponent
+                  :name="'survey-string'"
+                  :locString="row.locText"
+                />
+              </SurveyVueComponent>
             </td>
             <template v-if="question.hasCellText">
               <td
@@ -54,9 +60,10 @@
                 :class="question.getItemClass(row, column)"
                 v-on:click="cellClick(row, column)"
               >
-                <survey-string
+                <SurveyVueComponent
+                  :name="'survey-string'"
                   :locString="question.getCellDisplayLocText(row.name, column)"
-                ></survey-string>
+                ></SurveyVueComponent>
               </td>
             </template>
             <template v-if="!question.hasCellText">
@@ -67,13 +74,13 @@
                 :class="question.cssClasses.cell"
                 v-on:click="cellClick(row, column)"
               >
-                <component
-                  :is="question.cellComponent"
+                <SurveyVueComponent
+                  :name="question.cellComponent"
                   :question="question"
                   :row="row"
                   :column="column"
                   :columnIndex="columnIndex"
-                ></component>
+                ></SurveyVueComponent>
               </td>
             </template>
           </tr>
@@ -84,6 +91,7 @@
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { QuestionMatrixModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref, shallowRef } from "vue";

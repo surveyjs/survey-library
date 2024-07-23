@@ -2,7 +2,11 @@
   <div :class="question.fileRootCss" ref="root">
     <input
       :class="question.cssClasses.fileInput"
-      v-if="(!question.isReadOnlyAttr && !question.isDisabledAttr) && question.hasFileUI"
+      v-if="
+        !question.isReadOnlyAttr &&
+        !question.isDisabledAttr &&
+        question.hasFileUI
+      "
       tabindex="-1"
       type="file"
       :id="question.inputId"
@@ -47,19 +51,22 @@
         v-if="question.showFileDecorator"
       >
         <span :class="question.cssClasses.dragAreaPlaceholder">
-          <survey-string
+          <SurveyVueComponent
+            :name="'survey-string'"
             :locString="question.locRenderedPlaceholder"
-          ></survey-string>
+          ></SurveyVueComponent>
         </span>
         <div :class="question.cssClasses.wrapper">
-          <sv-file-choose-btn
+          <SurveyVueComponent
+            :name="'sv-file-choose-btn'"
             v-if="question.showChooseButton"
             :data="{ question: question }"
-          ></sv-file-choose-btn>
-          <sv-action-bar
+          ></SurveyVueComponent>
+          <SurveyVueComponent
+            :name="'sv-action-bar'"
             v-if="question.actionsContainerVisible"
             :model="question.actionsContainer"
-          ></sv-action-bar>
+          ></SurveyVueComponent>
           <span
             :class="question.cssClasses.noFileChosen"
             v-if="question.isEmpty()"
@@ -67,38 +74,46 @@
           >
         </div>
       </div>
-      <sv-file-clean-btn
+      <SurveyVueComponent
+        :name="'sv-file-clean-btn'"
         v-if="question.showRemoveButton"
         :question="question"
         :css="question.showRemoveButton"
-      ></sv-file-clean-btn>
+      ></SurveyVueComponent>
       <div
         :class="question.cssClasses.loadingIndicator"
         v-if="question.showLoadingIndicator"
       >
-        <sv-loading-indicator></sv-loading-indicator>
+        <SurveyVueComponent :name="'sv-loading-indicator'" />
       </div>
-      <sv-file-video
+      <SurveyVueComponent
+        :name="'sv-file-video'"
         v-if="question.isPlayingVideo"
         :question="question"
-      ></sv-file-video>
+      ></SurveyVueComponent>
       <template v-if="question.allowShowPreview">
-        <sv-file-preview :question="question"></sv-file-preview>
+        <SurveyVueComponent
+          :name="'sv-file-preview'"
+          :question="question"
+        ></SurveyVueComponent>
       </template>
-      <sv-file-clean-btn
+      <SurveyVueComponent
+        :name="'sv-file-clean-btn'"
         v-if="question.showRemoveButtonBottom"
         :question="question"
         :css="question.showRemoveButtonBottom"
-      ></sv-file-clean-btn>
-      <sv-action-bar
+      ></SurveyVueComponent>
+      <SurveyVueComponent
+        :name="'sv-action-bar'"
         v-if="question.fileNavigatorVisible"
         :model="question.fileNavigator"
-      ></sv-action-bar>
+      ></SurveyVueComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { QuestionFileModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

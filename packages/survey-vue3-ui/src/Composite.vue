@@ -1,8 +1,14 @@
 <template>
-  <survey-panel ref="root" :element="contentPanel" :css="css" />
+  <SurveyVueComponent
+    :name="'survey-panel'"
+    ref="root"
+    :element="contentPanel"
+    :css="css"
+  />
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import { computed, ref } from "vue";
 import type { QuestionCompositeModel } from "survey-core";
 import { useQuestion } from "./base";

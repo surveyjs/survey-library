@@ -13,17 +13,21 @@
               :class="cell.className"
               :style="{ minWidth: cell.minWidth, width: cell.width }"
             >
-              <component
-                :is="question.getColumnHeaderWrapperComponentName(cell as any)"
+              <SurveyVueComponent
+                :name="question.getColumnHeaderWrapperComponentName(cell as any)"
                 :componentData="question.getColumnHeaderWrapperComponentData(cell as any)"
               >
-                <survey-string :locString="cell.locTitle" />
-                <survey-matrixheaderrequired
+                <SurveyVueComponent
+                  :name="'survey-string'"
+                  :locString="cell.locTitle"
+                />
+                <SurveyVueComponent
+                  :name="'survey-matrixheaderrequired'"
                   v-if="!!cell.column"
                   :column="cell.column"
                   :question="question"
-                ></survey-matrixheaderrequired>
-              </component>
+                ></SurveyVueComponent>
+              </SurveyVueComponent>
             </th>
             <td
               v-if="!cell.hasTitle"
@@ -39,15 +43,17 @@
           v-for="row in table.renderedRows"
           :key="question.inputId + '_' + row.id"
         >
-          <survey-matrix-row
+          <SurveyVueComponent
+            :name="'survey-matrix-row'"
             :row="row"
             :question="question"
-          ></survey-matrix-row>
+          ></SurveyVueComponent>
         </template>
       </tbody>
       <tfoot v-if="table.showFooter">
         <tr>
-          <survey-matrixdropdown-cell
+          <SurveyVueComponent
+            :name="'survey-matrixdropdown-cell'"
             :cell="cell"
             :question="question"
             v-for="(cell, cellIndex) in table.footerRow.cells"
@@ -60,8 +66,9 @@
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { QuestionMatrixDropdownModelBase } from "survey-core";
-import { computed, getCurrentInstance } from "vue";
+import { computed } from "vue";
 import { useBase } from "./base";
 
 const props = defineProps<{ question: QuestionMatrixDropdownModelBase }>();

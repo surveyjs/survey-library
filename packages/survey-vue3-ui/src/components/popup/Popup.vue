@@ -1,9 +1,13 @@
 <template>
   <div ref="root">
-    <sv-popup-container :model="popupViewModel"></sv-popup-container>
+    <SurveyVueComponent
+      :name="'sv-popup-container'"
+      :model="popupViewModel"
+    ></SurveyVueComponent>
   </div>
 </template>
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import { useBase } from "@/base";
 import { PopupModel, createPopupViewModel } from "survey-core";
 import { shallowRef, ref, onMounted, watch, onUnmounted } from "vue";

@@ -4,14 +4,16 @@
     @click="prevPanelClick"
     :class="question.getPrevButtonCss()"
   >
-    <sv-svg-icon
+    <SurveyVueComponent
+      :name="'sv-svg-icon'"
       :iconName="question.cssClasses.progressBtnIcon"
       :size="'auto'"
-    ></sv-svg-icon>
+    ></SurveyVueComponent>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import { type IPanelDynamicActionProps, usePanelDynamicAction } from "./action";
 
 const props = defineProps<IPanelDynamicActionProps>();

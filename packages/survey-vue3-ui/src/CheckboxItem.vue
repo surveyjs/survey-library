@@ -27,13 +27,14 @@
           <use :xlink:href="question.itemSvgIcon"></use>
         </svg> </span
       ><span v-if="!hideLabel" :class="question.cssClasses.controlLabel">
-        <survey-string :locString="item.locText" />
+        <SurveyVueComponent :name="'survey-string'" :locString="item.locText" />
       </span>
     </label>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { ItemValue, QuestionCheckboxModel } from "survey-core";
 import { useBase } from "./base";
 

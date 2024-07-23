@@ -23,13 +23,18 @@
       @mouseover="(e) => model.onItemHover(item)"
       @mouseleave="(e) => model.onItemLeave(item)"
     >
-      <component :is="item.component || 'sv-list-item-content'" :item="item" :model="model">
-      </component>
+      <SurveyVueComponent
+        :name="item.component || 'sv-list-item-content'"
+        :item="item"
+        :model="model"
+      >
+      </SurveyVueComponent>
     </div>
   </li>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import { useBase } from "@/base";
 import type { ListModel, Action, IAction } from "survey-core";
 import { computed, onMounted } from "vue";

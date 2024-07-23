@@ -1,31 +1,35 @@
 <template>
   <div :class="question.cssClasses.rootRadio" ref="root">
     <fieldset role="presentation" :class="question.cssClasses.radioFieldset">
-      <sv-boolean-radio-item
+      <SurveyVueComponent
+        :name="'sv-boolean-radio-item'"
         v-if="question.swapOrder"
-        :key="true"
+        :key="'true'"
         :question="question"
         :locText="question.locLabelTrue"
         :value="true"
-      ></sv-boolean-radio-item>
-      <sv-boolean-radio-item
-        :key="false"
+      ></SurveyVueComponent>
+      <SurveyVueComponent
+        :name="'sv-boolean-radio-item'"
+        :key="'false'"
         :question="question"
         :locText="question.locLabelFalse"
         :value="false"
-      ></sv-boolean-radio-item>
-      <sv-boolean-radio-item
+      ></SurveyVueComponent>
+      <SurveyVueComponent
+        :name="'sv-boolean-radio-item'"
         v-if="!question.swapOrder"
-        :key="true"
+        :key="'true'"
         :question="question"
         :locText="question.locLabelTrue"
         :value="true"
-      ></sv-boolean-radio-item>
+      ></SurveyVueComponent>
     </fieldset>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import { RendererFactory } from "survey-core";
 import { ref } from "vue";
 import { useQuestion } from "./base";

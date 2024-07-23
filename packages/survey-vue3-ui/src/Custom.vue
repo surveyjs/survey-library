@@ -1,13 +1,14 @@
 <template>
-  <component
+  <SurveyVueComponent
     :ref="root"
-    :is="getComponentName(contentQuestion)"
+    :name="getComponentName(contentQuestion)"
     :question="contentQuestion"
     :css="css"
   />
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import { computed, ref } from "vue";
 import type { QuestionCustomModel, Question } from "survey-core";
 import { getComponentName as getComponent, useQuestion } from "./base";

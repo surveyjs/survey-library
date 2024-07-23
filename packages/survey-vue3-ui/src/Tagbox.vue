@@ -1,11 +1,16 @@
 <template>
   <div :class="question.renderCssRoot" ref="root">
-    <sv-tagbox :question="question"></sv-tagbox>
-    <survey-other-choice v-if="question.isOtherSelected" :question="question" />
+    <SurveyVueComponent :name="'sv-tagbox'" :question="question"></SurveyVueComponent>
+    <SurveyVueComponent
+      :name="'survey-other-choice'"
+      v-if="question.isOtherSelected"
+      :question="question"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { QuestionTagboxModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

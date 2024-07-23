@@ -136,7 +136,7 @@ import SvgBundle from "./SvgBundle.vue";
 import { VueComponentFactory } from "./component-factory";
 
 export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
-export { default as SurveyComponent } from "./SurveyComponent.vue";
+export { default as SurveyVueComponent } from "./SurveyVueComponent.vue";
 
 SurveyModel.platform = "vue3";
 function registerComponents(app: App) {

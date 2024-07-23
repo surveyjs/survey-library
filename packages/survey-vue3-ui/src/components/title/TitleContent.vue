@@ -1,5 +1,6 @@
 <template>
-  <survey-string
+  <SurveyVueComponent
+    :name="'survey-string'"
     v-if="element.isTitleRenderedAsString"
     :locString="element.locTitle"
   />
@@ -27,7 +28,8 @@
     v-if="!element.isTitleRenderedAsString && element.isRequireTextBeforeTitle"
     >&nbsp;</span
   >
-  <survey-string
+  <SurveyVueComponent
+    :name="'survey-string'"
     v-if="!element.isTitleRenderedAsString"
     :locString="element.locTitle"
   />
@@ -44,6 +46,7 @@
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { PanelModel, Question } from "survey-core";
 import { computed } from "vue";
 defineOptions({ inheritAttrs: false });
@@ -52,9 +55,10 @@ const props = defineProps<{
   css: any;
 }>();
 
-const cssClasses = computed(() =>
-  (props.element.isPanel
-    ? props.element.cssClasses.panel
-    : props.element.cssClasses) || {}
+const cssClasses = computed(
+  () =>
+    (props.element.isPanel
+      ? props.element.cssClasses.panel
+      : props.element.cssClasses) || {}
 );
 </script>

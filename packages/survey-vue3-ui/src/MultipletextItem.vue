@@ -1,23 +1,45 @@
 <template>
   <label v-if="!cell.isErrorsCell" :class="question.getItemLabelCss(item)">
-    <span :class="question.getItemTitleCss()"
-      :style="{ minWidth: question.itemTitleWidth, width: question.itemTitleWidth }">
-      <span v-if="item.editor.isRequireTextBeforeTitle ||
-        item.editor.isRequireTextOnStart
-        " :class="question.cssClasses.requiredText">{{ item.editor.requiredText }}</span>
-      <survey-string :locString="item.locTitle" />
+    <span
+      :class="question.getItemTitleCss()"
+      :style="{
+        minWidth: question.itemTitleWidth,
+        width: question.itemTitleWidth,
+      }"
+    >
+      <span
+        v-if="
+          item.editor.isRequireTextBeforeTitle ||
+          item.editor.isRequireTextOnStart
+        "
+        :class="question.cssClasses.requiredText"
+        >{{ item.editor.requiredText }}</span
+      >
+      <SurveyVueComponent :name="'survey-string'" :locString="item.locTitle" />
       <span v-if="item.editor.isRequireTextAfterTitle">&nbsp;</span>
-      <span v-if="item.editor.isRequireTextAfterTitle" aria-hidden="true" :class="question.cssClasses.requiredText">{{
-        item.editor.requiredText }}</span>
+      <span
+        v-if="item.editor.isRequireTextAfterTitle"
+        aria-hidden="true"
+        :class="question.cssClasses.requiredText"
+        >{{ item.editor.requiredText }}</span
+      >
     </span>
-    <div :key="item.editor.id" :class="question.getItemCss()" v-on:focusin="item.focusIn()">
-      <component :is="getComponentName(item.editor)" :question="item.editor" />
+    <div
+      :key="item.editor.id"
+      :class="question.getItemCss()"
+      v-on:focusin="item.focusIn()"
+    >
+      <SurveyVueComponent
+        :name="getComponentName(item.editor)"
+        :question="item.editor"
+      />
     </div>
   </label>
-  <survey-errors v-else :element="item.editor" />
+  <SurveyVueComponent :name="'survey-errors'" v-else :element="item.editor" />
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type {
   Question,
   QuestionMultipleTextModel,

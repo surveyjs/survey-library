@@ -19,23 +19,28 @@
       :value="model.value"
     />
     <div :class="model.css.decorator">
-      <sv-svg-icon
+      <SurveyVueComponent
+        :name="'sv-svg-icon'"
         v-if="model.iconName"
         :iconName="model.iconName"
         :size="model.iconSize"
         :class="model.css.icon"
-      ></sv-svg-icon>
+      ></SurveyVueComponent>
       <span
         :class="model.css.caption"
         v-if="model.showCaption"
         :title="model.caption.renderedHtml"
       >
-        <survey-string :locString="model.caption"></survey-string>
+        <SurveyVueComponent
+          :name="'survey-string'"
+          :locString="model.caption"
+        ></SurveyVueComponent>
       </span>
     </div>
   </label>
 </template>
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import {
   ButtonGroupItemModel,
   QuestionButtonGroupModel,

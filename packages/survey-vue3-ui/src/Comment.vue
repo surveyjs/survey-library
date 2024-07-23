@@ -63,15 +63,17 @@
       :aria-errormessage="question.a11y_input_ariaErrormessage"
       v-bind:style="{ resize: question.resizeStyle }"
     ></textarea>
-    <sv-character-counter
+    <SurveyVueComponent
+      :name="'sv-character-counter'"
       :counter="question.characterCounter"
       :remainingCharacterCounter="question.cssClasses.remainingCharacterCounter"
-    ></sv-character-counter>
+    ></SurveyVueComponent>
   </div>
   <div ref="root" v-else>{{ question.value }}</div>
 </template>
 
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import type { QuestionCommentModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

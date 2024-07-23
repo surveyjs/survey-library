@@ -27,25 +27,28 @@
       v-on:click="clickInside"
     >
       <div class="sv-popup__shadow">
-        <component
+        <SurveyVueComponent
           v-if="model.showHeader"
-          :is="model.popupHeaderTemplate"
+          :name="model.popupHeaderTemplate"
           :model="model"
-        ></component>
+        ></SurveyVueComponent>
         <div class="sv-popup__body-content">
           <div class="sv-popup__body-header" v-if="!!model.title">
             {{ model.title }}
           </div>
           <div class="sv-popup__scrolling-content">
             <div class="sv-popup__content">
-              <component
-                :is="model.contentComponentName"
+              <SurveyVueComponent
+                :name="model.contentComponentName"
                 v-bind="model.contentComponentData"
-              ></component>
+              ></SurveyVueComponent>
             </div>
           </div>
           <div v-if="model.showFooter" class="sv-popup__body-footer">
-            <sv-action-bar :model="model.footerToolbar" />
+            <SurveyVueComponent
+              :name="'sv-action-bar'"
+              :model="model.footerToolbar"
+            />
           </div>
         </div>
       </div>
@@ -53,6 +56,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import SurveyVueComponent from "@/SurveyVueComponent.vue";
 import { useBase } from "@/base";
 import type { PopupBaseViewModel } from "survey-core";
 import { onMounted, onUpdated } from "vue";

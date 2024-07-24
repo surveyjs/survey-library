@@ -1,4 +1,4 @@
-import { property, Serializer } from "./jsonobject";
+import { property, propertyArray, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues } from "./base-interfaces";
 import { SurveyModel } from "./survey";
@@ -12,7 +12,9 @@ import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { classesToSelector, mergeValues } from "./utils/utils";
+
+import { classesToSelector, cleanHtmlElementAfterAnimation, mergeValues, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
+import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 
 /**
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
@@ -63,7 +65,7 @@ export class QuestionSelectBase extends Question {
     this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
       this.onVisibleChanged();
     });
-    this.createNewArray("visibleChoices");
+    this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
     this.setNewRestfulProperty();
     var locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
     this.createLocalizableString("otherErrorText", this, true, "otherRequiredError");
@@ -999,6 +1001,7 @@ export class QuestionSelectBase extends Question {
     const oldValue = this.visibleChoices;
     if(!this.isTwoValueEquals(oldValue, newValue) || this.choicesLazyLoadEnabled) {
       this.setArrayPropertyDirectly("visibleChoices", newValue);
+      this.updateRenderedChoices();
     }
   }
   private calcVisibleChoices(): Array<ItemValue> {
@@ -1768,26 +1771,94 @@ export class QuestionSelectBase extends Question {
       .append(this.cssClasses.controlLabelChecked, this.isItemSelected(item))
       .toString() || undefined;
   }
+
+  @property() _renderedChoices: Array<ItemValue> = [];
+
+  public onGetRenderedChoicesCallback?: (visibleChoices: Array<ItemValue>) => Array<ItemValue>;
+
+  private updateRenderedChoices() {
+    this.renderedChoices = this.onGetRenderedChoicesCallback ? this.onGetRenderedChoicesCallback(this.visibleChoices) : this.visibleChoices;
+  }
+
+  private getRenderedChoicesAnimationOptions(): IAnimationGroupConsumer<ItemValue> {
+    return {
+      isAnimationEnabled: () => {
+        return this.animationAllowed;
+      },
+      getRerenderEvent: ()=> {
+        return this.onElementRerendered;
+      },
+      getKey: (item) => item != this.newItemValue ? item.value : this.newItemValue,
+      getLeaveOptions: (item: ItemValue) => {
+        let cssClass = this.cssClasses.itemLeave;
+        if(this.hasColumns) {
+          const index = this.bodyItems.indexOf(item);
+          if(index !== -1 && index !== this.bodyItems.length - 1) {
+            cssClass = "";
+          }
+        }
+        return {
+          cssClass,
+          onBeforeRunAnimation: prepareElementForVerticalAnimation,
+          onAfterRunAnimation: cleanHtmlElementAfterAnimation
+        };
+      },
+      getAnimatedElement: (item: ItemValue) => {
+        return item.getRootElement();
+      },
+      getEnterOptions: (item: ItemValue) => {
+        let cssClass = this.cssClasses.itemEnter;
+        if(this.hasColumns) {
+          const index = this.bodyItems.indexOf(item);
+          if(index !== -1 && index !== this.bodyItems.length - 1) {
+            cssClass = "";
+          }
+        }
+        return {
+          cssClass: cssClass,
+          onBeforeRunAnimation: (el) => {
+            if(this.getCurrentColCount() == 0 && this.bodyItems.indexOf(item) >=0) {
+              const leftPosition = (el.parentElement.firstElementChild as HTMLElement).offsetLeft;
+              if(el.offsetLeft > leftPosition) {
+                setPropertiesOnElementForAnimation(el, { moveAnimationDuration: "0s", fadeAnimationDelay: "0s" }, "--");
+              }
+            }
+            prepareElementForVerticalAnimation(el);
+          },
+          onAfterRunAnimation: cleanHtmlElementAfterAnimation
+        };
+      }
+    };
+  }
+  private renderedChoicesAnimation = new AnimationGroup(this.getRenderedChoicesAnimationOptions(), (val) => this._renderedChoices = val, () => this._renderedChoices)
+
+  public get renderedChoices(): Array<ItemValue> {
+    return this._renderedChoices;
+  }
+  public set renderedChoices(val: Array<ItemValue>) {
+    this.renderedChoicesAnimation.sync(val);
+  }
+
   private headItemsCount: number = 0;
   private footItemsCount: number = 0;
   get headItems(): ItemValue[] {
     const count = (this.separateSpecialChoices || this.isDesignMode) ? this.headItemsCount : 0;
     const res = [];
-    for(let i = 0; i < count; i ++) res.push(this.visibleChoices[i]);
+    for(let i = 0; i < count; i ++) this.renderedChoices[i] && res.push(this.renderedChoices[i]);
     return res;
   }
   get footItems(): ItemValue[] {
     const count = (this.separateSpecialChoices || this.isDesignMode) ? this.footItemsCount : 0;
     const res = [];
-    const items = this.visibleChoices;
-    for(let i = 0; i < count; i ++) res.push(items[items.length - count + i]);
+    const items = this.renderedChoices;
+    for(let i = 0; i < count; i ++) this.renderedChoices[items.length - count + i] && res.push(this.renderedChoices[items.length - count + i]);
     return res;
   }
   get dataChoices(): ItemValue[] {
-    return this.visibleChoices.filter((item) => !this.isBuiltInChoice(item));
+    return this.renderedChoices.filter((item) => !this.isBuiltInChoice(item));
   }
   get bodyItems(): ItemValue[] {
-    return (this.hasHeadItems || this.hasFootItems) ? this.dataChoices : this.visibleChoices;
+    return (this.hasHeadItems || this.hasFootItems) ? this.dataChoices : this.renderedChoices;
   }
   get hasHeadItems(): boolean {
     return this.headItems.length > 0;
@@ -1798,9 +1869,9 @@ export class QuestionSelectBase extends Question {
   get columns() {
     var columns = [];
     var colCount = this.getCurrentColCount();
-    if (this.hasColumns && this.visibleChoices.length > 0) {
+    if (this.hasColumns && this.renderedChoices.length > 0) {
       let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isDesignMode) ?
-        this.visibleChoices : this.dataChoices;
+        this.renderedChoices : this.dataChoices;
       if (settings.showItemsInOrder == "column") {
         var prevIndex = 0;
         var leftElementsCount = choicesToBuildColumns.length % colCount;

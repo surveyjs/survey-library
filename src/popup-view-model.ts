@@ -263,7 +263,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
 
   public updateOnHiding(): void {
     if (this.isFocusedContent && this.prevActiveElement) {
-      this.prevActiveElement.focus();
+      this.prevActiveElement.focus({ preventScroll: true });
     }
   }
   private focusContainer() {

@@ -7142,8 +7142,8 @@ QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   });
   survey.css = {
     paneldynamic: {
-      panelWrapperFadeIn: "enter",
-      panelWrapperFadeOut: "leave"
+      panelWrapperEnter: "enter",
+      panelWrapperLeave: "leave"
     }
   };
   const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];

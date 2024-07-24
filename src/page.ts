@@ -114,7 +114,7 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isStarted(): boolean { return this.isStartPage; }
   protected calcCssClasses(css: any): any {
-    const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "", rowFadeIn: "", rowFadeOut: "", rowDelayedFadeIn: "" };
+    const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowReplace: "" };
     this.copyCssClasses(classes.page, css.page);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageTitle) {
@@ -135,14 +135,17 @@ export class PageModel extends PanelModelBase implements IPage {
     if (!!css.rowCompact) {
       classes.rowCompact = css.rowCompact;
     }
-    if (!!css.rowFadeIn) {
-      classes.rowFadeIn = css.rowFadeIn;
+    if (!!css.rowEnter) {
+      classes.rowEnter = css.rowEnter;
     }
-    if (!!css.rowDelayedFadeIn) {
-      classes.rowDelayedFadeIn = css.rowDelayedFadeIn;
+    if (!!css.rowDelayedEnter) {
+      classes.rowDelayedEnter = css.rowDelayedEnter;
     }
-    if (!!css.rowFadeOut) {
-      classes.rowFadeOut = css.rowFadeOut;
+    if (!!css.rowLeave) {
+      classes.rowLeave = css.rowLeave;
+    }
+    if (!!css.rowReplace) {
+      classes.rowReplace = css.rowReplace;
     }
     if (this.survey) {
       this.survey.updatePageCssClasses(this, classes);

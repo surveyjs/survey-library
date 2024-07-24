@@ -21,7 +21,7 @@ import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
 import { settings } from "./settings";
-import { findScrollableParent, getElementWidth, isElementVisible } from "./utils/utils";
+import { cleanHtmlElementAfterAnimation, findScrollableParent, getElementWidth, isElementVisible, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
@@ -120,8 +120,8 @@ export class QuestionRowModel extends Base {
   }
   private getVisibleElementsAnimationOptions(): IAnimationGroupConsumer<IElement> {
     const beforeRunAnimation = (el: HTMLElement) => {
-      el.style.setProperty("--animation-height", el.offsetHeight + "px");
-      el.style.setProperty("--animation-width", getElementWidth(el) + "px");
+      prepareElementForVerticalAnimation(el);
+      setPropertiesOnElementForAnimation(el, { width: getElementWidth(el) + "px" });
     };
     return {
       getRerenderEvent: () => this.onElementRerendered,
@@ -132,16 +132,18 @@ export class QuestionRowModel extends Base {
         const surveyElement = element as unknown as SurveyElement;
         const cssClasses = element.isPanel ? surveyElement.cssClasses.panel : surveyElement.cssClasses;
         return {
-          cssClass: cssClasses.fadeOut,
-          onBeforeRunAnimation: beforeRunAnimation
+          cssClass: cssClasses.leave,
+          onBeforeRunAnimation: beforeRunAnimation,
+          onAfterRunAnimation: cleanHtmlElementAfterAnimation
         };
       },
       getEnterOptions: (element: IElement) => {
         const surveyElement = element as unknown as SurveyElement;
         const cssClasses = element.isPanel ? surveyElement.cssClasses.panel : surveyElement.cssClasses;
         return {
-          cssClass: cssClasses.fadeIn,
-          onBeforeRunAnimation: beforeRunAnimation
+          cssClass: cssClasses.enter,
+          onBeforeRunAnimation: beforeRunAnimation,
+          onAfterRunAnimation: cleanHtmlElementAfterAnimation
         };
       }
     };
@@ -306,23 +308,22 @@ export class PanelModelBase extends SurveyElement<Question>
     row.onVisibleChangedCallback = () => this.onRowVisibleChanged();
   }
   private getRowsAnimationOptions(): IAnimationGroupConsumer<QuestionRowModel> {
-    const beforeRunAnimation = (el: HTMLElement) => {
-      el.style.setProperty("--animation-height", el.offsetHeight + "px");
-    };
     return {
       getRerenderEvent: () => this.onElementRerendered,
       isAnimationEnabled: () => this.animationAllowed,
       getAnimatedElement: (row: QuestionRowModel) => row.getRootElement(),
-      getLeaveOptions: (_: QuestionRowModel) => {
-        return { cssClass: this.cssClasses.rowFadeOut,
-          onBeforeRunAnimation: beforeRunAnimation
+      getLeaveOptions: (row: QuestionRowModel, info) => {
+        return { cssClass: this.cssClasses.rowLeave,
+          onBeforeRunAnimation: prepareElementForVerticalAnimation,
+          onAfterRunAnimation: cleanHtmlElementAfterAnimation,
         };
       },
       getEnterOptions: (_: QuestionRowModel, animationInfo) => {
         const cssClasses = this.cssClasses;
         return {
-          cssClass: new CssClassBuilder().append(cssClasses.rowFadeIn).append(cssClasses.rowDelayedFadeIn, animationInfo.isDeletingRunning).toString(),
-          onBeforeRunAnimation: beforeRunAnimation
+          cssClass: new CssClassBuilder().append(cssClasses.rowEnter).append(cssClasses.rowDelayedEnter, animationInfo.isDeletingRunning).toString(),
+          onBeforeRunAnimation: prepareElementForVerticalAnimation,
+          onAfterRunAnimation: cleanHtmlElementAfterAnimation
         };
       }
     };
@@ -569,7 +570,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("visibleIf", val);
   }
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "", rowFadeIn: "", rowFadeOut: "", rowDelayedFadeIn: "", rowMultiple: "", pageRow: "", rowCompact: "" };
+    var classes = { panel: {}, error: {}, row: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowMultiple: "", pageRow: "", rowCompact: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageRow) {
@@ -581,14 +582,14 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!!css.row) {
       classes.row = css.row;
     }
-    if (!!css.rowFadeIn) {
-      classes.rowFadeIn = css.rowFadeIn;
+    if (!!css.rowEnter) {
+      classes.rowEnter = css.rowEnter;
     }
-    if (!!css.rowFadeOut) {
-      classes.rowFadeOut = css.rowFadeOut;
+    if (!!css.rowLeave) {
+      classes.rowLeave = css.rowLeave;
     }
-    if (!!css.rowDelayedFadeIn) {
-      classes.rowDelayedFadeIn = css.rowDelayedFadeIn;
+    if (!!css.rowDelayedEnter) {
+      classes.rowDelayedEnter = css.rowDelayedEnter;
     }
     if (!!css.rowMultiple) {
       classes.rowMultiple = css.rowMultiple;

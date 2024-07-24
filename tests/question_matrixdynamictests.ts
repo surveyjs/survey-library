@@ -9454,8 +9454,8 @@ QUnit.test("table: check animation options", function (assert) {
   });
   survey.css = {
     "matrixdynamic": {
-      rowFadeIn: "enter",
-      rowFadeOut: "leave",
+      rowEnter: "enter",
+      rowLeave: "leave",
     }
   };
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");

@@ -1,12 +1,20 @@
 ﻿<script type="text/html" id="survey-comment">
-  <!--ko if: !question.isReadOnlyRenderDiv() -->
-<textarea data-bind="attr: { id: question.commentId, maxLength: question.getOthersMaxLength(), rows: question.commentAreaRows, 'aria-required': question.ariaRequired || question.a11y_input_ariaRequired, 'aria-label': question.ariaLabel || question.a11y_input_ariaLabel, placeholder: question.renderedCommentPlaceholder }, 
+  <!-- ko if: !question.isReadOnlyRenderDiv() -->
+  <!-- ko template: { name: 'survey-textarea',  data: question.getCommentTextArea() } -->
+  <!-- /ko -->
+<!-- <textarea data-bind="attr: { 
+    id: question.commentId, 
+    maxLength: question.getOthersMaxLength(), 
+    rows: question.commentAreaRows, 
+    'aria-required': question.ariaRequired || question.a11y_input_ariaRequired, 
+    'aria-label': question.ariaLabel || question.a11y_input_ariaLabel, 
+    placeholder: question.renderedCommentPlaceholder }, 
         event: { input: function(s, e) { $data.question.onCommentInput(e); } }, 
         value: $data.question.comment, 
         visible: $data.visible,
         disable: $data.question.isInputReadOnly,
         style: { resize: question.resizeStyle },
-        css: $data.question.cssClasses.other"></textarea>
+        css: $data.question.cssClasses.other"></textarea> -->
 <!--/ko-->
 
 <!--ko if: question.isReadOnlyRenderDiv() -->
@@ -14,17 +22,51 @@
 <!--/ko-->
 </script>
 <script type="text/html" id="survey-other">
-  <!--ko if: !question.isReadOnlyRenderDiv() -->
-<textarea data-bind="attr: { id: question.otherId, maxLength: question.getOthersMaxLength(), rows: question.commentAreaRows, 'aria-required': question.ariaRequired || question.a11y_input_ariaRequired, 'aria-label': question.ariaLabel || question.a11y_input_ariaLabel, placeholder: question.otherPlaceholder }, 
+  <!-- ko if: !question.isReadOnlyRenderDiv() -->
+  <!-- ko template: { name: 'survey-textarea',  data: question.getOtherTextArea() } -->
+  <!-- /ko -->
+<!-- <textarea data-bind="attr: { 
+    id: question.otherId, 
+    maxLength: question.getOthersMaxLength(), 
+    rows: question.commentAreaRows, 
+    'aria-required': question.ariaRequired || question.a11y_input_ariaRequired, 
+    'aria-label': question.ariaLabel || question.a11y_input_ariaLabel, 
+    placeholder: question.otherPlaceholder }, 
         event: { input: function(s, e) { $data.question.onOtherValueInput(e); } }, 
         value: $data.question.otherValue, 
         visible: $data.visible,
         disable: $data.question.isInputReadOnly,
         style: { resize: question.resizeStyle },
-        css: $data.question.cssClasses.other"></textarea>
+        css: $data.question.cssClasses.other"></textarea> -->
 <!--/ko-->
 
 <!--ko if: question.isReadOnlyRenderDiv() -->
 <div data-bind="text: question.otherValue"></div>
 <!--/ko-->
+</script>
+
+<script type="text/html" id="survey-textarea">
+  <textarea data-bind="
+  attr: { 
+    id: $data.id, 
+    'readonly': $data.isReadOnlyAttr, 
+    'disabled': $data.isDisabledAttr, 
+    maxLength: $data.maxLength, 
+    cols: $data.cols, 
+    rows: $data.rows, 
+    placeholder: $data.placeholder, 
+    'aria-required': $data.ariaRequired,
+    'aria-label': $data.ariaLabel,
+    'aria-labelledby': $data.ariaLabelledBy, 
+    'aria-describedby': $data.ariaDescribedBy, 
+    'aria-invalid': $data.ariaInvalid, 
+    'aria-errormessage': $data.ariaErrormessage
+  }, 
+  event: { 
+    blur: function(s, e) { $data.onTextAreaChange(e); },
+    input: function(s, e) { $data.onTextAreaInput(e); } 
+  }, 
+  css: $data.className,
+  style: { resize: $data.question.resizeStyle },
+"></textarea>
 </script>

@@ -3,6 +3,7 @@ import { QuestionFactory } from "./questionfactory";
 import { QuestionTextBase } from "./question_textbase";
 import { increaseHeightByContent } from "./utils/utils";
 import { settings } from "./settings";
+import { ITextArea, TextAreaViewModel } from "./utils/textarea";
 
 /**
  * A class that describes the Long Text question type.
@@ -125,7 +126,31 @@ export class QuestionCommentModel extends QuestionTextBase {
   public get className() {
     return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
   }
+  public getTextArea(): ITextArea {
+    const options: ITextArea = {
+      question: this,
+      id: this.inputId,
+      className: this.className,
+      isDisabledAttr: this.isDisabledAttr,
+      isReadOnlyAttr: this.isReadOnlyAttr,
+      placeholder: this.renderedPlaceholder,
+      maxLength: this.getMaxLength(),
+      rows: this.rows,
+      cols: this.cols,
+      ariaRequired: this.a11y_input_ariaRequired,
+      ariaLabel: this.a11y_input_ariaLabel,
+      ariaLabelledBy: this.a11y_input_ariaLabelledBy,
+      ariaDescribedBy: this.a11y_input_ariaDescribedBy,
+      ariaInvalid: this.a11y_input_ariaInvalid,
+      ariaErrormessage: this.a11y_input_ariaErrormessage,
 
+      // onTextAreaChange: onBlur,
+      // onTextAreaInput: onInput,
+      onTextAreaInput: (event) => { this.onInput(event); },
+      onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
+    };
+    return new TextAreaViewModel(options);
+  }
 }
 Serializer.addClass(
   "comment",

@@ -13,6 +13,7 @@ import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { classesToSelector, mergeValues } from "./utils/utils";
+import { ITextArea, TextAreaViewModel } from "./utils/textarea";
 
 /**
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
@@ -1979,6 +1980,26 @@ export class QuestionSelectBase extends Question {
       this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
+  }
+
+  public getOtherTextArea(): ITextArea {
+    const options: ITextArea = {
+      question: this,
+      id: this.otherId,
+      className: this.cssClasses.other,
+      isDisabledAttr: this.isInputReadOnly || false,
+      placeholder: this.otherPlaceholder,
+      rows: this.commentAreaRows,
+      maxLength: this.getOthersMaxLength(),
+      ariaRequired: this.ariaRequired || this.a11y_input_ariaRequired,
+      ariaLabel: this.ariaLabel || this.a11y_input_ariaLabel,
+      getTextValue: () => { return this.otherValue; },
+      setTextValue: (newValue) => { this.otherValue = newValue; },
+
+      onTextAreaChange: (e) => { this.onOtherValueChange(e); },
+      onTextAreaInput: (e) => { this.onOtherValueInput(e); },
+    };
+    return new TextAreaViewModel(options);
   }
 }
 /**

@@ -31,6 +31,7 @@ export interface ISurveyData {
   getFilteredValues(): any;
   getFilteredProperties(): any;
   findQuestionByName(name: string): IQuestion;
+  getEditingSurveyElement(): Base;
 }
 export interface ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string;

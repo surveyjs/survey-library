@@ -2988,11 +2988,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set editingObj(val: Base) {
     if (this.editingObj == val) return;
-    if (!!this.editingObj) {
-      this.editingObj.onPropertyChanged.remove(
-        this.onEditingObjPropertyChanged
-      );
-    }
+    this.unConnectEditingObj();
     this.editingObjValue = val;
     if (this.isDisposed) return;
     if (!val) {
@@ -3012,6 +3008,13 @@ export class SurveyModel extends SurveyElementCore
         this.updateOnSetValue(options.name, (<any>this.editingObj)[options.name], options.oldValue);
       };
       this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
+    }
+  }
+  private unConnectEditingObj(): void {
+    if(!!this.editingObj && !this.editingObj.isDisposed) {
+      this.editingObj.onPropertyChanged.remove(
+        this.onEditingObjPropertyChanged
+      );
     }
   }
   public get isEditingSurveyElement(): boolean {
@@ -5475,6 +5478,7 @@ export class SurveyModel extends SurveyElementCore
   findQuestionByName(name: string): IQuestion {
     return this.getQuestionByName(name);
   }
+  getEditingSurveyElement(): Base { return this.editingObjValue; }
   /**
    * Returns a question with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName).
    *
@@ -7708,6 +7712,7 @@ export class SurveyModel extends SurveyElementCore
    * Call this method to release resources if your application contains multiple survey models or if you re-create a survey model at runtime.
    */
   public dispose(): void {
+    this.unConnectEditingObj();
     this.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;

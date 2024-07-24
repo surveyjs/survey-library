@@ -730,6 +730,9 @@ export abstract class QuestionCustomModelBase extends Question
   findQuestionByName(name: string): IQuestion {
     return !!this.data ? this.data.findQuestionByName(name): null;
   }
+  getEditingSurveyElement(): Base {
+    return undefined;
+  }
   //IPanel
   addElement(element: IElement, index: number) { }
   removeElement(element: IElement): boolean {
@@ -1072,6 +1075,40 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       this.contentPanel.updateElementCss(reNew);
     }
   }
+  public dispose(): void {
+    this.unConnectEditingObj();
+    super.dispose();
+  }
+  private editingObjValue: Base;
+  private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
+  private updateEditingObj(): Base {
+    const obj = this.data?.getEditingSurveyElement();
+    if(!obj) return undefined;
+    let newObj: Base = (<any>obj)[this.getValueName()];
+    if(!!newObj && !newObj.onPropertyChanged) {
+      newObj = undefined;
+    }
+    if(newObj !== this.editingObjValue) {
+      this.unConnectEditingObj();
+      this.editingObjValue = newObj;
+      if(!!newObj) {
+        this.onEditingObjPropertyChanged = (sender: Base, options: any): void => {
+          this.setNewValueIntoQuestion(options.name, (<any>this.editingObjValue)[options.name]);
+        };
+        newObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
+      }
+    }
+
+    return this.editingObjValue;
+  }
+  private unConnectEditingObj(): void {
+    if(!!this.editingObjValue && !this.editingObjValue.isDisposed) {
+      this.editingObjValue.onPropertyChanged.remove(this.onEditingObjPropertyChanged);
+    }
+  }
+  getEditingSurveyElement(): Base {
+    return this.editingObjValue;
+  }
   getTextProcessor(): ITextProcessor {
     return this.textProcessing;
   }
@@ -1121,7 +1158,11 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     super.onReadOnlyChanged();
   }
-  public onSurveyLoad() {
+  updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    this.updateEditingObj();
+    super.updateValueFromSurvey(newValue, clearData);
+  }
+  public onSurveyLoad(): void {
     this.isSettingValOnLoading = true;
     if (!!this.contentPanel) {
       this.contentPanel.readOnly = this.isReadOnly;

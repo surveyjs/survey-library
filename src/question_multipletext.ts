@@ -378,6 +378,7 @@ export class MultipleTextItemModel extends Base
     const survey = this.getSurvey();
     return !!survey ? survey.getQuestionByName(name) : null;
   }
+  getEditingSurveyElement(): Base { return undefined; }
   //IValidatorOwner
   getValidatorTitle(): string {
     return this.title;

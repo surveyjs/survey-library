@@ -478,6 +478,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     const survey = this.getSurvey();
     return !!survey ? survey.getQuestionByName(name) : null;
   }
+  getEditingSurveyElement(): Base { return undefined; }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue) return;
     this.updateQuestionsValue(name, newColumnValue, isComment);

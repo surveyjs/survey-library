@@ -969,15 +969,15 @@ QUnit.test("Composite: create from code", function (assert) {
   assert.equal(urlQ.value, "myUrl", "Url set correctly from question");
   assert.equal(urlQ.title, "choicesByUrl_url");
   urlQ.value = "myUrl2";
-  assert.equal(
-    question.choicesByUrl.url,
-    "myUrl2",
-    "Url set correctly into question"
-  );
+  assert.equal(question.choicesByUrl.url, "myUrl2", "Url set correctly into question");
   assert.equal(counter, 1, "We change url");
   urlQ.value = "";
   assert.notOk(question.choicesByUrl.url, "Url is empty");
   assert.equal(counter, 2, "We change url again");
+  urlQ.value = "abc";
+  assert.equal(question.choicesByUrl.url, "abc", "Url set correctly into question #2");
+  question.choicesByUrl.url = "myUrl3";
+  assert.equal(urlQ.value, "myUrl3", "Url set correctly from question #2");
   ComponentCollection.Instance.clear();
 });
 

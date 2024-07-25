@@ -1,4 +1,4 @@
-import { Serializer } from "../src/jsonobject";
+import { JsonObjectProperty, Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
@@ -1549,4 +1549,51 @@ QUnit.test("choices property visibility, Bug#8560", function (assert) {
   assert.equal(prop.isVisible("", matrix), true, "#3");
   matrix.cellType = "comment";
   assert.equal(prop.isVisible("", matrix), false, "#4");
+});
+QUnit.test("Column total properties visibility, Bug#8581", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          { cellType: "checkbox", name: "col1" }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const column = <MatrixDropdownColumn>matrix.columns[0];
+  const isPropVisible = (name: string): boolean => {
+    const prop = Serializer.findProperty("matrixdropdowncolumn", name);
+    return prop.isVisible("", column);
+  };
+  const checkPropsVisibility = (names: Array<string>, val: boolean, num: number): void => {
+    names.forEach(name => {
+      assert.equal(isPropVisible(name), val, name + " #" + num.toString());
+    });
+  };
+  const totalsNames = ["totalType", "totalExpression"];
+  const totalsDispNames = ["totalFormat", "totalDisplayStyle", "totalAlignment", "totalCurrency",
+    "totalMaximumFractionDigits", "totalMinimumFractionDigits"];
+  checkPropsVisibility(totalsNames, true, 1);
+  checkPropsVisibility(totalsDispNames, false, 1);
+  column.totalExpression = "countInArray({matrix}, 'col1')";
+  checkPropsVisibility(totalsNames, true, 2);
+  checkPropsVisibility(totalsDispNames, true, 2);
+  column.totalExpression = "";
+  checkPropsVisibility(totalsNames, true, 3);
+  checkPropsVisibility(totalsDispNames, false, 3);
+  column.totalType = "count";
+  checkPropsVisibility(totalsNames, true, 4);
+  checkPropsVisibility(totalsDispNames, true, 4);
+  column.totalType = "none";
+  checkPropsVisibility(totalsNames, true, 5);
+  checkPropsVisibility(totalsDispNames, false, 5);
+  column.showInMultipleColumns = true;
+  checkPropsVisibility(totalsNames, false, 6);
+  checkPropsVisibility(totalsDispNames, false, 6);
+  column.showInMultipleColumns = false;
+  checkPropsVisibility(totalsNames, true, 7);
+  checkPropsVisibility(totalsDispNames, false, 7);
 });

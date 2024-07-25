@@ -1330,7 +1330,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       const key = questions[i].getValueName();
       const val = !!newValue ? newValue[key] : undefined;
       const q = questions[i];
-      if(!this.isTwoValueEquals(q.value, val)) {
+      if(!this.isTwoValueEquals(q.value, val) && (val !== undefined || !q.isEmpty())) {
         q.value = val;
       }
     }

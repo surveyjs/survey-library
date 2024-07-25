@@ -3270,3 +3270,56 @@ QUnit.test("single component: inheritBaseProps - do not duplicate description pr
   assert.equal(descriptionCounter, 1, "We have one description property");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("composite component: do not reset dynamic panels/dynamic rows, Bug#8612", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customquestion",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "qText",
+      },
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 0,
+        "columns": [
+          {
+            "cellType": "text",
+            "name": "col1"
+          }
+        ]
+      }
+    ]
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customquestion", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const panel = <QuestionPanelDynamicModel>q1.contentPanel.getQuestionByName("panel");
+  const matrix = <QuestionMatrixDynamicModel>q1.contentPanel.getQuestionByName("matrix");
+  const text = q1.contentPanel.getQuestionByName("qText");
+  panel.addPanel();
+  panel.addPanel();
+  panel.addPanel();
+  matrix.addRow();
+  matrix.addRow();
+  matrix.addRow();
+  text.value = "abc";
+  assert.equal(matrix.rowCount, 3, "There are 3 rows");
+  assert.equal(panel.panelCount, 3, "There are 3 panels");
+
+  ComponentCollection.Instance.clear();
+});

@@ -933,31 +933,31 @@ Serializer.addClass(
       classNamePart: "validator",
     },
     {
-      name: "totalType",
+      name: "totalType", visibleIf: (obj: any): boolean => !obj.isShowInMultipleColumns,
       default: "none",
       choices: ["none", "sum", "count", "min", "max", "avg"],
     },
-    "totalExpression:expression",
-    { name: "totalFormat", serializationProperty: "locTotalFormat" },
+    { name: "totalExpression:expression", visibleIf: (obj: any): boolean => !obj.isShowInMultipleColumns },
+    { name: "totalFormat", serializationProperty: "locTotalFormat", visibleIf: (obj: any): boolean => obj.hasTotal },
     {
-      name: "totalDisplayStyle",
+      name: "totalDisplayStyle", visibleIf: (obj: any): boolean => obj.hasTotal,
       default: "none",
       choices: ["none", "decimal", "currency", "percent"],
     },
     {
-      name: "totalAlignment",
+      name: "totalAlignment", visibleIf: (obj: any): boolean => obj.hasTotal,
       default: "auto",
       choices: ["auto", "left", "center", "right"],
     },
     {
-      name: "totalCurrency",
+      name: "totalCurrency", visibleIf: (obj: any): boolean => obj.hasTotal,
       choices: () => {
         return getCurrecyCodes();
       },
       default: "USD",
     },
-    { name: "totalMaximumFractionDigits:number", default: -1 },
-    { name: "totalMinimumFractionDigits:number", default: -1 },
+    { name: "totalMaximumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
+    { name: "totalMinimumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
     { name: "renderAs", default: "default", visible: false },
   ],
   function () {

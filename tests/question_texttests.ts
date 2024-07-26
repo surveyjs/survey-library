@@ -468,3 +468,23 @@ QUnit.test("inputType='month' and today function, #8552", function(assert) {
   const etalon = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
   assert.equal(q1.value, etalon, "today works correctly for month input");
 });
+QUnit.test("inputType='date' invalid value, #8617", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      { "type": "text", "name": "q1", "inputType": "date" },
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = "2000-01-01";
+  assert.equal(q1.errors.length, 0, "errors #1");
+  const event = { target: { value: "", validationMessage: "Invalid date" } };
+  q1.onKeyDown(event);
+  q1.value = undefined;
+  assert.equal(q1.errors.length, 0, "errors #2");
+  survey.completeLastPage();
+  assert.equal(q1.errors.length, 1, "errors #3");
+  assert.equal(q1.errors[0].text, "Invalid date", "errors #4");
+  assert.equal(survey.state, "running", "survey.state #1");
+  q1.value = "2000-01-01";
+  assert.equal(q1.errors.length, 0, "errors #5");
+});

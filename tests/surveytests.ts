@@ -17285,6 +17285,78 @@ QUnit.test("no scrolling to page top after focus a question on another page - ht
   }, 2);
 });
 
+QUnit.test("scrolling to page top after current page changed", function (assert) {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const timeOut = 2;
+
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "q1",
+            "choices": ["Item 3"]
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "dropdown",
+            "name": "q2",
+            "choices": ["Item 1"]
+          }
+        ]
+      }
+    ]
+  });
+  let scrollCount = 0;
+  survey.onScrollingElementToTop.add((s, o) => {
+    scrollCount++;
+  });
+
+  assert.equal(survey["isCurrentPageRendered"] === undefined, true, "load survey");
+
+  survey.afterRenderPage(<HTMLElement>{});
+  assert.equal(survey["isCurrentPageRendered"] === true, true, "render first page #1");
+
+  survey.afterRenderPage(<HTMLElement>{});
+  assert.equal(survey["isCurrentPageRendered"] === true, true, "render first page #2");
+
+  setTimeout(() => {
+    assert.equal(scrollCount, 0);
+
+    survey.nextPage();
+    assert.equal(survey["isCurrentPageRendered"] === false, true, "go to second page");
+
+    survey.afterRenderPage(<HTMLElement>{});
+    assert.equal(survey["isCurrentPageRendered"] === true, true, "render second page");
+
+    setTimeout(() => {
+      assert.equal(scrollCount, 1, "scrolling after going to second page");
+
+      survey.prevPage();
+      assert.equal(survey["isCurrentPageRendered"] === false, true, "go to first page");
+
+      survey.afterRenderPage(<HTMLElement>{});
+      assert.equal(survey["isCurrentPageRendered"] === true, true, "render first page #3");
+
+      setTimeout(() => {
+        assert.equal(scrollCount, 2, "scrolling after back to first page");
+
+        done3();
+      }, timeOut);
+      done2();
+    }, timeOut);
+    done1();
+  }, timeOut);
+});
+
 QUnit.test("check descriptionLocation change css classes", function (assert) {
   const survey = new SurveyModel({
     "pages": [

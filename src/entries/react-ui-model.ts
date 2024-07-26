@@ -1,5 +1,5 @@
 // react
-export { TextAreaComponent } from "../react/components/textarea";
+export { TextAreaComponent } from "../react/components/text-area";
 export { Survey, attachKey2click } from "../react/reactSurvey";
 export { ReactSurveyElementsWrapper } from "../react/reactsurveymodel";
 export { SurveyNavigationBase } from "../react/reactSurveyNavigationBase";

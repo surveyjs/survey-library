@@ -8,7 +8,6 @@ export interface ITextArea {
   maxLength: number;
   rows: number;
   cols?: number;
-  setTextValue?: (newValue: any) => void;
   getTextValue?: () => any;
   onTextAreaChange?: (event: any) => void;
   onTextAreaInput?: (event: any) => void;
@@ -29,10 +28,6 @@ export class TextAreaViewModel {
     if (!!this.options.getTextValue)
       return this.options.getTextValue();
     return "";
-  }
-  public setTextValue(value: any): void {
-    if (!!this.options.setTextValue)
-      this.options.setTextValue(value);
   }
   public onTextAreaChange(event: any): void {
     if (!!this.options.onTextAreaChange)

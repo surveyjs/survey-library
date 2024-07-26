@@ -22,7 +22,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomWindowHelper } from "./global_variables_utils";
-import { ITextArea, TextAreaViewModel } from "./utils/textarea";
+import { ITextArea, TextAreaViewModel } from "./utils/text-area";
 
 export interface IConditionObject {
   name: string;
@@ -2493,11 +2493,9 @@ export class Question extends SurveyElement<Question>
       placeholder: this.renderedCommentPlaceholder,
       rows: this.commentAreaRows,
       maxLength: this.getOthersMaxLength(),
-      getTextValue: () => { return this.comment; },
-      setTextValue: (newValue) => { this.comment = newValue; },
       ariaRequired: this.a11y_input_ariaRequired,
       ariaLabel: this.a11y_input_ariaLabel,
-
+      getTextValue: () => { return this.comment; },
       onTextAreaChange: (e) => { this.onCommentChange(e); },
       onTextAreaInput: (e) => { this.onCommentInput(e); },
     };

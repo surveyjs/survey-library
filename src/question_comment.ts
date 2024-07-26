@@ -3,7 +3,8 @@ import { QuestionFactory } from "./questionfactory";
 import { QuestionTextBase } from "./question_textbase";
 import { increaseHeightByContent } from "./utils/utils";
 import { settings } from "./settings";
-import { ITextArea, TextAreaViewModel } from "./utils/textarea";
+import { ITextArea, TextAreaViewModel } from "./utils/text-area";
+import { Helpers } from "./helpers";
 
 /**
  * A class that describes the Long Text question type.
@@ -127,6 +128,13 @@ export class QuestionCommentModel extends QuestionTextBase {
     return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
   }
   public getTextArea(): ITextArea {
+    const _this = this;
+    const updateQuestionValue = (newValue: any) => {
+      if (!Helpers.isTwoValueEquals(_this.value, newValue, false, true, false)) {
+        _this.value = newValue;
+      }
+    };
+
     const options: ITextArea = {
       question: this,
       id: this.inputId,
@@ -143,9 +151,8 @@ export class QuestionCommentModel extends QuestionTextBase {
       ariaDescribedBy: this.a11y_input_ariaDescribedBy,
       ariaInvalid: this.a11y_input_ariaInvalid,
       ariaErrormessage: this.a11y_input_ariaErrormessage,
-
-      // onTextAreaChange: onBlur,
-      // onTextAreaInput: onInput,
+      getTextValue: () => { return this.value; },
+      onTextAreaChange: (e) => { updateQuestionValue(e.target.value); },
       onTextAreaInput: (event) => { this.onInput(event); },
       onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
     };

@@ -18,4 +18,4 @@ export * from "../utils/animation";
 export * from "../actions/adaptive-container";
 export * from "../actions/container";
 export * from "../utils/dragOrClickHelper";
-export * from "../utils/textarea";
+export * from "../utils/text-area";

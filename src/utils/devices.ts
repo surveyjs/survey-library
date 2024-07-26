@@ -50,6 +50,7 @@ export function _setIsTouch(val: boolean): void {
 export type MatchMediaMethod = ((query:string) => {matches:boolean} | null) | null;
 export function detectMouseSupport(matchMedia: MatchMediaMethod):boolean {
   if (!matchMedia) return false;
+  if (IsMobile) return false;
 
   const pointerQuery = matchMedia("(pointer:fine)");
   const hoverQuery = matchMedia("(any-hover:hover)");

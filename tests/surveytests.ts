@@ -17285,6 +17285,78 @@ QUnit.test("no scrolling to page top after focus a question on another page - ht
   }, 2);
 });
 
+QUnit.test("scrolling to page top after current page changed", function (assert) {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const timeOut = 2;
+
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "q1",
+            "choices": ["Item 3"]
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "dropdown",
+            "name": "q2",
+            "choices": ["Item 1"]
+          }
+        ]
+      }
+    ]
+  });
+  let scrollCount = 0;
+  survey.onScrollingElementToTop.add((s, o) => {
+    scrollCount++;
+  });
+
+  assert.equal(survey["isCurrentPageRendered"] === undefined, true, "load survey");
+
+  survey.afterRenderPage(<HTMLElement>{});
+  assert.equal(survey["isCurrentPageRendered"] === true, true, "render first page #1");
+
+  survey.afterRenderPage(<HTMLElement>{});
+  assert.equal(survey["isCurrentPageRendered"] === true, true, "render first page #2");
+
+  setTimeout(() => {
+    assert.equal(scrollCount, 0);
+
+    survey.nextPage();
+    assert.equal(survey["isCurrentPageRendered"] === false, true, "go to second page");
+
+    survey.afterRenderPage(<HTMLElement>{});
+    assert.equal(survey["isCurrentPageRendered"] === true, true, "render second page");
+
+    setTimeout(() => {
+      assert.equal(scrollCount, 1, "scrolling after going to second page");
+
+      survey.prevPage();
+      assert.equal(survey["isCurrentPageRendered"] === false, true, "go to first page");
+
+      survey.afterRenderPage(<HTMLElement>{});
+      assert.equal(survey["isCurrentPageRendered"] === true, true, "render first page #3");
+
+      setTimeout(() => {
+        assert.equal(scrollCount, 2, "scrolling after back to first page");
+
+        done3();
+      }, timeOut);
+      done2();
+    }, timeOut);
+    done1();
+  }, timeOut);
+});
+
 QUnit.test("check descriptionLocation change css classes", function (assert) {
   const survey = new SurveyModel({
     "pages": [
@@ -18882,6 +18954,35 @@ QUnit.test("Test displayValue() function with value parameter", function (assert
   assert.equal(rows[1].cells[2].value, "Item 3", "cells[1,2].value");
   assert.equal(rows[2].cells[1].value, "Item check 1", "cells[2,1].value");
   assert.equal(rows[2].cells[2].value, "Item 1", "cells[2,2].value");
+});
+QUnit.test("Test displayValue() function with value parameter & 0 value, Bug#8603", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [{ value: 0, text: "Item check 0" }, { value: 1, text: "Item check 1" }, { value: 2, text: "Item check 2" }]
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          { cellType: "text", name: "col1" },
+          { cellType: "expression", name: "col2", expression: "displayValue('q1', {row.col1})" }
+        ]
+      }
+    ]
+  });
+  survey.setValue("q1", [0, 1, 2]);
+  const matrix = survey.getQuestionByName("matrix");
+  matrix.rowCount = 3;
+  const rows = matrix.visibleRows;
+  rows[0].cells[0].value = 0;
+  rows[1].cells[0].value = 1;
+  rows[2].cells[0].value = 2;
+  assert.equal(rows[0].cells[1].value, "Item check 0", "cells[0,1].value");
+  assert.equal(rows[1].cells[1].value, "Item check 1", "cells[1,1].value");
+  assert.equal(rows[2].cells[1].value, "Item check 2", "cells[2,1].value");
 });
 QUnit.test("Test propertyValue() function", function (assert) {
   const survey = new SurveyModel({

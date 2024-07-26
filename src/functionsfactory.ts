@@ -390,7 +390,7 @@ function getQuestionValueByContext(context: any, name: string): any {
 function displayValue(params: any[]): any {
   const q = getQuestionValueByContext(this, params[0]);
   if(!q) return "";
-  if(params.length > 1 && !!params[1]) return q.getDisplayValue(true, params[1]);
+  if(params.length > 1 && !Helpers.isValueEmpty(params[1])) return q.getDisplayValue(true, params[1]);
   return q.displayValue;
 }
 FunctionFactory.Instance.register("displayValue", displayValue);

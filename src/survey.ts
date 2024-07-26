@@ -3571,6 +3571,9 @@ export class SurveyModel extends SurveyElementCore
         oldValue.passed = true;
       }
     }
+    if (this.isCurrentPageRendered === true) {
+      this.isCurrentPageRendered = false;
+    }
     this.onCurrentPageChanged.fire(this, options);
   }
   private notifyQuestionsOnHidingContent(page: PageModel): void {
@@ -4903,15 +4906,15 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onUpdateChoiceItemCss.fire(this, options);
   }
-  private isFirstPageRendering: boolean = true;
   private isCurrentPageRendering: boolean = true;
+  private isCurrentPageRendered: boolean = undefined;
   afterRenderPage(htmlElement: HTMLElement) {
     if (!this.isDesignMode && !this.focusingQuestionInfo) {
-      const doScroll = !this.isFirstPageRendering;
+      const doScroll = this.isCurrentPageRendered === false;
       setTimeout(() => this.scrollToTopOnPageChange(doScroll), 1);
     }
     this.focusQuestionInfo();
-    this.isFirstPageRendering = false;
+    this.isCurrentPageRendered = true;
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
       page: this.activePage,

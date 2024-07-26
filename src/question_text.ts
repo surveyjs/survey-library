@@ -364,10 +364,8 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return super.valueFromDataCore(val);
   }
-  protected onCheckForErrors(
-    errors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ) {
+  private dateValidationMessage: string;
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged);
     if (isOnValueChanged) return;
     if (this.isValueLessMin) {
@@ -397,6 +395,9 @@ export class QuestionTextModel extends QuestionTextBase {
         this.getCalculatedMinMax(this.renderedMax)
       ); };
       errors.push(maxError);
+    }
+    if(!!this.dateValidationMessage) {
+      errors.push(new CustomError(this.dateValidationMessage, this));
     }
 
     const valName = this.getValidatorTitle();
@@ -535,8 +536,11 @@ export class QuestionTextModel extends QuestionTextBase {
       this.supportGoNextPageError()
     );
   }
-  protected setNewValue(newValue: any) {
+  protected setNewValue(newValue: any): void {
     newValue = this.correctValueType(newValue);
+    if(!!newValue) {
+      this.dateValidationMessage = undefined;
+    }
     super.setNewValue(newValue);
   }
   protected correctValueType(newValue: any): any {
@@ -605,7 +609,11 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     this.updateRemainingCharacterCounter(event.target.value);
   };
+  private updateDateValidationMessage(event: any): void {
+    this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
+  }
   public onKeyDown = (event: any) => {
+    this.updateDateValidationMessage(event);
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
     if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
@@ -613,6 +621,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.onTextKeyDownHandler(event);
   }
   public onChange = (event: any): void => {
+    this.updateDateValidationMessage(event);
     const elementIsFocused = event.target === settings.environment.root.activeElement;
     if (elementIsFocused) {
       if (this.isInputTextUpdate) {

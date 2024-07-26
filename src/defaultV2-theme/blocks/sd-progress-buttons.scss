@@ -57,8 +57,8 @@
       position: absolute;
       bottom: calcSize(1.125);
       // right: 50%;
-      right: calc(50% + 4px);
-      width: calc(100% - 4px);
+      right: calc(50% + 10px);
+      width: calc(100% - 20px);
       pointer-events: none;
     }
 
@@ -85,7 +85,7 @@
         height: calcSize(2);
         top: calcSize(-0.5);
         left: calcSize(-1.25);
-        background-color: $background-dim;
+        // background-color: $background-dim;
         z-index: -2;
         // border: calcSize(0.5) solid $background-dim;
         // border-radius: 50%;
@@ -241,8 +241,8 @@
     li {
       &:not(:first-child)>.sd-progress-buttons__connector {
         bottom: calcSize(2.175);
-        right: calc(50% + 8px);
-        width: calc(100% - 8px);
+        right: calc(50% + 18px);
+        width: calc(100% - 36px);
       }
 
       .sd-progress-buttons__button {
@@ -312,7 +312,7 @@
     li {
       &:not(:first-child)>.sd-progress-buttons__connector {
         right: unset;
-        left: calc(50% + 4px);
+        left: calc(50% + 10px);
       }
     }
   }
@@ -322,7 +322,7 @@
       li {
         &:not(:first-child)>.sd-progress-buttons__connector {
           right: unset;
-          left: calc(50% + 8px);
+          left: calc(50% + 20px);
         }
       }
     }

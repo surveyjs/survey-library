@@ -22,7 +22,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomWindowHelper } from "./global_variables_utils";
-import { ITextArea, TextAreaViewModel } from "./utils/text-area";
+import { ITextArea, TextAreaModel } from "./utils/text-area";
 
 export interface IConditionObject {
   name: string;
@@ -2499,7 +2499,7 @@ export class Question extends SurveyElement<Question>
       onTextAreaChange: (e) => { this.onCommentChange(e); },
       onTextAreaInput: (e) => { this.onCommentInput(e); },
     };
-    return new TextAreaViewModel(options);
+    return new TextAreaModel(options);
   }
 
   @property() renderAs: string;

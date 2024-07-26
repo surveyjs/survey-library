@@ -1,10 +1,10 @@
 import React from "react";
-import { TextAreaViewModel } from "survey-core";
+import { TextAreaModel } from "survey-core";
 import { ReactElementFactory } from "../element-factory";
 import { SurveyElementBase } from "../reactquestion_element";
 
 interface ITextAreaProps {
-  viewModel: TextAreaViewModel;
+  viewModel: TextAreaModel;
 }
 
 export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
@@ -12,7 +12,7 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
     super(props);
     this.state = { comment: this.viewModel.getTextValue() || "" };
   }
-  get viewModel(): TextAreaViewModel {
+  get viewModel(): TextAreaModel {
     return this.props.viewModel;
   }
   protected canRender(): boolean {

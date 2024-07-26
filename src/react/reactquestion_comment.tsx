@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ReactSurveyElement, SurveyQuestionUncontrolledElement } from "./reactquestion_element";
-import { QuestionCommentModel, Helpers, TextAreaViewModel } from "survey-core";
+import { QuestionCommentModel, TextAreaModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { CharacterCounterComponent } from "./components/character-counter";
 import { TextAreaComponent } from "./components/text-area";
@@ -25,7 +25,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     }
 
     const counter = this.renderCharacterCounter();
-    const textAreaModel: TextAreaViewModel = this.props.question.getTextArea();
+    const textAreaModel: TextAreaModel = this.props.question.getTextArea();
     return (
       <>
         <TextAreaComponent viewModel={textAreaModel}></TextAreaComponent>
@@ -36,7 +36,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
 }
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
-  private textAreaModel: TextAreaViewModel;
+  private textAreaModel: TextAreaModel;
 
   constructor(props: any) {
     super(props);
@@ -47,7 +47,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     return !!this.props.question;
   }
 
-  protected getTextAreaModel(): TextAreaViewModel {
+  protected getTextAreaModel(): TextAreaModel {
     return this.props.question.getCommentTextArea();
   }
 
@@ -64,7 +64,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   }
 }
 export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
-  protected getTextAreaModel(): TextAreaViewModel {
+  protected getTextAreaModel(): TextAreaModel {
     return this.props.question.getOtherTextArea();
   }
 }

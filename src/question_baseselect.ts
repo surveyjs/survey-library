@@ -13,7 +13,7 @@ import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { classesToSelector, mergeValues } from "./utils/utils";
-import { ITextArea, TextAreaViewModel } from "./utils/text-area";
+import { ITextArea, TextAreaModel } from "./utils/text-area";
 
 /**
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
@@ -1997,7 +1997,7 @@ export class QuestionSelectBase extends Question {
       onTextAreaChange: (e) => { this.onOtherValueChange(e); },
       onTextAreaInput: (e) => { this.onOtherValueInput(e); },
     };
-    return new TextAreaViewModel(options);
+    return new TextAreaModel(options);
   }
 }
 /**

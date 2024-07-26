@@ -21,7 +21,7 @@ export interface ITextArea {
   ariaErrormessage?: string;
 }
 
-export class TextAreaViewModel {
+export class TextAreaModel {
   constructor(private options: ITextArea) { }
 
   public getTextValue(): string {

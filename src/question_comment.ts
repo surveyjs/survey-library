@@ -3,7 +3,7 @@ import { QuestionFactory } from "./questionfactory";
 import { QuestionTextBase } from "./question_textbase";
 import { increaseHeightByContent } from "./utils/utils";
 import { settings } from "./settings";
-import { ITextArea, TextAreaViewModel } from "./utils/text-area";
+import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { Helpers } from "./helpers";
 
 /**
@@ -156,7 +156,7 @@ export class QuestionCommentModel extends QuestionTextBase {
       onTextAreaInput: (event) => { this.onInput(event); },
       onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
     };
-    return new TextAreaViewModel(options);
+    return new TextAreaModel(options);
   }
 }
 Serializer.addClass(

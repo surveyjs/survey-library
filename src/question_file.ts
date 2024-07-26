@@ -479,11 +479,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("maxSize", val);
   }
   public chooseFile(event: MouseEvent): void {
-    if (!this.rootElement) return;
+    if (!DomDocumentHelper.isAvailable()) return;
 
-    const inputElement = this.rootElement.querySelector(`#${this.inputId}`) as HTMLInputElement;
-    if(!inputElement) return;
-
+    const inputElement = DomDocumentHelper.getDocument().getElementById(this.inputId) as HTMLInputElement;
     event.preventDefault();
     event.stopImmediatePropagation();
     if (inputElement) {

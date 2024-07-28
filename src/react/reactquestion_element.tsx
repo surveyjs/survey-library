@@ -209,24 +209,20 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
   componentWillUnmount() {
     super.componentWillUnmount();
     if (!!this.questionBase) {
-      const controlElement: HTMLElement = this.control;
       const contentElement: HTMLElement = this.content || this.control;
       this.questionBase.beforeDestroyQuestionElement(contentElement);
-      if (!!controlElement) {
-        controlElement.removeAttribute("data-rendered");
+      if (!!contentElement) {
+        contentElement.removeAttribute("data-rendered");
       }
     }
   }
   protected updateDomElement() {
-    const controlElement: HTMLElement = this.control;
-    if (!!controlElement) {
-      if (controlElement.getAttribute("data-rendered") !== "r") {
-        controlElement.setAttribute("data-rendered", "r");
-      }
-    }
     const contentElement = this.content || this.control;
     if (!!contentElement) {
-      this.questionBase.afterRenderQuestionElement(contentElement);
+      if (contentElement.getAttribute("data-rendered") !== "r") {
+        contentElement.setAttribute("data-rendered", "r");
+        this.questionBase.afterRenderQuestionElement(contentElement);
+      }
     }
   }
   protected get questionBase(): Question {

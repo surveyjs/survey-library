@@ -325,7 +325,7 @@ function preventDefaults(event: any) {
   event.stopPropagation();
 }
 function classesToSelector(str: string): string {
-  if (!str) return str;
+  if(!str) return str;
   const re = /\s*?([\w-]+)\s*?/g;
   return str.replace(re, ".$1");
 }
@@ -477,7 +477,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   const commonItemsInOldMap = new Map<any, number>();
   oldValue.forEach((item) => {
     const itemKey = getKey(item);
-    if (!oldItemsMap.has(itemKey)) {
+    if(!oldItemsMap.has(itemKey)) {
       oldItemsMap.set(getKey(item), item);
     } else {
       //if keys are set incorrectly do not process comparing
@@ -486,7 +486,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   });
   newValue.forEach((item) => {
     const itemKey = getKey(item);
-    if (!newItemsMap.has(itemKey)) {
+    if(!newItemsMap.has(itemKey)) {
       newItemsMap.set(itemKey, item);
     } else {
       //if keys are set incorrectly do not process comparing
@@ -498,7 +498,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
 
   //calculating addedItems and items that exist in both arrays
   newItemsMap.forEach((item, key) => {
-    if (!oldItemsMap.has(key)) {
+    if(!oldItemsMap.has(key)) {
       addedItems.push(item);
     } else {
       commonItemsInNewMap.set(key, commonItemsInNewMap.size);
@@ -508,7 +508,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   //calculating deletedItems and items that exist in both arrays
 
   oldItemsMap.forEach((item, key) => {
-    if (!newItemsMap.has(key)) {
+    if(!newItemsMap.has(key)) {
       deletedItems.push(item);
     } else {
       commonItemsInOldMap.set(key, commonItemsInOldMap.size);
@@ -520,7 +520,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   commonItemsInNewMap.forEach((index, key) => {
     const oldIndex = commonItemsInOldMap.get(key);
     const item = newItemsMap.get(key);
-    if (oldIndex !== index) reorderedItems.push({ item: item, movedForward: oldIndex < index });
+    if(oldIndex !== index) reorderedItems.push({ item: item, movedForward: oldIndex < index });
   });
 
   //calculating merged array if multiple operations are applied at once
@@ -529,7 +529,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   let commonItemsIndex = 0;
   const commonItemsKeysOrder = Array.from(commonItemsInNewMap.keys());
   oldValue.forEach((item, index) => {
-    if (commonItemsInNewMap.has(getKey(item))) {
+    if(commonItemsInNewMap.has(getKey(item))) {
       oldItemsWithCorrectOrder[index] = newItemsMap.get(commonItemsKeysOrder[commonItemsIndex]);
       commonItemsIndex++;
     } else {
@@ -541,8 +541,8 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   let tempValuesArray: Array<T> = [];
   oldItemsWithCorrectOrder.forEach((item) => {
     const itemKey = getKey(item);
-    if (newItemsMap.has(itemKey)) {
-      if (tempValuesArray.length > 0) {
+    if(newItemsMap.has(itemKey)) {
+      if(tempValuesArray.length > 0) {
         valuesToInsertBeforeKey.set(itemKey, tempValuesArray);
         tempValuesArray = [];
       }
@@ -553,7 +553,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
 
   const mergedItems = new Array<T>();
   newItemsMap.forEach((item, key) => {
-    if (valuesToInsertBeforeKey.has(key)) {
+    if(valuesToInsertBeforeKey.has(key)) {
       valuesToInsertBeforeKey.get(key).forEach((item) => {
         mergedItems.push(item);
       });

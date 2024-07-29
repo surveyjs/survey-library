@@ -390,7 +390,7 @@ QUnit.test("check rendered size properties", (assert) => {
   assert.equal(signaturepadQuestion.renderedCanvasWidth, "100%");
 });
 
-QUnit.skip("Question Signature upload files", function (assert) {
+QUnit.test("Question Signature upload files", function (assert) {
   var json = {
     questions: [
       {
@@ -425,7 +425,7 @@ QUnit.skip("Question Signature upload files", function (assert) {
           options.callback(
             "success",
             options.files.map((file) => {
-              return { file: file, content: file.name + "_url" };
+              return { file: file, content: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' id='" + file.name + "'%3E%3C/svg%3E" };
             })
           ),
         2
@@ -442,7 +442,7 @@ QUnit.skip("Question Signature upload files", function (assert) {
   q1.onBlur({ target: null } as any);
 
   survey.onValueChanged.add((survey, options) => {
-    assert.equal(q1.value, "signature.svg_url");
+    assert.equal(q1.value, "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' id='signature.svg'%3E%3C/svg%3E");
     assert.ok(eventFired);
     assert.ok(fileLoaded);
 
@@ -453,7 +453,7 @@ QUnit.skip("Question Signature upload files", function (assert) {
   });
 });
 
-QUnit.skip("Question Signature upload files - and complete", function (assert) {
+QUnit.test("Question Signature upload files - and complete", function (assert) {
   var json = {
     questions: [
       {
@@ -475,7 +475,7 @@ QUnit.skip("Question Signature upload files - and complete", function (assert) {
         options.callback(
           "success",
           options.files.map((file) => {
-            return { file: file, content: file.name + "_url" };
+            return { file: file, content: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' id='" + file.name + "'%3E%3C/svg%3E" };
           })
         );
       },
@@ -518,7 +518,7 @@ QUnit.test("Question Signature pad invisible - on complete", function (assert) {
   assert.deepEqual(survey.data, { text: "abc" });
 });
 
-QUnit.skip("Check signature download file event", (assert) => {
+QUnit.test("Check signature download file event", (assert) => {
   var el = document.createElement("div");
   var canv = document.createElement("canvas");
   el.appendChild(canv);

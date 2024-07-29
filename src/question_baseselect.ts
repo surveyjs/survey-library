@@ -12,7 +12,7 @@ import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { classesToSelector, mergeValues } from "./utils/utils";
+import { mergeValues } from "./utils/utils";
 
 /**
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
@@ -1833,27 +1833,8 @@ export class QuestionSelectBase extends Question {
     }
     return columns;
   }
-
-  protected getObservedElementSelector(): string {
-    return classesToSelector(this.cssClasses.mainRoot);
-  }
-
-  protected supportResponsiveness(): boolean {
-    return true;
-  }
-
-  @property() allowMultiColumns = true;
-  protected onBeforeSetCompactRenderer(): void {
-    super.onBeforeSetDesktopRenderer();
-    this.allowMultiColumns = false;
-  }
-  protected onBeforeSetDesktopRenderer(): void {
-    super.onBeforeSetDesktopRenderer();
-    this.allowMultiColumns = true;
-  }
-
   get hasColumns() {
-    return !this.isMobile && this.allowMultiColumns &&
+    return !this.isMobile &&
       (this.getCurrentColCount() > 1);
   }
   get rowLayout() {

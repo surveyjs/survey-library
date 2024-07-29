@@ -492,50 +492,6 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-checkbox-col-count-2.png", Selector(".sd-question"), t, comparer);
     });
   });
-  test("Check multicolumn checkbox question doesn't fit width", async (t) => {
-    await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1600, 1080);
-      await initSurvey(framework, {
-        showQuestionNumbers: "off",
-        "widthMode": "static",
-        "width": "60%",
-        questions: [
-          {
-            "type": "checkbox",
-            "name": "contract-type",
-            "title": "Type of contract ",
-            "choices": [
-              {
-                "value": "Item 1",
-                "text": "Permanent"
-              },
-              {
-                "value": "Item 2",
-                "text": "Fixed-Term"
-              },
-              {
-                "value": "Item 3",
-                "text": "All year round"
-              },
-              {
-                "value": "Item 4",
-                "text": "Term-time only"
-              },
-              {
-                "value": "Item 5",
-                "text": "Annualized"
-              }
-            ],
-            "colCount": 5
-          }
-        ]
-      });
-      await takeElementScreenshot("responsiveness-checkbox-col-count-5-wide.png", Selector(".sd-question"), t, comparer);
-      await t.resizeWindow(1000, 1080);
-      await resetFocusToBody();
-      await takeElementScreenshot("responsiveness-checkbox-col-count-5-small.png", Selector(".sd-question"), t, comparer);
-    });
-  });
 
   test("Check image question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {

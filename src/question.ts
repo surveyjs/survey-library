@@ -2768,7 +2768,10 @@ Serializer.addClass("question", [
     name: "colSpan:number", visible: false,
     onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },
   },
-  { name: "effectiveColSpan:number", minValue: 1, isSerializable: false },
+  {
+    name: "effectiveColSpan:number", minValue: 1, isSerializable: false,
+    visibleIf: function (obj: any) { return !!obj && !!obj.survey && obj.survey.gridLayoutEnabled; }
+  },
   { name: "startWithNewLine:boolean", default: true, layout: "row" },
   { name: "indent:number", default: 0, choices: [0, 1, 2, 3], layout: "row" },
   {

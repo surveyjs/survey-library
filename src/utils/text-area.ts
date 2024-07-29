@@ -1,8 +1,11 @@
 import { increaseHeightByContent } from "./utils";
+import { Question } from "../question";
+import { ArrayChanges, Base } from "../base";
 
 export interface ITextArea {
   question: any;
   id: string;
+  propertyName: string;
   className: string;
   isDisabledAttr: boolean;
   isReadOnlyAttr?: boolean;
@@ -25,11 +28,19 @@ export interface ITextArea {
 }
 
 export class TextAreaModel {
-  private element: HTMLElement;
+  private element: HTMLTextAreaElement;
 
-  constructor(private options: ITextArea) { }
+  private onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges) => {
+    if (name === this.options.propertyName && this.element) {
+      this.element.value = this.getTextValue();
+    }
+  }
 
-  public setElement(element: HTMLElement | null): void {
+  constructor(private options: ITextArea) {
+    this.question.onPropertyValueChangedCallback = this.onPropertyValueChangedCallback;
+  }
+
+  public setElement(element: HTMLTextAreaElement | null): void {
     if (!!element) {
       this.element = element;
     }
@@ -56,8 +67,8 @@ export class TextAreaModel {
     if (!!this.options.onTextAreaKeyDown)
       this.options.onTextAreaKeyDown(event);
   }
-  get question(): any {
-    return this.options.question;
+  get question(): Question {
+    return this.options.question as Question;
   }
   get id(): string {
     return this.options.id;
@@ -103,5 +114,11 @@ export class TextAreaModel {
   }
   get ariaErrormessage(): string {
     return this.options.ariaErrormessage;
+  }
+
+  public dispose(): void {
+    if (this.question) {
+      this.question.onPropertyValueChangedCallback = undefined;
+    }
   }
 }

@@ -95,6 +95,7 @@ export class Question extends SurveyElement<Question>
   private isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
   private dependedQuestions: Array<Question> = [];
+  private commentTextAreaModel: TextAreaModel;
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
@@ -2479,10 +2480,11 @@ export class Question extends SurveyElement<Question>
     );
   }
 
-  public getCommentTextArea(): ITextArea {
+  public getCommentTextArea(): TextAreaModel {
     const options: ITextArea = {
       question: this,
       id: this.commentId,
+      propertyName: "comment",
       className: this.cssClasses.comment,
       isDisabledAttr: this.isInputReadOnly || false,
       placeholder: this.renderedCommentPlaceholder,
@@ -2495,7 +2497,9 @@ export class Question extends SurveyElement<Question>
       onTextAreaChange: (e) => { this.onCommentChange(e); },
       onTextAreaInput: (e) => { this.onCommentInput(e); },
     };
-    return new TextAreaModel(options);
+    this.commentTextAreaModel?.dispose();
+    this.commentTextAreaModel = new TextAreaModel(options);
+    return this.commentTextAreaModel;
   }
 
   @property() renderAs: string;
@@ -2664,6 +2668,9 @@ export class Question extends SurveyElement<Question>
     super.dispose();
     this.resetDependedQuestions();
     this.destroyResizeObserver();
+    if (this.commentTextAreaModel) {
+      this.commentTextAreaModel.dispose();
+    }
   }
   private resetDependedQuestions(): void {
     for (var i = 0; i < this.dependedQuestions.length; i++) {

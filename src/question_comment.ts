@@ -13,6 +13,7 @@ import { Helpers } from "./helpers";
  */
 export class QuestionCommentModel extends QuestionTextBase {
   private element: HTMLElement;
+  private textAreaModel: TextAreaModel;
   /**
    * Specifies the visible height of the comment area, measured in lines.
    *
@@ -127,7 +128,7 @@ export class QuestionCommentModel extends QuestionTextBase {
   public get className() {
     return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
   }
-  public getTextArea(): ITextArea {
+  public getTextArea(): TextAreaModel {
     const _this = this;
     const updateQuestionValue = (newValue: any) => {
       if (!Helpers.isTwoValueEquals(_this.value, newValue, false, true, false)) {
@@ -138,6 +139,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     const options: ITextArea = {
       question: this,
       id: this.inputId,
+      propertyName: "value",
       className: this.className,
       isDisabledAttr: this.isDisabledAttr,
       isReadOnlyAttr: this.isReadOnlyAttr,
@@ -157,7 +159,15 @@ export class QuestionCommentModel extends QuestionTextBase {
       onTextAreaInput: (event) => { this.onInput(event); },
       onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
     };
-    return new TextAreaModel(options);
+    this.textAreaModel?.dispose();
+    this.textAreaModel = new TextAreaModel(options);
+    return this.textAreaModel;
+  }
+  public dispose(): void {
+    super.dispose();
+    if (this.textAreaModel) {
+      this.textAreaModel.dispose();
+    }
   }
 }
 Serializer.addClass(

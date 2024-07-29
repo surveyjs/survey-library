@@ -816,7 +816,7 @@ Serializer.addClass(
       name: "maskSettings:masksettings",
       className: "masksettings",
       visibleIndex: 1,
-      dependsOn: "inputType",
+      dependsOn: ["inputType", "maskType"],
       visibleIf: (obj: any) => {
         return obj.inputType === "text" || obj.inputType === "tel";
       },

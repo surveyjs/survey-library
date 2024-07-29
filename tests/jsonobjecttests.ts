@@ -3308,3 +3308,19 @@ QUnit.test("enableIf", function (assert) {
   Serializer.removeProperty("question", "testProperty3");
   Serializer.removeProperty("question", "testProperty4");
 });
+QUnit.test("circular dependsOn, #8624", function (assert) {
+  const prop1 = Serializer.addProperty("question", { name: "testProperty1" });
+  Serializer.addProperty("question", { name: "testProperty2", dependsOn: "testProperty1" });
+  prop1.dependsOn = ["testProperty2"];
+
+  const q: any = new Question("q1");
+  q.fromJSON({
+    testProperty1: "abc",
+    testProperty2: "edf"
+  });
+  assert.equal(q.testProperty1, "abc", "testProperty1 value");
+  assert.equal(q.testProperty2, "edf", "testProperty2 value");
+
+  Serializer.removeProperty("question", "testProperty1");
+  Serializer.removeProperty("question", "testProperty2");
+});

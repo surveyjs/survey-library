@@ -248,13 +248,13 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   componentDidMount(): void {
     super.componentDidMount();
     if(!this.question.isDesignMode) {
-      this.item.setRootElement(this.rootRef.current);
+      this.item.setRootElement(this.rootRef.current as HTMLElement);
     }
   }
   public componentWillUnmount(): void {
     super.componentWillUnmount();
     if(!this.question.isDesignMode) {
-      this.item.setRootElement(undefined);
+      this.item.setRootElement(undefined as any);
     }
   }
 }

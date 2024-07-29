@@ -1687,7 +1687,8 @@ export class JsonObject {
     }
     properties = this.addDynamicProperties(obj, jsonObj, properties);
     this.options = options;
-    const processedProps = {};
+    const processedProps: any = {};
+    processedProps[JsonObject.typePropertyName] = true;
     const parentProps = {};
     for (var key in jsonObj) {
       this.setPropertyValueToObj(jsonObj, obj, key, properties, processedProps, parentProps, objType, needAddErrors, options);
@@ -1699,7 +1700,7 @@ export class JsonObject {
   }
   private setPropertyValueToObj(jsonObj: any, obj: any, key: string, properties: Array<JsonObjectProperty>, processedProps: any, parentProps: any,
     objType: string, needAddErrors: boolean, options: ILoadFromJSONOptions): void {
-    if (key === JsonObject.typePropertyName || processedProps[key]) return;
+    if (processedProps[key]) return;
     if (key === JsonObject.positionPropertyName) {
       obj[key] = jsonObj[key];
       return;

@@ -1991,6 +1991,7 @@ export class QuestionSelectBase extends Question {
       placeholder: this.otherPlaceholder,
       rows: this.commentAreaRows,
       maxLength: this.getOthersMaxLength(),
+      autoGrow: this.survey.autoGrowComment,
       ariaRequired: this.ariaRequired || this.a11y_input_ariaRequired,
       ariaLabel: this.ariaLabel || this.a11y_input_ariaLabel,
       getTextValue: () => { return this.otherValue; },

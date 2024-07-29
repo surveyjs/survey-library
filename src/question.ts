@@ -907,11 +907,6 @@ export class Question extends SurveyElement<Question>
   }
   public get isContainer(): boolean { return false; }
   protected updateCommentElements(): void {
-    if (!this.autoGrowComment || !Array.isArray(this.commentElements)) return;
-    for (let i = 0; i < this.commentElements.length; i++) {
-      const el = this.commentElements[i];
-      if (el) increaseHeightByContent(el);
-    }
   }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
@@ -2492,6 +2487,7 @@ export class Question extends SurveyElement<Question>
       isDisabledAttr: this.isInputReadOnly || false,
       placeholder: this.renderedCommentPlaceholder,
       rows: this.commentAreaRows,
+      autoGrow: this.autoGrowComment,
       maxLength: this.getOthersMaxLength(),
       ariaRequired: this.a11y_input_ariaRequired,
       ariaLabel: this.a11y_input_ariaLabel,

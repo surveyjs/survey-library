@@ -1,3 +1,5 @@
+import { increaseHeightByContent } from "./utils";
+
 export interface ITextArea {
   question: any;
   id: string;
@@ -5,6 +7,7 @@ export interface ITextArea {
   isDisabledAttr: boolean;
   isReadOnlyAttr?: boolean;
   placeholder: string;
+  autoGrow: boolean;
   maxLength: number;
   rows: number;
   cols?: number;
@@ -22,7 +25,15 @@ export interface ITextArea {
 }
 
 export class TextAreaModel {
+  private element: HTMLElement;
+
   constructor(private options: ITextArea) { }
+
+  public setElement(element: HTMLElement | null): void {
+    if (!!element) {
+      this.element = element;
+    }
+  }
 
   public getTextValue(): string {
     if (!!this.options.getTextValue)
@@ -36,6 +47,10 @@ export class TextAreaModel {
   public onTextAreaInput(event: any): void {
     if (!!this.options.onTextAreaInput)
       this.options.onTextAreaInput(event);
+
+    if (this.element && this.autoGrow) {
+      increaseHeightByContent(this.element);
+    }
   }
   public onTextAreaKeyDown(event: any): void {
     if (!!this.options.onTextAreaKeyDown)
@@ -55,6 +70,9 @@ export class TextAreaModel {
   }
   get maxLength(): number {
     return this.options.maxLength;
+  }
+  get autoGrow(): boolean {
+    return this.options.autoGrow;
   }
   get rows(): number {
     return this.options.rows;

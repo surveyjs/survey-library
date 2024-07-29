@@ -142,6 +142,7 @@ export class QuestionCommentModel extends QuestionTextBase {
       isDisabledAttr: this.isDisabledAttr,
       isReadOnlyAttr: this.isReadOnlyAttr,
       placeholder: this.renderedPlaceholder,
+      autoGrow: this.renderedAutoGrow,
       maxLength: this.getMaxLength(),
       rows: this.rows,
       cols: this.cols,

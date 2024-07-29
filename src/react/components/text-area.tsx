@@ -24,6 +24,7 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
       <textarea
         id={this.viewModel.id}
         className={this.viewModel.className}
+        ref={(textarea) => (this.viewModel.setElement(textarea))}
         disabled={this.viewModel.isDisabledAttr}
         readOnly={this.viewModel.isReadOnlyAttr}
         rows={this.viewModel.rows}

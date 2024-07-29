@@ -115,21 +115,20 @@ body {
   }
 
   .sv_q_dropdown__hint-prefix {
+    opacity: 0.5;
+
     span {
       word-break: unset;
     }
-
-    opacity: 0.5;
   }
 
   .sv_q_dropdown__hint-suffix {
     display: flex;
+    opacity: 0.5;
 
     span {
       word-break: unset;
     }
-
-    opacity: 0.5;
   }
 
   .sv_q_dropdown_control__input-field-component {
@@ -337,11 +336,8 @@ body {
     }
   }
 
-  .sv_q_rating__item-star>svg {
-    &.sv-star-2 {
-      display: none;
-    }
-
+  .sv_q_rating__item-star > svg {
+    fill: var(--text-color, $text-color);
     height: 32px;
     width: 32px;
     display: inline-block;
@@ -351,15 +347,17 @@ body {
     &:hover {
       border: 1px solid var(--main-hover-color, $main-hover-color);
     }
-
-    fill: var(--text-color, $text-color);
+    &.sv-star-2 {
+      display: none;
+    }
   }
 
-  .sv_q_rating__item-star--selected>svg {
+  .sv_q_rating__item-star--selected > svg {
     fill: var(--main-color, $main-color);
   }
 
-  .sv_q_rating__item-smiley>svg {
+  .sv_q_rating__item-smiley > svg {
+    fill: var(--text-color, $text-color);
     height: 24px;
     width: 24px;
     padding: 4px;
@@ -374,8 +372,6 @@ body {
     &:hover {
       border: 1px solid var(--main-hover-color, $main-hover-color);
     }
-
-    fill: var(--text-color, $text-color);
   }
 
   .sv_q_rating__item-smiley--selected>svg {

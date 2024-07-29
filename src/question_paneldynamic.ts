@@ -8,7 +8,7 @@ import {
   ISurveyImpl,
   ITextProcessor,
   IProgressInfo,
-  IPlainDataOptions,
+  IPlainDataOptions
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
@@ -16,6 +16,7 @@ import {
   TextPreProcessorValue,
   QuestionTextProcessor,
 } from "./textPreProcessor";
+import { Base } from "./base";
 import { Question, IConditionObject, IQuestionPlainData } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
@@ -185,6 +186,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
     const survey = this.getSurvey();
     return !!survey ? survey.getQuestionByName(name): null;
   }
+  getEditingSurveyElement(): Base { return undefined; }
   getAllValues(): any {
     return this.data.getPanelItemData(this);
   }

@@ -22,6 +22,7 @@ export * from "./etalon_question";
 export * from "./etalon_survey";
 export * from "./etalon_signaturepad";
 export * from "./etalon_expression";
+export * from "./etalon_layout";
 export { markupTests } from "./helper";
 
 registerMarkupTests([

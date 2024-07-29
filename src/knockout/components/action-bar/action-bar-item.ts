@@ -4,7 +4,14 @@ export let ActionBarItemViewModel: any;
 
 ko.components.register("sv-action-bar-item", {
   viewModel: {
-    createViewModel: (params: any) => {
+    createViewModel: (params: any, componentInfo: any) => {
+      let el = componentInfo.element;
+      el = !!el.nextElementSibling ? el.nextElementSibling : el.parentElement.firstElementChild;
+      if(!!el) {
+        const item = params.item;
+        el.onfocus = function (args: any) { item.doFocus(args); };
+        el.onmousedown = function () { item.doMouseDown(); };
+      }
       return params;
     },
   },

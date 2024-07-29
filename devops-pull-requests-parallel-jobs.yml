@@ -75,7 +75,6 @@ jobs:
         npm run testcafe:ko
       displayName: "run functional tests"
 
-
 - job: React
   steps:
     - checkout: self
@@ -111,6 +110,10 @@ jobs:
 
     - script: |
         npm run build_react_prod
+        npm run build_core
+        npm run build_i18n
+        npm run build-plugins
+        npm run build_react_ui
       displayName: "Build React"
 
     - script: |
@@ -120,7 +123,6 @@ jobs:
     - script: |
         npm run testcafe:react
       displayName: "run functional tests"
-
 
 - job: Vue
   steps:
@@ -303,7 +305,54 @@ jobs:
         npm run testcafe:ci:vue3
       displayName: "run functional tests"
 
-- job: JqueryUI
+# - job: JqueryUI
+#   steps:
+#     - checkout: self
+#       persistCredentials: true
+#       clean: true
+
+#     - task: NodeTool@0
+#       inputs:
+#         versionSpec: "14.x"
+#       displayName: "Install Node.js"
+
+#     - task: CopyFiles@2
+#       inputs:
+#         SourceFolder: "$(Build.SourcesDirectory)/"
+#         Contents: "package.json"
+#         TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+#         OverWrite: true
+#       displayName: "Copy package.json for cache key"
+#     - task: Cache@2
+#       inputs:
+#         key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+#         path: $(Build.SourcesDirectory)/node_modules
+#         cacheHitVar: NPM_CACHE_RESTORED
+#       displayName: Cache NPM
+
+#     - task: Npm@1
+#       displayName: 'NPM install'
+#       inputs:
+#         command: install
+#         verbose: false
+#         workingDir: $(Build.SourcesDirectory)
+#       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+#     - script: |
+#         npm run build_core
+#         npm run build_i18n
+#         npm run build-plugins
+#       displayName: "Build Core"
+
+#     - script: |
+#         npm run build_jquery_ui_prod
+#       displayName: "Build jquery-ui"
+
+#     - script: |
+#         npm run testcafe:jquery-ui:ci
+#       displayName: "run functional tests"
+
+- job: SurveyUI
   steps:
     - checkout: self
       persistCredentials: true
@@ -328,31 +377,6 @@ jobs:
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
-    # setup next release version
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: "specific"
-        project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-        pipeline: "47"
-        buildVersionToDownload: "latest"
-        downloadType: "single"
-        artifactName: "ReleaseVersionFile"
-        downloadPath: "$(System.ArtifactsDirectory)"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-        Contents: "version.txt"
-        TargetFolder: "$(Build.SourcesDirectory)/"
-        OverWrite: true
-      displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-    - powershell: |
-        $version = Get-Content $(Build.SourcesDirectory)/version.txt
-        Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-      displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-    ##########################################################################
-
     - task: Npm@1
       displayName: 'NPM install'
       inputs:
@@ -362,22 +386,15 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
-        cd $(Build.SourcesDirectory)
-        npm run release -- --release-as $(SurveyJSVersion)
-        git status
-      displayName: "npm run release"
-
-    - script: |
         npm run build_core
         npm run build_i18n
         npm run build-plugins
       displayName: "Build Core"
 
     - script: |
-        npm run build_jquery_ui_prod
-      displayName: "Build jquery-ui"
+        npm run build_js_ui_prod
+      displayName: "Build survey-js-ui"
 
     - script: |
-        npm run testcafe:jquery-ui:ci
+        npm run testcafe:survey-js-ui:ci
       displayName: "run functional tests"
-

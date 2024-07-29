@@ -10,7 +10,7 @@ export interface IPropertyDecoratorOptions<T = any> {
   localizable?:
   | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string }
   | boolean;
-  onSet?: (val: T, objectInstance: any) => void;
+  onSet?: (val: T, objectInstance: any, prevVal?: T) => void;
 }
 
 function ensureLocString(
@@ -85,9 +85,10 @@ export function property(options: IPropertyDecoratorOptions = {}) {
         },
         set: function (val: any) {
           const newValue = processComputedUpdater(this, val);
+          const prevValue = this.getPropertyValue(key);
           this.setPropertyValue(key, newValue);
           if (!!options && options.onSet) {
-            options.onSet(newValue, this);
+            options.onSet(newValue, this, prevValue);
           }
         },
       });
@@ -410,7 +411,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     }
     if(this.isLocalizable) return value === null || value === undefined;
     return (
-      (value === false && (this.type == "boolean" || this.type == "switch")) ||
+      (value === false && (this.type == "boolean" || this.type == "switch") && !this.defaultValueFunc) ||
       value === "" || Helpers.isValueEmpty(value)
     );
   }
@@ -1714,7 +1715,7 @@ export class JsonObject {
     options?: ISaveToJSONOptions | boolean
   ): any {
     if (!obj || !obj.getType) return obj;
-    if (typeof obj.getData === "function") return obj.getData();
+    if (!obj.isSurvey && typeof obj.getData === "function") return obj.getData();
     var result = {};
     if (property != null && !property.className) {
       (<any>result)[JsonObject.typePropertyName] = property.getObjType(

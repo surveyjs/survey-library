@@ -777,7 +777,17 @@ QUnit.test("numeric processInput: min & max - small range", function (assert) {
   result = maskInstance.processInput({ insertedChars: "6", selectionStart: 1, selectionEnd: 1, prevValue: "4", inputDirection: "forward" });
   assert.equal(result.value, "46", "insert 6");
   assert.equal(result.caretPosition, 2, "insert 6");
+});
 
+QUnit.test("numeric processInput: doesn't allow resetting if min & max", function (assert) {
+  const maskInstance = new InputMaskNumeric();
+  maskInstance.allowNegativeValues = false;
+  maskInstance.min = 2;
+  maskInstance.max = 10;
+
+  let result = maskInstance.processInput({ insertedChars: null, prevValue: "8", selectionEnd: 1, selectionStart: 0, inputDirection: "forward" });
+  assert.equal(result.value, "", "clear");
+  assert.equal(result.caretPosition, 0, "clear");
 });
 
 QUnit.test("numeric validateNumber: min & max - small range positive", function (assert) {

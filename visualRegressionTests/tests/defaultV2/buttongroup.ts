@@ -19,15 +19,22 @@ const registerButtongroup = ClientFunction((framework) => {
     return new Survey.QuestionButtonGroupModel(name);
   });
   if (framework === "react") {
-    Survey.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
-      return (<any>window).React.createElement(Survey.SurveyQuestionButtonGroup, props);
+    (<any>window).SurveyReact.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
+      return (<any>window).React.createElement((<any>window).SurveyReact.SurveyQuestionButtonGroup, props);
     });
   }
   if (framework === "jquery-ui") {
     const SurveyJquery = (<any>window).SurveyJquery;
-    const preact = window["SurveyJquery"]["preact"];
+    const preact = SurveyJquery["preact"];
     SurveyJquery.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
       return preact.createElement(SurveyJquery.SurveyQuestionButtonGroup, props);
+    });
+  }
+  if (framework === "survey-js-ui") {
+    const SurveyUI = (<any>window).SurveyUI;
+    const preact = SurveyUI["preact"];
+    SurveyUI.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
+      return preact.createElement(SurveyUI.SurveyQuestionButtonGroup, props);
     });
   }
   if (framework === "knockout") {

@@ -4,13 +4,19 @@
     type="button"
     v-on:click="
       (args) => {
-        item.action(item, !!args.pointerType);
+        item.doAction(args);
       }
     "
     v-on:keyup="
       (evt) => {
         evt.stopPropagation();
       }
+    "
+    v-on:mousedown="
+      () => { item.doMouseDown(); }
+    "
+    v-on:focus="
+      (event) => { item.doFocus(event); }
     "
     v-bind:disabled="item.disabled"
     v-bind:title="item.tooltip || item.title"

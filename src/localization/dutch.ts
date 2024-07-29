@@ -65,7 +65,7 @@ export var dutchSurveyStrings = {
   choices_Item: "onderwerp",
   matrix_column: "Kolom",
   matrix_row: "Rij",
-  multipletext_itemname: "Sms",
+  multipletext_itemname: "Tekst",
   savingData: "De resultaten worden bewaard op de server...",
   savingDataError: "Er was een probleem en we konden de resultaten niet bewaren.",
   savingDataSuccess: "De resultaten werden succesvol bewaard!",

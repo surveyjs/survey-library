@@ -4,6 +4,7 @@
   border-radius: calcSize(12.5);
   border: none;
   outline: none;
+  cursor: pointer;
 
   .sv-svg-icon {
     margin: 0;
@@ -20,8 +21,6 @@
     fill: $foreground-light;
     transition: fill $transition-duration;
   }
-
-  cursor: pointer;
 }
 
 .sd-context-btn:hover,

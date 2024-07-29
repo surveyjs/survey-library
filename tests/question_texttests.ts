@@ -433,3 +433,58 @@ QUnit.test("Test maxLength & getMaxLength", function (assert) {
   assert.equal(q.isTextInput, true, "isTextInput - password");
   assert.equal(q.getMaxLength(), 10, "getMaxLength() - password");
 });
+QUnit.test("settings.storeUtcDates = true, #8542", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "name": "q1",
+        "type": "text",
+        "inputType": "datetime-local"
+      }
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  settings.storeUtcDates = true;
+  const locD = new Date(Date.now());
+  const utcD = new Date(locD.toISOString());
+  q1.value = locD;
+  assert.deepEqual(survey.data, { q1: utcD.toISOString() }, "#1");
+  let str = survey.data.q1;
+  assert.equal(str.indexOf("Z"), str.length - 1, "Has z symbol");
+  q1.clearValue();
+  assert.deepEqual(survey.data, { }, "#2");
+  survey.data = { q1: utcD.toISOString() };
+  assert.equal(new Date(q1.value).toTimeString(), locD.toTimeString(), "#3");
+  assert.equal(q1.value.indexOf("Z"), -1, "Has no z symbol");
+  settings.storeUtcDates = false;
+});
+QUnit.test("inputType='month' and today function, #8552", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      { "type": "text", "name": "q1", "defaultValueExpression": "today()", "inputType": "month" },
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  const etalon = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
+  assert.equal(q1.value, etalon, "today works correctly for month input");
+});
+QUnit.test("inputType='date' invalid value, #8617", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      { "type": "text", "name": "q1", "inputType": "date" },
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = "2000-01-01";
+  assert.equal(q1.errors.length, 0, "errors #1");
+  const event = { target: { value: "", validationMessage: "Invalid date" } };
+  q1.onKeyDown(event);
+  q1.value = undefined;
+  assert.equal(q1.errors.length, 0, "errors #2");
+  survey.completeLastPage();
+  assert.equal(q1.errors.length, 1, "errors #3");
+  assert.equal(q1.errors[0].text, "Invalid date", "errors #4");
+  assert.equal(survey.state, "running", "survey.state #1");
+  q1.value = "2000-01-01";
+  assert.equal(q1.errors.length, 0, "errors #5");
+});

@@ -161,7 +161,9 @@ export class InputMaskNumeric extends InputMaskBase {
     const min = this.min || Number.MIN_SAFE_INTEGER;
     const max = this.max || Number.MAX_SAFE_INTEGER;
 
-    if(this.min !== undefined || this.max !== undefined) {
+    if (this.numericalCompositionIsEmpty(number)) return true;
+
+    if (this.min !== undefined || this.max !== undefined) {
       let value = this.convertNumber(number);
       if(Number.isNaN(value)) {
         return true;

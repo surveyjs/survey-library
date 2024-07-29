@@ -63,6 +63,7 @@ export interface IAction {
    * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    */
   action?: (context?: any) => void;
+  onFocus?: (isMouse: boolean, event: any) => void;
   /**
    * One or several CSS classes that you want to apply to the outer `<div>` element.
    *
@@ -302,7 +303,7 @@ export abstract class BaseAction extends Base implements IAction {
     return this.enabled !== undefined && !this.enabled;
   }
   public get canShrink() {
-    return !!this.iconName;
+    return !this.disableShrink && !!this.iconName;
   }
   public get hasTitle(): boolean {
     return (
@@ -463,6 +464,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }) locTooltipName?: string;
   @property() private _enabled: boolean;
   @property() action: (context?: any, isUserAction?: boolean) => void;
+  @property() onFocus: (isMouse: boolean, event: any) => void;
   @property() _component: string;
   @property() items: any;
   @property({
@@ -501,6 +503,24 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     super.locStrsChanged();
     this.locTooltipChanged();
     this.locStrChangedInPopupModel();
+  }
+  public doAction(args: any): boolean {
+    const evt = !!args.originalEvent ? args.originalEvent : args;
+    this.action(this, evt.isTrusted);
+    evt.preventDefault();
+    evt.stopPropagation();
+    return true;
+  }
+  private isMouseDown: boolean;
+  public doMouseDown() : void {
+    this.isMouseDown = true;
+  }
+  public doFocus(args: any): void {
+    if(!!this.onFocus) {
+      const evt = !!args.originalEvent ? args.originalEvent : args;
+      this.onFocus(this.isMouseDown, evt);
+    }
+    this.isMouseDown = false;
   }
   private locStrChangedInPopupModel(): void {
     if (!this.popupModel || !this.popupModel.contentComponentData || !this.popupModel.contentComponentData.model) return;

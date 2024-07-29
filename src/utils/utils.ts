@@ -157,7 +157,7 @@ function scrollElementByChildId(id: string) {
 function navigateToUrl(url: string): void {
   const location = DomWindowHelper.getLocation();
   if (!url || !location) return;
-  location.href = url;
+  location.href = encodeURIComponent(url);
 }
 
 function wrapUrlForBackgroundImage(url: string): string {
@@ -622,7 +622,9 @@ export function cleanHtmlElementAfterAnimation(el: HTMLElement): void {
     });
     delete (el as any)["__sv_created_properties"];
   }
-
+}
+export function roundTo2Decimals(number: number): number {
+  return Math.round(number * 100) / 100;
 }
 
 export {

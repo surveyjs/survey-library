@@ -24,7 +24,6 @@ import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean, AnimationProperty } from "./utils/animation";
 import { classesToSelector, cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
-import { Panel } from "./knockout/kopage";
 import { PanelModel } from "./panel";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
@@ -37,6 +36,26 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   protected createLocTitleProperty(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
+  /**
+   * Returns `true` if the survey element is a page.
+   * @see Base.getType
+   */
+  public get isPage(): boolean { return false; }
+  /**
+   * Returns `true` if the survey element is a panel.
+   * @see Base.getType
+   */
+  public get isPanel(): boolean { return false; }
+  /**
+   * Returns `true` if the survey element is a question.
+   * @see Base.getType
+   */
+  public get isQuestion(): boolean { return false; }
+  /**
+   * Returns `true` if the element is a survey.
+   * @see Base.getType
+   */
+  public get isSurvey(): boolean { return false; }
   /**
    * A title for the survey element. If `title` is undefined, the `name` property value is displayed instead.
    *
@@ -233,6 +252,20 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public static CreateDisabledDesignElements: boolean = false;
   public disableDesignActions: boolean =
     SurveyElement.CreateDisabledDesignElements;
+
+  @property({
+    onSet: (newValue, target) => {
+      target.colSpan = newValue;
+    }
+  }) effectiveColSpan: number;
+
+  public get colSpan(): number {
+    return this.getPropertyValue("colSpan", 1);
+  }
+  public set colSpan(val: number) {
+    this.setPropertyValue("colSpan", val);
+  }
+
   constructor(name: string) {
     super();
     this.name = name;
@@ -241,6 +274,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.registerPropertyChangedHandlers(["isReadOnly"], () => { this.onReadOnlyChanged(); });
     this.registerPropertyChangedHandlers(["errors"], () => { this.updateVisibleErrors(); });
     this.registerPropertyChangedHandlers(["isSingleInRow"], () => { this.updateElementCss(false); });
+    this.registerPropertyChangedHandlers(["minWidth", "maxWidth", "renderWidth", "allowRootStyle", "parent"], () => { this.updateRootStyle(); });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -671,27 +705,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public setVisibleIndex(index: number): number {
     return 0;
   }
-  /**
-   * Returns `true` if the survey element is a page.
-   * @see Base.getType
-   */
-  public get isPage(): boolean {
-    return false;
-  }
-  /**
-   * Returns `true` if the survey element is a panel.
-   * @see Base.getType
-   */
-  public get isPanel(): boolean {
-    return false;
-  }
-  /**
-   * Returns `true` if the survey element is a question.
-   * @see Base.getType
-   */
-  public get isQuestion(): boolean {
-    return false;
-  }
   public delete(doDispose: boolean): void { }
   //ILocalizableOwner
   locOwner: ILocalizableOwner;
@@ -945,20 +958,35 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   @property({ defaultValue: true }) allowRootStyle: boolean;
+  @property() rootStyle: any;
 
-  get rootStyle() {
+  public updateRootStyle(): void {
     let style: { [index: string]: any } = {};
-    let minWidth = this.minWidth;
-    if (minWidth != "auto") minWidth = "min(100%, " + this.minWidth + ")";
-    if (this.allowRootStyle && this.renderWidth) {
-      // style["width"] = this.renderWidth;
-      style["flexGrow"] = 1;
-      style["flexShrink"] = 1;
-      style["flexBasis"] = this.renderWidth;
-      style["minWidth"] = minWidth;
-      style["maxWidth"] = this.maxWidth;
+    let _width;
+    if (!!this.parent) {
+      const columns = this.parent.getColumsForElement(this as any);
+      _width = columns.reduce((sum, col) => col.effectiveWidth + sum, 0);
+      if (!!_width && _width !== 100) {
+        style["flexGrow"] = 0;
+        style["flexShrink"] = 0;
+        style["flexBasis"] = _width + "%";
+        style["minWidth"] = undefined;
+        style["maxWidth"] = undefined;
+      }
     }
-    return style;
+    if (Object.keys(style).length == 0) {
+      let minWidth = this.minWidth;
+      if (minWidth != "auto") minWidth = "min(100%, " + minWidth + ")";
+      if (this.allowRootStyle && this.renderWidth) {
+        // style["width"] = this.renderWidth;
+        style["flexGrow"] = 1;
+        style["flexShrink"] = 1;
+        style["flexBasis"] = this.renderWidth;
+        style["minWidth"] = minWidth;
+        style["maxWidth"] = this.maxWidth;
+      }
+    }
+    this.rootStyle = style;
   }
   private isContainsSelection(el: any) {
     let elementWithSelection: any = undefined;

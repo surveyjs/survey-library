@@ -8,7 +8,7 @@ import {
   ISurveyImpl,
   ITextProcessor,
   IProgressInfo,
-  IPlainDataOptions,
+  IPlainDataOptions
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
@@ -16,6 +16,7 @@ import {
   TextPreProcessorValue,
   QuestionTextProcessor,
 } from "./textPreProcessor";
+import { Base } from "./base";
 import { Question, IConditionObject, IQuestionPlainData } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
@@ -185,6 +186,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
     const survey = this.getSurvey();
     return !!survey ? survey.getQuestionByName(name): null;
   }
+  getEditingSurveyElement(): Base { return undefined; }
   getAllValues(): any {
     return this.data.getPanelItemData(this);
   }
@@ -1553,9 +1555,10 @@ export class QuestionPanelDynamicModel extends Question
     }
     return -1;
   }
-  private getPanelIndexById(id: string): number {
-    for (var i = 0; i < this.panelsCore.length; i++) {
-      if (this.panelsCore[i].id === id) return i;
+  private getPanelVisibleIndexById(id: string): number {
+    const visPanels = this.visiblePanelsCore;
+    for (var i = 0; i < visPanels.length; i++) {
+      if (visPanels[i].id === id) return i;
     }
     return -1;
   }
@@ -2435,14 +2438,14 @@ export class QuestionPanelDynamicModel extends Question
       return options.title;
     };
     locTitle.sharedData = this.locTemplateTabTitle;
-    const isActive = this.getPanelIndexById(panel.id) === this.currentIndex;
+    const isActive = this.getPanelVisibleIndexById(panel.id) === this.currentIndex;
     const newItem = new Action({
       id: panel.id,
       pressed: isActive,
       locTitle: locTitle,
       disableHide: isActive,
       action: () => {
-        this.currentIndex = this.getPanelIndexById(newItem.id);
+        this.currentIndex = this.getPanelVisibleIndexById(newItem.id);
       }
     });
     return newItem;

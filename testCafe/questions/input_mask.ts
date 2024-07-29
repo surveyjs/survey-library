@@ -67,4 +67,41 @@ frameworks.forEach((framework) => {
       .expect(getCursor()).eql(6);
   });
 
+  test("An invalid value is not always cleared", async (t) => {
+    await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "text",
+              name: "question1",
+              maskType: "pattern",
+              maskSettings: {
+                pattern: "99999",
+              },
+            },
+          ],
+        },
+      ],
+    });
+    const emptyValue = "_____";
+
+    await t
+      .expect(Selector("input").value).eql(emptyValue)
+
+      .pressKey("1 2 3 4")
+      .expect(Selector("input").value).eql("1234_")
+
+      .pressKey("tab")
+      .expect(Selector("input").value).eql(emptyValue)
+
+      .click("input")
+      .pressKey("1 2 3")
+      .expect(Selector("input").value).eql("123__")
+
+      .pressKey("tab")
+      .expect(Selector("input").value).eql(emptyValue);
+  });
 });

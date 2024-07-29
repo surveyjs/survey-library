@@ -380,3 +380,22 @@ QUnit.test("matrix isAllRowRequired  & getItemClass", function (assert) {
   assert.equal(question.getItemClass(row, column1).indexOf(itemError) > -1, false, "itemError doesn't exist in column 1, #3");
   assert.equal(question.getItemClass(row, column2).indexOf(itemError) > -1, false, "itemError doesn't exist in column 2, #3");
 });
+QUnit.test("hideIfRowsEmpty & question visibleIf, bug#8459", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "matrix", name: "q1", visibleIf: "{a}=1", hideIfRowsEmpty: true, rows: [{ value: "row1", visibleIf: "{b}=2" }] }],
+  });
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.equal(question.isVisible, false, "#1");
+  survey.setValue("a", 1);
+  assert.equal(question.isVisible, false, "#2");
+  survey.setValue("b", 2);
+  assert.equal(question.isVisible, true, "#3");
+  survey.setValue("a", 2);
+  assert.equal(question.isVisible, false, "#4");
+  survey.setValue("a", 1);
+  assert.equal(question.isVisible, true, "#5");
+  survey.setValue("b", 1);
+  assert.equal(question.isVisible, false, "#6");
+  survey.setValue("b", 2);
+  assert.equal(question.isVisible, true, "#7");
+});

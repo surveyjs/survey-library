@@ -346,11 +346,26 @@ export class QuestionTextModel extends QuestionTextBase {
       this._inputValue = this.maskInstance.getMaskedValue(this.value);
     }
   }
-
-  protected onCheckForErrors(
-    errors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ) {
+  private hasToConvertToUTC(val: any): boolean {
+    return settings.storeUtcDates && this.isDateTimeLocaleType() && !!val;
+  }
+  protected valueForSurveyCore(val: any): any {
+    if(this.hasToConvertToUTC(val)) {
+      val = new Date(val).toISOString();
+    }
+    return super.valueForSurveyCore(val);
+  }
+  protected valueFromDataCore(val: any): any {
+    if(this.hasToConvertToUTC(val)) {
+      const d = new Date(val);
+      const locale_d = new Date(d.getTime() - d.getTimezoneOffset() * 60 * 1000);
+      let res = locale_d.toISOString();
+      val = res.substring(0, res.length - 2);
+    }
+    return super.valueFromDataCore(val);
+  }
+  private dateValidationMessage: string;
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged);
     if (isOnValueChanged) return;
     if (this.isValueLessMin) {
@@ -380,6 +395,9 @@ export class QuestionTextModel extends QuestionTextBase {
         this.getCalculatedMinMax(this.renderedMax)
       ); };
       errors.push(maxError);
+    }
+    if(!!this.dateValidationMessage) {
+      errors.push(new CustomError(this.dateValidationMessage, this));
     }
 
     const valName = this.getValidatorTitle();
@@ -431,7 +449,10 @@ export class QuestionTextModel extends QuestionTextBase {
     );
   }
   private get isDateInputType(): boolean {
-    return this.inputType === "date" || this.inputType === "datetime-local";
+    return this.inputType === "date" || this.isDateTimeLocaleType();
+  }
+  private isDateTimeLocaleType(): boolean {
+    return this.inputType === "datetime-local";
   }
   private getCalculatedMinMax(minMax: any): any {
     if (this.isValueEmpty(minMax)) return minMax;
@@ -488,11 +509,10 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.maskTypeIsEmpty ? super.getIsInputTextUpdate() : false;
   }
   supportGoNextPageAutomatic(): boolean {
-    return !this.getIsInputTextUpdate() &&
-      ["date", "datetime-local"].indexOf(this.inputType) < 0;
+    return !this.getIsInputTextUpdate() && !this.isDateInputType;
   }
   public supportGoNextPageError(): boolean {
-    return ["date", "datetime-local"].indexOf(this.inputType) < 0;
+    return !this.isDateInputType;
   }
   /**
    * An array of predefined options from which users can select. This property configures an HTML [`<datalist>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist) element and associates it with the underlying `input` element.
@@ -516,14 +536,21 @@ export class QuestionTextModel extends QuestionTextBase {
       this.supportGoNextPageError()
     );
   }
-  protected setNewValue(newValue: any) {
+  protected setNewValue(newValue: any): void {
     newValue = this.correctValueType(newValue);
+    if(!!newValue) {
+      this.dateValidationMessage = undefined;
+    }
     super.setNewValue(newValue);
   }
   protected correctValueType(newValue: any): any {
     if (!newValue) return newValue;
-    if (this.inputType == "number" || this.inputType == "range") {
+    if (this.inputType === "number" || this.inputType === "range") {
       return Helpers.isNumber(newValue) ? Helpers.getNumber(newValue) : "";
+    }
+    if(this.inputType === "month") {
+      const d = new Date(newValue);
+      return d.getFullYear() + "-" + (d.getMonth() + 1);
     }
     return newValue;
   }
@@ -582,7 +609,11 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     this.updateRemainingCharacterCounter(event.target.value);
   };
+  private updateDateValidationMessage(event: any): void {
+    this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
+  }
   public onKeyDown = (event: any) => {
+    this.updateDateValidationMessage(event);
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
     if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
@@ -590,6 +621,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.onTextKeyDownHandler(event);
   }
   public onChange = (event: any): void => {
+    this.updateDateValidationMessage(event);
     const elementIsFocused = event.target === settings.environment.root.activeElement;
     if (elementIsFocused) {
       if (this.isInputTextUpdate) {

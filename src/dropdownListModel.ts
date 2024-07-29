@@ -36,7 +36,6 @@ export class DropdownListModel extends Base {
     }
   }
   private itemsSettings: { skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
-  private isRunningLoadQuestionChoices = false;
   protected listModel: ListModel<ItemValue>;
   protected popupCssClasses = "sv-single-select-list";
   protected listModelFilterStringChanged = (newValue: string) => {
@@ -58,14 +57,12 @@ export class DropdownListModel extends Base {
     this.question.choices = this.itemsSettings.items;
   }
   private loadQuestionChoices(callbackAfterItemsLoaded?: () => void) {
-    this.isRunningLoadQuestionChoices = true;
     this.question.survey.loadQuestionChoices({
       question: this.question,
       filter: this.filterString,
       skip: this.itemsSettings.skip,
       take: this.itemsSettings.take,
       setItems: (items: Array<any>, totalCount: number) => {
-        this.isRunningLoadQuestionChoices = false;
         this.setItems(items || [], totalCount || 0);
         this.popupRecalculatePosition(this.itemsSettings.skip === this.itemsSettings.take);
         if (!!callbackAfterItemsLoaded) {
@@ -76,8 +73,6 @@ export class DropdownListModel extends Base {
     this.itemsSettings.skip += this.itemsSettings.take;
   }
   private updateQuestionChoices(callbackAfterItemsLoaded?: () => void): void {
-    if (this.isRunningLoadQuestionChoices) return;
-
     const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
     if (!this.itemsSettings.skip || isUpdate) {
 
@@ -134,6 +129,7 @@ export class DropdownListModel extends Base {
           this.resetItemsSettings();
         }
       }
+      this.question.ariaExpanded = option.isVisible ? "true" : "false";
       this.question.processPopupVisiblilityChanged(this.popupModel, option.isVisible);
     });
   }
@@ -373,13 +369,14 @@ export class DropdownListModel extends Base {
     if (start == -1) return null;
     return this.hintString.substring(start, start + this.inputStringLC.length);
   }
-  private qustionPropertyChangedHandler = (sender: any, options: any) => {
+  private questionPropertyChangedHandler = (sender: any, options: any) => {
     this.onPropertyChangedHandler(sender, options);
   };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
-    question.onPropertyChanged.add(this.qustionPropertyChangedHandler);
+    this.question.ariaExpanded = "false";
+    question.onPropertyChanged.add(this.questionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
@@ -425,7 +422,7 @@ export class DropdownListModel extends Base {
     if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
-    this.question.focus();
+    this.question.focusInputElement(false);
   }
   public chevronPointerDown(event: any): void {
     if (this._popupModel.isVisible) {
@@ -595,8 +592,8 @@ export class DropdownListModel extends Base {
 
   public dispose(): void {
     super.dispose();
-    this.question && this.question.onPropertyChanged.remove(this.qustionPropertyChangedHandler);
-    this.qustionPropertyChangedHandler = undefined;
+    this.question && this.question.onPropertyChanged.remove(this.questionPropertyChangedHandler);
+    this.questionPropertyChangedHandler = undefined;
     if (!!this.listModel) {
       this.listModel.dispose();
     }

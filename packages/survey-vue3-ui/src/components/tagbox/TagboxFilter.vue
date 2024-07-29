@@ -22,11 +22,7 @@
         :disabled="question.isDisabledAttr"
         :inputmode="model.inputMode"
         :role="model.filterStringEnabled ? question.ariaRole : undefined"
-        :aria-expanded="
-          question.ariaExpanded === null
-            ? undefined
-            : question.ariaExpanded === 'true'
-        "
+        :aria-expanded="question.ariaExpanded"
         :aria-controls="model.listElementId"
         :aria-label="question.a11y_input_ariaLabel"
         :aria-labelledby="question.a11y_input_ariaLabelledBy"

@@ -1,6 +1,6 @@
-import { property, Serializer } from "./jsonobject";
+import { property, propertyArray, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
-import { Base } from "./base";
+import { ArrayChanges, Base } from "./base";
 import {
   ISurveyImpl,
   IPage,
@@ -21,7 +21,7 @@ import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
 import { settings } from "./settings";
-import { cleanHtmlElementAfterAnimation, findScrollableParent, getElementWidth, isElementVisible, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
+import { cleanHtmlElementAfterAnimation, findScrollableParent, getElementWidth, isElementVisible, roundTo2Decimals, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
@@ -32,6 +32,7 @@ import { DragDropInfo } from "./drag-drop-helper-v1";
 import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PageModel } from "./page";
+import { PanelLayoutColumnModel } from "./panel-layout-column";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -297,6 +298,11 @@ export class PanelModelBase extends SurveyElement<Question>
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<Question> = new Array<Question>();
+  private _columns: Array<PanelLayoutColumnModel> = undefined;
+  private _columnsReady = false;
+
+  @propertyArray() layoutColumns: Array<PanelLayoutColumnModel>;
+
   addElementCallback: (element: IElement) => void;
   removeElementCallback: (element: IElement) => void;
   onGetQuestionTitleLocation: () => string;
@@ -316,6 +322,7 @@ export class PanelModelBase extends SurveyElement<Question>
         return { cssClass: this.cssClasses.rowLeave,
           onBeforeRunAnimation: prepareElementForVerticalAnimation,
           onAfterRunAnimation: cleanHtmlElementAfterAnimation,
+
         };
       },
       getEnterOptions: (_: QuestionRowModel, animationInfo) => {
@@ -398,6 +405,9 @@ export class PanelModelBase extends SurveyElement<Question>
     this.updateDescriptionVisibility(this.description);
     this.markQuestionListDirty();
     this.onRowsChanged();
+    this.layoutColumns.forEach(col => {
+      col.onPropertyValueChangedCallback = this.onColumnPropertyValueChangedCallback;
+    });
   }
 
   @property({ defaultValue: true }) showTitle: boolean;
@@ -881,6 +891,21 @@ export class PanelModelBase extends SurveyElement<Question>
       this.parent.validateContainerOnly();
     }
   }
+  onQuestionValueChanged(el: IElement): void {
+    const index = this.questions.indexOf(<any>el);
+    if(index < 0) return;
+    const dif = 5;
+    const max = this.questions.length - 1;
+    const start = index - dif > 0 ? index - dif : 0;
+    const end = index + dif < max ? index + dif : max;
+    for(let i = start; i <= end; i ++) {
+      if(i === index) continue;
+      const q = this.questions[i];
+      if(q.errors.length > 0 && q.validate(false)) {
+        q.validate(true);
+      }
+    }
+  }
   private hasErrorsInPanels(rec: any): void {
     var errors = <Array<any>>[];
     this.hasRequiredError(rec, errors);
@@ -1081,6 +1106,61 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
+  private calcMaxRowColSpan(): number {
+    let maxRowColSpan = 0;
+    this.rows.forEach(row => {
+      let curRowSpan = 0;
+      let userDefinedRow = false;
+      row.elements.forEach(el => {
+        if (!!el.width) {
+          userDefinedRow = true;
+        }
+        curRowSpan += (el.colSpan || 1);
+      });
+
+      if (!userDefinedRow && curRowSpan > maxRowColSpan) maxRowColSpan = curRowSpan;
+    });
+    return maxRowColSpan;
+  }
+  private updateColumnWidth(columns: Array<PanelLayoutColumnModel>): void {
+    let remainingSpace = 0, remainingColCount = 0;
+    columns.forEach(col => {
+      if (!col.width) {
+        remainingColCount++;
+      } else {
+        remainingSpace += col.width;
+        col.setPropertyValue("effectiveWidth", col.width);
+      }
+    });
+    if (!!remainingColCount) {
+      const oneColumnWidth = roundTo2Decimals((100 - remainingSpace) / remainingColCount);
+      for (let index = 0; index < columns.length; index++) {
+        if (!columns[index].width) {
+          columns[index].setPropertyValue("effectiveWidth", oneColumnWidth);
+        }
+      }
+    }
+  }
+  private onColumnPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: ArrayChanges
+  ) => {
+    if (this._columnsReady) {
+      this.updateColumnWidth(this.layoutColumns);
+      this.updateRootStyle();
+    }
+  }
+  public updateColumns() {
+    this._columns = undefined;
+    this.updateRootStyle();
+  }
+  public updateRootStyle() {
+    super.updateRootStyle();
+    this.elements?.forEach(el => el.updateRootStyle());
+  }
   public updateCustomWidgets() {
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].updateCustomWidgets();
@@ -1139,6 +1219,65 @@ export class PanelModelBase extends SurveyElement<Question>
   @property() questionTitleWidth: string;
   getQuestionTitleWidth(): string {
     return this.questionTitleWidth || this.parent && this.parent.getQuestionTitleWidth();
+  }
+  public get columns(): Array<PanelLayoutColumnModel> {
+    if (!this._columns) {
+      this.generateColumns();
+    }
+    return this._columns || [];
+  }
+  protected generateColumns(): void {
+    let maxRowColSpan = this.calcMaxRowColSpan();
+    let columns = [].concat(this.layoutColumns);
+    if (maxRowColSpan <= this.layoutColumns.length) {
+      columns = this.layoutColumns.slice(0, maxRowColSpan);
+    } else {
+      for (let index = this.layoutColumns.length; index < maxRowColSpan; index++) {
+        const newCol = new PanelLayoutColumnModel();
+        newCol.onPropertyValueChangedCallback = this.onColumnPropertyValueChangedCallback;
+        columns.push(newCol);
+      }
+    }
+    this._columns = columns;
+    try {
+      this._columnsReady = false;
+      this.updateColumnWidth(columns);
+    }
+    finally {
+      this._columnsReady = true;
+    }
+    this.layoutColumns = columns;
+  }
+  public getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
+    const row = this.findRowByElement(el);
+    if (!row || !this.survey || !this.survey.gridLayoutEnabled) return [];
+
+    let lastExpandableElementIndex = row.elements.length - 1;
+    while (lastExpandableElementIndex >= 0) {
+      if (!(row.elements[lastExpandableElementIndex] as any).getPropertyValueWithoutDefault("colSpan")) {
+        break;
+      }
+      lastExpandableElementIndex--;
+    }
+
+    const elementIndex = row.elements.indexOf(el);
+    let startIndex = 0;
+    for (let index = 0; index < elementIndex; index++) {
+      startIndex += row.elements[index].colSpan;
+    }
+    let currentColSpan = (el as any).getPropertyValueWithoutDefault("colSpan");
+    if (!currentColSpan && elementIndex === lastExpandableElementIndex) {
+      let usedSpans = 0;
+      for (let index = 0; index < row.elements.length; index++) {
+        if (index !== lastExpandableElementIndex) {
+          usedSpans += row.elements[index].colSpan;
+        }
+      }
+      currentColSpan = this.columns.length - usedSpans;
+    }
+    const result = this.columns.slice(startIndex, startIndex + (currentColSpan || 1));
+    (el as any).setPropertyValue("effectiveColSpan", result.length);
+    return result;
   }
   protected getStartIndex(): string {
     if (!!this.parent) return this.parent.getQuestionStartIndex();
@@ -1216,6 +1355,7 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.isLoadingFromJson) return;
     this.blockAnimations();
     this.setArrayPropertyDirectly("rows", this.buildRows());
+    this.updateColumns();
     this.releaseAnimations();
   }
 
@@ -1395,10 +1535,8 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   private updateRowsOnElementRemoved(element: IElement) {
     if (!this.canBuildRows()) return;
-    this.updateRowsRemoveElementFromRow(
-      element,
-      this.findRowByElement(element)
-    );
+    this.updateRowsRemoveElementFromRow(element, this.findRowByElement(element));
+    this.updateColumns();
   }
   public updateRowsRemoveElementFromRow(
     element: IElement,
@@ -1597,6 +1735,7 @@ export class PanelModelBase extends SurveyElement<Question>
     if(this.wasRendered) {
       element.onFirstRendering();
     }
+    this.updateColumns();
     return true;
   }
   public insertElement(element: IElement, dest?: IElement, location: "bottom" | "top" | "left" | "right" = "bottom"): void {
@@ -1707,6 +1846,7 @@ export class PanelModelBase extends SurveyElement<Question>
       return false;
     }
     this.elements.splice(index, 1);
+    this.updateColumns();
     return true;
   }
   public removeQuestion(question: Question) {
@@ -1798,6 +1938,16 @@ export class PanelModelBase extends SurveyElement<Question>
     return new CssClassBuilder().append(cssClasses.error.root).toString();
   }
 
+  public getSerializableColumnsValue(): Array<PanelLayoutColumnModel> {
+    let tailIndex = -1;
+    for (let index = this.layoutColumns.length - 1; index >= 0; index--) {
+      if (!this.layoutColumns[index].isEmpty()) {
+        tailIndex = index;
+        break;
+      }
+    }
+    return this.layoutColumns.slice(0, tailIndex + 1);
+  }
   public dispose(): void {
     super.dispose();
     if (this.rows) {
@@ -1831,6 +1981,10 @@ export class PanelModel extends PanelModelBase implements IElement {
     });
     this.registerPropertyChangedHandlers(
       ["indent", "innerIndent", "rightIndent"], () => { this.onIndentChanged(); });
+    this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
+    this.registerPropertyChangedHandlers(["title"], () => {
+      this.calcHasTextInTitle();
+    });
   }
   public getType(): string {
     return "panel";
@@ -1844,13 +1998,21 @@ export class PanelModel extends PanelModelBase implements IElement {
     }
     return super.getSurvey(live);
   }
-  onSurveyLoad() {
+  get hasTextInTitle(): boolean {
+    return this.getPropertyValue("hasTextInTitle");
+  }
+  private calcHasTextInTitle(): void {
+    this.setPropertyValue("hasTextInTitle", !!this.title);
+  }
+  onSurveyLoad(): void {
     super.onSurveyLoad();
     this.onIndentChanged();
+    this.calcHasTextInTitle();
   }
-  protected onSetData() {
+  protected onSetData(): void {
     super.onSetData();
     this.onIndentChanged();
+    this.calcHasTextInTitle();
   }
   public get isPanel(): boolean {
     return true;
@@ -1963,7 +2125,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.onGetTextCallback = (text: string): string => {
-      if (!text && (this.state !== "default")) {
+      if (!text && (this.state !== "default" || (this.isDesignMode && this.isDefaultV2Theme))) {
         text = this.name;
       }
       return text;
@@ -2095,7 +2257,10 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.survey.cancelPreviewByPage(this);
   }
   public get cssTitle(): string {
-    return this.getCssTitle(this.cssClasses.panel);
+    return new CssClassBuilder()
+      .append(this.getCssTitle(this.cssClasses.panel))
+      .append(this.cssClasses.panel.titleHidden, !this.hasTextInTitle && this.isDesignMode)
+      .toString();
   }
   public get showErrorsAbovePanel(): boolean {
     return this.isDefaultV2Theme && !this.showPanelAsPage;
@@ -2185,6 +2350,12 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "top", "bottom", "left", "hidden"],
     },
+    {
+      name: "layoutColumns:panellayoutcolumns",
+      className: "panellayoutcolumn", isArray: true,
+      onSerializeValue: (obj: any): any => { return obj.getSerializableColumnsValue(); },
+      visibleIf: function (obj: any) { return !!obj && !!obj.survey && obj.survey.gridLayoutEnabled; }
+    },
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
     {
@@ -2216,6 +2387,14 @@ Serializer.addClass(
     "width",
     { name: "minWidth", defaultFunc: () => "auto" },
     { name: "maxWidth", defaultFunc: () => settings.maxWidth },
+    {
+      name: "colSpan:number", visible: false,
+      onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },
+    },
+    {
+      name: "effectiveColSpan:number", minValue: 1, isSerializable: false,
+      visibleIf: function (obj: any) { return !!obj && !!obj.survey && obj.survey.gridLayoutEnabled; }
+    },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     { name: "indent:number", default: 0, choices: [0, 1, 2, 3], visible: false },
     {

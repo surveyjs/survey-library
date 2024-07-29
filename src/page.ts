@@ -259,6 +259,11 @@ export class PageModel extends PanelModelBase implements IPage {
   public set maxTimeToFinish(val: number) {
     this.setPropertyValue("maxTimeToFinish", val);
   }
+  public getMaxTimeToFinish(): number {
+    if(this.maxTimeToFinish !== 0) return this.maxTimeToFinish;
+    const res = !!this.survey ? this.survey.maxTimeToFinishPage : 0;
+    return res > 0 ? res : 0;
+  }
   protected onNumChanged(value: number) { }
   protected onVisibleChanged() {
     if (this.isRandomizing) return;

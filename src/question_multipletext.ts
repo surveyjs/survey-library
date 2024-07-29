@@ -21,6 +21,7 @@ import { HashTable, Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
+import { PanelLayoutColumnModel } from "./panel-layout-column";
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
@@ -377,6 +378,7 @@ export class MultipleTextItemModel extends Base
     const survey = this.getSurvey();
     return !!survey ? survey.getQuestionByName(name) : null;
   }
+  getEditingSurveyElement(): Base { return undefined; }
   //IValidatorOwner
   getValidatorTitle(): string {
     return this.title;
@@ -813,6 +815,10 @@ export class QuestionMultipleTextModel extends Question
   getQuestionTitleWidth(): string {
     return undefined;
   }
+  getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
+    return [];
+  }
+  updateColumns() { }
   getQuestionStartIndex(): string {
     return this.getStartIndex();
   }
@@ -830,6 +836,9 @@ export class QuestionMultipleTextModel extends Question
     // do nothing
   }
   validateContainerOnly(): void {
+    // do nothing
+  }
+  onQuestionValueChanged(el: IElement): void {
     // do nothing
   }
   public getItemLabelCss(item: MultipleTextItemModel): string {

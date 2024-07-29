@@ -586,6 +586,8 @@
     }
 
     tr:not(.sd-table__row--has-end-actions) {
+      padding-bottom: calcSize(0);
+
       &:not(:last-of-type) {
         padding-bottom: calcSize(3);
 
@@ -593,8 +595,6 @@
           bottom: calcSize(-3);
         }
       }
-
-      padding-bottom: calcSize(0);
     }
 
     tfoot tr::before,

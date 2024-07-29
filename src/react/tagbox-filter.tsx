@@ -78,7 +78,7 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
             readOnly={this.model.filterReadOnly ? true : undefined}
             size={!this.model.inputStringRendered ? 1 : undefined}
             role={this.model.filterStringEnabled ? this.question.ariaRole : undefined}
-            aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
+            aria-expanded={this.question.ariaExpanded}
             aria-label={this.question.a11y_input_ariaLabel}
             aria-labelledby={this.question.a11y_input_ariaLabelledBy}
             aria-describedby={this.question.a11y_input_ariaDescribedBy}

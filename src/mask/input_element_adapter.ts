@@ -26,7 +26,6 @@ export class InputElementAdapter {
   clickHandler = (event: any) => {
     if (this.inputElement.value == this.inputMaskInstance.getMaskedValue("")) {
       this.inputElement.setSelectionRange(0, 0);
-      event.preventDefault();
     }
   };
 
@@ -39,6 +38,11 @@ export class InputElementAdapter {
       event.preventDefault();
     }
   };
+
+  changeHandler = (event: any) => {
+    const result = this.inputMaskInstance.processInput({ prevValue: "", insertedChars: event.target.value, selectionStart: 0, selectionEnd: 0 });
+    this.inputElement.value = result.value;
+  }
 
   public createArgs(event: any): ITextInputParams {
     const args: ITextInputParams = {
@@ -67,6 +71,7 @@ export class InputElementAdapter {
       this.inputElement.addEventListener("beforeinput", this.beforeInputHandler);
       this.inputElement.addEventListener("click", this.clickHandler);
       this.inputElement.addEventListener("focus", this.clickHandler);
+      this.inputElement.addEventListener("change", this.changeHandler);
     }
   }
   public removeInputEventListener(): void {
@@ -74,6 +79,7 @@ export class InputElementAdapter {
       this.inputElement.removeEventListener("beforeinput", this.beforeInputHandler);
       this.inputElement.removeEventListener("click", this.clickHandler);
       this.inputElement.removeEventListener("focus", this.clickHandler);
+      this.inputElement.removeEventListener("change", this.changeHandler);
     }
   }
   public dispose(): void {

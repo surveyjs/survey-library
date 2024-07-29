@@ -72,14 +72,13 @@
   transition-timing-function: linear;
   color: $primary;
   font-weight: 600;
+  z-index: 2;
 
   .sv-string-viewer {
     &.sv-string-viewer--multiline {
       white-space: nowrap;
     }
   }
-
-  z-index: 2;
 }
 
 .sd-boolean--checked:not(.sd-boolean--exchanged) .sd-boolean__thumb,

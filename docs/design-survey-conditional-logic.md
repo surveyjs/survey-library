@@ -38,6 +38,8 @@ const surveyJson = {
 };
 ```
 
+> For questions with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName) property, use its value instead of the `name` value.
+
 In single- and multiple-selection question types (Dropdown, Checkbox, Radiogroup, Tag Box, Image Picker), items can contain a display value in addition to a question value. In this case, placeholders are replaced with display values. If you want to use question values instead, disable the [`useDisplayValuesInDynamicTexts`](https://surveyjs.io/form-library/documentation/api-reference/question#useDisplayValuesInDynamicTexts) property.
 
 Certain question types can contain multiple values. Use a dot symbol to access a specific value (item or cell):
@@ -414,7 +416,21 @@ Returns a Date value converted from a given question's value.
 
 ---
 
+#### `dateDiff`
+
+*Definition*: `dateDiff(fromDate: any, toDate: any, "days" | "months" | "years"): number`
+
+Returns a difference between two given dates in full days (default), months, or years.
+
+*Example*: `"expression": "dateDiff({birthdate}, today(), "months")"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/1b94692b94bd219a5620e9da647ce0953bf2fba4/src/functionsfactory.ts#L263-L267 (linkStyle))
+
+---
+
 #### `diffDays`
+
+> This function is obsolete. Use the [`dateDiff`](#datediff) function instead.
 
 *Definition*: `diffDays(fromDate: any, toDate: any): number`
  

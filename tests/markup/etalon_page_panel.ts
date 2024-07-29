@@ -52,7 +52,7 @@ registerMarkupTest(
 
 registerMarkupTest(
   {
-    name: "Test Panel - start with new line",
+    name: "Test Panel - panel start with new line",
     json: {
       "elements": [
         {
@@ -89,6 +89,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line with panel",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "html",
@@ -124,6 +125,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "html",
@@ -152,6 +154,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line with panel and titles",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "text",
@@ -200,6 +203,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line Title",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "text",
@@ -221,7 +225,7 @@ registerMarkupTest(
   });
 
 registerMarkupTest({
-  name: "Test Page - start with new line Title",
+  name: "Test Page - questionTitleWidth",
   json: {
     "pages": [
       {

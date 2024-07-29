@@ -369,15 +369,6 @@
 }
 
 .sd-context-btn.sd-file__take-picture-button {
-  .sv-svg-icon {
-    height: calcSize(4);
-    width: calcSize(4);
-
-    use {
-      fill: $background;
-    }
-  }
-
   background-color: $red;
   position: absolute;
   bottom: 16px;
@@ -388,6 +379,15 @@
   &:hover,
   &:focus {
     box-shadow: 0 0 0 2px $red;
+  }
+
+  .sv-svg-icon {
+    height: calcSize(4);
+    width: calcSize(4);
+
+    use {
+      fill: $background;
+    }
   }
 }
 

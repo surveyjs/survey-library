@@ -145,13 +145,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   onSurveyLoad(): void {
     this.blockAnimations();
     super.onSurveyLoad();
+    this.updateRankingChoices();
     this.releaseAnimations();
   }
 
   protected onVisibleChoicesChanged = (): void => {
     super.onVisibleChoicesChanged();
 
-    if (this.carryForwardStartUnranked && !this.isValueSetByUser && !this.selectToRankEnabled) {
+    if (this.carryForwardStartUnranked && !this.isValueSetByUser && !this.selectToRankEnabled && !this.defaultValue) {
       this.value = [];
     }
 

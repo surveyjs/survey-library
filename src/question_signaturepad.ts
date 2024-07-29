@@ -5,7 +5,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
-import { dataUrl2File, QuestionFileModelBase } from "./question_file";
+import { dataUrl2File, FileLoader, QuestionFileModelBase } from "./question_file";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -136,6 +136,28 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     this.scaleCanvas(false, true);
     this.refreshCanvas();
   };
+
+  protected loadPreview(newValue: any): void {
+    if (!this.storeDataAsText) {
+      var newValues = !!newValue ? [newValue] : [];
+      if (!!this._previewLoader) {
+        this._previewLoader.dispose();
+      }
+      this.isFileLoading = true;
+      this._previewLoader = new FileLoader(this, (status, loaded) => {
+        this.isFileLoading = false;
+        if (loaded && loaded.length > 0) this.fromDataUrl(loaded[0].content);
+        this._previewLoader.dispose();
+        this._previewLoader = undefined;
+      });
+      this._previewLoader.load(newValues);
+    }
+  }
+
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    this.loadPreview(this.value);
+  }
 
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];

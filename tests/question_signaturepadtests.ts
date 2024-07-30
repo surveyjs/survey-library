@@ -425,7 +425,7 @@ QUnit.test("Question Signature upload files", function (assert) {
           options.callback(
             "success",
             options.files.map((file) => {
-              return { file: file, content: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' id='" + file.name + "'%3E%3C/svg%3E" };
+              return { file: file, content: file.name + "_url" };
             })
           ),
         2
@@ -442,7 +442,7 @@ QUnit.test("Question Signature upload files", function (assert) {
   q1.onBlur({ target: null } as any);
 
   survey.onValueChanged.add((survey, options) => {
-    assert.equal(q1.value, "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' id='signature.svg'%3E%3C/svg%3E");
+    assert.equal(q1.value, "signature.svg_url");
     assert.ok(eventFired);
     assert.ok(fileLoaded);
 
@@ -475,7 +475,7 @@ QUnit.test("Question Signature upload files - and complete", function (assert) {
         options.callback(
           "success",
           options.files.map((file) => {
-            return { file: file, content: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' id='" + file.name + "'%3E%3C/svg%3E" };
+            return { file: file, content: file.name + "_url" };
           })
         );
       },

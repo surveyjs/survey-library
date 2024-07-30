@@ -146,7 +146,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       this.isFileLoading = true;
       this._previewLoader = new FileLoader(this, (status, loaded) => {
         this.isFileLoading = false;
-        if (loaded && loaded.length > 0 && loaded[0].content) this.fromDataUrl(loaded[0].content);
+        if (loaded && loaded.length > 0 && loaded[0].content && status === "success") this.fromDataUrl(loaded[0].content);
         this._previewLoader.dispose();
         this._previewLoader = undefined;
       });

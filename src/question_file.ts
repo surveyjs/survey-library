@@ -801,7 +801,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       }
       this.isFileLoading = true;
       this._previewLoader = new FileLoader(this, (status, loaded) => {
-        if (status === "loaded") {
+        if (status !== "error") {
           loaded.forEach((val) => {
             this.previewValue.push(val);
           });
@@ -1141,7 +1141,7 @@ export class FileLoader {
           if (!this.fileQuestion || !this.callback) {
             return;
           }
-          if (status === "success") {
+          if (status !== "error") {
             this.loaded[index] = {
               content: data,
               name: value.name,
@@ -1149,7 +1149,7 @@ export class FileLoader {
             };
             downloadedCount++;
             if (downloadedCount === files.length) {
-              this.callback("loaded", this.loaded);
+              this.callback(status, this.loaded);
             }
           } else {
             this.callback("error", this.loaded);

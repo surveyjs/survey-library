@@ -619,6 +619,10 @@ f-panel {
 
 .sv-ranking-item--ghost {
   height: calcSize(6);
+
+  .sv-ranking-item__text .sv-string-viewer {
+    white-space: unset;
+  }
 }
 
 .sv-ranking-item--ghost .sv-ranking-item__ghost {

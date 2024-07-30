@@ -170,6 +170,10 @@
 
 .sv-ranking-item--ghost {
   height: calcSize(6);
+
+  .sv-ranking-item__text .sv-string-viewer {
+    white-space: unset;
+  }
 }
 
 .sv-ranking-item--ghost .sv-ranking-item__ghost {
@@ -301,7 +305,6 @@
 }
 
 .sv-ranking-item--animate-item-removing {
-  --animation-height: #{calcSize(6)};
   animation-name: moveIn, fadeIn;
   animation-direction: reverse;
   animation-fill-mode: forwards;
@@ -311,7 +314,6 @@
 }
 
 .sv-ranking-item--animate-item-adding {
-  --animation-height: #{calcSize(6)};
   animation-name: moveIn, fadeIn;
   opacity: 0;
   animation-fill-mode: forwards;

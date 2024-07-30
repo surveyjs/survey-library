@@ -238,6 +238,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   elementContentVisibilityChanged(element: ISurveyElement): void;
   onCorrectQuestionAnswer(question: IQuestion, options: any): void;
   processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
+  processOpenDropdownMenu(question: IQuestion, options: IDropdownMenuOptions): void;
   chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: Base, item?: any, elementType?: string, propertyName?: string }): void;
 }
 export interface ISurveyImpl {
@@ -406,4 +407,12 @@ export interface ILoadFromJSONOptions {
 export interface ISaveToJSONOptions {
   storeDefaults?: boolean;
   version?: string;
+}
+
+export interface IDropdownMenuOptions {
+  menuType: "dropdown" | "popup" | "overlay";
+  deviceType: "mobile" | "tablet" | "desktop";
+  hasTouchScreen: boolean;
+  screenHeight: number;
+  screenWidth: number;
 }

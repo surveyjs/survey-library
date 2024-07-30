@@ -68,11 +68,7 @@ export class ExpressionExecutor implements IExpresionExecutor {
       : false;
   }
   public getVariables(): Array<string> {
-    if (!this.operand) return [];
-
-    var variables: Array<string> = [];
-    this.operand.setVariables(variables);
-    return variables;
+    return this.operand?.getVariables() ?? [];
   }
 
   public hasFunction(): boolean {

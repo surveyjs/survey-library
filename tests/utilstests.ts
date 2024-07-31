@@ -1,6 +1,6 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, mergeValues, compareArrays } from "../src/utils/utils";
+import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays } from "../src/utils/utils";
 import { mouseInfo, detectMouseSupport, MatchMediaMethod } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
@@ -1035,4 +1035,8 @@ QUnit.test("test onNextRender function", (assert) => {
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
   window.cancelAnimationFrame = oldCancelAnimationFrame;
+});
+QUnit.test("getSafeUrl", (assert) => {
+  assert.equal(getSafeUrl("https://surveyjs.io"), "https://surveyjs.io", "https://surveyjs.io");
+  assert.equal(getSafeUrl("javascript:alert('1')"), "javascript%3Aalert('1')", "javascript:alert('1')");
 });

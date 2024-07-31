@@ -7,9 +7,9 @@ import { TextAreaComponent } from "./components/text-area";
 
 export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<QuestionCommentModel> {
   private renderCharacterCounter() : JSX.Element | null {
-    let counter = null;
+    let counter: JSX.Element | null = null;
     if(!!this.question.getMaxLength()) {
-      <CharacterCounterComponent
+      counter = <CharacterCounterComponent
         counter={this.question.characterCounter}
         remainingCharacterCounter={this.question.cssClasses.remainingCharacterCounter}>
       </CharacterCounterComponent>;

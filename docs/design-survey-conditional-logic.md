@@ -183,9 +183,11 @@ const surveyJson = {
 
 [View Demo](https://surveyjs.io/Examples/Library?id=survey-calculatedvalues (linkStyle))
 
-### Variables vs Question Values
+<div id="variables-vs-question-values"></div>
 
-Variables and question values are both used to perform custom calculations within a survey. However, they also have a number of important differences. The following table compares variables with question values across multiple criteria:
+### Variables vs Calculated Values
+
+Variables and calculated values are both used to perform custom calculations within a survey. However, they also have a number of important differences. The following table compares variables with calculated values across multiple criteria:
 
 | Criteria | Variables | Calculated values |
 |--------- | --------- | ----------------- |
@@ -494,7 +496,7 @@ Returns the average of passed numbers.
 
 *Definition*: `sumInArray(questionName: expression, dataFieldName: string, filter?: expression): number`
 
-Returns the sum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type. The optional `filter` parameter defines a rule according to which values are included in the calculation.
+Returns the sum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
 
 The following code sums up values from a `"total"` matrix column but includes only the rows with a `"categoryId"` column equaling 1:
 
@@ -508,7 +510,7 @@ The following code sums up values from a `"total"` matrix column but includes on
 
 *Definition*: `maxInArray(questionName: expression, dataFieldName: string, filter?: expression): number`
 
-Returns the maximum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type. The optional `filter` parameter defines a rule according to which values are included in the calculation.
+Returns the maximum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
 
 The following code finds a maximum value within a `"quantity"` matrix column, but the value should be under 100:
 
@@ -522,7 +524,7 @@ The following code finds a maximum value within a `"quantity"` matrix column, bu
 
 *Definition*: `minInArray(questionName: expression, dataFieldName: string, filter?: expression): number`
  
-Returns the minimum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type. The optional `filter` parameter defines a rule according to which values are included in the calculation.
+Returns the minimum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
 
 The following code finds a minimum value within a `"quantity"` matrix column but searches for it only in the rows with a `"categoryId"` column equaling 1 and includes only positive values:
 
@@ -536,7 +538,7 @@ The following code finds a minimum value within a `"quantity"` matrix column but
 
 *Definition*: `avgInArray(questionName: expression, dataFieldName: string, filter?: expression): number`
 
-Returns the average of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type. The optional `filter` parameter defines a rule according to which values are included in the calculation.
+Returns the average of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
 
 The following code finds an average of values within a `"quantity"` matrix column, excluding zeroes:
 
@@ -550,7 +552,7 @@ The following code finds an average of values within a `"quantity"` matrix colum
 
 *Definition*: `countInArray(questionName: expression, dataFieldName: string, filter?: expression): number`
 
-Returns the total number of array items in which a specified data field has a value other than `null` or `undefined`. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type.
+Returns the total number of array items in which a specified data field has a value other than `null` or `undefined`. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question.
 
 The following code finds the total number of matrix rows with a `"quantity"` column value greater than zero but includes only the rows with a `"categoryId"` column equaling 1:
 
@@ -562,13 +564,15 @@ The following code finds the total number of matrix rows with a `"quantity"` col
 
 #### `displayValue`
 
-*Definition*: `displayValue(questionName: string): any`
+*Definition*: `displayValue(questionName: string, value?: any): any`
 
 Returns a question's display text. Supports questions nested within panels or matrices.
 
-*Example*: `"expression": "displayValue('question1')"`
+The second parameter allows you to get a display text associated with a specific value rather than with the current question value. For instance, the following expression references a display text that corresponds to value 5 in a Dropdown question. If you don't pass the second parameter, the `displayValue` function returns a display text for the currently selected question value.
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/f70cd9a367659f475e28e0a317b9583931cdf185/src/functionsfactory.ts#L359-L363 (linkStyle))
+*Example*: `"expression": "displayValue('my-dropdown-question', 5)"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/54b8acc0b19fcad282d5306e3124cf89e9ab4fa9/src/functionsfactory.ts#L390-L396 (linkStyle))
 
 ---
 

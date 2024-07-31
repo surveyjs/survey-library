@@ -32,7 +32,7 @@ import { Model } from "survey-core";
   Don't forget to import or reference the Default V2 style sheet
   as described in the Get Started with SurveyJS article for your framework
 */
-import { LayeredDarkPanelless } "survey-core/themes/layered-dark-panelless";
+import { LayeredDarkPanelless } from "survey-core/themes";
 
 const surveyJson = { ... };
 const survey = new Model(surveyJson);
@@ -64,8 +64,8 @@ If you want to add more than one SurveyJS theme to your application, import them
 ```js
 // In modular applications:
 import { Model } from "survey-core";
-import { ContrastDark } from "survey-core/themes/contrast-dark";
-import { ContrastLight } from "survey-core/themes/contrast-light";
+import { ContrastDark } from "survey-core/themes";
+import { ContrastLight } from "survey-core/themes";
 
 const surveyJson = { ... };
 const survey = new Model(surveyJson);

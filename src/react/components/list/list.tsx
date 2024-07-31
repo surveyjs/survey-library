@@ -37,6 +37,18 @@ export class List extends SurveyElementBase<IListProps, any> {
       this.model.initListContainerHtmlElement(this.listContainerRef.current);
     }
   }
+  public componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    if (this.model !== prevProps.model) {
+      if(this.model && !!this.listContainerRef?.current) {
+        this.model.initListContainerHtmlElement(this.listContainerRef.current);
+      }
+      if(prevProps.model) {
+        prevProps.model.initListContainerHtmlElement(undefined as any);
+      }
+    }
+  }
+
   componentWillUnmount(): void {
     super.componentWillUnmount();
     if(!!this.model) {

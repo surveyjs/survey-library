@@ -1,10 +1,12 @@
 import { IAction } from "./actions/action";
 import { Base } from "./base";
-import { DomDocumentHelper } from "./global_variables_utils";
+import { IDropdownMenuOptions } from "./base-interfaces";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { IListModel, ListModel } from "./list";
 import { IPopupOptionsBase, PopupModel } from "./popup";
+import { calculateIsTablet } from "./popup-dropdown-view-model";
 import { Question } from "./question";
 import { QuestionDropdownModel } from "./question_dropdown";
 import { settings } from "./settings";
@@ -94,6 +96,27 @@ export class DropdownListModel extends Base {
     this._popupModel.focusFirstInputSelector = this.focusFirstInputSelector;
   }
 
+  private getDropdownMenuOptions(): IDropdownMenuOptions {
+    const windowWidth = DomWindowHelper.getInnerWidth();
+    const windowHeight = DomWindowHelper.getInnerHeight();
+    const isTablet = calculateIsTablet(windowWidth, windowHeight);
+
+    let menuType: "overlay" | "popup" | "dropdown" = "dropdown";
+    let deviceType: "mobile" | "tablet" | "desktop" = "desktop";
+    if (IsTouch) {
+      menuType = isTablet ? "popup" : "overlay";
+      deviceType = isTablet ? "tablet" : "mobile";
+    }
+
+    return <IDropdownMenuOptions>{
+      menuType: menuType,
+      deviceType: deviceType,
+      hasTouchScreen: IsTouch,
+      screenHeight: windowHeight,
+      screenWidth: windowWidth
+    };
+  }
+
   protected createPopup(): void {
     const popupOptions: IPopupOptionsBase = { verticalPosition: "bottom", horizontalPosition: "center", showPointer: false };
     this._popupModel = new PopupModel("sv-list", { model: this.listModel }, popupOptions);
@@ -118,9 +141,16 @@ export class DropdownListModel extends Base {
         this.updateQuestionChoices();
       }
 
-      if (option.isVisible && !!this.question.onOpenedCallBack) {
+      if (option.isVisible) {
         this.updatePopupFocusFirstInputSelector();
-        this.question.onOpenedCallBack();
+
+        const dropdownMenuOptions = this.getDropdownMenuOptions();
+        this.question.processOpenDropdownMenu(dropdownMenuOptions);
+        this._popupModel.updateDisplayMode(dropdownMenuOptions.menuType);
+
+        if (!!this.question.onOpenedCallBack) {
+          this.question.onOpenedCallBack();
+        }
       }
       if (!option.isVisible) {
         this.onHidePopup();

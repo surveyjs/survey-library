@@ -70,7 +70,7 @@ export class TOCModel {
   constructor(public survey: SurveyModel) {
     this.listModel = createTOCListModel(survey, () => { this.popupModel.isVisible = false; });
     this.popupModel = new PopupModel("sv-list", { model: this.listModel });
-    this.popupModel.overlayDisplayMode = "overlay";
+    this.popupModel.overlayDisplayMode = "plain";
     this.popupModel.displayMode = <any>new ComputedUpdater(() => this.isMobile ? "overlay" : "popup");
     if (TOCModel.StickyPosition) {
       survey.onAfterRenderSurvey.add((s, o) => this.initStickyTOCSubscriptions(o.htmlElement));

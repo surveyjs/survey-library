@@ -1037,6 +1037,51 @@ QUnit.test("PopupModel dropdown displayMode", (assert) => {
   targetElement.remove();
 });
 
+QUnit.test("PopupModel displayMode overlay and overlayDisplayMode", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {});
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  assert.equal(viewModel.showFooter, false);
+
+  assert.equal(viewModel["isTablet"], false, "isTablet false");
+  assert.equal(model.overlayDisplayMode, "auto");
+
+  assert.equal(viewModel.styleClass, "sv-popup--dropdown sv-popup--show-pointer sv-popup--left", "isTablet false");
+  model.displayMode = "overlay";
+  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay", "overlayDisplayMode auto, isTablet false");
+
+  model.overlayDisplayMode = "dropdown-overlay";
+  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay", "overlayDisplayMode dropdown-overlay, isTablet false");
+
+  model.overlayDisplayMode = "tablet-dropdown-overlay";
+  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--tablet", "overlayDisplayMode tablet-dropdown-overlay, isTablet false");
+
+  model.overlayDisplayMode = "plain";
+  assert.equal(viewModel.styleClass, "sv-popup--overlay", "overlayDisplayMode plain, isTablet false");
+
+  model.overlayDisplayMode = "auto";
+  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay", "overlayDisplayMode auto, isTablet false");
+
+  viewModel["calculateIsTablet"](600, 600);
+  assert.equal(viewModel["isTablet"], true, "isTablet true");
+  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--tablet", "overlayDisplayMode auto, isTablet true");
+
+  model.overlayDisplayMode = "dropdown-overlay";
+  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay", "overlayDisplayMode dropdown-overlay, isTablet true");
+
+  model.overlayDisplayMode = "tablet-dropdown-overlay";
+  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--tablet", "overlayDisplayMode tablet-dropdown-overlay, isTablet true");
+
+  model.overlayDisplayMode = "plain";
+  assert.equal(viewModel.styleClass, "sv-popup--overlay", "overlayDisplayMode plain, isTablet true");
+
+  viewModel.dispose();
+  targetElement.remove();
+});
+
 QUnit.test("PopupModel isModal displayMode", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");

@@ -18,7 +18,8 @@ import {
   IPlainDataOptions,
   LayoutElementContainer,
   IValueItemCustomPropValues,
-  ILoadFromJSONOptions
+  ILoadFromJSONOptions,
+  IDropdownMenuOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -65,7 +66,8 @@ import {
   DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent,
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
-  OpenFileChooserEvent, ElementWrapperComponentNameEvent, ElementWrapperComponentDataEvent
+  OpenFileChooserEvent, ElementWrapperComponentNameEvent, ElementWrapperComponentDataEvent,
+  OpenDropdownMenuEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -843,6 +845,8 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised after the visibility of a popup is changed. This event can be raised for [Single-](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model) and [Multi-Select Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model) questions and [Rating](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model) questions [rendered as drop-down menus](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#displayMode).
    */
   public onPopupVisibleChanged: EventBase<SurveyModel, PopupVisibleChangedEvent> = this.addEvent<SurveyModel, PopupVisibleChangedEvent>();
+
+  public onOpenDropdownMenu: EventBase<SurveyModel, OpenDropdownMenuEvent> = this.addEvent<SurveyModel, OpenDropdownMenuEvent>();
 
   public onElementWrapperComponentName: EventBase<SurveyModel, ElementWrapperComponentNameEvent> = this.addEvent<SurveyModel, ElementWrapperComponentNameEvent>();
   public onElementWrapperComponentData: EventBase<SurveyModel, ElementWrapperComponentDataEvent> = this.addEvent<SurveyModel, ElementWrapperComponentDataEvent>();
@@ -7674,6 +7678,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {
     this.onPopupVisibleChanged.fire(this, { question, popup, visible });
+  }
+  public processOpenDropdownMenu(question: Question, options: IDropdownMenuOptions): void {
+    const newOptions = Object.assign({ question }, options);
+    this.onOpenDropdownMenu.fire(this, newOptions as OpenDropdownMenuEvent);
+    options.menuType = newOptions.menuType;
   }
 
   /**

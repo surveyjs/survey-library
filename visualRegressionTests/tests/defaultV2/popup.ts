@@ -165,7 +165,7 @@ function addActionsWithOverlayPopupShortList(_, opt) {
     { title: "Overlay with title", showTitle: true },
     { items: items, displayMode: "overlay", title: "Title" }
   );
-  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "overlay";
+  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "plain";
   opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
 }
 
@@ -187,7 +187,7 @@ function addActionsWithOverlayPopupLongList(_, opt) {
     { title: "Overlay with title", showTitle: true, },
     { items: items, displayMode: "overlay", title: "Title" }
   );
-  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "overlay";
+  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "plain";
   opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
 }
 

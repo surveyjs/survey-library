@@ -1,6 +1,6 @@
 import { IAction } from "./actions/action";
 import { Base } from "./base";
-import { IElement, IPanel, ISurveyElement, IValueItemCustomPropValues } from "./base-interfaces";
+import { IDropdownMenuOptions, IElement, IPanel, ISurveyElement, IValueItemCustomPropValues } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
@@ -1019,6 +1019,15 @@ export interface PopupVisibleChangedEvent extends QuestionEventMixin {
    * Indicates whether the popup is visible now.
    */
   visible: boolean;
+}
+
+export interface OpenDropdownMenuEvent extends QuestionEventMixin {
+  menuType: "dropdown" | "popup" | "overlay";
+  deviceType: "mobile" | "tablet" | "desktop";
+  hasTouchScreen: boolean;
+  screenHeight: number;
+  screenWidth: number;
+  question: Question;
 }
 
 export interface ElementWrapperComponentEventMixin {

@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { Question, QuestionSelectBase } from "survey-core";
+import { Question, QuestionSelectBase, TextAreaModel } from "survey-core";
 
 @Component({
   selector: "sv-ng-comment-other, '[sv-ng-comment-other]'",
@@ -13,16 +13,7 @@ export class SurveyCommentOtherComponent {
     const val = (<QuestionSelectBase>this.question).otherValue;
     return !!val ? val : "";
   }
-  public onOtherValueChange(event: any): void {
-    (<QuestionSelectBase>this.question).onOtherValueChange(event);
-  }
-  public onOtherValueInput(event: any): void {
-    (<QuestionSelectBase>this.question).onOtherValueInput(event);
-  }
-  public get otherId(): string {
-    return (<QuestionSelectBase>this.question).otherId;
-  }
-  public get otherPlaceholder(): string {
-    return (<QuestionSelectBase>this.question).otherPlaceholder;
+  public get textAreaModel(): TextAreaModel {
+    return (<QuestionSelectBase>this.question).otherTextAreaModel;
   }
 }

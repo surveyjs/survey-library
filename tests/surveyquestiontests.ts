@@ -7886,11 +7886,11 @@ QUnit.test("TextAreaOptions", function (assert) {
   });
 
   const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
-  const otherOptions = q1.getOtherTextArea();
-  const commentOptions = q1.getCommentTextArea();
+  const otherOptions = q1.otherTextAreaModel;
+  const commentOptions = q1.commentTextAreaModel;
 
   const q2 = <QuestionCommentModel>survey.getQuestionByName("q2");
-  const textAreaOptions = q2.getTextArea();
+  const textAreaOptions = q2.getTextAreaOptions();
 
   assert.equal(otherOptions.id, "sq_101_other", "otherOptions id");
   assert.equal(otherOptions.className, "sd-input sd-comment sd-selectbase__other", "otherOptions className");

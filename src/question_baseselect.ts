@@ -36,7 +36,7 @@ export class QuestionSelectBase extends Question {
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private waitingGetChoiceDisplayValueResponse: boolean;
-  private otherTextAreaModel: TextAreaModel;
+  private _otherTextAreaModel: TextAreaModel;
   private get waitingChoicesByURL(): boolean {
     return !this.isChoicesLoaded && this.hasChoicesUrl;
   }
@@ -101,8 +101,9 @@ export class QuestionSelectBase extends Question {
     if (!!q) {
       q.removeDependedQuestion(this);
     }
-    if (this.otherTextAreaModel) {
-      this.otherTextAreaModel.dispose();
+    if (this._otherTextAreaModel) {
+      this._otherTextAreaModel.dispose();
+      this._otherTextAreaModel = undefined;
     }
   }
   protected resetDependedQuestion(): void {
@@ -1969,7 +1970,13 @@ export class QuestionSelectBase extends Question {
     return classes;
   }
 
-  public getOtherTextArea(): TextAreaModel {
+  public get otherTextAreaModel(): TextAreaModel {
+    if (!this._otherTextAreaModel) {
+      this._otherTextAreaModel = new TextAreaModel(this.getOtherTextAreaOptions());
+    }
+    return this._otherTextAreaModel;
+  }
+  public getOtherTextAreaOptions(): ITextArea {
     const options: ITextArea = {
       question: this,
       id: this.otherId,
@@ -1986,9 +1993,7 @@ export class QuestionSelectBase extends Question {
       onTextAreaChange: (e) => { this.onOtherValueChange(e); },
       onTextAreaInput: (e) => { this.onOtherValueInput(e); },
     };
-    this.otherTextAreaModel?.dispose();
-    this.otherTextAreaModel = new TextAreaModel(options);
-    return this.otherTextAreaModel;
+    return options;
   }
 }
 /**

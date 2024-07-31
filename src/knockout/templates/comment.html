@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-comment">
 <!-- ko if: !question.isReadOnlyRenderDiv() -->
-<!-- ko component: { name: 'sv-text-area', params: question.getCommentTextArea() } -->
+<!-- ko component: { name: 'sv-text-area', params: question.commentTextAreaModel } -->
 <!-- /ko -->
 <!-- /ko-->
 <!-- ko if: question.isReadOnlyRenderDiv() -->
@@ -9,7 +9,7 @@
 </script>
 <script type="text/html" id="survey-other">
 <!-- ko if: !question.isReadOnlyRenderDiv() -->
-<!-- ko component: { name: 'sv-text-area', params: question.getOtherTextArea() } -->
+<!-- ko component: { name: 'sv-text-area', params: question.otherTextAreaModel } -->
 <!-- /ko -->
 <!-- /ko-->
 <!-- ko if: question.isReadOnlyRenderDiv() -->

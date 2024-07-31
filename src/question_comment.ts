@@ -13,7 +13,7 @@ import { Helpers } from "./helpers";
  */
 export class QuestionCommentModel extends QuestionTextBase {
   private element: HTMLElement;
-  private textAreaModel: TextAreaModel;
+  private _textAreaModel: TextAreaModel;
   /**
    * Specifies the visible height of the comment area, measured in lines.
    *
@@ -128,7 +128,15 @@ export class QuestionCommentModel extends QuestionTextBase {
   public get className() {
     return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
   }
-  public getTextArea(): TextAreaModel {
+
+  public get textAreaModel(): TextAreaModel {
+    if (!this._textAreaModel) {
+      this._textAreaModel = new TextAreaModel(this.getTextAreaOptions());
+    }
+    return this._textAreaModel;
+  }
+
+  public getTextAreaOptions(): ITextArea {
     const _this = this;
     const updateQuestionValue = (newValue: any) => {
       if (!Helpers.isTwoValueEquals(_this.value, newValue, false, true, false)) {
@@ -159,14 +167,13 @@ export class QuestionCommentModel extends QuestionTextBase {
       onTextAreaInput: (event) => { this.onInput(event); },
       onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
     };
-    this.textAreaModel?.dispose();
-    this.textAreaModel = new TextAreaModel(options);
-    return this.textAreaModel;
+    return options;
   }
   public dispose(): void {
     super.dispose();
-    if (this.textAreaModel) {
-      this.textAreaModel.dispose();
+    if (this._textAreaModel) {
+      this._textAreaModel.dispose();
+      this._textAreaModel = undefined;
     }
   }
 }

@@ -25,7 +25,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     }
 
     const counter = this.renderCharacterCounter();
-    const textAreaModel: TextAreaModel = this.props.question.getTextArea();
+    const textAreaModel: TextAreaModel = this.props.question.textAreaModel;
     return (
       <>
         <TextAreaComponent viewModel={textAreaModel}></TextAreaComponent>
@@ -48,7 +48,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   }
 
   protected getTextAreaModel(): TextAreaModel {
-    return this.props.question.getCommentTextArea();
+    return this.props.question.commentTextAreaModel;
   }
 
   protected renderElement(): JSX.Element {
@@ -65,7 +65,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
 }
 export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
   protected getTextAreaModel(): TextAreaModel {
-    return this.props.question.getOtherTextArea();
+    return this.props.question.otherTextAreaModel;
   }
 }
 

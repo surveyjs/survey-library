@@ -33,6 +33,10 @@ export class TextAreaModel {
   private onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges) => {
     if (name === this.options.propertyName && this.element) {
       this.element.value = this.getTextValue();
+
+      if (this.autoGrow) {
+        increaseHeightByContent(this.element);
+      }
     }
   }
 

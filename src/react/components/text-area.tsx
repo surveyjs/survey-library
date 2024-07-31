@@ -8,9 +8,11 @@ interface ITextAreaProps {
 }
 
 export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
+  private initialValue;
+
   constructor(props: ITextAreaProps) {
     super(props);
-    this.state = { comment: this.viewModel.getTextValue() || "" };
+    this.initialValue = this.viewModel.getTextValue() || "";
   }
   get viewModel(): TextAreaModel {
     return this.props.viewModel;
@@ -31,8 +33,8 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
         cols={this.viewModel.cols}
         placeholder={this.viewModel.placeholder}
         maxLength={this.viewModel.maxLength}
-        value={this.state.comment}
-        onChange={(event: any) => { this.viewModel.onTextAreaInput(event); this.setState({ comment: event.target.value }); }}
+        defaultValue={this.initialValue}
+        onChange={(event: any) => { this.viewModel.onTextAreaInput(event); }}
         onBlur={(event: any) => { this.viewModel.onTextAreaChange(event); }}
         onKeyDown={(event: any) => { this.viewModel.onTextAreaKeyDown(event); }}
         aria-required={this.viewModel.ariaRequired}

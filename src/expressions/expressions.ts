@@ -263,14 +263,14 @@ export class Const extends Operand {
   public setVariables(variables: Array<string>) {}
   protected getCorrectValue(value: any): any {
     if (!value || typeof value != "string") return value;
-    if (this.isBooleanValue(value)) return value.toLowerCase() === "true";
+    if (OperandMaker.isBooleanValue(value)) return value.toLowerCase() === "true";
     if (
       value.length > 1 &&
       this.isQuote(value[0]) &&
       this.isQuote(value[value.length - 1])
     )
       return value.substring(1, value.length - 1);
-    if (OperandMaker.isNumeric(value)) {
+    if (Helpers.isNumber(value)) {
       if (value.indexOf("0x") == 0) return parseInt(value);
       if (value.length > 1 && value[0] == "0" && (value.length < 2 || (value[1] !== "." && value[1] !== ","))) return value;
       return parseFloat(value);
@@ -283,12 +283,6 @@ export class Const extends Operand {
   }
   private isQuote(ch: string): boolean {
     return ch == "'" || ch == '"';
-  }
-  private isBooleanValue(value: any): boolean {
-    return (
-      value &&
-      (value.toLowerCase() === "true" || value.toLowerCase() === "false")
-    );
   }
 }
 
@@ -416,7 +410,7 @@ export class FunctionOperand extends Operand {
 }
 
 export class OperandMaker {
-  static throwInvalidOperatorError(op: string) {
+  static throwInvalidOperatorError(op: string): void {
     throw new Error("Invalid operator: '" + op + "'");
   }
 
@@ -427,32 +421,12 @@ export class OperandMaker {
   static toOperandString(value: string): string {
     if (
       !!value &&
-      !OperandMaker.isNumeric(value) &&
+      !Helpers.isNumber(value) &&
       !OperandMaker.isBooleanValue(value)
     )
       value = "'" + value + "'";
     return value;
   }
-
-  static isSpaceString(str: string): boolean {
-    return !!str && !str.replace(" ", "");
-  }
-
-  static isNumeric(value: string): boolean {
-    if (
-      !!value &&
-      (value.indexOf("-") > -1 ||
-        value.indexOf("+") > 1 ||
-        value.indexOf("*") > -1 ||
-        value.indexOf("^") > -1 ||
-        value.indexOf("/") > -1 ||
-        value.indexOf("%") > -1)
-    )
-      return false;
-    if (OperandMaker.isSpaceString(value)) return false;
-    return Helpers.isNumber(value);
-  }
-
   static isBooleanValue(value: string): boolean {
     return (
       !!value &&

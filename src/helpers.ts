@@ -195,17 +195,24 @@ export class Helpers {
     return !isNaN(this.getNumber(value));
   }
   public static getNumber(value: any): number {
-    if (
-      typeof value == "string" &&
-      !!value &&
-      value.indexOf("0x") == 0 &&
-      value.length > 32
-    )
-      return NaN;
+    if (typeof value == "string") {
+      if(!value.replace(" ", "")) return NaN;
+      if(value.indexOf("0x") == 0 && value.length > 32) return NaN;
+      if(Helpers.isStringHasOperator(value)) return NaN;
+    }
     value = this.prepareStringToNumber(value);
     const res = parseFloat(value);
     if(isNaN(res) || !isFinite(value)) return NaN;
     return res;
+  }
+  private static isStringHasOperator(str: string): boolean {
+    if(str.lastIndexOf("-") > 0) return false;
+    if(str.lastIndexOf("+") > 0) return false;
+    const operators = "*^/%";
+    for(let i = 0; i < operators.length; i ++) {
+      if(str.indexOf(operators[i]) > -1) return true;
+    }
+    return false;
   }
   private static prepareStringToNumber(val: any): any {
     if(typeof val !== "string" || !val) return val;

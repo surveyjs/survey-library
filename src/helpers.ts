@@ -195,9 +195,16 @@ export class Helpers {
     return !isNaN(this.getNumber(value));
   }
   public static getNumber(value: any): number {
+    const newValue = Helpers.getNumberCore(value);
+    return settings.convertNumber(value, newValue);
+  }
+  private static getNumberCore(value: any): number {
     if (typeof value == "string") {
-      if(!value.replace(" ", "")) return NaN;
-      if(value.indexOf("0x") == 0 && value.length > 32) return NaN;
+      if(!value.trim()) return NaN;
+      if(value.indexOf("0x") == 0) {
+        if(value.length > 32) return NaN;
+        return parseInt(value);
+      }
       if(Helpers.isStringHasOperator(value)) return NaN;
     }
     value = this.prepareStringToNumber(value);

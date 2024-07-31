@@ -800,5 +800,6 @@ export var settings = {
    * }
    * ```
    */
-  storeUtcDates: false
+  storeUtcDates: false,
+  convertNumber: (originalValue: any, numberValue: number): number => { return numberValue; }
 };

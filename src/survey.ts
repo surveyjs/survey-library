@@ -5333,7 +5333,7 @@ export class SurveyModel extends SurveyElementCore
     callback: (status: string, data: any) => any
   ): void {
     if (this.onDownloadFile.isEmpty) {
-      !!callback && callback("success", fileValue.content || fileValue);
+      !!callback && callback("skipped", fileValue.content || fileValue);
     }
     this.onDownloadFile.fire(this, {
       question: question,

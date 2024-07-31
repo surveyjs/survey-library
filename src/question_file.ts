@@ -136,6 +136,14 @@ export class QuestionFileModelBase extends Question {
       });
     }
   }
+  protected loadPreview(newValue: any): void { }
+  protected onChangeQuestionValue(newValue: any): void {
+    super.onChangeQuestionValue(newValue);
+    this.stateChanged(this.isEmpty() ? "empty" : "loaded");
+    if (!this.isLoadingFromJson) {
+      this.loadPreview(newValue);
+    }
+  }
 }
 
 /**
@@ -186,6 +194,13 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public startCameraAction: Action;
   public cleanAction: Action;
   public actionsContainer: ActionContainer;
+
+  private isFileLoadingValue: boolean;
+  protected get isFileLoading(): boolean { return this.isFileLoadingValue; }
+  protected set isFileLoading(val: boolean) {
+    this.isFileLoadingValue = val;
+    this.updateIsReady();
+  }
 
   get fileNavigatorVisible(): boolean {
     const isUploading = this.isUploading;
@@ -786,7 +801,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       }
       this.isFileLoading = true;
       this._previewLoader = new FileLoader(this, (status, loaded) => {
-        if (status === "loaded") {
+        if (status !== "error") {
           loaded.forEach((val) => {
             this.previewValue.push(val);
           });
@@ -799,12 +814,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
       this._previewLoader.load(newValues);
     }
     this.previewValueChanged();
-  }
-  private isFileLoadingValue: boolean;
-  protected get isFileLoading(): boolean { return this.isFileLoadingValue; }
-  protected set isFileLoading(val: boolean) {
-    this.isFileLoadingValue = val;
-    this.updateIsReady();
   }
   protected getIsQuestionReady(): boolean {
     return super.getIsQuestionReady() && !this.isFileLoading;
@@ -920,13 +929,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.loadFiles(files);
   }
 
-  protected onChangeQuestionValue(newValue: any): void {
-    super.onChangeQuestionValue(newValue);
-    this.stateChanged(this.isEmpty() ? "empty" : "loaded");
-    if (!this.isLoadingFromJson) {
-      this.loadPreview(newValue);
-    }
-  }
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
     this.actionsContainer.cssClasses = css.actionBar;
@@ -1127,7 +1129,7 @@ QuestionFactory.Instance.registerQuestion("file", (name) => {
 });
 
 export class FileLoader {
-  constructor(private fileQuestion: QuestionFileModel, private callback: (status: string, files: any[]) => void) {
+  constructor(private fileQuestion: QuestionFileModelBase, private callback: (status: string, files: any[]) => void) {
   }
   loaded: any[] = [];
   load(files: Array<any>): void {
@@ -1139,7 +1141,7 @@ export class FileLoader {
           if (!this.fileQuestion || !this.callback) {
             return;
           }
-          if (status === "success") {
+          if (status !== "error") {
             this.loaded[index] = {
               content: data,
               name: value.name,
@@ -1147,7 +1149,7 @@ export class FileLoader {
             };
             downloadedCount++;
             if (downloadedCount === files.length) {
-              this.callback("loaded", this.loaded);
+              this.callback(status, this.loaded);
             }
           } else {
             this.callback("error", this.loaded);

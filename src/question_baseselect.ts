@@ -12,8 +12,8 @@ import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { classesToSelector, mergeValues } from "./utils/utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
+import { mergeValues } from "./utils/utils";
 
 /**
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
@@ -40,9 +40,11 @@ export class QuestionSelectBase extends Question {
   private get waitingChoicesByURL(): boolean {
     return !this.isChoicesLoaded && this.hasChoicesUrl;
   }
-  @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
-    target.onSelectedItemValuesChangedHandler(newVal);
-  } }) protected selectedItemValues: any;
+  @property({
+    onSet: (newVal: any, target: QuestionSelectBase) => {
+      target.onSelectedItemValuesChangedHandler(newVal);
+    }
+  }) protected selectedItemValues: any;
 
   constructor(name: string) {
     super(name);
@@ -96,7 +98,7 @@ export class QuestionSelectBase extends Question {
   public dispose(): void {
     super.dispose();
     const q = this.getQuestionWithChoices();
-    if(!!q) {
+    if (!!q) {
       q.removeDependedQuestion(this);
     }
     if (this.otherTextAreaModel) {
@@ -118,7 +120,7 @@ export class QuestionSelectBase extends Question {
   public createItemValue(value: any, text?: string): ItemValue {
     const res = <ItemValue>Serializer.createClass(this.getItemValueType(), { value: value });
     res.locOwner = this;
-    if(!!text) res.text = text;
+    if (!!text) res.text = text;
     return res;
   }
   public get isUsingCarryForward(): boolean {
@@ -156,24 +158,24 @@ export class QuestionSelectBase extends Question {
       ItemValue.locStrsChanged(this.choicesFromUrl);
       ItemValue.locStrsChanged(this.visibleChoices);
     }
-    if(this.isUsingCarryForward) {
+    if (this.isUsingCarryForward) {
       ItemValue.locStrsChanged(this.visibleChoices);
     }
   }
   private prevOtherErrorValue: string;
   private updatePrevOtherErrorValue(val: string): void {
     const oldVal = this.otherValue;
-    if(val !== oldVal) {
+    if (val !== oldVal) {
       this.prevOtherErrorValue = oldVal;
     }
   }
   public get otherValue(): string {
-    if(!this.showCommentArea) return this.comment;
+    if (!this.showCommentArea) return this.comment;
     return this.otherValueCore;
   }
   public set otherValue(val: string) {
     this.updatePrevOtherErrorValue(val);
-    if(!this.showCommentArea) {
+    if (!this.showCommentArea) {
       this.comment = val;
     } else {
       this.setOtherValueInternally(val);
@@ -376,7 +378,7 @@ export class QuestionSelectBase extends Question {
     const prevComment = this.comment;
     super.setDefaultValue();
     this.isSettingDefaultValue = false;
-    if(this.comment && this.getStoreOthersAsComment() && prevComment !== this.comment) {
+    if (this.comment && this.getStoreOthersAsComment() && prevComment !== this.comment) {
       this.setValueCore(this.setOtherValueIntoValue(this.value));
       this.setCommentIntoData(this.comment);
     }
@@ -450,7 +452,7 @@ export class QuestionSelectBase extends Question {
     this.survey?.loadedChoicesFromServer(this);
   }
   protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
-    if(this.waitingChoicesByURL) {
+    if (this.waitingChoicesByURL) {
       return this.createItemValue(value, text);
     } else {
       return null;
@@ -467,7 +469,7 @@ export class QuestionSelectBase extends Question {
     }
     return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : this.getItemIfChoicesNotContainThisValue(this.value));
   }
-  protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {}
+  protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void { }
   protected getMultipleSelectedItems(): Array<ItemValue> {
     return [];
   }
@@ -547,7 +549,7 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("autoOtherMode", val);
   }
   protected getQuestionComment(): string {
-    if(this.showCommentArea) return super.getQuestionComment();
+    if (this.showCommentArea) return super.getQuestionComment();
     if (!!this.otherValueCore) return this.otherValueCore;
     if (this.hasComment || this.getStoreOthersAsComment())
       return super.getQuestionComment();
@@ -559,7 +561,7 @@ export class QuestionSelectBase extends Question {
   private isSettingComment: boolean = false;
   protected setQuestionComment(newValue: string): void {
     this.updatePrevOtherErrorValue(newValue);
-    if(this.showCommentArea) {
+    if (this.showCommentArea) {
       super.setQuestionComment(newValue);
       return;
     }
@@ -636,7 +638,7 @@ export class QuestionSelectBase extends Question {
   }
   protected setValueCore(newValue: any): void {
     super.setValueCore(newValue);
-    if(this.makeCommentEmpty) {
+    if (this.makeCommentEmpty) {
       this.setCommentIntoData("");
       this.makeCommentEmpty = false;
     }
@@ -680,16 +682,16 @@ export class QuestionSelectBase extends Question {
   }
   protected needConvertRenderedOtherToDataValue(): boolean {
     let val = this.otherValue;
-    if(!val) return false;
+    if (!val) return false;
     val = val.trim();
-    if(!val) return false;
+    if (!val) return false;
     return this.hasUnknownValue(val, true, false);
   }
   protected getIsQuestionReady(): boolean {
     return super.getIsQuestionReady() && !this.waitingChoicesByURL && !this.waitingGetChoiceDisplayValueResponse;
   }
   protected updateSelectedItemValues(): void {
-    if(this.waitingGetChoiceDisplayValueResponse || !this.survey || this.isEmpty()) return;
+    if (this.waitingGetChoiceDisplayValueResponse || !this.survey || this.isEmpty()) return;
     const value = this.value;
     const valueArray: Array<any> = Array.isArray(value) ? value : [value];
     const hasItemWithoutValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
@@ -707,7 +709,7 @@ export class QuestionSelectBase extends Question {
           }
           const items = displayValues.map((displayValue, index) => this.createItemValue(valueArray[index], displayValue));
           this.setCustomValuesIntoItems(items, customValues);
-          if(Array.isArray(value)) {
+          if (Array.isArray(value)) {
             this.selectedItemValues = items;
           }
           else {
@@ -719,12 +721,12 @@ export class QuestionSelectBase extends Question {
     }
   }
   private setCustomValuesIntoItems(items: Array<ItemValue>, customValues: Array<IValueItemCustomPropValues>): void {
-    if(!Array.isArray(customValues) || customValues.length === 0) return;
+    if (!Array.isArray(customValues) || customValues.length === 0) return;
     customValues.forEach(customValue => {
       const vals = customValue.values;
       const propName = customValue.propertyName;
-      if(Array.isArray(vals)) {
-        for(let i = 0; i < items.length && i < vals.length; i ++) {
+      if (Array.isArray(vals)) {
+        for (let i = 0; i < items.length && i < vals.length; i++) {
           items[i][propName] = vals[i];
         }
       }
@@ -732,9 +734,9 @@ export class QuestionSelectBase extends Question {
   }
   protected hasUnknownValue(val: any, includeOther: boolean = false,
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
-    if(!Array.isArray(val)) return this.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue);
-    for(let i = 0; i < val.length; i ++) {
-      if(this.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue)) return true;
+    if (!Array.isArray(val)) return this.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue);
+    for (let i = 0; i < val.length; i++) {
+      if (this.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue)) return true;
     }
     return false;
   }
@@ -817,7 +819,7 @@ export class QuestionSelectBase extends Question {
     this.isLockVisibleChoices = !!question && question.name === val;
     if (!!question && question.name !== val) {
       question.removeDependedQuestion(this);
-      if(this.isDesignMode && !this.isLoadingFromJson && !!val) {
+      if (this.isDesignMode && !this.isLoadingFromJson && !!val) {
         this.setPropertyValue("choicesFromQuestion", undefined);
       }
     }
@@ -1002,7 +1004,7 @@ export class QuestionSelectBase extends Question {
       newValue.push(calcValue[i]);
     }
     const oldValue = this.visibleChoices;
-    if(!this.isTwoValueEquals(oldValue, newValue) || this.choicesLazyLoadEnabled) {
+    if (!this.isTwoValueEquals(oldValue, newValue) || this.choicesLazyLoadEnabled) {
       this.setArrayPropertyDirectly("visibleChoices", newValue);
     }
   }
@@ -1032,24 +1034,24 @@ export class QuestionSelectBase extends Question {
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
     this.headItemsCount = 0;
     this.footItemsCount = 0;
-    if(!this.isEmptyActiveChoicesInDesign) {
+    if (!this.isEmptyActiveChoicesInDesign) {
       this.addNewItemToVisibleChoices(items, isAddAll);
     }
     const dict = new Array<{ index: number, item: ItemValue }>();
     this.addNonChoicesItems(dict, isAddAll);
     dict.sort((a: { index: number, item: ItemValue }, b: { index: number, item: ItemValue }): number => {
-      if(a.index === b.index) return 0;
+      if (a.index === b.index) return 0;
       return a.index < b.index ? -1 : 1;
     });
-    for(let i = 0; i < dict.length; i ++) {
+    for (let i = 0; i < dict.length; i++) {
       const rec = dict[i];
-      if(rec.index < 0) {
+      if (rec.index < 0) {
         items.splice(i, 0, rec.item);
-        this.headItemsCount ++;
+        this.headItemsCount++;
       }
       else {
         items.push(rec.item);
-        this.footItemsCount ++;
+        this.footItemsCount++;
       }
     }
   }
@@ -1078,12 +1080,12 @@ export class QuestionSelectBase extends Question {
     if (this.supportDontKnow()) {
       this.addNonChoiceItem(dict, this.dontKnowItem, isAddAll, this.showDontKnowItem, settings.specialChoicesOrder.dontKnowItem);
     }
-    if(this.supportOther()) {
+    if (this.supportOther()) {
       this.addNonChoiceItem(dict, this.otherItem, isAddAll, this.hasOther, settings.specialChoicesOrder.otherItem);
     }
   }
   protected addNonChoiceItem(dict: Array<{ index: number, item: ItemValue }>, item: ItemValue, isAddAll: boolean, showItem: boolean, order: Array<number>): void {
-    if(this.canShowOptionItem(item, isAddAll, showItem)) {
+    if (this.canShowOptionItem(item, isAddAll, showItem)) {
       order.forEach(val => dict.push({ index: val, item: item }));
     }
   }
@@ -1149,7 +1151,7 @@ export class QuestionSelectBase extends Question {
     return questionPlainData;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if(!this.useDisplayValuesInDynamicTexts) return value;
+    if (!this.useDisplayValuesInDynamicTexts) return value;
     return this.getChoicesDisplayValue(this.visibleChoices, value);
   }
   protected getDisplayValueEmpty(): string {
@@ -1159,7 +1161,7 @@ export class QuestionSelectBase extends Question {
     if (val == this.otherItemValue.value)
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
     const selItem = this.getSingleSelectedItem();
-    if(!!selItem && this.isTwoValueEquals(selItem.value, val)) return selItem.locText.textOrHtml;
+    if (!!selItem && this.isTwoValueEquals(selItem.value, val)) return selItem.locText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
   }
@@ -1210,7 +1212,7 @@ export class QuestionSelectBase extends Question {
       (<any>question).addDependedQuestion(this);
       return this.getChoicesFromArrayQuestion(question);
     }
-    if(this.isEmptyActiveChoicesInDesign) return [];
+    if (this.isEmptyActiveChoicesInDesign) return [];
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
   public get isMessagePanelVisible(): boolean {
@@ -1231,7 +1233,7 @@ export class QuestionSelectBase extends Question {
   }
   protected getIsReadyDependsOn(): Array<Question> {
     const res = super.getIsReadyDependsOn();
-    if(this.carryForwardQuestion) {
+    if (this.carryForwardQuestion) {
       res.push(this.carryForwardQuestion);
     }
     return res;
@@ -1241,7 +1243,7 @@ export class QuestionSelectBase extends Question {
   }
   private carryForwardQuestion: Question;
   private findCarryForwardQuestion(data?: ISurveyData): Question {
-    if(!data) data = this.data;
+    if (!data) data = this.data;
     this.carryForwardQuestion = null;
     if (this.choicesFromQuestion && data) {
       this.carryForwardQuestion = <Question>data.findQuestionByName(this.choicesFromQuestion);
@@ -1249,7 +1251,7 @@ export class QuestionSelectBase extends Question {
     return this.carryForwardQuestion;
   }
   private getQuestionWithChoicesCore(question: Question): QuestionSelectBase {
-    if(!!question && !!question.visibleChoices && (Serializer.isDescendantOf(question.getType(), "selectbase")) && question !== this)
+    if (!!question && !!question.visibleChoices && (Serializer.isDescendantOf(question.getType(), "selectbase")) && question !== this)
       return <QuestionSelectBase>question;
     return null;
   }
@@ -1259,13 +1261,13 @@ export class QuestionSelectBase extends Question {
   private getChoicesFromArrayQuestion(question: Question): Array<ItemValue> {
     if (this.isDesignMode) return [];
     const val = question.value;
-    if(!Array.isArray(val)) return [];
+    if (!Array.isArray(val)) return [];
     const res: Array<ItemValue> = [];
-    for(var i = 0; i < val.length; i ++) {
+    for (var i = 0; i < val.length; i++) {
       const obj = val[i];
-      if(!Helpers.isValueObject(obj)) continue;
+      if (!Helpers.isValueObject(obj)) continue;
       const key = this.getValueKeyName(obj);
-      if(!!key && !this.isValueEmpty(obj[key])) {
+      if (!!key && !this.isValueEmpty(obj[key])) {
         const text = !!this.choiceTextsFromQuestion ? obj[this.choiceTextsFromQuestion] : undefined;
         res.push(this.createItemValue(obj[key], text));
       }
@@ -1273,7 +1275,7 @@ export class QuestionSelectBase extends Question {
     return res;
   }
   private getValueKeyName(obj: any): string {
-    if(this.choiceValuesFromQuestion) return this.choiceValuesFromQuestion;
+    if (this.choiceValuesFromQuestion) return this.choiceValuesFromQuestion;
     const keys = Object.keys(obj);
     return keys.length > 0 ? keys[0] : undefined;
   }
@@ -1379,7 +1381,7 @@ export class QuestionSelectBase extends Question {
   }
   public getStoreOthersAsComment(): boolean {
     if (this.isSettingDefaultValue) return false;
-    if(this.showCommentArea) return false;
+    if (this.showCommentArea) return false;
     return (
       this.storeOthersAsComment === true ||
       (this.storeOthersAsComment == "default" &&
@@ -1414,13 +1416,13 @@ export class QuestionSelectBase extends Question {
         newComment = this.getCommentFromValue(newValue);
         newValue = this.setOtherValueIntoValue(newValue);
       } else {
-        if(this.data) {
+        if (this.data) {
           newComment = this.data.getComment(this.getValueName());
         }
       }
     }
     super.updateValueFromSurvey(newValue, clearData);
-    if((this.isRunningChoices || this.choicesByUrl.isRunning) && !this.isEmpty()) {
+    if ((this.isRunningChoices || this.choicesByUrl.isRunning) && !this.isEmpty()) {
       this.cachedValueForUrlRequests = this.value;
     }
     if (!!newComment) {
@@ -1510,13 +1512,13 @@ export class QuestionSelectBase extends Question {
     this.setChoicesFromUrl(newChoices, errors, cachedValues);
   }
   private canAvoidSettChoicesFromUrl(newChoices: Array<ItemValue>): boolean {
-    if(this.isFirstLoadChoicesFromUrl) return false;
+    if (this.isFirstLoadChoicesFromUrl) return false;
     const chocesAreEmpty = !newChoices || Array.isArray(newChoices) && newChoices.length === 0;
-    if(chocesAreEmpty && !this.isEmpty()) return false;
+    if (chocesAreEmpty && !this.isEmpty()) return false;
     return Helpers.isTwoValueEquals(this.choicesFromUrl, newChoices);
   }
   private setChoicesFromUrl(newChoices: Array<ItemValue>, errors: Array<any>, cachedValues: any): void {
-    if(this.canAvoidSettChoicesFromUrl(newChoices)) return;
+    if (this.canAvoidSettChoicesFromUrl(newChoices)) return;
     this.isFirstLoadChoicesFromUrl = false;
     this.choicesFromUrl = newChoices;
     this.filterItems();
@@ -1544,7 +1546,7 @@ export class QuestionSelectBase extends Question {
         }
       }
     }
-    if(!this.isReadOnly && !newChoices && !this.isFirstLoadChoicesFromUrl) {
+    if (!this.isReadOnly && !newChoices && !this.isFirstLoadChoicesFromUrl) {
       this.value = null;
     }
     this.errors = errors;
@@ -1628,7 +1630,7 @@ export class QuestionSelectBase extends Question {
     return !choices || choices.length > 0;
   }
   private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
-    if(this.isDesignMode) return array;
+    if (this.isDesignMode) return array;
     var order = this.choicesOrder.toLowerCase();
     if (order == "asc") return this.sortArray(array, 1);
     if (order == "desc") return this.sortArray(array, -1);
@@ -1655,13 +1657,13 @@ export class QuestionSelectBase extends Question {
     }
   }
   private canClearIncorrectValues(): boolean {
-    if(this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return false;
+    if (this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return false;
     if (!!this.survey && this.survey.questionsByValueName(this.getValueName()).length > 1) return false;
     if (this.hasChoicesUrl && (!this.choicesFromUrl || this.choicesFromUrl.length == 0)) return false;
     return true;
   }
   protected hasValueToClearIncorrectValues(): boolean {
-    if(!!this.survey && this.survey.keepIncorrectValues) return false;
+    if (!!this.survey && this.survey.keepIncorrectValues) return false;
     return !this.keepIncorrectValues && !this.isEmpty();
   }
   protected clearValueIfInvisibleCore(reason: string): void {
@@ -1708,7 +1710,7 @@ export class QuestionSelectBase extends Question {
     if (!this.isOtherSelected) {
       this.otherValue = "";
     }
-    if(!this.showCommentArea && (!this.getStoreOthersAsComment() && !this.isOtherSelected)) {
+    if (!this.showCommentArea && (!this.getStoreOthersAsComment() && !this.isOtherSelected)) {
       this.comment = "";
     }
   }
@@ -1778,14 +1780,14 @@ export class QuestionSelectBase extends Question {
   get headItems(): ItemValue[] {
     const count = (this.separateSpecialChoices || this.isDesignMode) ? this.headItemsCount : 0;
     const res = [];
-    for(let i = 0; i < count; i ++) res.push(this.visibleChoices[i]);
+    for (let i = 0; i < count; i++) res.push(this.visibleChoices[i]);
     return res;
   }
   get footItems(): ItemValue[] {
     const count = (this.separateSpecialChoices || this.isDesignMode) ? this.footItemsCount : 0;
     const res = [];
     const items = this.visibleChoices;
-    for(let i = 0; i < count; i ++) res.push(items[items.length - count + i]);
+    for (let i = 0; i < count; i++) res.push(items[items.length - count + i]);
     return res;
   }
   get dataChoices(): ItemValue[] {
@@ -1838,27 +1840,8 @@ export class QuestionSelectBase extends Question {
     }
     return columns;
   }
-
-  protected getObservedElementSelector(): string {
-    return classesToSelector(this.cssClasses.mainRoot);
-  }
-
-  protected supportResponsiveness(): boolean {
-    return true;
-  }
-
-  @property() allowMultiColumns = true;
-  protected onBeforeSetCompactRenderer(): void {
-    super.onBeforeSetDesktopRenderer();
-    this.allowMultiColumns = false;
-  }
-  protected onBeforeSetDesktopRenderer(): void {
-    super.onBeforeSetDesktopRenderer();
-    this.allowMultiColumns = true;
-  }
-
   get hasColumns() {
-    return !this.isMobile && this.allowMultiColumns &&
+    return !this.isMobile &&
       (this.getCurrentColCount() > 1);
   }
   get rowLayout() {
@@ -1971,7 +1954,7 @@ export class QuestionSelectBase extends Question {
   }
   protected updateCssClasses(res: any, css: any) {
     super.updateCssClasses(res, css);
-    if(!!this.dropdownListModel) {
+    if (!!this.dropdownListModel) {
       const listCssClasses = {};
       mergeValues(css.list, listCssClasses);
       mergeValues(res.list, listCssClasses);
@@ -1980,7 +1963,7 @@ export class QuestionSelectBase extends Question {
   }
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
-    if(this.dropdownListModel) {
+    if (this.dropdownListModel) {
       this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
@@ -2045,11 +2028,11 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
 }
 
 function checkCopyPropVisibility(obj: any, mode: string): boolean {
-  if(!obj) return false;
-  if(!!obj.templateQuestion) {
+  if (!obj) return false;
+  if (!!obj.templateQuestion) {
     const data = obj.colOwner?.data;
     obj = obj.templateQuestion;
-    if(!obj.getCarryForwardQuestion(data)) return false;
+    if (!obj.getCarryForwardQuestion(data)) return false;
   }
   return obj.carryForwardQuestionType === mode;
 }

@@ -2352,7 +2352,8 @@ Serializer.addClass(
     {
       name: "layoutColumns:panellayoutcolumns",
       className: "panellayoutcolumn", isArray: true,
-      onSerializeValue: (obj: any): any => { return obj.getSerializableColumnsValue(); }
+      onSerializeValue: (obj: any): any => { return obj.getSerializableColumnsValue(); },
+      visibleIf: function (obj: any) { return !!obj && !!obj.survey && obj.survey.gridLayoutEnabled; }
     },
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
@@ -2389,7 +2390,10 @@ Serializer.addClass(
       name: "colSpan:number", visible: false,
       onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },
     },
-    { name: "effectiveColSpan:number", minValue: 1, isSerializable: false },
+    {
+      name: "effectiveColSpan:number", minValue: 1, isSerializable: false,
+      visibleIf: function (obj: any) { return !!obj && !!obj.survey && obj.survey.gridLayoutEnabled; }
+    },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     { name: "indent:number", default: 0, choices: [0, 1, 2, 3], visible: false },
     {

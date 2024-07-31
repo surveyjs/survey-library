@@ -51,10 +51,6 @@ class TriggerExpressionInfo {
   runSecondCheck: (keys: any) => boolean = (keys: any): boolean => false;
 }
 
-function querySelectorIncludingSelf(el: HTMLElement, selector: string): HTMLElement {
-  return el.querySelector(selector) || el as any != DomWindowHelper.getWindow() && el.matches(selector) && el;
-}
-
 /**
  * A base class for all questions.
  */
@@ -2587,7 +2583,7 @@ export class Question extends SurveyElement<Question>
     if (!!el && this.isDefaultRendering()) {
       const scrollableSelector = this.getObservedElementSelector();
       if (!scrollableSelector) return;
-      const defaultRootEl: HTMLElement = querySelectorIncludingSelf(el, scrollableSelector);
+      const defaultRootEl = el.querySelector(scrollableSelector);
       if (!defaultRootEl) return;
       let isProcessed = false;
       let requiredWidth: number = undefined;
@@ -2598,7 +2594,7 @@ export class Question extends SurveyElement<Question>
           isProcessed = false;
         }
         const callback = () => {
-          const rootEl: HTMLElement = querySelectorIncludingSelf(el, scrollableSelector);
+          const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
           if (!requiredWidth && this.isDefaultRendering()) {
             requiredWidth = rootEl.scrollWidth;
           }
@@ -2622,10 +2618,8 @@ export class Question extends SurveyElement<Question>
       });
       this.onMobileChangedCallback = () => {
         setTimeout(() => {
-          const rootEl = querySelectorIncludingSelf(el, scrollableSelector);
-          if (rootEl) {
-            this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
-          }
+          const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+          this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
         }, 0);
       };
       this.resizeObserver.observe(el);
@@ -2790,7 +2784,10 @@ Serializer.addClass("question", [
     name: "colSpan:number", visible: false,
     onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },
   },
-  { name: "effectiveColSpan:number", minValue: 1, isSerializable: false },
+  {
+    name: "effectiveColSpan:number", minValue: 1, isSerializable: false,
+    visibleIf: function (obj: any) { return !!obj && !!obj.survey && obj.survey.gridLayoutEnabled; }
+  },
   { name: "startWithNewLine:boolean", default: true, layout: "row" },
   { name: "indent:number", default: 0, choices: [0, 1, 2, 3], layout: "row" },
   {

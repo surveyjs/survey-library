@@ -194,6 +194,7 @@ export class ReactSurveyElement extends SurveyElementBase<any, any> {
 
 export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
   control: HTMLElement;
+  content: HTMLElement;
   constructor(props: any) {
     super(props);
   }
@@ -208,19 +209,19 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
   componentWillUnmount() {
     super.componentWillUnmount();
     if (!!this.questionBase) {
-      const el: HTMLElement = this.control;
-      this.questionBase.beforeDestroyQuestionElement(el);
-      if (!!el) {
-        el.removeAttribute("data-rendered");
+      const contentElement: HTMLElement = this.content || this.control;
+      this.questionBase.beforeDestroyQuestionElement(contentElement);
+      if (!!contentElement) {
+        contentElement.removeAttribute("data-rendered");
       }
     }
   }
   protected updateDomElement() {
-    const el: HTMLElement = this.control;
-    if (!!el) {
-      if (el.getAttribute("data-rendered") !== "r") {
-        el.setAttribute("data-rendered", "r");
-        this.questionBase.afterRenderQuestionElement(el);
+    const contentElement = this.content || this.control;
+    if (!!contentElement) {
+      if (contentElement.getAttribute("data-rendered") !== "r") {
+        contentElement.setAttribute("data-rendered", "r");
+        this.questionBase.afterRenderQuestionElement(contentElement);
       }
     }
   }
@@ -272,6 +273,11 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
   public setControl(element: HTMLElement | null): void {
     if (!!element) {
       this.control = element;
+    }
+  }
+  public setContent(element: HTMLElement | null): void {
+    if(!!element) {
+      this.content = element;
     }
   }
 }

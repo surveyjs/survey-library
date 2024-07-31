@@ -78,7 +78,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     }
 
     return (
-      <div className={this.question.fileRootCss}>
+      <div className={this.question.fileRootCss} ref={el => (this.setContent(el))}>
         {fileInput}
         <div
           className={this.question.cssClasses.dragArea}

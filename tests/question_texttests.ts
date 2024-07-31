@@ -4,6 +4,7 @@ import { SurveyModel } from "../src/survey";
 import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
 import { settings } from "../src/settings";
 import { StylesManager } from "../src/stylesmanager";
+import { InputMaskPattern } from "../src/mask/mask_pattern";
 
 QUnit.test("check text disabled class", function (assert) {
   var json = {
@@ -487,4 +488,23 @@ QUnit.test("inputType='date' invalid value, #8617", function(assert) {
   assert.equal(survey.state, "running", "survey.state #1");
   q1.value = "2000-01-01";
   assert.equal(q1.errors.length, 0, "errors #5");
+});
+QUnit.test("Mask is removed on loading, Bug#8624", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        maskSettings: {
+          pattern: "999-99-999999",
+          saveMaskedValue: true,
+        },
+        maskType: "pattern",
+        name: "q1",
+        type: "text"
+      },
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  const maskSettings = q1.maskSettings as InputMaskPattern;
+  assert.equal(q1.maskType, "pattern", "mask type is set correctly");
+  assert.equal(maskSettings.pattern, "999-99-999999", "pattern is loaded");
 });

@@ -337,7 +337,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     this.idValue = JsonObjectProperty.Index++;
   }
   uniqueProperty?: string;
-  dependsOn?: string | string[];
+  dependsOn?: string | Array<string>;
   default?: any;
   defaultFunc?: (obj: Base) => any;
   public get id(): number {
@@ -1028,12 +1028,10 @@ export class JsonMetadataClass {
     return prop;
   }
   private addDependsOnProperties(prop: JsonObjectProperty, dependsOn: any) {
-    if (Array.isArray(dependsOn)) {
-      for (var i = 0; i < dependsOn.length; i++) {
-        this.addDependsOnProperty(prop, dependsOn[i]);
-      }
-    } else {
-      this.addDependsOnProperty(prop, dependsOn);
+    const dArray = Array.isArray(dependsOn) ? dependsOn : [dependsOn];
+    prop.dependsOn = dArray;
+    for (var i = 0; i < dArray.length; i++) {
+      this.addDependsOnProperty(prop, dArray[i]);
     }
   }
   private addDependsOnProperty(prop: JsonObjectProperty, dependsOn: string) {
@@ -1689,24 +1687,40 @@ export class JsonObject {
     }
     properties = this.addDynamicProperties(obj, jsonObj, properties);
     this.options = options;
+    const processedProps: any = {};
+    processedProps[JsonObject.typePropertyName] = true;
+    const parentProps = {};
     for (var key in jsonObj) {
-      if (key === JsonObject.typePropertyName) continue;
-      if (key === JsonObject.positionPropertyName) {
-        obj[key] = jsonObj[key];
-        continue;
-      }
-      var property = this.findProperty(properties, key);
-      if (!property) {
-        if (needAddErrors) {
-          this.addNewError(new JsonUnknownPropertyError(key.toString(), objType), jsonObj, obj);
-        }
-        continue;
-      }
-      this.valueToObj(jsonObj[key], obj, property, jsonObj, options);
+      this.setPropertyValueToObj(jsonObj, obj, key, properties, processedProps, parentProps, objType, needAddErrors, options);
     }
     this.options = undefined;
     if (obj.endLoadingFromJson) {
       obj.endLoadingFromJson();
+    }
+  }
+  private setPropertyValueToObj(jsonObj: any, obj: any, key: string, properties: Array<JsonObjectProperty>, processedProps: any, parentProps: any,
+    objType: string, needAddErrors: boolean, options: ILoadFromJSONOptions): void {
+    if (processedProps[key]) return;
+    if (key === JsonObject.positionPropertyName) {
+      obj[key] = jsonObj[key];
+      return;
+    }
+    const property = this.findProperty(properties, key);
+    if (!property && needAddErrors) {
+      this.addNewError(new JsonUnknownPropertyError(key.toString(), objType), jsonObj, obj);
+    }
+    if(property) {
+      const dProps = property.dependsOn;
+      if(Array.isArray(dProps)) {
+        parentProps[key] = true;
+        dProps.forEach(propKey => {
+          if(!parentProps[propKey]) {
+            this.setPropertyValueToObj(jsonObj, obj, propKey, properties, processedProps, parentProps, objType, needAddErrors, options);
+          }
+        });
+      }
+      this.valueToObj(jsonObj[key], obj, property, jsonObj, options);
+      processedProps[key] = true;
     }
   }
   public toJsonObjectCore(

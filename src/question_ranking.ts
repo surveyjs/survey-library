@@ -229,7 +229,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         if(this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {
           return { cssClass: "sv-ranking-item--animate-item-removing-empty" };
         }
-        return { cssClass: "sv-ranking-item--animate-item-removing" };
+        return { cssClass: "sv-ranking-item--animate-item-removing", onBeforeRunAnimation: (el) => {
+          el.style.setProperty("--animation-height", el.offsetHeight + "px");
+        } };
       },
       getEnterOptions: (item: ItemValue) => {
         const choices = isRankingChoices ? this.renderedRankingChoices : this.renderedUnRankingChoices;

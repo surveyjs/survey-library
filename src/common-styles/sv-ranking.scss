@@ -324,7 +324,6 @@
 
 
 .sv-ranking-item--animate-item-adding-empty {
-  --animation-height: #{calcSize(6)};
   animation-name: fadeIn;
   opacity: 0;
   animation-timing-function: linear;
@@ -333,7 +332,6 @@
 }
 
 .sv-ranking-item--animate-item-removing-empty {
-  --animation-height: #{calcSize(6)};
   animation-name: fadeIn;
   animation-direction: reverse;
   animation-timing-function: linear;

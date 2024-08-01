@@ -46,7 +46,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   @property({ defaultValue: true }) isFocusedContainer: boolean;
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
-  @property({ defaultValue: "auto" }) overlayDisplayMode: "auto" | "overlay" | "dropdown-overlay";
+  @property({ defaultValue: "auto" }) overlayDisplayMode: "auto" | "tablet-dropdown-overlay" | "dropdown-overlay" | "plain";
   @property({ defaultValue: "popup" }) displayMode: "popup" | "overlay";
   @property({ defaultValue: "flex" }) positionMode: PositionMode;
 
@@ -106,6 +106,24 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     const options = { actions: footerActions };
     this.onFooterActionsCreated.fire(this, options);
     return options.actions;
+  }
+  public updateDisplayMode(menuType: "dropdown" | "popup" | "overlay"): void {
+    switch (menuType) {
+      case "dropdown": {
+        this.displayMode = "popup";
+        break;
+      }
+      case "popup": {
+        this.displayMode = "overlay";
+        this.overlayDisplayMode = "tablet-dropdown-overlay";
+        break;
+      }
+      case "overlay": {
+        this.displayMode = "overlay";
+        this.overlayDisplayMode = "dropdown-overlay";
+        break;
+      }
+    }
   }
   public onHiding(): void {
     this.refreshInnerModel();

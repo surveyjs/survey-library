@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer, property } from "./jsonobject";
 import { Base, EventBase } from "./base";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions } from "./base-interfaces";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
@@ -2504,6 +2504,9 @@ export class Question extends SurveyElement<Question>
 
   public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
     this.survey.processPopupVisiblityChanged(this, popupModel, visible);
+  }
+  public processOpenDropdownMenu(options: IDropdownMenuOptions): void {
+    this.survey.processOpenDropdownMenu(this, options);
   }
 
   protected onTextKeyDownHandler(event: any) {

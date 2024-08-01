@@ -157,7 +157,7 @@ function scrollElementByChildId(id: string) {
 function navigateToUrl(url: string): void {
   const location = DomWindowHelper.getLocation();
   if (!url || !location) return;
-  location.href = encodeURIComponent(url);
+  location.href = getSafeUrl(url);
 }
 
 function wrapUrlForBackgroundImage(url: string): string {
@@ -204,6 +204,11 @@ function createSvg(
     }
   }
   titleElement.textContent = title;
+}
+export function getSafeUrl(url: string): string {
+  if(!url) return url;
+  if(url.toLocaleLowerCase().indexOf("javascript:")> -1) return encodeURIComponent(url);
+  return url;
 }
 
 export function unwrap<T>(value: T | (() => T)): T {

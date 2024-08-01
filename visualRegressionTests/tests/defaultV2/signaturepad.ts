@@ -128,4 +128,34 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("signature-data-loading.png", ".sd-question", t, comparer);
     });
   });
+  test("Signature loading preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "signaturepad",
+            name: "signature",
+            "signatureWidth": 100,
+            "signatureHeight": 100,
+            "dataFormat": "svg",
+            storeDataAsText: false
+          }
+        ],
+      });
+      await ClientFunction(() => {
+        window["survey"].onDownloadFile.add((survey, options) => {
+          options.callback(
+            "success",
+            "data:image/svg+xml,%3Csvg height='100' width='100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle r='45' cx='50' cy='50' fill='red'/%3E%3C/svg%3E"
+          );
+        });
+        window["survey"].data = {
+          "signature": "file1.png"
+        };
+      })();
+
+      await takeElementScreenshot("signature-data-load-preview.png", ".sd-question", t, comparer);
+    });
+  });
 });

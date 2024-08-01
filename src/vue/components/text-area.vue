@@ -4,7 +4,7 @@ ref="contentElement"
 :readonly="model.isReadOnlyAttr"
 :disabled="model.isDisabledAttr"
 :value="value"
-:id="model.inputId"
+:id="model.id"
 :maxlength="model.maxLength"
 :cols="model.cols"
 :rows="model.rows"
@@ -40,10 +40,10 @@ export class TextAreaComponent extends BaseVue {
     return this.model.getTextValue() || "";
   }
   protected onMounted() {
-    this.model.setElement(this.$refs["contentElement"]);
+    this.model.setElement(this.$refs["contentElement"] as HTMLTextAreaElement);
   }
   protected onUpdated() {
-    this.model.setElement(this.$refs["contentElement"]);
+    this.model.setElement(this.$refs["contentElement"] as HTMLTextAreaElement);
   }
 }
 

@@ -590,9 +590,8 @@ f-panel {
 
 .sv-ranking-item__text {
   display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  word-break: break-all;
   margin: 0 calc(2 * var(--base-unit, 8px));
 
   .sv-string-viewer {

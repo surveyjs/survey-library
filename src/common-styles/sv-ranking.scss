@@ -102,6 +102,7 @@
     outline $transition-duration,
     background $transition-duration;
   outline: calcSize(0.25) solid transparent;
+  align-self: self-start;
 
   svg {
     fill: $font-questiontitle-color;
@@ -120,6 +121,8 @@
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   margin: 0 calcSize(2);
+  overflow-wrap: break-word;
+  word-break: break-all;
 
   .sv-string-viewer {
     overflow: initial;

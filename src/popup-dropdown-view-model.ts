@@ -8,7 +8,16 @@ import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
+export function calculateIsTablet(windowWidth?: number, windowHeight?: number): boolean {
+  const _windowWidth = windowWidth || DomWindowHelper.getInnerWidth();
+  const _windowHeight = windowHeight || DomWindowHelper.getInnerHeight();
+  const width = Math.min(_windowWidth, _windowHeight);
+  const isTablet = width >= PopupDropdownViewModel.tabletSizeBreakpoint;
+  return isTablet;
+}
+
 export class PopupDropdownViewModel extends PopupBaseViewModel {
+  static readonly tabletSizeBreakpoint = 600;
   private scrollEventCallBack = (event: any) => {
     if (this.isOverlay && IsTouch) {
       event.stopPropagation();
@@ -17,10 +26,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     this.hidePopup();
   }
-  private static readonly tabletSizeBreakpoint = 600;
-  private calculateIsTablet(windowWidth: number, windowHeight: number) {
-    const width = Math.min(windowWidth, windowHeight);
-    this.isTablet = width >= PopupDropdownViewModel.tabletSizeBreakpoint;
+  private calculateIsTablet(windowWidth?: number, windowHeight?: number) {
+    this.isTablet = calculateIsTablet(windowWidth, windowHeight);
   }
   private resizeEventCallback = () => {
     if(!DomWindowHelper.isAvailable()) return;
@@ -180,10 +187,11 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     return actualHorizontalPosition;
   }
   protected getStyleClass(): CssClassBuilder {
+    const overlayMode = this.model.overlayDisplayMode;
     return super.getStyleClass()
       .append("sv-popup--dropdown", !this.isOverlay)
-      .append("sv-popup--dropdown-overlay", this.isOverlay && this.model.overlayDisplayMode !== "overlay")
-      .append("sv-popup--tablet", this.isTablet && this.isOverlay)
+      .append("sv-popup--dropdown-overlay", this.isOverlay && overlayMode !== "plain")
+      .append("sv-popup--tablet", this.isOverlay && (overlayMode == "tablet-dropdown-overlay" || (overlayMode == "auto" && this.isTablet)))
       .append("sv-popup--show-pointer", !this.isOverlay && this.showHeader)
       .append(`sv-popup--${this.popupDirection}`, !this.isOverlay && (this.showHeader || this.popupDirection == "top" || this.popupDirection == "bottom"));
   }
@@ -233,7 +241,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         this.container.addEventListener("touchstart", this.touchStartEventCallback);
         this.container.addEventListener("touchmove", this.touchMoveEventCallback);
       }
-      this.calculateIsTablet(DomWindowHelper.getInnerWidth(), DomWindowHelper.getInnerHeight());
+      this.calculateIsTablet();
       this.resizeEventCallback();
     }
     DomWindowHelper.addEventListener("scroll", this.scrollEventCallBack);

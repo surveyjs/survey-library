@@ -18595,7 +18595,7 @@ QUnit.test("Expression with dates & defaultValueExpression & expression question
   checkFunc([true, true, false, false, true], 3);
 });
 
-QUnit.test("Check onPopupVisibleChanged events", function (assert) {
+QUnit.test("Check onPopupVisibleChanged events #1", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -18618,7 +18618,7 @@ QUnit.test("Check onPopupVisibleChanged events", function (assert) {
   popup.toggleVisibility();
   assert.equal(log, "->true->false");
 });
-QUnit.test("Check onPopupVisibleChanged events", function (assert) {
+QUnit.test("Check onPopupVisibleChanged events #2", function (assert) {
   assert.equal(settings.comparator.caseSensitive, false, "comparator.caseSensitive is false");
   const survey = new SurveyModel({ elements: [{ "type": "text", "name": "q1" }] });
   const q = survey.getQuestionByName("q1");
@@ -18628,6 +18628,34 @@ QUnit.test("Check onPopupVisibleChanged events", function (assert) {
   q.value = "abc";
   assert.equal(q.value, "ABC", "Convert to upper case");
 });
+
+QUnit.test("Check onOpenDropdownMenu events", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "choices": ["Item1", "Item2", "Item3"]
+      },
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const popup = question.dropdownListModel.popupModel;
+  survey.onOpenDropdownMenu.add((_, options) => {
+    assert.equal(options.question, question);
+    assert.equal(options.menuType, "dropdown");
+
+    options.menuType = "overlay";
+  });
+
+  assert.equal(popup.displayMode, "popup");
+  assert.equal(popup.overlayDisplayMode, "auto");
+
+  popup.toggleVisibility();
+  assert.equal(popup.displayMode, "overlay");
+  assert.equal(popup.overlayDisplayMode, "dropdown-overlay");
+});
+
 QUnit.test("Shared data #6584", (assert) => {
   const json = {
     logoPosition: "right",

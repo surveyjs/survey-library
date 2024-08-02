@@ -370,6 +370,9 @@ export class QuestionSelectBase extends Question {
     super.runCondition(values, properties);
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
+    this.choices.forEach(item => {
+      item.runConditionCore(values, properties);
+    });
   }
   protected isTextValue(): boolean {
     return true; //for comments and others

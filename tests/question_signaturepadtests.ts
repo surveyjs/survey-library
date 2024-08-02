@@ -517,3 +517,41 @@ QUnit.test("Question Signature pad invisible - on complete", function (assert) {
   survey.doComplete();
   assert.deepEqual(survey.data, { text: "abc" });
 });
+
+QUnit.test("Check signature download file event", (assert) => {
+  var el = document.createElement("div");
+  var canv = document.createElement("canvas");
+  el.appendChild(canv);
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "signaturepad",
+        name: "signature",
+        "signatureWidth": 100,
+        "signatureHeight": 100,
+        "dataFormat": "svg",
+        storeDataAsText: false
+      }
+    ],
+  });
+  var q: QuestionSignaturePadModel = <QuestionSignaturePadModel>survey.getQuestionByName("signature");
+  q.initSignaturePad(el);
+  let log = "";
+  survey.onDownloadFile.add((survey, options) => {
+    log += "->" + options.fileValue;
+    options.callback(
+      "success",
+      ""
+    );
+  });
+
+  assert.equal(q.currentState, "empty", "Initial state is empty");
+  survey.data = {
+    "signature": "file1.png"
+  };
+  assert.equal(log, "->file1.png", "file should be loaded only once");
+  assert.equal(q.currentState, "loaded", "The loaded state after data assigned");
+
+  canv.remove();
+  el.remove();
+});

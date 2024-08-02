@@ -2186,3 +2186,30 @@ QUnit.test("Unselect none item, bug#8438", (assert) => {
   q.clickItemHandler(q.noneItem, true);
   assert.deepEqual(q.value, ["none"], "#3");
 });
+
+QUnit.test("Add condition custom property", function (assert) {
+  Serializer.addProperty("itemvalue", {
+    name: "customExp:expression",
+    onExecuteExpression: (obj, res) => {
+      obj.setPropertyValue("customVal", res);
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [1, 2, { value: 3, customExp: "{q1.length}" }]
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const item3 = q.choices[2];
+  assert.equal(item3.getPropertyValue("customVal"), 0, "#1");
+  q.value = [1, 2, 3];
+  assert.equal(item3.getPropertyValue("customVal"), 3, "#2");
+  q.value = [2];
+  assert.equal(item3.getPropertyValue("customVal"), 1, "#3");
+
+  Serializer.removeProperty("itemvalue", "customExp");
+});

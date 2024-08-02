@@ -122,6 +122,7 @@
   display: inline-block;
   flex: 1;
   margin-top: calc(0.25 * var(--sd-base-vertical-padding)) 0;
+  max-width: 100%;
 }
 
 .sd-element--with-frame > .sd-question__content--left {

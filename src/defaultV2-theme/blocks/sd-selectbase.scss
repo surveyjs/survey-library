@@ -19,6 +19,8 @@
 .sd-selectbase--multi-column {
   display: flex;
   flex: 1 1 0px;
+  flex-wrap: nowrap;
+  overflow: auto;
 }
 
 .sd-selectbase__label {
@@ -37,7 +39,7 @@
   display: block;
   box-sizing: border-box;
   flex: 1 1 0px;
-  min-width: 0;
+  max-width: 100%;
 }
 
 .sd-selectbase__column:not(:last-child) {

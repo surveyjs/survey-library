@@ -306,8 +306,8 @@ export class QuestionMatrixModel
    *
    * Possible values:
    *
-   * - "initial" (default) - Preserves the original order of the `rows` array.
-   * - "random" - Arranges matrix rows in random order each time the question is displayed.
+   * - `"initial"` (default) - Preserves the original order of the `rows` array.
+   * - `"random"` - Arranges matrix rows in random order each time the question is displayed.
    * @see rows
    */
   public get rowsOrder(): string {

@@ -103,6 +103,7 @@ import SurveyNavigationButton from "./components/survey-actions/SurveyNavigation
 import PopupSurvey from "./PopupSurvey.vue";
 import CustomWidget from "./CustomWidget.vue";
 import PopupModal from "./components/popup/PopupModal.vue";
+import TextAreaComponent from "./components/TextArea.vue";
 import CharacterCounterComponent from "./components/CharacterCounter.vue";
 import Composite from "./Composite.vue";
 import Custom from "./Custom.vue";
@@ -258,8 +259,9 @@ function registerComponents(app: App) {
   app.component("survey-customwidget", CustomWidget);
   app.component("survey-popup-modal", PopupModal);
 
-  app.component("sv-character-counter", CharacterCounterComponent);
-
+  app.component("sv-character-counter", TextAreaComponent);
+  app.component("sv-text-area", CharacterCounterComponent);
+  
   app.component("survey-composite", Composite);
   app.component("survey-custom", Custom);
   app.component("sv-timerpanel", TimerPanel);

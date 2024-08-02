@@ -22,6 +22,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomWindowHelper } from "./global_variables_utils";
+import { ITextArea, TextAreaModel } from "./utils/text-area";
 
 export interface IConditionObject {
   name: string;
@@ -122,6 +123,7 @@ export class Question extends SurveyElement<Question>
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
   @property() ariaExpanded: "true" | "false";
+  @property() commentTextAreaModel: TextAreaModel;
 
   constructor(name: string) {
     super(name);
@@ -176,6 +178,9 @@ export class Question extends SurveyElement<Question>
     });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
+    this.registerPropertyChangedHandlers(["id", "renderedCommentPlaceholder"], () => {
+      this.updateCommentTextAreaModel();
+    });
   }
   protected getDefaultTitle(): string { return this.name; }
   protected createLocTitleProperty(): LocalizableString {
@@ -902,11 +907,6 @@ export class Question extends SurveyElement<Question>
   }
   public get isContainer(): boolean { return false; }
   protected updateCommentElements(): void {
-    if (!this.autoGrowComment || !Array.isArray(this.commentElements)) return;
-    for (let i = 0; i < this.commentElements.length; i++) {
-      const el = this.commentElements[i];
-      if (el) increaseHeightByContent(el);
-    }
   }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
@@ -1477,6 +1477,7 @@ export class Question extends SurveyElement<Question>
     this.onIndentChanged();
     this.updateQuestionCss();
     this.updateIsAnswered();
+    this.updateCommentTextAreaModel();
   }
   protected initDataFromSurvey(): void {
     if (!!this.data) {
@@ -2479,6 +2480,32 @@ export class Question extends SurveyElement<Question>
     );
   }
 
+  public updateCommentTextAreaModel(): void {
+    if (this.commentTextAreaModel) {
+      this.commentTextAreaModel.dispose();
+    }
+    this.commentTextAreaModel = new TextAreaModel(this.getCommentTextAreaOptions());
+  }
+  public getCommentTextAreaOptions(): ITextArea {
+    const options: ITextArea = {
+      question: this,
+      id: this.commentId,
+      propertyName: "comment",
+      className: this.cssClasses.comment,
+      isDisabledAttr: this.isInputReadOnly || false,
+      placeholder: this.renderedCommentPlaceholder,
+      rows: this.commentAreaRows,
+      autoGrow: this.autoGrowComment,
+      maxLength: this.getOthersMaxLength(),
+      ariaRequired: this.a11y_input_ariaRequired,
+      ariaLabel: this.a11y_input_ariaLabel,
+      getTextValue: () => { return this.comment; },
+      onTextAreaChange: (e) => { this.onCommentChange(e); },
+      onTextAreaInput: (e) => { this.onCommentInput(e); },
+    };
+    return options;
+  }
+
   @property() renderAs: string;
 
   @property({ defaultValue: false }) inMatrixMode: boolean;
@@ -2646,6 +2673,10 @@ export class Question extends SurveyElement<Question>
     super.dispose();
     this.resetDependedQuestions();
     this.destroyResizeObserver();
+    if (this.commentTextAreaModel) {
+      this.commentTextAreaModel.dispose();
+      this.commentTextAreaModel = undefined;
+    }
   }
   private resetDependedQuestions(): void {
     for (var i = 0; i < this.dependedQuestions.length; i++) {

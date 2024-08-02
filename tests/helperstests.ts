@@ -342,21 +342,21 @@ QUnit.test("Helpers.getNumber", function(assert) {
   assert.equal(Helpers.getNumber("0,1"), 0.1, "0,1 is a number");
   assert.equal(Helpers.getNumber("0x10"), 16, "0x10 is a number");
 });
-QUnit.test("Helpers.getNumber & settings.convertNumber, #8634", function(assert) {
-  const newConvertNumber = (originValue: any, numberValue: number): number => {
-    if(typeof originValue !== "string" || !originValue) return numberValue;
-    if(originValue.indexOf(",") < 0) return numberValue;
-    while(originValue.indexOf(",") > -1) {
-      originValue = originValue.replace(",", "");
+QUnit.test("Helpers.getNumber & settings.parseNumber, #8634", function(assert) {
+  const newParseNumber = (stringValue: any, numericValue: number): number => {
+    if(typeof stringValue !== "string" || !stringValue) return numericValue;
+    if(stringValue.indexOf(",") < 0) return numericValue;
+    while(stringValue.indexOf(",") > -1) {
+      stringValue = stringValue.replace(",", "");
     }
-    return Helpers.getNumber(originValue);
+    return Helpers.getNumber(stringValue);
   };
-  const oldCallback = settings.convertNumber;
+  const oldCallback = settings.parseNumber;
 
   assert.equal(isNaN(Helpers.getNumber("1,234,567")), true, "standard behavior");
-  settings.convertNumber = newConvertNumber;
+  settings.parseNumber = newParseNumber;
   assert.equal(Helpers.getNumber("1,234,567"), 1234567, "new behavior");
-  settings.convertNumber = oldCallback;
+  settings.parseNumber = oldCallback;
 });
 QUnit.test("Helpers.getNumberByIndex", function(assert) {
   assert.equal(Helpers.getNumberByIndex(0, "1."), "1.", "0/1.");

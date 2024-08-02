@@ -1564,20 +1564,20 @@ QUnit.test("ExpressionRunner: substring", function(assert) {
   assert.equal(runner.run(values), "", "10");
 });
 QUnit.test("ExpressionRunner: apply custom converter, #8634", function(assert) {
-  const newConvertNumber = (originValue: any, numberValue: number): number => {
-    if(typeof originValue !== "string" || !originValue) return numberValue;
-    if(originValue.indexOf(",") < 0) return numberValue;
-    while(originValue.indexOf(",") > -1) {
-      originValue = originValue.replace(",", "");
+  const newParseNumber = (stringValue: any, numericValue: number): number => {
+    if(typeof stringValue !== "string" || !stringValue) return numericValue;
+    if(stringValue.indexOf(",") < 0) return numericValue;
+    while(stringValue.indexOf(",") > -1) {
+      stringValue = stringValue.replace(",", "");
     }
-    return Helpers.getNumber(originValue);
+    return Helpers.getNumber(stringValue);
   };
-  const oldCallback = settings.convertNumber;
-  settings.convertNumber = newConvertNumber;
+  const oldCallback = settings.parseNumber;
+  settings.parseNumber = newParseNumber;
 
   var runner = new ExpressionRunner("{a} + {b}");
   const values: any = { a: "100,000", b: "10,000" };
   assert.equal(runner.run(values), 110000, "apply custom convertr");
 
-  settings.convertNumber = oldCallback;
+  settings.parseNumber = oldCallback;
 });

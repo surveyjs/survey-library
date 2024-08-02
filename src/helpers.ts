@@ -196,7 +196,7 @@ export class Helpers {
   }
   public static getNumber(value: any): number {
     const newValue = Helpers.getNumberCore(value);
-    return settings.convertNumber(value, newValue);
+    return settings.parseNumber(value, newValue);
   }
   private static getNumberCore(value: any): number {
     if (typeof value == "string") {

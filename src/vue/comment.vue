@@ -4,8 +4,7 @@
     <sv-character-counter
       :counter="question.characterCounter"
       :remainingCharacterCounter="question.cssClasses.remainingCharacterCounter"
-    >
-    </sv-character-counter>
+    ></sv-character-counter>
   </div>
   <sv-text-area
     v-else-if="!question.isReadOnlyRenderDiv()"

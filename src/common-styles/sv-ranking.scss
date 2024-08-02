@@ -51,11 +51,12 @@
 .sv-ranking-item__icon-container {
   position: relative;
   left: 0;
-  top: 0;
+  top: 5px;
   bottom: 0;
   flex-shrink: 0;
   width: calcSize(3);
   height: calcSize(4);
+  align-self: flex-start;
 }
 
 .sv-ranking-item--disabled.sv-ranking-item--disabled,
@@ -123,6 +124,8 @@
   margin: 0 calcSize(2);
   overflow-wrap: break-word;
   word-break: break-all;
+  align-self: self-start;
+  padding-top: calcSize(1);
 
   .sv-string-viewer {
     overflow: initial;

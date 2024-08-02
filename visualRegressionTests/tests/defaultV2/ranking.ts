@@ -329,4 +329,31 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-ranking-custom-item-content.png", itemContent, t, comparer);
     });
   });
+
+  test("Ranking long items", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await registerCustomItemContentComponent(framework);
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "ranking",
+            name: "ranking_question",
+            choices:
+            [
+              "longitem_1 longitem_1 longitem_1 longitem_1 longitem_1 longitem_1 longitem_1 longitem_1 longitem_1",
+              "item2",
+              "longitem_3 longitem_3 longitem_3 longitem_3 longitem_3 longitem_3 longitem_3 longitem_3 longitem_3",
+              "item4"
+            ]
+          }
+        ]
+      });
+      await takeElementScreenshot("question-ranking-long-items.png", Selector(".sd-question"), t, comparer);
+
+      await t.hover(".sv-ranking-item");
+      await takeElementScreenshot("question-ranking-hover-long-item.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 });

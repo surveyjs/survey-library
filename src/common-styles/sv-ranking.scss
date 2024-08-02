@@ -126,6 +126,7 @@
   word-break: break-all;
   align-self: self-start;
   padding-top: calcSize(1);
+  padding-bottom: calcSize(1);
 
   .sv-string-viewer {
     overflow: initial;

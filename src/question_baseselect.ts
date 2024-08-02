@@ -70,7 +70,6 @@ export class QuestionSelectBase extends Question {
     this.registerPropertyChangedHandlers(["id", "otherPlaceholder"], () => {
       this.updateOtherTextAreaModel();
     });
-    this.updateOtherTextAreaModel();
     this.createNewArray("visibleChoices");
     this.setNewRestfulProperty();
     var locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
@@ -1977,6 +1976,10 @@ export class QuestionSelectBase extends Question {
     return classes;
   }
 
+  protected onSetData(): void {
+    super.onSetData();
+    this.updateOtherTextAreaModel();
+  }
   public updateOtherTextAreaModel(): void {
     if (this.otherTextAreaModel) {
       this.otherTextAreaModel.dispose();
@@ -1993,7 +1996,7 @@ export class QuestionSelectBase extends Question {
       placeholder: this.otherPlaceholder,
       rows: this.commentAreaRows,
       maxLength: this.getOthersMaxLength(),
-      autoGrow: this.survey.autoGrowComment,
+      autoGrow: this.survey && this.survey.autoGrowComment,
       ariaRequired: this.ariaRequired || this.a11y_input_ariaRequired,
       ariaLabel: this.ariaLabel || this.a11y_input_ariaLabel,
       getTextValue: () => { return this.otherValue; },

@@ -181,7 +181,6 @@ export class Question extends SurveyElement<Question>
     this.registerPropertyChangedHandlers(["id", "renderedCommentPlaceholder"], () => {
       this.updateCommentTextAreaModel();
     });
-    this.updateCommentTextAreaModel();
   }
   protected getDefaultTitle(): string { return this.name; }
   protected createLocTitleProperty(): LocalizableString {
@@ -1478,6 +1477,7 @@ export class Question extends SurveyElement<Question>
     this.onIndentChanged();
     this.updateQuestionCss();
     this.updateIsAnswered();
+    this.updateCommentTextAreaModel();
   }
   protected initDataFromSurvey(): void {
     if (!!this.data) {

@@ -20,7 +20,6 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.registerPropertyChangedHandlers(["id", "rows", "cols", "renderedPlaceholder", "autoGrow"], () => {
       this.updateTextAreaModel();
     });
-    this.updateTextAreaModel();
   }
   @property() textAreaModel: TextAreaModel;
   /**
@@ -117,6 +116,10 @@ export class QuestionCommentModel extends QuestionTextBase {
       event.preventDefault();
       event.stopPropagation();
     }
+  }
+  protected onSetData(): void {
+    super.onSetData();
+    this.updateTextAreaModel();
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     super.setQuestionValue(newValue, updateIsAnswered);

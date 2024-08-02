@@ -36,7 +36,6 @@ export class QuestionSelectBase extends Question {
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private waitingGetChoiceDisplayValueResponse: boolean;
-  private _otherTextAreaModel: TextAreaModel;
   private get waitingChoicesByURL(): boolean {
     return !this.isChoicesLoaded && this.hasChoicesUrl;
   }
@@ -45,6 +44,7 @@ export class QuestionSelectBase extends Question {
       target.onSelectedItemValuesChangedHandler(newVal);
     }
   }) protected selectedItemValues: any;
+  @property() otherTextAreaModel: TextAreaModel;
 
   constructor(name: string) {
     super(name);
@@ -67,6 +67,10 @@ export class QuestionSelectBase extends Question {
     this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
       this.onVisibleChanged();
     });
+    this.registerPropertyChangedHandlers(["id", "otherPlaceholder"], () => {
+      this.updateOtherTextAreaModel();
+    });
+    this.updateOtherTextAreaModel();
     this.createNewArray("visibleChoices");
     this.setNewRestfulProperty();
     var locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
@@ -101,9 +105,9 @@ export class QuestionSelectBase extends Question {
     if (!!q) {
       q.removeDependedQuestion(this);
     }
-    if (this._otherTextAreaModel) {
-      this._otherTextAreaModel.dispose();
-      this._otherTextAreaModel = undefined;
+    if (this.otherTextAreaModel) {
+      this.otherTextAreaModel.dispose();
+      this.otherTextAreaModel = undefined;
     }
   }
   protected resetDependedQuestion(): void {
@@ -1970,11 +1974,11 @@ export class QuestionSelectBase extends Question {
     return classes;
   }
 
-  public get otherTextAreaModel(): TextAreaModel {
-    if (!this._otherTextAreaModel) {
-      this._otherTextAreaModel = new TextAreaModel(this.getOtherTextAreaOptions());
+  public updateOtherTextAreaModel(): void {
+    if (this.otherTextAreaModel) {
+      this.otherTextAreaModel.dispose();
     }
-    return this._otherTextAreaModel;
+    this.otherTextAreaModel = new TextAreaModel(this.getOtherTextAreaOptions());
   }
   public getOtherTextAreaOptions(): ITextArea {
     const options: ITextArea = {

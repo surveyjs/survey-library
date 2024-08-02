@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionTextBase } from "./question_textbase";
 import { increaseHeightByContent } from "./utils/utils";
@@ -13,7 +13,16 @@ import { Helpers } from "./helpers";
  */
 export class QuestionCommentModel extends QuestionTextBase {
   private element: HTMLElement;
-  private _textAreaModel: TextAreaModel;
+
+  constructor(name: string) {
+    super(name);
+
+    this.registerPropertyChangedHandlers(["id", "rows", "cols", "renderedPlaceholder", "autoGrow"], () => {
+      this.updateTextAreaModel();
+    });
+    this.updateTextAreaModel();
+  }
+  @property() textAreaModel: TextAreaModel;
   /**
    * Specifies the visible height of the comment area, measured in lines.
    *
@@ -129,11 +138,11 @@ export class QuestionCommentModel extends QuestionTextBase {
     return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
   }
 
-  public get textAreaModel(): TextAreaModel {
-    if (!this._textAreaModel) {
-      this._textAreaModel = new TextAreaModel(this.getTextAreaOptions());
+  public updateTextAreaModel(): void {
+    if (this.textAreaModel) {
+      this.textAreaModel.dispose();
     }
-    return this._textAreaModel;
+    this.textAreaModel = new TextAreaModel(this.getTextAreaOptions());
   }
 
   public getTextAreaOptions(): ITextArea {
@@ -171,9 +180,9 @@ export class QuestionCommentModel extends QuestionTextBase {
   }
   public dispose(): void {
     super.dispose();
-    if (this._textAreaModel) {
-      this._textAreaModel.dispose();
-      this._textAreaModel = undefined;
+    if (this.textAreaModel) {
+      this.textAreaModel.dispose();
+      this.textAreaModel = undefined;
     }
   }
 }

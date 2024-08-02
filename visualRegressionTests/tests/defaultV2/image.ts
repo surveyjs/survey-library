@@ -83,4 +83,25 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("image-not-load.png", questionRoot, t, comparer);
     });
   });
+  test("Check image question responsive width when image is located in row with multiple elements", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        "questions": [
+          {
+            "type": "text",
+            "name": "q1",
+          },
+          {
+            "type": "image",
+            "name": "q2",
+            "imageLink": "http://localhost:8080/testCafe/resources/small_Dashka.jpg",
+            "startWithNewLine": false
+          }
+        ]
+      });
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("image-in-row.png", questionRoot, t, comparer);
+    });
+  });
 });

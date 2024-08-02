@@ -1,19 +1,17 @@
 sv-brand-info {}
 
-sv-brand-info, .sv-brand-info {
+sv-brand-info,
+.sv-brand-info {
   z-index: 1;
   position: relative;
   margin-top: 1px;
 }
 
 .sv-brand-info {
-  width: 100%;
   font-family: $font-family;
-  text-align: center;
+  text-align: right;
   color: #161616;
-  background: white;
-  padding: 32px 0;
-  box-shadow: 0px -1px 0px #D6D6D6;
+  padding: 32px 40px;
 
   a {
     color: #161616;
@@ -43,5 +41,12 @@ sv-brand-info, .sv-brand-info {
 
   a {
     color: #909090;
+  }
+}
+
+.sd-body--responsive {
+  .sv-brand-info {
+    padding-right: 0;
+    padding-left: 0;
   }
 }

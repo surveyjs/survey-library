@@ -1,8 +1,6 @@
 <template>
-<div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
-<sv-text-area v-else
-:model="question.commentTextAreaModel"
-></sv-text-area>
+  <div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
+  <sv-text-area v-else :model="question.commentTextAreaModel"></sv-text-area>
 </template>
 
 <script lang="ts">

@@ -260,7 +260,7 @@ export class Const extends Operand {
     return this.getCorrectValue(this.value);
   }
 
-  public setVariables(variables: Array<string>) {}
+  public setVariables(variables: Array<string>): void {}
   protected getCorrectValue(value: any): any {
     if (!value || typeof value != "string") return value;
     if (OperandMaker.isBooleanValue(value)) return value.toLowerCase() === "true";
@@ -270,10 +270,13 @@ export class Const extends Operand {
       this.isQuote(value[value.length - 1])
     )
       return value.substring(1, value.length - 1);
-    if (Helpers.isNumber(value)) {
-      if (value.indexOf("0x") == 0) return parseInt(value);
-      if (value.length > 1 && value[0] == "0" && (value.length < 2 || (value[1] !== "." && value[1] !== ","))) return value;
-      return parseFloat(value);
+    if(Helpers.isNumber(value)) {
+      if(value[0] === "0" && value.indexOf("0x") != 0) {
+        const len = value.length;
+        const hasPoint = len > 1 && (value[1] === "." || value[1] === ",");
+        if(!hasPoint && len > 1 || hasPoint && len < 2) return value;
+      }
+      return Helpers.getNumber(value);
     }
     return value;
   }

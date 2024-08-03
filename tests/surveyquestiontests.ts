@@ -7852,3 +7852,32 @@ QUnit.test("question.isDefaultValue", function (assert) {
   assert.equal(q3.isValueDefault, false, "q3 #4");
   assert.equal(q4.isValueDefault, false, "q4 #4");
 });
+QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
+  const survey = new SurveyModel({
+    validateVisitedEmptyFields: true,
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      { name: "q1", type: "text", isRequired: true },
+      { name: "q2", type: "comment", isRequired: true },
+      { name: "q3", type: "dropdown", choices: [1, 2, 3], isRequired: true },
+      { name: "q4", type: "tagbox", choices: [1, 2, 3], isRequired: true }
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCommentModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionDropdownModel>survey.getQuestionByName("q3");
+  const q4 = <QuestionTagboxModel>survey.getQuestionByName("q4");
+  const event: any = { target: {}, stopPropagation: () => {} };
+  q1.onFocus(event);
+  q1.onBlur(event);
+  assert.equal(q1.errors.length, 1, "q1 errors");
+  q2.onFocus(event);
+  q2.onBlur(event);
+  assert.equal(q2.errors.length, 1, "q2 errors");
+  q3.onFocus(event);
+  q3.onBlur(event);
+  assert.equal(q3.errors.length, 1, "q3 errors");
+  q4.onFocus(event);
+  q4.onBlur(event);
+  assert.equal(q4.errors.length, 1, "q4 errors");
+});

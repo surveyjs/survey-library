@@ -357,6 +357,14 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       event.stopPropagation();
     }
   }
+  onBlur(event: any): void {
+    this.dropdownListModel?.onBlur(event);
+    this.onBlurCore(event);
+  }
+  onFocus(event: any): void {
+    this.dropdownListModel?.onFocus(event);
+    this.onFocusCore(event);
+  }
 
   public dispose(): void {
     super.dispose();

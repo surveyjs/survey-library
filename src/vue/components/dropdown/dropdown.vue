@@ -58,7 +58,7 @@
       :placeholder="model.placeholderRendered"
       @input="inputChange"
       @blur="blur"
-    @focus="focus"
+      @focus="focus"
         />
       </div>
       <div
@@ -152,11 +152,11 @@ export class DropdownComponent extends BaseVue {
     this.model?.keyHandler(event);
   }
   public blur(event: any) {
-    this.model?.onBlur(event);
+    this.question.onBlur(event);
     this.updateInputDomElement();
   }
   public focus(event: any) {
-    this.model?.onFocus(event);
+    this.question.onFocus(event);
   }
 
   protected onMounted() {

@@ -122,7 +122,7 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
     mode: isProductionBuild ? "production" : "development",
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
-      plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
+      plugins: [new TsconfigPathsPlugin({ configFile: options.tsConfigFile || "./tsconfig.json" })],
     },
     optimization: {
       minimize: isProductionBuild,
@@ -135,6 +135,7 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
           options: {
             transpileOnly: isProductionBuild,
             appendTsSuffixTo: [/\.vue$/],
+            configFile: options.tsConfigFile || 'tsconfig.json'
           },
         },
         {
@@ -221,11 +222,6 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
       new CamelCaseNamePlugin()
     ],
   };
-
-  if (!!options.tsConfigFile) {
-    config.module.rules[0].options.configFile = options.tsConfigFile;
-    config.resolve.plugins = [];
-  }
 
   if (!!options.platform) {
     config.plugins.unshift(new webpack.ProgressPlugin(percentage_handler));

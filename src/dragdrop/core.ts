@@ -63,7 +63,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
       event
     );
     this.onStartDrag(event);
-    const fromElement = this.draggedElement.parent;
+    const fromElement = this.draggedElement && this.draggedElement.parent;
     this.onDragStart.fire(this, { fromElement: fromElement, draggedElement: this.draggedElement });
   }
 

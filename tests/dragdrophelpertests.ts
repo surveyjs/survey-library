@@ -144,12 +144,14 @@ QUnit.test("choices: onDragStart and onDragEnd events", function (assert) {
   ddHelper.parentElement = question;
   ddHelper.draggedElement = question.choices[2];
 
+  ddHelper["createDraggedElementShortcut"] = ()=>{};
+  ddHelper.dragInit(null, ddHelper.draggedElement, ddHelper.parentElement, document.createElement("div"));
+  assert.equal(beforeCount, 1);
+  ddHelper["allowDropHere"] = true;
   ddHelper["domAdapter"]["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
-  ddHelper["allowDropHere"] = true;
   ddHelper["drop"]();
-  assert.equal(beforeCount, 1);
   assert.equal(afterCount, 1);
   assert.equal(draggedElementParent.name, "q");
 });

@@ -1,7 +1,6 @@
 "use strict";
 
 const webpackCommonConfigCreator = require("../webpack.common");
-const DtsGeneratorPlugin = require("../webpack-dts-generator");
 const { merge } = require("webpack-merge");
 var packageJson = require("./package.json");
 var FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
@@ -18,17 +17,12 @@ const config = {
   },
   plugins: [
     new FixStyleOnlyEntriesPlugin(),
-    new DtsGeneratorPlugin({
-      tsConfigPath: "./build-scripts/survey-core/tsconfig.typing.json",
-      filePath: "build/survey-core/survey.core.d.ts",
-      moduleName: "survey-core",
-      importName: "entries/core"
-    }),
   ],
 };
 
 module.exports = function (options) {
   options.platform = "core";
   options.libraryName = "Survey";
+  options.tsConfigFile = path.resolve(__dirname, "./tsconfig.json")
   return merge(webpackCommonConfigCreator(options, packageJson, "survey.core"), config);
 };

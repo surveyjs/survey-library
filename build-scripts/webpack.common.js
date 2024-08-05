@@ -133,7 +133,7 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
           test: /\.(ts|tsx)$/,
           loader: "ts-loader",
           options: {
-            //transpileOnly: options.buildType !== "prod",
+            transpileOnly: isProductionBuild,
             appendTsSuffixTo: [/\.vue$/],
           },
         },
@@ -221,6 +221,11 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
       new CamelCaseNamePlugin()
     ],
   };
+
+  if (!!options.tsConfigFile) {
+    config.module.rules[0].options.configFile = options.tsConfigFile;
+    config.resolve.plugins = [];
+  }
 
   if (!!options.platform) {
     config.plugins.unshift(new webpack.ProgressPlugin(percentage_handler));

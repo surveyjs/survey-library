@@ -11,6 +11,8 @@ export {
   SurveyQuestion,
   SurveyElementErrors,
   SurveyQuestionAndErrorsCell,
+} from "../react/reactquestion";
+export type {
   ISurveyCreator
 } from "../react/reactquestion";
 export {

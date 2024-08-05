@@ -208,6 +208,7 @@ export var settings = {
    * const item = new ItemValue("item1");
    * const itemString = item.toJSON(); // Produces { value: "item1", text: "item1" } instead of "item1"
    * ```
+   * @see [settings.parseNumber](https://surveyjs.io/form-library/documentation/api-reference/settings#parseNumber)
    */
   serialization: {
     itemValueSerializeAsObject: false,
@@ -800,5 +801,29 @@ export var settings = {
    * }
    * ```
    */
-  storeUtcDates: false
+  storeUtcDates: false,
+  /**
+   * A function that allows you to define custom parsing rules for numbers represented as string values.
+   *
+   * The following code shows a template that you can use to implement the `parseNumber` function:
+   *
+   * ```js
+   * import { settings } from "survey-core";
+   *
+   * settings.parseNumber = (stringValue, numericValue) => {
+   *   if (typeof stringValue !== "string" || !stringValue)
+   *     return numericValue;
+   *   let parsedNumber = numericValue;
+   *   // ...
+   *   // Parsing the number according to custom parsing rules
+   *   // ...
+   *   return parsedNumber;
+   * };
+   * ```
+   * @param stringValue A number represented as a string value.
+   * @param numericValue A number parsed using a default parsing function. `NaN` if the original string is not a number.
+   * @returns A number that results from parsing the string value.
+   * @see [settings.serialization](https://surveyjs.io/form-library/documentation/api-reference/settings#serialization)
+   */
+  parseNumber: (stringValue: any, numericValue: number): number => { return numericValue; }
 };

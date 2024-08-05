@@ -1563,3 +1563,21 @@ QUnit.test("ExpressionRunner: substring", function(assert) {
   values.s = 10;
   assert.equal(runner.run(values), "", "10");
 });
+QUnit.test("ExpressionRunner: apply custom converter, #8634", function(assert) {
+  const newParseNumber = (stringValue: any, numericValue: number): number => {
+    if(typeof stringValue !== "string" || !stringValue) return numericValue;
+    if(stringValue.indexOf(",") < 0) return numericValue;
+    while(stringValue.indexOf(",") > -1) {
+      stringValue = stringValue.replace(",", "");
+    }
+    return Helpers.getNumber(stringValue);
+  };
+  const oldCallback = settings.parseNumber;
+  settings.parseNumber = newParseNumber;
+
+  var runner = new ExpressionRunner("{a} + {b}");
+  const values: any = { a: "100,000", b: "10,000" };
+  assert.equal(runner.run(values), 110000, "apply custom convertr");
+
+  settings.parseNumber = oldCallback;
+});

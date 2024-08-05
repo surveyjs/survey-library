@@ -22,6 +22,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
 
   public onDragStart: EventBase<DragDropCore<T>> = new EventBase();
   public onDragEnd: EventBase<DragDropCore<T>> = new EventBase();
+  public onDragClear: EventBase<DragDropCore<T>> = new EventBase();
   public onBeforeDrop = this.onDragStart;
   public onAfterDrop = this.onDragEnd;
 
@@ -243,5 +244,6 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     this.draggedElement = null;
     this.isBottom = null;
     this.parentElement = null;
+    this.onDragClear.fire(this, {});
   }
 }

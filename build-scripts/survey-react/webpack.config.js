@@ -31,7 +31,7 @@ const config = {
       tsConfigPath: "./build-scripts/survey-react/tsconfig.typing.react.json",
       filePath: "build/survey-react/survey.react.d.ts",
       moduleName: "survey-react",
-      importName: "entries/react"
+      importName: "src/entries/react"
     }),
   ],
 };

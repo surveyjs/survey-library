@@ -19,6 +19,27 @@ sv-brand-info,
   }
 }
 
+.sd-body--static {
+  .sv-brand-info {
+    padding-top: 0;
+    margin-top: 16px;
+  }
+}
+
+.sd-body--responsive {
+  .sv-brand-info {
+    padding-top: 0;
+    margin-top: -8px;
+  }
+}
+
+.sd-root-modern--mobile {
+  .sv-brand-info {
+    padding: 24px;
+    margin-top: 0;
+  }
+}
+
 .sv-brand-info__text {
   font-weight: 600;
   font-size: calcFontSize(1);

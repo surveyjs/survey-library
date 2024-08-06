@@ -116,7 +116,7 @@ QUnit.test("dropTargetDataAttributeName for choices", function (assert) {
   );
 });
 
-QUnit.test("choices: onDragStart and onDragEnd events", function (assert) {
+QUnit.test("choices: onDragStart, onDragEnd, onDragClear events", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -131,6 +131,7 @@ QUnit.test("choices: onDragStart and onDragEnd events", function (assert) {
   );
   let beforeCount = 0;
   let afterCount = 0;
+  let clearCount = 0;
   let draggedElementParent;
 
   const ddHelper: any = new DragDropChoices(survey);
@@ -141,17 +142,25 @@ QUnit.test("choices: onDragStart and onDragEnd events", function (assert) {
     afterCount++;
     draggedElementParent = options.draggedElement;
   });
+  ddHelper.onDragClear.add((sender, options) => {
+    clearCount++;
+  });
+
   ddHelper.parentElement = question;
   ddHelper.draggedElement = question.choices[2];
 
+  ddHelper["createDraggedElementShortcut"] = ()=>{};
+  ddHelper.dragInit(null, ddHelper.draggedElement, ddHelper.parentElement, document.createElement("div"));
+  assert.equal(beforeCount, 1);
+  ddHelper["allowDropHere"] = true;
   ddHelper["domAdapter"]["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
-  ddHelper["allowDropHere"] = true;
   ddHelper["drop"]();
-  assert.equal(beforeCount, 1);
   assert.equal(afterCount, 1);
   assert.equal(draggedElementParent.name, "q");
+  ddHelper["clear"]();
+  assert.equal(clearCount, 1);
 });
 
 QUnit.test("DragDropRankingChoices shortcutClass getter", function (assert) {

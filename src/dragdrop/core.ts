@@ -22,6 +22,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
 
   public onDragStart: EventBase<DragDropCore<T>> = new EventBase();
   public onDragEnd: EventBase<DragDropCore<T>> = new EventBase();
+  public onDragClear: EventBase<DragDropCore<T>> = new EventBase();
   public onBeforeDrop = this.onDragStart;
   public onAfterDrop = this.onDragEnd;
 
@@ -63,6 +64,8 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
       event
     );
     this.onStartDrag(event);
+    const fromElement = this.draggedElement && this.draggedElement.parent;
+    this.onDragStart.fire(this, { fromElement: fromElement, draggedElement: this.draggedElement });
   }
 
   protected onStartDrag(event?: PointerEvent): void {
@@ -230,7 +233,6 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
   public drop(): void {
     if (this.allowDropHere) {
       const fromElement = this.draggedElement.parent;
-      this.onDragStart.fire(this, { fromElement: fromElement, draggedElement: this.draggedElement });
       const newElement = this.doDrop();
       this.onDragEnd.fire(this, { fromElement: fromElement, draggedElement: newElement, toElement: this.dropTarget });
     }
@@ -242,5 +244,6 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     this.draggedElement = null;
     this.isBottom = null;
     this.parentElement = null;
+    this.onDragClear.fire(this, {});
   }
 }

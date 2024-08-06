@@ -1022,12 +1022,30 @@ export interface PopupVisibleChangedEvent extends QuestionEventMixin {
 }
 
 export interface OpenDropdownMenuEvent extends QuestionEventMixin {
-  menuType: "dropdown" | "popup" | "overlay";
-  deviceType: "mobile" | "tablet" | "desktop";
-  hasTouchScreen: boolean;
-  screenHeight: number;
-  screenWidth: number;
+  /**
+   * A question for which the event is raised.
+   */
   question: Question;
+  /**
+   * A device type.
+   */
+  deviceType: "mobile" | "tablet" | "desktop";
+  /**
+   * A Boolean value that indicates whether the current device supports touch gestures.
+   */
+  hasTouchScreen: boolean;
+  /**
+   * The height of the device screen in pixels.
+   */
+  screenHeight: number;
+  /**
+   * The width of the device screen in pixels.
+   */
+  screenWidth: number;
+  /**
+   * A menu type to use for the question: a classic dropdown, a pop-up dialog, or an overlay window. You can modify this parameter's value.
+   */
+  menuType: "dropdown" | "popup" | "overlay";
 }
 
 export interface ElementWrapperComponentEventMixin {

@@ -83,6 +83,7 @@ export var defaultV2Css = {
     footer: "sd-panel__footer",
     requiredText: "sd-panel__required-text",
     header: "sd-panel__header sd-element__header sd-element__header--location-top",
+    headerHidden: "sd-panel__header--hidden",
     collapsed: "sd-element--collapsed",
     expanded: "sd-element--expanded",
     expandable: "sd-element--expandable",

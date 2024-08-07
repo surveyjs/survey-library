@@ -2,17 +2,16 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "jsx": "react",
     "paths": {
       "survey-core": [
         "../../build/survey-core"
       ]
     },
     "declaration": true,
-    "declarationDir": "../../build/survey-react-ui/typings"
+    "declarationDir": "../../build/survey-core/themes/"
   },
   "include": [
-    "../../src/entries/react-ui.ts"
+    "../../src/themes/index.ts"
   ],
-  "exclude": []
+  "exclude": [],
 }

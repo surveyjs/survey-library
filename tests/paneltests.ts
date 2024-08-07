@@ -13,6 +13,7 @@ import { ActionContainer } from "../src/actions/container";
 import { IElement } from "../src/base-interfaces";
 import { StylesManager } from "../src/stylesmanager";
 import { SurveyElement } from "../src/survey-element";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 
 export default QUnit.module("Panel");
 
@@ -2819,6 +2820,28 @@ QUnit.test("panel check title in design mode", function (assert) {
   survey.css.panel.titleHidden = oldCss;
   survey.css.root = oldRootCss;
 });
+
+QUnit.test("panel dynamic inner panel title in design mode", function (assert) {
+  StylesManager.applyTheme("default");
+  const survey = new SurveyModel();
+
+  survey.setJsonObject({
+    questions: [
+      {
+        "type": "paneldynamic",
+        "name": "question1"
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+  assert.equal(panel.template.hasTitle, false);
+  survey.setDesignMode(true);
+  assert.equal(panel.template.hasTitle, false);
+
+  panel.templateTitle = "asd";
+  assert.equal(panel.template.hasTitle, true);
+});
+
 QUnit.test("Check if errors disappered in the closest questions on changing the question, checkErrorsMode: 'onValueChanged', Bug#8539", function (assert) {
   const survey = new SurveyModel({
     checkErrorsMode: "onValueChanged",

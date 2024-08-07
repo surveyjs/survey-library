@@ -26,6 +26,7 @@ export interface IDragDropDOMAdapter {
   draggedElementShortcut: HTMLElement;
   rootContainer: HTMLElement;
   documentOrShadowRoot: Document | ShadowRoot;
+  rootElement?: HTMLElement;
 }
 
 export class DragDropDOMAdapter implements IDragDropDOMAdapter {
@@ -47,7 +48,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   public get documentOrShadowRoot(): Document | ShadowRoot {
     return settings.environment.root;
   }
-  private get rootElement() {
+  public get rootElement():any {
     if(isShadowDOM(settings.environment.root)) {
       return this.rootContainer || settings.environment.root.host;
     } else {

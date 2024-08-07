@@ -132,6 +132,10 @@
   align-items: flex-start;
   padding-right: 0;
 
+  &.sd-selectbase__column {
+    min-width: 0;
+  }
+  
   .sd-imagepicker__item {
     width: 100%;
   }

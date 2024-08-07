@@ -938,7 +938,7 @@ export class QuestionPanelDynamicModel extends Question
       const panel = this.createNewPanel();
       this.panelsCore.push(panel);
       if (this.renderMode == "list" && this.panelsState != "default") {
-        if (this.panelsState === "expand") {
+        if (this.panelsState === "expanded") {
           panel.expand();
         } else {
           if (!!panel.title) {

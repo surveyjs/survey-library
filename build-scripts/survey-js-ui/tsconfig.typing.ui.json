@@ -28,6 +28,5 @@
   },
   "include": [
     "../../src/entries/js-ui.ts",
-    "../../src/entries/react-ui-model.ts"
   ],
 }

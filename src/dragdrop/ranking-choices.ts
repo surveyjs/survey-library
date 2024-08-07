@@ -24,8 +24,19 @@ export class DragDropRankingChoices extends DragDropChoices {
     draggedElementShortcut.appendChild(clone);
 
     const rect = draggedElementNode.getBoundingClientRect();
+
+    draggedElementShortcut.style.left = rect.x;
+    draggedElementShortcut.style.top = rect.y;
+    this.domAdapter.rootElement.append(draggedElementShortcut);
+    const shortcutHeight = draggedElementShortcut.offsetHeight;
+    let clientY = event.clientY;
+
+    if (clientY > rect.y + shortcutHeight) {
+      clientY = rect.y + shortcutHeight - 10; //TODO
+    }
+
     draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
-    draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
+    draggedElementShortcut.shortcutYOffset = clientY - rect.y;
 
     if (this.parentElement && this.parentElement.useFullItemSizeForShortcut) {
       draggedElementShortcut.style.width = draggedElementNode.offsetWidth + "px";

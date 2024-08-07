@@ -32,7 +32,7 @@ import { dxSurveyService } from "./dxSurveyService";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
-import { StylesManager } from "./stylesmanager";
+// import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
 import { IQuestionPlainData, Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
@@ -98,15 +98,15 @@ export class SurveyModel extends SurveyElementCore
   ISurveyTimerText {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
-  public static get cssType(): string {
-    return surveyCss.currentType;
-  }
-  public static set cssType(value: string) {
-    StylesManager.applyTheme(value);
-  }
+  // public static get cssType(): string {
+  //   return surveyCss.currentType;
+  // }
+  // public static set cssType(value: string) {
+  //   StylesManager.applyTheme(value);
+  // }
 
   [index: string]: any;
-  private static stylesManager: StylesManager = null;
+  // private static stylesManager: StylesManager = null;
   public static platform: string = "unknown";
   public get platformName(): string {
     return SurveyModel.platform;
@@ -854,9 +854,9 @@ export class SurveyModel extends SurveyElementCore
 
   constructor(jsonObj: any = null, renderedElement: any = null) {
     super();
-    if (DomDocumentHelper.isAvailable()) {
-      SurveyModel.stylesManager = new StylesManager();
-    }
+    // if (DomDocumentHelper.isAvailable()) {
+    //   SurveyModel.stylesManager = new StylesManager();
+    // }
     const htmlCallBack = (str: string): string => { return "<h3>" + str + "</h3>"; };
     this.createHtmlLocString("completedHtml", "completingSurvey", htmlCallBack);
     this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack, "completed-before");

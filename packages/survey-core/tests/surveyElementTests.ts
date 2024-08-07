@@ -5,7 +5,7 @@ import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Serializer } from "../src/jsonobject";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
-import { StylesManager } from "../src/stylesmanager";
+import { StylesManager } from "stylesmanager";
 
 export default QUnit.module("SurveyElement");
 

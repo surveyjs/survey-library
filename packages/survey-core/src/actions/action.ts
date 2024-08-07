@@ -363,8 +363,8 @@ export abstract class BaseAction extends Base implements IAction {
   @property({ defaultValue: false }) isPressed: boolean;
   @property({ defaultValue: false }) isHovered: boolean;
 
-  private showPopupTimeout: NodeJS.Timeout;
-  private hidePopupTimeout: NodeJS.Timeout;
+  private showPopupTimeout: any;
+  private hidePopupTimeout: any;
   private clearPopupTimeouts() {
     if (this.showPopupTimeout) clearTimeout(this.showPopupTimeout);
     if (this.hidePopupTimeout) clearTimeout(this.hidePopupTimeout);

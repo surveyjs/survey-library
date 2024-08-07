@@ -1,4 +1,4 @@
-import { surveyCss } from "./defaultV2Css";
+import { surveyCss } from "../../packages/survey-core/src/defaultCss/defaultV2Css";
 
 export var defaultStandardCss = {
   root: "sv_main sv_default_css",

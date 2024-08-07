@@ -1,7 +1,7 @@
 // eslint-disable-next-line surveyjs/no-imports-from-entries
 import { bootstrapThemeName } from "../src/entries/plugins";
 import { StylesManager } from "../src/stylesmanager";
-import { Logger } from "../src/utils/utils";
+import { Logger } from "../packages/survey-core/src/utils/utils";
 
 export default QUnit.module("Styles Manager");
 

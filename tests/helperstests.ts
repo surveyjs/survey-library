@@ -351,6 +351,11 @@ QUnit.test("Helpers.getNumberByIndex", function(assert) {
   assert.equal(Helpers.getNumberByIndex(2, "1.01"), "1.03", "2/1.02");
   assert.equal(Helpers.getNumberByIndex(2, "01"), "03.", "2/01");
 });
+QUnit.test("Helpers.getNumberByIndex", function(assert) {
+  assert.equal(Helpers.getRemainingCharacterCounterText("", 10), "0/10", "''/10");
+  assert.equal(Helpers.getRemainingCharacterCounterText("abc", 10), "3/10", "'abc'/10");
+  assert.equal(Helpers.getRemainingCharacterCounterText(undefined, 10), "0/10", "undefined/10");
+});
 
 class ObjectWithDecoratedProperties extends Base {
   @property({ defaultValue: true }) boolPropertyWithDefault: boolean;

@@ -638,7 +638,7 @@ export class QuestionTextModel extends QuestionTextBase {
     super.onBlurCore(event);
   }
   protected onFocusCore(event: any): void {
-    this.updateRemainingCharacterCounter(event);
+    this.updateRemainingCharacterCounter(event.target.value);
     super.onFocusCore(event);
   }
   public afterRenderQuestionElement(el: HTMLElement) {

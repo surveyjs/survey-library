@@ -8,10 +8,10 @@
       ]
     },
     "declaration": true,
-    "emitDeclarationOnly": true,
-    "outDir": "../../build/survey-core/themes/typings/"
+    "declarationDir": "../../build/survey-core/plugins"
   },
   "include": [
-    "../../src/themes/index.ts"
-  ]
+    "../../src/plugins/themes/bootstrap-material-integration/index.ts"
+  ],
+  "exclude": [],
 }

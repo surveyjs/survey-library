@@ -413,7 +413,7 @@ export class PanelModelBase extends SurveyElement<Question>
   get hasTitle(): boolean {
     return (
       (this.canShowTitle() && this.locTitle.textOrHtml.length > 0) ||
-      (this.isDesignMode && (this.showTitle && settings.designMode.showEmptyTitles))
+      (this.isDesignMode && (this.showTitle && this.isInteractiveDesignElement && settings.designMode.showEmptyTitles))
     );
   }
   public delete(doDispose: boolean = true): void {
@@ -2013,6 +2013,14 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.onIndentChanged();
     this.calcHasTextInTitle();
   }
+  public get cssHeader(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.panel.header)
+      .append(this.cssClasses.panel.headerHidden,
+        !this.hasTextInTitle &&
+        !this.hasDescription &&
+        this.isDesignMode).toString();
+  }
   public get isPanel(): boolean {
     return true;
   }
@@ -2124,7 +2132,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.onGetTextCallback = (text: string): string => {
-      if (!text && (this.state !== "default" || (this.isDesignMode && this.isDefaultV2Theme))) {
+      if (!text && (this.state !== "default" || (this.isDesignMode && this.isDefaultV2Theme && this.isInteractiveDesignElement))) {
         text = this.name;
       }
       return text;

@@ -122,7 +122,7 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
     mode: isProductionBuild ? "production" : "development",
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
-      plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
+      plugins: [new TsconfigPathsPlugin({ configFile: options.tsConfigFile || "./tsconfig.json" })],
     },
     optimization: {
       minimize: isProductionBuild,
@@ -133,8 +133,9 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
           test: /\.(ts|tsx)$/,
           loader: "ts-loader",
           options: {
-            //transpileOnly: options.buildType !== "prod",
+            transpileOnly: isProductionBuild,
             appendTsSuffixTo: [/\.vue$/],
+            configFile: options.tsConfigFile || 'tsconfig.json'
           },
         },
         {

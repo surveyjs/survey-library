@@ -39,6 +39,7 @@ module.exports = function (options) {
   options.libraryName = "SurveyLocales";
   patchEntries();
   patchFilename(options);
+  options.tsConfigFile = path.resolve(__dirname, "./tsconfig.i18n.json")
   return merge(webpackCommonConfigCreator(options, packageJson, "survey.i18n"), config);
 };
 

@@ -413,7 +413,7 @@ export class PanelModelBase extends SurveyElement<Question>
   get hasTitle(): boolean {
     return (
       (this.canShowTitle() && this.locTitle.textOrHtml.length > 0) ||
-      (this.isDesignMode && (this.showTitle && settings.designMode.showEmptyTitles))
+      (this.isDesignMode && (this.showTitle && this.isInteractiveDesignElement && settings.designMode.showEmptyTitles))
     );
   }
   public delete(doDispose: boolean = true): void {
@@ -2124,7 +2124,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.onGetTextCallback = (text: string): string => {
-      if (!text && (this.state !== "default" || (this.isDesignMode && this.isDefaultV2Theme))) {
+      if (!text && (this.state !== "default" || (this.isDesignMode && this.isDefaultV2Theme && this.isInteractiveDesignElement))) {
         text = this.name;
       }
       return text;

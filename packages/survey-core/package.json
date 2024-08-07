@@ -19,12 +19,11 @@
     "@types/qunit": "2.0.31",
     "ace-builds": "1.2.2",
     "ajv": "8.17.1",
+    "async": "3.2.5",
     "autoprefixer": "^10.4.17",
     "concurrently": "^5.2.0",
-    "copy-webpack-plugin": "^4.6.0",
     "css-loader": "^7.1.2",
     "dotenv": "4.0.0",
-    "dts-bundle": "0.7.2",
     "eslint": "^7.32.0",
     "file-loader": "^0.10.1",
     "github-api": "^3.4.0",
@@ -55,8 +54,7 @@
     "webpack-dev-server": "^5.0.4",
     "webpack-fix-style-only-entries": "^0.6.1",
     "webpack-merge": "^5.8.0",
-    "webpack-remove-empty-scripts": "^1.0.4",
-    "webpack-svgstore-plugin": "^4.1.0"
+    "webpack-remove-empty-scripts": "^1.0.4"
   },
   "overrides": {
     "karma-webpack": {

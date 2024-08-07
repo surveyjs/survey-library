@@ -1,3 +1,0 @@
-﻿<script type="text/html" id="survey-question-date">
-    <input type="text" data-bind="attr: {size: question.size, id: question.dateId}, value:question.value, css: $root.css.text" />
-</script>

@@ -35,7 +35,7 @@ const config = {
       tsConfigPath: "./build-scripts/survey-js-ui/tsconfig.typing.ui.json",
       filePath: "build/survey-js-ui/survey-js-ui.d.ts",
       moduleName: "survey-js-ui",
-      importName: "entries/js-ui"
+      importName: "src/entries/js-ui"
     }),
   ],
 };

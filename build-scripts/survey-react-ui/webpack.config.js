@@ -1,9 +1,9 @@
 "use strict";
 
 const webpackCommonConfigCreator = require("../webpack.common");
-const DtsGeneratorPlugin = require("../webpack-dts-generator");
 const { merge } = require("webpack-merge");
-var packageJson = require("./package.json");
+const packageJson = require("./package.json");
+const path = require("path");
 
 const config = {
   externals: {
@@ -26,18 +26,11 @@ const config = {
       amd: "survey-core"
     }
   },
-  plugins: [
-    new DtsGeneratorPlugin({
-      tsConfigPath: "./build-scripts/survey-react-ui/tsconfig.typing.react-ui.json",
-      filePath: "build/survey-react-ui/survey-react-ui.d.ts",
-      moduleName: "survey-react-ui",
-      importName: "entries/react-ui-model"
-    }),
-  ],
 };
 
 module.exports = function (options) {
   options.platform = "react-ui";
   options.libraryName = "SurveyReact";
+  options.tsConfigFile = path.resolve(__dirname, "./tsconfig.json")
   return merge(webpackCommonConfigCreator(options, packageJson), config);
 }

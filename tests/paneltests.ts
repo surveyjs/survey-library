@@ -2791,7 +2791,9 @@ QUnit.test("panel check title in design mode", function (assert) {
   var oldCss = survey.css.panel.titleHidden;
   var oldRootCss = survey.css.root;
   survey.css.root = "sd-root-modern";
+  survey.css.panel.header = "sv_p_header";
   survey.css.panel.titleHidden = "sv_p_title--hidden";
+  survey.css.panel.headerHidden = "sv_p_header--hidden";
 
   survey.setJsonObject({
     questions: [
@@ -2810,8 +2812,10 @@ QUnit.test("panel check title in design mode", function (assert) {
   const panel = <PanelModel>survey.getAllPanels()[0];
   assert.equal(panel.hasTitle, false);
   assert.equal(panel.cssTitle, "sv_p_title");
+  assert.equal(panel.cssHeader, "sv_p_header");
   survey.setDesignMode(true);
   assert.equal(panel.hasTitle, true);
+  assert.equal(panel.cssHeader, "sv_p_header sv_p_header--hidden");
   assert.equal(panel.cssTitle, "sv_p_title sv_p_title--hidden");
   survey.css.panel.titleHidden = oldCss;
   survey.css.root = oldRootCss;

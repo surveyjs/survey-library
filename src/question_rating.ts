@@ -338,7 +338,7 @@ export class QuestionRatingModel extends Question {
   get visibleRateValues(): ItemValue[] {
     return this.renderedRateItems.map(i => i.itemValue);
   }
-
+  protected supportEmptyValidation(): boolean { return this.renderAs === "dropdown"; }
   public itemValuePropertyChanged(
     item: ItemValue,
     name: string,

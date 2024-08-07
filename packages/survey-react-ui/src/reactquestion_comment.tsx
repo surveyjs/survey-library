@@ -40,7 +40,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
           ref={(textarea) => (this.setControl(textarea))}
           maxLength={this.question.getMaxLength()}
           placeholder={placeholder}
-          onFocus={this.question.onFocus}
+          onFocus={(event) => { this.question.onFocus(event); }}
           onBlur={onBlur}
           onInput={onInput}
           onKeyDown={(event) => { this.question.onKeyDown(event); }}

@@ -101,12 +101,7 @@ export class QuestionTextBase extends Question {
     super.setSurveyImpl(value, isLight);
     this.calcRenderedPlaceholder();
   }
-  public onBlur = (event: any): void => {
-    this.onBlurCore(event);
-  };
-  public onFocus = (event: any): void => {
-    this.onFocusCore(event);
-  }
+  protected supportEmptyValidation(): boolean { return true; }
   protected calcRenderedPlaceholder() {
     let res = this.placeHolder;
     if(!!res && !this.hasPlaceholder()) {

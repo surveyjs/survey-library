@@ -236,13 +236,14 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public getInputId(): string {
     return this.inputId + "_0";
   }
-  onBlur(event: any): void {
+  protected supportEmptyValidation(): boolean { return true; }
+  protected onBlurCore(event: any): void {
     this.dropdownListModel?.onBlur(event);
-    this.onBlurCore(event);
+    super.onBlurCore(event);
   }
-  onFocus(event: any): void {
+  protected onFocusCore(event: any): void {
     this.dropdownListModel?.onFocus(event);
-    this.onFocusCore(event);
+    super.onFocusCore(event);
   }
   public dispose(): void {
     super.dispose();

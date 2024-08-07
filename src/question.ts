@@ -1231,9 +1231,16 @@ export class Question extends SurveyElement<Question>
     }
   }
   private get isValidateVisitedEmptyFields(): boolean {
-    return !!this.survey && this.survey.getValidateVisitedEmptyFields() && this.isEmpty();
+    return this.supportEmptyValidation() && !!this.survey && this.survey.getValidateVisitedEmptyFields() && this.isEmpty();
   }
   private isFocusEmpty: boolean;
+  protected supportEmptyValidation(): boolean { return false; }
+  onBlur(event: any): void {
+    this.onBlurCore(event);
+  }
+  onFocus(event: any): void {
+    this.onFocusCore(event);
+  }
   protected onBlurCore(event: any): void {
     if(this.isFocusEmpty && this.isEmpty()) {
       this.validate(true);

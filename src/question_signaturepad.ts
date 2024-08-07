@@ -386,7 +386,8 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
    * A placeholder text for the signature area in read-only or preview mode. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
    */
   @property({ localizable: { defaultStr: "signaturePlaceHolderReadOnly" } }) placeholderReadOnly: string;
-  public onBlur = (event: any): void => {
+  protected onBlurCore(event: any): void {
+    super.onBlurCore(event);
     if (!this.storeDataAsText) {
       if (!this.element.contains(event.relatedTarget)) {
         if (!this.valueWasChangedFromLastUpload) return;

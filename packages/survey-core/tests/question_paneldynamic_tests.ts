@@ -7069,6 +7069,42 @@ QUnit.test("panel dynamic & panel visibleIf & checkbox vs carry forward, #7693",
   });
 });
 
+QUnit.test("paneldynamic: panelsState & valueName Bug#8653", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "checkbox",
+        "name": "state_names",
+        "title": "States",
+        "valuePropertyName": "state_name",
+        "choices": ["ACT", "NSW", "QLD"]
+      },
+      {
+        "type": "paneldynamic",
+        "name": "regions",
+        "valueName": "state_names",
+        "allowAddPanel": false,
+        "allowRemovePanel": false,
+        "visibleIf": "{state_names} notempty",
+        "panelsState": "expanded",
+        "templateTitle": "Regions for State {panel.state_name}",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1"
+          }
+        ]
+      }
+    ]
+  });
+  const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("state_names");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("regions");
+  checkbox.selectAll();
+  assert.equal(panel.visiblePanels.length, 3, "3 panels have been created");
+  assert.equal(panel.visiblePanels[0].state, "expanded", "panels[0] state is expanded");
+  assert.equal(panel.visiblePanels[1].state, "expanded", "panels[1] state is expanded");
+  assert.equal(panel.visiblePanels[2].state, "expanded", "panels[2] state is expanded");
+});
 QUnit.test("paneldynamic: check renderedPanels", function (assert) {
   const survey = new SurveyModel({
     elements: [

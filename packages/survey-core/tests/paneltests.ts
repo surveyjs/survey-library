@@ -13,6 +13,7 @@ import { ActionContainer } from "../src/actions/container";
 import { IElement } from "../src/base-interfaces";
 import { StylesManager } from "@legacy/stylesmanager";
 import { SurveyElement } from "../src/survey-element";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 
 export default QUnit.module("Panel");
 
@@ -2790,7 +2791,9 @@ QUnit.test("panel check title in design mode", function (assert) {
   var oldCss = survey.css.panel.titleHidden;
   var oldRootCss = survey.css.root;
   survey.css.root = "sd-root-modern";
+  survey.css.panel.header = "sv_p_header";
   survey.css.panel.titleHidden = "sv_p_title--hidden";
+  survey.css.panel.headerHidden = "sv_p_header--hidden";
 
   survey.setJsonObject({
     questions: [
@@ -2809,12 +2812,36 @@ QUnit.test("panel check title in design mode", function (assert) {
   const panel = <PanelModel>survey.getAllPanels()[0];
   assert.equal(panel.hasTitle, false);
   assert.equal(panel.cssTitle, "sv_p_title");
+  assert.equal(panel.cssHeader, "sv_p_header");
   survey.setDesignMode(true);
   assert.equal(panel.hasTitle, true);
+  assert.equal(panel.cssHeader, "sv_p_header sv_p_header--hidden");
   assert.equal(panel.cssTitle, "sv_p_title sv_p_title--hidden");
   survey.css.panel.titleHidden = oldCss;
   survey.css.root = oldRootCss;
 });
+
+QUnit.test("panel dynamic inner panel title in design mode", function (assert) {
+  StylesManager.applyTheme("default");
+  const survey = new SurveyModel();
+
+  survey.setJsonObject({
+    questions: [
+      {
+        "type": "paneldynamic",
+        "name": "question1"
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+  assert.equal(panel.template.hasTitle, false);
+  survey.setDesignMode(true);
+  assert.equal(panel.template.hasTitle, false);
+
+  panel.templateTitle = "asd";
+  assert.equal(panel.template.hasTitle, true);
+});
+
 QUnit.test("Check if errors disappered in the closest questions on changing the question, checkErrorsMode: 'onValueChanged', Bug#8539", function (assert) {
   const survey = new SurveyModel({
     checkErrorsMode: "onValueChanged",

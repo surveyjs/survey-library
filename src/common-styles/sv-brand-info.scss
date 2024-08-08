@@ -11,7 +11,7 @@ sv-brand-info,
   font-family: $font-family;
   text-align: right;
   color: #161616;
-  padding: 32px 40px;
+  padding: 24px 40px;
 
   a {
     color: #161616;
@@ -28,14 +28,14 @@ sv-brand-info,
 
 .sd-body--responsive {
   .sv-brand-info {
-    padding-top: 0;
+    padding-top: 16px;
     margin-top: -8px;
   }
 }
 
 .sd-root-modern--mobile {
   .sv-brand-info {
-    padding: 24px;
+    padding: 24px 24px 8px 24px;
     margin-top: 0;
     text-align: center;
   }
@@ -60,6 +60,7 @@ sv-brand-info,
   font-weight: 400;
   font-size: calcFontSize(0.75);
   line-height: calcLineHeight(1);
+  padding-top: 4px;
 
   a {
     color: #909090;

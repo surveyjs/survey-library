@@ -3,6 +3,7 @@
   "version": "1.8.33",
   "scripts": {
     "build": "webpack --env buildType=dev && webpack --env buildType=prod",
+    "build:esm": "webpack --config ./webpack.esm.config.mjs --env buildType=dev",
     "build:i18n": "webpack --config ./webpack.i18n.config.js --env buildType=dev && webpack --config ./webpack.i18n.config.js --env buildType=prod",
     "build:themes": "webpack --config ./webpack.themes.config.js --env buildType=dev && webpack --config ./webpack.themes.config.js --env buildType=prod",
     "build:all": "npm run build && npm run build:i18n && npm run build:themes"

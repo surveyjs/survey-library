@@ -270,10 +270,19 @@ QUnit.test("Ranking: ReadOnlyMode ", function(assert) {
     ],
   });
 
+  var target = document.createElement("div");
   var q = <QuestionRankingModel>survey.getQuestionByName("q");
-  assert.equal(q["allowStartDrag"], true);
+  var choise = q.choices[0];
+
+  assert.equal(q["isAllowStartDrag"](target, choise), true);
+
   survey.mode = "display";
-  assert.equal(q["allowStartDrag"], false);
+  assert.equal(q["isAllowStartDrag"](target, choise), false);
+
+  survey.mode = "edit";
+  assert.equal(q["isAllowStartDrag"](target, choise), true);
+  choise.enabled = false;
+  assert.equal(q["isAllowStartDrag"](target, choise), false);
 });
 
 QUnit.test("Ranking: design mode", function (assert) {

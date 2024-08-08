@@ -388,15 +388,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     choice: ItemValue,
     node: HTMLElement
   ): void => {
-
     const target: HTMLElement = <HTMLElement>event.target;
 
     if (!this.isDragStartNodeValid(target)) return;
 
     if (
-      this.allowStartDrag &&
-      this.canStartDragDueMaxSelectedChoices(target) &&
-      this.canStartDragDueItemEnabled(choice)
+      this.isAllowStartDrag(target, choice)
     )
     {
       this.draggedChoiceValue = choice.value;
@@ -416,8 +413,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     node: HTMLElement
   ): void => {
     if (!this.selectToRankEnabled) return;
+
+    const target: HTMLElement = <HTMLElement>event.target;
+
     if (
-      this.allowStartDrag
+      this.isAllowStartDrag(target, choice)
     ) {
       this.handleKeydownSelectToRank(<any>event, choice, " ", false);
     }
@@ -431,8 +431,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return true;
   }
 
-  private get allowStartDrag() {
-    return !this.isReadOnly && !this.isDesignMode;
+  private isAllowStartDrag(target: HTMLElement, choice: ItemValue) {
+    return !this.isReadOnly &&
+           !this.isDesignMode &&
+           this.canStartDragDueMaxSelectedChoices(target) &&
+           this.canStartDragDueItemEnabled(choice);
   }
 
   private canStartDragDueMaxSelectedChoices(target: HTMLElement):boolean {

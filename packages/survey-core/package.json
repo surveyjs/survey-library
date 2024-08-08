@@ -6,7 +6,9 @@
     "build:esm": "webpack --config ./webpack.esm.config.mjs --env buildType=dev",
     "build:i18n": "webpack --config ./webpack.i18n.config.js --env buildType=dev && webpack --config ./webpack.i18n.config.js --env buildType=prod",
     "build:themes": "webpack --config ./webpack.themes.config.js --env buildType=dev && webpack --config ./webpack.themes.config.js --env buildType=prod",
-    "build:all": "npm run build && npm run build:i18n && npm run build:themes"
+    "build:all": "npm run build && npm run build:i18n && npm run build:themes",
+    "test": "karma start ./karma.conf.js --single-run",
+    "test:watch": "karma start ./karma.conf.js"
   },
   "main": "survey.core.js",
   "repository": {
@@ -27,8 +29,13 @@
     "dotenv": "4.0.0",
     "eslint": "^7.32.0",
     "file-loader": "^0.10.1",
-    "github-api": "^3.4.0",
     "http-server": "^14.1.1",
+    "karma": "^6.1.1",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-junit-reporter": "2.0.1",
+    "karma-qunit": "4.1.2",
+    "karma-sourcemap-loader": "0.3.8",
+    "karma-webpack": "5.0.0",
     "merge-files": "^0.1.2",
     "mini-css-extract-plugin": "^2.9.0",
     "postcss": "8.4.31",
@@ -56,11 +63,6 @@
     "webpack-fix-style-only-entries": "^0.6.1",
     "webpack-merge": "^5.8.0",
     "webpack-remove-empty-scripts": "^1.0.4"
-  },
-  "overrides": {
-    "karma-webpack": {
-      "webpack": "^4.43.0"
-    }
   },
   "standard-version": {
     "skip": {

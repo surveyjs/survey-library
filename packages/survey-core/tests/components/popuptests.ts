@@ -12,7 +12,40 @@ import { AnimationOptions, AnimationUtils } from "../../src/utils/animation";
 import { ListModel } from "../../src/list";
 import { Action, IAction } from "../../src/actions/action";
 
-const popupTemplate = require("html-loader?interpolate!val-loader!../../../../src/knockout/components/popup/popup.html");
+// const popupTemplate = require("html-loader?interpolate!val-loader!../../../../src/knockout/components/popup/popup.html");
+
+const popupTemplate = `<div>
+  <!-- ko with: popupViewModel -->
+  <div class="sv-popup" tabindex="-1"
+    data-bind="visible: isVisible, click: function(data, event) { clickOutside(event); return true; }, class: styleClass, event: { keydown: function(data, event) { onKeyDown(event); return true; } }">
+    <div class="sv-popup__container"
+      data-bind="style: { left: left, top: top, height: height, minWidth: minWidth, width: width }, click: function() { return true; }, clickBubble: false">
+      <div class="sv-popup__shadow">
+        <!-- ko if: $data.showHeader -->
+        <!-- ko template: { name: $data.popupHeaderTemplate, data: $data } -->
+        <!-- /ko -->
+        <!-- /ko -->
+        <div class="sv-popup__body-content">
+          <!-- ko if: !!title  -->
+          <div class="sv-popup__body-header" data-bind="text: title"></div>
+          <!-- /ko -->
+          <div class="sv-popup__scrolling-content">
+            <div class="sv-popup__content"
+              data-bind="component: { name: contentComponentName, params: contentComponentData }"></div>
+          </div>
+          <!-- ko if: showFooter  -->
+          <div class="sv-popup__body-footer">
+            <!-- ko component: { name: "sv-action-bar", params: { model: $data.footerToolbar } } -->
+            <!-- /ko -->
+          </div>
+          <!-- /ko -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /ko -->
+</div>
+`;
 
 export default QUnit.module("Popup");
 

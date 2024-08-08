@@ -14,7 +14,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
 import { LocalizableString } from "../src/localizablestring";
 import { PanelModel } from "../src/panel";
-import { StylesManager } from "../src/stylesmanager";
+import { StylesManager } from "@legacy/stylesmanager";
 import { ArrayChanges, Base } from "../src/base";
 import { QuestionFileModel } from "../src/question_file";
 import { ConsoleWarnings } from "../src/console-warnings";

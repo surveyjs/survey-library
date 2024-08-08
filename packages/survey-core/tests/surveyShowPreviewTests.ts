@@ -1,7 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { surveyLocalization } from "../src/surveyStrings";
 import { PanelModel } from "../src/panel";
-import { StylesManager } from "../src/stylesmanager";
+import { StylesManager } from "@legacy/stylesmanager";
 import { settings } from "../src/settings";
 
 export default QUnit.module("SurveyShowPreviewTests");

@@ -12,7 +12,7 @@ import { AnimationOptions, AnimationUtils } from "../../src/utils/animation";
 import { ListModel } from "../../src/list";
 import { Action, IAction } from "../../src/actions/action";
 
-const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
+const popupTemplate = require("html-loader?interpolate!val-loader!../../../../src/knockout/components/popup/popup.html");
 
 export default QUnit.module("Popup");
 

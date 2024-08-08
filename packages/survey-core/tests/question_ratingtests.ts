@@ -9,7 +9,7 @@ import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { settings } from "../src/settings";
 import { _setIsTouch } from "../src/utils/devices";
-// import { StylesManager } from "../src/stylesmanager";
+import { StylesManager } from "@legacy/stylesmanager";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   // StylesManager.applyTheme("default");

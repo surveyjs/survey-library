@@ -3,7 +3,7 @@ import { QuestionFileModel } from "../src/question_file";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
-import { StylesManager } from "../src/stylesmanager";
+import { StylesManager } from "@legacy/stylesmanager";
 import { Serializer } from "../src/jsonobject";
 import { Camera } from "../src/utils/camera";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";

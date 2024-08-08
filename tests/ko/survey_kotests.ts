@@ -23,7 +23,7 @@ import { SurveyTimer } from "../../packages/survey-core/src//surveytimer";
 import { QuestionBoolean } from "../../src/knockout/koquestion_boolean";
 import * as ko from "knockout";
 import { ItemValue } from "../../packages/survey-core/src//itemvalue";
-import { StylesManager } from "../../src/stylesmanager";
+import { StylesManager } from "@legacy/stylesmanager";
 import { settings } from "../../packages/survey-core/src//settings";
 import { ProgressButtons } from "../../packages/survey-core/src/progress-buttons";
 

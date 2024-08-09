@@ -17,10 +17,10 @@ const config = {
 };
 function patchEntries() {
   config.entry = {};
-  fs.readdirSync(path.resolve(__dirname, "../../src/localization")).forEach(file => {
+  fs.readdirSync(path.resolve(__dirname, "../../packages/survey-core/src/localization")).forEach(file => {
     var extension = path.extname(file);
     if (extension.toLowerCase() === ".ts") {
-      config.entry[path.basename(file, extension)] = (path.resolve(__dirname, "../../src/localization") + "/" + file);
+      config.entry[path.basename(file, extension)] = (path.resolve(__dirname, "../../packages/survey-core/src/localization") + "/" + file);
     }
   });
   config.entry.index = path.resolve(__dirname, "../../src/entries/i18n.ts");

@@ -11,7 +11,7 @@ import { settings } from "../src/settings";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
 import { IElement } from "../src/base-interfaces";
-import { StylesManager } from "../src/stylesmanager";
+import { StylesManager } from "@legacy/stylesmanager";
 import { SurveyElement } from "../src/survey-element";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 

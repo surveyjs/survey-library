@@ -126,6 +126,7 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
     },
     optimization: {
       minimize: isProductionBuild,
+      concatenateModules: true
     },
     module: {
       rules: [

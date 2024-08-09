@@ -11,7 +11,7 @@
     "declarationDir": "../../build/survey-core/themes/"
   },
   "include": [
-    "../../src/themes/index.ts"
+    "../../packages/survey-core/src/themes/index.ts"
   ],
   "exclude": [],
 }

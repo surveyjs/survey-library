@@ -1,0 +1,17 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "survey-core": [
+                "./build"
+            ]
+        },
+        "declaration": true,
+        "declarationDir": "./build/themes/",
+    },
+    "include": [
+        "./src/themes/index.ts"
+    ],
+    "exclude": [],
+}

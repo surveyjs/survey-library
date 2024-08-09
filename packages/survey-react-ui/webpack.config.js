@@ -84,6 +84,9 @@ module.exports = function (options) {
         {
           test: /\.(ts|tsx)$/,
           loader: "ts-loader",
+          options: {
+            transpileOnly: isProductionBuild
+          }
         },
         {
           test: /\.s(c|a)ss$/,

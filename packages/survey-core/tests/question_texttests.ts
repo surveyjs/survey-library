@@ -3,7 +3,7 @@ import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
 import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
 import { settings } from "../src/settings";
-import { StylesManager } from "../src/stylesmanager";
+import { StylesManager } from "@legacy/stylesmanager";
 import { InputMaskPattern } from "../src/mask/mask_pattern";
 
 QUnit.test("check text disabled class", function (assert) {

@@ -1,4 +1,4 @@
-import { JsonObject } from "../../src/jsonobject";
+import { JsonObject } from "../../packages/survey-core/src//jsonobject";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
 import { Survey } from "../../src/knockout/kosurvey";
 import { Page } from "../../src/knockout/kopage";

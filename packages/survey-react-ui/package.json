@@ -20,7 +20,13 @@
         "url": "https://github.com/surveyjs/surveyjs.git"
     },
     "scripts": {
-        "build": "webpack --env buildType=dev && webpack --env buildType=prod"
+        "build": "webpack --env buildType=dev && webpack --env buildType=prod",
+        "testcafe": "testcafe chrome ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --env=react",
+        "testcafe:ci": "testcafe chrome:headless -c 4 -q attemptLimit=5,successThreshold=1 ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --env=react",
+        "testcafe:a11y": "testcafe chrome ./accessibilityTests/ --app \"http-server\" --screenshots ./ --reporter minimal --selector-timeout 1500 --env=react",
+        "testcafe:a11y:ci": "testcafe chrome:headeless -c 4 -q ./accessibilityTests/ --app \"http-server\" --screenshots ./ --reporter minimal --selector-timeout 1500 --env=react",
+        "visual-regression-tests": "testcafe chrome --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --env=react",
+        "visual-regression-tests:ci": "testcafe chrome:headless -c 4 -q attemptLimit=5,successThreshold=1 --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --env=react"
     },
     "typings": "./typings/src/entries/react-ui.d.ts",
     "devDependencies": {
@@ -41,8 +47,6 @@
         "devextreme-screenshot-comparer": "^2.0.11",
         "dotenv": "4.0.0",
         "eslint": "^7.32.0",
-        "get-func-name": "2.0.0",
-        "github-api": "^3.4.0",
         "html-webpack-plugin": "^5.6.0",
         "http-server": "^14.1.1",
         "jest": "^29.7.0",
@@ -50,15 +54,18 @@
         "jest-environment-jsdom": "^29.7.0",
         "mini-css-extract-plugin": "^2.9.0",
         "node-uuid": "1.4.7",
+        "react": "^17.0.1",
+        "react-dom": "^17.0.1",
         "react-test-renderer": "^17.0.1",
         "rimraf": "2.5.4",
         "sass": "^1.62.1",
         "sass-loader": "^8.0.2",
         "shelljs": "^0.8.3",
-        "standard-version": "^8.0.2",
+        "standard-version": "^9.5.0",
         "style-loader": "^1.2.1",
+        "survey-core": "../../build/survey-core",
         "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
-        "testcafe": "3.3.0",
+        "testcafe": "3.6.2",
         "ts-jest": "^29.2.2",
         "ts-loader": "^8.0.15",
         "tsconfig-paths-webpack-plugin": "^3.3.0",
@@ -66,9 +73,6 @@
         "url-loader": "^4.1.1",
         "webpack": "^5.93.0",
         "webpack-cli": "^5.1.4",
-        "webpack-dev-server": "^5.0.4",
-        "survey-core": "../../build/survey-core",
-        "react": "^17.0.1",
-        "react-dom": "^17.0.1"
+        "webpack-dev-server": "^5.0.4"
     }
 }

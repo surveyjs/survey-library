@@ -2,6 +2,7 @@
 var webpack = require("webpack");
 var webpackConfigCreator = require("./webpack.common");
 var packageJson = require("../package.json");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 var webpackConfig = webpackConfigCreator({
   platform: "knockout",
   buildType: "dev",
@@ -12,6 +13,7 @@ var webpackConfig = webpackConfigCreator({
 //process.env.CHROME_BIN = require("puppeteer").executablePath();
 
 /*setup ts config file for tests ("noImplicitAny": false)*/
+webpackConfig.resolve.plugins[0] = new TsconfigPathsPlugin({ configFile: path.resolve(__dirname, "./tsconfig.tests.json") })
 webpackConfig.module.rules[0].options.configFile = "build-scripts/tsconfig.tests.json";
 
 module.exports = function (config) {

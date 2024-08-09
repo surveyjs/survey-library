@@ -805,6 +805,7 @@ QUnit.test("check animationAllowed", function (assert) {
   const question = survey.getAllQuestions()[0];
   assert.notOk(question.animationAllowed);
   settings.animationEnabled = true;
+  question.supportOnElementRenderedEvent = false;
   assert.ok(question.animationAllowed);
   question.blockAnimations();
   assert.notOk(question.animationAllowed);

@@ -1,4 +1,4 @@
-import { surveyCss } from "./defaultV2Css";
+import { surveyCss } from "../../packages/survey-core/src/defaultCss/defaultV2Css";
 
 export var modernCss = {
   root: "sv-root-modern",

@@ -37,9 +37,9 @@ import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { ConsoleWarnings } from "../src/console-warnings";
-import { StylesManager } from "../src/stylesmanager";
+import { StylesManager } from "@legacy/stylesmanager";
 import { surveyTimerFunctions } from "../src/surveytimer";
-import { defaultStandardCss } from "../src/defaultCss/cssstandard";
+import { defaultStandardCss } from "@legacy/defaultCss/cssstandard";
 
 export default QUnit.module("Survey_Questions");
 

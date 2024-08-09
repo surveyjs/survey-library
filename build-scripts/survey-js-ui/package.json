@@ -20,7 +20,7 @@
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
-  "typings": "survey-js-ui.d.ts",
+  "typings": "./typings/src/entries/js-ui.d.ts",
   "dependencies": {},
   "peerDependencies": {
     "survey-core": "*"

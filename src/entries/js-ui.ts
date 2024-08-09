@@ -1,5 +1,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+
+export { Component, createElement, RefObject, createRef } from "preact/compat";
+
 // import jQuery from "jquery";
 
 // eslint-disable-next-line surveyjs/no-imports-from-entries

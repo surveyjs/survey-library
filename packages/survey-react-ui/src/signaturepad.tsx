@@ -27,7 +27,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
         </div>
         <div>
           {this.renderBackgroundImage()}
-          <canvas tabIndex={-1} className={this.question.cssClasses.canvas} onBlur={this.question.onBlur}></canvas>
+          <canvas tabIndex={-1} className={this.question.cssClasses.canvas} onBlur={(event) => { this.question.onBlur(event); }}></canvas>
         </div>
         {clearButton}
         {loadingIndicator}

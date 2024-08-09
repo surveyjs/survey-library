@@ -233,8 +233,17 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   protected getFirstInputElementId(): string {
     return this.inputId + (this.searchEnabled ? "_0" : "");
   }
-  public getInputId() {
+  public getInputId(): string {
     return this.inputId + "_0";
+  }
+  protected supportEmptyValidation(): boolean { return true; }
+  protected onBlurCore(event: any): void {
+    this.dropdownListModel?.onBlur(event);
+    super.onBlurCore(event);
+  }
+  protected onFocusCore(event: any): void {
+    this.dropdownListModel?.onFocus(event);
+    super.onFocusCore(event);
   }
   public dispose(): void {
     super.dispose();

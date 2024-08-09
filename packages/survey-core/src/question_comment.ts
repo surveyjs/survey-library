@@ -99,6 +99,9 @@ export class QuestionCommentModel extends QuestionTextBase {
       this.updateElement();
     this.updateRemainingCharacterCounter(event.target.value);
   }
+  protected onBlurCore(event: any): void {
+    super.onBlurCore(event);
+  }
   public onKeyDown(event: any): void {
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
     if (!this.acceptCarriageReturn && (event.key === "Enter" || event.keyCode === 13)) {

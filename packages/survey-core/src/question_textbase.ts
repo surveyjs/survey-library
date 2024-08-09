@@ -101,6 +101,7 @@ export class QuestionTextBase extends Question {
     super.setSurveyImpl(value, isLight);
     this.calcRenderedPlaceholder();
   }
+  protected supportEmptyValidation(): boolean { return true; }
   protected calcRenderedPlaceholder() {
     let res = this.placeHolder;
     if(!!res && !this.hasPlaceholder()) {

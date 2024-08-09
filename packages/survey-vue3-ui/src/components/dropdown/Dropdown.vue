@@ -151,11 +151,11 @@ const updateInputDomElement = () => {
   }
 };
 const blur = (event: any) => {
-  model.value?.onBlur(event);
+  props.question.onBlur(event);
   updateInputDomElement();
 };
 const focus = (event: any) => {
-  model.value?.onFocus(event);
+  props.question.onFocus(event);
 };
 const inputChange = (event: any) => {
   model.value.inputStringRendered = event.target.value;

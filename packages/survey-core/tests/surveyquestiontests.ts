@@ -7852,3 +7852,22 @@ QUnit.test("question.isDefaultValue", function (assert) {
   assert.equal(q3.isValueDefault, false, "q3 #4");
   assert.equal(q4.isValueDefault, false, "q4 #4");
 });
+QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
+  const survey = new SurveyModel({
+    validateVisitedEmptyFields: true,
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      { name: "q1", type: "text", isRequired: true },
+      { name: "q2", type: "comment", isRequired: true },
+      { name: "q3", type: "dropdown", choices: [1, 2, 3], isRequired: true },
+      { name: "q4", type: "tagbox", choices: [1, 2, 3], isRequired: true },
+      { name: "q5", type: "rating", displayMode: "dropdown", isRequired: true }
+    ]
+  });
+  const event: any = { target: {}, stopPropagation: () => {} };
+  survey.getAllQuestions().forEach(q => {
+    q.onFocus(event);
+    q.onBlur(event);
+    assert.equal(q.errors.length, 1, q.name + " errors");
+  });
+});

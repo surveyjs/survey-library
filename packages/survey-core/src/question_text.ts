@@ -632,14 +632,15 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     this.updateRemainingCharacterCounter(event.target.value);
   };
-  public onBlur = (event: any): void => {
+  protected onBlurCore(event: any): void {
     this.updateValueOnEvent(event);
     this.updateRemainingCharacterCounter(event.target.value);
-  };
-  public onFocus = (event: any): void => {
-    this.updateRemainingCharacterCounter(event.target.value);
+    super.onBlurCore(event);
   }
-
+  protected onFocusCore(event: any): void {
+    this.updateRemainingCharacterCounter(event.target.value);
+    super.onFocusCore(event);
+  }
   public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
       this.input = el instanceof HTMLInputElement ? el : el.querySelector("input");

@@ -1725,6 +1725,13 @@ export class SurveyModel extends SurveyElementCore
   public set checkErrorsMode(val: string) {
     this.setPropertyValue("checkErrorsMode", val);
   }
+  public get validateVisitedEmptyFields(): boolean {
+    return this.getPropertyValue("validateVisitedEmptyFields");
+  }
+  public set validateVisitedEmptyFields(val: boolean) {
+    this.setPropertyValue("validateVisitedEmptyFields", val);
+  }
+  getValidateVisitedEmptyFields(): boolean { return this.validateVisitedEmptyFields && this.isValidateOnValueChange; }
   /**
    * Specifies whether to increase the height of [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas to accommodate multi-line text content.
    *
@@ -5074,6 +5081,9 @@ export class SurveyModel extends SurveyElementCore
   get isValidateOnValueChanged(): boolean {
     return this.checkErrorsMode === "onValueChanged";
   }
+  private get isValidateOnValueChange(): boolean {
+    return this.isValidateOnValueChanged || this.isValidateOnValueChanging;
+  }
   private get isValidateOnComplete(): boolean {
     return this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages && !this.validationAllowComplete;
   }
@@ -5743,9 +5753,8 @@ export class SurveyModel extends SurveyElementCore
     var res = !question.validate(true, {
       isOnValueChanged: !this.isValidateOnValueChanging,
     });
-    const isCheckErrorOnChanged = this.checkErrorsMode.indexOf("Value") > -1;
     if (
-      !!question.page && isCheckErrorOnChanged &&
+      !!question.page && this.isValidateOnValueChange &&
       (oldErrorCount > 0 || question.getAllErrors().length > 0)
     ) {
       this.fireValidatedErrorsOnPage(<PageModel>question.page);
@@ -7999,6 +8008,7 @@ Serializer.addClass("survey", [
     default: "onNextPage",
     choices: ["onNextPage", "onValueChanged", "onComplete"],
   },
+  { name: "validateVisitedEmptyFields:boolean", dependsOn: "checkErrorsMode", visibleIf: (obj) => obj.checkErrorsMode === "onValueChanged" },
   {
     name: "textUpdateMode",
     default: "onBlur",

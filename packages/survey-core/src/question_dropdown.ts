@@ -357,6 +357,15 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       event.stopPropagation();
     }
   }
+  protected supportEmptyValidation(): boolean { return true; }
+  protected onBlurCore(event: any): void {
+    this.dropdownListModel?.onBlur(event);
+    super.onBlurCore(event);
+  }
+  protected onFocusCore(event: any): void {
+    this.dropdownListModel?.onFocus(event);
+    super.onFocusCore(event);
+  }
 
   public dispose(): void {
     super.dispose();

@@ -1230,7 +1230,25 @@ export class Question extends SurveyElement<Question>
       this.fireCallback(this.focusCallback);
     }
   }
-
+  private get isValidateVisitedEmptyFields(): boolean {
+    return this.supportEmptyValidation() && !!this.survey && this.survey.getValidateVisitedEmptyFields() && this.isEmpty();
+  }
+  private isFocusEmpty: boolean;
+  protected supportEmptyValidation(): boolean { return false; }
+  onBlur(event: any): void {
+    this.onBlurCore(event);
+  }
+  onFocus(event: any): void {
+    this.onFocusCore(event);
+  }
+  protected onBlurCore(event: any): void {
+    if(this.isFocusEmpty && this.isEmpty()) {
+      this.validate(true);
+    }
+  }
+  protected onFocusCore(event: any): void {
+    this.isFocusEmpty = this.isValidateVisitedEmptyFields;
+  }
   public expandAllParents(): void {
     this.expandAllParentsCore(this);
   }

@@ -8008,7 +8008,7 @@ Serializer.addClass("survey", [
     default: "onNextPage",
     choices: ["onNextPage", "onValueChanged", "onComplete"],
   },
-  { name: "validateVisitedEmptyFields", visibleIf: (obj) => obj.checkErrorsMode === "onValueChanged" },
+  { name: "validateVisitedEmptyFields", dependsOn: "checkErrorsMode", visibleIf: (obj) => obj.checkErrorsMode === "onValueChanged" },
   {
     name: "textUpdateMode",
     default: "onBlur",

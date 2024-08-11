@@ -1,5 +1,5 @@
 *, ::after, ::before {
-  box-sizing: initial;
+  box-sizing: border-box;
 }
 @import "./fonts.scss";
 @import "./defaultV2.fontless.scss";

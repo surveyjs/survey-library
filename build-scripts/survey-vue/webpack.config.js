@@ -10,7 +10,7 @@ const config = {
   entry: {
     survey: path.resolve(__dirname, "../../src/main.scss"),
     modern: path.resolve(__dirname, "../../src/modern.scss"),
-    defaultV2: path.resolve(__dirname, "../../src/defaultV2-theme/defaultV2.scss")
+    defaultV2: path.resolve(__dirname, "../../packages/survey-core/src/defaultV2-theme/defaultV2.scss")
   },
   externals: {
     vue: {
@@ -26,7 +26,7 @@ const config = {
       tsConfigPath: "./build-scripts/survey-vue/tsconfig.typing.vue.json",
       filePath: "build/survey-vue/survey.vue.d.ts",
       moduleName: "survey-vue",
-      importName: "entries/vue"
+      importName: "src/entries/vue"
     }),
   ],
 };

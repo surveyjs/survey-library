@@ -107,7 +107,10 @@ export class TagboxComponent extends BaseVue {
     this.question.dropdownListModel?.keyHandler(event);
   }
   public blur(event: any) {
-    this.question.dropdownListModel?.onBlur(event);
+    this.question.onBlur(event);
+  }
+  public focus(event: any) {
+    this.question.onFocus(event);
   }
   protected onCreated() {
     if (!this.question.dropdownListModel) {

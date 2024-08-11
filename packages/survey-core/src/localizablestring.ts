@@ -83,7 +83,7 @@ export class LocalizableString implements ILocalizableString {
   }
   public strChanged(): void {
     this.searchableText = undefined;
-    if (this.renderedText === undefined) return;
+    if (this.renderedText === undefined && this.isEmpty && !this.onGetTextCallback && !this.localizationName) return;
     this.calculatedTextValue = this.calcText();
     if (this.renderedText !== this.calculatedTextValue) {
       this.renderedText = undefined;

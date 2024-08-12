@@ -22,11 +22,11 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     this.question.dropdownListModel?.keyHandler(event);
   };
   blur = (event: any) => {
-    this.question.dropdownListModel?.onBlur(event);
     this.updateInputDomElement();
+    this.question.onBlur(event);
   };
   focus = (event: any) => {
-    this.question.dropdownListModel?.onFocus(event);
+    this.question.onFocus(event);
   };
   protected getStateElement() {
     return this.question["dropdownListModel"];
@@ -98,6 +98,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       required={this.question.isRequired}
       onKeyDown={this.keyhandler}
       onBlur={this.blur}
+      onFocus={this.focus}
       role={this.question.ariaRole}
       aria-required={this.question.ariaRequired}
       aria-label={this.question.ariaLabel}

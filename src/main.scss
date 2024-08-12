@@ -10,13 +10,13 @@
 
 $font-family: var(--font-family, var(--sjs-default-font-family));
 
-@import "./common-styles/sv-progress-buttons.scss";
-@import "./common-styles/sv-navigation-toc.scss";
-@import "./common-styles/window.scss";
-@import "./common-styles/sv-brand-info.scss";
-@import "./common-styles/sv-drag-drop.scss";
-@import "./common-styles/sv-save-data.scss";
-@import "./common-styles/sv-ranking.scss";
+@import "../packages/survey-core/src/common-styles/sv-progress-buttons.scss";
+@import "../packages/survey-core/src/common-styles/sv-navigation-toc.scss";
+@import "../packages/survey-core/src/common-styles/window.scss";
+@import "../packages/survey-core/src/common-styles/sv-brand-info.scss";
+@import "../packages/survey-core/src/common-styles/sv-drag-drop.scss";
+@import "../packages/survey-core/src/common-styles/sv-save-data.scss";
+@import "../packages/survey-core/src/common-styles/sv-ranking.scss";
 
 $header-background-color: #e7e7e7;
 $body-container-background-color: #f4f4f4;
@@ -84,7 +84,9 @@ body {
   .sv_q_other input,
   .sv_q_text_root,
   .sv_q_dropdown_control,
-  input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
+  input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not(
+      [type="radio"]
+    ),
   select,
   textarea {
     appearance: none;
@@ -242,7 +244,7 @@ body {
   }
 
   .sv_p_root {
-    &>.sv_row {
+    & > .sv_row {
       border-bottom: 1px solid var(--border-color, $border-color);
 
       &:nth-child(odd) {
@@ -260,9 +262,9 @@ body {
     background-color: var(--error-background-color, $error-background-color);
     color: var(--error-color, $error-color);
 
-    &+input,
-    &+textarea,
-    &+.sv_select_wrapper select {
+    & + input,
+    & + textarea,
+    & + .sv_select_wrapper select {
       border: 1px solid var(--error-color, $error-color);
 
       &:focus {
@@ -365,7 +367,7 @@ body {
     vertical-align: middle;
     border: 1px solid var(--border-color, $border-color);
 
-    &>use {
+    & > use {
       display: block;
     }
 
@@ -374,12 +376,12 @@ body {
     }
   }
 
-  .sv_q_rating__item-smiley--selected>svg {
+  .sv_q_rating__item-smiley--selected > svg {
     background-color: var(--main-hover-color, $main-hover-color);
     fill: var(--body-background-color, $body-background-color);
   }
 
-  .sv_q_imgsel.checked label>div {
+  .sv_q_imgsel.checked label > div {
     background-color: var(--main-color, $main-color);
   }
 
@@ -461,7 +463,7 @@ body {
     text-align: center;
     padding: 5em 1em;
 
-    >h3 {
+    > h3 {
       margin: 0;
       font-size: 30px;
       font-weight: 300;
@@ -485,7 +487,7 @@ body {
       position: relative;
       margin-top: 2em;
 
-      >span {
+      > span {
         position: absolute;
         top: -1.5em;
         display: inline-block;
@@ -511,7 +513,7 @@ body {
       margin: 0 0 1.5em 0;
     }
 
-    &>.sv_row {
+    & > .sv_row {
       //border-bottom: 1px solid var(--header-background-color, $header-background-color);
       padding: 0;
 
@@ -544,7 +546,6 @@ body {
     }
 
     .sv_q_flow {
-
       .sv_q_checkbox_inline,
       .sv_q_radiogroup_inline,
       .sv_q_imagepicker_inline {
@@ -579,10 +580,9 @@ body {
         //color: var(--error-color, $error-color);
         padding: 1em;
 
-        &+input,
-        &+textarea,
-        &+.sv_select_wrapper select {
-
+        & + input,
+        & + textarea,
+        & + .sv_select_wrapper select {
           //border: 1px solid var(--error-color, $error-color);
           &:focus {
             //outline: var(--error-color auto 5px, $error-color auto 5px);
@@ -593,7 +593,9 @@ body {
       .sv_q_other input,
       .sv_q_text_root,
       .sv_q_dropdown_control,
-      input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
+      input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not(
+          [type="checkbox"]
+        ):not([type="radio"]),
       select,
       textarea {
         position: relative;
@@ -615,7 +617,9 @@ body {
 
       .sv_q_other input,
       .sv_q_dropdown_control,
-      input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
+      input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not(
+          [type="checkbox"]
+        ):not([type="radio"]),
       select {
         height: calc(#{$base-line-height} + 1px);
       }
@@ -694,7 +698,7 @@ body {
         margin-right: 1.5em;
       }
 
-      .sv_q_imgsel label>div {
+      .sv_q_imgsel label > div {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -702,7 +706,7 @@ body {
         border: 1px solid lightgray;
         border-radius: 4px;
 
-        >img {
+        > img {
           display: block;
           pointer-events: none;
           position: relative;
@@ -756,7 +760,6 @@ body {
       }
 
       &.sv_q_matrix {
-
         td,
         th {
           padding: 0.5em 1em;
@@ -834,11 +837,10 @@ body {
         font-weight: normal;
         display: inline;
 
-        >* {
+        > * {
           word-spacing: initial;
 
-          @media all and (-ms-high-contrast: none),
-          (-ms-high-contrast: active) {
+          @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
             word-spacing: normal;
           }
         }
@@ -996,9 +998,9 @@ body {
   clip: rect(0 0 0 0);
 }
 
-@import "./signaturepad.scss";
-@import "./boolean-checkbox.scss";
-@import "./components-container.scss";
+@import "../packages/survey-core/src/signaturepad.scss";
+@import "../packages/survey-core/src/boolean-checkbox.scss";
+@import "../packages/survey-core/src/components-container.scss";
 
 .sv-dragdrop-movedown {
   transform: translate(0, 0);
@@ -1041,10 +1043,11 @@ body {
 
 .sv-drag-drop-choices-shortcut__content.sv-drag-drop-choices-shortcut__content {
   min-width: 100px;
-  box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
+  box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)),
+    var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
   background-color: var(--sjs-general-backcolor, var(--background, #fff));
   border-radius: calc(4.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
-  padding-right: calc(2* var(--sjs-base-unit, var(--base-unit, 8px)));
+  padding-right: calc(2 * var(--sjs-base-unit, var(--base-unit, 8px)));
   margin-left: 0;
 }
 

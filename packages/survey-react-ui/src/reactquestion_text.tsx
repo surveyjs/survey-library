@@ -40,8 +40,8 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
           placeholder={placeholder}
           list={this.question.dataListId}
           autoComplete={this.question.autocomplete}
-          onBlur={this.question.onBlur}
-          onFocus={this.question.onFocus}
+          onBlur={(event) => { this.question.onBlur(event); }}
+          onFocus={(event) => { this.question.onFocus(event); }}
           onChange={this.question.onChange}
           onKeyUp={this.question.onKeyUp}
           onKeyDown={this.question.onKeyDown}

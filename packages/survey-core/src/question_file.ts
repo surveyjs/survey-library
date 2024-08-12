@@ -1093,7 +1093,7 @@ Serializer.addClass(
   "file",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
-    { name: "showPreview:boolean", default: true },
+    { name: "showPreview:boolean", default: true, visible: false },
     "allowMultiple:boolean",
     {
       name: "allowImagesPreview:boolean",

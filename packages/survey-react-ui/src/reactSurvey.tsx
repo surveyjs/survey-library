@@ -120,7 +120,6 @@ export class Survey extends SurveyElementBase<any, any>
               <ComponentsContainer survey={this.survey} container={"footer"} needRenderWrapper={false}></ComponentsContainer>
             </div>
           </form>
-          { this.survey.showBrandInfo ? <BrandInfo/> : null }
           <NotifierComponent notifier={this.survey.notifier} ></NotifierComponent>
         </div>
       </div>
@@ -189,6 +188,7 @@ export class Survey extends SurveyElementBase<any, any>
           </div>
         </div>
         <ComponentsContainer survey={this.survey} container={"right"}></ComponentsContainer>
+        { this.survey.showBrandInfo ? <BrandInfo/> : null }
       </div>
     );
   }

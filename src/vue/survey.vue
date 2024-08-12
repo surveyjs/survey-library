@@ -30,6 +30,7 @@
                 </div>
               </div>
               <component :is="'sv-components-container'" :survey="vueSurvey" :container="'right'"></component>
+              <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
             </div>
           </template>
           <component :is="'sv-components-container'" :survey="vueSurvey" :container="'footer'"></component>
@@ -55,7 +56,6 @@
           </div>
         </div>
       </form>
-      <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
       <sv-notifier :model="vueSurvey.notifier"></sv-notifier>
     </div>
   </div>

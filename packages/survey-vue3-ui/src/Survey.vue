@@ -67,6 +67,7 @@
                 :container="'right'"
                 :needRenderWrapper="true"
               ></component>
+              <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
             </div>
           </template>
           <component
@@ -102,7 +103,6 @@
           </div>
         </div>
       </form>
-      <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
       <sv-notifier :model="vueSurvey.notifier"></sv-notifier>
     </div>
   </div>

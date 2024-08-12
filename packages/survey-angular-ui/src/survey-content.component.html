@@ -24,6 +24,7 @@
                   <!-- /ko -->
                 <!-- /ko -->
                 <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentBottom' } }"></ng-template>
+                <sv-brand-info *ngIf="model.showBrandInfo"></sv-brand-info>
               </div>
             </div>
             <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'right' } }"></ng-template>
@@ -38,7 +39,6 @@
           <div *ngIf="model.state === 'empty'" [class]="model.css.bodyEmpty">{{model.emptySurveyText}}</div>
         </div>
       </form>
-      <sv-brand-info *ngIf="model.showBrandInfo"></sv-brand-info>
       <sv-notifier [notifier]="model.notifier"></sv-notifier>
     </div>
   </div>

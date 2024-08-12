@@ -23,6 +23,8 @@
   "typings": "./typings/src/entries/js-ui.d.ts",
   "dependencies": {},
   "peerDependencies": {
-    "survey-core": "*"
+    "survey-core": "*",
+    "@types/react-dom": "*",
+    "@types/react": "*"
   }
 }

@@ -59,6 +59,7 @@
   border-right: 1px solid $border;
   white-space: normal;
   color: $font-editorfont-placeholdercolor;
+  box-sizing: content-box;
 }
 
 .sd-question--preview .sd-multipletext__item-title {

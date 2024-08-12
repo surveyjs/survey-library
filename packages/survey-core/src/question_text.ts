@@ -550,7 +550,8 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     if(this.inputType === "month") {
       const d = new Date(newValue);
-      return d.getFullYear() + "-" + (d.getMonth() + 1);
+      const m = d.getMonth() + 1;
+      return d.getFullYear() + "-" + (m < 10 ? "0" : "") + m;
     }
     return newValue;
   }
@@ -686,8 +687,8 @@ function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: bool
   if(Helpers.isValueEmpty(min) || Helpers.isValueEmpty(max)) return val;
   if(obj.inputType.indexOf("date") === 0 || obj.inputType === "month") {
     const isMonth = obj.inputType === "month";
-    const dMin = new Date(isMonth ? min + "-1" : min);
-    const dMax = new Date(isMonth ? max + "-1" : max);
+    const dMin = new Date(isMonth ? min + "-01" : min);
+    const dMax = new Date(isMonth ? max + "-01" : max);
     if(!dMin || !dMax) return val;
     if(dMin > dMax) return isMax ? min : max;
   }

@@ -199,6 +199,14 @@ QUnit.test("min/max onSettingValue property function", function(assert) {
   q.min = "10:15";
   assert.equal(q.min, "10:15", "Set the min time value, #2");
 });
+QUnit.test("month value should have format 9999-99, Bug#8668", function(assert) {
+  const q = new QuestionTextModel("q1");
+  q.inputType = "month";
+  q.value = "2024-01";
+  assert.equal(q.value, "2024-01", "#1");
+  q.value = "2024-5";
+  assert.equal(q.value, "2024-05", "#2");
+});
 QUnit.test("Change placeHolder to placeholder", function(assert) {
   const survey = new SurveyModel({
     elements: [
@@ -466,7 +474,8 @@ QUnit.test("inputType='month' and today function, #8552", function(assert) {
     ]
   });
   const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
-  const etalon = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
+  const m = new Date().getMonth() + 1;
+  const etalon = new Date().getFullYear() + "-" + (m < 10 ? "0" : "") + m;
   assert.equal(q1.value, etalon, "today works correctly for month input");
 });
 QUnit.test("inputType='date' invalid value, #8617", function(assert) {

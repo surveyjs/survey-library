@@ -73,7 +73,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     );
   }
   protected getColumns(cssClasses: any) {
-    return this.question.columns.map((column: any, ci: number) => {
+    return this.question.columns.map((column: Array<ItemValue>, ci: number) => {
       var items = column.map((item: any, ii: number) =>
         this.renderItem(
           "item" + ii,
@@ -84,7 +84,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         )
       );
       return (
-        <div key={"column" + ci} className={this.question.getColumnClass()} role="presentation">
+        <div key={"column" + ci + this.question.getItemsColumnKey(column)} className={this.question.getColumnClass()} role="presentation">
           {items}
         </div>
       );

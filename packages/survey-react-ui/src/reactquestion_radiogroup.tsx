@@ -70,12 +70,12 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
   protected getColumns(cssClasses: any) {
     var value = this.getStateValue();
-    return this.question.columns.map((column: any, ci: number) => {
+    return this.question.columns.map((column: Array<ItemValue>, ci: number) => {
       var items = column.map((item: any, ii: number) =>
         this.renderItem("item" + ci + ii, item, value, cssClasses, "" + ci + ii)
       );
       return (
-        <div key={"column" + ci} className={this.question.getColumnClass()} role="presentation">
+        <div key={"column" + ci + this.question.getItemsColumnKey(column)} className={this.question.getColumnClass()} role="presentation">
           {items}
         </div>
       );

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ReactSurveyElement, SurveyElementBase, SurveyQuestionElementBase } from "./reactquestion_element";
-import { QuestionImagePickerModel, ImageItemValue, SurveyModel } from "survey-core";
+import { QuestionImagePickerModel, ImageItemValue, SurveyModel, ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
@@ -23,7 +23,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   }
 
   protected getColumns(cssClasses: any) {
-    return this.question.columns.map((column: any, ci: number) => {
+    return this.question.columns.map((column: Array<ItemValue>, ci: number) => {
       var items = column.map((item: any, ii: number) =>
         this.renderItem(
           "item" + ii,
@@ -32,7 +32,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
         )
       );
       return (
-        <div key={"column" + ci} className={this.question.getColumnClass()} role="presentation">
+        <div key={"column" + ci + this.question.getItemsColumnKey(column)} className={this.question.getColumnClass()} role="presentation">
           {items}
         </div>
       );

@@ -1725,6 +1725,21 @@ export class SurveyModel extends SurveyElementCore
   public set checkErrorsMode(val: string) {
     this.setPropertyValue("checkErrorsMode", val);
   }
+  /**
+   * Specifies whether to trigger validation when a user focuses on an empty input field and then leaves it without making any changes. Applies only if [`checkErrorsMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#checkErrorsMode) is set to `"onValueChanged"`.
+   *
+   * Default value: `false`
+   *
+   * This property changes validation behavior for the following question types:
+   *
+   * - [Single-Line Input](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model)
+   * - [Long Text](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model)
+   * - [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model)
+   * @see validationEnabled
+   * @see validationAllowSwitchPages
+   * @see validationAllowComplete
+   * @see validate
+   */
   public get validateVisitedEmptyFields(): boolean {
     return this.getPropertyValue("validateVisitedEmptyFields");
   }

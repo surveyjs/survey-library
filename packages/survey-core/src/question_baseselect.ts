@@ -1836,6 +1836,9 @@ export class QuestionSelectBase extends Question {
     }
     return columns;
   }
+  getItemsColumnKey(itemsColumn: Array<ItemValue>) {
+    return (itemsColumn || []).map(c => c.value || "").join("");
+  }
   get hasColumns() {
     return !this.isMobile &&
       (this.getCurrentColCount() > 1);

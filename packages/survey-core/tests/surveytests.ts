@@ -12724,10 +12724,10 @@ QUnit.test("Survey.getQuestionTitlePatternOptions()", function (assert) {
       value: "numRequireTitle",
       text: "# 1. (*) Question Title",
     },
-    {
-      value: "requireNumTitle",
-      text: "(*) # 1. Question Title",
-    },
+    // {
+    //   value: "requireNumTitle",
+    //   text: "(*) # 1. Question Title",
+    // },
     {
       value: "numTitle",
       text: "# 1. Question Title",

@@ -2513,10 +2513,10 @@ export class SurveyModel extends SurveyElementCore
       value: "numRequireTitle",
       text: num + " " + this.requiredText + " " + title
     });
-    res.push({
-      value: "requireNumTitle",
-      text: this.requiredText + " " + num + " " + title
-    });
+    // res.push({
+    //   value: "requireNumTitle",
+    //   text: this.requiredText + " " + num + " " + title
+    // });
     res.push({
       value: "numTitle",
       text: num + " " + title

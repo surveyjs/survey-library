@@ -1735,7 +1735,6 @@ export class SurveyModel extends SurveyElementCore
    * - [Single-Line Input](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model)
    * - [Long Text](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model)
    * - [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model)
-   * - [Multi-Select Dropdown (Tag Box)](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model)
    * @see validationEnabled
    * @see validationAllowSwitchPages
    * @see validationAllowComplete

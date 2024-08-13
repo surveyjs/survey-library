@@ -529,7 +529,8 @@ frameworks.forEach(framework => {
             ],
             "colCount": 5
           }
-        ]
+        ],
+        "focusFirstQuestionAutomatic": true // do not remove, it is need to check container clipping
       });
       await takeElementScreenshot("responsiveness-checkbox-col-count-5-wide.png", Selector(".sd-question"), t, comparer);
       await t.resizeWindow(1000, 1080);

@@ -116,6 +116,7 @@ body {
 
 .sv-popup .sv-popup__scrolling-content {
   @include scrollRules;
+  box-sizing: content-box;
 }
 
 @mixin stickyHeader {

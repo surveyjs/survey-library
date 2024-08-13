@@ -82,6 +82,7 @@
   padding: multiply(0.25, $font-editorfont-size);
   width: multiply(1, $font-editorfont-size);
   height: multiply(1, $font-editorfont-size);
+  box-sizing: content-box;
 }
 
 .sd-tagbox-item_clean-button-svg:hover {

@@ -364,7 +364,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check survey with progress and bootstrap", async (t) => {
+  test("Check survey with progress and bootstrap/tailwind", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await ClientFunction(() => {
         document.head.insertAdjacentHTML("beforeend", "<style>* { box-sizing: border-box; }</style>");
@@ -376,6 +376,10 @@ frameworks.forEach(framework => {
         (<any>window).survey.currentPageNo = 1;
       })();
       await takeElementScreenshot("survey-progress-bar-bootstrap.png", Selector(".sd-progress-buttons__list"), t, comparer); // title + progress
+      await ClientFunction(() => {
+        (<any>window).survey.progressBarShowPageNumbers = true;
+      })();
+      await takeElementScreenshot("survey-progress-bar-bootstrap-numbers.png", Selector(".sd-progress-buttons__list"), t, comparer);
     });
   });
 

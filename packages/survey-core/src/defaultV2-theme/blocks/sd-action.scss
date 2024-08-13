@@ -15,6 +15,7 @@
   line-height: multiply(1.5, $font-questiontitle-size);
   outline: none;
   transition: background-color $transition-duration;
+  box-sizing: content-box;
 }
 
 .sd-action--negative {

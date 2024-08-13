@@ -146,6 +146,7 @@ sv-popup {
     width: 100%;
     padding-top: calcSize(2);
     border: unset;
+    box-sizing: content-box;
   }
 
   .sv-popup__body-content {

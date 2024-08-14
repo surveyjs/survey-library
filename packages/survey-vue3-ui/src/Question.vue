@@ -50,10 +50,7 @@
               :locString="element.locCommentText"
             />
           </div>
-          <SvComponent
-            :name="'survey-question-comment'"
-            :question="element"
-          />
+          <SvComponent :name="'survey-question-comment'" :question="element" />
         </div>
         <SvComponent
           :name="'survey-errors'"

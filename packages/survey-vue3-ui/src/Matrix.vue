@@ -47,10 +47,7 @@
                 :name="question.getRowHeaderWrapperComponentName(row)"
                 :componentData="question.getRowHeaderWrapperComponentData(row)"
               >
-                <SvComponent
-                  :name="'survey-string'"
-                  :locString="row.locText"
-                />
+                <SvComponent :name="'survey-string'" :locString="row.locText" />
               </SvComponent>
             </td>
             <template v-if="question.hasCellText">

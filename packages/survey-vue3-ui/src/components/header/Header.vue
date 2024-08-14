@@ -22,10 +22,7 @@
       ></SvComponent>
     </div>
     <div v-if="survey.isMobile">
-      <SvComponent
-        :name="'sv-header-mobile'"
-        :model="model"
-      ></SvComponent>
+      <SvComponent :name="'sv-header-mobile'" :model="model"></SvComponent>
     </div>
   </div>
 </template>

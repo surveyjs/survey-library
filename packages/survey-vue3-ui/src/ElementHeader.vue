@@ -4,11 +4,7 @@
     @click="clickTitleFunction"
     :style="getStyle()"
   >
-    <SvComponent
-      :name="'survey-element-title'"
-      :element="element"
-      :css="css"
-    />
+    <SvComponent :name="'survey-element-title'" :element="element" :css="css" />
     <div
       v-if="element.hasDescriptionUnderTitle"
       v-show="element.hasDescription"

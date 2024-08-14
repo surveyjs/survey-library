@@ -4,10 +4,7 @@
     :item="item"
     :model="model"
   ></SvComponent>
-  <SvComponent
-    :name="'sv-popup'"
-    :model="item.popupModel"
-  ></SvComponent>
+  <SvComponent :name="'sv-popup'" :model="item.popupModel"></SvComponent>
 </template>
 
 <script lang="ts" setup>

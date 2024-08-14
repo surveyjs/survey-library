@@ -45,10 +45,7 @@
             </div>
           </div>
           <div v-if="model.showFooter" class="sv-popup__body-footer">
-            <SvComponent
-              :name="'sv-action-bar'"
-              :model="model.footerToolbar"
-            />
+            <SvComponent :name="'sv-action-bar'" :model="model.footerToolbar" />
           </div>
         </div>
       </div>

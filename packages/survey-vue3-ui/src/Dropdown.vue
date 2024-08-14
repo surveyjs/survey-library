@@ -1,9 +1,6 @@
 <template>
   <div :class="question.renderCssRoot" ref="root">
-    <SvComponent
-      :name="'sv-dropdown'"
-      :question="question"
-    ></SvComponent>
+    <SvComponent :name="'sv-dropdown'" :question="question"></SvComponent>
     <SvComponent
       :name="'survey-other-choice'"
       v-if="question.isOtherSelected"

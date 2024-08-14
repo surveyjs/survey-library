@@ -10,10 +10,7 @@
           :locString="question.locNoEntriesText"
         ></SvComponent>
       </span>
-      <SvComponent
-        :name="'sv-paneldynamic-add-btn'"
-        :data="{ question }"
-      />
+      <SvComponent :name="'sv-paneldynamic-add-btn'" :data="{ question }" />
     </div>
     <div
       :class="question.cssClasses.progress"

@@ -132,8 +132,8 @@ import { ComponentFactory } from "./component-factory";
 export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
 export { ComponentFactory };
 export { key2ClickDirective } from "./directives/key2click";
-export { default as SurveyComponent } from "./Survey.vue";
 export { default as SvComponent } from "./SvComponent.vue";
+export { SurveyVue as SurveyComponent };
 
 SurveyModel.platform = "vue3";
 

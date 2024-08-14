@@ -128,7 +128,8 @@
   padding-top: calcSize(1);
   padding-bottom: calcSize(1);
 
-  .sv-string-viewer {
+  .sv-string-viewer,
+  .sv-string-editor {
     overflow: initial;
     white-space: pre-line;
   }

@@ -416,8 +416,9 @@ export class StylesManager {
     }
   }
 }
-if(DomWindowHelper.isAvailable()) {
-  SurveyModel.prototype["onBeforeCreating"] = () => {
+SurveyModel.prototype["onBeforeRunConstructor"] = () => {
+  if(DomWindowHelper.isAvailable()) {
     StylesManager.autoApplyTheme();
-  };
-}
+  }
+};
+

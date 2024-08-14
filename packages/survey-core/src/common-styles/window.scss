@@ -52,6 +52,7 @@
         border-radius: calcSize(1);
         display: flex;
         background-color: $background-dim;
+        box-sizing: content-box;
     }
 
     .sv_window_content {

@@ -1248,6 +1248,7 @@ sv-popup {
   overflow: auto;
   display: flex;
   flex-direction: column;
+  box-sizing: content-box;
 }
 
 .sv-popup__scrolling-content::-webkit-scrollbar {

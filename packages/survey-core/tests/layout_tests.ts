@@ -137,6 +137,19 @@ QUnit.test("columns generate - title width", function (assert) {
   assert.deepEqual(q3.titleWidth, "12.5%");
   assert.deepEqual(q4.titleWidth, "25%");
 });
+QUnit.test("title width & titleLocation left & delete question, #8686", function (assert) {
+  const surveyModel = new SurveyModel({
+    elements: [{
+      name: "q1",
+      type: "text",
+      titleLocation: "left"
+    }]
+  });
+  const page = surveyModel.pages[0];
+  const q1 = surveyModel.getQuestionByName("q1");
+  q1.delete();
+  assert.notOk(q1.titleWidth);
+});
 
 QUnit.test("user columns de/serialization", function (assert) {
   const surveyModel = new SurveyModel({

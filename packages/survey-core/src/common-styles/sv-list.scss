@@ -118,6 +118,7 @@
   right: calcSize(1);
   flex-shrink: 0;
   padding: calcSize(0.5);
+  box-sizing: content-box;
 
   svg {
     display: block;

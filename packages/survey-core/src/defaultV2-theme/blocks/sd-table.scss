@@ -17,6 +17,7 @@
   border-left: none;
   border-right: none;
   background-clip: padding-box;
+  box-sizing: content-box;
 }
 
 .sd-table.sd-table--columnsautowidth {

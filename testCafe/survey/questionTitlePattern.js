@@ -65,3 +65,43 @@ frameworks.forEach(framework => {
     await t.expect(joinElementInnerText("h5", 1)).eql("# (b) q1");
   });
 });
+
+const json2 = {
+  elements: [
+    {
+      type: "comment",
+      name: "q1",
+      titleLocation: "left"
+    },
+    {
+      type: "text",
+      name: "q2",
+      titleLocation: "left"
+    },
+    {
+      type: "text",
+      name: "q3",
+      titleLocation: "left"
+    }
+  ]
+};
+
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json2);
+    }
+  );
+
+  const deleteQuestion = ClientFunction(name => {
+    window["survey"].getQuestionByName(name).delete();
+  });
+
+  test("Delete questions with title location equals to left", async t => {
+    await deleteQuestion("q1");
+    await deleteQuestion("q2");
+    await t.expect(Selector("h5").find("span").withText("q1").exists).notOk();
+    await t.expect(Selector("h5").find("span").withText("q2").exists).notOk();
+    await t.expect(Selector("h5").find("span").withText("q3").exists).ok();
+  });
+});

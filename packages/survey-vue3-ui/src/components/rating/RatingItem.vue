@@ -19,13 +19,13 @@
       :aria-errormessage="question.ariaErrormessage"
     />
     <span :class="question.cssClasses.itemText" :data-text="item.text">
-      <SurveyVueComponent :name="'survey-string'" :locString="item.locText" />
+      <SvComponent :name="'survey-string'" :locString="item.locText" />
     </span>
   </label>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { IRatingItemProps } from "./rating";
 import { useBase } from "@/base";
 

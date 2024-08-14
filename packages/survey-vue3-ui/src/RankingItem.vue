@@ -52,18 +52,18 @@
             <use :xlink:href="question.dashSvgIcon"></use>
           </svg>
         </div>
-        <SurveyVueComponent
+        <SvComponent
           :name="question.itemComponent"
           :item="item"
           :cssClasses="question.cssClasses"
-        ></SurveyVueComponent>
+        ></SvComponent>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { ItemValue, QuestionRankingModel } from "survey-core";
 import { useBase } from "./base";
 import { computed } from "vue";

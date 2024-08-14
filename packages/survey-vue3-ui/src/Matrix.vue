@@ -15,17 +15,17 @@
                 width: question.columnMinWidth,
               }"
             >
-              <SurveyVueComponent
+              <SvComponent
                 :name="question.getColumnHeaderWrapperComponentName(column)"
                 :componentData="
                   question.getColumnHeaderWrapperComponentData(column)
                 "
               >
-                <SurveyVueComponent
+                <SvComponent
                   :name="'survey-string'"
                   :locString="column.locText"
                 />
-              </SurveyVueComponent>
+              </SvComponent>
             </th>
           </tr>
         </thead>
@@ -43,15 +43,15 @@
                 width: question.rowTitleWidth,
               }"
             >
-              <SurveyVueComponent
+              <SvComponent
                 :name="question.getRowHeaderWrapperComponentName(row)"
                 :componentData="question.getRowHeaderWrapperComponentData(row)"
               >
-                <SurveyVueComponent
+                <SvComponent
                   :name="'survey-string'"
                   :locString="row.locText"
                 />
-              </SurveyVueComponent>
+              </SvComponent>
             </td>
             <template v-if="question.hasCellText">
               <td
@@ -60,10 +60,10 @@
                 :class="question.getItemClass(row, column)"
                 v-on:click="cellClick(row, column)"
               >
-                <SurveyVueComponent
+                <SvComponent
                   :name="'survey-string'"
                   :locString="question.getCellDisplayLocText(row.name, column)"
-                ></SurveyVueComponent>
+                ></SvComponent>
               </td>
             </template>
             <template v-if="!question.hasCellText">
@@ -74,13 +74,13 @@
                 :class="question.cssClasses.cell"
                 v-on:click="cellClick(row, column)"
               >
-                <SurveyVueComponent
+                <SvComponent
                   :name="question.cellComponent"
                   :question="question"
                   :row="row"
                   :column="column"
                   :columnIndex="columnIndex"
-                ></SurveyVueComponent>
+                ></SvComponent>
               </td>
             </template>
           </tr>
@@ -91,7 +91,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionMatrixModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref, shallowRef } from "vue";

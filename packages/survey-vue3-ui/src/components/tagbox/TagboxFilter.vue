@@ -5,7 +5,7 @@
     </div>
 
     <div :class="question.cssClasses.hintSuffixWrapper">
-      <SurveyVueComponent
+      <SvComponent
         :name="'survey-string'"
         v-if="question.showSelectedItemLocText"
         :locString="question.selectedItemLocText"
@@ -45,7 +45,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type {
   DropdownMultiSelectListModel,

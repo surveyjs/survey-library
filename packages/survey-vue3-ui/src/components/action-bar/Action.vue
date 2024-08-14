@@ -1,16 +1,16 @@
 <template>
   <div v-bind:class="item.getActionRootCss()" :id="item.id">
     <div class="sv-action__content">
-      <SurveyVueComponent
+      <SvComponent
         :name="'sv-action-bar-separator'"
         v-if="item.needSeparator"
-      ></SurveyVueComponent>
-      <SurveyVueComponent :name="componentName" :item="item"> </SurveyVueComponent>
+      ></SvComponent>
+      <SvComponent :name="componentName" :item="item"> </SvComponent>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type { Action } from "survey-core";
 import { computed } from "vue";

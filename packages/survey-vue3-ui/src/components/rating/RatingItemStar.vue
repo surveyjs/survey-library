@@ -20,24 +20,24 @@
       :aria-invalid="question.ariaInvalid"
       :aria-errormessage="question.ariaErrormessage"
     />
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-svg-icon'"
       :class="'sv-star'"
       :iconName="question.itemStarIcon"
       :size="'auto'"
       :title="item.text"
-    /><SurveyVueComponent
+    /><SvComponent
       :name="'sv-svg-icon'"
       :class="'sv-star-2'"
       :iconName="question.itemStarIconAlt"
       :size="'auto'"
       :title="item.text"
-    ></SurveyVueComponent>
+    ></SvComponent>
   </label>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { IRatingItemProps } from "./rating";
 import { useBase } from "@/base";
 

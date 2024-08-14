@@ -14,29 +14,29 @@
       {{ question.locTitle.renderedHtml }}
     </legend>
     <template v-if="question.hasHeadItems">
-      <SurveyVueComponent
+      <SvComponent
         v-for="item in question.headItems"
         :key="item.value"
         :name="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
-      ></SurveyVueComponent>
+      ></SvComponent>
     </template>
     <template v-if="!question.hasColumns && !question.blockedRow">
-      <SurveyVueComponent
+      <SvComponent
         v-for="item in question.bodyItems"
         :key="item.value"
         :name="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
-      ></SurveyVueComponent>
+      ></SvComponent>
     </template>
     <div :class="question.cssClasses.rootRow" v-if="question.blockedRow">
       <template v-if="!question.hasColumns && question.blockedRow">
-        <SurveyVueComponent
+        <SvComponent
           v-for="item in question.dataChoices"
           :key="item.value"
           :name="getItemValueComponentName(item)"
           v-bind="getItemValueComponentData(item)"
-        ></SurveyVueComponent>
+        ></SvComponent>
       </template>
     </div>
     <div
@@ -50,24 +50,24 @@
           :class="question.getColumnClass()"
           role="presentation"
         >
-          <SurveyVueComponent
+          <SvComponent
             v-for="item in column"
             :key="item.value"
             :name="getItemValueComponentName(item)"
             v-bind="getItemValueComponentData(item)"
-          ></SurveyVueComponent>
+          ></SvComponent>
         </div>
       </template>
     </div>
     <template v-if="question.hasFootItems">
-      <SurveyVueComponent
+      <SvComponent
         v-for="item in question.footItems"
         :key="item.value"
         :name="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
-      ></SurveyVueComponent>
+      ></SvComponent>
     </template>
-    <SurveyVueComponent
+    <SvComponent
       :name="'survey-other-choice'"
       v-if="question.renderedValue && question.isOtherSelected"
       :question="question"
@@ -88,7 +88,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type {
   ItemValue,
   QuestionCheckboxModel,

@@ -43,7 +43,7 @@
               :class="css.progressButtonsPageTitle"
               :title="page.renderedNavigationTitle"
             >
-              <SurveyVueComponent
+              <SvComponent
                 :name="'survey-string'"
                 :locString="page.locNavigationTitle"
               />
@@ -81,7 +81,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import {
   type SurveyModel,
   ProgressButtons,

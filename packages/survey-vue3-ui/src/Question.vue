@@ -17,45 +17,45 @@
     "
     :data-name="element.name"
   >
-    <SurveyVueComponent
+    <SvComponent
       :name="'survey-errors'"
       v-if="element.showErrorsAboveQuestion"
       :element="element"
       :location="'top'"
     />
-    <SurveyVueComponent
+    <SvComponent
       :name="'survey-element-header'"
       v-if="element.hasTitleOnLeftTop"
       :element="element"
       :css="css"
     />
-    <SurveyVueComponent :name="contentComponentName" v-bind="contentComponentData">
+    <SvComponent :name="contentComponentName" v-bind="contentComponentData">
       <div
         :class="getContentClass(element) || undefined"
         :style="{ display: !element.renderedIsExpanded ? 'none' : undefined }"
         role="presentation"
       >
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-errors'"
           v-if="hasErrorsOnTop"
           :element="element"
           :location="'top'"
         />
 
-        <SurveyVueComponent :name="componentName" :question="element" />
+        <SvComponent :name="componentName" :question="element" />
         <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
           <div>
-            <SurveyVueComponent
+            <SvComponent
               :name="'survey-string'"
               :locString="element.locCommentText"
             />
           </div>
-          <SurveyVueComponent
+          <SvComponent
             :name="'survey-question-comment'"
             :question="element"
           />
         </div>
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-errors'"
           v-if="hasErrorsOnBottom"
           :element="element"
@@ -66,20 +66,20 @@
           :class="element.cssClasses.descriptionUnderInput"
           :id="element.ariaDescriptionId"
         >
-          <SurveyVueComponent
+          <SvComponent
             :name="'survey-string'"
             :locString="element.locDescription"
           />
         </div>
       </div>
-    </SurveyVueComponent>
-    <SurveyVueComponent
+    </SvComponent>
+    <SvComponent
       :name="'survey-element-header'"
       v-if="element.hasTitleOnBottom"
       :element="element"
       :css="css"
     />
-    <SurveyVueComponent
+    <SvComponent
       :name="'survey-errors'"
       v-if="element.showErrorsBelowQuestion"
       :element="element"
@@ -95,7 +95,7 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { SurveyModel, Question } from "survey-core";
 import { useBase } from "./base";
 import { computed, onUnmounted, ref, watch } from "vue";

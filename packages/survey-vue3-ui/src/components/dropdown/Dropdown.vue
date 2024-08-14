@@ -27,7 +27,7 @@
       </div>
 
       <div :class="question.cssClasses.controlValue">
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-string'"
           v-if="showSelectedItemLocText"
           :locString="selectedItemLocText"
@@ -41,13 +41,13 @@
           }}</span>
           <span>{{ model.hintStringSuffix }}</span>
         </div>
-        <SurveyVueComponent
+        <SvComponent
           v-if="question.showInputFieldComponent"
           :name="question.inputFieldComponentName"
           :item="model.getSelectedAction()"
           :question="question"
         >
-        </SurveyVueComponent>
+        </SvComponent>
         <input
           type="text"
           ref="inputElement"
@@ -82,21 +82,21 @@
         @click="clear"
         aria-hidden="true"
       >
-        <SurveyVueComponent
+        <SvComponent
           :name="'sv-svg-icon'"
           :class="question.cssClasses.cleanButtonSvg"
           :iconName="question.cssClasses.cleanButtonIconId"
           :title="question.clearCaption"
           size="auto"
         >
-        </SurveyVueComponent>
+        </SvComponent>
       </div>
     </div>
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-popup'"
       v-if="!question.isReadOnly"
       :model="question.dropdownListModel.popupModel"
-    ></SurveyVueComponent>
+    ></SvComponent>
     <div
       v-else
       :id="question.inputId"
@@ -106,7 +106,7 @@
       :tabindex="question.isDisabledAttr ? undefined : 0"
       :class="question.getControlClass()"
     >
-      <SurveyVueComponent
+      <SvComponent
         :name="'survey-string'"
         v-if="question.selectedItemLocText"
         :locString="question.selectedItemLocText"
@@ -119,19 +119,19 @@
       v-if="question.cssClasses.chevronButtonIconId"
       aria-hidden="true"
     >
-      <SurveyVueComponent
+      <SvComponent
         :name="'sv-svg-icon'"
         :class="question.cssClasses.chevronButtonSvg"
         :iconName="question.cssClasses.chevronButtonIconId"
         size="auto"
       >
-      </SurveyVueComponent>
+      </SvComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import { Question, Helpers } from "survey-core";
 import { computed, onMounted, onUpdated, ref } from "vue";

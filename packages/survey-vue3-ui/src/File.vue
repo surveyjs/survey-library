@@ -51,22 +51,22 @@
         v-if="question.showFileDecorator"
       >
         <span :class="question.cssClasses.dragAreaPlaceholder">
-          <SurveyVueComponent
+          <SvComponent
             :name="'survey-string'"
             :locString="question.locRenderedPlaceholder"
-          ></SurveyVueComponent>
+          ></SvComponent>
         </span>
         <div :class="question.cssClasses.wrapper">
-          <SurveyVueComponent
+          <SvComponent
             :name="'sv-file-choose-btn'"
             v-if="question.showChooseButton"
             :data="{ question: question }"
-          ></SurveyVueComponent>
-          <SurveyVueComponent
+          ></SvComponent>
+          <SvComponent
             :name="'sv-action-bar'"
             v-if="question.actionsContainerVisible"
             :model="question.actionsContainer"
-          ></SurveyVueComponent>
+          ></SvComponent>
           <span
             :class="question.cssClasses.noFileChosen"
             v-if="question.isEmpty()"
@@ -74,46 +74,46 @@
           >
         </div>
       </div>
-      <SurveyVueComponent
+      <SvComponent
         :name="'sv-file-clean-btn'"
         v-if="question.showRemoveButton"
         :question="question"
         :css="question.showRemoveButton"
-      ></SurveyVueComponent>
+      ></SvComponent>
       <div
         :class="question.cssClasses.loadingIndicator"
         v-if="question.showLoadingIndicator"
       >
-        <SurveyVueComponent :name="'sv-loading-indicator'" />
+        <SvComponent :name="'sv-loading-indicator'" />
       </div>
-      <SurveyVueComponent
+      <SvComponent
         :name="'sv-file-video'"
         v-if="question.isPlayingVideo"
         :question="question"
-      ></SurveyVueComponent>
+      ></SvComponent>
       <template v-if="question.allowShowPreview">
-        <SurveyVueComponent
+        <SvComponent
           :name="'sv-file-preview'"
           :question="question"
-        ></SurveyVueComponent>
+        ></SvComponent>
       </template>
-      <SurveyVueComponent
+      <SvComponent
         :name="'sv-file-clean-btn'"
         v-if="question.showRemoveButtonBottom"
         :question="question"
         :css="question.showRemoveButtonBottom"
-      ></SurveyVueComponent>
-      <SurveyVueComponent
+      ></SvComponent>
+      <SvComponent
         :name="'sv-action-bar'"
         v-if="question.fileNavigatorVisible"
         :model="question.fileNavigator"
-      ></SurveyVueComponent>
+      ></SvComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionFileModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

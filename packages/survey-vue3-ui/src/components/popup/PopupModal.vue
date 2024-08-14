@@ -1,10 +1,10 @@
 <template>
   <Teleport v-if="popup" :to="popup.container"
-    ><SurveyVueComponent :name="'sv-popup-container'" :model="popup"
+    ><SvComponent :name="'sv-popup-container'" :model="popup"
   /></Teleport>
 </template>
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { onUnmounted, shallowRef } from "vue";
 import {
   PopupBaseViewModel,

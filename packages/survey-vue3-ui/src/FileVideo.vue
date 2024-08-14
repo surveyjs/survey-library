@@ -1,27 +1,27 @@
 <template>
   <div :class="question.cssClasses.videoContainer">
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-action'"
       :item="question.changeCameraAction"
-    ></SurveyVueComponent>
-    <SurveyVueComponent
+    ></SvComponent>
+    <SvComponent
       :name="'sv-action'"
       :item="question.closeCameraAction"
-    ></SurveyVueComponent>
+    ></SvComponent>
     <video
       autoplay
       playsinline
       :id="question.videoId"
       :class="question.cssClasses.video"
     ></video>
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-action'"
       :item="question.takePictureAction"
-    ></SurveyVueComponent>
+    ></SvComponent>
   </div>
 </template>
 <script setup lang="ts">
 import type { QuestionFileModel } from "survey-core";
-import SurveyVueComponent from "./SurveyVueComponent.vue";
+import SvComponent from "./SvComponent.vue";
 defineProps<{ question: QuestionFileModel }>();
 </script>

@@ -5,17 +5,17 @@
     :class="model.getRootCss()"
     @click="onClick"
   >
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-action'"
       v-for="item in renderedActions"
       v-bind:key="item.id"
       :item="item"
-    ></SurveyVueComponent>
+    ></SvComponent>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { ActionContainer } from "survey-core";
 import { useBase, useComputedArray } from "@/base";
 import { onMounted, onUnmounted, ref } from "vue";

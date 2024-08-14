@@ -31,18 +31,18 @@
           :id="question.labelRenderedAriaID"
           :class="question.cssClasses.checkboxControlLabel"
         >
-          <SurveyVueComponent
+          <SvComponent
             :name="'survey-element-title-content'"
             v-if="!question.hasTitleActions"
             :element="question"
             :css="css"
-          ></SurveyVueComponent>
-          <SurveyVueComponent
+          ></SvComponent>
+          <SvComponent
             :name="'sv-title-actions'"
             v-if="question.hasTitleActions"
             :element="question"
             :css="css"
-          ></SurveyVueComponent>
+          ></SvComponent>
         </span>
       </label>
       <div
@@ -50,7 +50,7 @@
         :class="question.cssDescription"
         :id="question.ariaDescriptionId"
       >
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-string'"
           :locString="question.locDescription"
         />
@@ -59,7 +59,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { RendererFactory } from "survey-core";
 import type { IBooleanProps } from "./boolean";
 import { ref } from "vue";

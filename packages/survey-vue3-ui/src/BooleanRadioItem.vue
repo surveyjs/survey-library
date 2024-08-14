@@ -27,14 +27,14 @@
         </svg>
       </span>
       <span :class="question.cssClasses.radioControlLabel">
-        <SurveyVueComponent :name="'survey-string'" :locString="locText" />
+        <SvComponent :name="'survey-string'" :locString="locText" />
       </span>
     </label>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { LocalizableString, QuestionBooleanModel } from "survey-core";
 
 const props = defineProps<{

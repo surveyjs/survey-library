@@ -1,17 +1,17 @@
 <template>
-  <SurveyVueComponent
+  <SvComponent
     :name="'sv-list-item-content'"
     :item="item"
     :model="model"
-  ></SurveyVueComponent>
-  <SurveyVueComponent
+  ></SvComponent>
+  <SvComponent
     :name="'sv-popup'"
     :model="item.popupModel"
-  ></SurveyVueComponent>
+  ></SvComponent>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type { ListModel, Action } from "survey-core";
 

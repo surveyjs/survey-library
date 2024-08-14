@@ -11,11 +11,11 @@
             :key="'item' + cell.item.editor.id"
             :class="cell.className"
           >
-            <SurveyVueComponent
+            <SvComponent
               :name="'survey-multipletext-item'"
               :question="question"
               :cell="cell"
-            ></SurveyVueComponent>
+            ></SvComponent>
           </td>
         </tr>
       </template>
@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionMultipleTextModel } from "survey-core";
 import { useComputedArray, useQuestion } from "./base";
 import { ref } from "vue";

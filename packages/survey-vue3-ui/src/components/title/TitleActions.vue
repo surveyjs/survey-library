@@ -1,24 +1,24 @@
 <template>
   <div class="sv-title-actions">
     <span class="sv-title-actions__title">
-      <SurveyVueComponent
+      <SvComponent
         :name="'survey-string'"
         v-if="element.isPage"
         :locString="element.locTitle"
-      ></SurveyVueComponent>
-      <SurveyVueComponent
+      ></SvComponent>
+      <SvComponent
         :name="'survey-element-title-content'"
         v-if="!element.isPage"
         :element="element"
         :css="css"
-      ></SurveyVueComponent>
+      ></SvComponent>
     </span>
-    <SurveyVueComponent :name="'sv-action-bar'" :model="toolbar"></SurveyVueComponent>
+    <SvComponent :name="'sv-action-bar'" :model="toolbar"></SvComponent>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { PanelModel, Question } from "survey-core";
 import { computed } from "vue";
 

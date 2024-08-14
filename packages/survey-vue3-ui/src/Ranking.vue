@@ -1,12 +1,12 @@
 <template>
   <div :class="question.rootClass" ref="root">
     <template v-if="!question.selectToRankEnabled">
-      <SurveyVueComponent
+      <SvComponent
         v-for="(item, index) in question.renderedRankingChoices"
         :key="item.value + '-' + index + '-item'"
         :name="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"
-      ></SurveyVueComponent>
+      ></SvComponent>
     </template>
 
     <div
@@ -14,21 +14,21 @@
       :class="question.getContainerClasses('from')"
       data-ranking="from-container"
     >
-      <SurveyVueComponent
+      <SvComponent
         v-for="(item, index) in question.renderedUnRankingChoices"
         :key="item.value + '-' + index + '-item'"
         :name="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index, true)"
-      ></SurveyVueComponent>
+      ></SvComponent>
 
       <div
         v-if="question.renderedUnRankingChoices.length === 0"
         :class="question.cssClasses.containerPlaceholder"
       >
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-string'"
           :locString="question.locSelectToRankEmptyRankedAreaText"
-        ></SurveyVueComponent>
+        ></SvComponent>
       </div>
     </div>
 
@@ -42,28 +42,28 @@
       :class="question.getContainerClasses('to')"
       data-ranking="to-container"
     >
-      <SurveyVueComponent
+      <SvComponent
         v-for="(item, index) in question.renderedRankingChoices"
         :key="item.value + '-' + index + '-item'"
         :name="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"
-      ></SurveyVueComponent>
+      ></SvComponent>
 
       <div
         v-if="question.renderedRankingChoices.length === 0"
         :class="question.cssClasses.containerPlaceholder"
       >
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-string'"
           :locString="question.locSelectToRankEmptyUnrankedAreaText"
-        ></SurveyVueComponent>
+        ></SvComponent>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { ItemValue, QuestionRankingModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

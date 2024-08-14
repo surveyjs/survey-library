@@ -7,18 +7,19 @@
     v-key2click
     v-on:click="question.chooseFile($event)"
   >
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-svg-icon'"
       v-if="question.cssClasses.chooseFileIconId"
       :title="question.chooseButtonText"
       :iconName="question.cssClasses.chooseFileIconId"
       :size="'auto'"
-    ></SurveyVueComponent>
+    ></SvComponent>
     <span>{{ question.chooseButtonText }}</span>
   </label>
 </template>
 <script setup lang="ts">
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import { key2ClickDirective as vKey2click } from "@/directives/key2click";
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionFileModel, Action } from "survey-core";
 import { computed } from "vue";
 const props = defineProps<{

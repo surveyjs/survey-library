@@ -13,21 +13,21 @@
               :class="cell.className"
               :style="{ minWidth: cell.minWidth, width: cell.width }"
             >
-              <SurveyVueComponent
+              <SvComponent
                 :name="question.getColumnHeaderWrapperComponentName(cell as any)"
                 :componentData="question.getColumnHeaderWrapperComponentData(cell as any)"
               >
-                <SurveyVueComponent
+                <SvComponent
                   :name="'survey-string'"
                   :locString="cell.locTitle"
                 />
-                <SurveyVueComponent
+                <SvComponent
                   :name="'survey-matrixheaderrequired'"
                   v-if="!!cell.column"
                   :column="cell.column"
                   :question="question"
-                ></SurveyVueComponent>
-              </SurveyVueComponent>
+                ></SvComponent>
+              </SvComponent>
             </th>
             <td
               v-if="!cell.hasTitle"
@@ -43,16 +43,16 @@
           v-for="row in table.renderedRows"
           :key="question.inputId + '_' + row.id"
         >
-          <SurveyVueComponent
+          <SvComponent
             :name="'survey-matrix-row'"
             :row="row"
             :question="question"
-          ></SurveyVueComponent>
+          ></SvComponent>
         </template>
       </tbody>
       <tfoot v-if="table.showFooter">
         <tr>
-          <SurveyVueComponent
+          <SvComponent
             :name="'survey-matrixdropdown-cell'"
             :cell="cell"
             :question="question"
@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionMatrixDropdownModelBase } from "survey-core";
 import { computed } from "vue";
 import { useBase } from "./base";

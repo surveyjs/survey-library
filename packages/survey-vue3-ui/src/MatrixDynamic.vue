@@ -9,14 +9,14 @@
         :class="question.getAddRowButtonCss()"
         @click="addRowClick"
       >
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-string'"
           :locString="question.locAddRowText"
         />
         <span :class="question.cssClasses.iconAdd"></span>
       </button>
     </div>
-    <SurveyVueComponent
+    <SvComponent
       :name="'survey-matrixtable'"
       v-if="question.renderedTable.showTable"
       :question="question"
@@ -26,7 +26,7 @@
       :class="question.cssClasses.emptyRowsSection"
     >
       <div :class="question.cssClasses.emptyRowsText">
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-string'"
           :locString="question.locEmptyRowsText"
         />
@@ -37,7 +37,7 @@
         :class="question.getAddRowButtonCss(true)"
         @click="addRowClick"
       >
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-string'"
           :locString="question.locAddRowText"
         />
@@ -53,7 +53,7 @@
         :class="question.getAddRowButtonCss()"
         @click="addRowClick"
       >
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-string'"
           :locString="question.locAddRowText"
         />
@@ -64,7 +64,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionMatrixDynamicModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

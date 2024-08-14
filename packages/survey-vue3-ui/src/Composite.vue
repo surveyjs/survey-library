@@ -1,5 +1,5 @@
 <template>
-  <SurveyVueComponent
+  <SvComponent
     :name="'survey-panel'"
     ref="root"
     :element="contentPanel"
@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { computed, ref } from "vue";
 import type { QuestionCompositeModel } from "survey-core";
 import { useQuestion } from "./base";

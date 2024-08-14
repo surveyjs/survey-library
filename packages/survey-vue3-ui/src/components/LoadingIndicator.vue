@@ -1,12 +1,12 @@
 <template>
   <div class="sd-loading-indicator">
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-svg-icon'"
       :iconName="'icon-loading'"
       size="'auto'"
-    ></SurveyVueComponent>
+    ></SvComponent>
   </div>
 </template>
 <script setup lang="ts">
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 </script>

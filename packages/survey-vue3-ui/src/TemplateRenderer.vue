@@ -1,10 +1,10 @@
 <template>
   <slot v-if="hasContentComponent && !componentName"></slot>
-  <SurveyVueComponent v-else :name="componentName" v-bind="componentData" />
+  <SvComponent v-else :name="componentName" v-bind="componentData" />
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { computed, useSlots } from "vue";
 defineProps<{
   componentName?: string;

@@ -3,12 +3,12 @@
     <fieldset role="radiogroup">
       <legend role="presentation" class="sv-hidden"></legend>
       <span v-if="question.hasMinLabel" :class="question.cssClasses.minText">
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-string'"
           :locString="question.locMinRateDescription"
         />
       </span>
-      <SurveyVueComponent
+      <SvComponent
         v-for="(item, index) in question.renderedRateItems"
         :key="getInputId(index)"
         :name="question.itemComponent"
@@ -17,7 +17,7 @@
         :question="question"
       />
       <span v-if="question.hasMaxLabel" :class="question.cssClasses.maxText">
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-string'"
           :locString="question.locMaxRateDescription"
         />
@@ -26,7 +26,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionRatingModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

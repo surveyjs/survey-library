@@ -28,7 +28,7 @@
         v-on:click="onLabelClick($event, question.swapOrder)"
       >
         <span :class="question.getLabelCss(question.swapOrder)"
-          ><SurveyVueComponent
+          ><SvComponent
             :name="'survey-string'"
             :locString="question.locLabelLeft"
           />
@@ -43,10 +43,10 @@
             v-if="question.cssClasses.sliderText && question.isDeterminated"
             :class="question.cssClasses.sliderText"
           >
-            <SurveyVueComponent
+            <SvComponent
               :name="'survey-string'"
               :locString="question.getCheckedLabel()"
-            ></SurveyVueComponent>
+            ></SvComponent>
           </span>
         </span>
       </div>
@@ -55,7 +55,7 @@
         v-on:click="onLabelClick($event, !question.swapOrder)"
       >
         <span :class="question.getLabelCss(!question.swapOrder)"
-          ><SurveyVueComponent
+          ><SvComponent
             :name="'survey-string'"
             :locString="question.locLabelRight"
         /></span>
@@ -65,7 +65,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { useQuestion } from "./base";
 import { ref } from "vue";
 import type { IBooleanProps } from "./boolean";

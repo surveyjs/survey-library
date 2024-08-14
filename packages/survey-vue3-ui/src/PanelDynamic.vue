@@ -5,12 +5,12 @@
       :class="question.cssClasses.noEntriesPlaceholder"
     >
       <span>
-        <SurveyVueComponent
+        <SvComponent
           :name="'survey-string'"
           :locString="question.locNoEntriesText"
-        ></SurveyVueComponent>
+        ></SvComponent>
       </span>
-      <SurveyVueComponent
+      <SvComponent
         :name="'sv-paneldynamic-add-btn'"
         :data="{ question }"
       />
@@ -29,7 +29,7 @@
         role="progressbar"
       ></div>
     </div>
-    <SurveyVueComponent
+    <SvComponent
       :name="'survey-paneldynamicprogress'"
       v-if="getShowLegacyNavigation() && question.isProgressTopShowing"
       :question="question"
@@ -40,11 +40,11 @@
         :key="panel.id"
       >
         <div :class="question.getPanelWrapperCss(panel)">
-          <SurveyVueComponent
+          <SvComponent
             :name="getPanelComponentName(panel)"
             v-bind="getPanelComponentData(panel)"
-          ></SurveyVueComponent>
-          <SurveyVueComponent
+          ></SvComponent>
+          <SvComponent
             :name="'sv-paneldynamic-remove-btn'"
             v-if="
               question.panelRemoveButtonLocation === 'right' &&
@@ -63,17 +63,17 @@
         />
       </template>
     </div>
-    <SurveyVueComponent
+    <SvComponent
       :name="'survey-paneldynamicprogress'"
       v-if="getShowLegacyNavigation() && question.isProgressBottomShowing"
       :question="question"
     />
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-paneldynamic-add-btn'"
       v-if="getShowLegacyNavigation() && question.isRenderModeList"
       :data="{ question }"
     />
-    <SurveyVueComponent
+    <SvComponent
       :name="'survey-paneldynamicprogress-v2'"
       v-if="question.showNavigation"
       :question="question"
@@ -82,7 +82,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type {
   PanelModel,
   QuestionPanelDynamicModel,

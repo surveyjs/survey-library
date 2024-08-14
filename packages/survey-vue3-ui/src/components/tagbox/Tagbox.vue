@@ -23,18 +23,18 @@
       :required="question.isRequired ? true : null"
     >
       <div :class="question.cssClasses.controlValue">
-        <SurveyVueComponent
+        <SvComponent
           :name="'sv-tagbox-item'"
           v-for="(item, index) in selectedChoices"
           :item="item"
           :question="question"
           :key="'item' + index"
-        ></SurveyVueComponent>
-        <SurveyVueComponent
+        ></SvComponent>
+        <SvComponent
           :name="'sv-tagbox-filter'"
           :model="model"
           :question="question"
-        ></SurveyVueComponent>
+        ></SvComponent>
       </div>
       <div
         :class="question.cssClasses.cleanButton"
@@ -43,21 +43,21 @@
         @click="clear"
         aria-hidden="true"
       >
-        <SurveyVueComponent
+        <SvComponent
           :name="'sv-svg-icon'"
           :class="question.cssClasses.cleanButtonSvg"
           :iconName="question.cssClasses.cleanButtonIconId"
           :title="question.clearCaption"
           size="auto"
         >
-        </SurveyVueComponent>
+        </SvComponent>
       </div>
     </div>
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-popup'"
       v-if="!question.isReadOnly"
       :model="model.popupModel"
-    ></SurveyVueComponent>
+    ></SvComponent>
     <div
       v-else
       :id="question.inputId"
@@ -67,7 +67,7 @@
       :tabindex="question.isDisabledAttr ? undefined : 0"
       :class="question.getControlClass()"
     >
-      <SurveyVueComponent
+      <SvComponent
         :name="'survey-string'"
         v-if="question.locReadOnlyText"
         :locString="question.locReadOnlyText"
@@ -79,19 +79,19 @@
       v-if="question.cssClasses.chevronButtonIconId"
       aria-hidden="true"
     >
-      <SurveyVueComponent
+      <SvComponent
         :name="'sv-svg-icon'"
         :class="question.cssClasses.chevronButtonSvg"
         :iconName="question.cssClasses.chevronButtonIconId"
         size="auto"
       >
-      </SurveyVueComponent>
+      </SvComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { useBase, useComputedArray } from "@/base";
 import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
 import { computed } from "vue";

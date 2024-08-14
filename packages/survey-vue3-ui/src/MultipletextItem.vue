@@ -15,7 +15,7 @@
         :class="question.cssClasses.requiredText"
         >{{ item.editor.requiredText }}</span
       >
-      <SurveyVueComponent :name="'survey-string'" :locString="item.locTitle" />
+      <SvComponent :name="'survey-string'" :locString="item.locTitle" />
       <span v-if="item.editor.isRequireTextAfterTitle">&nbsp;</span>
       <span
         v-if="item.editor.isRequireTextAfterTitle"
@@ -29,17 +29,17 @@
       :class="question.getItemCss()"
       v-on:focusin="item.focusIn()"
     >
-      <SurveyVueComponent
+      <SvComponent
         :name="getComponentName(item.editor)"
         :question="item.editor"
       />
     </div>
   </label>
-  <SurveyVueComponent :name="'survey-errors'" v-else :element="item.editor" />
+  <SvComponent :name="'survey-errors'" v-else :element="item.editor" />
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type {
   Question,
   QuestionMultipleTextModel,

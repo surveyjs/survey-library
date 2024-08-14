@@ -6,7 +6,7 @@
     @click="addPanelClick"
   >
     <span :class="question.cssClasses.buttonAddText"
-      ><SurveyVueComponent
+      ><SvComponent
         :name="'survey-string'"
         :locString="question.locPanelAddText"
     /></span>
@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { type IPanelDynamicActionProps, usePanelDynamicAction } from "./action";
 
 const props = defineProps<IPanelDynamicActionProps>();

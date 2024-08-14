@@ -5,29 +5,29 @@
       :class="['sv-components-column', 'sv-components-container-' + container]"
     >
       <template v-for="component in components" :key="component.id">
-        <SurveyVueComponent
+        <SvComponent
           :name="component.component"
           :survey="survey"
           :container="container"
           :model="component.data"
-        ></SurveyVueComponent>
+        ></SvComponent>
       </template>
     </div>
     <template v-else>
       <template v-for="component in components" :key="component.id">
-        <SurveyVueComponent
+        <SvComponent
           :name="component.component"
           :survey="survey"
           :container="container"
           :model="component.data"
-        ></SurveyVueComponent>
+        ></SvComponent>
       </template>
     </template>
   </template>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { computed } from "vue";
 import type { SurveyModel } from "survey-core";
 

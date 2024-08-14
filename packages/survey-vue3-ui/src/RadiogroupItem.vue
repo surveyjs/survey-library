@@ -22,14 +22,14 @@
           <use :xlink:href="question.itemSvgIcon"></use>
         </svg> </span
       ><span v-if="!hideLabel" :class="getControlLabelClass(item)">
-        <SurveyVueComponent :name="'survey-string'" :locString="item.locText" />
+        <SvComponent :name="'survey-string'" :locString="item.locText" />
       </span>
     </label>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { ItemValue, QuestionRadiogroupModel } from "survey-core";
 import { useBase } from "./base";
 import { computed } from "vue";

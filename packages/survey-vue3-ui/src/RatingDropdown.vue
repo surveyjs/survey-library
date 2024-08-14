@@ -1,14 +1,14 @@
 <template>
   <div :class="question.cssClasses.rootDropdown" ref="root">
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-dropdown'"
       :question="question"
-    ></SurveyVueComponent>
+    ></SvComponent>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { ref } from "vue";
 import { useQuestion } from "./base";
 defineOptions({ inheritAttrs: false });

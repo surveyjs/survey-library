@@ -5,7 +5,7 @@
     @click="removePanelClick(panel)"
   >
     <span :class="question.cssClasses.buttonRemoveText"
-      ><SurveyVueComponent
+      ><SvComponent
         :name="'survey-string'"
         :locString="question.locPanelRemoveText"
     /></span>
@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { PanelModel } from "survey-core";
 import { type IPanelDynamicActionProps, usePanelDynamicAction } from "./action";
 import { computed } from "vue";

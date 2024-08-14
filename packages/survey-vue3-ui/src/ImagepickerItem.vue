@@ -37,13 +37,13 @@
             v-if="question.cssClasses.checkedItemDecorator"
             :class="question.cssClasses.checkedItemDecorator"
           >
-            <SurveyVueComponent
+            <SvComponent
               :name="'sv-svg-icon'"
               v-if="question.cssClasses.checkedItemSvgIconId"
               v-bind:class="question.cssClasses.checkedItemSvgIcon"
               size="auto"
               :iconName="question.cssClasses.checkedItemSvgIconId"
-            ></SurveyVueComponent>
+            ></SvComponent>
           </span>
           <img
             v-if="
@@ -99,16 +99,16 @@
               objectFit: question.imageFit as any,
             }"
           >
-            <SurveyVueComponent
+            <SvComponent
               :name="'sv-svg-icon'"
               :class="question.cssClasses.itemNoImageSvgIcon"
               :iconName="question.cssClasses.itemNoImageSvgIconId"
               :size="48"
-            ></SurveyVueComponent>
+            ></SvComponent>
           </div>
         </div>
         <span v-if="question.showLabel" :class="question.cssClasses.itemText">
-          <SurveyVueComponent :name="'survey-string'" :locString="item.locText" />
+          <SvComponent :name="'survey-string'" :locString="item.locText" />
         </span>
       </div>
     </label>
@@ -116,7 +116,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { ImageItemValue, QuestionImagePickerModel } from "survey-core";
 import { useBase, useLocString } from "./base";
 import { computed } from "vue";

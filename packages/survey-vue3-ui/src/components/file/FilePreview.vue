@@ -33,13 +33,13 @@
           }"
           alt="File preview"
         />
-        <SurveyVueComponent
+        <SvComponent
           :name="'sv-svg-icon'"
           v-if="question.defaultImage(val)"
           :iconName="question.cssClasses.defaultImageIconId"
           :class="question.cssClasses.defaultImage"
           :size="'auto'"
-        ></SurveyVueComponent>
+        ></SvComponent>
         <div
           v-if="val.name && !question.isReadOnly"
           :class="question.getRemoveButtonCss()"
@@ -48,14 +48,14 @@
           <span :class="question.cssClasses.removeFile">{{
             question.removeFileCaption
           }}</span>
-          <SurveyVueComponent
+          <SvComponent
             :name="'sv-svg-icon'"
             v-if="question.cssClasses.removeFileSvgIconId"
             :title="question.removeFileCaption"
             :class="question.cssClasses.removeFileSvg"
             :iconName="question.cssClasses.removeFileSvgIconId"
             :size="'auto'"
-          ></SurveyVueComponent>
+          ></SvComponent>
         </div>
       </div>
       <div
@@ -77,6 +77,6 @@
 
 <script setup lang="ts">
 import type { QuestionFileModel } from "survey-core";
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 defineProps<{ question: QuestionFileModel }>();
 </script>

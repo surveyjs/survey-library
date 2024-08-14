@@ -2,8 +2,8 @@ import type { defineComponent } from "vue";
 
 type VueComponent = ReturnType<typeof defineComponent>;
 
-export class VueComponentFactory {
-  public static Instance: VueComponentFactory = new VueComponentFactory();
+export class ComponentFactory {
+  public static Instance: ComponentFactory = new ComponentFactory();
   private creatorHash: { [index: string]: VueComponent } = {};
 
   public registerComponent(

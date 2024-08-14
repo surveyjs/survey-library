@@ -23,37 +23,37 @@
             :class="surveyWindow.cssHeaderFullScreenButton"
             @click="doToggleFullScreen"
           >
-            <SurveyVueComponent
+            <SvComponent
               :name="'sv-svg-icon'"
               v-if="surveyWindow.isFullScreen"
               :iconName="'icon-back-to-panel_16x16'"
               :size="16"
             >
-            </SurveyVueComponent>
-            <SurveyVueComponent
+            </SvComponent>
+            <SvComponent
               :name="'sv-svg-icon'"
               v-if="!surveyWindow.isFullScreen"
               :iconName="'icon-full-screen_16x16'"
               :size="16"
             >
-            </SurveyVueComponent>
+            </SvComponent>
           </div>
 
           <div :class="surveyWindow.cssHeaderCollapseButton" @click="doExpand">
-            <SurveyVueComponent
+            <SvComponent
               :name="'sv-svg-icon'"
               v-if="surveyWindow.isExpanded"
               :iconName="'icon-minimize_16x16'"
               :size="16"
             >
-            </SurveyVueComponent>
-            <SurveyVueComponent
+            </SvComponent>
+            <SvComponent
               :name="'sv-svg-icon'"
               v-if="surveyWindow.isCollapsed"
               :iconName="'icon-restore_16x16'"
               :size="16"
             >
-            </SurveyVueComponent>
+            </SvComponent>
           </div>
 
           <div
@@ -61,25 +61,25 @@
             :class="surveyWindow.cssHeaderCloseButton"
             @click="doHide"
           >
-            <SurveyVueComponent
+            <SvComponent
               :name="'sv-svg-icon'"
               :iconName="'icon-close_16x16'"
               :size="16"
             >
-            </SurveyVueComponent>
+            </SvComponent>
           </div>
         </div>
       </div>
       <div :class="surveyWindow.cssBody">
-        <SurveyVueComponent :name="getSurveyVueComponentName()" :survey="survey">
-        </SurveyVueComponent>
+        <SvComponent :name="getSvComponentName()" :survey="survey">
+        </SvComponent>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { PopupSurveyModel, type SurveyModel } from "survey-core";
 import { shallowRef, type ShallowRef, watch, onUnmounted } from "vue";
 import { useBase } from "./base";
@@ -103,8 +103,8 @@ const doHide = () => {
 const doToggleFullScreen = () => {
   surveyWindow.value.toggleFullScreen();
 };
-const getSurveyVueComponentName = () => {
-  return "SurveyVueComponent";
+const getSvComponentName = () => {
+  return "SvComponent";
 };
 const doScroll = () => {
   surveyWindow.value.onScroll();

@@ -1,10 +1,10 @@
 <template>
   <div :class="question.renderCssRoot" ref="root">
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-dropdown'"
       :question="question"
-    ></SurveyVueComponent>
-    <SurveyVueComponent
+    ></SvComponent>
+    <SvComponent
       :name="'survey-other-choice'"
       v-if="question.isOtherSelected"
       :question="question"
@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionDropdownModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

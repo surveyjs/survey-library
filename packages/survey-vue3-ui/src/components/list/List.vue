@@ -2,12 +2,12 @@
   <div v-bind:class="model.cssClasses.root" ref="listContainerElement">
     <div v-bind:class="model.cssClasses.filter" v-if="model.showFilter">
       <div v-bind:class="model.cssClasses.filterIcon">
-        <SurveyVueComponent
+        <SvComponent
           :name="'sv-svg-icon'"
           :iconName="'icon-search'"
           :size="'auto'"
         >
-        </SurveyVueComponent>
+        </SvComponent>
       </div>
       <input
         type="text"
@@ -27,11 +27,11 @@
         "
         v-bind:class="model.cssClasses.searchClearButtonIcon"
       >
-        <SurveyVueComponent
+        <SvComponent
           :name="'sv-svg-icon'"
           :iconName="'icon-searchclear'"
           :size="'auto'"
-        ></SurveyVueComponent>
+        ></SvComponent>
       </button>
     </div>
     <div v-bind:class="model.cssClasses.emptyContainer" v-show="model.isEmpty">
@@ -60,20 +60,20 @@
         }
       "
     >
-      <SurveyVueComponent
+      <SvComponent
         :name="'sv-list-item'"
         v-for="item in renderedActions"
         :item="item"
         :model="model"
         :key="item.id"
       >
-      </SurveyVueComponent>
+      </SvComponent>
     </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { useBase, useComputedArray } from "@/base";
 import type { ListModel } from "survey-core";
 import { onMounted, ref } from "vue";

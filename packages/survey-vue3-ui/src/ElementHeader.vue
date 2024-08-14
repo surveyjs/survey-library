@@ -4,7 +4,7 @@
     @click="clickTitleFunction"
     :style="getStyle()"
   >
-    <SurveyVueComponent
+    <SvComponent
       :name="'survey-element-title'"
       :element="element"
       :css="css"
@@ -15,21 +15,21 @@
       :class="element.cssDescription"
       :id="element.ariaDescriptionId"
     >
-      <SurveyVueComponent
+      <SvComponent
         :name="'survey-string'"
         :locString="element.locDescription"
       />
     </div>
-    <SurveyVueComponent
+    <SvComponent
       :name="'sv-action-bar'"
       v-if="element.hasAdditionalTitleToolbar"
       :model="element.additionalTitleToolbar"
-    ></SurveyVueComponent>
+    ></SvComponent>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { Question, PanelModel } from "survey-core";
 
 const props = defineProps<{ element: Question | PanelModel; css?: any }>();

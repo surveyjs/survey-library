@@ -7,7 +7,7 @@
 </template>
 <script lang="ts" setup>
 import { computed } from "vue";
-import { VueComponentFactory } from "./component-factory";
+import { ComponentFactory } from "./component-factory";
 
 defineOptions({
   inheritAttrs: false,
@@ -17,6 +17,6 @@ const props = defineProps<{
 }>();
 
 const registeredComponent = computed(() =>
-  VueComponentFactory.Instance.getComponent(props.name)
+  ComponentFactory.Instance.getComponent(props.name)
 );
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div ref="root">
     <div v-if="hasHtml" v-html="customHtml"></div>
-    <SurveyVueComponent
+    <SvComponent
       v-if="hasDefaultRender"
       :name="componentName"
       :question="question"
@@ -10,7 +10,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { Question } from "survey-core";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 const props = defineProps<{

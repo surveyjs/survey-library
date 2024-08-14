@@ -1,5 +1,5 @@
 <template>
-  <SurveyVueComponent
+  <SvComponent
     :name="'survey-matrixtable'"
     :question="question"
     ref="root"
@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionMatrixDropdownModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

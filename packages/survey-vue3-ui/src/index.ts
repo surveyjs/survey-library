@@ -117,13 +117,7 @@ import Element from "./Element.vue";
 
 import TemplateRenderer from "./TemplateRenderer.vue";
 
-import {
-  SurveyModel,
-  doKey2ClickBlur,
-  doKey2ClickDown,
-  doKey2ClickUp,
-  type IAttachKey2clickOptions,
-} from "survey-core";
+import { SurveyModel } from "survey-core";
 import type { App } from "vue";
 import FileCleanButton from "./FileCleanButton.vue";
 import FileVideo from "./FileVideo.vue";
@@ -133,402 +127,338 @@ import ButtonGroup from "./buttongroup/ButtonGroup.vue";
 import ButtonGroupItem from "./buttongroup/ButtonGroupItem.vue";
 import Logo from "./Logo.vue";
 import SvgBundle from "./SvgBundle.vue";
-import { VueComponentFactory } from "./component-factory";
+import { ComponentFactory } from "./component-factory";
 
 export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
-export { default as SurveyVueComponent } from "./SurveyVueComponent.vue";
+export { ComponentFactory };
+export { key2ClickDirective } from "./directives/key2click";
+export { default as SurveyComponent } from "./Survey.vue";
+export { default as SvComponent } from "./SvComponent.vue";
 
 SurveyModel.platform = "vue3";
-function registerComponents(app: App) {
-  app.component("SurveyComponent", SurveyVue);
-  app.component("survey", SurveyVue);
-  app.component("PopupSurveyComponent", PopupSurvey);
-  VueComponentFactory.Instance.registerComponent("sv-svg-bundle", SvgBundle);
-  VueComponentFactory.Instance.registerComponent("popup-survey", PopupSurvey);
-  VueComponentFactory.Instance.registerComponent("survey-header", HeaderBasic);
-  VueComponentFactory.Instance.registerComponent("sv-logo-image", Logo);
-  VueComponentFactory.Instance.registerComponent("survey-page", Page);
-  VueComponentFactory.Instance.registerComponent("survey-row", Row);
-  VueComponentFactory.Instance.registerComponent("survey-question", Question);
-  VueComponentFactory.Instance.registerComponent("survey-panel", Panel);
-  VueComponentFactory.Instance.registerComponent(
+
+function registerComponents() {
+  ComponentFactory.Instance.registerComponent("sv-svg-bundle", SvgBundle);
+  ComponentFactory.Instance.registerComponent("popup-survey", PopupSurvey);
+  ComponentFactory.Instance.registerComponent("survey-header", HeaderBasic);
+  ComponentFactory.Instance.registerComponent("sv-logo-image", Logo);
+  ComponentFactory.Instance.registerComponent("survey-page", Page);
+  ComponentFactory.Instance.registerComponent("survey-row", Row);
+  ComponentFactory.Instance.registerComponent("survey-question", Question);
+  ComponentFactory.Instance.registerComponent("survey-panel", Panel);
+  ComponentFactory.Instance.registerComponent(
     "survey-element-header",
     ElementHeader
   );
-  VueComponentFactory.Instance.registerComponent("survey-string", String);
-  VueComponentFactory.Instance.registerComponent(
-    "sv-string-viewer",
-    StringViewer
-  );
-  VueComponentFactory.Instance.registerComponent(
-    "sv-string-editor",
-    StringEditor
-  );
-  VueComponentFactory.Instance.registerComponent("sv-skeleton", Skeleton);
-  VueComponentFactory.Instance.registerComponent("survey-text", QuestionText);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("survey-string", String);
+  ComponentFactory.Instance.registerComponent("sv-string-viewer", StringViewer);
+  ComponentFactory.Instance.registerComponent("sv-string-editor", StringEditor);
+  ComponentFactory.Instance.registerComponent("sv-skeleton", Skeleton);
+  ComponentFactory.Instance.registerComponent("survey-text", QuestionText);
+  ComponentFactory.Instance.registerComponent(
     "survey-text-input",
     QuestionTextInput
   );
-  VueComponentFactory.Instance.registerComponent("survey-checkbox", Checkbox);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("survey-checkbox", Checkbox);
+  ComponentFactory.Instance.registerComponent(
     "survey-checkbox-item",
     CheckboxItem
   );
-  VueComponentFactory.Instance.registerComponent(
-    "survey-radiogroup",
-    Radiogroup
-  );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("survey-radiogroup", Radiogroup);
+  ComponentFactory.Instance.registerComponent(
     "survey-radiogroup-item",
     RadiogroupItem
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-signaturepad",
     Signaturepad
   );
-  VueComponentFactory.Instance.registerComponent("survey-html", Html);
-  VueComponentFactory.Instance.registerComponent("survey-image", Image);
-  VueComponentFactory.Instance.registerComponent(
-    "survey-expression",
-    Expression
-  );
-  VueComponentFactory.Instance.registerComponent("survey-file", File);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("survey-html", Html);
+  ComponentFactory.Instance.registerComponent("survey-image", Image);
+  ComponentFactory.Instance.registerComponent("survey-expression", Expression);
+  ComponentFactory.Instance.registerComponent("survey-file", File);
+  ComponentFactory.Instance.registerComponent(
     "sv-file-choose-btn",
     FileChooseButton
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-file-clean-btn",
     FileCleanButton
   );
-  VueComponentFactory.Instance.registerComponent(
-    "sv-file-preview",
-    FilePreview
-  );
-  VueComponentFactory.Instance.registerComponent("sv-file-video", FileVideo);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("sv-file-preview", FilePreview);
+  ComponentFactory.Instance.registerComponent("sv-file-video", FileVideo);
+  ComponentFactory.Instance.registerComponent(
     "survey-imagepicker",
     ImagePicker
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-imagepicker-item",
     ImagePickerItem
   );
-  VueComponentFactory.Instance.registerComponent("survey-comment", Comment);
-  VueComponentFactory.Instance.registerComponent("survey-dropdown", Dropdown);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("survey-comment", Comment);
+  ComponentFactory.Instance.registerComponent("survey-dropdown", Dropdown);
+  ComponentFactory.Instance.registerComponent(
     "sv-dropdown-select",
     DropdownSelect
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-dropdown-option-item",
     DropdownOptionItem
   );
-  VueComponentFactory.Instance.registerComponent("sv-dropdown", DropdownInput);
-  VueComponentFactory.Instance.registerComponent("survey-tagbox", Tagbox);
-  VueComponentFactory.Instance.registerComponent("sv-tagbox", TagboxInput);
-  VueComponentFactory.Instance.registerComponent("sv-tagbox-item", TagboxItem);
-  VueComponentFactory.Instance.registerComponent(
-    "sv-tagbox-filter",
-    TagboxFilter
-  );
-  VueComponentFactory.Instance.registerComponent("survey-ranking", Ranking);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("sv-dropdown", DropdownInput);
+  ComponentFactory.Instance.registerComponent("survey-tagbox", Tagbox);
+  ComponentFactory.Instance.registerComponent("sv-tagbox", TagboxInput);
+  ComponentFactory.Instance.registerComponent("sv-tagbox-item", TagboxItem);
+  ComponentFactory.Instance.registerComponent("sv-tagbox-filter", TagboxFilter);
+  ComponentFactory.Instance.registerComponent("survey-ranking", Ranking);
+  ComponentFactory.Instance.registerComponent(
     "survey-ranking-item",
     RankingItem
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-ranking-item",
     RankingItemContent
   );
-  VueComponentFactory.Instance.registerComponent("survey-rating", Rating);
-  VueComponentFactory.Instance.registerComponent("sv-rating-item", RatingItem);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("survey-rating", Rating);
+  ComponentFactory.Instance.registerComponent("sv-rating-item", RatingItem);
+  ComponentFactory.Instance.registerComponent(
     "sv-rating-item-smiley",
     RatingItemSmiley
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-rating-item-star",
     RatingItemStar
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-rating-dropdown",
     RatingDropdown
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-rating-dropdown-item",
     RatingDropdownItem
   );
-  VueComponentFactory.Instance.registerComponent(
-    "survey-boolean",
-    BooleanSwitch
-  );
-  VueComponentFactory.Instance.registerComponent(
-    "sv-boolean-radio",
-    BooleanRadio
-  );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("survey-boolean", BooleanSwitch);
+  ComponentFactory.Instance.registerComponent("sv-boolean-radio", BooleanRadio);
+  ComponentFactory.Instance.registerComponent(
     "sv-boolean-radio-item",
     BooleanRadioItem
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-boolean-checkbox",
     BooleanCheckbox
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-multipletext",
     MultipleText
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-multipletext-item",
     MultipletextItem
   );
 
-  VueComponentFactory.Instance.registerComponent("survey-matrix", Matrix);
-  VueComponentFactory.Instance.registerComponent(
-    "survey-matrix-row",
-    MatrixRow
-  );
-  VueComponentFactory.Instance.registerComponent(
-    "survey-matrix-cell",
-    MatrixCell
-  );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("survey-matrix", Matrix);
+  ComponentFactory.Instance.registerComponent("survey-matrix-row", MatrixRow);
+  ComponentFactory.Instance.registerComponent("survey-matrix-cell", MatrixCell);
+  ComponentFactory.Instance.registerComponent(
     "survey-matrixdropdown",
     MatrixDropdown
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-matrixtable",
     MatrixTable
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-matrixheaderrequired",
     MatrixHeaderRequired
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-matrixdropdown-cell",
     MatrixDropdownCellComp
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-matrixdynamic",
     MatrixDynamic
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-matrix-remove-button",
     RemoveButton
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-matrix-drag-drop-icon",
     DragDropIcon
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-matrix-detail-button",
     DetailButton
   );
 
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-paneldynamic",
     PanelDynamic
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-paneldynamicprogress",
     PanelDynamicProgress
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-paneldynamicprogress-v2",
     PanelDynamicProgressV2
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-paneldynamic-add-btn",
     PaneldynamicAddBtn
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-paneldynamic-next-btn",
     PaneldynamicNextBtn
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-paneldynamic-prev-btn",
     PaneldynamicPrevBtn
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-paneldynamic-remove-btn",
     PaneldynamicRemoveBtn
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-paneldynamic-progress-text",
     PaneldynamicProgressText
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-components-container",
     Container
   );
 
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-progress-buttons",
     ProgressButtonsComponent
   );
-  VueComponentFactory.Instance.registerComponent(
-    "sv-navigation-toc",
-    ProgressToc
-  );
-  VueComponentFactory.Instance.registerComponent("sv-progress-pages", Progress);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("sv-navigation-toc", ProgressToc);
+  ComponentFactory.Instance.registerComponent("sv-progress-pages", Progress);
+  ComponentFactory.Instance.registerComponent(
     "sv-progress-questions",
     Progress
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-progress-correctquestions",
     Progress
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-progress-requiredquestions",
     Progress
   );
 
-  VueComponentFactory.Instance.registerComponent("survey-errors", Errors);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("survey-errors", Errors);
+  ComponentFactory.Instance.registerComponent(
     "survey-question-comment",
     QuestionComment
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-element-title",
     TitleElement
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-element-title-content",
     TitleContent
   );
-  VueComponentFactory.Instance.registerComponent(
-    "sv-title-actions",
-    TitleActions
-  );
-  VueComponentFactory.Instance.registerComponent("sv-brand-info", BrandInfo);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("sv-title-actions", TitleActions);
+  ComponentFactory.Instance.registerComponent("sv-brand-info", BrandInfo);
+  ComponentFactory.Instance.registerComponent(
     "sv-question-error",
     QuestionError
   );
-  VueComponentFactory.Instance.registerComponent("sv-svg-icon", SvgIcon);
+  ComponentFactory.Instance.registerComponent("sv-svg-icon", SvgIcon);
 
-  VueComponentFactory.Instance.registerComponent("sv-action-bar", ActionBar);
-  VueComponentFactory.Instance.registerComponent("sv-action", Action);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("sv-action-bar", ActionBar);
+  ComponentFactory.Instance.registerComponent("sv-action", Action);
+  ComponentFactory.Instance.registerComponent(
     "sv-action-bar-item",
     ActionBarItem
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-action-bar-item-dropdown",
     ActionBarItemDropdown
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-action-bar-separator",
     ActionBarSeparator
   );
 
-  VueComponentFactory.Instance.registerComponent("sv-list", List);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("sv-list", List);
+  ComponentFactory.Instance.registerComponent(
     "sv-list-item-content",
     ListItemContent
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-list-item-group",
     ListItemGroup
   );
-  VueComponentFactory.Instance.registerComponent("sv-list-item", ListItem);
+  ComponentFactory.Instance.registerComponent("sv-list-item", ListItem);
 
-  VueComponentFactory.Instance.registerComponent("sv-popup", Popup);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("sv-popup", Popup);
+  ComponentFactory.Instance.registerComponent(
     "sv-popup-container",
     PopupContainer
   );
-  VueComponentFactory.Instance.registerComponent("popup-pointer", PopupPointer);
+  ComponentFactory.Instance.registerComponent("popup-pointer", PopupPointer);
 
-  VueComponentFactory.Instance.registerComponent("sv-notifier", Notifier);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("sv-notifier", Notifier);
+  ComponentFactory.Instance.registerComponent(
     "survey-other-choice",
     OtherChoice
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-nav-btn",
     SurveyNavigationButton
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-customwidget",
     CustomWidget
   );
-  VueComponentFactory.Instance.registerComponent(
-    "survey-popup-modal",
-    PopupModal
-  );
+  ComponentFactory.Instance.registerComponent("survey-popup-modal", PopupModal);
 
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-character-counter",
     CharacterCounterComponent
   );
 
-  VueComponentFactory.Instance.registerComponent("survey-composite", Composite);
-  VueComponentFactory.Instance.registerComponent("survey-custom", Custom);
-  VueComponentFactory.Instance.registerComponent("sv-timerpanel", TimerPanel);
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("survey-composite", Composite);
+  ComponentFactory.Instance.registerComponent("survey-custom", Custom);
+  ComponentFactory.Instance.registerComponent("sv-timerpanel", TimerPanel);
+  ComponentFactory.Instance.registerComponent(
     "sv-loading-indicator",
     LoadingIndicator
   );
 
-  VueComponentFactory.Instance.registerComponent("sv-header", Header);
-  VueComponentFactory.Instance.registerComponent("sv-header-cell", HeaderCell);
-  VueComponentFactory.Instance.registerComponent(
-    "sv-header-mobile",
-    HeaderMobile
-  );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent("sv-header", Header);
+  ComponentFactory.Instance.registerComponent("sv-header-cell", HeaderCell);
+  ComponentFactory.Instance.registerComponent("sv-header-mobile", HeaderMobile);
+  ComponentFactory.Instance.registerComponent(
     "sv-template-renderer",
     TemplateRenderer
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-template-renderer",
     TemplateRenderer
   );
 
-  VueComponentFactory.Instance.registerComponent("survey-element", Element);
+  ComponentFactory.Instance.registerComponent("survey-element", Element);
 
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "survey-buttongroup",
     ButtonGroup
   );
-  VueComponentFactory.Instance.registerComponent(
+  ComponentFactory.Instance.registerComponent(
     "sv-button-group-item",
     ButtonGroupItem
   );
-
-  app.directive("key2click", {
-    // When the bound element is inserted into the DOM...
-    mounted: function (el: HTMLElement, binding: any) {
-      const options: IAttachKey2clickOptions = { ...binding.value } || {
-        processEsc: true,
-      };
-      if (options.disableTabStop) {
-        el.tabIndex = -1;
-        return;
-      }
-      if (!options.disableTabStop) el.tabIndex = 0;
-      el.addEventListener("keyup", (evt: any) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        doKey2ClickUp(evt, options);
-        return false;
-      });
-      el.addEventListener("keydown", (evt: any) => {
-        doKey2ClickDown(evt, options);
-      });
-      el.addEventListener("blur", (evt: any) => {
-        doKey2ClickBlur(evt);
-      });
-    },
-  });
 }
+registerComponents();
 
 export const surveyPlugin = {
-  install(app: any) {
-    registerComponents(app);
+  install(app: App) {
+    app.component("SurveyComponent", SurveyVue);
+    app.component("survey", SurveyVue);
+    app.component("PopupSurveyComponent", PopupSurvey);
   },
 };

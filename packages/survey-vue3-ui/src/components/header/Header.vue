@@ -14,24 +14,24 @@
       :class="model.contentClasses"
       :style="{ maxWidth: model.maxWidth }"
     >
-      <SurveyVueComponent
+      <SvComponent
         :name="'sv-header-cell'"
         v-for="(cell, index) in model.cells"
         :model="cell"
         :key="index"
-      ></SurveyVueComponent>
+      ></SvComponent>
     </div>
     <div v-if="survey.isMobile">
-      <SurveyVueComponent
+      <SvComponent
         :name="'sv-header-mobile'"
         :model="model"
-      ></SurveyVueComponent>
+      ></SvComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type { SurveyModel, Cover } from "survey-core";
 import { useBase } from "@/base";
 

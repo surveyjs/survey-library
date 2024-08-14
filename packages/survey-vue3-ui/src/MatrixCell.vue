@@ -34,16 +34,16 @@
       v-if="question.isMobile"
       :class="question.cssClasses.cellResponsiveTitle"
     >
-      <SurveyVueComponent
+      <SvComponent
         :name="'survey-string'"
         :locString="column.locText"
-      ></SurveyVueComponent>
+      ></SvComponent>
     </span>
   </label>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import type {
   MatrixRowModel,
   ItemValue,

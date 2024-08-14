@@ -14,23 +14,23 @@
       }
     "
   >
-    <SurveyVueComponent
+    <SvComponent
       :name="'survey-element-title-content'"
       v-if="!element.hasTitleActions"
       :element="element"
       :css="css"
-    ></SurveyVueComponent>
-    <SurveyVueComponent
+    ></SvComponent>
+    <SvComponent
       :name="'sv-title-actions'"
       v-if="element.hasTitleActions"
       :element="element"
       :css="css"
-    ></SurveyVueComponent>
+    ></SvComponent>
   </component>
 </template>
 
 <script lang="ts" setup>
-import SurveyVueComponent from "@/SurveyVueComponent.vue";
+import SvComponent from "@/SvComponent.vue";
 import { doKey2ClickUp, type SurveyElementCore } from "survey-core";
 defineProps<{
   element: SurveyElementCore;

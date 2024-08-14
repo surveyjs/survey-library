@@ -78,6 +78,7 @@
       line-height: calcLineHeight(1);
       justify-content: center;
       color: $background-dim;
+      box-sizing: content-box;
 
       .sd-progress-buttons__button-background {
         position: absolute;

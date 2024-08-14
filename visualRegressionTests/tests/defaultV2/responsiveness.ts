@@ -492,6 +492,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-checkbox-col-count-2.png", Selector(".sd-question"), t, comparer);
     });
   });
+
   test("Check multicolumn checkbox question doesn't fit width", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1600, 1080);
@@ -528,7 +529,8 @@ frameworks.forEach(framework => {
             ],
             "colCount": 5
           }
-        ]
+        ],
+        "focusFirstQuestionAutomatic": true // do not remove, it is need to check container clipping
       });
       await takeElementScreenshot("responsiveness-checkbox-col-count-5-wide.png", Selector(".sd-question"), t, comparer);
       await t.resizeWindow(1000, 1080);

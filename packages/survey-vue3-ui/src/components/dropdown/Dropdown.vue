@@ -13,11 +13,7 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-errormessage="question.ariaErrormessage"
-      :aria-expanded="
-        question.ariaExpanded === null
-          ? undefined
-          : question.ariaExpanded === 'true'
-      "
+      :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
       :required="question.isRequired ? true : null"
@@ -59,11 +55,7 @@
           :id="question.getInputId()"
           :tabindex="model.noTabIndex ? undefined : -1"
           :readonly="model.filterReadOnly ? true : undefined"
-          :aria-expanded="
-            question.ariaExpanded === null
-              ? undefined
-              : question.ariaExpanded === 'true'
-          "
+          :aria-expanded="question.ariaExpanded"
           :aria-controls="model.listElementId"
           :aria-label="question.a11y_input_ariaLabel"
           :aria-labelledby="question.a11y_input_ariaLabelledBy"
@@ -165,11 +157,11 @@ const updateInputDomElement = () => {
   }
 };
 const blur = (event: any) => {
-  model.value?.onBlur(event);
+  props.question.onBlur(event);
   updateInputDomElement();
 };
 const focus = (event: any) => {
-  model.value?.onFocus(event);
+  props.question.onFocus(event);
 };
 const inputChange = (event: any) => {
   model.value.inputStringRendered = event.target.value;

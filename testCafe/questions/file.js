@@ -259,4 +259,14 @@ frameworks.forEach(framework => {
       .resizeWindow(1920, 1080)
       .expect(fileNavigatorSelector.exists).notOk();
   });
+  test("check file question has correct root element", async t => {
+    const testRootElement = ClientFunction(() => {
+      const rootElement = survey.getAllQuestions()[0].rootElement;
+      return rootElement && rootElement.tagName == "DIV" && rootElement.classList.contains("sd-file");
+    });
+    await t
+      .resizeWindow(1920, 1080)
+      .expect(testRootElement())
+      .ok();
+  });
 });

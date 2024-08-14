@@ -22,6 +22,16 @@
         question.onKeyDown(e);
       }
     "
+    @focus="
+      (e) => {
+        question.onFocus(e);
+      }
+    "
+    @blur="
+      (e) => {
+        question.onBlur(e);
+      }
+    "
     :aria-required="question.a11y_input_ariaRequired"
     :aria-label="question.a11y_input_ariaLabel"
     :aria-labelledby="question.a11y_input_ariaLabelledBy"
@@ -53,6 +63,16 @@
       @keydown="
         (e) => {
           question.onKeyDown(e);
+        }
+      "
+      @focus="
+        (e) => {
+          question.onFocus(e);
+        }
+      "
+      @blur="
+        (e) => {
+          question.onBlur(e);
         }
       "
       :aria-required="question.a11y_input_ariaRequired"

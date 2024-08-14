@@ -13,11 +13,7 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-errormessage="question.ariaErrormessage"
-      :aria-expanded="
-        question.ariaExpanded === null
-          ? undefined
-          : question.ariaExpanded === 'true'
-      "
+      :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
       :required="question.isRequired ? true : null"

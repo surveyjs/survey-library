@@ -141,144 +141,156 @@
       "Title": "Form Library API",
       "Items": [
         {
-          "Name": "surveymodel",
-          "Title": "Survey"
+          "Name": "classes",
+          "Title": "Classes",
+          "Items": [
+            {
+              "Name": "surveymodel",
+              "Title": "SurveyModel"
+            },
+            {
+              "Name": "pagemodel",
+              "Title": "PageModel"
+            },
+            {
+              "Name": "panelmodel",
+              "Title": "PanelModel"
+            },
+            {
+              "Name": "popupsurveymodel",
+              "Title": "PopupSurveyModel"
+            },
+            {
+              "Name": "question",
+              "Title": "Question"
+            },
+            {
+              "Name": "questiontextmodel",
+              "Title": "QuestionTextModel"
+            },
+            {
+              "Name": "questioncheckboxmodel",
+              "Title": "QuestionCheckboxModel"
+            },
+            {
+              "Name": "questionrankingmodel",
+              "Title": "QuestionRankingModel"
+            },
+            {
+              "Name": "questionradiogroupmodel",
+              "Title": "QuestionRadiogroupModel"
+            },
+            {
+              "Name": "questiondropdownmodel",
+              "Title": "QuestionDropdownModel"
+            },
+            {
+              "Name": "questiontagboxmodel",
+              "Title": "QuestionTagBoxModel"
+            },
+            {
+              "Name": "questioncommentmodel",
+              "Title": "QuestionCommentModel"
+            },
+            {
+              "Name": "questionratingmodel",
+              "Title": "QuestionRatingModel"
+            },
+            {
+              "Name": "questionimagepickermodel",
+              "Title": "QuestionImagePickerModel"
+            },
+            {
+              "Name": "questionbooleanmodel",
+              "Title": "QuestionBooleanModel"
+            },
+            {
+              "Name": "questionimagemodel",
+              "Title": "QuestionImageModel"
+            },
+            {
+              "Name": "questionhtmlmodel",
+              "Title": "QuestionHtmlModel"
+            },
+            {
+              "Name": "questionsignaturepadmodel",
+              "Title": "QuestionSignaturePadModel"
+            },
+            {
+              "Name": "questionexpressionmodel",
+              "Title": "QuestionExpressionModel"
+            },
+            {
+              "Name": "questionfilemodel",
+              "Title": "QuestionFileModel"
+            },
+            {
+              "Name": "questionmatrixmodel",
+              "Title": "QuestionMatrixModel"
+            },
+            {
+              "Name": "questionmatrixdropdownmodel",
+              "Title": "QuestionMatrixDropdownModel"
+            },
+            {
+              "Name": "questionmatrixdynamicmodel",
+              "Title": "QuestionMatrixDynamicModel"
+            },
+            {
+              "Name": "matrixdropdowncolumn",
+              "title": "QuestionMatrixDropdownColumn"
+            },
+            {
+              "Name": "questionmultipletextmodel",
+              "Title": "QuestionMultipleTextModel"
+            },
+            {
+              "Name": "multipletextitemmodel",
+              "title": "MultipleTextItemModel"
+            },
+            {
+              "Name": "questionpaneldynamicmodel",
+              "Title": "QuestionPanelDynamicModel"
+            },
+            {
+              "Name": "inputmasknumeric",
+              "Title": "InputMaskNumeric"
+            },
+            {
+              "Name": "inputmaskcurrency",
+              "Title": "InputMaskCurrency"
+            },
+            {
+              "Name": "inputmaskdatetime",
+              "Title": "InputMaskDateTime"
+            },
+            {
+              "Name": "inputmaskpattern",
+              "Title": "InputMaskPattern"
+            }
+          ]
         },
         {
-          "Name": "pagemodel",
-          "Title": "Page"
-        },
-        {
-          "Name": "popupsurveymodel",
-          "Title": "Popup Survey"
-        },
-        {
-          "Name": "question",
-          "Title": "Question"
-        },
-        {
-          "Name": "questiontextmodel",
-          "Title": "Text"
-        },
-        {
-          "Name": "questioncheckboxmodel",
-          "Title": "Checkbox"
-        },
-        {
-          "Name": "questionrankingmodel",
-          "Title": "Ranking"
-        },
-        {
-          "Name": "questionradiogroupmodel",
-          "Title": "Radiogroup"
-        },
-        {
-          "Name": "questiondropdownmodel",
-          "Title": "Dropdown"
-        },
-        {
-          "Name": "questiontagboxmodel",
-          "Title": "Tag Box"
-        },
-        {
-          "Name": "questioncommentmodel",
-          "Title": "Comment"
-        },
-        {
-          "Name": "questionratingmodel",
-          "Title": "Rating"
-        },
-        {
-          "Name": "questionimagepickermodel",
-          "Title": "Image Picker"
-        },
-        {
-          "Name": "questionbooleanmodel",
-          "Title": "Boolean"
-        },
-        {
-          "Name": "questionimagemodel",
-          "Title": "Image"
-        },
-        {
-          "Name": "questionhtmlmodel",
-          "Title": "Html"
-        },
-        {
-          "Name": "questionsignaturepadmodel",
-          "Title": "Signature Pad"
-        },
-        {
-          "Name": "questionexpressionmodel",
-          "Title": "Expression"
-        },
-        {
-          "Name": "questionfilemodel",
-          "Title": "File"
-        },
-        {
-          "Name": "questionmatrixmodel",
-          "Title": "Matrix"
-        },
-        {
-          "Name": "questionmatrixdropdownmodel",
-          "Title": "Matrix Dropdown"
-        },
-        {
-          "Name": "questionmatrixdynamicmodel",
-          "Title": "Matrix Dynamic"
-        },
-        {
-          "Name": "matrixdropdowncolumn",
-          "title": "MatrixDropdownColumn"
-        },
-        {
-          "Name": "questionmultipletextmodel",
-          "Title": "Multiple Text"
-        },
-        {
-          "Name": "multipletextitemmodel",
-          "title": "MultipleTextItemModel"
-        },
-        {
-          "Name": "panelmodel",
-          "Title": "Panel"
-        },
-        {
-          "Name": "questionpaneldynamicmodel",
-          "Title": "Panel Dynamic"
-        },
-        {
-          "Name": "IAction",
-          "Title": "IAction"
-        },
-        {
-          "Name": "ITheme",
-          "Title": "ITheme"
-        },
-        {
-          "Name": "IHeader",
-          "Title": "IHeader"
-        },
-        {
-          "Name": "ICustomQuestionTypeConfiguration",
-          "Title": "ICustomQuestionTypeConfiguration"
-        },
-        {
-          "Name": "inputmasknumeric",
-          "Title": "InputMaskNumeric"
-        },
-        {
-          "Name": "inputmaskcurrency",
-          "Title": "InputMaskCurrency"
-        },
-        {
-          "Name": "inputmaskdatetime",
-          "Title": "InputMaskDateTime"
-        },
-        {
-          "Name": "inputmaskpattern",
-          "Title": "InputMaskPattern"
+          "Name": "interfaces",
+          "Title": "Interfaces",
+          "Items": [
+            {
+              "Name": "IAction",
+              "Title": "IAction"
+            },
+            {
+              "Name": "ITheme",
+              "Title": "ITheme"
+            },
+            {
+              "Name": "IHeader",
+              "Title": "IHeader"
+            },
+            {
+              "Name": "ICustomQuestionTypeConfiguration",
+              "Title": "ICustomQuestionTypeConfiguration"
+            }
+          ]
         },
         {
           "Name": "settings",

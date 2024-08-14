@@ -1,3 +1,12 @@
 {
- "extends": "../tsconfig.json"
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declaration": true,
+    "declarationDir": "../../build/survey-core/typings"
+  },
+  "include": [
+    "../../src/entries/core.ts"
+  ],
+  "exclude": [],
 }

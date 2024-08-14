@@ -1,3 +1,18 @@
 {
   "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "survey-core": [
+        "../../build/survey-core"
+      ],
+    },
+    "declaration": true,
+    "declarationDir": "../../build/survey-js-ui/typings",
+    "skipLibCheck": true,
+  },
+  "include": [
+    "../../src/entries/js-ui.ts",
+  ],
+  "exclude": [],
 }

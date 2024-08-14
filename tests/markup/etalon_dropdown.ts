@@ -328,8 +328,14 @@ registerMarkupTests(
       },
       initSurvey: (survey) => {
         survey.focusFirstQuestionAutomatic = false;
-        survey.getQuestionByName("name")["popupModel"];
-        survey.getQuestionByName("name")["dropdownListModel"].inputStringRendered = "o";
+        survey.onAfterRenderQuestion.add((target, options) => {
+          options.question["popupModel"];
+          options.question["dropdownListModel"].inputStringRendered = "o";
+        });
+      },
+      event: "onAfterRenderSurvey",
+      getElement: el => {
+        return <HTMLElement>el?.querySelector(".sv_q.sv_qstn > div") as HTMLElement;
       },
       timeout: 300,
       removeIds: true,
@@ -355,8 +361,14 @@ registerMarkupTests(
       },
       initSurvey: (survey) => {
         survey.focusFirstQuestionAutomatic = false;
-        survey.getQuestionByName("name")["popupModel"];
-        survey.getQuestionByName("name")["dropdownListModel"].inputStringRendered = "o";
+        survey.onAfterRenderQuestion.add((target, options) => {
+          options.question["popupModel"];
+          options.question["dropdownListModel"].inputStringRendered = "o";
+        });
+      },
+      event: "onAfterRenderSurvey",
+      getElement: el => {
+        return <HTMLElement>el?.querySelector(".sv_q.sv_qstn > div") as HTMLElement;
       },
       timeout: 300,
       removeIds: true,

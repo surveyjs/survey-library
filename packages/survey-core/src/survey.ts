@@ -861,6 +861,7 @@ export class SurveyModel extends SurveyElementCore
 
   constructor(jsonObj: any = null, renderedElement: any = null) {
     super();
+    this.onBeforeRunConstructor();
     // if (DomDocumentHelper.isAvailable()) {
     //   SurveyModel.stylesManager = new StylesManager();
     // }
@@ -6322,6 +6323,7 @@ export class SurveyModel extends SurveyElementCore
     };
     return [navStart, navPrev, navNext, navPreview, navComplete];
   }
+  protected onBeforeRunConstructor() {}
   protected onBeforeCreating() { }
   protected onCreating() { }
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {

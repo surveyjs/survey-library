@@ -683,7 +683,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get titleWidth(): string {
-    if (this.getTitleLocation() === "left") {
+    if (this.parent && this.getTitleLocation() === "left") {
       const columns = this.parent.getColumsForElement(this as any);
       const columnCount = columns.length;
       if (columnCount !== 0 && !!columns[0].questionTitleWidth) return columns[0].questionTitleWidth;

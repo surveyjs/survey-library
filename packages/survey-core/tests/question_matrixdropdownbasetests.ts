@@ -7,6 +7,7 @@ import { QuestionTagboxModel } from "../src/question_tagbox";
 import { SurveyModel } from "../src/survey";
 import { Helpers } from "../src/helpers";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { QuestionCheckboxModel } from "../src/question_checkbox";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -1596,4 +1597,29 @@ QUnit.test("Column total properties visibility, Bug#8581", function (assert) {
   column.showInMultipleColumns = false;
   checkPropsVisibility(totalsNames, true, 7);
   checkPropsVisibility(totalsDispNames, false, 7);
+});
+QUnit.test("Column choices from colum and from matrix properties, Bug#8691", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          { cellType: "checkbox", name: "col1" }
+        ],
+        choices: [1, 2, 3, 4]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const column = <MatrixDropdownColumn>matrix.columns[0];
+  const cellQuestion = <QuestionCheckboxModel>matrix.visibleRows[0].cells[0].question;
+  assert.equal(cellQuestion.choices.length, 4, "choices from matrix, #1");
+  (<any>column).choices = [5, 6];
+  assert.equal(cellQuestion.choices.length, 2, "choices from colum, #1");
+  (<any>column).choices = [];
+  assert.equal(cellQuestion.choices.length, 4, "choices from matrix, #2");
+  (<any>column).choices = [5, 6, 7];
+  assert.equal(cellQuestion.choices.length, 3, "choices from colum, #2");
 });

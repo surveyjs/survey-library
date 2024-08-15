@@ -452,6 +452,7 @@ function registerComponents() {
     "sv-button-group-item",
     ButtonGroupItem
   );
+  ComponentFactory.Instance.registerComponent("survey", SurveyVue);
 }
 registerComponents();
 

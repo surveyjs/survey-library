@@ -59,6 +59,7 @@
                     :container="'contentBottom'"
                     :needRenderWrapper="true"
                   ></component>
+                  <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
                 </div>
               </div>
               <component
@@ -67,7 +68,6 @@
                 :container="'right'"
                 :needRenderWrapper="true"
               ></component>
-              <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
             </div>
           </template>
           <component

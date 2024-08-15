@@ -33,7 +33,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
 
-      const brandInfo = Selector(".sv-brand-info");
+      const brandInfo = Selector(".sd-body");
       await takeElementScreenshot("brand-info-image.png", brandInfo, t, comparer);
     });
   });

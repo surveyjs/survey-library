@@ -37,6 +37,9 @@
                           <!-- /ko -->
                           <!-- /ko -->
                           <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "contentBottom" } } --><!-- /ko -->
+                          <!-- ko if: showBrandInfo -->
+                            <sv-brand-info></sv-brand-info>
+                          <!-- /ko -->
                     </div>
                   </div>
                   <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "right" } } --><!-- /ko -->
@@ -58,9 +61,6 @@
               <!-- /ko -->
           </div>
       </form>
-      <!-- ko if: showBrandInfo -->
-      <sv-brand-info></sv-brand-info>
-      <!-- /ko -->
       <!-- ko component: { name: 'sv-notifier', params: { notifier: notifier } } -->
       <!-- /ko -->
     </div>

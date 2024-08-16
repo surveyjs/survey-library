@@ -72,6 +72,10 @@
                     :container="'contentBottom'"
                     :needRenderWrapper="true"
                   ></SvComponent>
+                  <SvComponent
+                    :name="'sv-brand-info'"
+                    v-if="vueSurvey.showBrandInfo"
+                  ></SvComponent>
                 </div>
               </div>
               <SvComponent
@@ -115,10 +119,6 @@
           </div>
         </div>
       </form>
-      <SvComponent
-        :name="'sv-brand-info'"
-        v-if="vueSurvey.showBrandInfo"
-      ></SvComponent>
       <SvComponent
         :name="'sv-notifier'"
         :model="vueSurvey.notifier"

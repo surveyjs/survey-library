@@ -133,6 +133,7 @@ export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
 export { ComponentFactory };
 export { key2ClickDirective } from "./directives/key2click";
 export { default as SvComponent } from "./SvComponent.vue";
+export { PopupSurvey as PopupSurveyComponent };
 export { SurveyVue as SurveyComponent };
 
 SurveyModel.platform = "vue3";

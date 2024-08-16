@@ -2,7 +2,7 @@
 import { SurveyModel } from "survey-core";
 import * as Survey from "survey-core"
 import "survey-core/survey.i18n";
-import { SurveyComponent } from "survey-vue3-ui";
+import { SurveyComponent, PopupSurveyComponent } from "survey-vue3-ui";
 import { shallowRef } from "vue";
 const survey = shallowRef();
 const isPopup = shallowRef();

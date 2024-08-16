@@ -171,7 +171,7 @@ export class Question extends SurveyElement<Question>
         this.initCommentFromSurvey();
       }
     );
-    this.registerFunctionOnPropertiesValueChanged(["no", "readOnly", "hasVisibleErrors", "containsErrors"], () => {
+    this.registerFunctionOnPropertiesValueChanged(["no", "readOnly", "hasVisibleErrors", "containsErrors", "titleLocation"], () => {
       this.updateQuestionCss();
     });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
@@ -632,7 +632,7 @@ export class Question extends SurveyElement<Question>
    * @see titleLocation
    */
   public get hasTitle(): boolean {
-    return this.getTitleLocation() !== "hidden";
+    return this.getTitleLocation() !== "hidden" || this.isDesignModeV2;
   }
   /**
    * Sets question title location relative to the input field. Overrides the `questionTitleLocation` property specified for the question's container (survey, page, or panel).
@@ -715,6 +715,7 @@ export class Question extends SurveyElement<Question>
     if (this.isFlowLayout) return "hidden";
     var location = this.getTitleLocationCore();
     if (location === "left" && !this.isAllowTitleLeft) location = "top";
+    if (location === "hidden" && this.isDesignModeV2) location = "top";
     return location;
   }
   protected getTitleLocationCore(): string {
@@ -1066,6 +1067,7 @@ export class Question extends SurveyElement<Question>
     return new CssClassBuilder()
       .append(super.getCssTitle(cssClasses))
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
+      .append(cssClasses.titleHidden, this.getTitleLocation() == "hidden" && this.isDesignModeV2)
       .append(cssClasses.titleEmpty, !this.title.trim())
       .toString();
   }

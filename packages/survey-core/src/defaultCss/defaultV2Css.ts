@@ -205,6 +205,7 @@ export var defaultV2Css = {
     titleNumInline: "sd-element__title--num-inline",
     titleLeftRoot: "sd-question--left",
     titleTopRoot: "sd-question--title-top",
+    titleHidden: "sd-element__title--hidden",
     descriptionUnderInputRoot: "sd-question--description-under-input",
     titleBottomRoot: "sd-question--title-bottom",
     titleOnAnswer: "sd-question__title--answer",

@@ -181,6 +181,8 @@ export class QuestionCommentModel extends QuestionTextBase {
       onTextAreaChange: (e) => { updateQuestionValue(e.target.value); },
       onTextAreaInput: (event) => { this.onInput(event); },
       onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
+      onTextAreaFocus: (event) => { this.onFocus(event); },
+      onTextAreaBlur: (event) => { this.onBlur(event); }
     };
     return options;
   }

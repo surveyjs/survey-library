@@ -1,0 +1,331 @@
+.sd-progress-buttons__image-button-left {
+  display: none;
+}
+
+.sd-progress-buttons__image-button-right {
+  display: none;
+}
+
+.sd-progress-buttons__image-button--hidden {
+  visibility: hidden;
+}
+
+.sd-progress-buttons__page-description {
+  display: none;
+}
+
+.sd-progress-buttons {
+  padding: calcSize(4) calcSize(5) calcSize(2) calcSize(5);
+  display: flex;
+  flex-direction: column;
+}
+
+.sd-progress-buttons__list-container {
+  display: flex;
+  overflow: hidden;
+  margin: 0 calcSize(-0.75);
+}
+
+.sd-progress-buttons__connector {
+  display: none;
+}
+
+.sd-progress-buttons__list {
+  display: inline-flex;
+  flex-direction: row;
+  flex-grow: 1;
+  margin: 0 auto;
+  padding: 0;
+
+  li {
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    position: relative;
+    flex-wrap: nowrap;
+    text-align: center;
+    flex-direction: column;
+    cursor: pointer;
+
+    &:not(:first-child)>.sd-progress-buttons__connector {
+      display: block;
+      content: "";
+      height: calcSize(0.25);
+      background-color: $foreground-dim-light;
+      opacity: 0.5;
+      position: absolute;
+      bottom: calcSize(1.125);
+      // right: 50%;
+      right: calc(50% + 10px);
+      width: calc(100% - 20px);
+      pointer-events: none;
+    }
+
+    .sd-progress-buttons__button {
+      position: relative;
+      display: flex;
+      content: attr(data-page-number);
+      width: calcSize(0);
+      height: calcSize(0);
+      margin: calcSize(0.75);
+      border: calcSize(0.5) solid transparent;
+      border-radius: 50%;
+      align-self: center;
+      z-index: 1;
+      font-size: calcFontSize(0.75);
+      font-weight: 600;
+      line-height: calcLineHeight(1);
+      justify-content: center;
+      color: $background-dim;
+      box-sizing: content-box;
+
+      .sd-progress-buttons__button-background {
+        position: absolute;
+        width: calcSize(2.5);
+        height: calcSize(2);
+        top: calcSize(-0.5);
+        left: calcSize(-1.25);
+        // background-color: $background-dim;
+        z-index: -2;
+        // border: calcSize(0.5) solid $background-dim;
+        // border-radius: 50%;
+      }
+
+      .sd-progress-buttons__button-content {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: calcSize(-0.5);
+        left: calcSize(-0.5);
+        background-color: $foreground-dim-light;
+        opacity: 0.5;
+        z-index: -1;
+        border: calcSize(0.5) solid transparent;
+        border-radius: 50%;
+        box-sizing: content-box;
+      }
+    }
+  }
+
+  li:hover .sd-progress-buttons__button {
+    color: $primary;
+    padding: calcSize(0.5);
+    margin: calcSize(0.25);
+    border: calcSize(0.5) solid $primary;
+    background-color: $primary-foreground;
+
+    .sd-progress-buttons__button-background {
+      left: calcSize(-0.75);
+    }
+
+    .sd-progress-buttons__button-content {
+      top: calcSize(-0.75);
+      left: calcSize(-0.75);
+      border: calcSize(0.75) solid $primary;
+      background-color: $primary-foreground;
+      opacity: 1;
+    }
+  }
+
+  .sd-progress-buttons__list-element--passed {
+    &:not(:first-child)>.sd-progress-buttons__connector {
+      background-color: $primary;
+      opacity: 1;
+    }
+
+    .sd-progress-buttons__button {
+      background-color: $primary;
+
+      .sd-progress-buttons__button-content {
+        background-color: $primary;
+        opacity: 1;
+      }
+    }
+  }
+
+  .sd-progress-buttons__list-element--current {
+    &:not(:first-child)>.sd-progress-buttons__connector {
+      background-color: $primary;
+      opacity: 1;
+    }
+
+    .sd-progress-buttons__button {
+      border: calcSize(0.5) solid $primary;
+      background-color: $primary-foreground;
+      color: $primary;
+      padding: calcSize(0.5);
+      margin: calcSize(0.25);
+
+      .sd-progress-buttons__button-background {
+        left: calcSize(-0.75);
+      }
+
+      .sd-progress-buttons__button-content {
+        border: calcSize(0.5) solid $primary;
+        background-color: $primary-foreground;
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.sd-progress-buttons__page-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: calcFontSize(0.75);
+  font-weight: 600;
+  line-height: calcLineHeight(1);
+  flex-grow: 1;
+  text-align: center;
+  padding: 0 calcSize(2);
+  margin-bottom: calcSize(2);
+}
+
+.sd-progress-buttons__header {
+  .sd-progress-buttons__page-title {
+    margin-bottom: calcSize(1);
+  }
+}
+
+.sd-progress-buttons__footer {
+  .sd-progress-buttons__page-title {
+    margin-top: calcSize(1);
+    margin-bottom: 0;
+    justify-content: flex-end;
+    padding: 0;
+    color: $foreground-dim-light;
+  }
+}
+
+.sd-progress-buttons--bottom {
+  padding: calcSize(2) calcSize(5) calcSize(4) calcSize(5);
+  flex-direction: column-reverse;
+
+  .sd-progress-buttons__list {
+    li {
+      flex-direction: column-reverse;
+
+      &:not(:first-child)>.sd-progress-buttons__connector {
+        top: calcSize(1.125);
+      }
+    }
+  }
+
+  .sd-progress-buttons__page-title {
+    margin-top: calcSize(2);
+    margin-bottom: 0;
+  }
+
+  .sd-progress-buttons__header {
+    .sd-progress-buttons__page-title {
+      margin-top: calcSize(1);
+      margin-bottom: 0;
+    }
+  }
+
+  .sd-progress-buttons__footer {
+    .sd-progress-buttons__page-title {
+      margin-top: 0;
+      margin-bottom: calcSize(1);
+    }
+  }
+}
+
+.sd-progress-buttons--numbered {
+  .sd-progress-buttons__list-container {
+    margin: 0 calcSize(-1);
+  }
+
+  .sd-progress-buttons__list {
+    li {
+      &:not(:first-child)>.sd-progress-buttons__connector {
+        bottom: calcSize(2.175);
+        right: calc(50% + 18px);
+        width: calc(100% - 36px);
+      }
+
+      .sd-progress-buttons__button {
+        width: calcSize(2);
+        height: calcSize(2);
+
+        .sd-progress-buttons__button-background {
+          height: calcSize(3);
+          width: calcSize(4.5);
+        }
+
+      }
+
+      &:hover .sd-progress-buttons__button {
+        padding: calcSize(0.5);
+      }
+    }
+  }
+}
+
+.sd-progress-buttons--with-titles {
+  .sd-progress-buttons__list-container {
+    margin: 0;
+  }
+}
+
+.sd-root-modern--mobile,
+.sd-progress-buttons--no-titles {
+  .sd-progress-buttons__list {
+    justify-content: space-between;
+    width: 100%;
+
+    li {
+      flex-grow: 0;
+    }
+  }
+}
+
+.sd-progress-buttons--bottom.sd-progress-buttons--numbered {
+  .sd-progress-buttons__list {
+    li {
+      &:not(:first-child)>.sd-progress-buttons__connector {
+        top: calcSize(2.175);
+      }
+    }
+  }
+}
+
+.sd-root-modern--mobile {
+  .sd-progress-buttons {
+    padding: calcSize(2) calcSize(3);
+  }
+}
+
+.sd-progress-buttons--fit-survey-width {
+  max-width: calcSize(90);
+  box-sizing: border-box;
+  width: 100%;
+  margin: auto;
+}
+
+[dir="rtl"],
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
+
+  .sd-progress-buttons__list {
+    li {
+      &:not(:first-child)>.sd-progress-buttons__connector {
+        right: unset;
+        left: calc(50% + 10px);
+      }
+    }
+  }
+
+  .sd-progress-buttons--numbered {
+    .sd-progress-buttons__list {
+      li {
+        &:not(:first-child)>.sd-progress-buttons__connector {
+          right: unset;
+          left: calc(50% + 20px);
+        }
+      }
+    }
+  }
+}

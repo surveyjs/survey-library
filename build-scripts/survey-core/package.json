@@ -20,7 +20,7 @@
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
-  "typings": "survey.core.d.ts",
+  "typings": "./typings/src/entries/core.d.ts",
   "typesVersions": {
     "<4.2": {
       "*": [

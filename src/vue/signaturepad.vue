@@ -13,7 +13,7 @@
         v-bind:style="{
           width: question.renderedCanvasWidth,
         }">
-      <canvas tabindex="-1" :class="question.cssClasses.canvas" @blur="question.onBlur"></canvas>
+      <canvas tabindex="-1" :class="question.cssClasses.canvas" @blur="(e) => { question.onBlur(e) }"></canvas>
     </div>
     <div :class="question.cssClasses.controls" v-if="question.canShowClearButton">
       <button

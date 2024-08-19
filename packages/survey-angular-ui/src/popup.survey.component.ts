@@ -12,6 +12,7 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
   @Input() allowClose?: boolean;
   @Input() closeOnCompleteTimeout?: number;
   @Input() allowFullScreen?: boolean;
+  @Input() onPopupClosed?: () => void;
   public popup!: PopupSurveyModel;
 
   constructor(changeDetectorRef: ChangeDetectorRef) {
@@ -30,6 +31,13 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
       headerCss += " " + this.popup.cssRootCollapsedMod;
     }
     return headerCss;
+  }
+
+  public closeHandler() {
+    this.popup.hide();
+    if (!!this.onPopupClosed) {
+      this.onPopupClosed();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {

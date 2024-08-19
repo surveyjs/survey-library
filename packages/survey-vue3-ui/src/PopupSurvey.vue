@@ -40,6 +40,7 @@ const props = defineProps<{
   isExpanded: boolean;
   allowClose: boolean;
   allowFullScreen: boolean;
+  onPopupClosed?: () => void;
   closeOnCompleteTimeout: number;
 }>();
 const surveyWindow =
@@ -61,6 +62,9 @@ const doExpand = () => {
 };
 const doHide = () => {
   surveyWindow.value.hide();
+  if (!!props.onPopupClosed) {
+    props.onPopupClosed();
+  }
 };
 const doToggleFullScreen = () => {
   surveyWindow.value.toggleFullScreen();

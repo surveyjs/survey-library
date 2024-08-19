@@ -22,6 +22,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
+import { getAvailableMaskTypeChoices } from "./mask/mask_utils";
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
@@ -913,12 +914,16 @@ Serializer.addClass(
       choices: settings.questions.inputTypes,
     },
     {
-      name: "maskType:masktype",
+      name: "maskType",
       default: "none",
       visibleIndex: 0,
       dependsOn: "inputType",
       visibleIf: (obj: any) => {
         return obj.inputType === "text";
+      },
+      choices: (obj: any) => {
+        const choices = getAvailableMaskTypeChoices();
+        return choices;
       }
     },
     {

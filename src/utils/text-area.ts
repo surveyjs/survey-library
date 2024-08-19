@@ -78,7 +78,7 @@ export class TextAreaModel {
     return this.options.id;
   }
   get placeholder(): string {
-    return this.options.placeholder;
+    return this.options.placeholder || "";
   }
   get className(): string {
     return this.options.className;

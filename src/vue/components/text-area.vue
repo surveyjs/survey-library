@@ -10,9 +10,14 @@
     :rows="model.rows"
     :placeholder="model.placeholder"
     :class="model.className"
+    @focus="
+      (e) => {
+        model.onTextAreaFocus(e);
+      }
+    "
     @blur="
       (e) => {
-        model.onTextAreaChange(e);
+        model.onTextAreaBlur(e);
       }
     "
     @change="

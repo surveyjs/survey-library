@@ -12,7 +12,12 @@
     :class="model.className"
     @blur="
       (e) => {
-        model.onTextAreaChange(e);
+        model.onTextAreaBlur(e);
+      }
+    "
+    @focus="
+      (e) => {
+        model.onTextAreaFocus(e);
       }
     "
     @change="

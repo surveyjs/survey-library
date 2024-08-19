@@ -18,6 +18,8 @@ export interface ITextArea {
   onTextAreaChange?: (event: any) => void;
   onTextAreaInput?: (event: any) => void;
   onTextAreaKeyDown?: (event: any) => void;
+  onTextAreaBlur?: (event: any) => void;
+  onTextAreaFocus?: (event: any) => void;
 
   ariaRequired: "true" | "false";
   ariaLabel: string;
@@ -70,6 +72,14 @@ export class TextAreaModel {
   public onTextAreaKeyDown(event: any): void {
     if (!!this.options.onTextAreaKeyDown)
       this.options.onTextAreaKeyDown(event);
+  }
+  public onTextAreaBlur(event: any): void {
+    if (!!this.options.onTextAreaBlur)
+      this.options.onTextAreaBlur(event);
+  }
+  public onTextAreaFocus(event: any): void {
+    if (!!this.options.onTextAreaFocus)
+      this.options.onTextAreaFocus(event);
   }
   get question(): Question {
     return this.options.question as Question;

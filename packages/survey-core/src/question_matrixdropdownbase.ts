@@ -54,6 +54,7 @@ export interface IMatrixDropdownData {
     row: MatrixDropdownRowModelBase,
     column: MatrixDropdownColumn
   ): Question;
+  choices: Array<ItemValue>;
   getLocale(): string;
   getMarkdownHtml(text: string, name: string): string;
   getRenderer(name: string): string;
@@ -650,11 +651,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.locStrsChanged();
     }
   }
-  public updateCellQuestionOnColumnChanged(
-    column: MatrixDropdownColumn,
-    name: string,
-    newValue: any
-  ) {
+  public updateCellQuestionOnColumnChanged(column: MatrixDropdownColumn, name: string, newValue: any): void {
     var cell = this.getCellByColumn(column);
     if (!cell) return;
     this.updateCellOnColumnChanged(cell, name, newValue);
@@ -725,11 +722,10 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     return res;
   }
 
-  protected updateCellOnColumnChanged(
-    cell: MatrixDropdownCell,
-    name: string,
-    newValue: any
-  ) {
+  protected updateCellOnColumnChanged(cell: MatrixDropdownCell, name: string, newValue: any): void {
+    if(name === "choices" && Array.isArray(newValue) && newValue.length === 0 && this.data) {
+      newValue = this.data.choices;
+    }
     cell.question[name] = newValue;
   }
   public updateCellOnColumnItemValueChanged(
@@ -1293,11 +1289,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public hasChoices(): boolean {
     return this.choices.length > 0;
   }
-  onColumnPropertyChanged(
-    column: MatrixDropdownColumn,
-    name: string,
-    newValue: any
-  ) {
+  onColumnPropertyChanged(column: MatrixDropdownColumn, name: string, newValue: any): void {
     this.updateHasFooter();
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
@@ -1319,14 +1311,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.resetRenderedTable();
     }
   }
-  onColumnItemValuePropertyChanged(
-    column: MatrixDropdownColumn,
-    propertyName: string,
-    obj: ItemValue,
-    name: string,
-    newValue: any,
-    oldValue: any
-  ) {
+  onColumnItemValuePropertyChanged(column: MatrixDropdownColumn, propertyName: string,
+    obj: ItemValue, name: string, newValue: any, oldValue: any): void {
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.generatedVisibleRows[i].updateCellQuestionOnColumnItemValueChanged(

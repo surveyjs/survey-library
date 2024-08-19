@@ -3324,3 +3324,55 @@ QUnit.test("circular dependsOn, #8624", function (assert) {
   Serializer.removeProperty("question", "testProperty1");
   Serializer.removeProperty("question", "testProperty2");
 });
+QUnit.test("Do fire JS unhandled exception on loading empty objects, Bug#8702", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {},
+      {
+        elements: [
+          {},
+          {
+            type: "panel",
+            name: "panel1",
+            elements: [
+              {},
+              { type: "text", name: "q1" }
+            ]
+          },
+          {
+            type: "paneldynamic",
+            name: "q2",
+            templateElements: [
+              {},
+              { type: "text", name: "q3" }
+            ]
+          },
+          {
+            type: "matrixdynamic",
+            name: "q4",
+            columns: [
+              {},
+              { cellType: "text", name: "col1" },
+              { name: "col2" }
+            ],
+            detailElements: [
+              {},
+              { type: "text", name: "q5" }
+            ]
+          }
+        ]
+      }
+    ],
+    triggers: [
+      {},
+      { expression: "abc" },
+    ],
+    calculatedValues: [
+      {},
+      { name: "abc" }
+    ]
+  });
+  const q4 = survey.getQuestionByName("q4");
+  const q5 = q4.detailPanel.getQuestionByName("q5");
+  assert.ok(q5, "#1");
+});

@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import jQuery from "jquery";
 
 export { useState,
   useId,
@@ -51,8 +52,6 @@ import { Survey, PopupSurvey } from "../../packages/survey-react-ui/entries/reac
 
 import { SurveyModel } from "survey-core";
 
-const jQuery = window["jQuery"] || window["$"];
-
 export function renderSurvey(model: SurveyModel, element: HTMLElement, props: any = {}) {
   const survey = React.createElement(Survey, { model, ...props });
   ReactDOM.render(survey, element);
@@ -69,7 +68,7 @@ function doPopupSurvey(props: any): void {
   });
 }
 
-if (!!jQuery) {
+if (typeof jQuery !== "undefined") {
   jQuery["fn"].extend({
     Survey: function (props: any) {
       return this.each(function () {

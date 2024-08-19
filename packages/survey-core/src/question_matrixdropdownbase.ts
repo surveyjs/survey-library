@@ -2563,6 +2563,7 @@ Serializer.addClass(
     },
     {
       name: "detailElements",
+      baseClassName: "question",
       visible: false,
       isLightSerializable: false,
     },

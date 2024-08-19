@@ -1,11 +1,56 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import jQuery from "jquery";
+
+export { useState,
+  useId,
+  useReducer,
+  useEffect,
+  useLayoutEffect,
+  useInsertionEffect,
+  useTransition,
+  useDeferredValue,
+  useSyncExternalStore,
+  startTransition,
+  useRef,
+  useImperativeHandle,
+  useMemo,
+  useCallback,
+  useContext,
+  useDebugValue,
+  version,
+  Children,
+  render,
+  hydrate,
+  unmountComponentAtNode,
+  createPortal,
+  createElement,
+  createContext,
+  createFactory,
+  cloneElement,
+  createRef,
+  Fragment,
+  isValidElement,
+  isFragment,
+  isMemo,
+  findDOMNode,
+  Component,
+  PureComponent,
+  memo,
+  forwardRef,
+  flushSync,
+  unstable_batchedUpdates,
+  StrictMode,
+  Suspense,
+  SuspenseList,
+  lazy, } from "preact/compat";
+
 // import jQuery from "jquery";
 
-import { Survey, PopupSurvey } from "./react-ui-model";
-import { SurveyModel } from "survey-core";
+// eslint-disable-next-line surveyjs/no-imports-from-entries
+import { Survey, PopupSurvey } from "../../packages/survey-react-ui/entries/react-ui-model";
 
-const jQuery = window["jQuery"] || window["$"];
+import { SurveyModel } from "survey-core";
 
 export function renderSurvey(model: SurveyModel, element: HTMLElement, props: any = {}) {
   const survey = React.createElement(Survey, { model, ...props });
@@ -23,7 +68,7 @@ function doPopupSurvey(props: any): void {
   });
 }
 
-if (!!jQuery) {
+if (typeof jQuery !== "undefined") {
   jQuery["fn"].extend({
     Survey: function (props: any) {
       return this.each(function () {
@@ -46,7 +91,7 @@ SurveyModel.prototype["render"] = function (element: any = null) {
 
 export const preact: any = React;
 
-export * from "./react-ui-model";
+export * from "../../packages/survey-react-ui/entries/react-ui-model";
 export * from "./core-export";
 
 export { SurveyModel as Model } from "survey-core";

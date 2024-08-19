@@ -24,10 +24,10 @@ ko.components.register("sv-dropdown", {
         return true;
       };
       const blur = (_: any, e: any) => {
-        q.dropdownListModel?.onBlur(e);
+        q.onBlur(e);
       };
       const focus = (_: any, e: any) => {
-        q.dropdownListModel?.onFocus(e);
+        q.onFocus(e);
       };
       new ImplementorBase(q.dropdownListModel);
       return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyhandler: keyhandler, blur: blur, focus: focus, chevronPointerDown: chevronPointerDown };

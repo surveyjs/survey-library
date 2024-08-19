@@ -1,0 +1,99 @@
+.sd-action {
+  appearance: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: calcSize(1);
+  background: transparent;
+  padding: calcSize(1) calcSize(3);
+  color: $primary;
+  border-radius: calcSize(12.5);
+  font-weight: 600;
+  font-family: $font-family;
+  font-style: normal;
+  font-size: $font-questiontitle-size;
+  line-height: multiply(1.5, $font-questiontitle-size);
+  outline: none;
+  transition: background-color $transition-duration;
+  box-sizing: content-box;
+}
+
+.sd-action--negative {
+  color: $red;
+}
+
+.sd-action--icon {
+  padding: calcSize(1);
+}
+
+.sd-action__icon {
+  margin-left: calcSize(-1);
+
+  use {
+    fill: $primary;
+  }
+}
+
+.sd-action--icon {
+  .sd-action__icon {
+    margin-left: 0;
+  }
+
+  use {
+    fill: $font-questiondescription-color;
+    transition: fill $transition-duration;
+  }
+}
+
+svg.sd-action--icon {
+  fill: $font-questiondescription-color;
+}
+
+.sd-action:disabled,
+.sd-action--disabled {
+  color: $foreground;
+  cursor: default;
+  opacity: 0.25;
+  pointer-events: none;
+
+  use {
+    fill: $font-questiondescription-color;
+  }
+}
+
+.sd-action:not(.sd-action--pressed):hover,
+.sd-action:not(.sd-action--pressed):focus {
+  outline: none;
+  background-color: $primary-light;
+  cursor: pointer;
+  opacity: 1;
+
+  &.sd-action--icon {
+    background-color: $background-dim;
+  }
+
+  &.sd-action--negative {
+    background-color: $red-light;
+
+    &.sd-action--icon {
+      use {
+        fill: $red;
+      }
+    }
+  }
+
+  &:active {
+    opacity: 0.5;
+  }
+}
+
+.sd-action__icon {
+  display: block;
+  width: calcSize(3);
+  height: calcSize(3);
+}
+
+.sd-action--pressed:not(.sd-action--active) {
+  background-color: $background-dim;
+  opacity: 0.5;
+}

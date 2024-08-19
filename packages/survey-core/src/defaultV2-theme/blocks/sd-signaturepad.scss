@@ -1,0 +1,55 @@
+.sjs_sp_placeholder {
+    @include useEditorFontSize;
+    color: $font-questionplaceholder-color;
+    font-size: $font-editorfont-size;
+    line-height: multiply(1.5, $font-editorfont-size);
+}
+
+.sjs_sp_container {
+    border: 1px dashed $border;
+    box-sizing: content-box;
+}
+
+.sd-question--readonly,
+.sd-question--preview {
+    .sjs_sp_container {
+        border: none;
+    }
+
+    .sjs_sp_placeholder {
+        color: $foreground;
+    }
+}
+.sjs_sp_controls.sd-signaturepad__controls {
+    right: calcSize(1);
+    top: calcSize(1);
+    left: auto;
+    bottom: auto;
+}
+
+.sd-question--signature.sd-question--error {
+    .sjs_sp_placeholder {
+        background-color: $red-light;
+    }
+}
+
+.sd-signaturepad__background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+}
+
+.sd-signaturepad__loading-indicator {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    .sd-loading-indicator {
+        position: absolute;
+        right: calcSize(1);
+        top: calcSize(1);
+    }
+}

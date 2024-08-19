@@ -824,11 +824,13 @@ QUnit.test("check afterRerender function", (assert) => {
   survey.afterRerender();
   survey.enableOnElementRenderedEvent();
   let log = "";
-  survey.onElementRerendered.add(() => log += "->callback");
+  survey.onElementRerendered.add((_, options) => log += `->callback: ${!!options.isCancel}`);
   survey.afterRerender();
-  assert.equal(log, "->callback");
+  assert.equal(log, "->callback: false");
   log = "";
   survey.disableOnElementRenderedEvent();
+  assert.equal(log, "->callback: true");
+  log = "";
   survey.afterRerender();
   assert.equal(log, "");
 });

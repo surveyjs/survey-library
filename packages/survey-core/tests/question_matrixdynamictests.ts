@@ -9648,14 +9648,17 @@ QUnit.test("table: check animation options", function (assert) {
   const enterOptions = options.getEnterOptions(renderedTable.rows[1]);
   enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(rowHtmlElement);
   assert.equal(enterOptions.cssClass, "enter");
-  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "20px");
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height-to"), "20px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(rowHtmlElement);
+  assert.notOk(questionHtmlElement.style.getPropertyValue("--animation-height-to"));
 
   questionHtmlElement.style.height = "40px";
   const leaveOptions = options.getLeaveOptions(renderedTable.rows[1]);
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(rowHtmlElement);
   assert.equal(leaveOptions.cssClass, "leave");
-  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "40px");
-
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height-to"), "40px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(rowHtmlElement);
+  assert.notOk(questionHtmlElement.style.getPropertyValue("--animation-height-to"));
   tableHtmlElement.remove();
 });
 QUnit.test("set data from the survey", function (assert) {

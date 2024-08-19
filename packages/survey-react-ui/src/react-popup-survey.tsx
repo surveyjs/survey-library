@@ -87,7 +87,7 @@ export class PopupSurvey extends Survey {
       <div className={popup.cssHeaderCloseButton} onClick={() => {
         popup.hide();
         if(typeof this.props.onClose == "function") {
-          this.props.onPopupClosed();
+          this.props.onClose();
         }
       }}>
         <SvgIcon iconName={"icon-close_16x16"} size={16}></SvgIcon>

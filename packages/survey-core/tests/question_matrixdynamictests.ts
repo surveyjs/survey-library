@@ -9465,6 +9465,144 @@ QUnit.test("matrix dynamic expression & checkbox valuePropertyName & sumInArray 
   assert.equal(expression.value, 12, "Calculate values correctly");
 });
 
+QUnit.test("matrix dynamic & share data in cells & detail panel, Bug8697", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text"
+          }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            name: "q2",
+            type: "text",
+            valueName: "col1"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  rows[0].showDetailPanel();
+  const col1 = rows[0].getQuestionByName("col1");
+  const q2Cell = rows[0].getQuestionByName("q2");
+  col1.value = "abc";
+  assert.equal(q2Cell.value, "abc", "#1");
+  q2Cell.value = "edf";
+  assert.equal(col1.value, "edf", "#2");
+  rows[1].getQuestionByName("col1").value = "123";
+  rows[1].showDetailPanel();
+  assert.equal(rows[1].getQuestionByName("q2").value, "123", "#3");
+});
+QUnit.test("matrix dynamic detail panel & shared matrix dynamics, Bug8697", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text"
+          }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            name: "matrix1",
+            type: "matrixdynamic",
+            valueName: "data",
+            columns: [{ cellType: "text", name: "col1" }]
+          },
+          {
+            name: "matrix2",
+            type: "matrixdynamic",
+            valueName: "data",
+            columns: [{ cellType: "text", name: "col1" }],
+            rowCount: 0
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  rows[0].showDetailPanel();
+  const matrix1 = <QuestionMatrixDynamicModel>rows[0].getQuestionByName("matrix1");
+  const matrix2 = <QuestionMatrixDynamicModel>rows[0].getQuestionByName("matrix2");
+  matrix1.visibleRows[0].getQuestionByName("col1").value = "a1";
+  matrix1.visibleRows[1].getQuestionByName("col1").value = "a2";
+  assert.deepEqual(matrix2.value, [{ col1: "a1" }, { col1: "a2" }], "#1");
+});
+QUnit.test("matrix dynamic detail panel & checkbox valuePropertyName, Bug8697", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            choices: [1, 2, 3, 4, 5],
+            valuePropertyName: "prop1"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  const checkbox = rows[0].getQuestionByName("col1");
+  checkbox.renderedValue = [1, 4];
+  assert.deepEqual(checkbox.renderedValue, [1, 4], "renderedValue #1");
+  assert.deepEqual(checkbox.value, [{ prop1: 1 }, { prop1: 4 }], "value #1");
+});
+QUnit.test("matrix dynamic detail panel & checkbox valuePropertyName & matrix dynamic in detail panel, Bug8697", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            choices: [1, 2, 3, 4, 5],
+            valuePropertyName: "prop1"
+          }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            name: "matrix1",
+            type: "matrixdynamic",
+            valueName: "col1",
+            columns: [{ cellType: "text", name: "prop1" }],
+            rowCount: 0
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  rows[0].showDetailPanel();
+  rows[0].getQuestionByName("col1").renderedValue = [1, 3, 4, 5];
+  let matrix1 = <QuestionMatrixDynamicModel>rows[0].getQuestionByName("matrix1");
+  assert.deepEqual(matrix1.value, [{ prop1: 1 }, { prop1: 3 }, { prop1: 4 }, { prop1: 5 }], "#1");
+  rows[1].getQuestionByName("col1").renderedValue = [3];
+  rows[1].showDetailPanel();
+  matrix1 = <QuestionMatrixDynamicModel>rows[1].getQuestionByName("matrix1");
+  assert.deepEqual(matrix1.value, [{ prop1: 3 }], "#2");
+});
 QUnit.test("Totals alingment", function (assert) {
   var json = {
     pages: [

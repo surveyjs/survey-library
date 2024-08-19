@@ -482,6 +482,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue) return;
     this.updateQuestionsValue(name, newColumnValue, isComment);
+    if(!isComment) {
+      this.updateSharedQuestionsValue(name, newColumnValue);
+    }
     var newValue = this.value;
     var changedName = isComment ? name + Base.commentSuffix : name;
     var changedValue = newColumnValue;
@@ -531,6 +534,18 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       question.comment = newColumnValue;
     }
     this.isSettingValue = false;
+  }
+  private updateSharedQuestionsValue(name: string, value: any): void {
+    const questions = this.getQuestionsByValueName(name);
+    if(questions.length > 1) {
+      for(let i = 0; i < questions.length; i ++) {
+        if(!Helpers.isTwoValueEquals(questions[i].value, value)) {
+          this.isSettingValue = true;
+          questions[i].updateValueFromSurvey(value);
+          this.isSettingValue = false;
+        }
+      }
+    }
   }
   public runTriggers(name: string, value: any): void {
     if (!name) return;
@@ -603,12 +618,25 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     return res;
   }
+  public getQuestionsByValueName(name: string): Array<Question> {
+    let res = [];
+    for (var i = 0; i < this.cells.length; i++) {
+      const cell = this.cells[i];
+      if(cell.question && cell.question.getValueName() === name) {
+        res.push(cell.question);
+      }
+    }
+    if (!!this.detailPanel) {
+      res = res.concat(this.detailPanel.getQuestionsByValueName(name));
+    }
+    return res;
+  }
   protected getSharedQuestionByName(columnName: string): Question {
     return !!this.data
       ? this.data.getSharedQuestionByName(columnName, this)
       : null;
   }
-  public clearIncorrectValues(val: any) {
+  public clearIncorrectValues(val: any): void {
     for (var key in val) {
       var question = this.getQuestionByName(key);
       if (question) {

@@ -108,8 +108,7 @@ export var basqueSurveyStrings = {
   cancel: "Ezeztatu"
 };
 
-surveyLocalization.locales["eu"] = basqueSurveyStrings;
-surveyLocalization.localeNames["eu"] = "Euskara";
+surveyLocalization.setupLocale("eu", basqueSurveyStrings, "Euskara", "Basque");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

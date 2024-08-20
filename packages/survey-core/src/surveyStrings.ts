@@ -5,9 +5,19 @@ export var surveyLocalization = {
   defaultLocaleValue: "en",
   locales: <{ [index: string]: any }>{},
   localeNames: <{ [index: string]: any }>{},
+  localeNamesInEnglish: <{ [index: string]: any }>{},
   localeDirections: <{ [index: string]: any }>{},
   supportedLocales: <Array<any>>[],
-  get currentLocale() {
+  showNamesInEnglish: false,
+  setupLocale(loc: string, strings: any, name: string, nameInEngish: string, direction?: string): void {
+    this.locales[loc] = strings;
+    this.localeNames[loc] = name;
+    this.localeNamesInEnglish[loc] = nameInEngish;
+    if(direction !== undefined) {
+      this.localeDirections[loc] = direction;
+    }
+  },
+  get currentLocale(): string {
     return this.currentLocaleValue === this.defaultLocaleValue ? "" : this.currentLocaleValue;
   },
   set currentLocale(val: string) {
@@ -50,6 +60,13 @@ export var surveyLocalization = {
     }
     return this.onGetExternalString(strName, locale);
   },
+  getLocaleName(loc: string, inEnglish?: boolean): string {
+    if(!loc) return "";
+    if(inEnglish === undefined) inEnglish = this.showNamesInEnglish;
+    const firstNames = inEnglish ? this.localeNamesInEnglish : this.localeNames;
+    const secondNames = inEnglish ? this.localeNames : this.localeNamesInEnglish;
+    return firstNames[loc] || secondNames[loc] || loc;
+  },
   getLocales: function (removeDefaultLoc: boolean = false): Array<string> {
     var res = [];
     res.push("");
@@ -65,10 +82,7 @@ export var surveyLocalization = {
       res.push(key);
     }
     var locName = (loc: string): string => {
-      if (!loc) return "";
-      var res = (<any>surveyLocalization).localeNames[loc];
-      if (!res) res = loc;
-      return res.toLowerCase();
+      return this.getLocaleName(loc).toLowerCase();
     };
     res.sort((a, b): number => {
       var str1 = locName(a);

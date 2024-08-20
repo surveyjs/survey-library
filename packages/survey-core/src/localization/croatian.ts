@@ -108,8 +108,7 @@ export var croatianStrings = {
   cancel: "Otkazati"
 };
 
-surveyLocalization.locales["hr"] = croatianStrings;
-surveyLocalization.localeNames["hr"] = "hrvatski";
+surveyLocalization.setupLocale("hr", croatianStrings, "hrvatski", "Croatian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

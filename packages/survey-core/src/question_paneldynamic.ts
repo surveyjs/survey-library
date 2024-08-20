@@ -290,7 +290,7 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
-    this.registerPropertyChangedHandlers(["isMobile", "newPanelPosition", "showRangeInProgress", "renderMode", "displayMode", "showProgressBar"], () => {
+    this.registerPropertyChangedHandlers(["isMobile", "newPanelPosition", "displayMode", "showProgressBar"], () => {
       this.updateFooterActions();
     });
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
@@ -1186,15 +1186,21 @@ export class QuestionPanelDynamicModel extends Question
    * - `"tab"` - Renders each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles. [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/)
    */
   public get renderMode(): string {
-    return this.getPropertyValue("renderMode");
+    let displayMode = this.displayMode;
+    if (displayMode == "page") {
+      const progressBarLocation = this.progressBarLocation;
+      if (progressBarLocation == "top") {
+        return "progressTop";
+      } else if (progressBarLocation == "bottom") {
+        return "progressBottom";
+      } else if (progressBarLocation == "top-bottom") {
+        return "progressTopBottom";
+      }
+    }
+    return displayMode;
   }
   public set renderMode(val: string) {
-    this.setPropertyValue("renderMode", val);
-    if (val == "list") {
-      this.displayMode = "list";
-    } else if (val == "tab") {
-      this.displayMode = "tab";
-    } else if (val.startsWith("progerss")) {
+    if ((val || "").startsWith("progress")) {
       if (val == "progressTop") {
         this.progressBarLocation = "top";
       } else if (val == "progressBottom") {
@@ -1203,6 +1209,8 @@ export class QuestionPanelDynamicModel extends Question
         this.progressBarLocation = "top-bottom";
       }
       this.displayMode = "page";
+    } else {
+      this.displayMode = val as any;
     }
     // this.updatePanelView();
   }
@@ -1225,7 +1233,7 @@ export class QuestionPanelDynamicModel extends Question
   }) showProgressBar: true | false;
   @property({
     onSet: (val, target: QuestionPanelDynamicModel) => {
-      target.updatePanelView();
+      // target.updatePanelView();
     }
   }) progressBarLocation: "top" | "bottom" | "top-bottom";
   public get tabAlign(): "center" | "left" | "right" {
@@ -2631,15 +2639,21 @@ Serializer.addClass(
     {
       name: "showRangeInProgress:boolean",
       default: true,
-      visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
+      visible: false
+      // visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
     },
     {
       name: "renderMode",
       default: "list",
       choices: ["list", "progressTop", "progressBottom", "progressTopBottom", "tab"],
+      visible: false,
     },
-    { name: "displayMode", default: "list", choices: ["list", "page"] },
-    { name: "showProgressBar:switch", default: false },
+    { name: "displayMode", default: "list", choices: ["list", "page", "tab"] },
+    {
+      name: "showProgressBar:boolean",
+      default: true,
+      visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
+    },
     { name: "progressBarLocation", default: "top", choices: ["top", "bottom", "top-bottom"] },
     {
       name: "tabAlign", default: "center", choices: ["left", "center", "right"],

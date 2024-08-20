@@ -7890,7 +7890,7 @@ QUnit.test("TextAreaOptions", function (assert) {
   const commentOptions = q1.commentTextAreaModel;
 
   const q2 = <QuestionCommentModel>survey.getQuestionByName("q2");
-  const textAreaOptions = q2.getTextAreaOptions();
+  const textAreaOptions = q2.textAreaModel;
 
   assert.equal(otherOptions.id, "sq_101_other", "otherOptions id");
   assert.equal(otherOptions.className, "sd-input sd-comment sd-selectbase__other", "otherOptions className");

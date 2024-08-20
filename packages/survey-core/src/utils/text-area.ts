@@ -1,15 +1,14 @@
 import { increaseHeightByContent } from "./utils";
 import { Question } from "../question";
-import { ArrayChanges, Base } from "../base";
 
 export interface ITextArea {
   question: any;
   id: string;
   propertyName: string;
-  className: string;
+  className: () => string;
   isDisabledAttr: boolean;
   isReadOnlyAttr?: boolean;
-  placeholder: string;
+  placeholder: () => string;
   autoGrow: boolean;
   maxLength: number;
   rows: number;
@@ -32,8 +31,8 @@ export interface ITextArea {
 export class TextAreaModel {
   private element: HTMLTextAreaElement;
 
-  private onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges) => {
-    if (name === this.options.propertyName && this.element) {
+  private onPropertyChangedCallback = () => {
+    if (this.element) {
       this.element.value = this.getTextValue();
 
       if (this.autoGrow) {
@@ -43,7 +42,7 @@ export class TextAreaModel {
   }
 
   constructor(private options: ITextArea) {
-    this.question.onPropertyValueChangedCallback = this.onPropertyValueChangedCallback;
+    this.question.registerFunctionOnPropertyValueChanged(this.options.propertyName, this.onPropertyChangedCallback, "__textarea");
   }
 
   public setElement(element: HTMLTextAreaElement | null): void {
@@ -88,10 +87,10 @@ export class TextAreaModel {
     return this.options.id;
   }
   get placeholder(): string {
-    return this.options.placeholder || "";
+    return this.options.placeholder() || "";
   }
   get className(): string {
-    return this.options.className;
+    return this.options.className();
   }
   get maxLength(): number {
     return this.options.maxLength;
@@ -132,7 +131,7 @@ export class TextAreaModel {
 
   public dispose(): void {
     if (this.question) {
-      this.question.onPropertyValueChangedCallback = undefined;
+      this.question.unRegisterFunctionOnPropertyValueChanged(this.options.propertyName, "__textarea");
     }
   }
 }

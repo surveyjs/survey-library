@@ -108,8 +108,7 @@ export var icelandicSurveyStrings = {
   cancel: "Afturkalla"
 };
 
-surveyLocalization.locales["is"] = icelandicSurveyStrings;
-surveyLocalization.localeNames["is"] = "íslenska";
+surveyLocalization.setupLocale("is", icelandicSurveyStrings, "íslenska", "Icelandic");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

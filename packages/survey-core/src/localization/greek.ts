@@ -108,8 +108,7 @@ export var greekSurveyStrings = {
   cancel: "Ακυρώνω"
 };
 
-surveyLocalization.locales["gr"] = greekSurveyStrings;
-surveyLocalization.localeNames["gr"] = "ελληνικά";
+surveyLocalization.setupLocale("gr", greekSurveyStrings, "ελληνικά", "Greek");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

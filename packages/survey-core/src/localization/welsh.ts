@@ -108,8 +108,7 @@ export var welshSurveyStrings = {
   cancel: "Canslo"
 };
 
-surveyLocalization.locales["cy"] = welshSurveyStrings;
-surveyLocalization.localeNames["cy"] = "cymraeg";
+surveyLocalization.setupLocale("cy", welshSurveyStrings, "cymraeg", "Welsh");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

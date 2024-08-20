@@ -109,8 +109,7 @@ export var urduSurveyStrings = {
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
-surveyLocalization.locales["ur"] = urduSurveyStrings;
-surveyLocalization.localeNames["ur"] = "Urdu";
+surveyLocalization.setupLocale("ur", urduSurveyStrings, "urdu", "Urdu");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

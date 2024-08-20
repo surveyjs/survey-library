@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector, fixture, test } from "testcafe";
+import { Selector, fixture, ClientFunction, test } from "testcafe";
 const title = "standardValidators";
 
 const json = {
@@ -116,5 +116,15 @@ frameworks.forEach((framework) => {
         mostamount: "10000",
       },
     });
+  });
+  test("validationEnabled=false", async (t) => {
+    const ingnoreValidation = ClientFunction(() => {
+      window["survey"].validationEnabled = false;
+    });
+
+    await ingnoreValidation();
+    await t.click("input[value=\"Complete\"]");
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({});
   });
 });

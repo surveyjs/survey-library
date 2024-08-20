@@ -98,6 +98,9 @@ export class QuestionMatrixDropdownRenderedCell {
   public get cellQuestionWrapperClassName(): string {
     return this.cell.getQuestionWrapperClassName(this.matrix.cssClasses.cellQuestionWrapper);
   }
+  public get isVisible(): boolean {
+    return (!this.hasQuestion && !this.isErrorsCell) || !this.matrix?.isMobile || this.question.isVisible;
+  }
   public get showResponsiveTitle(): boolean {
     return this.hasQuestion && this.matrix?.isMobile;
   }

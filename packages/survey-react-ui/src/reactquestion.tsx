@@ -400,13 +400,16 @@ export class SurveyQuestionErrorCell extends React.Component<any, any> {
   private update() {
     this.setState({ changed: this.state.changed + 1 });
   }
+  protected getQuestionPropertiesToTrack(): string[] {
+    return ["errors"];
+  }
   private registerCallback(question: Question) {
-    question.registerFunctionOnPropertyValueChanged("errors", () => {
+    question.registerFunctionOnPropertiesValueChanged(this.getQuestionPropertiesToTrack(), () => {
       this.update();
     }, "__reactSubscription");
   }
   private unRegisterCallback(question: Question) {
-    question.unRegisterFunctionOnPropertyValueChanged("errors", "__reactSubscription");
+    question.unRegisterFunctionOnPropertiesValueChanged(this.getQuestionPropertiesToTrack(), "__reactSubscription");
   }
   componentDidUpdate(prevProps: Readonly<any>): void {
     if(prevProps.question && prevProps.question !== this.question) {

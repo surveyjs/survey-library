@@ -34,7 +34,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   public override ngDoCheck(): void {
     super.ngDoCheck();
     if(this.cell.isErrorsCell && this.cell?.question) {
-      this.cell.question.registerFunctionOnPropertyValueChanged("errors", () => {
+      this.cell.question.registerFunctionOnPropertiesValueChanged(["errors", "visible"], () => {
         this.update();
       }, "__ngSubscription")
     }
@@ -92,10 +92,10 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   override ngOnDestroy(): void {
     super.ngOnDestroy();
     if(this.cell.isErrorsCell && this.cell?.question) {
-      this.cell.question.unRegisterFunctionOnPropertyValueChanged("errors", "__ngSubscription")    
+      this.cell.question.unRegisterFunctionOnPropertiesValueChanged(["errors", "visible"], "__ngSubscription")    
     }
   }
   public get canRender() {
-    return this.question && this.question.survey;
+    return this.question && this.question.survey && this.cell.isVisible;
   }
 }

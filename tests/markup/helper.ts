@@ -107,6 +107,8 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   if (test.before)
     test.before();
   platform.survey = platform.surveyFactory(test.json);
+  if (test.initSurvey)
+    test.initSurvey(platform.survey);
   platform.survey.getAllQuestions().map((q, i) => {
     q.id = "testid" + i;
     if(q.getType() === "paneldynamic") {
@@ -245,8 +247,6 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
     }, test.timeout || 10);
   });
   platform.survey.focusFirstQuestionAutomatic = false;
-  if (test.initSurvey)
-    test.initSurvey(platform.survey);
   platform.render(platform.survey, surveyElement);
 }
 

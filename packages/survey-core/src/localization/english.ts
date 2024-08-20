@@ -112,5 +112,4 @@ export var englishStrings = {
 // Uncomment the lines below if you create a custom dictionary.
 // Replace "en" with a custom locale code (for example, "fr" or "de"),
 // Replace `englishStrings` with the name of the variable that contains the custom dictionary.
-// surveyLocalization.locales["en"] = englishStrings;
-// surveyLocalization.localeNames["en"] = "English";
+//surveyLocalization.setupLocale("en", englishStrings, "English", "English");

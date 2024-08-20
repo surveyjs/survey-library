@@ -109,8 +109,7 @@ export var vietnameseSurveyStrings = {
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
-surveyLocalization.locales["vi"] = vietnameseSurveyStrings;
-surveyLocalization.localeNames["vi"] = "Việt Nam";
+surveyLocalization.setupLocale("vi", vietnameseSurveyStrings, "việt nam", "Vietnamese");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

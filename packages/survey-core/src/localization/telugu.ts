@@ -108,8 +108,7 @@ export var teluguStrings = {
   cancel: "రద్దు"
 };
 
-surveyLocalization.locales["tel"] = teluguStrings;
-surveyLocalization.localeNames["tel"] = "Telugu";
+surveyLocalization.setupLocale("tel", teluguStrings, "telugu", "Telugu");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

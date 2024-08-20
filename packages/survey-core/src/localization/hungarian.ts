@@ -108,8 +108,7 @@ export var hungarianSurveyStrings = {
   cancel: "Érvénytelenít"
 };
 
-surveyLocalization.locales["hu"] = hungarianSurveyStrings;
-surveyLocalization.localeNames["hu"] = "magyar";
+surveyLocalization.setupLocale("hu", hungarianSurveyStrings, "magyar", "Hungarian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

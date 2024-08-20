@@ -108,8 +108,7 @@ export var indonesianStrings = {
   cancel: "Membatalkan"
 };
 
-surveyLocalization.locales["id"] = indonesianStrings;
-surveyLocalization.localeNames["id"] = "bahasa Indonesia";
+surveyLocalization.setupLocale("id", indonesianStrings, "bahasa Indonesia", "Indonesian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -108,8 +108,7 @@ export var latvianSurveyStrings = {
   cancel: "Atcelt"
 };
 
-surveyLocalization.locales["lv"] = latvianSurveyStrings;
-surveyLocalization.localeNames["lv"] = "latviešu";
+surveyLocalization.setupLocale("lv", latvianSurveyStrings, "latviešu", "Latvian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

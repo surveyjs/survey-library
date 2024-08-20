@@ -77,17 +77,19 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   }
   ngAfterViewInit() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;
-    const el = this.cellContainer.nativeElement;
-    const cellQ = this.cell.question;
-    var options = {
-      cell: this.cell.cell,
-      cellQuestion: cellQ,
-      htmlElement: el,
-      row: this.cell.row,
-      column: this.cell.cell.column,
-    };
-    this.question.survey.matrixAfterCellRender(this.question, options);
-    cellQ.afterRenderCore(el);
+    const el = this.cellContainer?.nativeElement;
+    if(el) {
+      const cellQ = this.cell.question;
+      var options = {
+        cell: this.cell.cell,
+        cellQuestion: cellQ,
+        htmlElement: el,
+        row: this.cell.row,
+        column: this.cell.cell.column,
+      };
+      this.question.survey.matrixAfterCellRender(this.question, options);
+      cellQ.afterRenderCore(el);
+    }
   }
   override ngOnDestroy(): void {
     super.ngOnDestroy();

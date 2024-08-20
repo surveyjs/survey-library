@@ -835,13 +835,13 @@ export class QuestionPanelDynamicModel extends Question
    * Returns true when the renderMode equals to "progressTop" or "progressTopBottom"
    */
   public get isProgressTopShowing(): boolean {
-    return this.progressBarLocation === "top" || this.progressBarLocation === "top-bottom";
+    return this.displayMode == "page" && (this.progressBarLocation === "top" || this.progressBarLocation === "top-bottom");
   }
   /**
    * Returns true when the renderMode equals to "progressBottom" or "progressTopBottom"
    */
   public get isProgressBottomShowing(): boolean {
-    return this.progressBarLocation === "bottom" || this.progressBarLocation === "top-bottom";
+    return this.displayMode == "page" && (this.progressBarLocation === "bottom" || this.progressBarLocation === "top-bottom");
   }
   /**
    * Indicates whether the Previous button is visible.

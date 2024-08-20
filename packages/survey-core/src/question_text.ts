@@ -12,7 +12,7 @@ import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
-import { IInputMask } from "./mask/mask_utils";
+import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -806,12 +806,16 @@ Serializer.addClass(
     },
     { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"], visible: false },
     {
-      name: "maskType:masktype",
+      name: "maskType",
       default: "none",
       visibleIndex: 0,
       dependsOn: "inputType",
       visibleIf: (obj: any) => {
         return obj.inputType === "text" || obj.inputType === "tel";
+      },
+      choices: (obj: any) => {
+        const choices = getAvailableMaskTypeChoices();
+        return choices;
       }
     },
     {

@@ -21,8 +21,7 @@ A platform-independent survey model for SurveyJS Form Library. This package shou
 - [Angular](https://surveyjs.io/Documentation/Library?id=get-started-angular)
 - [React](https://surveyjs.io/Documentation/Library?id=get-started-react)
 - [Vue](https://surveyjs.io/Documentation/Library?id=get-started-vue)
-- [jQuery](https://surveyjs.io/Documentation/Library?id=get-started-jquery)
-- [Knockout](https://surveyjs.io/Documentation/Library?id=get-started-knockout)
+- [HTML/CSS/JavaScript](https://surveyjs.io/form-library/documentation/get-started-html-css-javascript)
 
 ## Resources
 

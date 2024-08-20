@@ -84,7 +84,12 @@ export class PopupSurvey extends Survey {
   }
   protected renderCloseButton(popup: PopupSurveyModel): JSX.Element {
     return (
-      <div className={popup.cssHeaderCloseButton} onClick={() => { popup.hide(); }}>
+      <div className={popup.cssHeaderCloseButton} onClick={() => {
+        popup.hide();
+        if(typeof this.props.onClose == "function") {
+          this.props.onClose();
+        }
+      }}>
         <SvgIcon iconName={"icon-close_16x16"} size={16}></SvgIcon>
       </div>
     );

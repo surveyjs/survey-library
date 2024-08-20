@@ -109,7 +109,7 @@ export var serbianStrings = {
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
-surveyLocalization.setupLocale("rs", serbianStrings, "Srpski", "Serbian");
+surveyLocalization.setupLocale("rs", serbianStrings, "srpski", "Serbian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

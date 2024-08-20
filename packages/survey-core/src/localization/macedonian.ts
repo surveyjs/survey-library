@@ -108,7 +108,7 @@ export var macedonianSurveyStrings = {
   cancel: "Откажи"
 };
 
-surveyLocalization.setupLocale("mk", macedonianSurveyStrings, "Македонски", "Macedonian");
+surveyLocalization.setupLocale("mk", macedonianSurveyStrings, "македонски", "Macedonian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

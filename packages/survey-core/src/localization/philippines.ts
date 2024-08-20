@@ -111,7 +111,7 @@ export var philippinesStrings = {
 // Uncomment the lines below if you create a custom dictionary.
 // Replace "en" with a custom locale code (for example, "fr" or "de"),
 // Replace `englishStrings` with the name of the variable that contains the custom dictionary.
-surveyLocalization.setupLocale("fil", philippinesStrings, "Filipino", "Filipino");
+surveyLocalization.setupLocale("fil", philippinesStrings, "filipino", "Filipino");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

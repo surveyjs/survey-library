@@ -62,6 +62,15 @@ export class QuestionTextModel extends QuestionTextBase {
   @property({
     onSet: (newValue: string, target: QuestionTextModel) => { target.onSetMaskType(newValue); }
   }) maskType: string;
+  /**
+   * Specifies text alignment within the input field.
+   *
+   * Possible values:
+   *
+   * - `"left"` - Aligns input text to the left side.
+   * - `"right"` - Aligns input text to the right side.
+   * - `"auto"` (default) - Applies right alignment if a [numeric or currency input mask](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType) is specified. Otherwise, applies left alignment.
+   */
   @property() inputTextAlignment: "left" | "right" | "auto";
 
   get maskTypeIsEmpty(): boolean {

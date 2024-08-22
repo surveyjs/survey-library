@@ -314,7 +314,16 @@ export class MultipleTextItemModel extends Base
       this.editor.maskSettings = val;
     }
   }
-  public get inputTextAlignment(): "left" | "right" | "auto" {
+  /**
+   * Specifies text alignment within the input field.
+   *
+   * Possible values:
+   *
+   * - `"left"` - Aligns input text to the left side.
+   * - `"right"` - Aligns input text to the right side.
+   * - `"auto"` (default) - Applies right alignment if a [numeric or currency input mask](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel#maskType) is specified. Otherwise, applies left alignment.
+   */
+  public get inputTextAlignment(): " left" | "right" | "auto" {
     return this.editor.inputTextAlignment;
   }
   public set inputTextAlignment(val: "left" | "right" | "auto") {

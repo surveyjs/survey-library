@@ -407,7 +407,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.template.locTitle;
   }
   /**
-   * A template for tab titles. Applies when [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`.
+   * A template for tab titles. Applies when [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"tab"`.
    *
    * The template can contain the following placeholders:
    *
@@ -831,17 +831,11 @@ export class QuestionPanelDynamicModel extends Question
   get locPanelRemoveText(): LocalizableString {
     return this.getLocalizableString("panelRemoveText");
   }
-  /**
-   * Returns true when the renderMode equals to "progressTop" or "progressTopBottom"
-   */
   public get isProgressTopShowing(): boolean {
-    return this.displayMode == "page" && (this.progressBarLocation === "top" || this.progressBarLocation === "top-bottom");
+    return this.displayMode == "carousel" && (this.progressBarLocation === "top" || this.progressBarLocation === "topBottom");
   }
-  /**
-   * Returns true when the renderMode equals to "progressBottom" or "progressTopBottom"
-   */
   public get isProgressBottomShowing(): boolean {
-    return this.displayMode == "page" && (this.progressBarLocation === "bottom" || this.progressBarLocation === "top-bottom");
+    return this.displayMode == "carousel" && (this.progressBarLocation === "bottom" || this.progressBarLocation === "topBottom");
   }
   /**
    * Indicates whether the Previous button is visible.
@@ -861,9 +855,6 @@ export class QuestionPanelDynamicModel extends Question
     return this.currentIndex >= 0 && this.currentIndex < this.visiblePanelCount - 1;
   }
   public get isNextButtonShowing(): boolean { return this.isNextButtonVisible; }
-  /**
-   * Returns true when showRangeInProgress equals to true, displayMode doesn't equal to "list" and visiblePanelCount is >= 2.
-   */
   public get isRangeShowing(): boolean {
     return (
       this.showRangeInProgress && this.currentIndex >= 0 && this.visiblePanelCount > 1
@@ -1162,9 +1153,8 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("panelRemoveButtonLocation", val);
   }
   /**
-   * Shows the range from 1 to panelCount when displayMode doesn't equal to "list". Set to false to hide this element.
-   * @see panelCount
-   * @see displayMode
+   * Obsolete. Use the [`showProgressBar`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#showProgressBar) property instead.
+   * @deprecated
    */
   public get showRangeInProgress(): boolean {
     return this.showProgressBar;
@@ -1175,25 +1165,18 @@ export class QuestionPanelDynamicModel extends Question
     // this.setPropertyValue("showRangeInProgress", val);
   }
   /**
-   * Specifies how to render panels.
-   *
-   * Possible values:
-   *
-   * - `"list"` (default) - Renders panels one under the other. [View Demo](https://surveyjs.io/form-library/examples/how-to-use-expressions-in-dynamic-panel/)
-   * - `"progressTop"` - Renders each panel as a card and displays a progress bar at the top. [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/)
-   * - `"progressBottom"` - Renders each panel panel as a card and displays a progress bar at the bottom.
-   * - `"progressTopBottom"` - Renders each panel as a card and displays a progress bar at the top and bottom.
-   * - `"tab"` - Renders each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles. [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/)
+   * Obsolete. Use the [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) property instead.
+   * @deprecated
    */
   public get renderMode(): string {
     let displayMode = this.displayMode;
-    if (displayMode == "page") {
+    if (displayMode == "carousel") {
       const progressBarLocation = this.progressBarLocation;
       if (progressBarLocation == "top") {
         return "progressTop";
       } else if (progressBarLocation == "bottom") {
         return "progressBottom";
-      } else if (progressBarLocation == "top-bottom") {
+      } else if (progressBarLocation == "topBottom") {
         return "progressTopBottom";
       }
     }
@@ -1206,9 +1189,9 @@ export class QuestionPanelDynamicModel extends Question
       } else if (val == "progressBottom") {
         this.progressBarLocation = "bottom";
       } else if (val == "progressTopBottom") {
-        this.progressBarLocation = "top-bottom";
+        this.progressBarLocation = "topBottom";
       }
-      this.displayMode = "page";
+      this.displayMode = "carousel";
     } else {
       this.displayMode = val as any;
     }
@@ -1220,22 +1203,48 @@ export class QuestionPanelDynamicModel extends Question
     this.releaseAnimations();
     this.updatePanelsAnimation();
   }
+  /**
+   * Specifies how to display panels.
+   *
+   * Possible values:
+   *
+   * - `"list"` (default) - Displays panels one under the other. [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/)
+   * - `"carousel"` - Displays panels in a carousel. Users can switch between panels using navigation buttons.
+   * - `"tab"` - Displays each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles. [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/)
+   * @see showProgressBar
+   * @see progressBarLocation
+   */
   @property({
     onSet: (val, target: QuestionPanelDynamicModel) => {
       target.fireCallback(target.renderModeChangedCallback);
       target.updatePanelView();
     }
-  }) displayMode: "list" | "page" | "tab";
+  }) displayMode: "list" | "carousel" | "tab";
+  /**
+   * Specifies whether to display the progress bar. Applies only if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"carousel"`.
+   *
+   * Default value: `true`
+   * @see progressBarLocation
+   */
   @property({
     onSet: (val, target: QuestionPanelDynamicModel) => {
       target.fireCallback(target.currentIndexChangedCallback);
     }
   }) showProgressBar: true | false;
+  /**
+   * Specifies the alignment of the [progress bar](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#showProgressBar) relative to the currently displayed panel. Applies only if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"carousel"`.
+   *
+   * Possible values:
+   *
+   * - `"top"` (default) - Displays the progress bar at the top of the current panel.
+   * - `"bottom"` - Displays the progress bar at the bottom of the current panel.
+   * - `"topBottom"` - Displays the progress bar at the top and bottom of the current panel.
+   */
   @property({
     onSet: (val, target: QuestionPanelDynamicModel) => {
       // target.updatePanelView();
     }
-  }) progressBarLocation: "top" | "bottom" | "top-bottom";
+  }) progressBarLocation: "top" | "bottom" | "topBottom";
   public get tabAlign(): "center" | "left" | "right" {
     return this.getPropertyValue("tabAlign");
   }
@@ -2648,13 +2657,18 @@ Serializer.addClass(
       choices: ["list", "progressTop", "progressBottom", "progressTopBottom", "tab"],
       visible: false,
     },
-    { name: "displayMode", default: "list", choices: ["list", "page", "tab"] },
+    { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
       name: "showProgressBar:boolean",
       default: true,
-      visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
+      visibleIf: (obj: any) => { return obj.displayMode === "carousel"; }
     },
-    { name: "progressBarLocation", default: "top", choices: ["top", "bottom", "top-bottom"] },
+    {
+      name: "progressBarLocation",
+      default: "top",
+      choices: ["top", "bottom", "topBottom"],
+      visibleIf: (obj: any) => { return obj.showProgressBar; }
+    },
     {
       name: "tabAlign", default: "center", choices: ["left", "center", "right"],
       visibleIf: (obj: any) => { return obj.displayMode === "tab"; }

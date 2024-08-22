@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import jQuery from "jquery";
 
 export { useState,
   useId,
@@ -45,8 +44,6 @@ export { useState,
   SuspenseList,
   lazy, } from "preact/compat";
 
-// import jQuery from "jquery";
-
 // eslint-disable-next-line surveyjs/no-imports-from-entries
 import { Survey, PopupSurvey } from "../../packages/survey-react-ui/entries/react-ui-model";
 
@@ -68,8 +65,20 @@ function doPopupSurvey(props: any): void {
   });
 }
 
-if (typeof jQuery !== "undefined") {
-  jQuery["fn"].extend({
+let jQueryInst = window["jQuery"] || window["$"];
+
+if (typeof jQueryInst !== "undefined") {
+  initJquery(jQueryInst);
+} else {
+  try {
+    jQueryInst = require("jquery");
+    initJquery(jQueryInst);
+  } catch (ex) {
+  }
+}
+
+function initJquery(instance: any) {
+  instance["fn"].extend({
     Survey: function (props: any) {
       return this.each(function () {
         renderSurvey(props.model, this, props);

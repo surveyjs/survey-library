@@ -133,6 +133,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
           <SurveyQuestionMatrixDropdownErrorsCell
             cell={cell}
             key={key}
+            keyValue={key}
             question={cell.question}
             creator={this.creator}
           >
@@ -289,7 +290,7 @@ class SurveyQuestionMatrixDropdownErrorsCell extends SurveyQuestionErrorCell {
     super(props);
   }
   protected get key() {
-    return this.props.key;
+    return this.props.keyValue;
   }
   protected get cell() {
     return this.props.cell;

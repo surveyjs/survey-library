@@ -108,8 +108,7 @@ export var bulgarianStrings = {
   cancel: "Отмени"
 };
 
-surveyLocalization.locales["bg"] = bulgarianStrings;
-surveyLocalization.localeNames["bg"] = "български";
+surveyLocalization.setupLocale("bg", bulgarianStrings, "български", "Bulgarian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

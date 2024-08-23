@@ -108,8 +108,7 @@ export var simplifiedChineseSurveyStrings = {
   cancel: "取消"
 };
 
-surveyLocalization.locales["zh-cn"] = simplifiedChineseSurveyStrings;
-surveyLocalization.localeNames["zh-cn"] = "简体中文";
+surveyLocalization.setupLocale("zh-cn", simplifiedChineseSurveyStrings, "简体中文", "Simplified Chinese ");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

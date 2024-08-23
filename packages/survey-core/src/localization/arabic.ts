@@ -108,9 +108,7 @@ export var arabicSurveyStrings = {
   cancel: "إلغاء الأمر"
 };
 
-surveyLocalization.locales["ar"] = arabicSurveyStrings;
-surveyLocalization.localeNames["ar"] = "العربية";
-surveyLocalization.localeDirections["ar"] = "rtl";
+surveyLocalization.setupLocale("ar", arabicSurveyStrings, "العربية", "Arabic", "rtl");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

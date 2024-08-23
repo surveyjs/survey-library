@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult, getListItemByText, completeButton } from "../helper";
-import { Selector, fixture, test } from "testcafe";
+import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "matrixdynamic";
 
 const json = {
@@ -443,6 +443,45 @@ frameworks.forEach((framework) => {
       .typeText(textSelector.nth(4), "1")
       .pressKey("Tab")
       .expect(textSelector.count).eql(6);
+  });
+
+  test("visibleIf columns mobile", async (t) => {
+    const textSelector = Selector("input").withAttribute("type", "text").filterVisible();
+    await ClientFunction(() => window.survey.setIsMobile(true))();
+    await t
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2)
+      .typeText(textSelector.nth(0), "1", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(4)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2)
+      .typeText(textSelector.nth(0), "0", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2)
+      .typeText(textSelector.nth(1), "1", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(4)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2)
+      .typeText(textSelector.nth(1), "0", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2)
+      .typeText(textSelector.nth(2), "1", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(4)
+      .typeText(textSelector.nth(2), "0", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2);
   });
 });
 

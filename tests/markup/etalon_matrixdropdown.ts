@@ -225,6 +225,40 @@ registerMarkupTests(
       after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdropdown-cell-errors-bottom"
     },
-  ]
+    {
+      name: "Test matrixdropdown with hidden question - mobile",
+      json: {
+        "elements": [
+          {
+            "type": "matrixdropdown",
+            "name": "matrix",
+            titleLocation: "hidden",
+            "columns": [
+              {
+                "name": "col1",
+                cellType: "text"
+              },
+              {
+                "name": "col1",
+                cellType: "text",
+                "visibleIf": "{row.col1} = '1'"
+              },
+            ],
+            "rows": [
+              "row1",
+              "row2"
+            ]
+          }
+        ]
+      },
+      before: () => StylesManager.applyTheme("defaultV2"),
+      initSurvey(survey) {
+        survey.data = { matrix: { row1: { col1: 1 } } };
+        survey.setIsMobile(true);
+      },
+      after: () => StylesManager.applyTheme("default"),
+      snapshot: "matrixdropdown-hidden-question-mobile"
+    },
+  ],
 );
 

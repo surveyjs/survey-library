@@ -108,8 +108,7 @@ export var koreanStrings = {
   cancel: "취소"
 };
 
-surveyLocalization.locales["ko"] = koreanStrings;
-surveyLocalization.localeNames["ko"] = "한국어";
+surveyLocalization.setupLocale("ko", koreanStrings, "한국어", "Korean");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

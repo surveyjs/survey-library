@@ -108,8 +108,7 @@ export var hebrewSurveyStrings = {
   cancel: "ביטל"
 };
 
-surveyLocalization.locales["he"] = hebrewSurveyStrings;
-surveyLocalization.localeNames["he"] = "עברית";
+surveyLocalization.setupLocale("he", hebrewSurveyStrings, "עברית", "Hebrew");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

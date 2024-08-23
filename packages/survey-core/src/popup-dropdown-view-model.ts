@@ -252,9 +252,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
 
   public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {
-    if (isResetHeight) {
-      this.height = "auto";
-    }
+    this.height = "auto";
 
     if (isDelayUpdating) {
       setTimeout(() => {

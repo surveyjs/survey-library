@@ -8,7 +8,10 @@ export var surveyLocalization = {
   localeNamesInEnglish: <{ [index: string]: any }>{},
   localeDirections: <{ [index: string]: any }>{},
   supportedLocales: <Array<any>>[],
-  showNamesInEnglish: false,
+  useEnglishNames: false,
+  //TODO remove on next week
+  get showNamesInEnglish(): boolean { return this.useEnglishNames; },
+  set showNamesInEnglish(val: boolean) { this.useEnglishNames = val; },
   setupLocale(loc: string, strings: any, name: string, nameInEngish: string, direction?: string): void {
     this.locales[loc] = strings;
     this.localeNames[loc] = name;

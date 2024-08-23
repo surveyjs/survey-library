@@ -108,8 +108,7 @@ export var polishSurveyStrings = {
   cancel: "Anuluj"
 };
 
-surveyLocalization.locales["pl"] = polishSurveyStrings;
-surveyLocalization.localeNames["pl"] = "polski";
+surveyLocalization.setupLocale("pl", polishSurveyStrings, "polski", "Polish");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

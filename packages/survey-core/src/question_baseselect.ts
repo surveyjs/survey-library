@@ -752,9 +752,6 @@ export class QuestionSelectBase extends Question {
     var itemValue = ItemValue.getItemByValue(this.getFilteredChoices(), val);
     return !!itemValue && !itemValue.isEnabled;
   }
-  /**
-   * If the clearIncorrectValuesCallback is set, it is used to clear incorrect values instead of default behaviour.
-   */
   public clearIncorrectValuesCallback: () => void;
   /**
    * Configures access to a RESTful service that returns choice items. Refer to the [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information. You can also specify additional application-wide settings using the [`settings.web`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) object.

@@ -108,8 +108,7 @@ export var russianSurveyStrings = {
   cancel: "Отмена"
 };
 
-surveyLocalization.locales["ru"] = russianSurveyStrings;
-surveyLocalization.localeNames["ru"] = "русский";
+surveyLocalization.setupLocale("ru", russianSurveyStrings, "русский", "Russian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

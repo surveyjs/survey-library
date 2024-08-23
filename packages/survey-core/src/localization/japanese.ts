@@ -108,8 +108,7 @@ export var japaneseSurveyStrings = {
   cancel: "キャンセル"
 };
 
-surveyLocalization.locales["ja"] = japaneseSurveyStrings;
-surveyLocalization.localeNames["ja"] = "日本語";
+surveyLocalization.setupLocale("ja", japaneseSurveyStrings, "日本語", "Japanese");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

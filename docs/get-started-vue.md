@@ -8,7 +8,7 @@ SurveyJS Form Library for Vue.js is a client-side component that uses JSON objec
 
 This step-by-step tutorial will help you get started with the SurveyJS Form Library in a Vue 2 or Vue 3 application. As a result, you will create a form displayed below:
 
-<iframe src="/proxy/github/code-examples/get-started-library/knockout/index.html"
+<iframe src="/proxy/github/code-examples/get-started-library/html-css-js/index.html"
     style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
 

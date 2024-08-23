@@ -9846,3 +9846,67 @@ QUnit.test("set data from the defaultValue and ignore rowCount", function (asser
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   assert.equal(matrix.visibleRows.length, 1, "There one row");
 });
+
+QUnit.test("check cell.isVisible property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1"
+          },
+          {
+            "name": "col1",
+            "visibleIf": "{row.col1} = 1"
+          },
+        ],
+        "choices": [
+          1,
+        ],
+        "rows": [
+          "row1",
+          "row2"
+        ]
+      }
+    ] });
+  survey.data = { matrix: { row1: { col1: 1 } } };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let renderedTable = matrix.renderedTable;
+  assert.ok(renderedTable.rows[0].cells[0].isVisible);
+  assert.ok(renderedTable.rows[0].cells[1].isVisible);
+  assert.ok(renderedTable.rows[0].cells[2].isVisible);
+  assert.ok(renderedTable.rows[1].cells[0].isVisible);
+  assert.ok(renderedTable.rows[1].cells[1].isVisible);
+  assert.ok(renderedTable.rows[1].cells[2].isVisible);
+  assert.ok(renderedTable.rows[2].cells[0].isVisible);
+  assert.ok(renderedTable.rows[2].cells[1].isVisible);
+  assert.ok(renderedTable.rows[2].cells[2].isVisible);
+  assert.ok(renderedTable.rows[3].cells[0].isVisible);
+  assert.ok(renderedTable.rows[3].cells[1].isVisible);
+  assert.ok(renderedTable.rows[3].cells[2].isVisible);
+  matrix.isMobile = true;
+  renderedTable = matrix.renderedTable;
+  assert.ok(renderedTable.rows[0].cells[0].isVisible);
+  assert.ok(renderedTable.rows[0].cells[1].isVisible);
+  assert.ok(renderedTable.rows[0].cells[2].isVisible);
+  assert.ok(renderedTable.rows[0].cells[3].isVisible);
+  assert.ok(renderedTable.rows[0].cells[4].isVisible);
+  assert.ok(renderedTable.rows[1].cells[0].isVisible);
+  assert.ok(renderedTable.rows[1].cells[1].isVisible);
+  assert.ok(renderedTable.rows[1].cells[2].isVisible);
+  assert.notOk(renderedTable.rows[1].cells[3].isVisible);
+  assert.notOk(renderedTable.rows[1].cells[4].isVisible);
+  survey.data = { matrix: { row1: { col1: 1 }, row2: { col1: 1 } } };
+  assert.ok(renderedTable.rows[0].cells[0].isVisible);
+  assert.ok(renderedTable.rows[0].cells[1].isVisible);
+  assert.ok(renderedTable.rows[0].cells[2].isVisible);
+  assert.ok(renderedTable.rows[0].cells[3].isVisible);
+  assert.ok(renderedTable.rows[0].cells[4].isVisible);
+  assert.ok(renderedTable.rows[1].cells[0].isVisible);
+  assert.ok(renderedTable.rows[1].cells[1].isVisible);
+  assert.ok(renderedTable.rows[1].cells[2].isVisible);
+  assert.ok(renderedTable.rows[1].cells[3].isVisible);
+  assert.ok(renderedTable.rows[1].cells[4].isVisible);
+});

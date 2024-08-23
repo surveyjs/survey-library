@@ -108,8 +108,7 @@ export var slovakSurveyStrings = {
   cancel: "Zrušiť"
 };
 
-surveyLocalization.locales["sk"] = slovakSurveyStrings;
-surveyLocalization.localeNames["sk"] = "slovak";
+surveyLocalization.setupLocale("sk", slovakSurveyStrings, "slovak", "Slovak");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

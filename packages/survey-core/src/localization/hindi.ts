@@ -108,8 +108,7 @@ export var hindiStrings = {
   cancel: "रद्द करना"
 };
 
-surveyLocalization.locales["hi"] = hindiStrings;
-surveyLocalization.localeNames["hi"] = "hindi";
+surveyLocalization.setupLocale("hi", hindiStrings, "hindi", "Hindi");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

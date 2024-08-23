@@ -108,8 +108,7 @@ export var georgianSurveyStrings = {
   cancel: "გაუქმება"
 };
 
-surveyLocalization.locales["ka"] = georgianSurveyStrings;
-surveyLocalization.localeNames["ka"] = "ქართული";
+surveyLocalization.setupLocale("ka", georgianSurveyStrings, "ქართული", "Georgian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

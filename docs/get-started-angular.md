@@ -16,7 +16,7 @@ This step-by-step tutorial will help you get started with the SurveyJS Form Libr
 
 As a result, you will create a form displayed below:
 
-<iframe src="/proxy/github/code-examples/get-started-library/knockout/index.html"
+<iframe src="/proxy/github/code-examples/get-started-library/html-css-js/index.html"
     style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
 

@@ -108,8 +108,7 @@ export var ukrainianSurveyStrings = {
   cancel: "Скасувати"
 };
 
-surveyLocalization.locales["ua"] = ukrainianSurveyStrings;
-surveyLocalization.localeNames["ua"] = "українська";
+surveyLocalization.setupLocale("ua", ukrainianSurveyStrings, "українська", "Ukrainian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -3782,7 +3782,7 @@ export class SurveyModel extends SurveyElementCore
    * @see checkErrorsMode
    * @see hideRequiredErrors
    */
-  public validationEnabled: boolean = true;
+  @property({ defaultValue: true }) validationEnabled: boolean;
   /**
    * Specifies whether respondents can switch the current page even if it contains validation errors.
    *

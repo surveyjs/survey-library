@@ -108,8 +108,7 @@ export var finnishSurveyStrings = {
   cancel: "Perua"
 };
 
-surveyLocalization.locales["fi"] = finnishSurveyStrings;
-surveyLocalization.localeNames["fi"] = "suomi";
+surveyLocalization.setupLocale("fi", finnishSurveyStrings, "suomi", "Finnish");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

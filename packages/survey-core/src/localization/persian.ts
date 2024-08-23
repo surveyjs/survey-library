@@ -108,8 +108,7 @@ export var persianSurveyStrings = {
   cancel: "لغو"
 };
 
-surveyLocalization.locales["fa"] = persianSurveyStrings;
-surveyLocalization.localeNames["fa"] = "فارْسِى";
+surveyLocalization.setupLocale("fa", persianSurveyStrings, "فارْسِى", "Persian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

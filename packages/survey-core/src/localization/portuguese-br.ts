@@ -110,8 +110,7 @@ export var portugueseBrSurveyStrings = {
   cancel: "Cancelar"
 };
 
-surveyLocalization.locales["pt-br"] = portugueseBrSurveyStrings;
-surveyLocalization.localeNames["pt-br"] = "português brasileiro";
+surveyLocalization.setupLocale("pt-br", portugueseBrSurveyStrings, "português brasileiro", "Brazilian Portuguese");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

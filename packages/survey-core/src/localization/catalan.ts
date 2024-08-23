@@ -108,9 +108,7 @@ export var catalanSurveyStrings = {
   cancel: "Cancel·lar"
 };
 
-surveyLocalization.locales["ca"] = catalanSurveyStrings;
-surveyLocalization.localeNames["ca"] = "català";
-
+surveyLocalization.setupLocale("ca", catalanSurveyStrings, "català", "Catalan");
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
 // previewText: "Preview" => "Preestrena"

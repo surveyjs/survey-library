@@ -359,8 +359,7 @@ Refer to the following platform-specific articles for information on how to rend
 - [Render the Survey - Angular](https://surveyjs.io/form-library/documentation/get-started-angular#render-the-survey)
 - [Render the Survey - Vue](https://surveyjs.io/form-library/documentation/get-started-vue#render-the-survey)
 - [Render the Survey - React](https://surveyjs.io/form-library/documentation/get-started-react#render-the-survey)
-- [Render the Survey - Knockout](https://surveyjs.io/form-library/documentation/get-started-knockout#render-the-survey)
-- [Render the Survey - jQuery](https://surveyjs.io/form-library/documentation/get-started-jquery#render-the-survey)
+- [Render the Survey - HTML/CSS/JavaScript](/form-library/documentation/get-started-html-css-javascript#render-the-survey)
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/quiz/ (linkStyle))
 

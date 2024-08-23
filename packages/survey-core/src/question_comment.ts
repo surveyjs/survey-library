@@ -13,15 +13,49 @@ import { Helpers } from "./helpers";
  */
 export class QuestionCommentModel extends QuestionTextBase {
   private element: HTMLElement;
+  public textAreaModel: TextAreaModel;
+
+  private getTextAreaOptions(): ITextArea {
+    const _this = this;
+    const updateQuestionValue = (newValue: any) => {
+      if (!Helpers.isTwoValueEquals(_this.value, newValue, false, true, false)) {
+        _this.value = newValue;
+      }
+    };
+
+    const options: ITextArea = {
+      question: this,
+      id: () => this.inputId,
+      propertyName: "value",
+      className: () => this.className,
+      placeholder: () => this.renderedPlaceholder,
+      isDisabledAttr: () => this.isDisabledAttr,
+      isReadOnlyAttr: () => this.isReadOnlyAttr,
+      autoGrow: () => this.renderedAutoGrow,
+      maxLength: () => this.getMaxLength(),
+      rows: () => this.rows,
+      cols: () => this.cols,
+      ariaRequired: () => this.a11y_input_ariaRequired,
+      ariaLabel: () => this.a11y_input_ariaLabel,
+      ariaLabelledBy: () => this.a11y_input_ariaLabelledBy,
+      ariaDescribedBy: () => this.a11y_input_ariaDescribedBy,
+      ariaInvalid: () => this.a11y_input_ariaInvalid,
+      ariaErrormessage: () => this.a11y_input_ariaErrormessage,
+      getTextValue: () => { return this.value; },
+      onTextAreaChange: (e) => { updateQuestionValue(e.target.value); },
+      onTextAreaInput: (event) => { this.onInput(event); },
+      onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
+      onTextAreaFocus: (event) => { this.onFocus(event); },
+      onTextAreaBlur: (event) => { this.onBlur(event); }
+    };
+    return options;
+  }
 
   constructor(name: string) {
     super(name);
 
-    this.registerPropertyChangedHandlers(["id", "rows", "cols", "renderedPlaceholder", "autoGrow"], () => {
-      this.updateTextAreaModel();
-    });
+    this.textAreaModel = new TextAreaModel(this.getTextAreaOptions());
   }
-  @property() textAreaModel: TextAreaModel;
   /**
    * Specifies the visible height of the comment area, measured in lines.
    *
@@ -120,10 +154,6 @@ export class QuestionCommentModel extends QuestionTextBase {
       event.stopPropagation();
     }
   }
-  protected onSetData(): void {
-    super.onSetData();
-    this.updateTextAreaModel();
-  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateElement();
@@ -144,48 +174,6 @@ export class QuestionCommentModel extends QuestionTextBase {
     return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
   }
 
-  public updateTextAreaModel(): void {
-    if (this.textAreaModel) {
-      this.textAreaModel.dispose();
-    }
-    this.textAreaModel = new TextAreaModel(this.getTextAreaOptions());
-  }
-
-  public getTextAreaOptions(): ITextArea {
-    const _this = this;
-    const updateQuestionValue = (newValue: any) => {
-      if (!Helpers.isTwoValueEquals(_this.value, newValue, false, true, false)) {
-        _this.value = newValue;
-      }
-    };
-
-    const options: ITextArea = {
-      question: this,
-      id: this.inputId,
-      propertyName: "value",
-      className: () => this.className,
-      placeholder: () => this.renderedPlaceholder,
-      isDisabledAttr: this.isDisabledAttr,
-      isReadOnlyAttr: this.isReadOnlyAttr,
-      autoGrow: this.renderedAutoGrow,
-      maxLength: this.getMaxLength(),
-      rows: this.rows,
-      cols: this.cols,
-      ariaRequired: this.a11y_input_ariaRequired,
-      ariaLabel: this.a11y_input_ariaLabel,
-      ariaLabelledBy: this.a11y_input_ariaLabelledBy,
-      ariaDescribedBy: this.a11y_input_ariaDescribedBy,
-      ariaInvalid: this.a11y_input_ariaInvalid,
-      ariaErrormessage: this.a11y_input_ariaErrormessage,
-      getTextValue: () => { return this.value; },
-      onTextAreaChange: (e) => { updateQuestionValue(e.target.value); },
-      onTextAreaInput: (event) => { this.onInput(event); },
-      onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
-      onTextAreaFocus: (event) => { this.onFocus(event); },
-      onTextAreaBlur: (event) => { this.onBlur(event); }
-    };
-    return options;
-  }
   public dispose(): void {
     super.dispose();
     if (this.textAreaModel) {

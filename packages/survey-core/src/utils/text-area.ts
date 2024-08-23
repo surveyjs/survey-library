@@ -3,16 +3,16 @@ import { Question } from "../question";
 
 export interface ITextArea {
   question: any;
-  id: string;
+  id: () => string;
   propertyName: string;
   className: () => string;
-  isDisabledAttr: boolean;
-  isReadOnlyAttr?: boolean;
+  isDisabledAttr: () => boolean;
+  isReadOnlyAttr?: () => boolean;
   placeholder: () => string;
-  autoGrow: boolean;
-  maxLength: number;
-  rows: number;
-  cols?: number;
+  autoGrow: () => boolean;
+  maxLength: () => number;
+  rows: () => number;
+  cols?: () => number;
   getTextValue?: () => any;
   onTextAreaChange?: (event: any) => void;
   onTextAreaInput?: (event: any) => void;
@@ -20,12 +20,12 @@ export interface ITextArea {
   onTextAreaBlur?: (event: any) => void;
   onTextAreaFocus?: (event: any) => void;
 
-  ariaRequired: "true" | "false";
-  ariaLabel: string;
-  ariaInvalid?: "true" | "false";
-  ariaLabelledBy?: string;
-  ariaDescribedBy?: string;
-  ariaErrormessage?: string;
+  ariaRequired: () => "true" | "false";
+  ariaLabel: () => string;
+  ariaInvalid?: () => "true" | "false";
+  ariaLabelledBy?: () => string;
+  ariaDescribedBy?: () => string;
+  ariaErrormessage?: () => string;
 }
 
 export class TextAreaModel {
@@ -84,49 +84,60 @@ export class TextAreaModel {
     return this.options.question as Question;
   }
   get id(): string {
-    return this.options.id;
+    return this.options.id();
   }
   get placeholder(): string {
-    return this.options.placeholder() || "";
+    return this.options.placeholder();
   }
   get className(): string {
     return this.options.className();
   }
   get maxLength(): number {
-    return this.options.maxLength;
+    if (this.options.maxLength)
+      return this.options.maxLength();
   }
   get autoGrow(): boolean {
-    return this.options.autoGrow;
+    if (this.options.autoGrow)
+      return this.options.autoGrow();
   }
   get rows(): number {
-    return this.options.rows;
+    if (this.options.rows)
+      return this.options.rows();
   }
   get cols(): number | undefined {
-    return this.options.cols;
+    if (this.options.cols)
+      return this.options.cols();
   }
   get isDisabledAttr(): boolean {
-    return this.options.isDisabledAttr;
+    return this.options.isDisabledAttr();
   }
   get isReadOnlyAttr(): boolean | undefined {
-    return this.options.isReadOnlyAttr;
+    if (this.options.isReadOnlyAttr)
+      return this.options.isReadOnlyAttr();
   }
   get ariaRequired(): "true" | "false" {
-    return this.options.ariaRequired;
+    if (this.options.ariaRequired)
+      return this.options.ariaRequired();
   }
   get ariaLabel(): string {
-    return this.options.ariaLabel;
+    if (this.options.ariaLabel)
+      return this.options.ariaLabel();
   }
   get ariaInvalid(): "true" | "false" {
-    return this.options.ariaInvalid;
+    if (this.options.ariaInvalid)
+      return this.options.ariaInvalid();
   }
   get ariaLabelledBy(): string {
-    return this.options.ariaLabelledBy;
+    if (this.options.ariaLabelledBy)
+      return this.options.ariaLabelledBy();
   }
   get ariaDescribedBy(): string {
-    return this.options.ariaDescribedBy;
+    if (this.options.ariaDescribedBy)
+      return this.options.ariaDescribedBy();
   }
   get ariaErrormessage(): string {
-    return this.options.ariaErrormessage;
+    if (this.options.ariaErrormessage)
+      return this.options.ariaErrormessage();
   }
 
   public dispose(): void {

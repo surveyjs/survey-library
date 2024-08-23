@@ -91,6 +91,27 @@ export class Question extends SurveyElement<Question>
   private isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
   private dependedQuestions: Array<Question> = [];
+  public commentTextAreaModel: TextAreaModel;
+
+  private getCommentTextAreaOptions(): ITextArea {
+    const options: ITextArea = {
+      question: this,
+      id: () => this.commentId,
+      propertyName: "comment",
+      className: () => this.cssClasses.comment,
+      placeholder: () => this.renderedCommentPlaceholder,
+      isDisabledAttr: () => this.isInputReadOnly || false,
+      rows: () => this.commentAreaRows,
+      autoGrow: () => this.autoGrowComment,
+      maxLength: () => this.getOthersMaxLength(),
+      ariaRequired: () => this.a11y_input_ariaRequired,
+      ariaLabel: () => this.a11y_input_ariaLabel,
+      getTextValue: () => { return this.comment; },
+      onTextAreaChange: (e) => { this.onCommentChange(e); },
+      onTextAreaInput: (e) => { this.onCommentInput(e); },
+    };
+    return options;
+  }
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
@@ -123,7 +144,6 @@ export class Question extends SurveyElement<Question>
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
   @property() ariaExpanded: "true" | "false";
-  @property() commentTextAreaModel: TextAreaModel;
 
   constructor(name: string) {
     super(name);
@@ -132,6 +152,7 @@ export class Question extends SurveyElement<Question>
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
+    this.commentTextAreaModel = new TextAreaModel(this.getCommentTextAreaOptions());
 
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },
@@ -178,9 +199,6 @@ export class Question extends SurveyElement<Question>
     });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
-    this.registerPropertyChangedHandlers(["id", "renderedCommentPlaceholder"], () => {
-      this.updateCommentTextAreaModel();
-    });
   }
   protected getDefaultTitle(): string { return this.name; }
   protected createLocTitleProperty(): LocalizableString {
@@ -1495,7 +1513,6 @@ export class Question extends SurveyElement<Question>
     this.onIndentChanged();
     this.updateQuestionCss();
     this.updateIsAnswered();
-    this.updateCommentTextAreaModel();
   }
   protected initDataFromSurvey(): void {
     if (!!this.data) {
@@ -2496,32 +2513,6 @@ export class Question extends SurveyElement<Question>
       !!this.customWidget ||
       this.getComponentName() === "default"
     );
-  }
-
-  public updateCommentTextAreaModel(): void {
-    if (this.commentTextAreaModel) {
-      this.commentTextAreaModel.dispose();
-    }
-    this.commentTextAreaModel = new TextAreaModel(this.getCommentTextAreaOptions());
-  }
-  public getCommentTextAreaOptions(): ITextArea {
-    const options: ITextArea = {
-      question: this,
-      id: this.commentId,
-      propertyName: "comment",
-      className: () => this.cssClasses.comment,
-      placeholder: () => this.renderedCommentPlaceholder,
-      isDisabledAttr: this.isInputReadOnly || false,
-      rows: this.commentAreaRows,
-      autoGrow: this.autoGrowComment,
-      maxLength: this.getOthersMaxLength(),
-      ariaRequired: this.a11y_input_ariaRequired,
-      ariaLabel: this.a11y_input_ariaLabel,
-      getTextValue: () => { return this.comment; },
-      onTextAreaChange: (e) => { this.onCommentChange(e); },
-      onTextAreaInput: (e) => { this.onCommentInput(e); },
-    };
-    return options;
   }
 
   @property() renderAs: string;

@@ -21,6 +21,7 @@ import { mergeValues } from "./utils/utils";
 export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
+  public otherTextAreaModel: TextAreaModel;
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -44,7 +45,26 @@ export class QuestionSelectBase extends Question {
       target.onSelectedItemValuesChangedHandler(newVal);
     }
   }) protected selectedItemValues: any;
-  @property() otherTextAreaModel: TextAreaModel;
+
+  private getOtherTextAreaOptions(): ITextArea {
+    const options: ITextArea = {
+      question: this,
+      id: () => this.otherId,
+      propertyName: "otherValue",
+      className: () => this.cssClasses.other,
+      placeholder: () => this.otherPlaceholder,
+      isDisabledAttr: () => this.isInputReadOnly || false,
+      rows: () => this.commentAreaRows,
+      maxLength: () => this.getOthersMaxLength(),
+      autoGrow: () => this.survey && this.survey.autoGrowComment,
+      ariaRequired: () => this.ariaRequired || this.a11y_input_ariaRequired,
+      ariaLabel: () => this.ariaLabel || this.a11y_input_ariaLabel,
+      getTextValue: () => { return this.otherValue; },
+      onTextAreaChange: (e) => { this.onOtherValueChange(e); },
+      onTextAreaInput: (e) => { this.onOtherValueInput(e); },
+    };
+    return options;
+  }
 
   constructor(name: string) {
     super(name);
@@ -67,9 +87,7 @@ export class QuestionSelectBase extends Question {
     this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
       this.onVisibleChanged();
     });
-    this.registerPropertyChangedHandlers(["id", "otherPlaceholder"], () => {
-      this.updateOtherTextAreaModel();
-    });
+    this.otherTextAreaModel = new TextAreaModel(this.getOtherTextAreaOptions());
     this.createNewArray("visibleChoices");
     this.setNewRestfulProperty();
     var locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
@@ -1974,36 +1992,6 @@ export class QuestionSelectBase extends Question {
       this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
-  }
-
-  protected onSetData(): void {
-    super.onSetData();
-    this.updateOtherTextAreaModel();
-  }
-  public updateOtherTextAreaModel(): void {
-    if (this.otherTextAreaModel) {
-      this.otherTextAreaModel.dispose();
-    }
-    this.otherTextAreaModel = new TextAreaModel(this.getOtherTextAreaOptions());
-  }
-  public getOtherTextAreaOptions(): ITextArea {
-    const options: ITextArea = {
-      question: this,
-      id: this.otherId,
-      propertyName: "otherValue",
-      className: () => this.cssClasses.other,
-      placeholder: () => this.otherPlaceholder,
-      isDisabledAttr: this.isInputReadOnly || false,
-      rows: this.commentAreaRows,
-      maxLength: this.getOthersMaxLength(),
-      autoGrow: this.survey && this.survey.autoGrowComment,
-      ariaRequired: this.ariaRequired || this.a11y_input_ariaRequired,
-      ariaLabel: this.ariaLabel || this.a11y_input_ariaLabel,
-      getTextValue: () => { return this.otherValue; },
-      onTextAreaChange: (e) => { this.onOtherValueChange(e); },
-      onTextAreaInput: (e) => { this.onOtherValueInput(e); },
-    };
-    return options;
   }
 }
 /**

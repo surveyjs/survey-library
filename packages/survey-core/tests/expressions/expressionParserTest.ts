@@ -1166,22 +1166,49 @@ QUnit.test("Async function inside the sync function, Bug#8732", function(assert)
   }
   FunctionFactory.Instance.register("syncFunc", syncFunc);
 
-  var runner = new ConditionRunner("syncFunc(asyncFunc({a})) = 25");
+  const runner = new ExpressionRunner("syncFunc(asyncFunc({a}))");
   assert.equal(runner.canRun(), true, "The expression is valid");
   assert.equal(runner.isAsync, true, "It is async");
   var runnerResult = null;
   runner.onRunComplete = function(result: any) {
     runnerResult = result;
   };
-  assert.equal(runner.isAsync, true, "The condition is async");
   var values = { a: 3 };
   runner.run(values);
-  assert.equal(runnerResult, false, "3*3 + 10 = 25");
+  assert.equal(runnerResult, 19, "3*3 + 10");
   values.a = 5;
   runner.run(values);
-  assert.equal(runnerResult, true, "5*3 + 10 = 15");
+  assert.equal(runnerResult, 25, "5*3 + 10");
   FunctionFactory.Instance.unregister("asyncFunc");
   FunctionFactory.Instance.unregister("syncFunc");
+});
+QUnit.test("Async function inside the async function, Bug#8742", function(assert) {
+  function asyncFunc1(params: any): any {
+    this.returnResult(params[0] * 3);
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  function asyncFunc2(params: any): any {
+    this.returnResult(params[0] + 10);
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+
+  var runner = new ExpressionRunner("asyncFunc2(asyncFunc1({a}))");
+  assert.equal(runner.canRun(), true, "The expression is valid");
+  assert.equal(runner.isAsync, true, "It is async");
+  var runnerResult = null;
+  runner.onRunComplete = function(result: any) {
+    runnerResult = result;
+  };
+  var values = { a: 3 };
+  runner.run(values);
+  assert.equal(runnerResult, 19, "3*3 + 10");
+  values.a = 5;
+  runner.run(values);
+  assert.equal(runnerResult, 25, "5*3 + 10");
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
 });
 
 QUnit.test("Use onRunComplete for sync functions", function(assert) {

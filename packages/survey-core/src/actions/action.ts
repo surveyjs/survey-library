@@ -513,7 +513,6 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   private isMouseDown: boolean;
   public doMouseDown(args: any) : void {
-    const evt = !!args.originalEvent ? args.originalEvent : args;
     this.isMouseDown = true;
   }
   public doFocus(args: any): void {

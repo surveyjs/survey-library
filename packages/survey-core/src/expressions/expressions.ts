@@ -416,7 +416,7 @@ export class FunctionOperand extends Operand {
       item = { operand: this };
     }
     if(this.parameters.hasAsyncFunction()) {
-      const children = [];
+      const children = new Array<AsyncFunctionItem>();
       this.parameters.addToAsyncList(children);
       children.forEach(child => child.parent = item);
       if(!item) {

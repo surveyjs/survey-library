@@ -950,7 +950,7 @@ Serializer.addClass(
         obj.maskSettings.setData(value);
       },
     },
-    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"], visible: false },
+    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"] },
     { name: "title", serializationProperty: "locTitle" },
     { name: "maxLength:number", default: -1 },
     { name: "size:number", minValue: 0 },

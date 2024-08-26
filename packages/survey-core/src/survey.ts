@@ -752,7 +752,7 @@ export class SurveyModel extends SurveyElementCore
   */
   public onTimer: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
 
-  public onTimerPanelInfoText: EventBase<SurveyModel, TimerPanelInfoTextEvent> = this.addEvent<SurveyModel, TimerPanelInfoTextEvent>();
+  public onTimerPanelInfoText: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
 
   /**
    * An event that is raised after an item value is changed in a panel within a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.

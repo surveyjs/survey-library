@@ -437,7 +437,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onTextMarkdown: EventBase<SurveyModel, TextMarkdownEvent> = this.addEvent<SurveyModel, TextMarkdownEvent>();
 
-  public onTextRenderAs: EventBase<SurveyModel, TextRenderAsEvent> = this.addEvent<SurveyModel, TextRenderAsEvent>();
+  public onTextRenderAs: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
   /**
    * An event that is raised after a request to save survey results on [SurveyJS Service](https://api.surveyjs.io/) has been completed. Use this event to find out if the results have been saved successfully.
    */
@@ -553,7 +553,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onAfterRenderSurvey: EventBase<SurveyModel, AfterRenderSurveyEvent> = this.addEvent<SurveyModel, AfterRenderSurveyEvent>();
 
-  public onAfterRenderHeader: EventBase<SurveyModel, AfterRenderHeaderEvent> = this.addEvent<SurveyModel, AfterRenderHeaderEvent>();
+  public onAfterRenderHeader: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
 
   /**
    * An event that is raised after a page is rendered to the DOM. Use it to modify page markup.
@@ -855,8 +855,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onOpenDropdownMenu: EventBase<SurveyModel, OpenDropdownMenuEvent> = this.addEvent<SurveyModel, OpenDropdownMenuEvent>();
 
-  public onElementWrapperComponentName: EventBase<SurveyModel, ElementWrapperComponentNameEvent> = this.addEvent<SurveyModel, ElementWrapperComponentNameEvent>();
-  public onElementWrapperComponentData: EventBase<SurveyModel, ElementWrapperComponentDataEvent> = this.addEvent<SurveyModel, ElementWrapperComponentDataEvent>();
+  public onElementWrapperComponentName: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
+  public onElementWrapperComponentData: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
   //#endregion
 
   constructor(jsonObj: any = null, renderedElement: any = null) {

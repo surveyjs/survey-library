@@ -1,5 +1,6 @@
 <template>
-  <sv-list-item-content :item="item" :model="model"></sv-list-item-content>
+  <component :is="itemComponent" :item="item" :model="model">
+  </component>
   <sv-popup :model="item.popupModel"></sv-popup>
 </template>
 
@@ -8,6 +9,10 @@ import { useBase } from "@/base";
 import type { ListModel, Action } from "survey-core";
 
 const props = defineProps<{ model: ListModel; item: Action }>();
+
+const itemComponent = computed(
+  () => props.item.component || props.model.itemComponent
+);
 
 useBase(() => props.item);
 </script>

@@ -121,6 +121,16 @@ QUnit.test("Supported locales + removeDefaultLoc", function(assert) {
     "Support all locales, but without en"
   );
 });
+QUnit.test("getLocales & showNamesInEnglish, #8694", function(assert) {
+  assert.equal(surveyLocalization.getLocaleName("de", false), "deutsch", "#1");
+  assert.equal(surveyLocalization.getLocaleName("de", true), "German", "#2");
+  assert.equal(surveyLocalization.getLocaleName("de"), "deutsch", "#3");
+  surveyLocalization.showNamesInEnglish = true;
+  assert.equal(surveyLocalization.getLocaleName("de"), "German", "#4");
+  surveyLocalization.showNamesInEnglish = false;
+  assert.equal(surveyLocalization.getLocaleName("de"), "deutsch", "#5");
+});
+
 QUnit.test("Do not have empty locale", function(assert) {
   var survey = new SurveyModel();
   surveyLocalization.defaultLocale = "de";

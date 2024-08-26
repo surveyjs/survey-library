@@ -127,6 +127,20 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
         />
       );
     }
+    if (cell.isErrorsCell) {
+      if(cell.isErrorsCell) {
+        return (
+          <SurveyQuestionMatrixDropdownErrorsCell
+            cell={cell}
+            key={key}
+            keyValue={key}
+            question={cell.question}
+            creator={this.creator}
+          >
+          </SurveyQuestionMatrixDropdownErrorsCell>
+        );
+      }
+    }
     let calcReason = reason;
     if(!calcReason) {
       calcReason = cell.hasTitle ? "row-header" : "";
@@ -191,17 +205,6 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
           creator={this.creator}
         />
       );
-    }
-    if(cell.isErrorsCell) {
-      if (cell.isErrorsCell) {
-        return (
-          <SurveyQuestionErrorCell
-            question={cell.question}
-            creator={this.creator}
-          >
-          </SurveyQuestionErrorCell>
-        );
-      }
     }
     if (!cellContent) return null;
 
@@ -279,6 +282,32 @@ class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
     return (
       <SurveyActionBar model={this.model} handleClick={false}></SurveyActionBar>
     );
+  }
+}
+
+class SurveyQuestionMatrixDropdownErrorsCell extends SurveyQuestionErrorCell {
+  constructor(props: any) {
+    super(props);
+  }
+  protected get key() {
+    return this.props.keyValue;
+  }
+  protected get cell() {
+    return this.props.cell;
+  }
+  public render(): JSX.Element | null {
+    if(!this.cell.isVisible) return null;
+    return <td
+      className={this.cell.className}
+      key={this.key}
+      colSpan={this.cell.colSpans}
+      title={this.cell.getTitle()}
+    >
+      {super.render()}
+    </td>;
+  }
+  protected getQuestionPropertiesToTrack(): string[] {
+    return super.getQuestionPropertiesToTrack().concat(["visible"]);
   }
 }
 
@@ -367,6 +396,12 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
 
   protected getHeaderText(): string {
     return this.cell.headers;
+  }
+  protected renderElement(): JSX.Element | null {
+    if(!this.cell.isVisible) {
+      return null;
+    }
+    return super.renderElement();
   }
   protected renderCellContent() {
     const content = super.renderCellContent();

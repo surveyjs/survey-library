@@ -108,8 +108,7 @@ export var turkishSurveyStrings = {
   cancel: "İptal"
 };
 
-surveyLocalization.locales["tr"] = turkishSurveyStrings;
-surveyLocalization.localeNames["tr"] = "türkçe";
+surveyLocalization.setupLocale("tr", turkishSurveyStrings, "türkçe", "Turkish");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

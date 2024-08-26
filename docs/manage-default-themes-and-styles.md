@@ -17,8 +17,7 @@ To use a theme, you need to reference a SurveyJS style sheet. Refer to the follo
 - [Configure Styles in Angular](https://surveyjs.io/form-library/documentation/get-started-angular#configure-styles)
 - [Configure Styles in Vue](https://surveyjs.io/form-library/documentation/get-started-vue#configure-styles)
 - [Configure Styles in React](https://surveyjs.io/form-library/documentation/get-started-react#configure-styles)
-- [Link SurveyJS Resources in Knockout](https://surveyjs.io/form-library/documentation/get-started-knockout#link-surveyjs-resources)
-- [Link SurveyJS Resources in jQuery](https://surveyjs.io/form-library/documentation/get-started-jquery#link-surveyjs-resources)
+- [Link SurveyJS Resources in an HTML/CSS/JavaScript Application](https://surveyjs.io/form-library/documentation/get-started-html-css-javascript#link-surveyjs-resources)
 
 ## Apply a Predefined Theme
 

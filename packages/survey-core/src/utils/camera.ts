@@ -93,24 +93,23 @@ export class Camera {
       audio: false
     };
   }
-  public startVideo(videoElementId: string, callback: (stream: MediaStream) => void, imageWidth?: number, imageHeight?: number): void {
-    const videoEl: HTMLVideoElement = settings.environment.root?.getElementById(videoElementId) as any;
-    if(!videoEl) {
+  public startVideo(videoElement: HTMLVideoElement, callback: (stream: MediaStream) => void, imageWidth?: number, imageHeight?: number): void {
+    if(!videoElement) {
       callback(undefined);
       return;
     }
-    videoEl.style.width = "100%";
-    videoEl.style.height = "auto";
-    videoEl.style.height = "100%";
-    videoEl.style.objectFit = "contain";
+    videoElement.style.width = "100%";
+    videoElement.style.height = "auto";
+    videoElement.style.height = "100%";
+    videoElement.style.objectFit = "contain";
     const mediaConstraints = this.getMediaConstraints({ width: imageWidth, height: imageHeight });
     navigator.mediaDevices.getUserMedia(mediaConstraints).then(stream => {
-      videoEl.srcObject = stream;
+      videoElement.srcObject = stream;
       if(!Camera.cameraList[Camera.cameraIndex]?.deviceId && !!stream.getTracks()[0].getCapabilities().facingMode) {
         Camera.canSwitchFacingMode = true;
         this.updateCanFlipValue();
       }
-      videoEl.play();
+      videoElement.play();
       callback(stream);
     })
       .catch(error => {
@@ -121,13 +120,12 @@ export class Camera {
     return { width: videoEl.videoWidth, height: videoEl.videoHeight };
 
   }
-  public snap(videoElementId: string, callback: BlobCallback): boolean {
+  public snap(videoElement: HTMLVideoElement, callback: BlobCallback): boolean {
+    if(!videoElement) return false;
     if(!DomDocumentHelper.isAvailable()) return false;
     const root = DomDocumentHelper.getDocument();
-    const videoEl: HTMLVideoElement = root?.getElementById(videoElementId) as HTMLVideoElement;
-    if(!videoEl) return false;
     const canvasEl = root.createElement("canvas");
-    const imageSize = this.getImageSize(videoEl);
+    const imageSize = this.getImageSize(videoElement);
     canvasEl.height = imageSize.height;
     canvasEl.width = imageSize.width;
     let context = canvasEl.getContext("2d");
@@ -138,7 +136,7 @@ export class Camera {
     }
     */
     context.clearRect(0, 0, canvasEl.width, canvasEl.height);
-    context.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+    context.drawImage(videoElement, 0, 0, canvasEl.width, canvasEl.height);
     canvasEl.toBlob(callback, "image/png");
     return true;
   }

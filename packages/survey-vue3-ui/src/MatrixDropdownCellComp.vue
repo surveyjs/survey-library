@@ -6,6 +6,7 @@
     :colspan="cell.colSpans"
     v-on:focusin="cell.focusIn()"
     ref="root"
+    v-if="cell.isVisible"
   >
     <survey-errors v-if="cell.isErrorsCell" :element="cell.question" />
     <sv-matrix-drag-drop-icon

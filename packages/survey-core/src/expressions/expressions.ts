@@ -399,11 +399,17 @@ export class FunctionOperand extends Operand {
     return true;
   }
   public hasAsyncFunction(): boolean {
+    return this.isAsyncFunction() || !!this.parameters && this.parameters.hasAsyncFunction();
+  }
+  private isAsyncFunction(): boolean {
     return FunctionFactory.Instance.isAsyncFunction(this.originalValue);
   }
-  public addToAsyncList(list: Array<FunctionOperand>) {
-    if (this.hasAsyncFunction()) {
+  public addToAsyncList(list: Array<FunctionOperand>): void {
+    if (this.isAsyncFunction()) {
       list.push(this);
+    }
+    if(this.parameters) {
+      this.parameters.addToAsyncList(list);
     }
   }
   protected isContentEqual(op: Operand): boolean {

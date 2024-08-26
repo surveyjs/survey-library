@@ -611,7 +611,7 @@ export class QuestionRatingModel extends Question {
   }
   public setValueFromClick(value: any) {
     if (this.isReadOnlyAttr) return;
-    if (this.value === parseFloat(value)) {
+    if (this.value === ((typeof (this.value) === "string") ? value : parseFloat(value))) {
       this.clearValue(true);
     } else {
       this.value = value;

@@ -98,6 +98,9 @@ export class QuestionMatrixDropdownRenderedCell {
   public get cellQuestionWrapperClassName(): string {
     return this.cell.getQuestionWrapperClassName(this.matrix.cssClasses.cellQuestionWrapper);
   }
+  public get isVisible(): boolean {
+    return (!this.hasQuestion && !this.isErrorsCell) || !this.matrix?.isMobile || this.question.isVisible;
+  }
   public get showResponsiveTitle(): boolean {
     return this.hasQuestion && this.matrix?.isMobile;
   }
@@ -242,7 +245,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private getRenderedRowsAnimationOptions(): IAnimationGroupConsumer<QuestionMatrixDropdownRenderedRow> {
     const beforeAnimationRun = (el: HTMLElement) => {
-      el.querySelectorAll(":scope > td > *").forEach((el:HTMLElement) => {
+      el.querySelectorAll(":scope > td > *").forEach((el: HTMLElement) => {
         el.style.setProperty("--animation-height", el.offsetHeight + "px");
       });
     };
@@ -1093,9 +1096,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedCell {
     var cell = new QuestionMatrixDropdownRenderedCell();
     cell.locTitle = locTitle;
-    if (!!locTitle) {
-      locTitle.strChanged();
-    }
     if (!!this.cssClasses.cell) {
       cell.className = this.cssClasses.cell;
     }

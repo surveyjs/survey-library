@@ -7,6 +7,7 @@
 <script lang="ts" setup>
 import { useBase } from "@/base";
 import type { ListModel, Action } from "survey-core";
+import { computed } from "vue";
 
 const props = defineProps<{ model: ListModel; item: Action }>();
 

@@ -1,7 +1,7 @@
 import { HashTable } from "./helpers";
 import { ProcessValue } from "./conditionProcessValue";
 import { ConsoleWarnings } from "./console-warnings";
-import { Operand, FunctionOperand } from "./expressions/expressions";
+import { Operand, FunctionOperand, AsyncFunctionItem } from "./expressions/expressions";
 import { ConditionsParser } from "./conditionsParser";
 
 /**
@@ -51,7 +51,7 @@ export class ExpressionExecutor implements IExpresionExecutor {
   private parser = new ConditionsParser();
   private isAsyncValue: boolean = false;
   private hasFunctionValue: boolean = false;
-  private asyncFuncList: Array<FunctionOperand>;
+  private asyncFuncList: Array<AsyncFunctionItem>;
   constructor(expression: string) {
     this.setExpression(expression);
   }
@@ -99,23 +99,49 @@ export class ExpressionExecutor implements IExpresionExecutor {
     this.processValue.values = values;
     this.processValue.properties = properties;
     if (!this.isAsync) return this.runValues();
-    this.asyncFuncList = [];
+    this.asyncFuncList = new Array<AsyncFunctionItem>();
     this.operand.addToAsyncList(this.asyncFuncList);
     for (var i = 0; i < this.asyncFuncList.length; i++) {
-      this.asyncFuncList[i].onAsyncReady = () => {
-        this.doAsyncFunctionReady();
-      };
-    }
-    for (var i = 0; i < this.asyncFuncList.length; i++) {
-      this.asyncFuncList[i].evaluateAsync(this.processValue);
+      this.runAsyncItem(this.asyncFuncList[i]);
     }
     return false;
   }
-  private doAsyncFunctionReady() {
+  private runAsyncItem(item: AsyncFunctionItem): void {
+    if(item.children) {
+      item.children.forEach(child => this.runAsyncItem(child));
+    } else {
+      this.runAsyncItemCore(item);
+    }
+  }
+  private runAsyncItemCore(item: AsyncFunctionItem): void {
+    if(item.operand) {
+      item.operand.onAsyncReady = () => this.doAsyncFunctionReady(item);
+      item.operand.evaluateAsync(this.processValue);
+    } else {
+      this.doAsyncFunctionReady(item);
+    }
+  }
+  private doAsyncFunctionReady(item: AsyncFunctionItem): void {
+    if(item.parent && this.isAsyncChildrenReady(item)) {
+      this.runAsyncItemCore(item.parent);
+      return;
+    }
     for (var i = 0; i < this.asyncFuncList.length; i++) {
-      if (!this.asyncFuncList[i].isReady) return;
+      if (!this.isAsyncFuncReady(this.asyncFuncList[i])) return;
     }
     this.runValues();
+  }
+  private isAsyncFuncReady(item: AsyncFunctionItem): boolean {
+    if(item.operand && !item.operand.isReady) return false;
+    return this.isAsyncChildrenReady(item);
+  }
+  private isAsyncChildrenReady(item: AsyncFunctionItem): boolean {
+    if(item.children) {
+      for(let i = 0; i < item.children.length; i ++) {
+        if(!this.isAsyncFuncReady(item.children[i])) return false;
+      }
+    }
+    return true;
   }
   private runValues(): any {
     var res = this.operand.evaluate(this.processValue);

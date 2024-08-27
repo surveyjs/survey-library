@@ -17,7 +17,6 @@ ko.components.register("sv-list-item-group", {
           data.model.onItemClick(data.item);
           event.stopPropagation();
         },
-        itemComponent: params.item.component || params.model.itemComponent
       };
     },
   },

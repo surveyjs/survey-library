@@ -853,6 +853,8 @@ export var defaultV2Css = {
     itemHover: "sd-item--allowhover sd-checkbox--allowhover",
     itemControl: "sd-visuallyhidden sd-item__control sd-checkbox__control",
     itemDecorator: "sd-item__svg sd-checkbox__svg",
+    itemEnter: "sd-item--enter",
+    itemLeave: "sd-item--leave",
     cleanButton: "sd-tagbox_clean-button sd-dropdown_clean-button",
     cleanButtonSvg: "sd-tagbox_clean-button-svg sd-dropdown_clean-button-svg",
     cleanButtonIconId: "icon-clear",

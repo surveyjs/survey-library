@@ -1,5 +1,5 @@
 <template>
-  <component :is="sv-list-item-content" :item="item" :model="model">
+  <component :is="'sv-list-item-content'" :item="item" :model="model">
   </component>
   <sv-popup :model="item.popupModel"></sv-popup>
 </template>

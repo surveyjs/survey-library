@@ -22,6 +22,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
+import { getAvailableMaskTypeChoices } from "./mask/mask_utils";
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
@@ -313,6 +314,15 @@ export class MultipleTextItemModel extends Base
       this.editor.maskSettings = val;
     }
   }
+  /**
+   * Specifies text alignment within the input field.
+   *
+   * Possible values:
+   *
+   * - `"left"` - Aligns input text to the left side.
+   * - `"right"` - Aligns input text to the right side.
+   * - `"auto"` (default) - Applies right alignment if a [numeric or currency input mask](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel#maskType) is specified. Otherwise, applies left alignment.
+   */
   public get inputTextAlignment(): "left" | "right" | "auto" {
     return this.editor.inputTextAlignment;
   }
@@ -913,12 +923,16 @@ Serializer.addClass(
       choices: settings.questions.inputTypes,
     },
     {
-      name: "maskType:masktype",
+      name: "maskType",
       default: "none",
       visibleIndex: 0,
       dependsOn: "inputType",
       visibleIf: (obj: any) => {
         return obj.inputType === "text";
+      },
+      choices: (obj: any) => {
+        const choices = getAvailableMaskTypeChoices();
+        return choices;
       }
     },
     {
@@ -936,7 +950,7 @@ Serializer.addClass(
         obj.maskSettings.setData(value);
       },
     },
-    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"], visible: false },
+    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"] },
     { name: "title", serializationProperty: "locTitle" },
     { name: "maxLength:number", default: -1 },
     { name: "size:number", minValue: 0 },

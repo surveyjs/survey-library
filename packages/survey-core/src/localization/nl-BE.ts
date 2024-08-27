@@ -6,5 +6,4 @@ import { dutchSurveyStrings } from "./dutch";
  * - Copy the Dutch set once and move forward as if it are 2 totally different languages
  * - Override the relevant strings only
  */
-surveyLocalization.locales["nl-BE"] = dutchSurveyStrings;
-surveyLocalization.localeNames["nl-BE"] = "vlaams";
+surveyLocalization.setupLocale("nl-BE", dutchSurveyStrings, "vlaams", "Flemish");

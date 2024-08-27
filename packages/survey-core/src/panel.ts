@@ -700,11 +700,16 @@ export class PanelModelBase extends SurveyElement<Question>
     return null;
   }
   public getQuestionByValueName(valueName: string): Question {
+    const res = this.getQuestionsByValueName(valueName);
+    return res.length > 0 ? res[0] : null;
+  }
+  public getQuestionsByValueName(valueName: string): Array<Question> {
+    const res = [];
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].getValueName() == valueName) return questions[i];
+      if (questions[i].getValueName() == valueName) res.push(questions[i]);
     }
-    return null;
+    return res;
   }
   /**
    * Returns a JSON object with question values nested in the panel/page.

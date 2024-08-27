@@ -47,6 +47,7 @@
   </div>
 </script>
 <script type="text/html" id="survey-matrixdropdown-cell">
+  <!-- ko if: $data.isVisible -->
   <td
     data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { title: $data.getTitle(), colspan: $data.colSpans }, event: {focusin: $data.focusIn }"
   >
@@ -92,6 +93,7 @@
     <!-- /ko -->
     <!-- /ko -->
   </td>
+  <!-- /ko -->
 </script>
 <script type="text/html" id="survey-matrixtable">
 <div
@@ -151,7 +153,7 @@
           <!-- /ko -->
         </td>
         <!-- /ko -->
-        <!-- ko if: $data.isErrorsCell -->
+        <!-- ko if: $data.isErrorsCell && $data.isVisible -->
         <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, title: $data.getTitle() }">
             <!-- ko template: { name: 'survey-question-errors', data: $data.question, as: 'question' } -->
             <!-- /ko -->

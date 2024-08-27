@@ -21,12 +21,8 @@
           "Title": "React"
         },
         {
-          "Name": "get-started-knockout",
-          "Title": "Knockout"
-        },
-        {
-          "Name": "get-started-jquery",
-          "Title": "jQuery"
+          "Name": "get-started-html-css-javascript",
+          "Title": "HTML/CSS/JavaScript"
         }
       ]
     },

@@ -5,6 +5,7 @@
     :style="getCellStyle()"
     :colspan="cell.colSpans"
     v-on:focusin="cell.focusIn()"
+    v-if="cell.isVisible"
   >
     <survey-errors
       v-if="cell.isErrorsCell"

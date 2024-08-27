@@ -108,8 +108,7 @@ export var frenchSurveyStrings = {
   cancel: "Annuler"
 };
 
-surveyLocalization.locales["fr"] = frenchSurveyStrings;
-surveyLocalization.localeNames["fr"] = "français";
+surveyLocalization.setupLocale("fr", frenchSurveyStrings, "français", "French");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

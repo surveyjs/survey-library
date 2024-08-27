@@ -108,8 +108,7 @@ export var swedishSurveyStrings = {
   cancel: "Annullera"
 };
 
-surveyLocalization.locales["sv"] = swedishSurveyStrings;
-surveyLocalization.localeNames["sv"] = "svenska";
+surveyLocalization.setupLocale("sv", swedishSurveyStrings, "svenska", "Swedish");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

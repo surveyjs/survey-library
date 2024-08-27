@@ -4649,6 +4649,20 @@ QUnit.test(
     assert.strictEqual(isNaN(question.value), true, "Value is reset");
   }
 );
+QUnit.test(
+  "QuestionRating value with string labels is reset when clicked again",
+  function (assert) {
+    var question = new QuestionRatingModel("q");
+    question.rateValues = ["l1", "l2", "l3"];
+    question.setValueFromClick("l1");
+    assert.strictEqual(question.value, "l1", "Set to l1");
+    question.setValueFromClick("l2");
+    assert.strictEqual(question.value, "l2", "Set to l2");
+    question.setValueFromClick("l2");
+    assert.notStrictEqual(question.value, "l2", "No longer l2");
+    assert.strictEqual(question.value, undefined, "Value is reset");
+  }
+);
 
 QUnit.test(
   "QuestionRating reset highlight on click",

@@ -12,7 +12,7 @@ import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
-import { IInputMask } from "./mask/mask_utils";
+import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -62,6 +62,15 @@ export class QuestionTextModel extends QuestionTextBase {
   @property({
     onSet: (newValue: string, target: QuestionTextModel) => { target.onSetMaskType(newValue); }
   }) maskType: string;
+  /**
+   * Specifies text alignment within the input field.
+   *
+   * Possible values:
+   *
+   * - `"left"` - Aligns input text to the left side.
+   * - `"right"` - Aligns input text to the right side.
+   * - `"auto"` (default) - Applies right alignment if a [numeric or currency input mask](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType) is specified. Otherwise, applies left alignment.
+   */
   @property() inputTextAlignment: "left" | "right" | "auto";
 
   get maskTypeIsEmpty(): boolean {
@@ -804,14 +813,18 @@ Serializer.addClass(
         return isMinMaxType(obj);
       },
     },
-    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"], visible: false },
+    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"] },
     {
-      name: "maskType:masktype",
+      name: "maskType",
       default: "none",
       visibleIndex: 0,
       dependsOn: "inputType",
       visibleIf: (obj: any) => {
         return obj.inputType === "text" || obj.inputType === "tel";
+      },
+      choices: (obj: any) => {
+        const choices = getAvailableMaskTypeChoices();
+        return choices;
       }
     },
     {

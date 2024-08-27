@@ -108,8 +108,7 @@ export var romanianSurveyStrings: any = {
   cancel: "Anula"
 };
 
-surveyLocalization.locales["ro"] = romanianSurveyStrings;
-surveyLocalization.localeNames["ro"] = "română";
+surveyLocalization.setupLocale("ro", romanianSurveyStrings, "română", "Romanian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

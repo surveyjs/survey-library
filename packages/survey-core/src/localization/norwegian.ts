@@ -108,8 +108,7 @@ export var norwegianSurveyStrings = {
   cancel: "Annullere"
 };
 
-surveyLocalization.locales["no"] = norwegianSurveyStrings;
-surveyLocalization.localeNames["no"] = "norsk";
+surveyLocalization.setupLocale("no", norwegianSurveyStrings, "norsk", "Norwegian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

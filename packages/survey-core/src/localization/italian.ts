@@ -108,8 +108,7 @@ export var italianSurveyStrings = {
   cancel: "Annulla"
 };
 
-surveyLocalization.locales["it"] = italianSurveyStrings;
-surveyLocalization.localeNames["it"] = "italiano";
+surveyLocalization.setupLocale("it", italianSurveyStrings, "italiano", "Italian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

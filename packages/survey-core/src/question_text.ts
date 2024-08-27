@@ -813,7 +813,7 @@ Serializer.addClass(
         return isMinMaxType(obj);
       },
     },
-    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"], visible: false },
+    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"] },
     {
       name: "maskType",
       default: "none",

@@ -1,10 +1,10 @@
 ---
-title: JavaScript Form Library | jQuery Form Library | Getting Started Guide
-description: A step-by-step tutorial on how to add SurveyJS Form Library to a JavaScript application.
+title: JavaScript Form Library | Getting Started Guide
+description: A step-by-step tutorial on how to add SurveyJS Form Library to a JavaScript application, including jQuery.
 ---
 # JavaScript Form Library
 
-This step-by-step tutorial will help you get started with SurveyJS Form Library in an application built with HTML, CSS, and JavaScript (without frontend frameworks). As a result, you will create a survey displayed below:
+This step-by-step tutorial will guide you through the process of integrating the SurveyJS Form Library into any application built with HTML, CSS, and JavaScript (without frontend frameworks). By the end, you'll have created and displayed a fully functional survey as shown below:
 
 <iframe src="/proxy/github/code-examples/get-started-library/html-css-js/index.html"
     style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
@@ -12,14 +12,14 @@ This step-by-step tutorial will help you get started with SurveyJS Form Library 
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/html-css-js (linkStyle))
 
-> SurveyJS Form Library provides individual integration packages for Angular, React, and Vue. If you use one of these frameworks, refer to one of the following tutorials instead:
+> SurveyJS Form Library offers dedicated integration packages for Angular, React, and Vue. If you are using one of these frameworks, please refer to the appropriate tutorial below:
 >  - [Get Started in Angular](https://surveyjs.io/form-library/documentation/get-started-angular)
 >  - [Get Started in Vue.js](https://surveyjs.io/form-library/documentation/get-started-vue)
 >  - [Get Started in React](https://surveyjs.io/form-library/documentation/get-started-react)
 
 ## Link SurveyJS Resources
 
-SurveyJS Form Library consists of two parts: `survey-core` (platform-independent code) and `survey-js-ui` (view models). Each part is distributed as a script, while `survey-core` also includes a style sheet. Insert links to these resources within the `<head>` tag on your HTML page:
+SurveyJS Form Library is composed of two key parts: `survey-core` (platform-independent logic) and `survey-js-ui` (view models). Both are provided as script files, with `survey-core` also including a style sheet. To integrate these resources, insert the following links into the `<head>` tag of your HTML page:
 
 ```html
 <head>
@@ -31,17 +31,17 @@ SurveyJS Form Library consists of two parts: `survey-core` (platform-independent
 </head>
 ```
 
-The style sheet above applies the Default theme. SurveyJS Form Library is shipped with several more predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
+The style sheet above applies the Default theme. SurveyJS Form Library also includes several other predefined themes, which are illustrated below, along with a flexible theme customization mechanism based on CSS variables.
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-If you want to apply a predefined theme different from Default or create a custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+If you wish to apply a predefined theme other than Default or create your own custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
 
 ## Create a Model
 
-A model describes the layout and contents of your survey. The simplest survey model contains one or several questions without layout modifications.
+A model defines the structure and content of your survey. The simplest survey model includes one or more questions without any layout modifications.
 
-Models are specified by model schemas (JSON objects). For example, the following model schema declares two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel), each with a [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and a [name](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name). Titles are displayed on screen. Names are used to identify the questions in code.
+Models are defined using model schemas, which are represented as JSON objects. For example, the following model schema defines two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel), each with a [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and a [name](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name). Titles are displayed on screen. Names are used to identify the questions in code.
 
 ```js
 const surveyJson = {
@@ -102,7 +102,7 @@ const survey = new Survey.Model(surveyJson);
 
 ## Render the Survey
 
-A survey should be rendered in a page element, for instance, a `<div>`. Add this element to the `<body>` tag of your page and specify its `id` attribute:
+A survey needs to be rendered within a page element, such as a `<div>`. Add this element to the `<body>` tag of your page and be sure to specify its `id` attribute:
 
 ```html
 <body>
@@ -110,7 +110,7 @@ A survey should be rendered in a page element, for instance, a `<div>`. Add this
 </body>
 ```
 
-To render a survey in the page element, call the `render(container)` method on the model instance:
+Next, call the `render(container)` method on the model instance:
 
 ```js
 const survey = new Survey.Model(surveyJson);
@@ -176,7 +176,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 ## Handle Survey Completion
 
-After a respondent completes a survey, the results are available within the [`onComplete`](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed. If your application has a user identification system, you can add the user ID to the survey results before sending them to the server:
+Once a respondent completes a survey, the results are accessible through the [`onComplete`](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send these results to a server for storage in a database and further processing. If your application includes a user identification system, you can add the user ID to the survey results before sending them to the server:
 
 ```js
 const SURVEY_ID = 1;

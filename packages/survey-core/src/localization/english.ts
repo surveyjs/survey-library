@@ -13,6 +13,7 @@ export var englishStrings = {
   refuseItemText: "Refuse to answer",
   dontKnowItemText: "Don't know",
   selectAllItemText: "Select All",
+  deselectAllItemText: "Deselect all",
   progressText: "Page {0} of {1}",
   indexText: "{0} of {1}",
   panelDynamicProgressText: "{0} of {1}",

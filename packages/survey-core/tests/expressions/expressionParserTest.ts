@@ -1210,7 +1210,7 @@ QUnit.test("Async function inside the async function, Bug#8742", function(assert
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");
 });
-QUnit.only("Async & sync nested functions, Bug #8732 #8742", function(assert) {
+QUnit.test("Async & sync nested functions, Bug #8732 #8742", function(assert) {
   function asyncFunc1(params: any): any {
     this.returnResult(params[0] * 10 + params[1]);
     return false;

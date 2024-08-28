@@ -2000,14 +2000,11 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < panels.length; i++) {
       this.setOnCompleteAsyncInPanel(panels[i]);
     }
-    for (var i = 0; i < panels.length; i++) {
-      var pnlError = panels[i].hasErrors(
-        fireCallback,
-        !!rec && rec.focusOnFirstError,
-        rec
-      );
+    const focusOnError = !!rec && rec.focusOnFirstError;
+    for (let i = 0; i < panels.length; i++) {
+      let pnlError = panels[i].hasErrors(fireCallback, focusOnError, rec);
       pnlError = this.isValueDuplicated(panels[i], keyValues, rec, fireCallback) || pnlError;
-      if (!this.isRenderModeList && pnlError && !res) {
+      if (!this.isRenderModeList && pnlError && !res && focusOnError) {
         this.currentIndex = i;
       }
       res = pnlError || res;

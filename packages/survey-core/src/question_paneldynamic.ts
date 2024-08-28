@@ -1431,12 +1431,11 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   /**
-   * Add a new dynamic panel based on the template Panel. It checks if canAddPanel returns true and then calls addPanel method.
-   * If a displayMode is different from "list" and the current panel has erros, then
-   * @see template
+   * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
+   *
+   * Unlike the [`addPanel()`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanel) method, `addPanelUI()` performs additional actions: checks whether a new panel [can be added](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canAddPanel), expands and focuses the new panel, and runs animated effects.
    * @see panelCount
    * @see panels
-   * @see canAddPanel
    */
   public addPanelUI(): PanelModel {
     if (!this.canAddPanel) return null;
@@ -1518,13 +1517,11 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   /**
-   * Call removePanel function. Do nothing is canRemovePanel returns false. If confirmDelete set to true, it shows the confirmation dialog first.
-   * @param value a panel or panel index
-   * @see removePanel
-   * @see confirmDelete
-   * @see confirmDeleteText
-   * @see canRemovePanel
+   * Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
    *
+   * Unlike the [`removePanel()`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanel) method, `removePanelUI()` performs additional actions: checks whether the panel [can be removed](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canRemovePanel) and displays a confirmation dialog (if the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#confirmDelete) property is enabled).
+   * @param value A `PanelModel` instance or zero-based panel index.
+   * @see addPanelUI
    */
   public removePanelUI(value: any): void {
     if (!this.canRemovePanel) return;
@@ -1559,13 +1556,12 @@ export class QuestionPanelDynamicModel extends Question
     if (this.currentIndex < 0) return;
     this.currentIndex--;
   }
-  /**
-   * Removes a dynamic panel from the panels array.
-   * @param value a panel or panel index
-   * @see panels
-   * @see template
-   */
   private removedPanelIndex: number;
+  /**
+   * Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
+   * @param value A `PanelModel` instance or zero-based panel index.
+   * @see addPanel
+   */
   public removePanel(value: any): void {
     const visIndex = this.getVisualPanelIndex(value);
     if (visIndex < 0 || visIndex >= this.visiblePanelCount) return;

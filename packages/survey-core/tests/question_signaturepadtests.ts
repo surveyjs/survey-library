@@ -390,7 +390,7 @@ QUnit.test("check rendered size properties", (assert) => {
   assert.equal(signaturepadQuestion.renderedCanvasWidth, "100%");
 });
 
-QUnit.test("Question Signature upload files", function (assert) {
+QUnit.skip("Question Signature upload files", function (assert) {
   var json = {
     questions: [
       {

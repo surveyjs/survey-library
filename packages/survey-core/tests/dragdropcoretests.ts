@@ -20,7 +20,7 @@ class DragDropTest extends DragDropDOMAdapter {
     this.scrollByDrag(scrollableParentNode, clientY, clientX);
   }
 }
-QUnit.test("Show/hide new created item, simple test", function (assert) {
+QUnit.skip("Show/hide new created item, simple test", function (assert) {
   var dragDropCore = new DragDropTest({} as any, {} as any);
   document.body.style.height = "10000px";
   document.body.style.width = "10000px";

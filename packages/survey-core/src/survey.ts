@@ -4865,6 +4865,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.rootFitToContainer, this.fitToContainer)
       .toString();
   }
+  private animationEnabled = true;
   private resizeObserver: ResizeObserver;
   afterRenderSurvey(htmlElement: any) {
     this.destroyResizeObserver();

@@ -22,6 +22,7 @@ import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
+  public renderedChoicesChangedCallback: () => void;
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -1830,7 +1831,13 @@ export class QuestionSelectBase extends Question {
       }
     };
   }
-  private renderedChoicesAnimation = new AnimationGroup(this.getRenderedChoicesAnimationOptions(), (val) => this._renderedChoices = val, () => this._renderedChoices)
+  private renderedChoicesAnimation = new AnimationGroup(
+    this.getRenderedChoicesAnimationOptions(),
+    (val) => { this._renderedChoices = val;
+      this.renderedChoicesChangedCallback && this.renderedChoicesChangedCallback();
+    },
+    () => this._renderedChoices
+  )
 
   public get renderedChoices(): Array<ItemValue> {
     return this._renderedChoices;

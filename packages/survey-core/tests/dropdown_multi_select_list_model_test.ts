@@ -366,3 +366,31 @@ QUnit.test("tagbox placeholder not updated", function (assert) {
   question.placeholder = "Choose...";
   assert.equal(dropdownListModel.filterStringPlaceholder, "Choose...");
 });
+
+QUnit.test("Hide popup if hideSelectedItems and click 'Select All'", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      showSelectAllItem: true,
+      hideSelectedItems: true,
+      choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9", "item10"]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownMultiSelectListModel(question);
+  assert.ok(dropdownListModel.popupModel.contentComponentData.model instanceof MultiSelectListModel);
+
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.equal(list.actions.length, 11);
+  assert.deepEqual(question.value, []);
+
+  dropdownListModel.popupModel.show();
+  assert.equal(dropdownListModel.popupModel.isVisible, true);
+  assert.equal(list.actions[0].title, "Select All");
+
+  list.onItemClick(list.actions[0]);
+  assert.deepEqual(question.value.length, 10);
+  assert.equal(dropdownListModel.popupModel.isVisible, false);
+  assert.equal(list.actions[0].title, "Deselect all");
+});

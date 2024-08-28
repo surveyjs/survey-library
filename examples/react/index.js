@@ -1029,13 +1029,38 @@ function init() {
     ]
   };
 
-  //Survey.StylesManager.applyTheme("default");
-  //Survey.StylesManager.applyTheme("modern");
+  // Survey.StylesManager.applyTheme("default");
+  // Survey.StylesManager.applyTheme("modern");
   // Survey.StylesManager.applyTheme("defaultV2");
 
   var model = new Survey.Model(json);
   //model.setDesignMode(true);
   window.survey = model;
+
+  // class CustomTOCItem extends React.Component {
+  //   constructor(props) {
+  //     super(props);
+  //   }
+  //   render() {
+  //     const survey = this.props.model.locOwner;
+  //     const pageName = this.props.item.id;
+  //     const page = survey.getPageByName(pageName);
+  //     return (
+  //       <div style={{ width: "100%", height: "50px", background: "red", color: "lime" }}>
+  //         {page.title || page.name}
+  //       </div>
+  //     );
+  //   }
+  // }
+
+  // SurveyReact.ReactElementFactory.Instance.registerElement(
+  //   "sv-custom-toc-item",
+  //   (props) => {
+  //     return React.createElement(CustomTOCItem, props);
+  //   }
+  // );
+
+  // model.findLayoutElement("toc-navigation").data.listModel.itemComponent = "sv-custom-toc-item";
 
   model.onUploadFiles
     .add(function (survey, options) {

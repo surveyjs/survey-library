@@ -16,7 +16,7 @@ ko.components.register("sv-list-item-group", {
         itemClick: (data: any, event: any) => {
           data.model.onItemClick(data.item);
           event.stopPropagation();
-        }
+        },
       };
     },
   },

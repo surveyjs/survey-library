@@ -69,6 +69,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   @property({ defaultValue: false }) showSearchClearButton: boolean;
   @property({ defaultValue: true }) renderElements: boolean;
   @property({ defaultValue: false }) textWrapEnabled: boolean;
+  @property({ defaultValue: "sv-list-item-content" }) itemComponent: string;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;

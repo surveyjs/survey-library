@@ -6,7 +6,7 @@
     <div [class]="listModel.cssClasses.itemBody" [style.paddingInlineStart]="paddingLeft" [attr.title]="model.locTitle.calculatedText"
     (mouseover)="listModel.onItemHover(model)"
     (mouseleave)="listModel.onItemLeave(model)">
-    <ng-template [component]="{ name: model.component || 'sv-list-item-content', data: { model: model, listModel: listModel } }"></ng-template>
+    <ng-template [component]="{ name: itemComponent, data: { model: model, listModel: listModel } }"></ng-template>
     </div>
   </li>
 </ng-template>

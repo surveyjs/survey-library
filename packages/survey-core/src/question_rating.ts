@@ -295,17 +295,23 @@ export class QuestionRatingModel extends Question {
     if (this.colorMode === "monochrome") return;
     if (!DomDocumentHelper.isAvailable()) return;
     if (QuestionRatingModel.colorsCalculated) return;
+
+    function getColorFromProperty(varName: string) {
+      const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
+      return style.getPropertyValue && style.getPropertyValue(varName);
+    }
     function getRGBColor(colorName: string, varName: string) {
       let str: string = !!themeVariables && themeVariables[colorName] as any;
-      if(!str) {
-        const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
-        str = style.getPropertyValue && style.getPropertyValue(varName);
-      }
+      if (!str) str = getColorFromProperty(varName);
       if (!str) return null;
       const canvasElement = DomDocumentHelper.createElement("canvas") as HTMLCanvasElement;
       if (!canvasElement) return null;
       var ctx = canvasElement.getContext("2d");
       ctx.fillStyle = str;
+
+      if (ctx.fillStyle == "#000000") {
+        ctx.fillStyle = getColorFromProperty(varName);
+      }
       const newStr = ctx.fillStyle;
 
       if (newStr.startsWith("rgba")) {

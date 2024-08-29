@@ -13,7 +13,7 @@
       }
     "
     v-on:mousedown="
-      () => { item.doMouseDown(); }
+      (args) => { item.doMouseDown(args); }
     "
     v-on:focus="
       (event) => { item.doFocus(event); }

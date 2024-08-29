@@ -4896,13 +4896,20 @@ export class SurveyModel extends SurveyElementCore
     this.rootElement = htmlElement;
     this.addScrollEventListener();
   }
+  onProcessedResponsiveness: EventBase<SurveyModel, any> = new EventBase();
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;
+    const oldIsMobile = this.isMobile;
     const isMobileChanged = this.isMobile !== isMobile;
-    if (isMobileChanged) {
-      this.setIsMobile(isMobile);
-    }
+    this.setIsMobile(isMobile);
     this.layoutElements.forEach(layoutElement => layoutElement.processResponsiveness && layoutElement.processResponsiveness(width));
+    const options = {
+      oldIsMobile,
+      isMobile,
+      width,
+      mobileWidth
+    };
+    this.onProcessedResponsiveness.fire(this, options);
     return isMobileChanged;
   }
 

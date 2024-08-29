@@ -115,8 +115,9 @@ export class Question extends SurveyElement<Question>
   public updateIsMobileFromSurvey() {
     this.setIsMobile((<SurveyModel>this.survey)._isMobile);
   }
-  public setIsMobile(val: boolean) {
-    this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
+  public setIsMobile(val: boolean): void {
+    const newVal = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
+    this.isMobile = newVal;
   }
   public themeChanged(theme: ITheme): void { }
   @property({ defaultValue: false }) isMobile: boolean;
@@ -1125,6 +1126,7 @@ export class Question extends SurveyElement<Question>
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssRoot)
+      .append(this.cssClasses.mobile, this.isMobile)
       .append(this.cssClasses.readOnly, this.isReadOnlyStyle)
       .append(this.cssClasses.disabled, this.isDisabledStyle)
       .append(this.cssClasses.preview, this.isPreviewStyle)

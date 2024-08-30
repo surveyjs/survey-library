@@ -2076,7 +2076,8 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Question validators.
-   * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
+   *
+   * [Data Validation](https://surveyjs.io/form-library/documentation/data-validation (linkStyle))
    */
   public get validators(): Array<SurveyValidator> {
     return this.getPropertyValue("validators");

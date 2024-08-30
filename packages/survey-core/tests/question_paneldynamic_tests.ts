@@ -983,12 +983,8 @@ QUnit.test("PanelDynamic, renderMode is not list + hasError", function(assert) {
   panel.renderMode = "progressTop";
   panel.currentIndex = 1;
   assert.equal(panel.currentIndex, 1, "go to the second panel");
-  panel.hasErrors(true);
-  assert.equal(
-    panel.currentIndex,
-    0,
-    "it should show the first panel where the error happened"
-  );
+  panel.hasErrors(true, { focusOnFirstError: true });
+  assert.equal(panel.currentIndex, 0, "it should show the first panel where the error happened");
 });
 QUnit.test("PanelDynamic, keyName + hasError + getAllErrors", function(assert) {
   var survey = new SurveyModel();
@@ -5808,6 +5804,33 @@ QUnit.test("question.cssHeader class", function (assert) {
   panel.removePanelUI(0);
   assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
 
+});
+QUnit.test("renderMode: tab & silent validation, Bug#8752", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        renderMode: "tab",
+        templateElements: [
+          {
+            type: "text",
+            name: "q1",
+            isRequired: true
+          }
+        ],
+        panelCount: 4,
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel.currentIndex = 3;
+  survey.validate(false, false);
+  assert.equal(panel.currentIndex, 3, "current index is not changed, #1");
+  survey.validate(true, false);
+  assert.equal(panel.currentIndex, 3, "current index is not changed, #2");
+  survey.validate(false, true);
+  assert.equal(panel.currentIndex, 0, "current index is not changed, #3");
 });
 
 QUnit.test("question.hasTitleOnLeftTop class", function (assert) {

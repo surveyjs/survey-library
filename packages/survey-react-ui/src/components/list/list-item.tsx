@@ -28,7 +28,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
       paddingInlineStart: this.model.getItemIndent(this.item)
     };
     const className = this.model.getItemClass(this.item);
-    const itemContent = this.item.component || "sv-list-item-content";
+    const itemContent = this.item.component || this.model.itemComponent;
     const newElement = ReactElementFactory.Instance.createElement(itemContent, { item: this.item, key: this.item.id, model: this.model });
     const contentWrap =
         <div

@@ -114,6 +114,9 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
 
   public selectAllItems(): void {
     this.question.toggleSelectAll();
+    if (this.question.isAllSelected && this.question.hideSelectedItems) {
+      this.popupModel.hide();
+    }
     this.updateListState();
   }
   public selectNoneItem(): void {

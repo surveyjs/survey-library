@@ -1301,6 +1301,73 @@ QUnit.test("rating colors", (assert) => {
   document.documentElement.style.setProperty("--sd-rating-good-color-light", null);
 });
 
+QUnit.test("rating colors when vars used", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "rating",
+        "name": "q1"
+      }
+    ]
+  };
+  document.documentElement.style.setProperty("--sd-rating-bad-color", "#c8140a");
+  document.documentElement.style.setProperty("--sd-rating-normal-color", "gold");
+  document.documentElement.style.setProperty("--sd-rating-good-color", "rgb(10,200,20)");
+
+  document.documentElement.style.setProperty("--sd-rating-bad-color-light", "rgba(200, 20, 10, 0.2)");
+  document.documentElement.style.setProperty("--sd-rating-normal-color-light", "rgba(255, 215, 0, 0.2)");
+  document.documentElement.style.setProperty("--sd-rating-good-color-light", "rgba(10,200,20, 0.2)");
+
+  const survey = new SurveyModel(json);
+  survey.applyTheme({
+    cssVariables: {
+      "--sjs-special-red": "var(--unknown-variable)",
+      "--sjs-special-yellow": "var(--unknown-variable)",
+      "--sjs-special-green": "var(--unknown-variable)",
+      "--sjs-special-red-light": "var(--unknown-variable)",
+      "--sjs-special-yellow-light": "var(--unknown-variable)",
+      "--sjs-special-green-light": "var(--unknown-variable)"
+    }
+  });
+  let q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  q1.value = 4;
+  q1.scaleColorMode = "colored";
+  q1.rateColorMode = "scale";
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+
+  document.documentElement.style.setProperty("--stest-rating-bad-color", "rgb(10,200,20)");
+  document.documentElement.style.setProperty("--stest-rating-normal-color", "gold");
+  document.documentElement.style.setProperty("--stest-rating-good-color", "#c8140a");
+
+  document.documentElement.style.setProperty("--stest-rating-bad-color-light", "rgba(10,200,20, 0.2)");
+  document.documentElement.style.setProperty("--stest-rating-normal-color-light", "rgba(255, 215, 0, 0.2)");
+  document.documentElement.style.setProperty("--stest-rating-good-color-light", "rgba(200, 20, 10, 0.2)");
+
+  survey.applyTheme({
+    cssVariables: {
+      "--sjs-special-red": "var(--stest-rating-bad-color)",
+      "--sjs-special-yellow": "var(--stest-rating-normal-color)",
+      "--sjs-special-green": "var(--stest-rating-good-color)",
+      "--sjs-special-red-light": "var(--stest-rating-bad-color-light)",
+      "--sjs-special-yellow-light": "var(--stest-rating-normal-color-light)",
+      "--sjs-special-green-light": "var(--stest-rating-good-color-light)"
+    }
+  });
+  q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  q1.value = 4;
+  q1.scaleColorMode = "colored";
+  q1.rateColorMode = "scale";
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+});
+
 QUnit.test("check rating in-matrix mode styles", (assert) => {
   StylesManager.applyTheme("default");
   var json = {

@@ -178,13 +178,13 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
     this.setValue(name + settings.commentSuffix, newValue);
   }
   findQuestionByName(name: string): IQuestion {
-    if(!name) return undefined;
+    if (!name) return undefined;
     const prefix = QuestionPanelDynamicItem.ItemVariableName + ".";
-    if(name.indexOf(prefix) === 0) {
+    if (name.indexOf(prefix) === 0) {
       return this.panel.getQuestionByName(name.substring(prefix.length));
     }
     const survey = this.getSurvey();
-    return !!survey ? survey.getQuestionByName(name): null;
+    return !!survey ? survey.getQuestionByName(name) : null;
   }
   getEditingSurveyElement(): Base { return undefined; }
   getAllValues(): any {
@@ -290,7 +290,7 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
-    this.registerPropertyChangedHandlers(["isMobile", "newPanelPosition", "showRangeInProgress", "renderMode"], () => {
+    this.registerPropertyChangedHandlers(["isMobile", "newPanelPosition", "displayMode", "showProgressBar"], () => {
       this.updateFooterActions();
     });
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
@@ -407,7 +407,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.template.locTitle;
   }
   /**
-   * A template for tab titles. Applies when [`renderMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`.
+   * A template for tab titles. Applies when [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"tab"`.
    *
    * The template can contain the following placeholders:
    *
@@ -419,7 +419,7 @@ export class QuestionPanelDynamicModel extends Question
    * [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
    * @see templateTitle
    * @see tabTitlePlaceholder
-   * @see renderMode
+   * @see displayMode
    */
   public get templateTabTitle(): string {
     return this.locTemplateTabTitle.text;
@@ -512,25 +512,25 @@ export class QuestionPanelDynamicModel extends Question
   }
   private onPanelAdded(panel: PanelModel): void {
     this.onPanelRemovedCore(panel);
-    if(!panel.visible) return;
+    if (!panel.visible) return;
     let index = 0;
     const panels = this.panelsCore;
-    for(var i = 0; i < panels.length; i ++) {
-      if(panels[i] === panel) break;
-      if(panels[i].visible) index++;
+    for (var i = 0; i < panels.length; i++) {
+      if (panels[i] === panel) break;
+      if (panels[i].visible) index++;
     }
     this.visiblePanelsCore.splice(index, 0, panel);
     this.addTabFromToolbar(panel, index);
-    if(!this.currentPanel) {
+    if (!this.currentPanel) {
       this.currentPanel = panel;
     }
     this.updateRenderedPanels();
   }
   private onPanelRemoved(panel: PanelModel): void {
     let index = this.onPanelRemovedCore(panel);
-    if(this.currentPanel === panel) {
+    if (this.currentPanel === panel) {
       const visPanels = this.visiblePanelsCore;
-      if(index >= visPanels.length) index = visPanels.length - 1;
+      if (index >= visPanels.length) index = visPanels.length - 1;
       this.currentPanel = index >= 0 ? visPanels[index] : null;
     }
     this.updateRenderedPanels();
@@ -538,7 +538,7 @@ export class QuestionPanelDynamicModel extends Question
   private onPanelRemovedCore(panel: PanelModel): number {
     const visPanels = this.visiblePanelsCore;
     let index = visPanels.indexOf(panel);
-    if(index > -1) {
+    if (index > -1) {
       visPanels.splice(index, 1);
       this.removeTabFromToolbar(panel);
     }
@@ -547,11 +547,11 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * A zero-based index of the currently displayed panel.
    *
-   * When `renderMode` is `"list"` or Dynamic Panel is empty (`panelCount` is 0), this property contains -1.
+   * When `displayMode` is `"list"` or Dynamic Panel is empty (`panelCount` is 0), this property contains -1.
    * @see currentPanel
    * @see panels
    * @see panelCount
-   * @see renderMode
+   * @see displayMode
    */
   public get currentIndex(): number {
     if (this.isRenderModeList) return -1;
@@ -559,35 +559,35 @@ export class QuestionPanelDynamicModel extends Question
     return this.visiblePanelsCore.indexOf(this.currentPanel);
   }
   public set currentIndex(val: number) {
-    if(val < 0 || this.visiblePanelCount < 1) return;
-    if(val >= this.visiblePanelCount) val = this.visiblePanelCount - 1;
+    if (val < 0 || this.visiblePanelCount < 1) return;
+    if (val >= this.visiblePanelCount) val = this.visiblePanelCount - 1;
     this.currentPanel = this.visiblePanelsCore[val];
   }
   /**
    * A `PanelModel` object that is the currently displayed panel.
    *
-   * When `renderMode` is `"list"` or Dynamic Panel is empty (`panelCount` is 0), this property contains `null`.
+   * When `displayMode` is `"list"` or Dynamic Panel is empty (`panelCount` is 0), this property contains `null`.
    * @see currentIndex
    * @see panels
    * @see panelCount
-   * @see renderMode
+   * @see displayMode
    */
   public get currentPanel(): PanelModel {
-    if(this.isDesignMode) return this.template;
-    if(this.isRenderModeList || this.useTemplatePanel) return null;
+    if (this.isDesignMode) return this.template;
+    if (this.isRenderModeList || this.useTemplatePanel) return null;
     let res = this.getPropertyValue("currentPanel", null);
-    if(!res && this.visiblePanelCount > 0) {
+    if (!res && this.visiblePanelCount > 0) {
       res = this.visiblePanelsCore[0];
       this.currentPanel = res;
     }
     return res;
   }
   public set currentPanel(val: PanelModel) {
-    if(this.isRenderModeList || this.useTemplatePanel) return;
+    if (this.isRenderModeList || this.useTemplatePanel) return;
     const curPanel = this.getPropertyValue("currentPanel");
     const index = !!val ? this.visiblePanelsCore.indexOf(val) : -1;
-    if(!!val && index < 0 || val === curPanel) return;
-    if(curPanel) {
+    if (!!val && index < 0 || val === curPanel) return;
+    if (curPanel) {
       curPanel.onHidingContent();
     }
     this.setPropertyValue("currentPanel", val);
@@ -595,7 +595,7 @@ export class QuestionPanelDynamicModel extends Question
     this.updateFooterActions();
     this.updateTabToolbarItemsPressedState();
     this.fireCallback(this.currentIndexChangedCallback);
-    if(index > -1 && this.survey) {
+    if (index > -1 && this.survey) {
       const options = {
         panel: val,
         visiblePanelIndex: index
@@ -604,12 +604,12 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
 
-  @propertyArray({ }) private _renderedPanels: Array<PanelModel> = [];
+  @propertyArray({}) private _renderedPanels: Array<PanelModel> = [];
 
   private updateRenderedPanels() {
-    if(this.isRenderModeList) {
+    if (this.isRenderModeList) {
       this.renderedPanels = [].concat(this.visiblePanels);
-    } else if(this.currentPanel) {
+    } else if (this.currentPanel) {
       this.renderedPanels = [this.currentPanel];
     } else {
       this.renderedPanels = [];
@@ -617,7 +617,7 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   public set renderedPanels(val: Array<PanelModel>) {
-    if(this.renderedPanels.length == 0 || val.length == 0) {
+    if (this.renderedPanels.length == 0 || val.length == 0) {
       this.blockAnimations();
       this.panelsAnimation.sync(val);
       this.releaseAnimations();
@@ -633,12 +633,12 @@ export class QuestionPanelDynamicModel extends Question
   private isPanelsAnimationRunning: boolean = false;
   private getPanelsAnimationOptions(): IAnimationConsumer<[PanelModel]> {
     const getDirectionCssClass = () => {
-      if(this.isRenderModeList) return "";
+      if (this.isRenderModeList) return "";
       let cssClass = new CssClassBuilder();
       let isRemoving = false;
       const leavingPanel = this.renderedPanels.filter(el => el !== this.currentPanel)[0];
       let leavingPanelIndex = this.visiblePanels.indexOf(leavingPanel);
-      if(leavingPanelIndex < 0) {
+      if (leavingPanelIndex < 0) {
         isRemoving = true;
         leavingPanelIndex = this.removedPanelIndex;
       }
@@ -652,7 +652,7 @@ export class QuestionPanelDynamicModel extends Question
     return {
       getRerenderEvent: () => this.onElementRerendered,
       getAnimatedElement: (panel) => {
-        if(panel && this.cssContent) {
+        if (panel && this.cssContent) {
           const contentSelector = classesToSelector(this.cssContent);
           return this.getWrapperElement()?.querySelector(`:scope ${contentSelector} #${panel.id}`)?.parentElement;
         }
@@ -661,11 +661,11 @@ export class QuestionPanelDynamicModel extends Question
         const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperFadeIn).append(getDirectionCssClass()).toString();
         return {
           onBeforeRunAnimation: (el) => {
-            if(this.focusNewPanelCallback) {
+            if (this.focusNewPanelCallback) {
               const scolledElement = this.isRenderModeList ? el : el.parentElement;
               SurveyElement.ScrollElementToViewCore(scolledElement, false, false, { behavior: "smooth" });
             }
-            if(!this.isRenderModeList) {
+            if (!this.isRenderModeList) {
               el.parentElement?.style.setProperty("--animation-height-to", el.offsetHeight + "px");
             } else {
               el.style.setProperty("--animation-height", el.offsetHeight + "px");
@@ -678,13 +678,14 @@ export class QuestionPanelDynamicModel extends Question
         const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperFadeOut).append(getDirectionCssClass()).toString();
         return {
           onBeforeRunAnimation: (el) => {
-            if(!this.isRenderModeList) {
+            if (!this.isRenderModeList) {
               el.parentElement?.style.setProperty("--animation-height-from", el.offsetHeight + "px");
             } else {
               el.style.setProperty("--animation-height", el.offsetHeight + "px");
             }
           },
-          cssClass: cssClass };
+          cssClass: cssClass
+        };
       },
       isAnimationEnabled: () => {
         return this.animationAllowed && !!this.getWrapperElement();
@@ -706,7 +707,7 @@ export class QuestionPanelDynamicModel extends Question
   private updatePanelsAnimation() {
     this._panelsAnimations = new (this.isRenderModeList ? AnimationGroup : AnimationTab)(this.getPanelsAnimationOptions(), (val, isTempUpdate?: boolean) => {
       this._renderedPanels = val;
-      if(!isTempUpdate) {
+      if (!isTempUpdate) {
         this.isPanelsAnimationRunning = false;
         this.focusNewPanel();
       }
@@ -714,7 +715,7 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   get panelsAnimation(): AnimationProperty<Array<PanelModel>, IAnimationGroupConsumer<PanelModel>> {
-    if(!this._panelsAnimations) {
+    if (!this._panelsAnimations) {
       this.updatePanelsAnimation();
     }
     return this._panelsAnimations;
@@ -722,7 +723,7 @@ export class QuestionPanelDynamicModel extends Question
 
   public onHidingContent(): void {
     super.onHidingContent();
-    if(this.currentPanel) {
+    if (this.currentPanel) {
       this.currentPanel.onHidingContent();
     }
     else {
@@ -778,8 +779,8 @@ export class QuestionPanelDynamicModel extends Question
     return this.getLocalizableString("keyDuplicationError");
   }
   /**
-   * A caption for the Previous button. Applies only if `renderMode` is different from `"list"`.
-   * @see renderMode
+   * A caption for the Previous button. Applies only if `displayMode` is different from `"list"`.
+   * @see displayMode
    * @see isPrevButtonVisible
    */
   public get panelPrevText(): string {
@@ -792,8 +793,8 @@ export class QuestionPanelDynamicModel extends Question
     return this.getLocalizableString("panelPrevText");
   }
   /**
-   * A caption for the Next button. Applies only if `renderMode` is different from `"list"`.
-   * @see renderMode
+   * A caption for the Next button. Applies only if `displayMode` is different from `"list"`.
+   * @see displayMode
    * @see isNextButtonVisible
    */
   public get panelNextText(): string {
@@ -830,17 +831,11 @@ export class QuestionPanelDynamicModel extends Question
   get locPanelRemoveText(): LocalizableString {
     return this.getLocalizableString("panelRemoveText");
   }
-  /**
-   * Returns true when the renderMode equals to "progressTop" or "progressTopBottom"
-   */
   public get isProgressTopShowing(): boolean {
-    return this.renderMode === "progressTop" || this.renderMode === "progressTopBottom";
+    return this.displayMode == "carousel" && (this.progressBarLocation === "top" || this.progressBarLocation === "topBottom");
   }
-  /**
-   * Returns true when the renderMode equals to "progressBottom" or "progressTopBottom"
-   */
   public get isProgressBottomShowing(): boolean {
-    return this.renderMode === "progressBottom" || this.renderMode === "progressTopBottom";
+    return this.displayMode == "carousel" && (this.progressBarLocation === "bottom" || this.progressBarLocation === "topBottom");
   }
   /**
    * Indicates whether the Previous button is visible.
@@ -860,9 +855,6 @@ export class QuestionPanelDynamicModel extends Question
     return this.currentIndex >= 0 && this.currentIndex < this.visiblePanelCount - 1;
   }
   public get isNextButtonShowing(): boolean { return this.isNextButtonVisible; }
-  /**
-   * Returns true when showRangeInProgress equals to true, renderMode doesn't equal to "list" and visiblePanelCount is >= 2.
-   */
   public get isRangeShowing(): boolean {
     return (
       this.showRangeInProgress && this.currentIndex >= 0 && this.visiblePanelCount > 1
@@ -937,7 +929,7 @@ export class QuestionPanelDynamicModel extends Question
     for (let i = this.panelCount; i < val; i++) {
       const panel = this.createNewPanel();
       this.panelsCore.push(panel);
-      if (this.renderMode == "list" && this.panelsState != "default") {
+      if (this.displayMode == "list" && this.panelsState != "default") {
         if (this.panelsState === "expanded") {
           panel.expand();
         } else {
@@ -964,7 +956,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get visiblePanelCount(): number { return this.visiblePanels.length; }
   /**
-   * Specifies whether users can expand and collapse panels. Applies if `renderMode` is `"list"` and the `templateTitle` property is specified.
+   * Specifies whether users can expand and collapse panels. Applies if `displayMode` is `"list"` and the `templateTitle` property is specified.
    *
    * Possible values:
    *
@@ -972,7 +964,7 @@ export class QuestionPanelDynamicModel extends Question
    * - `"expanded"` - All panels are displayed in full and can be collapsed in the UI.
    * - `"collapsed"` - All panels display only their titles and descriptions and can be expanded in the UI.
    * - `"firstExpanded"` - Only the first panel is displayed in full; other panels are collapsed and can be expanded in the UI.
-   * @see renderMode
+   * @see displayMode
    * @see templateTitle
    */
   public get panelsState(): string {
@@ -996,7 +988,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private setPanelsState() {
-    if (this.useTemplatePanel || this.renderMode != "list" || !this.templateTitle)
+    if (this.useTemplatePanel || this.displayMode != "list" || !this.templateTitle)
       return;
     for (var i = 0; i < this.panelsCore.length; i++) {
       var state = this.panelsState;
@@ -1161,57 +1153,116 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("panelRemoveButtonLocation", val);
   }
   /**
-   * Shows the range from 1 to panelCount when renderMode doesn't equal to "list". Set to false to hide this element.
-   * @see panelCount
-   * @see renderMode
+   * Obsolete. Use the [`showProgressBar`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#showProgressBar) property instead.
+   * @deprecated
    */
   public get showRangeInProgress(): boolean {
-    return this.getPropertyValue("showRangeInProgress");
+    return this.showProgressBar;
+    // return this.getPropertyValue("showRangeInProgress");
   }
   public set showRangeInProgress(val: boolean) {
-    this.setPropertyValue("showRangeInProgress", val);
-    this.fireCallback(this.currentIndexChangedCallback);
+    this.showProgressBar = val;
+    // this.setPropertyValue("showRangeInProgress", val);
   }
   /**
-   * Specifies how to render panels.
-   *
-   * Possible values:
-   *
-   * - `"list"` (default) - Renders panels one under the other. [View Demo](https://surveyjs.io/form-library/examples/how-to-use-expressions-in-dynamic-panel/)
-   * - `"progressTop"` - Renders each panel as a card and displays a progress bar at the top. [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/)
-   * - `"progressBottom"` - Renders each panel panel as a card and displays a progress bar at the bottom.
-   * - `"progressTopBottom"` - Renders each panel as a card and displays a progress bar at the top and bottom.
-   * - `"tab"` - Renders each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles. [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/)
+   * Obsolete. Use the [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) property instead.
+   * @deprecated
    */
   public get renderMode(): string {
-    return this.getPropertyValue("renderMode");
+    let displayMode = this.displayMode;
+    if (displayMode == "carousel") {
+      const progressBarLocation = this.progressBarLocation;
+      if (progressBarLocation == "top") {
+        return "progressTop";
+      } else if (progressBarLocation == "bottom") {
+        return "progressBottom";
+      } else if (progressBarLocation == "topBottom") {
+        return "progressTopBottom";
+      }
+    }
+    return displayMode;
   }
   public set renderMode(val: string) {
-    this.setPropertyValue("renderMode", val);
-    this.fireCallback(this.renderModeChangedCallback);
+    if ((val || "").startsWith("progress")) {
+      if (val == "progressTop") {
+        this.progressBarLocation = "top";
+      } else if (val == "progressBottom") {
+        this.progressBarLocation = "bottom";
+      } else if (val == "progressTopBottom") {
+        this.progressBarLocation = "topBottom";
+      }
+      this.displayMode = "carousel";
+    } else {
+      this.displayMode = val as any;
+    }
+    // this.updatePanelView();
+  }
+  private updatePanelView() {
     this.blockAnimations();
     this.updateRenderedPanels();
     this.releaseAnimations();
     this.updatePanelsAnimation();
   }
+  /**
+   * Specifies how to display panels.
+   *
+   * Possible values:
+   *
+   * - `"list"` (default) - Displays panels one under the other. [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/)
+   * - `"carousel"` - Displays panels in a carousel. Users can switch between panels using navigation buttons.
+   * - `"tab"` - Displays each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles. [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/)
+   * @see showProgressBar
+   * @see progressBarLocation
+   */
+  @property({
+    onSet: (val, target: QuestionPanelDynamicModel) => {
+      target.fireCallback(target.renderModeChangedCallback);
+      target.updatePanelView();
+    }
+  }) displayMode: "list" | "carousel" | "tab";
+  /**
+   * Specifies whether to display the progress bar. Applies only if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"carousel"`.
+   *
+   * Default value: `true`
+   * @see progressBarLocation
+   */
+  @property({
+    onSet: (val, target: QuestionPanelDynamicModel) => {
+      target.fireCallback(target.currentIndexChangedCallback);
+    }
+  }) showProgressBar: true | false;
+  /**
+   * Specifies the alignment of the [progress bar](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#showProgressBar) relative to the currently displayed panel. Applies only if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"carousel"`.
+   *
+   * Possible values:
+   *
+   * - `"top"` (default) - Displays the progress bar at the top of the current panel.
+   * - `"bottom"` - Displays the progress bar at the bottom of the current panel.
+   * - `"topBottom"` - Displays the progress bar at the top and bottom of the current panel.
+   */
+  @property({
+    onSet: (val, target: QuestionPanelDynamicModel) => {
+      // target.updatePanelView();
+    }
+  }) progressBarLocation: "top" | "bottom" | "topBottom";
   public get tabAlign(): "center" | "left" | "right" {
     return this.getPropertyValue("tabAlign");
   }
   public set tabAlign(val: "center" | "left" | "right") {
     this.setPropertyValue("tabAlign", val);
-    if(this.isRenderModeTab) {
+    if (this.isRenderModeTab) {
       this.additionalTitleToolbar.containerCss = this.getAdditionalTitleToolbarCss();
     }
   }
-  public get isRenderModeList() {
-    return this.renderMode === "list";
+  public get isRenderModeList(): boolean {
+    return this.displayMode === "list";
   }
-  public get isRenderModeTab() {
-    return this.renderMode === "tab";
+  public get isRenderModeTab(): boolean {
+    return this.displayMode === "tab";
   }
   get hasTitleOnLeftTop(): boolean {
-    if(this.isRenderModeTab && this.visiblePanelCount > 0) return true;
-    if(!this.hasTitle) return false;
+    if (this.isRenderModeTab && this.visiblePanelCount > 0) return true;
+    if (!this.hasTitle) return false;
     const location = this.getTitleLocation();
     return location === "left" || location === "top";
   }
@@ -1380,31 +1431,30 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   /**
-   * Add a new dynamic panel based on the template Panel. It checks if canAddPanel returns true and then calls addPanel method.
-   * If a renderMode is different from "list" and the current panel has erros, then
-   * @see template
+   * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
+   *
+   * Unlike the [`addPanel()`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanel) method, `addPanelUI()` performs additional actions: checks whether a new panel [can be added](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canAddPanel), expands and focuses the new panel, and runs animated effects.
    * @see panelCount
    * @see panels
-   * @see canAddPanel
    */
   public addPanelUI(): PanelModel {
     if (!this.canAddPanel) return null;
     if (!this.canLeaveCurrentPanel()) return null;
     const newPanel = this.addPanel();
-    if (this.renderMode === "list" && this.panelsState !== "default") {
+    if (this.displayMode === "list" && this.panelsState !== "default") {
       newPanel.expand();
     }
     this.focusNewPanelCallback = () => {
       newPanel.focusFirstQuestion();
     };
-    if(!this.isPanelsAnimationRunning) {
+    if (!this.isPanelsAnimationRunning) {
       this.focusNewPanel();
     }
     return newPanel;
   }
   private focusNewPanelCallback: () => void;
   private focusNewPanel() {
-    if(this.focusNewPanelCallback) {
+    if (this.focusNewPanelCallback) {
       this.focusNewPanelCallback();
       this.focusNewPanelCallback = undefined;
     }
@@ -1412,7 +1462,7 @@ export class QuestionPanelDynamicModel extends Question
 
   /**
    * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
-   * @param index *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`renderMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `renderMode` value.
+   * @param index *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `displayMode` value.
    * @see panelCount
    * @see panels
    * @see allowAddPanel
@@ -1420,10 +1470,10 @@ export class QuestionPanelDynamicModel extends Question
    */
   public addPanel(index?: number): PanelModel {
     const curIndex = this.currentIndex;
-    if(index === undefined) {
+    if (index === undefined) {
       index = curIndex < 0 ? this.panelCount : curIndex + 1;
     }
-    if(index < 0 || index > this.panelCount) {
+    if (index < 0 || index > this.panelCount) {
       index = this.panelCount;
     }
     this.updateValueOnAddingPanel(curIndex < 0 ? this.panelCount - 1 : curIndex, index);
@@ -1436,10 +1486,10 @@ export class QuestionPanelDynamicModel extends Question
   private updateValueOnAddingPanel(prevIndex: number, index: number): void {
     this.panelCount++;
     let newValue = this.value;
-    if(!Array.isArray(newValue) || newValue.length !== this.panelCount) return;
+    if (!Array.isArray(newValue) || newValue.length !== this.panelCount) return;
     let hasModified = false;
     const lastIndex = this.panelCount - 1;
-    if(index < lastIndex) {
+    if (index < lastIndex) {
       hasModified = true;
       const rec = newValue[lastIndex];
       newValue.splice(lastIndex, 1);
@@ -1459,7 +1509,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private canLeaveCurrentPanel(): boolean {
-    return !(this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors(true, true));
+    return !(this.displayMode !== "list" && this.currentPanel && this.currentPanel.hasErrors(true, true));
   }
   private copyValue(dest: any, src: any) {
     for (var key in src) {
@@ -1467,33 +1517,31 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   /**
-   * Call removePanel function. Do nothing is canRemovePanel returns false. If confirmDelete set to true, it shows the confirmation dialog first.
-   * @param value a panel or panel index
-   * @see removePanel
-   * @see confirmDelete
-   * @see confirmDeleteText
-   * @see canRemovePanel
+   * Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
    *
+   * Unlike the [`removePanel()`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanel) method, `removePanelUI()` performs additional actions: checks whether the panel [can be removed](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canRemovePanel) and displays a confirmation dialog (if the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#confirmDelete) property is enabled).
+   * @param value A `PanelModel` instance or zero-based panel index.
+   * @see addPanelUI
    */
   public removePanelUI(value: any): void {
     if (!this.canRemovePanel) return;
-    if(this.isRequireConfirmOnDelete(value)) {
+    if (this.isRequireConfirmOnDelete(value)) {
       confirmActionAsync(this.confirmDeleteText, () => { this.removePanel(value); }, undefined, this.getLocale(), this.survey.rootElement);
     } else {
       this.removePanel(value);
     }
   }
   public isRequireConfirmOnDelete(val: any): boolean {
-    if(!this.confirmDelete) return false;
+    if (!this.confirmDelete) return false;
     const index = this.getVisualPanelIndex(val);
-    if(index < 0 || index >= this.visiblePanelCount) return false;
+    if (index < 0 || index >= this.visiblePanelCount) return false;
     const panelValue = this.visiblePanelsCore[index].getValue();
     return !this.isValueEmpty(panelValue) &&
       (this.isValueEmpty(this.defaultPanelValue) || !this.isTwoValueEquals(panelValue, this.defaultPanelValue));
   }
   /**
-   * Switches Dynamic Panel to the next panel. Returns `true` in case of success, or `false` if `renderMode` is `"list"` or the current panel contains validation errors.
-   * @see renderMode
+   * Switches Dynamic Panel to the next panel. Returns `true` in case of success, or `false` if `displayMode` is `"list"` or the current panel contains validation errors.
+   * @see displayMode
    */
   public goToNextPanel(): boolean {
     if (this.currentIndex < 0) return false;
@@ -1508,20 +1556,19 @@ export class QuestionPanelDynamicModel extends Question
     if (this.currentIndex < 0) return;
     this.currentIndex--;
   }
-  /**
-   * Removes a dynamic panel from the panels array.
-   * @param value a panel or panel index
-   * @see panels
-   * @see template
-   */
   private removedPanelIndex: number;
+  /**
+   * Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
+   * @param value A `PanelModel` instance or zero-based panel index.
+   * @see addPanel
+   */
   public removePanel(value: any): void {
     const visIndex = this.getVisualPanelIndex(value);
     if (visIndex < 0 || visIndex >= this.visiblePanelCount) return;
     this.removedPanelIndex = visIndex;
     const panel = this.visiblePanelsCore[visIndex];
     const index = this.panelsCore.indexOf(panel);
-    if(index < 0) return;
+    if (index < 0) return;
     if (this.survey && !this.survey.dynamicPanelRemoving(this, index, panel)) return;
     this.panelsCore.splice(index, 1);
     this.updateBindings("panelCount", this.panelCount);
@@ -1556,7 +1603,7 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < panels.length; i++) {
       panels[i].locStrsChanged();
     }
-    if(this.additionalTitleToolbar) {
+    if (this.additionalTitleToolbar) {
       this.additionalTitleToolbar.locStrsChanged();
     }
   }
@@ -1635,12 +1682,12 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < questions.length; i++) {
       questions[i].addConditionObjectsByContext(panelObjs, context);
     }
-    for(var index = 0; index < settings.panel.maxPanelCountInCondition; index++) {
+    for (var index = 0; index < settings.panel.maxPanelCountInCondition; index++) {
       const indexStr = "[" + index + "].";
       const prefixName = this.getValueName() + indexStr;
       const prefixText = this.processedTitle + indexStr;
       for (var i = 0; i < panelObjs.length; i++) {
-        if(!!panelObjs[i].context) {
+        if (!!panelObjs[i].context) {
           objects.push(panelObjs[i]);
         } else {
           objects.push({
@@ -1668,7 +1715,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
     const panels = visibleOnly ? this.visiblePanelsCore : this.panelsCore;
-    if(!Array.isArray(panels)) return;
+    if (!Array.isArray(panels)) return;
     panels.forEach(panel => {
       panel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
     });
@@ -1697,7 +1744,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private updateNoEntriesTextDefaultLoc(): void {
     const loc = this.getLocalizableString("noEntriesText");
-    if(!loc) return;
+    if (!loc) return;
     loc.localizationName = (this.isReadOnly || !this.allowAddPanel) ? "noEntriesReadonlyText" : "noEntriesText";
     loc.strChanged();
   }
@@ -1710,8 +1757,8 @@ export class QuestionPanelDynamicModel extends Question
   private hasPanelBuildFirstTime: boolean;
   private isBuildingPanelsFirstTime: boolean;
   private buildPanelsFirstTime(force: boolean = false): void {
-    if(this.hasPanelBuildFirstTime) return;
-    if(!force && this.wasNotRenderedInSurvey) return;
+    if (this.hasPanelBuildFirstTime) return;
+    if (!force && this.wasNotRenderedInSurvey) return;
     this.blockAnimations();
     this.hasPanelBuildFirstTime = true;
     this.isBuildingPanelsFirstTime = true;
@@ -1730,7 +1777,7 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     this.updateIsReady();
-    if(this.isReadOnly || !this.allowAddPanel) {
+    if (this.isReadOnly || !this.allowAddPanel) {
       this.updateNoEntriesTextDefaultLoc();
     }
     this.updateFooterActions();
@@ -1831,7 +1878,7 @@ export class QuestionPanelDynamicModel extends Question
       res = this.hasKeysDuplicated(fireCallback, rec) || res;
       this.updatePanelsContainsErrors();
     } else {
-      res= this.hasErrorInPanels(fireCallback, rec);
+      res = this.hasErrorInPanels(fireCallback, rec);
     }
     return super.hasErrors(fireCallback, rec) || res;
   }
@@ -1857,14 +1904,14 @@ export class QuestionPanelDynamicModel extends Question
     return true;
   }
   protected clearValueOnHidding(isClearOnHidden: boolean): void {
-    if(!isClearOnHidden) {
-      if(!!this.survey && this.survey.getQuestionClearIfInvisible("onHidden") === "none") return;
+    if (!isClearOnHidden) {
+      if (!!this.survey && this.survey.getQuestionClearIfInvisible("onHidden") === "none") return;
       this.clearValueInPanelsIfInvisible("onHiddenContainer");
     }
     super.clearValueOnHidding(isClearOnHidden);
   }
   public clearValueIfInvisible(reason: string = "onHidden"): void {
-    const panelReason = reason === "onHidden" ? "onHiddenContainer": reason;
+    const panelReason = reason === "onHidden" ? "onHiddenContainer" : reason;
     this.clearValueInPanelsIfInvisible(panelReason);
     super.clearValueIfInvisible(reason);
   }
@@ -1875,7 +1922,7 @@ export class QuestionPanelDynamicModel extends Question
       this.isSetPanelItemData = {};
       for (var j = 0; j < questions.length; j++) {
         const q = questions[j];
-        if(q.visible && !panel.isVisible) continue;
+        if (q.visible && !panel.isVisible) continue;
         q.clearValueIfInvisible(reason);
         this.isSetPanelItemData[q.getValueName()] = this.maxCheckCount + 1;
       }
@@ -1949,14 +1996,11 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < panels.length; i++) {
       this.setOnCompleteAsyncInPanel(panels[i]);
     }
-    for (var i = 0; i < panels.length; i++) {
-      var pnlError = panels[i].hasErrors(
-        fireCallback,
-        !!rec && rec.focusOnFirstError,
-        rec
-      );
+    const focusOnError = !!rec && rec.focusOnFirstError;
+    for (let i = 0; i < panels.length; i++) {
+      let pnlError = panels[i].hasErrors(fireCallback, focusOnError, rec);
       pnlError = this.isValueDuplicated(panels[i], keyValues, rec, fireCallback) || pnlError;
-      if (!this.isRenderModeList && pnlError && !res) {
+      if (!this.isRenderModeList && pnlError && !res && focusOnError) {
         this.currentIndex = i;
       }
       res = pnlError || res;
@@ -2005,7 +2049,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public getPanelActions(panel: PanelModel): Array<IAction> {
     let actions = panel.footerActions;
-    if(this.panelRemoveButtonLocation !== "right") {
+    if (this.panelRemoveButtonLocation !== "right") {
       actions.push(new Action({
         id: `remove-panel-${panel.id}`,
         component: "sv-paneldynamic-remove-btn",
@@ -2013,7 +2057,7 @@ export class QuestionPanelDynamicModel extends Question
         data: { question: this, panel: panel }
       }));
     }
-    if(!!this.survey) {
+    if (!!this.survey) {
       actions = this.survey.getUpdatedPanelFooterActions(panel, actions, this);
     }
     return actions;
@@ -2025,7 +2069,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
     new QuestionPanelDynamicItem(this, panel);
-    if(!this.isDesignMode && !this.isReadOnly && !this.isValueEmpty(panel.getValue())) {
+    if (!this.isDesignMode && !this.isReadOnly && !this.isValueEmpty(panel.getValue())) {
       this.runPanelsCondition([panel], this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
     panel.onFirstRendering();
@@ -2039,7 +2083,7 @@ export class QuestionPanelDynamicModel extends Question
     };
     panel.onGetFooterToolbarCssCallback = () => { return this.cssClasses.panelFooter; };
     panel.registerPropertyChangedHandlers(["visible"], () => {
-      if(panel.visible) this.onPanelAdded(panel);
+      if (panel.visible) this.onPanelAdded(panel);
       else this.onPanelRemoved(panel);
       this.updateFooterActions();
     });
@@ -2058,7 +2102,7 @@ export class QuestionPanelDynamicModel extends Question
       : this.getTitleLocationCore();
   }
   public getChildErrorLocation(child: Question): string {
-    if(this.templateErrorLocation !== "default") return this.templateErrorLocation;
+    if (this.templateErrorLocation !== "default") return this.templateErrorLocation;
     return super.getChildErrorLocation(child);
   }
   protected createNewPanelObject(): PanelModel {
@@ -2077,7 +2121,7 @@ export class QuestionPanelDynamicModel extends Question
     this.settingPanelCountBasedOnValue = false;
   }
   public setQuestionValue(newValue: any) {
-    if(this.settingPanelCountBasedOnValue) return;
+    if (this.settingPanelCountBasedOnValue) return;
     super.setQuestionValue(newValue, false);
     this.setPanelCountBasedOnValue();
     for (var i = 0; i < this.panelsCore.length; i++) {
@@ -2086,7 +2130,7 @@ export class QuestionPanelDynamicModel extends Question
     this.updateIsAnswered();
   }
   public onSurveyValueChanged(newValue: any) {
-    if(newValue === undefined && this.isAllPanelsEmpty()) return;
+    if (newValue === undefined && this.isAllPanelsEmpty()) return;
     super.onSurveyValueChanged(newValue);
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.panelSurveyValueChanged(this.panelsCore[i]);
@@ -2098,7 +2142,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private isAllPanelsEmpty(): boolean {
     for (var i = 0; i < this.panelsCore.length; i++) {
-      if(!Helpers.isValueEmpty(this.panelsCore[i].getValue()))
+      if (!Helpers.isValueEmpty(this.panelsCore[i].getValue()))
         return false;
     }
     return true;
@@ -2140,8 +2184,8 @@ export class QuestionPanelDynamicModel extends Question
   }
   getVisibleItemIndex(item: ISurveyData): number {
     const visPanels = this.visiblePanelsCore;
-    for(var i = 0; i < visPanels.length; i ++) {
-      if(visPanels[i].data === item) return i;
+    for (var i = 0; i < visPanels.length; i++) {
+      if (visPanels[i].data === item) return i;
     }
     return visPanels.length;
   }
@@ -2161,10 +2205,10 @@ export class QuestionPanelDynamicModel extends Question
   setPanelItemData(item: ISurveyData, name: string, val: any) {
     if (this.isSetPanelItemData[name] > this.maxCheckCount)
       return;
-    if(!this.isSetPanelItemData[name]) {
+    if (!this.isSetPanelItemData[name]) {
       this.isSetPanelItemData[name] = 0;
     }
-    this.isSetPanelItemData[name] ++;
+    this.isSetPanelItemData[name]++;
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
@@ -2201,8 +2245,8 @@ export class QuestionPanelDynamicModel extends Question
       };
       this.survey.dynamicPanelItemValueChanged(this, options);
     }
-    this.isSetPanelItemData[name] --;
-    if(this.isSetPanelItemData[name] - 1) {
+    this.isSetPanelItemData[name]--;
+    if (this.isSetPanelItemData[name] - 1) {
       delete this.isSetPanelItemData[name];
     }
   }
@@ -2283,7 +2327,7 @@ export class QuestionPanelDynamicModel extends Question
     return new CssClassBuilder()
       .append(this.cssClasses.button)
       .append(this.cssClasses.buttonAdd)
-      .append(this.cssClasses.buttonAdd + "--list-mode", this.renderMode === "list")
+      .append(this.cssClasses.buttonAdd + "--list-mode", this.displayMode === "list")
       .toString();
   }
   public getPrevButtonCss(): string {
@@ -2322,8 +2366,8 @@ export class QuestionPanelDynamicModel extends Question
   public get hasAdditionalTitleToolbar(): boolean {
     return this.isRenderModeTab && this.visiblePanels.length > 0;
   }
-  protected getAdditionalTitleToolbar() : AdaptiveActionContainer | null {
-    if(!this.isRenderModeTab) return null;
+  protected getAdditionalTitleToolbar(): AdaptiveActionContainer | null {
+    if (!this.isRenderModeTab) return null;
     if (!this.additionalTitleToolbarValue) {
       this.additionalTitleToolbarValue = new AdaptiveActionContainer();
       this.additionalTitleToolbarValue.dotsItem.popupModel.showPointer = false;
@@ -2409,14 +2453,14 @@ export class QuestionPanelDynamicModel extends Question
     this.footerToolbarValue.setItems(items);
   }
   private createTabByPanel(panel: PanelModel, visPanelIndex: number) {
-    if(!this.isRenderModeTab) return;
+    if (!this.isRenderModeTab) return;
 
     const locTitle = new LocalizableString(panel, true);
     locTitle.onGetTextCallback = (str: string): string => {
-      if(!str) {
+      if (!str) {
         str = this.locTabTitlePlaceholder.renderedHtml;
       }
-      if(!this.survey) return str;
+      if (!this.survey) return str;
       const options = {
         title: str,
         panel: panel,
@@ -2448,40 +2492,40 @@ export class QuestionPanelDynamicModel extends Question
       .toString();
   }
   private updateTabToolbarItemsPressedState() {
-    if(!this.isRenderModeTab) return;
-    if(this.currentIndex < 0 || this.currentIndex >= this.visiblePanelCount) return;
+    if (!this.isRenderModeTab) return;
+    if (this.currentIndex < 0 || this.currentIndex >= this.visiblePanelCount) return;
     const panel = this.visiblePanelsCore[this.currentIndex];
     this.additionalTitleToolbar.renderedActions.forEach(action => {
       const isActive = action.id === panel.id;
       action.pressed = isActive;
       action.disableHide = isActive;
       //should raise update if dimensions are not changed but action is active now
-      if(action.mode === "popup" && action.disableHide) {
+      if (action.mode === "popup" && action.disableHide) {
         action["raiseUpdate"]();
       }
     });
   }
   private updateTabToolbar() {
-    if(!this.isRenderModeTab) return;
+    if (!this.isRenderModeTab) return;
 
     const items: Array<Action> = [];
     const visPanels = this.visiblePanelsCore;
-    for(let i = 0; i < visPanels.length; i ++) {
+    for (let i = 0; i < visPanels.length; i++) {
       this.visiblePanelsCore.forEach(panel => items.push(this.createTabByPanel(visPanels[i], i)));
     }
     this.additionalTitleToolbar.setItems(items);
   }
   private addTabFromToolbar(panel: PanelModel, index: number) {
-    if(!this.isRenderModeTab) return;
+    if (!this.isRenderModeTab) return;
 
     const newItem = this.createTabByPanel(panel, index);
     this.additionalTitleToolbar.actions.splice(index, 0, newItem);
     this.updateTabToolbarItemsPressedState();
   }
   private removeTabFromToolbar(panel: PanelModel) {
-    if(!this.isRenderModeTab) return;
+    if (!this.isRenderModeTab) return;
     const removedItem = this.additionalTitleToolbar.getActionById(panel.id);
-    if(!removedItem) return;
+    if (!removedItem) return;
     this.additionalTitleToolbar.actions.splice(this.additionalTitleToolbar.actions.indexOf(removedItem), 1);
     this.updateTabToolbarItemsPressedState();
   }
@@ -2500,7 +2544,7 @@ export class QuestionPanelDynamicModel extends Question
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
     const additionalTitleToolbar = <AdaptiveActionContainer>this.additionalTitleToolbar;
-    if(!!additionalTitleToolbar) {
+    if (!!additionalTitleToolbar) {
       additionalTitleToolbar.containerCss = this.getAdditionalTitleToolbarCss(classes);
       additionalTitleToolbar.cssClasses = classes.tabs;
       additionalTitleToolbar.dotsItem.cssClasses = classes.tabs;
@@ -2522,10 +2566,14 @@ Serializer.addClass(
       isLightSerializable: false
     },
     { name: "templateTitle:text", serializationProperty: "locTemplateTitle" },
-    { name: "templateTabTitle", serializationProperty: "locTemplateTabTitle",
-      visibleIf: (obj: any) => { return obj.renderMode === "tab"; } },
-    { name: "tabTitlePlaceholder", serializationProperty: "locTabTitlePlaceholder",
-      visibleIf: (obj: any) => { return obj.renderMode === "tab"; } },
+    {
+      name: "templateTabTitle", serializationProperty: "locTemplateTabTitle",
+      visibleIf: (obj: any) => { return obj.displayMode === "tab"; }
+    },
+    {
+      name: "tabTitlePlaceholder", serializationProperty: "locTabTitlePlaceholder",
+      visibleIf: (obj: any) => { return obj.displayMode === "tab"; }
+    },
     {
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
@@ -2552,7 +2600,7 @@ Serializer.addClass(
       name: "panelsState",
       default: "default",
       choices: ["default", "collapsed", "expanded", "firstExpanded"],
-      visibleIf: (obj: any) => { return obj.renderMode === "list"; }
+      visibleIf: (obj: any) => { return obj.displayMode === "list"; }
     },
     { name: "keyName" },
     {
@@ -2578,12 +2626,12 @@ Serializer.addClass(
     {
       name: "panelPrevText",
       serializationProperty: "locPanelPrevText",
-      visibleIf: (obj: any) => { return obj.renderMode !== "list"; }
+      visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
     },
     {
       name: "panelNextText",
       serializationProperty: "locPanelNextText",
-      visibleIf: (obj: any) => { return obj.renderMode !== "list"; }
+      visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
     },
     {
       name: "showQuestionNumbers",
@@ -2593,16 +2641,30 @@ Serializer.addClass(
     {
       name: "showRangeInProgress:boolean",
       default: true,
-      visibleIf: (obj: any) => { return obj.renderMode !== "list"; }
+      visible: false
+      // visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
     },
     {
       name: "renderMode",
       default: "list",
       choices: ["list", "progressTop", "progressBottom", "progressTopBottom", "tab"],
+      visible: false,
+    },
+    { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
+    {
+      name: "showProgressBar:boolean",
+      default: true,
+      visibleIf: (obj: any) => { return obj.displayMode === "carousel"; }
+    },
+    {
+      name: "progressBarLocation",
+      default: "top",
+      choices: ["top", "bottom", "topBottom"],
+      visibleIf: (obj: any) => { return obj.showProgressBar; }
     },
     {
       name: "tabAlign", default: "center", choices: ["left", "center", "right"],
-      visibleIf: (obj: any) => { return obj.renderMode === "tab"; }
+      visibleIf: (obj: any) => { return obj.displayMode === "tab"; }
     },
     {
       name: "templateTitleLocation",

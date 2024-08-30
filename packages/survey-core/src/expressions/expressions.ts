@@ -3,6 +3,12 @@ import { FunctionFactory } from "../functionsfactory";
 import { ProcessValue } from "../conditionProcessValue";
 import { settings } from "../settings";
 
+export interface AsyncFunctionItem {
+  operand?: FunctionOperand;
+  parent?: AsyncFunctionItem;
+  children?: Array<AsyncFunctionItem>;
+}
+
 export abstract class Operand {
   public toString(func: (op: Operand) => string = undefined): string {
     return "";
@@ -14,7 +20,7 @@ export abstract class Operand {
     return false;
   }
   public hasAsyncFunction(): boolean { return false; }
-  public addToAsyncList(list: Array<FunctionOperand>): void {}
+  public addToAsyncList(list: Array<AsyncFunctionItem>): void {}
   public isEqual(op: Operand): boolean {
     return !!op && op.getType() === this.getType() && this.isContentEqual(op);
   }
@@ -127,7 +133,7 @@ export class BinaryOperand extends Operand {
       (!!this.right && this.right.hasAsyncFunction())
     );
   }
-  public addToAsyncList(list: Array<FunctionOperand>) {
+  public addToAsyncList(list: Array<AsyncFunctionItem>) {
     if (!!this.left) this.left.addToAsyncList(list);
     if (!!this.right) this.right.addToAsyncList(list);
   }
@@ -172,7 +178,7 @@ export class UnaryOperand extends Operand {
   public hasAsyncFunction(): boolean {
     return this.expression.hasAsyncFunction();
   }
-  public addToAsyncList(list: Array<FunctionOperand>): void {
+  public addToAsyncList(list: Array<AsyncFunctionItem>): void {
     this.expression.addToAsyncList(list);
   }
   public evaluate(processValue?: ProcessValue): boolean {
@@ -225,7 +231,7 @@ export class ArrayOperand extends Operand {
   public hasAsyncFunction(): boolean {
     return this.values.some((operand) => operand.hasAsyncFunction());
   }
-  public addToAsyncList(list: Array<FunctionOperand>) {
+  public addToAsyncList(list: Array<AsyncFunctionItem>): void {
     this.values.forEach((operand) => operand.addToAsyncList(list));
   }
   protected isContentEqual(op: Operand): boolean {
@@ -392,18 +398,34 @@ export class FunctionOperand extends Operand {
   public setVariables(variables: Array<string>) {
     this.parameters.setVariables(variables);
   }
-  public get isReady() {
+  public get isReady(): boolean {
     return this.isReadyValue;
   }
   public hasFunction(): boolean {
     return true;
   }
   public hasAsyncFunction(): boolean {
+    return this.isAsyncFunction() || this.parameters.hasAsyncFunction();
+  }
+  private isAsyncFunction(): boolean {
     return FunctionFactory.Instance.isAsyncFunction(this.originalValue);
   }
-  public addToAsyncList(list: Array<FunctionOperand>) {
-    if (this.hasAsyncFunction()) {
-      list.push(this);
+  public addToAsyncList(list: Array<AsyncFunctionItem>): void {
+    let item: AsyncFunctionItem = undefined;
+    if (this.isAsyncFunction()) {
+      item = { operand: this };
+    }
+    if(this.parameters.hasAsyncFunction()) {
+      const children = new Array<AsyncFunctionItem>();
+      this.parameters.addToAsyncList(children);
+      children.forEach(child => child.parent = item);
+      if(!item) {
+        item = {};
+      }
+      item.children = children;
+    }
+    if(item) {
+      list.push(item);
     }
   }
   protected isContentEqual(op: Operand): boolean {

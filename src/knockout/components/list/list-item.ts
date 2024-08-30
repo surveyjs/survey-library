@@ -24,7 +24,8 @@ ko.components.register("sv-list-item", {
         },
         leave: (event: MouseEvent, data: any) => {
           data.model.onItemLeave(data.item);
-        }
+        },
+        itemComponent: params.item.component || params.model.itemComponent
       };
     },
   },

@@ -70,7 +70,7 @@ function getDefaultYearForValidation(minYear: number, maxYear: number): number {
   return minYear;
 }
 
-export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
+export function getUTCDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
   const result: Array<IDateTimeMaskLexem> = [];
   let prevLexemType: string;
 
@@ -186,7 +186,7 @@ export class InputMaskDateTime extends InputMaskPattern {
   }
 
   protected updateLiterals(): void {
-    this.lexems = getDateTimeLexems(this.pattern || "");
+    this.lexems = getUTCDateTimeLexems(this.pattern || "");
   }
 
   private leaveOnlyNumbers(input: string): string {
@@ -214,35 +214,35 @@ export class InputMaskDateTime extends InputMaskPattern {
         switch(lexem.type) {
           case "hour": {
             if (!this.is12Hours) {
-              inputData.value = date.getHours().toString();
+              inputData.value = date.getUTCHours().toString();
             } else {
-              inputData.value = ((date.getHours() - 1) % this.twelve + 1).toString();
+              inputData.value = ((date.getUTCHours() - 1) % this.twelve + 1).toString();
             }
             break;
           }
           case "minute": {
-            inputData.value = date.getMinutes().toString();
+            inputData.value = date.getUTCMinutes().toString();
             break;
           }
           case "second": {
-            inputData.value = date.getSeconds().toString();
+            inputData.value = date.getUTCSeconds().toString();
             break;
           }
           case "timeMarker": {
-            const marker = (date.getHours() >= this.twelve) ? "pm" : "am";
+            const marker = (date.getUTCHours() >= this.twelve) ? "pm" : "am";
             inputData.value = lexem.upperCase ? marker.toUpperCase() : marker;
             break;
           }
           case "day": {
-            inputData.value = date.getDate().toString();
+            inputData.value = date.getUTCDate().toString();
             break;
           }
           case "month": {
-            inputData.value = (date.getMonth() + 1).toString();
+            inputData.value = (date.getUTCMonth() + 1).toString();
             break;
           }
           case "year": {
-            let year = date.getFullYear();
+            let year = date.getUTCFullYear();
             if(lexem.count == 2) year = year % 100;
             inputData.value = year.toString();
             break;
@@ -314,7 +314,7 @@ export class InputMaskDateTime extends InputMaskPattern {
   private createIDateTimeCompositionWithDefaults(dateTime: IDateTimeComposition, isUpperLimit: boolean): IDateTimeComposition {
     const min = dateTime.min;
     const max = dateTime.max;
-    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear());
+    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getUTCFullYear(), max.getUTCFullYear());
     const month = dateTime.month !== undefined ? dateTime.month : (isUpperLimit && this.hasDatePart ? 12 : 1);
     const day = dateTime.day !== undefined ? dateTime.day : (isUpperLimit && this.hasDatePart ? this.getMaxDateForMonth(year, month) : 1);
     const hour = dateTime.hour !== undefined ? dateTime.hour : (isUpperLimit ? 23 : 0);
@@ -332,7 +332,7 @@ export class InputMaskDateTime extends InputMaskPattern {
   private isDateValid(dateTime: IDateTimeComposition): boolean {
     const min = dateTime.min;
     const max = dateTime.max;
-    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear());
+    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getUTCFullYear(), max.getUTCFullYear());
     const month = dateTime.month !== undefined ? dateTime.month : 1;
     const day = dateTime.day !== undefined ? dateTime.day : 1;
     const monthIndex = month - 1;
@@ -341,9 +341,9 @@ export class InputMaskDateTime extends InputMaskPattern {
     const dateH = new Date(this.getISO_8601Format(this.createIDateTimeCompositionWithDefaults(dateTime, true)));
 
     return !isNaN(date as any) &&
-    date.getDate() === day &&
-    date.getMonth() === monthIndex &&
-    date.getFullYear() === year &&
+      date.getUTCDate() === day &&
+      date.getUTCMonth() === monthIndex &&
+      date.getUTCFullYear() === year &&
     dateH >= dateTime.min && date <= dateTime.max;
   }
 

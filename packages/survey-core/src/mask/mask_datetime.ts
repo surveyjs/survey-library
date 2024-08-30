@@ -70,7 +70,7 @@ function getDefaultYearForValidation(minYear: number, maxYear: number): number {
   return minYear;
 }
 
-export function getUTCDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
+export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
   const result: Array<IDateTimeMaskLexem> = [];
   let prevLexemType: string;
 
@@ -186,7 +186,7 @@ export class InputMaskDateTime extends InputMaskPattern {
   }
 
   protected updateLiterals(): void {
-    this.lexems = getUTCDateTimeLexems(this.pattern || "");
+    this.lexems = getDateTimeLexems(this.pattern || "");
   }
 
   private leaveOnlyNumbers(input: string): string {

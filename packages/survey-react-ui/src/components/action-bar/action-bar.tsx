@@ -69,6 +69,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     const items = this.renderItems();
     return (
       <div
+        key={this.model.key}
         ref={this.rootRef}
         className={this.model.getRootCss()}
         onClick={this.handleClick ? function(event) {

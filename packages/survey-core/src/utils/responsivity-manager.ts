@@ -30,8 +30,10 @@ export class ResponsivityManager {
     private delayedUpdateFunction?: (callback: () => void) => void
   ) {
     this.model.updateCallback = (isResetInitialized: boolean) => {
-      if (isResetInitialized)
+      if (isResetInitialized) {
+        this.model.key++;
         this.isInitialized = false;
+      }
       setTimeout(() => { this.process(); }, 1);
     };
     if (typeof ResizeObserver !== "undefined") {

@@ -35,6 +35,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   public getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";
   }
+  @property({ defaultValue: 0 }) key: number;
   @propertyArray({
     onSet: (_: any, target: ActionContainer<Action>) => {
       target.onSet();

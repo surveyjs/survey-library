@@ -1,5 +1,6 @@
 <template>
   <div
+    :key="model.key"
     v-if="model.hasActions"
     ref="root"
     :class="model.getRootCss()"

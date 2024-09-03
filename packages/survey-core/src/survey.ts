@@ -19,7 +19,8 @@ import {
   LayoutElementContainer,
   IValueItemCustomPropValues,
   ILoadFromJSONOptions,
-  IDropdownMenuOptions
+  IDropdownMenuOptions,
+  IResizeOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -4882,7 +4883,7 @@ export class SurveyModel extends SurveyElementCore
             if (isProcessed || !isContainerVisible(observedElement)) {
               isProcessed = false;
             } else {
-              isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth);
+              isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
             }
           });
         });
@@ -4896,20 +4897,17 @@ export class SurveyModel extends SurveyElementCore
     this.rootElement = htmlElement;
     this.addScrollEventListener();
   }
-  onProcessedResponsiveness: EventBase<SurveyModel, any> = new EventBase();
-  private processResponsiveness(width: number, mobileWidth: number): boolean {
+  onResize: EventBase<SurveyModel, IResizeOptions> = new EventBase();
+  private processResponsiveness(width: number, mobileWidth: number, height: number): boolean {
     const isMobile = width < mobileWidth;
-    const oldIsMobile = this.isMobile;
     const isMobileChanged = this.isMobile !== isMobile;
     this.setIsMobile(isMobile);
     this.layoutElements.forEach(layoutElement => layoutElement.processResponsiveness && layoutElement.processResponsiveness(width));
     const options = {
-      oldIsMobile,
-      isMobile,
+      height,
       width,
-      mobileWidth
     };
-    this.onProcessedResponsiveness.fire(this, options);
+    this.onResize.fire(this, options);
     return isMobileChanged;
   }
 

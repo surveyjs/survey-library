@@ -417,3 +417,8 @@ export interface IDropdownMenuOptions {
   screenHeight: number;
   screenWidth: number;
 }
+
+export interface IResizeOptions {
+  width: number;
+  height: number;
+}

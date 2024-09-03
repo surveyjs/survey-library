@@ -119,8 +119,17 @@ export class Question extends SurveyElement<Question>
     const newVal = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
     this.isMobile = newVal;
   }
+  protected getIsMobile(): boolean {
+    return this._isMobile;
+  }
+  public get isMobile(): boolean {
+    return this.getIsMobile();
+  }
+  public set isMobile(val: boolean) {
+    this._isMobile = val;
+  }
   public themeChanged(theme: ITheme): void { }
-  @property({ defaultValue: false }) isMobile: boolean;
+  @property({ defaultValue: false }) private _isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
   @property() ariaExpanded: "true" | "false";
 
@@ -175,7 +184,7 @@ export class Question extends SurveyElement<Question>
     this.registerFunctionOnPropertiesValueChanged(["no", "readOnly", "hasVisibleErrors", "containsErrors"], () => {
       this.updateQuestionCss();
     });
-    this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
+    this.registerPropertyChangedHandlers(["_isMobile"], () => { this.onMobileChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
   }
   protected getDefaultTitle(): string { return this.name; }
@@ -2571,7 +2580,7 @@ export class Question extends SurveyElement<Question>
     return ".sd-scrollable-container";
   }
 
-  private onMobileChanged() {
+  protected onMobileChanged() {
     this.onMobileChangedCallback && this.onMobileChangedCallback();
   }
 

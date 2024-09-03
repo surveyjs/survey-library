@@ -399,3 +399,32 @@ QUnit.test("hideIfRowsEmpty & question visibleIf, bug#8459", function (assert) {
   survey.setValue("b", 2);
   assert.equal(question.isVisible, true, "#7");
 });
+
+QUnit.test("check displayMode property", function (assert) {
+  const survey = new SurveyModel({ elements: { type: "matrix", name: "q1", rows: [{ value: "row1" }] } });
+  const question = <QuestionMatrixModel>survey.getAllQuestions()[0];
+  survey.css = { question: { mobile: "test_mobile" } };
+  question.isMobile = true;
+  assert.equal(question.displayMode, "auto");
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+
+  question.isMobile = true;
+  question.displayMode = "table";
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+
+  question.isMobile = true;
+  question.displayMode = "list";
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+});

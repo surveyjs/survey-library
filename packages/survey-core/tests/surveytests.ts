@@ -18934,6 +18934,8 @@ QUnit.test("Test displayValue() function", function (assert) {
     ]
   });
   survey.data = { q1: [1, 2], q2: [{ q2_q1: [2, 3] }] };
+  const panel = survey.getQuestionByName("q2");
+  assert.equal(panel.panels[0].questions[0].isReady, true, "Check box is ready");
   const matrix = survey.getQuestionByName("q3");
   matrix.addRow();
   const row = matrix.visibleRows[0];
@@ -19011,6 +19013,32 @@ QUnit.test("Test displayValue() function with value parameter & 0 value, Bug#860
   assert.equal(rows[0].cells[1].value, "Item check 0", "cells[0,1].value");
   assert.equal(rows[1].cells[1].value, "Item check 1", "cells[1,1].value");
   assert.equal(rows[2].cells[1].value, "Item check 2", "cells[2,1].value");
+});
+QUnit.test("Test displayValue() function with 'non-ready' question , Bug#8763", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "q1",
+        choices: [{ value: 1, text: "Item check 1" }, { value: 2, text: "Item check 2" }]
+      },
+      {
+        type: "expression",
+        name: "q2",
+        expression: "displayValue('q1')"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  let isQ1Ready = false;
+  q1["getIsQuestionReady"] = (): boolean => { return isQ1Ready; };
+  q1["updateIsReady"]();
+  survey.mergeData({ q1: 1, q2: "abc" });
+  assert.equal(q2.value, "abc", "#1");
+  isQ1Ready = true;
+  q1["updateIsReady"]();
+  assert.equal(q2.value, "Item check 1", "#1");
 });
 QUnit.test("Test propertyValue() function", function (assert) {
   const survey = new SurveyModel({

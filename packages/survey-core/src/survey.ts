@@ -1297,6 +1297,17 @@ export class SurveyModel extends SurveyElementCore
     this.lazyRenderingFirstBatchSizeValue = val;
   }
 
+  public disableLazyRenderingBeforeElement(el: IElement): void {
+    if(this.isDesignMode) {
+      const page = this.getPageByElement(el);
+      const index = this.pages.indexOf(page);
+      for (let i = index; i >= 0; i--) {
+        const currentPage = this.pages[i];
+        currentPage.disableLazyRenderingBeforeElement(currentPage == page ? el : undefined);
+      }
+    }
+  }
+
   private updateLazyRenderingRowsOnRemovingElements() {
     if (!this.isLazyRendering) return;
     var page = this.currentPage;

@@ -1562,6 +1562,19 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
+  public disableLazyRenderingBeforeElement(el?: IElement): void {
+    const row = el ? this.findRowByElement(el) : undefined;
+    const index = el ? this.rows.indexOf(row) : this.rows.length - 1;
+    for (let i = index; i >= 0; i--) {
+      const currentRow = this.rows[i];
+      if (currentRow.isNeedRender) {
+        break;
+      } else {
+        currentRow.isNeedRender = true;
+        currentRow.stopLazyRendering();
+      }
+    }
+  }
   public findRowByElement(el: IElement): QuestionRowModel {
     var rows = this.rows;
     for (var i = 0; i < rows.length; i++) {
@@ -2317,6 +2330,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     super.expand();
   }
   protected onElementExpanded(elementIsRendered: boolean): void {
+    if(!this.forcusFirstQuestionOnExpand) { return; }
     if(this.survey != null && !this.isLoadingFromJson) {
       const q = this.getFirstQuestionToFocus(false);
       if(!!q) {

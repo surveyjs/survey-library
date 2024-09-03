@@ -167,6 +167,9 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   public initResponsivityManager(container: HTMLDivElement, delayedUpdateFunction?: (callback: () => void) => void): void {
     return;
   }
+  public updateResponsivityManager(container: HTMLDivElement): void {
+    return;
+  }
   public resetResponsivityManager(): void { }
   public getActionById(id: string): T {
     for (var i = 0; i < this.actions.length; i++) {

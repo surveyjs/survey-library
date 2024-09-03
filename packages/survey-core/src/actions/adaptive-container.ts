@@ -138,6 +138,9 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       delayedUpdateFunction
     );
   }
+  public updateResponsivityManager(container: HTMLDivElement): void {
+    this.responsivityManager.updateContainer(container);
+  }
   public resetResponsivityManager(): void {
     if (!!this.responsivityManager) {
       this.responsivityManager.dispose();

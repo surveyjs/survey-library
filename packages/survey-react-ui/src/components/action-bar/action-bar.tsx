@@ -49,6 +49,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   componentDidUpdate(prevProps: IActionBarProps, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
     if(prevProps.model == this.props.model) {
+      this.model.updateResponsivityManager(this.rootRef.current);
       return;
     }
     if (!!this.model.hasActions) {

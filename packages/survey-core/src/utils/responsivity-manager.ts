@@ -139,6 +139,9 @@ export class ResponsivityManager {
       }
     }
   }
+  public updateContainer(container: HTMLDivElement) {
+    this.container = container;
+  }
 
   public dispose(): void {
     this.model.updateCallback = undefined;

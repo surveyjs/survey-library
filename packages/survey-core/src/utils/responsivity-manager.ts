@@ -27,7 +27,7 @@ export class ResponsivityManager {
     private model: AdaptiveActionContainer,
     private itemsSelector: string,
     private dotsItemSize: number = null,
-    private delayedUpdateFunction: (callback: () => void) => void = queueMicrotask
+    private delayedUpdateFunction: (callback: () => void) => void = (callback: () => void) => { if (queueMicrotask) queueMicrotask(callback); else callback(); }
   ) {
     this.model.updateCallback = (isResetInitialized: boolean) => {
       if (isResetInitialized) {

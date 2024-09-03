@@ -368,7 +368,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.setPropertyValue("displayMode", val);
   }
   public get displayMode(): "auto" | "table" | "list" {
-    return this.getPropertyValue("displayMode", "auto");
+    return this.getPropertyValue("displayMode");
   }
 
   //a11y
@@ -401,7 +401,13 @@ Serializer.addClass(
       choices: ["top", "middle"],
       default: "middle",
     },
-    { name: "alternateRows:boolean", default: false }
+    { name: "alternateRows:boolean", default: false },
+    {
+      name: "displayMode",
+      default: "auto",
+      choices: ["auto", "table", "list"],
+      visible: false
+    },
   ],
   undefined,
   "question"

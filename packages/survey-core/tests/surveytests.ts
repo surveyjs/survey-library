@@ -16351,12 +16351,23 @@ QUnit.test("Check isMobile set via processResponsiveness method", function (asse
       }
     ]
   });
-  let isProcessed = survey["processResponsiveness"](500, 600);
+  let log = "";
+  survey.onResize.add((_, { width, height }) => {
+    log += `->width: ${width}; height: ${height}`;
+  });
+  let isProcessed = survey["processResponsiveness"](500, 600, 800);
+  assert.equal(log, "->width: 500; height: 800");
   assert.ok(survey._isMobile);
   assert.ok(isProcessed);
-  isProcessed = survey["processResponsiveness"](600, 500);
+
+  log = "";
+  isProcessed = survey["processResponsiveness"](600, 500, 400);
+  assert.equal(log, "->width: 600; height: 400");
   assert.ok(isProcessed);
-  isProcessed = survey["processResponsiveness"](800, 500);
+
+  log = "";
+  isProcessed = survey["processResponsiveness"](800, 500, 300);
+  assert.equal(log, "->width: 800; height: 300");
   assert.notOk(survey._isMobile);
   assert.notOk(isProcessed);
 });

@@ -290,7 +290,7 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
-    this.registerPropertyChangedHandlers(["isMobile", "newPanelPosition", "displayMode", "showProgressBar"], () => {
+    this.registerPropertyChangedHandlers(["newPanelPosition", "displayMode", "showProgressBar"], () => {
       this.updateFooterActions();
     });
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
@@ -2563,6 +2563,10 @@ export class QuestionPanelDynamicModel extends Question
       additionalTitleToolbar.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
     }
     return classes;
+  }
+  protected onMobileChanged(): void {
+    super.onMobileChanged();
+    this.updateFooterActions();
   }
 }
 

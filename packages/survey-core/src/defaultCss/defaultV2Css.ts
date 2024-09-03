@@ -191,6 +191,7 @@ export var defaultV2Css = {
     contentLeave: "sd-element__content--leave",
     enter: "sd-element-wrapper--enter",
     leave: "sd-element-wrapper--leave",
+    mobile: "sd-question--mobile",
     mainRoot: "sd-element sd-question sd-row__question",
     flowRoot: "sd-element sd-question sd-row__question sd-row__question--flow",
     withFrame: "sd-element--with-frame",

@@ -1060,3 +1060,13 @@ export interface ElementWrapperComponentNameEvent extends ElementWrapperComponen
 export interface ElementWrapperComponentDataEvent extends ElementWrapperComponentEventMixin {
   data: any;
 }
+export interface ResizeEvent {
+  /**
+   * The current survey width in pixels.
+   */
+  width: number;
+  /**
+   * The current survey height in pixels.
+   */
+  height: number;
+}

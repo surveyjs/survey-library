@@ -593,6 +593,7 @@ export class QuestionSelectBase extends Question {
   public clearValue(keepComment?: boolean) {
     super.clearValue(keepComment);
     this.prevOtherValue = undefined;
+    this.selectedItemValues = undefined;
   }
   updateCommentFromSurvey(newValue: any): any {
     super.updateCommentFromSurvey(newValue);

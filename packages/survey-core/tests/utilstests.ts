@@ -1,6 +1,6 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays } from "../src/utils/utils";
+import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays, setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation } from "../src/utils/utils";
 import { mouseInfo, detectMouseSupport, MatchMediaMethod } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
@@ -1077,4 +1077,16 @@ QUnit.test("check animation when rerendered event fired with isCanceled option",
 QUnit.test("getSafeUrl", (assert) => {
   assert.equal(getSafeUrl("https://surveyjs.io"), "https://surveyjs.io", "https://surveyjs.io");
   assert.equal(getSafeUrl("javascript:alert('1')"), "javascript%3Aalert('1')", "javascript:alert('1')");
+});
+
+QUnit.test("animation helper functions", (assert) => {
+  const el = document.createElement("div");
+  setPropertiesOnElementForAnimation(el, { height: "200px", marginTop: "300px" });
+  assert.deepEqual(el["__sv_created_properties"], ["--animation-height", "--animation-margin-top"]);
+  assert.equal(el.style.getPropertyValue("--animation-height"), "200px");
+  assert.equal(el.style.getPropertyValue("--animation-margin-top"), "300px");
+  cleanHtmlElementAfterAnimation(el);
+  assert.equal(el["__sv_created_properties"], undefined);
+  assert.equal(el.style.getPropertyValue("--animation-height"), "");
+  assert.equal(el.style.getPropertyValue("--animation-margin-top"), "");
 });

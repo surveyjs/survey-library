@@ -9910,3 +9910,53 @@ QUnit.test("check cell.isVisible property", function (assert) {
   assert.ok(renderedTable.rows[1].cells[3].isVisible);
   assert.ok(renderedTable.rows[1].cells[4].isVisible);
 });
+
+QUnit.test("check displayMode property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1"
+          },
+          {
+            "name": "col1",
+          },
+        ],
+        "choices": [
+          1,
+        ],
+        "rows": [
+          "row1",
+          "row2"
+        ]
+      }
+    ] });
+  const question = <QuestionMatrixDropdownModel>survey.getAllQuestions()[0];
+  survey.css = { question: { mobile: "test_mobile" } };
+  question.isMobile = true;
+  assert.equal(question.displayMode, "auto");
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+
+  question.isMobile = true;
+  question.displayMode = "table";
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+
+  question.isMobile = true;
+  question.displayMode = "list";
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+});

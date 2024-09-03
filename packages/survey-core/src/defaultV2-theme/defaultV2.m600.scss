@@ -29,7 +29,7 @@
       min-width: 100%;
     }
 
-    @include table_responsive();
+    // @include table_responsive();
     @include ranking_responsive();
   }
 }

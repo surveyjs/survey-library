@@ -355,6 +355,21 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public set rowTitleWidth(val: string) {
     this.setPropertyValue("rowTitleWidth", val);
   }
+  /**
+   * Specifies how to arrange matrix questions.
+   *
+   * Possible values:
+   *
+   * - `"table"` - Displays matrix questions in a table.
+   * - `"list"` - Displays matrix questions one under another as a list.
+   * - `"auto"` (default) - Uses the `"table"` mode if the survey has sufficient width to fit the table or the `"list"` mode otherwise.
+   */
+  public set displayMode(val: "auto" | "table" | "list") {
+    this.setPropertyValue("displayMode", val);
+  }
+  public get displayMode(): "auto" | "table" | "list" {
+    return this.getPropertyValue("displayMode", "auto");
+  }
 
   //a11y
   public getCellAriaLabel(rowTitle:string, columnTitle:string):string {
@@ -367,7 +382,10 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return true;
   }
   // EO a11y
-
+  protected getIsMobile(): boolean {
+    if(this.displayMode == "auto") return super.getIsMobile();
+    return this.displayMode === "list";
+  }
 }
 
 Serializer.addClass(

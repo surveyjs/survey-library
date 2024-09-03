@@ -188,6 +188,7 @@ export var defaultV2Css = {
   question: {
     contentFadeIn: "sd-element__content--fade-in",
     contentFadeOut: "sd-element__content--fade-out",
+    mobile: "sd-question--mobile",
     fadeIn: "sd-element-wrapper--fade-in",
     fadeOut: "sd-element-wrapper--fade-out",
     mainRoot: "sd-element sd-question sd-row__question",

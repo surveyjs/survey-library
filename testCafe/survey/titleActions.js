@@ -330,6 +330,51 @@ frameworks.forEach((framework) => {
       .expect(myAction.visible).ok()
       .expect(dotsItem.visible).notOk();
   });
+
+  test("check adaptivity with title changes", async (t) => {
+    const json = {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          placeHolder: "Jon Snow",
+          isRequired: true
+        }
+      ]
+    };
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: (_, opt) => {
+        opt.titleActions = [
+          {
+            title: "Act1 long title for adaptivity testing",
+            iconName: "excellent",
+            action: () => { },
+          },
+          {
+            title: "Act2 long title for adaptivity testing",
+            iconName: "good",
+            action: () => { },
+          },
+        ];
+      },
+    });
+    const myAction = Selector(".sv-action").nth(0);
+    const myAction2 = Selector(".sv-action").nth(1);
+    const dotsItem = Selector(".sv-action.sv-dots");
+
+    await t
+      .resizeWindow(600, 600)
+      .expect(myAction.find(".sv-action-bar-item__title").exists).ok()
+      .expect(myAction2.find(".sv-action-bar-item__title").exists).notOk()
+      .expect(dotsItem.visible).notOk();
+
+    await ClientFunction(() => {
+      window["survey"].getQuestionByName("name").getTitleToolbar().actions[0].title = "Act1.1 long title for adaptivity testing";
+    })();
+    await t
+      .expect(myAction.find(".sv-action-bar-item__title").exists).ok()
+      .expect(myAction2.find(".sv-action-bar-item__title").exists).notOk();
+  });
 });
 
 const themeName = "defaultV2";

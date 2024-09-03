@@ -313,7 +313,6 @@ QUnit.test("ResponsivityManager process test", function (assert) {
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
   };
-  manager["getRenderedVisibleActionsCount"] = () => model.actions.length;
   manager["calcItemsSizes"] = () => {
     model.actions.forEach(action => {
       action.minDimension = 20;

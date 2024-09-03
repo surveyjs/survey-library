@@ -4897,6 +4897,9 @@ export class SurveyModel extends SurveyElementCore
     this.rootElement = htmlElement;
     this.addScrollEventListener();
   }
+  /**
+   * An event that is raised when the survey's width or height is changed.
+   */
   onResize: EventBase<SurveyModel, ResizeEvent> = new EventBase();
   private processResponsiveness(width: number, mobileWidth: number, height: number): boolean {
     const isMobile = width < mobileWidth;
@@ -7194,6 +7197,7 @@ export class SurveyModel extends SurveyElementCore
    * A survey width in CSS values.
    *
    * Default value: `undefined` (the survey inherits the width from its container)
+   * @see onResize
    */
   public get width(): string {
     return this.getPropertyValue("width");

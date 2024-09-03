@@ -10,7 +10,7 @@ ko.components.register("sv-action-bar-item", {
       if(!!el) {
         const item = params.item;
         el.onfocus = function (args: any) { item.doFocus(args); };
-        el.onmousedown = function () { item.doMouseDown(); };
+        el.onmousedown = function (args: any) { item.doMouseDown(args); };
       }
       return params;
     },

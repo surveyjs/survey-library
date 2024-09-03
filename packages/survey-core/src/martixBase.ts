@@ -356,6 +356,13 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.setPropertyValue("rowTitleWidth", val);
   }
 
+  public set displayMode(val: "auto" | "table" | "list") {
+    this.setPropertyValue("displayMode", val);
+  }
+  public get displayMode(): "auto" | "table" | "list" {
+    return this.getPropertyValue("displayMode", "auto");
+  }
+
   //a11y
   public getCellAriaLabel(rowTitle:string, columnTitle:string):string {
     const row = (this.getLocalizationString("matrix_row") || "row").toLocaleLowerCase();
@@ -367,7 +374,10 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return true;
   }
   // EO a11y
-
+  protected getIsMobile(): boolean {
+    if(this.displayMode == "auto") return super.getIsMobile();
+    return this.displayMode === "list";
+  }
 }
 
 Serializer.addClass(

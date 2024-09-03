@@ -272,12 +272,6 @@ export class QuestionMatrixModel
   public set itemComponent(value: string) {
     this.setPropertyValue("cellComponent", value);
   }
-  public set displayMode(val: "auto" | "table" | "list") {
-    this.setPropertyValue("displayMode", val);
-  }
-  public get displayMode(): "auto" | "table" | "list" {
-    return this.getPropertyValue("displayMode", "auto");
-  }
   public get hasSingleInput(): boolean {
     return false;
   }
@@ -649,10 +643,6 @@ export class QuestionMatrixModel
     var json = new JsonObject().toJsonObject(question);
     json["type"] = question.getType();
     return json;
-  }
-  protected getIsMobile(): boolean {
-    if(this.displayMode == "auto") return super.getIsMobile();
-    return this.displayMode === "list";
   }
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);

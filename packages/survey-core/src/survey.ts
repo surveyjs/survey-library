@@ -20,7 +20,6 @@ import {
   IValueItemCustomPropValues,
   ILoadFromJSONOptions,
   IDropdownMenuOptions,
-  IResizeOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -68,7 +67,8 @@ import {
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
   OpenFileChooserEvent, ElementWrapperComponentNameEvent, ElementWrapperComponentDataEvent,
-  OpenDropdownMenuEvent
+  OpenDropdownMenuEvent,
+  ResizeEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -4897,7 +4897,7 @@ export class SurveyModel extends SurveyElementCore
     this.rootElement = htmlElement;
     this.addScrollEventListener();
   }
-  onResize: EventBase<SurveyModel, IResizeOptions> = new EventBase();
+  onResize: EventBase<SurveyModel, ResizeEvent> = new EventBase();
   private processResponsiveness(width: number, mobileWidth: number, height: number): boolean {
     const isMobile = width < mobileWidth;
     const isMobileChanged = this.isMobile !== isMobile;

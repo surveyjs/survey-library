@@ -1060,3 +1060,7 @@ export interface ElementWrapperComponentNameEvent extends ElementWrapperComponen
 export interface ElementWrapperComponentDataEvent extends ElementWrapperComponentEventMixin {
   data: any;
 }
+export interface ResizeEvent {
+  width: number;
+  height: number;
+}

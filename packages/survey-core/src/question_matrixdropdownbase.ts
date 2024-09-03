@@ -1131,12 +1131,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get detailElements(): Array<IElement> {
     return this.detailPanel.elements;
   }
-  public set displayMode(val: "auto" | "table" | "list") {
-    this.setPropertyValue("displayMode", val);
-  }
-  public get displayMode(): "auto" | "table" | "list" {
-    return this.getPropertyValue("displayMode", "auto");
-  }
   protected createNewDetailPanel(): PanelModel {
     return Serializer.createClass("panel");
   }
@@ -2569,10 +2563,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public get showHorizontalScroll(): boolean {
     return !this.isDefaultV2Theme && this.horizontalScroll;
-  }
-  protected getIsMobile(): boolean {
-    if(this.displayMode == "auto") return super.getIsMobile();
-    return this.displayMode === "list";
   }
   protected onMobileChanged(): void {
     super.onMobileChanged();

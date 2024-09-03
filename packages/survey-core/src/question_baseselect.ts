@@ -1,4 +1,4 @@
-import { property, Serializer } from "./jsonobject";
+import { property, propertyArray, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues } from "./base-interfaces";
 import { SurveyModel } from "./survey";
@@ -1774,7 +1774,7 @@ export class QuestionSelectBase extends Question {
       .toString() || undefined;
   }
 
-  @property() _renderedChoices: Array<ItemValue> = [];
+  @propertyArray() _renderedChoices: Array<ItemValue> = [];
 
   public onGetRenderedChoicesCallback?: (visibleChoices: Array<ItemValue>) => Array<ItemValue>;
 

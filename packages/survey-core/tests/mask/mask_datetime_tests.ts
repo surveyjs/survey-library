@@ -228,7 +228,7 @@ QUnit.test("get getMaskedValue value from ISO m/d/yy", function (assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "m/d/yy";
   assert.equal(maskInstance.getMaskedValue("2024-12-05"), "12/5/24");
-  assert.equal(maskInstance.getMaskedValue("988-01-05"), "1/5/88");
+  assert.equal(maskInstance.getMaskedValue("1988-01-05"), "1/5/88");
   assert.equal(maskInstance.getMaskedValue("2024-13-05"), "m/d/yy");
 });
 

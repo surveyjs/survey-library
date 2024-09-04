@@ -559,8 +559,11 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     if(this.inputType === "month") {
       const d = new Date(newValue);
-      const m = d.getUTCMonth() + 1;
-      return d.getUTCFullYear() + "-" + (m < 10 ? "0" : "") + m;
+      const isUtc = d.toISOString().indexOf(newValue) == 0 && newValue.indexOf("T") == -1;
+      const month = isUtc ? d.getUTCMonth() : d.getMonth();
+      const year = isUtc ? d.getUTCFullYear() : d.getFullYear();
+      const m = month + 1;
+      return year + "-" + (m < 10 ? "0" : "") + m;
     }
     return newValue;
   }

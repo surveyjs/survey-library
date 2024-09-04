@@ -542,3 +542,15 @@ export function filterIsInViewport(node) {
     rect.right <= (window.innerWidth || document.documentElement.clientWidth)
   );
 }
+export async function setTimeZoneUnsafe(t, timezone) {
+  //Please note that the workaround uses internal API, which can be changed in the future, so you should use it carefully.
+  //https://stackoverflow.com/questions/75837713/timezone-tests-in-testcafe
+  const browserConnection = t["testRun"].browserConnection;
+  const providerPlugin = browserConnection.provider.plugin;
+  const browserClient = providerPlugin._getBrowserProtocolClient(providerPlugin.openedBrowsers[browserConnection.id]);
+  const cdpClient = await browserClient.getActiveClient();
+  await cdpClient.Emulation.setTimezoneOverride({ timezoneId: timezone });
+}
+export function getTimeZone() {
+  return ClientFunction(() => Intl.DateTimeFormat().resolvedOptions().timeZone)();
+}

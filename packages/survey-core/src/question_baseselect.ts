@@ -753,6 +753,10 @@ export class QuestionSelectBase extends Question {
     var itemValue = ItemValue.getItemByValue(this.getFilteredChoices(), val);
     return !!itemValue && !itemValue.isEnabled;
   }
+  endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    this.updateVisibleChoices();
+  }
   public clearIncorrectValuesCallback: () => void;
   /**
    * Configures access to a RESTful service that returns choice items. Refer to the [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information. You can also specify additional application-wide settings using the [`settings.web`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) object.

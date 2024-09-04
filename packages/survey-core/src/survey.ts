@@ -5337,36 +5337,6 @@ export class SurveyModel extends SurveyElementCore
       this.uploadFilesCore(name, files, callback);
     }
   }
-  /**
-   * Downloads a file from a server.
-   *
-   * The following code shows how to call this method:
-   *
-   * ```js
-   * const question = survey.getQuestionByName("myFileQuestion");
-   * survey.downloadFile(
-   *   question,
-   *   question.name,
-   *   // Download the first uploaded file
-   *   question.value[0],
-   *   (status, data) => {
-   *     if (status === "success") {
-   *       // Use `data` to retrieve the file
-   *     }
-   *     if (status === "error") {
-   *       // Handle error
-   *     }
-   *   }
-   * );
-   * ```
-   *
-   * @param question A [File Upload question instance](https://surveyjs.io/form-library/documentation/api-reference/file-model).
-   * @param questionName The File Upload question's [`name`](https://surveyjs.io/form-library/documentation/api-reference/file-model#name).
-   * @param fileValue An object from File Upload's [`value`](https://surveyjs.io/form-library/documentation/api-reference/file-model#value) array. This object contains metadata about the file you want to download.
-   * @param callback A callback function that allows you to get the download status (`"success"` or `"error"`) and the file identifier (URL, file name, etc.) that you can use to retrieve the file.
-   * @see onDownloadFile
-   * @see uploadFiles
-   */
   public downloadFile(
     question: QuestionFileModel,
     questionName: string,

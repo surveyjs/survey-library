@@ -433,7 +433,8 @@ export class QuestionTextModel extends QuestionTextBase {
     return isValid;
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
-    return Helpers.convertValToQuestionVal(val, this.inputType);
+    let type = this.maskTypeIsEmpty ? this.inputType : this.maskSettings.getTypeForExpressions();
+    return Helpers.convertValToQuestionVal(val, type);
   }
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (Helpers.isValueEmpty(value)) return errorText;

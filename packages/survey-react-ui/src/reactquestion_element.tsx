@@ -29,9 +29,13 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   componentWillUnmount() {
     this.unMakeBaseElementsReact();
+    this.disableStateElementsRerenderEvent(this.getStateElements());
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     this.makeBaseElementsReact();
+    const stateElements = this.getStateElements();
+    this.disableStateElementsRerenderEvent((this.prevStateElements ?? []).filter(el => !stateElements.includes(el)));
+    this.prevStateElements = [];
     this.getStateElements().forEach((el) => {
       el.afterRerender();
     });
@@ -44,9 +48,11 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   protected denyComponentUpdate() {
     this._allowComponentUpdate = false;
   }
+  private prevStateElements: Array<Base> = [];
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (this._allowComponentUpdate) {
       this.unMakeBaseElementsReact();
+      this.prevStateElements = this.getStateElements();
     }
     return this._allowComponentUpdate;
   }
@@ -105,9 +111,13 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private unMakeBaseElementsReact() {
     var els = this.getStateElements();
     for (var i = 0; i < els.length; i++) {
-      els[i].disableOnElementRenderedEvent();
       this.unMakeBaseElementReact(els[i]);
     }
+  }
+  protected disableStateElementsRerenderEvent(els: Array<Base>): void {
+    els.forEach(el => {
+      el.disableOnElementRenderedEvent();
+    });
   }
   protected getStateElements(): Array<Base> {
     var el = this.getStateElement();

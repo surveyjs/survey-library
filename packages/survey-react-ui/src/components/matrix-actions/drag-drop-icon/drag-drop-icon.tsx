@@ -7,8 +7,10 @@ export class SurveyQuestionMatrixDynamicDragDropIcon extends ReactSurveyElement 
   private get question(): QuestionMatrixDropdownModelBase {
     return this.props.item.data.question;
   }
-
-  protected renderElement(): JSX.Element {
+  protected renderElement(): JSX.Element | null {
+    return <div>{this.renderIcon()}</div>;
+  }
+  protected renderIcon(): JSX.Element {
     if(this.question.iconDragElement) {
       return (<svg className={this.question.cssClasses.dragElementDecorator} >
         <use xlinkHref={this.question.iconDragElement}></use>

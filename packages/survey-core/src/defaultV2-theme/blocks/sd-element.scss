@@ -174,7 +174,7 @@
   }
 }
 
-.sd-element-wrapper--fade-in {
+.sd-element-wrapper--enter {
   animation-name: elementMoveIn, fadeIn;
   animation-timing-function: $ease-out;
   animation-fill-mode: forwards;
@@ -183,7 +183,7 @@
   opacity: 0;
 }
 
-.sd-element-wrapper--fade-out {
+.sd-element-wrapper--leave {
   animation-name: elementMoveIn, fadeIn;
   animation-timing-function: $reverse-ease-out;
   animation-fill-mode: forwards;
@@ -195,29 +195,29 @@
 .sd-element__content {
   box-sizing: border-box;
 }
-.sd-element__content--fade-in,
-.sd-element__content--fade-out {
+.sd-element__content--enter,
+.sd-element__content--leave {
   --animation-padding-top: 0;
   --animation-padding-bottom: 0;
 }
 
-.sd-element__content--fade-in {
-  animation-name: fadeIn, moveInWithOverflow, paddingFadeIn;
+.sd-element__content--enter {
+  animation-name: fadeIn, moveInWithOverflow;
   min-height: 0 !important;
   opacity: 0;
   animation-fill-mode: forwards;
   animation-timing-function: $ease-out;
-  animation-duration: $expand-fade-in-duration, $expand-move-in-duration, $expand-move-in-duration;
+  animation-duration: $expand-fade-in-duration, $expand-move-in-duration;
   animation-delay: $expand-fade-in-delay, 0s, 0s;
 }
 
-.sd-element__content--fade-out {
-  animation-name: fadeIn, moveInWithOverflow, paddingFadeIn;
+.sd-element__content--leave {
+  animation-name: fadeIn, moveInWithOverflow;
   min-height: 0 !important;
   animation-direction: reverse;
   animation-fill-mode: forwards;
   animation-timing-function: $reverse-ease-out;
-  animation-duration: $collapse-fade-out-duration, $collapse-move-out-duration, $collapse-move-out-duration;
+  animation-duration: $collapse-fade-out-duration, $collapse-move-out-duration;
   animation-delay: 0s, $collapse-move-out-delay, $collapse-move-out-delay;
 }
 

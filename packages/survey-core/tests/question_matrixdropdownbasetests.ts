@@ -8,6 +8,7 @@ import { SurveyModel } from "../src/survey";
 import { Helpers } from "../src/helpers";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { ItemValue } from "../src/itemvalue";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -1460,15 +1461,9 @@ QUnit.test("rows enableIf property, #8461", function (assert) {
   assert.equal(panel2.isReadOnly, false, "panel2 #9");
 });
 QUnit.test("showInMultipleColumns & random choices, Bug#8348", function (assert) {
-  let index = 0;
   class HelpTest {
     public static randomizeArray<T>(array: Array<T>): Array<T> {
-      if (array.length < 2) return array;
-      const el0 = array[index];
-      array.splice(0, 1, array[array.length - index - 1]);
-      array.splice(array.length - index - 1, 1, el0);
-      index = (index + 1) % array.length;
-      return array;
+      return ([].concat(array as any)).reverse();
     }
   }
   const oldFunc = Helpers.randomizeArray;
@@ -1622,4 +1617,49 @@ QUnit.test("Column choices from colum and from matrix properties, Bug#8691", fun
   assert.equal(cellQuestion.choices.length, 4, "choices from matrix, #2");
   (<any>column).choices = [5, 6, 7];
   assert.equal(cellQuestion.choices.length, 3, "choices from colum, #2");
+});
+QUnit.test("showInMultipleColumns - add choice item", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "column",
+            "cellType": "checkbox",
+            "showInMultipleColumns": true,
+            "choices": ["col1", "col2", "col3"],
+          }
+        ],
+        "choices": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "rows": ["row1", "row2"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let rows = matrix.renderedTable.rows;
+  assert.equal(matrix.columns[0].templateQuestion.visibleChoices.length, 3, "3 items");
+  assert.equal(matrix.columns[0].templateQuestion.visibleChoices[2].value, "col3", "column tempate");
+  assert.equal(rows[0].cells.length, 4, "3 cells");
+  assert.equal(rows[0].cells[1].question.visibleChoices[0].value, "col1", "row1 question 1");
+  assert.equal(rows[0].cells[1].question.visibleChoices[2].value, "col3", "row1 question 3");
+  assert.equal(rows[1].cells[1].question.visibleChoices[0].value, "col1", "row2 question 1");
+  assert.equal(rows[1].cells[1].question.visibleChoices[2].value, "col3", "row2 question 3");
+
+  matrix.columns[0].choices.push(new ItemValue("col4"));
+  rows = matrix.renderedTable.rows;
+  assert.equal(matrix.columns[0].templateQuestion.visibleChoices.length, 4, "4 items - item should be added");
+  assert.equal(matrix.columns[0].templateQuestion.visibleChoices[3].value, "col4", "column tempate");
+  assert.equal(rows[0].cells.length, 5, "4 cells - item should be added");
+  assert.equal(rows[0].cells[1].question.visibleChoices[0].value, "col1", "row1 question 1");
+  assert.equal(rows[0].cells[1].question.visibleChoices[3].value, "col4", "row1 question 3");
+  assert.equal(rows[1].cells[1].question.visibleChoices[0].value, "col1", "row2 question 1");
+  assert.equal(rows[1].cells[1].question.visibleChoices[3].value, "col4", "row2 question 3");
 });

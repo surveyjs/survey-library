@@ -1567,7 +1567,7 @@ QUnit.test("check rating in-matrix pre-defined items", (assert) => {
                 ]
               }
             ],
-            choices: [1, 2, 3, 4, 5],
+            choices: [1, 2, 3, 4],
             rows: ["Row 1", "Row 2"]
           }
         ]

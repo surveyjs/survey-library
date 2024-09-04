@@ -73,6 +73,7 @@ export class TextAreaModel {
       this.options.onTextAreaKeyDown(event);
   }
   public onTextAreaBlur(event: any): void {
+    this.onTextAreaChange(event);
     if (!!this.options.onTextAreaBlur)
       this.options.onTextAreaBlur(event);
   }

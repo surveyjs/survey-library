@@ -35,7 +35,7 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
         maxLength={this.viewModel.maxLength}
         defaultValue={this.initialValue}
         onChange={(event: any) => { this.viewModel.onTextAreaInput(event); }}
-        onBlur={(event: any) => { this.viewModel.onTextAreaChange(event); }}
+        onBlur={(event: any) => { this.viewModel.onTextAreaBlur(event); }}
         onKeyDown={(event: any) => { this.viewModel.onTextAreaKeyDown(event); }}
         aria-required={this.viewModel.ariaRequired}
         aria-label={this.viewModel.ariaLabel}

@@ -259,9 +259,9 @@ function registerComponents(app: App) {
   app.component("survey-customwidget", CustomWidget);
   app.component("survey-popup-modal", PopupModal);
 
-  app.component("sv-character-counter", TextAreaComponent);
-  app.component("sv-text-area", CharacterCounterComponent);
-  
+  app.component("sv-character-counter", CharacterCounterComponent);
+  app.component("sv-text-area", TextAreaComponent);
+
   app.component("survey-composite", Composite);
   app.component("survey-custom", Custom);
   app.component("sv-timerpanel", TimerPanel);

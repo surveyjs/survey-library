@@ -185,6 +185,10 @@ export class InputMaskDateTime extends InputMaskPattern {
     return "datetimemask";
   }
 
+  public getTypeForExpressions(): string {
+    return this.hasTimePart ? "datetime-local" : "datetime";
+  }
+
   protected updateLiterals(): void {
     this.lexems = getDateTimeLexems(this.pattern || "");
   }

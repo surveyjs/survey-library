@@ -124,14 +124,19 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
 
   protected findDropTargetNodeFromPoint(clientX: number, clientY: number): HTMLElement {
     const displayProp = this.domAdapter.draggedElementShortcut.style.display;
-    //this.domAdapter.draggedElementShortcut.hidden = true;
     this.domAdapter.draggedElementShortcut.style.display = "none";
 
-    if(!DomDocumentHelper.isAvailable()) return null;
+    if (!DomDocumentHelper.isAvailable()) return null;
 
-    let dragOverNode = <HTMLElement>this.domAdapter.documentOrShadowRoot.elementFromPoint(clientX, clientY);
-    // this.domAdapter.draggedElementShortcut.hidden = false;
+    let dragOverNodes = <Array<HTMLElement>>this.domAdapter.documentOrShadowRoot.elementsFromPoint(clientX, clientY);
     this.domAdapter.draggedElementShortcut.style.display = displayProp || "block";
+
+    let index = 0;
+    let dragOverNode: HTMLElement = dragOverNodes[index];
+    while (dragOverNode && dragOverNode.className.indexOf("sv-drag-target-skipped") != -1) {
+      index++;
+      dragOverNode = dragOverNodes[index];
+    }
 
     if (!dragOverNode) return null;
 

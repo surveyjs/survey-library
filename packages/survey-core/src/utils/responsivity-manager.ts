@@ -27,11 +27,12 @@ export class ResponsivityManager {
     private model: AdaptiveActionContainer,
     private itemsSelector: string,
     private dotsItemSize: number = null,
-    private delayedUpdateFunction?: (callback: () => void) => void
+    private delayedUpdateFunction: (callback: () => void) => void = (callback: () => void) => { if (queueMicrotask) queueMicrotask(callback); else callback(); }
   ) {
     this.model.updateCallback = (isResetInitialized: boolean) => {
-      if (isResetInitialized)
+      if (isResetInitialized) {
         this.isInitialized = false;
+      }
       setTimeout(() => { this.process(); }, 1);
     };
     if (typeof ResizeObserver !== "undefined") {
@@ -75,16 +76,6 @@ export class ResponsivityManager {
       : currentAction.maxDimension;
   }
 
-  private getRenderedVisibleActionsCount() {
-    let count = 0;
-    this.container.querySelectorAll(this.itemsSelector).forEach(item => {
-      if(this.calcItemSize(item as HTMLDivElement) > 0) {
-        count++;
-      }
-    });
-    return count;
-  }
-
   private calcItemsSizes() {
     if(this.isInitialized) return;
     const actions = this.model.actions;
@@ -121,14 +112,8 @@ export class ResponsivityManager {
           this.isInitialized = true;
           processResponsiveness();
         };
-        if(this.getRenderedVisibleActionsCount() < this.model.visibleActions.length) {
-          if(this.delayedUpdateFunction) {
-            this.delayedUpdateFunction(callback);
-          } else if(queueMicrotask) {
-            queueMicrotask(callback);
-          } else {
-            callback();
-          }
+        if (this.delayedUpdateFunction) {
+          this.delayedUpdateFunction(callback);
         } else {
           callback();
         }

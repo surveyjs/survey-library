@@ -23,7 +23,7 @@ import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
-import { classesToSelector, confirmActionAsync } from "./utils/utils";
+import { classesToSelector, cleanHtmlElementAfterAnimation, confirmActionAsync, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
@@ -290,7 +290,7 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
-    this.registerPropertyChangedHandlers(["isMobile", "newPanelPosition", "displayMode", "showProgressBar"], () => {
+    this.registerPropertyChangedHandlers(["newPanelPosition", "displayMode", "showProgressBar"], () => {
       this.updateFooterActions();
     });
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
@@ -658,30 +658,42 @@ export class QuestionPanelDynamicModel extends Question
         }
       },
       getEnterOptions: () => {
-        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperFadeIn).append(getDirectionCssClass()).toString();
+        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperEnter).append(getDirectionCssClass()).toString();
         return {
           onBeforeRunAnimation: (el) => {
             if (this.focusNewPanelCallback) {
               const scolledElement = this.isRenderModeList ? el : el.parentElement;
               SurveyElement.ScrollElementToViewCore(scolledElement, false, false, { behavior: "smooth" });
             }
-            if (!this.isRenderModeList) {
-              el.parentElement?.style.setProperty("--animation-height-to", el.offsetHeight + "px");
+            if(!this.isRenderModeList && el.parentElement) {
+              setPropertiesOnElementForAnimation(el.parentElement, { heightTo: el.offsetHeight + "px" });
             } else {
-              el.style.setProperty("--animation-height", el.offsetHeight + "px");
+              prepareElementForVerticalAnimation(el);
+            }
+          },
+          onAfterRunAnimation: (el) => {
+            cleanHtmlElementAfterAnimation(el);
+            if(el.parentElement) {
+              cleanHtmlElementAfterAnimation(el.parentElement);
             }
           },
           cssClass: cssClass
         };
       },
       getLeaveOptions: () => {
-        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperFadeOut).append(getDirectionCssClass()).toString();
+        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperLeave).append(getDirectionCssClass()).toString();
         return {
           onBeforeRunAnimation: (el) => {
-            if (!this.isRenderModeList) {
-              el.parentElement?.style.setProperty("--animation-height-from", el.offsetHeight + "px");
+            if(!this.isRenderModeList && el.parentElement) {
+              setPropertiesOnElementForAnimation(el.parentElement, { heightFrom: el.offsetHeight + "px" });
             } else {
-              el.style.setProperty("--animation-height", el.offsetHeight + "px");
+              prepareElementForVerticalAnimation(el);
+            }
+          },
+          onAfterRunAnimation: (el) => {
+            cleanHtmlElementAfterAnimation(el);
+            if(el.parentElement) {
+              cleanHtmlElementAfterAnimation(el.parentElement);
             }
           },
           cssClass: cssClass
@@ -2551,6 +2563,10 @@ export class QuestionPanelDynamicModel extends Question
       additionalTitleToolbar.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
     }
     return classes;
+  }
+  protected onMobileChanged(): void {
+    super.onMobileChanged();
+    this.updateFooterActions();
   }
 }
 

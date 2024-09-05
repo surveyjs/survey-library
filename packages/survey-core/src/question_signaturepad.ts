@@ -110,7 +110,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = url;
-    img.onload = ()=>{
+    img.onload = () => {
       const ctx = this.canvas.getContext("2d");
       ctx.drawImage(img, 0, 0);
       var dataURL = this.canvas.toDataURL(this.getFormat());
@@ -118,13 +118,13 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     };
   }
   private refreshCanvas() {
-    if(!this.canvas) return;
+    if (!this.signaturePad || !this.canvas) return;
     if (!this.value) {
       this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
       this.signaturePad.clear();
       this.valueWasChangedFromLastUpload = false;
     } else {
-      if(this.storeDataAsText) {
+      if (this.storeDataAsText) {
         this.fromDataUrl(this.value);
       } else {
         this.fromUrl(this.value);

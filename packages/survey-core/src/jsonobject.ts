@@ -1219,12 +1219,23 @@ export class JsonMetadata {
     if(!invalidNames) invalidNames = [];
     for (let i = 0; i < dynamicProps.length; i++) {
       const dProp = dynamicProps[i];
-      if (!hash[dProp.name] && invalidNames.indexOf(dProp.name) < 0) {
+      if (invalidNames.indexOf(dProp.name) < 0 && this.canAddDybamicProp(dProp, hash[dProp.name])) {
         res.push(dProp);
       }
     }
     this.dynamicPropsCache[cacheType] = res;
     return res;
+  }
+  private canAddDybamicProp(dProp: JsonObjectProperty, orgProp: JsonObjectProperty): boolean {
+    if(!orgProp) return true;
+    if(dProp === orgProp) return false;
+    let classInfo = dProp.classInfo;
+    while(classInfo && classInfo.parentName) {
+      dProp = this.findProperty(classInfo.parentName, dProp.name);
+      if(dProp && dProp === orgProp) return true;
+      classInfo = !!dProp ? dProp.classInfo : undefined;
+    }
+    return false;
   }
   public hasOriginalProperty(obj: Base, propName: string): boolean {
     return !!this.getOriginalProperty(obj, propName);

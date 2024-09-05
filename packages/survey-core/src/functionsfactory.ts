@@ -377,6 +377,12 @@ FunctionFactory.Instance.register("weekday", weekday);
 
 function getQuestionValueByContext(context: any, name: string): any {
   if(!context || !name) return undefined;
+  let q = context.question;
+  while(q && q.parent) {
+    const res = q.parent.getQuestionByName(name);
+    if(!!res) return res;
+    q = q.parentQuestion;
+  }
   const keys = ["row", "panel", "survey"];
   for(let i = 0; i < keys.length; i ++) {
     const ctx = context[keys[i]];
@@ -387,13 +393,27 @@ function getQuestionValueByContext(context: any, name: string): any {
   }
   return null;
 }
-function displayValue(params: any[]): any {
-  const q = getQuestionValueByContext(this, params[0]);
-  if(!q) return "";
+function getDisplayValueReturnResult(q: any, params: any[]): string {
   if(params.length > 1 && !Helpers.isValueEmpty(params[1])) return q.getDisplayValue(true, params[1]);
   return q.displayValue;
 }
-FunctionFactory.Instance.register("displayValue", displayValue);
+function displayValue(params: any[]): any {
+  const q = getQuestionValueByContext(this, params[0]);
+  if(!q) return "";
+  if(q.isReady) {
+    this.returnResult(getDisplayValueReturnResult(q, params));
+  } else {
+    const displayValueOnReadyChanged = (sender: any, options: any) => {
+      if(sender.isReady) {
+        sender.onReadyChanged.remove(displayValueOnReadyChanged);
+        this.returnResult(getDisplayValueReturnResult(sender, params));
+      }
+    };
+    q.onReadyChanged.add(displayValueOnReadyChanged);
+  }
+  return undefined;
+}
+FunctionFactory.Instance.register("displayValue", displayValue, true);
 
 function propertyValue(params: any[]): any {
   if(params.length !== 2 || !params[0] || !params[1]) return undefined;

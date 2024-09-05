@@ -1168,6 +1168,7 @@ export class Base {
     this.onElementRenderedEventEnabled = true;
   }
   public disableOnElementRenderedEvent(): void {
+    this.onElementRerendered?.fire(this, { isCancel: true });
     this.onElementRenderedEventEnabled = false;
   }
   protected _onElementRerendered: EventBase<Base> = new EventBase();
@@ -1175,7 +1176,7 @@ export class Base {
     return this.supportOnElementRenderedEvent && this.onElementRenderedEventEnabled ? this._onElementRerendered : undefined;
   }
   public afterRerender(): void {
-    this.onElementRerendered?.fire(this, undefined);
+    this.onElementRerendered?.fire(this, { isCancel: false });
   }
 }
 

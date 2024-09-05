@@ -589,8 +589,8 @@ QUnit.test("lazy loading: A value disappears when open tagbox popup again", asse
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
-function getObjectArray(skip = 1, count = 25): Array<{value: any, text: string}> {
-  const result: Array<{value: any, text: string}> = [];
+function getObjectArray(skip = 1, count = 25): Array<{ value: any, text: string }> {
+  const result: Array<{ value: any, text: string }> = [];
   for (let index = skip; index < (skip + count); index++) {
     result.push({ value: index, text: "DisplayText_" + index });
   }
@@ -1406,7 +1406,7 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
   setTimeout(() => {
     assert.deepEqual(question.value, [1]);
     assert.equal(question.choices.length, 30);
-    for(let index = 0; index < list.actions.length - 1; index++) {
+    for (let index = 0; index < list.actions.length - 1; index++) {
       assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled before clear");
     }
 
@@ -1414,7 +1414,7 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
     assert.deepEqual(question.value, [1, 2]);
     assert.ok(list.actions[0].enabled, "action 1 is enabled before clear");
     assert.ok(list.actions[1].enabled, "action 2 is enabled before clear");
-    for(let index = 2; index < list.actions.length - 1; index++) {
+    for (let index = 2; index < list.actions.length - 1; index++) {
       assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before clear");
     }
     question.dropdownListModel.popupModel.hide();
@@ -1430,7 +1430,7 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
       list.onItemClick(list.actions[0]);
       assert.deepEqual(question.value, [1], "question value is [1]");
 
-      for(let index = 0; index < list.actions.length - 1; index++) {
+      for (let index = 0; index < list.actions.length - 1; index++) {
         assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled after clear");
       }
 
@@ -1438,7 +1438,7 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
       assert.deepEqual(question.value, [1, 2], "question value is [1, 2] after clear");
       assert.ok(list.actions[0].enabled, "action 1 is enabled after clear");
       assert.ok(list.actions[1].enabled, "action 2 is enabled after clear");
-      for(let index = 2; index < list.actions.length - 1; index++) {
+      for (let index = 2; index < list.actions.length - 1; index++) {
         assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled after clear");
       }
 
@@ -1474,7 +1474,7 @@ QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unsel
   setTimeout(() => {
     assert.deepEqual(question.value, [1]);
     assert.equal(question.choices.length, 30);
-    for(let index = 0; index < list.actions.length - 1; index++) {
+    for (let index = 0; index < list.actions.length - 1; index++) {
       assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled before unselecting choice");
     }
 
@@ -1482,7 +1482,7 @@ QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unsel
     assert.deepEqual(question.value, [1, 2]);
     assert.ok(list.actions[0].enabled, "action 1 is enabled before unselecting choice");
     assert.ok(list.actions[1].enabled, "action 2 is enabled before unselecting choice");
-    for(let index = 2; index < list.actions.length - 1; index++) {
+    for (let index = 2; index < list.actions.length - 1; index++) {
       assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before unselecting choice");
     }
     question.dropdownListModel.popupModel.hide;
@@ -1491,13 +1491,13 @@ QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unsel
       assert.deepEqual(question.value, [1, 2], "question value is [1, 2]");
       assert.ok(list.actions[0].enabled, "action 1 is enabled");
       assert.ok(list.actions[1].enabled, "action 2 is enabled");
-      for(let index = 2; index < list.actions.length - 1; index++) {
+      for (let index = 2; index < list.actions.length - 1; index++) {
         assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled");
       }
 
       list.onItemClick(list.actions[1]);
       assert.deepEqual(question.value, [1], "question value is [1]");
-      for(let index = 0; index < list.actions.length - 1; index++) {
+      for (let index = 0; index < list.actions.length - 1; index++) {
         assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled after unselecting choice");
       }
 
@@ -1692,6 +1692,130 @@ QUnit.test("Prevoiusly selected options disappear", (assert) => {
       }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
       done2();
     }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+    done1();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});
+
+QUnit.test("The new selected value is replaced with the the default value while searching #8751", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "closeOnSelect": true,
+      "choicesLazyLoadEnabled": true,
+      "defaultValue": [222],
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.deepEqual(question.value, [222], "question value #1");
+  assert.equal(question.selectedChoices.length, 1);
+
+  dropdownListModel.onClear(null);
+  assert.deepEqual(question.value, [], "question value #2");
+  assert.equal(question.selectedChoices.length, 0);
+
+  setTimeout(() => {
+    dropdownListModel.inputStringRendered = "999";
+    assert.deepEqual(question.value, [], "question value #3");
+    assert.equal(question.selectedChoices.length, 0);
+
+    setTimeout(() => {
+      list.onItemClick(list.actions[0]);
+      assert.deepEqual(question.value, [999], "question value #4");
+      assert.equal(question.selectedChoices.length, 1);
+      assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #1");
+
+      setTimeout(() => {
+        assert.deepEqual(question.value, [999], "question value #5");
+        assert.equal(question.selectedChoices.length, 1);
+        assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #2");
+
+        done3();
+      }, callbackTimeOutDelta);
+      done2();
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+    done1();
+  }, callbackTimeOutDelta);
+});
+
+QUnit.test("The new selected value is always replaced with the the first selected value while searching #8751", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const done4 = assert.async();
+  const done5 = assert.async();
+
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "closeOnSelect": true,
+      "choicesLazyLoadEnabled": true,
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.deepEqual(question.value, [], "question value is empty");
+  assert.equal(question.selectedChoices.length, 0);
+
+  dropdownListModel.inputStringRendered = "222";
+  setTimeout(() => {
+    list.onItemClick(list.actions[0]);
+    assert.deepEqual(question.value, [222], "question value #1");
+    assert.equal(question.selectedChoices.length, 1);
+
+    setTimeout(() => {
+      dropdownListModel.onClear(null);
+      assert.deepEqual(question.value, [], "question value #2");
+      assert.equal(question.selectedChoices.length, 0);
+
+      setTimeout(() => {
+        dropdownListModel.inputStringRendered = "999";
+        assert.deepEqual(question.value, [], "question value #3");
+        assert.equal(question.selectedChoices.length, 0);
+
+        setTimeout(() => {
+          list.onItemClick(list.actions[0]);
+          assert.deepEqual(question.value, [999], "question value #4");
+          assert.equal(question.selectedChoices.length, 1);
+          assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #1");
+
+          setTimeout(() => {
+            assert.deepEqual(question.value, [999], "question value #5");
+            assert.equal(question.selectedChoices.length, 1);
+            assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #2");
+
+            done5();
+          }, callbackTimeOutDelta);
+          done4();
+        }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+        done3();
+      }, callbackTimeOutDelta);
+      done2();
+    }, callbackTimeOutDelta);
     done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });

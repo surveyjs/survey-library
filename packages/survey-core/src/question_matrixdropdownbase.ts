@@ -955,15 +955,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         "rowCount",
         "hasFooter",
         "detailPanelMode",
+        "displayMode"
       ],
       () => {
         this.resetRenderedTable();
       });
-    this.registerPropertyChangedHandlers(["isMobile"],
-      () => {
-        this.resetRenderedTable();
-      }
-    );
   }
   public getType(): string {
     return "matrixdropdownbase";
@@ -2567,6 +2563,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public get showHorizontalScroll(): boolean {
     return !this.isDefaultV2Theme && this.horizontalScroll;
+  }
+  protected onMobileChanged(): void {
+    super.onMobileChanged();
+    this.resetRenderedTable();
   }
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.rootScroll, this.horizontalScroll).toString();

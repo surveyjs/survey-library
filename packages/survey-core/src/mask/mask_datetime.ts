@@ -185,6 +185,10 @@ export class InputMaskDateTime extends InputMaskPattern {
     return "datetimemask";
   }
 
+  public getTypeForExpressions(): string {
+    return this.hasTimePart ? "datetime-local" : "datetime";
+  }
+
   protected updateLiterals(): void {
     this.lexems = getDateTimeLexems(this.pattern || "");
   }
@@ -202,6 +206,9 @@ export class InputMaskDateTime extends InputMaskPattern {
   private getMaskedStrFromISO(str: string): string {
     let date = new Date(str);
     this.initInputDateTimeData();
+    if (!this.hasTimePart) {
+      date = new Date(str + "T00:00:00");
+    }
     if(!this.hasDatePart) {
       date = new Date(this.defaultDate + str);
     }
@@ -341,9 +348,9 @@ export class InputMaskDateTime extends InputMaskPattern {
     const dateH = new Date(this.getISO_8601Format(this.createIDateTimeCompositionWithDefaults(dateTime, true)));
 
     return !isNaN(date as any) &&
-    date.getDate() === day &&
-    date.getMonth() === monthIndex &&
-    date.getFullYear() === year &&
+      date.getDate() === day &&
+      date.getMonth() === monthIndex &&
+      date.getFullYear() === year &&
     dateH >= dateTime.min && date <= dateTime.max;
   }
 

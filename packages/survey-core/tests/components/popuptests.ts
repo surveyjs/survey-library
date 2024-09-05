@@ -1719,11 +1719,11 @@ QUnit.test("PopupViewModel: check animation's onEnter, onLeave are called correc
   model.isVisible = true;
   viewModel.afterRerender();
   assert.equal(logger.log, "->model:isVisible:true->viewModel:isVisible:true->onEnter", "correct order of updates when entering");
-  assert.deepEqual(viewModel.getAnimation().passedEnterClass, "sv-popup--animate-enter", "correct css classes passed to animation's onEnter");
+  assert.deepEqual(viewModel.getAnimation().passedEnterClass, "sv-popup--enter", "correct css classes passed to animation's onEnter");
   logger.log = "";
   model.isVisible = false;
   assert.equal(logger.log, "->model:isVisible:false->onLeave->viewModel:isVisible:false", "correct order of updates when leaving");
-  assert.deepEqual(viewModel.getAnimation().passedLeaveClass, "sv-popup--animate-leave", "correct css classes passed to animation's onLeave");
+  assert.deepEqual(viewModel.getAnimation().passedLeaveClass, "sv-popup--leave", "correct css classes passed to animation's onLeave");
   settings.animationEnabled = false;
   window.queueMicrotask = oldQueueMicrotask;
 });

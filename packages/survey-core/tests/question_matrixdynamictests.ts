@@ -9765,8 +9765,8 @@ QUnit.test("table: check animation options", function (assert) {
   });
   survey.css = {
     "matrixdynamic": {
-      rowFadeIn: "enter",
-      rowFadeOut: "leave",
+      rowEnter: "enter",
+      rowLeave: "leave",
     }
   };
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -9786,14 +9786,17 @@ QUnit.test("table: check animation options", function (assert) {
   const enterOptions = options.getEnterOptions(renderedTable.rows[1]);
   enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(rowHtmlElement);
   assert.equal(enterOptions.cssClass, "enter");
-  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "20px");
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height-to"), "20px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(rowHtmlElement);
+  assert.notOk(questionHtmlElement.style.getPropertyValue("--animation-height-to"));
 
   questionHtmlElement.style.height = "40px";
   const leaveOptions = options.getLeaveOptions(renderedTable.rows[1]);
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(rowHtmlElement);
   assert.equal(leaveOptions.cssClass, "leave");
-  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "40px");
-
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height-to"), "40px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(rowHtmlElement);
+  assert.notOk(questionHtmlElement.style.getPropertyValue("--animation-height-to"));
   tableHtmlElement.remove();
 });
 QUnit.test("set data from the survey", function (assert) {
@@ -9909,4 +9912,54 @@ QUnit.test("check cell.isVisible property", function (assert) {
   assert.ok(renderedTable.rows[1].cells[2].isVisible);
   assert.ok(renderedTable.rows[1].cells[3].isVisible);
   assert.ok(renderedTable.rows[1].cells[4].isVisible);
+});
+
+QUnit.test("check displayMode property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1"
+          },
+          {
+            "name": "col1",
+          },
+        ],
+        "choices": [
+          1,
+        ],
+        "rows": [
+          "row1",
+          "row2"
+        ]
+      }
+    ] });
+  const question = <QuestionMatrixDropdownModel>survey.getAllQuestions()[0];
+  survey.css = { question: { mobile: "test_mobile" } };
+  question.isMobile = true;
+  assert.equal(question.displayMode, "auto");
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+
+  question.isMobile = true;
+  question.displayMode = "table";
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+
+  question.isMobile = true;
+  question.displayMode = "list";
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
 });

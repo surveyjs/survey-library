@@ -8,7 +8,7 @@
   </div>
   <sv-text-area
     ref="root"
-    v-if="!question.isReadOnlyRenderDiv() && !question.getMaxLength()"
+    v-else-if="!question.isReadOnlyRenderDiv() && !question.getMaxLength()"
     :model="question.textAreaModel"
   ></sv-text-area>
   <div ref="root" v-else>{{ question.value }}</div>

@@ -474,11 +474,11 @@ export class QuestionMatrixModel
     return this.isMouseDown === true && this.hasValuesInAllRows();
   }
   private errorsInRow: HashTable<boolean>;
-  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
-    super.onCheckForErrors(errors, isOnValueChanged);
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (!isOnValueChanged || this.hasCssError()) {
       const rowsErrors = { noValue: false, isNotUnique: false };
-      this.checkErrorsAllRows(true, rowsErrors);
+      this.checkErrorsAllRows(fireCallback, rowsErrors);
       if(rowsErrors.noValue) {
         errors.push(new RequiredInAllRowsError(null, this));
       }

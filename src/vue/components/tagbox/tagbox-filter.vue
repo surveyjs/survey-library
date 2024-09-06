@@ -64,10 +64,10 @@ export class TagboxFilterComponent extends BaseVue {
     this.model.inputKeyHandler(event);
   }
   public blur(event: any) {
-    this.model.onBlur(event);
+    this.question.onBlur(event);
   }
   public focus(event: any) {
-    this.model.onFocus(event);
+    this.question.onFocus(event);
   }
 }
 

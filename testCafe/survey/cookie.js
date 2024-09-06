@@ -44,7 +44,7 @@ frameworks.forEach(framework => {
     await t
       .click("input[type=checkbox]")
       .click("input[value=Complete]")
-      .navigateTo("https://www.google.com")
+      .navigateTo("about:blank")
       .navigateTo(url + framework);
     await initSurvey(framework, json);
 

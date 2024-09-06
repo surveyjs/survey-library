@@ -133,7 +133,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
 
     let index = 0;
     let dragOverNode: HTMLElement = dragOverNodes[index];
-    while (dragOverNode && dragOverNode.className && dragOverNode.className.indexOf("sv-drag-target-skipped") != -1) {
+    while (dragOverNode && dragOverNode.className && typeof dragOverNode.className.indexOf == "function" && dragOverNode.className.indexOf("sv-drag-target-skipped") != -1) {
       index++;
       dragOverNode = dragOverNodes[index];
     }

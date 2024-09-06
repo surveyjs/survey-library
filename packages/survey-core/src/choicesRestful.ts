@@ -298,7 +298,7 @@ export class ChoicesRestful extends Base {
     return res;
   }
   private getAllPropertiesNames(): Array<string> {
-    const res = [];
+    const res = new Array<string>();
     Serializer.getPropertiesByObj(this).forEach(prop => res.push(prop.name));
     this.getCustomPropertiesNames().forEach(prop => res.push(prop));
     return res;

@@ -5,7 +5,6 @@ import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { WebRequestError, WebRequestEmptyError } from "./error";
 import { settings } from "./settings";
 import { SurveyError } from "./survey-error";
-import { Helpers } from "./helpers";
 
 class XmlParser {
   private parser = new DOMParser();
@@ -315,7 +314,7 @@ export class ChoicesRestful extends Base {
     let hasValue = false;
     this.getAllPropertiesNames().forEach(name => {
       const val = (<any>this)[name];
-      if(!Helpers.isValueEmpty(val) && val !== this.getDefaultPropertyValue(name)) {
+      if(!this.isValueEmpty(val) && val !== this.getDefaultPropertyValue(name)) {
         res[name] = val;
         hasValue = true;
       }

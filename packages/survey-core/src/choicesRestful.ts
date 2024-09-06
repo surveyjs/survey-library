@@ -5,6 +5,7 @@ import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { WebRequestError, WebRequestEmptyError } from "./error";
 import { settings } from "./settings";
 import { SurveyError } from "./survey-error";
+import { Helpers } from "./helpers";
 
 class XmlParser {
   private parser = new DOMParser();
@@ -297,40 +298,29 @@ export class ChoicesRestful extends Base {
     }
     return res;
   }
-  public setData(json: any) {
-    this.clear();
-    if (json.url) this.url = json.url;
-    if (json.path) this.path = json.path;
-    if (json.valueName) this.valueName = json.valueName;
-    if (json.titleName) this.titleName = json.titleName;
-    if (json.imageLinkName) this.imageLinkName = json.imageLinkName;
-    if (json.allowEmptyResponse !== undefined)
-      this.allowEmptyResponse = json.allowEmptyResponse;
-    if (json.attachOriginalItems !== undefined)
-      this.attachOriginalItems = json.attachOriginalItems;
-    var properties = this.getCustomPropertiesNames();
-    for (var i = 0; i < properties.length; i++) {
-      if (json[properties[i]]) (<any>this)[properties[i]] = json[properties[i]];
-    }
+  private getAllPropertiesNames(): Array<string> {
+    const res = [];
+    Serializer.getPropertiesByObj(this).forEach(prop => res.push(prop.name));
+    this.getCustomPropertiesNames().forEach(prop => res.push(prop));
+    return res;
+  }
+  public setData(json: any): void {
+    if(!json) json = {};
+    this.getAllPropertiesNames().forEach(name => {
+      (<any>this)[name] = json[name];
+    });
   }
   public getData(): any {
-    if (this.isEmpty) return null;
-    var res: any = {};
-    if (this.url) res["url"] = this.url;
-    if (this.path) res["path"] = this.path;
-    if (this.valueName) res["valueName"] = this.valueName;
-    if (this.titleName) res["titleName"] = this.titleName;
-    if (this.imageLinkName) res["imageLinkName"] = this.imageLinkName;
-    if (this.allowEmptyResponse)
-      res["allowEmptyResponse"] = this.allowEmptyResponse;
-    if (this.attachOriginalItems)
-      res["attachOriginalItems"] = this.attachOriginalItems;
-    var properties = this.getCustomPropertiesNames();
-    for (var i = 0; i < properties.length; i++) {
-      if ((<any>this)[properties[i]])
-        res[properties[i]] = (<any>this)[properties[i]];
-    }
-    return res;
+    const res: any = {};
+    let hasValue = false;
+    this.getAllPropertiesNames().forEach(name => {
+      const val = (<any>this)[name];
+      if(!Helpers.isValueEmpty(val) && val !== this.getDefaultPropertyValue(name)) {
+        res[name] = val;
+        hasValue = true;
+      }
+    });
+    return hasValue ? res : null;
   }
   /**
    * A RESTful service's URL.
@@ -454,15 +444,7 @@ export class ChoicesRestful extends Base {
     return prop.type;
   }
   public clear(): void {
-    this.url = undefined;
-    this.path = undefined;
-    this.valueName = undefined;
-    this.titleName = undefined;
-    this.imageLinkName = undefined;
-    var properties = this.getCustomPropertiesNames();
-    for (var i = 0; i < properties.length; i++) {
-      if ((<any>this)[properties[i]]) (<any>this)[properties[i]] = "";
-    }
+    this.setData(undefined);
   }
   protected beforeSendRequest() {
     this.isRunningValue = true;

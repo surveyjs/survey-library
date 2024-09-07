@@ -15,6 +15,7 @@ registerMarkupTests(
         },
       ]
     },
+    removeIds: true,
     snapshot: "paneldynamic-progress-top-legacy-navigation",
   },
   {
@@ -47,6 +48,7 @@ registerMarkupTests(
         },
       ]
     },
+    removeIds: true,
     snapshot: "paneldynamic-progress-bottom-legacy-navigation",
   },
   {
@@ -79,10 +81,11 @@ registerMarkupTests(
         },
       ]
     },
+    removeIds: true,
     snapshot: "paneldynamic-list-legacy-navigation",
   },
   {
-    name: "Test paneldynamic (list) markup",
+    name: "Test paneldynamic (list) #1 markup",
     json: {
       questions: [
         {
@@ -99,7 +102,7 @@ registerMarkupTests(
     after: () => StylesManager.applyTheme("default"),
   },
   {
-    name: "Test paneldynamic (list) markup",
+    name: "Test paneldynamic (list) #2 markup",
     json: {
       questions: [
         {
@@ -127,7 +130,7 @@ registerMarkupTests(
     after: () => StylesManager.applyTheme("default"),
   },
   {
-    name: "Test paneldynamic (list) markup",
+    name: "Test paneldynamic (list) #3 markup",
     json: {
       questions: [
         {

@@ -1,6 +1,7 @@
 <template>
   <button
     type="button"
+    :id="question.addButtonId"
     v-if="question.canAddPanel"
     :class="question.getAddButtonCss()"
     @click="addPanelClick"

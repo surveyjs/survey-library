@@ -630,18 +630,8 @@ export class Base {
       propertyName: item.ownerPropertyName,
     });
   }
-  protected onPropertyValueChanged(
-    name: string,
-    oldValue: any,
-    newValue: any
-  ) { }
-  protected propertyValueChanged(
-    name: string,
-    oldValue: any,
-    newValue: any,
-    arrayChanges?: ArrayChanges,
-    target?: Base
-  ) {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void { }
+  protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     if (this.isLoadingFromJson) return;
     this.updateBindings(name, newValue);
     this.onPropertyValueChanged(name, oldValue, newValue);
@@ -649,8 +639,9 @@ export class Base {
       name: name,
       oldValue: oldValue,
       newValue: newValue,
+      arrayChanges: arrayChanges,
+      target: target
     });
-
     this.doPropertyValueChangedCallback(
       name,
       oldValue,

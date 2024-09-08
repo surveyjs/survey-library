@@ -1281,13 +1281,10 @@ export class QuestionPanelDynamicModel extends Question
   public setVisibleIndex(value: number): number {
     if (!this.isVisible) return 0;
     const onSurveyNumbering = this.showQuestionNumbers === "onSurvey";
-    var startIndex = onSurveyNumbering ? value : 0;
-    for (var i = 0; i < this.visiblePanelsCore.length; i++) {
-      var counter = this.setPanelVisibleIndex(
-        this.visiblePanelsCore[i],
-        startIndex,
-        this.showQuestionNumbers != "off"
-      );
+    let startIndex = onSurveyNumbering ? value : 0;
+    const panels = this.isDesignMode ? [this.template] : this.visiblePanelsCore;
+    for (let i = 0; i < panels.length; i++) {
+      let counter = this.setPanelVisibleIndex(panels[i], startIndex, this.showQuestionNumbers != "off");
       if (onSurveyNumbering) {
         startIndex += counter;
       }

@@ -374,8 +374,8 @@ export class QuestionTextModel extends QuestionTextBase {
     return super.valueFromDataCore(val);
   }
   private dateValidationMessage: string;
-  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
-    super.onCheckForErrors(errors, isOnValueChanged);
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (isOnValueChanged) return;
     if (this.isValueLessMin) {
       const minError = new CustomError(

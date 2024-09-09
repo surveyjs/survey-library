@@ -279,11 +279,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return val.map((item: any) => this.createItemValue(item));
   }
   protected getAnswerCorrectIgnoreOrder(): boolean { return true; }
-  protected onCheckForErrors(
-    errors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ): void {
-    super.onCheckForErrors(errors, isOnValueChanged);
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (isOnValueChanged) return;
 
     if (this.minSelectedChoices > 0 && this.checkMinSelectedChoicesUnreached()) {

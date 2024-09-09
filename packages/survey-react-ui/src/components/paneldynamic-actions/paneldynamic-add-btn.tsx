@@ -25,7 +25,7 @@ export class SurveyQuestionPanelDynamicAddButton extends SurveyQuestionPanelDyna
     if (!this.question.canAddPanel) return null;
     const btnText = this.renderLocString(this.question.locPanelAddText);
     return (
-      <button type="button" className={this.question.getAddButtonCss()} onClick={this.handleClick} >
+      <button type="button" id={this.question.addButtonId} className={this.question.getAddButtonCss()} onClick={this.handleClick} >
         <span className={this.question.cssClasses.buttonAddText}>{btnText}</span>
       </button>
     );

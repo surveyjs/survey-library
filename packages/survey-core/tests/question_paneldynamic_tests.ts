@@ -7381,3 +7381,22 @@ QUnit.test("Always focus on error in duplicated value, Bug8228", function (asser
 
   SurveyElement.FocusElement = oldFunc;
 });
+QUnit.test("getFirstQuestionToFocus, Bug#8764", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic", name: "panel", panelCount: 1,
+        templateElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", isRequired: true }]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.validate(true);
+  assert.equal(panel.getFirstQuestionToFocus(false).name, "q1", "#1");
+  assert.equal(panel.getFirstQuestionToFocus(true).name, "q2", "#2");
+  panel.panelCount = 0;
+  assert.equal(panel.getFirstQuestionToFocus(false).name, "panel", "#3");
+  assert.notOk(panel.getFirstQuestionToFocus(true), "#4");
+  panel.isRequired = true;
+  panel.validate(true);
+  assert.equal(panel.getFirstQuestionToFocus(true).name, "panel", "#5");
+});

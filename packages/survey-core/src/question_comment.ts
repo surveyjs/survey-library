@@ -173,14 +173,6 @@ export class QuestionCommentModel extends QuestionTextBase {
   public get className() {
     return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
   }
-
-  public dispose(): void {
-    super.dispose();
-    if (this.textAreaModel) {
-      this.textAreaModel.dispose();
-      this.textAreaModel = undefined;
-    }
-  }
 }
 Serializer.addClass(
   "comment",

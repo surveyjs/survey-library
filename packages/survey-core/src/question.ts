@@ -2694,10 +2694,6 @@ export class Question extends SurveyElement<Question>
     super.dispose();
     this.resetDependedQuestions();
     this.destroyResizeObserver();
-    if (this.commentTextAreaModel) {
-      this.commentTextAreaModel.dispose();
-      this.commentTextAreaModel = undefined;
-    }
   }
   private resetDependedQuestions(): void {
     for (var i = 0; i < this.dependedQuestions.length; i++) {

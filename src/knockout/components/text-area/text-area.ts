@@ -9,7 +9,11 @@ ko.components.register("sv-text-area", {
       const element = componentInfo.element.querySelector && componentInfo.element.querySelector("textarea") || componentInfo.element.nextElementSibling;
       params.setElement(element);
       return {
-        model: params, value: ko.observable(params.getTextValue() || "")
+        model: params,
+        value: ko.observable(params.getTextValue() || ""),
+        dispose: () => {
+          params.dispose();
+        },
       };
     },
   },

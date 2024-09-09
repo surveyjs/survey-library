@@ -124,10 +124,6 @@ export class QuestionSelectBase extends Question {
     if (!!q) {
       q.removeDependedQuestion(this);
     }
-    if (this.otherTextAreaModel) {
-      this.otherTextAreaModel.dispose();
-      this.otherTextAreaModel = undefined;
-    }
   }
   protected resetDependedQuestion(): void {
     this.choicesFromQuestion = "";

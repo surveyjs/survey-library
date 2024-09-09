@@ -21,6 +21,10 @@ export class TextAreaComponent extends EmbeddedViewContentComponent {
       this.model.setElement(element as HTMLTextAreaElement);
     }
   }
+
+  ngOnDestroy(): void {
+    this.model.dispose();
+  }
 }
 
 AngularComponentFactory.Instance.registerComponent("sv-text-area", TextAreaComponent);

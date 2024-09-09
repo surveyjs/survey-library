@@ -48,6 +48,10 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
       />
     );
   }
+
+  componentWillUnmount() {
+    this.viewModel.dispose();
+  }
 }
 
 ReactElementFactory.Instance.registerElement("sv-text-area", (props) => {

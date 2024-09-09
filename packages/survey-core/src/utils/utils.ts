@@ -165,7 +165,7 @@ function wrapUrlForBackgroundImage(url: string): string {
 }
 
 //new-name: old-name
-const renamedIcons = {
+const renamedIcons: any = {
   "folder": "chooseFile"
 };
 

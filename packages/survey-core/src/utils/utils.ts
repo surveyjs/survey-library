@@ -164,9 +164,20 @@ function wrapUrlForBackgroundImage(url: string): string {
   return !!url ? ["url(", url, ")"].join("") : "";
 }
 
+//new-name: old-name
+const renamedIcons: any = {
+  "folder": "chooseFile"
+};
+
 function getIconNameFromProxy(iconName: string): string {
   if (!iconName) return iconName;
   var proxyName = (<any>settings.customIcons)[iconName];
+  if(!proxyName) {
+    const oldName = renamedIcons[iconName];
+    if(!!oldName) {
+      proxyName = (<any>settings.customIcons)[oldName];
+    }
+  }
   return !!proxyName ? proxyName : iconName;
 }
 

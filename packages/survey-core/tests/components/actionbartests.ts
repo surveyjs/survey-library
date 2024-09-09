@@ -45,6 +45,17 @@ QUnit.test(
 );
 
 QUnit.test(
+  "Support old customIcons names in svg, function getIconNameFromProxy",
+  (assert) => {
+    settings.customIcons["chooseFile"] = "new-chooseFile";
+    assert.equal(getIconNameFromProxy("chooseFile"), "new-chooseFile");
+    assert.equal(getIconNameFromProxy("folder"), "new-chooseFile");
+    assert.equal(getIconNameFromProxy("folder-new"), "folder-new");
+    delete settings.customIcons["chooseFile"];
+  }
+);
+
+QUnit.test(
   "isVisible",
   (assert) => {
     const action = new Action(<any>{});

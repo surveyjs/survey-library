@@ -915,7 +915,44 @@ QUnit.test("PanelDynamic, question no", function(assert) {
   assert.equal(question2.visibleIndex, 2, "onSurvey, second panel is removed - question2.visibleIndex"
   );
 });
-
+QUnit.test("PanelDynamic, showQuestionNumbers onSurvey & design time ", function(assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q2"
+              }
+            ],
+            "showQuestionNumbers": "onSurvey"
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const q2 = <Question>panel.templateElements[0];
+  assert.equal(q1.no, "1.", "The number should be 1.");
+  assert.equal(q2.no, "2.", "The number should be 2.");
+});
 QUnit.test("PanelDynamic, renderMode", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");

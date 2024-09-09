@@ -1,4 +1,4 @@
-import { Base } from "./base";
+import { Base, ArrayChanges } from "./base";
 import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
 import { Serializer, property } from "./jsonobject";
 import { SurveyModel } from "./survey";
@@ -192,7 +192,7 @@ export class Cover extends Base {
       backgroundSize: this.calcBackgroundSize(this.backgroundImageFit),
     };
   }
-  protected propertyValueChanged(name: string, oldValue: any, newValue: any): void {
+  protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     super.propertyValueChanged(name, oldValue, newValue);
     if (name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
       this.updateHeaderClasses();

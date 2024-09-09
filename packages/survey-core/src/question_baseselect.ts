@@ -1379,18 +1379,15 @@ export class QuestionSelectBase extends Question {
       this.getPropertyByName(propName).visible
     );
   }
-  protected onCheckForErrors(
-    errors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ) {
-    super.onCheckForErrors(errors, isOnValueChanged);
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (!this.hasOther || !this.isOtherSelected || this.otherValue
       || isOnValueChanged && !this.prevOtherErrorValue) return;
     const otherEmptyError = new OtherEmptyError(this.otherErrorText, this);
     otherEmptyError.onUpdateErrorTextCallback = err => { err.text = this.otherErrorText; };
     errors.push(otherEmptyError);
   }
-  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.isRunningChoices = true;
     super.setSurveyImpl(value, isLight);
     this.isRunningChoices = false;
@@ -1399,7 +1396,7 @@ export class QuestionSelectBase extends Question {
       this.updateVisibleChoices();
     }
   }
-  protected setSurveyCore(value: ISurvey) {
+  protected setSurveyCore(value: ISurvey): void {
     super.setSurveyCore(value);
     if (!!value && !!this.choicesFromQuestion) {
       this.onVisibleChoicesChanged();

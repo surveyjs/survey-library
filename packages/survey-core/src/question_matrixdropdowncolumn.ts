@@ -1,6 +1,6 @@
 import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
 import { Question } from "./question";
-import { Base } from "./base";
+import { Base, ArrayChanges } from "./base";
 import { ISurvey, IWrapperObject } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { QuestionSelectBase } from "./question_baseselect";
@@ -728,7 +728,9 @@ export class MatrixDropdownColumn extends Base
       this.propertyValueChanged(
         options.name,
         options.oldValue,
-        options.newValue
+        options.newValue,
+        options.arrayChanges,
+        options.target
       );
     });
     this.templateQuestion.onItemValuePropertyChanged.add((sender, options) => {
@@ -807,8 +809,8 @@ export class MatrixDropdownColumn extends Base
       };
     }
   }
-  protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
-    super.propertyValueChanged(name, oldValue, newValue);
+  protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
+    super.propertyValueChanged(name, oldValue, newValue, arrayChanges, target);
     if (name === "isRequired") {
       this.updateIsRenderedRequired(newValue);
     }

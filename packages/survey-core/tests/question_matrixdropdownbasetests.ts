@@ -1,4 +1,4 @@
-import { JsonObjectProperty, Serializer } from "../src/jsonobject";
+import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
@@ -1662,4 +1662,45 @@ QUnit.test("showInMultipleColumns - add choice item", function (assert) {
   assert.equal(rows[0].cells[1].question.visibleChoices[3].value, "col4", "row1 question 3");
   assert.equal(rows[1].cells[1].question.visibleChoices[0].value, "col1", "row2 question 1");
   assert.equal(rows[1].cells[1].question.visibleChoices[3].value, "col4", "row2 question 3");
+});
+QUnit.test("The Undo operation doesn't work for matrix dropdown column 'choices' property, Bug#8791", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "column1",
+            "cellType": "checkbox",
+            "choices": ["col1", "col2", "col3"],
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let propName;
+  let arrayChangesTest;
+  let counter = 0;
+  let senderName;
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: any,
+    arrayChanges: any
+  ) => {
+    if(name === "choices") {
+      counter ++;
+      propName = name;
+      senderName = sender.name;
+      arrayChangesTest = arrayChanges;
+    }
+  };
+  matrix.columns[0].choices.push(new ItemValue("col4"));
+  assert.equal(counter, 1, "counter");
+  assert.equal(propName, "choices", "propName");
+  assert.equal(senderName, "column1", "senderName");
+  assert.ok(arrayChangesTest, "arrayChanges");
 });

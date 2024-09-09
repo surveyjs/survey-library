@@ -2213,3 +2213,19 @@ QUnit.test("Add condition custom property", function (assert) {
 
   Serializer.removeProperty("itemvalue", "customExp");
 });
+QUnit.test("question checkbox add a custom property into choicesByUrl, Bug#8783", (assert) => {
+  Serializer.addProperty("choicesByUrl", "jsonpath");
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1",
+        choicesByUrl: { valueName: "name", jsonpath: "mypath" }
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.choicesByUrl.valueName, "name", "valueName");
+  assert.equal(q1.choicesByUrl["jsonpath"], "mypath", "load jsonpath");
+  q1.choicesByUrl["jsonpath"] = "newpath";
+  assert.deepEqual(q1.toJSON(), { name: "q1", choicesByUrl: { valueName: "name", jsonpath: "newpath" } }, "#2");
+  Serializer.removeProperty("choicesByUrl", "jsonpath");
+});

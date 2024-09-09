@@ -2163,7 +2163,7 @@ export class Question extends SurveyElement<Question>
     return json;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    const errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
+    const errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true, fireCallback);
     if (fireCallback) {
       if (!!this.survey) {
         this.survey.beforeSettingQuestionErrors(this, errors);
@@ -2224,21 +2224,18 @@ export class Question extends SurveyElement<Question>
     var index = errors.indexOf(error);
     if (index !== -1) errors.splice(index, 1);
   }
-  private checkForErrors(isOnValueChanged: boolean): Array<SurveyError> {
+  private checkForErrors(isOnValueChanged: boolean, fireCallback: boolean): Array<SurveyError> {
     var qErrors = new Array<SurveyError>();
     if (this.isVisible && this.canCollectErrors()) {
-      this.collectErrors(qErrors, isOnValueChanged);
+      this.collectErrors(qErrors, isOnValueChanged, fireCallback);
     }
     return qErrors;
   }
   protected canCollectErrors(): boolean {
     return !this.isReadOnly || settings.readOnly.enableValidation;
   }
-  private collectErrors(
-    qErrors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ) {
-    this.onCheckForErrors(qErrors, isOnValueChanged);
+  private collectErrors(qErrors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    this.onCheckForErrors(qErrors, isOnValueChanged, fireCallback);
     if (qErrors.length > 0 || !this.canRunValidators(isOnValueChanged)) return;
     var errors = this.runValidators();
     if (errors.length > 0) {
@@ -2262,7 +2259,7 @@ export class Question extends SurveyElement<Question>
     if (this.validateValueCallback) return this.validateValueCallback();
     return this.survey ? this.survey.validateQuestion(this) : null;
   }
-  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     if ((!isOnValueChanged || this.isOldAnswered) && this.hasRequiredError()) {
       const err = new AnswerRequiredError(this.requiredErrorText, this);
       err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };

@@ -431,6 +431,16 @@ export class Helpers {
     }
     return len1 === len2 ? 0 : (len1 < len2 ? -1 : 1);
   }
+  public static isUrlYoutubeVideo(url: string): boolean {
+    if (!url) return false;
+    const youtubeDomains = ["www.youtube.com", "m.youtube.com", "youtube.com", "youtu.be"];
+    url = url.toLowerCase();
+    url = url.replace(/^https?:\/\//, "");
+    for (let i = 0; i < youtubeDomains.length; i++) {
+      if (url.indexOf(youtubeDomains[i] + "/") === 0) return true;
+    }
+    return false;
+  }
 }
 if (!(<any>String.prototype)["format"]) {
   (<any>String.prototype)["format"] = function() {

@@ -578,5 +578,27 @@ frameworks.forEach((framework) => {
 
     await t.expect(Selector(".sv-action.sv-dots").visible).ok();
   });
+  test("Focus first input on adding a new panel, renderMode='tab'", async (t) => {
+    await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 0,
+          templateElements: [
+            {
+              type: "text",
+              name: "name"
+            },
+          ],
+        }
+      ]
+    });
+    await t.pressKey("space")
+      .pressKey("1 2 3")
+      .click(Selector(".sd-navigation__complete-btn"));
 
+    await t.expect(await getSurveyResult()).eql({ panel1: [{ name: "123" }] });
+  });
 });

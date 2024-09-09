@@ -44,10 +44,10 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
     this.model.inputKeyHandler(e);
   }
   onBlur(e: any) {
-    this.model.onBlur(e);
+    this.question.onBlur(e);
   }
   onFocus(e: any) {
-    this.model.onFocus(e);
+    this.question.onFocus(e);
   }
   constructor(props: any) {
     super(props);

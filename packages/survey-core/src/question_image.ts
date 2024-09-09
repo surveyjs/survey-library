@@ -4,21 +4,11 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getRenderedStyleSize, getRenderedSize } from "./utils/utils";
+import { Helpers } from "./helpers";
 
-const youtubeDomains = ["www.youtube.com", "m.youtube.com", "youtube.com", "youtu.be"];
 const videoSuffics = [".mp4", ".mov", ".wmv", ".flv", ".avi", ".mkv"];
 const youtubeUrl = "https://www.youtube.com/";
 const youtubeEmbed = "embed";
-
-function isUrlYoutubeVideo(url: string): boolean {
-  if (!url) return false;
-  url = url.toLowerCase();
-  url = url.replace(/^https?:\/\//, "");
-  for (let i = 0; i < youtubeDomains.length; i++) {
-    if (url.indexOf(youtubeDomains[i] + "/") === 0) return true;
-  }
-  return false;
-}
 
 /**
   * A class that describes the Image question type. Unlike other question types, Image cannot have a title or value.
@@ -191,7 +181,7 @@ export class QuestionImageModel extends QuestionNonValue {
     }
   }
   private isYoutubeVideo(): boolean {
-    return isUrlYoutubeVideo(this.imageLink);
+    return Helpers.isUrlYoutubeVideo(this.imageLink);
   }
   private isVideo(): boolean {
     let link = this.imageLink;
@@ -205,8 +195,7 @@ export class QuestionImageModel extends QuestionNonValue {
 }
 
 function getCorrectImageLink(val: string, isYouTube: boolean): string {
-  if (!val || !isUrlYoutubeVideo(val)) return isYouTube ? "" : val;
-  //if(!val || !isUrlYoutubeVideo(val)) return val;
+  if (!val || !Helpers.isUrlYoutubeVideo(val)) return isYouTube ? "" : val;
   let res = val.toLocaleLowerCase();
   if(res.indexOf(youtubeEmbed) > -1) return val;
   let id = "";

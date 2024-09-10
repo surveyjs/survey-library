@@ -35,12 +35,11 @@ export class TitleContent extends React.Component<any, any> {
     }
     var questionNumber = element.no;
     if (questionNumber) {
-      const panelNumber = !!cssClasses.panel ? cssClasses.panel.number : undefined;
       spans.push(
         <span
           data-key={"q_num"}
           key={"q_num"}
-          className={cssClasses.number || panelNumber}
+          className={element.cssTitleNumber}
           style={{ position: "static" }}
           aria-hidden={true}
         >

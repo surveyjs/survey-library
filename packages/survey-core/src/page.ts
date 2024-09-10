@@ -23,10 +23,6 @@ export class PageModel extends PanelModelBase implements IPage {
 
   constructor(name: string = "") {
     super(name);
-    this.locTitle.onGetTextCallback = (text: string) => {
-      if (this.canShowPageNumber() && text) return this.num + ". " + text;
-      return text;
-    };
     this.createLocalizableString("navigationDescription", this, true);
     this.dragDropPageHelper = new DragDropPageHelperV1(this);
   }
@@ -38,6 +34,12 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isPage(): boolean {
     return true;
+  }
+  public get no(): string {
+    return this.canShowPageNumber() ? this.num + ". " : "";
+  }
+  public get cssTitleNumber(): string {
+    return this.cssClasses.page.number;
   }
   protected canShowPageNumber(): boolean {
     return this.survey && (<any>this.survey).showPageNumbers;

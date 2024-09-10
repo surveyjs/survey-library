@@ -85,11 +85,11 @@
   box-sizing: border-box;
   white-space: nowrap;
   flex-shrink: 0;
-
-  & + span {
-    float: left;
-    width: 0;
-  }
+}
+.sd-page__num + span,
+.sd-element__num + span {
+  float: left;
+  width: 0;
 }
 
 [dir="rtl"],

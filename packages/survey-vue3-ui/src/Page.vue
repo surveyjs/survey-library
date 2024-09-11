@@ -1,24 +1,26 @@
 <template>
   <div :class="page.cssRoot" ref="root">
-    <survey-element-title :element="page" :css="css" />
+    <SvComponent :is="'survey-element-title'" :element="page" :css="css" />
     <div v-if="showDescription" :class="page.cssClasses.page.description">
-      <survey-string :locString="page.locDescription" />
+      <SvComponent :is="'survey-string'" :locString="page.locDescription" />
     </div>
-    <survey-errors :element="page" />
+    <SvComponent :is="'survey-errors'" :element="page" />
     <template v-for="row in page.visibleRows" :key="row.id">
-      <component
+      <SvComponent
         :is="(page.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
         v-bind="{
             componentData: (page.getSurvey() as SurveyModel).getRowWrapperComponentData(row),
           }"
       >
-        <survey-row :row="row" :survey="survey" :css="css"> </survey-row>
-      </component>
+        <SvComponent :is="'survey-row'" :row="row" :survey="survey" :css="css">
+        </SvComponent>
+      </SvComponent>
     </template>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { SurveyModel } from "survey-core";
 import type { PageModel } from "survey-core";
 import { computed, onMounted, ref } from "vue";

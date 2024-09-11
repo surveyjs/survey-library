@@ -5,9 +5,12 @@
       :class="question.cssClasses.noEntriesPlaceholder"
     >
       <span>
-        <survey-string :locString="question.locNoEntriesText"></survey-string>
+        <SvComponent
+          :is="'survey-string'"
+          :locString="question.locNoEntriesText"
+        ></SvComponent>
       </span>
-      <sv-paneldynamic-add-btn :data="{ question }" />
+      <SvComponent :is="'sv-paneldynamic-add-btn'" :data="{ question }" />
     </div>
     <div
       :class="question.cssClasses.progress"
@@ -23,7 +26,8 @@
         role="progressbar"
       ></div>
     </div>
-    <survey-paneldynamicprogress
+    <SvComponent
+      :is="'survey-paneldynamicprogress'"
       v-if="getShowLegacyNavigation() && question.isProgressTopShowing"
       :question="question"
     />
@@ -33,11 +37,12 @@
         :key="panel.id"
       >
         <div :class="question.getPanelWrapperCss(panel)">
-          <component
+          <SvComponent
             :is="getPanelComponentName(panel)"
             v-bind="getPanelComponentData(panel)"
-          ></component>
-          <sv-paneldynamic-remove-btn
+          ></SvComponent>
+          <SvComponent
+            :is="'sv-paneldynamic-remove-btn'"
             v-if="
               question.panelRemoveButtonLocation === 'right' &&
               question.canRemovePanel &&
@@ -55,15 +60,18 @@
         />
       </template>
     </div>
-    <survey-paneldynamicprogress
+    <SvComponent
+      :is="'survey-paneldynamicprogress'"
       v-if="getShowLegacyNavigation() && question.isProgressBottomShowing"
       :question="question"
     />
-    <sv-paneldynamic-add-btn
+    <SvComponent
+      :is="'sv-paneldynamic-add-btn'"
       v-if="getShowLegacyNavigation() && question.isRenderModeList"
       :data="{ question }"
     />
-    <survey-paneldynamicprogress-v2
+    <SvComponent
+      :is="'survey-paneldynamicprogress-v2'"
       v-if="question.showNavigation"
       :question="question"
     />
@@ -71,13 +79,14 @@
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type {
   PanelModel,
   QuestionPanelDynamicModel,
   SurveyModel,
 } from "survey-core";
 import { useQuestion } from "./base";
-import { computed, getCurrentInstance, ref } from "vue";
+import { getCurrentInstance, ref } from "vue";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionPanelDynamicModel; css?: any }>();
 const root = ref(null);

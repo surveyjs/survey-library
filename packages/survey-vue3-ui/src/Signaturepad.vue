@@ -10,9 +10,10 @@
       :class="question.cssClasses.placeholder"
       v-show="question.needShowPlaceholder()"
     >
-      <survey-string
+      <SvComponent
+        :is="'survey-string'"
         :locString="question.locRenderedPlaceholder"
-      ></survey-string>
+      ></SvComponent>
     </div>
     <div>
       <img
@@ -44,23 +45,25 @@
         "
       >
         <span v-if="!question.cssClasses.clearButtonIconId">✖</span>
-        <sv-svg-icon
+        <SvComponent
+          :is="'sv-svg-icon'"
           v-if="question.cssClasses.clearButtonIconId"
           :iconName="question.cssClasses.clearButtonIconId"
           :size="'auto'"
-        ></sv-svg-icon>
+        ></SvComponent>
       </button>
     </div>
     <div
       :class="question.cssClasses.loadingIndicator"
       v-if="question.showLoadingIndicator"
     >
-      <sv-loading-indicator></sv-loading-indicator>
+      <SvComponent :is="'sv-loading-indicator'" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionSignaturePadModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

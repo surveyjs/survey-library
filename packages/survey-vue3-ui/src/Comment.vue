@@ -1,20 +1,29 @@
 <template>
-  <div ref="root" v-if="!question.isReadOnlyRenderDiv() && question.getMaxLength()">
-    <sv-text-area :model="question.textAreaModel"></sv-text-area>
-    <sv-character-counter
+  <div
+    ref="root"
+    v-if="!question.isReadOnlyRenderDiv() && question.getMaxLength()"
+  >
+    <SvComponent
+      :is="'sv-text-area'"
+      :model="question.textAreaModel"
+    ></SvComponent>
+    <SvComponent
+      :is="'sv-character-counter'"
       :counter="question.characterCounter"
       :remainingCharacterCounter="question.cssClasses.remainingCharacterCounter"
-    ></sv-character-counter>
+    ></SvComponent>
   </div>
-  <sv-text-area
+  <SvComponent
+    :is="'sv-text-area'"
     ref="root"
     v-else-if="!question.isReadOnlyRenderDiv() && !question.getMaxLength()"
     :model="question.textAreaModel"
-  ></sv-text-area>
+  ></SvComponent>
   <div ref="root" v-else>{{ question.value }}</div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionCommentModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

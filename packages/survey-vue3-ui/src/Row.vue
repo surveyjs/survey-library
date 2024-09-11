@@ -1,17 +1,19 @@
 <template>
   <div :class="row.getRowCss()" ref="root">
-    <survey-element
+    <SvComponent
+      :is="'survey-element'"
       :row="row"
       :css="css"
       :element="element"
       v-for="element in row.visibleElements"
       :key="(element as any).id"
-    ></survey-element>
+    ></SvComponent>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { QuestionRowModel, SurveyElement, SurveyModel } from "survey-core";
+import SvComponent from "@/SvComponent.vue";
+import type { QuestionRowModel, SurveyModel } from "survey-core";
 import { onMounted, ref } from "vue";
 import { useBase } from "./base";
 

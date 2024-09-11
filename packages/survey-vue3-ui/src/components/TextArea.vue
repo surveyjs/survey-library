@@ -46,12 +46,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useBase } from "@/base";
 import type { TextAreaModel } from "survey-core";
 import { computed, onMounted, onUpdated, onUnmounted, ref } from "vue";
 
 const props = defineProps<{ model: TextAreaModel }>();
-const contentElement = ref<HTMLTextAreaElement>((null as any) as HTMLTextAreaElement);
+const contentElement = ref<HTMLTextAreaElement>(
+  null as any as HTMLTextAreaElement
+);
 const value = computed(() => props.model.getTextValue() || "");
 
 onMounted(() => {

@@ -282,9 +282,8 @@ function registerComponents(
 
   registerComponent("survey-buttongroup", ButtonGroup);
   registerComponent("sv-button-group-item", ButtonGroupItem);
+  registerComponent("survey", SurveyVue);
 }
-
-ComponentFactory.Instance.registerComponent("survey", SurveyVue);
 
 registerComponents((name, component) =>
   ComponentFactory.Instance.registerComponent(name, component)
@@ -293,7 +292,6 @@ registerComponents((name, component) =>
 export const surveyPlugin = {
   install(app: App) {
     app.component("SurveyComponent", SurveyVue);
-    app.component("survey", SurveyVue);
     app.component("PopupSurveyComponent", PopupSurvey);
     registerComponents((name, component) => {
       app.component(name, component);

@@ -1,18 +1,11 @@
-import type { defineComponent } from "vue";
-
-type VueComponent = ReturnType<typeof defineComponent>;
-
 export class ComponentFactory {
   public static Instance: ComponentFactory = new ComponentFactory();
-  private creatorHash: { [index: string]: VueComponent } = {};
+  private creatorHash: { [index: string]: any } = {};
 
-  public registerComponent(
-    typeName: string,
-    componentType: ReturnType<typeof defineComponent>
-  ): void {
+  public registerComponent(typeName: string, componentType: any): void {
     this.creatorHash[typeName] = componentType;
   }
-  public getComponent(typeName: string): VueComponent {
+  public getComponent(typeName: string): any {
     return this.creatorHash[typeName];
   }
   public getAllTypes(): Array<string> {

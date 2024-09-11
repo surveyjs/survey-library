@@ -11,7 +11,7 @@
     "
   >
     <SvComponent
-      :name="'sv-svg-icon'"
+      :is="'sv-svg-icon'"
       :class="question.getDetailPanelIconCss(row)"
       :iconName="question.getDetailPanelIconId(row)"
       size="auto"

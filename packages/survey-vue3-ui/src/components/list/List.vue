@@ -3,7 +3,7 @@
     <div v-bind:class="model.cssClasses.filter" v-if="model.showFilter">
       <div v-bind:class="model.cssClasses.filterIcon">
         <SvComponent
-          :name="'sv-svg-icon'"
+          :is="'sv-svg-icon'"
           :iconName="'icon-search'"
           :size="'auto'"
         >
@@ -28,7 +28,7 @@
         v-bind:class="model.cssClasses.searchClearButtonIcon"
       >
         <SvComponent
-          :name="'sv-svg-icon'"
+          :is="'sv-svg-icon'"
           :iconName="'icon-searchclear'"
           :size="'auto'"
         ></SvComponent>
@@ -61,7 +61,7 @@
       "
     >
       <SvComponent
-        :name="'sv-list-item'"
+        :is="'sv-list-item'"
         v-for="item in renderedActions"
         :item="item"
         :model="model"

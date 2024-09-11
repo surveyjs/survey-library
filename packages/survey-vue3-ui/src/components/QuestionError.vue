@@ -11,7 +11,7 @@
         cssClasses ? cssClasses.error.item || undefined : 'panel-error-item'
       "
     >
-      <SvComponent :name="'survey-string'" :locString="error.locText" />
+      <SvComponent :is="'survey-string'" :locString="error.locText" />
     </span>
   </div>
 </template>

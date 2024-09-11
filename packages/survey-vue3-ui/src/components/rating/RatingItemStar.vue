@@ -21,13 +21,13 @@
       :aria-errormessage="question.ariaErrormessage"
     />
     <SvComponent
-      :name="'sv-svg-icon'"
+      :is="'sv-svg-icon'"
       :class="'sv-star'"
       :iconName="question.itemStarIcon"
       :size="'auto'"
       :title="item.text"
     /><SvComponent
-      :name="'sv-svg-icon'"
+      :is="'sv-svg-icon'"
       :class="'sv-star-2'"
       :iconName="question.itemStarIconAlt"
       :size="'auto'"

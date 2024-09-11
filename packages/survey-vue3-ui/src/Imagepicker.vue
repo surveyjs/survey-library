@@ -5,7 +5,7 @@
       <SvComponent
         v-for="item in question.visibleChoices"
         :key="item.value"
-        :name="getItemValueComponentName(item)"
+        :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
       ></SvComponent>
     </template>
@@ -19,7 +19,7 @@
         <SvComponent
           v-for="item in column"
           :key="item.value"
-          :name="getItemValueComponentName(item)"
+          :is="getItemValueComponentName(item)"
           v-bind="getItemValueComponentData(item)"
         ></SvComponent>
       </div>

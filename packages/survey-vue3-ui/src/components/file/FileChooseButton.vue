@@ -8,7 +8,7 @@
     v-on:click="question.chooseFile($event)"
   >
     <SvComponent
-      :name="'sv-svg-icon'"
+      :is="'sv-svg-icon'"
       v-if="question.cssClasses.chooseFileIconId"
       :title="question.chooseButtonText"
       :iconName="question.cssClasses.chooseFileIconId"

@@ -14,42 +14,42 @@
     :data-name="element.name"
   >
     <SvComponent
-      :name="'survey-errors'"
+      :is="'survey-errors'"
       v-if="element.showErrorsAboveQuestion"
       :element="element"
       :location="'top'"
     />
     <SvComponent
-      :name="'survey-element-header'"
+      :is="'survey-element-header'"
       v-if="element.hasTitleOnLeftTop"
       :element="element"
       :css="css"
     />
-    <SvComponent :name="contentComponentName" v-bind="contentComponentData">
+    <SvComponent :is="contentComponentName" v-bind="contentComponentData">
       <div
         :class="getContentClass(element) || undefined"
         :style="{ display: !element.renderedIsExpanded ? 'none' : undefined }"
         role="presentation"
       >
         <SvComponent
-          :name="'survey-errors'"
+          :is="'survey-errors'"
           v-if="hasErrorsOnTop"
           :element="element"
           :location="'top'"
         />
 
-        <SvComponent :name="componentName" :question="element" />
+        <SvComponent :is="componentName" :question="element" />
         <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
           <div>
             <SvComponent
-              :name="'survey-string'"
+              :is="'survey-string'"
               :locString="element.locCommentText"
             />
           </div>
-          <SvComponent :name="'survey-question-comment'" :question="element" />
+          <SvComponent :is="'survey-question-comment'" :question="element" />
         </div>
         <SvComponent
-          :name="'survey-errors'"
+          :is="'survey-errors'"
           v-if="hasErrorsOnBottom"
           :element="element"
           :location="'bottom'"
@@ -60,20 +60,20 @@
           :id="element.ariaDescriptionId"
         >
           <SvComponent
-            :name="'survey-string'"
+            :is="'survey-string'"
             :locString="element.locDescription"
           />
         </div>
       </div>
     </SvComponent>
     <SvComponent
-      :name="'survey-element-header'"
+      :is="'survey-element-header'"
       v-if="element.hasTitleOnBottom"
       :element="element"
       :css="css"
     />
     <SvComponent
-      :name="'survey-errors'"
+      :is="'survey-errors'"
       v-if="element.showErrorsBelowQuestion"
       :element="element"
       :location="'bottom'"

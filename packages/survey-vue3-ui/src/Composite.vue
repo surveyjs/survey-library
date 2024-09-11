@@ -1,6 +1,6 @@
 <template>
   <SvComponent
-    :name="'survey-panel'"
+    :is="'survey-panel'"
     ref="root"
     :element="contentPanel"
     :css="css"

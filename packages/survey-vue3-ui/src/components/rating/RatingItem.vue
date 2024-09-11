@@ -19,7 +19,7 @@
       :aria-errormessage="question.ariaErrormessage"
     />
     <span :class="question.cssClasses.itemText" :data-text="item.text">
-      <SvComponent :name="'survey-string'" :locString="item.locText" />
+      <SvComponent :is="'survey-string'" :locString="item.locText" />
     </span>
   </label>
 </template>

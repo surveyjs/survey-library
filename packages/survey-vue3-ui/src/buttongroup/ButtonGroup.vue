@@ -1,7 +1,7 @@
 <template>
   <div role="group" :class="question.cssClasses.root" ref="root">
     <SvComponent
-      :name="'sv-button-group-item'"
+      :is="'sv-button-group-item'"
       v-for="(item, index) in question.visibleChoices"
       :question="question"
       :key="index"

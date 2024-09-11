@@ -4,20 +4,17 @@
     @click="clickTitleFunction"
     :style="getStyle()"
   >
-    <SvComponent :name="'survey-element-title'" :element="element" :css="css" />
+    <SvComponent :is="'survey-element-title'" :element="element" :css="css" />
     <div
       v-if="element.hasDescriptionUnderTitle"
       v-show="element.hasDescription"
       :class="element.cssDescription"
       :id="element.ariaDescriptionId"
     >
-      <SvComponent
-        :name="'survey-string'"
-        :locString="element.locDescription"
-      />
+      <SvComponent :is="'survey-string'" :locString="element.locDescription" />
     </div>
     <SvComponent
-      :name="'sv-action-bar'"
+      :is="'sv-action-bar'"
       v-if="element.hasAdditionalTitleToolbar"
       :model="element.additionalTitleToolbar"
     ></SvComponent>

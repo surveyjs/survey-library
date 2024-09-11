@@ -6,7 +6,7 @@
   >
     <span :class="question.cssClasses.buttonRemoveText"
       ><SvComponent
-        :name="'survey-string'"
+        :is="'survey-string'"
         :locString="question.locPanelRemoveText"
     /></span>
     <span :class="question.cssClasses.iconRemove"></span>

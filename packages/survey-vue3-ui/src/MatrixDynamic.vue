@@ -10,14 +10,14 @@
         @click="addRowClick"
       >
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           :locString="question.locAddRowText"
         />
         <span :class="question.cssClasses.iconAdd"></span>
       </button>
     </div>
     <SvComponent
-      :name="'survey-matrixtable'"
+      :is="'survey-matrixtable'"
       v-if="question.renderedTable.showTable"
       :question="question"
     />
@@ -27,7 +27,7 @@
     >
       <div :class="question.cssClasses.emptyRowsText">
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           :locString="question.locEmptyRowsText"
         />
       </div>
@@ -38,7 +38,7 @@
         @click="addRowClick"
       >
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           :locString="question.locAddRowText"
         />
         <span :class="question.cssClasses.iconAdd"></span>
@@ -54,7 +54,7 @@
         @click="addRowClick"
       >
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           :locString="question.locAddRowText"
         />
         <span :class="question.cssClasses.iconAdd"></span>

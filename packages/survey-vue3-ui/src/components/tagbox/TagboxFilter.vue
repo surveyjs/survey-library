@@ -6,7 +6,7 @@
 
     <div :class="question.cssClasses.hintSuffixWrapper">
       <SvComponent
-        :name="'survey-string'"
+        :is="'survey-string'"
         v-if="question.showSelectedItemLocText"
         :locString="question.selectedItemLocText"
       />

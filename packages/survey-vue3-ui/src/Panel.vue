@@ -7,18 +7,18 @@
     ref="root"
   >
     <SvComponent
-      :name="'survey-errors'"
+      :is="'survey-errors'"
       :element="element"
       v-if="element.showErrorsAbovePanel"
     />
     <SvComponent
-      :name="'survey-element-header'"
+      :is="'survey-element-header'"
       v-if="element.hasTitle || element.hasDescription"
       :element="element"
       :css="css"
     ></SvComponent>
     <SvComponent
-      :name="'survey-errors'"
+      :is="'survey-errors'"
       :element="element"
       v-if="!element.showErrorsAbovePanel"
     />
@@ -30,13 +30,13 @@
     >
       <template v-for="row in element.visibleRows" :key="row.id">
         <SvComponent
-          :name="(element.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
+          :is="(element.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
           v-bind="{
             componentData: (element.getSurvey() as SurveyModel).getRowWrapperComponentData(row),
           }"
         >
           <SvComponent
-            :name="'survey-row'"
+            :is="'survey-row'"
             :row="row"
             :survey="survey"
             :css="css"
@@ -45,7 +45,7 @@
         </SvComponent>
       </template>
       <SvComponent
-        :name="'sv-action-bar'"
+        :is="'sv-action-bar'"
         :model="element.getFooterToolbar()"
       ></SvComponent>
     </div>

@@ -24,7 +24,7 @@
 
       <div :class="question.cssClasses.controlValue">
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           v-if="showSelectedItemLocText"
           :locString="selectedItemLocText"
         />
@@ -39,7 +39,7 @@
         </div>
         <SvComponent
           v-if="question.showInputFieldComponent"
-          :name="question.inputFieldComponentName"
+          :is="question.inputFieldComponentName"
           :item="model.getSelectedAction()"
           :question="question"
         >
@@ -75,7 +75,7 @@
         aria-hidden="true"
       >
         <SvComponent
-          :name="'sv-svg-icon'"
+          :is="'sv-svg-icon'"
           :class="question.cssClasses.cleanButtonSvg"
           :iconName="question.cssClasses.cleanButtonIconId"
           :title="question.clearCaption"
@@ -85,7 +85,7 @@
       </div>
     </div>
     <SvComponent
-      :name="'sv-popup'"
+      :is="'sv-popup'"
       v-if="!question.isReadOnly"
       :model="question.dropdownListModel.popupModel"
     ></SvComponent>
@@ -99,7 +99,7 @@
       :class="question.getControlClass()"
     >
       <SvComponent
-        :name="'survey-string'"
+        :is="'survey-string'"
         v-if="question.selectedItemLocText"
         :locString="question.selectedItemLocText"
       />
@@ -112,7 +112,7 @@
       aria-hidden="true"
     >
       <SvComponent
-        :name="'sv-svg-icon'"
+        :is="'sv-svg-icon'"
         :class="question.cssClasses.chevronButtonSvg"
         :iconName="question.cssClasses.chevronButtonIconId"
         size="auto"

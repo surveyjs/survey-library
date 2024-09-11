@@ -30,7 +30,7 @@
     v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >
     <SvComponent
-      :name="'sv-svg-icon'"
+      :is="'sv-svg-icon'"
       v-if="item.iconName"
       :class="item.cssClasses.itemIcon"
       :iconName="item.iconName"

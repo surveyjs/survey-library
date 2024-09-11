@@ -1,11 +1,11 @@
 <template>
   <div :class="question.cssClasses.videoContainer">
     <SvComponent
-      :name="'sv-action'"
+      :is="'sv-action'"
       :item="question.changeCameraAction"
     ></SvComponent>
     <SvComponent
-      :name="'sv-action'"
+      :is="'sv-action'"
       :item="question.closeCameraAction"
     ></SvComponent>
     <video
@@ -15,7 +15,7 @@
       :class="question.cssClasses.video"
     ></video>
     <SvComponent
-      :name="'sv-action'"
+      :is="'sv-action'"
       :item="question.takePictureAction"
     ></SvComponent>
   </div>

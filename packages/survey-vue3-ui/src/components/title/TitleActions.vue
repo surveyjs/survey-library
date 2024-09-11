@@ -2,18 +2,18 @@
   <div class="sv-title-actions">
     <span class="sv-title-actions__title">
       <SvComponent
-        :name="'survey-string'"
+        :is="'survey-string'"
         v-if="element.isPage"
         :locString="element.locTitle"
       ></SvComponent>
       <SvComponent
-        :name="'survey-element-title-content'"
+        :is="'survey-element-title-content'"
         v-if="!element.isPage"
         :element="element"
         :css="css"
       ></SvComponent>
     </span>
-    <SvComponent :name="'sv-action-bar'" :model="toolbar"></SvComponent>
+    <SvComponent :is="'sv-action-bar'" :model="toolbar"></SvComponent>
   </div>
 </template>
 

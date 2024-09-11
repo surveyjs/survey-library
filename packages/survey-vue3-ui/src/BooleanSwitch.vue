@@ -29,7 +29,7 @@
       >
         <span :class="question.getLabelCss(question.swapOrder)"
           ><SvComponent
-            :name="'survey-string'"
+            :is="'survey-string'"
             :locString="question.locLabelLeft"
           />
         </span>
@@ -44,7 +44,7 @@
             :class="question.cssClasses.sliderText"
           >
             <SvComponent
-              :name="'survey-string'"
+              :is="'survey-string'"
               :locString="question.getCheckedLabel()"
             ></SvComponent>
           </span>
@@ -56,7 +56,7 @@
       >
         <span :class="question.getLabelCss(!question.swapOrder)"
           ><SvComponent
-            :name="'survey-string'"
+            :is="'survey-string'"
             :locString="question.locLabelRight"
         /></span>
       </div>

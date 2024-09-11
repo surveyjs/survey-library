@@ -16,13 +16,13 @@
               }"
             >
               <SvComponent
-                :name="question.getColumnHeaderWrapperComponentName(column)"
+                :is="question.getColumnHeaderWrapperComponentName(column)"
                 :componentData="
                   question.getColumnHeaderWrapperComponentData(column)
                 "
               >
                 <SvComponent
-                  :name="'survey-string'"
+                  :is="'survey-string'"
                   :locString="column.locText"
                 />
               </SvComponent>
@@ -44,10 +44,10 @@
               }"
             >
               <SvComponent
-                :name="question.getRowHeaderWrapperComponentName(row)"
+                :is="question.getRowHeaderWrapperComponentName(row)"
                 :componentData="question.getRowHeaderWrapperComponentData(row)"
               >
-                <SvComponent :name="'survey-string'" :locString="row.locText" />
+                <SvComponent :is="'survey-string'" :locString="row.locText" />
               </SvComponent>
             </td>
             <template v-if="question.hasCellText">
@@ -58,7 +58,7 @@
                 v-on:click="cellClick(row, column)"
               >
                 <SvComponent
-                  :name="'survey-string'"
+                  :is="'survey-string'"
                   :locString="question.getCellDisplayLocText(row.name, column)"
                 ></SvComponent>
               </td>
@@ -72,7 +72,7 @@
                 v-on:click="cellClick(row, column)"
               >
                 <SvComponent
-                  :name="question.cellComponent"
+                  :is="question.cellComponent"
                   :question="question"
                   :row="row"
                   :column="column"

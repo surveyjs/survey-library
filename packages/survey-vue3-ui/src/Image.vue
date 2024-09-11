@@ -64,7 +64,7 @@
       :class="question.cssClasses.noImage"
     >
       <SvComponent
-        :name="'sv-svg-icon'"
+        :is="'sv-svg-icon'"
         :iconName="question.cssClasses.noImageSvgIconId"
         :size="48"
       ></SvComponent>

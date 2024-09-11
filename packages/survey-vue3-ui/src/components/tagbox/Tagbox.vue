@@ -20,14 +20,14 @@
     >
       <div :class="question.cssClasses.controlValue">
         <SvComponent
-          :name="'sv-tagbox-item'"
+          :is="'sv-tagbox-item'"
           v-for="(item, index) in selectedChoices"
           :item="item"
           :question="question"
           :key="'item' + index"
         ></SvComponent>
         <SvComponent
-          :name="'sv-tagbox-filter'"
+          :is="'sv-tagbox-filter'"
           :model="model"
           :question="question"
         ></SvComponent>
@@ -40,7 +40,7 @@
         aria-hidden="true"
       >
         <SvComponent
-          :name="'sv-svg-icon'"
+          :is="'sv-svg-icon'"
           :class="question.cssClasses.cleanButtonSvg"
           :iconName="question.cssClasses.cleanButtonIconId"
           :title="question.clearCaption"
@@ -50,7 +50,7 @@
       </div>
     </div>
     <SvComponent
-      :name="'sv-popup'"
+      :is="'sv-popup'"
       v-if="!question.isReadOnly"
       :model="model.popupModel"
     ></SvComponent>
@@ -64,7 +64,7 @@
       :class="question.getControlClass()"
     >
       <SvComponent
-        :name="'survey-string'"
+        :is="'survey-string'"
         v-if="question.locReadOnlyText"
         :locString="question.locReadOnlyText"
       />
@@ -76,7 +76,7 @@
       aria-hidden="true"
     >
       <SvComponent
-        :name="'sv-svg-icon'"
+        :is="'sv-svg-icon'"
         :class="question.cssClasses.chevronButtonSvg"
         :iconName="question.cssClasses.chevronButtonIconId"
         size="auto"

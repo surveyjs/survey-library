@@ -35,7 +35,7 @@
       :class="question.cssClasses.cellResponsiveTitle"
     >
       <SvComponent
-        :name="'survey-string'"
+        :is="'survey-string'"
         :locString="column.locText"
       ></SvComponent>
     </span>

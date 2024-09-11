@@ -6,11 +6,11 @@
     >
       <span>
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           :locString="question.locNoEntriesText"
         ></SvComponent>
       </span>
-      <SvComponent :name="'sv-paneldynamic-add-btn'" :data="{ question }" />
+      <SvComponent :is="'sv-paneldynamic-add-btn'" :data="{ question }" />
     </div>
     <div
       :class="question.cssClasses.progress"
@@ -27,7 +27,7 @@
       ></div>
     </div>
     <SvComponent
-      :name="'survey-paneldynamicprogress'"
+      :is="'survey-paneldynamicprogress'"
       v-if="getShowLegacyNavigation() && question.isProgressTopShowing"
       :question="question"
     />
@@ -38,11 +38,11 @@
       >
         <div :class="question.getPanelWrapperCss(panel)">
           <SvComponent
-            :name="getPanelComponentName(panel)"
+            :is="getPanelComponentName(panel)"
             v-bind="getPanelComponentData(panel)"
           ></SvComponent>
           <SvComponent
-            :name="'sv-paneldynamic-remove-btn'"
+            :is="'sv-paneldynamic-remove-btn'"
             v-if="
               question.panelRemoveButtonLocation === 'right' &&
               question.canRemovePanel &&
@@ -61,17 +61,17 @@
       </template>
     </div>
     <SvComponent
-      :name="'survey-paneldynamicprogress'"
+      :is="'survey-paneldynamicprogress'"
       v-if="getShowLegacyNavigation() && question.isProgressBottomShowing"
       :question="question"
     />
     <SvComponent
-      :name="'sv-paneldynamic-add-btn'"
+      :is="'sv-paneldynamic-add-btn'"
       v-if="getShowLegacyNavigation() && question.isRenderModeList"
       :data="{ question }"
     />
     <SvComponent
-      :name="'survey-paneldynamicprogress-v2'"
+      :is="'survey-paneldynamicprogress-v2'"
       v-if="question.showNavigation"
       :question="question"
     />

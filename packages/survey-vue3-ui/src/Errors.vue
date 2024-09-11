@@ -9,7 +9,7 @@
   >
     <SvComponent
       v-for="(error, index) in element.errors"
-      :name="element.survey['questionErrorComponent']"
+      :is="element.survey['questionErrorComponent']"
       :element="element"
       :key="'error_' + index"
       :errorKey="'error_' + index"

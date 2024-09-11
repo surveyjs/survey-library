@@ -7,11 +7,11 @@
     ref="root"
   >
     <SvComponent
-      :name="'sv-svg-bundle'"
+      :is="'sv-svg-bundle'"
       v-if="vueSurvey.needRenderIcons"
     ></SvComponent>
     <div :class="vueSurvey.wrapperFormCss">
-      <SvComponent :name="'survey-popup-modal'" />
+      <SvComponent :is="'survey-popup-modal'" />
       <div
         v-if="vueSurvey.renderBackgroundImage"
         :class="css.rootBackgroundImage"
@@ -21,12 +21,12 @@
         <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
         <div :class="css.container">
           <SvComponent
-            :name="'survey-header'"
+            :is="'survey-header'"
             v-if="vueSurvey.headerView === 'basic'"
             :survey="vueSurvey"
           />
           <SvComponent
-            :name="'sv-components-container'"
+            :is="'sv-components-container'"
             :survey="vueSurvey"
             :container="'header'"
             :needRenderWrapper="false"
@@ -34,7 +34,7 @@
           <template v-if="vueSurvey.isShowingPage">
             <div :class="vueSurvey.bodyContainerCss">
               <SvComponent
-                :name="'sv-components-container'"
+                :is="'sv-components-container'"
                 :survey="vueSurvey"
                 :container="'left'"
                 :needRenderWrapper="true"
@@ -43,7 +43,7 @@
                 class="sv-components-column sv-components-column--expandable"
               >
                 <SvComponent
-                  :name="'sv-components-container'"
+                  :is="'sv-components-container'"
                   :survey="vueSurvey"
                   :container="'center'"
                   :needRenderWrapper="true"
@@ -54,32 +54,32 @@
                   :id="pageId"
                 >
                   <SvComponent
-                    :name="'sv-components-container'"
+                    :is="'sv-components-container'"
                     :survey="vueSurvey"
                     :container="'contentTop'"
                     :needRenderWrapper="true"
                   ></SvComponent>
                   <SvComponent
-                    :name="'survey-page'"
+                    :is="'survey-page'"
                     :key="pageKey"
                     :survey="vueSurvey"
                     :page="vueSurvey.activePage"
                     :css="css"
                   />
                   <SvComponent
-                    :name="'sv-components-container'"
+                    :is="'sv-components-container'"
                     :survey="vueSurvey"
                     :container="'contentBottom'"
                     :needRenderWrapper="true"
                   ></SvComponent>
                   <SvComponent
-                    :name="'sv-brand-info'"
+                    :is="'sv-brand-info'"
                     v-if="vueSurvey.showBrandInfo"
                   ></SvComponent>
                 </div>
               </div>
               <SvComponent
-                :name="'sv-components-container'"
+                :is="'sv-components-container'"
                 :survey="vueSurvey"
                 :container="'right'"
                 :needRenderWrapper="true"
@@ -87,7 +87,7 @@
             </div>
           </template>
           <SvComponent
-            :name="'sv-components-container'"
+            :is="'sv-components-container'"
             :survey="vueSurvey"
             :container="'footer'"
             :needRenderWrapper="false"
@@ -98,7 +98,7 @@
               :class="vueSurvey.completedCss"
             ></div>
             <SvComponent
-              :name="'sv-components-container'"
+              :is="'sv-components-container'"
               :survey="vueSurvey"
               :container="'completePage'"
               :needRenderWrapper="true"
@@ -120,7 +120,7 @@
         </div>
       </form>
       <SvComponent
-        :name="'sv-notifier'"
+        :is="'sv-notifier'"
         :model="vueSurvey.notifier"
       ></SvComponent>
     </div>

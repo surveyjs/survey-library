@@ -11,7 +11,7 @@
       v-show="question.needShowPlaceholder()"
     >
       <SvComponent
-        :name="'survey-string'"
+        :is="'survey-string'"
         :locString="question.locRenderedPlaceholder"
       ></SvComponent>
     </div>
@@ -46,7 +46,7 @@
       >
         <span v-if="!question.cssClasses.clearButtonIconId">✖</span>
         <SvComponent
-          :name="'sv-svg-icon'"
+          :is="'sv-svg-icon'"
           v-if="question.cssClasses.clearButtonIconId"
           :iconName="question.cssClasses.clearButtonIconId"
           :size="'auto'"
@@ -57,7 +57,7 @@
       :class="question.cssClasses.loadingIndicator"
       v-if="question.showLoadingIndicator"
     >
-      <SvComponent :name="'sv-loading-indicator'" />
+      <SvComponent :is="'sv-loading-indicator'" />
     </div>
   </div>
 </template>

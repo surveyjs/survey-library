@@ -1,5 +1,5 @@
 <template>
-  <SvComponent :name="'survey-matrixtable'" :question="question" ref="root" />
+  <SvComponent :is="'survey-matrixtable'" :question="question" ref="root" />
 </template>
 
 <script lang="ts" setup>

@@ -1,6 +1,6 @@
 <template>
   <div :class="question.cssClasses.rootDropdown" ref="root">
-    <SvComponent :name="'sv-dropdown'" :question="question"></SvComponent>
+    <SvComponent :is="'sv-dropdown'" :question="question"></SvComponent>
   </div>
 </template>
 

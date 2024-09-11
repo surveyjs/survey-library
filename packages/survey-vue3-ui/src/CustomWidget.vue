@@ -3,7 +3,7 @@
     <div v-if="hasHtml" v-html="customHtml"></div>
     <SvComponent
       v-if="hasDefaultRender"
-      :name="componentName"
+      :is="componentName"
       :question="question"
       :css="css"
     />

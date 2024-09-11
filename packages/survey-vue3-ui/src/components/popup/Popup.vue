@@ -1,7 +1,7 @@
 <template>
   <div ref="root">
     <SvComponent
-      :name="'sv-popup-container'"
+      :is="'sv-popup-container'"
       :model="popupViewModel"
     ></SvComponent>
   </div>

@@ -15,13 +15,13 @@
     "
   >
     <SvComponent
-      :name="'survey-element-title-content'"
+      :is="'survey-element-title-content'"
       v-if="!element.hasTitleActions"
       :element="element"
       :css="css"
     ></SvComponent>
     <SvComponent
-      :name="'sv-title-actions'"
+      :is="'sv-title-actions'"
       v-if="element.hasTitleActions"
       :element="element"
       :css="css"

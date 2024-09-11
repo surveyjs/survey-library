@@ -7,7 +7,7 @@
     ref="root"
   >
     <SvComponent
-      :name="'survey-matrixdropdown-cell'"
+      :is="'survey-matrixdropdown-cell'"
       :cell="cell"
       :question="question"
       v-for="(cell, cellIndex) in row.cells"

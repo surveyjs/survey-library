@@ -1,23 +1,18 @@
 <template>
   <div :class="page.cssRoot" ref="root">
-    <SvComponent :name="'survey-element-title'" :element="page" :css="css" />
+    <SvComponent :is="'survey-element-title'" :element="page" :css="css" />
     <div v-if="showDescription" :class="page.cssClasses.page.description">
-      <SvComponent :name="'survey-string'" :locString="page.locDescription" />
+      <SvComponent :is="'survey-string'" :locString="page.locDescription" />
     </div>
-    <SvComponent :name="'survey-errors'" :element="page" />
+    <SvComponent :is="'survey-errors'" :element="page" />
     <template v-for="row in page.visibleRows" :key="row.id">
       <SvComponent
-        :name="(page.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
+        :is="(page.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
         v-bind="{
             componentData: (page.getSurvey() as SurveyModel).getRowWrapperComponentData(row),
           }"
       >
-        <SvComponent
-          :name="'survey-row'"
-          :row="row"
-          :survey="survey"
-          :css="css"
-        >
+        <SvComponent :is="'survey-row'" :row="row" :survey="survey" :css="css">
         </SvComponent>
       </SvComponent>
     </template>

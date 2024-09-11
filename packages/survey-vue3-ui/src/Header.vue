@@ -2,7 +2,7 @@
   <div v-if="survey.renderedHasHeader" :class="survey.css.header" ref="root">
     <SvComponent
       v-if="survey.isLogoBefore"
-      :name="survey.getElementWrapperComponentName(survey, 'logo-image')"
+      :is="survey.getElementWrapperComponentName(survey, 'logo-image')"
       :data="survey.getElementWrapperComponentData(survey, 'logo-image')"
     ></SvComponent>
 
@@ -12,21 +12,18 @@
       v-bind:style="{ maxWidth: survey.titleMaxWidth }"
     >
       <SvComponent
-        :name="'survey-element-title'"
+        :is="'survey-element-title'"
         :element="survey"
         :css="survey.css"
       />
       <div v-if="survey.renderedHasDescription" :class="survey.css.description">
-        <SvComponent
-          :name="'survey-string'"
-          :locString="survey.locDescription"
-        />
+        <SvComponent :is="'survey-string'" :locString="survey.locDescription" />
       </div>
     </div>
 
     <SvComponent
       v-if="survey.isLogoAfter"
-      :name="survey.getElementWrapperComponentName(survey, 'logo-image')"
+      :is="survey.getElementWrapperComponentName(survey, 'logo-image')"
       :data="survey.getElementWrapperComponentData(survey, 'logo-image')"
     ></SvComponent>
 

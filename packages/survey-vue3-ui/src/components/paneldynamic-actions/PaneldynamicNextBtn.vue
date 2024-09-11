@@ -5,7 +5,7 @@
     :class="question.getNextButtonCss()"
   >
     <SvComponent
-      :name="'sv-svg-icon'"
+      :is="'sv-svg-icon'"
       :iconName="question.cssClasses.progressBtnIcon"
       :size="'auto'"
     ></SvComponent>

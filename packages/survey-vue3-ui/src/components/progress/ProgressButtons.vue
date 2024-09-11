@@ -44,7 +44,7 @@
               :title="page.renderedNavigationTitle"
             >
               <SvComponent
-                :name="'survey-string'"
+                :is="'survey-string'"
                 :locString="page.locNavigationTitle"
               />
             </div>

@@ -38,7 +38,7 @@
             :class="question.cssClasses.checkedItemDecorator"
           >
             <SvComponent
-              :name="'sv-svg-icon'"
+              :is="'sv-svg-icon'"
               v-if="question.cssClasses.checkedItemSvgIconId"
               v-bind:class="question.cssClasses.checkedItemSvgIcon"
               size="auto"
@@ -100,7 +100,7 @@
             }"
           >
             <SvComponent
-              :name="'sv-svg-icon'"
+              :is="'sv-svg-icon'"
               :class="question.cssClasses.itemNoImageSvgIcon"
               :iconName="question.cssClasses.itemNoImageSvgIconId"
               :size="48"
@@ -108,7 +108,7 @@
           </div>
         </div>
         <span v-if="question.showLabel" :class="question.cssClasses.itemText">
-          <SvComponent :name="'survey-string'" :locString="item.locText" />
+          <SvComponent :is="'survey-string'" :locString="item.locText" />
         </span>
       </div>
     </label>

@@ -34,7 +34,7 @@
           alt="File preview"
         />
         <SvComponent
-          :name="'sv-svg-icon'"
+          :is="'sv-svg-icon'"
           v-if="question.defaultImage(val)"
           :iconName="question.cssClasses.defaultImageIconId"
           :class="question.cssClasses.defaultImage"
@@ -49,7 +49,7 @@
             question.removeFileCaption
           }}</span>
           <SvComponent
-            :name="'sv-svg-icon'"
+            :is="'sv-svg-icon'"
             v-if="question.cssClasses.removeFileSvgIconId"
             :title="question.removeFileCaption"
             :class="question.cssClasses.removeFileSvg"

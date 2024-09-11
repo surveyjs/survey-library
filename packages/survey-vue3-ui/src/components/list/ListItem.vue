@@ -24,7 +24,7 @@
       @mouseleave="(e) => model.onItemLeave(item)"
     >
       <SvComponent
-        :name="item.component"
+        :is="itemComponent"
         :item="item"
         :model="model"
       ></SvComponent>

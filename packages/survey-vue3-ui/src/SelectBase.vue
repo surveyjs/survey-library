@@ -17,7 +17,7 @@
       <SvComponent
         v-for="item in question.headItems"
         :key="item.value"
-        :name="getItemValueComponentName(item)"
+        :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
       ></SvComponent>
     </template>
@@ -25,7 +25,7 @@
       <SvComponent
         v-for="item in question.bodyItems"
         :key="item.value"
-        :name="getItemValueComponentName(item)"
+        :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
       ></SvComponent>
     </template>
@@ -34,7 +34,7 @@
         <SvComponent
           v-for="item in question.dataChoices"
           :key="item.value"
-          :name="getItemValueComponentName(item)"
+          :is="getItemValueComponentName(item)"
           v-bind="getItemValueComponentData(item)"
         ></SvComponent>
       </template>
@@ -53,7 +53,7 @@
           <SvComponent
             v-for="item in column"
             :key="item.value"
-            :name="getItemValueComponentName(item)"
+            :is="getItemValueComponentName(item)"
             v-bind="getItemValueComponentData(item)"
           ></SvComponent>
         </div>
@@ -63,12 +63,12 @@
       <SvComponent
         v-for="item in question.footItems"
         :key="item.value"
-        :name="getItemValueComponentName(item)"
+        :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
       ></SvComponent>
     </template>
     <SvComponent
-      :name="'survey-other-choice'"
+      :is="'survey-other-choice'"
       v-if="question.renderedValue && question.isOtherSelected"
       :question="question"
     />

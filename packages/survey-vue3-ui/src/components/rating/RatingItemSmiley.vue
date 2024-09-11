@@ -22,7 +22,7 @@
       :aria-errormessage="question.ariaErrormessage"
     />
     <SvComponent
-      :name="'sv-svg-icon'"
+      :is="'sv-svg-icon'"
       :iconName="question.getItemSmileyIconName(item.itemValue)"
       :size="'auto'"
       :title="item.text"

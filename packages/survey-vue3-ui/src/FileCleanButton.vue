@@ -2,7 +2,7 @@
   <button type="button" :class="css" @click="question.doClean">
     <span>{{ question.clearButtonCaption }}</span>
     <SvComponent
-      :name="'sv-svg-icon'"
+      :is="'sv-svg-icon'"
       v-if="question.cssClasses.removeButtonIconId"
       :iconName="question.cssClasses.removeButtonIconId"
       :size="'auto'"

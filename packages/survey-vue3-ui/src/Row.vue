@@ -1,7 +1,7 @@
 <template>
   <div :class="row.getRowCss()" ref="root">
     <SvComponent
-      :name="'survey-element'"
+      :is="'survey-element'"
       :row="row"
       :css="css"
       :element="element"

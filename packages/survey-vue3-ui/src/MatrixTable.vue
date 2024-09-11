@@ -14,15 +14,12 @@
               :style="{ minWidth: cell.minWidth, width: cell.width }"
             >
               <SvComponent
-                :name="question.getColumnHeaderWrapperComponentName(cell as any)"
+                :is="question.getColumnHeaderWrapperComponentName(cell as any)"
                 :componentData="question.getColumnHeaderWrapperComponentData(cell as any)"
               >
+                <SvComponent :is="'survey-string'" :locString="cell.locTitle" />
                 <SvComponent
-                  :name="'survey-string'"
-                  :locString="cell.locTitle"
-                />
-                <SvComponent
-                  :name="'survey-matrixheaderrequired'"
+                  :is="'survey-matrixheaderrequired'"
                   v-if="!!cell.column"
                   :column="cell.column"
                   :question="question"
@@ -44,7 +41,7 @@
           :key="question.inputId + '_' + row.id"
         >
           <SvComponent
-            :name="'survey-matrix-row'"
+            :is="'survey-matrix-row'"
             :row="row"
             :question="question"
           ></SvComponent>
@@ -53,7 +50,7 @@
       <tfoot v-if="table.showFooter">
         <tr>
           <SvComponent
-            :name="'survey-matrixdropdown-cell'"
+            :is="'survey-matrixdropdown-cell'"
             :cell="cell"
             :question="question"
             v-for="(cell, cellIndex) in table.footerRow.cells"

@@ -52,18 +52,18 @@
       >
         <span :class="question.cssClasses.dragAreaPlaceholder">
           <SvComponent
-            :name="'survey-string'"
+            :is="'survey-string'"
             :locString="question.locRenderedPlaceholder"
           ></SvComponent>
         </span>
         <div :class="question.cssClasses.wrapper">
           <SvComponent
-            :name="'sv-file-choose-btn'"
+            :is="'sv-file-choose-btn'"
             v-if="question.showChooseButton"
             :data="{ question: question }"
           ></SvComponent>
           <SvComponent
-            :name="'sv-action-bar'"
+            :is="'sv-action-bar'"
             v-if="question.actionsContainerVisible"
             :model="question.actionsContainer"
           ></SvComponent>
@@ -75,7 +75,7 @@
         </div>
       </div>
       <SvComponent
-        :name="'sv-file-clean-btn'"
+        :is="'sv-file-clean-btn'"
         v-if="question.showRemoveButton"
         :question="question"
         :css="question.showRemoveButton"
@@ -84,27 +84,24 @@
         :class="question.cssClasses.loadingIndicator"
         v-if="question.showLoadingIndicator"
       >
-        <SvComponent :name="'sv-loading-indicator'" />
+        <SvComponent :is="'sv-loading-indicator'" />
       </div>
       <SvComponent
-        :name="'sv-file-video'"
+        :is="'sv-file-video'"
         v-if="question.isPlayingVideo"
         :question="question"
       ></SvComponent>
       <template v-if="question.allowShowPreview">
-        <SvComponent
-          :name="'sv-file-preview'"
-          :question="question"
-        ></SvComponent>
+        <SvComponent :is="'sv-file-preview'" :question="question"></SvComponent>
       </template>
       <SvComponent
-        :name="'sv-file-clean-btn'"
+        :is="'sv-file-clean-btn'"
         v-if="question.showRemoveButtonBottom"
         :question="question"
         :css="question.showRemoveButtonBottom"
       ></SvComponent>
       <SvComponent
-        :name="'sv-action-bar'"
+        :is="'sv-action-bar'"
         v-if="question.fileNavigatorVisible"
         :model="question.fileNavigator"
       ></SvComponent>

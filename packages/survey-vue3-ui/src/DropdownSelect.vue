@@ -19,7 +19,7 @@
           {{ question.placeholder }}
         </option>
         <SvComponent
-          :name="'sv-dropdown-option-item'"
+          :is="'sv-dropdown-option-item'"
           v-for="item in question.visibleChoices"
           :item="item"
           :key="item.id"
@@ -38,7 +38,7 @@
         v-if="question.cssClasses.chevronButtonIconId"
       >
         <SvComponent
-          :name="'sv-svg-icon'"
+          :is="'sv-svg-icon'"
           :class="question.cssClasses.chevronButtonSvg"
           :iconName="question.cssClasses.chevronButtonIconId"
           size="auto"
@@ -47,7 +47,7 @@
       </div>
     </div>
     <SvComponent
-      :name="'survey-other-choice'"
+      :is="'survey-other-choice'"
       v-if="question.isOtherSelected"
       :question="question"
     />

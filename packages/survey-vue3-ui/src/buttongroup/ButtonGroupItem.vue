@@ -20,7 +20,7 @@
     />
     <div :class="model.css.decorator">
       <SvComponent
-        :name="'sv-svg-icon'"
+        :is="'sv-svg-icon'"
         v-if="model.iconName"
         :iconName="model.iconName"
         :size="model.iconSize"
@@ -32,7 +32,7 @@
         :title="model.caption.renderedHtml"
       >
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           :locString="model.caption"
         ></SvComponent>
       </span>

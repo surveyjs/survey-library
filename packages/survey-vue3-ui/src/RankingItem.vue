@@ -53,7 +53,7 @@
           </svg>
         </div>
         <SvComponent
-          :name="question.itemComponent"
+          :is="question.itemComponent"
           :item="item"
           :cssClasses="question.cssClasses"
         ></SvComponent>

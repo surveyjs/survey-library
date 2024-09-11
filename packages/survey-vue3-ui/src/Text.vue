@@ -3,7 +3,7 @@
     {{ question.value }}
   </div>
   <div v-else-if="question.dataListId" ref="root">
-    <SvComponent :name="'survey-text-input'" :question="question" />
+    <SvComponent :is="'survey-text-input'" :question="question" />
     <datalist :id="question.dataListId">
       <option
         v-for="(item, index) in question.dataList"
@@ -13,7 +13,7 @@
     </datalist>
   </div>
   <SvComponent
-    :name="'survey-text-input'"
+    :is="'survey-text-input'"
     v-else
     :question="question"
     :get-ref="(ref: any) => { root = ref; }"

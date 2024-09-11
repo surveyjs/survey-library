@@ -1,8 +1,8 @@
 <template>
   <div :class="question.renderCssRoot" ref="root">
-    <SvComponent :name="'sv-tagbox'" :question="question"></SvComponent>
+    <SvComponent :is="'sv-tagbox'" :question="question"></SvComponent>
     <SvComponent
-      :name="'survey-other-choice'"
+      :is="'survey-other-choice'"
       v-if="question.isOtherSelected"
       :question="question"
     />

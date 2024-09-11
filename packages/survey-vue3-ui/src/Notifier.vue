@@ -7,7 +7,7 @@
     aria-live="polite"
   >
     <span>{{ model.message }}</span>
-    <SvComponent :name="'sv-action-bar'" :model="model.actionBar"></SvComponent>
+    <SvComponent :is="'sv-action-bar'" :model="model.actionBar"></SvComponent>
   </div>
 </template>
 

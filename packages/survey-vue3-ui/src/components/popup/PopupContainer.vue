@@ -29,7 +29,7 @@
       <div class="sv-popup__shadow">
         <SvComponent
           v-if="model.showHeader"
-          :name="model.popupHeaderTemplate"
+          :is="model.popupHeaderTemplate"
           :model="model"
         ></SvComponent>
         <div class="sv-popup__body-content">
@@ -39,13 +39,13 @@
           <div class="sv-popup__scrolling-content">
             <div class="sv-popup__content">
               <SvComponent
-                :name="model.contentComponentName"
+                :is="model.contentComponentName"
                 v-bind="model.contentComponentData"
               ></SvComponent>
             </div>
           </div>
           <div v-if="model.showFooter" class="sv-popup__body-footer">
-            <SvComponent :name="'sv-action-bar'" :model="model.footerToolbar" />
+            <SvComponent :is="'sv-action-bar'" :model="model.footerToolbar" />
           </div>
         </div>
       </div>

@@ -6,7 +6,7 @@
     >
       <template v-for="component in components" :key="component.id">
         <SvComponent
-          :name="component.component"
+          :is="component.component"
           :survey="survey"
           :container="container"
           :model="component.data"
@@ -16,7 +16,7 @@
     <template v-else>
       <template v-for="component in components" :key="component.id">
         <SvComponent
-          :name="component.component"
+          :is="component.component"
           :survey="survey"
           :container="container"
           :model="component.data"

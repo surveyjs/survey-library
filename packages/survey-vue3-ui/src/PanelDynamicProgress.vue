@@ -3,7 +3,7 @@
     <div style="clear: both" :class="getCssClass()">
       <div :class="question.cssClasses.progressContainer">
         <SvComponent
-          :name="'sv-paneldynamic-prev-btn'"
+          :is="'sv-paneldynamic-prev-btn'"
           :data="{ question: question }"
         />
         <div
@@ -17,16 +17,16 @@
           ></div>
         </div>
         <SvComponent
-          :name="'sv-paneldynamic-next-btn'"
+          :is="'sv-paneldynamic-next-btn'"
           :data="{ question: question }"
         />
       </div>
       <SvComponent
-        :name="'sv-paneldynamic-add-btn'"
+        :is="'sv-paneldynamic-add-btn'"
         :data="{ question: question }"
       />
       <SvComponent
-        :name="'sv-paneldynamic-progress-text'"
+        :is="'sv-paneldynamic-progress-text'"
         :data="{ question: question }"
       />
     </div>

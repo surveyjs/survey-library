@@ -5,10 +5,7 @@
     :disabled="question.isInputReadOnly"
     @click="() => question.removeRowUI(row)"
   >
-    <SvComponent
-      :name="'survey-string'"
-      :locString="question.locRemoveRowText"
-    />
+    <SvComponent :is="'survey-string'" :locString="question.locRemoveRowText" />
     <span :class="question.cssClasses.iconRemove"></span>
   </button>
 </template>

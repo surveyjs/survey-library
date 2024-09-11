@@ -15,7 +15,7 @@
         :class="question.cssClasses.requiredText"
         >{{ item.editor.requiredText }}</span
       >
-      <SvComponent :name="'survey-string'" :locString="item.locTitle" />
+      <SvComponent :is="'survey-string'" :locString="item.locTitle" />
       <span v-if="item.editor.isRequireTextAfterTitle">&nbsp;</span>
       <span
         v-if="item.editor.isRequireTextAfterTitle"
@@ -30,12 +30,12 @@
       v-on:focusin="item.focusIn()"
     >
       <SvComponent
-        :name="getComponentName(item.editor)"
+        :is="getComponentName(item.editor)"
         :question="item.editor"
       />
     </div>
   </label>
-  <SvComponent :name="'survey-errors'" v-else :element="item.editor" />
+  <SvComponent :is="'survey-errors'" v-else :element="item.editor" />
 </template>
 
 <script lang="ts" setup>

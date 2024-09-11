@@ -1,14 +1,14 @@
 <template>
   <div class="sv-tagbox__item" :key="item.key">
     <div class="sv-tagbox__item-text">
-      <SvComponent :name="'survey-string'" :locString="item.locText" />
+      <SvComponent :is="'survey-string'" :locString="item.locText" />
     </div>
     <div
       v-bind:class="question.cssClasses.cleanItemButton"
       v-on:click="removeItem"
     >
       <SvComponent
-        :name="'sv-svg-icon'"
+        :is="'sv-svg-icon'"
         v-bind:class="question.cssClasses.cleanItemButtonSvg"
         :iconName="question.cssClasses.cleanItemButtonIconId"
         :size="'auto'"

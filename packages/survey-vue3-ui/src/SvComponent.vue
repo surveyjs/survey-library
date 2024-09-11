@@ -13,10 +13,10 @@ defineOptions({
   inheritAttrs: false,
 });
 const props = defineProps<{
-  name: string;
+  is: string;
 }>();
 
 const registeredComponent = computed(() =>
-  ComponentFactory.Instance.getComponent(props.name)
+  ComponentFactory.Instance.getComponent(props.is)
 );
 </script>

@@ -1,6 +1,6 @@
 <template>
   <Teleport v-if="popup" :to="popup.container"
-    ><SvComponent :name="'sv-popup-container'" :model="popup"
+    ><SvComponent :is="'sv-popup-container'" :model="popup"
   /></Teleport>
 </template>
 <script lang="ts" setup>

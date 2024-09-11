@@ -4,21 +4,21 @@
       <legend role="presentation" class="sv-hidden"></legend>
       <span v-if="question.hasMinLabel" :class="question.cssClasses.minText">
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           :locString="question.locMinRateDescription"
         />
       </span>
       <SvComponent
         v-for="(item, index) in question.renderedRateItems"
         :key="getInputId(index)"
-        :name="question.itemComponent"
+        :is="question.itemComponent"
         :item="item"
         :index="index"
         :question="question"
       />
       <span v-if="question.hasMaxLabel" :class="question.cssClasses.maxText">
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           :locString="question.locMaxRateDescription"
         />
       </span>

@@ -12,7 +12,7 @@
             :class="cell.className"
           >
             <SvComponent
-              :name="'survey-multipletext-item'"
+              :is="'survey-multipletext-item'"
               :question="question"
               :cell="cell"
             ></SvComponent>

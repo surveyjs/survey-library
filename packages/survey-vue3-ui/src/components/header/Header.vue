@@ -15,14 +15,14 @@
       :style="{ maxWidth: model.maxWidth }"
     >
       <SvComponent
-        :name="'sv-header-cell'"
+        :is="'sv-header-cell'"
         v-for="(cell, index) in model.cells"
         :model="cell"
         :key="index"
       ></SvComponent>
     </div>
     <div v-if="survey.isMobile">
-      <SvComponent :name="'sv-header-mobile'" :model="model"></SvComponent>
+      <SvComponent :is="'sv-header-mobile'" :model="model"></SvComponent>
     </div>
   </div>
 </template>

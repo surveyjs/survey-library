@@ -19,7 +19,7 @@
         :style="{ maxWidth: model.textAreaWidth }"
       >
         <SvComponent
-          :name="'survey-element-title'"
+          :is="'survey-element-title'"
           :element="model.survey"
           :css="model.survey.css"
         />
@@ -34,7 +34,7 @@
           :class="model.survey.css.description"
         >
           <SvComponent
-            :name="'survey-string'"
+            :is="'survey-string'"
             :locString="model.survey.locDescription"
           />
         </div>

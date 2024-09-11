@@ -2,10 +2,10 @@
   <div v-bind:class="item.getActionRootCss()" :id="item.id">
     <div class="sv-action__content">
       <SvComponent
-        :name="'sv-action-bar-separator'"
+        :is="'sv-action-bar-separator'"
         v-if="item.needSeparator"
       ></SvComponent>
-      <SvComponent :name="componentName" :item="item"> </SvComponent>
+      <SvComponent :is="componentName" :item="item"> </SvComponent>
     </div>
   </div>
 </template>

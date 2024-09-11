@@ -5,13 +5,13 @@
     :class="element.cssClasses.questionWrapper"
   >
     <SvComponent
-      :name="componentName"
+      :is="componentName"
       v-bind="componentData"
       v-if="row.isNeedRender"
     />
     <SvComponent
       v-else-if="!!element.skeletonComponentName"
-      :name="element.skeletonComponentName"
+      :is="element.skeletonComponentName"
       :element="element"
       :css="css"
     ></SvComponent>

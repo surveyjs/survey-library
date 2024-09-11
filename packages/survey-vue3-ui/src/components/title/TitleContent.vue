@@ -1,6 +1,6 @@
 <template>
   <SvComponent
-    :name="'survey-string'"
+    :is="'survey-string'"
     v-if="element.isTitleRenderedAsString"
     :locString="element.locTitle"
   />
@@ -29,7 +29,7 @@
     >&nbsp;</span
   >
   <SvComponent
-    :name="'survey-string'"
+    :is="'survey-string'"
     v-if="!element.isTitleRenderedAsString"
     :locString="element.locTitle"
   />

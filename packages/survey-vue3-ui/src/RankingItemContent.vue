@@ -1,6 +1,6 @@
 <template>
   <div :class="cssClasses.controlLabel">
-    <SvComponent :name="'survey-string'" :locString="item.locText" />
+    <SvComponent :is="'survey-string'" :locString="item.locText" />
   </div>
 </template>
 

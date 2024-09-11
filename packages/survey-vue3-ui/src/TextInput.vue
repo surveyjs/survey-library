@@ -61,7 +61,7 @@
       :aria-errormessage="question.a11y_input_ariaErrormessage"
     />
     <SvComponent
-      :name="'sv-character-counter'"
+      :is="'sv-character-counter'"
       :counter="question.characterCounter"
       :remainingCharacterCounter="question.cssClasses.remainingCharacterCounter"
     ></SvComponent>

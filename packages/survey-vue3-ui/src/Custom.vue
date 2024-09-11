@@ -1,7 +1,7 @@
 <template>
   <SvComponent
     :ref="root"
-    :name="getComponentName(contentQuestion)"
+    :is="getComponentName(contentQuestion)"
     :question="contentQuestion"
     :css="css"
   />

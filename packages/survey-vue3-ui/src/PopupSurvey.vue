@@ -24,14 +24,14 @@
             @click="doToggleFullScreen"
           >
             <SvComponent
-              :name="'sv-svg-icon'"
+              :is="'sv-svg-icon'"
               v-if="surveyWindow.isFullScreen"
               :iconName="'icon-back-to-panel_16x16'"
               :size="16"
             >
             </SvComponent>
             <SvComponent
-              :name="'sv-svg-icon'"
+              :is="'sv-svg-icon'"
               v-if="!surveyWindow.isFullScreen"
               :iconName="'icon-full-screen_16x16'"
               :size="16"
@@ -41,14 +41,14 @@
 
           <div :class="surveyWindow.cssHeaderCollapseButton" @click="doExpand">
             <SvComponent
-              :name="'sv-svg-icon'"
+              :is="'sv-svg-icon'"
               v-if="surveyWindow.isExpanded"
               :iconName="'icon-minimize_16x16'"
               :size="16"
             >
             </SvComponent>
             <SvComponent
-              :name="'sv-svg-icon'"
+              :is="'sv-svg-icon'"
               v-if="surveyWindow.isCollapsed"
               :iconName="'icon-restore_16x16'"
               :size="16"
@@ -62,7 +62,7 @@
             @click="doHide"
           >
             <SvComponent
-              :name="'sv-svg-icon'"
+              :is="'sv-svg-icon'"
               :iconName="'icon-close_16x16'"
               :size="16"
             >
@@ -71,8 +71,7 @@
         </div>
       </div>
       <div :class="surveyWindow.cssBody">
-        <SvComponent :name="getSvComponentName()" :survey="survey">
-        </SvComponent>
+        <SvComponent :is="getSvComponentName()" :survey="survey"> </SvComponent>
       </div>
     </div>
   </div>
@@ -100,7 +99,7 @@ const doExpand = () => {
 };
 const doHide = () => {
   surveyWindow.value.hide();
-  if (!!props.onClose) {
+  if (props.onClose) {
     props.onClose();
   }
 };

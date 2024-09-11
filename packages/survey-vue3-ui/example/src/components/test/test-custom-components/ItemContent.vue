@@ -1,7 +1,7 @@
 <template>
     <div class="sv-ranking-item__text" :style="{display: 'flex', alignItems: 'center', gap: '8px'}">
-        <SvComponent :name="'sv-svg-icon'" iconName="icon-next_16x16" size = "16"/>
-        <SvComponent :name="'survey-string'" :locString="item.locText" />
+        <SvComponent :is="'sv-svg-icon'" iconName="icon-next_16x16" size = "16"/>
+        <SvComponent :is="'survey-string'" :locString="item.locText" />
     </div>
 </template>
 <script lang="ts" setup>

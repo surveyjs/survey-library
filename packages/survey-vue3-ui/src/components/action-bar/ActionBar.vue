@@ -6,7 +6,7 @@
     @click="onClick"
   >
     <SvComponent
-      :name="'sv-action'"
+      :is="'sv-action'"
       v-for="item in renderedActions"
       v-bind:key="item.id"
       :item="item"

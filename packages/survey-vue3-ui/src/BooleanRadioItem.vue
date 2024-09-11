@@ -27,7 +27,7 @@
         </svg>
       </span>
       <span :class="question.cssClasses.radioControlLabel">
-        <SvComponent :name="'survey-string'" :locString="locText" />
+        <SvComponent :is="'survey-string'" :locString="locText" />
       </span>
     </label>
   </div>

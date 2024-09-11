@@ -1,7 +1,7 @@
 <template>
     <div class="my-list-item" style="display:flex;" :title="item.hint">
         <span>
-            <SvComponent :name="'sv-svg-icon'" :iconName="item.iconName" :size="item.iconSize"></SvComponent>
+            <SvComponent :is="'sv-svg-icon'" :iconName="item.iconName" :size="item.iconSize"></SvComponent>
         </span>
         <span :class="item.getActionBarItemTitleCss()">{{ item.title }}</span>
     </div>

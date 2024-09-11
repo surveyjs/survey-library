@@ -1,7 +1,7 @@
 <template>
   <div class="sd-loading-indicator">
     <SvComponent
-      :name="'sv-svg-icon'"
+      :is="'sv-svg-icon'"
       :iconName="'icon-loading'"
       size="'auto'"
     ></SvComponent>

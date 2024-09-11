@@ -9,31 +9,28 @@
     v-if="cell.isVisible"
   >
     <SvComponent
-      :name="'survey-errors'"
+      :is="'survey-errors'"
       v-if="cell.isErrorsCell"
       :element="cell.question"
     />
     <SvComponent
-      :name="'sv-matrix-drag-drop-icon'"
+      :is="'sv-matrix-drag-drop-icon'"
       v-if="cell.isDragHandlerCell"
       :item="{ data: { row: cell.row, question: question } }"
     ></SvComponent>
     <SvComponent
-      :name="'sv-action-bar'"
+      :is="'sv-action-bar'"
       v-if="cell.isActionsCell"
       :model="cell.item.getData()"
       :handleClick="false"
     ></SvComponent>
     <SvComponent
       v-if="cell.hasPanel"
-      :name="panelComponentName"
+      :is="panelComponentName"
       v-bind="panelComponentData"
     ></SvComponent>
     <span v-if="cell.showResponsiveTitle" :class="cell.responsiveTitleCss">
-      <SvComponent
-        :name="'survey-string'"
-        :locString="cell.responsiveLocTitle"
-      />
+      <SvComponent :is="'survey-string'" :locString="cell.responsiveLocTitle" />
     </span>
     <div
       v-if="cell.hasQuestion"
@@ -42,26 +39,26 @@
     >
       <SvComponent
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"
-        :name="question.getCellWrapperComponentName(cell.cell)"
+        :is="question.getCellWrapperComponentName(cell.cell)"
         :componentData="question.getCellWrapperComponentData(cell.cell)"
       >
         <SvComponent
-          :name="getComponentName(cell.question)"
+          :is="getComponentName(cell.question)"
           :question="cell.question"
         />
       </SvComponent>
       <SvComponent
         v-if="!cell.isChoice && !cell.question.isDefaultRendering()"
-        :name="cell.question.getComponentName()"
+        :is="cell.question.getComponentName()"
         :question="cell.question"
       />
       <SvComponent
         v-if="cell.isItemChoice"
-        :name="question.getCellWrapperComponentName(cell.cell)"
+        :is="question.getCellWrapperComponentName(cell.cell)"
         :componentData="question.getCellWrapperComponentData(cell.cell)"
       >
         <SvComponent
-          :name="'survey-radiogroup-item'"
+          :is="'survey-radiogroup-item'"
           v-if="cell.isRadio"
           :key="cell.item.value"
           :question="cell.question"
@@ -69,7 +66,7 @@
           :hideLabel="true"
         ></SvComponent>
         <SvComponent
-          :name="'survey-checkbox-item'"
+          :is="'survey-checkbox-item'"
           v-if="cell.isCheckbox"
           :key="cell.item.value"
           :question="cell.question"
@@ -78,18 +75,18 @@
         ></SvComponent>
       </SvComponent>
       <SvComponent
-        :name="'survey-other-choice'"
+        :is="'survey-other-choice'"
         v-if="cell.isOtherChoice"
         :question="cell.question"
       />
     </div>
     <template v-if="cell.hasTitle">
       <SvComponent
-        :name="question.getCellWrapperComponentName(cell)"
+        :is="question.getCellWrapperComponentName(cell)"
         :componentData="question.getCellWrapperComponentData(cell)"
       >
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           v-if="cell.hasTitle"
           :locString="cell.locTitle"
         />
@@ -154,7 +151,7 @@ onMounted(() => {
     cQ.afterRenderCore(el);
   }
 });
-const panelComponentName = computed(() => {
+const panelComponentName = computed<string>(() => {
   const cell = props.cell;
   if (cell.hasPanel) {
     const panel = cell.panel;
@@ -167,7 +164,7 @@ const panelComponentName = computed(() => {
     }
     return "survey-panel";
   }
-  return undefined;
+  return undefined as any;
 });
 const panelComponentData = computed(() => {
   const cell = props.cell;

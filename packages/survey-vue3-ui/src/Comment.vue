@@ -4,20 +4,21 @@
     v-if="!question.isReadOnlyRenderDiv() && question.getMaxLength()"
   >
     <SvComponent
-      :name="'sv-text-area'"
+      :is="'sv-text-area'"
       :model="question.textAreaModel"
     ></SvComponent>
     <SvComponent
-      :name="'sv-character-counter'"
+      :is="'sv-character-counter'"
       :counter="question.characterCounter"
       :remainingCharacterCounter="question.cssClasses.remainingCharacterCounter"
     ></SvComponent>
   </div>
-  <sv-text-area
+  <SvComponent
+    :is="'sv-text-area'"
     ref="root"
     v-else-if="!question.isReadOnlyRenderDiv() && !question.getMaxLength()"
     :model="question.textAreaModel"
-  ></sv-text-area>
+  ></SvComponent>
   <div ref="root" v-else>{{ question.value }}</div>
 </template>
 

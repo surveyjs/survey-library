@@ -4,7 +4,7 @@
       <SvComponent
         v-for="(item, index) in question.renderedRankingChoices"
         :key="item.value + '-' + index + '-item'"
-        :name="getItemValueComponentName(item)"
+        :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"
       ></SvComponent>
     </template>
@@ -17,7 +17,7 @@
       <SvComponent
         v-for="(item, index) in question.renderedUnRankingChoices"
         :key="item.value + '-' + index + '-item'"
-        :name="getItemValueComponentName(item)"
+        :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index, true)"
       ></SvComponent>
 
@@ -26,7 +26,7 @@
         :class="question.cssClasses.containerPlaceholder"
       >
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           :locString="question.locSelectToRankEmptyRankedAreaText"
         ></SvComponent>
       </div>
@@ -45,7 +45,7 @@
       <SvComponent
         v-for="(item, index) in question.renderedRankingChoices"
         :key="item.value + '-' + index + '-item'"
-        :name="getItemValueComponentName(item)"
+        :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"
       ></SvComponent>
 
@@ -54,7 +54,7 @@
         :class="question.cssClasses.containerPlaceholder"
       >
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           :locString="question.locSelectToRankEmptyUnrankedAreaText"
         ></SvComponent>
       </div>

@@ -2,17 +2,13 @@
   <div :class="model.containerCss">
     <div v-if="model.isMobile" v-on:click="model.togglePopup" v-key2click>
       <SvComponent
-        :name="'sv-svg-icon'"
+        :is="'sv-svg-icon'"
         :iconName="model.icon"
         :size="24"
       ></SvComponent>
-      <SvComponent :name="'sv-popup'" :model="model.popupModel"></SvComponent>
+      <SvComponent :is="'sv-popup'" :model="model.popupModel"></SvComponent>
     </div>
-    <SvComponent
-      :name="'sv-list'"
-      v-else
-      :model="model.listModel"
-    ></SvComponent>
+    <SvComponent :is="'sv-list'" v-else :model="model.listModel"></SvComponent>
   </div>
 </template>
 

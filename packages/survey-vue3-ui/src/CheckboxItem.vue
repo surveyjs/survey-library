@@ -27,7 +27,7 @@
           <use :xlink:href="question.itemSvgIcon"></use>
         </svg> </span
       ><span v-if="!hideLabel" :class="question.cssClasses.controlLabel">
-        <SvComponent :name="'survey-string'" :locString="item.locText" />
+        <SvComponent :is="'survey-string'" :locString="item.locText" />
       </span>
     </label>
   </div>

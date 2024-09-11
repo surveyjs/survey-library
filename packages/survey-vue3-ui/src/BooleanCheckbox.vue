@@ -32,13 +32,13 @@
           :class="question.cssClasses.checkboxControlLabel"
         >
           <SvComponent
-            :name="'survey-element-title-content'"
+            :is="'survey-element-title-content'"
             v-if="!question.hasTitleActions"
             :element="question"
             :css="css"
           ></SvComponent>
           <SvComponent
-            :name="'sv-title-actions'"
+            :is="'sv-title-actions'"
             v-if="question.hasTitleActions"
             :element="question"
             :css="css"
@@ -51,7 +51,7 @@
         :id="question.ariaDescriptionId"
       >
         <SvComponent
-          :name="'survey-string'"
+          :is="'survey-string'"
           :locString="question.locDescription"
         />
       </div>

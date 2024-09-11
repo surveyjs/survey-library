@@ -139,335 +139,162 @@ export { SurveyVue as SurveyComponent };
 
 SurveyModel.platform = "vue3";
 
-function registerComponents() {
-  ComponentFactory.Instance.registerComponent("sv-svg-bundle", SvgBundle);
-  ComponentFactory.Instance.registerComponent("popup-survey", PopupSurvey);
-  ComponentFactory.Instance.registerComponent("survey-header", HeaderBasic);
-  ComponentFactory.Instance.registerComponent("sv-logo-image", Logo);
-  ComponentFactory.Instance.registerComponent("survey-page", Page);
-  ComponentFactory.Instance.registerComponent("survey-row", Row);
-  ComponentFactory.Instance.registerComponent("survey-question", Question);
-  ComponentFactory.Instance.registerComponent("survey-panel", Panel);
-  ComponentFactory.Instance.registerComponent(
-    "survey-element-header",
-    ElementHeader
-  );
-  ComponentFactory.Instance.registerComponent("survey-string", String);
-  ComponentFactory.Instance.registerComponent("sv-string-viewer", StringViewer);
-  ComponentFactory.Instance.registerComponent("sv-string-editor", StringEditor);
-  ComponentFactory.Instance.registerComponent("sv-skeleton", Skeleton);
-  ComponentFactory.Instance.registerComponent("survey-text", QuestionText);
-  ComponentFactory.Instance.registerComponent(
-    "survey-text-input",
-    QuestionTextInput
-  );
-  ComponentFactory.Instance.registerComponent("survey-checkbox", Checkbox);
-  ComponentFactory.Instance.registerComponent(
-    "survey-checkbox-item",
-    CheckboxItem
-  );
-  ComponentFactory.Instance.registerComponent("survey-radiogroup", Radiogroup);
-  ComponentFactory.Instance.registerComponent(
-    "survey-radiogroup-item",
-    RadiogroupItem
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-signaturepad",
-    Signaturepad
-  );
-  ComponentFactory.Instance.registerComponent("survey-html", Html);
-  ComponentFactory.Instance.registerComponent("survey-image", Image);
-  ComponentFactory.Instance.registerComponent("survey-expression", Expression);
-  ComponentFactory.Instance.registerComponent("survey-file", File);
-  ComponentFactory.Instance.registerComponent(
-    "sv-file-choose-btn",
-    FileChooseButton
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-file-clean-btn",
-    FileCleanButton
-  );
-  ComponentFactory.Instance.registerComponent("sv-file-preview", FilePreview);
-  ComponentFactory.Instance.registerComponent("sv-file-video", FileVideo);
-  ComponentFactory.Instance.registerComponent(
-    "survey-imagepicker",
-    ImagePicker
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-imagepicker-item",
-    ImagePickerItem
-  );
-  ComponentFactory.Instance.registerComponent("survey-comment", Comment);
-  ComponentFactory.Instance.registerComponent("survey-dropdown", Dropdown);
-  ComponentFactory.Instance.registerComponent(
-    "sv-dropdown-select",
-    DropdownSelect
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-dropdown-option-item",
-    DropdownOptionItem
-  );
-  ComponentFactory.Instance.registerComponent("sv-dropdown", DropdownInput);
-  ComponentFactory.Instance.registerComponent("survey-tagbox", Tagbox);
-  ComponentFactory.Instance.registerComponent("sv-tagbox", TagboxInput);
-  ComponentFactory.Instance.registerComponent("sv-tagbox-item", TagboxItem);
-  ComponentFactory.Instance.registerComponent("sv-tagbox-filter", TagboxFilter);
-  ComponentFactory.Instance.registerComponent("survey-ranking", Ranking);
-  ComponentFactory.Instance.registerComponent(
-    "survey-ranking-item",
-    RankingItem
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-ranking-item",
-    RankingItemContent
-  );
-  ComponentFactory.Instance.registerComponent("survey-rating", Rating);
-  ComponentFactory.Instance.registerComponent("sv-rating-item", RatingItem);
-  ComponentFactory.Instance.registerComponent(
-    "sv-rating-item-smiley",
-    RatingItemSmiley
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-rating-item-star",
-    RatingItemStar
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-rating-dropdown",
-    RatingDropdown
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-rating-dropdown-item",
-    RatingDropdownItem
-  );
-  ComponentFactory.Instance.registerComponent("survey-boolean", BooleanSwitch);
-  ComponentFactory.Instance.registerComponent("sv-boolean-radio", BooleanRadio);
-  ComponentFactory.Instance.registerComponent(
-    "sv-boolean-radio-item",
-    BooleanRadioItem
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-boolean-checkbox",
-    BooleanCheckbox
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-multipletext",
-    MultipleText
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-multipletext-item",
-    MultipletextItem
-  );
-
-  ComponentFactory.Instance.registerComponent("survey-matrix", Matrix);
-  ComponentFactory.Instance.registerComponent("survey-matrix-row", MatrixRow);
-  ComponentFactory.Instance.registerComponent("survey-matrix-cell", MatrixCell);
-  ComponentFactory.Instance.registerComponent(
-    "survey-matrixdropdown",
-    MatrixDropdown
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-matrixtable",
-    MatrixTable
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-matrixheaderrequired",
-    MatrixHeaderRequired
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-matrixdropdown-cell",
-    MatrixDropdownCellComp
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-matrixdynamic",
-    MatrixDynamic
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-matrix-remove-button",
-    RemoveButton
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-matrix-drag-drop-icon",
-    DragDropIcon
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-matrix-detail-button",
-    DetailButton
-  );
-
-  ComponentFactory.Instance.registerComponent(
-    "survey-paneldynamic",
-    PanelDynamic
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-paneldynamicprogress",
-    PanelDynamicProgress
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-paneldynamicprogress-v2",
-    PanelDynamicProgressV2
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-paneldynamic-add-btn",
-    PaneldynamicAddBtn
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-paneldynamic-next-btn",
-    PaneldynamicNextBtn
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-paneldynamic-prev-btn",
-    PaneldynamicPrevBtn
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-paneldynamic-remove-btn",
-    PaneldynamicRemoveBtn
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-paneldynamic-progress-text",
-    PaneldynamicProgressText
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-components-container",
-    Container
-  );
-
-  ComponentFactory.Instance.registerComponent(
-    "sv-progress-buttons",
-    ProgressButtonsComponent
-  );
-  ComponentFactory.Instance.registerComponent("sv-navigation-toc", ProgressToc);
-  ComponentFactory.Instance.registerComponent("sv-progress-pages", Progress);
-  ComponentFactory.Instance.registerComponent(
-    "sv-progress-questions",
-    Progress
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-progress-correctquestions",
-    Progress
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-progress-requiredquestions",
-    Progress
-  );
-
-  ComponentFactory.Instance.registerComponent("survey-errors", Errors);
-  ComponentFactory.Instance.registerComponent(
-    "survey-question-comment",
-    QuestionComment
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-element-title",
-    TitleElement
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-element-title-content",
-    TitleContent
-  );
-  ComponentFactory.Instance.registerComponent("sv-title-actions", TitleActions);
-  ComponentFactory.Instance.registerComponent("sv-brand-info", BrandInfo);
-  ComponentFactory.Instance.registerComponent(
-    "sv-question-error",
-    QuestionError
-  );
-  ComponentFactory.Instance.registerComponent("sv-svg-icon", SvgIcon);
-
-  ComponentFactory.Instance.registerComponent("sv-action-bar", ActionBar);
-  ComponentFactory.Instance.registerComponent("sv-action", Action);
-  ComponentFactory.Instance.registerComponent(
-    "sv-action-bar-item",
-    ActionBarItem
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-action-bar-item-dropdown",
-    ActionBarItemDropdown
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-action-bar-separator",
-    ActionBarSeparator
-  );
-
-  ComponentFactory.Instance.registerComponent("sv-list", List);
-  ComponentFactory.Instance.registerComponent(
-    "sv-list-item-content",
-    ListItemContent
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-list-item-group",
-    ListItemGroup
-  );
-  ComponentFactory.Instance.registerComponent("sv-list-item", ListItem);
-
-  ComponentFactory.Instance.registerComponent("sv-popup", Popup);
-  ComponentFactory.Instance.registerComponent(
-    "sv-popup-container",
-    PopupContainer
-  );
-  ComponentFactory.Instance.registerComponent("popup-pointer", PopupPointer);
-
-  ComponentFactory.Instance.registerComponent("sv-notifier", Notifier);
-  ComponentFactory.Instance.registerComponent(
-    "survey-other-choice",
-    OtherChoice
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-nav-btn",
-    SurveyNavigationButton
-  );
-  ComponentFactory.Instance.registerComponent(
-    "survey-customwidget",
-    CustomWidget
-  );
-  ComponentFactory.Instance.registerComponent("survey-popup-modal", PopupModal);
-
-  ComponentFactory.Instance.registerComponent(
-    "sv-character-counter",
-    CharacterCounterComponent
-  );
-
-  ComponentFactory.Instance.registerComponent("survey-composite", Composite);
-  ComponentFactory.Instance.registerComponent("survey-custom", Custom);
-  ComponentFactory.Instance.registerComponent("sv-timerpanel", TimerPanel);
-  ComponentFactory.Instance.registerComponent(
-    "sv-loading-indicator",
-    LoadingIndicator
-  );
-  ComponentFactory.Instance.registerComponent("sv-header", Header);
-  ComponentFactory.Instance.registerComponent("sv-header-cell", HeaderCell);
-  ComponentFactory.Instance.registerComponent("sv-header-mobile", HeaderMobile);
-  ComponentFactory.Instance.registerComponent(
-    "sv-template-renderer",
-    TemplateRenderer
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-template-renderer",
-    TemplateRenderer
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-character-counter",
-    CharacterCounterComponent
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-text-area",
-    TextAreaComponent
-  );
-  ComponentFactory.Instance.registerComponent("survey-element", Element);
-
-  ComponentFactory.Instance.registerComponent(
-    "survey-buttongroup",
-    ButtonGroup
-  );
-  ComponentFactory.Instance.registerComponent(
-    "sv-button-group-item",
-    ButtonGroupItem
-  );
-  ComponentFactory.Instance.registerComponent("survey", SurveyVue);
+function registerComponentWithFunction(
+  registerFunc: (name: string, component: any) => void,
+  name: string,
+  component: any
+) {
+  registerFunc(name, component);
 }
-registerComponents();
+
+function registerComponents(
+  registerFunc: (name: string, component: any) => void
+) {
+  const registerComponent = registerComponentWithFunction.bind(
+    undefined,
+    registerFunc
+  );
+  registerComponent("sv-svg-bundle", SvgBundle);
+  registerComponent("popup-survey", PopupSurvey);
+  registerComponent("survey-header", HeaderBasic);
+  registerComponent("sv-logo-image", Logo);
+  registerComponent("survey-page", Page);
+  registerComponent("survey-row", Row);
+  registerComponent("survey-question", Question);
+  registerComponent("survey-panel", Panel);
+  registerComponent("survey-element-header", ElementHeader);
+  registerComponent("survey-string", String);
+  registerComponent("sv-string-viewer", StringViewer);
+  registerComponent("sv-string-editor", StringEditor);
+  registerComponent("sv-skeleton", Skeleton);
+  registerComponent("survey-text", QuestionText);
+  registerComponent("survey-text-input", QuestionTextInput);
+  registerComponent("survey-checkbox", Checkbox);
+  registerComponent("survey-checkbox-item", CheckboxItem);
+  registerComponent("survey-radiogroup", Radiogroup);
+  registerComponent("survey-radiogroup-item", RadiogroupItem);
+  registerComponent("survey-signaturepad", Signaturepad);
+  registerComponent("survey-html", Html);
+  registerComponent("survey-image", Image);
+  registerComponent("survey-expression", Expression);
+  registerComponent("survey-file", File);
+  registerComponent("sv-file-choose-btn", FileChooseButton);
+  registerComponent("sv-file-clean-btn", FileCleanButton);
+  registerComponent("sv-file-preview", FilePreview);
+  registerComponent("sv-file-video", FileVideo);
+  registerComponent("survey-imagepicker", ImagePicker);
+  registerComponent("survey-imagepicker-item", ImagePickerItem);
+  registerComponent("survey-comment", Comment);
+  registerComponent("survey-dropdown", Dropdown);
+  registerComponent("sv-dropdown-select", DropdownSelect);
+  registerComponent("sv-dropdown-option-item", DropdownOptionItem);
+  registerComponent("sv-dropdown", DropdownInput);
+  registerComponent("survey-tagbox", Tagbox);
+  registerComponent("sv-tagbox", TagboxInput);
+  registerComponent("sv-tagbox-item", TagboxItem);
+  registerComponent("sv-tagbox-filter", TagboxFilter);
+  registerComponent("survey-ranking", Ranking);
+  registerComponent("survey-ranking-item", RankingItem);
+  registerComponent("sv-ranking-item", RankingItemContent);
+  registerComponent("survey-rating", Rating);
+  registerComponent("sv-rating-item", RatingItem);
+  registerComponent("sv-rating-item-smiley", RatingItemSmiley);
+  registerComponent("sv-rating-item-star", RatingItemStar);
+  registerComponent("sv-rating-dropdown", RatingDropdown);
+  registerComponent("sv-rating-dropdown-item", RatingDropdownItem);
+  registerComponent("survey-boolean", BooleanSwitch);
+  registerComponent("sv-boolean-radio", BooleanRadio);
+  registerComponent("sv-boolean-radio-item", BooleanRadioItem);
+  registerComponent("sv-boolean-checkbox", BooleanCheckbox);
+  registerComponent("survey-multipletext", MultipleText);
+  registerComponent("survey-multipletext-item", MultipletextItem);
+
+  registerComponent("survey-matrix", Matrix);
+  registerComponent("survey-matrix-row", MatrixRow);
+  registerComponent("survey-matrix-cell", MatrixCell);
+  registerComponent("survey-matrixdropdown", MatrixDropdown);
+  registerComponent("survey-matrixtable", MatrixTable);
+  registerComponent("survey-matrixheaderrequired", MatrixHeaderRequired);
+  registerComponent("survey-matrixdropdown-cell", MatrixDropdownCellComp);
+  registerComponent("survey-matrixdynamic", MatrixDynamic);
+  registerComponent("sv-matrix-remove-button", RemoveButton);
+  registerComponent("sv-matrix-drag-drop-icon", DragDropIcon);
+  registerComponent("sv-matrix-detail-button", DetailButton);
+
+  registerComponent("survey-paneldynamic", PanelDynamic);
+  registerComponent("survey-paneldynamicprogress", PanelDynamicProgress);
+  registerComponent("survey-paneldynamicprogress-v2", PanelDynamicProgressV2);
+  registerComponent("sv-paneldynamic-add-btn", PaneldynamicAddBtn);
+  registerComponent("sv-paneldynamic-next-btn", PaneldynamicNextBtn);
+  registerComponent("sv-paneldynamic-prev-btn", PaneldynamicPrevBtn);
+  registerComponent("sv-paneldynamic-remove-btn", PaneldynamicRemoveBtn);
+  registerComponent("sv-paneldynamic-progress-text", PaneldynamicProgressText);
+  registerComponent("sv-components-container", Container);
+
+  registerComponent("sv-progress-buttons", ProgressButtonsComponent);
+  registerComponent("sv-navigation-toc", ProgressToc);
+  registerComponent("sv-progress-pages", Progress);
+  registerComponent("sv-progress-questions", Progress);
+  registerComponent("sv-progress-correctquestions", Progress);
+  registerComponent("sv-progress-requiredquestions", Progress);
+
+  registerComponent("survey-errors", Errors);
+  registerComponent("survey-question-comment", QuestionComment);
+  registerComponent("survey-element-title", TitleElement);
+  registerComponent("survey-element-title-content", TitleContent);
+  registerComponent("sv-title-actions", TitleActions);
+  registerComponent("sv-brand-info", BrandInfo);
+  registerComponent("sv-question-error", QuestionError);
+  registerComponent("sv-svg-icon", SvgIcon);
+
+  registerComponent("sv-action-bar", ActionBar);
+  registerComponent("sv-action", Action);
+  registerComponent("sv-action-bar-item", ActionBarItem);
+  registerComponent("sv-action-bar-item-dropdown", ActionBarItemDropdown);
+  registerComponent("sv-action-bar-separator", ActionBarSeparator);
+
+  registerComponent("sv-list", List);
+  registerComponent("sv-list-item-content", ListItemContent);
+  registerComponent("sv-list-item-group", ListItemGroup);
+  registerComponent("sv-list-item", ListItem);
+
+  registerComponent("sv-popup", Popup);
+  registerComponent("sv-popup-container", PopupContainer);
+  registerComponent("popup-pointer", PopupPointer);
+
+  registerComponent("sv-notifier", Notifier);
+  registerComponent("survey-other-choice", OtherChoice);
+  registerComponent("sv-nav-btn", SurveyNavigationButton);
+  registerComponent("survey-customwidget", CustomWidget);
+  registerComponent("survey-popup-modal", PopupModal);
+
+  registerComponent("survey-composite", Composite);
+  registerComponent("survey-custom", Custom);
+  registerComponent("sv-timerpanel", TimerPanel);
+  registerComponent("sv-loading-indicator", LoadingIndicator);
+  registerComponent("sv-header", Header);
+  registerComponent("sv-header-cell", HeaderCell);
+  registerComponent("sv-header-mobile", HeaderMobile);
+  registerComponent("sv-template-renderer", TemplateRenderer);
+  registerComponent("sv-character-counter", CharacterCounterComponent);
+  registerComponent("sv-text-area", TextAreaComponent);
+  registerComponent("survey-element", Element);
+
+  registerComponent("survey-buttongroup", ButtonGroup);
+  registerComponent("sv-button-group-item", ButtonGroupItem);
+}
+
+ComponentFactory.Instance.registerComponent("survey", SurveyVue);
+
+registerComponents((name, component) =>
+  ComponentFactory.Instance.registerComponent(name, component)
+);
 
 export const surveyPlugin = {
   install(app: App) {
     app.component("SurveyComponent", SurveyVue);
     app.component("survey", SurveyVue);
     app.component("PopupSurveyComponent", PopupSurvey);
+    registerComponents((name, component) => app.component(name, component));
   },
 };

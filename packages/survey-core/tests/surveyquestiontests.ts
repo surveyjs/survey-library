@@ -2795,14 +2795,19 @@ QUnit.test("matrixdropdown.columnsVisibleIf", function (assert) {
   qBestCar.addColumn("Mercedes");
   qBestCar.addColumn("Volkswagen");
   qBestCar.columnsVisibleIf = "{cars} contains {item}";
+  const visColCount = (): number => {
+    let res = 0;
+    qBestCar.columns.forEach(col => { if(col.isColumnVisible) res ++; });
+    return res;
+  };
   page.addElement(qBestCar);
-  assert.equal(qBestCar.visibleColumns.length, 0, "cars are not selected yet");
+  assert.equal(visColCount(), 0, "cars are not selected yet");
   qCars.value = ["BMW"];
-  assert.equal(qBestCar.visibleColumns.length, 1, "BMW is selected");
+  assert.equal(visColCount(), 1, "BMW is selected");
   qCars.value = ["Audi", "BMW", "Mercedes"];
-  assert.equal(qBestCar.visibleColumns.length, 3, "3 cars are selected");
+  assert.equal(visColCount(), 3, "3 cars are selected");
   qBestCar.columnsVisibleIf = "";
-  assert.equal(qBestCar.visibleColumns.length, 4, "there is no filter");
+  assert.equal(visColCount(), 4, "there is no filter");
 });
 
 QUnit.test(

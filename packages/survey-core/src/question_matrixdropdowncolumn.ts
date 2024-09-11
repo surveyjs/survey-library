@@ -243,6 +243,7 @@ export class MatrixDropdownColumn extends Base
   public set hasVisibleCell(newVal: boolean) {
     this._hasVisibleCell = newVal;
   }
+  public isColumnsVisibleIf: boolean = true;
   public getVisibleMultipleChoices(): Array<ItemValue> {
     const choices = this.templateQuestion.visibleChoices;
     if (!Array.isArray(choices)) return [];

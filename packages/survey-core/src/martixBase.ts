@@ -130,9 +130,11 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public set columnsVisibleIf(val: string) {
     this.setPropertyValue("columnsVisibleIf", val);
-    this.filterItems();
+    if(!this.isLoadingFromJson) {
+      this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
+    }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     super.runCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
@@ -226,10 +228,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     }
     return hasChanged;
   }
-  private runConditionsForColumns(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): boolean {
+  protected runConditionsForColumns(values: HashTable<any>, properties: HashTable<any>): boolean {
     var useColumnsExpression =
       !!this.survey && !this.survey.areInvisibleElementsShowing;
     var runner =

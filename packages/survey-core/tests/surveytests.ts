@@ -5847,9 +5847,7 @@ QUnit.test("Survey Markdown - page title", function (assert) {
   );
 });
 
-QUnit.test("Survey Markdown - page title + showPageNumbers = true", function (
-  assert
-) {
+QUnit.test("Survey Markdown - page title + showPageNumbers = true", function (assert) {
   var survey = new SurveyModel();
   survey.showPageNumbers = true;
   var page = survey.addNewPage("Page 1");
@@ -5863,11 +5861,7 @@ QUnit.test("Survey Markdown - page title + showPageNumbers = true", function (
   q1.value = "value1";
   var loc = page.locTitle;
   page.title = "Page 1markdown, q1 is {q1}";
-  assert.equal(
-    loc.renderedHtml,
-    "1. Page 1!, q1 is value1",
-    "page.locTitle.renderedHtml, pageNo and use markdown and text preprocessing"
-  );
+  assert.equal(loc.renderedHtml, "Page 1!, q1 is value1", "page.locTitle.renderedHtml, use markdown and text preprocessing");
 });
 
 QUnit.test(

@@ -22,6 +22,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomWindowHelper } from "./global_variables_utils";
+import { ITextArea, TextAreaModel } from "./utils/text-area";
 
 export interface IConditionObject {
   name: string;
@@ -90,6 +91,27 @@ export class Question extends SurveyElement<Question>
   private isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
   private dependedQuestions: Array<Question> = [];
+  public commentTextAreaModel: TextAreaModel;
+
+  private getCommentTextAreaOptions(): ITextArea {
+    const options: ITextArea = {
+      question: this,
+      id: () => this.commentId,
+      propertyName: "comment",
+      className: () => this.cssClasses.comment,
+      placeholder: () => this.renderedCommentPlaceholder,
+      isDisabledAttr: () => this.isInputReadOnly || false,
+      rows: () => this.commentAreaRows,
+      autoGrow: () => this.autoGrowComment,
+      maxLength: () => this.getOthersMaxLength(),
+      ariaRequired: () => this.a11y_input_ariaRequired,
+      ariaLabel: () => this.a11y_input_ariaLabel,
+      getTextValue: () => { return this.comment; },
+      onTextAreaChange: (e) => { this.onCommentChange(e); },
+      onTextAreaInput: (e) => { this.onCommentInput(e); },
+    };
+    return options;
+  }
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
@@ -115,11 +137,21 @@ export class Question extends SurveyElement<Question>
   public updateIsMobileFromSurvey() {
     this.setIsMobile((<SurveyModel>this.survey)._isMobile);
   }
-  public setIsMobile(val: boolean) {
-    this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
+  public setIsMobile(val: boolean): void {
+    const newVal = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
+    this.isMobile = newVal;
+  }
+  protected getIsMobile(): boolean {
+    return this._isMobile;
+  }
+  public get isMobile(): boolean {
+    return this.getIsMobile();
+  }
+  public set isMobile(val: boolean) {
+    this._isMobile = val;
   }
   public themeChanged(theme: ITheme): void { }
-  @property({ defaultValue: false }) isMobile: boolean;
+  @property({ defaultValue: false }) private _isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
   @property() ariaExpanded: "true" | "false";
 
@@ -130,6 +162,7 @@ export class Question extends SurveyElement<Question>
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
+    this.commentTextAreaModel = new TextAreaModel(this.getCommentTextAreaOptions());
 
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },
@@ -174,7 +207,7 @@ export class Question extends SurveyElement<Question>
     this.registerFunctionOnPropertiesValueChanged(["no", "readOnly", "hasVisibleErrors", "containsErrors"], () => {
       this.updateQuestionCss();
     });
-    this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
+    this.registerPropertyChangedHandlers(["_isMobile"], () => { this.onMobileChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
   }
   protected getDefaultTitle(): string { return this.name; }
@@ -902,11 +935,6 @@ export class Question extends SurveyElement<Question>
   }
   public get isContainer(): boolean { return false; }
   protected updateCommentElements(): void {
-    if (!this.autoGrowComment || !Array.isArray(this.commentElements)) return;
-    for (let i = 0; i < this.commentElements.length; i++) {
-      const el = this.commentElements[i];
-      if (el) increaseHeightByContent(el);
-    }
   }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
@@ -1125,6 +1153,7 @@ export class Question extends SurveyElement<Question>
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssRoot)
+      .append(this.cssClasses.mobile, this.isMobile)
       .append(this.cssClasses.readOnly, this.isReadOnlyStyle)
       .append(this.cssClasses.disabled, this.isDisabledStyle)
       .append(this.cssClasses.preview, this.isPreviewStyle)
@@ -2076,7 +2105,8 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Question validators.
-   * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
+   *
+   * [Data Validation](https://surveyjs.io/form-library/documentation/data-validation (linkStyle))
    */
   public get validators(): Array<SurveyValidator> {
     return this.getPropertyValue("validators");
@@ -2133,7 +2163,7 @@ export class Question extends SurveyElement<Question>
     return json;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    const errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
+    const errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true, fireCallback);
     if (fireCallback) {
       if (!!this.survey) {
         this.survey.beforeSettingQuestionErrors(this, errors);
@@ -2194,21 +2224,18 @@ export class Question extends SurveyElement<Question>
     var index = errors.indexOf(error);
     if (index !== -1) errors.splice(index, 1);
   }
-  private checkForErrors(isOnValueChanged: boolean): Array<SurveyError> {
+  private checkForErrors(isOnValueChanged: boolean, fireCallback: boolean): Array<SurveyError> {
     var qErrors = new Array<SurveyError>();
     if (this.isVisible && this.canCollectErrors()) {
-      this.collectErrors(qErrors, isOnValueChanged);
+      this.collectErrors(qErrors, isOnValueChanged, fireCallback);
     }
     return qErrors;
   }
   protected canCollectErrors(): boolean {
     return !this.isReadOnly || settings.readOnly.enableValidation;
   }
-  private collectErrors(
-    qErrors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ) {
-    this.onCheckForErrors(qErrors, isOnValueChanged);
+  private collectErrors(qErrors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    this.onCheckForErrors(qErrors, isOnValueChanged, fireCallback);
     if (qErrors.length > 0 || !this.canRunValidators(isOnValueChanged)) return;
     var errors = this.runValidators();
     if (errors.length > 0) {
@@ -2232,7 +2259,7 @@ export class Question extends SurveyElement<Question>
     if (this.validateValueCallback) return this.validateValueCallback();
     return this.survey ? this.survey.validateQuestion(this) : null;
   }
-  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     if ((!isOnValueChanged || this.isOldAnswered) && this.hasRequiredError()) {
       const err = new AnswerRequiredError(this.requiredErrorText, this);
       err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
@@ -2568,7 +2595,7 @@ export class Question extends SurveyElement<Question>
     return ".sd-scrollable-container";
   }
 
-  private onMobileChanged() {
+  protected onMobileChanged() {
     this.onMobileChangedCallback && this.onMobileChangedCallback();
   }
 

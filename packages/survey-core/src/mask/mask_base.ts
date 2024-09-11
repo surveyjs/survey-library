@@ -56,6 +56,10 @@ export class InputMaskBase extends Base implements IInputMask {
   public getUnmaskedValue(src: string): any { return src; }
   public getMaskedValue(src: any): string { return src; }
   public getTextAlignment(): "left" | "right" | "auto" { return "auto"; }
+
+  public getTypeForExpressions(): string {
+    return "text";
+  }
 }
 
 Serializer.addClass(

@@ -21,12 +21,8 @@
           "Title": "React"
         },
         {
-          "Name": "get-started-knockout",
-          "Title": "Knockout"
-        },
-        {
-          "Name": "get-started-jquery",
-          "Title": "jQuery"
+          "Name": "get-started-html-css-javascript",
+          "Title": "HTML/CSS/JavaScript"
         }
       ]
     },
@@ -113,10 +109,6 @@
         {
           "Name": "customize-question-types-create-composite-question-types",
           "Title": "Create Composite Question Types"
-        },
-        {
-          "Name": "customize-question-types-create-custom-widgets",
-          "Title": "Create Custom Widgets in jQuery and Knockout"
         },
         {
           "Name": "customize-question-types-third-party-component-integration-angular",
@@ -251,6 +243,10 @@
             {
               "Name": "questionpaneldynamicmodel",
               "Title": "QuestionPanelDynamicModel"
+            },
+            {
+              "Name": "choicesrestful",
+              "Title": "ChoicesRestful"
             },
             {
               "Name": "inputmasknumeric",

@@ -1,8 +1,6 @@
-# SurveyJS UI (React+pReact internally) Form Library
-
+# SurveyJS Form Library UI for HTML/CSS/JavaScript Applications
 
 <video src="https://github.com/surveyjs/survey-library/assets/22315929/b24a68bf-d703-4096-835b-752f5f610aa6"></video>
-
 
 [![Build Status](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_apis/build/status/SurveyJS%20Library?branchName=master)](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_build/latest?definitionId=7&branchName=master)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
@@ -16,12 +14,14 @@
 <img alt="Closed issues" title="Closed Issues" src="https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg">
 </a>
 
-A free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your vanilla JS applications.
+A free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your vanilla JS applications or integrate them with any frontend framework.
 
 ## Features
 
 - Dynamic forms, surveys, polls, and quizzes for your JavaScript application
-- Integration with React, Angular, Vue, jQuery, and Knockout
+- Integration with [React](https://www.npmjs.com/package/survey-react-ui), [Angular](https://www.npmjs.com/package/survey-angular-ui), and [Vue](https://www.npmjs.com/package/survey-vue3-ui)
+- Possibility of integration with any other frontend framework
+- Tiny and fast [Preact](https://preactjs.com/) library at the core
 - 20+ built-in question types and support for custom question types
 - Built-in themes and CSS customization
 - Answer validation
@@ -33,16 +33,16 @@ A free and open-source MIT-licensed JavaScript form builder library that allows 
 
 ## Get Started
 
-To get started with SurveyJS UI Form Library, refer to the following tutorial: [Add a Survey to a jQuery Application](https://surveyjs.io/Documentation/Library?id=get-started-jquery).
+To get started with SurveyJS Form Library UI for HTML/CSS/JavaScript applications, refer to the following tutorial: [Add a Survey to a JavaScript Application](https://surveyjs.io/form-library/documentation/get-started-html-css-javascript).
 
 ## Resources
 
 - [Website](https://surveyjs.io/)
-- [Documentation](https://surveyjs.io/Documentation/Library)
-- [Live Examples](https://surveyjs.io/form-library/examples/nps-question/jquery)
+- [Documentation](https://surveyjs.io/form-library/documentation/overview)
+- [Live Examples](https://surveyjs.io/form-library/examples/nps-question/)
 - [What's New](https://surveyjs.io/WhatsNew)
 
-## Build SurveyJS UI Form Library from Sources
+## Build SurveyJS Form Library UI from Sources
 
 Refer to instructions in the root README file: [Build the SurveyJS Form Library from Sources](https://github.com/surveyjs/survey-library#build-the-surveyjs-form-library-from-sources).
 

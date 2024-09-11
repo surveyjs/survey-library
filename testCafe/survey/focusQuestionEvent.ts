@@ -286,7 +286,7 @@ frameworks.forEach(async framework => {
         { name: "q1", type: "text", isRequired: true, requiredErrorText: "q1 error" },
         { name: "q2", type: "comment", isRequired: true, requiredErrorText: "q2 error" },
         { name: "q3", type: "dropdown", choices: [1, 2, 3], isRequired: true, requiredErrorText: "q3 error" },
-        //{ name: "q4", type: "tagbox", choices: [1, 2, 3], isRequired: true, requiredErrorText: "q4 error" },
+        { name: "q4", type: "tagbox", choices: [1, 2, 3], isRequired: true, requiredErrorText: "q4 error" },
         { name: "q5", type: "text" }
       ]
     });
@@ -297,7 +297,7 @@ frameworks.forEach(async framework => {
       .pressKey("tab")
       .expect(Selector("span").withExactText("q1 error").exists).ok()
       .expect(Selector("span").withExactText("q2 error").exists).ok()
-      .expect(Selector("span").withExactText("q3 error").exists).ok();
-    //.expect(Selector("span").withExactText("q4 error").exists).ok();
+      .expect(Selector("span").withExactText("q3 error").exists).ok()
+      .expect(Selector("span").withExactText("q4 error").exists).ok();
   });
 });

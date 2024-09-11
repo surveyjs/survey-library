@@ -17,12 +17,14 @@ import { ItemValue } from "./itemvalue";
 export class QuestionTagboxModel extends QuestionCheckboxModel {
   dropdownListModel: DropdownMultiSelectListModel;
   private itemDisplayNameMap: { [key: string]: string} = {};
+  private deselectAllItemText: LocalizableString;
 
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("clearCaption", this, false, true);
     this.createLocalizableString("readOnlyText", this, true);
+    this.deselectAllItemText = this.createLocalizableString("deselectAllText", this.selectAllItem, true, "deselectAllItemText");
     this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
       this.updateReadOnlyText();
     });
@@ -245,6 +247,16 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.dropdownListModel?.onFocus(event);
     super.onFocusCore(event);
   }
+  protected allElementsSelected(): boolean {
+    const result = super.allElementsSelected();
+    this.updateSelectAllItemText(result);
+    return result;
+  }
+
+  public updateSelectAllItemText(isAllSelected: boolean): void {
+    this.selectAllItem.setLocText(isAllSelected ? this.deselectAllItemText : this.selectAllItemText);
+  }
+
   public dispose(): void {
     super.dispose();
     if(!!this.dropdownListModel) {

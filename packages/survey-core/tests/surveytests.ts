@@ -16351,12 +16351,23 @@ QUnit.test("Check isMobile set via processResponsiveness method", function (asse
       }
     ]
   });
-  let isProcessed = survey["processResponsiveness"](500, 600);
+  let log = "";
+  survey.onResize.add((_, { width, height }) => {
+    log += `->width: ${width}; height: ${height}`;
+  });
+  let isProcessed = survey["processResponsiveness"](500, 600, 800);
+  assert.equal(log, "->width: 500; height: 800");
   assert.ok(survey._isMobile);
   assert.ok(isProcessed);
-  isProcessed = survey["processResponsiveness"](600, 500);
+
+  log = "";
+  isProcessed = survey["processResponsiveness"](600, 500, 400);
+  assert.equal(log, "->width: 600; height: 400");
   assert.ok(isProcessed);
-  isProcessed = survey["processResponsiveness"](800, 500);
+
+  log = "";
+  isProcessed = survey["processResponsiveness"](800, 500, 300);
+  assert.equal(log, "->width: 800; height: 300");
   assert.notOk(survey._isMobile);
   assert.notOk(isProcessed);
 });
@@ -18934,6 +18945,8 @@ QUnit.test("Test displayValue() function", function (assert) {
     ]
   });
   survey.data = { q1: [1, 2], q2: [{ q2_q1: [2, 3] }] };
+  const panel = survey.getQuestionByName("q2");
+  assert.equal(panel.panels[0].questions[0].isReady, true, "Check box is ready");
   const matrix = survey.getQuestionByName("q3");
   matrix.addRow();
   const row = matrix.visibleRows[0];
@@ -19011,6 +19024,32 @@ QUnit.test("Test displayValue() function with value parameter & 0 value, Bug#860
   assert.equal(rows[0].cells[1].value, "Item check 0", "cells[0,1].value");
   assert.equal(rows[1].cells[1].value, "Item check 1", "cells[1,1].value");
   assert.equal(rows[2].cells[1].value, "Item check 2", "cells[2,1].value");
+});
+QUnit.test("Test displayValue() function with 'non-ready' question , Bug#8763", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "q1",
+        choices: [{ value: 1, text: "Item check 1" }, { value: 2, text: "Item check 2" }]
+      },
+      {
+        type: "expression",
+        name: "q2",
+        expression: "displayValue('q1')"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  let isQ1Ready = false;
+  q1["getIsQuestionReady"] = (): boolean => { return isQ1Ready; };
+  q1["updateIsReady"]();
+  survey.mergeData({ q1: 1, q2: "abc" });
+  assert.equal(q2.value, "abc", "#1");
+  isQ1Ready = true;
+  q1["updateIsReady"]();
+  assert.equal(q2.value, "Item check 1", "#1");
 });
 QUnit.test("Test propertyValue() function", function (assert) {
   const survey = new SurveyModel({
@@ -20433,4 +20472,85 @@ QUnit.test("Trim key in setting the data, Bug#8586", function (assert) {
   assert.equal(survey.getQuestionByName("q2").value, "b", "q2.value");
   assert.equal(survey.getQuestionByName("q3").value, "c", "q3.value");
   assert.equal(survey.getQuestionByName("q4").value, "d", "q3.value");
+});
+
+QUnit.test("Check disableLazyRenderingBeforeElement method", (assert) => {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "text",
+            name: "q2"
+          },
+          {
+            type: "text",
+            name: "q3"
+          },
+          {
+            type: "text",
+            name: "q4"
+          }]
+      },
+      {
+        name: "page3",
+        elements: [
+          {
+            type: "text",
+            name: "q5"
+          }
+        ]
+      }
+    ]
+  });
+  survey.setDesignMode(true);
+  const question = survey.getQuestionByName("q3");
+  const page1 = survey.getPageByName("page1");
+  const page2 = survey.getPageByName("page2");
+  const page3 = survey.getPageByName("page3");
+
+  [page1, page2, page3].forEach(page => {
+    page.onFirstRendering();
+    page.rows.forEach(row => row.isNeedRender = false);
+  }
+  );
+
+  assert.notOk(page1.rows[0].isNeedRender);
+
+  assert.notOk(page2.rows[0].isNeedRender);
+  assert.notOk(page2.rows[1].isNeedRender);
+  assert.notOk(page2.rows[2].isNeedRender);
+
+  assert.notOk(page3.rows[0].isNeedRender);
+
+  survey.disableLazyRenderingBeforeElement(question);
+
+  assert.ok(page1.rows[0].isNeedRender);
+
+  assert.ok(page2.rows[0].isNeedRender);
+  assert.ok(page2.rows[1].isNeedRender);
+  assert.notOk(page2.rows[2].isNeedRender);
+
+  assert.notOk(page3.rows[0].isNeedRender);
+
+  page2.rows[0].isNeedRender = false;
+  survey.disableLazyRenderingBeforeElement(question);
+
+  assert.ok(page1.rows[0].isNeedRender);
+
+  assert.notOk(page2.rows[0].isNeedRender);
+  assert.ok(page2.rows[1].isNeedRender);
+  assert.notOk(page2.rows[2].isNeedRender);
+
+  assert.notOk(page3.rows[0].isNeedRender);
 });

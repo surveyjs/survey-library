@@ -27,8 +27,8 @@
       [attr.aria-activedescendant]="model.ariaActivedescendant"
       [attr.placeholder]="model.filterStringPlaceholder"
       (keydown)="model.inputKeyHandler($event)"
-      (blur)="model.onBlur($event)"
-      (focus)="model.onFocus($event)"
+      (blur)="question.onBlur($event)"
+      (focus)="question.onFocus($event)"
     />
     </div>
   </div>

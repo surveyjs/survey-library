@@ -517,7 +517,7 @@ export var settings = {
    * Nested properties:
    *
    * - `lifetime`: `number`\
-   * Specifies a time period during which a notification is displayed; measured in milliseconds.
+   * Specifies a time period during which a notification is displayed; measured in milliseconds. Default value: 2000.
    */
   notifications: {
     lifetime: 2000

@@ -93,78 +93,72 @@
   to {
   }
 }
-.sd-table__row--fade-out,
-.sd-table__row--fade-in {
+.sd-table__row--leave,
+.sd-table__row--enter {
   animation-name: empty;
-  animation-fill-mode: forwards;
-  --fade-in-animation-duration: calc(#{$matrix-row-fade-in-duration} + #{$matrix-row-fade-in-delay});
-  animation-duration: max(var(--fade-in-animation-duration), #{$matrix-row-move-in-duration});
+  --move-whole-animation-duration: calc(var(--move-animation-duration) + var(--move-animation-delay));
+  --fade-whole-animation-duration: calc(var(--fade-animation-duration) + var(--fade-animation-delay));
+  animation-duration: max(var(--fade-whole-animation-duration), var(--move-whole-animation-duration));
   & > td {
     animation-name: borderAnimation;
-    animation-timing-function: $ease-out;
-    animation-duration: $matrix-row-move-in-duration;
+    animation-direction: var(--animation-direction);
+    animation-timing-function: var(--animation-timing-function);
+    animation-duration: var(--move-animation-duration);
     animation-fill-mode: forwards;
+    animation-delay: var(--move-animation-delay);
     & > div {
       animation-name: fadeIn, moveInWithOverflow;
       opacity: 0;
-      animation-timing-function: $ease-out;
+      animation-direction: var(--animation-direction);
+      animation-timing-function: var(--animation-timing-function);
       animation-fill-mode: forwards;
-      animation-duration: $matrix-row-fade-in-duration, $matrix-row-move-in-duration;
-      animation-delay: $matrix-row-fade-in-delay, 0s;
+      animation-duration: var(--fade-animation-duration), var(--move-animation-duration);
+      animation-delay: var(--fade-animation-delay), var(--move-animation-delay);
     }
   }
 }
-.sd-table__row--fade-out {
-  animation-direction: reverse;
-  --move-out-animation-duration: calc(#{$matrix-row-move-out-duration} + #{$matrix-row-move-out-delay});
-  animation-duration: max(var(--move-out-animation-duration), #{$matrix-row-fade-out-duration});
-  & > td {
-    animation-duration: $matrix-row-move-out-duration;
-    animation-delay: $matrix-row-move-out-delay;
-    animation-direction: reverse;
-    animation-timing-function: $reverse-ease-out;
-    & > div {
-      animation-direction: reverse;
-      animation-timing-function: $reverse-ease-out;
-      animation-duration: $matrix-row-fade-out-duration, $matrix-row-move-out-duration;
-      animation-delay: 0s, $matrix-row-move-out-delay;
-    }
-  }
+.sd-table__row--enter {
+  --move-animation-delay: 0s;
+  --move-animation-duration: #{$matrix-row-move-in-duration};
+  --fade-animation-duration: #{$matrix-row-fade-in-duration};
+  --fade-animation-delay: #{$matrix-row-fade-in-delay};
+  --animation-direction: normal;
+  --animation-timing-function: #{$ease-out};
+}
+.sd-table__row--leave {
+  --move-animation-delay: #{$matrix-row-move-out-delay};
+  --move-animation-duration: #{$matrix-row-move-out-duration};
+  --fade-animation-duration: #{$matrix-row-fade-out-duration};
+  --fade-animation-delay: 0s;
+  --animation-direction: reverse;
+  --animation-timing-function: #{$reverse-ease-out};
 }
 .sd-table__row--detail {
-  &.sd-table__row--fade-in,
-  &.sd-table__row--fade-out {
+  &.sd-table__row--enter,
+  &.sd-table__row--leave {
     & > td {
       animation-name: borderAnimation, paddingAnimation;
-      animation-duration: $matrix-row-move-in-duration;
+      animation-duration: var(--move-animation-duration);
       animation-fill-mode: forwards;
+      animation-direction: var(--animation-direction);
+      animation-timing-function: var(--animation-timing-function);
     }
   }
 
-  &.sd-table__row--fade-in {
-    --fade-in-animation-duration: calc(#{$matrix-detail-row-fade-in-duration} + #{$matrix-detail-row-fade-in-delay});
-    animation-duration: max(var(--fade-in-animation-duration), #{$matrix-detail-row-move-in-duration});
-    & > td {
-      animation-timing-function: $ease-out;
-      animation-duration: $matrix-detail-row-move-in-duration;
-      & > div {
-        animation-duration: $matrix-detail-row-fade-in-duration, $matrix-detail-row-move-in-duration;
-        animation-delay: $matrix-detail-row-fade-in-delay, 0s;
-      }
-    }
+  &.sd-table__row--enter {
+    --move-animation-delay: 0s;
+    --move-animation-duration: #{$matrix-detail-row-move-in-duration};
+    --fade-animation-duration: #{$matrix-detail-row-fade-in-duration};
+    --fade-animation-delay: #{$matrix-detail-row-fade-in-delay};
+    --animation-direction: normal;
+    --animation-timing-function: #{$ease-out};
   }
-  &.sd-table__row--fade-out {
-    --move-out-animation-duration: calc(#{$matrix-detail-row-move-out-duration} + #{$matrix-detail-row-move-out-delay});
-    animation-duration: max(var(--move-out-animation-duration), #{$matrix-detail-row-fade-out-duration});
-    & > td {
-      animation-timing-function: $reverse-ease-out;
-      animation-duration: $matrix-detail-row-move-out-duration;
-      animation-delay: $matrix-detail-row-move-out-delay;
-      animation-direction: reverse;
-      & > div {
-        animation-duration: $matrix-detail-row-fade-out-duration, $matrix-detail-row-move-out-duration;
-        animation-delay: 0s, $matrix-detail-row-move-out-delay;
-      }
-    }
+  &.sd-table__row--leave {
+    --move-animation-delay: #{$matrix-detail-row-move-out-delay};
+    --move-animation-duration: #{$matrix-detail-row-move-out-duration};
+    --fade-animation-duration: #{$matrix-detail-row-fade-out-duration};
+    --fade-animation-delay: 0s;
+    --animation-direction: reverse;
+    --animation-timing-function: #{$reverse-ease-out};
   }
 }

@@ -60,10 +60,10 @@ const inputKeyHandler = (event: any) => {
   props.model.inputKeyHandler(event);
 };
 const blur = (event: any) => {
-  props.model.onBlur(event);
+  props.question.onBlur(event);
 };
 const focus = (event: any) => {
-  props.model.onFocus(event);
+  props.question.onFocus(event);
 };
 
 useBase(() => props.model);

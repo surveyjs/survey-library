@@ -13,8 +13,8 @@
       }
     "
     v-on:mousedown="
-      () => {
-        item.doMouseDown();
+      (args: any) => {
+        item.doMouseDown(args);
       }
     "
     v-on:focus="

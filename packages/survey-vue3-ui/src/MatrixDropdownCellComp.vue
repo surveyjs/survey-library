@@ -6,6 +6,7 @@
     :colspan="cell.colSpans"
     v-on:focusin="cell.focusIn()"
     ref="root"
+    v-if="cell.isVisible"
   >
     <SvComponent
       :name="'survey-errors'"

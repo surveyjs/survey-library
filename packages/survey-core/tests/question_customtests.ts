@@ -2895,6 +2895,26 @@ QUnit.test("single component: inheritBaseProps: true", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("single component, file: inheritBaseProps: true, Bug #8757", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customfile",
+    inheritBaseProps: true,
+    questionJSON: {
+      type: "file",
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customfile", name: "q1", showCommentArea: true }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  assert.equal(Serializer.getObjPropertyValue(q1, "name"), "q1", "getObjPropertyValue is correct, #name");
+  assert.equal(Serializer.getObjPropertyValue(q1, "showCommentArea"), true, "getObjPropertyValue is correct, #showCommentArea");
+
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Bug with visibleIf with composite.question and panel dynamic. Bug#7771", function (assert) {
   ComponentCollection.Instance.add({
     name: "test",

@@ -90,5 +90,4 @@ export var tajikSurveyStrings = {
   // more: "More"
 };
 
-surveyLocalization.locales["tg"] = tajikSurveyStrings;
-surveyLocalization.localeNames["tg"] = "тоҷикӣ";
+surveyLocalization.setupLocale("tg", tajikSurveyStrings, "тоҷикӣ", "Tajik");

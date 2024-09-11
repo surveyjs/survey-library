@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, getTimeZone, setTimeZoneUnsafe } from "../helper";
 import { Selector, fixture, test, ClientFunction } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -242,5 +242,31 @@ frameworks.forEach((framework) => {
     await t.expect(surveyResult).eql({
       name: " ",
     });
+  });
+  test("Test input type (month) in western timezone", async (t) => {
+    const oldTimeZone = await getTimeZone();
+    await setTimeZoneUnsafe(t, "America/Los_Angeles");
+    await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
+      questions: [
+        {
+          "type": "text",
+          "name": "monthInput",
+          "title": "Month Input",
+          "inputType": "month"
+        }]
+    });
+
+    await t
+      .expect(getTimeZone()).eql("America/Los_Angeles")
+      .pressKey("M tab 2 0 2 4 tab")
+      .expect(Selector("input").nth(0).value).eql("2024-03")
+      .click("input[value=Complete]");
+
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({
+      monthInput: "2024-03"
+    });
+    await setTimeZoneUnsafe(t, oldTimeZone);
   });
 });

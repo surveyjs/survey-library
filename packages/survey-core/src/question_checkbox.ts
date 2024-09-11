@@ -21,23 +21,20 @@ import { settings } from "./settings";
  */
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private selectAllItemValue: ItemValue;
+  protected selectAllItemText: LocalizableString;
   private invisibleOldValues: any = {};
   protected defaultSelectedItemValues: Array<ItemValue>;
   constructor(name: string) {
     super(name);
     this.selectAllItemValue = new ItemValue("");
     this.selectAllItemValue.id = "selectall";
-    var selectAllItemText = this.createLocalizableString(
-      "selectAllText", this.selectAllItem, true, "selectAllItemText");
+    this.selectAllItemText = this.createLocalizableString("selectAllText", this.selectAllItem, true, "selectAllItemText");
     this.selectAllItem.locOwner = this;
-    this.selectAllItem.setLocText(selectAllItemText);
+    this.selectAllItem.setLocText(this.selectAllItemText);
 
-    this.registerPropertyChangedHandlers(
-      ["showSelectAllItem", "selectAllText"],
-      () => {
-        this.onVisibleChoicesChanged();
-      }
-    );
+    this.registerPropertyChangedHandlers(["showSelectAllItem", "selectAllText"], () => {
+      this.onVisibleChoicesChanged();
+    });
   }
   protected getDefaultItemComponent(): string {
     return "survey-checkbox-item";
@@ -115,6 +112,19 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see showSelectAllItem
    */
   public get isAllSelected(): boolean {
+    return this.allElementsSelected();
+  }
+  public set isAllSelected(val: boolean) {
+    if (val) {
+      this.selectAll();
+    } else {
+      this.clearValue(true);
+    }
+  }
+  public toggleSelectAll(): void {
+    this.isAllSelected = !this.isAllSelected;
+  }
+  protected allElementsSelected(): boolean {
     const noneItems = this.getNoneItems();
     for(let i = 0; i < noneItems.length; i ++) {
       if(this.isItemSelected(noneItems[i])) return false;
@@ -132,16 +142,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       if(rVal.indexOf(items[i].value) < 0) return false;
     }
     return true;
-  }
-  public set isAllSelected(val: boolean) {
-    if (val) {
-      this.selectAll();
-    } else {
-      this.clearValue(true);
-    }
-  }
-  public toggleSelectAll(): void {
-    this.isAllSelected = !this.isAllSelected;
   }
   /**
    * Selects all choice items, except "Other" and "None".
@@ -279,11 +279,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return val.map((item: any) => this.createItemValue(item));
   }
   protected getAnswerCorrectIgnoreOrder(): boolean { return true; }
-  protected onCheckForErrors(
-    errors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ): void {
-    super.onCheckForErrors(errors, isOnValueChanged);
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (isOnValueChanged) return;
 
     if (this.minSelectedChoices > 0 && this.checkMinSelectedChoicesUnreached()) {

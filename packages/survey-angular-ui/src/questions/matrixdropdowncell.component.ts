@@ -34,7 +34,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   public override ngDoCheck(): void {
     super.ngDoCheck();
     if(this.cell.isErrorsCell && this.cell?.question) {
-      this.cell.question.registerFunctionOnPropertyValueChanged("errors", () => {
+      this.cell.question.registerFunctionOnPropertiesValueChanged(["errors", "visible"], () => {
         this.update();
       }, "__ngSubscription")
     }
@@ -77,25 +77,27 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   }
   ngAfterViewInit() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;
-    const el = this.cellContainer.nativeElement;
-    const cellQ = this.cell.question;
-    var options = {
-      cell: this.cell.cell,
-      cellQuestion: cellQ,
-      htmlElement: el,
-      row: this.cell.row,
-      column: this.cell.cell.column,
-    };
-    this.question.survey.matrixAfterCellRender(this.question, options);
-    cellQ.afterRenderCore(el);
+    const el = this.cellContainer?.nativeElement;
+    if(el) {
+      const cellQ = this.cell.question;
+      var options = {
+        cell: this.cell.cell,
+        cellQuestion: cellQ,
+        htmlElement: el,
+        row: this.cell.row,
+        column: this.cell.cell.column,
+      };
+      this.question.survey.matrixAfterCellRender(this.question, options);
+      cellQ.afterRenderCore(el);
+    }
   }
   override ngOnDestroy(): void {
     super.ngOnDestroy();
     if(this.cell.isErrorsCell && this.cell?.question) {
-      this.cell.question.unRegisterFunctionOnPropertyValueChanged("errors", "__ngSubscription")    
+      this.cell.question.unRegisterFunctionOnPropertiesValueChanged(["errors", "visible"], "__ngSubscription")    
     }
   }
   public get canRender() {
-    return this.question && this.question.survey;
+    return this.question && this.question.survey && this.cell.isVisible;
   }
 }

@@ -1,30 +1,18 @@
 ﻿<script type="text/html" id="survey-comment">
-  <!--ko if: !question.isReadOnlyRenderDiv() -->
-<textarea data-bind="attr: { id: question.commentId, maxLength: question.getOthersMaxLength(), rows: question.commentAreaRows, 'aria-required': question.ariaRequired || question.a11y_input_ariaRequired, 'aria-label': question.ariaLabel || question.a11y_input_ariaLabel, placeholder: question.renderedCommentPlaceholder }, 
-        event: { input: function(s, e) { $data.question.onCommentInput(e); } }, 
-        value: $data.question.comment, 
-        visible: $data.visible,
-        disable: $data.question.isInputReadOnly,
-        style: { resize: question.resizeStyle },
-        css: $data.question.cssClasses.other"></textarea>
-<!--/ko-->
-
-<!--ko if: question.isReadOnlyRenderDiv() -->
+<!-- ko if: !question.isReadOnlyRenderDiv() -->
+<!-- ko component: { name: 'sv-text-area', params: question.commentTextAreaModel } -->
+<!-- /ko -->
+<!-- /ko-->
+<!-- ko if: question.isReadOnlyRenderDiv() -->
 <div data-bind="text: question.comment"></div>
 <!--/ko-->
 </script>
 <script type="text/html" id="survey-other">
-  <!--ko if: !question.isReadOnlyRenderDiv() -->
-<textarea data-bind="attr: { id: question.otherId, maxLength: question.getOthersMaxLength(), rows: question.commentAreaRows, 'aria-required': question.ariaRequired || question.a11y_input_ariaRequired, 'aria-label': question.ariaLabel || question.a11y_input_ariaLabel, placeholder: question.otherPlaceholder }, 
-        event: { input: function(s, e) { $data.question.onOtherValueInput(e); } }, 
-        value: $data.question.otherValue, 
-        visible: $data.visible,
-        disable: $data.question.isInputReadOnly,
-        style: { resize: question.resizeStyle },
-        css: $data.question.cssClasses.other"></textarea>
-<!--/ko-->
-
-<!--ko if: question.isReadOnlyRenderDiv() -->
+<!-- ko if: !question.isReadOnlyRenderDiv() -->
+<!-- ko component: { name: 'sv-text-area', params: question.otherTextAreaModel } -->
+<!-- /ko -->
+<!-- /ko-->
+<!-- ko if: question.isReadOnlyRenderDiv() -->
 <div data-bind="text: question.otherValue"></div>
-<!--/ko-->
+<!-- /ko-->
 </script>

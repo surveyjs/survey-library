@@ -17,8 +17,7 @@ To use a theme, you need to reference a SurveyJS style sheet. Refer to the follo
 - [Configure Styles in Angular](https://surveyjs.io/form-library/documentation/get-started-angular#configure-styles)
 - [Configure Styles in Vue](https://surveyjs.io/form-library/documentation/get-started-vue#configure-styles)
 - [Configure Styles in React](https://surveyjs.io/form-library/documentation/get-started-react#configure-styles)
-- [Link SurveyJS Resources in Knockout](https://surveyjs.io/form-library/documentation/get-started-knockout#link-surveyjs-resources)
-- [Link SurveyJS Resources in jQuery](https://surveyjs.io/form-library/documentation/get-started-jquery#link-surveyjs-resources)
+- [Link SurveyJS Resources in an HTML/CSS/JavaScript Application](https://surveyjs.io/form-library/documentation/get-started-html-css-javascript#link-surveyjs-resources)
 
 ## Apply a Predefined Theme
 
@@ -119,7 +118,7 @@ survey.applyTheme({
 
 ## Apply Custom CSS Classes
 
-You can apply individual custom CSS classes to all survey elements of a specific type. To do this, define a JavaScript object in which keys specify survey elements and values specify CSS classes. For information on the object structure, refer to the following file on GitHub: [defaultV2Css.ts](https://github.com/surveyjs/survey-library/blob/master/src/defaultCss/defaultV2Css.ts#L13). Assign this object to [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model)'s `css` property.
+You can apply individual custom CSS classes to all survey elements of a specific type. To do this, define a JavaScript object in which keys specify survey elements and values specify CSS classes. For information on the object structure, refer to the following file on GitHub: [defaultV2Css.ts](https://github.com/surveyjs/survey-library/blob/master/packages/survey-core/src/defaultCss/defaultV2Css.ts#L13). Assign this object to [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model)'s `css` property.
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-customcss/ (linkStyle))
 

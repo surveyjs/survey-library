@@ -4649,6 +4649,20 @@ QUnit.test(
     assert.strictEqual(isNaN(question.value), true, "Value is reset");
   }
 );
+QUnit.test(
+  "QuestionRating value with string labels is reset when clicked again",
+  function (assert) {
+    var question = new QuestionRatingModel("q");
+    question.rateValues = ["l1", "l2", "l3"];
+    question.setValueFromClick("l1");
+    assert.strictEqual(question.value, "l1", "Set to l1");
+    question.setValueFromClick("l2");
+    assert.strictEqual(question.value, "l2", "Set to l2");
+    question.setValueFromClick("l2");
+    assert.notStrictEqual(question.value, "l2", "No longer l2");
+    assert.strictEqual(question.value, undefined, "Value is reset");
+  }
+);
 
 QUnit.test(
   "QuestionRating reset highlight on click",
@@ -7852,6 +7866,76 @@ QUnit.test("question.isDefaultValue", function (assert) {
   assert.equal(q3.isValueDefault, false, "q3 #4");
   assert.equal(q4.isValueDefault, false, "q4 #4");
 });
+
+QUnit.test("TextAreaOptions", function (assert) {
+  StylesManager.applyTheme("defaultV2");
+  Question["questionCounter"] = 101;
+
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "dropdown",
+            "name": "q1",
+            "defaultValue": "other",
+            "showCommentArea": true,
+            "commentPlaceholder": "Comment placeholder",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ],
+            "showOtherItem": true,
+            "otherPlaceholder": "Other placeholder"
+          },
+          {
+            "type": "comment",
+            "name": "q2"
+          }
+        ]
+      }
+    ]
+  });
+
+  const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  const otherOptions = q1.otherTextAreaModel;
+  const commentOptions = q1.commentTextAreaModel;
+
+  const q2 = <QuestionCommentModel>survey.getQuestionByName("q2");
+  const textAreaOptions = q2.textAreaModel;
+
+  assert.equal(otherOptions.id, "sq_101_other", "otherOptions id");
+  assert.equal(otherOptions.className, "sd-input sd-comment sd-selectbase__other", "otherOptions className");
+  assert.equal(otherOptions.isDisabledAttr, "", "otherOptions isDisabledAttr");
+  assert.equal(otherOptions.isReadOnlyAttr, undefined, "otherOptions isReadOnlyAttr");
+  assert.equal(otherOptions.placeholder, "Other placeholder", "otherOptions placeholder");
+  assert.equal(otherOptions.maxLength, undefined, "otherOptions maxLength");
+  assert.equal(otherOptions.cols, undefined, "otherOptions cols");
+  assert.equal(otherOptions.rows, undefined, "otherOptions rows");
+
+  assert.equal(commentOptions.id, "sq_101_comment", "commentOptions id");
+  assert.equal(commentOptions.className, "sd-input sd-comment", "commentOptions className");
+  assert.equal(commentOptions.isDisabledAttr, "", "commentOptions isDisabledAttr");
+  assert.equal(commentOptions.isReadOnlyAttr, undefined, "commentOptions isReadOnlyAttr");
+  assert.equal(commentOptions.placeholder, "Comment placeholder", "commentOptions placeholder");
+  assert.equal(commentOptions.maxLength, undefined, "commentOptions maxLength");
+  assert.equal(commentOptions.cols, undefined, "commentOptions cols");
+  assert.equal(commentOptions.rows, undefined, "commentOptions rows");
+
+  assert.equal(textAreaOptions.id, "sq_102i", "textAreaOptions id");
+  assert.equal(textAreaOptions.className, "sd-input sd-comment", "textAreaOptions className");
+  assert.equal(textAreaOptions.isDisabledAttr, "", "textAreaOptions isDisabledAttr");
+  assert.equal(textAreaOptions.isReadOnlyAttr, false, "textAreaOptions isReadOnlyAttr");
+  assert.equal(textAreaOptions.placeholder, "", "textAreaOptions placeholder");
+  assert.equal(textAreaOptions.maxLength, undefined, "textAreaOptions maxLength");
+  assert.equal(textAreaOptions.cols, 50, "textAreaOptions cols");
+  assert.equal(textAreaOptions.rows, 4, "textAreaOptions rows");
+
+  StylesManager.applyTheme("default");
+});
+
 QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
   const survey = new SurveyModel({
     validateVisitedEmptyFields: true,

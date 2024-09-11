@@ -53,7 +53,6 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     if (this.question.hasFootItems) {
       return this.question.footItems.map((item: any, ii: number) =>
         this.renderItem(
-          "item_f" + ii,
           item,
           false,
           this.question.cssClasses
@@ -72,7 +71,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     var value = this.getStateValue();
     return this.question.columns.map((column: Array<ItemValue>, ci: number) => {
       var items = column.map((item: any, ii: number) =>
-        this.renderItem("item" + ci + ii, item, value, cssClasses, "" + ci + ii)
+        this.renderItem(item, value, cssClasses, "" + ci + ii)
       );
       return (
         <div key={"column" + ci + this.question.getItemsColumnKey(column)} className={this.question.getColumnClass()} role="presentation">
@@ -94,7 +93,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     var value = this.getStateValue();
     for (var i = 0; i < choices.length; i++) {
       var item = choices[i];
-      var renderedItem = this.renderItem("item" + i, item, value, cssClasses, "" + i);
+      var renderedItem = this.renderItem(item, value, cssClasses, "" + i);
       items.push(renderedItem);
     }
     return items;
@@ -115,14 +114,13 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     );
   }
   private renderItem(
-    key: string,
     item: ItemValue,
     value: any,
     cssClasses: any,
     index?: string
   ): JSX.Element {
     const renderedItem = ReactElementFactory.Instance.createElement(this.question.itemComponent, {
-      key: key,
+      key: item.value,
       question: this.question,
       cssClasses: cssClasses,
       isDisplayMode: this.isDisplayMode,
@@ -144,8 +142,10 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
 }
 
 export class SurveyQuestionRadioItem extends ReactSurveyElement {
+  private rootRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
+    this.rootRef = React.createRef();
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
   }
@@ -189,6 +189,19 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.question && !!this.item;
   }
+
+  public componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    if (prevProps.item !== this.props.item && !this.question.isDesignMode) {
+      if(this.props.item) {
+        this.props.item.setRootElement(this.rootRef.current);
+      }
+      if(prevProps.item) {
+        prevProps.item.setRootElement(undefined);
+      }
+    }
+  }
+
   protected renderElement(): JSX.Element {
     var itemClass = this.question.getItemClass(this.item);
     var labelClass = this.question.getLabelClass(this.item);
@@ -198,6 +211,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
       <div
         className={itemClass}
         role="presentation"
+        ref={this.rootRef}
       >
         <label onMouseDown={this.handleOnMouseDown} className={labelClass}>
           <input
@@ -230,6 +244,18 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
         </label>
       </div>
     );
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    if(!this.question.isDesignMode) {
+      this.item.setRootElement(this.rootRef.current as HTMLElement);
+    }
+  }
+  public componentWillUnmount(): void {
+    super.componentWillUnmount();
+    if(!this.question.isDesignMode) {
+      this.item.setRootElement(undefined as any);
+    }
   }
 }
 

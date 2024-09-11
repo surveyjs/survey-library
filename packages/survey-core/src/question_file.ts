@@ -94,12 +94,8 @@ export class QuestionFileModelBase extends Question {
     if (!this.survey) return;
     this.survey.clearFiles(this, this.name, this.value, null, () => { });
   }
-
-  protected onCheckForErrors(
-    errors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ) {
-    super.onCheckForErrors(errors, isOnValueChanged);
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (this.isUploading && this.waitForUpload) {
       errors.push(
         new UploadingFileError(
@@ -328,9 +324,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
       this.startVideoInCamera();
     }, 0);
   }
-
+  private get videoHtmlElement() {
+    return this.rootElement?.querySelector(`#${this.videoId}`) as HTMLVideoElement;
+  }
   private startVideoInCamera(): void {
-    this.camera.startVideo(this.videoId, (stream: MediaStream) => {
+    this.camera.startVideo(this.videoHtmlElement, (stream: MediaStream) => {
       this.videoStream = stream;
       if (!stream) {
         this.stopVideo();
@@ -349,7 +347,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         this.loadFiles([file]);
       }
     };
-    this.camera.snap(this.videoId, blobCallback);
+    this.camera.snap(this.videoHtmlElement, blobCallback);
     this.stopVideo();
   }
   @property() private canFlipCameraValue: boolean = undefined;

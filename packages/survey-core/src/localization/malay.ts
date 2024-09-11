@@ -108,8 +108,7 @@ export var malaySurveyStrings = {
   cancel: "Batal"
 };
 
-surveyLocalization.locales["ms"] = malaySurveyStrings;
-surveyLocalization.localeNames["ms"] = "melayu";
+surveyLocalization.setupLocale("ms", malaySurveyStrings, "melayu", "Malay");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

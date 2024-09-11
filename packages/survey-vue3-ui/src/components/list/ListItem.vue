@@ -24,11 +24,10 @@
       @mouseleave="(e) => model.onItemLeave(item)"
     >
       <SvComponent
-        :name="item.component || 'sv-list-item-content'"
+        :name="item.component"
         :item="item"
         :model="model"
-      >
-      </SvComponent>
+      ></SvComponent>
     </div>
   </li>
 </template>
@@ -49,6 +48,10 @@ const click = (event: any) => {
 };
 
 useBase(() => props.item);
+
+const itemComponent = computed(
+  () => props.item.component || props.model.itemComponent
+);
 
 onMounted(() => {
   setTimeout(() => {

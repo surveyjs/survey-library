@@ -467,23 +467,23 @@ export interface GetResultEvent {
   /**
    * An object with the following structure:
    *
-   * ```js
-   * {
-   *   AnswersCount: Number, // A total number of posted answers to the question
-   *   QuestionResult: Object // All unique answers to the question and their number
-   * }
-   * ```
+   *     ```js
+   *     {
+   *       AnswersCount: Number, // A total number of posted answers to the question
+   *       QuestionResult: Object // All unique answers to the question and their number
+   *     }
+   *     ```
    */
   data: any;
   /**
    * An array of objects with the following structure:
    *
-   * ```js
-   * {
-   *   name: String, // A unique answer to the question
-   *   value: Number // The number of user responses with this answer
-   * }
-   * ```
+   *     ```js
+   *     {
+   *       name: String, // A unique answer to the question
+   *       value: Number // The number of user responses with this answer
+   *     }
+   *     ```
    */
   dataList: Array<any>;
 }
@@ -1059,4 +1059,14 @@ export interface ElementWrapperComponentNameEvent extends ElementWrapperComponen
 }
 export interface ElementWrapperComponentDataEvent extends ElementWrapperComponentEventMixin {
   data: any;
+}
+export interface ResizeEvent {
+  /**
+   * The current survey width in pixels.
+   */
+  width: number;
+  /**
+   * The current survey height in pixels.
+   */
+  height: number;
 }

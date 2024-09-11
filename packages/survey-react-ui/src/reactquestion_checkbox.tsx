@@ -45,7 +45,6 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     if (this.question.hasHeadItems) {
       return this.question.headItems.map((item: any, ii: number) =>
         this.renderItem(
-          "item_h" + ii,
           item,
           false,
           this.question.cssClasses
@@ -57,7 +56,6 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     if (this.question.hasFootItems) {
       return this.question.footItems.map((item: any, ii: number) =>
         this.renderItem(
-          "item_f" + ii,
           item,
           false,
           this.question.cssClasses
@@ -76,7 +74,6 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     return this.question.columns.map((column: Array<ItemValue>, ci: number) => {
       var items = column.map((item: any, ii: number) =>
         this.renderItem(
-          "item" + ii,
           item,
           ci === 0 && ii === 0,
           cssClasses,
@@ -101,8 +98,8 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     var renderedItems:Array<JSX.Element> = [];
     for (var i = 0; i < choices.length; i++) {
       var item = choices[i];
-      var key = "item" + i;
-      var renderedItem = this.renderItem(key, item, i == 0, cssClasses, "" + i);
+      var key = "item" + item.value;
+      var renderedItem = this.renderItem(item, i == 0, cssClasses, "" + i);
       if(!!renderedItem) {
         renderedItems.push(renderedItem);
       }
@@ -126,14 +123,13 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     );
   }
   protected renderItem(
-    key: string,
     item: any,
     isFirst: boolean,
     cssClasses: any,
     index?: string
   ): JSX.Element {
     const renderedItem = ReactElementFactory.Instance.createElement(this.question.itemComponent, {
-      key: key,
+      key: item.value,
       question: this.question,
       cssClasses: cssClasses,
       isDisplayMode: this.isDisplayMode,
@@ -151,8 +147,10 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   }
 }
 export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
+  private rootRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
+    this.rootRef = React.createRef();
   }
   protected getStateElement(): Base {
     return this.item;
@@ -175,9 +173,19 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   private get hideCaption(): boolean {
     return this.props.hideCaption === true;
   }
+  public componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    if (prevProps.item !== this.props.item && !this.question.isDesignMode) {
+      if(this.props.item) {
+        this.props.item.setRootElement(this.rootRef.current);
+      }
+      if(prevProps.item) {
+        prevProps.item.setRootElement(undefined);
+      }
+    }
+  }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
-    if(!this.question) return false;
     return (
       !this.question.customWidget ||
       !!this.question.customWidgetData.isNeedRender ||
@@ -208,7 +216,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     const itemLabel = !this.hideCaption ? <span className={this.cssClasses.controlLabel}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
 
     return (
-      <div className={itemClass} role="presentation">
+      <div className={itemClass} role="presentation" ref={this.rootRef}>
         <label className={labelClass}>
           <input
             className={this.cssClasses.itemControl}
@@ -242,6 +250,18 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         {otherItem}
       </div>
     );
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    if(!this.question.isDesignMode) {
+      this.item.setRootElement(this.rootRef.current as HTMLElement);
+    }
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    if(!this.question.isDesignMode) {
+      this.item.setRootElement(undefined as any);
+    }
   }
 }
 

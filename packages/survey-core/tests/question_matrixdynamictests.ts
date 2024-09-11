@@ -9465,6 +9465,144 @@ QUnit.test("matrix dynamic expression & checkbox valuePropertyName & sumInArray 
   assert.equal(expression.value, 12, "Calculate values correctly");
 });
 
+QUnit.test("matrix dynamic & share data in cells & detail panel, Bug8697", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text"
+          }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            name: "q2",
+            type: "text",
+            valueName: "col1"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  rows[0].showDetailPanel();
+  const col1 = rows[0].getQuestionByName("col1");
+  const q2Cell = rows[0].getQuestionByName("q2");
+  col1.value = "abc";
+  assert.equal(q2Cell.value, "abc", "#1");
+  q2Cell.value = "edf";
+  assert.equal(col1.value, "edf", "#2");
+  rows[1].getQuestionByName("col1").value = "123";
+  rows[1].showDetailPanel();
+  assert.equal(rows[1].getQuestionByName("q2").value, "123", "#3");
+});
+QUnit.test("matrix dynamic detail panel & shared matrix dynamics, Bug8697", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text"
+          }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            name: "matrix1",
+            type: "matrixdynamic",
+            valueName: "data",
+            columns: [{ cellType: "text", name: "col1" }]
+          },
+          {
+            name: "matrix2",
+            type: "matrixdynamic",
+            valueName: "data",
+            columns: [{ cellType: "text", name: "col1" }],
+            rowCount: 0
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  rows[0].showDetailPanel();
+  const matrix1 = <QuestionMatrixDynamicModel>rows[0].getQuestionByName("matrix1");
+  const matrix2 = <QuestionMatrixDynamicModel>rows[0].getQuestionByName("matrix2");
+  matrix1.visibleRows[0].getQuestionByName("col1").value = "a1";
+  matrix1.visibleRows[1].getQuestionByName("col1").value = "a2";
+  assert.deepEqual(matrix2.value, [{ col1: "a1" }, { col1: "a2" }], "#1");
+});
+QUnit.test("matrix dynamic detail panel & checkbox valuePropertyName, Bug8697", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            choices: [1, 2, 3, 4, 5],
+            valuePropertyName: "prop1"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  const checkbox = rows[0].getQuestionByName("col1");
+  checkbox.renderedValue = [1, 4];
+  assert.deepEqual(checkbox.renderedValue, [1, 4], "renderedValue #1");
+  assert.deepEqual(checkbox.value, [{ prop1: 1 }, { prop1: 4 }], "value #1");
+});
+QUnit.test("matrix dynamic detail panel & checkbox valuePropertyName & matrix dynamic in detail panel, Bug8697", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            choices: [1, 2, 3, 4, 5],
+            valuePropertyName: "prop1"
+          }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            name: "matrix1",
+            type: "matrixdynamic",
+            valueName: "col1",
+            columns: [{ cellType: "text", name: "prop1" }],
+            rowCount: 0
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  rows[0].showDetailPanel();
+  rows[0].getQuestionByName("col1").renderedValue = [1, 3, 4, 5];
+  let matrix1 = <QuestionMatrixDynamicModel>rows[0].getQuestionByName("matrix1");
+  assert.deepEqual(matrix1.value, [{ prop1: 1 }, { prop1: 3 }, { prop1: 4 }, { prop1: 5 }], "#1");
+  rows[1].getQuestionByName("col1").renderedValue = [3];
+  rows[1].showDetailPanel();
+  matrix1 = <QuestionMatrixDynamicModel>rows[1].getQuestionByName("matrix1");
+  assert.deepEqual(matrix1.value, [{ prop1: 3 }], "#2");
+});
 QUnit.test("Totals alingment", function (assert) {
   var json = {
     pages: [
@@ -9627,8 +9765,8 @@ QUnit.test("table: check animation options", function (assert) {
   });
   survey.css = {
     "matrixdynamic": {
-      rowFadeIn: "enter",
-      rowFadeOut: "leave",
+      rowEnter: "enter",
+      rowLeave: "leave",
     }
   };
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -9648,14 +9786,17 @@ QUnit.test("table: check animation options", function (assert) {
   const enterOptions = options.getEnterOptions(renderedTable.rows[1]);
   enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(rowHtmlElement);
   assert.equal(enterOptions.cssClass, "enter");
-  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "20px");
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height-to"), "20px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(rowHtmlElement);
+  assert.notOk(questionHtmlElement.style.getPropertyValue("--animation-height-to"));
 
   questionHtmlElement.style.height = "40px";
   const leaveOptions = options.getLeaveOptions(renderedTable.rows[1]);
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(rowHtmlElement);
   assert.equal(leaveOptions.cssClass, "leave");
-  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "40px");
-
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height-to"), "40px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(rowHtmlElement);
+  assert.notOk(questionHtmlElement.style.getPropertyValue("--animation-height-to"));
   tableHtmlElement.remove();
 });
 QUnit.test("set data from the survey", function (assert) {
@@ -9707,4 +9848,118 @@ QUnit.test("set data from the defaultValue and ignore rowCount", function (asser
   survey.data = { matrix: [{ col1: 1 }] };
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   assert.equal(matrix.visibleRows.length, 1, "There one row");
+});
+
+QUnit.test("check cell.isVisible property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1"
+          },
+          {
+            "name": "col1",
+            "visibleIf": "{row.col1} = 1"
+          },
+        ],
+        "choices": [
+          1,
+        ],
+        "rows": [
+          "row1",
+          "row2"
+        ]
+      }
+    ] });
+  survey.data = { matrix: { row1: { col1: 1 } } };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let renderedTable = matrix.renderedTable;
+  assert.ok(renderedTable.rows[0].cells[0].isVisible);
+  assert.ok(renderedTable.rows[0].cells[1].isVisible);
+  assert.ok(renderedTable.rows[0].cells[2].isVisible);
+  assert.ok(renderedTable.rows[1].cells[0].isVisible);
+  assert.ok(renderedTable.rows[1].cells[1].isVisible);
+  assert.ok(renderedTable.rows[1].cells[2].isVisible);
+  assert.ok(renderedTable.rows[2].cells[0].isVisible);
+  assert.ok(renderedTable.rows[2].cells[1].isVisible);
+  assert.ok(renderedTable.rows[2].cells[2].isVisible);
+  assert.ok(renderedTable.rows[3].cells[0].isVisible);
+  assert.ok(renderedTable.rows[3].cells[1].isVisible);
+  assert.ok(renderedTable.rows[3].cells[2].isVisible);
+  matrix.isMobile = true;
+  renderedTable = matrix.renderedTable;
+  assert.ok(renderedTable.rows[0].cells[0].isVisible);
+  assert.ok(renderedTable.rows[0].cells[1].isVisible);
+  assert.ok(renderedTable.rows[0].cells[2].isVisible);
+  assert.ok(renderedTable.rows[0].cells[3].isVisible);
+  assert.ok(renderedTable.rows[0].cells[4].isVisible);
+  assert.ok(renderedTable.rows[1].cells[0].isVisible);
+  assert.ok(renderedTable.rows[1].cells[1].isVisible);
+  assert.ok(renderedTable.rows[1].cells[2].isVisible);
+  assert.notOk(renderedTable.rows[1].cells[3].isVisible);
+  assert.notOk(renderedTable.rows[1].cells[4].isVisible);
+  survey.data = { matrix: { row1: { col1: 1 }, row2: { col1: 1 } } };
+  assert.ok(renderedTable.rows[0].cells[0].isVisible);
+  assert.ok(renderedTable.rows[0].cells[1].isVisible);
+  assert.ok(renderedTable.rows[0].cells[2].isVisible);
+  assert.ok(renderedTable.rows[0].cells[3].isVisible);
+  assert.ok(renderedTable.rows[0].cells[4].isVisible);
+  assert.ok(renderedTable.rows[1].cells[0].isVisible);
+  assert.ok(renderedTable.rows[1].cells[1].isVisible);
+  assert.ok(renderedTable.rows[1].cells[2].isVisible);
+  assert.ok(renderedTable.rows[1].cells[3].isVisible);
+  assert.ok(renderedTable.rows[1].cells[4].isVisible);
+});
+
+QUnit.test("check displayMode property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1"
+          },
+          {
+            "name": "col1",
+          },
+        ],
+        "choices": [
+          1,
+        ],
+        "rows": [
+          "row1",
+          "row2"
+        ]
+      }
+    ] });
+  const question = <QuestionMatrixDropdownModel>survey.getAllQuestions()[0];
+  survey.css = { question: { mobile: "test_mobile" } };
+  question.isMobile = true;
+  assert.equal(question.displayMode, "auto");
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+
+  question.isMobile = true;
+  question.displayMode = "table";
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+
+  question.isMobile = true;
+  question.displayMode = "list";
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
 });

@@ -13,6 +13,7 @@ import { ActionContainer } from "./actions/container";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { settings } from "./settings";
 import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
+import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/utils";
 
 export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
@@ -97,6 +98,9 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   public get cellQuestionWrapperClassName(): string {
     return this.cell.getQuestionWrapperClassName(this.matrix.cssClasses.cellQuestionWrapper);
+  }
+  public get isVisible(): boolean {
+    return (!this.hasQuestion && !this.isErrorsCell) || !this.matrix?.isMobile || this.question.isVisible;
   }
   public get showResponsiveTitle(): boolean {
     return this.hasQuestion && this.matrix?.isMobile;
@@ -241,9 +245,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return super.getIsAnimationAllowed() && this.matrix.animationAllowed;
   }
   private getRenderedRowsAnimationOptions(): IAnimationGroupConsumer<QuestionMatrixDropdownRenderedRow> {
-    const beforeAnimationRun = (el: HTMLElement) => {
+    const onBeforeRunAnimation = (el: HTMLElement) => {
       el.querySelectorAll(":scope > td > *").forEach((el:HTMLElement) => {
-        el.style.setProperty("--animation-height", el.offsetHeight + "px");
+        prepareElementForVerticalAnimation(el);
+      });
+    };
+    const onAfterRunAnimation = (el: HTMLElement) => {
+      el.querySelectorAll(":scope > td > *").forEach((el:HTMLElement) => {
+        cleanHtmlElementAfterAnimation(el);
       });
     };
     return {
@@ -255,10 +264,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         return el.getRootElement();
       },
       getLeaveOptions: () => {
-        return { cssClass: this.cssClasses.rowFadeOut, onBeforeRunAnimation: beforeAnimationRun };
+        return { cssClass: this.cssClasses.rowLeave, onBeforeRunAnimation, onAfterRunAnimation };
       },
-      getEnterOptions: () => {
-        return { cssClass: this.cssClasses.rowFadeIn, onBeforeRunAnimation: beforeAnimationRun };
+      getEnterOptions: (_, info) => {
+        return { cssClass: this.cssClasses.rowEnter, onBeforeRunAnimation, onAfterRunAnimation };
       }
     };
   }
@@ -1093,9 +1102,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedCell {
     var cell = new QuestionMatrixDropdownRenderedCell();
     cell.locTitle = locTitle;
-    if (!!locTitle) {
-      locTitle.strChanged();
-    }
     if (!!this.cssClasses.cell) {
       cell.className = this.cssClasses.cell;
     }

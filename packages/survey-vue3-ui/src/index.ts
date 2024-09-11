@@ -103,6 +103,7 @@ import SurveyNavigationButton from "./components/survey-actions/SurveyNavigation
 import PopupSurvey from "./PopupSurvey.vue";
 import CustomWidget from "./CustomWidget.vue";
 import PopupModal from "./components/popup/PopupModal.vue";
+import TextAreaComponent from "./components/TextArea.vue";
 import CharacterCounterComponent from "./components/CharacterCounter.vue";
 import Composite from "./Composite.vue";
 import Custom from "./Custom.vue";
@@ -430,7 +431,6 @@ function registerComponents() {
     "sv-loading-indicator",
     LoadingIndicator
   );
-
   ComponentFactory.Instance.registerComponent("sv-header", Header);
   ComponentFactory.Instance.registerComponent("sv-header-cell", HeaderCell);
   ComponentFactory.Instance.registerComponent("sv-header-mobile", HeaderMobile);
@@ -442,7 +442,14 @@ function registerComponents() {
     "sv-template-renderer",
     TemplateRenderer
   );
-
+  ComponentFactory.Instance.registerComponent(
+    "sv-character-counter",
+    CharacterCounterComponent
+  );
+  ComponentFactory.Instance.registerComponent(
+    "sv-text-area",
+    TextAreaComponent
+  );
   ComponentFactory.Instance.registerComponent("survey-element", Element);
 
   ComponentFactory.Instance.registerComponent(

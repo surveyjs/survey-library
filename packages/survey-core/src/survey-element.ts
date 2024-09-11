@@ -21,8 +21,8 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
-import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
-import { classesToSelector } from "./utils/utils";
+import { IAnimationConsumer, AnimationBoolean, AnimationProperty } from "./utils/animation";
+import { classesToSelector, cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
 /**
@@ -77,7 +77,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
    * Returns `true` if the survey element has a description.
    * @see description
   */
-  @property() hasDescription: boolean;
+  @property({}) hasDescription: boolean;
   /**
    * Explanatory text displayed under the title.
    * @see hasDescription
@@ -1096,17 +1096,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private getExpandCollapseAnimationOptions(): IAnimationConsumer {
     const beforeRunAnimation = (el: HTMLElement) => {
       this.isAnimatingCollapseExpand = true;
-      el.style.setProperty("--animation-height", el.offsetHeight + "px");
+      prepareElementForVerticalAnimation(el);
     };
     const afterRunAnimation = (el: HTMLElement) => {
       this.isAnimatingCollapseExpand = false;
+      cleanHtmlElementAfterAnimation(el);
     };
     return {
       getRerenderEvent: () => this.onElementRerendered,
       getEnterOptions: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
         return {
-          cssClass: cssClasses.contentFadeIn,
+          cssClass: cssClasses.contentEnter,
           onBeforeRunAnimation: beforeRunAnimation,
           onAfterRunAnimation: (el) => {
             afterRunAnimation(el);
@@ -1116,8 +1117,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       },
       getLeaveOptions: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
-        return {
-          cssClass: cssClasses.contentFadeOut,
+        return { cssClass: cssClasses.contentLeave,
           onBeforeRunAnimation: beforeRunAnimation,
           onAfterRunAnimation: afterRunAnimation
         };

@@ -13,6 +13,7 @@ export var englishStrings = {
   refuseItemText: "Refuse to answer",
   dontKnowItemText: "Don't know",
   selectAllItemText: "Select All",
+  deselectAllItemText: "Deselect all",
   progressText: "Page {0} of {1}",
   indexText: "{0} of {1}",
   panelDynamicProgressText: "{0} of {1}",
@@ -112,5 +113,4 @@ export var englishStrings = {
 // Uncomment the lines below if you create a custom dictionary.
 // Replace "en" with a custom locale code (for example, "fr" or "de"),
 // Replace `englishStrings` with the name of the variable that contains the custom dictionary.
-// surveyLocalization.locales["en"] = englishStrings;
-// surveyLocalization.localeNames["en"] = "English";
+//surveyLocalization.setupLocale("en", englishStrings, "English", "English");

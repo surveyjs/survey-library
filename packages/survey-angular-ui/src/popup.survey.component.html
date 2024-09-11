@@ -15,7 +15,7 @@
             <svg *ngIf="popup.isCollapsed" [iconName]="'icon-restore_16x16'" [size]="16" sv-ng-svg-icon></svg>
         </div>
 
-        <div *ngIf="popup.allowClose" [class]="popup.cssHeaderCloseButton" (click)="popup.hide()">
+        <div *ngIf="popup.allowClose" [class]="popup.cssHeaderCloseButton" (click)="closeHandler()">
           <svg [iconName]="'icon-close_16x16'" [size]="16" sv-ng-svg-icon></svg>
         </div>
       </div>

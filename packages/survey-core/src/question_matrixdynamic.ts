@@ -735,11 +735,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get hasRowText(): boolean {
     return false;
   }
-  protected onCheckForErrors(
-    errors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ) {
-    super.onCheckForErrors(errors, isOnValueChanged);
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (!isOnValueChanged && this.hasErrorInMinRows()) {
       errors.push(new MinRowCountError(this.minRowCount, this));
     }

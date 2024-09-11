@@ -121,7 +121,7 @@
   }
 }
 
-.sd-root-modern:not(.sd-root-modern--mobile) {
+.sd-question:not(.sd-question--mobile) {
   .sd-table--alternate-rows {
     margin-left: calcSize(1);
     margin-right: calcSize(1);
@@ -288,13 +288,13 @@
 }
 
 .sd-table__cell--footer {
-  text-align: right;
+  text-align: end;
   padding-top: calcSize(1);
 }
 
 .sd-table__cell--footer-total {
   font-weight: 600;
-  text-align: left;
+  text-align: start;
 }
 
 .sd-table__cell--detail-panel {
@@ -358,7 +358,7 @@
 .sd-table__cell--row-text {
   font-weight: $font-questiontitle-weight;
   color: $font-questiontitle-color;
-  text-align: left;
+  text-align: start;
   min-width: calcSize(12);
   padding: calcSize(1.5) calcSize(1);
 }
@@ -521,15 +521,15 @@
 }
 
 @mixin table_responsive {
-  .sd-question.sd-question--table {
+  &.sd-question.sd-question--table {
     & > .sd-question__content {
       padding-top: 0;
       --animation-padding-top: 0;
     }
   }
 
-  .sd-question--table,
-  .sd-question--scroll {
+  &.sd-question--table,
+  &.sd-question--scroll {
     overflow-x: visible;
   }
 
@@ -541,7 +541,7 @@
 
     .sd-matrix__responsive-title {
       margin-left: calcSize(1);
-      text-align: left;
+      text-align: start;
     }
 
     &:first-of-type {
@@ -642,7 +642,7 @@
     display: block;
     padding-top: 0;
     padding-bottom: 0;
-    text-align: left;
+    text-align: start;
   }
 
   .sd-table__cell {
@@ -672,7 +672,7 @@
     padding-bottom: calcSize(1);
     font-weight: 600;
     display: block;
-    text-align: left;
+    text-align: start;
     .sv-string-viewer {
       white-space: normal;
     }
@@ -766,6 +766,15 @@
       margin-bottom: calcSize(1);
     }
   }
+  .sd-table__question-wrapper {
+    .sd-boolean-root {
+      margin: initial;
+    }
+  }
+}
+
+.sd-question--mobile {
+  @include table_responsive();
 }
 
 .sd-table__cell--detail-panel {
@@ -774,17 +783,10 @@
   }
 }
 
+
 .sd-table__question-wrapper {
   .sd-boolean-root {
     margin: auto;
-  }
-}
-
-.sd-root-modern--mobile {
-  .sd-table__question-wrapper {
-    .sd-boolean-root {
-      margin: initial;
-    }
   }
 }
 

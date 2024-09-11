@@ -108,8 +108,7 @@ export var estonianSurveyStrings = {
   cancel: "Tühistama"
 };
 
-surveyLocalization.locales["et"] = estonianSurveyStrings;
-surveyLocalization.localeNames["et"] = "eesti keel";
+surveyLocalization.setupLocale("et", estonianSurveyStrings, "eesti keel", "Estonian");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

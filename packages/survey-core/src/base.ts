@@ -630,18 +630,8 @@ export class Base {
       propertyName: item.ownerPropertyName,
     });
   }
-  protected onPropertyValueChanged(
-    name: string,
-    oldValue: any,
-    newValue: any
-  ) { }
-  protected propertyValueChanged(
-    name: string,
-    oldValue: any,
-    newValue: any,
-    arrayChanges?: ArrayChanges,
-    target?: Base
-  ) {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void { }
+  protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     if (this.isLoadingFromJson) return;
     this.updateBindings(name, newValue);
     this.onPropertyValueChanged(name, oldValue, newValue);
@@ -649,8 +639,9 @@ export class Base {
       name: name,
       oldValue: oldValue,
       newValue: newValue,
+      arrayChanges: arrayChanges,
+      target: target
     });
-
     this.doPropertyValueChangedCallback(
       name,
       oldValue,
@@ -1168,6 +1159,7 @@ export class Base {
     this.onElementRenderedEventEnabled = true;
   }
   public disableOnElementRenderedEvent(): void {
+    this.onElementRerendered?.fire(this, { isCancel: true });
     this.onElementRenderedEventEnabled = false;
   }
   protected _onElementRerendered: EventBase<Base> = new EventBase();
@@ -1175,7 +1167,7 @@ export class Base {
     return this.supportOnElementRenderedEvent && this.onElementRenderedEventEnabled ? this._onElementRerendered : undefined;
   }
   public afterRerender(): void {
-    this.onElementRerendered?.fire(this, undefined);
+    this.onElementRerendered?.fire(this, { isCancel: false });
   }
 }
 

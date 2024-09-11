@@ -1,17 +1,14 @@
 ﻿<script type="text/html" id="survey-question-comment">
-<!--ko if: !question.isReadOnlyRenderDiv() -->
-<textarea data-bind="attr: {'readonly': question.isReadOnlyAttr, 'disabled': question.isDisabledAttr, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.renderedPlaceholder, 'aria-required': question.a11y_input_ariaRequired, 'aria-label': question.a11y_input_ariaLabel, 'aria-labelledby': question.a11y_input_ariaLabelledBy, 'aria-describedby': question.a11y_input_ariaDescribedBy, 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-errormessage': question.a11y_input_ariaErrormessage}, 
-  event: { input:function(s, e){ question.onInput(e); }, keydown:function(s, e){ question.onKeyDown(e); return true; }, focus: function(s, e){ question.onFocus(e); return true; }, blur:function(s, e){ question.onBlur(e); return true; } }, 
-  value: question.value, 
-  style: { resize: question.resizeStyle },
-  css: question.className"></textarea>
-  <!--ko if: question.getMaxLength() -->
+<!-- ko if: !question.isReadOnlyRenderDiv() -->
+  <!-- ko component: { name: 'sv-text-area', params: question.textAreaModel } -->
+  <!-- /ko -->
+  <!-- ko if: question.getMaxLength() -->
   <!-- ko component: { name: 'sv-character-counter', params: { counter: question.characterCounter, remainingCharacterCounter: question.cssClasses.remainingCharacterCounter } } -->
   <!-- /ko -->
-  <!--/ko-->
+  <!-- /ko-->
 <!--/ko-->
 
-<!--ko if: question.isReadOnlyRenderDiv() -->
+<!-- ko if: question.isReadOnlyRenderDiv() -->
 <div data-bind="text: question.value"></div>
-<!--/ko-->
+<!-- /ko-->
 </script>

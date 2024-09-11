@@ -441,6 +441,9 @@ QUnit.test("Question Signature upload files", function (assert) {
   q1.valueWasChangedFromLastUpload = true;
   q1.onBlur({ target: null } as any);
 
+  const width = 300 / window.devicePixelRatio;
+  const height = 200 / window.devicePixelRatio;
+
   survey.onValueChanged.add((survey, options) => {
     assert.equal(q1.value, "signature.svg_url");
     assert.ok(eventFired);
@@ -448,7 +451,7 @@ QUnit.test("Question Signature upload files", function (assert) {
 
     assert.equal(fileType, "image/svg+xml");
     assert.equal(fileName, "signature.svg");
-    assert.equal(fileContent, "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 200" width="300" height="200"><circle r="1.5" cx="9" cy="11" fill="rgba(25, 179, 148, 1)"></circle><circle r="1.5" cx="15" cy="18" fill="rgba(25, 179, 148, 1)"></circle></svg>'));
+    assert.equal(fileContent, "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ' + width + " " + height + '" width="' + width + '" height="' + height + '"><circle r="1.5" cx="9" cy="11" fill="rgba(25, 179, 148, 1)"></circle><circle r="1.5" cx="15" cy="18" fill="rgba(25, 179, 148, 1)"></circle></svg>'));
     done();
   });
 });

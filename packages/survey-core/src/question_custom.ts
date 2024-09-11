@@ -642,8 +642,8 @@ export abstract class QuestionCustomModelBase extends Question
     super.setNewValue(newValue);
     this.updateElementCss();
   }
-  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
-    super.onCheckForErrors(errors, isOnValueChanged);
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (!!this.customQuestion) {
       const text = this.customQuestion.onGetErrorText(this);
       if(!!text) {

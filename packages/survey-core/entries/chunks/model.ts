@@ -292,6 +292,7 @@ export { InputMaskNumeric } from "../../src/mask/mask_numeric";
 export { InputMaskDateTime } from "../../src/mask/mask_datetime";
 export { InputMaskCurrency } from "../../src/mask/mask_currency";
 export * from "../../src/utils/cssClassBuilder";
+export * from "../../src/utils/text-area";
 
 export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../src/defaultCss/defaultV2Css";
 

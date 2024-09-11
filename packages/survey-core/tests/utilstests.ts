@@ -1,11 +1,11 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays } from "../src/utils/utils";
+import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays, setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation } from "../src/utils/utils";
 import { mouseInfo, detectMouseSupport, MatchMediaMethod } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
 import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationTab, AnimationUtils, IAnimationConsumer, IAnimationGroupConsumer } from "../src/utils/animation";
-import { EventBase } from "../src/base";
+import { Base, EventBase } from "../src/base";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
@@ -497,11 +497,12 @@ QUnit.test("Test animation utils: leave animation", (assert) => {
   assert.equal(log, "->beforeRunAnimation");
   assert.ok(htmlElement.classList.contains("leave"));
   htmlElement.dispatchEvent(new AnimationEvent("animationend"));
-  assert.equal(log, "->beforeRunAnimation->afterRunAnimation->updated");
+  assert.equal(log, "->beforeRunAnimation->updated");
   assert.ok(htmlElement.classList.contains("leave"));
   setTimeout(() => {
     setTimeout(() => {
       assert.notOk(htmlElement.classList.contains("leave"));
+      assert.equal(log, "->beforeRunAnimation->updated->afterRunAnimation");
       window.requestAnimationFrame = oldRequestAnimationFrame;
       htmlElement.remove();
       done();
@@ -617,15 +618,17 @@ QUnit.test("Test animation utils: group leave animation", (assert) => {
     htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
     htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
     htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
-    assert.equal(log, "->afterRunAnimation_0->afterRunAnimation_1->afterRunAnimation_2->updated");
+    assert.equal(log, "->updated");
     assert.ok(htmlElements[0].classList.contains("leave_0"));
     assert.ok(htmlElements[1].classList.contains("leave_1"));
     assert.ok(htmlElements[2].classList.contains("leave_2"));
+    log = "";
     setTimeout(() => {
       setTimeout(() => {
         assert.notOk(htmlElements[0].classList.contains("leave_0"));
         assert.notOk(htmlElements[1].classList.contains("leave_1"));
         assert.notOk(htmlElements[2].classList.contains("leave_2"));
+        assert.equal(log, "->afterRunAnimation_0->afterRunAnimation_1->afterRunAnimation_2");
         htmlElements.forEach(el => el.remove());
         window.requestAnimationFrame = oldRequestAnimationFrame;
         done();
@@ -679,14 +682,14 @@ QUnit.test("Test animation property: boolean", (assert) => {
     log += `->updated: ${val}`;
   }, () => value);
   animation["_sync"](true);
-  animation["animationOptions"].getRerenderEvent().fire(undefined as any, undefined);
+  animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
   element.dispatchEvent(new AnimationEvent("animationend"));
   assert.equal(log, "->updated: true->before-enter->after-enter");
 
   log = "";
   animation["_sync"](false);
   element.dispatchEvent(new AnimationEvent("animationend"));
-  assert.equal(log, "->before-leave->after-leave->updated: false");
+  assert.equal(log, "->before-leave->updated: false->after-leave");
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
@@ -738,7 +741,7 @@ QUnit.test("Test animation property: array", (assert) => {
     log += `->updated: ${val}`;
   }, () => elements);
   animation["_sync"]([0, 1, 2, 3]);
-  animation["animationOptions"].getRerenderEvent().fire(undefined as any, undefined);
+  animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
   assert.equal(log, "->updated: 0,1,2,3->before-enter_1->before-enter_2->after-enter_1->after-enter_2");
@@ -747,7 +750,7 @@ QUnit.test("Test animation property: array", (assert) => {
   animation["_sync"]([1, 2]);
   htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[3].dispatchEvent(new AnimationEvent("animationend"));
-  assert.equal(log, "->before-leave_0->before-leave_3->after-leave_0->after-leave_3->updated: 1,2");
+  assert.equal(log, "->before-leave_0->before-leave_3->updated: 1,2->after-leave_0->after-leave_3");
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
@@ -805,20 +808,20 @@ QUnit.test("Test animation tab", (assert) => {
   assert.deepEqual(elements, [1, 0]);
   assert.equal(log, "->updated: 1,0");
   log = "";
-  animation["animationOptions"].getRerenderEvent().fire(undefined as any, undefined);
+  animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
   htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
-  assert.equal(log, "->before-enter_1->before-leave_0->after-leave_0->after-enter_1->updated: 1");
+  assert.equal(log, "->before-enter_1->before-leave_0->updated: 1->after-enter_1->after-leave_0");
   assert.deepEqual(elements, [1]);
   log = "";
   animation["_sync"]([0]);
   assert.deepEqual(elements, [0, 1]);
   assert.equal(log, "->updated: 0,1");
   log = "";
-  animation["animationOptions"].getRerenderEvent().fire(undefined as any, undefined);
+  animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
   htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
-  assert.equal(log, "->before-enter_0->before-leave_1->after-enter_0->after-leave_1->updated: 0");
+  assert.equal(log, "->before-enter_0->before-leave_1->updated: 0->after-enter_0->after-leave_1");
   assert.deepEqual(elements, [0]);
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
@@ -977,7 +980,7 @@ QUnit.test("test onNextRender function", (assert) => {
     log+= "->cancelled";
   });
   assert.equal(log, "");
-  rerenderEvent.fire(undefined, undefined);
+  rerenderEvent.fire(undefined, {});
   assert.equal(log, "->callback");
   assert.ok(rerenderEvent.isEmpty);
   assert.notOk(!!animation["cancelCallback"]);
@@ -1036,7 +1039,54 @@ QUnit.test("test onNextRender function", (assert) => {
   window.requestAnimationFrame = oldRequestAnimationFrame;
   window.cancelAnimationFrame = oldCancelAnimationFrame;
 });
+QUnit.test("check animation when rerendered event fired with isCanceled option", (assert) => {
+  const rerenderEvent = new EventBase<Base, any>();
+  const htmlElement = document.createElement("div");
+  let log = "";
+  let value = false;
+  const animation = new AnimationBoolean({
+    getRerenderEvent() {
+      return rerenderEvent;
+    },
+    isAnimationEnabled() {
+      return true;
+    },
+    getEnterOptions() {
+      log += "->getEnterOptions";
+      return {} as any;
+    },
+    getLeaveOptions() {
+      log += "->getEnterOptions";
+      return {} as any;
+    },
+    getAnimatedElement() {
+      return htmlElement;
+    },
+  }, (val) => {
+    value = val;
+    log += "->updated"; }, () => value);
+
+  assert.equal(rerenderEvent.length, 0);
+  assert.equal(log, "");
+  animation["_sync"](true);
+  assert.equal(rerenderEvent.length, 1);
+  rerenderEvent.fire(null as any, { isCancel: true });
+  assert.equal(log, "->updated");
+  assert.equal(value, true);
+});
 QUnit.test("getSafeUrl", (assert) => {
   assert.equal(getSafeUrl("https://surveyjs.io"), "https://surveyjs.io", "https://surveyjs.io");
   assert.equal(getSafeUrl("javascript:alert('1')"), "javascript%3Aalert('1')", "javascript:alert('1')");
+});
+
+QUnit.test("animation helper functions", (assert) => {
+  const el = document.createElement("div");
+  setPropertiesOnElementForAnimation(el, { height: "200px", marginTop: "300px" });
+  assert.deepEqual(el["__sv_created_properties"], ["--animation-height", "--animation-margin-top"]);
+  assert.equal(el.style.getPropertyValue("--animation-height"), "200px");
+  assert.equal(el.style.getPropertyValue("--animation-margin-top"), "300px");
+  cleanHtmlElementAfterAnimation(el);
+  assert.equal(el["__sv_created_properties"], undefined);
+  assert.equal(el.style.getPropertyValue("--animation-height"), "");
+  assert.equal(el.style.getPropertyValue("--animation-margin-top"), "");
 });

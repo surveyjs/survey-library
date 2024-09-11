@@ -108,8 +108,7 @@ export var germanSurveyStrings = {
   cancel: "Abbrechen"
 };
 
-surveyLocalization.locales["de"] = germanSurveyStrings;
-surveyLocalization.localeNames["de"] = "deutsch";
+surveyLocalization.setupLocale("de", germanSurveyStrings, "deutsch", "German");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

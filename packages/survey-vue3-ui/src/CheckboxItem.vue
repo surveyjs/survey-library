@@ -1,5 +1,5 @@
 <template>
-  <div role="presentation" :class="question.getItemClass(item)">
+  <div role="presentation" :class="question.getItemClass(item)" ref="root">
     <label :class="question.getLabelClass(item)">
       <input
         type="checkbox"
@@ -36,7 +36,9 @@
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
 import type { ItemValue, QuestionCheckboxModel } from "survey-core";
-import { useBase } from "./base";
+import { ref } from "vue";
+import { useSelectBaseItem } from "./selectbase-item";
+const root = ref<HTMLElement>();
 
 defineOptions({ inheritAttrs: false });
 
@@ -46,7 +48,11 @@ const props = defineProps<{
   hideLabel?: boolean;
 }>();
 
-useBase(() => props.item);
+useSelectBaseItem(
+  () => props.item,
+  () => props.question,
+  root
+);
 
 const change = (event: any) => {
   props.question.clickItemHandler(props.item, event.target.checked);

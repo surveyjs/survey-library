@@ -1,10 +1,4 @@
-<textarea *ngIf="!question.isReadOnlyRenderDiv()" [id]="question.commentId" [attr.maxlength]="question.getOthersMaxLength()"  [attr.aria-required]="question.ariaRequired || question.a11y_input_ariaRequired" [attr.aria-label]="question.ariaLabel || question.a11y_input_ariaLabel" [attr.placeholder]="question.renderedCommentPlaceholder" 
-  [value]="comment"
-  [style.resize]="question.resizeStyle"
-  [attr.rows]="question.commentAreaRows"
-  [disabled]="question.isInputReadOnly"
-  (change)="question.onCommentChange($event)"
-  (input)="question.onCommentInput($event)"
-  [class]="question.cssClasses.other">
-</textarea>
+<ng-container *ngIf="!question.isReadOnlyRenderDiv()">
+  <ng-template [component]="{ name: 'sv-text-area', data: { model: question.commentTextAreaModel } }"></ng-template>
+</ng-container>
 <div *ngIf="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>

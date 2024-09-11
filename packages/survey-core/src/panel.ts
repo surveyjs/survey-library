@@ -1952,6 +1952,9 @@ export class PanelModelBase extends SurveyElement<Question>
   public get cssTitleNumber(): string {
     return this.cssClasses.panel.number;
   }
+  public get cssRequiredText(): string {
+    return this.cssClasses.panel.requiredText;
+  }
 
   public get cssError(): string {
     return this.getCssError(this.cssClasses);

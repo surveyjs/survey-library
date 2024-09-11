@@ -41,6 +41,9 @@ export class PageModel extends PanelModelBase implements IPage {
   public get cssTitleNumber(): string {
     return this.cssClasses.page.number;
   }
+  public get cssRequiredText(): string {
+    return "";
+  }
   protected canShowPageNumber(): boolean {
     return this.survey && (<any>this.survey).showPageNumbers;
   }

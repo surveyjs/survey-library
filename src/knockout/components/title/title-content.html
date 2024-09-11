@@ -4,7 +4,7 @@
 <!-- ko ifnot: element.isTitleRenderedAsString -->
   <!-- ko if: element.isRequireTextOnStart -->
   <span
-    data-bind="css: element.cssClasses.requiredText || (element.cssClasses.panel && element.cssClasses.panel.requiredText), text: element.requiredText, attr: { 'aria-hidden': true }"
+    data-bind="css: element.cssRequiredText, text: element.requiredText, attr: { 'aria-hidden': true }"
   ></span>
   <!-- /ko -->
   <!-- ko if: element.no -->
@@ -16,7 +16,7 @@
   <!-- /ko -->
   <!-- ko if: element.isRequireTextBeforeTitle -->
   <span
-    data-bind="css: element.cssClasses.requiredText || (element.cssClasses.panel && element.cssClasses.panel.requiredText), text: element.requiredText, attr: { 'aria-hidden': true }"
+    data-bind="css: element.cssRequiredText, text: element.requiredText, attr: { 'aria-hidden': true }"
   ></span>
   <span>&nbsp</span>
   <!-- /ko -->
@@ -24,7 +24,7 @@
   <!-- ko if: element.isRequireTextAfterTitle -->
   <span>&nbsp</span>
   <span
-    data-bind="css: element.cssClasses.requiredText || (element.cssClasses.panel && element.cssClasses.panel.requiredText), text: element.requiredText, attr: { 'aria-hidden': true }"
+    data-bind="css: element.cssRequiredText, text: element.requiredText, attr: { 'aria-hidden': true }"
   ></span>
   <!-- /ko -->
 <!-- /ko -->

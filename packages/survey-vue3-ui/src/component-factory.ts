@@ -6,7 +6,7 @@ export class ComponentFactory {
     this.creatorHash[typeName] = componentType;
   }
   public getComponent(typeName: string): any {
-    return this.creatorHash[typeName];
+    return this.creatorHash[typeName] || typeName;
   }
   public getAllTypes(): Array<string> {
     const result = new Array<string>();

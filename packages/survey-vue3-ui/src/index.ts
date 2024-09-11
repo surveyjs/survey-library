@@ -129,6 +129,7 @@ import ButtonGroupItem from "./buttongroup/ButtonGroupItem.vue";
 import Logo from "./Logo.vue";
 import SvgBundle from "./SvgBundle.vue";
 import { ComponentFactory } from "./component-factory";
+import { key2ClickDirective } from "./directives/key2click";
 
 export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
 export { ComponentFactory };
@@ -293,6 +294,7 @@ export const surveyPlugin = {
   install(app: App) {
     app.component("SurveyComponent", SurveyVue);
     app.component("PopupSurveyComponent", PopupSurvey);
+    app.directive("key2click", key2ClickDirective);
     registerComponents((name, component) => {
       app.component(name, component);
       ComponentFactory.Instance.registerComponent(name, name);

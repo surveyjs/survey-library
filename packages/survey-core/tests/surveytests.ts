@@ -15706,7 +15706,7 @@ QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", as
   assert.equal(survey.pages[0].cssTitle, "sv_page_title", "page css");
   assert.ok(survey.getQuestionByName("q1").getTitleOwner());
   assert.ok((<PanelModel>survey.getPanelByName("p1")).getTitleOwner());
-  assert.notOk(survey.pages[0].getTitleOwner());
+  assert.ok(survey.pages[0].getTitleOwner());
   assert.notOk(survey.getTitleOwner());
 });
 QUnit.test("settings titleTagName and survey.onGetTitleTagName", assert => {

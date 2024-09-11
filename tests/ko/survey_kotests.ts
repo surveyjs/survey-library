@@ -479,10 +479,10 @@ QUnit.test("Update page.title correctly with numbers", function (assert) {
   survey.showPageNumbers = true;
   survey.currentPageNo = 1;
   assert.equal(survey.currentPage.locTitle["koRenderedHtml"](), "title 2", "It shows page as second");
-  assert.equal(survey.currentPage.no, "2.", "It shows page as second");
+  assert.equal(survey.currentPage.no, "2. ", "It shows page as second");
   survey.pages[0].visible = false;
   assert.equal(survey.currentPage.locTitle["koRenderedHtml"](), "title 2", "It shows page as first");
-  assert.equal(survey.currentPage.no, "1.", "It shows page as first");
+  assert.equal(survey.currentPage.no, "1. ", "It shows page as first");
 });
 
 QUnit.test(

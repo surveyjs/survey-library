@@ -295,6 +295,9 @@ export const surveyPlugin = {
     app.component("SurveyComponent", SurveyVue);
     app.component("survey", SurveyVue);
     app.component("PopupSurveyComponent", PopupSurvey);
-    registerComponents((name, component) => app.component(name, component));
+    registerComponents((name, component) => {
+      app.component(name, component);
+      ComponentFactory.Instance.registerComponent(name, name);
+    });
   },
 };

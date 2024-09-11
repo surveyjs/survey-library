@@ -71,7 +71,7 @@
         </div>
       </div>
       <div :class="surveyWindow.cssBody">
-        <SvComponent :is="getSvComponentName()" :survey="survey"> </SvComponent>
+        <SurveyComponent :survey="survey"></SurveyComponent>
       </div>
     </div>
   </div>
@@ -82,6 +82,7 @@ import SvComponent from "@/SvComponent.vue";
 import { PopupSurveyModel, type SurveyModel } from "survey-core";
 import { shallowRef, type ShallowRef, watch, onUnmounted } from "vue";
 import { useBase } from "./base";
+import SurveyComponent from "./Survey.vue";
 
 const props = defineProps<{
   survey: SurveyModel;
@@ -105,9 +106,6 @@ const doHide = () => {
 };
 const doToggleFullScreen = () => {
   surveyWindow.value.toggleFullScreen();
-};
-const getSvComponentName = () => {
-  return "SvComponent";
 };
 const doScroll = () => {
   surveyWindow.value.onScroll();

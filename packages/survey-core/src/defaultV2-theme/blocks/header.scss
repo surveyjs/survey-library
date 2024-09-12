@@ -5,15 +5,13 @@
 
 .sv-header__overlap {
   padding-bottom: calcSize(8);
-
+  box-sizing: content-box;
   &~div {
-
     .sd-body,
     .sv-body {
       margin-top: calcSize(-14);
     }
   }
-  box-sizing: content-box;
 }
 
 .sd-root-modern--mobile .sv-header__overlap {

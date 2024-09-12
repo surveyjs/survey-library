@@ -437,6 +437,22 @@ QUnit.test("Regex case insensitive, Bug#7620", function(assert) {
   assert.equal(validator.validate("abc@something.com"), null, "#3");
   assert.equal(validator.validate("abc@SomeThing.com"), null, "#4");
 });
+QUnit.test("Regex load caseInsensitve", function(assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [{ type: "text", name: "q", validators: [{ type: "regex", regex: ".+@something.com", caseInsensitive: true }] }]
+  });
+  const q = survey.getQuestionByName("q");
+  assert.equal(q.errors.length, 0, "#1");
+  q.value = "abc";
+  assert.equal(q.errors.length, 1, "#2");
+  q.value = "abc@something1.com";
+  assert.equal(q.errors.length, 1, "#3");
+  q.value = "abc@something.com";
+  assert.equal(q.errors.length, 0, "#4");
+  q.value = "abc@SomeThing.com";
+  assert.equal(q.errors.length, 0, "#5");
+});
 
 QUnit.test("validator.isAsync", function(assert) {
   function asyncFunc(params: any): any {

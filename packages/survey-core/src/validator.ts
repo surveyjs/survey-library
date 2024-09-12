@@ -423,14 +423,18 @@ export class RegexValidator extends SurveyValidator {
    *
    * Default value: `false` (uppercase and lowercase letters are treated as distinct)
    */
-  public get insensitive(): boolean {
-    return this.getPropertyValue("insensitive");
+  public get caseInsensitive(): boolean {
+    return this.getPropertyValue("caseInsensitive");
   }
+  public set caseInsensitive(val: boolean) {
+    this.setPropertyValue("caseInsensitive", val);
+  }
+  public get insensitive(): boolean { return this.caseInsensitive; }
   public set insensitive(val: boolean) {
-    this.setPropertyValue("insensitive", val);
+    this.caseInsensitive = val;
   }
   private createRegExp(): RegExp {
-    return new RegExp(this.regex, this.insensitive ? "i" : "");
+    return new RegExp(this.regex, this.caseInsensitive ? "i" : "");
   }
 }
 /**
@@ -567,7 +571,7 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "regexvalidator",
-  ["regex", { name: "insensitive:boolean", visible: false }],
+  ["regex", { name: "caseInsensitive:boolean", alternativeName: "insensitive" }],
   function() {
     return new RegexValidator();
   },

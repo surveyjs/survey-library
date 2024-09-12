@@ -125,7 +125,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected isNewValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  public clearIncorrectValues() {
+  public clearIncorrectValues(): void {
     var val = this.value;
     if (!val) return;
     var newVal = null;
@@ -181,10 +181,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     return result;
   }
-  protected createMatrixRow(
-    item: ItemValue,
-    value: any
-  ): MatrixDropdownRowModel {
+  protected createMatrixRow(item: ItemValue, value: any): MatrixDropdownRowModel {
     return new MatrixDropdownRowModel(item.value, item, this, value);
   }
   protected getSearchableItemValueKeys(keys: Array<string>) {

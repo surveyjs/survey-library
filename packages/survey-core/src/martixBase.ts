@@ -5,7 +5,6 @@ import { property, Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { ComputedUpdater } from "./base";
 
 /**
  * A base class for all matrix question types.
@@ -168,10 +167,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected hasRowsAsItems(): boolean {
     return true;
   }
-  protected runItemsCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): boolean {
+  protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): boolean {
     var oldVisibleRows = null;
     if (!!this.filteredRows && !Helpers.isValueEmpty(this.defaultValue)) {
       oldVisibleRows = [];
@@ -201,25 +197,13 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected clearGeneratedRows() {
     this.generatedVisibleRows = null;
   }
-  private runConditionsForRows(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): boolean {
-    var showInvisibile =
-      !!this.survey && this.survey.areInvisibleElementsShowing;
-    var runner =
-      !showInvisibile && !!this.rowsVisibleIf
-        ? new ConditionRunner(this.rowsVisibleIf)
-        : null;
+  protected createRowsVisibleIfRunner(): ConditionRunner { return null; }
+  private runConditionsForRows(values: HashTable<any>, properties: HashTable<any>): boolean {
+    const showInvisibile = !!this.survey && this.survey.areInvisibleElementsShowing;
+    const runner = !showInvisibile ? this.createRowsVisibleIfRunner() : null;
     this.filteredRows = [];
-    var hasChanged = ItemValue.runConditionsForItems(
-      this.rows,
-      this.filteredRows,
-      runner,
-      values,
-      properties,
-      !showInvisibile
-    );
+    const hasChanged = ItemValue.runConditionsForItems(this.rows, this.filteredRows, runner,
+      values, properties, !showInvisibile);
     ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
     if (this.filteredRows.length === this.rows.length) {
       this.filteredRows = null;

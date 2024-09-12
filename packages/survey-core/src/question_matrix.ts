@@ -14,6 +14,7 @@ import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IPlainDataOptions } from "./base-interfaces";
+import { ConditionRunner } from "./conditions";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -390,6 +391,9 @@ export class QuestionMatrixModel
   protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): boolean {
     ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
     return super.runItemsCondition(values, properties);
+  }
+  protected createRowsVisibleIfRunner(): ConditionRunner {
+    return !!this.rowsVisibleIf ? new ConditionRunner(this.rowsVisibleIf) : null;
   }
   protected getVisibleRows(): Array<MatrixRowModel> {
     var result = new Array<MatrixRowModel>();

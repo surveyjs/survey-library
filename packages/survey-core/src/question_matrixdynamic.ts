@@ -923,7 +923,6 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
 Serializer.addClass(
   "matrixdynamic",
   [
-    { name: "rowsVisibleIf:condition", visible: false },
     { name: "allowAddRows:boolean", default: true },
     { name: "allowRemoveRows:boolean", default: true },
     { name: "rowCount:number", default: 2, minValue: 0, isBindable: true },

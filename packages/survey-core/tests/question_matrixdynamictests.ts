@@ -2340,26 +2340,22 @@ QUnit.test("matrix.rowsVisibleIf", function (assert) {
   qBestCar.rowsVisibleIf = "";
   assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
 });
-
-/* Very likely we do not need this functional.
 QUnit.test("matrix.rowsVisibleIf, use 'row.' context", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p1");
-  var matrix = new QuestionMatrixDropdownModel("bestCar");
-  matrix.addColumn("col1");
-  matrix.addColumn("col2");
-  matrix.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
-  matrix.rowsVisibleIf = "{row.col2} != 1";
-  page.addElement(matrix);
-  assert.equal(matrix.visibleRows.length, 4, "all rows are shown");
-  matrix.value = [{ Audi: { col2: 1 } }];
-  assert.equal(matrix.visibleRows.length, 3, "Audi is hidden");
-  matrix.value = [{ Audi: { col2: 1 } }, { BMW: { col2: 1 } }];
-  assert.equal(matrix.visibleRows.length, 2, "Audi and BMW is hidden");
-  matrix.value = null;
-  assert.equal(matrix.visibleRows.length, 4, "all rows are shown again");
+  var survey = new SurveyModel({
+    elements: [
+      { type: "matrixdropdown", name: "matrix", rows: ["row1", "row2", "row3"],
+        rowsVisibleIf: "{row.col1} != 'a'", cellType: "text", columns: [{ name: "col1" }, { name: "col2" }] }
+    ]
+  });
+  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
+  matrix.value = { row1: { col1: "a" } };
+  assert.equal(matrix.visibleRows.length, 2, "row1 is hidden");
+  matrix.value = { row1: { col1: "a" }, row3: { col1: "a" } };
+  assert.equal(matrix.visibleRows.length, 1, "row1, row3 are hidden");
+  matrix.clearValue();
+  assert.equal(matrix.visibleRows.length, 3, "all rows are shown again");
 });
-*/
 QUnit.test(
   "matrix.rowsVisibleIf, clear value on making the value invisible",
   function (assert) {

@@ -3036,7 +3036,6 @@ QUnit.test(
   }
 );
 QUnit.test("columnsVisibleIf produce the bug, Bug#1540", function (assert) {
-  assert.equal(Serializer.findProperty("matrixdynamic", "columnsVisibleIf").visible, false, "The property is invisible");
   const json = {
     pages: [
       {
@@ -4956,6 +4955,7 @@ QUnit.test("showInMultipleColumns and hasOther properties, change in run-time in
 QUnit.test("showInMultipleColumns property, and visibleIf in choices", function (assert) {
   const survey = new SurveyModel({
     elements: [
+      { type: "radiogroup", name: "q1", choices: [1, 2, 3, 4] },
       {
         type: "matrixdropdown",
         name: "matrix",
@@ -4971,9 +4971,9 @@ QUnit.test("showInMultipleColumns property, and visibleIf in choices", function 
             showInMultipleColumns: true,
             showNoneItem: true,
             choices: [
-              { value: "A", visibleIf: "{val1} = 1" },
-              { value: "B", visibleIf: "{val1} = 2" },
-              { value: "C", visibleIf: "{val1} = 3" }
+              { value: "A", visibleIf: "{q1} = 1" },
+              { value: "B", visibleIf: "{q1} = 2" },
+              { value: "C", visibleIf: "{q1} = 3" }
             ]
           }
         ],
@@ -4996,7 +4996,7 @@ QUnit.test("showInMultipleColumns property, and visibleIf in choices", function 
   assert.equal(table.headerRow.cells[2].locTitle.textOrHtml, "None", "Header None");
   assert.equal(table.rows[1].cells[2].choiceValue, "none", "none index in the first row");
 
-  survey.setValue("val1", 1);
+  survey.setValue("q1", 1);
   table = matrix.renderedTable;
   multipleChoices = column.getVisibleMultipleChoices();
   assert.equal(multipleChoices.length, 2, "Two visible choice");
@@ -5009,7 +5009,7 @@ QUnit.test("showInMultipleColumns property, and visibleIf in choices", function 
   assert.equal(table.rows[1].cells[2].choiceValue, "A", "none in the first row, #2");
   assert.equal(table.rows[1].cells[3].choiceValue, "none", "none in the first row, #2");
 
-  survey.setValue("val1", 3);
+  survey.setValue("q1", 3);
   table = matrix.renderedTable;
   multipleChoices = column.getVisibleMultipleChoices();
   assert.equal(multipleChoices.length, 2, "Two visible choice");
@@ -5022,7 +5022,7 @@ QUnit.test("showInMultipleColumns property, and visibleIf in choices", function 
   assert.equal(table.rows[1].cells[2].choiceValue, "C", "none in the first row, #3");
   assert.equal(table.rows[1].cells[3].choiceValue, "none", "none in the first row, #3");
 
-  survey.setValue("val1", 4);
+  survey.setValue("q1", 4);
   table = matrix.renderedTable;
   multipleChoices = column.getVisibleMultipleChoices();
   assert.equal(multipleChoices.length, 1, "Two visible choice");

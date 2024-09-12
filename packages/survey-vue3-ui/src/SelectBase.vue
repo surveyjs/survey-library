@@ -14,29 +14,29 @@
       {{ question.locTitle.renderedHtml }}
     </legend>
     <template v-if="question.hasHeadItems">
-      <component
+      <SvComponent
         v-for="item in question.headItems"
         :key="item.value"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
-      ></component>
+      ></SvComponent>
     </template>
     <template v-if="!question.hasColumns && !question.blockedRow">
-      <component
+      <SvComponent
         v-for="item in question.bodyItems"
         :key="item.value"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
-      ></component>
+      ></SvComponent>
     </template>
     <div :class="question.cssClasses.rootRow" v-if="question.blockedRow">
       <template v-if="!question.hasColumns && question.blockedRow">
-        <component
+        <SvComponent
           v-for="item in question.dataChoices"
           :key="item.value"
           :is="getItemValueComponentName(item)"
           v-bind="getItemValueComponentData(item)"
-        ></component>
+        ></SvComponent>
       </template>
     </div>
     <div
@@ -50,24 +50,25 @@
           :class="question.getColumnClass()"
           role="presentation"
         >
-          <component
+          <SvComponent
             v-for="item in column"
             :key="item.value"
             :is="getItemValueComponentName(item)"
             v-bind="getItemValueComponentData(item)"
-          ></component>
+          ></SvComponent>
         </div>
       </template>
     </div>
     <template v-if="question.hasFootItems">
-      <component
+      <SvComponent
         v-for="item in question.footItems"
         :key="item.value"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
-      ></component>
+      ></SvComponent>
     </template>
-    <survey-other-choice
+    <SvComponent
+      :is="'survey-other-choice'"
       v-if="question.renderedValue && question.isOtherSelected"
       :question="question"
     />
@@ -87,6 +88,7 @@
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type {
   ItemValue,
   QuestionCheckboxModel,

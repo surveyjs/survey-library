@@ -118,13 +118,7 @@ import Element from "./Element.vue";
 
 import TemplateRenderer from "./TemplateRenderer.vue";
 
-import {
-  SurveyModel,
-  doKey2ClickBlur,
-  doKey2ClickDown,
-  doKey2ClickUp,
-  type IAttachKey2clickOptions,
-} from "survey-core";
+import { SurveyModel } from "survey-core";
 import type { App } from "vue";
 import FileCleanButton from "./FileCleanButton.vue";
 import FileVideo from "./FileVideo.vue";
@@ -134,179 +128,176 @@ import ButtonGroup from "./buttongroup/ButtonGroup.vue";
 import ButtonGroupItem from "./buttongroup/ButtonGroupItem.vue";
 import Logo from "./Logo.vue";
 import SvgBundle from "./SvgBundle.vue";
+import { ComponentFactory } from "./component-factory";
+import { key2ClickDirective } from "./directives/key2click";
 
 export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
+export { ComponentFactory };
+export { key2ClickDirective } from "./directives/key2click";
+export { default as SvComponent } from "./SvComponent.vue";
+export { PopupSurvey as PopupSurveyComponent };
+export { SurveyVue as SurveyComponent };
 
 SurveyModel.platform = "vue3";
 
-function registerComponents(app: App) {
-  app.component("SurveyComponent", SurveyVue);
-  app.component("sv-svg-bundle", SvgBundle);
-  app.component("PopupSurveyComponent", PopupSurvey);
-  app.component("survey", SurveyVue);
-  app.component("popup-survey", PopupSurvey);
-
-  app.component("survey-header", HeaderBasic);
-  app.component("sv-logo-image", Logo);
-  app.component("survey-page", Page);
-  app.component("survey-row", Row);
-  app.component("survey-question", Question);
-  app.component("survey-panel", Panel);
-  app.component("survey-element-header", ElementHeader);
-  app.component("survey-string", String);
-  app.component("sv-string-viewer", StringViewer);
-  app.component("sv-string-editor", StringEditor);
-  app.component("sv-skeleton", Skeleton);
-  app.component("survey-text", QuestionText);
-  app.component("survey-text-input", QuestionTextInput);
-  app.component("survey-checkbox", Checkbox);
-  app.component("survey-checkbox-item", CheckboxItem);
-  app.component("survey-radiogroup", Radiogroup);
-  app.component("survey-radiogroup-item", RadiogroupItem);
-  app.component("survey-signaturepad", Signaturepad);
-  app.component("survey-html", Html);
-  app.component("survey-image", Image);
-  app.component("survey-expression", Expression);
-  app.component("survey-file", File);
-  app.component("sv-file-choose-btn", FileChooseButton);
-  app.component("sv-file-clean-btn", FileCleanButton);
-  app.component("sv-file-preview", FilePreview);
-  app.component("sv-file-video", FileVideo);
-  app.component("survey-imagepicker", ImagePicker);
-  app.component("survey-imagepicker-item", ImagePickerItem);
-  app.component("survey-comment", Comment);
-  app.component("survey-dropdown", Dropdown);
-  app.component("sv-dropdown-select", DropdownSelect);
-  app.component("sv-dropdown-option-item", DropdownOptionItem);
-  app.component("sv-dropdown", DropdownInput);
-  app.component("survey-tagbox", Tagbox);
-  app.component("sv-tagbox", TagboxInput);
-  app.component("sv-tagbox-item", TagboxItem);
-  app.component("sv-tagbox-filter", TagboxFilter);
-  app.component("survey-ranking", Ranking);
-  app.component("survey-ranking-item", RankingItem);
-  app.component("sv-ranking-item", RankingItemContent);
-  app.component("survey-rating", Rating);
-  app.component("sv-rating-item", RatingItem);
-  app.component("sv-rating-item-smiley", RatingItemSmiley);
-  app.component("sv-rating-item-star", RatingItemStar);
-  app.component("sv-rating-dropdown", RatingDropdown);
-  app.component("sv-rating-dropdown-item", RatingDropdownItem);
-  app.component("survey-boolean", BooleanSwitch);
-  app.component("sv-boolean-radio", BooleanRadio);
-  app.component("sv-boolean-radio-item", BooleanRadioItem);
-  app.component("sv-boolean-checkbox", BooleanCheckbox);
-  app.component("survey-multipletext", MultipleText);
-  app.component("survey-multipletext-item", MultipletextItem);
-
-  app.component("survey-matrix", Matrix);
-  app.component("survey-matrix-row", MatrixRow);
-  app.component("survey-matrix-cell", MatrixCell);
-  app.component("survey-matrixdropdown", MatrixDropdown);
-  app.component("survey-matrixtable", MatrixTable);
-  app.component("survey-matrixheaderrequired", MatrixHeaderRequired);
-  app.component("survey-matrixdropdown-cell", MatrixDropdownCellComp);
-  app.component("survey-matrixdynamic", MatrixDynamic);
-  app.component("sv-matrix-remove-button", RemoveButton);
-  app.component("sv-matrix-drag-drop-icon", DragDropIcon);
-  app.component("sv-matrix-detail-button", DetailButton);
-
-  app.component("survey-paneldynamic", PanelDynamic);
-  app.component("survey-paneldynamicprogress", PanelDynamicProgress);
-  app.component("survey-paneldynamicprogress-v2", PanelDynamicProgressV2);
-  app.component("sv-paneldynamic-add-btn", PaneldynamicAddBtn);
-  app.component("sv-paneldynamic-next-btn", PaneldynamicNextBtn);
-  app.component("sv-paneldynamic-prev-btn", PaneldynamicPrevBtn);
-  app.component("sv-paneldynamic-remove-btn", PaneldynamicRemoveBtn);
-  app.component("sv-paneldynamic-progress-text", PaneldynamicProgressText);
-
-  app.component("sv-components-container", Container);
-
-  app.component("sv-progress-buttons", ProgressButtonsComponent);
-  app.component("sv-navigation-toc", ProgressToc);
-  app.component("sv-progress-pages", Progress);
-  app.component("sv-progress-questions", Progress);
-  app.component("sv-progress-correctquestions", Progress);
-  app.component("sv-progress-requiredquestions", Progress);
-
-  app.component("survey-errors", Errors);
-  app.component("survey-question-comment", QuestionComment);
-  app.component("survey-element-title", TitleElement);
-  app.component("survey-element-title-content", TitleContent);
-  app.component("sv-title-actions", TitleActions);
-  app.component("sv-brand-info", BrandInfo);
-  app.component("sv-question-error", QuestionError);
-  app.component("sv-svg-icon", SvgIcon);
-
-  app.component("sv-action-bar", ActionBar);
-  app.component("sv-action", Action);
-  app.component("sv-action-bar-item", ActionBarItem);
-  app.component("sv-action-bar-item-dropdown", ActionBarItemDropdown);
-  app.component("sv-action-bar-separator", ActionBarSeparator);
-
-  app.component("sv-list", List);
-  app.component("sv-list-item-content", ListItemContent);
-  app.component("sv-list-item-group", ListItemGroup);
-  app.component("sv-list-item", ListItem);
-
-  app.component("sv-popup", Popup);
-  app.component("sv-popup-container", PopupContainer);
-  app.component("popup-pointer", PopupPointer);
-
-  app.component("sv-notifier", Notifier);
-  app.component("survey-other-choice", OtherChoice);
-  app.component("sv-nav-btn", SurveyNavigationButton);
-  app.component("survey-customwidget", CustomWidget);
-  app.component("survey-popup-modal", PopupModal);
-
-  app.component("sv-character-counter", CharacterCounterComponent);
-  app.component("sv-text-area", TextAreaComponent);
-
-  app.component("survey-composite", Composite);
-  app.component("survey-custom", Custom);
-  app.component("sv-timerpanel", TimerPanel);
-  app.component("sv-loading-indicator", LoadingIndicator);
-
-  app.component("sv-header", Header);
-  app.component("sv-header-cell", HeaderCell);
-  app.component("sv-header-mobile", HeaderMobile);
-
-  app.component("sv-template-renderer", TemplateRenderer);
-
-  app.component("survey-element", Element);
-
-  app.component("survey-buttongroup", ButtonGroup);
-  app.component("sv-button-group-item", ButtonGroupItem);
-
-  app.directive("key2click", {
-    // When the bound element is inserted into the DOM...
-    mounted: function (el: HTMLElement, binding: any) {
-      const options: IAttachKey2clickOptions = { ...binding.value } || {
-        processEsc: true,
-      };
-      if (options.disableTabStop) {
-        el.tabIndex = -1;
-        return;
-      }
-      if (!options.disableTabStop) el.tabIndex = 0;
-      el.addEventListener("keyup", (evt: any) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        doKey2ClickUp(evt, options);
-        return false;
-      });
-      el.addEventListener("keydown", (evt: any) => {
-        doKey2ClickDown(evt, options);
-      });
-      el.addEventListener("blur", (evt: any) => {
-        doKey2ClickBlur(evt);
-      });
-    },
-  });
+function registerComponentWithFunction(
+  registerFunc: (name: string, component: any) => void,
+  name: string,
+  component: any
+) {
+  registerFunc(name, component);
 }
 
+function registerComponents(
+  registerFunc: (name: string, component: any) => void
+) {
+  const registerComponent = registerComponentWithFunction.bind(
+    undefined,
+    registerFunc
+  );
+  registerComponent("sv-svg-bundle", SvgBundle);
+  registerComponent("popup-survey", PopupSurvey);
+  registerComponent("survey-header", HeaderBasic);
+  registerComponent("sv-logo-image", Logo);
+  registerComponent("survey-page", Page);
+  registerComponent("survey-row", Row);
+  registerComponent("survey-question", Question);
+  registerComponent("survey-panel", Panel);
+  registerComponent("survey-element-header", ElementHeader);
+  registerComponent("survey-string", String);
+  registerComponent("sv-string-viewer", StringViewer);
+  registerComponent("sv-string-editor", StringEditor);
+  registerComponent("sv-skeleton", Skeleton);
+  registerComponent("survey-text", QuestionText);
+  registerComponent("survey-text-input", QuestionTextInput);
+  registerComponent("survey-checkbox", Checkbox);
+  registerComponent("survey-checkbox-item", CheckboxItem);
+  registerComponent("survey-radiogroup", Radiogroup);
+  registerComponent("survey-radiogroup-item", RadiogroupItem);
+  registerComponent("survey-signaturepad", Signaturepad);
+  registerComponent("survey-html", Html);
+  registerComponent("survey-image", Image);
+  registerComponent("survey-expression", Expression);
+  registerComponent("survey-file", File);
+  registerComponent("sv-file-choose-btn", FileChooseButton);
+  registerComponent("sv-file-clean-btn", FileCleanButton);
+  registerComponent("sv-file-preview", FilePreview);
+  registerComponent("sv-file-video", FileVideo);
+  registerComponent("survey-imagepicker", ImagePicker);
+  registerComponent("survey-imagepicker-item", ImagePickerItem);
+  registerComponent("survey-comment", Comment);
+  registerComponent("survey-dropdown", Dropdown);
+  registerComponent("sv-dropdown-select", DropdownSelect);
+  registerComponent("sv-dropdown-option-item", DropdownOptionItem);
+  registerComponent("sv-dropdown", DropdownInput);
+  registerComponent("survey-tagbox", Tagbox);
+  registerComponent("sv-tagbox", TagboxInput);
+  registerComponent("sv-tagbox-item", TagboxItem);
+  registerComponent("sv-tagbox-filter", TagboxFilter);
+  registerComponent("survey-ranking", Ranking);
+  registerComponent("survey-ranking-item", RankingItem);
+  registerComponent("sv-ranking-item", RankingItemContent);
+  registerComponent("survey-rating", Rating);
+  registerComponent("sv-rating-item", RatingItem);
+  registerComponent("sv-rating-item-smiley", RatingItemSmiley);
+  registerComponent("sv-rating-item-star", RatingItemStar);
+  registerComponent("sv-rating-dropdown", RatingDropdown);
+  registerComponent("sv-rating-dropdown-item", RatingDropdownItem);
+  registerComponent("survey-boolean", BooleanSwitch);
+  registerComponent("sv-boolean-radio", BooleanRadio);
+  registerComponent("sv-boolean-radio-item", BooleanRadioItem);
+  registerComponent("sv-boolean-checkbox", BooleanCheckbox);
+  registerComponent("survey-multipletext", MultipleText);
+  registerComponent("survey-multipletext-item", MultipletextItem);
+
+  registerComponent("survey-matrix", Matrix);
+  registerComponent("survey-matrix-row", MatrixRow);
+  registerComponent("survey-matrix-cell", MatrixCell);
+  registerComponent("survey-matrixdropdown", MatrixDropdown);
+  registerComponent("survey-matrixtable", MatrixTable);
+  registerComponent("survey-matrixheaderrequired", MatrixHeaderRequired);
+  registerComponent("survey-matrixdropdown-cell", MatrixDropdownCellComp);
+  registerComponent("survey-matrixdynamic", MatrixDynamic);
+  registerComponent("sv-matrix-remove-button", RemoveButton);
+  registerComponent("sv-matrix-drag-drop-icon", DragDropIcon);
+  registerComponent("sv-matrix-detail-button", DetailButton);
+
+  registerComponent("survey-paneldynamic", PanelDynamic);
+  registerComponent("survey-paneldynamicprogress", PanelDynamicProgress);
+  registerComponent("survey-paneldynamicprogress-v2", PanelDynamicProgressV2);
+  registerComponent("sv-paneldynamic-add-btn", PaneldynamicAddBtn);
+  registerComponent("sv-paneldynamic-next-btn", PaneldynamicNextBtn);
+  registerComponent("sv-paneldynamic-prev-btn", PaneldynamicPrevBtn);
+  registerComponent("sv-paneldynamic-remove-btn", PaneldynamicRemoveBtn);
+  registerComponent("sv-paneldynamic-progress-text", PaneldynamicProgressText);
+  registerComponent("sv-components-container", Container);
+
+  registerComponent("sv-progress-buttons", ProgressButtonsComponent);
+  registerComponent("sv-navigation-toc", ProgressToc);
+  registerComponent("sv-progress-pages", Progress);
+  registerComponent("sv-progress-questions", Progress);
+  registerComponent("sv-progress-correctquestions", Progress);
+  registerComponent("sv-progress-requiredquestions", Progress);
+
+  registerComponent("survey-errors", Errors);
+  registerComponent("survey-question-comment", QuestionComment);
+  registerComponent("survey-element-title", TitleElement);
+  registerComponent("survey-element-title-content", TitleContent);
+  registerComponent("sv-title-actions", TitleActions);
+  registerComponent("sv-brand-info", BrandInfo);
+  registerComponent("sv-question-error", QuestionError);
+  registerComponent("sv-svg-icon", SvgIcon);
+
+  registerComponent("sv-action-bar", ActionBar);
+  registerComponent("sv-action", Action);
+  registerComponent("sv-action-bar-item", ActionBarItem);
+  registerComponent("sv-action-bar-item-dropdown", ActionBarItemDropdown);
+  registerComponent("sv-action-bar-separator", ActionBarSeparator);
+
+  registerComponent("sv-list", List);
+  registerComponent("sv-list-item-content", ListItemContent);
+  registerComponent("sv-list-item-group", ListItemGroup);
+  registerComponent("sv-list-item", ListItem);
+
+  registerComponent("sv-popup", Popup);
+  registerComponent("sv-popup-container", PopupContainer);
+  registerComponent("popup-pointer", PopupPointer);
+
+  registerComponent("sv-notifier", Notifier);
+  registerComponent("survey-other-choice", OtherChoice);
+  registerComponent("sv-nav-btn", SurveyNavigationButton);
+  registerComponent("survey-customwidget", CustomWidget);
+  registerComponent("survey-popup-modal", PopupModal);
+
+  registerComponent("survey-composite", Composite);
+  registerComponent("survey-custom", Custom);
+  registerComponent("sv-timerpanel", TimerPanel);
+  registerComponent("sv-loading-indicator", LoadingIndicator);
+  registerComponent("sv-header", Header);
+  registerComponent("sv-header-cell", HeaderCell);
+  registerComponent("sv-header-mobile", HeaderMobile);
+  registerComponent("sv-template-renderer", TemplateRenderer);
+  registerComponent("sv-character-counter", CharacterCounterComponent);
+  registerComponent("sv-text-area", TextAreaComponent);
+  registerComponent("survey-element", Element);
+
+  registerComponent("survey-buttongroup", ButtonGroup);
+  registerComponent("sv-button-group-item", ButtonGroupItem);
+  registerComponent("survey", SurveyVue);
+}
+
+registerComponents((name, component) =>
+  ComponentFactory.Instance.registerComponent(name, component)
+);
+
 export const surveyPlugin = {
-  install(app: any) {
-    registerComponents(app);
+  install(app: App) {
+    app.component("SurveyComponent", SurveyVue);
+    app.component("PopupSurveyComponent", PopupSurvey);
+    app.directive("key2click", key2ClickDirective);
+    registerComponents((name, component) => {
+      app.component(name, component);
+      ComponentFactory.Instance.registerComponent(name, name);
+    });
   },
 };

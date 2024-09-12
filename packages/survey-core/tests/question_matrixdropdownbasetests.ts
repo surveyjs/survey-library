@@ -1704,3 +1704,49 @@ QUnit.test("The Undo operation doesn't work for matrix dropdown column 'choices'
   assert.equal(senderName, "column1", "senderName");
   assert.ok(arrayChangesTest, "arrayChanges");
 });
+QUnit.test("Support columnsVisibleIf property, Bug#8796", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["col1", "col2", "col3"]
+      },
+      {
+        type: "matrixdropdown",
+        columnsVisibleIf: "{q1} contains {item}",
+        name: "matrix",
+        columns: [
+          { name: "col1", cellType: "text" },
+          { name: "col2", cellType: "text" },
+          { name: "col3", cellType: "text" }
+        ],
+        rows: ["row1"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  survey.setValue("q1", ["col1", "col3"]);
+  assert.equal(matrix.columns[0].isColumnVisible, true, "The default column.visible is true");
+  assert.equal(matrix.columns[1].isColumnVisible, false, "The second column.visible is false");
+  assert.equal(matrix.columns[2].isColumnVisible, true, "The third column.visible is true");
+  let table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 2, "Header: One column is invisible, #1");
+  assert.equal(table.rows[1].cells.length, 1 + 2, "Row: One column is invisible, #1");
+  assert.equal(table.headerRow.cells[2].headers, "col3", "The second column is col3, #1");
+
+  survey.setValue("q1", ["col1", "col2", "col3"]);
+  assert.equal(matrix.columns[1].isColumnVisible, true, "The second column.visible is true, #2");
+  assert.notStrictEqual(table, matrix.renderedTable);
+  table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 3, "Header: All columns are visible, #2");
+  assert.equal(table.rows[1].cells.length, 1 + 3, "Row: All columns are visible, #2");
+  assert.equal(table.headerRow.cells[2].headers, "col2", "The second column is col2, #2");
+
+  survey.setValue("q1", ["col1", "col2"]);
+  assert.equal(matrix.columns[2].isColumnVisible, false, "The third column.visible is false, #3");
+  table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 2, "Header: the last column is invisible, #3");
+  assert.equal(table.rows[1].cells.length, 1 + 2, "Row: the last column is invisible, #3");
+  assert.equal(table.headerRow.cells[2].headers, "col2", "The last column is col2, #3");
+});

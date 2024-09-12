@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
     "build": "run-p type-check build-only",
     "preview": "vite preview --host 0.0.0.0 --port 8080",
     "build-only": "vite build",

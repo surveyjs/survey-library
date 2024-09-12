@@ -13,36 +13,43 @@
     :aria-expanded="element.ariaExpanded"
     :data-name="element.name"
   >
-    <survey-errors
+    <SvComponent
+      :is="'survey-errors'"
       v-if="element.showErrorsAboveQuestion"
       :element="element"
       :location="'top'"
     />
-    <survey-element-header
+    <SvComponent
+      :is="'survey-element-header'"
       v-if="element.hasTitleOnLeftTop"
       :element="element"
       :css="css"
     />
-    <component :is="contentComponentName" v-bind="contentComponentData">
+    <SvComponent :is="contentComponentName" v-bind="contentComponentData">
       <div
         :class="getContentClass(element) || undefined"
         :style="{ display: !element.renderedIsExpanded ? 'none' : undefined }"
         role="presentation"
       >
-        <survey-errors
+        <SvComponent
+          :is="'survey-errors'"
           v-if="hasErrorsOnTop"
           :element="element"
           :location="'top'"
         />
 
-        <component :is="componentName" :question="element" />
+        <SvComponent :is="componentName" :question="element" />
         <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
           <div>
-            <survey-string :locString="element.locCommentText" />
+            <SvComponent
+              :is="'survey-string'"
+              :locString="element.locCommentText"
+            />
           </div>
-          <survey-question-comment :question="element" />
+          <SvComponent :is="'survey-question-comment'" :question="element" />
         </div>
-        <survey-errors
+        <SvComponent
+          :is="'survey-errors'"
           v-if="hasErrorsOnBottom"
           :element="element"
           :location="'bottom'"
@@ -52,16 +59,21 @@
           :class="element.cssClasses.descriptionUnderInput"
           :id="element.ariaDescriptionId"
         >
-          <survey-string :locString="element.locDescription" />
+          <SvComponent
+            :is="'survey-string'"
+            :locString="element.locDescription"
+          />
         </div>
       </div>
-    </component>
-    <survey-element-header
+    </SvComponent>
+    <SvComponent
+      :is="'survey-element-header'"
       v-if="element.hasTitleOnBottom"
       :element="element"
       :css="css"
     />
-    <survey-errors
+    <SvComponent
+      :is="'survey-errors'"
       v-if="element.showErrorsBelowQuestion"
       :element="element"
       :location="'bottom'"
@@ -76,6 +88,7 @@ export default {
 </script>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { SurveyModel, Question } from "survey-core";
 import { useBase } from "./base";
 import { computed, onUnmounted, ref, watch } from "vue";

@@ -12,7 +12,9 @@ export class ValidatorResult {
   constructor(public value: any, public error: SurveyError = null) {}
 }
 /**
- * Base SurveyJS validator class.
+ * A base class for all classes that implement validators.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class SurveyValidator extends Base {
   public errorOwner: ISurveyErrorOwner;
@@ -26,6 +28,9 @@ export class SurveyValidator extends Base {
       ? (<any>this.errorOwner).getSurvey()
       : null;
   }
+  /**
+   * An error message to display when a value fails validation.
+   */
   public get text(): string {
     return this.getLocalizableStringText("text");
   }
@@ -152,7 +157,9 @@ export class ValidatorRunner {
   }
 }
 /**
- * Validate numeric values.
+ * A class that implements a validator for numeric values.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class NumericValidator extends SurveyValidator {
   constructor(minValue: number = null, maxValue: number = null) {
@@ -200,7 +207,9 @@ export class NumericValidator extends SurveyValidator {
     }
   }
   /**
-   * The minValue property.
+   * A minimum allowed numeric value.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
   public get minValue(): number {
     return this.getPropertyValue("minValue");
@@ -209,7 +218,9 @@ export class NumericValidator extends SurveyValidator {
     this.setPropertyValue("minValue", val);
   }
   /**
-   * The maxValue property.
+   * A maximum allowed numeric value.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
   public get maxValue(): number {
     return this.getPropertyValue("maxValue");
@@ -219,7 +230,9 @@ export class NumericValidator extends SurveyValidator {
   }
 }
 /**
- * Validate text values.
+ * A class that implements a validator for text values.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class TextValidator extends SurveyValidator {
   constructor(
@@ -258,7 +271,11 @@ export class TextValidator extends SurveyValidator {
     return this.getLocalizationFormatString("textMaxLength", this.maxLength);
   }
   /**
-   * The minLength property.
+   * The minimum length of a text value measured in characters.
+   *
+   * Default value: 0
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
   public get minLength(): number {
     return this.getPropertyValue("minLength");
@@ -267,7 +284,11 @@ export class TextValidator extends SurveyValidator {
     this.setPropertyValue("minLength", val);
   }
   /**
-   * The maxLength property.
+   * The maximum length of a text value measured in characters.
+   *
+   * Default value: 0 (unlimited)
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
   public get maxLength(): number {
     return this.getPropertyValue("maxLength");
@@ -276,7 +297,9 @@ export class TextValidator extends SurveyValidator {
     this.setPropertyValue("maxLength", val);
   }
   /**
-   * The allowDigits property.
+   * Specifies whether a text value can include numerical digits.
+   *
+   * Default value: `true`
    */
   public get allowDigits(): boolean {
     return this.getPropertyValue("allowDigits");
@@ -287,7 +310,9 @@ export class TextValidator extends SurveyValidator {
 }
 
 /**
- * Validates the number of answers.
+ * A class that implements answer count validation in the question types that can have multiple values (for instance, [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model)).
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class AnswerCountValidator extends SurveyValidator {
   constructor(minCount: number = null, maxCount: number = null) {
@@ -327,7 +352,9 @@ export class AnswerCountValidator extends SurveyValidator {
     return name;
   }
   /**
-   * The minCount property.
+   * A minimum number of selected answers.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
   public get minCount(): number {
     return this.getPropertyValue("minCount");
@@ -336,7 +363,9 @@ export class AnswerCountValidator extends SurveyValidator {
     this.setPropertyValue("minCount", val);
   }
   /**
-   * The maxCount property.
+   * A maximum number of selected answers.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
   public get maxCount(): number {
     return this.getPropertyValue("maxCount");
@@ -346,7 +375,7 @@ export class AnswerCountValidator extends SurveyValidator {
   }
 }
 /**
- * Use it to validate the text by regular expressions.
+ * A class that implements validation using regular expressions.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
@@ -379,7 +408,9 @@ export class RegexValidator extends SurveyValidator {
     return new ValidatorResult(value, this.createCustomError(name));
   }
   /**
-   * The regex property.
+   * A regular expression used to validate values.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
   public get regex(): string {
     return this.getPropertyValue("regex");
@@ -387,6 +418,11 @@ export class RegexValidator extends SurveyValidator {
   public set regex(val: string) {
     this.setPropertyValue("regex", val);
   }
+  /**
+   * Specifies whether uppercase and lowercase letters must be treated as distinct or equivalent when validating values.
+   *
+   * Default value: `false` (uppercase and lowercase letters are treated as distinct)
+   */
   public get insensitive(): boolean {
     return this.getPropertyValue("insensitive");
   }
@@ -398,7 +434,9 @@ export class RegexValidator extends SurveyValidator {
   }
 }
 /**
- * Validate e-mail address in the text input
+ * A class that implements a validator for e-mail addresses.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class EmailValidator extends SurveyValidator {
   private re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()=[\]\.,;:\s@\"]+\.)+[^<>()=[\]\.,;:\s@\"]{2,})$/i;
@@ -424,7 +462,9 @@ export class EmailValidator extends SurveyValidator {
 }
 
 /**
- * Show error if expression returns false
+ * A class that implements validation using [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class ExpressionValidator extends SurveyValidator {
   private conditionRunner: ConditionRunner = null;
@@ -484,7 +524,9 @@ export class ExpressionValidator extends SurveyValidator {
     return true;
   }
   /**
-   * The expression property.
+   * A Boolean [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). If it evaluates to `false`, validation fails.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
   public get expression(): string {
     return this.getPropertyValue("expression");

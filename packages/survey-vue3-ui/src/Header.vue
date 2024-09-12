@@ -1,31 +1,38 @@
 <template>
   <div v-if="survey.renderedHasHeader" :class="survey.css.header" ref="root">
-    <component v-if="survey.isLogoBefore"
+    <SvComponent
+      v-if="survey.isLogoBefore"
       :is="survey.getElementWrapperComponentName(survey, 'logo-image')"
       :data="survey.getElementWrapperComponentData(survey, 'logo-image')"
-    ></component>
+    ></SvComponent>
 
     <div
       v-if="survey.renderedHasTitle"
       :class="survey.css.headerText"
       v-bind:style="{ maxWidth: survey.titleMaxWidth }"
     >
-      <survey-element-title :element="survey" :css="survey.css" />
-          <div v-if="survey.renderedHasDescription" :class="survey.css.description">
-          <survey-string :locString="survey.locDescription" />
-          </div>
+      <SvComponent
+        :is="'survey-element-title'"
+        :element="survey"
+        :css="survey.css"
+      />
+      <div v-if="survey.renderedHasDescription" :class="survey.css.description">
+        <SvComponent :is="'survey-string'" :locString="survey.locDescription" />
+      </div>
     </div>
 
-    <component v-if="survey.isLogoAfter"
+    <SvComponent
+      v-if="survey.isLogoAfter"
       :is="survey.getElementWrapperComponentName(survey, 'logo-image')"
       :data="survey.getElementWrapperComponentData(survey, 'logo-image')"
-    ></component>
+    ></SvComponent>
 
     <div :class="survey.css.headerClose"></div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { SurveyModel } from "survey-core";
 import { onMounted, ref } from "vue";
 

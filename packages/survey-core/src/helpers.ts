@@ -410,7 +410,7 @@ export class Helpers {
       if(inputType === "datetime-local") return Helpers.convertDateTimeToString(val);
       return Helpers.convertDateToString(val);
     }
-    return val;
+    return this.getUnbindValue(val);
   }
   public static compareVerions(ver1: string, ver2: string): number {
     if(!ver1 && !ver2) return 0;

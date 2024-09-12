@@ -1,59 +1,34 @@
 import * as React from "react";
 import { ReactSurveyElement, SurveyQuestionUncontrolledElement } from "./reactquestion_element";
-import { QuestionCommentModel, Helpers } from "survey-core";
+import { QuestionCommentModel, TextAreaModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { CharacterCounterComponent } from "./components/character-counter";
+import { TextAreaComponent } from "./components/text-area";
 
 export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<QuestionCommentModel> {
+  private renderCharacterCounter() : JSX.Element | null {
+    let counter: JSX.Element | null = null;
+    if(!!this.question.getMaxLength()) {
+      counter = <CharacterCounterComponent
+        counter={this.question.characterCounter}
+        remainingCharacterCounter={this.question.cssClasses.remainingCharacterCounter}>
+      </CharacterCounterComponent>;
+    }
+    return counter;
+  }
   constructor(props: any) {
     super(props);
   }
   protected renderElement(): JSX.Element {
-    const onBlur = (e: any): void => {
-      if(!this.question.isInputTextUpdate) {
-        this.updateValueOnEvent(e);
-      }
-      this.question.onBlur(e);
-    };
-    const onInput = (event: any) => {
-      if (this.question.isInputTextUpdate) {
-        this.updateValueOnEvent(event);
-      } else {
-        this.question.updateElement();
-      }
-
-      const newValue = event.target.value;
-      this.question.updateRemainingCharacterCounter(newValue);
-    };
-    const placeholder = this.question.renderedPlaceholder;
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.value}</div>;
     }
-    const counter = !!this.question.getMaxLength() ? (<CharacterCounterComponent counter={this.question.characterCounter} remainingCharacterCounter={this.question.cssClasses.remainingCharacterCounter}></CharacterCounterComponent>) : null;
+
+    const counter = this.renderCharacterCounter();
+    const textAreaModel: TextAreaModel = this.props.question.textAreaModel;
     return (
       <>
-        <textarea
-          id={this.question.inputId}
-          className={this.question.className}
-          disabled={this.question.isDisabledAttr}
-          readOnly={this.question.isReadOnlyAttr}
-          ref={(textarea) => (this.setControl(textarea))}
-          maxLength={this.question.getMaxLength()}
-          placeholder={placeholder}
-          onFocus={(event) => { this.question.onFocus(event); }}
-          onBlur={onBlur}
-          onInput={onInput}
-          onKeyDown={(event) => { this.question.onKeyDown(event); }}
-          cols={this.question.cols}
-          rows={this.question.rows}
-          aria-required={this.question.a11y_input_ariaRequired}
-          aria-label={this.question.a11y_input_ariaLabel}
-          aria-labelledby={this.question.a11y_input_ariaLabelledBy}
-          aria-describedby={this.question.a11y_input_ariaDescribedBy}
-          aria-invalid={this.question.a11y_input_ariaInvalid}
-          aria-errormessage={this.question.a11y_input_ariaErrormessage}
-          style={{ resize: this.question.resizeStyle }}
-        />
+        <TextAreaComponent viewModel={textAreaModel}></TextAreaComponent>
         {counter}
       </>
     );
@@ -61,97 +36,36 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
 }
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
-  private control: HTMLElement;
+  private textAreaModel: TextAreaModel;
+
   constructor(props: any) {
     super(props);
-    this.state = { comment: this.getComment() || "" };
+    this.textAreaModel = this.getTextAreaModel();
   }
-  componentDidUpdate(prevProps: any, prevState: any): void {
-    super.componentDidUpdate(prevProps, prevState);
-    this.updateDomElement();
-  }
-  componentDidMount(): void {
-    super.componentDidMount();
-    this.updateDomElement();
-  }
-  protected updateDomElement(): void {
-    if (!!this.control) {
-      const control: any = this.control;
-      const newValue = this.getComment() || "";
-      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
-        control.value = newValue;
-      }
-    }
-  }
-  protected setControl(element: HTMLElement | null): void {
-    if(!!element) {
-      this.control = element;
-    }
-  }
+
   protected canRender(): boolean {
     return !!this.props.question;
   }
-  protected onCommentChange(event: any): void {
-    this.props.question.onCommentChange(event);
+
+  protected getTextAreaModel(): TextAreaModel {
+    return this.props.question.commentTextAreaModel;
   }
-  protected onCommentInput(event: any): void {
-    this.props.question.onCommentInput(event);
-  }
-  protected getComment(): string {
-    return this.props.question.comment;
-  }
-  protected setComment(value: any): void {
-    this.props.question.comment = value;
-  }
-  protected getId(): string {
-    return this.props.question.commentId;
-  }
-  protected getPlaceholder(): string {
-    return this.props.question.renderedCommentPlaceholder;
-  }
+
   protected renderElement(): JSX.Element {
     const question = this.props.question;
-    let className = this.props.otherCss || this.cssClasses.comment;
     if (question.isReadOnlyRenderDiv()) {
-      const comment = this.getComment() || "";
+      const comment = this.textAreaModel.getTextValue() || "";
       return <div>{comment}</div>;
     }
+
     return (
-      <textarea
-        id={this.getId()}
-        className={className}
-        ref={(textarea) => (this.setControl(textarea))}
-        disabled={this.isDisplayMode}
-        maxLength={question.getOthersMaxLength()}
-        rows={question.commentAreaRows}
-        placeholder={this.getPlaceholder()}
-        onBlur={(e) => { this.onCommentChange(e); }}
-        onInput={(e) => this.onCommentInput(e)}
-        aria-required={question.isRequired || question.a11y_input_ariaRequired}
-        aria-label={question.ariaLabel || question.a11y_input_ariaLabel}
-        style={{ resize: question.resizeStyle }}
-      />
+      <TextAreaComponent viewModel={this.textAreaModel}></TextAreaComponent>
     );
   }
 }
 export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
-  protected onCommentChange(event: any): void {
-    this.props.question.onOtherValueChange(event);
-  }
-  protected onCommentInput(event: any): void {
-    this.props.question.onOtherValueInput(event);
-  }
-  protected getComment(): string {
-    return this.props.question.otherValue;
-  }
-  protected setComment(value: any): void {
-    this.props.question.otherValue = value;
-  }
-  protected getId(): string {
-    return this.props.question.otherId;
-  }
-  protected getPlaceholder(): string {
-    return this.props.question.otherPlaceholder;
+  protected getTextAreaModel(): TextAreaModel {
+    return this.props.question.otherTextAreaModel;
   }
 }
 

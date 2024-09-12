@@ -1,5 +1,5 @@
 <template>
-  <component
+  <SvComponent
     :ref="root"
     :is="getComponentName(contentQuestion)"
     :question="contentQuestion"
@@ -8,6 +8,7 @@
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import { computed, ref } from "vue";
 import type { QuestionCustomModel, Question } from "survey-core";
 import { getComponentName as getComponent, useQuestion } from "./base";

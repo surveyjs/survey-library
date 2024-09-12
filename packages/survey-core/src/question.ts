@@ -22,6 +22,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomWindowHelper } from "./global_variables_utils";
+import { ITextArea, TextAreaModel } from "./utils/text-area";
 
 export interface IConditionObject {
   name: string;
@@ -90,6 +91,27 @@ export class Question extends SurveyElement<Question>
   private isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
   private dependedQuestions: Array<Question> = [];
+  public commentTextAreaModel: TextAreaModel;
+
+  private getCommentTextAreaOptions(): ITextArea {
+    const options: ITextArea = {
+      question: this,
+      id: () => this.commentId,
+      propertyName: "comment",
+      className: () => this.cssClasses.comment,
+      placeholder: () => this.renderedCommentPlaceholder,
+      isDisabledAttr: () => this.isInputReadOnly || false,
+      rows: () => this.commentAreaRows,
+      autoGrow: () => this.autoGrowComment,
+      maxLength: () => this.getOthersMaxLength(),
+      ariaRequired: () => this.a11y_input_ariaRequired,
+      ariaLabel: () => this.a11y_input_ariaLabel,
+      getTextValue: () => { return this.comment; },
+      onTextAreaChange: (e) => { this.onCommentChange(e); },
+      onTextAreaInput: (e) => { this.onCommentInput(e); },
+    };
+    return options;
+  }
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
@@ -140,6 +162,7 @@ export class Question extends SurveyElement<Question>
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
+    this.commentTextAreaModel = new TextAreaModel(this.getCommentTextAreaOptions());
 
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },
@@ -912,11 +935,6 @@ export class Question extends SurveyElement<Question>
   }
   public get isContainer(): boolean { return false; }
   protected updateCommentElements(): void {
-    if (!this.autoGrowComment || !Array.isArray(this.commentElements)) return;
-    for (let i = 0; i < this.commentElements.length; i++) {
-      const el = this.commentElements[i];
-      if (el) increaseHeightByContent(el);
-    }
   }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {

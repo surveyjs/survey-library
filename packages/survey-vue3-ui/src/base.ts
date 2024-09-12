@@ -11,8 +11,6 @@ import {
   type Ref,
   onBeforeUnmount,
   watchEffect,
-  nextTick,
-  onBeforeUpdate,
   onUpdated,
 } from "vue";
 Base.createPropertiesHash = () => {

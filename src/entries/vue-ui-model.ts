@@ -101,6 +101,7 @@ export { BrandInfo } from "../vue/components/brand-info.vue";
 export { QuestionError } from "../vue/components/question-error.vue";
 export { NotifierComponent } from "../vue/components/notifier.vue";
 export { ComponentsContainer } from "../vue/components/container.vue";
+export { TextAreaComponent } from "../vue/components/text-area.vue";
 export { CharacterCounterComponent } from "../vue/components/character-counter.vue";
 export { LoadingIndicatorComponent } from "../vue/components/loading-indicator.vue";
 export { HeaderCellViewModel } from "../vue/components/header/header-cell.vue";

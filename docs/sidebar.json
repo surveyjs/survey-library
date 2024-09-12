@@ -111,10 +111,6 @@
           "Title": "Create Composite Question Types"
         },
         {
-          "Name": "customize-question-types-create-custom-widgets",
-          "Title": "Create Custom Widgets in jQuery and Knockout"
-        },
-        {
           "Name": "customize-question-types-third-party-component-integration-angular",
           "Title": "Integrate Third-Party Angular Components"
         },
@@ -247,6 +243,10 @@
             {
               "Name": "questionpaneldynamicmodel",
               "Title": "QuestionPanelDynamicModel"
+            },
+            {
+              "Name": "choicesrestful",
+              "Title": "ChoicesRestful"
             },
             {
               "Name": "inputmasknumeric",

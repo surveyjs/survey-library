@@ -29,13 +29,14 @@
     v-bind:role="item.ariaRole"
     v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >
-    <sv-svg-icon
+    <SvComponent
+      :is="'sv-svg-icon'"
       v-if="item.iconName"
       :class="item.cssClasses.itemIcon"
       :iconName="item.iconName"
       :size="item.iconSize"
       :title="item.tooltip || item.title"
-    ></sv-svg-icon>
+    ></SvComponent>
 
     <span v-if="item.hasTitle" :class="item.getActionBarItemTitleCss()">{{
       item.title
@@ -48,6 +49,8 @@ export default {
 };
 </script>
 <script lang="ts" setup>
+import { key2ClickDirective as vKey2click } from "@/directives/key2click";
+import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type { Action } from "survey-core";
 const props = defineProps<{ item: Action }>();

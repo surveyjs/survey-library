@@ -174,6 +174,7 @@ export var defaultV2Css = {
     emptyHeaderRoot: "sd-page__empty-header",
     title: "sd-title sd-page__title",
     description: "sd-description sd-page__description",
+    number: "sd-page__num",
     errorsContainer: "sd-page__errbox"
   },
   pageTitle: "sd-title sd-page__title",

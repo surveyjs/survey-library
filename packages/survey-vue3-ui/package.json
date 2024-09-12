@@ -1,6 +1,6 @@
 {
   "name": "survey-vue3-ui",
-  "version": "1.11.14",
+  "version": "1.12.1",
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
@@ -10,11 +10,14 @@
     "build": "vite build && npm run build:types",
     "build:dev": "vite build --mode development",
     "build:types": "vue-tsc --project tsconfig.types.json --emitDeclarationOnly",
+    "serve:example:dev": "npm run dev --prefix ./example",
+    "serve:example:prod": "npm run preview --prefix ./example",
+    "build:example:prod": "npm run build --prefix ./example",
     "type-check": "vue-tsc --project tsconfig.types.json --noEmit",
     "test": "vitest --no-threads tests/*.spec.ts",
     "test:single": "vitest --no-watch --no-threads tests/*.spec.ts",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "lint": "eslint ./src ./tests --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "devDependencies": {
     "@babel/types": "^7.20.2",

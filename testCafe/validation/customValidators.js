@@ -1,7 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "customValidators";
 
 const setupSurvey = ClientFunction(() => {
@@ -26,6 +24,7 @@ const setupSurvey = ClientFunction(() => {
       return "mytextvalidator";
     };
     MyTextValidator.prototype.validate = function(value, name) {
+
       if (value.indexOf("survey") < 0) {
         //report an error
         return new window["Survey"].ValidatorResult(
@@ -69,14 +68,12 @@ const json = {
 };
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
-      await setupSurvey();
-      await initSurvey(framework, json);
-    }
-  );
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("check validation", async t => {
+    await setupSurvey();
+    await initSurvey(framework, json);
+
     const getError1Div = Selector("div").withText("Response required.").with({
       visibilityCheck: true,
       timeout: 1000
@@ -85,19 +82,19 @@ frameworks.forEach(framework => {
       visibilityCheck: true,
       timeout: 1000
     });
-    let surveyResult;
 
-    await t.click("input[value=\"Complete\"]");
+    await t
+      .click("input[value=\"Complete\"]")
+      .expect(getError1Div.visible).ok()
 
-    assert(await getError1Div());
+      .typeText("textarea", "wombat")
+      .click("input[value=\"Complete\"]")
+      .expect(getError2Div.visible).ok()
 
-    await t.typeText("textarea", "wombat").click("input[value=\"Complete\"]");
+      .typeText("textarea", " survey")
+      .click("input[value=\"Complete\"]");
 
-    assert(await getError2Div());
-
-    await t.typeText("textarea", " survey").click("input[value=\"Complete\"]");
-
-    surveyResult = await getSurveyResult();
+    const surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({ memo: "wombat survey" });
   });
 });

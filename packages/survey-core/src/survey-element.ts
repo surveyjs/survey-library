@@ -607,6 +607,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (css.number) return css.number;
     return css.panel ? css.panel.number : undefined;
   }
+  public get cssRequiredText(): any {
+    const css = this.cssClasses;
+    return css.requiredText || (css.panel && css.panel.requiredText);
+  }
   protected calcCssClasses(css: any): any { return undefined; }
   protected updateElementCssCore(cssClasses: any) { }
   public get cssError(): string { return ""; }

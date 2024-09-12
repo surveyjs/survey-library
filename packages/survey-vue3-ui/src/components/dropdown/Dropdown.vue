@@ -23,7 +23,8 @@
       </div>
 
       <div :class="question.cssClasses.controlValue">
-        <survey-string
+        <SvComponent
+          :is="'survey-string'"
           v-if="showSelectedItemLocText"
           :locString="selectedItemLocText"
         />
@@ -36,13 +37,13 @@
           }}</span>
           <span>{{ model.hintStringSuffix }}</span>
         </div>
-        <component
+        <SvComponent
           v-if="question.showInputFieldComponent"
           :is="question.inputFieldComponentName"
           :item="model.getSelectedAction()"
           :question="question"
         >
-        </component>
+        </SvComponent>
         <input
           type="text"
           ref="inputElement"
@@ -73,19 +74,21 @@
         @click="clear"
         aria-hidden="true"
       >
-        <sv-svg-icon
+        <SvComponent
+          :is="'sv-svg-icon'"
           :class="question.cssClasses.cleanButtonSvg"
           :iconName="question.cssClasses.cleanButtonIconId"
           :title="question.clearCaption"
           size="auto"
         >
-        </sv-svg-icon>
+        </SvComponent>
       </div>
     </div>
-    <sv-popup
+    <SvComponent
+      :is="'sv-popup'"
       v-if="!question.isReadOnly"
       :model="question.dropdownListModel.popupModel"
-    ></sv-popup>
+    ></SvComponent>
     <div
       v-else
       :id="question.inputId"
@@ -95,7 +98,8 @@
       :tabindex="question.isDisabledAttr ? undefined : 0"
       :class="question.getControlClass()"
     >
-      <survey-string
+      <SvComponent
+        :is="'survey-string'"
         v-if="question.selectedItemLocText"
         :locString="question.selectedItemLocText"
       />
@@ -107,19 +111,21 @@
       v-if="question.cssClasses.chevronButtonIconId"
       aria-hidden="true"
     >
-      <sv-svg-icon
+      <SvComponent
+        :is="'sv-svg-icon'"
         :class="question.cssClasses.chevronButtonSvg"
         :iconName="question.cssClasses.chevronButtonIconId"
         size="auto"
       >
-      </sv-svg-icon>
+      </SvComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
-import { DropdownListModel, Question, Helpers } from "survey-core";
+import { Question, Helpers } from "survey-core";
 import { computed, onMounted, onUpdated, ref } from "vue";
 
 const props = defineProps<{ question: Question }>();

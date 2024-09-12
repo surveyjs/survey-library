@@ -1947,7 +1947,14 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.survey ? this.survey.questionErrorLocation : "top";
   }
   //ITitleOwner
+  public getTitleOwner(): ITitleOwner { return this; }
   public get no(): string { return ""; }
+  public get cssTitleNumber(): string {
+    return this.cssClasses.panel.number;
+  }
+  public get cssRequiredText(): string {
+    return this.cssClasses.panel.requiredText;
+  }
 
   public get cssError(): string {
     return this.getCssError(this.cssClasses);
@@ -2069,7 +2076,6 @@ export class PanelModel extends PanelModelBase implements IElement {
   public get visibleIndex(): number {
     return this.getPropertyValue("visibleIndex", -1);
   }
-  public getTitleOwner(): ITitleOwner { return this; }
   /**
    * Specifies whether to show the panel number in the title.
    *

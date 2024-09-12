@@ -1,4 +1,4 @@
-import { surveyPlugin }  from "survey-vue3-ui";
+import { ComponentFactory }  from "survey-vue3-ui";
 
 import { createApp } from 'vue'
 import Action from "./components/test/test-custom-components/Action.vue"
@@ -7,14 +7,11 @@ import ItemContent from "./components/test/test-custom-components/ItemContent.vu
 import App from './App.vue'
 import router from './router'
 
+ComponentFactory.Instance.registerComponent("svc-custom-action", Action);
+ComponentFactory.Instance.registerComponent("new-item", Item);
+ComponentFactory.Instance.registerComponent("new-item-content", ItemContent);
+
 const app = createApp(App)
-app.use(surveyPlugin);
-
-
-app.component("svc-custom-action", Action);
-app.component("new-item", Item);
-app.component("new-item-content", ItemContent);
-
 app.use(router)
 
 app.mount('#app')

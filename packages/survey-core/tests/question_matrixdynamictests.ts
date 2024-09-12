@@ -2119,7 +2119,7 @@ QUnit.test("Set totals correctly for read-only question", function (assert) {
 });
 
 QUnit.test(
-  "matrixDynamic.clearInvisibleValues do not call it on changing condition if clearInvisibleValues doesn't eaqual to 'onHidden'",
+  "matrixdropdown.clearInvisibleValues do not call it on changing condition if clearInvisibleValues doesn't eaqual to 'onHidden'",
   function (assert) {
     var survey = new SurveyModel({
       elements: [
@@ -2356,32 +2356,26 @@ QUnit.test("matrix.rowsVisibleIf, use 'row.' context", function(assert) {
   matrix.clearValue();
   assert.equal(matrix.visibleRows.length, 3, "all rows are shown again");
 });
-QUnit.test(
-  "matrix.rowsVisibleIf, clear value on making the value invisible",
-  function (assert) {
-    var survey = new SurveyModel();
-    survey.clearInvisibleValues = "onHidden";
-    var page = survey.addNewPage("p1");
-    var qBestCar = new QuestionMatrixDropdownModel("bestCar");
-    qBestCar.cellType = "text";
-    qBestCar.addColumn("col1");
-    qBestCar.addColumn("col2");
-    qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
-    qBestCar.rowsVisibleIf = "{cars} contains {item}";
-    page.addElement(qBestCar);
-    survey.setValue("cars", ["BMW", "Audi", "Mercedes"]);
-    qBestCar.value = { BMW: { col1: 1 }, Audi: { col2: 2 } };
-    assert.deepEqual(
-      qBestCar.value,
-      { BMW: { col1: 1 }, Audi: { col2: 2 } },
-      "Audi is selected"
-    );
-    survey.setValue("cars", ["BMW"]);
-    assert.deepEqual(qBestCar.value, { BMW: { col1: 1 } }, "Audi is removed");
-    survey.setValue("cars", ["Mercedes"]);
-    assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
-  }
-);
+QUnit.test("matrixdropdown.rowsVisibleIf, clear value on making the value invisible", function (assert) {
+  const survey = new SurveyModel({
+    clearInvisibleValues: "onHidden",
+    elements: [
+      { type: "checkbox", name: "cars", choices: ["Audi", "BMW", "Mercedes", "Volkswagen"] },
+      { type: "matrixdropdown", name: "bestCar", rows: ["Audi", "BMW", "Mercedes", "Volkswagen"],
+        columns: [{ name: "col1" }, { name: "col2" }], cellType: "text", rowsVisibleIf: "{cars} contains {item}"
+      }
+    ]
+  });
+  const qBestCar = <QuestionMatrixDropdownModel>survey.getQuestionByName("bestCar");
+  const cars = <QuestionCheckboxModel>survey.getQuestionByName("cars");
+  cars.value = ["BMW", "Audi", "Mercedes"];
+  qBestCar.value = { BMW: { col1: 1 }, Audi: { col2: 2 } };
+  assert.deepEqual(qBestCar.value, { BMW: { col1: 1 }, Audi: { col2: 2 } }, "Audi is selected");
+  cars.value = ["BMW"];
+  assert.deepEqual(qBestCar.value, { BMW: { col1: 1 } }, "Audi is removed");
+  cars.value = ["Mercedes"];
+  assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
+});
 
 QUnit.test("matrix.defaultRowValue, apply from json and then from UI", function (
   assert
@@ -2654,7 +2648,6 @@ QUnit.test(
     var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
 
     var rows = question.visibleRows;
-    var visibleTotalRow = question.visibleTotalRow;
     assert.equal(rows[0].cells[2].question.value, 0, "By default price is 0");
     rows[0].cells[1].question.value = "item1";
     assert.equal(rows[0].cells[2].question.value, 10, "Price is ten now");
@@ -2666,7 +2659,7 @@ QUnit.test(
     );
 
     question.addRow();
-    assert.equal(rows.length, 2, "There are two rows now");
+    assert.equal(question.visibleRows.length, 2, "There are two rows now");
     rows[1].cells[3].question.value = 3;
     rows[1].cells[1].question.value = "item2";
     assert.equal(

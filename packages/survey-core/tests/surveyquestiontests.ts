@@ -2765,16 +2765,15 @@ QUnit.test(
 );
 
 QUnit.test("matrixdropdown.rowsVisibleIf", function (assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p1");
-  var qCars = new QuestionCheckboxModel("cars");
-  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
-  page.addElement(qCars);
-  var qBestCar = new QuestionMatrixDropdownModel("bestCar");
-  qBestCar.addColumn("col1");
-  qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
-  qBestCar.rowsVisibleIf = "{cars} contains {item}";
-  page.addElement(qBestCar);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "cars", choices: ["Audi", "BMW", "Mercedes", "Volkswagen"] },
+      { type: "matrixdropdown", name: "bestCar", rows: ["Audi", "BMW", "Mercedes", "Volkswagen"],
+        columns: [{ name: "col1" }], rowsVisibleIf: "{cars} contains {item}" }
+    ]
+  });
+  const qCars = <QuestionCheckboxModel>survey.getQuestionByName("cars");
+  const qBestCar = <QuestionMatrixDropdownModel>survey.getQuestionByName("bestCar");
   assert.equal(qBestCar.visibleRows.length, 0, "cars are not selected yet");
   qCars.value = ["BMW"];
   assert.equal(qBestCar.visibleRows.length, 1, "BMW is selected");

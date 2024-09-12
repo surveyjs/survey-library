@@ -274,6 +274,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   public isRowEnabled(): boolean { return true; }
   protected isRowHasEnabledCondition(): boolean { return false; }
+  public get isVisible(): boolean { return this.visible && this.isItemVisible(); }
   public get visible(): boolean { return this.visibleValue; }
   public set visible(val: boolean) {
     if(this.visible !== val) {
@@ -281,6 +282,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.data?.onRowVisibilityChanged(this);
     }
   }
+  protected isItemVisible(): boolean { return true; }
   public get value(): any {
     var result: any = {};
     var questions = this.questions;
@@ -421,7 +423,10 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     const rowValues = rowIndex > 0 ? this.data.getRowValue(this.rowIndex - 1) : this.value;
     if(!!rowsVisibleIf) {
       values[MatrixDropdownRowModelBase.RowVariableName] = rowValues;
+      this.setRowsVisibleIfValues(values);
       this.visible = new ConditionRunner(rowsVisibleIf).run(values, properties);
+    } else {
+      this.visible = true;
     }
     for (var i = 0; i < this.cells.length; i++) {
       if (i > 0) {
@@ -437,6 +442,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.onQuestionReadOnlyChanged();
     }
   }
+  protected setRowsVisibleIfValues(values: any): void {}
   public getNamesWithDefaultValues(): Array<string> {
     const res: Array<string> = [];
     this.questions.forEach(q => {
@@ -1161,6 +1167,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase): void { }
   protected onRowsChanged(): void {
+    this.clearVisibleRows();
     this.resetRenderedTable();
     super.onRowsChanged();
   }
@@ -1207,6 +1214,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.fireCallback(this.onRenderedTableResetCallback);
   }
   protected clearGeneratedRows(): void {
+    this.clearVisibleRows();
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.generatedVisibleRows[i].dispose();
@@ -1483,7 +1491,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!!rows) {
       const newValues = this.getRowConditionValues(values);
       for (var i = 0; i < rows.length; i++) {
-        rows[i].runCondition(newValues, properties);
+        rows[i].runCondition(newValues, properties, this.rowsVisibleIf);
       }
     }
     this.checkColumnsVisibility();
@@ -1676,13 +1684,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
    * @see isUniqueCaseSensitive
    */
-  public get keyDuplicationError() {
+  public get keyDuplicationError(): string {
     return this.getLocalizableStringText("keyDuplicationError");
   }
   public set keyDuplicationError(val: string) {
     this.setLocalizableStringText("keyDuplicationError", val);
   }
-  get locKeyDuplicationError() {
+  get locKeyDuplicationError(): LocalizableString {
     return this.getLocalizableString("keyDuplicationError");
   }
   public get storeOthersAsComment(): boolean {
@@ -1693,9 +1701,19 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.columns.push(column);
     return column;
   }
+  private visibleRowsArray: Array<MatrixDropdownRowModelBase>;
+  protected clearVisibleRows(): void {
+    this.visibleRowsArray = null;
+  }
   protected getVisibleRows(): Array<MatrixDropdownRowModelBase> {
     if (this.isUpdateLocked) return null;
-    if (!this.generatedVisibleRows) {
+    if(!!this.visibleRowsArray) return this.visibleRowsArray;
+    this.generateVisibleRowsIfNeeded();
+    this.visibleRowsArray = this.getVisibleFromGenerated(this.generatedVisibleRows);
+    return this.visibleRowsArray;
+  }
+  private generateVisibleRowsIfNeeded(): void {
+    if (!this.isUpdateLocked && !this.generatedVisibleRows) {
       this.generatedVisibleRows = this.generateRows();
       this.generatedVisibleRows.forEach((row) => this.onMatrixRowCreated(row));
       if (this.data) {
@@ -1704,16 +1722,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
           this.data.getFilteredProperties()
         );
       }
-      if(!this.generatedVisibleRows) return [];
-      this.updateValueOnRowsGeneration(this.generatedVisibleRows);
-      this.updateIsAnswered();
+      if(!!this.generatedVisibleRows) {
+        this.updateValueOnRowsGeneration(this.generatedVisibleRows);
+        this.updateIsAnswered();
+      }
     }
-    return this.getVisibleFromGenerated(this.generatedVisibleRows);
   }
   private getVisibleFromGenerated(rows: Array<MatrixDropdownRowModelBase>): Array<MatrixDropdownRowModelBase> {
     const res = [];
-    rows.forEach(row => { if(row.visible) res.push(row); });
-    return res;
+    if(!rows) return res;
+    rows.forEach(row => { if(row.isVisible) res.push(row); });
+    return res.length === rows.length ? rows : res;
   }
   private updateValueOnRowsGeneration(rows: Array<MatrixDropdownRowModelBase>) {
     var oldValue = this.createNewValue(true);
@@ -2543,7 +2562,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   isMatrixReadOnly(): boolean { return this.isReadOnly; }
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
+    this.clearVisibleRows();
+    this.clearIncorrectValues();
     this.resetRenderedTable();
+  }
+  protected isRowsFiltered(): boolean {
+    return super.isRowsFiltered() || (this.visibleRows !== this.generatedVisibleRows);
   }
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (index >= this.visibleRows.length) return null;

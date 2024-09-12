@@ -31,8 +31,13 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   public get locText(): LocalizableString {
     return this.item.locText;
   }
+  protected isItemVisible(): boolean { return this.item.isVisible; }
   public isRowEnabled(): boolean { return this.item.isEnabled; }
   protected isRowHasEnabledCondition(): boolean { return !!this.item.enableIf; }
+  protected setRowsVisibleIfValues(values: any): void {
+    values["item"] = this.item.value;
+    values["choice"] = this.item.value;
+  }
 }
 /**
   * A class that describes the Multi-Select Matrix question type. Multi-Select Matrix allows you to use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Text](https://surveyjs.io/form-library/documentation/questiontextmodel), and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types as cell editors.
@@ -47,9 +52,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     this.registerPropertyChangedHandlers(["rows"], () => {
       this.clearGeneratedRows();
       this.resetRenderedTable();
-      if (!this.filterItems()) {
-        this.onRowsChanged();
-      }
+      this.visibleRows;
       this.clearIncorrectValues();
     });
     this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
@@ -126,23 +129,26 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return Helpers.isValueObject(val, true);
   }
   public clearIncorrectValues(): void {
-    var val = this.value;
-    if (!val) return;
-    var newVal = null;
-    var isChanged = false;
-    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
-    for (var key in val) {
-      if (ItemValue.getItemByValue(rows, key)) {
-        if (newVal == null) newVal = {};
-        (<any>newVal)[key] = val[key];
-      } else {
-        isChanged = true;
+    if(!this.isEmpty() && Array.isArray(this.generatedVisibleRows)) {
+      const newVal: any = {};
+      const val = this.value;
+      for(let key in val) {
+        const row = this.getRowByKey(key);
+        if(!!row && row.isVisible) {
+          newVal[key] = val[key];
+        }
       }
-    }
-    if (isChanged) {
       this.value = newVal;
     }
     super.clearIncorrectValues();
+  }
+  private getRowByKey(val: any): MatrixDropdownRowModelBase {
+    const rows = this.generatedVisibleRows;
+    if(!rows) return null;
+    for(let i = 0; i < rows.length; i ++) {
+      if(rows[i].rowName === val) return rows[i];
+    }
+    return null;
   }
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);

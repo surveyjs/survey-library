@@ -112,7 +112,9 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public set rowsVisibleIf(val: string) {
     this.setPropertyValue("rowsVisibleIf", val);
-    this.filterItems();
+    if(!this.isLoadingFromJsonValue) {
+      this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
+    }
   }
   /**
    * A Boolean expression that is evaluated against each matrix column. If the expression evaluates to `false`, the column becomes hidden.
@@ -161,7 +163,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected isVisibleCore(): boolean {
     const res = super.isVisibleCore();
     if(!res || !(<any>this).hideIfRowsEmpty) return res;
-    return this.rows.length > 0 && (!this.filteredRows || this.filteredRows.length > 0);
+    return this.visibleRows.length > 0;
   }
   protected shouldRunColumnExpression(): boolean {
     return !this.survey || !this.survey.areInvisibleElementsShowing;
@@ -182,7 +184,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     var hasColumnsChanged = this.runConditionsForColumns(values, properties);
     hasChanges = hasColumnsChanged || hasChanges;
     if (hasChanges) {
-      if (this.isClearValueOnHidden && (!!this.filteredColumns || !!this.filteredRows)) {
+      if (this.isClearValueOnHidden && (!!this.filteredColumns || this.isRowsFiltered())) {
         this.clearIncorrectValues();
       }
       if (!!oldVisibleRows) {
@@ -196,7 +198,8 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     }
     return hasChanges;
   }
-  protected clearGeneratedRows() {
+  protected isRowsFiltered(): boolean { return !!this.filteredRows; }
+  protected clearGeneratedRows(): void {
     this.generatedVisibleRows = null;
   }
   protected createRowsVisibleIfRunner(): ConditionRunner { return null; }
@@ -233,7 +236,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     }
     return hasChanged;
   }
-  public clearIncorrectValues() {
+  public clearIncorrectValues(): void {
     var val = this.value;
     if (!val) return;
     var newVal = null;
@@ -256,7 +259,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     }
     super.clearIncorrectValues();
   }
-  protected clearInvisibleValuesInRows() {
+  protected clearInvisibleValuesInRows(): void {
     if (this.isEmpty()) return;
     var newData = this.getUnbindValue(this.value);
     var rows = this.rows;

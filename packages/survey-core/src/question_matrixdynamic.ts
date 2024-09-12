@@ -843,7 +843,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.onEndRowAdding();
     } else {
       this.clearGeneratedRows();
-      this.generatedVisibleRows = this.visibleRows;
+      this.getVisibleRows();
       this.onRowsChanged();
     }
     this.setRowCountValueFromData = false;

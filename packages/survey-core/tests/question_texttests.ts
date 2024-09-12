@@ -6,6 +6,7 @@ import { settings } from "../src/settings";
 import { StylesManager } from "@legacy/stylesmanager";
 import { InputMaskPattern } from "../src/mask/mask_pattern";
 import { FunctionFactory } from "../src/functionsfactory";
+export * from "../src/localization/german";
 
 QUnit.test("check text disabled class", function (assert) {
   var json = {
@@ -538,4 +539,21 @@ QUnit.test("Mask datetime with defaultValue as date", function (assert) {
   });
   const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
   assert.equal(q1.inputValue, "2024-09-4 12:34");
+});
+QUnit.test("Mask datetime with defaultValue as date", function (assert) {
+  const survey = new SurveyModel({
+    locale: "de",
+    elements: [
+      {
+        "type": "text",
+        "name": "q1",
+        "inputType": "email"
+      },
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = "test";
+  q1.validate(true, true);
+  assert.equal(q1.errors.length, 1, "There is an error");
+  assert.equal(q1.errors[0].text, "Bitte geben Sie eine gültige E-Mail-Adresse ein.", "Error in Deutsch");
 });

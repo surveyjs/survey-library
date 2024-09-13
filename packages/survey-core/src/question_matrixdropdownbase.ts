@@ -1729,7 +1729,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   private getVisibleFromGenerated(rows: Array<MatrixDropdownRowModelBase>): Array<MatrixDropdownRowModelBase> {
-    const res = [];
+    const res: Array<MatrixDropdownRowModelBase> = [];
     if(!rows) return res;
     rows.forEach(row => { if(row.isVisible) res.push(row); });
     return res.length === rows.length ? rows : res;

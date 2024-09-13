@@ -253,9 +253,8 @@ export class QuestionMatrixModel
       this.onColumnsChanged();
     });
     this.registerPropertyChangedHandlers(["rows"], () => {
-      if (!this.filterItems()) {
-        this.onRowsChanged();
-      }
+      this.runItemsCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.onRowsChanged();
     });
     this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
       this.updateVisibilityBasedOnRows();
@@ -388,9 +387,9 @@ export class QuestionMatrixModel
     }
     return res;
   }
-  protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): boolean {
+  protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): void {
     ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
-    return super.runItemsCondition(values, properties);
+    super.runItemsCondition(values, properties);
   }
   protected createRowsVisibleIfRunner(): ConditionRunner {
     return !!this.rowsVisibleIf ? new ConditionRunner(this.rowsVisibleIf) : null;

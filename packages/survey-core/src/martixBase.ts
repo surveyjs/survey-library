@@ -81,7 +81,6 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   set rows(newValue: Array<any>) {
     var newRows = this.processRowsOnSet(newValue);
     this.setPropertyValue("rows", newRows);
-    this.filterItems();
   }
   protected processRowsOnSet(newRows: Array<any>) {
     return newRows;
@@ -139,17 +138,6 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     super.runCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
-  protected filterItems(): boolean {
-    if (this.areInvisibleElementsShowing) {
-      this.onRowsChanged();
-      return false;
-    }
-    if (this.isLoadingFromJson || !this.data) return false;
-    return this.runItemsCondition(
-      this.getDataFilteredValues(),
-      this.getDataFilteredProperties()
-    );
-  }
   protected onColumnsChanged(): void { }
   protected onRowsChanged(): void {
     this.updateVisibilityBasedOnRows();
@@ -171,7 +159,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected hasRowsAsItems(): boolean {
     return true;
   }
-  protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): boolean {
+  protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): void {
     var oldVisibleRows = null;
     if (!!this.filteredRows && !Helpers.isValueEmpty(this.defaultValue)) {
       oldVisibleRows = [];
@@ -196,7 +184,6 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       }
       this.onRowsChanged();
     }
-    return hasChanges;
   }
   protected isRowsFiltered(): boolean { return !!this.filteredRows; }
   protected clearGeneratedRows(): void {

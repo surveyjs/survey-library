@@ -2563,7 +2563,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   isMatrixReadOnly(): boolean { return this.isReadOnly; }
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
     this.clearVisibleRows();
-    this.clearIncorrectValues();
+    if(this.isClearValueOnHidden) {
+      this.clearIncorrectValues();
+    }
     this.resetRenderedTable();
   }
   protected isRowsFiltered(): boolean {

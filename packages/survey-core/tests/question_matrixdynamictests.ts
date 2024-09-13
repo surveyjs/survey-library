@@ -2351,6 +2351,7 @@ QUnit.test("matrix.rowsVisibleIf, use 'row.' context", function(assert) {
   assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
   matrix.value = { row1: { col1: "a" } };
   assert.equal(matrix.visibleRows.length, 2, "row1 is hidden");
+  assert.deepEqual(matrix.value, { row1: { col1: "a" } }, "matrix.value #1");
   matrix.value = { row1: { col1: "a" }, row3: { col1: "a" } };
   assert.equal(matrix.visibleRows.length, 1, "row1, row3 are hidden");
   matrix.clearValue();
@@ -2369,11 +2370,14 @@ QUnit.test("matrixdropdown.rowsVisibleIf, clear value on making the value invisi
   const qBestCar = <QuestionMatrixDropdownModel>survey.getQuestionByName("bestCar");
   const cars = <QuestionCheckboxModel>survey.getQuestionByName("cars");
   cars.value = ["BMW", "Audi", "Mercedes"];
+  assert.equal(qBestCar.visibleRows.length, 3, "visible rows #1");
   qBestCar.value = { BMW: { col1: 1 }, Audi: { col2: 2 } };
   assert.deepEqual(qBestCar.value, { BMW: { col1: 1 }, Audi: { col2: 2 } }, "Audi is selected");
   cars.value = ["BMW"];
+  assert.equal(qBestCar.visibleRows.length, 1, "visible rows #2");
   assert.deepEqual(qBestCar.value, { BMW: { col1: 1 } }, "Audi is removed");
   cars.value = ["Mercedes"];
+  assert.equal(qBestCar.visibleRows.length, 1, "visible rows #3");
   assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
 });
 

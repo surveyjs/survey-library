@@ -50,9 +50,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     super(name);
     this.createLocalizableString("totalText", this, true);
     this.registerPropertyChangedHandlers(["rows"], () => {
+      if(!this.generatedVisibleRows) return;
       this.clearGeneratedRows();
       this.resetRenderedTable();
-      this.visibleRows;
+      this.getVisibleRows();
       this.clearIncorrectValues();
     });
     this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
@@ -129,7 +130,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return Helpers.isValueObject(val, true);
   }
   public clearIncorrectValues(): void {
-    if(!this.isEmpty() && Array.isArray(this.generatedVisibleRows)) {
+    if(!this.isEmpty()) {
+      this.getVisibleRows();
       const newVal: any = {};
       const val = this.value;
       for(let key in val) {

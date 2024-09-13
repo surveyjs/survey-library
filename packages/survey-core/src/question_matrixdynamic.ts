@@ -212,7 +212,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   initDataUI(): void {
     if(!this.generatedVisibleRows) {
-      this.visibleRows;
+      this.getVisibleRows();
     }
   }
   /**

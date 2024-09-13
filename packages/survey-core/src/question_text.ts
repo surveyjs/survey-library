@@ -410,7 +410,8 @@ export class QuestionTextModel extends QuestionTextBase {
     }
 
     const valName = this.getValidatorTitle();
-    var emailValidator = new EmailValidator();
+    const emailValidator = new EmailValidator();
+    emailValidator.errorOwner = this;
     if (
       this.inputType === "email" &&
       !this.validators.some((v) => v.getType() === "emailvalidator")

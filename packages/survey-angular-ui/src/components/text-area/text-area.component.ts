@@ -5,7 +5,8 @@ import { EmbeddedViewContentComponent } from "../../embedded-view-content.compon
 
 @Component({
   selector: "sv-text-area",
-  templateUrl: "./text-area.component.html"
+  templateUrl: "./text-area.component.html",
+  styleUrls: ["../../hide-host.scss"]
 })
 export class TextAreaComponent extends EmbeddedViewContentComponent {
   @Input() model!: TextAreaModel;

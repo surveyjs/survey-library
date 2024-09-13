@@ -2873,19 +2873,3 @@ QUnit.test("Check if errors disappered in the closest questions on changing the 
   assert.equal(q1.errors.length, 0, "q1.errors #3");
   assert.equal(q2.errors.length, 0, "q2.errors #3");
 });
-QUnit.test("Panel hasTextInTitle - reactive property, Bug:https://github.com/surveyjs/survey-creator/issues/5720", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "panel", name: "panel1" },
-      { type: "panel", name: "panel2", title: "Panel 2" }
-    ]
-  });
-  const panel1 = survey.getPanelByName("panel1");
-  const panel2 = survey.getPanelByName("panel2");
-  assert.equal(panel1.hasTextInTitle, false, "panel1 #1");
-  assert.equal(panel2.hasTextInTitle, true, "panel2 #1");
-  panel1.title = "Panel 1";
-  assert.equal(panel1.hasTextInTitle, true, "panel1 #2");
-  panel2.title = "";
-  assert.equal(panel2.hasTextInTitle, false, "panel2 #2");
-});

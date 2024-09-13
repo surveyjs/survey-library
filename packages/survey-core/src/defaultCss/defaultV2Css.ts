@@ -70,7 +70,6 @@ export var defaultV2Css = {
     titleExpanded: "sd-element__title--expanded",
     titleCollapsed: "sd-element__title--collapsed",
     titleDisabled: "sd-element__title--disabled",
-    titleHidden: "sd-element__title--hidden",
     titleOnExpand: "sd-panel__title--expanded",
     titleOnError: "sd-panel__title--error",
     titleBar: "sd-action-title-bar",

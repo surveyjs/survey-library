@@ -940,29 +940,4 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("panel-scroll-on-expand.png", null, t, comparer);
     });
   });
-  test("Check oridinary panel with no title in design mode", async (t) => {
-    await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, {
-        focusFirstQuestionAutomatic: true,
-        width: "600px",
-        questions: [
-          {
-            type: "panel",
-            name: "delivery_details",
-            elements: [
-              {
-                "type": "html",
-                "name": "question1",
-                "html": "No title in design mode"
-              }
-            ]
-          },
-        ]
-      }, null, true);
-      const panelRoot = Selector(".sd-panel");
-      await t.expect(panelRoot.find(".sd-element__title--hidden").exists).ok();
-      await takeElementScreenshot("panel-no-title-design.png", panelRoot, t, comparer);
-    });
-  });
 });

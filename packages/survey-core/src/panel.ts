@@ -2138,7 +2138,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.onGetTextCallback = (text: string): string => {
-      if (!text && (this.state !== "default" || (this.isDesignMode && this.isDefaultV2Theme))) {
+      if (!text && (this.state !== "default")) {
         text = this.name;
       }
       return text;
@@ -2270,10 +2270,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.survey.cancelPreviewByPage(this);
   }
   public get cssTitle(): string {
-    return new CssClassBuilder()
-      .append(this.getCssTitle(this.cssClasses.panel))
-      .append(this.cssClasses.panel.titleHidden, !this.title && this.isDesignMode)
-      .toString();
+    return this.getCssTitle(this.cssClasses.panel);
   }
   public get showErrorsAbovePanel(): boolean {
     return this.isDefaultV2Theme && !this.showPanelAsPage;

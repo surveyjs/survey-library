@@ -19,6 +19,7 @@
   from {
     overflow: hidden;
     height: var(--animation-height-from);
+    min-height: var(--animation-height-from);
     margin-top: 0;
     margin-bottom: 0;
     padding-top: 0;
@@ -35,6 +36,7 @@
     border-top-width: var(--animation-border-top-width);
     border-bottom-width: var(--animation-border-bottom-width);
     height: var(--animation-height-to);
+    min-height: var(--animation-height-to);
   }
   to {
     overflow: visible;
@@ -45,6 +47,7 @@
     border-top-width: var(--animation-border-top-width);
     border-bottom-width: var(--animation-border-bottom-width);
     height: var(--animation-height-to);
+    min-height: var(--animation-height-to);
   }
 }
 @keyframes moveIn {

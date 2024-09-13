@@ -414,7 +414,7 @@ export class PanelModelBase extends SurveyElement<Question>
   get hasTitle(): boolean {
     return (
       (this.canShowTitle() && this.locTitle.textOrHtml.length > 0) ||
-      (this.isDesignMode && (this.showTitle && settings.designMode.showEmptyTitles))
+      (this.isDesignMode && !(settings.supportCreatorV2 && this.isPanel) && this.showTitle && settings.designMode.showEmptyTitles)
     );
   }
   public delete(doDispose: boolean = true): void {

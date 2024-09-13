@@ -2039,14 +2039,6 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.onIndentChanged();
     this.calcHasTextInTitle();
   }
-  public get cssHeader(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.panel.header)
-      .append(this.cssClasses.panel.headerHidden,
-        !this.hasTextInTitle &&
-        !this.hasDescription &&
-        this.isDesignMode).toString();
-  }
   public get isPanel(): boolean {
     return true;
   }

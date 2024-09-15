@@ -23,7 +23,7 @@ import { ConditionRunner } from "./conditions";
 
 export interface IMatrixDropdownData {
   value: any;
-  getVisibleData(): any;
+  getFilteredData(): any;
   onRowChanged(
     row: MatrixDropdownRowModelBase,
     columnName: string,
@@ -415,7 +415,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>, rowsVisibleIf?: string): void {
     if (!!this.data) {
-      values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.getVisibleData();
+      values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.getFilteredData();
     }
     const rowIndex = this.rowIndex;
     this.applyRowVariablesToValues(values, rowIndex);
@@ -2356,21 +2356,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected get hasInvisibleRows(): boolean {
     return !!this.visibleRowsArray && this.visibleRowsArray.length !== this.generatedVisibleRows.length;
   }
-  getVisibleData(): any {
-    if(this.isEmpty() || !this.hasInvisibleRows) return this.value;
-    return this.getVisibleDataCore();
+  getFilteredData(): any {
+    if(this.isEmpty() || !this.generatedVisibleRows || !this.hasInvisibleRows) return this.value;
+    return this.getFilteredDataCore();
   }
-  protected getVisibleDataCore(): any {
-    const res = {};
-    const val = this.createValueCopy();
-    this.visibleRowsArray.forEach(row => {
-      const rowVal = val[row.rowName];
-      if(!Helpers.isValueEmpty(rowVal)) {
-        res[row.rowName] = rowVal;
-      }
-    });
-    return res;
-  }
+  protected getFilteredDataCore(): any { return this.value; }
   onRowChanging(
     row: MatrixDropdownRowModelBase,
     columnName: string,
@@ -2590,7 +2580,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   protected clearInvisibleValuesInRows(): void {
     if (this.isEmpty() || !this.isRowsFiltered) return;
-    this.value = this.getVisibleData();
+    const sharedQuestions = this.survey?.questionsByValueName(this.getValueName()) || [];
+    if(sharedQuestions.length < 2) {
+      this.value = this.getFilteredData();
+    }
   }
   protected isRowsFiltered(): boolean {
     return super.isRowsFiltered() || (this.visibleRows !== this.generatedVisibleRows);

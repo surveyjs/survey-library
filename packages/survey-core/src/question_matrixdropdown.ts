@@ -188,6 +188,17 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected createMatrixRow(item: ItemValue, value: any): MatrixDropdownRowModel {
     return new MatrixDropdownRowModel(item.value, item, this, value);
   }
+  protected getFilteredDataCore(): any {
+    const res = {};
+    const val = this.createValueCopy();
+    this.generatedVisibleRows.forEach(row => {
+      const rowVal = val[row.rowName];
+      if(row.isVisible && !Helpers.isValueEmpty(rowVal)) {
+        res[row.rowName] = rowVal;
+      }
+    });
+    return res;
+  }
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("rows");
   }

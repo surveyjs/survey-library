@@ -189,7 +189,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return new MatrixDropdownRowModel(item.value, item, this, value);
   }
   protected getFilteredDataCore(): any {
-    const res = {};
+    const res: any = {};
     const val = this.createValueCopy();
     this.generatedVisibleRows.forEach(row => {
       const rowVal = val[row.rowName];

@@ -826,7 +826,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setRowCountValueFromData = false;
   }
   protected getFilteredDataCore(): any {
-    const res = [];
+    const res: any = [];
     const val = this.createValueCopy();
     if(!Array.isArray(val)) return res;
     const rows = this.generatedVisibleRows;

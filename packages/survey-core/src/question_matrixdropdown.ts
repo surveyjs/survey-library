@@ -152,10 +152,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     return null;
   }
-  protected clearValueIfInvisibleCore(reason: string): void {
-    super.clearValueIfInvisibleCore(reason);
-    this.clearInvisibleValuesInRows();
-  }
   private defaultValuesInRows: any = {};
   protected clearGeneratedRows(): void {
     if (!this.generatedVisibleRows) return;
@@ -178,7 +174,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected generateRows(): Array<MatrixDropdownRowModel> {
     var result = new Array<MatrixDropdownRowModel>();
-    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
+    var rows = this.rows;
     if (!rows || rows.length === 0) return result;
     var val = this.value;
     if (!val) val = {};

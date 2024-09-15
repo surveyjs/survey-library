@@ -23,6 +23,7 @@ import { ConditionRunner } from "./conditions";
 
 export interface IMatrixDropdownData {
   value: any;
+  getVisibleData(): any;
   onRowChanged(
     row: MatrixDropdownRowModelBase,
     columnName: string,
@@ -414,7 +415,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>, rowsVisibleIf?: string): void {
     if (!!this.data) {
-      values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.value;
+      values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.getVisibleData();
     }
     const rowIndex = this.rowIndex;
     this.applyRowVariablesToValues(values, rowIndex);
@@ -2305,7 +2306,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     )
       return;
     this.isDoingonAnyValueChanged = true;
-    var rows = this.visibleRows;
+    var rows = this.generatedVisibleRows;
     for (var i = 0; i < rows.length; i++) {
       rows[i].onAnyValueChanged(name, questionName);
     }
@@ -2351,6 +2352,24 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   get isValidateOnValueChanging(): boolean {
     return !!this.survey ? this.survey.isValidateOnValueChanging : false;
+  }
+  protected get hasInvisibleRows(): boolean {
+    return !!this.visibleRowsArray && this.visibleRowsArray.length !== this.generatedVisibleRows.length;
+  }
+  getVisibleData(): any {
+    if(this.isEmpty() || !this.hasInvisibleRows) return this.value;
+    return this.getVisibleDataCore();
+  }
+  protected getVisibleDataCore(): any {
+    const res = {};
+    const val = this.createValueCopy();
+    this.visibleRowsArray.forEach(row => {
+      const rowVal = val[row.rowName];
+      if(!Helpers.isValueEmpty(rowVal)) {
+        res[row.rowName] = rowVal;
+      }
+    });
+    return res;
   }
   onRowChanging(
     row: MatrixDropdownRowModelBase,
@@ -2563,10 +2582,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   isMatrixReadOnly(): boolean { return this.isReadOnly; }
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
     this.clearVisibleRows();
-    if(this.isClearValueOnHidden) {
-      this.clearIncorrectValues();
-    }
     this.resetRenderedTable();
+  }
+  protected clearValueIfInvisibleCore(reason: string): void {
+    super.clearValueIfInvisibleCore(reason);
+    this.clearInvisibleValuesInRows();
+  }
+  protected clearInvisibleValuesInRows(): void {
+    if (this.isEmpty() || !this.isRowsFiltered) return;
+    this.value = this.getVisibleData();
   }
   protected isRowsFiltered(): boolean {
     return super.isRowsFiltered() || (this.visibleRows !== this.generatedVisibleRows);

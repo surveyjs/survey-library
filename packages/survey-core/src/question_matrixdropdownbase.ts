@@ -1706,7 +1706,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected clearVisibleRows(): void {
     this.visibleRowsArray = null;
   }
-  protected columnVisible(column: any): boolean {
+  protected isColumnVisible(column: any): boolean {
     return column.isColumnVisible;
   }
   protected getVisibleRows(): Array<MatrixDropdownRowModelBase> {

@@ -406,7 +406,7 @@ export class QuestionMatrixModel
     const rows = this.filteredRows || this.rows;
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      if (row.isVisible && this.isValueEmpty(row.value)) continue;
+      if (this.isValueEmpty(row.value)) continue;
       const rowId = this.id + "_" + row.value.toString().replace(/\s/g, "_");
       result.push(this.createMatrixRow(row, rowId, val[row.value]));
     }
@@ -426,6 +426,7 @@ export class QuestionMatrixModel
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.rows = this.sortVisibleRows(this.rows);
+    this.onColumnsChanged();
   }
   protected isNewValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);

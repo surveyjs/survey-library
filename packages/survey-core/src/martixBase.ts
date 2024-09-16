@@ -65,10 +65,10 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public get visibleColumns(): Array<any> {
     const res: Array<any> = [];
-    this.columns.forEach(col => { if(this.columnVisible(col)) { res.push(col); } });
+    this.columns.forEach(col => { if(this.isColumnVisible(col)) { res.push(col); } });
     return res;
   }
-  protected columnVisible(column: any): boolean {
+  protected isColumnVisible(column: any): boolean {
     return column.isVisible;
   }
   /**

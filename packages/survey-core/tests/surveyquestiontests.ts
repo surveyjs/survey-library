@@ -2713,6 +2713,14 @@ QUnit.test("matrix.columnsVisibleIf", function (assert) {
   qBestCar.columnsVisibleIf = "";
   assert.equal(qBestCar.visibleColumns.length, 4, "there is no filter");
 });
+QUnit.test("matrix.visibleColumns & matrix.visibleRows", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "matrix", name: "q1", columns: ["Audi", "BMW", "Mercedes", "Volkswagen"], rows: ["Audi", "BMW", "Mercedes"] }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.equal(matrix.visibleColumns.length, 4, "There are 4 visible columns");
+  assert.equal(matrix.visibleRows.length, 3, "There are 3 visible rows");
+});
 
 QUnit.test(
   "matrix.rowsVisibleIf, clear value on making the value invisible",

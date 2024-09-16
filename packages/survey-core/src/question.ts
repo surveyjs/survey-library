@@ -1790,11 +1790,11 @@ export class Question extends SurveyElement<Question>
     this.updateValueWithDefaults();
   }
   /**
-   * A Boolean expression. If it evaluates to `true`, the question value is reset to [default](#defaultValue).
+   * A Boolean [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). If it evaluates to `true`, the question value is reset to [default](#defaultValue).
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/trigger-setvalue/ (linkStyle))
    * @see setValueIf
    */
   public get resetValueIf(): string {
@@ -1804,11 +1804,11 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("resetValueIf", val);
   }
   /**
-   * A Boolean expression. If it evaluates to `true`, the question value is set to a value calculated using the [`setValueExpression`](#setValueExpression).
+   * A Boolean [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). If it evaluates to `true`, the question value is set to a value calculated using the [`setValueExpression`](#setValueExpression).
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/trigger-setvalue/ (linkStyle))
    * @see resetValueIf
    */
   public get setValueIf(): string {
@@ -1818,11 +1818,11 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("setValueIf", val);
   }
   /**
-   * An expression used to calculate the question value.
+   * An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the question value.
    *
    * You can use `setValueExpression` as a standalone property or in conjunction with the [`setValueIf`](#setValueIf) expression, in which case the calculated question value applies only when `setValueIf` evaluates to `true`.
    *
-   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/trigger-setvalue/ (linkStyle))
    * @see defaultValueExpression
    * @see resetValueIf
    */

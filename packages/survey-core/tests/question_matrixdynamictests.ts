@@ -2119,7 +2119,7 @@ QUnit.test("Set totals correctly for read-only question", function (assert) {
 });
 
 QUnit.test(
-  "matrixDynamic.clearInvisibleValues do not call it on changing condition if clearInvisibleValues doesn't eaqual to 'onHidden'",
+  "matrixdropdown.clearInvisibleValues do not call it on changing condition",
   function (assert) {
     var survey = new SurveyModel({
       elements: [
@@ -2150,9 +2150,6 @@ QUnit.test(
     survey.setValue("var1", 2);
     assert.deepEqual(question.value, { "2": "abc" }, "Change nothing");
     survey.setValue("var1", 1);
-    survey.clearInvisibleValues = "onHidden";
-    survey.setValue("var1", 2);
-    assert.equal(question.isEmpty(), true, "It is empty again");
   }
 );
 
@@ -2340,52 +2337,136 @@ QUnit.test("matrix.rowsVisibleIf", function (assert) {
   qBestCar.rowsVisibleIf = "";
   assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
 });
-
-/* Very likely we do not need this functional.
 QUnit.test("matrix.rowsVisibleIf, use 'row.' context", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p1");
-  var matrix = new QuestionMatrixDropdownModel("bestCar");
-  matrix.addColumn("col1");
-  matrix.addColumn("col2");
-  matrix.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
-  matrix.rowsVisibleIf = "{row.col2} != 1";
-  page.addElement(matrix);
-  assert.equal(matrix.visibleRows.length, 4, "all rows are shown");
-  matrix.value = [{ Audi: { col2: 1 } }];
-  assert.equal(matrix.visibleRows.length, 3, "Audi is hidden");
-  matrix.value = [{ Audi: { col2: 1 } }, { BMW: { col2: 1 } }];
-  assert.equal(matrix.visibleRows.length, 2, "Audi and BMW is hidden");
-  matrix.value = null;
-  assert.equal(matrix.visibleRows.length, 4, "all rows are shown again");
+  var survey = new SurveyModel({
+    elements: [
+      { type: "matrixdropdown", name: "matrix", rows: ["row1", "row2", "row3"],
+        rowsVisibleIf: "{row.col1} != 'a'", cellType: "text", columns: [{ name: "col1" }, { name: "col2" }] }
+    ]
+  });
+  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
+  matrix.value = { row1: { col1: "a" } };
+  assert.equal(matrix.visibleRows.length, 2, "row1 is hidden");
+  assert.deepEqual(matrix.value, { row1: { col1: "a" } }, "matrix.value #1");
+  matrix.value = { row1: { col1: "a" }, row3: { col1: "a" } };
+  assert.equal(matrix.visibleRows.length, 1, "row1, row3 are hidden");
+  matrix.clearValue();
+  assert.equal(matrix.visibleRows.length, 3, "all rows are shown again");
 });
-*/
-QUnit.test(
-  "matrix.rowsVisibleIf, clear value on making the value invisible",
-  function (assert) {
-    var survey = new SurveyModel();
-    survey.clearInvisibleValues = "onHidden";
-    var page = survey.addNewPage("p1");
-    var qBestCar = new QuestionMatrixDropdownModel("bestCar");
-    qBestCar.cellType = "text";
-    qBestCar.addColumn("col1");
-    qBestCar.addColumn("col2");
-    qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
-    qBestCar.rowsVisibleIf = "{cars} contains {item}";
-    page.addElement(qBestCar);
-    survey.setValue("cars", ["BMW", "Audi", "Mercedes"]);
-    qBestCar.value = { BMW: { col1: 1 }, Audi: { col2: 2 } };
-    assert.deepEqual(
-      qBestCar.value,
-      { BMW: { col1: 1 }, Audi: { col2: 2 } },
-      "Audi is selected"
-    );
-    survey.setValue("cars", ["BMW"]);
-    assert.deepEqual(qBestCar.value, { BMW: { col1: 1 } }, "Audi is removed");
-    survey.setValue("cars", ["Mercedes"]);
-    assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
-  }
-);
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "matrixdropdown", name: "matrix", rows: ["row1", "row2", "row3"],
+        rowsVisibleIf: "{row.col1} != 'a'", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] }
+    ]
+  });
+  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  matrix.value = { row1: { col2: 5 }, row2: { col2: 10 }, row3: { col2: 15 } };
+  assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 30, "total sum #1");
+  matrix.value = { row1: { col1: "a", col2: 5 }, row2: { col2: 10 }, row3: { col2: 15 } };
+  assert.equal(matrix.visibleRows.length, 2, "row1 is hidden");
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 25, "total sum #2");
+  matrix.value = { row1: { col1: "a", col2: 5 }, row2: { col2: 10 }, row3: { col1: "a", col2: 15 } };
+  assert.equal(matrix.visibleRows.length, 1, "row1, row3 are hidden");
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 10, "total sum #3");
+});
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "matrixdynamic", name: "matrix",
+        rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] }
+    ]
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.value = [{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }];
+  assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 30, "total sum #1");
+  survey.setValue("q1", "b");
+  assert.equal(matrix.visibleRows.length, 2, "row1 is hidden");
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 20, "total sum #2");
+  survey.setValue("q1", "a");
+  assert.equal(matrix.visibleRows.length, 1, "row1, row3 are hidden");
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 10, "total sum #3");
+  survey.setValue("q1", "c");
+  assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 30, "total sum #4");
+});
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context & set data correctly", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "matrixdynamic", name: "matrix",
+        rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2" }] }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.value = [{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }];
+  assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
+  survey.setValue("q1", "a");
+  assert.equal(matrix.visibleRows.length, 1, "row1, row3 are hidden");
+  matrix.visibleRows[0].cells[1].value = 100;
+  assert.deepEqual(matrix.value, [{ col1: "a", col2: 5 }, { col1: "b", col2: 100 }, { col1: "a", col2: 15 }], "Value set correctly");
+  survey.doComplete();
+  assert.deepEqual(matrix.value, [{ col1: "b", col2: 100 }], "Remove items correctly");
+});
+QUnit.test("Do not clear data for shared values & rowsVisibleIf", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "matrixdynamic", name: "matrix", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2" }] },
+      { type: "matrixdynamic", name: "matrix1", valueName: "matrix",
+        rowsVisibleIf: "{row.col1} = {q1}", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2" }] },
+      { type: "matrixdynamic", name: "matrix2", valueName: "matrix",
+        rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2" }] }
+    ]
+  });
+  survey.setValue("q1", "a");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  const matrix2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix2");
+  matrix.value = [{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }];
+  assert.equal(matrix.visibleRows.length, 3, "all rows are shown in matrix");
+  assert.equal(matrix1.visibleRows.length, 2, "2 rows are shown in matrix1");
+  assert.equal(matrix2.visibleRows.length, 1, "1 row is shown in matrix2");
+  assert.deepEqual(matrix.value, [{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }], "Value set correctly");
+  survey.doComplete();
+  assert.deepEqual(matrix.value, [{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }], "Values are shared we don't remove anything");
+});
+QUnit.test("matrixdropdown.rowsVisibleIf, clear value on making the value invisible", function (assert) {
+  const survey = new SurveyModel({
+    clearInvisibleValues: "onHidden",
+    elements: [
+      { type: "checkbox", name: "cars", choices: ["Audi", "BMW", "Mercedes", "Volkswagen"] },
+      { type: "matrixdropdown", name: "bestCar", rows: ["Audi", "BMW", "Mercedes", "Volkswagen"],
+        columns: [{ name: "col1" }, { name: "col2" }], cellType: "text", rowsVisibleIf: "{cars} contains {item}"
+      }
+    ]
+  });
+  const qBestCar = <QuestionMatrixDropdownModel>survey.getQuestionByName("bestCar");
+  const cars = <QuestionCheckboxModel>survey.getQuestionByName("cars");
+  cars.value = ["BMW", "Audi", "Mercedes"];
+  assert.equal(qBestCar.visibleRows.length, 3, "visible rows #1");
+  qBestCar.value = { BMW: { col1: 1 }, Audi: { col2: 2 } };
+  assert.deepEqual(qBestCar.value, { BMW: { col1: 1 }, Audi: { col2: 2 } }, "Audi is selected");
+  cars.value = ["BMW"];
+  assert.equal(qBestCar.visibleRows.length, 1, "visible rows #2");
+  survey.doComplete();
+  assert.deepEqual(qBestCar.value, { BMW: { col1: 1 } }, "Audi is removed");
+  survey.clear(false);
+  cars.value = ["Mercedes"];
+  assert.equal(qBestCar.visibleRows.length, 1, "visible rows #3");
+  survey.doComplete();
+  assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
+});
 
 QUnit.test("matrix.defaultRowValue, apply from json and then from UI", function (
   assert
@@ -2658,7 +2739,6 @@ QUnit.test(
     var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
 
     var rows = question.visibleRows;
-    var visibleTotalRow = question.visibleTotalRow;
     assert.equal(rows[0].cells[2].question.value, 0, "By default price is 0");
     rows[0].cells[1].question.value = "item1";
     assert.equal(rows[0].cells[2].question.value, 10, "Price is ten now");
@@ -2670,7 +2750,7 @@ QUnit.test(
     );
 
     question.addRow();
-    assert.equal(rows.length, 2, "There are two rows now");
+    assert.equal(question.visibleRows.length, 2, "There are two rows now");
     rows[1].cells[3].question.value = 3;
     rows[1].cells[1].question.value = "item2";
     assert.equal(
@@ -3317,11 +3397,11 @@ QUnit.test("Values from invisible rows should be removed, #1644", function (
     ],
   };
   var survey = new SurveyModel(json);
-  survey.data = { q1: 2, q2: { row1: "col1", row2: "col2" } };
+  survey.data = { q1: 2, q2: { row1: { col1: "a" }, row2: { col2: "b" } } };
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q2");
+  assert.equal(matrix.visibleRows.length, 1, "One row is visible");
   survey.doComplete();
-  assert.deepEqual(
-    survey.data,
-    { q1: 2, q2: { row2: "col2" } },
+  assert.deepEqual(survey.data, { q1: 2, q2: { row2: { col2: "b" } } },
     "Remove value for invisible row"
   );
 });

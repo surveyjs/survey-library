@@ -1,6 +1,7 @@
 import { Serializer } from "./jsonobject";
+import { Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
-import { IConditionObject, Question } from "./question";
+import { Question } from "./question";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
@@ -212,7 +213,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   initDataUI(): void {
     if(!this.generatedVisibleRows) {
-      this.visibleRows;
+      this.getVisibleRows();
     }
   }
   /**
@@ -824,7 +825,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     super.updateValueFromSurvey(newValue, clearData);
     this.setRowCountValueFromData = false;
   }
-  protected onBeforeValueChanged(val: any) {
+  protected getFilteredDataCore(): any {
+    const res: any = [];
+    const val = this.createValueCopy();
+    if(!Array.isArray(val)) return res;
+    const rows = this.generatedVisibleRows;
+    for(let i = 0; i < rows.length && i < val.length; i ++) {
+      const rowVal = val[i];
+      if(rows[i].isVisible && !Helpers.isValueEmpty(rowVal)) {
+        res.push(rowVal);
+      }
+    }
+    return res;
+  }
+  protected onBeforeValueChanged(val: any): void {
     if (!val || !Array.isArray(val)) return;
     var newRowCount = val.length;
     if (newRowCount == this.rowCount) return;
@@ -843,7 +857,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.onEndRowAdding();
     } else {
       this.clearGeneratedRows();
-      this.generatedVisibleRows = this.visibleRows;
+      this.getVisibleRows();
       this.onRowsChanged();
     }
     this.setRowCountValueFromData = false;
@@ -923,7 +937,6 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
 Serializer.addClass(
   "matrixdynamic",
   [
-    { name: "rowsVisibleIf:condition", visible: false },
     { name: "allowAddRows:boolean", default: true },
     { name: "allowRemoveRows:boolean", default: true },
     { name: "rowCount:number", default: 2, minValue: 0, isBindable: true },

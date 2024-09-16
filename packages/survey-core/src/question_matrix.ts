@@ -423,9 +423,10 @@ export class QuestionMatrixModel
       return Helpers.randomizeArray<MatrixRowModel>(array);
     return array;
   }
-  endLoadingFromJson() {
+  endLoadingFromJson(): void {
     super.endLoadingFromJson();
     this.rows = this.sortVisibleRows(this.rows);
+    this.onRowsChanged();
     this.onColumnsChanged();
   }
   protected isNewValueCorrect(val: any): boolean {

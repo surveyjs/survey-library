@@ -240,6 +240,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     if (this.generatedVisibleRows || prevValue == 0) {
       if (!this.generatedVisibleRows) {
+        this.clearGeneratedRows();
         this.generatedVisibleRows = [];
       }
       this.generatedVisibleRows.splice(val);

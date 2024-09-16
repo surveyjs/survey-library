@@ -1709,23 +1709,27 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected isColumnVisible(column: any): boolean {
     return column.isColumnVisible;
   }
+  private isGenereatingRows: boolean;
   protected getVisibleRows(): Array<MatrixDropdownRowModelBase> {
     if (this.isUpdateLocked) return null;
+    if(this.isGenereatingRows) return [];
     if(!!this.visibleRowsArray) return this.visibleRowsArray;
     this.generateVisibleRowsIfNeeded();
     this.visibleRowsArray = this.getVisibleFromGenerated(this.generatedVisibleRows);
-    if (this.data) {
-      this.runCellsCondition(
-        this.data.getFilteredValues(),
-        this.data.getFilteredProperties()
-      );
-    }
     return this.visibleRowsArray;
   }
   private generateVisibleRowsIfNeeded(): void {
-    if (!this.isUpdateLocked && !this.generatedVisibleRows) {
+    if (!this.isUpdateLocked && !this.generatedVisibleRows && !this.generatedVisibleRows) {
+      this.isGenereatingRows = true;
       this.generatedVisibleRows = this.generateRows();
+      this.isGenereatingRows = false;
       this.generatedVisibleRows.forEach((row) => this.onMatrixRowCreated(row));
+      if (this.data) {
+        this.runCellsCondition(
+          this.data.getFilteredValues(),
+          this.data.getFilteredProperties()
+        );
+      }
       if(!!this.generatedVisibleRows) {
         this.updateValueOnRowsGeneration(this.generatedVisibleRows);
         this.updateIsAnswered();

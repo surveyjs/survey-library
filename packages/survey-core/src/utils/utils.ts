@@ -164,9 +164,142 @@ function wrapUrlForBackgroundImage(url: string): string {
   return !!url ? ["url(", url, ")"].join("") : "";
 }
 
+// new-name: old-name
+const renamedIcons: any = {
+  "flip-24x24": "changecamera",
+  "toolbox-file-24x24": "choosefile",
+  "clear-24x24": "clear",
+  "close-24x24": "closecamera",
+  "file-72x72": "defaultfile",
+  "chevronleft-16x16": "left",
+  "plus-32x32": "modernbooleancheckchecked",
+  "minus-32x32": "modernbooleancheckunchecked",
+  "more-24x24": "more",
+  "navmenu-24x24": "navmenu_24x24",
+  "error-24x24": "removefile",
+  "camera-32x32": "takepicture",
+  "camera-24x24": "takepicture_24x24",
+  "pg-quiz-24x24": "timercircle",
+  "check-16x16": "v2check",
+  "check-24x24": "v2check_24x24",
+  "restoredown-16x16": "back-to-panel_16x16",
+  "clear-16x16": "clear_16x16",
+  "close-16x16": "close_16x16",
+  "collapsedetails-16x16": "collapsedetail",
+  "expanddetails-16x16": "expanddetail",
+  "maximize-16x16": "full-screen_16x16",
+  "loading-48x48": "loading",
+  "minimize-16x16": "minimize_16x16",
+  "chevronright-16x16": "next_16x16",
+  "noimage-48x48": "no-image",
+  "reorder-24x24": "ranking-arrows",
+  "fullsize-16x16": "restore_16x16",
+  "search-24x24": "search",
+  "smiley-rate5-24x24": "average",
+  "smiley-rate9-24x24": "excellent",
+  "smiley-rate7-24x24": "good",
+  "smiley-rate6-24x24": "normal",
+  "smiley-rate4-24x24": "not-good",
+  "smiley-rate10-24x24": "perfect",
+  "smiley-rate3-24x24": "poor",
+  "smiley-rate1-24x24": "terrible",
+  "smiley-rate8-24x24": "very-good",
+  "smiley-rate2-24x24": "very-poor",
+  "add-16x16": "add_16x16",
+  "add-24x24": "add_24x24",
+  "warning-24x24": "alert_24x24",
+  "apply-24x24": "apply",
+  "arrowdown-24x24": "arrow-down",
+  "arrowleft-24x24": "arrow-left",
+  "arrowleft-16x16": "arrow-left_16x16",
+  "arrowright-24x24": "arrow-right",
+  "arrowright-16x16": "arrow-right_16x16",
+  "arrowup-24x24": "arrow-up",
+  "toolbox-boolean-24x24": "boolean",
+  "speechbubble-16x16": "change-question-type_16x16",
+  "toolbox-checkbox-24x24": "checkbox",
+  "minusbox-16x16": "collapse-detail_16x16",
+  "collapse-pg-24x24": "collapse-panel",
+  "collapse-16x16": "collapse_16x16",
+  "dropper-16x16": "color-picker",
+  "toolbox-longtext-24x24": "comment",
+  "wrench-24x24": "config",
+  "copy-24x24": "copy",
+  "toolbox-customquestion-24x24": "default",
+  "delete-16x16": "delete_16x16",
+  "delete-24x24": "delete_24x24",
+  "hidehint-24x24": "description-hide",
+  "hint-24x24": "description",
+  "desktop-24x24": "device-desktop",
+  "phone-24x24": "device-phone",
+  "rotate-24x24": "device-rotate",
+  "tablet-24x24": "device-tablet",
+  "download-24x24": "download",
+  "drag-24x24": "drag-area-indicator",
+  "draghorizontal-24x16": "drag-area-indicator_24x16",
+  "chevrondown-24x24": "drop-down-arrow",
+  "chevrondown-16x16": "drop-down-arrow_16x16",
+  "toolbox-dropdown-24x24": "dropdown",
+  "copy-16x16": "duplicate_16x16",
+  "edit-24x24": "edit",
+  "edit-16x16": "edit_16x16",
+  "finishedit-24x24": "editing-finish",
+  "error-16x16": "error",
+  "plusbox-16x16": "expand-detail_16x16",
+  "expand-pg-24x24": "expand-panel",
+  "expand-16x16": "expand_16x16",
+  "toolbox-expression-24x24": "expression",
+  "textedit-24x24": "fast-entry",
+  "fix-24x24": "fix",
+  "toolbox-html-24x24": "html",
+  "toolbox-image-24x24": "image",
+  "toolbox-imagepicker-24x24": "imagepicker",
+  "import-24x24": "import",
+  "invisible-24x24": "invisible-items",
+  "language-24x24": "language",
+  "folder-24x24": "load",
+  "collapsepage-16x16": "logic-collapse",
+  "expandpage-16x16": "logic-expand",
+  "image-48x48": "logo",
+  "toolbox-matrix-24x24": "matrix",
+  "toolbox-multimatrix-24x24": "matrixdropdown",
+  "toolbox-dynamicmatrix-24x24": "matrixdynamic",
+  "toolbox-multipletext-24x24": "multipletext",
+  "toolbox-panel-24x24": "panel",
+  "toolbox-dynamicpanel-24x24": "paneldynamic",
+  "preview-24x24": "preview",
+  "toolbox-radiogroup-24x24": "radiogroup",
+  "toolbox-ranking-24x24": "ranking",
+  "toolbox-rating-24x24": "rating",
+  "redo-24x24": "redo",
+  "remove-16x16": "remove_16x16",
+  "required-16x16": "required",
+  "restore-24x24": "reset",
+  "save-24x24": "save",
+  "selectpage-24x24": "select-page",
+  "settings-24x24": "settings",
+  "settings-16x16": "settings_16x16",
+  "toolbox-signature-24x24": "signaturepad",
+  "switchon-16x16": "switch-active_16x16",
+  "switchoff-16x16": "switch-inactive_16x16",
+  "toolbox-tagbox-24x24": "tagbox",
+  "toolbox-singleline-24x24": "text",
+  "theme-24x24": "theme",
+  "toolbox-24x24": "toolbox",
+  "undo-24x24": "undo",
+  "visible-24x24": "visible",
+  "wand-24x24": "wizard"
+};
+
 function getIconNameFromProxy(iconName: string): string {
   if (!iconName) return iconName;
   var proxyName = (<any>settings.customIcons)[iconName];
+  if(!proxyName) {
+    const oldName = renamedIcons[iconName];
+    if(!!oldName) {
+      proxyName = (<any>settings.customIcons)[oldName];
+    }
+  }
   return !!proxyName ? proxyName : iconName;
 }
 
@@ -555,7 +688,6 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
       tempValuesArray.push(item);
     }
   });
-
   const mergedItems = new Array<T>();
   newItemsMap.forEach((item, key) => {
     if(valuesToInsertBeforeKey.has(key)) {
@@ -568,10 +700,67 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   tempValuesArray.forEach((item) => {
     mergedItems.push(item);
   });
-
   return { reorderedItems, deletedItems, addedItems, mergedItems };
 }
 
+interface IVerticalDimensions {
+  paddingTop: string;
+  paddingBottom: string;
+  marginTop: string;
+  marginBottom: string;
+  heightTo: string;
+  borderTopWidth: string;
+  borderBottomWidth: string;
+  heightFrom: string;
+}
+
+export function getVerticalDimensions(el: HTMLElement): IVerticalDimensions {
+  if(DomDocumentHelper.isAvailable()) {
+    const { paddingTop, paddingBottom, borderTopWidth, borderBottomWidth, marginTop, marginBottom, boxSizing } = DomDocumentHelper.getComputedStyle(el);
+    let heightTo = el.offsetHeight + "px";
+    if(boxSizing == "content-box") {
+      let heightPx = el.offsetHeight;
+      [borderBottomWidth, borderTopWidth, paddingBottom, paddingTop].forEach((style) => {
+        heightPx -= parseFloat(style);
+      });
+      heightTo = heightPx + "px";
+    }
+    return {
+      paddingTop,
+      paddingBottom,
+      borderTopWidth,
+      borderBottomWidth,
+      marginTop,
+      marginBottom,
+      heightFrom: "0px",
+      heightTo: heightTo
+    };
+  } else {
+    return undefined;
+  }
+}
+
+export function setPropertiesOnElementForAnimation(el: HTMLElement, styles: any, prefix: string = "--animation-"): void {
+  (el as any)["__sv_created_properties"] = (el as any)["__sv_created_properties"] ?? [];
+  Object.keys(styles).forEach((key) => {
+    const propertyName = `${prefix}${key.split(/\.?(?=[A-Z])/).join("-").toLowerCase()}`;
+    el.style.setProperty(propertyName, (styles as any)[key]);
+    (el as any)["__sv_created_properties"].push(propertyName);
+  });
+}
+
+export function prepareElementForVerticalAnimation(el: HTMLElement): void {
+  setPropertiesOnElementForAnimation(el, getVerticalDimensions(el));
+}
+
+export function cleanHtmlElementAfterAnimation(el: HTMLElement): void {
+  if(Array.isArray((el as any)["__sv_created_properties"])) {
+    (el as any)["__sv_created_properties"].forEach((propertyName: string) => {
+      el.style.removeProperty(propertyName);
+    });
+    delete (el as any)["__sv_created_properties"];
+  }
+}
 export function roundTo2Decimals(number: number): number {
   return Math.round(number * 100) / 100;
 }

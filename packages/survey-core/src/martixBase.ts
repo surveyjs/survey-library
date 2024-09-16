@@ -130,9 +130,11 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public set columnsVisibleIf(val: string) {
     this.setPropertyValue("columnsVisibleIf", val);
-    this.filterItems();
+    if(!this.isLoadingFromJson) {
+      this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
+    }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     super.runCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
@@ -226,10 +228,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     }
     return hasChanged;
   }
-  private runConditionsForColumns(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): boolean {
+  protected runConditionsForColumns(values: HashTable<any>, properties: HashTable<any>): boolean {
     var useColumnsExpression =
       !!this.survey && !this.survey.areInvisibleElementsShowing;
     var runner =
@@ -355,6 +354,21 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public set rowTitleWidth(val: string) {
     this.setPropertyValue("rowTitleWidth", val);
   }
+  /**
+   * Specifies how to arrange matrix questions.
+   *
+   * Possible values:
+   *
+   * - `"table"` - Displays matrix questions in a table.
+   * - `"list"` - Displays matrix questions one under another as a list.
+   * - `"auto"` (default) - Uses the `"table"` mode if the survey has sufficient width to fit the table or the `"list"` mode otherwise.
+   */
+  public set displayMode(val: "auto" | "table" | "list") {
+    this.setPropertyValue("displayMode", val);
+  }
+  public get displayMode(): "auto" | "table" | "list" {
+    return this.getPropertyValue("displayMode");
+  }
 
   //a11y
   public getCellAriaLabel(rowTitle:string, columnTitle:string):string {
@@ -367,7 +381,10 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return true;
   }
   // EO a11y
-
+  protected getIsMobile(): boolean {
+    if(this.displayMode == "auto") return super.getIsMobile();
+    return this.displayMode === "list";
+  }
 }
 
 Serializer.addClass(
@@ -383,7 +400,13 @@ Serializer.addClass(
       choices: ["top", "middle"],
       default: "middle",
     },
-    { name: "alternateRows:boolean", default: false }
+    { name: "alternateRows:boolean", default: false },
+    {
+      name: "displayMode",
+      default: "auto",
+      choices: ["auto", "table", "list"],
+      visible: false
+    },
   ],
   undefined,
   "question"

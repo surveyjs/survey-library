@@ -87,6 +87,7 @@ export var modernCss = {
   page: {
     root: "sv-page sv-body__page",
     title: "sv-title sv-page__title",
+    number: "sv-page__num",
     description: "sv-description sv-page__description",
   },
   pageTitle: "sv-title sv-page__title",

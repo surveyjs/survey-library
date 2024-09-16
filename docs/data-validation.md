@@ -230,7 +230,7 @@ const surveyJson = {
 
 ## Postpone Validation Until Survey Ends
 
-Your survey can trigger data validation when a respondent clicks the Complete button. If the survey contains validation errors, it will take the respondent to the page with the first error and focus the question with the invalid answer. To activate this behavior, set the `checkErrorsMode` property to `"onComplete"`:
+Your survey can trigger data validation when a respondent clicks the Complete button. If the survey contains validation errors, it will take the respondent to the page with the first error and focus the question with the invalid answer. To activate this behavior, set the [`checkErrorsMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#checkErrorsMode) property to `"onComplete"`:
 
 ```js
 const surveyJson = {

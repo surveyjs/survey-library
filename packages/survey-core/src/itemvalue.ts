@@ -426,6 +426,13 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public setComponent(val: string): void {
     this.componentValue = val;
   }
+  private _htmlElement: HTMLElement;
+  public setRootElement(val: HTMLElement): void {
+    this._htmlElement = val;
+  }
+  public getRootElement(): HTMLElement {
+    return this._htmlElement;
+  }
 
   protected getEnabled(): boolean {
     return this.isEnabled;

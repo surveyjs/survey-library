@@ -94,12 +94,8 @@ export class QuestionFileModelBase extends Question {
     if (!this.survey) return;
     this.survey.clearFiles(this, this.name, this.value, null, () => { });
   }
-
-  protected onCheckForErrors(
-    errors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ) {
-    super.onCheckForErrors(errors, isOnValueChanged);
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (this.isUploading && this.waitForUpload) {
       errors.push(
         new UploadingFileError(

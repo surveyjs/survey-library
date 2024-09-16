@@ -1,5 +1,9 @@
 <template>
-  <div v-if="survey.headerView === 'advanced'" :class="model.headerClasses" :style="{ height: model.renderedHeight }">
+  <div
+    v-if="survey.headerView === 'advanced'"
+    :class="model.headerClasses"
+    :style="{ height: model.renderedHeight }"
+  >
     <div
       v-if="!!model.backgroundImage"
       :class="model.backgroundImageClasses"
@@ -10,19 +14,21 @@
       :class="model.contentClasses"
       :style="{ maxWidth: model.maxWidth }"
     >
-      <sv-header-cell
+      <SvComponent
+        :is="'sv-header-cell'"
         v-for="(cell, index) in model.cells"
         :model="cell"
         :key="index"
-      ></sv-header-cell>
+      ></SvComponent>
     </div>
     <div v-if="survey.isMobile">
-      <sv-header-mobile :model="model"></sv-header-mobile>
+      <SvComponent :is="'sv-header-mobile'" :model="model"></SvComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { SurveyModel, Cover } from "survey-core";
 import { useBase } from "@/base";
 

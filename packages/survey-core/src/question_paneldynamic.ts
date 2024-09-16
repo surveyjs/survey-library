@@ -23,7 +23,7 @@ import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
-import { classesToSelector, confirmActionAsync } from "./utils/utils";
+import { classesToSelector, cleanHtmlElementAfterAnimation, confirmActionAsync, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
@@ -290,7 +290,7 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
-    this.registerPropertyChangedHandlers(["isMobile", "newPanelPosition", "displayMode", "showProgressBar"], () => {
+    this.registerPropertyChangedHandlers(["newPanelPosition", "displayMode", "showProgressBar"], () => {
       this.updateFooterActions();
     });
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
@@ -303,10 +303,14 @@ export class QuestionPanelDynamicModel extends Question
       const res = this.visiblePanelsCore[i].getFirstQuestionToFocus(withError);
       if (!!res) return res;
     }
+    if(this.showAddPanelButton && (!withError || this.currentErrorCount > 0)) return this;
     return null;
   }
-
-  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+  protected getFirstInputElementId(): string {
+    if(this.showAddPanelButton) return this.addButtonId;
+    return super.getFirstInputElementId();
+  }
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value, isLight);
     this.setTemplatePanelSurveyImpl();
     this.setPanelsSurveyImpl();
@@ -658,30 +662,42 @@ export class QuestionPanelDynamicModel extends Question
         }
       },
       getEnterOptions: () => {
-        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperFadeIn).append(getDirectionCssClass()).toString();
+        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperEnter).append(getDirectionCssClass()).toString();
         return {
           onBeforeRunAnimation: (el) => {
             if (this.focusNewPanelCallback) {
               const scolledElement = this.isRenderModeList ? el : el.parentElement;
               SurveyElement.ScrollElementToViewCore(scolledElement, false, false, { behavior: "smooth" });
             }
-            if (!this.isRenderModeList) {
-              el.parentElement?.style.setProperty("--animation-height-to", el.offsetHeight + "px");
+            if(!this.isRenderModeList && el.parentElement) {
+              setPropertiesOnElementForAnimation(el.parentElement, { heightTo: el.offsetHeight + "px" });
             } else {
-              el.style.setProperty("--animation-height", el.offsetHeight + "px");
+              prepareElementForVerticalAnimation(el);
+            }
+          },
+          onAfterRunAnimation: (el) => {
+            cleanHtmlElementAfterAnimation(el);
+            if(el.parentElement) {
+              cleanHtmlElementAfterAnimation(el.parentElement);
             }
           },
           cssClass: cssClass
         };
       },
       getLeaveOptions: () => {
-        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperFadeOut).append(getDirectionCssClass()).toString();
+        const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperLeave).append(getDirectionCssClass()).toString();
         return {
           onBeforeRunAnimation: (el) => {
-            if (!this.isRenderModeList) {
-              el.parentElement?.style.setProperty("--animation-height-from", el.offsetHeight + "px");
+            if(!this.isRenderModeList && el.parentElement) {
+              setPropertiesOnElementForAnimation(el.parentElement, { heightFrom: el.offsetHeight + "px" });
             } else {
-              el.style.setProperty("--animation-height", el.offsetHeight + "px");
+              prepareElementForVerticalAnimation(el);
+            }
+          },
+          onAfterRunAnimation: (el) => {
+            cleanHtmlElementAfterAnimation(el);
+            if(el.parentElement) {
+              cleanHtmlElementAfterAnimation(el.parentElement);
             }
           },
           cssClass: cssClass
@@ -1063,6 +1079,9 @@ export class QuestionPanelDynamicModel extends Question
   public set allowAddPanel(val: boolean) {
     this.setPropertyValue("allowAddPanel", val);
   }
+  public get addButtonId(): string {
+    return this.id + "addPanel";
+  }
   /**
    * Specifies the position of newly added panels.
    *
@@ -1269,13 +1288,10 @@ export class QuestionPanelDynamicModel extends Question
   public setVisibleIndex(value: number): number {
     if (!this.isVisible) return 0;
     const onSurveyNumbering = this.showQuestionNumbers === "onSurvey";
-    var startIndex = onSurveyNumbering ? value : 0;
-    for (var i = 0; i < this.visiblePanelsCore.length; i++) {
-      var counter = this.setPanelVisibleIndex(
-        this.visiblePanelsCore[i],
-        startIndex,
-        this.showQuestionNumbers != "off"
-      );
+    let startIndex = onSurveyNumbering ? value : 0;
+    const panels = this.isDesignMode ? [this.template] : this.visiblePanelsCore;
+    for (let i = 0; i < panels.length; i++) {
+      let counter = this.setPanelVisibleIndex(panels[i], startIndex, this.showQuestionNumbers != "off");
       if (onSurveyNumbering) {
         startIndex += counter;
       }
@@ -1777,13 +1793,14 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     this.updateIsReady();
-    if (this.isReadOnly || !this.allowAddPanel) {
+    if (!this.showAddPanelButton) {
       this.updateNoEntriesTextDefaultLoc();
     }
     this.updateFooterActions();
     this.isBuildingPanelsFirstTime = false;
     this.releaseAnimations();
   }
+  private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly; }
   private get wasNotRenderedInSurvey(): boolean {
     return !this.hasPanelBuildFirstTime && !this.wasRendered && !!this.survey;
   }
@@ -2551,6 +2568,10 @@ export class QuestionPanelDynamicModel extends Question
       additionalTitleToolbar.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
     }
     return classes;
+  }
+  protected onMobileChanged(): void {
+    super.onMobileChanged();
+    this.updateFooterActions();
   }
 }
 

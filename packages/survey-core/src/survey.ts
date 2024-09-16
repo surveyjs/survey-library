@@ -19,7 +19,7 @@ import {
   LayoutElementContainer,
   IValueItemCustomPropValues,
   ILoadFromJSONOptions,
-  IDropdownMenuOptions
+  IDropdownMenuOptions,
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -67,7 +67,8 @@ import {
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
   OpenFileChooserEvent, ElementWrapperComponentNameEvent, ElementWrapperComponentDataEvent,
-  OpenDropdownMenuEvent
+  OpenDropdownMenuEvent,
+  ResizeEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -1295,6 +1296,17 @@ export class SurveyModel extends SurveyElementCore
   }
   public set lazyRenderingFirstBatchSize(val: number) {
     this.lazyRenderingFirstBatchSizeValue = val;
+  }
+
+  public disableLazyRenderingBeforeElement(el: IElement): void {
+    if(this.isDesignMode) {
+      const page = this.getPageByElement(el);
+      const index = this.pages.indexOf(page);
+      for (let i = index; i >= 0; i--) {
+        const currentPage = this.pages[i];
+        currentPage.disableLazyRenderingBeforeElement(currentPage == page ? el : undefined);
+      }
+    }
   }
 
   private updateLazyRenderingRowsOnRemovingElements() {
@@ -4882,7 +4894,7 @@ export class SurveyModel extends SurveyElementCore
             if (isProcessed || !isContainerVisible(observedElement)) {
               isProcessed = false;
             } else {
-              isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth);
+              isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
             }
           });
         });
@@ -4896,13 +4908,20 @@ export class SurveyModel extends SurveyElementCore
     this.rootElement = htmlElement;
     this.addScrollEventListener();
   }
-  private processResponsiveness(width: number, mobileWidth: number): boolean {
+  /**
+   * An event that is raised when the survey's width or height is changed.
+   */
+  onResize: EventBase<SurveyModel, ResizeEvent> = new EventBase();
+  private processResponsiveness(width: number, mobileWidth: number, height: number): boolean {
     const isMobile = width < mobileWidth;
     const isMobileChanged = this.isMobile !== isMobile;
-    if (isMobileChanged) {
-      this.setIsMobile(isMobile);
-    }
+    this.setIsMobile(isMobile);
     this.layoutElements.forEach(layoutElement => layoutElement.processResponsiveness && layoutElement.processResponsiveness(width));
+    const options = {
+      height,
+      width,
+    };
+    this.onResize.fire(this, options);
     return isMobileChanged;
   }
 
@@ -5329,36 +5348,6 @@ export class SurveyModel extends SurveyElementCore
       this.uploadFilesCore(name, files, callback);
     }
   }
-  /**
-   * Downloads a file from a server.
-   *
-   * The following code shows how to call this method:
-   *
-   * ```js
-   * const question = survey.getQuestionByName("myFileQuestion");
-   * survey.downloadFile(
-   *   question,
-   *   question.name,
-   *   // Download the first uploaded file
-   *   question.value[0],
-   *   (status, data) => {
-   *     if (status === "success") {
-   *       // Use `data` to retrieve the file
-   *     }
-   *     if (status === "error") {
-   *       // Handle error
-   *     }
-   *   }
-   * );
-   * ```
-   *
-   * @param question A [File Upload question instance](https://surveyjs.io/form-library/documentation/api-reference/file-model).
-   * @param questionName The File Upload question's [`name`](https://surveyjs.io/form-library/documentation/api-reference/file-model#name).
-   * @param fileValue An object from File Upload's [`value`](https://surveyjs.io/form-library/documentation/api-reference/file-model#value) array. This object contains metadata about the file you want to download.
-   * @param callback A callback function that allows you to get the download status (`"success"` or `"error"`) and the file identifier (URL, file name, etc.) that you can use to retrieve the file.
-   * @see onDownloadFile
-   * @see uploadFiles
-   */
   public downloadFile(
     question: QuestionFileModel,
     questionName: string,
@@ -7189,6 +7178,7 @@ export class SurveyModel extends SurveyElementCore
    * A survey width in CSS values.
    *
    * Default value: `undefined` (the survey inherits the width from its container)
+   * @see onResize
    */
   public get width(): string {
     return this.getPropertyValue("width");

@@ -19,6 +19,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { mergeValues } from "./utils/utils";
+import { ConditionRunner } from "./conditions";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -955,15 +956,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         "rowCount",
         "hasFooter",
         "detailPanelMode",
+        "displayMode"
       ],
       () => {
         this.resetRenderedTable();
       });
-    this.registerPropertyChangedHandlers(["isMobile"],
-      () => {
-        this.resetRenderedTable();
-      }
-    );
   }
   public getType(): string {
     return "matrixdropdownbase";
@@ -1451,7 +1448,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     super.runCondition(values, properties);
     var counter = 0;
     var prevTotalValue;
@@ -1472,26 +1469,37 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected shouldRunColumnExpression(): boolean {
     return false;
   }
-  protected runCellsCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): void {
-    if (!this.generatedVisibleRows) return;
-    var newValues = this.getRowConditionValues(values);
-    var rows = this.generatedVisibleRows;
-    for (var i = 0; i < rows.length; i++) {
-      rows[i].runCondition(newValues, properties);
+  protected runCellsCondition(values: HashTable<any>, properties: HashTable<any>): void {
+    const rows = this.generatedVisibleRows;
+    if (!!rows) {
+      const newValues = this.getRowConditionValues(values);
+      for (var i = 0; i < rows.length; i++) {
+        rows[i].runCondition(newValues, properties);
+      }
     }
     this.checkColumnsVisibility();
     this.checkColumnsRenderedRequired();
+  }
+  protected runConditionsForColumns(values: HashTable<any>, properties: HashTable<any>): boolean {
+    this.columns.forEach(column => {
+      if(!this.columnsVisibleIf) {
+        column.isColumnsVisibleIf = true;
+      } else {
+        const condition = new ConditionRunner(this.columnsVisibleIf);
+        values["item"] = column.name;
+        column.isColumnsVisibleIf = condition.run(values, properties) === true;
+      }
+    });
+    return false;
   }
   private checkColumnsVisibility(): void {
     if (this.isDesignMode) return;
     var hasChanged = false;
     for (var i = 0; i < this.visibleColumns.length; i++) {
       const column = this.visibleColumns[i];
-      if (!column.visibleIf && !column.isFilteredMultipleColumns) continue;
-      hasChanged = this.isColumnVisibilityChanged(column) || hasChanged;
+      const isCellsVisibilty = !!column.visibleIf || column.isFilteredMultipleColumns;
+      if (!isCellsVisibilty && !this.columnsVisibleIf && column.isColumnVisible) continue;
+      hasChanged = this.isColumnVisibilityChanged(column, isCellsVisibilty) || hasChanged;
     }
     if (hasChanged) {
       this.resetRenderedTable();
@@ -1499,6 +1507,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   private checkColumnsRenderedRequired(): void {
     const rows = this.generatedVisibleRows;
+    if(!rows) return;
     for (var i = 0; i < this.visibleColumns.length; i++) {
       const column = this.visibleColumns[i];
       if (!column.requiredIf) continue;
@@ -1512,24 +1521,27 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       column.updateIsRenderedRequired(required);
     }
   }
-  private isColumnVisibilityChanged(column: MatrixDropdownColumn): boolean {
+  private isColumnVisibilityChanged(column: MatrixDropdownColumn, checkCellsVisiblity: boolean): boolean {
     const curVis = column.isColumnVisible;
-    const isMultipleColumnsVisibility = column.isFilteredMultipleColumns;
+    let hasVisCell = !checkCellsVisiblity;
+    const rows = this.generatedVisibleRows;
+    const checkRows = checkCellsVisiblity && rows;
+    const isMultipleColumnsVisibility = checkRows && column.isFilteredMultipleColumns;
     const curVisibleChoices = isMultipleColumnsVisibility ? column.getVisibleChoicesInCell : [];
     const newVisibleChoices = new Array<any>();
-    let hasVisCell = false;
-    const rows = this.generatedVisibleRows;
-    for (let i = 0; i < rows.length; i++) {
-      const cell = rows[i].cells[column.index];
-      const q = cell?.question;
-      if (!!q && q.isVisible) {
-        hasVisCell = true;
-        if (isMultipleColumnsVisibility) {
-          this.updateNewVisibleChoices(q, newVisibleChoices);
-        } else break;
+    if(checkRows) {
+      for (let i = 0; i < rows.length; i++) {
+        const cell = rows[i].cells[column.index];
+        const q = cell?.question;
+        if (!!q && q.isVisible) {
+          hasVisCell = true;
+          if (isMultipleColumnsVisibility) {
+            this.updateNewVisibleChoices(q, newVisibleChoices);
+          } else break;
+        }
       }
     }
-    column.hasVisibleCell = hasVisCell;
+    column.hasVisibleCell = hasVisCell && column.isColumnsVisibleIf;
     if (isMultipleColumnsVisibility) {
       column.setVisibleChoicesInCell(newVisibleChoices);
       if (!Helpers.isArraysEqual(curVisibleChoices, newVisibleChoices, true, false, false)) return true;
@@ -2568,6 +2580,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get showHorizontalScroll(): boolean {
     return !this.isDefaultV2Theme && this.horizontalScroll;
   }
+  protected onMobileChanged(): void {
+    super.onMobileChanged();
+    this.resetRenderedTable();
+  }
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.rootScroll, this.horizontalScroll).toString();
   }
@@ -2595,7 +2611,6 @@ Serializer.addClass(
       visible: false,
       isLightSerializable: false,
     },
-    { name: "columnsVisibleIf", visible: false },
     {
       name: "detailPanelMode",
       choices: ["none", "underRow", "underRowSingle"],

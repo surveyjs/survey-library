@@ -3040,7 +3040,6 @@ QUnit.test(
   }
 );
 QUnit.test("columnsVisibleIf produce the bug, Bug#1540", function (assert) {
-  assert.equal(Serializer.findProperty("matrixdynamic", "columnsVisibleIf").visible, false, "The property is invisible");
   const json = {
     pages: [
       {
@@ -4960,6 +4959,7 @@ QUnit.test("showInMultipleColumns and hasOther properties, change in run-time in
 QUnit.test("showInMultipleColumns property, and visibleIf in choices", function (assert) {
   const survey = new SurveyModel({
     elements: [
+      { type: "radiogroup", name: "q1", choices: [1, 2, 3, 4] },
       {
         type: "matrixdropdown",
         name: "matrix",
@@ -4975,9 +4975,9 @@ QUnit.test("showInMultipleColumns property, and visibleIf in choices", function 
             showInMultipleColumns: true,
             showNoneItem: true,
             choices: [
-              { value: "A", visibleIf: "{val1} = 1" },
-              { value: "B", visibleIf: "{val1} = 2" },
-              { value: "C", visibleIf: "{val1} = 3" }
+              { value: "A", visibleIf: "{q1} = 1" },
+              { value: "B", visibleIf: "{q1} = 2" },
+              { value: "C", visibleIf: "{q1} = 3" }
             ]
           }
         ],
@@ -5000,7 +5000,7 @@ QUnit.test("showInMultipleColumns property, and visibleIf in choices", function 
   assert.equal(table.headerRow.cells[2].locTitle.textOrHtml, "None", "Header None");
   assert.equal(table.rows[1].cells[2].choiceValue, "none", "none index in the first row");
 
-  survey.setValue("val1", 1);
+  survey.setValue("q1", 1);
   table = matrix.renderedTable;
   multipleChoices = column.getVisibleMultipleChoices();
   assert.equal(multipleChoices.length, 2, "Two visible choice");
@@ -5013,7 +5013,7 @@ QUnit.test("showInMultipleColumns property, and visibleIf in choices", function 
   assert.equal(table.rows[1].cells[2].choiceValue, "A", "none in the first row, #2");
   assert.equal(table.rows[1].cells[3].choiceValue, "none", "none in the first row, #2");
 
-  survey.setValue("val1", 3);
+  survey.setValue("q1", 3);
   table = matrix.renderedTable;
   multipleChoices = column.getVisibleMultipleChoices();
   assert.equal(multipleChoices.length, 2, "Two visible choice");
@@ -5026,7 +5026,7 @@ QUnit.test("showInMultipleColumns property, and visibleIf in choices", function 
   assert.equal(table.rows[1].cells[2].choiceValue, "C", "none in the first row, #3");
   assert.equal(table.rows[1].cells[3].choiceValue, "none", "none in the first row, #3");
 
-  survey.setValue("val1", 4);
+  survey.setValue("q1", 4);
   table = matrix.renderedTable;
   multipleChoices = column.getVisibleMultipleChoices();
   assert.equal(multipleChoices.length, 1, "Two visible choice");
@@ -9765,8 +9765,8 @@ QUnit.test("table: check animation options", function (assert) {
   });
   survey.css = {
     "matrixdynamic": {
-      rowFadeIn: "enter",
-      rowFadeOut: "leave",
+      rowEnter: "enter",
+      rowLeave: "leave",
     }
   };
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -9786,14 +9786,17 @@ QUnit.test("table: check animation options", function (assert) {
   const enterOptions = options.getEnterOptions(renderedTable.rows[1]);
   enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(rowHtmlElement);
   assert.equal(enterOptions.cssClass, "enter");
-  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "20px");
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height-to"), "20px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(rowHtmlElement);
+  assert.notOk(questionHtmlElement.style.getPropertyValue("--animation-height-to"));
 
   questionHtmlElement.style.height = "40px";
   const leaveOptions = options.getLeaveOptions(renderedTable.rows[1]);
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(rowHtmlElement);
   assert.equal(leaveOptions.cssClass, "leave");
-  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height"), "40px");
-
+  assert.equal(questionHtmlElement.style.getPropertyValue("--animation-height-to"), "40px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(rowHtmlElement);
+  assert.notOk(questionHtmlElement.style.getPropertyValue("--animation-height-to"));
   tableHtmlElement.remove();
 });
 QUnit.test("set data from the survey", function (assert) {
@@ -9909,4 +9912,54 @@ QUnit.test("check cell.isVisible property", function (assert) {
   assert.ok(renderedTable.rows[1].cells[2].isVisible);
   assert.ok(renderedTable.rows[1].cells[3].isVisible);
   assert.ok(renderedTable.rows[1].cells[4].isVisible);
+});
+
+QUnit.test("check displayMode property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1"
+          },
+          {
+            "name": "col1",
+          },
+        ],
+        "choices": [
+          1,
+        ],
+        "rows": [
+          "row1",
+          "row2"
+        ]
+      }
+    ] });
+  const question = <QuestionMatrixDropdownModel>survey.getAllQuestions()[0];
+  survey.css = { question: { mobile: "test_mobile" } };
+  question.isMobile = true;
+  assert.equal(question.displayMode, "auto");
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+
+  question.isMobile = true;
+  question.displayMode = "table";
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.notOk(question.isMobile);
+  assert.notOk(question.getRootCss().includes("test_mobile"));
+
+  question.isMobile = true;
+  question.displayMode = "list";
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
+  question.isMobile = false;
+  assert.ok(question.isMobile);
+  assert.ok(question.getRootCss().includes("test_mobile"));
 });

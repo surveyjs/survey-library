@@ -915,7 +915,44 @@ QUnit.test("PanelDynamic, question no", function(assert) {
   assert.equal(question2.visibleIndex, 2, "onSurvey, second panel is removed - question2.visibleIndex"
   );
 });
-
+QUnit.test("PanelDynamic, showQuestionNumbers onSurvey & design time ", function(assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q2"
+              }
+            ],
+            "showQuestionNumbers": "onSurvey"
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const q2 = <Question>panel.templateElements[0];
+  assert.equal(q1.no, "1.", "The number should be 1.");
+  assert.equal(q2.no, "2.", "The number should be 2.");
+});
 QUnit.test("PanelDynamic, renderMode", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");
@@ -7224,8 +7261,8 @@ QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   });
   survey.css = {
     paneldynamic: {
-      panelWrapperFadeIn: "enter",
-      panelWrapperFadeOut: "leave"
+      panelWrapperEnter: "enter",
+      panelWrapperLeave: "leave"
     }
   };
   const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
@@ -7241,9 +7278,14 @@ QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   assert.equal(enterOptions.cssClass, "enter");
   assert.equal(leaveOptions.cssClass, "leave");
   enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer1);
-  assert.equal(panelContainer1.style.getPropertyValue("--animation-height"), "0px");
+  assert.equal(panelContainer1.style.getPropertyValue("--animation-height-to"), "0px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer1);
+  assert.notOk(panelContainer1.style.getPropertyValue("--animation-height-to"));
+
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer2);
-  assert.equal(panelContainer2.style.getPropertyValue("--animation-height"), "0px");
+  assert.equal(panelContainer2.style.getPropertyValue("--animation-height-to"), "0px");
+  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer2);
+  assert.notOk(panelContainer2.style.getPropertyValue("--animation-height-to"));
 
   question.renderMode = "progressTop";
   question.currentIndex = 0;
@@ -7259,6 +7301,10 @@ QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer2);
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "40px");
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "20px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer1);
+  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer2);
+  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-from"));
+  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-to"));
 
   question.currentIndex = 1;
   question["_renderedPanels"] = [question.panels[0], question.panels[1]];
@@ -7271,6 +7317,10 @@ QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
+  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
+  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-from"));
+  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-to"));
 
   question["focusNewPanelCallback"] = () => {};
   enterOptions = options.getEnterOptions(question.panels[0]);
@@ -7281,6 +7331,10 @@ QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
+  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
+  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-from"));
+  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-to"));
 
   const removedPanel = question.panels[1];
   question.removePanel(removedPanel);
@@ -7295,6 +7349,10 @@ QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
+  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
+  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-from"));
+  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-to"));
 
   question["removedPanelIndex"] = 1;
   enterOptions = options.getEnterOptions(question.panels[0]);
@@ -7305,6 +7363,10 @@ QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
   assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
+  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
+  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
+  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-from"));
+  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-to"));
 
   panelsContainer.remove();
 });
@@ -7355,4 +7417,23 @@ QUnit.test("Always focus on error in duplicated value, Bug8228", function (asser
   assert.ok(focusedQuestionId, "Focus on the question");
 
   SurveyElement.FocusElement = oldFunc;
+});
+QUnit.test("getFirstQuestionToFocus, Bug#8764", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic", name: "panel", panelCount: 1,
+        templateElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", isRequired: true }]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.validate(true);
+  assert.equal(panel.getFirstQuestionToFocus(false).name, "q1", "#1");
+  assert.equal(panel.getFirstQuestionToFocus(true).name, "q2", "#2");
+  panel.panelCount = 0;
+  assert.equal(panel.getFirstQuestionToFocus(false).name, "panel", "#3");
+  assert.notOk(panel.getFirstQuestionToFocus(true), "#4");
+  panel.isRequired = true;
+  panel.validate(true);
+  assert.equal(panel.getFirstQuestionToFocus(true).name, "panel", "#5");
 });

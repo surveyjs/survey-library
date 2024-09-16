@@ -18,11 +18,12 @@
         <option v-if="question.allowClear" value="">
           {{ question.placeholder }}
         </option>
-        <sv-dropdown-option-item
+        <SvComponent
+          :is="'sv-dropdown-option-item'"
           v-for="item in question.visibleChoices"
           :item="item"
           :key="item.id"
-        ></sv-dropdown-option-item>
+        ></SvComponent>
       </select>
       <div
         disabled
@@ -36,18 +37,24 @@
         :class="question.cssClasses.chevronButton"
         v-if="question.cssClasses.chevronButtonIconId"
       >
-        <sv-svg-icon
+        <SvComponent
+          :is="'sv-svg-icon'"
           :class="question.cssClasses.chevronButtonSvg"
           :iconName="question.cssClasses.chevronButtonIconId"
           size="auto"
         >
-        </sv-svg-icon>
+        </SvComponent>
       </div>
     </div>
-    <survey-other-choice v-if="question.isOtherSelected" :question="question" />
+    <SvComponent
+      :is="'survey-other-choice'"
+      v-if="question.isOtherSelected"
+      :question="question"
+    />
   </div>
 </template>
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import { computed, ref } from "vue";
 import { useQuestion } from "./base";
 import type { QuestionDropdownModel } from "survey-core";

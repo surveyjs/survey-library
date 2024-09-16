@@ -70,7 +70,6 @@ export class AnimationUtils {
     let cancelTimeout: any;
     let animationsCount = this.getAnimationsCount(element);
     const onEndCallback = (isCancel: boolean = true) => {
-      this.afterAnimationRun(element, options);
       callback(isCancel);
       clearTimeout(cancelTimeout);
       this.removeCancelCallback(onEndCallback);
@@ -88,7 +87,6 @@ export class AnimationUtils {
         onEndCallback(false);
       }, this.getAnimationDuration(element) + 10);
     } else {
-      this.afterAnimationRun(element, options);
       callback(true);
     }
   }
@@ -124,6 +122,7 @@ export class AnimationUtils {
         element.classList.remove(cssClass);
       });
     }
+    this.afterAnimationRun(element, options);
   }
 
   protected onNextRender(callback: (isCancel?: boolean) => void, isCancel: boolean = false): void {
@@ -248,8 +247,12 @@ export abstract class AnimationProperty<T, S extends IAnimationConsumer<any> = I
         rerenderEvent.remove(nextRenderCallback);
         this.cancelCallback = undefined;
       };
-      const nextRenderCallback = () => {
-        callback();
+      const nextRenderCallback = (_: Base, options: { isCancel: boolean }) => {
+        if(options.isCancel) {
+          onCancel && onCancel();
+        } else {
+          callback();
+        }
         clear();
       };
       this.cancelCallback = () => {
@@ -261,7 +264,7 @@ export abstract class AnimationProperty<T, S extends IAnimationConsumer<any> = I
   }
   protected abstract _sync(newValue: T): void;
   private _debouncedSync = debounce((newValue: T) => {
-    this.animation.cancel();
+    this.cancelAnimations();
     try {
       this._sync(newValue);
     } catch {
@@ -279,6 +282,9 @@ export abstract class AnimationProperty<T, S extends IAnimationConsumer<any> = I
   private cancelCallback: () => void;
   cancel(): void {
     this._debouncedSync.cancel();
+    this.cancelAnimations();
+  }
+  cancelAnimations(): void {
     this.cancelCallback && this.cancelCallback();
     this.animation.cancel();
   }
@@ -307,7 +313,8 @@ export class AnimationBoolean extends AnimationProperty<boolean> {
 export class AnimationGroup<T> extends AnimationProperty<Array<T>, IAnimationGroupConsumer<T>> {
   protected animation: AnimationGroupUtils<T> = new AnimationGroupUtils();
   protected _sync (newValue: Array<T>): void {
-    const oldValue = this.getCurrentValue();
+    newValue = [].concat(newValue);
+    const oldValue = [].concat(this.getCurrentValue());
     const allowSyncRemovalAddition = this.animationOptions.allowSyncRemovalAddition ?? true;
     let { addedItems, deletedItems, reorderedItems, mergedItems } = compareArrays(oldValue, newValue, this.animationOptions.getKey ?? ((item: T) => item));
     if(!allowSyncRemovalAddition && (reorderedItems.length > 0 || addedItems.length > 0)) {

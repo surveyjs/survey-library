@@ -1,34 +1,15 @@
 <template>
-  <div v-if="question.isReadOnlyRenderDiv()">
-    {{ question.comment }}
-  </div>
-  <textarea
+  <div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
+
+  <SvComponent
+    :is="'sv-text-area'"
     v-else
-    :id="question.commentId"
-    :readonly="question.isInputReadOnly"
-    :disabled="question.isInputReadOnly"
-    :class="question.cssClasses.other"
-    :value="question.comment"
-    :maxlength="question.getOthersMaxLength()"
-    :rows="question.commentAreaRows"
-    :placeholder="question.renderedCommentPlaceholder"
-    :aria-label="question.ariaLabel || question.a11y_input_ariaLabel"
-    :aria-required="question.ariaRequired || question.a11y_input_ariaRequired"
-    v-bind:style="{ resize: question.resizeStyle }"
-    @change="
-      (e) => {
-        question.onCommentChange(e);
-      }
-    "
-    @input="
-      (e) => {
-        question.onCommentInput(e);
-      }
-    "
-  />
+    :model="question.commentTextAreaModel"
+  ></SvComponent>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "./SvComponent.vue";
 import type { Question } from "survey-core";
 defineProps<{
   question: Question;

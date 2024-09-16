@@ -45,6 +45,17 @@ QUnit.test(
 );
 
 QUnit.test(
+  "Support old customIcons names in svg, function getIconNameFromProxy",
+  (assert) => {
+    settings.customIcons["changecamera"] = "new-changecamera";
+    assert.equal(getIconNameFromProxy("changecamera"), "new-changecamera");
+    assert.equal(getIconNameFromProxy("flip-24x24"), "new-changecamera");
+    assert.equal(getIconNameFromProxy("flip-24x24-new"), "flip-24x24-new");
+    delete settings.customIcons["changecamera"];
+  }
+);
+
+QUnit.test(
   "isVisible",
   (assert) => {
     const action = new Action(<any>{});

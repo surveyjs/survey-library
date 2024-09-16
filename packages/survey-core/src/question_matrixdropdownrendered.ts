@@ -13,6 +13,7 @@ import { ActionContainer } from "./actions/container";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { settings } from "./settings";
 import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
+import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/utils";
 
 export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
@@ -244,9 +245,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return super.getIsAnimationAllowed() && this.matrix.animationAllowed;
   }
   private getRenderedRowsAnimationOptions(): IAnimationGroupConsumer<QuestionMatrixDropdownRenderedRow> {
-    const beforeAnimationRun = (el: HTMLElement) => {
-      el.querySelectorAll(":scope > td > *").forEach((el: HTMLElement) => {
-        el.style.setProperty("--animation-height", el.offsetHeight + "px");
+    const onBeforeRunAnimation = (el: HTMLElement) => {
+      el.querySelectorAll(":scope > td > *").forEach((el:HTMLElement) => {
+        prepareElementForVerticalAnimation(el);
+      });
+    };
+    const onAfterRunAnimation = (el: HTMLElement) => {
+      el.querySelectorAll(":scope > td > *").forEach((el:HTMLElement) => {
+        cleanHtmlElementAfterAnimation(el);
       });
     };
     return {
@@ -258,10 +264,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         return el.getRootElement();
       },
       getLeaveOptions: () => {
-        return { cssClass: this.cssClasses.rowFadeOut, onBeforeRunAnimation: beforeAnimationRun };
+        return { cssClass: this.cssClasses.rowLeave, onBeforeRunAnimation, onAfterRunAnimation };
       },
-      getEnterOptions: () => {
-        return { cssClass: this.cssClasses.rowFadeIn, onBeforeRunAnimation: beforeAnimationRun };
+      getEnterOptions: (_, info) => {
+        return { cssClass: this.cssClasses.rowEnter, onBeforeRunAnimation, onAfterRunAnimation };
       }
     };
   }

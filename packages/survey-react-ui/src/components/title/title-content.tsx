@@ -30,17 +30,16 @@ export class TitleContent extends React.Component<any, any> {
     };
     var spans: Array<JSX.Element> = [];
     if (element.isRequireTextOnStart) {
-      spans.push(this.renderRequireText(element, cssClasses));
+      spans.push(this.renderRequireText(element));
       spans.push(getSpaceSpan("req-sp"));
     }
     var questionNumber = element.no;
     if (questionNumber) {
-      const panelNumber = !!cssClasses.panel ? cssClasses.panel.number : undefined;
       spans.push(
         <span
           data-key={"q_num"}
           key={"q_num"}
-          className={cssClasses.number || panelNumber}
+          className={element.cssTitleNumber}
           style={{ position: "static" }}
           aria-hidden={true}
         >
@@ -50,7 +49,7 @@ export class TitleContent extends React.Component<any, any> {
       spans.push(getSpaceSpan("num-sp"));
     }
     if (element.isRequireTextBeforeTitle) {
-      spans.push(this.renderRequireText(element, cssClasses));
+      spans.push(this.renderRequireText(element));
       spans.push(getSpaceSpan("req-sp"));
     }
     spans.push(
@@ -58,20 +57,17 @@ export class TitleContent extends React.Component<any, any> {
     );
     if (element.isRequireTextAfterTitle) {
       spans.push(getSpaceSpan("req-sp"));
-      spans.push(this.renderRequireText(element, cssClasses));
+      spans.push(this.renderRequireText(element));
     }
     return spans;
   }
 
-  private renderRequireText(
-    element: ITitleOwner,
-    cssClasses: any
-  ): JSX.Element {
+  private renderRequireText(element: ITitleOwner): JSX.Element {
     return (
       <span
         data-key={"req-text"}
         key={"req-text"}
-        className={cssClasses.requiredText || cssClasses.panel.requiredText}
+        className={element.cssRequiredText}
         aria-hidden={true}
       >
         {element.requiredText}

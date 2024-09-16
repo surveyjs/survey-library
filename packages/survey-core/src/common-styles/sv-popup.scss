@@ -1,6 +1,8 @@
 @import "../defaultV2-theme/variables.scss";
 
 $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
+$ease-out: cubic-bezier(0, 0, 0.58, 1);
+$reverse-ease-out: cubic-bezier(0.42, 0, 1, 1);
 
 sv-popup {
   display: block;
@@ -67,16 +69,16 @@ sv-popup {
   justify-content: center;
   background-color: $background-semitransparent;
 
-  padding: calcSize(11) calcSize(15);
+  padding: calcSize(4) calcSize(15) calcSize(8);
   box-sizing: border-box;
 }
 
-.sv-popup--modal>.sv-popup__container {
+.sv-popup--modal > .sv-popup__container {
   position: static;
   display: flex;
 }
 
-.sv-popup--modal>.sv-popup__container>.sv-popup__shadow>.sv-popup__body-content {
+.sv-popup--modal > .sv-popup__container > .sv-popup__shadow > .sv-popup__body-content {
   box-shadow: $shadow-large;
   background-color: $background-dim-light;
   padding: calcSize(4);
@@ -316,7 +318,7 @@ sv-popup {
   }
 }
 
-.sv-popup--dropdown>.sv-popup__container>.sv-popup__shadow>.sv-popup__body-content .sv-list {
+.sv-popup--dropdown > .sv-popup__container > .sv-popup__shadow > .sv-popup__body-content .sv-list {
   background-color: transparent;
 }
 
@@ -507,7 +509,6 @@ sv-popup {
 }
 
 .sv-popup--dropdown-overlay.sv-multi-select-list {
-
   .sv-list__item:hover,
   .sv-list__item:focus,
   .sv-list__item--focused {
@@ -555,39 +556,31 @@ sv-popup {
   opacity: 0;
 }
 
-.sv-popup--animate-enter {
+.sv-popup--enter {
   animation-name: fadeIn;
   animation-fill-mode: forwards;
   animation-duration: 0.15s;
 }
 
-.sv-popup--modal.sv-popup--animate-enter {
+.sv-popup--modal.sv-popup--enter {
+  animation-timing-function: $ease-out;
   animation-duration: 0.25s;
 }
 
-.sv-popup--animate-leave {
+.sv-popup--leave {
   animation-direction: reverse;
   animation-name: fadeIn;
   animation-fill-mode: forwards;
   animation-duration: 0.15s;
 }
 
-.sv-popup--modal.sv-popup--animate-leave {
+.sv-popup--modal.sv-popup--leave {
+  animation-timing-function: $reverse-ease-out;
   animation-duration: 0.25s;
 }
 
 .sv-popup--hidden {
   opacity: 0;
-}
-
-@keyframes modalMoveDown {
-  from {
-    transform: translateY(0);
-  }
-
-  to {
-    transform: translateY(64px);
-  }
 }
 
 @keyframes modalMoveUp {
@@ -600,14 +593,17 @@ sv-popup {
   }
 }
 
-.sv-popup--modal.sv-popup--animate-leave .sv-popup__container {
-  animation-name: modalMoveDown;
-  animation-fill-mode: forwards;
-  animation-duration: 0.25s;
-}
-
-.sv-popup--modal.sv-popup--animate-enter .sv-popup__container {
-  animation-name: modalMoveUp;
-  animation-fill-mode: forwards;
-  animation-duration: 0.25s;
+.sv-popup--modal {
+  &.sv-popup--leave, &.sv-popup--enter {
+    .sv-popup__container {
+      animation-name: modalMoveUp;
+      animation-timing-function: $ease-out;
+      animation-fill-mode: forwards;
+      animation-duration: 0.25s;
+    }
+  }
+  &.sv-popup--leave .sv-popup__container {
+    animation-direction: reverse;
+    animation-timing-function: $reverse-ease-out;
+  }
 }

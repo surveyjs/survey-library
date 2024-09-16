@@ -23,10 +23,6 @@ export class PageModel extends PanelModelBase implements IPage {
 
   constructor(name: string = "") {
     super(name);
-    this.locTitle.onGetTextCallback = (text: string) => {
-      if (this.canShowPageNumber() && text) return this.num + ". " + text;
-      return text;
-    };
     this.createLocalizableString("navigationDescription", this, true);
     this.dragDropPageHelper = new DragDropPageHelperV1(this);
   }
@@ -38,6 +34,15 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isPage(): boolean {
     return true;
+  }
+  public get no(): string {
+    return this.canShowPageNumber() ? this.num + ". " : "";
+  }
+  public get cssTitleNumber(): string {
+    return this.cssClasses.page.number;
+  }
+  public get cssRequiredText(): string {
+    return "";
   }
   protected canShowPageNumber(): boolean {
     return this.survey && (<any>this.survey).showPageNumbers;
@@ -114,7 +119,7 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isStarted(): boolean { return this.isStartPage; }
   protected calcCssClasses(css: any): any {
-    const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "", rowFadeIn: "", rowFadeOut: "", rowDelayedFadeIn: "" };
+    const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowReplace: "" };
     this.copyCssClasses(classes.page, css.page);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageTitle) {
@@ -135,14 +140,17 @@ export class PageModel extends PanelModelBase implements IPage {
     if (!!css.rowCompact) {
       classes.rowCompact = css.rowCompact;
     }
-    if (!!css.rowFadeIn) {
-      classes.rowFadeIn = css.rowFadeIn;
+    if (!!css.rowEnter) {
+      classes.rowEnter = css.rowEnter;
     }
-    if (!!css.rowDelayedFadeIn) {
-      classes.rowDelayedFadeIn = css.rowDelayedFadeIn;
+    if (!!css.rowDelayedEnter) {
+      classes.rowDelayedEnter = css.rowDelayedEnter;
     }
-    if (!!css.rowFadeOut) {
-      classes.rowFadeOut = css.rowFadeOut;
+    if (!!css.rowLeave) {
+      classes.rowLeave = css.rowLeave;
+    }
+    if (!!css.rowReplace) {
+      classes.rowReplace = css.rowReplace;
     }
     if (this.survey) {
       this.survey.updatePageCssClasses(this, classes);

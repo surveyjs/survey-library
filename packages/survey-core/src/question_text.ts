@@ -374,8 +374,8 @@ export class QuestionTextModel extends QuestionTextBase {
     return super.valueFromDataCore(val);
   }
   private dateValidationMessage: string;
-  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
-    super.onCheckForErrors(errors, isOnValueChanged);
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (isOnValueChanged) return;
     if (this.isValueLessMin) {
       const minError = new CustomError(
@@ -410,7 +410,8 @@ export class QuestionTextModel extends QuestionTextBase {
     }
 
     const valName = this.getValidatorTitle();
-    var emailValidator = new EmailValidator();
+    const emailValidator = new EmailValidator();
+    emailValidator.errorOwner = this;
     if (
       this.inputType === "email" &&
       !this.validators.some((v) => v.getType() === "emailvalidator")
@@ -433,7 +434,8 @@ export class QuestionTextModel extends QuestionTextBase {
     return isValid;
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
-    return Helpers.convertValToQuestionVal(val, this.inputType);
+    let type = this.maskTypeIsEmpty ? this.inputType : this.maskSettings.getTypeForExpressions();
+    return Helpers.convertValToQuestionVal(val, type);
   }
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (Helpers.isValueEmpty(value)) return errorText;
@@ -559,8 +561,11 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     if(this.inputType === "month") {
       const d = new Date(newValue);
-      const m = d.getMonth() + 1;
-      return d.getFullYear() + "-" + (m < 10 ? "0" : "") + m;
+      const isUtc = d.toISOString().indexOf(newValue) == 0 && newValue.indexOf("T") == -1;
+      const month = isUtc ? d.getUTCMonth() : d.getMonth();
+      const year = isUtc ? d.getUTCFullYear() : d.getFullYear();
+      const m = month + 1;
+      return year + "-" + (m < 10 ? "0" : "") + m;
     }
     return newValue;
   }

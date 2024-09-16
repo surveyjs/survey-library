@@ -1714,18 +1714,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if(!!this.visibleRowsArray) return this.visibleRowsArray;
     this.generateVisibleRowsIfNeeded();
     this.visibleRowsArray = this.getVisibleFromGenerated(this.generatedVisibleRows);
+    if (this.data) {
+      this.runCellsCondition(
+        this.data.getFilteredValues(),
+        this.data.getFilteredProperties()
+      );
+    }
     return this.visibleRowsArray;
   }
   private generateVisibleRowsIfNeeded(): void {
     if (!this.isUpdateLocked && !this.generatedVisibleRows) {
       this.generatedVisibleRows = this.generateRows();
       this.generatedVisibleRows.forEach((row) => this.onMatrixRowCreated(row));
-      if (this.data) {
-        this.runCellsCondition(
-          this.data.getFilteredValues(),
-          this.data.getFilteredProperties()
-        );
-      }
       if(!!this.generatedVisibleRows) {
         this.updateValueOnRowsGeneration(this.generatedVisibleRows);
         this.updateIsAnswered();

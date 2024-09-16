@@ -82,7 +82,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.updateShowTableAndAddRow();
       }
     );
-    this.registerPropertyChangedHandlers(["allowRowsDragAndDrop", "isReadOnly", "lockedRowCount"], () => { this.clearRowsAndResetRenderedTable(); });
+    this.registerPropertyChangedHandlers(["allowRowsDragAndDrop", "isReadOnly", "lockedRowCount"], () => { this.resetRenderedTable(); });
     this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
   }
 

@@ -9808,6 +9808,24 @@ QUnit.test("lockedRowCount property", function (assert) {
   assert.equal(table.rows[5].cells[0].isEmpty, false, "isEmpty, row#3");
   assert.equal(table.rows[7].cells[0].isEmpty, false, "isEmpty, row#4");
 });
+QUnit.test("Do not re-create rows on changing allowRowsDragAndDrop property", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        defaultValue: [{ col1: 1 }, { col1: 2 }],
+        columns: ["col1"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const visibleRows = matrix.visibleRows;
+  matrix.allowRowsDragAndDrop = true;
+  assert.equal(visibleRows[0].id, matrix.visibleRows[0].id, "#1");
+  matrix.allowRowsDragAndDrop = false;
+  assert.equal(visibleRows[0].id, matrix.visibleRows[0].id, "#2");
+});
 
 QUnit.test("table: check renderedRows", function (assert) {
   var survey = new SurveyModel({

@@ -1248,8 +1248,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       cellQuestion: <any>null,
       value: <any>null,
     };
-    for (var i = 0; i < this.visibleColumns.length; i++) {
-      options.column = this.visibleColumns[i];
+    for (var i = 0; i < this.columns.length; i++) {
+      options.column = this.columns[i];
       options.columnName = options.column.name;
       var cell = row.cells[i];
       options.cell = cell;
@@ -1513,8 +1513,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private checkColumnsVisibility(): void {
     if (this.isDesignMode) return;
     var hasChanged = false;
-    for (var i = 0; i < this.visibleColumns.length; i++) {
-      const column = this.visibleColumns[i];
+    for (var i = 0; i < this.columns.length; i++) {
+      const column = this.columns[i];
       const isCellsVisibilty = !!column.visibleIf || column.isFilteredMultipleColumns;
       if (!isCellsVisibilty && !this.columnsVisibleIf && column.isColumnVisible) continue;
       hasChanged = this.isColumnVisibilityChanged(column, isCellsVisibilty) || hasChanged;
@@ -1526,9 +1526,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private checkColumnsRenderedRequired(): void {
     const rows = this.generatedVisibleRows;
     if(!rows) return;
-    for (var i = 0; i < this.visibleColumns.length; i++) {
-      const column = this.visibleColumns[i];
-      if (!column.requiredIf) continue;
+    for (var i = 0; i < this.columns.length; i++) {
+      const column = this.columns[i];
+      if (!column.requiredIf || !column.isColumnVisible) continue;
       let required = rows.length > 0;
       for (var j = 0; j < rows.length; j++) {
         if (!rows[j].cells[i].question.isRequired) {
@@ -1705,6 +1705,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private visibleRowsArray: Array<MatrixDropdownRowModelBase>;
   protected clearVisibleRows(): void {
     this.visibleRowsArray = null;
+  }
+  protected columnVisible(column: any): boolean {
+    return column.isColumnVisible;
   }
   protected getVisibleRows(): Array<MatrixDropdownRowModelBase> {
     if (this.isUpdateLocked) return null;

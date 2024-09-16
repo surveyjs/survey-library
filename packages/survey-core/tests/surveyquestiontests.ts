@@ -2733,8 +2733,11 @@ QUnit.test(
       "Audi is selected"
     );
     survey.setValue("cars", ["BMW"]);
+    survey.doComplete();
     assert.deepEqual(qBestCar.value, { BMW: "col1" }, "Audi is removed");
+    survey.clear(false);
     survey.setValue("cars", ["Mercedes"]);
+    survey.doComplete();
     assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
   }
 );
@@ -3560,13 +3563,15 @@ QUnit.test(
       ],
     });
     var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
-    assert.deepEqual(question.value, { v1: "1", v2: "2" }, "Remove two rows");
     survey.setValue("val1", "a");
     assert.deepEqual(
       question.value,
       { v1: "1", v2: "2", v3: "3", v4: "4" },
       "Restore rows values from default"
     );
+    survey.setValue("val1", "b");
+    survey.doComplete();
+    assert.deepEqual(question.value, { v1: "1", v2: "2" }, "Remove two rows");
   }
 );
 

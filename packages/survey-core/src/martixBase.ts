@@ -10,7 +10,6 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  * A base class for all matrix question types.
  */
 export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
-  protected filteredColumns: Array<TColumn>;
   protected filteredRows: Array<ItemValue>;
   protected generatedVisibleRows: Array<TRow> = null;
   protected generatedTotalRow: TRow = null;
@@ -23,7 +22,6 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   constructor(name: string) {
     super(name);
     this.filteredRows = null;
-    this.filteredColumns = null;
     this.columns = this.createColumnValues();
     this.rows = this.createItemValues("rows");
   }
@@ -66,7 +64,12 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.setPropertyValue("columns", newValue);
   }
   public get visibleColumns(): Array<any> {
-    return !!this.filteredColumns ? this.filteredColumns : this.columns;
+    const res: Array<any> = [];
+    this.columns.forEach(col => { if(this.columnVisible(col)) { res.push(col); } });
+    return res;
+  }
+  protected columnVisible(column: any): boolean {
+    return column.isVisible;
   }
   /**
    * An array of matrix rows.
@@ -160,23 +163,12 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return true;
   }
   protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    var oldVisibleRows = null;
-    if (!!this.filteredRows && !Helpers.isValueEmpty(this.defaultValue)) {
-      oldVisibleRows = [];
-      for (var i = 0; i < this.filteredRows.length; i++) {
-        oldVisibleRows.push(this.filteredRows[i]);
-      }
-    }
-    var hasChanges =
-      this.hasRowsAsItems() && this.runConditionsForRows(values, properties);
-    var hasColumnsChanged = this.runConditionsForColumns(values, properties);
+    let hasChanges = this.hasRowsAsItems() && this.runConditionsForRows(values, properties);
+    const hasColumnsChanged = this.runConditionsForColumns(values, properties);
     hasChanges = hasColumnsChanged || hasChanges;
     if (hasChanges) {
-      if (this.isClearValueOnHidden && (!!this.filteredColumns || this.isRowsFiltered())) {
-        this.clearIncorrectValues();
-      }
-      if (!!oldVisibleRows) {
-        this.restoreNewVisibleRowsValues(oldVisibleRows);
+      if (this.isClearValueOnHidden && hasColumnsChanged) {
+        this.clearInvisibleColumnValues();
       }
       this.clearGeneratedRows();
       if (hasColumnsChanged) {
@@ -203,81 +195,12 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return hasChanged;
   }
   protected runConditionsForColumns(values: HashTable<any>, properties: HashTable<any>): boolean {
-    var useColumnsExpression =
-      !!this.survey && !this.survey.areInvisibleElementsShowing;
-    var runner =
-      useColumnsExpression && !!this.columnsVisibleIf
-        ? new ConditionRunner(this.columnsVisibleIf)
-        : null;
-    this.filteredColumns = [];
-    var hasChanged = ItemValue.runConditionsForItems(
-      this.columns,
-      <any>this.filteredColumns,
-      runner,
-      values,
-      properties,
-      this.shouldRunColumnExpression()
-    );
-    if (this.filteredColumns.length === this.columns.length) {
-      this.filteredColumns = null;
-    }
-    return hasChanged;
+    const useColumnsExpression = !!this.survey && !this.survey.areInvisibleElementsShowing;
+    const runner = useColumnsExpression && !!this.columnsVisibleIf ? new ConditionRunner(this.columnsVisibleIf) : null;
+    return ItemValue.runConditionsForItems(this.columns, undefined, runner, values, properties, this.shouldRunColumnExpression());
   }
-  public clearIncorrectValues(): void {
-    var val = this.value;
-    if (!val) return;
-    var newVal = null;
-    var isChanged = false;
-    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
-    var columns = !!this.filteredColumns ? this.filteredColumns : this.columns;
-    for (var key in val) {
-      if (
-        ItemValue.getItemByValue(rows, key) &&
-        ItemValue.getItemByValue(columns, val[key])
-      ) {
-        if (newVal == null) newVal = {};
-        (<any>newVal)[key] = val[key];
-      } else {
-        isChanged = true;
-      }
-    }
-    if (isChanged) {
-      this.value = newVal;
-    }
-    super.clearIncorrectValues();
-  }
-  protected clearInvisibleValuesInRows(): void {
-    if (this.isEmpty()) return;
-    var newData = this.getUnbindValue(this.value);
-    var rows = this.rows;
-    for (var i = 0; i < rows.length; i++) {
-      var key = rows[i].value;
-      if (!!newData[key] && !rows[i].isVisible) {
-        delete newData[key];
-      }
-    }
-    if (this.isTwoValueEquals(newData, this.value)) return;
-    this.value = newData;
-  }
-  private restoreNewVisibleRowsValues(oldVisibleRows: any) {
-    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
-    var val = this.defaultValue;
-    var newValue = this.getUnbindValue(this.value);
-    var isChanged = false;
-    for (var key in val) {
-      if (
-        ItemValue.getItemByValue(rows, key) &&
-        !ItemValue.getItemByValue(oldVisibleRows, key)
-      ) {
-        if (newValue == null) newValue = {};
-        (<any>newValue)[key] = val[key];
-        isChanged = true;
-      }
-    }
-    if (isChanged) {
-      this.value = newValue;
-    }
-  }
+  protected clearInvisibleColumnValues(): void {}
+  protected clearInvisibleValuesInRows(): void {}
   public needResponsiveWidth() {
     //TODO: make it mor intelligent
     return true;

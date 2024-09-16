@@ -253,7 +253,7 @@ export class QuestionMatrixModel
       this.onColumnsChanged();
     });
     this.registerPropertyChangedHandlers(["rows"], () => {
-      this.runItemsCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
       this.onRowsChanged();
     });
     this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
@@ -387,28 +387,28 @@ export class QuestionMatrixModel
     }
     return res;
   }
-  protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): void {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
-    super.runItemsCondition(values, properties);
+    super.runCondition(values, properties);
   }
   protected createRowsVisibleIfRunner(): ConditionRunner {
     return !!this.rowsVisibleIf ? new ConditionRunner(this.rowsVisibleIf) : null;
   }
+  protected onRowsChanged(): void {
+    this.clearGeneratedRows();
+    super.onRowsChanged();
+  }
   protected getVisibleRows(): Array<MatrixRowModel> {
-    var result = new Array<MatrixRowModel>();
-    var val = this.value;
+    if(!!this.generatedVisibleRows) return this.generatedVisibleRows;
+    const result = new Array<MatrixRowModel>();
+    let val = this.value;
     if (!val) val = {};
-    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
-    for (var i = 0; i < rows.length; i++) {
-      var row = rows[i];
-      if (this.isValueEmpty(row.value)) continue;
-      result.push(
-        this.createMatrixRow(
-          row,
-          this.id + "_" + row.value.toString().replace(/\s/g, "_"),
-          val[row.value]
-        )
-      );
+    const rows = this.filteredRows || this.rows;
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (row.isVisible && this.isValueEmpty(row.value)) continue;
+      const rowId = this.id + "_" + row.value.toString().replace(/\s/g, "_");
+      result.push(this.createMatrixRow(row, rowId, val[row.value]));
     }
     this.generatedVisibleRows = result;
     return result;
@@ -647,11 +647,44 @@ export class QuestionMatrixModel
     json["type"] = question.getType();
     return json;
   }
+  public clearIncorrectValues(): void {
+    this.clearInvisibleValuesInRowsAndColumns(true, true, true);
+    super.clearIncorrectValues();
+  }
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);
-    if (this.hasRows) {
-      this.clearInvisibleValuesInRows();
+    this.clearInvisibleValuesInRowsAndColumns(true, true, false);
+  }
+  protected clearInvisibleColumnValues(): void {
+    this.clearInvisibleValuesInRowsAndColumns(false, true, false);
+  }
+  protected clearInvisibleValuesInRows(): void {
+    this.clearInvisibleValuesInRowsAndColumns(true, false, false);
+  }
+  protected clearInvisibleValuesInRowsAndColumns(inRows: boolean, inColumns: boolean, inCorrectRows: boolean): void {
+    if (this.isEmpty()) return;
+    let updatedData = this.getUnbindValue(this.value);
+    const newData: any = {};
+    var rows = this.rows;
+    for (var i = 0; i < rows.length; i++) {
+      var key = rows[i].value;
+      if (!!updatedData[key]) {
+        if(inRows && !rows[i].isVisible || inColumns && !this.getVisibleColumnByValue(updatedData[key])) {
+          delete updatedData[key];
+        } else {
+          newData[key] = updatedData[key];
+        }
+      }
     }
+    if(inCorrectRows) {
+      updatedData = newData;
+    }
+    if (this.isTwoValueEquals(updatedData, this.value)) return;
+    this.value = updatedData;
+  }
+  private getVisibleColumnByValue(val: any): ItemValue {
+    const col = ItemValue.getItemByValue(this.columns, val);
+    return !!col && col.isVisible ? col : null;
   }
   protected getFirstInputElementId(): string {
     var rows = this.generatedVisibleRows;

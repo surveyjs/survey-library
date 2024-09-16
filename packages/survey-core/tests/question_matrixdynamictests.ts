@@ -2119,7 +2119,7 @@ QUnit.test("Set totals correctly for read-only question", function (assert) {
 });
 
 QUnit.test(
-  "matrixdropdown.clearInvisibleValues do not call it on changing condition if clearInvisibleValues doesn't eaqual to 'onHidden'",
+  "matrixdropdown.clearInvisibleValues do not call it on changing condition",
   function (assert) {
     var survey = new SurveyModel({
       elements: [
@@ -2150,9 +2150,6 @@ QUnit.test(
     survey.setValue("var1", 2);
     assert.deepEqual(question.value, { "2": "abc" }, "Change nothing");
     survey.setValue("var1", 1);
-    survey.clearInvisibleValues = "onHidden";
-    survey.setValue("var1", 2);
-    assert.equal(question.isEmpty(), true, "It is empty again");
   }
 );
 
@@ -2464,11 +2461,11 @@ QUnit.test("matrixdropdown.rowsVisibleIf, clear value on making the value invisi
   assert.equal(qBestCar.visibleRows.length, 1, "visible rows #2");
   survey.doComplete();
   assert.deepEqual(qBestCar.value, { BMW: { col1: 1 } }, "Audi is removed");
-/*
+  survey.clear(false);
   cars.value = ["Mercedes"];
   assert.equal(qBestCar.visibleRows.length, 1, "visible rows #3");
+  survey.doComplete();
   assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
-*/
 });
 
 QUnit.test("matrix.defaultRowValue, apply from json and then from UI", function (

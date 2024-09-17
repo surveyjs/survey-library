@@ -1494,7 +1494,8 @@ export class Question extends SurveyElement<Question>
   }
   private calcNo(): string {
     if (!this.hasTitle || this.hideNumber) return "";
-    var no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
+    const parentIndex: number | undefined = (<any>this.parent)?.visibleIndex;
+    var no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex(), parentIndex);
     if (!!this.survey) {
       no = this.survey.getUpdatedQuestionNo(this, no);
     }

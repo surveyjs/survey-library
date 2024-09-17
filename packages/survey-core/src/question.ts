@@ -1460,6 +1460,8 @@ export class Question extends SurveyElement<Question>
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
    * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-conditionally-make-input-field-read-only/ (linkStyle))
    * @see readOnly
    * @see isReadOnly
    */
@@ -1794,7 +1796,7 @@ export class Question extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/trigger-setvalue/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
    * @see setValueIf
    */
   public get resetValueIf(): string {
@@ -1808,7 +1810,7 @@ export class Question extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/trigger-setvalue/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
    * @see resetValueIf
    */
   public get setValueIf(): string {
@@ -1822,7 +1824,7 @@ export class Question extends SurveyElement<Question>
    *
    * You can use `setValueExpression` as a standalone property or in conjunction with the [`setValueIf`](#setValueIf) expression, in which case the calculated question value applies only when `setValueIf` evaluates to `true`.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/trigger-setvalue/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
    * @see defaultValueExpression
    * @see resetValueIf
    */

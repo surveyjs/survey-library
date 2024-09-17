@@ -490,8 +490,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       this.headerRow.cells.push(this.createHeaderCell(null));
     }
     if (this.matrix.isColumnLayoutHorizontal) {
-      for (var i = 0; i < this.matrix.visibleColumns.length; i++) {
-        var column = this.matrix.visibleColumns[i];
+      for (var i = 0; i < this.matrix.columns.length; i++) {
+        var column = this.matrix.columns[i];
         if (!column.isColumnVisible) continue;
         if (this.matrix.IsMultiplyColumn(column)) {
           this.createMutlipleColumnsHeader(column);

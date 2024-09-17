@@ -4,7 +4,7 @@ import {
   doKey2ClickUp,
   IAttachKey2clickOptions,
 } from "survey-core";
-import { ObjectDirective } from "vue";
+import type { ObjectDirective } from "vue";
 
 export const key2ClickDirective: ObjectDirective<any, IAttachKey2clickOptions> =
   {

@@ -249,6 +249,30 @@
               "Title": "ChoicesRestful"
             },
             {
+              "Name": "numericvalidator",
+              "Title": "NumericValidator"
+            },
+            {
+              "Name": "textvalidator",
+              "Title": "TextValidator"
+            },
+            {
+              "Name": "emailvalidator",
+              "Title": "EmailValidator"
+            },
+            {
+              "Name": "expressionvalidator",
+              "Title": "ExpressionValidator"
+            },
+            {
+              "Name": "answercountvalidator",
+              "Title": "AnswerCountValidator"
+            },
+            {
+              "Name": "regexvalidator",
+              "Title": "RegexValidator"
+            },
+            {
               "Name": "inputmasknumeric",
               "Title": "InputMaskNumeric"
             },

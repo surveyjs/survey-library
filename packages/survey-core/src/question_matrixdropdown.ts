@@ -31,8 +31,13 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   public get locText(): LocalizableString {
     return this.item.locText;
   }
+  protected isItemVisible(): boolean { return this.item.isVisible; }
   public isRowEnabled(): boolean { return this.item.isEnabled; }
   protected isRowHasEnabledCondition(): boolean { return !!this.item.enableIf; }
+  protected setRowsVisibleIfValues(values: any): void {
+    values["item"] = this.item.value;
+    values["choice"] = this.item.value;
+  }
 }
 /**
   * A class that describes the Multi-Select Matrix question type. Multi-Select Matrix allows you to use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Text](https://surveyjs.io/form-library/documentation/questiontextmodel), and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types as cell editors.
@@ -45,11 +50,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     super(name);
     this.createLocalizableString("totalText", this, true);
     this.registerPropertyChangedHandlers(["rows"], () => {
+      if(!this.generatedVisibleRows) return;
       this.clearGeneratedRows();
       this.resetRenderedTable();
-      if (!this.filterItems()) {
-        this.onRowsChanged();
-      }
+      this.getVisibleRows();
       this.clearIncorrectValues();
     });
     this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
@@ -125,28 +129,28 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected isNewValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  public clearIncorrectValues() {
-    var val = this.value;
-    if (!val) return;
-    var newVal = null;
-    var isChanged = false;
-    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
-    for (var key in val) {
-      if (ItemValue.getItemByValue(rows, key)) {
-        if (newVal == null) newVal = {};
-        (<any>newVal)[key] = val[key];
-      } else {
-        isChanged = true;
+  public clearIncorrectValues(): void {
+    if(!this.isEmpty()) {
+      this.getVisibleRows();
+      const newVal: any = {};
+      const val = this.value;
+      for(let key in val) {
+        const row = this.getRowByKey(key);
+        if(!!row && row.isVisible) {
+          newVal[key] = val[key];
+        }
       }
-    }
-    if (isChanged) {
       this.value = newVal;
     }
     super.clearIncorrectValues();
   }
-  protected clearValueIfInvisibleCore(reason: string): void {
-    super.clearValueIfInvisibleCore(reason);
-    this.clearInvisibleValuesInRows();
+  private getRowByKey(val: any): MatrixDropdownRowModelBase {
+    const rows = this.generatedVisibleRows;
+    if(!rows) return null;
+    for(let i = 0; i < rows.length; i ++) {
+      if(rows[i].rowName === val) return rows[i];
+    }
+    return null;
   }
   private defaultValuesInRows: any = {};
   protected clearGeneratedRows(): void {
@@ -170,7 +174,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected generateRows(): Array<MatrixDropdownRowModel> {
     var result = new Array<MatrixDropdownRowModel>();
-    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
+    var rows = this.rows;
     if (!rows || rows.length === 0) return result;
     var val = this.value;
     if (!val) val = {};
@@ -181,11 +185,19 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     return result;
   }
-  protected createMatrixRow(
-    item: ItemValue,
-    value: any
-  ): MatrixDropdownRowModel {
+  protected createMatrixRow(item: ItemValue, value: any): MatrixDropdownRowModel {
     return new MatrixDropdownRowModel(item.value, item, this, value);
+  }
+  protected getFilteredDataCore(): any {
+    const res: any = {};
+    const val = this.createValueCopy();
+    this.generatedVisibleRows.forEach(row => {
+      const rowVal = val[row.rowName];
+      if(row.isVisible && !Helpers.isValueEmpty(rowVal)) {
+        res[row.rowName] = rowVal;
+      }
+    });
+    return res;
   }
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("rows");

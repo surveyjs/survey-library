@@ -152,7 +152,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [Conditional Survey Logic (Triggers)](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers (linkStyle)).
+   * [Conditional Survey Logic (Triggers)](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers (linkStyle))
    * @see triggers
    * @see runTriggers
    */
@@ -1854,7 +1854,7 @@ export class SurveyModel extends SurveyElementCore
    * > This method does not remove values that fail validation. Call the [`validate()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validate) method to validate newly assigned values.
    * @param removeNonExistingRootKeys Pass `true` to remove values that do not correspond to any question or [calculated value](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values).
    */
-  public clearIncorrectValues(removeNonExistingRootKeys: boolean = false) {
+  public clearIncorrectValues(removeNonExistingRootKeys: boolean = false): void {
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].clearIncorrectValues();
     }

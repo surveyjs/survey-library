@@ -2713,6 +2713,14 @@ QUnit.test("matrix.columnsVisibleIf", function (assert) {
   qBestCar.columnsVisibleIf = "";
   assert.equal(qBestCar.visibleColumns.length, 4, "there is no filter");
 });
+QUnit.test("matrix.visibleColumns & matrix.visibleRows", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "matrix", name: "q1", columns: ["Audi", "BMW", "Mercedes", "Volkswagen"], rows: ["Audi", "BMW", "Mercedes"] }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.equal(matrix.visibleColumns.length, 4, "There are 4 visible columns");
+  assert.equal(matrix.visibleRows.length, 3, "There are 3 visible rows");
+});
 
 QUnit.test(
   "matrix.rowsVisibleIf, clear value on making the value invisible",
@@ -2733,8 +2741,11 @@ QUnit.test(
       "Audi is selected"
     );
     survey.setValue("cars", ["BMW"]);
+    survey.doComplete();
     assert.deepEqual(qBestCar.value, { BMW: "col1" }, "Audi is removed");
+    survey.clear(false);
     survey.setValue("cars", ["Mercedes"]);
+    survey.doComplete();
     assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
   }
 );
@@ -2765,16 +2776,15 @@ QUnit.test(
 );
 
 QUnit.test("matrixdropdown.rowsVisibleIf", function (assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p1");
-  var qCars = new QuestionCheckboxModel("cars");
-  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
-  page.addElement(qCars);
-  var qBestCar = new QuestionMatrixDropdownModel("bestCar");
-  qBestCar.addColumn("col1");
-  qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
-  qBestCar.rowsVisibleIf = "{cars} contains {item}";
-  page.addElement(qBestCar);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "cars", choices: ["Audi", "BMW", "Mercedes", "Volkswagen"] },
+      { type: "matrixdropdown", name: "bestCar", rows: ["Audi", "BMW", "Mercedes", "Volkswagen"],
+        columns: [{ name: "col1" }], rowsVisibleIf: "{cars} contains {item}" }
+    ]
+  });
+  const qCars = <QuestionCheckboxModel>survey.getQuestionByName("cars");
+  const qBestCar = <QuestionMatrixDropdownModel>survey.getQuestionByName("bestCar");
   assert.equal(qBestCar.visibleRows.length, 0, "cars are not selected yet");
   qCars.value = ["BMW"];
   assert.equal(qBestCar.visibleRows.length, 1, "BMW is selected");
@@ -3561,13 +3571,15 @@ QUnit.test(
       ],
     });
     var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
-    assert.deepEqual(question.value, { v1: "1", v2: "2" }, "Remove two rows");
     survey.setValue("val1", "a");
     assert.deepEqual(
       question.value,
       { v1: "1", v2: "2", v3: "3", v4: "4" },
       "Restore rows values from default"
     );
+    survey.setValue("val1", "b");
+    survey.doComplete();
+    assert.deepEqual(question.value, { v1: "1", v2: "2" }, "Remove two rows");
   }
 );
 

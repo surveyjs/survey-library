@@ -8012,3 +8012,31 @@ QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
     assert.equal(q.errors.length, 1, q.name + " errors");
   });
 });
+QUnit.test("Show parent number in the question #8813", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel", name: "panel1", title: "Panel 1",
+        showNumber: true, questionStartIndex: "1.1", showQuestionNumbers: "onpanel",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      },
+      {
+        type: "panel", name: "panel2", title: "Panel 2",
+        showNumber: true, questionStartIndex: "1.1", showQuestionNumbers: "onpanel",
+        elements: [
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" }
+        ]
+      }
+    ]
+  });
+  assert.equal(survey.getPanelByName("panel1").no, "1.", "panel1.no");
+  assert.equal(survey.getPanelByName("panel2").no, "2.", "panel2.no");
+  assert.equal(survey.getQuestionByName("q1").no, "1.1", "q1.no");
+  assert.equal(survey.getQuestionByName("q2").no, "1.2", "q2.no");
+  assert.equal(survey.getQuestionByName("q3").no, "2.1", "q3.no");
+  assert.equal(survey.getQuestionByName("q4").no, "2.2", "q4.no");
+});

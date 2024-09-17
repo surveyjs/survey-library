@@ -284,6 +284,9 @@ export {
   createSvg,
   chooseFiles,
   sanitizeEditableContent,
+  prepareElementForVerticalAnimation,
+  cleanHtmlElementAfterAnimation,
+  classesToSelector,
   IAttachKey2clickOptions
 } from "../../src/utils/utils";
 export { InputMaskBase } from "../../src/mask/mask_base";

@@ -123,7 +123,20 @@ const survey = new Model(surveyJson);
 
 ### Render the Form
 
-Form rendering code is encapsulated in the `SurveyComponent`. To use it in your template, you need to install `surveyPlugin`. Open the `main.ts` file, import `surveyPlugin`, and install it using the `app.use()` method:
+To render a survey, import `SurveyComponent`, add it to your template, and pass the model instance you created in the previous step to the component's `model` attribute:
+
+```html
+<script setup lang="ts">
+import { SurveyComponent } from 'survey-vue3-ui';
+// ...
+</script>
+
+<template>
+  <SurveyComponent :model="survey" />
+</template>
+```
+
+The code above registers `SurveyComponent` locally. If you want to register it globally, open the `main.ts` file, import `surveyPlugin`, and install it using the `app.use()` method. In this case, you don't need to import `SurveyComponent` within each Vue component where you want to use it.
 
 ```js
 // main.ts
@@ -132,18 +145,6 @@ import { surveyPlugin } from 'survey-vue3-ui'
 import App from './App.vue'
 
 createApp(App).use(surveyPlugin).mount('#app');
-```
-
-To render a survey, add `SurveyComponent` to your template, and pass the model instance you created in the previous step to the component's `model` attribute:
-
-```html
-<script setup lang="ts">
-// ...
-</script>
-
-<template>
-  <SurveyComponent :model="survey" />
-</template>
 ```
 
 If you replicate the code correctly, you should see the following survey:
@@ -157,6 +158,7 @@ If you replicate the code correctly, you should see the following survey:
 <script setup lang="ts">
 import 'survey-core/defaultV2.min.css';
 import { Model } from 'survey-core';
+import { SurveyComponent } from 'survey-vue3-ui';
 
 const surveyJson = {
   elements: [{
@@ -261,6 +263,7 @@ To view the application, run `npm run dev` in a command line and open [http://lo
 <script setup lang="ts">
 import 'survey-core/defaultV2.min.css';
 import { Model } from 'survey-core';
+import { SurveyComponent } from 'survey-vue3-ui';
 
 const surveyJson = {
   elements: [{

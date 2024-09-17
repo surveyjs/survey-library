@@ -29,7 +29,7 @@ function getNewQuestion(choices?: string[]) {
 }
 
 QUnit.test("drop", function (assert) {
-  let ddHelper = new DragDropChoices(null);
+  let ddHelper = new DragDropChoices(undefined);
   const dropTargetNode = document.createElement("div");
   const afterDragOver = ddHelper["afterDragOver"].bind(ddHelper);
 
@@ -45,6 +45,7 @@ QUnit.test("drop", function (assert) {
   ddHelper["domAdapter"]["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
+  ddHelper["isBottom"] = true;
   afterDragOver(dropTargetNode);
   assert.deepEqual(
     question.visibleChoices.map((c) => c.value),
@@ -54,7 +55,8 @@ QUnit.test("drop", function (assert) {
   ddHelper["drop"]();
   assert.deepEqual(
     question.choices.map((c) => c.value),
-    ["item2", "item3", "item1", "item4"]
+    ["item2", "item3", "item1", "item4"],
+    "this!"
   );
 
   question = getNewQuestion();
@@ -68,6 +70,7 @@ QUnit.test("drop", function (assert) {
   ddHelper["domAdapter"]["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
+  ddHelper["isBottom"] = false;
   afterDragOver(dropTargetNode);
   assert.deepEqual(
     question.visibleChoices.map((c) => c.value),
@@ -91,6 +94,7 @@ QUnit.test("drop", function (assert) {
   ddHelper["domAdapter"]["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );
+  ddHelper["isBottom"] = true;
   afterDragOver(dropTargetNode);
   assert.deepEqual(
     question.visibleChoices.map((c) => c.value),
@@ -107,7 +111,7 @@ QUnit.test("drop", function (assert) {
 });
 
 QUnit.test("dropTargetDataAttributeName for choices", function (assert) {
-  let ddHelper: any = new DragDropChoices(null);
+  let ddHelper: any = new DragDropChoices(undefined);
 
   ddHelper.draggedElement = new ItemValue(null);
   assert.equal(
@@ -173,14 +177,14 @@ QUnit.test("DragDropRankingChoices shortcutClass getter", function (assert) {
       },
     ],
   });
-  let dndRanking: any = new DragDropRankingChoices(null);
+  let dndRanking: any = new DragDropRankingChoices(undefined);
   dndRanking.parentElement = survey.getQuestionByName("q");
 
   assert.equal(dndRanking.shortcutClass, "sv-ranking");
 });
 
 QUnit.test("DragDropRankingChoices getIsDragOverRootNode", function (assert) {
-  let dndRanking: any = new DragDropRankingChoices(null);
+  let dndRanking: any = new DragDropRankingChoices(undefined);
   let result;
 
   let pathElement = document.createElement("path");
@@ -208,7 +212,7 @@ QUnit.test("LongTap", function (assert) {
       },
     ],
   });
-  let dndRanking: any = new DragDropRankingChoices(null);
+  let dndRanking: any = new DragDropRankingChoices(undefined);
   dndRanking.parentElement = survey.getQuestionByName("q");
 
   dndRanking.parentElement.registerPropertyChangedHandlers(["rankingChoices"], () => { count++; });
@@ -227,7 +231,7 @@ QUnit.test("LongTap", function (assert) {
 });
 
 QUnit.test("DragDrop shortcutCoordinates", function (assert) {
-  let dnd: any = new DragDropDOMAdapter(null);
+  let dnd: any = new DragDropDOMAdapter(null as any);
 
   const currentXCoordinate = 20;
   const shortcutWidth = 20;

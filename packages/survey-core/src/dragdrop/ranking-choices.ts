@@ -83,10 +83,9 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
   protected calculateIsBottom(clientY: number, dropTargetNode?: HTMLElement): boolean {
     if(this.dropTarget instanceof ItemValue && this.draggedElement !== this.dropTarget) {
-      const rect = dropTargetNode.getBoundingClientRect();
-      return clientY >= rect.y + rect.height / 2;
+      return super.calculateIsBottom(clientY, dropTargetNode);
     }
-    return super.calculateIsBottom(clientY);
+    return false;
   }
 
   protected doDragOver = (): any => {

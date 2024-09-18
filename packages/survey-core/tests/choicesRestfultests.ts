@@ -1,5 +1,5 @@
 import { Base, ArrayChanges } from "../src/base";
-import { IQuestion, ITextProcessor } from "../src/base-interfaces";
+import { IQuestion, ITextProcessor, ITextProcessorProp, ITextProcessorResult } from "../src/base-interfaces";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { ChoicesRestful } from "../src/choicesRestful";
@@ -14,6 +14,11 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { settings } from "../src/settings";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
 import { SurveyError } from "../src/survey-error";
+import {
+  QuestionCustomModel,
+  QuestionCompositeModel,
+  ComponentCollection,
+} from "../src/question_custom";
 
 export default QUnit.module("choicesRestful");
 
@@ -95,14 +100,10 @@ class ChoicesRestfulTester extends ChoicesRestful {
 
 class TextProcessorTester implements ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string {
-    return this.processTextEx(text, returnDisplayValue, true).text;
+    return this.processTextEx({ text: text, doEncoding: true }).text;
   }
-  processTextEx(
-    text: string,
-    returnDisplayValue: boolean,
-    doEncoding: boolean
-  ): any {
-    return { text: text, hasAllValuesOnLastRun: true };
+  processTextEx(params: ITextProcessorProp): ITextProcessorResult {
+    return { text: params.text, hasAllValuesOnLastRun: true };
   }
 }
 
@@ -1765,6 +1766,58 @@ QUnit.test("Change default value for allowEmptyResponse property", function(asse
   Serializer.findProperty("choicesByUrl", "allowEmptyResponse").defaultValue = undefined;
   choicesRest = new ChoicesRestful();
   assert.strictEqual(choicesRest.allowEmptyResponse, false);
+});
+QUnit.test("Single: execute choicesByUrl in design time", function (
+  assert
+) {
+  const json = {
+    name: "urltest",
+    questionJSON: {
+      type: "dropdownrestfultester",
+      choicesByUrl: { url: "{state}" },
+    }
+  };
+  ComponentCollection.Instance.add(json);
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey.onLoadChoicesFromServer.add((sender, options) => {
+    options.choices = [new ItemValue(1), new ItemValue(2)];
+  });
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [{ type: "urltest", name: "q1", isRequired: true }],
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  assert.ok(q1.contentQuestion.survey, "survey is set");
+  assert.equal(q1.contentQuestion.visibleChoices.length, 2, "event is executed");
+  ComponentCollection.Instance.clear();
+  settings.supportCreatorV2 = false;
+});
+QUnit.test("Composite: execute choicesByUrl in design time", function (
+  assert
+) {
+  const json = {
+    name: "urltest",
+    elementsJSON: [{
+      type: "dropdownrestfultester",
+      name: "q1",
+      choicesByUrl: { url: "{state}" },
+    }]
+  };
+  ComponentCollection.Instance.add(json);
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey.onLoadChoicesFromServer.add((sender, options) => {
+    options.choices = [new ItemValue(1), new ItemValue(2)];
+  });
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [{ type: "urltest", name: "q1", isRequired: true }],
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  assert.equal(q1.contentPanel.getQuestionByName("q1").visibleChoices.length, 2, "event is executed");
+  ComponentCollection.Instance.clear();
+  settings.supportCreatorV2 = false;
 });
 
 function getCACities() {

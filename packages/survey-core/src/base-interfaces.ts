@@ -33,13 +33,19 @@ export interface ISurveyData {
   findQuestionByName(name: string): IQuestion;
   getEditingSurveyElement(): Base;
 }
+export interface ITextProcessorProp {
+  text: string;
+  returnDisplayValue?: boolean;
+  doEncoding?: boolean;
+  runAtDesign?: boolean;
+}
+export interface ITextProcessorResult {
+  text: string;
+  hasAllValuesOnLastRun: boolean;
+}
 export interface ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string;
-  processTextEx(
-    text: string,
-    returnDisplayValue: boolean,
-    doEncoding: boolean
-  ): any;
+  processTextEx(params: ITextProcessorProp): ITextProcessorResult;
 }
 export interface ISurveyErrorOwner extends ILocalizableOwner {
   getErrorCustomText(text: string, error: SurveyError): string;

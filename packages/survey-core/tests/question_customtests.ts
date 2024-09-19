@@ -3343,3 +3343,8 @@ QUnit.test("composite component: do not reset dynamic panels/dynamic rows, Bug#8
 
   ComponentCollection.Instance.clear();
 });
+
+QUnit.test("a11y", function (assert) {
+  const model = new QuestionCompositeModel("", ({} as any));
+  assert.equal(model.ariaRole, "group", "check role attribute");
+});

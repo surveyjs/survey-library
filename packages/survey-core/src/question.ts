@@ -1482,6 +1482,12 @@ export class Question extends SurveyElement<Question>
       this.runDefaultValueExpression(this.defaultValueRunner, values, properties);
     }
   }
+  public get isInDesignMode(): boolean {
+    return !this.isContentElement && this.isDesignMode;
+  }
+  public get isInDesignModeV2(): boolean {
+    return !this.isContentElement && this.isDesignModeV2;
+  }
   /**
    * A question number or letter (depends on the `questionStartIndex` property of the question container (panel, page, or survey)).
    *

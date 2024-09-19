@@ -8451,10 +8451,10 @@ QUnit.test("ProcessTextEx returnedDisplayValue is false, Bug#1243", function (
   var page = survey.addNewPage("page1");
   var q = <QuestionDropdownModel>page.addNewQuestion("dropdown", "region");
   q.choices = ["1", "2", "3"];
-  var res = survey.processTextEx("{region}", false, false);
+  var res = survey.processTextEx({ text: "{region}" });
   assert.ok(res.hasAllValuesOnLastRun === false, "region doesn't exists");
   q.value = 1;
-  res = survey.processTextEx("{region}", false, false);
+  res = survey.processTextEx({ text: "{region}" });
   assert.ok(res.hasAllValuesOnLastRun === true, "region exists");
 });
 
@@ -8816,7 +8816,7 @@ QUnit.test("visiblePages and invisible panel, bug #395 (in Editor)", function (
 QUnit.test("Do not process html in design time, bug #396 (in Editor)", function (
   assert
 ) {
-  var json = {
+  const json = {
     elements: [
       {
         type: "text",
@@ -8829,9 +8829,10 @@ QUnit.test("Do not process html in design time, bug #396 (in Editor)", function 
       },
     ],
   };
-  var survey = new SurveyModel(json);
+  const survey = new SurveyModel();
   survey.setDesignMode(true);
-  var question = <Question>survey.getQuestionByName("question2");
+  survey.fromJSON(json);
+  const question = <Question>survey.getQuestionByName("question2");
   assert.equal(
     question.locTitle.renderedHtml,
     "{question1} test",

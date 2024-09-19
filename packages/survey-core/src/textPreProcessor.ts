@@ -1,7 +1,7 @@
 import { Helpers } from "./helpers";
 import { Question } from "./question";
 import { PanelModel } from "./panel";
-import { ISurvey, ITextProcessor } from "./base-interfaces";
+import { ISurvey, ITextProcessor, ITextProcessorProp, ITextProcessorResult } from "./base-interfaces";
 import { ProcessValue } from "./conditionProcessValue";
 
 export class TextPreProcessorItem {
@@ -168,12 +168,12 @@ export class QuestionTextProcessor implements ITextProcessor {
     text = this.processTextCore(this.getParentTextProcessor(), text, returnDisplayValue);
     return this.processTextCore(this.survey, text, returnDisplayValue);
   }
-  processTextEx(text: string, returnDisplayValue: boolean): any {
-    text = this.processText(text, returnDisplayValue);
+  processTextEx(params: ITextProcessorProp): ITextProcessorResult {
+    params.text = this.processText(params.text, params.returnDisplayValue);
     var hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
-    var res = { hasAllValuesOnLastRun: true, text: text };
+    var res = { hasAllValuesOnLastRun: true, text: params.text };
     if (this.survey) {
-      res = this.survey.processTextEx(text, returnDisplayValue, false);
+      res = this.survey.processTextEx(params);
     }
     res.hasAllValuesOnLastRun =
       res.hasAllValuesOnLastRun && hasAllValuesOnLastRun;

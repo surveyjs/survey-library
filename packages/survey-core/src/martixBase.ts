@@ -154,7 +154,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected isVisibleCore(): boolean {
     const res = super.isVisibleCore();
     if(!res || !(<any>this).hideIfRowsEmpty) return res;
-    return this.visibleRows.length > 0;
+    return this.visibleRows?.length > 0;
   }
   protected shouldRunColumnExpression(): boolean {
     return !this.survey || !this.survey.areInvisibleElementsShowing;

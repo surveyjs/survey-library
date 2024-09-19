@@ -385,6 +385,9 @@ export class PanelModelBase extends SurveyElement<Question>
         this.updateVisibleIndexes();
       }
     );
+    this.registerPropertyChangedHandlers(["title"], () => {
+      this.calcHasTextInTitle();
+    });
 
     this.dragDropPanelHelper = new DragDropPanelHelperV1(this);
   }
@@ -411,9 +414,15 @@ export class PanelModelBase extends SurveyElement<Question>
   }
 
   @property({ defaultValue: true }) showTitle: boolean;
+
+  @property({ defaultValue: false }) public hasTextInTitle: boolean;
+  protected calcHasTextInTitle(): void {
+    this.hasTextInTitle = !!this.title;
+  }
+
   get hasTitle(): boolean {
     return (
-      (this.canShowTitle() && this.locTitle.textOrHtml.length > 0) ||
+      (this.canShowTitle() && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
       (this.isDesignMode && !(settings.supportCreatorV2 && this.isPanel) && this.showTitle && settings.designMode.showEmptyTitles)
     );
   }
@@ -1329,6 +1338,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     this.onElementVisibilityChanged(this);
     this.releaseAnimations();
+    this.calcHasTextInTitle();
   }
   public onFirstRendering(): void {
     super.onFirstRendering();
@@ -2027,6 +2037,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected onSetData() {
     super.onSetData();
     this.onIndentChanged();
+    this.calcHasTextInTitle();
   }
   public get isPanel(): boolean {
     return true;

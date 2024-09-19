@@ -823,6 +823,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     this.setRowCountValueFromData = true;
+    if(this.minRowCount > 0 && Helpers.isValueEmpty(newValue) && !Helpers.isValueEmpty(this.defaultRowValue)) {
+      newValue = [];
+      for(let i = 0; i < this.minRowCount; i ++) {
+        newValue.push(Helpers.createCopy(this.defaultRowValue));
+      }
+    }
     super.updateValueFromSurvey(newValue, clearData);
     this.setRowCountValueFromData = false;
   }

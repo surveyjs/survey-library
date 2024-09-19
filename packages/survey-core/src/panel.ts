@@ -414,7 +414,7 @@ export class PanelModelBase extends SurveyElement<Question>
   get hasTitle(): boolean {
     return (
       (this.canShowTitle() && this.locTitle.textOrHtml.length > 0) ||
-      (this.isDesignMode && (this.showTitle && this.isInteractiveDesignElement && settings.designMode.showEmptyTitles))
+      (this.isDesignMode && !(settings.supportCreatorV2 && this.isPanel) && this.showTitle && settings.designMode.showEmptyTitles)
     );
   }
   public delete(doDispose: boolean = true): void {
@@ -2007,9 +2007,6 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.registerPropertyChangedHandlers(
       ["indent", "innerIndent", "rightIndent"], () => { this.onIndentChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
-    this.registerPropertyChangedHandlers(["title"], () => {
-      this.calcHasTextInTitle();
-    });
   }
   public getType(): string {
     return "panel";
@@ -2023,29 +2020,13 @@ export class PanelModel extends PanelModelBase implements IElement {
     }
     return super.getSurvey(live);
   }
-  get hasTextInTitle(): boolean {
-    return this.getPropertyValue("hasTextInTitle");
-  }
-  private calcHasTextInTitle(): void {
-    this.setPropertyValue("hasTextInTitle", !!this.title);
-  }
-  onSurveyLoad(): void {
+  onSurveyLoad() {
     super.onSurveyLoad();
     this.onIndentChanged();
-    this.calcHasTextInTitle();
   }
-  protected onSetData(): void {
+  protected onSetData() {
     super.onSetData();
     this.onIndentChanged();
-    this.calcHasTextInTitle();
-  }
-  public get cssHeader(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.panel.header)
-      .append(this.cssClasses.panel.headerHidden,
-        !this.hasTextInTitle &&
-        !this.hasDescription &&
-        this.isDesignMode).toString();
   }
   public get isPanel(): boolean {
     return true;
@@ -2157,7 +2138,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.onGetTextCallback = (text: string): string => {
-      if (!text && (this.state !== "default" || (this.isDesignMode && this.isDefaultV2Theme && this.isInteractiveDesignElement))) {
+      if (!text && (this.state !== "default")) {
         text = this.name;
       }
       return text;
@@ -2289,10 +2270,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.survey.cancelPreviewByPage(this);
   }
   public get cssTitle(): string {
-    return new CssClassBuilder()
-      .append(this.getCssTitle(this.cssClasses.panel))
-      .append(this.cssClasses.panel.titleHidden, !this.hasTextInTitle && this.isDesignMode)
-      .toString();
+    return this.getCssTitle(this.cssClasses.panel);
   }
   public get showErrorsAbovePanel(): boolean {
     return this.isDefaultV2Theme && !this.showPanelAsPage;

@@ -13,7 +13,6 @@ import { ActionContainer } from "../src/actions/container";
 import { IElement } from "../src/base-interfaces";
 import { StylesManager } from "@legacy/stylesmanager";
 import { SurveyElement } from "../src/survey-element";
-import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 
 export default QUnit.module("Panel");
 
@@ -1969,6 +1968,8 @@ QUnit.test("Render name for collapsed/expanded questions in design-time", functi
   assert.equal(panel.locTitle.renderedHtml, "panel", "Render name, #2");
   panel.state = "default";
   assert.equal(panel.state, "default", "the panel is not collapsed or expanded");
+  assert.equal(panel.hasTitle, false, "We do not render the title");
+  assert.notOk(panel.locTitle.renderedHtml, "Render title is empty, #3");
 });
 
 QUnit.test("Check updateRowsOnElementAdded: insert on empty page", function(assert) {
@@ -2784,64 +2785,6 @@ QUnit.test("Do not expand panels on validation that doesn't have an error Bug#83
   assert.equal(panels[3].isExpanded, true, "The panel should be expanded, it has error inside, #3");
   assert.equal(panels[4].isExpanded, true, "The panel should be expanded, panel is required, #4");
 });
-
-QUnit.test("panel check title in design mode", function (assert) {
-  StylesManager.applyTheme("default");
-  const survey = new SurveyModel();
-  var oldCss = survey.css.panel.titleHidden;
-  var oldRootCss = survey.css.root;
-  survey.css.root = "sd-root-modern";
-  survey.css.panel.header = "sv_p_header";
-  survey.css.panel.titleHidden = "sv_p_title--hidden";
-  survey.css.panel.headerHidden = "sv_p_header--hidden";
-
-  survey.setJsonObject({
-    questions: [
-      {
-        type: "panel",
-        name: "p1",
-        elements: [
-          {
-            type: "text",
-            name: "_"
-          }
-        ]
-      }
-    ]
-  });
-  const panel = <PanelModel>survey.getAllPanels()[0];
-  assert.equal(panel.hasTitle, false);
-  assert.equal(panel.cssTitle, "sv_p_title");
-  assert.equal(panel.cssHeader, "sv_p_header");
-  survey.setDesignMode(true);
-  assert.equal(panel.hasTitle, true);
-  assert.equal(panel.cssHeader, "sv_p_header sv_p_header--hidden");
-  assert.equal(panel.cssTitle, "sv_p_title sv_p_title--hidden");
-  survey.css.panel.titleHidden = oldCss;
-  survey.css.root = oldRootCss;
-});
-
-QUnit.test("panel dynamic inner panel title in design mode", function (assert) {
-  StylesManager.applyTheme("default");
-  const survey = new SurveyModel();
-
-  survey.setJsonObject({
-    questions: [
-      {
-        "type": "paneldynamic",
-        "name": "question1"
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
-  assert.equal(panel.template.hasTitle, false);
-  survey.setDesignMode(true);
-  assert.equal(panel.template.hasTitle, false);
-
-  panel.templateTitle = "asd";
-  assert.equal(panel.template.hasTitle, true);
-});
-
 QUnit.test("Check if errors disappered in the closest questions on changing the question, checkErrorsMode: 'onValueChanged', Bug#8539", function (assert) {
   const survey = new SurveyModel({
     checkErrorsMode: "onValueChanged",
@@ -2899,20 +2842,4 @@ QUnit.test("Check if errors disappered in the closest questions on changing the 
   q1.value = 1;
   assert.equal(q1.errors.length, 0, "q1.errors #3");
   assert.equal(q2.errors.length, 0, "q2.errors #3");
-});
-QUnit.test("Panel hasTextInTitle - reactive property, Bug:https://github.com/surveyjs/survey-creator/issues/5720", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "panel", name: "panel1" },
-      { type: "panel", name: "panel2", title: "Panel 2" }
-    ]
-  });
-  const panel1 = survey.getPanelByName("panel1");
-  const panel2 = survey.getPanelByName("panel2");
-  assert.equal(panel1.hasTextInTitle, false, "panel1 #1");
-  assert.equal(panel2.hasTextInTitle, true, "panel2 #1");
-  panel1.title = "Panel 1";
-  assert.equal(panel1.hasTextInTitle, true, "panel1 #2");
-  panel2.title = "";
-  assert.equal(panel2.hasTextInTitle, false, "panel2 #2");
 });

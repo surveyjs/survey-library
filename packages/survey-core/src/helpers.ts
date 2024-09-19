@@ -242,7 +242,7 @@ export class Helpers {
     const value = newValue ? newValue.length : "0";
     return [value, maxLength].join("/");
   }
-  public static getNumberByIndex(index: number, startIndexStr: string): string {
+  public static getNumberByIndex(index: number, startIndexStr: string, parentIndex?: number): string {
     if (index < 0) return "";
     var startIndex = 1;
     var prefix = "";
@@ -250,16 +250,17 @@ export class Helpers {
     var isNumeric = true;
     var strIndex = "A";
     var str = "";
+    const hasDigitFunc = (str: string): boolean => {
+      if(!str) return false;
+      for (var i = 0; i < str.length; i++) {
+        if (Helpers.isCharDigit(str[i])) return true;
+      }
+      return false;
+    };
     if (!!startIndexStr) {
       str = startIndexStr;
       var ind = str.length - 1;
-      var hasDigit = false;
-      for (var i = 0; i < str.length; i++) {
-        if (Helpers.isCharDigit(str[i])) {
-          hasDigit = true;
-          break;
-        }
-      }
+      var hasDigit = hasDigitFunc(str);
       var checkLetter = function() {
         return (
           (hasDigit && !Helpers.isCharDigit(str[ind])) ||
@@ -285,6 +286,9 @@ export class Helpers {
       if (!!newPostfix || !!prefix) {
         postfix = newPostfix;
       }
+    }
+    if(parentIndex > -1 && hasDigitFunc(prefix)) {
+      prefix = this.getNumberByIndex(parentIndex, prefix);
     }
     if (isNumeric) {
       let val = (index + startIndex).toString();

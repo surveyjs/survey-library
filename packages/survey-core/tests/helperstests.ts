@@ -373,6 +373,23 @@ QUnit.test("Helpers.getNumberByIndex", function(assert) {
   assert.equal(Helpers.getNumberByIndex(2, "1.01"), "1.03", "2/1.02");
   assert.equal(Helpers.getNumberByIndex(2, "01"), "03.", "2/01");
 });
+QUnit.test("Helpers.getNumberByIndex vs parent", function(assert) {
+  assert.equal(Helpers.getNumberByIndex(0, "1.", 2), "1.", "0/1.");
+  assert.equal(Helpers.getNumberByIndex(2, "1.", 2), "3.", "2/3.");
+  assert.equal(Helpers.getNumberByIndex(2, "a)", 2), "c)", "2/a)");
+  assert.equal(Helpers.getNumberByIndex(2, "#1)", 2), "#3)", "2/#1)");
+  assert.equal(Helpers.getNumberByIndex(2, "Q1.", 2), "Q3.", "2/Q1.");
+  assert.equal(Helpers.getNumberByIndex(2, "(10)", 2), "(12)", "2/(10)");
+  assert.equal(Helpers.getNumberByIndex(2, "# (a)", 2), "# (c)", "2/# (a)");
+  assert.equal(Helpers.getNumberByIndex(2, "1.2", 2), "3.4", "2/1.2");
+  assert.equal(Helpers.getNumberByIndex(2, "3.2.", 2), "5.4.", "2/1.2.");
+  assert.equal(Helpers.getNumberByIndex(2, "1.2.11", 2), "1.4.13", "2/1.2.11");
+  assert.equal(Helpers.getNumberByIndex(2, "1.2.11.", 2), "1.4.13.", "2/1.2.11.");
+  assert.equal(Helpers.getNumberByIndex(2, "1.01", 2), "3.03", "2/1.02");
+  assert.equal(Helpers.getNumberByIndex(2, "01", 2), "03.", "2/01");
+  assert.equal(Helpers.getNumberByIndex(2, "1.2.11", -1), "1.2.13", "2/1.2.11");
+  assert.equal(Helpers.getNumberByIndex(2, "1.2.11.", -1), "1.2.13.", "2/1.2.11.");
+});
 QUnit.test("Helpers.getNumberByIndex", function(assert) {
   assert.equal(Helpers.getRemainingCharacterCounterText("", 10), "0/10", "''/10");
   assert.equal(Helpers.getRemainingCharacterCounterText("abc", 10), "3/10", "'abc'/10");

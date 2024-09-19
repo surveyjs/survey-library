@@ -14674,6 +14674,7 @@ QUnit.test("forceIsInputReadOnly", function (assert) {
   survey.getQuestionByName("q2").forceIsInputReadOnly = false;
   assert.equal(survey.getQuestionByName("q1").isInputReadOnly, true, "q1");
   assert.equal(survey.getQuestionByName("q2").isInputReadOnly, false, "q2 with forceIsInputReadOnly");
+  settings.supportCreatorV2 = false;
 });
 
 QUnit.test("onElementContentVisibilityChanged event", function (assert) {
@@ -16715,6 +16716,7 @@ QUnit.test("Check survey calculated width mode observability with survey changin
     assert.equal(model.calculatedWidthMode, "static");
     model.getAllQuestions()[1].startWithNewLine = false;
     assert.equal(model.calculatedWidthMode, "responsive");
+    settings.supportCreatorV2 = false;
   }
 );
 
@@ -16726,6 +16728,7 @@ QUnit.test("Check survey calculated width mode observability on question added",
     model.addNewPage();
     model.pages[0].addNewQuestion("matrix", "q1");
     assert.equal(model.calculatedWidthMode, "responsive");
+    settings.supportCreatorV2 = false;
   }
 );
 

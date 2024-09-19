@@ -844,7 +844,7 @@ export class QuestionSelectBase extends Question {
     this.isLockVisibleChoices = !!question && question.name === val;
     if (!!question && question.name !== val) {
       question.removeDependedQuestion(this);
-      if (this.isDesignMode && !this.isLoadingFromJson && !!val) {
+      if (this.isInDesignMode && !this.isLoadingFromJson && !!val) {
         this.setPropertyValue("choicesFromQuestion", undefined);
       }
     }
@@ -1132,8 +1132,8 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems(): boolean {
-    return settings.showDefaultItemsInCreatorV2 && this.isDesignModeV2 &&
-      !this.customWidget && !this.isContentElement;
+    return settings.showDefaultItemsInCreatorV2 && this.isInDesignModeV2 &&
+      !this.customWidget;
   }
   public getPlainData(
     options: IPlainDataOptions = {
@@ -1248,7 +1248,7 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("isMessagePanelVisible", val);
   }
   private get isEmptyActiveChoicesInDesign(): boolean {
-    return this.isDesignModeV2 && (this.hasChoicesUrl || this.isMessagePanelVisible);
+    return this.isInDesignModeV2 && (this.hasChoicesUrl || this.isMessagePanelVisible);
   }
   getCarryForwardQuestion(data?: ISurveyData): Question {
     const question = this.findCarryForwardQuestion(data);
@@ -1285,7 +1285,7 @@ export class QuestionSelectBase extends Question {
     return !!question && question.isValueArray ? question : null;
   }
   private getChoicesFromArrayQuestion(question: Question): Array<ItemValue> {
-    if (this.isDesignMode) return [];
+    if (this.isInDesignMode) return [];
     const val = question.value;
     if (!Array.isArray(val)) return [];
     const res: Array<ItemValue> = [];
@@ -1306,7 +1306,7 @@ export class QuestionSelectBase extends Question {
     return keys.length > 0 ? keys[0] : undefined;
   }
   private getChoicesFromSelectQuestion(question: QuestionSelectBase): Array<ItemValue> {
-    if (this.isDesignMode) return [];
+    if (this.isInDesignMode) return [];
     const res: Array<ItemValue> = [];
     var isSelected =
       this.choicesFromQuestionMode == "selected"
@@ -1477,7 +1477,7 @@ export class QuestionSelectBase extends Question {
   private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
     this.updateIsUsingRestful();
-    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isDesignModeV2)
+    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isInDesignModeV2)
       return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()
@@ -1653,7 +1653,7 @@ export class QuestionSelectBase extends Question {
     return !choices || choices.length > 0;
   }
   private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
-    if (this.isDesignMode) return array;
+    if (this.isInDesignMode) return array;
     var order = this.choicesOrder.toLowerCase();
     if (order == "asc") return this.sortArray(array, 1);
     if (order == "desc") return this.sortArray(array, -1);
@@ -1876,7 +1876,7 @@ export class QuestionSelectBase extends Question {
   private headItemsCount: number = 0;
   private footItemsCount: number = 0;
   get headItems(): ItemValue[] {
-    const count = (this.separateSpecialChoices || this.isDesignMode) ? this.headItemsCount : 0;
+    const count = (this.separateSpecialChoices || this.isInDesignMode) ? this.headItemsCount : 0;
     const res = [];
     for (let i = 0; i < count; i++) {
       if (this.renderedChoices[i]) {
@@ -1886,7 +1886,7 @@ export class QuestionSelectBase extends Question {
     return res;
   }
   get footItems(): ItemValue[] {
-    const count = (this.separateSpecialChoices || this.isDesignMode) ? this.footItemsCount : 0;
+    const count = (this.separateSpecialChoices || this.isInDesignMode) ? this.footItemsCount : 0;
     const res = [];
     const items = this.renderedChoices;
     for (let i = 0; i < count; i++) {
@@ -1912,7 +1912,7 @@ export class QuestionSelectBase extends Question {
     var columns = [];
     var colCount = this.getCurrentColCount();
     if (this.hasColumns && this.renderedChoices.length > 0) {
-      let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isDesignMode) ?
+      let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isInDesignMode) ?
         this.renderedChoices : this.dataChoices;
       if (settings.showItemsInOrder == "column") {
         var prevIndex = 0;

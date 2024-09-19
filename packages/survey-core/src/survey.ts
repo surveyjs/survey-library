@@ -20,6 +20,8 @@ import {
   IValueItemCustomPropValues,
   ILoadFromJSONOptions,
   IDropdownMenuOptions,
+  ITextProcessorProp,
+  ITextProcessorResult
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -6980,17 +6982,15 @@ export class SurveyModel extends SurveyElementCore
     return this.processText(options.html, true);
   }
   processText(text: string, returnDisplayValue: boolean): string {
-    return this.processTextEx(text, returnDisplayValue, false).text;
+    return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false }).text;
   }
-  processTextEx(
-    text: string,
-    returnDisplayValue: boolean,
-    doEncoding: boolean
-  ): any {
-    var res = {
-      text: this.processTextCore(text, returnDisplayValue, doEncoding),
-      hasAllValuesOnLastRun: true,
-    };
+  processTextEx(params: ITextProcessorProp): ITextProcessorResult {
+    const doEncoding = params.doEncoding === undefined ? settings.web.encodeUrlParams : params.doEncoding;
+    let text = params.text;
+    if(params.runAtDesign || !this.isDesignMode) {
+      text = this.textPreProcessor.process(text, params.returnDisplayValue === true, doEncoding);
+    }
+    const res = { text: text, hasAllValuesOnLastRun: true };
     res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
     return res;
   }
@@ -7003,14 +7003,6 @@ export class SurveyModel extends SurveyElementCore
       };
     }
     return this.textPreProcessorValue;
-  }
-  private processTextCore(
-    text: string,
-    returnDisplayValue: boolean,
-    doEncoding: boolean = false
-  ): string {
-    if (this.isDesignMode) return text;
-    return this.textPreProcessor.process(text, returnDisplayValue, doEncoding);
   }
   getSurveyMarkdownHtml(element: Question | PanelModel | PageModel | SurveyModel, text: string, name: string): string {
     const options: TextMarkdownEvent = {

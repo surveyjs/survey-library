@@ -198,16 +198,8 @@ export class ChoicesRestful extends Base {
         .replace(ChoicesRestful.noCacheText, "");
     }
     if (textProcessor) {
-      var pUrl = textProcessor.processTextEx(
-        urlText,
-        false,
-        settings.web.encodeUrlParams
-      );
-      var pPath = textProcessor.processTextEx(
-        this.path,
-        false,
-        settings.web.encodeUrlParams
-      );
+      var pUrl = textProcessor.processTextEx({ text: urlText, runAtDesign: true });
+      var pPath = textProcessor.processTextEx({ text: this.path, runAtDesign: true });
       if (!pUrl.hasAllValuesOnLastRun || !pPath.hasAllValuesOnLastRun) {
         this.processedUrl = "";
         this.processedPath = "";

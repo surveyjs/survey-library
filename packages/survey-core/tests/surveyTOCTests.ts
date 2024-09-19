@@ -475,3 +475,37 @@ QUnit.test("updateStickyTOCSize", function (assert) {
   tocModel.updateStickyTOCSize(mockRootEl);
   assert.equal(tocRootElement.style.height, "179px", "Height updated to half title");
 });
+
+QUnit.test("update toc list model on add new page and add new question", function (assert) {
+  let json: any = { "pages": [{ "name": "page1", "elements": [{ "type": "text", "name": "q1" }] }] };
+  const survey: SurveyModel = new SurveyModel(json);
+  assert.equal(survey.pages.length, 1);
+  assert.equal(survey.currentPageNo, 0);
+  const tocListModel = createTOCListModel(survey);
+
+  assert.equal(tocListModel.actions.length, 1);
+  assert.equal(tocListModel.actions[0].visible, true);
+  assert.equal(tocListModel.actions[0].title, "page1");
+
+  const newPage = survey.addNewPage("newpage");
+
+  assert.equal(tocListModel.actions.length, 2);
+  assert.equal(tocListModel.actions[0].visible, true);
+  assert.equal(tocListModel.actions[1].visible, false);
+  assert.equal(tocListModel.actions[1].title, "newpage");
+
+  newPage.title = "New Page";
+
+  assert.equal(tocListModel.actions.length, 2);
+  assert.equal(tocListModel.actions[0].visible, true);
+  assert.equal(tocListModel.actions[1].visible, false);
+  assert.equal(tocListModel.actions[1].title, "New Page");
+
+  newPage.addNewQuestion("text", "q2");
+
+  assert.equal(tocListModel.actions.length, 2);
+  assert.equal(tocListModel.actions[0].visible, true);
+  assert.equal(tocListModel.actions[0].title, "page1");
+  assert.equal(tocListModel.actions[1].visible, true);
+  assert.equal(tocListModel.actions[1].title, "New Page");
+});

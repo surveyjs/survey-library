@@ -595,7 +595,8 @@ f-panel {
   word-break: break-all;
   margin: 0 calc(2 * var(--base-unit, 8px));
 
-  .sv-string-viewer {
+  .sv-string-viewer,
+  .sv-string-editor {
     overflow: initial;
     white-space: pre-line;
   }
@@ -620,7 +621,8 @@ f-panel {
 .sv-ranking-item--ghost {
   height: calcSize(6);
 
-  .sv-ranking-item__text .sv-string-viewer {
+  .sv-ranking-item__text .sv-string-viewer,
+  .sv-ranking-item__text .sv-string-editor {
     white-space: unset;
   }
 }

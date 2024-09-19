@@ -158,23 +158,35 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     node.style.cursor = "not-allowed";
   };
 
-  protected calculateIsBottom(clientY: number): boolean {
-    const choices = this.getVisibleChoices();
+  protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {
     return (
-      choices.indexOf(this.dropTarget) - choices.indexOf(this.draggedElement) >
-      0
+      this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
     );
   }
 
+  protected calculateIsBottom(clientY: number, dropTargetNode?: HTMLElement): boolean {
+    const rect = dropTargetNode.getBoundingClientRect();
+    return clientY >= rect.y + rect.height / 2;
+  }
+
   protected afterDragOver(dropTargetNode: HTMLElement): void {
-    if (this.isDropTargetDoesntChanged(this.isBottom)) return;
+    //if (this.isDropTargetDoesntChanged(this.isBottom)) return;
 
     const choices = this.getVisibleChoices();
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
-    choices.splice(draggedElementIndex, 1);
-    choices.splice(dropTargetIndex, 0, this.draggedElement);
+    if (draggedElementIndex < dropTargetIndex && this.isBottom === true) {
+      // drag "down"
+      choices.splice(draggedElementIndex, 1);
+      choices.splice(dropTargetIndex, 0, this.draggedElement);
+    } else if (draggedElementIndex > dropTargetIndex && this.isBottom === false) {
+      // drag "up"
+      choices.splice(dropTargetIndex, 1);
+      choices.splice(draggedElementIndex, 0, this.dropTarget);
+    } else {
+      return;
+    }
 
     if (this.parentElement.getType() === "imagepicker") return;
 

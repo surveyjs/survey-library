@@ -132,6 +132,7 @@ export class Cover extends Base {
   public cells: CoverCell[] = [];
   @property({ defaultValue: 0 }) public actualHeight: number;
   @property() public height: number;
+  @property() public mobileHeight: number;
   @property() public inheritWidthFrom: "survey" | "container";
   @property() public textAreaWidth: number;
   @property() public textGlowEnabled: boolean;
@@ -162,7 +163,13 @@ export class Cover extends Base {
   @property() backgroundImageClasses: string;
 
   public get renderedHeight(): string {
-    return this.height && (this.survey && !this.survey.isMobile || !this.survey) ? Math.max(this.height, this.actualHeight + 40) + "px" : undefined;
+    if (this.survey && !this.survey.isMobile || !this.survey) {
+      return this.height ? Math.max(this.height, this.actualHeight + 40) + "px" : undefined;
+    }
+    if (this.survey && this.survey.isMobile) {
+      return this.mobileHeight ? Math.max(this.mobileHeight, this.actualHeight + 40) + "px" : undefined;
+    }
+    return undefined;
   }
   public get renderedtextAreaWidth(): string {
     return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
@@ -245,6 +252,7 @@ Serializer.addClass(
   "cover",
   [
     { name: "height:number", minValue: 0, default: 256 },
+    { name: "mobileHeight:number", minValue: 0, default: 0 },
     { name: "inheritWidthFrom", default: "container" },
     { name: "textAreaWidth:number", minValue: 0, default: 512 },
     { name: "textGlowEnabled:boolean" },

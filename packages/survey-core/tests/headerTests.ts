@@ -226,7 +226,7 @@ QUnit.test("cell calculations - test width",
   }
 );
 
-QUnit.test("calculateActualHeight",
+QUnit.test("calculateActualHeight desktop",
   function (assert) {
     const cover = new Cover();
 
@@ -256,5 +256,71 @@ QUnit.test("calculateActualHeight",
     assert.equal(actualHeight, logoHeight);
     cover.actualHeight = actualHeight;
     assert.equal(cover.renderedHeight, "311px", "logo + 40");
+  }
+);
+
+QUnit.test("calculateActualHeight mobile",
+  function (assert) {
+    const cover = new Cover();
+    cover.survey = {
+      isMobile: true,
+      onPropertyChanged: { add: () => { } },
+      calculateWidthMode: () => { }
+    } as any;
+
+    cover.logoPositionX = "left";
+    cover.logoPositionY = "middle";
+    cover.titlePositionX = "right";
+    cover.titlePositionY = "middle";
+    cover.descriptionPositionX = "right";
+    cover.descriptionPositionY = "middle";
+
+    let logoHeight = 201;
+    let titleHeight = 22;
+    let descriptionHeight = 303;
+
+    let actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
+    assert.equal(actualHeight, titleHeight + descriptionHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, undefined, "title + description + 40 - no mobileHeight");
+
+    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
+    assert.equal(actualHeight, logoHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, undefined, "default height - no mobileHeight");
+
+    logoHeight = 271;
+    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
+    assert.equal(actualHeight, logoHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, undefined, "logo + 40 - no mobileHeight");
+
+    logoHeight = 50;
+    cover.mobileHeight = 100;
+
+    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
+    assert.equal(actualHeight, titleHeight + descriptionHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, "365px", "title + description + 40");
+
+    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
+    assert.equal(actualHeight, logoHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, "100px", "mobile height");
+
+    logoHeight = 271;
+    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
+    assert.equal(actualHeight, logoHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, "311px", "logo + 40");
+
+    logoHeight = 0;
+    titleHeight = 0;
+    descriptionHeight = 0;
+
+    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
+    assert.equal(actualHeight, logoHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, "100px", "mobile height, no title, no logo, no description");
   }
 );

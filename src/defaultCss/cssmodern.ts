@@ -162,6 +162,7 @@ export var modernCss = {
     rootSelectToRankMod: "sv-ranking--select-to-rank",
     rootSelectToRankAlignVertical: "sv-ranking--select-to-rank-vertical",
     rootSelectToRankAlignHorizontal: "sv-ranking--select-to-rank-horizontal",
+    rootSelectToRankSwapAreas: "sv-ranking--select-to-rank-swap-areas",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",

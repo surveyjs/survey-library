@@ -106,5 +106,26 @@ registerMarkupTests(
       },
       snapshot: "ranking-selectToRankEnabled-vertical",
     },
+    {
+      name: "Ranking selectToRankEnabled selectToRankSwapAreas",
+      json: {
+        questions: [
+          {
+            "type": "ranking",
+            "name": "name",
+            "selectToRankEnabled": true,
+            "selectToRankSwapAreas": true,
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "ranking-selectToRankEnabled-SwapAreas",
+    },
   ]
 );

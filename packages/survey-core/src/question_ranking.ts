@@ -57,6 +57,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.rootSelectToRankEmptyValueMod, this.isEmpty())
       .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "horizontal")
       .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "vertical")
+      .append(this.cssClasses.rootSelectToRankSwapAreas, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "horizontal" && this.selectToRankSwapAreas)
       .toString();
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
@@ -614,6 +615,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("selectToRankEnabled", val);
   }
 
+  public get selectToRankSwapAreas(): boolean {
+    return this.getPropertyValue("selectToRankSwapAreas", false);
+  }
+  public set selectToRankSwapAreas(val: boolean) {
+    this.setPropertyValue("selectToRankSwapAreas", val);
+  }
+
   @property({ defaultValue: true }) carryForwardStartUnranked: boolean;
 
   /**
@@ -700,6 +708,13 @@ Serializer.addClass(
       default: false,
       visible: true,
       isSerializable: true,
+    },
+    {
+      name: "selectToRankSwapAreas:switch",
+      default: false,
+      visible: false,
+      isSerializable: true,
+      dependsOn: "selectToRankEnabled",
     },
     {
       name: "selectToRankAreasLayout",

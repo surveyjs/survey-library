@@ -185,13 +185,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions): boolean {
+  public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     const { root } = settings.environment;
     if (!elementId || typeof root === "undefined") return false;
     const el = root.getElementById(elementId);
-    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions);
+    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
-  public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions): boolean {
+  public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     if (!el || !el.scrollIntoView) return false;
     const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
     let needScroll = elTop < 0;
@@ -210,6 +210,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     if (needScroll) {
       el.scrollIntoView(scrollIntoViewOptions);
+      if (typeof doneCallback === "function") {
+        let currPageXOffset = window.pageXOffset;
+        let currPageYOffset = window.pageYOffset;
+        var scrollDone = setInterval(function () {
+          if (currPageXOffset == window.pageXOffset && currPageYOffset == window.pageYOffset) {
+            clearInterval(scrollDone);
+            doneCallback();
+          }
+          currPageXOffset = window.pageXOffset;
+          currPageYOffset = window.pageYOffset;
+        }, 25);
+      }
     }
     return needScroll;
   }

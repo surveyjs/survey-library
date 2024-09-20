@@ -47,7 +47,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -1300,6 +1300,19 @@ export class SurveyModel extends SurveyElementCore
     this.lazyRenderingFirstBatchSizeValue = val;
   }
 
+  protected _isLazyRenderingSuspended = false;
+  public get isLazyRenderingSuspended(): boolean {
+    return this._isLazyRenderingSuspended;
+  }
+  protected suspendLazyRendering(): void {
+    if (!this.isLazyRendering) return;
+    this._isLazyRenderingSuspended = true;
+  }
+  protected releaseLazyRendering(): void {
+    if (!this.isLazyRendering) return;
+    this._isLazyRenderingSuspended = false;
+  }
+
   public disableLazyRenderingBeforeElement(el: IElement): void {
     if(this.isDesignMode) {
       const page = this.getPageByElement(el);
@@ -1315,7 +1328,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
     if (!!page) {
-      scrollElementByChildId(page.id);
+      activateLazyRenderingChecks(page.id);
     }
   }
   /**
@@ -5272,7 +5285,13 @@ export class SurveyModel extends SurveyElementCore
     };
     this.onScrollingElementToTop.fire(this, options);
     if (!options.cancel) {
-      SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions);
+      const elementPage = this.getPageByElement(element as IElement);
+      elementPage.forceRenderElement(element as IElement, 2);
+      this.suspendLazyRendering();
+      SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, () => {
+        this.releaseLazyRendering();
+        activateLazyRenderingChecks(elementPage.id);
+      });
     }
   }
 

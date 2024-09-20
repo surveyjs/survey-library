@@ -41,6 +41,9 @@ export class QuestionRowModel extends Base {
   }
   protected _scrollableParent: any = undefined;
   protected _updateVisibility: any = undefined;
+  private get allowRendering(): boolean {
+    return !this.panel || !this.panel.survey || !this.panel.survey["isLazyRenderingSuspended"];
+  }
   public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
     if (!DomDocumentHelper.isAvailable()) return;
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
@@ -52,6 +55,9 @@ export class QuestionRowModel extends Base {
     this.isNeedRender = !hasScroll;
     if (hasScroll) {
       this._updateVisibility = () => {
+        if (!this.allowRendering) {
+          return;
+        }
         var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
         if (!this.isNeedRender && isRowContainerDivVisible) {
           this.isNeedRender = true;
@@ -1572,9 +1578,41 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
+  private findRowAndIndexByElement(el: IElement): { row: QuestionRowModel, index: number } {
+    if (!el) {
+      return { row: undefined, index: this.rows.length - 1 };
+    }
+    var rows = this.rows;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].elements.indexOf(el) > -1) return { row: rows[i], index: i };
+    }
+    return { row: null, index: -1 };
+  }
+  private forceRenderRow(row: QuestionRowModel): void {
+    if (!!row && !row.isNeedRender) {
+      row.isNeedRender = true;
+      row.stopLazyRendering();
+    }
+  }
+  private forceRenderRowByIndex(index: number): void {
+    if (index !== undefined) {
+      if (index >= 0 && index < this.rows.length) {
+        this.forceRenderRow(this.rows[index]);
+      }
+    }
+  }
+  public forceRenderElement(el: IElement, gap = 0): void {
+    const { row, index } = this.findRowAndIndexByElement(el);
+    if (index >= 0) {
+      this.forceRenderRow(row);
+      for (let i = 1; i <= gap; i++) {
+        this.forceRenderRowByIndex(index + i);
+        this.forceRenderRowByIndex(index - i);
+      }
+    }
+  }
   public disableLazyRenderingBeforeElement(el?: IElement): void {
-    const row = el ? this.findRowByElement(el) : undefined;
-    const index = el ? this.rows.indexOf(row) : this.rows.length - 1;
+    const { row, index } = this.findRowAndIndexByElement(el);
     for (let i = index; i >= 0; i--) {
       const currentRow = this.rows[i];
       if (currentRow.isNeedRender) {
@@ -1586,11 +1624,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   public findRowByElement(el: IElement): QuestionRowModel {
-    var rows = this.rows;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].elements.indexOf(el) > -1) return rows[i];
-    }
-    return null;
+    return this.findRowAndIndexByElement(el).row;
   }
   elementWidthChanged(el: IElement) {
     if (this.isLoadingFromJson) return;

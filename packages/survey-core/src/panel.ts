@@ -832,6 +832,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see questions
    */
   public get elements(): Array<IElement> {
+    Base.collectDependency(this, "elements");
     return this.elementsValue;
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {

@@ -14,24 +14,9 @@ export function tryFocusPage(survey: SurveyModel, panel: PanelModelBase): boolea
   return true;
 }
 
-export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
-  const pagesSource: PanelModelBase[] = survey.questionsOnPageMode === "singlePage" ? (survey.pages[0]?.elements as any) : survey.pages;
-  var items = (pagesSource || []).map(page => {
-    return new Action({
-      id: page.name,
-      locTitle: page.locNavigationTitle,
-      action: () => {
-        DomDocumentHelper.activeElementBlur();
-        !!onAction && onAction();
-        if (page instanceof PageModel) {
-          return survey.tryNavigateToPage(page);
-        }
-        return tryFocusPage(survey, page);
-      },
-      visible: <any>new ComputedUpdater(() => page.isVisible && !((<any>page)["isStartPage"]))
-    });
-  });
-  const selectedItem = items.filter(i => !!survey.currentPage && i.id === survey.currentPage.name)[0] || items.filter(i => i.id === pagesSource[0].name)[0];
+export function createTOCListModel(survey: SurveyModel, onAction?: () => void): ListModel<Action> {
+  var items: Action[] = getTOCItems(survey, onAction);
+  const selectedItem = items.filter(i => !!survey.currentPage && i.id === survey.currentPage.name)[0] || items[0];
   const listOptions: IListModel = {
     items: items,
     onSelectionChanged: item => {
@@ -47,9 +32,34 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
   var listModel = new ListModel(listOptions as any);
   listModel.allowSelection = false;
   survey.onCurrentPageChanged.add((s, o) => {
-    listModel.selectedItem = items.filter(i => !!survey.currentPage && i.id === survey.currentPage.name)[0];
+    listModel.selectedItem = listModel.actions.filter(i => !!survey.currentPage && i.id === survey.currentPage.name)[0];
   });
+  survey.registerFunctionOnPropertyValueChanged("pages", () => {
+    listModel.setItems(getTOCItems(survey, onAction));
+  }, "toc");
   return listModel;
+}
+
+function getTOCItems(survey: SurveyModel, onAction: () => void) {
+  const pagesSource: PanelModelBase[] = survey.questionsOnPageMode === "singlePage" ? (survey.pages[0]?.elements as any) : survey.pages;
+  var items = (pagesSource || []).map(page => {
+    return new Action({
+      id: page.name,
+      locTitle: page.locNavigationTitle,
+      action: () => {
+        DomDocumentHelper.activeElementBlur();
+        !!onAction && onAction();
+        if (page instanceof PageModel) {
+          return survey.tryNavigateToPage(page);
+        }
+        return tryFocusPage(survey, page);
+      },
+      visible: <any>new ComputedUpdater(() => {
+        return page.isVisible && !((<any>page)["isStartPage"]);
+      })
+    });
+  });
+  return items;
 }
 
 export function getTocRootCss(survey: SurveyModel, isMobile = false): string {
@@ -118,6 +128,7 @@ export class TOCModel {
     this.popupModel.toggleVisibility();
   }
   public dispose(): void {
+    this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
     this.popupModel.dispose();
     this.listModel.dispose();
   }

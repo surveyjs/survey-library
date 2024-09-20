@@ -67,12 +67,15 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
     return this.getLocalizableStringText("title", this.getDefaultTitleValue());
   }
   public set title(val: string) {
-    this.setLocalizableStringText("title", val);
+    this.setTitleValue(val);
   }
   get locTitle(): LocalizableString {
     return this.getLocalizableString("title");
   }
   protected getDefaultTitleValue(): string { return undefined; }
+  protected setTitleValue(val: string): void {
+    this.setLocalizableStringText("title", val);
+  }
   /**
    * Returns `true` if the survey element has a description.
    * @see description
@@ -196,14 +199,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
     let needScroll = elTop < 0;
     let elLeft: number = -1;
-    if(!needScroll && checkLeft) {
+    if (!needScroll && checkLeft) {
       elLeft = el.getBoundingClientRect().left;
       needScroll = elLeft < 0;
     }
-    if(!needScroll && DomWindowHelper.isAvailable()) {
+    if (!needScroll && DomWindowHelper.isAvailable()) {
       const height = DomWindowHelper.getInnerHeight();
       needScroll = height > 0 && height < elTop;
-      if(!needScroll && checkLeft) {
+      if (!needScroll && checkLeft) {
         const width = DomWindowHelper.getInnerWidth();
         needScroll = width > 0 && width < elLeft;
       }
@@ -704,7 +707,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public updateCustomWidgets(): void { }
 
-  public onSurveyLoad(): void {}
+  public onSurveyLoad(): void { }
   private wasRenderedValue: boolean;
   public get wasRendered(): boolean { return !!this.wasRenderedValue; }
   public onFirstRendering(): void {
@@ -1099,7 +1102,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   @property() private _renderedIsExpanded: boolean = true;
   private _isAnimatingCollapseExpand: boolean = false;
   private set isAnimatingCollapseExpand(val: boolean) {
-    if(val !== this._isAnimatingCollapseExpand) {
+    if (val !== this._isAnimatingCollapseExpand) {
       this._isAnimatingCollapseExpand = val;
       this.updateElementCss(false);
     }
@@ -1133,16 +1136,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       },
       getLeaveOptions: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
-        return { cssClass: cssClasses.contentLeave,
+        return {
+          cssClass: cssClasses.contentLeave,
           onBeforeRunAnimation: beforeRunAnimation,
           onAfterRunAnimation: afterRunAnimation
         };
       },
       getAnimatedElement: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
-        if(cssClasses.content) {
+        if (cssClasses.content) {
           const selector = classesToSelector(cssClasses.content);
-          if(selector) {
+          if (selector) {
             return this.getWrapperElement()?.querySelector(`:scope ${selector}`);
           }
         }
@@ -1158,8 +1162,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   private animationCollapsed = new AnimationBoolean(this.getExpandCollapseAnimationOptions(), (val) => {
     this._renderedIsExpanded = val;
-    if(this.animationAllowed) {
-      if(val) {
+    if (this.animationAllowed) {
+      if (val) {
         this.isAnimatingCollapseExpand = true;
       } else {
         this.updateElementCss(false);
@@ -1169,7 +1173,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public set renderedIsExpanded(val: boolean) {
     const oldValue = this._renderedIsExpanded;
     this.animationCollapsed.sync(val);
-    if(!this.isExpandCollapseAnimationEnabled && !oldValue && this.renderedIsExpanded) {
+    if (!this.isExpandCollapseAnimationEnabled && !oldValue && this.renderedIsExpanded) {
       this.onElementExpanded(false);
     }
   }

@@ -50,6 +50,10 @@ export class PageModel extends PanelModelBase implements IPage {
   protected canShowTitle(): boolean {
     return this.survey && (<any>this.survey).showPageTitles;
   }
+  protected setTitleValue(val: string): void {
+    super.setTitleValue(val);
+    this.navigationLocStrChanged();
+  }
   /**
    * A caption displayed on a navigation button in the TOC or progress bar. Applies when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true` or when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar), [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is set to `"pages"`, and [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarShowPageTitles) is `true`.
    *

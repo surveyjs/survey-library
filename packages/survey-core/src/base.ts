@@ -187,7 +187,7 @@ export class Base {
     }
     Base.currentDependencis = new Dependencies(updater, target, property);
   }
-  private static collectDependency(target: Base, property: string): void {
+  protected static collectDependency(target: Base, property: string): void {
     if (Base.currentDependencis === undefined) return;
     Base.currentDependencis.addDependency(target, property);
   }

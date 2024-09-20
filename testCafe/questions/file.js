@@ -1,7 +1,5 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, url_test } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, url_test, getQuestionValue } from "../helper";
 import { ClientFunction, fixture, Selector, test } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "file";
 
 const json = {
@@ -80,9 +78,10 @@ frameworks.forEach(framework => {
     await t.click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
-    assert.equal(surveyResult.image.length, 2);
-    assert.equal(surveyResult.image[0].name, "stub.txt");
-    assert.equal(surveyResult.image[1].name, "small_Dashka.jpg");
+    await t
+      .expect(surveyResult.image.length).eql(2)
+      .expect(surveyResult.image[0].name).eql("stub.txt")
+      .expect(surveyResult.image[1].name).eql("small_Dashka.jpg");
   });
   test("check clean button", async t => {
     await ClientFunction(() => {
@@ -106,17 +105,10 @@ frameworks.forEach(framework => {
       .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
-    assert(surveyResult.image[0].content.indexOf("image/jpeg") !== -1);
+    await t.expect(surveyResult.image[0].content.indexOf("image/jpeg")).notEql(-1);
   });
 
   test("without preview", async t => {
-    let surveyResult;
-    const getImageExistance = ClientFunction(
-      () =>
-        !document.querySelector("img") ||
-        document.querySelector("img").style.display === "none"
-    );
-
     await setOptions("image", { showPreview: false });
     await t.setFilesToUpload(
       "input[type=file]",
@@ -124,12 +116,12 @@ frameworks.forEach(framework => {
     );
     await t.click("input[type=file] + div label");
 
-    assert(await getImageExistance());
+    await t.expect(Selector("img").exists).notOk();
 
     await t.click("input[value=Complete]");
 
-    surveyResult = await getSurveyResult();
-    assert(surveyResult.image[0].content.indexOf("image/jpeg") !== -1);
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult.image[0].content.indexOf("image/jpeg")).notEql(-1);
   });
 
   test("file not in data", async t => {
@@ -145,11 +137,6 @@ frameworks.forEach(framework => {
     await t.expect(surveyResult).eql({});
   });
   test("change preview height width", async t => {
-    const getWidth = ClientFunction(() => document.querySelector("img").width);
-    const getHeight = ClientFunction(
-      () => document.querySelector("img").height
-    );
-
     await t.setFilesToUpload(
       "input[type=file]",
       "../resources/small_Dashka.jpg"
@@ -161,22 +148,29 @@ frameworks.forEach(framework => {
       imageWidth: "50px"
     });
 
-    assert.equal(await getWidth(), 50);
-    assert.equal(await getHeight(), 50);
+    await t
+      .expect(Selector("img").getStyleProperty("width")).eql("50px")
+      .expect(Selector("img").getStyleProperty("height")).eql("50px");
   });
   test("confirm remove file", async t => {
     await t.setFilesToUpload(
       "input[type=file]",
       "../resources/small_Dashka.jpg"
     );
-    await t.click("input[type=file] + div label");
 
-    const getFileName = ClientFunction(() => window["survey"].getAllQuestions()[0].value[0].name);
-    const checkValue = ClientFunction(() => window["survey"].getAllQuestions()[0].value.length === 0);
-    await t.click(".sv_q_file_remove_button").click(".sv-popup--confirm-delete .sd-btn");
-    assert.equal(await getFileName(), "small_Dashka.jpg");
-    await t.click(".sv_q_file_remove_button").click(".sv-popup--confirm-delete .sd-btn--danger");
-    assert.equal(await checkValue(), true);
+    await t
+      .click("input[type=file] + div label")
+      .click(".sv_q_file_remove_button")
+      .click(".sv-popup--confirm-delete .sd-btn");
+
+    let questionValue = await getQuestionValue();
+    await t.expect(questionValue[0].name).eql("small_Dashka.jpg")
+
+      .click(".sv_q_file_remove_button")
+      .click(".sv-popup--confirm-delete .sd-btn--danger");
+
+    questionValue = await getQuestionValue();
+    await t.expect(questionValue.length).eql(0);
 
     // await t
     //   .setNativeDialogHandler(() => {

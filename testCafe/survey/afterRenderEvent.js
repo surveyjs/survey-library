@@ -1,8 +1,5 @@
 import { frameworks, url, initSurvey, url_test } from "../helper";
-import { ClientFunction, fixture, test } from "testcafe";
-import { createElement } from "react";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
+import { ClientFunction, fixture, test, Selector } from "testcafe";
 const title = "afterRenderQuestionEvent";
 
 const json = {
@@ -48,41 +45,30 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async (t) => {
-      var f = function (survey, options) {
-        if (options.question.name == "question4a") {
-          var title = options.htmlElement.querySelector("input[value='valueYes']");
-          title.style.color = "tomato";
-        }
-        if (options.question.name == "question4b") {
-          options.htmlElement.style.border = "1px solid #CCC";
-        }
-      };
-      var events = { onAfterRenderQuestion: f };
-
-      await initSurvey(framework, json, events);
-    }
-  );
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("afterRenderQuestion fires for initially hidden questions", async (t) => {
-    const isTitleOk = ClientFunction(
-      () => document.querySelector("input[value='valueYes']").style.color === "tomato"
-    );
-    const getQuestionCount = ClientFunction(
-      () => document.querySelectorAll(".sv_q.sv_qstn").length
-    );
-    const isBorderOk = ClientFunction(
-      () =>
-        document.querySelectorAll(".sv_q.sv_qstn")[1].style.border ===
-        "1px solid rgb(204, 204, 204)"
-    );
 
-    assert.equal(await getQuestionCount(), 1);
-    await t.click("input[value=valueYes]");
-    assert.equal(await getQuestionCount(), 2);
-    assert.ok(await isBorderOk());
-    assert.ok(await isTitleOk());
+    var f = function (survey, options) {
+      if (options.question.name == "question4a") {
+        var title = options.htmlElement.querySelector("input[value='valueYes']");
+        title.style.color = "tomato";
+      }
+      if (options.question.name == "question4b") {
+        options.htmlElement.style.border = "1px solid #CCC";
+      }
+    };
+
+    await initSurvey(framework, json, { onAfterRenderQuestion: f });
+    await t
+      .expect(Selector(".sv_q.sv_qstn").count).eql(1)
+      .click("input[value=valueYes]")
+
+      .expect(Selector(".sv_q.sv_qstn").count).eql(2)
+      .expect(Selector("input[value='valueYes']").getStyleProperty("color")).eql("rgb(255, 99, 71)")
+      .expect(Selector(".sv_q.sv_qstn").nth(1).getStyleProperty("border-top-color")).eql("rgb(204, 204, 204)")
+      .expect(Selector(".sv_q.sv_qstn").nth(1).getStyleProperty("border-top-style")).eql("solid")
+      .expect(Selector(".sv_q.sv_qstn").nth(1).getStyleProperty("border-top-width")).eql("0.8px");
   });
 });
 

@@ -5286,9 +5286,11 @@ export class SurveyModel extends SurveyElementCore
     this.onScrollingElementToTop.fire(this, options);
     if (!options.cancel) {
       const elementPage = this.getPageByElement(element as IElement);
-      elementPage.forceRenderElement(element as IElement, 2);
-      this.suspendLazyRendering();
-      SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, () => {
+      if (this.isLazyRendering) {
+        elementPage.forceRenderElement(element as IElement, 2);
+        this.suspendLazyRendering();
+      }
+      SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, !this.isLazyRendering ? undefined : () => {
         this.releaseLazyRendering();
         activateLazyRenderingChecks(elementPage.id);
       });

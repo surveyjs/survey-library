@@ -1018,7 +1018,11 @@ export class QuestionPanelDynamicModel extends Question
     var value = this.value;
     if (!value || !Array.isArray(value)) value = [];
     if (value.length == this.panelCount) return;
-    for (var i = value.length; i < this.panelCount; i++) value.push({});
+    for (var i = value.length; i < this.panelCount; i++) {
+      const panelValue = this.panels[i].getValue();
+      const val = !Helpers.isValueEmpty(panelValue) ? panelValue : {};
+      value.push(val);
+    }
     if (value.length > this.panelCount) {
       value.splice(this.panelCount, value.length - this.panelCount);
     }
@@ -2219,7 +2223,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private isSetPanelItemData: HashTable<number> = {};
   private static maxCheckCount = 3;
-  setPanelItemData(item: ISurveyData, name: string, val: any) {
+  setPanelItemData(item: ISurveyData, name: string, val: any): void {
     if (this.isSetPanelItemData[name] > this.maxCheckCount)
       return;
     if (!this.isSetPanelItemData[name]) {

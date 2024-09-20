@@ -45,6 +45,21 @@
   position: absolute;
   z-index: 10000;
   font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));
+  min-width: 100px;
+  max-width: 400px;
+
+  .sv-ranking-item {
+    height: calcSize(6);
+
+    .sv-ranking-item__text {
+
+      .sv-string-viewer,
+      .sv-string-editor {
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    }
+  }
 }
 
 .sv-drag-drop-choices-shortcut__content.sv-drag-drop-choices-shortcut__content {

@@ -1479,6 +1479,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       !Helpers.isTwoValueEquals(prevTotalValue, this.totalValue) &&
       counter < 3
     );
+    this.updateVisibilityBasedOnRows();
   }
   public runTriggers(name: string, value: any): void {
     super.runTriggers(name, value);

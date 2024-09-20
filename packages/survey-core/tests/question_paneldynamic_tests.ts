@@ -4574,6 +4574,7 @@ QUnit.test("templateTitle test + survey.onValueChanged", function(assert) {
 QUnit.test("defaultValue &  survey.onValueChanged on adding new panel", function(assert) {
   const survey = new SurveyModel({
     questions: [
+      { type: "text", name: "val1" },
       {
         name: "panel",
         type: "paneldynamic",
@@ -7437,3 +7438,38 @@ QUnit.test("getFirstQuestionToFocus, Bug#8764", function (assert) {
   panel.validate(true);
   assert.equal(panel.getFirstQuestionToFocus(true).name, "panel", "#5");
 });
+QUnit.test("defaultRowValue in dynamic panel, Bug#8819", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "matrixdynamic",
+            "name": "matrix1",
+            "columns": [
+              {
+                "name": "col1",
+                "cellType": "text"
+              }
+            ],
+            "rowCount": 1,
+            "minRowCount": 1,
+            "defaultRowValue": {
+              "col1": "abc"
+            }
+          }
+        ],
+        "minPanelCount": 1
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.deepEqual(panel.value, [{ matrix1: [{ "col1": "abc" }] }], "#1");
+  panel.addPanel();
+  assert.deepEqual(panel.value, [{ matrix1: [{ "col1": "abc" }] }, { matrix1: [{ "col1": "abc" }] }], "#2");
+  panel.panels[1].questions[0].addRow();
+  assert.deepEqual(panel.value, [{ matrix1: [{ "col1": "abc" }] }, { matrix1: [{ "col1": "abc" }, { "col1": "abc" }] }], "#3");
+});
+

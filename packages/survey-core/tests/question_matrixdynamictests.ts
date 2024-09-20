@@ -8614,6 +8614,23 @@ QUnit.test("Test property hideIfRowsEmpty for matrix dropdown", function (assert
   survey.setValue("val1", 2);
   assert.equal(question.isVisible, true, "There is one visible item");
 });
+QUnit.test("Test property hideIfRowsEmpty for matrix dropdown on loading, Bug#8824", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "matrixdropdown", name: "matrix", rowsVisibleIf: "{q1} != 'a'",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: ["row1", "row2"], hideIfRowsEmpty: true
+      }
+    ]
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  assert.equal(matrix.getPropertyValue("isVisible"), true, "#1");
+  survey.setValue("q1", "a");
+  assert.equal(matrix.getPropertyValue("isVisible"), false, "#2");
+  survey.setValue("q1", "aa");
+  assert.equal(matrix.getPropertyValue("isVisible"), true, "#3");
+});
 
 QUnit.test("Load old JSON where columns without cellType set correctly", function (assert) {
   const survey = new SurveyModel({

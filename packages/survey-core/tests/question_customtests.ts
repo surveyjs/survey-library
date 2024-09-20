@@ -2745,6 +2745,32 @@ QUnit.test("single component: defaultQuestionTitle", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("single component: defaultQuestionTitle & editor placeholder", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    defaultQuestionTitle: "abc",
+    questionJSON: {
+      type: "text"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const prop = Serializer.findProperty("text", "title");
+  prop.onPropertyEditorUpdate(q1, q3);
+  assert.equal(q3.placeholder, "abc", "#1");
+  prop.onPropertyEditorUpdate(q2, q3);
+  assert.equal(q3.placeholder, "q2", "#2");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("composite component: defaultQuestionTitle", function (assert) {
   ComponentCollection.Instance.add({
     name: "customtext",

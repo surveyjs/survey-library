@@ -3369,3 +3369,22 @@ QUnit.test("composite component: do not reset dynamic panels/dynamic rows, Bug#8
 
   ComponentCollection.Instance.clear();
 });
+
+QUnit.test("a11y", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customquestion",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "qText",
+      }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customquestion", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  assert.equal(q1.ariaRole, "group", "check role attribute");
+});

@@ -1,7 +1,5 @@
 import { frameworks, url, url_test, initSurvey, getQuestionValue, getQuestionJson, applyTheme } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "boolean";
 
 var json = {
@@ -58,56 +56,61 @@ frameworks.forEach((framework) => {
   );
 
   test("checked class", async (t) => {
-    const isCheckedClassExists = ClientFunction(() =>
-      document.querySelector("div label").classList.contains("checked")
-    );
+    const label = Selector("div label");
+    await t
+      .expect(label.classNames).notContains("checked")
 
-    await t.expect(isCheckedClassExists()).eql(false);
+      .click("div label", { offsetX: 1 })
+      .expect(label.classNames).notContains("checked")
 
-    await t.click("div label", { offsetX: 1 });
-
-    await t.expect(isCheckedClassExists()).eql(false);
-
-    await t.click("div label");
-
-    await t.expect(isCheckedClassExists()).eql(true);
+      .click("div label")
+      .expect(label.classNames).contains("checked");
   });
 
   test("click on true label in intermediate state", async (t) => {
-    assert.equal(await getQuestionValue(), null);
+    let questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(undefined);
 
     await t.click(Selector(".sv-boolean__thumb-ghost").nth(1));
 
-    assert.equal(await getQuestionValue(), true);
+    questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(true);
   });
 
   test("click on false label in intermediate state", async (t) => {
-    assert.equal(await getQuestionValue(), null);
+    let questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(undefined);
 
     await t.click(".sv-boolean__label:first-of-type");
 
-    assert.equal(await getQuestionValue(), false);
+    questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(false);
   });
 
   test("click on right side of switch in intermediate state", async (t) => {
-    assert.equal(await getQuestionValue(), null);
+    let questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(undefined);
 
     await t.click(".sv-boolean__switch", { offsetX: -1 });
 
-    assert.equal(await getQuestionValue(), true);
+    questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(true);
   });
 
   test("click on left side of switch in intermediate state", async (t) => {
-    assert.equal(await getQuestionValue(), null);
+    let questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(undefined);
 
     await t.click(".sv-boolean__switch", { offsetX: 1 });
 
-    assert.equal(await getQuestionValue(), false);
+    questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(false);
   });
 
   test("check arrow keydowns", async (t) => {
     await ClientFunction(() => { document.querySelector(".sv-boolean input").focus(); })();
-    await t.expect(getQuestionValue()).eql(undefined)
+    await t
+      .expect(getQuestionValue()).eql(undefined)
       .pressKey("right")
       .expect(getQuestionValue()).ok()
       .pressKey("left")
@@ -125,7 +128,8 @@ frameworks.forEach((framework) => {
   test("click on question title state editable", async (t) => {
     var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
-    assert.equal(await getQuestionValue(), null);
+    let questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(undefined);
 
     var outerSelector = ".sv_q_title";
     var innerSelector = ".sv-string-editor";
@@ -135,16 +139,19 @@ frameworks.forEach((framework) => {
       .typeText(outerSelector + " " + innerSelector, newTitle)
       .click("body");
 
-    assert.equal(await getQuestionValue(), null);
+    questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(undefined);
+
     json = JSON.parse(await getQuestionJson());
-    assert.equal(json.title, newTitle);
+    await t.expect(json.title).eql(newTitle);
   });
 
   test("click on true label in intermediate state editable", async (t) => {
     var newLabelTrue = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var labelFalse = json.labelFalse;
-    assert.equal(await getQuestionValue(), null);
+    let questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(undefined);
 
     var outerSelector = Selector(".sv-boolean__label").nth(1);
     await t
@@ -152,17 +159,21 @@ frameworks.forEach((framework) => {
       .typeText(outerSelector.find(".sv-string-editor"), newLabelTrue, { replace: true })
       .click("body", { offsetX: 0, offsetY: 0 });
 
-    assert.equal(await getQuestionValue(), null);
+    questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(undefined);
+
     json = JSON.parse(await getQuestionJson());
-    assert.equal(json.labelFalse, labelFalse);
-    assert.equal(json.labelTrue, newLabelTrue);
+    await t
+      .expect(json.labelFalse).eql(labelFalse)
+      .expect(json.labelTrue).eql(newLabelTrue);
   });
 
   test("click on false label in intermediate state editable", async (t) => {
     var newLabelFalse = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var labelTrue = json.labelTrue;
-    assert.equal(await getQuestionValue(), null);
+    let questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(undefined);
 
     var outerSelector = ".sv-boolean__label:nth-of-type(1)";
     var innerSelector = ".sv-string-editor";
@@ -171,67 +182,28 @@ frameworks.forEach((framework) => {
       .typeText(outerSelector + " " + innerSelector, newLabelFalse, { replace: true })
       .click("body", { offsetX: 0, offsetY: 0 });
 
-    assert.equal(await getQuestionValue(), null);
+    questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(undefined);
+
     json = JSON.parse(await getQuestionJson());
-    assert.equal(json.labelFalse, newLabelFalse);
-    assert.equal(json.labelTrue, labelTrue);
-  });
-});
-
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, jsonCheckbox);
-    }
-  );
-  test("check first clink on boolean-checkbox input", async (t) => {
-    const selector = Selector(".sv_qbln input");
-    await ClientFunction(() => { document.querySelector(".sv_qbln input").click(); })();
-    await t.expect(selector.checked).ok();
-  });
-});
-frameworks.forEach((framework) => {
-  const theme = "defaultV2";
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`
-    .beforeEach(async t => {
-      await applyTheme(theme);
-      await initSurvey(framework, jsonCheckbox2, { onGetQuestionTitleActions: (_, options) => {
-        options.titleActions = [
-          {
-            title: "Click me",
-            action: () => {
-              const q = options.question;
-              if(!q.description) {
-                q.description = "Description!";
-              } else {
-                q.descriptionLocation = q.descriptionLocation === "hidden" ? "default" : "hidden";
-              }
-            },
-          }];
-      } });
-    });
-  test("Check actions", async (t) => {
     await t
-      .expect(Selector(".sv-string-viewer").withText("21").exists).ok()
-      .expect(Selector(".sv-string-viewer").withText("Description!").exists).notOk()
-      .click(Selector(".sd-action__title").withText("Click me"))
-      .expect(Selector(".sv-string-viewer").withText("Description!").exists).ok()
-      .click(Selector(".sd-action__title").withText("Click me"))
-      .expect(Selector("div").withText("Description!").exists).notOk()
-      .click(Selector(".sd-action__title").withText("Click me"))
-      .expect(Selector(".sv-string-viewer").withText("Description!").exists).ok();
+      .expect(json.labelFalse).eql(newLabelFalse)
+      .expect(json.labelTrue).eql(labelTrue);
   });
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, jsonRadio);
-    }
-  );
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+  test("check first clink on boolean-checkbox input", async (t) => {
+    await initSurvey(framework, jsonCheckbox);
+    const selector = Selector(".sv_qbln input");
+    await t
+      .click(selector)
+      .expect(selector.checked).ok();
+  });
 
   test("test radio boolean", async (t) => {
+    await initSurvey(framework, jsonRadio);
     await t
       .expect(Selector("input[type=radio]").nth(0).checked).notOk()
       .expect(Selector("input[type=radio]").nth(1).checked).notOk()
@@ -246,22 +218,35 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   const theme = "defaultV2";
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`
-    .beforeEach(async t => {
-      await applyTheme(theme);
-      await initSurvey(framework, {
-        "elements": [{
-          "type": "boolean",
-          "name": "q",
-          "title": "Are you 21 or older?",
-          "valueTrue": "Yes",
-          "valueFalse": "No",
-          "renderAs": "radio"
-        }],
-        "showQuestionNumbers": false
-      });
-    }
-    );
+    .page`${url_test}${theme}/${framework}`;
+
+  test("Check actions", async (t) => {
+    await applyTheme(theme);
+    await initSurvey(framework, jsonCheckbox2, { onGetQuestionTitleActions: (_, options) => {
+      options.titleActions = [
+        {
+          title: "Click me",
+          action: () => {
+            const q = options.question;
+            if(!q.description) {
+              q.description = "Description!";
+            } else {
+              q.descriptionLocation = q.descriptionLocation === "hidden" ? "default" : "hidden";
+            }
+          },
+        }];
+    } });
+
+    await t
+      .expect(Selector(".sv-string-viewer").withText("21").exists).ok()
+      .expect(Selector(".sv-string-viewer").withText("Description!").exists).notOk()
+      .click(Selector(".sd-action__title").withText("Click me"))
+      .expect(Selector(".sv-string-viewer").withText("Description!").exists).ok()
+      .click(Selector(".sd-action__title").withText("Click me"))
+      .expect(Selector("div").withText("Description!").exists).notOk()
+      .click(Selector(".sd-action__title").withText("Click me"))
+      .expect(Selector(".sv-string-viewer").withText("Description!").exists).ok();
+  });
 
   test("test radio boolean with values", async (t) => {
     const checkQuestionValue = ClientFunction(
@@ -269,6 +254,18 @@ frameworks.forEach((framework) => {
         return window["survey"].getQuestionByName("q").value == val;
       }
     );
+    await applyTheme(theme);
+    await initSurvey(framework, {
+      "elements": [{
+        "type": "boolean",
+        "name": "q",
+        "title": "Are you 21 or older?",
+        "valueTrue": "Yes",
+        "valueFalse": "No",
+        "renderAs": "radio"
+      }],
+      "showQuestionNumbers": false
+    });
     await t
       .expect(Selector("input[type=radio]").nth(0).checked).notOk()
       .expect(Selector(".sd-item").nth(0).hasClass("sd-radio--checked")).notOk()
@@ -293,5 +290,4 @@ frameworks.forEach((framework) => {
       .expect(Selector("input[type=radio]").nth(1).checked).notOk()
       .expect(checkQuestionValue("No")).ok();
   });
-
 });

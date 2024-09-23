@@ -506,6 +506,7 @@ sv-popup {
     max-width: var(--sv-popup-overlay-max-width);
     border-radius: calcCornerRadius(1);
     overflow: hidden;
+    box-shadow: $shadow-medium, $shadow-large;
   }
 
   .sv-popup__content,

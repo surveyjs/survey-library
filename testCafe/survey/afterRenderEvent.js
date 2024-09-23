@@ -68,7 +68,7 @@ frameworks.forEach((framework) => {
       .expect(Selector("input[value='valueYes']").getStyleProperty("color")).eql("rgb(255, 99, 71)")
       .expect(Selector(".sv_q.sv_qstn").nth(1).getStyleProperty("border-top-color")).eql("rgb(204, 204, 204)")
       .expect(Selector(".sv_q.sv_qstn").nth(1).getStyleProperty("border-top-style")).eql("solid")
-      .expect(Selector(".sv_q.sv_qstn").nth(1).getStyleProperty("border-top-width")).eql("0.8px");
+      .expect(Selector(".sv_q.sv_qstn").nth(1).getStyleProperty("border-top-width")).eql("1px");
   });
 });
 

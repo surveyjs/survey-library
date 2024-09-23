@@ -1355,4 +1355,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       };
     }
   }
+  public get ariaRole(): string {
+    return "group";
+  }
 }

@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, url_test, getQuestionValue } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, url_test, getQuestionValue, getQuestionJson, getData } from "../helper";
 import { ClientFunction, fixture, Selector, test } from "testcafe";
 const title = "file";
 
@@ -163,14 +163,14 @@ frameworks.forEach(framework => {
       .click(".sv_q_file_remove_button")
       .click(".sv-popup--confirm-delete .sd-btn");
 
-    let questionValue = await getQuestionValue();
-    await t.expect(questionValue[0].name).eql("small_Dashka.jpg")
+    let data = await getData();
+    await t.expect(data["image"][0].name).eql("small_Dashka.jpg")
 
       .click(".sv_q_file_remove_button")
       .click(".sv-popup--confirm-delete .sd-btn--danger");
 
-    questionValue = await getQuestionValue();
-    await t.expect(questionValue.length).eql(0);
+    data = await getData();
+    await t.expect(data["image"]).eql(undefined);
 
     // await t
     //   .setNativeDialogHandler(() => {

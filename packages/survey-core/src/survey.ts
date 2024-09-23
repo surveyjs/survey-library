@@ -5270,6 +5270,8 @@ export class SurveyModel extends SurveyElementCore
     return options.actions;
   }
 
+  public skeletonHeight: number = undefined;
+
   scrollElementToTop(
     element: ISurveyElement,
     question: Question,
@@ -5287,7 +5289,11 @@ export class SurveyModel extends SurveyElementCore
     if (!options.cancel) {
       const elementPage = this.getPageByElement(element as IElement);
       if (this.isLazyRendering) {
-        elementPage.forceRenderElement(element as IElement, 2);
+        let elementsToRenderBefore = 2;
+        if (!!this.skeletonHeight && !!this.rootElement && typeof this.rootElement.getBoundingClientRect === "function") {
+          elementsToRenderBefore = this.rootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
+        }
+        elementPage.forceRenderElement(element as IElement, elementsToRenderBefore);
         this.suspendLazyRendering();
       }
       SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, !this.isLazyRendering ? undefined : () => {

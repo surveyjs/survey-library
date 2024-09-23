@@ -1607,7 +1607,7 @@ export class PanelModelBase extends SurveyElement<Question>
     if (index >= 0) {
       this.forceRenderRow(row);
       for (let i = 1; i <= gap; i++) {
-        this.forceRenderRowByIndex(index + i);
+        // this.forceRenderRowByIndex(index + i);
         this.forceRenderRowByIndex(index - i);
       }
     }

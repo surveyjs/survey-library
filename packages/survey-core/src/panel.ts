@@ -42,7 +42,7 @@ export class QuestionRowModel extends Base {
   protected _scrollableParent: any = undefined;
   protected _updateVisibility: any = undefined;
   private get allowRendering(): boolean {
-    return !this.panel || !this.panel.survey || !this.panel.survey["isLazyRenderingSuspended"];
+    return !this.panel || !this.panel.survey || !(this.panel.survey as any)["isLazyRenderingSuspended"];
   }
   public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
     if (!DomDocumentHelper.isAvailable()) return;

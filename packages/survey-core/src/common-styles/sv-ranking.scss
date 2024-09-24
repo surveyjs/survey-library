@@ -467,6 +467,10 @@
       padding-left: calcSize(2);
       left: 0;
     }
+
+    .sv-ranking-item__ghost.sv-ranking-item__ghost {
+      left: calcSize(2);
+    }
   }
 
   .sv-ranking__container--empty {
@@ -474,6 +478,10 @@
       .sv-ranking__container-placeholder {
         padding-right: calcSize(5);
         padding-left: 0;
+      }
+
+      .sv-ranking-item__ghost.sv-ranking-item__ghost {
+        right: calcSize(2);
       }
     }
 

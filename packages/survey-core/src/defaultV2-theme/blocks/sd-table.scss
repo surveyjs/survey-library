@@ -166,7 +166,9 @@
           &.sd-item--checked .sd-item__decorator {
             background-color: $primary;
           }
-
+          &.sd-item--checked .sd-item__control:focus + .sd-item__decorator{
+            background-color: var(--sjs-general-backcolor, var(--background, #fff));
+          }
           &.sd-item--readonly.sd-item--checked .sd-item__decorator {
             background-color: $background;
           }
@@ -174,7 +176,6 @@
           &.sd-item--preview.sd-item--preview .sd-item__decorator {
             background-color: transparent;
           }
-
           &.sd-radio--checked .sd-radio__control:focus + .sd-radio__decorator:after {
             background-color: $primary-foreground;
           }

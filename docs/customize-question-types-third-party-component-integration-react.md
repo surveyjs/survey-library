@@ -218,11 +218,11 @@ ReactQuestionFactory.Instance.registerQuestion(CUSTOM_TYPE, (props) => {
 Survey Creator generates captions for your custom question type and its properties automatically. If you need to change them, use the [localization engine](/Documentation/Survey-Creator?id=localization):
 
 ```js
-import { localization } from "survey-creator-core";
+import { editorLocalization } from "survey-creator-core";
 
 const CUSTOM_TYPE = "color-picker";
 
-const locale = localization.getLocale("");
+const locale = editorLocalization.getLocale("");
 locale.qt[CUSTOM_TYPE] = "Color Picker";
 locale.pe.colorPickerType = "Color picker type";
 locale.pe.disableAlpha = "Disable alpha channel";

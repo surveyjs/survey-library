@@ -74,6 +74,8 @@ survey.onComplete.add((survey) => {
 
 [View Demo](/form-library/examples/survey-editprevious/ (linkStyle))
 
+> `localStorage` is limited to 5 MB of data per domain. If you expect incomplete responses to exceed this limit (which may happen if they contain encoded images or files), store them in a database, as described below.
+
 ## Restore Survey Progress from a Database
 
 To save incomplete results in a database, submit them to your server each time users change a question value or switch between pages and when they complete the survey. Handle the [`onValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onValueChanged), [`onCurrentPageChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCurrentPageChanged), and [`onComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onComplete) events for this purpose.

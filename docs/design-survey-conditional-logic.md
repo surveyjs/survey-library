@@ -181,7 +181,7 @@ const surveyJson = {
 };
 ```
 
-[View Demo](https://surveyjs.io/Examples/Library?id=survey-calculatedvalues (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/custom-variables-for-background-form-calculations/ (linkStyle))
 
 <div id="variables-vs-question-values"></div>
 
@@ -811,7 +811,7 @@ const surveyJson = {
 }
 ```
 
-[View Demo](https://surveyjs.io/form-library/examples/trigger-complete/ (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/add-skip-logic-to-survey/ (linkStyle))
 
 ---
 
@@ -844,7 +844,7 @@ const surveyJson = {
 }
 ```
 
-[View Demo](https://surveyjs.io/form-library/examples/trigger-setvalue/ (linkStyle))
+> You can use the [`setValueExpression`](/form-library/documentation/api-reference/question#setValueExpression) and [`setValueIf`](/form-library/documentation/api-reference/question#setValueIf) properties as an alternative.
 
 ---
 
@@ -876,15 +876,13 @@ const surveyJson = {
 }
 ```
 
-[View Demo](https://surveyjs.io/form-library/examples/trigger-copyvalue/ (linkStyle))
+> You can use the [`setValueExpression`](/form-library/documentation/api-reference/question#setValueExpression) and [`setValueIf`](/form-library/documentation/api-reference/question#setValueIf) properties as an alternative.
 
 ---
 
 ### `runexpression`
 
 If the `expression` is `true`, the trigger runs another expression specified by the `runExpression` property. You can also save the result of `runExpression` as a question value. For this, assign the question's name to the `setToName` property.
-
-[View Demo](https://surveyjs.io/form-library/examples/trigger-runexpression/ (linkStyle))
 
 ---
 

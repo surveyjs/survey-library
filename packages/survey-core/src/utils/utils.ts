@@ -291,6 +291,10 @@ const renamedIcons: any = {
   "wand-24x24": "wizard"
 };
 
+// old-name: new-name
+const reverseKeyValueInObject = obj => Object.fromEntries(Object.entries(obj).map(([k, v]) => [v, k]));
+const renamedIconsReverse = reverseKeyValueInObject(renamedIcons);
+
 function getIconNameFromProxy(iconName: string): string {
   if (!iconName) return iconName;
   var proxyName = (<any>settings.customIcons)[iconName];
@@ -300,6 +304,12 @@ function getIconNameFromProxy(iconName: string): string {
       proxyName = (<any>settings.customIcons)[oldName];
     }
   }
+
+  const newName = renamedIconsReverse[iconName.replace("icon-", "")];
+  if (newName) {
+    iconName = "icon-" + newName;
+  }
+
   return !!proxyName ? proxyName : iconName;
 }
 

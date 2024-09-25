@@ -782,6 +782,7 @@ export var defaultV2Css = {
     rootSelectToRankEmptyValueMod: "sv-ranking--select-to-rank-empty-value",
     rootSelectToRankAlignVertical: "sv-ranking--select-to-rank-vertical",
     rootSelectToRankAlignHorizontal: "sv-ranking--select-to-rank-horizontal",
+    rootSelectToRankSwapAreas: "sv-ranking--select-to-rank-swap-areas",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content sd-ranking-item__content",
     itemIndex: "sv-ranking-item__index sd-ranking-item__index",

@@ -230,7 +230,7 @@
             },
             {
               "Name": "matrixdropdowncolumn",
-              "title": "QuestionMatrixDropdownColumn"
+              "title": "MatrixDropdownColumn"
             },
             {
               "Name": "questionmultipletextmodel",

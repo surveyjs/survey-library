@@ -1,7 +1,5 @@
 import { frameworks, url, initSurvey } from "../helper";
 import { ClientFunction, fixture, test, Selector } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "questionsInOneLine and titles location";
 
 const changeTitleLocation = ClientFunction((location) => {
@@ -44,22 +42,16 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, json);
-    }
-  );
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("check one line", async (t) => {
+    await initSurvey(framework, json);
     const isOneLine = ClientFunction(
       () =>
         document.querySelector("div[data-name='city']").parentNode.style
           .flex === "1 1 50%" &&
         document.querySelector("div[data-name='state']").parentNode.style
           .flex === "1 1 50%"
-    );
-    const isCountRight = ClientFunction(
-      () => document.querySelectorAll(".sv_q").length === 6
     );
 
     const cityElement = Selector(
@@ -68,9 +60,11 @@ frameworks.forEach((framework) => {
     const stateElement = Selector(
       "div[style*=\"flex: 1 1 50%\"] div[data-name='state']"
     );
-    await t.expect(cityElement.exists).ok().expect(stateElement.exists).ok();
-    // assert(await isOneLine());
-    assert(await isCountRight());
+    await t
+      .expect(cityElement.exists).ok()
+      .expect(stateElement.exists).ok()
+      .expect(Selector(".sv_q").count).eql(6);
+    // await t.expect(await isOneLine()).ok();
   });
 
 });

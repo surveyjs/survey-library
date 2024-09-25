@@ -16,30 +16,8 @@ This help topic describes how to integrate a third-party Vue 3 component into a 
 
 As an example, we will integrate the [Vue 3 Color](https://lk77.github.io/vue3-color/) component. To install it, run the following command:
 
-```cmd
+```sh
 npm install @lk77/vue3-color --save
-```
-
-You also need to list Vue 3 Color components within `main.ts`:
-
-```js
-// main.ts
-import { createApp } from "vue";
-import App from "./App.vue";
-import { surveyPlugin } from "survey-vue3-ui";
-import { surveyCreatorPlugin } from "survey-creator-vue";
-// This is the custom component that we'll create in this tutorial
-// import ColorPickerComponent from "./components/ColorPicker.vue";
-import { Sketch, Compact, Slider } from "@lk77/vue3-color";
-
-createApp(App)
-  .use(surveyPlugin)
-  .use(surveyCreatorPlugin)
-  // .component("survey-color-picker", ColorPickerComponent)
-  .component("slider-picker", Slider)
-  .component("sketch-picker", Sketch)
-  .component("compact-picker", Compact)
-  .mount("#app");
 ```
 
 <iframe src="https://codesandbox.io/embed/6qdsk5?view=preview&module=%2Fsrc%2Fcomponents%2Fcolorpicker.vue&hidenavigation=1&theme=light"
@@ -163,7 +141,10 @@ Declare a template that renders your third-party component. Model properties are
 ```html
 <!-- src/components/ColorPicker.vue -->
 <script lang="ts">
+import { Sketch, Compact, Slider } from "@lk77/vue3-color";
+// ...
 // The model configured earlier goes here
+// ...
 </script>
 <script setup lang="ts">
 defineOptions({ inheritAttrs: false });
@@ -177,21 +158,21 @@ function updateValue(val: any) {
 }
 </script>
 <template>
-  <slider-picker
+  <Slider
     v-if="props.question.isSlider"
     :modelValue="props.question.value"
     @update:modelValue="updateValue"
-  ></slider-picker>
-  <sketch-picker
+  />
+  <Sketch
     v-if="props.question.isSketch"
     :modelValue="props.question.value"
     @update:modelValue="updateValue"
-  ></sketch-picker>
-  <compact-picker
+  />
+  <Compact
     v-if="props.question.isColorCompact"
     :modelValue="props.question.value"
     @update:modelValue="updateValue"
-  ></compact-picker>
+  />
 </template>
 ```
 
@@ -203,7 +184,6 @@ Register your custom component (`ColorPickerComponent`) in `main.ts`:
 import ColorPickerComponent from "./components/ColorPicker.vue";
 
 createApp(App)
-  // ...
   .component("survey-color-picker", ColorPickerComponent)
   .mount("#app");
 ```
@@ -216,12 +196,12 @@ Survey Creator generates captions for your custom question type and its properti
 <!-- src/components/ColorPicker.vue -->
 <script lang="ts">
 // ...
-import { localization } from "survey-creator-core";
+import { editorLocalization } from "survey-creator-core";
 
 const CUSTOM_TYPE = "color-picker";
 // ...
 
-const locale = localization.getLocale("");
+const locale = editorLocalization.getLocale("");
 locale.qt[CUSTOM_TYPE] = "Color Picker";
 locale.pe.colorPickerType = "Color picker type";
 locale.pe.disableAlpha = "Disable alpha channel";

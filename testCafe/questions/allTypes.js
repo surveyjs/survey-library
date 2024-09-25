@@ -1,7 +1,5 @@
 import { frameworks, url_test, initSurvey, getSurveyResult, getDynamicPanelRemoveButton, applyTheme, getListItemByText } from "../helper";
 import { Selector, fixture, test } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "allTypes";
 
 const img_base64 =
@@ -218,7 +216,7 @@ var json = {
 
       await t.hover(Selector("[data-name='image_question']").find("img"));
 
-      assert.equal(await Selector(".sjs-html-question").innerText, "html text");
+      await t.expect(Selector(".sjs-html-question").innerText).eql("html text");
 
       await t.click(
         Selector("span").withText("signature_question")

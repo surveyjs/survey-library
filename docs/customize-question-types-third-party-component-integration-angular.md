@@ -296,11 +296,11 @@ export class AppComponent {
 Survey Creator generates captions for your custom question type and its properties automatically. If you need to change them, use the [localization engine](/Documentation/Survey-Creator?id=localization):
 
 ```js
-import { localization } from "survey-creator-core";
+import { editorLocalization } from "survey-creator-core";
 
 const CUSTOM_TYPE = "color-picker";
 
-const locale = localization.getLocale("");
+const locale = editorLocalization.getLocale("");
 locale.qt[CUSTOM_TYPE] = "Color Picker";
 locale.pe.colorPickerType = "Color picker type";
 locale.pe.disableAlpha = "Disable alpha channel";
@@ -314,7 +314,7 @@ locale.pe.disableAlpha = "Disable alpha channel";
 import { Component } from "@angular/core";
 import { AngularComponentFactory, QuestionAngular } from "survey-angular-ui";
 import { ElementFactory, Question, Serializer } from "survey-core";
-import { localization } from "survey-creator-core";
+import { editorLocalization } from "survey-creator-core";
 import { ColorEvent } from 'ngx-color';
 
 const CUSTOM_TYPE = "color-picker";
@@ -379,7 +379,7 @@ Serializer.addClass(
   "question"
 );
 
-const locale = localization.getLocale("");
+const locale = editorLocalization.getLocale("");
 locale.qt[CUSTOM_TYPE] = "Color Picker";
 locale.pe.colorPickerType = "Color picker type";
 locale.pe.disableAlpha = "Disable alpha channel";
@@ -448,7 +448,7 @@ settings.customIcons["icon-" + CUSTOM_TYPE] = "icon-text";
 import { Component } from "@angular/core";
 import { AngularComponentFactory, QuestionAngular } from "survey-angular-ui";
 import { ElementFactory, Question, Serializer, SvgRegistry } from "survey-core";
-import { localization } from "survey-creator-core";
+import { editorLocalization } from "survey-creator-core";
 import { ColorEvent } from 'ngx-color';
 
 const CUSTOM_TYPE = "color-picker";
@@ -514,7 +514,7 @@ Serializer.addClass(
 );
 
 // Specify display names for the question type and its properties
-const locale = localization.getLocale("");
+const locale = editorLocalization.getLocale("");
 locale.qt[CUSTOM_TYPE] = "Color Picker";
 locale.pe.colorPickerType = "Color picker type";
 locale.pe.disableAlpha = "Disable alpha channel";
@@ -641,7 +641,7 @@ export class SurveyCreatorComponent implements OnInit {
 import { Component } from "@angular/core";
 import { AngularComponentFactory, QuestionAngular } from "survey-angular-ui";
 import { ElementFactory, Question, Serializer, SvgRegistry } from "survey-core";
-import { PropertyGridEditorCollection, localization } from "survey-creator-core";
+import { PropertyGridEditorCollection, editorLocalization } from "survey-creator-core";
 import { ColorEvent } from 'ngx-color';
 
 const CUSTOM_TYPE = "color-picker";
@@ -707,7 +707,7 @@ Serializer.addClass(
 );
 
 // Specify display names for the question type and its properties 
-const locale = localization.getLocale("");
+const locale = editorLocalization.getLocale("");
 locale.qt[CUSTOM_TYPE] = "Color Picker";
 locale.pe.colorPickerType = "Color picker type";
 locale.pe.disableAlpha = "Disable alpha channel";

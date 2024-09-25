@@ -451,3 +451,45 @@
     left: initial;
   }
 }
+
+.sv-ranking--select-to-rank-swap-areas {
+  flex-direction: row-reverse;
+
+  .sv-ranking__container--to {
+    .sv-ranking-item {
+      padding-left: 0;
+      left: -24px !important;
+    }
+  }
+
+  .sv-ranking__container--from {
+    .sv-ranking-item {
+      padding-left: calcSize(2);
+      left: 0;
+    }
+
+    .sv-ranking-item__ghost.sv-ranking-item__ghost {
+      left: calcSize(2);
+    }
+  }
+
+  .sv-ranking__container--empty {
+    &.sv-ranking__container--to {
+      .sv-ranking__container-placeholder {
+        padding-right: calcSize(5);
+        padding-left: 0;
+      }
+
+      .sv-ranking-item__ghost.sv-ranking-item__ghost {
+        right: calcSize(2);
+      }
+    }
+
+    &.sv-ranking__container--from {
+      .sv-ranking__container-placeholder {
+        padding-left: calcSize(5);
+        padding-right: 0;
+      }
+    }
+  }
+}

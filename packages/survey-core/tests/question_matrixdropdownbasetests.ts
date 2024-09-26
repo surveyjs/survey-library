@@ -1460,6 +1460,39 @@ QUnit.test("rows enableIf property, #8461", function (assert) {
   assert.equal(panel1.isReadOnly, true, "panel1 #9");
   assert.equal(panel2.isReadOnly, false, "panel2 #9");
 });
+QUnit.test("rows enableIf property: disabled attr, #8850", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1"
+      },
+      {
+        type: "text",
+        name: "q2"
+      },
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          { name: "col1", cellType: "text" },
+          { name: "col2", cellType: "text" }
+        ],
+        rows: [
+          { value: "row1", enableIf: "{q1} > 10" },
+          { value: "row2", enableIf: "{q2} > 10" }],
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const q1 = survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+
+  q1.value = 11;
+  assert.equal(rows[0].cells[0].question.isDisabledAttr, false);
+  q1.value = 9;
+  assert.equal(rows[0].cells[0].question.isDisabledAttr, true);
+});
 QUnit.test("showInMultipleColumns & random choices, Bug#8348", function (assert) {
   class HelpTest {
     public static randomizeArray<T>(array: Array<T>): Array<T> {

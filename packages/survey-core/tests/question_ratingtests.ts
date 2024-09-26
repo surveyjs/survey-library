@@ -1722,7 +1722,7 @@ QUnit.test("supportGoNextPageAutomatic", (assert) => {
   q1.displayMode = "dropdown";
   assert.equal(q1.supportGoNextPageAutomatic(), true, "#4");
 });
-QUnit.test("renderAs in runtime", (assert) => {
+QUnit.test("Check hasMin/MaxRateDescription properties on loading", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {

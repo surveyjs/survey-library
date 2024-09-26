@@ -2142,9 +2142,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     rec.validationValues = this.getDataFilteredValues();
     rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < rows.length; i++) {
-      res = rows[i].hasErrors(fireCallback, rec, () => {
-        this.raiseOnCompletedAsyncValidators();
-      }) || res;
+      if(rows[i].isVisible) {
+        res = rows[i].hasErrors(fireCallback, rec, () => {
+          this.raiseOnCompletedAsyncValidators();
+        }) || res;
+      }
     }
     return res;
   }

@@ -3388,3 +3388,24 @@ QUnit.test("a11y", function (assert) {
   const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
   assert.equal(q1.ariaRole, "group", "check role attribute");
 });
+QUnit.test("Dynamic serializable properties, bug#8852", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "nps",
+    questionJSON: {
+      "type": "rating",
+      "rateMin": 0,
+      "rateMax": 10
+    },
+    inheritBaseProps: ["minRateDescription", "maxRateDescription"]
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "nps", name: "q1", minRateDescription: "val1", maxRateDescription: "val2" }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  assert.equal(q1.contentQuestion.locMinRateDescription.text, "val1", "minRateDescription");
+  assert.equal(q1.contentQuestion.maxRateDescription, "val2", "maxRateDescription");
+  assert.equal(q1.contentQuestion.hasMinRateDescription, true, "hasMinRateDescription");
+  assert.equal(q1.contentQuestion.hasMaxRateDescription, true, "hasMaxRateDescription");
+});

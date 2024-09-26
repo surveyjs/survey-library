@@ -1676,15 +1676,6 @@ QUnit.test("renderAs in design-time", (assert) => {
   assert.equal(q1.renderAs, "default", "q1.renderAs");
 });
 QUnit.test("renderAs in runtime", (assert) => {
-  const json = {
-    elements: [
-      {
-        type: "rating",
-        name: "q1",
-        renderAs: "dropdown"
-      },
-    ],
-  };
   const survey = new SurveyModel({
     elements: [
       {
@@ -1730,4 +1721,18 @@ QUnit.test("supportGoNextPageAutomatic", (assert) => {
   assert.equal(q1.supportGoNextPageAutomatic(), false, "#3");
   q1.displayMode = "dropdown";
   assert.equal(q1.supportGoNextPageAutomatic(), true, "#4");
+});
+QUnit.test("Check hasMin/MaxRateDescription properties on loading", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "rating",
+        name: "q1",
+        minRateDescription: "val1", maxRateDescription: "val2"
+      },
+    ],
+  });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.hasMinRateDescription, true, "hasMinRateDescription");
+  assert.equal(q1.hasMaxRateDescription, true, "hasMaxRateDescription");
 });

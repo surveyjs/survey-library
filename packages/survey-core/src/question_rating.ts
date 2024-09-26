@@ -92,16 +92,15 @@ export class QuestionRatingModel extends Question {
         }
         this.createRenderedRateItems();
       });
-    this.createLocalizableString(
-      "minRateDescription",
-      this,
-      true
-    );
-    this.createLocalizableString(
-      "maxRateDescription",
-      this,
-      true
-    );
+    this.createLocalizableString("minRateDescription", this, true)
+      .onStringChanged.add((sender, options) => {
+        this.hasMinRateDescription = !sender.isEmpty;
+      });
+    this.createLocalizableString("maxRateDescription", this, true)
+      .onStringChanged.add((sender, options) => {
+        this.hasMaxRateDescription = !sender.isEmpty;
+      });
+
     this.initPropertyDependencies();
 
   }
@@ -113,8 +112,6 @@ export class QuestionRatingModel extends Question {
 
   endLoadingFromJson() {
     super.endLoadingFromJson();
-    this.hasMinRateDescription = !!this.minRateDescription;
-    this.hasMaxRateDescription = !!this.maxRateDescription;
     if (this.jsonObj.rateMin !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMax === undefined) {
       this.updateRateMax();
     }
@@ -449,7 +446,6 @@ export class QuestionRatingModel extends Question {
   }
   public set minRateDescription(val: string) {
     this.setLocalizableStringText("minRateDescription", val);
-    this.hasMinRateDescription = !!this.minRateDescription;
   }
   get locMinRateDescription(): LocalizableString {
     return this.getLocalizableString("minRateDescription");
@@ -466,7 +462,6 @@ export class QuestionRatingModel extends Question {
   }
   public set maxRateDescription(val: string) {
     this.setLocalizableStringText("maxRateDescription", val);
-    this.hasMaxRateDescription = !!this.maxRateDescription;
   }
   get locMaxRateDescription(): LocalizableString {
     return this.getLocalizableString("maxRateDescription");

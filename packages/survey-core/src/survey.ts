@@ -1312,18 +1312,6 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isLazyRendering) return;
     this._isLazyRenderingSuspended = false;
   }
-
-  public disableLazyRenderingBeforeElement(el: IElement): void {
-    if(this.isDesignMode) {
-      const page = this.getPageByElement(el);
-      const index = this.pages.indexOf(page);
-      for (let i = index; i >= 0; i--) {
-        const currentPage = this.pages[i];
-        currentPage.disableLazyRenderingBeforeElement(currentPage == page ? el : undefined);
-      }
-    }
-  }
-
   private updateLazyRenderingRowsOnRemovingElements() {
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
@@ -5289,17 +5277,20 @@ export class SurveyModel extends SurveyElementCore
     if (!options.cancel) {
       const elementPage = this.getPageByElement(element as IElement);
       if (this.isLazyRendering) {
-        let elementsToRenderBefore = 2;
+        let elementsToRenderBefore = 1;
         if (!!this.skeletonHeight && !!this.rootElement && typeof this.rootElement.getBoundingClientRect === "function") {
           elementsToRenderBefore = this.rootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
         }
-        elementPage.forceRenderElement(element as IElement, elementsToRenderBefore);
-        this.suspendLazyRendering();
+        elementPage.forceRenderElement(element as IElement, () => {
+          this.suspendLazyRendering();
+          SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, () => {
+            this.releaseLazyRendering();
+            activateLazyRenderingChecks(elementPage.id);
+          });
+        }, elementsToRenderBefore);
+      } else {
+        SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions);
       }
-      SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, !this.isLazyRendering ? undefined : () => {
-        this.releaseLazyRendering();
-        activateLazyRenderingChecks(elementPage.id);
-      });
     }
   }
 

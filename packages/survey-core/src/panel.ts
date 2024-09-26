@@ -1,6 +1,6 @@
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
-import { ArrayChanges, Base } from "./base";
+import { ArrayChanges, Base, RenderingCompletedAwaiter } from "./base";
 import {
   ISurveyImpl,
   IPage,
@@ -201,6 +201,9 @@ export class QuestionRowModel extends Base {
   public addElement(q: IElement) {
     this.elements.push(q);
     this.updateVisible();
+    if (q.isPanel || q.getType() === "paneldynamic") {
+      this.isNeedRender = true;
+    }
   }
   public get index(): number {
     return this.panel.rows.indexOf(this);
@@ -1329,11 +1332,22 @@ export class PanelModelBase extends SurveyElement<Question>
       this.onVisibleChanged();
     }
   }
+  protected canRenderFirstRows(): boolean {
+    return this.isPage;
+  }
+  private isLazyRenderInRow(rowIndex: number): boolean {
+    if (!this.survey || !this.survey.isLazyRendering) return false;
+    return (
+      rowIndex >= this.survey.lazyRenderingFirstBatchSize ||
+      !this.canRenderFirstRows()
+    );
+  }
   public createRowAndSetLazy(index: number): QuestionRowModel {
     const row = this.createRow();
     row.setIsLazyRendering(this.isLazyRenderInRow(index));
     return row;
   }
+  // TODO V2: make all createRow API private (at least protected) after removing DragDropPanelHelperV1
   public createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
@@ -1541,16 +1555,6 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return result;
   }
-  private isLazyRenderInRow(rowIndex: number): boolean {
-    if (!this.survey || !this.survey.isLazyRendering) return false;
-    return (
-      rowIndex >= this.survey.lazyRenderingFirstBatchSize ||
-      !this.canRenderFirstRows()
-    );
-  }
-  protected canRenderFirstRows(): boolean {
-    return this.isPage;
-  }
   public getDragDropInfo(): any {
     const page: PanelModelBase = <any>this.getPage(this.parent);
     return !!page ? page.getDragDropInfo() : undefined;
@@ -1579,11 +1583,27 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  private findRowAndIndexByElement(el: IElement): { row: QuestionRowModel, index: number } {
+  public getAllRows(): Array<QuestionRowModel> {
+    const allRows = [];
+    this.rows.forEach(row => {
+      const nestedRows = [];
+      row.elements.forEach(element => {
+        if (element.isPanel) {
+          nestedRows.push(...(<any>element as PanelModelBase).getAllRows());
+        } else if (element.getType() == "paneldynamic") {
+          nestedRows.push(...(element as any).template.getAllRows());
+        }
+      });
+      allRows.push(row);
+      allRows.push(...nestedRows);
+    });
+    return allRows;
+  }
+  private findRowAndIndexByElement(el: IElement, rows?: Array<QuestionRowModel>): { row: QuestionRowModel, index: number } {
     if (!el) {
       return { row: undefined, index: this.rows.length - 1 };
     }
-    var rows = this.rows;
+    rows = rows || this.rows;
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].elements.indexOf(el) > -1) return { row: rows[i], index: i };
     }
@@ -1595,34 +1615,27 @@ export class PanelModelBase extends SurveyElement<Question>
       row.stopLazyRendering();
     }
   }
-  private forceRenderRowByIndex(index: number): void {
-    if (index !== undefined) {
-      if (index >= 0 && index < this.rows.length) {
-        this.forceRenderRow(this.rows[index]);
+  public forceRenderElement(el: IElement, elementsRendered = () => { }, gap = 0): void {
+    const allRows = this.getAllRows();
+    const { row, index } = this.findRowAndIndexByElement(el, allRows);
+    if (index >= 0 && index < allRows.length) {
+      const rowsToRender = [];
+      rowsToRender.push(row);
+      for (let i = index - 1; i >= index - gap && i >= 0; i--) {
+        rowsToRender.push(allRows[i]);
       }
+      this.forceRenderRows(rowsToRender, elementsRendered);
     }
   }
-  public forceRenderElement(el: IElement, gap = 0): void {
-    const { row, index } = this.findRowAndIndexByElement(el);
-    if (index >= 0) {
-      this.forceRenderRow(row);
-      for (let i = 1; i <= gap; i++) {
-        // this.forceRenderRowByIndex(index + i);
-        this.forceRenderRowByIndex(index - i);
+  public forceRenderRows(rows: Array<QuestionRowModel>, elementsRendered = () => { }): void {
+    const rowRenderedHandler = (rowsCount => () => {
+      rowsCount--;
+      if (rowsCount <= 0) {
+        elementsRendered();
       }
-    }
-  }
-  public disableLazyRenderingBeforeElement(el?: IElement): void {
-    const { row, index } = this.findRowAndIndexByElement(el);
-    for (let i = index; i >= 0; i--) {
-      const currentRow = this.rows[i];
-      if (currentRow.isNeedRender) {
-        break;
-      } else {
-        currentRow.isNeedRender = true;
-        currentRow.stopLazyRendering();
-      }
-    }
+    })(rows.length);
+    rows.forEach(row => new RenderingCompletedAwaiter(row.visibleElements as any, rowRenderedHandler));
+    rows.forEach(row => this.forceRenderRow(row));
   }
   public findRowByElement(el: IElement): QuestionRowModel {
     return this.findRowAndIndexByElement(el).row;

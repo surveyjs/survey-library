@@ -490,7 +490,7 @@ QUnit.test("inputType='date' invalid value, #8617", function(assert) {
   q1.value = "2000-01-01";
   assert.equal(q1.errors.length, 0, "errors #1");
   const event = { target: { value: "", validationMessage: "Invalid date" } };
-  q1.onKeyDown(event);
+  q1.onKeyUp(event);
   q1.value = undefined;
   assert.equal(q1.errors.length, 0, "errors #2");
   survey.completeLastPage();

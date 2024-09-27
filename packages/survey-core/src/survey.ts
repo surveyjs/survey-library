@@ -2330,8 +2330,9 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns a result value.
    * @param expression An expression to calculate.
+   * @param callback A callback function that you can use to access the calculation result if the expression uses asynchronous functions.
    */
-  public runExpression(expression: string, onCompleteCallback?: (res: any) => void): any {
+  public runExpression(expression: string, callback?: (res: any) => void): any {
     if (!expression) return null;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
@@ -2339,7 +2340,7 @@ export class SurveyModel extends SurveyElementCore
     let onCompleteRes: any = undefined;
     exp.onRunComplete = (res: any) => {
       onCompleteRes = res;
-      onCompleteCallback && onCompleteCallback(res);
+      callback && callback(res);
     };
     return exp.run(values, properties) || onCompleteRes;
   }

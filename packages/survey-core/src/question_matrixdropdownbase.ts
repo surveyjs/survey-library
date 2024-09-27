@@ -2248,7 +2248,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   private removeDuplicationError(row: MatrixDropdownRowModelBase, question: Question) {
     if(question.removeError(this.getDuplicationError(question)) && question.errors.length === 0 && !!row.editingObj) {
-      row.editingObj[question.getValueName()] = question.value;
+      (<any>row.editingObj)[question.getValueName()] = question.value;
     }
   }
   public getFirstQuestionToFocus(withError: boolean): Question {

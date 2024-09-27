@@ -1443,7 +1443,7 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly;
   }
   public get isDisabledAttr(): boolean {
-    return this.isDesignModeV2;
+    return this.isDesignModeV2 || (!!this.readOnlyCallback && this.readOnlyCallback());
   }
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);

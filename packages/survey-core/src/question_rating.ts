@@ -393,7 +393,7 @@ export class QuestionRatingModel extends Question {
     }
     return res;
   }
-  private getRatingItemValue(item, index) {
+  private getRatingItemValue(item: ItemValue, index: number) {
     if (!item) return null;
     const value = item.value;
     let description: LocalizableString;

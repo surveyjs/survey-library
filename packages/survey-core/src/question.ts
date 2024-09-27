@@ -1584,7 +1584,7 @@ export class Question extends SurveyElement<Question>
    *
    * | Question type | Value type(s) |
    * | ------------- | ------------- |
-   * | Checkboxes | `Array<string \| number>` |
+   * | Checkboxes | <code>Array&lt;string &#124; number&gt;</code> |
    * | Dropdown | `string` \| `number` |
    * | Dynamic Matrix | `Array<object>` |
    * | Dynamic Panel | `Array<object>` |
@@ -1592,14 +1592,14 @@ export class Question extends SurveyElement<Question>
    * | File Upload | `File` \| `Array<File>` |
    * | HTML | (no value) |
    * | Image | (no value) |
-   * | Image Picker | `Array<string \| number>` |
+   * | Image Picker | <code>Array&lt;string &#124; number&gt;</code> |
    * | Long Text | `string` |
    * | Multi-Select Dropdown | `object` |
    * | Multi-Select Matrix | `object` |
    * | Multiple Textboxes | `Array<string>` |
    * | Panel | (no value) |
    * | Radio Button Group | `string` \| `number` |
-   * | Ranking | `Array<string \| number>` |
+   * | Ranking | <code>Array&lt;string &#124; number&gt;</code> |
    * | Rating Scale | `number` \| `string` |
    * | Signature | `string` (base64-encoded image) |
    * | Single-Line Input | `string` \| `number` \| `Date` |

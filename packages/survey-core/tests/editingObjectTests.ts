@@ -1261,6 +1261,33 @@ QUnit.test("Edit choices in matrix dynamic column, check errors", function (asse
   assert.equal(row0Q.errors.length, 0, "row0Q errors, #4");
   assert.equal(row1Q.errors.length, 0, "row1Q errors, #4");
 });
+QUnit.test("Edit choices in matrix dynamic column, set correct value", function (assert) {
+  const question = new QuestionDropdownModel("q1");
+  question.choices = ["Item1", "Item2", "Item3"];
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        rowCount: 0,
+        keyName: "value",
+        columns: [
+          { cellType: "text", name: "value", isRequired: true, isUnique: true }
+        ]
+      },
+    ],
+    checkErrorsMode: "onValueChanging"
+  });
+  survey.editingObj = question;
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  assert.equal(matrix.rowCount, 3, "There are 3 items");
+  const rows = matrix.visibleRows;
+  rows[1].cells[0].question.value = "Item1";
+  rows[0].cells[0].question.value = "Item2";
+  assert.equal(question.choices[0].value, "Item2", "choice 0");
+  assert.equal(question.choices[1].value, "Item1", "choice 1");
+});
+
 QUnit.test("Edit question.page property", function (assert) {
   var questionSurvey = new SurveyModel();
   questionSurvey.addNewPage("page1");

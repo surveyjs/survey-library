@@ -5261,10 +5261,9 @@ export class SurveyModel extends SurveyElementCore
   public skeletonHeight: number = undefined;
 
   scrollElementToTop(
-    element: ISurveyElement,
-    question: Question,
-    page: PageModel,
-    id: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions
+    element: ISurveyElement, question: Question, page: PageModel,
+    id: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions,
+    passedRootElement?: HTMLElement
   ): any {
     const options: ScrollingElementToTopEvent = {
       element: element,
@@ -5278,8 +5277,10 @@ export class SurveyModel extends SurveyElementCore
       const elementPage = this.getPageByElement(element as IElement);
       if (this.isLazyRendering) {
         let elementsToRenderBefore = 1;
-        if (!!this.skeletonHeight && !!this.rootElement && typeof this.rootElement.getBoundingClientRect === "function") {
-          elementsToRenderBefore = this.rootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
+        const { rootElement } = settings.environment;
+        const surveyRootElement = this.rootElement || passedRootElement || rootElement as any;
+        if (!!this.skeletonHeight && !!surveyRootElement && typeof surveyRootElement.getBoundingClientRect === "function") {
+          elementsToRenderBefore = surveyRootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
         }
         elementPage.forceRenderElement(element as IElement, () => {
           this.suspendLazyRendering();

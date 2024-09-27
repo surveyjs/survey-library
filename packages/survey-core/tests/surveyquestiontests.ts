@@ -8012,7 +8012,7 @@ QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
     assert.equal(q.errors.length, 1, q.name + " errors");
   });
 });
-QUnit.test("Show parent number in the question #8813", function (assert) {
+QUnit.test("Show parent number in the question #8813, #1", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -8039,4 +8039,68 @@ QUnit.test("Show parent number in the question #8813", function (assert) {
   assert.equal(survey.getQuestionByName("q2").no, "1.2", "q2.no");
   assert.equal(survey.getQuestionByName("q3").no, "2.1", "q3.no");
   assert.equal(survey.getQuestionByName("q4").no, "2.2", "q4.no");
+});
+QUnit.test("Show parent number in the question #8813, #2", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "panel", name: "panel1",
+        showNumber: true, questionStartIndex: "1.1", showQuestionNumbers: "onpanel",
+        elements: [
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ]
+      },
+      {
+        type: "panel", name: "panel2",
+        showNumber: true, questionStartIndex: "1.1", showQuestionNumbers: "onpanel",
+        elements: [
+          { type: "text", name: "q4" },
+          { type: "text", name: "q5" }
+        ]
+      },
+      { type: "text", name: "q6" },
+      { type: "text", name: "q7" }
+    ]
+  });
+  assert.equal(survey.getQuestionByName("q1").no, "1.", "q1.no");
+  assert.equal(survey.getQuestionByName("q2").no, "2.1", "q2.no");
+  assert.equal(survey.getQuestionByName("q3").no, "2.2", "q3.no");
+  assert.equal(survey.getQuestionByName("q4").no, "3.1", "q4.no");
+  assert.equal(survey.getQuestionByName("q5").no, "3.2", "q5.no");
+  assert.equal(survey.getQuestionByName("q6").no, "4.", "q6.no");
+  assert.equal(survey.getQuestionByName("q7").no, "5.", "q7.no");
+});
+QUnit.test("Show parent number in the question #8813, #3", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "panel", name: "panel1",
+        showNumber: true, showQuestionNumbers: "onpanel",
+        elements: [
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ]
+      },
+      {
+        type: "panel", name: "panel2",
+        showNumber: true, showQuestionNumbers: "onpanel",
+        elements: [
+          { type: "text", name: "q4" },
+          { type: "text", name: "q5" }
+        ]
+      },
+      { type: "text", name: "q6" },
+      { type: "text", name: "q7" }
+    ]
+  });
+  assert.equal(survey.getQuestionByName("q1").no, "1.", "q1.no");
+  assert.equal(survey.getQuestionByName("q2").no, "1.", "q2.no");
+  assert.equal(survey.getQuestionByName("q3").no, "2.", "q3.no");
+  assert.equal(survey.getQuestionByName("q4").no, "1.", "q4.no");
+  assert.equal(survey.getQuestionByName("q5").no, "2.", "q5.no");
+  assert.equal(survey.getQuestionByName("q6").no, "2.", "q6.no");
+  assert.equal(survey.getQuestionByName("q7").no, "3.", "q7.no");
 });

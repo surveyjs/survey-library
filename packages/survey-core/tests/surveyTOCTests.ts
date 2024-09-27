@@ -509,3 +509,20 @@ QUnit.test("update toc list model on add new page and add new question", functio
   assert.equal(tocListModel.actions[1].visible, true);
   assert.equal(tocListModel.actions[1].title, "New Page");
 });
+
+QUnit.test("TOC navigation shows page numbers", function (assert) {
+  const survey = new SurveyModel({
+    showTOC: true,
+    showPageNumbers: true,
+    pages: [{
+      name: "page1",
+      elements: [
+        { type: "text", name: "q1" },
+      ]
+    }]
+  });
+  const tocListModel = createTOCListModel(survey);
+  assert.equal(tocListModel.actions.length, 1);
+  assert.equal(tocListModel.actions[0].visible, true);
+  assert.equal(tocListModel.actions[0].title, "1. page1");
+});

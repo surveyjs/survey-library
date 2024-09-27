@@ -84,6 +84,13 @@ export class PageModel extends PanelModelBase implements IPage {
     this.locNavigationTitle.strChanged();
     this.locNavigationDescription.strChanged();
   }
+  getMarkdownHtml(text: string, name: string): string {
+    const result = super.getMarkdownHtml(text, name);
+    if (name === "navigationTitle" && this.canShowPageNumber() && result) {
+      return this.num + ". " + result;
+    }
+    return result;
+  }
   public get passed(): boolean {
     return this.getPropertyValue("passed", false);
   }

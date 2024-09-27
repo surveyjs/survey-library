@@ -540,6 +540,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.surveyChangedCallback();
     }
   }
+  public get skeletonHeight(): string {
+    let skeletonHeight: string = undefined;
+    if (!!this.survey && (this.survey as any).skeletonHeight) {
+      skeletonHeight = (this.survey as any).skeletonHeight + "px";
+    }
+    return skeletonHeight;
+  }
   public isContentElement: boolean = false;
   public isEditableTemplateElement: boolean = false;
   public isInteractiveDesignElement: boolean = true;

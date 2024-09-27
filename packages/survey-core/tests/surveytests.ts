@@ -19049,6 +19049,23 @@ QUnit.test("Test displayValue() function with 'non-ready' question , Bug#8763", 
   q1["updateIsReady"]();
   assert.equal(q2.value, "Item check 1", "#1");
 });
+QUnit.test("Test displayValue() function in survey.runExpression, Bug#8858", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }]
+      }
+    ]
+  });
+  survey.setValue("q1", 2);
+  assert.equal(survey.runExpression("displayValue('q1'"), "Item 2", "#1");
+  let funcRes = undefined;
+  survey.setValue("q1", 1);
+  survey.runExpression("displayValue('q1'", (res: any): void => funcRes = res);
+  assert.equal(funcRes, "Item 1", "#2");
+});
 QUnit.test("Test propertyValue() function", function (assert) {
   const survey = new SurveyModel({
     elements: [

@@ -2159,7 +2159,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   protected beforeSetVisibleIndex(index: number): number {
     let visibleIndex = -1;
-    if (this.showNumber && (this.isDesignMode || !this.locTitle.isEmpty)) {
+    if (this.showNumber && (this.isDesignMode || !this.locTitle.isEmpty || this.hasParentInQuestionIndex())) {
       visibleIndex = index;
     }
     this.setPropertyValue("visibleIndex", visibleIndex);
@@ -2167,14 +2167,18 @@ export class PanelModel extends PanelModelBase implements IElement {
     return visibleIndex < 0 ? 0 : 1;
   }
   protected getPanelStartIndex(index: number): number {
-    if (this.showQuestionNumbers == "off") return -1;
-    if (this.showQuestionNumbers == "onpanel") return 0;
+    if (this.showQuestionNumbers === "off") return -1;
+    if (this.showQuestionNumbers === "onpanel") return 0;
     return index;
   }
-  protected isContinueNumbering() {
-    return (
-      this.showQuestionNumbers != "off" && this.showQuestionNumbers != "onpanel"
-    );
+  private hasParentInQuestionIndex(): boolean {
+    if(this.showQuestionNumbers !== "onpanel") return false;
+    const str = this.questionStartIndex;
+    const index = str.indexOf(".");
+    return index > -1 && index < str.length - 1;
+  }
+  protected isContinueNumbering(): boolean {
+    return this.showQuestionNumbers !== "off" && this.showQuestionNumbers !== "onpanel";
   }
   private notifySurveyOnVisibilityChanged() {
     if (this.survey != null && !this.isLoadingFromJson) {

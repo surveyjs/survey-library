@@ -194,6 +194,10 @@ export class QuestionRowModel extends Base {
       if (this.elements[i].isVisible) {
         visElements.push(this.elements[i]);
       }
+      if (this.elements[i].isPanel || this.elements[i].getType() === "paneldynamic") {
+        this.setIsLazyRendering(false);
+        this.stopLazyRendering();
+      }
     }
     this.visibleElements = visElements;
     return;
@@ -201,9 +205,6 @@ export class QuestionRowModel extends Base {
   public addElement(q: IElement) {
     this.elements.push(q);
     this.updateVisible();
-    if (q.isPanel || q.getType() === "paneldynamic") {
-      this.isNeedRender = true;
-    }
   }
   public get index(): number {
     return this.panel.rows.indexOf(this);
@@ -1584,14 +1585,18 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   public getAllRows(): Array<QuestionRowModel> {
-    const allRows = [];
+    const allRows: Array<QuestionRowModel> = [];
     this.rows.forEach(row => {
-      const nestedRows = [];
+      const nestedRows: Array<QuestionRowModel> = [];
       row.elements.forEach(element => {
         if (element.isPanel) {
           nestedRows.push(...(<any>element as PanelModelBase).getAllRows());
         } else if (element.getType() == "paneldynamic") {
-          nestedRows.push(...(element as any).template.getAllRows());
+          if (this.isDesignMode) {
+            nestedRows.push(...(element as any).template.getAllRows());
+          } else {
+            (element as any).panels.forEach((panel: PanelModelBase) => nestedRows.push(...panel.getAllRows()));
+          }
         }
       });
       allRows.push(row);

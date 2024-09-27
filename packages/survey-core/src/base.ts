@@ -1190,8 +1190,8 @@ export class RenderingCompletedAwaiter {
     }
   }
   private _elementsToRenderCount = 0;
-  private _elementsToRenderTimer = undefined;
-  private _elementRenderedHandler = (s, o) => {
+  private _elementsToRenderTimer: any = undefined;
+  private _elementRenderedHandler = (s: Base, o: any) => {
     s.onElementRerendered?.remove(this._elementRenderedHandler);
     this._elementsToRenderCount--;
     if (this._elementsToRenderCount <= 0) {

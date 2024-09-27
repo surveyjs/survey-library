@@ -3210,3 +3210,165 @@ QUnit.test("row.isNeedRender for nested panels", function (assert) {
     settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
   }
 });
+QUnit.test("row.isNeedRender for nested panels - complex", function (assert) {
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                "type": "paneldynamic",
+                "name": "panel2",
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "q1",
+                  },
+                  {
+                    "type": "text",
+                    "name": "q2",
+                    "startWithNewLine": false,
+                  },
+                  {
+                    "type": "text",
+                    "name": "q3",
+                  },
+                  {
+                    "type": "text",
+                    "name": "q4",
+                    "startWithNewLine": false,
+                  },
+                ],
+                "templateTitle": "item #{panelIndex}",
+                "panelCount": 1,
+                "minPanelCount": 1,
+                "keyName": "name",
+              },
+              {
+                "type": "panel",
+                "name": "panel3",
+                "title": "Totals",
+                "elements": [
+                  {
+                    "type": "expression",
+                    "name": "q5",
+                  },
+                  {
+                    "type": "expression",
+                    "name": "q6",
+                    "startWithNewLine": false,
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "name": "last-question"
+          }
+        ],
+      }
+    ],
+  };
+
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 0;
+  try {
+    const survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    const page1: PageModel = survey.pages[0];
+    const allPageRows = page1.getAllRows();
+    assert.equal(allPageRows.length, 7, "7 rows with panels");
+    assert.equal(allPageRows[0].elements[0].name, "panel1");
+    assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel1");
+    assert.equal(allPageRows[1].elements[0].name, "panel2", "panel2 - paneldynamic");
+    assert.equal(allPageRows[1].isNeedRender, true, "isNeedRender for panel2");
+    assert.equal(allPageRows[2].elements[0].name, "q1");
+    // assert.equal(allPageRows[2].isNeedRender, false, "isNeedRender for q1, q2");
+    assert.equal(allPageRows[3].elements[0].name, "q3");
+    // assert.equal(allPageRows[3].isNeedRender, false, "isNeedRender for q3, q4");
+    assert.equal(allPageRows[4].elements[0].name, "panel3");
+    assert.equal(allPageRows[4].isNeedRender, true, "isNeedRender for panel3");
+    assert.equal(allPageRows[5].elements[0].name, "q5");
+    assert.equal(allPageRows[5].isNeedRender, false, "isNeedRender for q5, q6");
+    assert.equal(allPageRows[6].elements[0].name, "last-question");
+    assert.equal(allPageRows[6].isNeedRender, false, "isNeedRender for q-last");
+  } finally {
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});
+QUnit.test("row.isNeedRender panel dynamic different modes - ordinary and designer", function (assert) {
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            "type": "paneldynamic",
+            "name": "panel1",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q1",
+              },
+              {
+                "type": "text",
+                "name": "q2",
+                "startWithNewLine": false,
+              },
+              {
+                "type": "text",
+                "name": "q3",
+              },
+              {
+                "type": "text",
+                "name": "q4",
+                "startWithNewLine": false,
+              },
+            ],
+            "templateTitle": "item #{panelIndex}",
+            "panelCount": 2,
+            "minPanelCount": 1,
+          },
+        ],
+      }
+    ],
+  };
+
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 0;
+  try {
+    const survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    const page1: PageModel = survey.pages[0];
+
+    let allPageRows = page1.getAllRows();
+    assert.equal(allPageRows.length, 5, "7 rows with inner panels in runtime mode");
+    assert.equal(allPageRows[0].elements[0].name, "panel1");
+    assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel1");
+    assert.equal(allPageRows[1].elements[0].name, "q1");
+    // assert.equal(allPageRows[1].isNeedRender, false, "isNeedRender for q1, q2");
+    assert.equal(allPageRows[2].elements[0].name, "q3");
+    // assert.equal(allPageRows[2].isNeedRender, false, "isNeedRender for q3, q4");
+    assert.equal(allPageRows[3].elements[0].name, "q1");
+    // assert.equal(allPageRows[3].isNeedRender, false, "isNeedRender for q1, q2");
+    assert.equal(allPageRows[4].elements[0].name, "q3");
+    // assert.equal(allPageRows[4].isNeedRender, false, "isNeedRender for q3, q4");
+
+    survey.setDesignMode(true);
+    allPageRows = page1.getAllRows();
+    assert.equal(allPageRows.length, 3, "3 rows with inner panels in design mode");
+    assert.equal(allPageRows[0].elements[0].name, "panel1");
+    assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel1");
+    assert.equal(allPageRows[1].elements[0].name, "q1");
+    // assert.equal(allPageRows[1].isNeedRender, false, "isNeedRender for q1, q2");
+    assert.equal(allPageRows[2].elements[0].name, "q3");
+    // assert.equal(allPageRows[2].isNeedRender, false, "isNeedRender for q3, q4");
+  } finally {
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});

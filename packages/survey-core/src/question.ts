@@ -2227,11 +2227,12 @@ export class Question extends SurveyElement<Question>
   private addCustomError(error: string): SurveyError {
     return new CustomError(error, this.survey);
   }
-  public removeError(error: SurveyError): void {
-    if (!error) return;
-    var errors = this.errors;
-    var index = errors.indexOf(error);
+  public removeError(error: SurveyError): boolean {
+    if (!error) return false;
+    const errors = this.errors;
+    const index = errors.indexOf(error);
     if (index !== -1) errors.splice(index, 1);
+    return index !== -1;
   }
   private checkForErrors(isOnValueChanged: boolean, fireCallback: boolean): Array<SurveyError> {
     var qErrors = new Array<SurveyError>();

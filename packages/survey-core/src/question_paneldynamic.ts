@@ -294,6 +294,8 @@ export class QuestionPanelDynamicModel extends Question
       this.updateFooterActions();
     });
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
+    this.registerPropertyChangedHandlers(["minPanelCount"], () => { this.onMinPanelCountChanged(); });
+    this.registerPropertyChangedHandlers(["maxPanelCount"], () => { this.onMaxPanelCountChanged(); });
   }
   public get isCompositeQuestion(): boolean { return true; }
   public get hasSingleInput(): boolean { return false; }
@@ -1043,8 +1045,10 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set minPanelCount(val: number) {
     if (val < 0) val = 0;
-    if (val == this.minPanelCount) return;
     this.setPropertyValue("minPanelCount", val);
+  }
+  private onMinPanelCountChanged(): void {
+    const val = this.minPanelCount;
     if (val > this.maxPanelCount) this.maxPanelCount = val;
     if (this.panelCount < val) this.panelCount = val;
   }
@@ -1063,10 +1067,14 @@ export class QuestionPanelDynamicModel extends Question
     if (val <= 0) return;
     if (val > settings.panel.maxPanelCount)
       val = settings.panel.maxPanelCount;
-    if (val == this.maxPanelCount) return;
     this.setPropertyValue("maxPanelCount", val);
+    this.updateFooterActions();
+  }
+  private onMaxPanelCountChanged(): void {
+    const val = this.maxPanelCount;
     if (val < this.minPanelCount) this.minPanelCount = val;
     if (this.panelCount > val) this.panelCount = val;
+    this.updateFooterActions();
   }
   /**
    * Specifies whether users are allowed to add new panels.
@@ -1771,6 +1779,12 @@ export class QuestionPanelDynamicModel extends Question
   public onSurveyLoad(): void {
     this.template.readOnly = this.isReadOnly;
     this.template.onSurveyLoad();
+    if(this.panelCount < this.minPanelCount) {
+      this.panelCount = this.minPanelCount;
+    }
+    if(this.panelCount > this.maxPanelCount) {
+      this.panelCount = this.maxPanelCount;
+    }
     this.buildPanelsFirstTime();
     super.onSurveyLoad();
   }

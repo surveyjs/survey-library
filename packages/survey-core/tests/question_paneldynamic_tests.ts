@@ -7472,4 +7472,29 @@ QUnit.test("defaultRowValue in dynamic panel, Bug#8819", function (assert) {
   panel.panels[1].questions[0].addRow();
   assert.deepEqual(panel.value, [{ matrix1: [{ "col1": "abc" }] }, { matrix1: [{ "col1": "abc" }, { "col1": "abc" }] }], "#3");
 });
+QUnit.test("maxRowCount & footer buttons, Bug#8865", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1"
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const btnAdd = panel.footerToolbar.getActionById("sv-pd-add-btn");
+  assert.equal(btnAdd.isVisible, true, "#1");
+  panel.value = [{ q1: "abc" }];
+  assert.equal(btnAdd.isVisible, true, "#2");
+  panel.maxPanelCount = 1;
+  assert.equal(btnAdd.isVisible, false, "#3");
+  panel.maxPanelCount = 2;
+  assert.equal(btnAdd.isVisible, true, "#4");
+});
 

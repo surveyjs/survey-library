@@ -1,6 +1,6 @@
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
-import { ArrayChanges, Base } from "./base";
+import { ArrayChanges, Base, RenderingCompletedAwaiter } from "./base";
 import {
   ISurveyImpl,
   IPage,
@@ -41,6 +41,9 @@ export class QuestionRowModel extends Base {
   }
   protected _scrollableParent: any = undefined;
   protected _updateVisibility: any = undefined;
+  private get allowRendering(): boolean {
+    return !this.panel || !this.panel.survey || !(this.panel.survey as any)["isLazyRenderingSuspended"];
+  }
   public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
     if (!DomDocumentHelper.isAvailable()) return;
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
@@ -52,6 +55,9 @@ export class QuestionRowModel extends Base {
     this.isNeedRender = !hasScroll;
     if (hasScroll) {
       this._updateVisibility = () => {
+        if (!this.allowRendering) {
+          return;
+        }
         var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
         if (!this.isNeedRender && isRowContainerDivVisible) {
           this.isNeedRender = true;
@@ -187,6 +193,10 @@ export class QuestionRowModel extends Base {
     for (var i = 0; i < this.elements.length; i++) {
       if (this.elements[i].isVisible) {
         visElements.push(this.elements[i]);
+      }
+      if (this.elements[i].isPanel || this.elements[i].getType() === "paneldynamic") {
+        this.setIsLazyRendering(false);
+        this.stopLazyRendering();
       }
     }
     this.visibleElements = visElements;
@@ -1323,11 +1333,22 @@ export class PanelModelBase extends SurveyElement<Question>
       this.onVisibleChanged();
     }
   }
+  protected canRenderFirstRows(): boolean {
+    return this.isPage;
+  }
+  private isLazyRenderInRow(rowIndex: number): boolean {
+    if (!this.survey || !this.survey.isLazyRendering) return false;
+    return (
+      rowIndex >= this.survey.lazyRenderingFirstBatchSize ||
+      !this.canRenderFirstRows()
+    );
+  }
   public createRowAndSetLazy(index: number): QuestionRowModel {
     const row = this.createRow();
     row.setIsLazyRendering(this.isLazyRenderInRow(index));
     return row;
   }
+  // TODO V2: make all createRow API private (at least protected) after removing DragDropPanelHelperV1
   public createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
@@ -1535,16 +1556,6 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return result;
   }
-  private isLazyRenderInRow(rowIndex: number): boolean {
-    if (!this.survey || !this.survey.isLazyRendering) return false;
-    return (
-      rowIndex >= this.survey.lazyRenderingFirstBatchSize ||
-      !this.canRenderFirstRows()
-    );
-  }
-  protected canRenderFirstRows(): boolean {
-    return this.isPage;
-  }
   public getDragDropInfo(): any {
     const page: PanelModelBase = <any>this.getPage(this.parent);
     return !!page ? page.getDragDropInfo() : undefined;
@@ -1573,25 +1584,66 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  public disableLazyRenderingBeforeElement(el?: IElement): void {
-    const row = el ? this.findRowByElement(el) : undefined;
-    const index = el ? this.rows.indexOf(row) : this.rows.length - 1;
-    for (let i = index; i >= 0; i--) {
-      const currentRow = this.rows[i];
-      if (currentRow.isNeedRender) {
-        break;
-      } else {
-        currentRow.isNeedRender = true;
-        currentRow.stopLazyRendering();
-      }
+  public getAllRows(): Array<QuestionRowModel> {
+    const allRows: Array<QuestionRowModel> = [];
+    this.rows.forEach(row => {
+      const nestedRows: Array<QuestionRowModel> = [];
+      row.elements.forEach(element => {
+        if (element.isPanel) {
+          nestedRows.push(...(<any>element as PanelModelBase).getAllRows());
+        } else if (element.getType() == "paneldynamic") {
+          if (this.isDesignMode) {
+            nestedRows.push(...(element as any).template.getAllRows());
+          } else {
+            (element as any).panels.forEach((panel: PanelModelBase) => nestedRows.push(...panel.getAllRows()));
+          }
+        }
+      });
+      allRows.push(row);
+      allRows.push(...nestedRows);
+    });
+    return allRows;
+  }
+  private findRowAndIndexByElement(el: IElement, rows?: Array<QuestionRowModel>): { row: QuestionRowModel, index: number } {
+    if (!el) {
+      return { row: undefined, index: this.rows.length - 1 };
+    }
+    rows = rows || this.rows;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].elements.indexOf(el) > -1) return { row: rows[i], index: i };
+    }
+    return { row: null, index: -1 };
+  }
+  private forceRenderRow(row: QuestionRowModel): void {
+    if (!!row && !row.isNeedRender) {
+      row.isNeedRender = true;
+      row.stopLazyRendering();
     }
   }
-  public findRowByElement(el: IElement): QuestionRowModel {
-    var rows = this.rows;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].elements.indexOf(el) > -1) return rows[i];
+  public forceRenderElement(el: IElement, elementsRendered = () => { }, gap = 0): void {
+    const allRows = this.getAllRows();
+    const { row, index } = this.findRowAndIndexByElement(el, allRows);
+    if (index >= 0 && index < allRows.length) {
+      const rowsToRender = [];
+      rowsToRender.push(row);
+      for (let i = index - 1; i >= index - gap && i >= 0; i--) {
+        rowsToRender.push(allRows[i]);
+      }
+      this.forceRenderRows(rowsToRender, elementsRendered);
     }
-    return null;
+  }
+  public forceRenderRows(rows: Array<QuestionRowModel>, elementsRendered = () => { }): void {
+    const rowRenderedHandler = (rowsCount => () => {
+      rowsCount--;
+      if (rowsCount <= 0) {
+        elementsRendered();
+      }
+    })(rows.length);
+    rows.forEach(row => new RenderingCompletedAwaiter(row.visibleElements as any, rowRenderedHandler));
+    rows.forEach(row => this.forceRenderRow(row));
+  }
+  public findRowByElement(el: IElement): QuestionRowModel {
+    return this.findRowAndIndexByElement(el).row;
   }
   elementWidthChanged(el: IElement) {
     if (this.isLoadingFromJson) return;

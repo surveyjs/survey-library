@@ -2867,3 +2867,508 @@ QUnit.test("Panel hasTextInTitle - reactive property #8816", function (assert) {
   assert.equal(panel2.hasTextInTitle, false, "panel2 #2, hasTextInTitle");
   assert.equal(panel2.hasTitle, false, "panel2 #2, hasTitle");
 });
+
+QUnit.test("row.isNeedRender for panels", function (assert) {
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                type: "text",
+                name: "q1",
+              },
+              {
+                type: "text",
+                name: "q2",
+              },
+
+            ]
+          },
+          {
+            type: "text",
+            name: "q3",
+          },
+        ],
+      }
+    ],
+  };
+
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 0;
+  try {
+    const survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    const page1: PageModel = survey.pages[0];
+    assert.equal(page1.rows.length, 2, "There are 2 rows");
+    assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender page1 rows[0]");
+    assert.equal(page1.rows[1].isNeedRender, false, "isNeedRender page1 rows[1]");
+
+    const panel1 = survey.pages[0].elements[0] as PanelModel;
+    assert.equal(panel1.rows.length, 2, "There are 2 rows in panel1");
+    assert.equal(panel1.rows[0].isNeedRender, false, "isNeedRender panel1 rows[0]");
+    assert.equal(panel1.rows[1].isNeedRender, false, "isNeedRender panel1 rows[1]");
+  } finally {
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});
+QUnit.test("getAllRows for page", function (assert) {
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                type: "text",
+                name: "q1",
+              },
+              {
+                type: "text",
+                name: "q2",
+              },
+
+            ]
+          },
+          {
+            type: "text",
+            name: "q3",
+          },
+        ],
+      }
+    ],
+  };
+
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 0;
+  try {
+    const survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    const page1: PageModel = survey.pages[0];
+    const allPageRows = page1.getAllRows();
+
+    assert.equal(allPageRows.length, 4, "There are 4 rows");
+    assert.equal(allPageRows[0].elements[0].name, "panel1");
+    assert.equal(allPageRows[1].elements[0].name, "q1");
+    assert.equal(allPageRows[2].elements[0].name, "q2");
+    assert.equal(allPageRows[3].elements[0].name, "q3");
+  } finally {
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});
+QUnit.test("forceRenderRows for page", async function (assert) {
+  let done = assert.async(1);
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                type: "text",
+                name: "q1",
+              },
+              {
+                type: "text",
+                name: "q2",
+              },
+
+            ]
+          },
+          {
+            type: "text",
+            name: "q3",
+          },
+        ],
+      }
+    ],
+  };
+
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 0;
+  try {
+    const survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    survey.getAllQuestions().forEach(q => {
+      q.supportOnElementRenderedEvent = true;
+      q.onElementRenderedEventEnabled = true;
+    });
+    const page1: PageModel = survey.pages[0];
+    const allPageRows = page1.getAllRows();
+    assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel");
+    assert.equal(allPageRows[1].isNeedRender, false, "isNeedRender for q1");
+    assert.equal(allPageRows[2].isNeedRender, false, "isNeedRender for q2");
+    assert.equal(allPageRows[3].isNeedRender, false, "isNeedRender for q3");
+
+    page1.forceRenderRows([allPageRows[2], allPageRows[3]], () => {
+      settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+      assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel");
+      assert.equal(allPageRows[1].isNeedRender, false, "isNeedRender for q1");
+      assert.equal(allPageRows[2].isNeedRender, true, "isNeedRender for q2");
+      assert.equal(allPageRows[3].isNeedRender, true, "isNeedRender for q3");
+      done();
+    });
+    survey.getQuestionByName("q2").onElementRerendered.fire({} as any, {});
+    survey.getQuestionByName("q3").onElementRerendered.fire({} as any, {});
+  } finally {
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});
+QUnit.test("forceRenderElement for page the exact element, gap = 0", async function (assert) {
+  let done = assert.async(1);
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                type: "text",
+                name: "q1",
+              },
+              {
+                type: "text",
+                name: "q2",
+              },
+
+            ]
+          },
+          {
+            type: "text",
+            name: "q3",
+          },
+        ],
+      }
+    ],
+  };
+
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 0;
+  try {
+    const survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    survey.getAllQuestions().forEach(q => {
+      q.supportOnElementRenderedEvent = true;
+      q.onElementRenderedEventEnabled = true;
+    });
+    const page1: PageModel = survey.pages[0];
+    const allPageRows = page1.getAllRows();
+    assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel");
+    assert.equal(allPageRows[1].isNeedRender, false, "isNeedRender for q1");
+    assert.equal(allPageRows[2].isNeedRender, false, "isNeedRender for q2");
+    assert.equal(allPageRows[3].isNeedRender, false, "isNeedRender for q3");
+
+    page1.forceRenderElement(survey.getQuestionByName("q3"), () => {
+      settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+      assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel");
+      assert.equal(allPageRows[1].isNeedRender, false, "isNeedRender for q1");
+      assert.equal(allPageRows[2].isNeedRender, false, "isNeedRender for q2");
+      assert.equal(allPageRows[3].isNeedRender, true, "isNeedRender for q3");
+      done();
+    });
+    survey.getQuestionByName("q3").onElementRerendered.fire({} as any, {});
+  } finally {
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});
+QUnit.test("forceRenderElement for page with one prev element, gap = 1", async function (assert) {
+  let done = assert.async(1);
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                type: "text",
+                name: "q1",
+              },
+              {
+                type: "text",
+                name: "q2",
+              },
+
+            ]
+          },
+          {
+            type: "text",
+            name: "q3",
+          },
+        ],
+      }
+    ],
+  };
+
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 0;
+  try {
+    const survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    survey.getAllQuestions().forEach(q => {
+      q.supportOnElementRenderedEvent = true;
+      q.onElementRenderedEventEnabled = true;
+    });
+    const page1: PageModel = survey.pages[0];
+    const allPageRows = page1.getAllRows();
+    assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel");
+    assert.equal(allPageRows[1].isNeedRender, false, "isNeedRender for q1");
+    assert.equal(allPageRows[2].isNeedRender, false, "isNeedRender for q2");
+    assert.equal(allPageRows[3].isNeedRender, false, "isNeedRender for q3");
+
+    page1.forceRenderElement(survey.getQuestionByName("q3"), () => {
+      settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+      assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel");
+      assert.equal(allPageRows[1].isNeedRender, false, "isNeedRender for q1");
+      assert.equal(allPageRows[2].isNeedRender, true, "isNeedRender for q2");
+      assert.equal(allPageRows[3].isNeedRender, true, "isNeedRender for q3");
+      done();
+    }, 1);
+    survey.getQuestionByName("q2").onElementRerendered.fire({} as any, {});
+    survey.getQuestionByName("q3").onElementRerendered.fire({} as any, {});
+  } finally {
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});
+QUnit.test("row.isNeedRender for nested panels", function (assert) {
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                "type": "panel",
+                "name": "panel2",
+                "elements": [
+                  {
+                    "type": "panel",
+                    "name": "panel3",
+                    "elements": [
+                      {
+                        type: "text",
+                        name: "q1",
+                      },
+                      {
+                        type: "text",
+                        name: "q2",
+                      },
+
+                    ]
+                  },
+                ]
+              },
+              {
+                type: "text",
+                name: "q3",
+              },
+            ]
+          },
+          {
+            type: "text",
+            name: "q4",
+          },
+        ],
+      }
+    ],
+  };
+
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 0;
+  try {
+    const survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    const page1: PageModel = survey.pages[0];
+    const allPageRows = page1.getAllRows();
+    assert.equal(allPageRows.length, 7, "7 rows with panels");
+    assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel1");
+    assert.equal(allPageRows[1].isNeedRender, true, "isNeedRender for panel2");
+    assert.equal(allPageRows[2].isNeedRender, true, "isNeedRender for panel3");
+    assert.equal(allPageRows[3].isNeedRender, false, "isNeedRender for q1");
+    assert.equal(allPageRows[4].isNeedRender, false, "isNeedRender for q2");
+    assert.equal(allPageRows[5].isNeedRender, false, "isNeedRender for q3");
+    assert.equal(allPageRows[6].isNeedRender, false, "isNeedRender for q4");
+  } finally {
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});
+QUnit.test("row.isNeedRender for nested panels - complex", function (assert) {
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                "type": "paneldynamic",
+                "name": "panel2",
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "q1",
+                  },
+                  {
+                    "type": "text",
+                    "name": "q2",
+                    "startWithNewLine": false,
+                  },
+                  {
+                    "type": "text",
+                    "name": "q3",
+                  },
+                  {
+                    "type": "text",
+                    "name": "q4",
+                    "startWithNewLine": false,
+                  },
+                ],
+                "templateTitle": "item #{panelIndex}",
+                "panelCount": 1,
+                "minPanelCount": 1,
+                "keyName": "name",
+              },
+              {
+                "type": "panel",
+                "name": "panel3",
+                "title": "Totals",
+                "elements": [
+                  {
+                    "type": "expression",
+                    "name": "q5",
+                  },
+                  {
+                    "type": "expression",
+                    "name": "q6",
+                    "startWithNewLine": false,
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "name": "last-question"
+          }
+        ],
+      }
+    ],
+  };
+
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 0;
+  try {
+    const survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    const page1: PageModel = survey.pages[0];
+    const allPageRows = page1.getAllRows();
+    assert.equal(allPageRows.length, 7, "7 rows with panels");
+    assert.equal(allPageRows[0].elements[0].name, "panel1");
+    assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel1");
+    assert.equal(allPageRows[1].elements[0].name, "panel2", "panel2 - paneldynamic");
+    assert.equal(allPageRows[1].isNeedRender, true, "isNeedRender for panel2");
+    assert.equal(allPageRows[2].elements[0].name, "q1");
+    // assert.equal(allPageRows[2].isNeedRender, false, "isNeedRender for q1, q2");
+    assert.equal(allPageRows[3].elements[0].name, "q3");
+    // assert.equal(allPageRows[3].isNeedRender, false, "isNeedRender for q3, q4");
+    assert.equal(allPageRows[4].elements[0].name, "panel3");
+    assert.equal(allPageRows[4].isNeedRender, true, "isNeedRender for panel3");
+    assert.equal(allPageRows[5].elements[0].name, "q5");
+    assert.equal(allPageRows[5].isNeedRender, false, "isNeedRender for q5, q6");
+    assert.equal(allPageRows[6].elements[0].name, "last-question");
+    assert.equal(allPageRows[6].isNeedRender, false, "isNeedRender for q-last");
+  } finally {
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});
+QUnit.test("row.isNeedRender panel dynamic different modes - ordinary and designer", function (assert) {
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            "type": "paneldynamic",
+            "name": "panel1",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q1",
+              },
+              {
+                "type": "text",
+                "name": "q2",
+                "startWithNewLine": false,
+              },
+              {
+                "type": "text",
+                "name": "q3",
+              },
+              {
+                "type": "text",
+                "name": "q4",
+                "startWithNewLine": false,
+              },
+            ],
+            "templateTitle": "item #{panelIndex}",
+            "panelCount": 2,
+            "minPanelCount": 1,
+          },
+        ],
+      }
+    ],
+  };
+
+  const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
+  settings.lazyRowsRenderingStartRow = 0;
+  try {
+    const survey = new SurveyModel(json);
+    survey.lazyRendering = true;
+    const page1: PageModel = survey.pages[0];
+
+    let allPageRows = page1.getAllRows();
+    assert.equal(allPageRows.length, 5, "7 rows with inner panels in runtime mode");
+    assert.equal(allPageRows[0].elements[0].name, "panel1");
+    assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel1");
+    assert.equal(allPageRows[1].elements[0].name, "q1");
+    // assert.equal(allPageRows[1].isNeedRender, false, "isNeedRender for q1, q2");
+    assert.equal(allPageRows[2].elements[0].name, "q3");
+    // assert.equal(allPageRows[2].isNeedRender, false, "isNeedRender for q3, q4");
+    assert.equal(allPageRows[3].elements[0].name, "q1");
+    // assert.equal(allPageRows[3].isNeedRender, false, "isNeedRender for q1, q2");
+    assert.equal(allPageRows[4].elements[0].name, "q3");
+    // assert.equal(allPageRows[4].isNeedRender, false, "isNeedRender for q3, q4");
+
+    survey.setDesignMode(true);
+    allPageRows = page1.getAllRows();
+    assert.equal(allPageRows.length, 3, "3 rows with inner panels in design mode");
+    assert.equal(allPageRows[0].elements[0].name, "panel1");
+    assert.equal(allPageRows[0].isNeedRender, true, "isNeedRender for panel1");
+    assert.equal(allPageRows[1].elements[0].name, "q1");
+    // assert.equal(allPageRows[1].isNeedRender, false, "isNeedRender for q1, q2");
+    assert.equal(allPageRows[2].elements[0].name, "q3");
+    // assert.equal(allPageRows[2].isNeedRender, false, "isNeedRender for q3, q4");
+  } finally {
+    settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+  }
+});

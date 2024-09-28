@@ -47,7 +47,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -1300,22 +1300,23 @@ export class SurveyModel extends SurveyElementCore
     this.lazyRenderingFirstBatchSizeValue = val;
   }
 
-  public disableLazyRenderingBeforeElement(el: IElement): void {
-    if(this.isDesignMode) {
-      const page = this.getPageByElement(el);
-      const index = this.pages.indexOf(page);
-      for (let i = index; i >= 0; i--) {
-        const currentPage = this.pages[i];
-        currentPage.disableLazyRenderingBeforeElement(currentPage == page ? el : undefined);
-      }
-    }
+  protected _isLazyRenderingSuspended = false;
+  public get isLazyRenderingSuspended(): boolean {
+    return this._isLazyRenderingSuspended;
   }
-
+  protected suspendLazyRendering(): void {
+    if (!this.isLazyRendering) return;
+    this._isLazyRenderingSuspended = true;
+  }
+  protected releaseLazyRendering(): void {
+    if (!this.isLazyRendering) return;
+    this._isLazyRenderingSuspended = false;
+  }
   private updateLazyRenderingRowsOnRemovingElements() {
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
     if (!!page) {
-      scrollElementByChildId(page.id);
+      activateLazyRenderingChecks(page.id);
     }
   }
   /**
@@ -5264,11 +5265,12 @@ export class SurveyModel extends SurveyElementCore
     return options.actions;
   }
 
+  public skeletonHeight: number = undefined;
+
   scrollElementToTop(
-    element: ISurveyElement,
-    question: Question,
-    page: PageModel,
-    id: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions
+    element: ISurveyElement, question: Question, page: PageModel,
+    id: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions,
+    passedRootElement?: HTMLElement
   ): any {
     const options: ScrollingElementToTopEvent = {
       element: element,
@@ -5279,7 +5281,24 @@ export class SurveyModel extends SurveyElementCore
     };
     this.onScrollingElementToTop.fire(this, options);
     if (!options.cancel) {
-      SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions);
+      const elementPage = this.getPageByElement(element as IElement);
+      if (this.isLazyRendering) {
+        let elementsToRenderBefore = 1;
+        const { rootElement } = settings.environment;
+        const surveyRootElement = this.rootElement || passedRootElement || rootElement as any;
+        if (!!this.skeletonHeight && !!surveyRootElement && typeof surveyRootElement.getBoundingClientRect === "function") {
+          elementsToRenderBefore = surveyRootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
+        }
+        elementPage.forceRenderElement(element as IElement, () => {
+          this.suspendLazyRendering();
+          SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, () => {
+            this.releaseLazyRendering();
+            activateLazyRenderingChecks(elementPage.id);
+          });
+        }, elementsToRenderBefore);
+      } else {
+        SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions);
+      }
     }
   }
 

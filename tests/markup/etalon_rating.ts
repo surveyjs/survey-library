@@ -105,6 +105,38 @@ registerMarkupTests(
     snapshot: "rating-as-dropdown",
   },
   {
+    name: "Test Rating question as dropdown with description",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "rating",
+          title: "Question title",
+          titleLocation: "hidden",
+          minRateDescription: "mimimi",
+          maxRateDescription: "mamama",
+          displayMode: "dropdown",
+          rateValues: [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ]
+    },
+    initSurvey: (survey) => {
+      let q1 = survey.getQuestionByName("name");
+      const dropdownListModel = new DropdownListModel(q1);
+      q1["dropdownListModel"] = dropdownListModel;
+      dropdownListModel["popupModel"].isVisible = true;
+    },
+    removeIds: true,
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    snapshot: "rating-as-dropdown-description",
+  },
+  {
     name: "Test Rating question as dropdown readonly",
     json: {
       questions: [

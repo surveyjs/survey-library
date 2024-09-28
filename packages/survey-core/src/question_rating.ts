@@ -365,6 +365,7 @@ export class QuestionRatingModel extends Question {
     }
     if (this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
 
+    this.visibleChoicesValue = rateValues.map((i, idx) => this.getRatingItemValue(i, idx));
     this.renderedRateItems = rateValues.map((v, i) => {
       let renderedItem = null;
       if (this.displayRateDescriptionsAsExtremeItems) {
@@ -383,21 +384,29 @@ export class QuestionRatingModel extends Question {
     var step = this.rateStep;
     while (value <= this.rateMax &&
       res.length < settings.ratingMaximumRateValueCount) {
-      let description: LocalizableString;
-      if (value === this.rateMin) {
-        description = this.minRateDescription && this.locMinRateDescription;
-      }
-      if (value === this.rateMax || res.length === settings.ratingMaximumRateValueCount) {
-        description = this.maxRateDescription && this.locMaxRateDescription;
-      }
 
-      let item = new RatingItemValue(value, description);
+      let item = new ItemValue(value);
       item.locOwner = this;
       item.ownerPropertyName = "rateValues";
       res.push(item);
       value = this.correctValue(value + step, step);
     }
     return res;
+  }
+  private getRatingItemValue(item: ItemValue, index: number) {
+    if (!item) return null;
+    const value = item.value;
+    let description: LocalizableString;
+    if (value === this.rateMin) {
+      description = this.minRateDescription && this.locMinRateDescription;
+    }
+    if (value === this.rateMax || index === settings.ratingMaximumRateValueCount) {
+      description = this.maxRateDescription && this.locMaxRateDescription;
+    }
+    let newItem = new RatingItemValue(value, description);
+    newItem.locOwner = item.locOwner;
+    newItem.ownerPropertyName = item.ownerPropertyName;
+    return newItem;
   }
 
   private correctValue(value: number, step: number): number {
@@ -835,8 +844,9 @@ export class QuestionRatingModel extends Question {
   public isItemSelected(item: ItemValue): boolean {
     return item.value == this.value;
   }
+  private visibleChoicesValue: ItemValue[];
   public get visibleChoices(): ItemValue[] {
-    return this.visibleRateValues;
+    return this.visibleChoicesValue;
   }
   public get readOnlyText() {
     if (this.readOnly) return (this.displayValue || this.placeholder);

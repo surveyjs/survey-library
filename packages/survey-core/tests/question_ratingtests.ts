@@ -10,6 +10,7 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { settings } from "../src/settings";
 import { _setIsTouch } from "../src/utils/devices";
 import { StylesManager } from "@legacy/stylesmanager";
+import { PopupModel } from "../src/popup";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   // StylesManager.applyTheme("default");
@@ -1735,4 +1736,20 @@ QUnit.test("Check hasMin/MaxRateDescription properties on loading", (assert) => 
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   assert.equal(q1.hasMinRateDescription, true, "hasMinRateDescription");
   assert.equal(q1.hasMaxRateDescription, true, "hasMaxRateDescription");
+});
+QUnit.test("Check dropdoun rating close on blur, #8862", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "type": "rating",
+      "name": "question1",
+      "displayMode": "dropdown"
+    }]
+  });
+  const question = <QuestionRatingModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const popup: PopupModel = dropdownListModel.popupModel;
+  popup.isVisible = true;
+  assert.ok(popup.isVisible);
+  question.onBlur({ target: null, stopPropagation: () => { } });
+  assert.notOk(popup.isVisible);
 });

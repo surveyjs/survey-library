@@ -880,6 +880,10 @@ export class QuestionRatingModel extends Question {
     }
     return this.dropdownListModelValue;
   }
+  protected onBlurCore(event: any): void {
+    this.dropdownListModel?.onBlur(event);
+    super.onBlurCore(event);
+  }
   protected updateCssClasses(res: any, css: any) {
     super.updateCssClasses(res, css);
     if(!!this.dropdownListModel) {

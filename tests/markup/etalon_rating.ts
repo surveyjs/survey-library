@@ -131,6 +131,7 @@ registerMarkupTests(
       q1["dropdownListModel"] = dropdownListModel;
       dropdownListModel["popupModel"].isVisible = true;
     },
+    removeIds: true,
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
     snapshot: "rating-as-dropdown-description",

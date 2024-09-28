@@ -97,76 +97,98 @@ export interface IMatrixCellsOwner extends ILocalizableOwner {
   getColumns(): Array<any>;
 }
 
-export class MatrixCells {
+export class MatrixCells extends Base {
   private values: { [index: string]: any } = {};
-  public constructor(public cellsOwner: IMatrixCellsOwner) {}
+  private locs: { [index: string]: any } = {};
+  public constructor(public cellsOwner: IMatrixCellsOwner) {
+    super();
+  }
+  public getType(): string { return "cells"; }
   public get isEmpty(): boolean {
     return Object.keys(this.values).length == 0;
   }
   public onValuesChanged: () => void;
+  private locNotification: boolean;
   private valuesChanged(): void {
-    if(!!this.onValuesChanged) {
+    if(!this.locNotification && !!this.onValuesChanged) {
       this.onValuesChanged();
     }
   }
-  public setCellText(row: any, column: any, val: string): void {
+  public getDefaultCellLocText(column: any): LocalizableString {
+    return this.getCellLocCore(this.defaultRowValue, column);
+  }
+  public getCellDisplayLocText(row: any, column: any): LocalizableString {
+    return this.getCellLocCore(row, column);
+  }
+  private getCellLocCore(row: any, col: any): LocalizableString {
     row = this.getCellRowColumnValue(row, this.rows);
-    column = this.getCellRowColumnValue(column, this.columns);
-    if (!row || !column) return;
-    if (val) {
-      if (!this.values[row]) this.values[row] = {};
-      if (!this.values[row][column])
-        this.values[row][column] = this.createString();
-      this.values[row][column].text = val;
-    } else {
-      if (this.values[row] && this.values[row][column]) {
-        var loc = this.values[row][column];
-        loc.text = "";
-        if (loc.isEmpty) {
-          delete this.values[row][column];
-          if (Object.keys(this.values[row]).length == 0) {
-            delete this.values[row];
+    col = this.getCellRowColumnValue(col, this.columns);
+    if (Helpers.isValueEmpty(row) || Helpers.isValueEmpty(col)) return null;
+    if (!this.locs[row]) {
+      this.locs[row] = {};
+    }
+    let res = <LocalizableString>this.locs[row][col];
+    if (!res) {
+      res = this.createString();
+      res.setJson(this.getCellLocData(row, col));
+      res.onGetTextCallback = (str: string): string => {
+        if(!str) {
+          const column = ItemValue.getItemByValue(this.columns, col);
+          if(column) {
+            return column.locText.getJson() || column.value;
           }
         }
-      }
+        return str;
+      };
+      res.onStrChanged = (oldValue: any, newValue: any): void => {
+        this.updateValues(row, col, newValue);
+      };
+      this.locs[row][col] = res;
     }
-    this.valuesChanged();
+    return res;
   }
-  public setDefaultCellText(column: any, val: string) {
-    this.setCellText(settings.matrix.defaultRowName, column, val);
+  private get defaultRowValue() { return settings.matrix.defaultRowName; }
+  private getCellLocData(row: any, col: any): any {
+    let data = this.getCellLocDataFromValue(row, col);
+    if(data) return data;
+    return this.getCellLocDataFromValue(this.defaultRowValue, col);
   }
-  public getCellLocText(row: any, column: any): LocalizableString {
-    row = this.getCellRowColumnValue(row, this.rows);
-    column = this.getCellRowColumnValue(column, this.columns);
-    if (!row || !column) return null;
+  private getCellLocDataFromValue(row: any, column: any): any {
     if (!this.values[row]) return null;
     if (!this.values[row][column]) return null;
     return this.values[row][column];
   }
-  public getDefaultCellLocText(column: any, val: string): LocalizableString {
-    return this.getCellLocText(settings.matrix.defaultRowName, column);
-  }
-  public getCellDisplayLocText(row: any, column: any): LocalizableString {
-    var cellText = this.getCellLocText(row, column);
-    if (cellText && !cellText.isEmpty) return cellText;
-    cellText = this.getCellLocText(settings.matrix.defaultRowName, column);
-    if (cellText && !cellText.isEmpty) return cellText;
-    if (typeof column == "number") {
-      column =
-        column >= 0 && column < this.columns.length
-          ? this.columns[column]
-          : null;
-    }
-    if (column && column.locText) return column.locText;
-    return null;
-  }
   public getCellText(row: any, column: any): string {
-    var loc = this.getCellLocText(row, column);
+    var loc = this.getCellLocCore(row, column);
     return loc ? loc.calculatedText : null;
+  }
+  public setCellText(row: any, column: any, val: string): void {
+    const loc = this.getCellLocCore(row, column);
+    if(loc) {
+      loc.text = val;
+    }
+  }
+  private updateValues(row: any, column: any, val: any): void {
+    if (val) {
+      if (!this.values[row]) this.values[row] = {};
+      this.values[row][column] = val;
+      this.valuesChanged();
+    } else {
+      if (this.values[row] && this.values[row][column]) {
+        delete this.values[row][column];
+        if (Object.keys(this.values[row]).length == 0) {
+          delete this.values[row];
+        }
+        this.valuesChanged();
+      }
+    }
   }
   public getDefaultCellText(column: any): string {
-    var loc = this.getCellLocText(settings.matrix.defaultRowName, column);
+    var loc = this.getCellLocCore(this.defaultRowValue, column);
     return loc ? loc.calculatedText : null;
+  }
+  public setDefaultCellText(column: any, val: string): void {
+    this.setCellText(this.defaultRowValue, column, val);
   }
   public getCellDisplayText(row: any, column: any): string {
     var loc = this.getCellDisplayLocText(row, column);
@@ -189,12 +211,15 @@ export class MatrixCells {
   }
   public getJson(): any {
     if (this.isEmpty) return null;
-    var res: { [index: string]: any } = {};
-    for (var row in this.values) {
-      var resRow: { [index: string]: any } = {};
-      var rowValues = this.values[row];
-      for (var col in rowValues) {
-        resRow[col] = rowValues[col].getJson();
+    const defaultRow = this.values[this.defaultRowValue];
+    const res: { [index: string]: any } = {};
+    for (let row in this.values) {
+      const resRow: { [index: string]: any } = {};
+      const rowValues = this.values[row];
+      for (let col in rowValues) {
+        if(row === this.defaultRowValue || !defaultRow || defaultRow[col] !== rowValues[col]) {
+          resRow[col] = rowValues[col];
+        }
       }
       res[row] = resRow;
     }
@@ -209,20 +234,23 @@ export class MatrixCells {
         this.values[row] = {};
         for (var col in rowValues) {
           if (col == "pos") continue;
-          var loc = this.createString();
-          loc.setJson(rowValues[col]);
-          this.values[row][col] = loc;
+          this.values[row][col] = rowValues[col];
         }
       }
     }
+    this.locNotification = true;
+    this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.setJson(this.getCellLocData(row, col)));
+    this.locNotification = false;
     this.valuesChanged();
   }
   public locStrsChanged(): void {
-    if (this.isEmpty) return;
-    for (var row in this.values) {
-      var rowValues = this.values[row];
-      for (var col in rowValues) {
-        rowValues[col].strChanged();
+    this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.strChanged());
+  }
+  private runFuncOnLocs(func: (row: any, col: any, loc: LocalizableString) => void): void {
+    for (let row in this.locs) {
+      const rowValues = this.locs[row];
+      for (let col in rowValues) {
+        func(row, col, rowValues[col]);
       }
     }
   }

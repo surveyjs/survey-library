@@ -791,7 +791,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private isEditingObjectValueChanged(): boolean {
     const val = this.value;
     if(!this.generatedVisibleRows || !this.isValueSurveyElement(val)) return false;
-    const lastDelRow = this.lastDeletedRow;
+    let lastDelRow = this.lastDeletedRow;
     this.lastDeletedRow = undefined;
     const rows = this.generatedVisibleRows;
     if(!Array.isArray(val) || Math.abs(rows.length - val.length) > 1 || rows.length === val.length) return false;
@@ -808,6 +808,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if(!!lastDelRow && lastDelRow.editingObj === val[index]) {
         newRow = lastDelRow;
       } else {
+        lastDelRow = undefined;
         newRow = this.createMatrixRow(val[index]);
       }
       rows.splice(index, 0, newRow);

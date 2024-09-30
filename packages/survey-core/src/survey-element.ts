@@ -188,14 +188,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    const { root } = settings.environment;
-    if (!elementId || typeof root === "undefined") return false;
-    const el = root.getElementById(elementId);
-    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
-  }
-  public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    if (!el || !el.scrollIntoView) return false;
+  private static IsNeedScrollIntoView(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean) {
     const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
     let needScroll = elTop < 0;
     let elLeft: number = -1;
@@ -211,20 +204,34 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         needScroll = width > 0 && width < elLeft;
       }
     }
+    return needScroll;
+  }
+  public static ScrollIntoView(el: HTMLElement, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
+    el.scrollIntoView(scrollIntoViewOptions);
+    if (typeof doneCallback === "function") {
+      let currPageXOffset = window.pageXOffset;
+      let currPageYOffset = window.pageYOffset;
+      var scrollDone = setInterval(function () {
+        if (currPageXOffset == window.pageXOffset && currPageYOffset == window.pageYOffset) {
+          clearInterval(scrollDone);
+          doneCallback();
+        }
+        currPageXOffset = window.pageXOffset;
+        currPageYOffset = window.pageYOffset;
+      }, 25);
+    }
+  }
+  public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
+    const { root } = settings.environment;
+    if (!elementId || typeof root === "undefined") return false;
+    const el = root.getElementById(elementId);
+    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
+  }
+  public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
+    if (!el || !el.scrollIntoView) return false;
+    const needScroll = SurveyElement.IsNeedScrollIntoView(el, checkLeft, scrollIfVisible);
     if (needScroll) {
-      el.scrollIntoView(scrollIntoViewOptions);
-      if (typeof doneCallback === "function") {
-        let currPageXOffset = window.pageXOffset;
-        let currPageYOffset = window.pageYOffset;
-        var scrollDone = setInterval(function () {
-          if (currPageXOffset == window.pageXOffset && currPageYOffset == window.pageYOffset) {
-            clearInterval(scrollDone);
-            doneCallback();
-          }
-          currPageXOffset = window.pageXOffset;
-          currPageYOffset = window.pageYOffset;
-        }, 25);
-      }
+      SurveyElement.ScrollIntoView(el, scrollIntoViewOptions, doneCallback);
     }
     return needScroll;
   }
@@ -264,6 +271,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return false;
   }
+  // TODO V2: get rid of this flag
   public static CreateDisabledDesignElements: boolean = false;
   public disableDesignActions: boolean =
     SurveyElement.CreateDisabledDesignElements;

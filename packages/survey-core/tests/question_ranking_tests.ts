@@ -241,6 +241,34 @@ QUnit.test("Ranking: Carry Forward: Default Value", function(assert) {
   });
 });
 
+QUnit.test("Ranking: Carry Forward: Data", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, 2, 3, 4, 5]
+      },
+      {
+        "type": "ranking",
+        "name": "q2",
+        "choicesFromQuestion": "q1",
+        "choicesFromQuestionMode": "selected"
+      }
+    ]
+  });
+
+  survey.data = {
+    "q1": [1, 2, 3],
+    "q2": [3, 2, 1]
+  };
+
+  assert.deepEqual(survey.data, {
+    q1: [1, 2, 3],
+    q2: [3, 2, 1],
+  });
+});
+
 QUnit.test("Ranking: CorrectAnswer, Bug#3720", function(assert) {
   var survey = new SurveyModel({
     elements: [

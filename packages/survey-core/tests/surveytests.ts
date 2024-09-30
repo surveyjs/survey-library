@@ -19049,6 +19049,23 @@ QUnit.test("Test displayValue() function with 'non-ready' question , Bug#8763", 
   q1["updateIsReady"]();
   assert.equal(q2.value, "Item check 1", "#1");
 });
+QUnit.test("Test displayValue() function in survey.runExpression, Bug#8858", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }]
+      }
+    ]
+  });
+  survey.setValue("q1", 2);
+  assert.equal(survey.runExpression("displayValue('q1'"), "Item 2", "#1");
+  let funcRes = undefined;
+  survey.setValue("q1", 1);
+  survey.runExpression("displayValue('q1'", (res: any): void => funcRes = res);
+  assert.equal(funcRes, "Item 1", "#2");
+});
 QUnit.test("Test propertyValue() function", function (assert) {
   const survey = new SurveyModel({
     elements: [
@@ -20470,85 +20487,4 @@ QUnit.test("Trim key in setting the data, Bug#8586", function (assert) {
   assert.equal(survey.getQuestionByName("q2").value, "b", "q2.value");
   assert.equal(survey.getQuestionByName("q3").value, "c", "q3.value");
   assert.equal(survey.getQuestionByName("q4").value, "d", "q3.value");
-});
-
-QUnit.test("Check disableLazyRenderingBeforeElement method", (assert) => {
-  const survey = new SurveyModel({
-    pages: [
-      {
-        name: "page1",
-        elements: [
-          {
-            type: "text",
-            name: "q1"
-          }
-        ]
-      },
-      {
-        name: "page2",
-        elements: [
-          {
-            type: "text",
-            name: "q2"
-          },
-          {
-            type: "text",
-            name: "q3"
-          },
-          {
-            type: "text",
-            name: "q4"
-          }]
-      },
-      {
-        name: "page3",
-        elements: [
-          {
-            type: "text",
-            name: "q5"
-          }
-        ]
-      }
-    ]
-  });
-  survey.setDesignMode(true);
-  const question = survey.getQuestionByName("q3");
-  const page1 = survey.getPageByName("page1");
-  const page2 = survey.getPageByName("page2");
-  const page3 = survey.getPageByName("page3");
-
-  [page1, page2, page3].forEach(page => {
-    page.onFirstRendering();
-    page.rows.forEach(row => row.isNeedRender = false);
-  }
-  );
-
-  assert.notOk(page1.rows[0].isNeedRender);
-
-  assert.notOk(page2.rows[0].isNeedRender);
-  assert.notOk(page2.rows[1].isNeedRender);
-  assert.notOk(page2.rows[2].isNeedRender);
-
-  assert.notOk(page3.rows[0].isNeedRender);
-
-  survey.disableLazyRenderingBeforeElement(question);
-
-  assert.ok(page1.rows[0].isNeedRender);
-
-  assert.ok(page2.rows[0].isNeedRender);
-  assert.ok(page2.rows[1].isNeedRender);
-  assert.notOk(page2.rows[2].isNeedRender);
-
-  assert.notOk(page3.rows[0].isNeedRender);
-
-  page2.rows[0].isNeedRender = false;
-  survey.disableLazyRenderingBeforeElement(question);
-
-  assert.ok(page1.rows[0].isNeedRender);
-
-  assert.notOk(page2.rows[0].isNeedRender);
-  assert.ok(page2.rows[1].isNeedRender);
-  assert.notOk(page2.rows[2].isNeedRender);
-
-  assert.notOk(page3.rows[0].isNeedRender);
 });

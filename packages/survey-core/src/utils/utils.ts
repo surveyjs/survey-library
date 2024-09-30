@@ -142,7 +142,7 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
   return findScrollableParent(element.parentElement);
 }
 
-function scrollElementByChildId(id: string) {
+function activateLazyRenderingChecks(id: string): void {
   const environment: ISurveyEnvironment = settings.environment;
   if (!environment) return;
   const { root } = environment;
@@ -791,7 +791,7 @@ export {
   getElement,
   isElementVisible,
   findScrollableParent,
-  scrollElementByChildId,
+  activateLazyRenderingChecks,
   navigateToUrl,
   wrapUrlForBackgroundImage,
   createSvg,

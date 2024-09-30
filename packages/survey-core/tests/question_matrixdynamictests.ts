@@ -2415,6 +2415,29 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context & set data correct
   survey.doComplete();
   assert.deepEqual(matrix.value, [{ col1: "b", col2: 100 }], "Remove items correctly");
 });
+QUnit.test("Invisible rows & validation, Bug#8853", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: ["row1", "row2", "row3"] },
+      { type: "matrixdropdown", name: "matrix",
+        rowsVisibleIf: "{q1} contains {item}", cellType: "text",
+        columns: [{ name: "col1", isRequired: true }, { name: "col2", isRequired: true }],
+        rows: ["row1", "row2", "row3"]
+      },
+    ]
+  });
+  const data = {
+    q1: ["row2"],
+    matrix: { row2: { col1: 1, col2: 2 } }
+  };
+  survey.data = data;
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 1, "one row is visible");
+  assert.equal(matrix.validate(), true, "matrix validate");
+  survey.doComplete();
+  assert.equal(survey.state, "completed", "survey state");
+  assert.deepEqual(survey.data, data, "survey.data");
+});
 QUnit.test("Do not clear data for shared values & rowsVisibleIf", function(assert) {
   var survey = new SurveyModel({
     elements: [

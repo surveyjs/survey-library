@@ -84,6 +84,58 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Matrix checkboxes", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1200, 1200);
+      await initSurvey(framework, {
+        "focusFirstQuestionAutomatic": true,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrixdropdown",
+                "name": "question1",
+                "defaultValue": {
+                  "Row 1": {
+                    "Column 1": [
+                      1
+                    ]
+                  },
+                  "Row 2": {
+                    "Column 1": [
+                      1
+                    ]
+                  }
+                },
+                "alternateRows": true,
+                "columns": [
+                  {
+                    "name": "Column 1",
+                    "cellType": "checkbox",
+                    "showInMultipleColumns": true
+                  }
+                ],
+                "choices": [
+                  1,
+                  2
+                ],
+                "rows": [
+                  "Row 1",
+                  "Row 2"
+                ]
+              }
+            ]
+          }
+        ],
+        "widthMode": "static"
+      });
+
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-checkboxes-alt-rows-focused.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Matrix single-select in panel", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1200);

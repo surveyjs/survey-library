@@ -2,9 +2,9 @@ import React from "react";
 import { ReactElementFactory } from "../element-factory";
 
 export class Skeleton extends React.Component<any, any> {
-  render() {
+  render(): JSX.Element {
     return (
-      <div className="sv-skeleton-element" id={this.props.element?.id}>
+      <div className="sv-skeleton-element" id={this.props.element?.id} style={{ height: this.props.element?.skeletonHeight }}>
       </div>
     );
   }

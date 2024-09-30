@@ -11,7 +11,7 @@
 import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 
-const props = defineProps<{ item: any }>();
+const props = defineProps<{ item: any; model: any }>();
 
 useBase(() => props.item);
 </script>

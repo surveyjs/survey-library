@@ -47,7 +47,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -1300,22 +1300,23 @@ export class SurveyModel extends SurveyElementCore
     this.lazyRenderingFirstBatchSizeValue = val;
   }
 
-  public disableLazyRenderingBeforeElement(el: IElement): void {
-    if(this.isDesignMode) {
-      const page = this.getPageByElement(el);
-      const index = this.pages.indexOf(page);
-      for (let i = index; i >= 0; i--) {
-        const currentPage = this.pages[i];
-        currentPage.disableLazyRenderingBeforeElement(currentPage == page ? el : undefined);
-      }
-    }
+  protected _isLazyRenderingSuspended = false;
+  public get isLazyRenderingSuspended(): boolean {
+    return this._isLazyRenderingSuspended;
   }
-
+  protected suspendLazyRendering(): void {
+    if (!this.isLazyRendering) return;
+    this._isLazyRenderingSuspended = true;
+  }
+  protected releaseLazyRendering(): void {
+    if (!this.isLazyRendering) return;
+    this._isLazyRenderingSuspended = false;
+  }
   private updateLazyRenderingRowsOnRemovingElements() {
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
     if (!!page) {
-      scrollElementByChildId(page.id);
+      activateLazyRenderingChecks(page.id);
     }
   }
   /**
@@ -2330,12 +2331,19 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns a result value.
    * @param expression An expression to calculate.
+   * @param callback A callback function that you can use to access the calculation result if the expression uses asynchronous functions.
    */
-  public runExpression(expression: string): any {
+  public runExpression(expression: string, callback?: (res: any) => void): any {
     if (!expression) return null;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
-    return new ExpressionRunner(expression).run(values, properties);
+    const exp = new ExpressionRunner(expression);
+    let onCompleteRes: any = undefined;
+    exp.onRunComplete = (res: any) => {
+      onCompleteRes = res;
+      callback && callback(res);
+    };
+    return exp.run(values, properties) || onCompleteRes;
   }
   /**
    * Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns `true` or `false`.
@@ -5257,11 +5265,12 @@ export class SurveyModel extends SurveyElementCore
     return options.actions;
   }
 
+  public skeletonHeight: number = undefined;
+
   scrollElementToTop(
-    element: ISurveyElement,
-    question: Question,
-    page: PageModel,
-    id: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions
+    element: ISurveyElement, question: Question, page: PageModel,
+    id: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions,
+    passedRootElement?: HTMLElement
   ): any {
     const options: ScrollingElementToTopEvent = {
       element: element,
@@ -5272,7 +5281,24 @@ export class SurveyModel extends SurveyElementCore
     };
     this.onScrollingElementToTop.fire(this, options);
     if (!options.cancel) {
-      SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions);
+      const elementPage = this.getPageByElement(element as IElement);
+      if (this.isLazyRendering) {
+        let elementsToRenderBefore = 1;
+        const { rootElement } = settings.environment;
+        const surveyRootElement = this.rootElement || passedRootElement || rootElement as any;
+        if (!!this.skeletonHeight && !!surveyRootElement && typeof surveyRootElement.getBoundingClientRect === "function") {
+          elementsToRenderBefore = surveyRootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
+        }
+        elementPage.forceRenderElement(element as IElement, () => {
+          this.suspendLazyRendering();
+          SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, () => {
+            this.releaseLazyRendering();
+            activateLazyRenderingChecks(elementPage.id);
+          });
+        }, elementsToRenderBefore);
+      } else {
+        SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions);
+      }
     }
   }
 

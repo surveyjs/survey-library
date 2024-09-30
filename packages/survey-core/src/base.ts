@@ -1171,6 +1171,57 @@ export class Base {
   }
 }
 
+export class RenderingCompletedAwaiter {
+  constructor(private _elements: Array<Base>, private _renderedHandler: () => void, waitingTimeout = 100) {
+    this._elements.forEach(element => {
+      if (element.onElementRerendered) {
+        element.onElementRerendered.add(this._elementRenderedHandler);
+        this._elementsToRenderCount++;
+      }
+    });
+    if (this._elementsToRenderCount > 0) {
+      this._elementsToRenderTimer = setTimeout(() => {
+        if (this._elementsToRenderCount > 0) {
+          this.visibleElementsRendered();
+        }
+      }, waitingTimeout);
+    } else {
+      this.visibleElementsRendered();
+    }
+  }
+  private _elementsToRenderCount = 0;
+  private _elementsToRenderTimer: any = undefined;
+  private _elementRenderedHandler = (s: Base, o: any) => {
+    s.onElementRerendered?.remove(this._elementRenderedHandler);
+    this._elementsToRenderCount--;
+    if (this._elementsToRenderCount <= 0) {
+      this.visibleElementsRendered();
+    }
+  }
+  private stopWaitingForElementsRendering() {
+    if (this._elementsToRenderTimer) {
+      clearTimeout(this._elementsToRenderTimer);
+      this._elementsToRenderTimer = undefined;
+    }
+    this._elements.forEach(element => {
+      element.onElementRerendered?.remove(this._elementRenderedHandler);
+    });
+    this._elementsToRenderCount = 0;
+  }
+  private visibleElementsRendered(): void {
+    const renderedHandler = this._renderedHandler;
+    this.dispose();
+    if (typeof renderedHandler == "function") {
+      renderedHandler();
+    }
+  }
+  public dispose(): void {
+    this.stopWaitingForElementsRendering();
+    this._elements = undefined;
+    this._renderedHandler = undefined;
+  }
+}
+
 export class ArrayChanges<T = any> {
   constructor(
     public index: number,

@@ -612,6 +612,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateRemainingCharacterCounter(event.target.value);
   };
   public onKeyUp = (event: any) => {
+    this.updateDateValidationMessage(event);
     if(this.isInputTextUpdate) {
       if (!this._isWaitingForEnter || event.keyCode === 13) {
         this.updateValueOnEvent(event);
@@ -628,7 +629,6 @@ export class QuestionTextModel extends QuestionTextBase {
     this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
   }
   public onKeyDown = (event: any) => {
-    this.updateDateValidationMessage(event);
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
     if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;

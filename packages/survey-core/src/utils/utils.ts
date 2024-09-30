@@ -791,5 +791,6 @@ export {
   preventDefaults,
   findParentByClassNames,
   getFirstVisibleChild,
-  chooseFiles
+  chooseFiles,
+  renamedIcons
 };

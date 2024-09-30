@@ -6,7 +6,7 @@
       id: question.inputId, 
       required: question.isRequired, 
       tabindex: model.noTabIndex ? undefined : 0,
-      disabled: question.isInputReadOnly,
+      disabled: question.isDisabledAttr,
       role: question.ariaRole,
       'aria-required': question.ariaRequired, 
       'aria-label': question.ariaLabel, 
@@ -48,7 +48,7 @@
             'aria-labelledby': question.a11y_input_ariaLabelledBy,
             'aria-describedby': question.a11y_input_ariaDescribedBy,
             placeholder: model.filterStringPlaceholder, 
-            disabled: question.isInputReadOnly,
+            disabled: question.isDisabledAttr,
             readonly: model.filterReadOnly
           },
           event: { keydown: inputKeyHandler, blur: blur, focus: focus }"></input>
@@ -66,7 +66,13 @@
   <!-- /ko -->
   <!-- /ko -->
   <!-- ko if: question.isReadOnly -->
-  <div disabled data-bind="css: question.getControlClass(), attr: { id: question.inputId }, ">
+  <div disabled data-bind="css: question.getControlClass(), attr: {
+    id: question.inputId,
+    'aria-label': question.a11y_input_ariaLabel,
+    'aria-labelledby': question.a11y_input_ariaLabelledBy,
+    'aria-describedby': question.a11y_input_ariaDescribedBy,
+    tabindex: model.isDisabledAttr ? undefined : 0,
+    disabled: model.isDisabledAttr } ">
     <!-- ko if: question.locReadOnlyText -->
     <!-- ko template: { name: 'survey-string', data: question.locReadOnlyText } -->
     <!-- /ko -->

@@ -4,20 +4,21 @@
     :style="getRootStyle(element)"
     :class="element.cssClasses.questionWrapper"
   >
-    <component
+    <SvComponent
       :is="componentName"
       v-bind="componentData"
       v-if="row.isNeedRender"
     />
-    <component
+    <SvComponent
       v-else-if="!!element.skeletonComponentName"
       :is="element.skeletonComponentName"
       :element="element"
       :css="css"
-    ></component>
+    ></SvComponent>
   </div>
 </template>
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionRowModel, SurveyElement, SurveyModel } from "survey-core";
 import { computed, onMounted, watch, ref, onUnmounted } from "vue";
 

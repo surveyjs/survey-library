@@ -3,7 +3,7 @@
     <survey-string v-if="element.isTitleRenderedAsString" :locString="element.locTitle" />
     <span
       v-if="!element.isTitleRenderedAsString && element.isRequireTextOnStart"
-      :class="cssClasses.requiredText"
+      :class="element.cssRequiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
@@ -17,7 +17,7 @@
     <span v-if="!element.isTitleRenderedAsString && element.no">&nbsp;</span>
     <span
       v-if="!element.isTitleRenderedAsString && element.isRequireTextBeforeTitle"
-      :class="cssClasses.requiredText"
+      :class="element.cssRequiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
@@ -26,7 +26,7 @@
     <span v-if="!element.isTitleRenderedAsString && element.isRequireTextAfterTitle">&nbsp;</span>
     <span
       v-if="!element.isTitleRenderedAsString && element.isRequireTextAfterTitle"
-      :class="cssClasses.requiredText"
+      :class="element.cssRequiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >

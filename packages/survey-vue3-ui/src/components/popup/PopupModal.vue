@@ -1,13 +1,13 @@
 <template>
   <Teleport v-if="popup" :to="popup.container"
-    ><sv-popup-container :model="popup"></sv-popup-container
-  ></Teleport>
+    ><SvComponent :is="'sv-popup-container'" :model="popup"
+  /></Teleport>
 </template>
 <script lang="ts" setup>
-import { onUnmounted, ref, shallowRef } from "vue";
+import SvComponent from "@/SvComponent.vue";
+import { onUnmounted, shallowRef } from "vue";
 import {
   PopupBaseViewModel,
-  PopupModalViewModel,
   createDialogOptions,
   createPopupModalViewModel,
   settings,

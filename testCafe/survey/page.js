@@ -1,7 +1,5 @@
 import { frameworks, url, initSurvey } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "page";
 
 frameworks.forEach(framework => {
@@ -15,14 +13,6 @@ frameworks.forEach(framework => {
 
   const addPageDescriptionClass = ClientFunction(
     () => (window["Survey"].defaultStandardCss.page.description = "sv_page_description")
-  );
-
-  const isPageTitleExists = ClientFunction(
-    () => !!document.querySelector(".sv_page_title")
-  );
-
-  const isDescriptionExists = ClientFunction(
-    () => !!document.querySelector(".sv_page_description")
   );
 
   test("page title", async t => {
@@ -42,10 +32,10 @@ frameworks.forEach(framework => {
     };
 
     await initSurvey(framework, json);
-    assert.equal(await isPageTitleExists(), true);
+    await t.expect(Selector(".sv_page_title").exists).ok();
 
     await setSurveyInDesignMode();
-    assert.equal(await isPageTitleExists(), true);
+    await t.expect(Selector(".sv_page_title").exists).ok();
   });
 
   test("page description", async t => {
@@ -67,9 +57,9 @@ frameworks.forEach(framework => {
 
     await initSurvey(framework, json);
 
-    assert.equal(await isDescriptionExists(), true);
+    await t.expect(Selector(".sv_page_description").exists).ok();
     await setSurveyInDesignMode();
-    assert.equal(await isDescriptionExists(), true);
+    await t.expect(Selector(".sv_page_description").exists).ok();
   });
 
   test("page title empty", async t => {
@@ -90,9 +80,9 @@ frameworks.forEach(framework => {
 
     await initSurvey(framework, json);
 
-    assert.equal(await isPageTitleExists(), false);
+    await t.expect(Selector(".sv_page_title").exists).notOk();
     await setSurveyInDesignMode();
-    assert.equal(await isPageTitleExists(), true);
+    await t.expect(Selector(".sv_page_title").exists).ok();
   });
 
   test("page description empty", async t => {
@@ -114,9 +104,9 @@ frameworks.forEach(framework => {
 
     await initSurvey(framework, json);
 
-    assert.equal(await isDescriptionExists(), false);
+    await t.expect(Selector(".sv_page_description").exists).notOk();
     await setSurveyInDesignMode();
-    assert.equal(await isDescriptionExists(), true);
+    await t.expect(Selector(".sv_page_description").exists).ok();
   });
   test("render page description on changig locale when description is empty for default locale", async t => {
     var json = {

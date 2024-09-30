@@ -49,6 +49,23 @@ registerMarkupTest({
   snapshot: "text-readonly",
 });
 registerMarkupTest({
+  name: "Test Text disabled question markup",
+  json: {
+    questions: [
+      {
+        name: "name",
+        type: "text",
+        title: "Question title",
+        titleLocation: "hidden"
+      }
+    ],
+  },
+  initSurvey: (survey) => survey.setDesignMode(true),
+  before: () => { settings.supportCreatorV2 = true; },
+  after: () => { settings.supportCreatorV2 = false; },
+  snapshot: "text-disabled",
+});
+registerMarkupTest({
   name: "Test Text readonly DIV question markup",
   json: {
     questions: [

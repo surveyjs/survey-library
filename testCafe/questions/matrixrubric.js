@@ -1,7 +1,5 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "matrixrubric";
 
 const json = {
@@ -69,14 +67,12 @@ frameworks.forEach((framework) => {
   );
 
   test("choose value", async (t) => {
-    let surveyResult;
-
     await t
       .click("tbody tr:nth-child(4) td:nth-child(6)")
       .click("input[value=Complete]");
 
-    surveyResult = await getSurveyResult();
-    assert.equal(surveyResult.Quality["easy to use"], "5");
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult.Quality["easy to use"]).eql(5);
   });
 
   test("choose several values", async (t) => {
@@ -135,7 +131,7 @@ frameworks.forEach((framework) => {
     const getIsAnswered = ClientFunction(
       () => window["survey"].getAllQuestions()[0].isAnswered
     );
-    assert.equal(await getIsAnswered(), true);
+    await t.expect(await getIsAnswered()).eql(true);
   });
 });
 
@@ -150,7 +146,7 @@ frameworks.forEach((framework) => {
     var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
+    await t.expect(questionValue).eql(undefined);
 
     var outerSelector = ".sv_q_title";
     var innerSelector = ".sv-string-editor";
@@ -160,16 +156,16 @@ frameworks.forEach((framework) => {
       .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
-    json =JSON.parse(await getQuestionJson());
-    assert.equal(json.title, newTitle);
+    await t.expect(questionValue).eql(undefined);
+    json = JSON.parse(await getQuestionJson());
+    await t.expect(json.title).eql(newTitle);
   });
 
   test("click on column title state editable", async (t) => {
     var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
+    await t.expect(questionValue).eql(undefined);
 
     var outerSelector = ".sv_q_matrix th";
     var innerSelector = ".sv-string-editor";
@@ -179,16 +175,16 @@ frameworks.forEach((framework) => {
       .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
-    json =JSON.parse(await getQuestionJson());
-    assert.equal(json.columns[0].text, newTitle);
+    await t.expect(questionValue).eql(undefined);
+    json = JSON.parse(await getQuestionJson());
+    await t.expect(json.columns[0].text).eql(newTitle);
   });
 
   test("click on row title state editable", async (t) => {
     var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
+    await t.expect(questionValue).eql(undefined);
 
     var selector = ".sv_q_matrix tbody tr td .sv-string-editor";
     await t
@@ -197,16 +193,16 @@ frameworks.forEach((framework) => {
       .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
-    json =JSON.parse(await getQuestionJson());
-    assert.equal(json.rows[0].text, newTitle);
+    await t.expect(questionValue).eql(undefined);
+    json = JSON.parse(await getQuestionJson());
+    await t.expect(json.rows[0].text).eql(newTitle);
   });
 
   test("click on cell title state editable", async (t) => {
     var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
+    await t.expect(questionValue).eql(undefined);
 
     var selector = ".sv_q_matrix tbody tr:nth-child(4) td:nth-child(6) .sv-string-editor";
     await t
@@ -215,8 +211,8 @@ frameworks.forEach((framework) => {
       .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
+    await t.expect(questionValue).eql(undefined);
     json =JSON.parse(await getQuestionJson());
-    assert.equal(json.cells["easy to use"][5], newTitle);
+    await t.expect(json.cells["easy to use"][5]).eql(newTitle);
   });
 });

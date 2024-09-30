@@ -1,10 +1,12 @@
 <div [class]="model.fileRootCss" #contentElement>
-  <input [class]="model.cssClasses.fileInput" *ngIf="!model.isReadOnly && model.hasFileUI" tabindex="-1" type="file"
+  <input [class]="model.cssClasses.fileInput" *ngIf="!model.isReadOnlyAttr && !model.isDisabledAttr && model.hasFileUI" tabindex="-1" type="file"
     [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
     [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
     [attr.aria-errormessage]="model.ariaErrormessage" [attr.multiple]="model.multipleRendered"
     [attr.title]="model.inputTitle" [attr.accept]="model.acceptedTypes" [attr.capture]="model.renderCapture" />
-  <input *ngIf="model.isReadOnly" type="file" disabled [class]="model.getReadOnlyFileCss()" [attr.id]="model.inputId"
+  <input *ngIf="model.isReadOnlyAttr" type="file" readonly [class]="model.getReadOnlyFileCss()" [attr.id]="model.inputId"
+    [attr.multiple]="model.multipleRendered" [attr.placeholder]="model.title" style="color: transparent" />
+  <input *ngIf="model.isDisabledAttr" type="file" disabled [class]="model.getReadOnlyFileCss()" [attr.id]="model.inputId"
     [attr.multiple]="model.multipleRendered" [attr.placeholder]="model.title" style="color: transparent" />
   <div [class]="model.cssClasses.dragArea" (dragenter)="model.onDragEnter($event)" (drop)="model.onDrop($event)"
     (dragover)="model.onDragOver($event)" (dragleave)="model.onDragLeave($event)">

@@ -1,0 +1,27 @@
+.sd-matrix {
+  fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.sd-matrix__label {
+  display: flex;
+  position: relative;
+  justify-content: center;
+}
+
+.sd-matrix__text {
+  padding: calcSize(2);
+}
+
+.sd-matrix__text--checked {
+  background-color: $primary-light;
+  padding: calcSize(2);
+}
+
+.sd-matrix__cell:first-of-type {
+  font-weight: $font-questiontitle-weight;
+  text-align: start;
+}

@@ -5,18 +5,20 @@
     :class="model.getRootCss()"
     @click="onClick"
   >
-    <sv-action
+    <SvComponent
+      :is="'sv-action'"
       v-for="item in renderedActions"
       v-bind:key="item.id"
       :item="item"
-    ></sv-action>
+    ></SvComponent>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { ActionContainer } from "survey-core";
 import { useBase, useComputedArray } from "@/base";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 
 const props = withDefaults(
   defineProps<{

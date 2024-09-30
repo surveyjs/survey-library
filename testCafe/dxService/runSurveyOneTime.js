@@ -115,7 +115,7 @@ const initSurvey = ClientFunction(framework => {
         "sendResultOnPageNext"
       ).checked;
       window["ReactDOM"].render(
-        window["React"].createElement(window["Survey"].Survey, {
+        window["React"].createElement(window["SurveyReact"].Survey, {
           model: survey,
           onComplete: surveyComplete,
           onSendResult: surveySendResult

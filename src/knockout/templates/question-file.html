@@ -5,7 +5,10 @@
           <input type="file" tabindex="-1" data-bind="css: question.cssClasses.fileInput, attr: { id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-errormessage': question.ariaErrormessage, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes, capture: question.renderCapture }">
           <!-- /ko -->
         <!-- /ko -->
-        <!-- ko if: question.isReadOnly -->
+        <!-- ko if: question.isReadOnlyAttr -->
+        <input type="file" readonly data-bind="css: question.getReadOnlyFileCss(), attr: { id: question.inputId, placeholder: question.title, multiple: question.allowMultiple ? 'multiple' : undefined }" style="color: transparent;"/>
+        <!-- /ko -->
+        <!-- ko if: question.isDisabledAttr -->
         <input type="file" disabled data-bind="css: question.getReadOnlyFileCss(), attr: { id: question.inputId, placeholder: question.title, multiple: question.allowMultiple ? 'multiple' : undefined }" style="color: transparent;"/>
         <!-- /ko -->
         <div data-bind="css: question.cssClasses.dragArea, event: { dragenter: question.ondragenter, dragover: question.ondragover, drop: question.ondrop, dragleave: question.ondragleave }">     

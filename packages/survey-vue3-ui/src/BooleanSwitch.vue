@@ -13,7 +13,8 @@
         :class="question.cssClasses.control"
         :id="question.inputId"
         :indeterminate.prop="question.isIndeterminate"
-        :disabled="question.isInputReadOnly"
+        :disabled="question.isDisabledAttr"
+        :readonly="question.isReadOnlyAttr"
         :role="question.a11y_input_ariaRole"
         :aria-required="question.a11y_input_ariaRequired"
         :aria-label="question.a11y_input_ariaLabel"
@@ -27,21 +28,25 @@
         v-on:click="onLabelClick($event, question.swapOrder)"
       >
         <span :class="question.getLabelCss(question.swapOrder)"
-          ><survey-string :locString="question.locLabelLeft"></survey-string
-        ></span>
+          ><SvComponent
+            :is="'survey-string'"
+            :locString="question.locLabelLeft"
+          />
+        </span>
       </div>
       <div
         :class="question.cssClasses.switch"
         v-on:click="onSwitchClick($event)"
       >
-        <span :class="question.cssClasses.slider" :style="{ marginLeft: question.thumbMargin }">
+        <span :class="question.cssClasses.slider">
           <span
             v-if="question.cssClasses.sliderText && question.isDeterminated"
             :class="question.cssClasses.sliderText"
           >
-            <survey-string
+            <SvComponent
+              :is="'survey-string'"
               :locString="question.getCheckedLabel()"
-            ></survey-string>
+            ></SvComponent>
           </span>
         </span>
       </div>
@@ -50,14 +55,17 @@
         v-on:click="onLabelClick($event, !question.swapOrder)"
       >
         <span :class="question.getLabelCss(!question.swapOrder)"
-          ><survey-string :locString="question.locLabelRight"></survey-string
-        ></span>
+          ><SvComponent
+            :is="'survey-string'"
+            :locString="question.locLabelRight"
+        /></span>
       </div>
     </label>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import { useQuestion } from "./base";
 import { ref } from "vue";
 import type { IBooleanProps } from "./boolean";

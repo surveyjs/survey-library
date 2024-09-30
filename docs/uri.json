@@ -10,7 +10,9 @@
     "localization": "survey-localization",
     "handle-survey-results-access": "access-and-modify-survey-results",
     "handle-survey-results-store": "how-to-store-survey-results",
-    "handle-survey-results-continue-incomplete": "how-to-save-and-restore-incomplete-survey"
+    "handle-survey-results-continue-incomplete": "how-to-save-and-restore-incomplete-survey",
+    "get-started-jquery": "get-started-html-css-javascript",
+    "get-started-knockout": "get-started-html-css-javascript"
   },
   "classRename": {
     "surveymodel": "survey-data-model",

@@ -6,4 +6,4 @@ export * from "./plugins";
 // localization
 import "./chunks/localization";
 
-export * from "./react-ui-model";
+export * from "../../packages/survey-react-ui/entries/react-ui-model";

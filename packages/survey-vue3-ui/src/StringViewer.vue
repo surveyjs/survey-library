@@ -14,5 +14,7 @@ const props = defineProps<{
   locString: LocalizableString;
 }>();
 const renderedHtml = useLocString(() => props.locString);
-const className = props.locString.allowLineBreaks ? "sv-string-viewer sv-string-viewer--multiline" : "sv-string-viewer";
+const className = props.locString.allowLineBreaks
+  ? "sv-string-viewer sv-string-viewer--multiline"
+  : "sv-string-viewer";
 </script>

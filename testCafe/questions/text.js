@@ -1,7 +1,5 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, getTimeZone, setTimeZoneUnsafe } from "../helper";
 import { Selector, fixture, test, ClientFunction } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "text";
 
 const json = {
@@ -154,9 +152,10 @@ frameworks.forEach((framework) => {
     const questionTitle = Selector("h5").withText(title);
     const contentItem = Selector("input[type='text']");
 
-    assert.equal(await contentItem.visible, true);
-    await t.click(questionTitle);
-    assert.equal(await contentItem.visible, false);
+    await t
+      .expect(contentItem.visible).ok()
+      .click(questionTitle)
+      .expect(contentItem.visible).notOk();
   });
 });
 
@@ -171,7 +170,7 @@ frameworks.forEach((framework) => {
     var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
+    await t.expect(questionValue).eql(undefined);
 
     var outerSelector = ".sv_q_title";
     var innerSelector = ".sv-string-editor";
@@ -181,9 +180,9 @@ frameworks.forEach((framework) => {
       .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
+    await t.expect(questionValue).eql(undefined);
     json = JSON.parse(await getQuestionJson());
-    assert.equal(json.title, newTitle);
+    await t.expect(json.title).eql(newTitle);
   });
 });
 
@@ -242,5 +241,31 @@ frameworks.forEach((framework) => {
     await t.expect(surveyResult).eql({
       name: " ",
     });
+  });
+  test("Test input type (month) in western timezone", async (t) => {
+    const oldTimeZone = await getTimeZone();
+    await setTimeZoneUnsafe(t, "America/Los_Angeles");
+    await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
+      questions: [
+        {
+          "type": "text",
+          "name": "monthInput",
+          "title": "Month Input",
+          "inputType": "month"
+        }]
+    });
+
+    await t
+      .expect(getTimeZone()).eql("America/Los_Angeles")
+      .pressKey("M tab 2 0 2 4 tab")
+      .expect(Selector("input").nth(0).value).eql("2024-03")
+      .click("input[value=Complete]");
+
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({
+      monthInput: "2024-03"
+    });
+    await setTimeZoneUnsafe(t, oldTimeZone);
   });
 });

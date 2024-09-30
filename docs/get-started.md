@@ -5,5 +5,4 @@ Refer to one of the following tutorials to get started with SurveyJS on your pla
 - [Angular](https://surveyjs.io/Documentation/Library?id=get-started-angular)
 - [Vue](https://surveyjs.io/Documentation/Library?id=get-started-vue)
 - [React](https://surveyjs.io/Documentation/Library?id=get-started-react)
-- [Knockout](https://surveyjs.io/Documentation/Library?id=get-started-knockout)
-- [jQuery](https://surveyjs.io/Documentation/Library?id=get-started-jquery)
+- [HTML/CSS/JavaScript](/form-library/documentation/get-started-html-css-javascript)

@@ -18,7 +18,11 @@
         class="sv-header__title"
         :style="{ maxWidth: model.textAreaWidth }"
       >
-        <survey-element-title :element="model.survey" :css="model.survey.css" />
+        <SvComponent
+          :is="'survey-element-title'"
+          :element="model.survey"
+          :css="model.survey.css"
+        />
       </div>
       <div
         v-if="model.showDescription"
@@ -29,7 +33,10 @@
           v-if="model.survey.renderedHasDescription"
           :class="model.survey.css.description"
         >
-          <survey-string :locString="model.survey.locDescription" />
+          <SvComponent
+            :is="'survey-string'"
+            :locString="model.survey.locDescription"
+          />
         </div>
       </div>
     </div>
@@ -37,6 +44,7 @@
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { CoverCell } from "survey-core";
 defineProps<{
   model: CoverCell;

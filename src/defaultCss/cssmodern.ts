@@ -1,7 +1,8 @@
-import { surveyCss } from "./defaultV2Css";
+import { surveyCss } from "../../packages/survey-core/src/defaultCss/defaultV2Css";
 
 export var modernCss = {
   root: "sv-root-modern",
+  rootProgress: "sv-progress",
   timerRoot: "sv-body__timer",
   container: "sv-container-modern",
   header: "sv-title sv-container-modern__title",
@@ -86,6 +87,7 @@ export var modernCss = {
   page: {
     root: "sv-page sv-body__page",
     title: "sv-title sv-page__title",
+    number: "sv-page__num",
     description: "sv-description sv-page__description",
   },
   pageTitle: "sv-title sv-page__title",
@@ -160,6 +162,7 @@ export var modernCss = {
     rootSelectToRankMod: "sv-ranking--select-to-rank",
     rootSelectToRankAlignVertical: "sv-ranking--select-to-rank-vertical",
     rootSelectToRankAlignHorizontal: "sv-ranking--select-to-rank-horizontal",
+    rootSelectToRankSwapAreas: "sv-ranking--select-to-rank-swap-areas",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
@@ -325,6 +328,7 @@ export var modernCss = {
   matrixdropdown: {
     root: "sv-table sv-matrixdropdown",
     cell: "sv-table__cell",
+    cellResponsiveTitle: "sv-table__responsive-title",
     headerCell: "sv-table__cell sv-table__cell--header",
     row: "sv-table__row",
     rowTextCell: "sv-table__cell--row-text",
@@ -343,6 +347,7 @@ export var modernCss = {
   matrixdynamic: {
     root: "sv-table sv-matrixdynamic",
     cell: "sv-table__cell",
+    cellResponsiveTitle: "sv-table__responsive-title",
     headerCell: "sv-table__cell sv-table__cell--header",
     button: "sv-btn",
     buttonAdd: "sv-matrixdynamic__add-btn",

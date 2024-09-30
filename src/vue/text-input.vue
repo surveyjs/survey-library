@@ -1,6 +1,7 @@
   <template>
     <input v-if="!question.getMaxLength()"
-    :disabled="question.isInputReadOnly"
+    :disabled="question.isDisabledAttr"
+    :readonly="question.isReadOnlyAttr"
     :class="question.getControlClass()"
     :type="question.inputType"
     :maxlength="question.getMaxLength()"
@@ -18,8 +19,8 @@
     @keyup="question.onKeyUp"
     @keydown="question.onKeyDown"
     @composition-update="question.onCompositionUpdate"
-    @blur="question.onBlur"
-    @focus="question.onFocus"
+    @blur="(e) => { question.onBlur(e) }"
+    @focus="(e) => { question.onFocus(e) }"
     :aria-required="question.a11y_input_ariaRequired"
     :aria-label="question.a11y_input_ariaLabel"
     :aria-labelledby="question.a11y_input_ariaLabelledBy"
@@ -29,7 +30,8 @@
   />
     <div v-else>
       <input
-        :disabled="question.isInputReadOnly"
+        :disabled="question.isDisabledAttr"
+        :readonly="question.isReadOnlyAttr"
         :class="question.getControlClass()"
         :type="question.inputType"
         :maxlength="question.getMaxLength()"
@@ -47,8 +49,8 @@
         @keyup="question.onKeyUp"
         @keydown="question.onKeyDown"
         @composition-update="question.onCompositionUpdate"
-        @blur="question.onBlur"
-        @focus="question.onFocus"
+        @focus="(e) => { question.onFocus(e) }"
+        @blur="(e) => { question.onBlur(e) }"
         :aria-required="question.a11y_input_ariaRequired"
         :aria-label="question.a11y_input_ariaLabel"
         :aria-labelledby="question.a11y_input_ariaLabelledBy"

@@ -1,0 +1,235 @@
+.sv-dropdown_select-wrapper {
+  position: relative;
+}
+
+.sv-dropdown_select-wrapper use {
+  fill: $font-editorfont-placeholdercolor;
+}
+
+.sd-dropdown {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-inline-end: calcSize(6); //padding-right
+  padding-inline-start: calcSize(2); //padding-left
+
+  opacity: 1;
+  display: flex;
+  justify-content: space-between;
+  word-spacing: normal;
+}
+
+.sd-dropdown[disabled] {
+  pointer-events: none;
+}
+
+.sd-dropdown--empty:not(.sd-input--disabled),
+.sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__value {
+  color: $foreground-light;
+}
+
+.sd-dropdown__input-field-component {
+  height: auto;
+}
+
+.sd-dropdown option {
+  color: $foreground;
+  font-family: $font-family;
+  font-size: calcFontSize(1);
+}
+
+.sd-dropdown input[readonly] {
+  pointer-events: none;
+}
+
+.sd-dropdown__value {
+  @include useEditorFontSize;
+  width: 100%;
+  min-height: multiply(1.5, $font-editorfont-size);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: multiply(1.5, $font-editorfont-size);
+  font-family: $font-editorfont-family;
+  font-weight: $font-editorfont-weight;
+  color: $font-editorfont-color;
+  font-size: $font-editorfont-size;
+
+  position: relative;
+}
+
+.sd-dropdown_clean-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 calcSize(1);
+  margin: auto 0;
+}
+
+.sd-dropdown_chevron-button {
+  position: absolute;
+  width: calcSize(5);
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-inline-end: calcSize(0.5);
+  box-sizing: content-box;
+}
+
+.sd-dropdown_chevron-button-svg,
+.sd-dropdown_clean-button-svg {
+  @include useEditorFontSize;
+  width: multiply(1.5, $font-editorfont-size);
+  height: multiply(1.5, $font-editorfont-size);
+}
+
+.sd-input.sd-dropdown:focus-within {
+  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
+}
+
+.sd-input.sd-dropdown.sd-input--readonly {
+  box-shadow: none;
+  transition: none;
+}
+
+.sd-dropdown__filter-string-input {
+  @include useEditorFontSize;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 100%;
+  border: none;
+  outline: none;
+  padding: 0;
+  font-family: $font-editorfont-family;
+  font-weight: $font-editorfont-weight;
+  color: $font-editorfont-color;
+  font-size: $font-editorfont-size;
+  line-height: multiply(1.5, $font-editorfont-size);
+  background-color: transparent;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  appearance: none;
+}
+
+.sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__filter-string-input::placeholder {
+  color: $font-editorfont-placeholdercolor;
+}
+
+.sd-dropdown--empty {
+  div {
+    min-height: multiply(1.5, $font-editorfont-size);
+  }
+}
+
+.sd-dropdown__filter-string-input::placeholder {
+  color: $foreground;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  appearance: none;
+}
+
+.sd-dropdown__hint-prefix {
+  color: $font-editorfont-placeholdercolor;
+
+  span {
+    white-space: pre;
+  }
+}
+
+.sd-dropdown__hint-suffix {
+  display: flex;
+  color: $font-editorfont-placeholdercolor;
+
+  span {
+    white-space: pre;
+  }
+}
+
+.sd-input--disabled,
+.sd-input--readonly,
+.sd-input--preview {
+  .sv-string-viewer {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.sd-question--readonly .sd-dropdown_chevron-button use {
+  opacity: 0.24;
+}
+
+.sd-question--preview .sd-dropdown_chevron-button {
+  display: none;
+}
+
+.sv-dropdown-popup {
+  .sd-list__item-body {
+    @include useEditorFontSize;
+    line-height: multiply(1.5, $font-editorfont-size);
+    font-size: $font-editorfont-size;
+    font-weight: $font-editorfont-weight;
+    font-family: $font-editorfont-family;
+    padding-inline-end: calcSize(1.75);
+    padding-block: calcSize(1.25);
+    padding-inline-start: calcSize(1.75);
+    border: calcSize(0.25) solid transparent;
+    border-radius: calcCornerRadius(1);
+    transition: border-color $transition-duration;
+  }
+
+  .sv-list__item.sv-list__item--focused:not(.sv-list__item--selected) {
+    .sv-list__item-body {
+      @include borderLight;
+      padding-inline-end: calcSize(1.75);
+      padding-block: calcSize(1.25);
+      padding-inline-start: calcSize(1.75);
+    }
+  }
+
+  .sv-list__item span {
+    margin-inline-start: calcSize(-0.25);
+  }
+}
+
+.sv-dropdown-popup.sv-single-select-list.sv-popup--leave {
+  .sd-list__item.sv-list__item--selected {
+    .sv-list__item-body {
+      font-weight: normal;
+      color: $font-questiontitle-color;
+      background-color: transparent;
+    }
+  }
+}
+
+.sv-dropdown-popup.sv-popup--dropdown.sv-popup--top {
+  .sv-popup__container {
+    transform: translateY(-2px);
+  }
+}
+
+.sv-dropdown-popup.sv-popup--dropdown.sv-popup--bottom {
+  .sv-popup__container {
+    transform: translateY(2px);
+  }
+}
+
+[dir="rtl"],
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
+  .sd-dropdown {
+    background-position: left calcSize(1.5) top 50%, 0 0;
+  }
+}

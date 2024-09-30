@@ -21,7 +21,7 @@
                 v-model="model.inputStringRendered"
                 v-bind:class="question.cssClasses.filterStringInput"
                 v-bind:placeholder="model.filterStringPlaceholder"
-                v-bind:disabled="question.isInputReadOnly"
+                v-bind:disabled="question.isDisabledAttr"
                 :inputmode="model.inputMode"
                 :role="model.filterStringEnabled ? question.ariaRole : null"
                 :aria-expanded="question.ariaExpanded"
@@ -64,10 +64,10 @@ export class TagboxFilterComponent extends BaseVue {
     this.model.inputKeyHandler(event);
   }
   public blur(event: any) {
-    this.model.onBlur(event);
+    this.question.onBlur(event);
   }
   public focus(event: any) {
-    this.model.onFocus(event);
+    this.question.onFocus(event);
   }
 }
 

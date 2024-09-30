@@ -60,7 +60,7 @@ survey.locale = "fr";
 
 ### Override Individual Translations
 
-If you want to change individual translation strings, get an object with all translation strings for a specific locale and override the required properties in this object. Refer to the [English dictionary](https://github.com/surveyjs/survey-library/blob/master/src/localization/english.ts) for a full list of available properties.
+If you want to change individual translation strings, get an object with all translation strings for a specific locale and override the required properties in this object. Refer to the [English dictionary](https://github.com/surveyjs/survey-library/blob/master/packages/survey-core/src/localization/english.ts) for a full list of available properties.
 
 ```js
 import { surveyLocalization } from 'survey-core';

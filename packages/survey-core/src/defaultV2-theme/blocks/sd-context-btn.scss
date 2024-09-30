@@ -1,0 +1,75 @@
+.sd-context-btn {
+  background-color: $background;
+  padding: calcSize(1.5);
+  border-radius: calcSize(12.5);
+  border: none;
+  outline: none;
+  cursor: pointer;
+
+  .sv-svg-icon {
+    margin: 0;
+  }
+
+  svg {
+    @include useEditorFontSize;
+    display: block;
+    width: multiply(1.5, $font-editorfont-size);
+    height: multiply(1.5, $font-editorfont-size);
+  }
+
+  use {
+    fill: $foreground-light;
+    transition: fill $transition-duration;
+  }
+}
+
+.sd-context-btn:hover,
+.sd-context-btn:focus {
+  use {
+    fill: $primary;
+  }
+
+  &.sd-context-btn--negative {
+    use {
+      fill: $red;
+    }
+  }
+}
+
+.sd-context-btn:disabled {
+  opacity: 0.25;
+}
+.sd-context-btn--small {
+  padding: calcSize(1);
+  svg {
+    width: multiply(1, $font-editorfont-size);
+    height: multiply(1, $font-editorfont-size);
+  }
+}
+.sd-context-btn--with-border {
+  --box-shadow-color: #{$border-inside};
+  box-shadow: 0 0 0 1px var(--box-shadow-color);
+}
+.sd-context-btn--colorful {
+  use {
+    fill: $primary;
+  }
+  &.sd-context-btn--negative {
+    use {
+      fill: red;
+    }
+  }
+}
+.sd-context-btn--colorful:focus,
+.sd-context-btn--colorful:hover {
+  background: linear-gradient($primary-light, $primary-light), linear-gradient($background, $background);
+  &.sd-context-btn--negative {
+    background: linear-gradient($red-light, $red-light), linear-gradient($background, $background);
+  }
+  &.sd-context-btn--with-border {
+    --box-shadow-color: #{$primary};
+    &.sd-context-btn--negative {
+      --box-shadow-color: #{$red};
+    }
+  }
+}

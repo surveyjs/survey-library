@@ -33,11 +33,11 @@ export class DropdownComponent extends BaseAngular implements OnInit {
     this.dropdownModel?.keyHandler(event);
   }
   blur(event: any) {
-    this.dropdownModel?.onBlur(event);
+    this.model.onBlur(event);
     this.updateInputDomElement();
   }
   focus(event: any) {
-    this.dropdownModel?.onFocus(event);
+    this.model.onFocus(event);
   }
   inputChange(event: any) {
     this.detectChanges();

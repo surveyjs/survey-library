@@ -63,15 +63,17 @@
       v-if="!imageLink || question.contentNotLoaded"
       :class="question.cssClasses.noImage"
     >
-      <sv-svg-icon
+      <SvComponent
+        :is="'sv-svg-icon'"
         :iconName="question.cssClasses.noImageSvgIconId"
         :size="48"
-      ></sv-svg-icon>
+      ></SvComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionImageModel } from "survey-core";
 import { useLocString, useQuestion } from "./base";
 import { ref } from "vue";

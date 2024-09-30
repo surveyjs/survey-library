@@ -795,4 +795,58 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check rating selected label width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "panel",
+                "name": "panel1",
+                "elements": [
+                  {
+                    "type": "rating",
+                    "name": "q",
+                    "titleLocation": "hidden",
+                    "defaultValue": "MMMMMMMMMMMMMM",
+                    "isRequired": true,
+                    "autoGenerate": false,
+                    "rateCount": 2,
+                    "rateValues": [
+                      "MMMMMMMMMMMMMM",
+                      "S"
+                    ],
+                    "displayMode": "buttons"
+                  },
+                  {
+                    "type": "rating",
+                    "name": "q1",
+                    "titleLocation": "hidden",
+                    "isRequired": true,
+                    "autoGenerate": false,
+                    "rateCount": 2,
+                    "rateValues": [
+                      "MMMMMMMMMMMMMM",
+                      "S"
+                    ],
+                    "displayMode": "buttons"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "500px"
+      });
+
+      const questionRoot = Selector(".sd-panel__content");
+      await takeElementScreenshot("question-rating-selected-label-should-have-the-same-width.png", questionRoot.nth(0), t, comparer);
+    });
+  });
 });

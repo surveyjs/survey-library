@@ -1,12 +1,12 @@
 <template>
   <div :class="question.rootClass" ref="root">
     <template v-if="!question.selectToRankEnabled">
-      <component
-        v-for="(item, index) in question.rankingChoices"
+      <SvComponent
+        v-for="(item, index) in question.renderedRankingChoices"
         :key="item.value + '-' + index + '-item'"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"
-      ></component>
+      ></SvComponent>
     </template>
 
     <div
@@ -14,18 +14,21 @@
       :class="question.getContainerClasses('from')"
       data-ranking="from-container"
     >
-      <component
-        v-for="(item, index) in question.unRankingChoices"
+      <SvComponent
+        v-for="(item, index) in question.renderedUnRankingChoices"
         :key="item.value + '-' + index + '-item'"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index, true)"
-      ></component>
+      ></SvComponent>
 
       <div
-        v-if="question.unRankingChoices.length === 0"
+        v-if="question.renderedUnRankingChoices.length === 0"
         :class="question.cssClasses.containerPlaceholder"
       >
-        <survey-string :locString="question.locSelectToRankEmptyRankedAreaText"></survey-string>
+        <SvComponent
+          :is="'survey-string'"
+          :locString="question.locSelectToRankEmptyRankedAreaText"
+        ></SvComponent>
       </div>
     </div>
 
@@ -39,24 +42,28 @@
       :class="question.getContainerClasses('to')"
       data-ranking="to-container"
     >
-      <component
-        v-for="(item, index) in question.rankingChoices"
+      <SvComponent
+        v-for="(item, index) in question.renderedRankingChoices"
         :key="item.value + '-' + index + '-item'"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"
-      ></component>
+      ></SvComponent>
 
       <div
-        v-if="question.rankingChoices.length === 0"
+        v-if="question.renderedRankingChoices.length === 0"
         :class="question.cssClasses.containerPlaceholder"
       >
-        <survey-string :locString="question.locSelectToRankEmptyUnrankedAreaText"></survey-string>
+        <SvComponent
+          :is="'survey-string'"
+          :locString="question.locSelectToRankEmptyUnrankedAreaText"
+        ></SvComponent>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { ItemValue, QuestionRankingModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
@@ -78,17 +85,8 @@ const getItemValueComponentData = (
   index?: number,
   unrankedItem?: boolean
 ) => {
-  const itemComponentProperty =
-    props.question.getPropertyByName("itemComponent");
-  const isDefaultItemComponent = itemComponentProperty.isDefaultValue(
-    props.question.itemComponent
-  );
-  const itemComponent = isDefaultItemComponent
-    ? "survey-ranking-item"
-    : props.question.itemComponent;
-
   return {
-    componentName: itemComponent,
+    componentName: "survey-ranking-item",
     componentData: {
       question: props.question,
       item,

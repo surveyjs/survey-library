@@ -57,7 +57,7 @@ export const initSurvey = ClientFunction(
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       window["ReactDOM"].render(
-        window["React"].createElement(window["Survey"].Survey, {
+        window["React"].createElement(window["SurveyReact"].Survey, {
           model: model,
           onComplete: surveyComplete,
         }),

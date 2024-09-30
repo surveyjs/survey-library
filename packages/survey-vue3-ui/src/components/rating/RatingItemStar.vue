@@ -12,29 +12,32 @@
       :name="question.questionName"
       :id="question.getInputId(index)"
       :value="item.value"
-      :disabled="question.isInputReadOnly"
+      :disabled="question.isDisabledAttr"
+      :readonly="question.isReadOnlyAttr"
       @click="(e) => question.setValueFromClick((e?.target as any).value)"
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-errormessage="question.ariaErrormessage"
     />
-    <sv-svg-icon
+    <SvComponent
+      :is="'sv-svg-icon'"
       :class="'sv-star'"
       :iconName="question.itemStarIcon"
       :size="'auto'"
       :title="item.text"
-    ></sv-svg-icon
-    ><sv-svg-icon
+    /><SvComponent
+      :is="'sv-svg-icon'"
       :class="'sv-star-2'"
       :iconName="question.itemStarIconAlt"
       :size="'auto'"
       :title="item.text"
-    ></sv-svg-icon>
+    ></SvComponent>
   </label>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { IRatingItemProps } from "./rating";
 import { useBase } from "@/base";
 

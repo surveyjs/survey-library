@@ -5,7 +5,8 @@
     </div>
 
     <div :class="question.cssClasses.hintSuffixWrapper">
-      <survey-string
+      <SvComponent
+        :is="'survey-string'"
         v-if="question.showSelectedItemLocText"
         :locString="question.selectedItemLocText"
       />
@@ -19,14 +20,10 @@
         v-model="model.inputStringRendered"
         :class="question.cssClasses.filterStringInput"
         :placeholder="model.filterStringPlaceholder"
-        :disabled="question.isInputReadOnly"
+        :disabled="question.isDisabledAttr"
         :inputmode="model.inputMode"
         :role="model.filterStringEnabled ? question.ariaRole : undefined"
-        :aria-expanded="
-          question.ariaExpanded === null
-            ? undefined
-            : question.ariaExpanded === 'true'
-        "
+        :aria-expanded="question.ariaExpanded"
         :aria-controls="model.listElementId"
         :aria-label="question.a11y_input_ariaLabel"
         :aria-labelledby="question.a11y_input_ariaLabelledBy"
@@ -44,6 +41,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type {
   DropdownMultiSelectListModel,
@@ -62,10 +60,10 @@ const inputKeyHandler = (event: any) => {
   props.model.inputKeyHandler(event);
 };
 const blur = (event: any) => {
-  props.model.onBlur(event);
+  props.question.onBlur(event);
 };
 const focus = (event: any) => {
-  props.model.onFocus(event);
+  props.question.onFocus(event);
 };
 
 useBase(() => props.model);

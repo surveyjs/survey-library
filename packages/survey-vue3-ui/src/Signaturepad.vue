@@ -10,7 +10,10 @@
       :class="question.cssClasses.placeholder"
       v-show="question.needShowPlaceholder()"
     >
-      <survey-string :locString="question.locRenderedPlaceholder"></survey-string>
+      <SvComponent
+        :is="'survey-string'"
+        :locString="question.locRenderedPlaceholder"
+      ></SvComponent>
     </div>
     <div>
       <img
@@ -21,7 +24,11 @@
           width: question.renderedCanvasWidth,
         }"
       />
-      <canvas tabindex="-1" :class="question.cssClasses.canvas" @blur="question.onBlur"></canvas>
+      <canvas
+        tabindex="-1"
+        :class="question.cssClasses.canvas"
+        @blur="question.onBlur"
+      ></canvas>
     </div>
     <div
       :class="question.cssClasses.controls"
@@ -33,28 +40,30 @@
         :title="question.clearButtonCaption"
         v-on:click="
           () => {
-            question.clearValue();
+            question.clearValue(true);
           }
         "
       >
         <span v-if="!question.cssClasses.clearButtonIconId">✖</span>
-        <sv-svg-icon
+        <SvComponent
+          :is="'sv-svg-icon'"
           v-if="question.cssClasses.clearButtonIconId"
           :iconName="question.cssClasses.clearButtonIconId"
           :size="'auto'"
-        ></sv-svg-icon>
+        ></SvComponent>
       </button>
     </div>
     <div
       :class="question.cssClasses.loadingIndicator"
       v-if="question.showLoadingIndicator"
     >
-      <sv-loading-indicator></sv-loading-indicator>
+      <SvComponent :is="'sv-loading-indicator'" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionSignaturePadModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

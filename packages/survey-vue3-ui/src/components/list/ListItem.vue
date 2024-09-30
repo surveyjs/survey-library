@@ -20,21 +20,21 @@
       :style="{ paddingInlineStart: model.getItemIndent(item) }"
       v-bind:class="model.cssClasses.itemBody"
       :title="item.locTitle.calculatedText"
+      @mouseover="(e) => model.onItemHover(item)"
+      @mouseleave="(e) => model.onItemLeave(item)"
     >
-      <sv-svg-icon
-        v-if="item.iconName && !item.component"
-        v-bind:class="model.cssClasses.itemIcon"
-        :iconName="item.iconName"
-        :size="item.iconSize"
-      ></sv-svg-icon>
-      <survey-string v-if="!item.component" :locString="item.locTitle" />
-      <component v-if="item.component" :is="item.component" :item="item">
-      </component>
+      <SvComponent
+        :is="itemComponent"
+        :item="item"
+        :model="model"
+      ></SvComponent>
     </div>
   </li>
 </template>
 
 <script lang="ts" setup>
+import { key2ClickDirective as vKey2click } from "@/directives/key2click";
+import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type { ListModel, Action, IAction } from "survey-core";
 import { computed, onMounted } from "vue";
@@ -48,6 +48,10 @@ const click = (event: any) => {
 };
 
 useBase(() => props.item);
+
+const itemComponent = computed(
+  () => props.item.component || props.model.itemComponent
+);
 
 onMounted(() => {
   setTimeout(() => {

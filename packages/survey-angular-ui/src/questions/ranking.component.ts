@@ -16,9 +16,17 @@ export class RankingQuestionComponent extends SelectBaseComponent<QuestionRankin
     return "sv-ng-ranking-item";
   }
   public override getItemValueComponentData(item: ItemValue, index?: number, unrankedItem?: boolean): any {
-    const res = super.getItemValueComponentData(item);
-    res.componentData.index = index;
-    res.componentData.unrankedItem = unrankedItem;
+    const res = {
+      componentName: this.getDefaultComponentName(),
+      componentData: {
+        question: this.model,
+        model: item,
+        inputType: this.inputType,
+        data: this.model.getItemValueWrapperComponentData(item),
+        index,
+        unrankedItem
+      }
+    };
     return res;
   }
 }

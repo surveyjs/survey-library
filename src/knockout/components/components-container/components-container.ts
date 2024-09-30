@@ -4,6 +4,7 @@ const template: string = require("./components-container.html");
 
 export class ComponentsContainer {
   constructor(public survey: SurveyModel, private container: any, public needRenderWrapper: boolean = true) {
+    this.css += " sv-components-container-" + container;
   }
   css = "sv-components-column";
   get components(): Array<any> {

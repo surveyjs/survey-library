@@ -8,6 +8,7 @@ import { TestComponent } from "./components/test/test.component";
 import { ExampleComponent } from "./components/example/example.component";
 import { AppRoutingModule } from "./router.module";
 import { AngularItemTemplateComponent } from "./components/itemTemplateComponent";
+import { AngularItemContentTemplateComponent } from "./components/itemContentTemplateComponent";
 import { TestDefaultComponent } from "./components/test/testdefault.component";
 import { TestDefaultV2Component } from "./components/test/testdefaultV2.component";
 import { TestModernComponent } from "./components/test/testmodern.component";
@@ -21,6 +22,7 @@ import { EmptyComponent } from "./components/test/empty.component";
     AppComponent, ExampleComponent, TestComponent, TestDefaultComponent, TestDefaultV2Component, TestModernComponent, TestBootstrapComponent,
     TestCustomWidgetComponent,
     AngularItemTemplateComponent,
+    AngularItemContentTemplateComponent,
     CustomActionComponent, EmptyComponent
   ],
   imports: [
@@ -30,6 +32,6 @@ import { EmptyComponent } from "./components/test/empty.component";
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  static declaration = [AngularItemTemplateComponent, CustomActionComponent]
+  static declaration = [AngularItemTemplateComponent, AngularItemContentTemplateComponent, CustomActionComponent]
 }
 

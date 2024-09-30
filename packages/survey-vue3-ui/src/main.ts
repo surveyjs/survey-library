@@ -7,4 +7,4 @@ import "survey-core/defaultV2.css";
 const app = createApp(App);
 app.use(surveyPlugin);
 
-const mountedApp = app.mount("#app");
+app.mount("#app");

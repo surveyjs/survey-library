@@ -18,7 +18,7 @@ module.exports = function DtsGeneratorProgressPlugin(options) {
         command = tsCommand + " " + tsConfigPath + " --outFile " + options.filePath;
       }
       console.log("tsc command is \"" + command + "\"");
-      child_process.execSync(command);
+      child_process.execSync(command, { stdio: "inherit" });
       console.log("typescript end");
 
       let content = "\nexport * from \"./typings/" + options.importName + "\";";

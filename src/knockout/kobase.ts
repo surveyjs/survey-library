@@ -20,6 +20,7 @@ export class ImplementorBase {
     if ((<any>element)[this.implementedMark]) {
       return;
     }
+    element.supportOnElementRenderedEvent = false;
     element.iteratePropertiesHash((hash, key) => {
       ImplementorBase.doIterateProperties(element, hash, key);
     });
@@ -58,6 +59,7 @@ export class ImplementorBase {
         hash[key]["onArrayChanged"] = undefined;
       }
     });
+    this.element.supportOnElementRenderedEvent = true;
     this.element.createArrayCoreHandler = undefined;
     this.element.getPropertyValueCoreHandler = undefined;
     this.element.setPropertyValueCoreHandler = undefined;

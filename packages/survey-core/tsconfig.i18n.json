@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "baseUrl": ".",
+    "declarationDir": null,
+    "paths": {
+      "survey-core": [
+        "./build"
+      ],
+    },
+  },
+  "include": [
+    "./entries/i18n.ts"
+  ]
+}

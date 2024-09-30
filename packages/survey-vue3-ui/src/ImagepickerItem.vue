@@ -7,8 +7,9 @@
         :name="question.questionName"
         :value="item.value"
         :id="question.getItemId(item)"
-        v-model="question.value"
+        v-model="value"
         :disabled="!question.getItemEnabled(item)"
+        :readonly="question.isReadOnlyAttr"
         v-bind:aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
@@ -21,8 +22,9 @@
         :name="question.questionName"
         :value="item.value"
         :id="question.getItemId(item)"
-        v-model="question.value"
+        v-model="value"
         :disabled="!question.getItemEnabled(item)"
+        :readonly="question.isReadOnlyAttr"
         v-bind:aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
@@ -35,12 +37,13 @@
             v-if="question.cssClasses.checkedItemDecorator"
             :class="question.cssClasses.checkedItemDecorator"
           >
-            <sv-svg-icon
+            <SvComponent
+              :is="'sv-svg-icon'"
               v-if="question.cssClasses.checkedItemSvgIconId"
               v-bind:class="question.cssClasses.checkedItemSvgIcon"
               size="auto"
               :iconName="question.cssClasses.checkedItemSvgIconId"
-            ></sv-svg-icon>
+            ></SvComponent>
           </span>
           <img
             v-if="
@@ -96,15 +99,16 @@
               objectFit: question.imageFit as any,
             }"
           >
-            <sv-svg-icon
+            <SvComponent
+              :is="'sv-svg-icon'"
               :class="question.cssClasses.itemNoImageSvgIcon"
               :iconName="question.cssClasses.itemNoImageSvgIconId"
               :size="48"
-            ></sv-svg-icon>
+            ></SvComponent>
           </div>
         </div>
         <span v-if="question.showLabel" :class="question.cssClasses.itemText">
-          <survey-string :locString="item.locText" />
+          <SvComponent :is="'survey-string'" :locString="item.locText" />
         </span>
       </div>
     </label>
@@ -112,8 +116,10 @@
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { ImageItemValue, QuestionImagePickerModel } from "survey-core";
 import { useBase, useLocString } from "./base";
+import { computed } from "vue";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{
   question: QuestionImagePickerModel;
@@ -122,6 +128,16 @@ const props = defineProps<{
 const getItemClass = (item: any) => {
   return props.question.getItemClass(item);
 };
+const value = computed({
+  get() {
+    return props.question.value;
+  },
+  set(value) {
+    const question = props.question;
+    if (question.isReadOnlyAttr) return;
+    question.value = value;
+  },
+});
 useBase(() => props.item);
 const imageLink = useLocString(() => props.item.locImageLink);
 </script>

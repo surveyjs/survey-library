@@ -1,0 +1,119 @@
+@import "../variables.scss";
+
+.sd-multipletext {
+  width: 100%;
+  table-layout: fixed;
+  border-spacing: 0;
+  height: 1px;
+}
+
+.sd-multipletext__cell {
+  height: 100%;
+}
+
+.sd-multipletext__cell:not(:first-of-type) {
+  padding-left: calcSize(2);
+}
+
+.sd-multipletext__item-container.sd-input:focus-within {
+  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
+}
+
+.sd-multipletext__item-container {
+  display: flex;
+  align-items: flex-start;
+  height: 100%;
+  padding-top: 0;
+  padding-bottom: 0;
+
+  .sd-input {
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    border: none;
+    box-shadow: none;
+  }
+}
+
+.sd-multipletext__item-container .sd-input,
+.sd-multipletext__item-title {
+  margin-top: calcSize(1.5);
+  margin-bottom: calcSize(1.5);
+}
+
+.sd-multipletext__item-title {
+  font-size: 0;
+  line-height: 0;
+
+  span {
+    @include useEditorFontSize;
+    font-size: $font-editorfont-size;
+    line-height: multiply(1.5, $font-editorfont-size);
+  }
+}
+
+.sd-multipletext__item-title {
+  height: calc(100% - #{$base-unit} * 3);
+  max-width: 30%;
+  padding-right: calcSize(2);
+  border-right: 1px solid $border;
+  white-space: normal;
+  color: $font-editorfont-placeholdercolor;
+  box-sizing: content-box;
+}
+
+.sd-question--preview .sd-multipletext__item-title {
+  border: none;
+}
+.sd-multipletext__item {
+  flex-grow: 1;
+}
+
+.sd-multipletext__content .sd-multipletext__item-container {
+  position: relative;
+}
+
+.sd-multipletext__item-container--error {
+  background-color: $red-light;
+
+  .sd-input--error {
+    background-color: transparent;
+  }
+}
+
+.sd-multipletext-item__character-counter {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sd-question__content:focus-within .sd-multipletext-item__character-counter {
+  padding-inline-end: calcSize(8);
+}
+
+.sd-multipletext__cell {
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: calcSize(1);
+  padding-top: calcSize(1);
+}
+
+.sd-multipletext__cell--error-bottom,
+.sd-multipletext__row:first-of-type .sd-multipletext__cell {
+  padding-top: 0;
+}
+
+.sd-multipletext__cell--error-top,
+.sd-multipletext__row:last-of-type .sd-multipletext__cell {
+  padding-bottom: 0;
+}
+
+.sd-multipletext__cell--error {
+  .sd-question__erbox {
+    margin: 0;
+  }
+}
+
+.sd-multipletext .sd-input .sd-input {
+  background: transparent;
+}

@@ -1,5 +1,6 @@
 
 import { testQuestionMarkup } from "./helper";
+// eslint-disable-next-line surveyjs/no-imports-from-entries
 import { Model as KnockoutModel } from "../../src/entries/knockout";
 import { markupTests } from "./etalon";
 
@@ -8,7 +9,7 @@ var platformDescriptor = {
   survey: null,
   surveyFactory: (json) => new KnockoutModel(json),
   getStrFromHtml: (snapshot) => {
-    return require("./snapshots/"+snapshot+".snap.html");
+    return require("./snapshots/" + snapshot + ".snap.html");
   },
   render: (survey, element) => survey.render(element.id)
 };

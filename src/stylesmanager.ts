@@ -1,7 +1,8 @@
-import { surveyCss } from "./defaultCss/defaultV2Css";
-import { DomDocumentHelper } from "./global_variables_utils";
-import { settings, ISurveyEnvironment } from "./settings";
-import { getElement, isShadowDOM, Logger } from "./utils/utils";
+import { SurveyModel } from "../packages/survey-core/src/survey";
+import { surveyCss } from "../packages/survey-core/src/defaultCss/defaultV2Css";
+import { DomDocumentHelper, DomWindowHelper } from "../packages/survey-core/src/global_variables_utils";
+import { settings, ISurveyEnvironment } from "../packages/survey-core/src/settings";
+import { getElement, isShadowDOM, Logger } from "../packages/survey-core/src/utils/utils";
 
 export const modernThemeColors: { [key: string]: string } = {
   "$main-color": "#1ab394",
@@ -415,3 +416,9 @@ export class StylesManager {
     }
   }
 }
+SurveyModel.prototype["onBeforeRunConstructor"] = () => {
+  if(DomWindowHelper.isAvailable()) {
+    StylesManager.autoApplyTheme();
+  }
+};
+

@@ -157,8 +157,9 @@ frameworks.forEach((framework) => {
     const relativeillnessDropdown = Selector("div[data-name='relativeillness'] .sv_q_dropdown_control");
 
     const addRowSelector = Selector("button").find("span").withText("Add Row");
-
-    await t.click("input[value=\"Yes\"]")
+    await
+    t
+      .click("input[value=\"Yes\"]")
 
       .click(ageDropdown)
       .click(getListItemByText("72"))
@@ -528,10 +529,13 @@ frameworks.forEach((framework) => {
       ]
     });
     await t.click(Selector("button").withText("Add"))
+      .wait(1000)
       .pressKey("1 2 3")
       .click(Selector("button").withText("Add"))
+      .wait(1000)
       .pressKey("4 5 6")
       .click(Selector("button").withText("Add"))
+      .wait(1000)
       .pressKey("7 8 9")
       .click(Selector(".sd-navigation__complete-btn"));
 
@@ -574,5 +578,27 @@ frameworks.forEach((framework) => {
 
     await t.expect(Selector(".sv-action.sv-dots").visible).ok();
   });
+  test("Focus first input on adding a new panel, renderMode='tab'", async (t) => {
+    await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 0,
+          templateElements: [
+            {
+              type: "text",
+              name: "name"
+            },
+          ],
+        }
+      ]
+    });
+    await t.pressKey("space")
+      .pressKey("1 2 3")
+      .click(Selector(".sd-navigation__complete-btn"));
 
+    await t.expect(await getSurveyResult()).eql({ panel1: [{ name: "123" }] });
+  });
 });

@@ -1,0 +1,139 @@
+.sd-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: var(--sd-base-vertical-padding);
+}
+
+.sd-row.sd-page__row {
+  margin-top: calcSize(2);
+}
+
+.sd-page__row.sd-row--compact {
+  margin-top: var(--sd-base-vertical-padding);
+}
+
+.sd-row:first-of-type {
+  margin-top: 0;
+}
+
+.sd-page__title,
+.sd-page__description {
+  & ~ .sd-row.sd-page__row:not(.sd-row--compact) {
+    margin-top: calcSize(3);
+  }
+
+  & ~ .sd-page__row.sd-row--compact {
+    margin-top: var(--sd-base-vertical-padding);
+  }
+  & ~ .sd-page__row.sd-row.sd-row--enter.sd-row-delayed-enter {
+    margin-top: 0;
+  }
+}
+
+.sd-row.sd-page__row:not(.sd-row--compact) {
+  & ~ .sd-row.sd-page__row:not(.sd-row--compact) {
+    margin-top: calcSize(2);
+  }
+  & ~ .sd-page__row.sd-row.sd-row--enter.sd-row-delayed-enter {
+    margin-top: 0;
+  }
+}
+
+.sd-row--multiple {
+  row-gap: calcSize(2);
+  margin-left: calc(-1 * var(--sd-base-padding));
+  width: calc(100% + var(--sd-base-padding));
+  flex-wrap: wrap;
+
+  & > div {
+    box-sizing: border-box;
+    --animation-padding-left: #{calcSize(2)};
+    padding-left: calcSize(2);
+    display: flex;
+    align-items: stretch;
+  }
+}
+.sd-panel.sd-panel--as-page {
+  & > .sd-panel__content > .sd-row--multiple:not(.sd-row--compact) {
+    margin-left: calcSize(-2);
+    width: calc(100% + var(--base-unit) * 2);
+  }
+}
+.sd-panel:not(.sd-panel--as-page) {
+  .sd-row--multiple {
+    row-gap: var(--sd-base-vertical-padding);
+
+    & > div {
+      --animation-padding-left: var(--sd-base-padding);
+      padding-left: var(--sd-base-padding);
+    }
+  }
+}
+
+.sd-row--multiple.sd-row--compact {
+  & > div {
+    --animation-padding-left: var(--sd-base-padding);
+    padding-left: var(--sd-base-padding);
+  }
+}
+
+.sd-page__row.sd-row--multiple {
+  margin-left: calcSize(-2);
+  width: calc(100% + 2 * var(--sjs-base-unit, var(--base-unit, 8px)));
+
+  &.sd-row--compact {
+    padding: 0;
+    row-gap: var(--sd-base-vertical-padding);
+    margin-left: calc(-1 * var(--sd-base-padding));
+    width: calc(100% + var(--sd-base-padding));
+  }
+}
+
+.sd-row__panel {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.sd-row__question {
+  box-sizing: border-box;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.sd-row.sd-row--enter {
+  margin-top: 0;
+}
+.sd-row--enter {
+  animation-fill-mode: forwards;
+  animation-name: fadeIn, moveInWithOverflow;
+  min-height: 0 !important;
+  opacity: 0;
+  height: 0;
+  animation-timing-function: $ease-out;
+  animation-delay: $row-fade-in-delay, 0s, 0s;
+  animation-duration: $row-fade-in-duration, $row-move-in-duration, $row-move-in-duration;
+}
+.sd-row--delayed-enter {
+  animation-delay: calc(#{$row-fade-in-delay} + #{$row-fade-in-animation-delay}), $row-fade-in-animation-delay,
+    $row-fade-in-animation-delay;
+}
+
+.sd-row--leave {
+  animation-name: fadeIn, moveInWithOverflow;
+  animation-timing-function: $reverse-ease-out;
+  animation-fill-mode: forwards;
+  animation-direction: reverse;
+  min-height: 0 !important;
+  animation-delay: 0s, $row-move-out-delay, $row-move-out-delay;
+  animation-duration: $row-fade-out-duration, $row-move-out-duration, $row-move-out-duration;
+}
+
+.sd-row--enter .sd-element-wrapper--enter {
+  animation: none;
+}
+
+.sd-row--leave .sd-element-wrapper--leave {
+  animation: none;
+}

@@ -13,7 +13,6 @@ const initPopupSurvey = ClientFunction(
     };
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
-    window["Survey"].settings.animationEnabled = false;
     const model = new window["Survey"].Model(json);
     const surveyComplete = function (model) {
       window["SurveyResult"] = model.data;
@@ -28,7 +27,7 @@ const initPopupSurvey = ClientFunction(
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       window["ReactDOM"].render(
-        window["React"].createElement(window["Survey"].PopupSurvey, {
+        window["React"].createElement(window["SurveyReact"].PopupSurvey, {
           model: model,
           onComplete: surveyComplete,
         }),
@@ -44,6 +43,14 @@ const initPopupSurvey = ClientFunction(
       });
     } else if (framework === "angular" || framework == "vue3") {
       window.setSurvey(model, true, false);
+    } else if (framework === "jquery-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      window["$"]("#surveyElement").PopupSurvey({
+        model: model
+      });
+    } else if (framework === "survey-js-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      window["SurveyUI"].renderPopupSurvey(model, document.getElementById("surveyElement"));
     }
     window["survey"] = model;
   }

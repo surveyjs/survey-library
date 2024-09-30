@@ -23,7 +23,7 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
   protected override onModelChanged() {
     super.onModelChanged();
     this.previousModel?.resetResponsivityManager();
-    if (!!this.model.hasActions && !!this.container) {
+    if (!!this.model.hasActions && !!this.container && !!this.container.nativeElement) {
       this.model.initResponsivityManager(this.container.nativeElement);
     }
   }

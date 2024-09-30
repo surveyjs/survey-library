@@ -24,10 +24,10 @@ ko.components.register("sv-tagbox", {
         return true;
       };
       const blur = (_: any, e: any) => {
-        q.dropdownListModel?.onBlur(e);
+        q.onBlur(e);
       };
       const focus = (_: any, e: any) => {
-        q.dropdownListModel?.onFocus(e);
+        q.onFocus(e);
       };
       const inputKeyHandler = (_: any, e: any) => {
         q.dropdownListModel?.inputKeyHandler(e);

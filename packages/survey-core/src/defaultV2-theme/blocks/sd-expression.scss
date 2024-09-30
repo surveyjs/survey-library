@@ -1,0 +1,10 @@
+.sd-expression {
+  color: $font-questiontitle-color;
+  font-size: calcFontSize(1);
+  white-space: break-spaces;
+}
+
+.sd-question__content--left .sd-expression {
+  line-height: calcSize(3);
+  padding: calcSize(1.5) 0;
+}

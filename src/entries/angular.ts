@@ -13,8 +13,8 @@ const innerKo: any = ko;
 export { innerKo as ko };
 
 import { registerTemplateEngine } from "../knockout/kosurvey";
-import { SurveyModel } from "../survey";
-import { settings } from "../settings";
+import { SurveyModel } from "../../packages/survey-core/src/survey";
+import { settings } from "../../packages/survey-core/src/settings";
 
 export class ReactSurveyModel extends Survey {
   constructor(

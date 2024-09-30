@@ -41,6 +41,7 @@ export { QuestionSignaturePad } from "../knockout/koquestion_signaturepad";
 export { QuestionCustom } from "../knockout/koquestion_custom";
 export { QuestionButtonGroup } from "../knockout/koquestion_buttongroup";
 
+export * from "../knockout/components/text-area/text-area";
 export * from "../knockout/components/action-bar/action-bar";
 export * from "../knockout/components/boolean-checkbox/boolean-checkbox";
 export * from "../knockout/components/boolean-radio/boolean-radio";

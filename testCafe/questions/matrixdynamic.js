@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult, getListItemByText, completeButton } from "../helper";
-import { Selector, fixture, test } from "testcafe";
+import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "matrixdynamic";
 
 const json = {
@@ -401,6 +401,87 @@ frameworks.forEach((framework) => {
       .click(Selector(".sv_matrix_dynamic_button .sv-string-viewer").nth(1).withText("Entfernen"))
       .click(Selector("span").withExactText("OK"))
       .expect(Selector(".sv_matrix_row").count).eql(2);
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "name": "matrix",
+            "rowCount": 3,
+            "allowRemoveRows": false,
+            "columns": [
+              {
+                "name": "col1",
+                "cellType": "text"
+              },
+              {
+                "name": "col2",
+                "cellType": "text",
+                "visibleIf": "{row.col1} = 1"
+              }
+            ]
+          }
+        ]
+      });
+    }
+  );
+  test("visibleIf columns", async (t) => {
+    const textSelector = Selector("input").withAttribute("type", "text").filterVisible();
+    await t
+      .expect(textSelector.count).eql(3)
+      .typeText(textSelector.nth(0), "1")
+      .pressKey("Tab")
+      .expect(textSelector.count).eql(4)
+      .typeText(textSelector.nth(2), "1")
+      .pressKey("Tab")
+      .expect(textSelector.count).eql(5)
+      .typeText(textSelector.nth(4), "1")
+      .pressKey("Tab")
+      .expect(textSelector.count).eql(6);
+  });
+
+  test("visibleIf columns mobile", async (t) => {
+    const textSelector = Selector("input").withAttribute("type", "text").filterVisible();
+    await ClientFunction(() => window.survey.setIsMobile(true))();
+    await t
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2)
+      .typeText(textSelector.nth(0), "1", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(4)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2)
+      .typeText(textSelector.nth(0), "0", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2)
+      .typeText(textSelector.nth(1), "1", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(4)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2)
+      .typeText(textSelector.nth(1), "0", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2)
+      .typeText(textSelector.nth(2), "1", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(4)
+      .typeText(textSelector.nth(2), "0", { paste: true })
+      .pressKey("Tab")
+      .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)
+      .expect(Selector("tbody tr").nth(2).find("td").count).eql(2);
   });
 });
 

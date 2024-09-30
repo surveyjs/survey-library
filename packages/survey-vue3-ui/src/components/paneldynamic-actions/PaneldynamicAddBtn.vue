@@ -1,17 +1,19 @@
 <template>
   <button
     type="button"
+    :id="question.addButtonId"
     v-if="question.canAddPanel"
     :class="question.getAddButtonCss()"
     @click="addPanelClick"
   >
     <span :class="question.cssClasses.buttonAddText"
-      ><survey-string :locString="question.locPanelAddText"
+      ><SvComponent :is="'survey-string'" :locString="question.locPanelAddText"
     /></span>
   </button>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import { type IPanelDynamicActionProps, usePanelDynamicAction } from "./action";
 
 const props = defineProps<IPanelDynamicActionProps>();

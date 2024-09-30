@@ -65,6 +65,9 @@ frameworks.forEach(framework => {
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
       await t.click(".sd-file input[type=file] + div label");
       await takeElementScreenshot("file-question-multiple.png", questionRoot, t, comparer);
+      await t.hover(".sd-file .sd-file__preview-item");
+      await t.hover(".sd-file .sd-file__preview-item .sd-context-btn");
+      await takeElementScreenshot("file-question-multiple-remove-hovered.png", questionRoot, t, comparer);
       await t
         .setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"])
         .click(".sd-file input[type=file] + div label")

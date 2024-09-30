@@ -28,6 +28,8 @@ const surveyJson = {
 
 Alternatively, you can [postpone data validation](#postpone-validation-until-survey-ends) until a respondent completes the survey.
 
+> Immediate validation doesn't work with date input fields because of the way browsers process date values. In most browsers, the value is considered changed as soon as a user starts entering the date in a text input field. This means that a user may only enter the day without having the chance to enter the month and year before validation is triggered. For this reason, date input fields are validated before the survey is switched to the next page or completed.
+
 ## Built-In Client-Side Validators
 
 SurveyJS Form Library supports multiple built-in client-side validators. The Required validator ensures that a question value is not empty. Enable a question's [`isRequired`](https://surveyjs.io/Documentation/Library?id=Question#isRequired) property to add the Required validator to this question. In addition, you can specify the [`requiredErrorText`](https://surveyjs.io/Documentation/Library?id=Question#requiredText) property to override the default error message:
@@ -228,7 +230,7 @@ const surveyJson = {
 
 ## Postpone Validation Until Survey Ends
 
-Your survey can trigger data validation when a respondent clicks the Complete button. If the survey contains validation errors, it will take the respondent to the page with the first error and focus the question with the invalid answer. To activate this behavior, set the `checkErrorsMode` property to `"onComplete"`:
+Your survey can trigger data validation when a respondent clicks the Complete button. If the survey contains validation errors, it will take the respondent to the page with the first error and focus the question with the invalid answer. To activate this behavior, set the [`checkErrorsMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#checkErrorsMode) property to `"onComplete"`:
 
 ```js
 const surveyJson = {

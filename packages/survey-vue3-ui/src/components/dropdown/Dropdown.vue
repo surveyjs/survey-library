@@ -3,7 +3,7 @@
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
-      :disabled="question.isInputReadOnly ? true : null"
+      :disabled="question.isDisabledAttr ? true : null"
       :tabindex="model.noTabIndex ? undefined : 0"
       @keydown="keyhandler"
       @blur="blur"
@@ -13,11 +13,7 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-errormessage="question.ariaErrormessage"
-      :aria-expanded="
-        question.ariaExpanded === null
-          ? undefined
-          : question.ariaExpanded === 'true'
-      "
+      :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
       :required="question.isRequired ? true : null"
@@ -27,7 +23,8 @@
       </div>
 
       <div :class="question.cssClasses.controlValue">
-        <survey-string
+        <SvComponent
+          :is="'survey-string'"
           v-if="showSelectedItemLocText"
           :locString="selectedItemLocText"
         />
@@ -40,29 +37,25 @@
           }}</span>
           <span>{{ model.hintStringSuffix }}</span>
         </div>
-        <component
+        <SvComponent
           v-if="question.showInputFieldComponent"
           :is="question.inputFieldComponentName"
           :item="model.getSelectedAction()"
           :question="question"
         >
-        </component>
+        </SvComponent>
         <input
           type="text"
           ref="inputElement"
           v-bind:class="question.cssClasses.filterStringInput"
-          v-bind:disabled="question.isInputReadOnly"
+          v-bind:disabled="question.isDisabledAttr"
           autocomplete="off"
           :inputmode="model.inputMode"
           :role="model.filterStringEnabled ? question.ariaRole : undefined"
           :id="question.getInputId()"
           :tabindex="model.noTabIndex ? undefined : -1"
           :readonly="model.filterReadOnly ? true : undefined"
-          :aria-expanded="
-            question.ariaExpanded === null
-              ? undefined
-              : question.ariaExpanded === 'true'
-          "
+          :aria-expanded="question.ariaExpanded"
           :aria-controls="model.listElementId"
           :aria-label="question.a11y_input_ariaLabel"
           :aria-labelledby="question.a11y_input_ariaLabelledBy"
@@ -81,26 +74,32 @@
         @click="clear"
         aria-hidden="true"
       >
-        <sv-svg-icon
+        <SvComponent
+          :is="'sv-svg-icon'"
           :class="question.cssClasses.cleanButtonSvg"
           :iconName="question.cssClasses.cleanButtonIconId"
           :title="question.clearCaption"
           size="auto"
         >
-        </sv-svg-icon>
+        </SvComponent>
       </div>
     </div>
-    <sv-popup
+    <SvComponent
+      :is="'sv-popup'"
       v-if="!question.isReadOnly"
       :model="question.dropdownListModel.popupModel"
-    ></sv-popup>
+    ></SvComponent>
     <div
-      disabled
       v-else
       :id="question.inputId"
+      :aria-label="question.a11y_input_ariaLabel"
+      :aria-labelledby="question.a11y_input_ariaLabelledBy"
+      :aria-describedby="question.a11y_input_ariaDescribedBy"
+      :tabindex="question.isDisabledAttr ? undefined : 0"
       :class="question.getControlClass()"
     >
-      <survey-string
+      <SvComponent
+        :is="'survey-string'"
         v-if="question.selectedItemLocText"
         :locString="question.selectedItemLocText"
       />
@@ -112,19 +111,21 @@
       v-if="question.cssClasses.chevronButtonIconId"
       aria-hidden="true"
     >
-      <sv-svg-icon
+      <SvComponent
+        :is="'sv-svg-icon'"
         :class="question.cssClasses.chevronButtonSvg"
         :iconName="question.cssClasses.chevronButtonIconId"
         size="auto"
       >
-      </sv-svg-icon>
+      </SvComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
-import { DropdownListModel, Question, Helpers } from "survey-core";
+import { Question, Helpers } from "survey-core";
 import { computed, onMounted, onUpdated, ref } from "vue";
 
 const props = defineProps<{ question: Question }>();
@@ -156,11 +157,11 @@ const updateInputDomElement = () => {
   }
 };
 const blur = (event: any) => {
-  model.value?.onBlur(event);
+  props.question.onBlur(event);
   updateInputDomElement();
 };
 const focus = (event: any) => {
-  model.value?.onFocus(event);
+  props.question.onFocus(event);
 };
 const inputChange = (event: any) => {
   model.value.inputStringRendered = event.target.value;

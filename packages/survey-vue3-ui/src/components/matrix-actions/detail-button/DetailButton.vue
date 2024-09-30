@@ -10,16 +10,18 @@
       question.getIsDetailPanelShowing(row) ? row.detailPanelId : null
     "
   >
-    <sv-svg-icon
+    <SvComponent
+      :is="'sv-svg-icon'"
       :class="question.getDetailPanelIconCss(row)"
       :iconName="question.getDetailPanelIconId(row)"
       size="auto"
     >
-    </sv-svg-icon>
+    </SvComponent>
   </button>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { Action } from "survey-core";
 import { useMatrixAction } from "../matrix-action";
 const props = defineProps<{ item: Action }>();

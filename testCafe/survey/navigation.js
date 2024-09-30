@@ -1,7 +1,5 @@
 import { frameworks, url, initSurvey } from "../helper";
 import { ClientFunction, fixture, Selector, test } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "navigation";
 
 const json = {

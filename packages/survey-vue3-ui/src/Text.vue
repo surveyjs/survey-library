@@ -3,15 +3,25 @@
     {{ question.value }}
   </div>
   <div v-else-if="question.dataListId" ref="root">
-    <survey-text-input :question="question" />
+    <SvComponent :is="'survey-text-input'" :question="question" />
     <datalist :id="question.dataListId">
-      <option v-for="item in question.dataList" :value="item"></option>
+      <option
+        v-for="(item, index) in question.dataList"
+        :key="index"
+        :value="item"
+      ></option>
     </datalist>
   </div>
-  <survey-text-input v-else :question="question" :get-ref="(ref: any) => { root = ref; }" />
+  <SvComponent
+    :is="'survey-text-input'"
+    v-else
+    :question="question"
+    :get-ref="(ref: any) => { root = ref; }"
+  />
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionTextModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

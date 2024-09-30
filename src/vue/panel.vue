@@ -83,7 +83,7 @@ export class Panel extends BaseVue {
   }
   get requiredTextCss() {
     return (
-      this.question.cssClasses.requiredText || this.question.cssClasses.panel.requiredText
+      this.question.cssRequiredText
     );
   }
 }

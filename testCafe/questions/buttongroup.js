@@ -1,7 +1,5 @@
 import { frameworks, url, initSurvey } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "button-group";
 
 var json = {
@@ -32,44 +30,20 @@ frameworks.forEach(framework => {
   );
 
   test.skip("selected class", async t => {
-    assert.ok(
-      !(await Selector("label.sv-button-group__item--selected").exists)
-    );
+    await t.expect(Selector("label.sv-button-group__item--selected").exists).notOk();
     await t.click(Selector("label[title='Choice 1']"));
-    assert.equal("Choice 1", await getQuestionProperty("radio", "value"));
-    assert.ok(
-      await Selector("label[title='Choice 1']").hasClass(
-        "sv-button-group__item--selected"
-      )
-    );
+    await t.expect(await getQuestionProperty("radio", "value")).eql("Choice 1");
+    await t.expect(Selector("label[title='Choice 1']").hasClass("sv-button-group__item--selected")).ok();
     await setQuestionProperty("radio", "value", "Choice 2");
-    assert.ok(
-      !(await Selector("label[title='Choice 1']").hasClass(
-        "sv-button-group__item--selected"
-      ))
-    );
-    assert.ok(
-      await Selector("label[title='Choice 2']").hasClass(
-        "sv-button-group__item--selected"
-      )
-    );
+    await t.expect(Selector("label[title='Choice 1']").hasClass("sv-button-group__item--selected")).notOk();
+    await t.expect(Selector("label[title='Choice 2']").hasClass("sv-button-group__item--selected")).ok();
   });
 
   test.skip("readOnly items", async t => {
-    assert.ok(
-      !(await Selector("label.sv-button-group__item--disabled").exists)
-    );
+    await t.expect(Selector("label.sv-button-group__item--disabled").exists).notOk();
     await setQuestionProperty("radio", "readOnly", true);
-    assert.ok(
-      await Selector("label[title='Choice 1']").hasClass(
-        "sv-button-group__item--disabled"
-      )
-    );
-    assert.ok(
-      await Selector("label[title='Choice 2']").hasClass(
-        "sv-button-group__item--disabled"
-      )
-    );
+    await t.expect(Selector("label[title='Choice 1']").hasClass("sv-button-group__item--disabled")).ok();
+    await t.expect(Selector("label[title='Choice 2']").hasClass("sv-button-group__item--disabled")).ok();
   });
 
   test.skip("hide caption", async t => {
@@ -78,17 +52,9 @@ frameworks.forEach(framework => {
         "radio"
       ).visibleChoices[0].showCaption = false;
     });
-    assert.ok(
-      await Selector(
-        "label[title='Choice 1'] span.sv-button-group__item-caption"
-      ).exists
-    );
+    await t.expect(Selector("label[title='Choice 1'] span.sv-button-group__item-caption").exists).ok();
     await hideFirstItemCaption();
-    assert.ok(
-      !(await Selector(
-        "label[title='Choice 1'] span.sv-button-group__item-caption"
-      ).exists)
-    );
+    await t.expect(Selector("label[title='Choice 1'] span.sv-button-group__item-caption").exists).notOk();
   });
 
   test.skip("show icon", async t => {
@@ -97,20 +63,9 @@ frameworks.forEach(framework => {
         "radio"
       ).visibleChoices[0].iconName = iconName;
     });
-    assert.ok(
-      !(await Selector("label[title='Choice 1'] .sv-button-group__item-icon")
-        .exists)
-    );
+    await t.expect(Selector("label[title='Choice 1'] .sv-button-group__item-icon").exists).notOk();
     await setFirtItemIcon("icon");
-    assert.ok(
-      await Selector("label[title='Choice 1'] .sv-button-group__item-icon")
-        .exists
-    );
-    assert.equal(
-      await Selector(
-        "label[title='Choice 1'] .sv-button-group__item-icon use"
-      ).getAttribute("xlink:href"),
-      "#icon"
-    );
+    await t.expect(Selector("label[title='Choice 1'] .sv-button-group__item-icon").exists).ok();
+    await t.expect(Selector("label[title='Choice 1'] .sv-button-group__item-icon use").getAttribute("xlink:href")).eql("#icon");
   });
 });

@@ -1,0 +1,127 @@
+@import "../defaultV2-theme/variables.scss";
+@import "../defaultV2-theme/mixins.scss";
+@import "../defaultV2-theme/blocks/mixins.scss";
+
+.sv_window {
+    position: fixed;
+    bottom: calcSize(2);
+    right: calcSize(2);
+    border-radius: calcSize(1);
+    border: 1px solid $border-inside;
+    box-shadow: $shadow-large, $shadow-medium;
+    background-clip: padding-box;
+    z-index: 100;
+    max-height: 50vh;
+    overflow: auto;
+    box-sizing: border-box;
+    background: $background-dim;
+    width: calc(100% - calcSize(4)) !important;
+
+    @include scrollRules;
+}
+
+.sv_window_root-content {
+    height: 100%;
+}
+
+.sv_window--full-screen {
+    top: calcSize(2);
+    left: calcSize(2);
+    right: calcSize(2);
+    bottom: calcSize(2);
+    max-height: 100%;
+    width: initial !important;
+    max-width: initial!important;
+}
+
+.sv_window_header {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.sv_window_content {
+    overflow: hidden;
+}
+
+.sv_window--collapsed {
+    height: initial;
+    
+    .sv_window_header {
+        height: calcSize(4);
+        padding: calcSize(1) calcSize(1) calcSize(1) calcSize(2);
+        border-radius: calcSize(1);
+        display: flex;
+        background-color: $background-dim;
+        box-sizing: content-box;
+    }
+
+    .sv_window_content {
+        display: none;
+    }
+
+    .sv_window_buttons_container {
+        margin-top: 0;
+        margin-right: 0;
+    }
+}
+
+.sv_window_header_title_collapsed {
+    color: $foreground-dim;
+    @include defaultBold;
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.sv_window_header_description {
+    color: $font-questiondescription-color;
+    font-feature-settings: 'salt' on;
+    @include defaultFont;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.sv_window_buttons_container {
+    position: fixed;
+    margin-top: calcSize(1);;
+    margin-right: calcSize(1);;
+    display: flex;
+    gap: calcSize(1);
+    z-index: 10000;
+}
+
+.sv_window_button {
+    display: flex;
+    padding: calcSize(1);
+    justify-content: center;
+    align-items: center;
+    border-radius: calcSize(0.5);
+    cursor: pointer;
+
+    &:hover,
+    &:active {
+        background-color: $primary-light;
+
+        svg {
+
+            use,
+            path {
+                fill: $primary;
+            }
+        }
+    }
+
+    &:active {
+        opacity: 0.5;
+    }
+
+    svg {
+
+        use,
+        path {
+            fill: $foreground-dim-light;
+        }
+    }
+}

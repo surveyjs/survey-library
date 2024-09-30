@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getData, setData } from "../helper";
+import { frameworks, url, initSurvey, getData, setData, urlV2, applyTheme } from "../helper";
 import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "ranking";
 
@@ -93,7 +93,9 @@ frameworks.forEach((framework) => {
     .withText("Battery life");
 
   test("ranking: simple using", async (t) => {
-    await t.dragToElement(PriceItem, BatteryItem);
+    await t.dragToElement(PriceItem, BatteryItem, {
+      destinationOffsetY: 0,
+    });
     await t.wait(300);
     let data = await getData();
     await t.expect(data["smartphone-features"]).eql([
@@ -107,6 +109,7 @@ frameworks.forEach((framework) => {
     ]);
   });
 
+  //todo
   test("ranking: predeficed data", async (t) => {
     await setData({
       "smartphone-features": [
@@ -120,7 +123,7 @@ frameworks.forEach((framework) => {
       ],
     });
     await t.dragToElement(PriceItem, BatteryItem, {
-      destinationOffsetY: 0,
+      destinationOffsetY: -1,
       offsetY: 0,
       speed: 0.1
     });
@@ -137,7 +140,9 @@ frameworks.forEach((framework) => {
     ]);
 
     await setData(null);
-    await t.dragToElement(PriceItem, BatteryItem);
+    await t.dragToElement(PriceItem, BatteryItem, {
+      destinationOffsetY: 0
+    });
     await t.wait(300);
     data = await getData();
     await t.expect(data["smartphone-features"]).eql([
@@ -150,7 +155,7 @@ frameworks.forEach((framework) => {
       "Processor power",
     ]);
   });
-
+  //todo
   test("ranking: carry forward", async (t) => {
     await t.hover(PriceItem);
     await t.drag(PriceItem, 0, -300, {
@@ -194,7 +199,7 @@ frameworks.forEach((framework) => {
     await t.expect(typeof data.bestcar).ok();
 
     await t.hover(rankAudiItem);
-    await t.dragToElement(rankAudiItem, rankMercedesBenzItem, { offsetY: 0, destinationOffsetY: 0, speed: 0.1 });
+    await t.dragToElement(rankAudiItem, rankMercedesBenzItem, { offsetY: 0, destinationOffsetY: -1, speed: 0.1 });
     data = await getData();
 
     await t.expect(data.bestcar).eql(["Mercedes-Benz", "Audi", "Toyota"]);
@@ -332,5 +337,76 @@ frameworks.forEach((framework) => {
       rankingQ.selectToRankEnabled = false;
     });
     await setSelectToRankDisabled();
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
+    async (ctx) => {
+      const json = {
+        questions: [
+          {
+            "type": "ranking",
+            "name": "ranking",
+            "choices": ["Ford", "BMW"],
+            "readOnly": true,
+            "defaultValue": ["BMW", "Ford"]
+          },
+        ]
+      };
+      await applyTheme("defaultV2");
+      await initSurvey(framework, json);
+    }
+  );
+
+  test("readonly:keyboard disabled", async (t) => {
+    await t.pressKey("tab").pressKey("down");
+    const getValue = ClientFunction(()=>{
+      return window["survey"].getAllQuestions()[0].value;
+    });
+    const value = await getValue();
+    await t.expect(value).eql(["BMW", "Ford"]);
+  });
+});
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
+    async (ctx) => {
+      const json = {
+        elements: [
+          {
+            type: "checkbox",
+            name: "q1",
+            choices: ["Item1", "Item2", "Item3"],
+            showOtherItem: true,
+          },
+          {
+            type: "ranking",
+            name: "q2",
+            choicesFromQuestion: "q1",
+            choicesFromQuestionMode: "selected",
+          },
+        ],
+      };
+      await applyTheme("defaultV2");
+      await initSurvey(framework, json);
+    }
+  );
+
+  test("Carry forward error with others Bug#8462", async (t) => {
+    await t.click(Selector(".sv-string-viewer").withText("Item1"))
+      .click(Selector(".sv-string-viewer").withText("Item3"))
+      .click(Selector(".sv-string-viewer").withText("Other (describe)"))
+      .click(Selector("textarea"))
+      .pressKey("A B C");
+    const item1 = Selector("span").withText("q2").parent("[data-name]").find("span").withText("Item1");
+
+    await t.hover(item1);
+    await t.drag(item1, 5, 40, { speed: 0.1 });
+    const getValue = ClientFunction(()=>{
+      return window["survey"].getAllQuestions()[0].value;
+    });
+
+    const value = await getValue();
+    await t.expect(value).eql(["Item1", "Item3", "other"]);
   });
 });

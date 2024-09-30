@@ -16,7 +16,7 @@ This step-by-step tutorial will help you get started with the SurveyJS Form Libr
 
 As a result, you will create a form displayed below:
 
-<iframe src="/proxy/github/code-examples/get-started-library/knockout/index.html"
+<iframe src="/proxy/github/code-examples/get-started-library/html-css-js/index.html"
     style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
 
@@ -52,6 +52,7 @@ SurveyJS Form Library is shipped with several predefined themes illustrated belo
 To add SurveyJS themes to your Angular application, open the `angular.json` file and reference the Form Library style sheet:
 
 ```js
+// angular.json
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   // ...
@@ -75,6 +76,13 @@ To add SurveyJS themes to your Angular application, open the `angular.json` file
     }
   }
 }
+```
+
+When [using standalone components](https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular-standalone-components), import the style sheet directly in the component file:
+
+```js
+// survey.component.ts
+import "survey-core/defaultV2.css";
 ```
 
 This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
@@ -158,7 +166,7 @@ export class AppComponent implements OnInit {
 
 ## Render the Form
 
-Before you render the survey, you need to import the module that integrates the SurveyJS Form Library with Angular. Open your NgModule class (usually resides in the `app.module.ts` file), import the `SurveyModule` from `survey-angular-ui`, and list it in the `imports` array.
+Before you render the survey, you need to import the module that integrates the SurveyJS Form Library with Angular. Open your `NgModule` class (usually resides in the `app.module.ts` file), import the `SurveyModule` from `survey-angular-ui`, and list it in the `imports` array.
 
 ```js
 // app.module.ts
@@ -175,7 +183,24 @@ import { SurveyModule } from "survey-angular-ui";
   bootstrap: [ ... ]
 })
 export class AppModule { }
+```
 
+When [using standalone components](https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular-standalone-components), import the `SurveyModule` and add it to the `imports` array directly in the component file:
+
+```js
+// survey.component.ts
+// ...
+import { SurveyModule } from 'survey-angular-ui';
+
+@Component({
+  // ...
+  standalone: true,
+  imports: [ SurveyModule ],
+  // ...
+})
+export class SurveyComponent implements OnInit {
+  // ...
+}
 ```
 
 To render a survey, add a `<survey>` element to your component template and bind the element's `model` attribute to the model instance you created in the previous step:

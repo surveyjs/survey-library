@@ -10,7 +10,7 @@ const config = {
   entry: {
     survey: path.resolve(__dirname, "../../src/main.scss"),
     modern: path.resolve(__dirname, "../../src/modern.scss"),
-    defaultV2: path.resolve(__dirname, "../../src/defaultV2-theme/defaultV2.scss")
+    defaultV2: path.resolve(__dirname, "../../packages/survey-core/src/defaultV2-theme/defaultV2.scss")
   },
   externals: {
     react: {
@@ -31,7 +31,7 @@ const config = {
       tsConfigPath: "./build-scripts/survey-react/tsconfig.typing.react.json",
       filePath: "build/survey-react/survey.react.d.ts",
       moduleName: "survey-react",
-      importName: "entries/react"
+      importName: "src/entries/react"
     }),
   ],
 };

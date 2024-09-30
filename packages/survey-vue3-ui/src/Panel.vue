@@ -6,13 +6,22 @@
     @focusin="element.focusIn()"
     ref="root"
   >
-    <survey-errors :element="element" v-if="element.showErrorsAbovePanel" />
-    <survey-element-header
+    <SvComponent
+      :is="'survey-errors'"
+      :element="element"
+      v-if="element.showErrorsAbovePanel"
+    />
+    <SvComponent
+      :is="'survey-element-header'"
       v-if="element.hasTitle || element.hasDescription"
       :element="element"
       :css="css"
-    ></survey-element-header>
-    <survey-errors :element="element" v-if="!element.showErrorsAbovePanel" />
+    ></SvComponent>
+    <SvComponent
+      :is="'survey-errors'"
+      :element="element"
+      v-if="!element.showErrorsAbovePanel"
+    />
     <div
       :id="element.contentId"
       :style="{ paddingLeft: element.innerPaddingLeft }"
@@ -20,16 +29,25 @@
       :class="element.cssClasses.panel.content"
     >
       <template v-for="row in element.visibleRows" :key="row.id">
-        <component
+        <SvComponent
           :is="(element.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
           v-bind="{
             componentData: (element.getSurvey() as SurveyModel).getRowWrapperComponentData(row),
           }"
         >
-          <survey-row :row="row" :survey="survey" :css="css"> </survey-row>
-        </component>
+          <SvComponent
+            :is="'survey-row'"
+            :row="row"
+            :survey="survey"
+            :css="css"
+          >
+          </SvComponent>
+        </SvComponent>
       </template>
-      <sv-action-bar :model="element.getFooterToolbar()"></sv-action-bar>
+      <SvComponent
+        :is="'sv-action-bar'"
+        :model="element.getFooterToolbar()"
+      ></SvComponent>
     </div>
   </div>
 </template>
@@ -40,6 +58,7 @@ export default {
 };
 </script>
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { PanelModel, SurveyModel } from "survey-core";
 import { ref, computed, onMounted } from "vue";
 import { useBase } from "./base";

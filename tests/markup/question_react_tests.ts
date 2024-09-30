@@ -1,6 +1,7 @@
 
 import { testQuestionMarkup } from "./helper";
 import { markupTests } from "./etalon";
+// eslint-disable-next-line surveyjs/no-imports-from-entries
 import { Model as ReactModel, Survey as SurveyReact } from "../../src/entries/react";
 import { act } from "react-dom/test-utils";
 import React from "react";
@@ -12,7 +13,7 @@ var platformDescriptor = {
   surveyFactory: (json) => new ReactModel(json),
   render: (survey, element) => {
     var component = React.createElement(SurveyReact, { model: survey }, null);
-    act(()=>{
+    act(() => {
       ReactDOM.render(
         component,
         element
@@ -20,7 +21,7 @@ var platformDescriptor = {
     });
   },
   getStrFromHtml: (snapshot) => {
-    return require("./snapshots/"+snapshot+".snap.html");
+    return require("./snapshots/" + snapshot + ".snap.html");
   },
   finish: (element) => {
     ReactDOM.unmountComponentAtNode(element);

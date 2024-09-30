@@ -52,7 +52,7 @@ registerMarkupTest(
 
 registerMarkupTest(
   {
-    name: "Test Panel - start with new line",
+    name: "Test Panel - panel start with new line",
     json: {
       "elements": [
         {
@@ -89,6 +89,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line with panel",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "html",
@@ -124,6 +125,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "html",
@@ -152,6 +154,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line with panel and titles",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "text",
@@ -200,6 +203,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line Title",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "text",
@@ -219,6 +223,29 @@ registerMarkupTest(
     event: "onAfterRenderPage",
     snapshot: "page-swnl-title-v2",
   });
+
+registerMarkupTest({
+  name: "Test Page - questionTitleWidth",
+  json: {
+    "pages": [
+      {
+        "name": "page1",
+        "questionTitleLocation": "left",
+        "questionTitleWidth": "500px",
+        "elements": [
+          {
+            "type": "text",
+            "name": "name",
+            "title": "Employee name:",
+          }
+        ]
+      }]
+  },
+  before: () => StylesManager.applyTheme("defaultV2"),
+  after: () => StylesManager.applyTheme("default"),
+  event: "onAfterRenderPage",
+  snapshot: "page-questionTitleWidth",
+});
 
 registerMarkupTest(
   {

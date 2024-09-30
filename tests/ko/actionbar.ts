@@ -1,6 +1,7 @@
 import { ActionContainerImplementor } from "../../src/knockout/components/action-bar/action-bar";
 import ko from "knockout";
-import { ActionContainer } from "../../src/actions/container";
+
+import { ActionContainer } from "../../packages/survey-core/src/actions/container";
 
 export default QUnit.module("koTests");
 

@@ -1,4 +1,4 @@
-import { StylesManager } from "survey-core";
+import { StylesManager, settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -62,6 +62,28 @@ registerMarkupTests(
       ]
     },
     snapshot: "radiogroup-readonly",
+  },
+  {
+    name: "Test radiogroup question markup Disabled",
+    json: {
+      questions: [
+        {
+          "type": "radiogroup",
+          "name": "name",
+          "title": "Question title",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    initSurvey: (survey) => survey.setDesignMode(true),
+    before: () => { settings.supportCreatorV2 = true; },
+    after: () => { settings.supportCreatorV2 = false; },
+    snapshot: "radiogroup-disabled",
   },
   {
     name: "Test radiogroup question Readonly selected",

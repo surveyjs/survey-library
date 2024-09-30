@@ -167,16 +167,19 @@ frameworks.forEach(framework => {
   });
 
   test("show page numbers", async t => {
-    const pageTitle = Selector(".sv_page_title .sv-string-viewer");
+    const pageTitle = Selector(".sv_page_title");
+    const pageTitleText = "What operating system do you use?";
 
-    await t.expect(pageTitle.textContent).eql("What operating system do you use?");
+    await t.expect(pageTitle.textContent).contains(pageTitleText);
     await show_page_numbers();
     await t
-      .expect(pageTitle.textContent).eql("1. What operating system do you use?")
+      .expect(pageTitle.textContent).contains("1. ")
+      .expect(pageTitle.textContent).contains(pageTitleText)
 
       .click("input[type=checkbox]")
       .click("input[value=\"Next\"]")
-      .expect(pageTitle.textContent).eql("2. What language(s) are you currently using?");
+      .expect(pageTitle.textContent).contains("2. ")
+      .expect(pageTitle.textContent).contains("What language(s) are you currently using?");
   });
 
   const progressbar = Selector(".sv_progress").filterVisible();

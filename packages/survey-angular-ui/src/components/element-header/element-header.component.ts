@@ -11,6 +11,9 @@ export class ElementHeaderComponent {
   @HostBinding("class") get rootClass(): string {
     return this.element.cssHeader;
   }
+  @HostBinding("style.width") get width(): string {
+    return this.element.titleWidth;
+  }
   @HostListener("click", ["$event"]) click(e: MouseEvent): void {
     if (this.element.clickTitleFunction !== undefined) {
       this.element.clickTitleFunction(e);

@@ -6,7 +6,8 @@
     v-if="row.visible"
     ref="root"
   >
-    <survey-matrixdropdown-cell
+    <SvComponent
+      :is="'survey-matrixdropdown-cell'"
       :cell="cell"
       :question="question"
       v-for="(cell, cellIndex) in row.cells"
@@ -15,6 +16,7 @@
   </tr>
 </template>
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type {
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownModel,

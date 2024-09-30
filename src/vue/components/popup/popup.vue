@@ -11,6 +11,7 @@ import { BaseVue } from "../../base";
 export class Popup extends BaseVue {
   @Prop() model: PopupModel;
   @Prop() getTarget?: (container: HTMLElement) => HTMLElement;
+  @Prop() getArea?: (container: HTMLElement) => HTMLElement;
   popupViewModel: PopupBaseViewModel;
   protected getModel() {
     return this.model;
@@ -21,7 +22,7 @@ export class Popup extends BaseVue {
   }
   onMounted() {
     const container = (this.$el as HTMLElement) as HTMLElement;
-    this.popupViewModel.setComponentElement(container, this.getTarget ? this.getTarget(container) : undefined);
+    this.popupViewModel.setComponentElement(container, this.getTarget ? this.getTarget(container) : undefined, this.getArea ? this.getArea(container) : undefined);
   }
   destroyed() {
     this.popupViewModel.dispose();

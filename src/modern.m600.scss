@@ -38,15 +38,8 @@
 
               table.sv-matrixdropdown,
               table.sv-matrixdynamic {
-                td {
-                  &:before {
-                    content: attr(data-responsive-title);
-                  }
-                }
-                .sv-table__cell--row-text {
-                  &:before {
-                    content: none;
-                  }
+                .sv-table__responsive-title {
+                  display: block;
                 }
               }
 

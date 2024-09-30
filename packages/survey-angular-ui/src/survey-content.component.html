@@ -1,5 +1,5 @@
 <ng-template #template>
-  <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()" [style]="model.themeVariables">
+  <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()" [style]="model.themeVariables" [lang]="model.locale || 'en'" [dir]="model.localeDir">
     <sv-svg-bundle *ngIf="model.needRenderIcons"></sv-svg-bundle>
     <div [class]="model.wrapperFormCss">
       <div *ngIf="!!model.renderBackgroundImage" [class]="model.css.rootBackgroundImage" [style]="model.backgroundImageStyle"></div>
@@ -24,6 +24,7 @@
                   <!-- /ko -->
                 <!-- /ko -->
                 <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentBottom' } }"></ng-template>
+                <sv-brand-info *ngIf="model.showBrandInfo"></sv-brand-info>
               </div>
             </div>
             <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'right' } }"></ng-template>
@@ -38,7 +39,6 @@
           <div *ngIf="model.state === 'empty'" [class]="model.css.bodyEmpty">{{model.emptySurveyText}}</div>
         </div>
       </form>
-      <sv-brand-info *ngIf="model.showBrandInfo"></sv-brand-info>
       <sv-notifier [notifier]="model.notifier"></sv-notifier>
     </div>
   </div>

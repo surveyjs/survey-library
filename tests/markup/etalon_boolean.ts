@@ -1,4 +1,4 @@
-import { StylesManager } from "survey-core";
+import { StylesManager, settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -15,6 +15,39 @@ registerMarkupTests(
       ]
     },
     snapshot: "boolean",
+  },
+  {
+    name: "Test Boolean question markup: Readonly",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    snapshot: "boolean-readonly",
+  },
+  {
+    name: "Test Boolean question markup: Disabled",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    snapshot: "boolean-disabled",
+    initSurvey: (survey) => survey.setDesignMode(true),
+    before: () => { settings.supportCreatorV2 = true; },
+    after: () => { settings.supportCreatorV2 = false; },
   },
   {
     name: "Test Boolean question markup Default V2",
@@ -68,7 +101,7 @@ registerMarkupTests(
     snapshot: "boolean-checkbox-defaultV2",
   },
   {
-    name: "Test Boolean Checkbox question markup",
+    name: "Test Boolean Checkbox question markup: Readonly",
     json: {
       questions: [
         {
@@ -84,7 +117,26 @@ registerMarkupTests(
     },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
-    snapshot: "boolean-checkbox-disabled-defaultV2",
+    snapshot: "boolean-checkbox-readonly-defaultV2",
+  },
+  {
+    name: "Test Boolean Checkbox question markup: Disabled",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          renderAs: "checkbox"
+        }
+      ]
+    },
+    snapshot: "boolean-checkbox-disabled",
+    initSurvey: (survey) => survey.setDesignMode(true),
+    before: () => { settings.supportCreatorV2 = true; },
+    after: () => { settings.supportCreatorV2 = false; },
   },
   {
     name: "Test Boolean Checkbox defaultV2",
@@ -171,6 +223,41 @@ registerMarkupTests(
       ]
     },
     snapshot: "boolean-radio-values",
+  },
+  {
+    name: "Test Boolean Radio question markup: Readonly",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          renderAs: "radio"
+        }
+      ]
+    },
+    snapshot: "boolean-radio-readonly",
+  },
+  {
+    name: "Test Boolean Radio question markup: Disabled",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          renderAs: "radio"
+        }
+      ]
+    },
+    snapshot: "boolean-radio-disabled",
+    initSurvey: (survey) => survey.setDesignMode(true),
+    before: () => { settings.supportCreatorV2 = true; },
+    after: () => { settings.supportCreatorV2 = false; },
   },
   ]
 );

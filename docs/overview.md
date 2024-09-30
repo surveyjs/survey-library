@@ -13,8 +13,7 @@ SurveyJS Form Library is a free MIT-licensed UI component that allows you to ren
 - [Angular](https://surveyjs.io/Documentation/Library?id=get-started-angular)
 - [Vue](https://surveyjs.io/Documentation/Library?id=get-started-vue)
 - [React](https://surveyjs.io/Documentation/Library?id=get-started-react)
-- [Knockout](https://surveyjs.io/Documentation/Library?id=get-started-knockout)
-- [jQuery](https://surveyjs.io/Documentation/Library?id=get-started-jquery)
+- [HTML/CSS/JavaScript](/form-library/documentation/get-started-html-css-javascript)
 
 ## Features
 

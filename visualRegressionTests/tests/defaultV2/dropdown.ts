@@ -677,4 +677,25 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check dropdown readonly with empty placeholder", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "q1",
+            placeholder: "",
+            readOnly: true,
+            "choices": ["item1", "item2"]
+          },
+        ]
+      });
+
+      const emptyDropdown = Selector(".sd-dropdown--empty.sd-input--readonly").filterVisible();
+      await takeElementScreenshot("dropdown-readonly-empty-placeholder.png", emptyDropdown, t, comparer);
+    });
+  });
+
 });

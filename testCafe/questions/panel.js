@@ -204,3 +204,23 @@ frameworks.forEach((framework) => {
       .expect(Selector("span").withText("question1").visible).ok();
   });
 });
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, { elements: [{ type: "panel", name: "panel", elements: [{ type: "text", name: "q1" }] }] });
+    }
+  );
+
+  test("Check panel title reactivity", async (t) => {
+    const setTitle = ClientFunction((title) => {
+      window.survey.getAllPanels()[0].title = title;
+    });
+    const titleSelector = Selector(".sv_p_title");
+    await t.expect(titleSelector.exists).notOk();
+    await setTitle("panel title");
+    await t.expect(titleSelector.exists).ok().expect(titleSelector.innerText).eql("panel title");
+    await setTitle("");
+    await t.expect(titleSelector.exists).notOk();
+  });
+});

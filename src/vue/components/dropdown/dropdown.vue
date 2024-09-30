@@ -3,7 +3,7 @@
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
-      v-bind:disabled="question.isInputReadOnly"
+      v-bind:disabled="question.isDisabledAttr"
       :tabindex="model.noTabIndex ? undefined : 0"
       @keydown="keyhandler"
       @blur="blur"
@@ -42,7 +42,7 @@
       type="text"
       ref="inputElement"
       v-bind:class="question.cssClasses.filterStringInput"
-      v-bind:disabled="question.isInputReadOnly"
+      v-bind:disabled="question.isDisabledAttr"
       autocomplete="off"
       :inputmode="model.inputMode"
       :role="model.filterStringEnabled ? question.ariaRole : null"
@@ -58,7 +58,7 @@
       :placeholder="model.placeholderRendered"
       @input="inputChange"
       @blur="blur"
-    @focus="focus"
+      @focus="focus"
         />
       </div>
       <div
@@ -81,7 +81,12 @@
       v-if="!question.isReadOnly"
       :model="question.dropdownListModel.popupModel"
     ></sv-popup>
-    <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
+    <div v-else :id="question.inputId"
+      :aria-label="question.a11y_input_ariaLabel"
+      :aria-labelledby="question.a11y_input_ariaLabelledBy"
+      :aria-describedby="question.a11y_input_ariaDescribedBy"
+      :tabindex="question.isDisabledAttr ? undefined : 0"
+      :class="question.getControlClass()">
       <survey-string
         v-if="selectedItemLocText"
         :locString="selectedItemLocText"
@@ -147,11 +152,11 @@ export class DropdownComponent extends BaseVue {
     this.model?.keyHandler(event);
   }
   public blur(event: any) {
-    this.model?.onBlur(event);
+    this.question.onBlur(event);
     this.updateInputDomElement();
   }
   public focus(event: any) {
-    this.model?.onFocus(event);
+    this.question.onFocus(event);
   }
 
   protected onMounted() {

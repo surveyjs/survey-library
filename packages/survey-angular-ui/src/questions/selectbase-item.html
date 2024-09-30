@@ -1,10 +1,12 @@
 <ng-template #template>
-  <div role="presentation" [class]="question.getItemClass(model)">
+  <div role="presentation" [class]="question.getItemClass(model)" #container>
     <ng-container [ngSwitch]="inputType">
-      <label *ngSwitchCase="'checkbox'" [class]="question.getLabelClass(model)" [model]="model" [question]="question" sv-ng-checkbox-item>
+      <label *ngSwitchCase="'checkbox'" [class]="question.getLabelClass(model)" [model]="model" [question]="question"
+        sv-ng-checkbox-item>
         <ng-container *ngTemplateOutlet="itemDecorator"></ng-container>
       </label>
-      <label *ngSwitchCase="'radio'" (mousedown)="question.onMouseDown()" [class]="question.getLabelClass(model)" [model]="model" [question]="question" sv-ng-radiogroup-item>
+      <label *ngSwitchCase="'radio'" (mousedown)="question.onMouseDown()" [class]="question.getLabelClass(model)"
+        [model]="model" [question]="question" sv-ng-radiogroup-item>
         <ng-container *ngTemplateOutlet="itemDecorator"></ng-container>
       </label>
     </ng-container>
@@ -16,7 +18,7 @@
       </span>
       <span [class]="question.getControlLabelClass(model)" *ngIf="!model.hideCaption">
         <sv-ng-string [model]="model.locText"></sv-ng-string>
-      </span> 
+      </span>
     </ng-template>
   </div>
 </ng-template>

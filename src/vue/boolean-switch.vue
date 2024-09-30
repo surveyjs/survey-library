@@ -9,7 +9,8 @@
         :class="question.cssClasses.control"
         :id="question.inputId"
         :indeterminate.prop="question.isIndeterminate"
-        :disabled="question.isInputReadOnly"
+        :disabled="question.isDisabledAttr"
+        :readonly="question.isReadOnlyAttr"
         :role="question.a11y_input_ariaRole"
         :aria-required="question.a11y_input_ariaRequired"
         :aria-label="question.a11y_input_ariaLabel"
@@ -31,7 +32,7 @@
         :class="question.cssClasses.switch"
         v-on:click="onSwitchClick($event)"
       >
-        <span :class="question.cssClasses.slider" :style="{ marginLeft: question.thumbMargin }">
+        <span :class="question.cssClasses.slider">
           <span v-if="question.cssClasses.sliderText && question.isDeterminated" :class="question.cssClasses.sliderText">
             <survey-string :locString="question.getCheckedLabel()"></survey-string>
           </span>

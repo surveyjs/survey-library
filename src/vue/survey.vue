@@ -1,6 +1,7 @@
 <template>
   <div :class="survey.getRootCss()"
     :style="vueSurvey.themeVariables"
+    :lang="vueSurvey.locale || 'en'" :dir="vueSurvey.localeDir"
     >
     <sv-svg-bundle v-if="vueSurvey.needRenderIcons"></sv-svg-bundle>
     <div :class="vueSurvey.wrapperFormCss">
@@ -26,6 +27,7 @@
                     :css="css"
                   />
                   <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentBottom'"></component>
+                  <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
                 </div>
               </div>
               <component :is="'sv-components-container'" :survey="vueSurvey" :container="'right'"></component>
@@ -54,7 +56,6 @@
           </div>
         </div>
       </form>
-      <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
       <sv-notifier :model="vueSurvey.notifier"></sv-notifier>
     </div>
   </div>

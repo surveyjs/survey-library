@@ -2,12 +2,12 @@
   <fieldset :class="question.getSelectBaseRootCss()" ref="root">
     <legend class="sv-hidden">{{ question.locTitle.renderedHtml }}</legend>
     <template v-if="!question.hasColumns">
-      <component
+      <SvComponent
         v-for="item in question.visibleChoices"
         :key="item.value"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
-      ></component>
+      ></SvComponent>
     </template>
     <template v-if="question.hasColumns">
       <div
@@ -16,18 +16,19 @@
         :key="colIndex"
         role="presentation"
       >
-        <component
+        <SvComponent
           v-for="item in column"
           :key="item.value"
           :is="getItemValueComponentName(item)"
           v-bind="getItemValueComponentData(item)"
-        ></component>
+        ></SvComponent>
       </div>
     </template>
   </fieldset>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { ItemValue, QuestionImagePickerModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";

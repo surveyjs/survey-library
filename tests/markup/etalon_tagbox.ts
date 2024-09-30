@@ -1,4 +1,4 @@
-import { _setIsTouch } from "survey-core";
+import { _setIsTouch, settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -107,6 +107,29 @@ registerMarkupTests(
         ]
       },
       snapshot: "tagbox-readonly-with-value"
+    }, {
+      name: "Test Tagbox question markup disabled with value",
+      json: {
+        questions: [
+          {
+            "type": "tagbox",
+            "name": "name",
+            "title": "Question title",
+            defaultValue: "item1",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      removeIds: true,
+      initSurvey: (survey) => survey.setDesignMode(true),
+      before: () => { settings.supportCreatorV2 = true; },
+      after: () => { settings.supportCreatorV2 = false; },
+      snapshot: "tagbox-disabled-with-value"
     }, {
       name: "Test Tagbox question without clear button markup",
       json: {

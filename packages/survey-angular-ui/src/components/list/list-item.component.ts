@@ -34,6 +34,9 @@ export class ListItemComponent extends BaseAngular implements AfterViewInit {
   pointerdown(event: any): void {
     this.listModel.onPointerDown(event, this.model);
   }
+  get itemComponent(): string {
+    return this.model.component || this.listModel.itemComponent;
+  }
 
   getModel() {
     return this.model;

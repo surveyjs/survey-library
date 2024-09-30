@@ -4,7 +4,7 @@
       v-if="!question.isReadOnly"
       :id="question.inputId"
       :tabindex="model.noTabIndex ? undefined : 0"
-      v-bind:disabled="question.isInputReadOnly ? true : null"
+      v-bind:disabled="question.isDisabledAttr ? true : null"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
@@ -13,26 +13,24 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-errormessage="question.ariaErrormessage"
-      :aria-expanded="
-        question.ariaExpanded === null
-          ? undefined
-          : question.ariaExpanded === 'true'
-      "
+      :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
       :required="question.isRequired ? true : null"
     >
       <div :class="question.cssClasses.controlValue">
-        <sv-tagbox-item
+        <SvComponent
+          :is="'sv-tagbox-item'"
           v-for="(item, index) in selectedChoices"
           :item="item"
           :question="question"
           :key="'item' + index"
-        ></sv-tagbox-item>
-        <sv-tagbox-filter
+        ></SvComponent>
+        <SvComponent
+          :is="'sv-tagbox-filter'"
           :model="model"
           :question="question"
-        ></sv-tagbox-filter>
+        ></SvComponent>
       </div>
       <div
         :class="question.cssClasses.cleanButton"
@@ -41,23 +39,32 @@
         @click="clear"
         aria-hidden="true"
       >
-        <sv-svg-icon
+        <SvComponent
+          :is="'sv-svg-icon'"
           :class="question.cssClasses.cleanButtonSvg"
           :iconName="question.cssClasses.cleanButtonIconId"
           :title="question.clearCaption"
           size="auto"
         >
-        </sv-svg-icon>
+        </SvComponent>
       </div>
     </div>
-    <sv-popup v-if="!question.isReadOnly" :model="model.popupModel"></sv-popup>
+    <SvComponent
+      :is="'sv-popup'"
+      v-if="!question.isReadOnly"
+      :model="model.popupModel"
+    ></SvComponent>
     <div
-      disabled
       v-else
       :id="question.inputId"
+      :aria-label="question.a11y_input_ariaLabel"
+      :aria-labelledby="question.a11y_input_ariaLabelledBy"
+      :aria-describedby="question.a11y_input_ariaDescribedBy"
+      :tabindex="question.isDisabledAttr ? undefined : 0"
       :class="question.getControlClass()"
     >
-      <survey-string
+      <SvComponent
+        :is="'survey-string'"
         v-if="question.locReadOnlyText"
         :locString="question.locReadOnlyText"
       />
@@ -68,17 +75,19 @@
       v-if="question.cssClasses.chevronButtonIconId"
       aria-hidden="true"
     >
-      <sv-svg-icon
+      <SvComponent
+        :is="'sv-svg-icon'"
         :class="question.cssClasses.chevronButtonSvg"
         :iconName="question.cssClasses.chevronButtonIconId"
         size="auto"
       >
-      </sv-svg-icon>
+      </SvComponent>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import { useBase, useComputedArray } from "@/base";
 import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
 import { computed } from "vue";

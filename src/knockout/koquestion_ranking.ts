@@ -6,6 +6,8 @@ import {
 } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
+export * from "./components/ranking/item-content";
+
 export class QuestionRanking extends QuestionRankingModel {
   private _implementor: QuestionImplementor;
   protected onBaseCreating() {

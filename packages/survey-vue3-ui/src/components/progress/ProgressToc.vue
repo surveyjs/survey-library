@@ -1,15 +1,21 @@
 <template>
   <div :class="model.containerCss">
     <div v-if="model.isMobile" v-on:click="model.togglePopup" v-key2click>
-      <sv-svg-icon :iconName="model.icon" :size="24"></sv-svg-icon>
-      <sv-popup :model="model.popupModel"></sv-popup>
+      <SvComponent
+        :is="'sv-svg-icon'"
+        :iconName="model.icon"
+        :size="24"
+      ></SvComponent>
+      <SvComponent :is="'sv-popup'" :model="model.popupModel"></SvComponent>
     </div>
-    <sv-list v-else :model="model.listModel"></sv-list>
+    <SvComponent :is="'sv-list'" v-else :model="model.listModel"></SvComponent>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { key2ClickDirective as vKey2click } from "@/directives/key2click";
+import SvComponent from "@/SvComponent.vue";
 import { type SurveyModel, TOCModel } from "survey-core";
 
-const props = defineProps<{ survey: SurveyModel, model: TOCModel }>();
+defineProps<{ survey: SurveyModel; model: TOCModel }>();
 </script>

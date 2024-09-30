@@ -5,12 +5,13 @@
     :disabled="question.isInputReadOnly"
     @click="() => question.removeRowUI(row)"
   >
-    <survey-string :locString="question.locRemoveRowText" />
+    <SvComponent :is="'survey-string'" :locString="question.locRemoveRowText" />
     <span :class="question.cssClasses.iconRemove"></span>
   </button>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { Action } from "survey-core";
 import { useMatrixAction } from "../matrix-action";
 const props = defineProps<{ item: Action }>();

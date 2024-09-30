@@ -9,7 +9,8 @@
       :name="row.fullName"
       v-model="row.value"
       :value="column.value"
-      :disabled="row.isReadOnly"
+      :readonly="row.isReadOnlyAttr"
+      :disabled="row.isDisabledAttr"
       :id="question.inputId + '_' + row.name + '_' + columnIndex"
       :aria-required="question.a11y_input_ariaRequired"
       :aria-label="
@@ -33,23 +34,26 @@
       v-if="question.isMobile"
       :class="question.cssClasses.cellResponsiveTitle"
     >
-      <survey-string :locString="column.locText"></survey-string>
+      <SvComponent
+        :is="'survey-string'"
+        :locString="column.locText"
+      ></SvComponent>
     </span>
   </label>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type {
   MatrixRowModel,
   ItemValue,
   QuestionMatrixModel,
 } from "survey-core";
-import { useBase } from "./base";
 
 defineOptions({
   inheritAttrs: false,
 });
-const props = defineProps<{
+defineProps<{
   question: QuestionMatrixModel;
   row: MatrixRowModel;
   column: ItemValue;

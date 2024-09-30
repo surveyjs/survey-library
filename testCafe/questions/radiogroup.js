@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, applyTheme, urlV2 } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -519,5 +519,81 @@ frameworks.forEach(framework => {
 
     const surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult, { q1: "item2", "q1-Comment": "ABCDEF" });
+  });
+  test("Do not clear comment area on clicking Clear button #8287", async t => {
+    const clearButton = Selector("input[value=Clear]");
+    const currentJson = {
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["item1", "item2", "item3"],
+          showClearButton: true,
+          showCommentArea: true
+        }
+      ]
+    };
+    await initSurvey(framework, currentJson);
+
+    await t.click("input[value=item2]")
+      .typeText(Selector("textarea"), "ABC")
+      .click(clearButton)
+      .click("input[value=Complete]");
+
+    let surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({ "q1-Comment": "ABC" });
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
+    async (ctx) => {
+      const json = {
+        elements: [
+          {
+            type: "radiogroup",
+            name: "car",
+            title: "What car are you driving?",
+            isRequired: true,
+            colCount: 4,
+            hasOther: true,
+            hasNone: true,
+            readOnly: true,
+            choices: [
+              "Unknown",
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+              "Nissan",
+              "Audi",
+              "Mercedes-Benz",
+              "BMW",
+              "Peugeot",
+              "Toyota",
+              "Citroen",
+            ],
+            defaultValue: "BMW"
+          },
+        ],
+      };
+      await applyTheme("defaultV2");
+      await initSurvey(framework, json);
+    }
+  );
+
+  test("readonly", async (t) => {
+    const input = Selector("input[value=Ford]");
+    await t.click(input);
+    await t.expect(input.checked).eql(false);
+    await t.expect(Selector("input[value=BMW]").checked).eql(true);
+  });
+
+  test("readonly:keyboard disabled", async (t) => {
+    await t.pressKey("tab").pressKey("down");
+    const getValue = ClientFunction(()=>{
+      return window["survey"].getAllQuestions()[0].value;
+    });
+    const value = await getValue();
+    await t.expect(value).eql("BMW", "value doesn't change");
   });
 });

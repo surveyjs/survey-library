@@ -1,6 +1,12 @@
 <template>
   <div class="sd-loading-indicator">
-    <sv-svg-icon :iconName="'icon-loading'" size="'auto'"></sv-svg-icon>
+    <SvComponent
+      :is="'sv-svg-icon'"
+      :iconName="'icon-loading'"
+      size="'auto'"
+    ></SvComponent>
   </div>
 </template>
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import SvComponent from "@/SvComponent.vue";
+</script>

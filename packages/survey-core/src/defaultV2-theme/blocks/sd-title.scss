@@ -1,0 +1,116 @@
+.sd-title {
+  display: block;
+  font-family: $font-family;
+  font-style: normal;
+  color: $foreground;
+  flex-direction: row;
+  white-space: normal;
+}
+
+.sd-title.sd-container-modern__title {
+  display: flex;
+  align-items: center;
+  padding: var(--sd-page-vertical-padding) var(--sd-page-vertical-padding);
+  overflow: auto;
+  font-family: $font-family;
+  gap: calcSize(4);
+  box-shadow: 0px 2px 0px $primary;
+
+  .sd-logo.sv-logo--right {
+    margin-left: auto;
+  }
+
+  .sd-logo__image {
+    margin-top: calcSize(1);
+  }
+}
+
+.sd-header__text {
+  display: flex;
+  flex-direction: column;
+  gap: calcSize(1);
+  flex-grow: 1;
+
+  .sd-title {
+    @include survey_title;
+    color: $font-surveytitle-color;
+    font-family: $font-surveytitle-family;
+    font-weight: $font-surveytitle-weight;
+  }
+
+  h3 {
+    line-height: calcLineHeight(2.5);
+  }
+
+  h5 {
+    font-size: calcFontSize(1);
+    font-weight: 400;
+    line-height: calcLineHeight(1.5);
+  }
+
+  .sd-description {
+    @include survey_description;
+    color: $font-surveydescription-color;
+    font-family: $font-surveydescription-family;
+    font-weight: $font-surveydescription-weight;
+  }
+}
+
+//todo: add ability to customize class sv-title-actions in library
+.sd-title {
+  .sv-title-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+.sd-root-modern {
+  .sd-container-modern__title {
+    background-color: $background;
+  }
+}
+
+.sd-root-modern {
+  .sd-container-modern__title {
+    .sd-header__text h3 {
+      margin: 0;
+    }
+
+    .sd-description {
+      margin: 0;
+      color: $foreground-light;
+    }
+  }
+}
+
+.sd-title .sv-title-actions {
+  align-items: flex-start;
+  width: calc(100% + 3 * #{$base-unit});
+
+  .sv-title-actions__title {
+    flex-wrap: wrap;
+    flex: 0 1 auto;
+    max-width: calc(100% - 3 * #{$base-unit});
+    white-space: initial;
+    min-width: unset;
+  }
+}
+
+.sd-root--compact .sd-title .sv-title-actions {
+  width: 100%;
+}
+
+.sd-action-title-bar {
+  flex: 1 9 auto;
+  min-width: calcSize(6);
+  justify-content: flex-end;
+  margin: calcSize(-1) 0;
+
+  .sv-action {
+    flex: 0 0 auto;
+  }
+}
+
+.sd-action-title-bar.sd-action-bar--empty {
+  min-width: 0;
+}

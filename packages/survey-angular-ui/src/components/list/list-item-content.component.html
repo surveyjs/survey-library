@@ -1,0 +1,7 @@
+<ng-template #template>
+<svg *ngIf="model.iconName" [class]="listModel.cssClasses.itemIcon" [iconName]="model.iconName" [size]="model.iconSize"
+  sv-ng-svg-icon></svg>
+<sv-ng-string [model]="model.locTitle"></sv-ng-string>
+<svg *ngIf="model.markerIconName" [class]="model.cssClasses.itemMarkerIcon" [iconName]="model.markerIconName" [size]="model.markerIconSize"
+  sv-ng-svg-icon></svg>
+</ng-template>

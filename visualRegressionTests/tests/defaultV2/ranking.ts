@@ -1,5 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { registerCustomItemContentComponent } from "../../../testCafe/helper";
 
 const title = "Ranking Screenshot";
 
@@ -305,6 +306,54 @@ frameworks.forEach(framework => {
       })();
       const question = Selector(".sv-ranking-item");
       await takeElementScreenshot("question-ranking-item-theme.png", question, t, comparer);
+    });
+  });
+
+  test("Ranking custom content component", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await registerCustomItemContentComponent(framework);
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "ranking",
+            name: "ranking_question",
+            itemComponent: "new-item-content",
+            choices: ["item1", "item2", "item3", "item4"],
+            readOnly: "true"
+          }
+        ]
+      });
+      const itemContent = Selector(".sv-ranking-item").nth(0).find(".sv-ranking-item__text");
+      await takeElementScreenshot("question-ranking-custom-item-content.png", itemContent, t, comparer);
+    });
+  });
+
+  test("Ranking long items", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await registerCustomItemContentComponent(framework);
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "ranking",
+            name: "ranking_question",
+            choices:
+            [
+              "longitem_1 longitem_1 longitem_1 longitem_1 longitem_1 longitem_1 longitem_1 longitem_1 longitem_1",
+              "item2",
+              "longitem_3 longitem_3 longitem_3 longitem_3 longitem_3 longitem_3 longitem_3 longitem_3 longitem_3",
+              "item4"
+            ]
+          }
+        ]
+      });
+      await takeElementScreenshot("question-ranking-long-items.png", Selector(".sd-question"), t, comparer);
+
+      await t.hover(".sv-ranking-item");
+      await takeElementScreenshot("question-ranking-hover-long-item.png", Selector(".sd-question"), t, comparer);
     });
   });
 });

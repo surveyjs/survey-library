@@ -39,7 +39,7 @@ Serializer.addProperty("question", {
 
 ## Define Custom Properties in a New Class
 
-This way is suitable if you create a new class. For instance, the following code implements `MyCustomClass` based on the `Question` class. The custom class has one custom property.
+This approach is suitable if you create a new class. Each custom property should be defined by a getter/setter pair that returns and sets the property value. For instance, the following code shows how to implement `MyCustomClass` based on the `Question` class and define one custom property.
 
 ```js
 import { Question, ElementFactory } from "survey-core";
@@ -60,6 +60,8 @@ ElementFactory.Instance.registerElement("my-custom-class", (name) => {
   return new MyCustomClass(name);
 });
 ```
+
+> Custom [localizable properties](#define-a-custom-localizable-property) and [item collections](#define-a-custom-item-collection-property) require additional configuration.
 
 To finish creating a new class, you need to configure how it should be serialized to and deserialized from JSON. Call the `addClass(name, propMeta[], constructor, baseClassName)` method on the `Serializer` object. This method has the following parameters:
 
@@ -98,6 +100,105 @@ Serializer.addClass(
 
 [View Demo](https://surveyjs.io/survey-creator/examples/custom-colorpicker-property-editor/ (linkStyle))
 
+### Define a Custom Item Collection Property
+
+In addition to a getter/setter pair, a custom item collection property needs the `this.createItemValues(name)` method to be called in the class constructor. This method adds reactivity and localization support to the item collection.
+
+```js
+import { Question, ElementFactory } from "survey-core";
+
+export class MyCustomClass extends Question {
+   constructor() {
+    super();
+    this.createItemValues("myItemCollectionProperty");
+  }
+  getType() {
+    return "my-custom-class";
+  }
+  get myItemCollectionProperty() {
+    return this.getPropertyValue("myItemCollectionProperty");
+  }
+  set itemCollectionProperty(val) {
+    this.setPropertyValue("myItemCollectionProperty", val);
+  }
+}
+
+ElementFactory.Instance.registerElement("my-custom-class", (name) => {
+  return new MyCustomClass(name);
+});
+
+Serializer.addClass(
+  "my-custom-class",
+  [{
+    name: "myItemCollectionProperty",
+    type: "itemvalue",
+    category: "general",
+    visibleIndex: 3
+  }],
+  function () {
+    return new MyCustomClass("");
+  },
+  "question"
+);
+```
+
+### Define a Custom Localizable Property
+
+Follow the steps below to add a custom localizable property to a new class:
+
+1. Call the `this.createLocalizableString(name, owner)` method in the class constructor to create a `LocalizableString` instance. This instance contains its own inner dictionary with translations of a particular string for different locales.
+2. Add a getter/setter pair that returns and sets localized text and a getter that returns the `LocalizableString` instance itself.
+3. In serialization settings, set the `serializationProperty` setting to the name of the getter that returns the `LocalizableString` instance.
+
+```js
+import { Question, ElementFactory, Serializer } from "survey-core";
+
+export class MyCustomClass extends Question {
+  constructor() {
+    super();
+    // Step 1: Create a `LocalizableString` instance
+    this.createLocalizableString("myLocalizableProperty", this);
+  }
+  getType() {
+    return "my-custom-class";
+  }
+  // Step 2: Add getters and setters
+  get myLocalizableProperty() {
+    // Return the property text for the current locale
+    return this.getLocalizableStringText("myLocalizableProperty");
+  }
+  set myLocalizableProperty(val) {
+    // Set the property text for the current locale
+    this.setLocalizableStringText("myLocalizableProperty", val);
+  }
+  get locMyLocalizableProperty() {
+    // Return a `LocalizationString` instance for `myLocalizableProperty`
+    return this.getLocalizableString("myLocalizableProperty");
+  }
+}
+
+ElementFactory.Instance.registerElement("my-custom-class", (name) => {
+  return new MyCustomClass(name);
+});
+
+Serializer.addClass(
+  "my-custom-class",
+  [{
+    name: "myLocalizableProperty",
+    category: "general",
+    visibleIndex: 2,
+    // Step 3: Deserialize `myLocalizableProperty` to `locMyLocalizableProperty`
+    serializationProperty: "locMyLocalizableProperty"
+  }],
+  function () {
+    return new MyCustomClass("");
+  },
+  "question"
+);
+```
+
+[View Demo](https://surveyjs.io/survey-creator/examples/custom-descriptive-text-element/ (linkStyle))
+
 ## Survey Element Property Settings
 
 This section describes settings that you can specify within a `propMeta` object when calling the `addProperty(className, propMeta)` or `addClass(name, propMeta[], constructor, baseClassName)` method on the `Serializer` object.
@@ -121,7 +222,7 @@ A string value that specifies the property type. Accepts one of the values descr
 | `"file"` | Text input with a button that opens a Select File dialog window | Use this type to allow respondents to select a file or enter a file URL. |
 | `"color"` | Color picker | Use this type for color values. |
 | `"html"` | Multi-line text input | Use this type for HTML markup. |
-| `"itemvalues"` | Customized text inputs for entering value-text pairs | Use this type for arrays of objects with the following structure: `{ value: any, text: string }`. For example, Dropdown, Checkboxes, and Radio Button Group questions use this type for the [`choices`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choices) property. |
+| [`"itemvalue"`](#define-a-custom-item-collection-property) | Customized text inputs for entering value-text pairs | Use this type for arrays of objects with the following structure: `{ value: any, text: string }`. For example, Dropdown, Checkboxes, and Radio Button Group questions use this type for the [`choices`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choices) property. |
 | `"value"` | Button that opens a dialog window  | The dialog window displays the survey element and allows users to set the element's default value. |
 | `"multiplevalues"` | A group of checkboxes with a Select All checkbox | Use this type to allow respondents to select more than one predefined value. Requires a defined [`choices`](#choices) array. |
 
@@ -302,60 +403,9 @@ Serializer.addProperty("question",
 );
 ```
 
-The `isLocalizable` setting applies only if you add a custom property to an existing class. If you want to add a custom localizable property to a [new class](#define-custom-properties-in-a-new-class), follow the steps below:
+The `isLocalizable` setting applies only if you add a custom property to an *existing* class. For information on how to add a custom localizable property to a *new* class, refer to the following section:
 
-1. Call the `this.createLocalizableString(name, owner)` method in the class constructor to create a `LocalizableString` instance. This instance contains its own inner dictionary with translations of a particular string for different locales.
-2. Add a getter/setter pair that returns and sets localized text and a getter that returns the `LocalizableString` instance itself.
-3. In serialization settings, set the `serializationProperty` setting to the name of the getter that returns the `LocalizableString` instance.
-
-```js
-import { Question, ElementFactory, Serializer } from "survey-core";
-
-export class MyCustomClass extends Question {
-  constructor() {
-    super();
-    // Step 1: Create a `LocalizableString` instance
-    this.createLocalizableString("myCustomProperty", this);
-  }
-  getType() {
-    return "my-custom-class";
-  }
-  // Step 2: Add getters and setters
-  get myCustomProperty() {
-    // Return the property text for the current locale
-    return this.getLocalizableStringText("myCustomProperty");
-  }
-  set myCustomProperty(val) {
-    // Set the property text for the current locale
-    this.setLocalizableStringText("myCustomProperty", val);
-  }
-  get locMyCustomProperty() {
-    // Return a `LocalizationString` instance for `myCustomProperty`
-    return this.getLocalizableString("myCustomProperty");
-  }
-}
-
-ElementFactory.Instance.registerElement("my-custom-class", (name) => {
-  return new MyCustomClass(name);
-});
-
-Serializer.addClass(
-  "my-custom-class",
-  [{
-    name: "myCustomProperty",
-    category: "general",
-    visibleIndex: 2,
-    // Step 3: Deserialize `myCustomProperty` to `locMyCustomProperty`
-    serializationProperty: "locMyCustomProperty"
-  }],
-  function () {
-    return new MyCustomClass("");
-  },
-  "question"
-);
-```
-
-[View Demo](https://surveyjs.io/survey-creator/examples/custom-descriptive-text-element/ (linkStyle))
+[Define a Custom Localizable Property](#define-a-custom-localizable-property (linkStyle))
 
 ### `visible`
 

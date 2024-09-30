@@ -1,5 +1,5 @@
 <template>
-  <div v-if="components.length > 0" class="sv-components-column">
+  <div v-if="components.length > 0" :class="['sv-components-column', 'sv-components-container-' + container]">
     <template v-for="component in components">
       <component
         :is="component.component"

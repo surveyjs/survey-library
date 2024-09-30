@@ -24,5 +24,6 @@
 
 <script setup lang="ts">
 import type { QuestionFileModel } from "survey-core";
+import SvComponent from "@/SvComponent.vue";
 defineProps<{ question: QuestionFileModel }>();
 </script>

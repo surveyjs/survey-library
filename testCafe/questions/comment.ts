@@ -3,7 +3,6 @@ import { ClientFunction, Selector } from "testcafe";
 const title = "comment";
 
 const commentQuestion = Selector(".sv_q textarea");
-const otherCommentQuestion = Selector(".sv_q .sv_q_other");
 const json = {
   questions: [
     {
@@ -28,7 +27,6 @@ frameworks.forEach(framework => {
             {
               "type": "comment",
               "name": "question1",
-              "autoGrow": true
             },
             {
               "type": "radiogroup",
@@ -39,7 +37,6 @@ frameworks.forEach(framework => {
             {
               "type": "comment",
               "name": "question3",
-              "autoGrow": true,
               "acceptCarriageReturn": false
             },
           ]
@@ -57,14 +54,14 @@ frameworks.forEach(framework => {
       .expect(commentQuestion.clientHeight).eql(116)
 
       .pressKey("tab")
-      .expect(otherCommentQuestion.getStyleProperty("resize")).eql("none")
-      .expect(otherCommentQuestion.clientHeight).eql(60)
+      .expect(commentQuestion.nth(1).getStyleProperty("resize")).eql("none")
+      .expect(commentQuestion.nth(1).clientHeight).eql(60)
 
       .pressKey("a enter a enter")
-      .expect(otherCommentQuestion.clientHeight).eql(88)
+      .expect(commentQuestion.nth(1).clientHeight).eql(88)
 
       .pressKey("backspace")
-      .expect(otherCommentQuestion.clientHeight).eql(60)
+      .expect(commentQuestion.nth(1).clientHeight).eql(60)
 
       .pressKey("tab")
       .expect(commentQuestion.nth(2).getStyleProperty("resize")).eql("none")

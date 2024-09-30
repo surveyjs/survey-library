@@ -1,5 +1,5 @@
 <ng-template #template>
-  <td [class]="cell.className" [attr.data-responsive-title]="getHeaders()" *ngIf="canRender" [title]="cell.getTitle()"
+  <td [class]="cell.className" *ngIf="canRender" [title]="cell.getTitle()"
     [style]="getCellStyle()" [attr.colspan]="cell.colSpans" (focusin)="cell.focusIn()" #cellContainer>
     <sv-ng-matrix-drag-drop-icon *ngIf="cell.isDragHandlerCell"
       [model]="$any({ data: { row: row, question: question } })"></sv-ng-matrix-drag-drop-icon>
@@ -8,6 +8,7 @@
       <ng-template [component]="{ name: panelComponentName, data: panelComponentData }"></ng-template>
     </ng-container>
     <div *ngIf="cell.isErrorsCell && cell.question?.hasVisibleErrors" [element]="cell.question" sv-ng-errors></div>
+    <span *ngIf="cell.showResponsiveTitle" [class]="cell.responsiveTitleCss" [model]="cell.responsiveLocTitle" sv-ng-string></span>
     <div *ngIf="cell.hasQuestion" [class]="cell.cellQuestionWrapperClassName"
       [visible]="cell.question.isVisible">
       <ng-container *ngIf="!cell.isChoice && cell.question.isDefaultRendering()">

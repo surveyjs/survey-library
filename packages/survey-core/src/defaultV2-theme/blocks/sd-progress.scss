@@ -1,0 +1,52 @@
+.sd-progress {
+  height: 2px;
+  background-color: $border-light;
+  position: relative;
+}
+
+.sd-progress__bar {
+  position: relative;
+  height: 100%;
+  background-color: $primary;
+  overflow: hidden;
+}
+
+.sd-progress__text {
+  position: absolute;
+  margin-top: calcSize(1);
+  padding: calcSize(1) calcSize(1.5);
+  right: calcSize(1.5);
+  color: $foreground-dim-light;
+  font-size: calcFontSize(0.75);
+  line-height: calcLineHeight(1);
+  font-weight: 600;
+
+  @media only screen and (min-width: 1000px) {
+    margin-left: 5%;
+  }
+
+  @media only screen and (max-width: 1000px) {
+    margin-left: 10px;
+  }
+}
+
+.sd-body__progress--top {
+  margin-bottom: calcSize(4);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.sd-body__progress--bottom .sd-progress__text {
+  margin-top: calcSize(-3.5);
+}
+
+.sv-root--sticky-top {
+  .sd-progress__text {
+    border-radius: calcSize(0.5);
+    color: $foreground-dim;
+    opacity: 0.75;
+    background: $background;
+    box-shadow: $shadow-medium, $shadow-small;
+  }
+}

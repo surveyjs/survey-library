@@ -1,5 +1,5 @@
 <template>
-  <div role="presentation" :class="question.getItemClass(item)">
+  <div role="presentation" :class="question.getItemClass(item)" ref="root">
     <label @mousedown="question.onMouseDown()" :class="getLabelClass(item)">
       <input
         type="radio"
@@ -9,6 +9,7 @@
         :aria-errormessage="question.ariaErrormessage"
         v-model="renderedValue"
         :disabled="!question.getItemEnabled(item)"
+        :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl"
       /><span
         v-if="question.cssClasses.materialDecorator"
@@ -21,17 +22,18 @@
           <use :xlink:href="question.itemSvgIcon"></use>
         </svg> </span
       ><span v-if="!hideLabel" :class="getControlLabelClass(item)">
-        <survey-string :locString="item.locText" />
+        <SvComponent :is="'survey-string'" :locString="item.locText" />
       </span>
     </label>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { ItemValue, QuestionRadiogroupModel } from "survey-core";
-import { useBase } from "./base";
-import { computed } from "vue";
-
+import { computed, ref } from "vue";
+import { useSelectBaseItem } from "./selectbase-item";
+const root = ref<HTMLElement>();
 defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
@@ -54,5 +56,9 @@ const renderedValue = computed({
   },
 });
 
-useBase(() => props.item);
+useSelectBaseItem(
+  () => props.item,
+  () => props.question,
+  root
+);
 </script>

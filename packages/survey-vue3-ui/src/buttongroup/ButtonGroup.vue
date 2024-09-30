@@ -1,15 +1,17 @@
 <template>
   <div role="group" :class="question.cssClasses.root" ref="root">
-    <sv-button-group-item
+    <SvComponent
+      :is="'sv-button-group-item'"
       v-for="(item, index) in question.visibleChoices"
       :question="question"
       :key="index"
       :item="item"
       :index="index"
-    ></sv-button-group-item>
+    ></SvComponent>
   </div>
 </template>
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionButtonGroupModel } from "survey-core";
 import { useQuestion } from "..";
 import { ref } from "vue";

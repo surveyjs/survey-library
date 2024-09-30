@@ -10,7 +10,8 @@
         :value="value"
         :checked="value === question.booleanValueRendered"
         :aria-errormessage="question.ariaErrormessage"
-        :disabled="question.isInputReadOnly"
+        :disabled="question.isDisabledAttr"
+        :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemRadioControl"
         @change="handleChange"
       />
@@ -26,13 +27,14 @@
         </svg>
       </span>
       <span :class="question.cssClasses.radioControlLabel">
-        <survey-string :locString="locText" />
+        <SvComponent :is="'survey-string'" :locString="locText" />
       </span>
     </label>
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { LocalizableString, QuestionBooleanModel } from "survey-core";
 
 const props = defineProps<{

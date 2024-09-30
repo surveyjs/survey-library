@@ -1,11 +1,13 @@
 <template>
   <label :key="item.value" @mousedown="question.onMouseDown()" :class="question.getItemClassByText(item.itemValue, item.text)">
     <input type="radio" class="sv-visuallyhidden" :name="question.questionName" :id="question.getInputId(index)"
-      :value="item.value" :disabled="question.isInputReadOnly"
+      :value="item.value"
+      :disabled="question.isDisabledAttr"
+      :readonly="question.isReadOnlyAttr"
       @click="(e) => question.setValueFromClick(e.target.value)" :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel" :aria-invalid="question.ariaInvalid"
       :aria-errormessage="question.ariaErrormessage" />
-    <span :class="question.cssClasses.itemText">
+    <span :class="question.cssClasses.itemText" :data-text="item.text">
       <survey-string :locString="item.locText" />
     </span>
   </label>

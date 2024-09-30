@@ -84,6 +84,58 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Matrix checkboxes", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1200, 1200);
+      await initSurvey(framework, {
+        "focusFirstQuestionAutomatic": true,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrixdropdown",
+                "name": "question1",
+                "defaultValue": {
+                  "Row 1": {
+                    "Column 1": [
+                      1
+                    ]
+                  },
+                  "Row 2": {
+                    "Column 1": [
+                      1
+                    ]
+                  }
+                },
+                "alternateRows": true,
+                "columns": [
+                  {
+                    "name": "Column 1",
+                    "cellType": "checkbox",
+                    "showInMultipleColumns": true
+                  }
+                ],
+                "choices": [
+                  1,
+                  2
+                ],
+                "rows": [
+                  "Row 1",
+                  "Row 2"
+                ]
+              }
+            ]
+          }
+        ],
+        "widthMode": "static"
+      });
+
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-checkboxes-alt-rows-focused.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Matrix single-select in panel", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1200);
@@ -1307,6 +1359,51 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix--single-page.png", pageElement, t, comparer);
     });
   });
+  test("Matrix title location left", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "Journeys",
+            "elements": [
+              {
+                "type": "matrixdynamic",
+                "name": "question2",
+                "title": "Please enter some information",
+                "titleLocation": "left",
+                "columns": [
+                  {
+                    "name": "Column 2",
+                    "cellType": "text"
+                  },
+                  {
+                    "name": "Column 3",
+                    "cellType": "radiogroup"
+                  }
+                ],
+                "choices": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "rowCount": 0
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off"
+      });
+      //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
+      const pageElement = Selector(".sd-page");
+
+      await takeElementScreenshot("question-matrix--title-left.png", pageElement, t, comparer);
+    });
+  });
+
   test("Check mobile multi select matrix with showHeader: false", async (t) => {
     await t.resizeWindow(600, 1080);
     await wrapVisualTest(t, async (t, comparer) => {
@@ -1356,5 +1453,102 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-matrixdropdown-without-header.png", Selector(".sd-question"), t, comparer);
     });
   });
+
+  test("matrix focus frame in one line", async (t) => {
+    await t.resizeWindow(1200, 1080);
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "panel",
+                "name": "panel1",
+                "elements": [
+                  {
+                    "type": "matrixdropdown",
+                    "name": "question1",
+                    "titleLocation": "hidden",
+                    "showHeader": false,
+                    "columns": [
+                      {
+                        "name": "Column 1",
+                        "width": "60%"
+                      }
+                    ],
+                    "choices": [
+                      1,
+                      2,
+                      3,
+                      4,
+                      5
+                    ],
+                    "cellType": "text",
+                    "rows": [
+                      {
+                        "value": "Row 1",
+                        "text": "Name:"
+                      },
+                      {
+                        "value": "Row 2",
+                        "text": "Email address:"
+                      },
+                      {
+                        "value": "Row 3",
+                        "text": "Phone:"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "matrixdropdown",
+                    "name": "question2",
+                    "startWithNewLine": false,
+                    "titleLocation": "hidden",
+                    "columnMinWidth": "60%",
+                    "showHeader": false,
+                    "columns": [
+                      {
+                        "name": "Column 1",
+                        "width": "60%"
+                      }
+                    ],
+                    "choices": [
+                      1,
+                      2,
+                      3,
+                      4,
+                      5
+                    ],
+                    "cellType": "text",
+                    "rows": [
+                      {
+                        "value": "Row 1",
+                        "text": "Department:"
+                      },
+                      {
+                        "value": "Row 2",
+                        "text": "Role:"
+                      },
+                      {
+                        "value": "Row 3",
+                        "text": "Location:"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "cookieName": "1000",
+        "widthMode": "static",
+        "width": "1000",
+        "focusFirstQuestionAutomatic": true
+      });
+      await takeElementScreenshot("matrix-focus-frame-in-one-line.png", Selector(".sd-row"), t, comparer);
+    });
+  });
+
 });
 

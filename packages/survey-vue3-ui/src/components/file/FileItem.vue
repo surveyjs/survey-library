@@ -1,5 +1,9 @@
 <template>
-  <span v-show="item" :class="question.cssClasses.previewItem">
+  <span
+    v-show="item"
+    :class="question.cssClasses.previewItem"
+    @click="question.doDownloadFileFromContainer($event)"
+  >
     <div
       v-if="item.name && question.cssClasses.fileSign"
       :class="question.cssClasses.fileSign"
@@ -23,27 +27,29 @@
         }"
         alt="File preview"
       />
-      <sv-svg-icon
+      <SvComponent
+        :is="'sv-svg-icon'"
         v-if="question.defaultImage(item)"
         :iconName="question.cssClasses.defaultImageIconId"
         :class="question.cssClasses.defaultImage"
         :size="'auto'"
-      ></sv-svg-icon>
+      ></SvComponent>
       <div
         v-if="item.name && !question.isReadOnly"
         :class="question.getRemoveButtonCss()"
-        @click="question.doRemoveFile(item)"
+        @click="question.doRemoveFile(item, $event)"
       >
         <span :class="question.cssClasses.removeFile">{{
           question.removeFileCaption
         }}</span>
-        <sv-svg-icon
+        <SvComponent
+          :is="'sv-svg-icon'"
           v-if="question.cssClasses.removeFileSvgIconId"
           :title="question.removeFileCaption"
           :class="question.cssClasses.removeFileSvg"
           :iconName="question.cssClasses.removeFileSvgIconId"
           :size="'auto'"
-        ></sv-svg-icon>
+        />
       </div>
     </div>
     <div
@@ -63,5 +69,6 @@
 </template>
 <script lang="ts" setup>
 import type { QuestionFileModel } from "survey-core";
+import SvComponent from "@/SvComponent.vue";
 defineProps<{ item: any; question: QuestionFileModel }>();
 </script>

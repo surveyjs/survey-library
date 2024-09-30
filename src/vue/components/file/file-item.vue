@@ -1,5 +1,5 @@
 <template>
-  <span v-show="item" :class="question.cssClasses.previewItem">
+  <span v-show="item" :class="question.cssClasses.previewItem" @click="question.doDownloadFileFromContainer($event)">
     <div
       v-if="item.name && question.cssClasses.fileSign"
       :class="question.cssClasses.fileSign"
@@ -32,7 +32,7 @@
       <div
         v-if="item.name && !question.isReadOnly"
         :class="question.getRemoveButtonCss()"
-        @click="question.doRemoveFile(item)"
+        @click="question.doRemoveFile(item, $event)"
       >
         <span :class="question.cssClasses.removeFile">{{
           question.removeFileCaption

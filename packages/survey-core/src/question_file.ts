@@ -1034,6 +1034,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
       },
       isAnimationEnabled: () => {
         return this.animationAllowed && !!this.rootElement;
+      },
+      getRerenderEvent: () => {
+        return this.onElementRerendered;
       }
     };
   }

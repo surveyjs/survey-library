@@ -92,7 +92,7 @@
         :question="question"
       ></SvComponent>
       <template v-if="question.allowShowPreview">
-        <SvComponent :is="'sv-file-preview'" :question="question"></SvComponent>
+        <SvComponent :is="'sv-file-preview'" :question="question" />
       </template>
       <SvComponent
         :is="'sv-file-clean-btn'"

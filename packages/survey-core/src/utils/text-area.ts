@@ -53,7 +53,7 @@ export class TextAreaModel {
 
   public getTextValue(): string {
     if (!!this.options.getTextValue)
-      return this.options.getTextValue();
+      return this.options.getTextValue() || "";
     return "";
   }
   public onTextAreaChange(event: any): void {

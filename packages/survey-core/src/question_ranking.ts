@@ -182,6 +182,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.updateRankingChoices();
   };
 
+  updateValueFromSurvey(newValue: any, clearData: boolean): void {
+    super.updateValueFromSurvey(newValue, clearData);
+    if (newValue) this.isValueSetByUser = true;
+  }
+
   public localeChanged = (): void => {
     super.localeChanged();
     this.updateRankingChoicesSync();

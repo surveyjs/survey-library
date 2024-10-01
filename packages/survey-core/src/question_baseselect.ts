@@ -580,6 +580,9 @@ export class QuestionSelectBase extends Question {
     return this.otherValueCore;
   }
   protected selectOtherValueFromComment(val: boolean): void {
+    if(val) {
+      this.prevIsOtherSelected = true;
+    }
     this.value = val ? this.otherItem.value : undefined;
   }
   private isSettingComment: boolean = false;

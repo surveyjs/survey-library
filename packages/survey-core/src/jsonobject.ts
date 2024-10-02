@@ -420,7 +420,10 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     return this.getValue(obj);
   }
   public getValue(obj: any): any {
-    if (this.onGetValue) return this.onGetValue(obj);
+    if (this.onGetValue) {
+      obj = this.getOriginalObj(obj);
+      return this.onGetValue(obj);
+    }
     if (this.serializationProperty && !!obj[this.serializationProperty])
       return obj[this.serializationProperty].getJson();
     return obj[this.name];
@@ -442,6 +445,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   }
   public setValue(obj: any, value: any, jsonConv: JsonObject): void {
     if (this.onSetValue) {
+      obj = this.getOriginalObj(obj);
       this.onSetValue(obj, value, jsonConv);
     } else {
       if (this.serializationProperty && !!obj[this.serializationProperty])

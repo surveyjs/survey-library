@@ -11,6 +11,7 @@ import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
+import { SurveyElement } from "./survey-element";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { cleanHtmlElementAfterAnimation, mergeValues, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
@@ -579,6 +580,9 @@ export class QuestionSelectBase extends Question {
     return this.otherValueCore;
   }
   protected selectOtherValueFromComment(val: boolean): void {
+    if(val) {
+      this.prevIsOtherSelected = true;
+    }
     this.value = val ? this.otherItem.value : undefined;
   }
   private isSettingComment: boolean = false;
@@ -2018,24 +2022,8 @@ export class QuestionSelectBase extends Question {
   public getItemEnabled(item: ItemValue) {
     return !this.isDisabledAttr && item.isEnabled;
   }
-  protected rootElement: HTMLElement;
-  public afterRender(el: HTMLElement) {
-    super.afterRender(el);
-    this.rootElement = el;
-  }
-  public beforeDestroyQuestionElement(el: HTMLElement): void {
-    super.beforeDestroyQuestionElement(el);
-    this.rootElement = undefined;
-  }
   private focusOtherComment() {
-    if (!!this.rootElement) {
-      setTimeout(() => {
-        const commentEl = this.rootElement.querySelector("textarea");
-        if (!!commentEl) {
-          commentEl.focus();
-        }
-      }, 10);
-    }
+    SurveyElement.FocusElement(this.otherId);
   }
   private prevIsOtherSelected: boolean = false;
   protected onValueChanged(): void {

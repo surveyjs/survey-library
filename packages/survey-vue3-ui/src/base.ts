@@ -11,23 +11,41 @@ import {
   type Ref,
   onBeforeUnmount,
   watchEffect,
-  onUpdated,
+  nextTick,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});
   return res;
 };
+
+class NextRenderManager {
+  constructor(private element: Base) {}
+  private currentNextTickPromise?: Promise<void>;
+  async add() {
+    const nextTickPromise = nextTick();
+    if (this.currentNextTickPromise !== nextTickPromise) {
+      this.currentNextTickPromise = nextTickPromise;
+      await nextTickPromise;
+      if (nextTickPromise == this.currentNextTickPromise) {
+        this.element.afterRerender();
+      }
+    }
+  }
+}
+
 export function makeReactive(surveyElement: Base) {
   if (!surveyElement) return;
   (surveyElement as any).__vueImplemented =
     (surveyElement as any).__vueImplemented ?? 0;
   if ((surveyElement as any).__vueImplemented <= 0) {
+    const nextRenderManager = new NextRenderManager(surveyElement);
     surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
       const arr: any = [];
       const arrayRef = shallowRef(arr);
 
       arr.onArrayChanged = () => {
         triggerRef(arrayRef);
+        nextRenderManager.add();
       };
       hash[key] = arrayRef;
       return unref(hash[key]);
@@ -37,6 +55,7 @@ export function makeReactive(surveyElement: Base) {
         const arrayRef = shallowRef(hash[key]);
         hash[key]["onArrayChanged"] = () => {
           triggerRef(arrayRef);
+          nextRenderManager.add();
         };
         hash[key] = arrayRef;
       }
@@ -50,6 +69,7 @@ export function makeReactive(surveyElement: Base) {
       } else {
         hash[key] = val;
       }
+      nextRenderManager.add();
     };
   }
   surveyElement.enableOnElementRenderedEvent();
@@ -97,9 +117,6 @@ export function useBase<T extends Base>(
       immediate: true,
     }
   );
-  onUpdated(() => {
-    getModel().afterRerender();
-  });
   onBeforeUnmount(() => {
     const model = getModel();
     if (model) {

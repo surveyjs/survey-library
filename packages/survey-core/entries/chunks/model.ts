@@ -200,7 +200,7 @@ export { QuestionRankingModel } from "../../src/question_ranking";
 export { QuestionCommentModel } from "../../src/question_comment";
 export { QuestionDropdownModel } from "../../src/question_dropdown";
 export { QuestionFactory, ElementFactory } from "../../src/questionfactory";
-export { QuestionFileModel } from "../../src/question_file";
+export { QuestionFileModel, QuestionFilePage } from "../../src/question_file";
 export { QuestionHtmlModel } from "../../src/question_html";
 export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RenderedRatingItem } from "../../src/question_rating";

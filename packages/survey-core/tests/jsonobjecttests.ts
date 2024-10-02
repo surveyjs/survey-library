@@ -2145,6 +2145,21 @@ QUnit.test("property.isVisible", function (assert) {
     "Property is invisible in flow layout"
   );
 });
+QUnit.test("title property.isVisible", function (assert) {
+  const prop = Serializer.findProperty("question", "title");
+  prop.visibleIf = (obj: any): boolean => {
+    return obj.name != "abc";
+  };
+  const q = new QuestionTextModel("q1");
+  assert.equal(prop.isVisible("row", q), true, "row, #1");
+  assert.equal(prop.isVisible("detail", q), false, "detail #2");
+  assert.equal(prop.isVisible("", q), true, "empty #1");
+  q.name = "abc";
+  assert.equal(prop.isVisible("row", q), false, "row, #2");
+  assert.equal(prop.isVisible("detail", q), false, "detail #2");
+  assert.equal(prop.isVisible("", q), false, "empty #2");
+  (<any>prop).visibleIf = undefined;
+});
 
 QUnit.test("property.baseValue", function (assert) {
   Serializer.addProperty("questionbase", {
@@ -3375,4 +3390,43 @@ QUnit.test("Do fire JS unhandled exception on loading empty objects, Bug#8702", 
   const q4 = survey.getQuestionByName("q4");
   const q5 = q4.detailPanel.getQuestionByName("q5");
   assert.ok(q5, "#1");
+});
+QUnit.test("circular dependsOn, #8885", function (assert) {
+  let onSetValueObjType = "";
+  let onSettingValueObjType = "";
+  let onGetValueObjType = "";
+  Serializer.addProperty("question", { name: "prop1:boolean",
+    onSetValue: (obj, val) => {
+      onSetValueObjType = obj.getType();
+      obj.setPropertyValue("prop1", val);
+    },
+    onSettingValue: (obj, val) => {
+      onSettingValueObjType = obj.getType();
+      return val;
+    },
+    onGetValue: (obj) => {
+      onGetValueObjType = obj.getType();
+      return obj.getPropertyValue("prop1");
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", prop1: true },
+      { type: "matrixdynamic", name: "q2", columns: [
+        { cellType: "text", name: "col1", prop1: true },
+        { cellType: "text", name: "col2" },
+        { name: "col3", prop1: true },
+      ] }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.prop1, true, "text question");
+  assert.equal(q2.columns[0].prop1, true, "columns[0]");
+  assert.equal(q2.columns[1].prop1, false, "columns[1]");
+  assert.equal(q2.columns[2].prop1, true, "columns[2]");
+  assert.notEqual(onSetValueObjType, q2.columns[0].getType(), "object is not a column in onSetValue");
+  assert.notEqual(onSettingValueObjType, q2.columns[0].getType(), "object is not a column in onSettingValue");
+  assert.notEqual(onGetValueObjType, q2.columns[0].getType(), "object is not a column in onGetValueObjType");
+  Serializer.removeProperty("question", "prop1");
 });

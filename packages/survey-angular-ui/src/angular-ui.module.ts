@@ -124,6 +124,8 @@ import { HeaderCellComponent } from "./components/header/header-cell.component";
 import { HeaderMobileComponent } from "./components/header/header-mobile.component";
 import { ChooseFileBtn } from "./components/file/choose-file.component";
 import { FilePreviewComponent } from "./components/file/file-preview.component";
+import { FileItemComponent } from "./components/file/file-item.component";
+import { FilePageComponent } from "./components/file/file-page.component";
 import { SvgBundleComponent } from "./svgbundle.component";
 
 @NgModule({
@@ -144,7 +146,7 @@ import { SvgBundleComponent } from "./svgbundle.component";
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent, QuestionErrorComponent,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
-    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, ChooseFileBtn, FilePreviewComponent, SvgBundleComponent
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, ChooseFileBtn, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent
   ],
   imports: [
     CommonModule, FormsModule
@@ -167,7 +169,7 @@ import { SvgBundleComponent } from "./svgbundle.component";
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupQuestionComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
-    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, FilePreviewComponent, SvgBundleComponent
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent
   ],
   providers: [PopupService],
 })

@@ -175,15 +175,97 @@
 
 .sd-file__list {
   display: flex;
-  gap: calcSize(4);
+  position: relative;
+  overflow: hidden;
   box-sizing: content-box;
   flex-direction: row;
-  align-items: stretch;
-  justify-content: center;
   padding: calcSize(10.5) 0;
   min-height: calcSize(15);
   max-height: calcSize(15);
   width: 100%;
+}
+
+.sd-file__page {
+  display: flex;
+  left: 0;
+  align-items: stretch;
+  justify-content: center;
+  gap: calcSize(4);
+  height: calc(100% - 21 * #{$base-unit});
+  width: 100%;
+  position: absolute;
+}
+
+@keyframes file-page-to-right {
+  from {
+    opacity: 1;
+    left: 0;
+  }
+
+  to {
+    opacity: 0;
+    left: 100%;
+  }
+}
+
+@keyframes file-page-from-right {
+  from {
+    opacity: 0;
+    left: 100%;
+  }
+
+  to {
+    opacity: 1;
+    left: 0;
+  }
+}
+
+@keyframes file-page-from-left {
+  from {
+    opacity: 0;
+    left: -100%;
+  }
+
+  to {
+    opacity: 1;
+    left: 0;
+  }
+}
+
+@keyframes file-page-to-left {
+  from {
+    opacity: 1;
+    left: 0;
+  }
+
+  to {
+    opacity: 0;
+    left: -100%;
+  }
+}
+
+.sd-file__page--leave-to-right,
+.sd-file__page--enter-from-right,
+.sd-file__page--leave-to-left,
+.sd-file__page--enter-from-left {
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+}
+
+.sd-file__page--leave-to-right {
+  animation-name: file-page-to-right;
+}
+
+.sd-file__page--enter-from-right {
+  animation-name: file-page-from-right;
+}
+
+.sd-file__page--leave-to-left {
+  animation-name: file-page-to-left;
+}
+
+.sd-file__page--enter-from-left {
+  animation-name: file-page-from-left;
 }
 
 .sd-file__preview-item {
@@ -288,6 +370,9 @@
 .sd-file--single-image {
   height: calc(36 * #{$base-unit});
 
+  .sd-file__page {
+    height: 100%;
+  }
   .sd-file__preview-item {
     width: 100%;
     margin: 0;

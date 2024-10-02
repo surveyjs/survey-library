@@ -509,7 +509,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     return this.enableIf(this.getOriginalObj(obj));
   }
   public isVisible(layout: string, obj: any = null): boolean {
-    let isLayout = !this.layout || this.layout == layout;
+    let isLayout = !this.layout || !layout || this.layout === layout;
     if (!this.visible || !isLayout) return false;
     if (!!this.visibleIf && !!obj) {
       return this.visibleIf(this.getOriginalObj(obj));

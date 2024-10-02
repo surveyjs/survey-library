@@ -94,9 +94,9 @@ export interface IHeader {
    */
   height: number;
   /**
-   * The height of the survey header in pixels on mobile devices.
+   * The height of the survey header on smartphones, measured in pixels.
    *
-   * Default value: 256
+   * Default value: 0 (the height is calculated automatically to accommodate the header's content).
    */
   mobileHeight?: number;
   /**

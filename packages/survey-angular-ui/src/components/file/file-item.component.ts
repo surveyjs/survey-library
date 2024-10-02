@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { EmbeddedViewContentComponent } from "src/embedded-view-content.component";
+import { EmbeddedViewContentComponent } from "../../embedded-view-content.component";
 import { QuestionFileModel } from "survey-core";
 
 @Component({

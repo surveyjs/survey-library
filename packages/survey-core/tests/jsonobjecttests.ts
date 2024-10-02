@@ -2145,6 +2145,21 @@ QUnit.test("property.isVisible", function (assert) {
     "Property is invisible in flow layout"
   );
 });
+QUnit.test("title property.isVisible", function (assert) {
+  const prop = Serializer.findProperty("question", "title");
+  prop.visibleIf = (obj: any): boolean => {
+    return obj.name != "abc";
+  };
+  const q = new QuestionTextModel("q1");
+  assert.equal(prop.isVisible("row", q), true, "row, #1");
+  assert.equal(prop.isVisible("detail", q), false, "detail #2");
+  assert.equal(prop.isVisible("", q), true, "empty #1");
+  q.name = "abc";
+  assert.equal(prop.isVisible("row", q), false, "row, #2");
+  assert.equal(prop.isVisible("detail", q), false, "detail #2");
+  assert.equal(prop.isVisible("", q), false, "empty #2");
+  (<any>prop).visibleIf = undefined;
+});
 
 QUnit.test("property.baseValue", function (assert) {
   Serializer.addProperty("questionbase", {

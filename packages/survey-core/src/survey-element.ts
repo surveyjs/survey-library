@@ -850,7 +850,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   public get isDefaultV2Theme() {
-    return this.survey && this.survey.getCss().root == "sd-root-modern";
+    return this.survey && this.survey.getCss().root.includes("sd-root-modern");
   }
 
   public get hasParent() {

@@ -1,7 +1,6 @@
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionTextBase } from "./question_textbase";
-import { increaseHeightByContent } from "./utils/utils";
 import { settings } from "./settings";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { Helpers } from "./helpers";
@@ -125,13 +124,7 @@ export class QuestionCommentModel extends QuestionTextBase {
   public afterRenderQuestionElement(el: HTMLElement): void {
     const { root } = settings.environment;
     this.element = root.getElementById(this.inputId) || el;
-    this.updateElement();
     super.afterRenderQuestionElement(el);
-  }
-  public updateElement(): void {
-    if (this.element && this.renderedAutoGrow) {
-      setTimeout(() => increaseHeightByContent(this.element), 1);
-    }
   }
   public beforeDestroyQuestionElement(el: HTMLElement): void {
     super.beforeDestroyQuestionElement(el);
@@ -140,8 +133,6 @@ export class QuestionCommentModel extends QuestionTextBase {
   public onInput(event: any): void {
     if (this.isInputTextUpdate)
       this.value = event.target.value;
-    else
-      this.updateElement();
     this.updateRemainingCharacterCounter(event.target.value);
   }
   protected onBlurCore(event: any): void {
@@ -153,14 +144,6 @@ export class QuestionCommentModel extends QuestionTextBase {
       event.preventDefault();
       event.stopPropagation();
     }
-  }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
-    super.setQuestionValue(newValue, updateIsAnswered);
-    this.updateElement();
-  }
-  onValueChanged(): void {
-    super.onValueChanged();
-    this.updateElement();
   }
   protected setNewValue(newValue: string): any {
     if (!this.acceptCarriageReturn && !!newValue) {

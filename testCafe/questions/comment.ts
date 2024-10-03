@@ -95,6 +95,30 @@ frameworks.forEach(framework => {
     await t.expect(commentQuestion.clientHeight).eql(60);
   });
 
+  test("autoGrow with default value", async (t) => {
+    await t.resizeWindow(1280, 900);
+    await initSurvey(framework, {
+      "showQuestionNumbers": "off",
+      "widthMode": "static",
+      "width": "500px",
+      questions: [
+        {
+          name: "name",
+          type: "comment",
+          titleLocation: "hidden",
+          defaultValue: "The comment area has an initial height of two rows and automatically expands or shrinks to accomodate the content.",
+          autoGrow: true,
+          allowResize: false,
+          rows: 1
+        }
+      ]
+    });
+
+    await t
+      .expect(commentQuestion.value).eql("The comment area has an initial height of two rows and automatically expands or shrinks to accomodate the content.")
+      .expect(commentQuestion.clientHeight).eql(88);
+  });
+
   test("fill textarea", async t => {
     await initSurvey(framework, json);
     await t

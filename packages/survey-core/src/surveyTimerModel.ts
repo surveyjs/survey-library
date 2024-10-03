@@ -17,7 +17,7 @@ export interface ISurveyTimerText {
 }
 
 export class SurveyTimerModel extends Base {
-  public onTimer: (page: PageModel) => void;
+  public onTimerTick: (page: PageModel) => void;
   private surveyValue: ISurvey;
   constructor(survey: ISurvey) {
     super();
@@ -69,8 +69,8 @@ export class SurveyTimerModel extends Base {
     }
     this.spent = this.spent + seconds;
     this.update();
-    if (this.onTimer) {
-      this.onTimer(page);
+    if (this.onTimerTick) {
+      this.onTimerTick(page);
     }
   }
   private updateProgress() {

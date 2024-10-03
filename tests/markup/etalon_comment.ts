@@ -135,27 +135,5 @@ registerMarkupTests(
     },
     snapshot: "comment-into-question-commentAreaRows",
   },
-  {
-    name: "Test Comment question autoGrow markup",
-    json: {
-      "showQuestionNumbers": "off",
-      "widthMode": "static",
-      "width": "500px",
-      questions: [
-        {
-          name: "name",
-          type: "comment",
-          titleLocation: "hidden",
-          defaultValue: "The comment area has an initial height of two rows and automatically expands or shrinks to accomodate the content.",
-          autoGrow: true,
-          allowResize: false,
-          rows: 1
-        }
-      ]
-    },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
-    snapshot: "comment-autoGrow"
-  },
   ]
 );

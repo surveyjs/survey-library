@@ -2591,7 +2591,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.clearInvisibleValuesInRows();
   }
   protected clearInvisibleValuesInRows(): void {
-    if (this.isEmpty() || !this.isRowsFiltered) return;
+    if (this.isEmpty() || !this.isRowsFiltered()) return;
     const sharedQuestions = this.survey?.questionsByValueName(this.getValueName()) || [];
     if(sharedQuestions.length < 2) {
       this.value = this.getFilteredData();

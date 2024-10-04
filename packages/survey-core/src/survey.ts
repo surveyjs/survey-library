@@ -755,6 +755,10 @@ export class SurveyModel extends SurveyElementCore
   * @see startTimer
   */
   public onTimerTick: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
+  /**
+   * Obsolete. Use the [`onTimerTick`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onTimerTick) event instead.
+   * @deprecated
+   */
   public onTimer: EventBase<SurveyModel, {}> = this.onTimerTick;
 
   public onTimerPanelInfoText: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
@@ -7112,21 +7116,8 @@ export class SurveyModel extends SurveyElementCore
     return this.getInCorrectedAnswerCount();
   }
   /**
-   * Displays the timer panel and specifies its position. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
-   *
-   * Possible values:
-   *
-   * - `"top"` - Displays the timer panel at the top of the survey.
-   * - `"bottom"` - Displays the timer panel at the bottom of the survey.
-   * - `"none"` (default) - Hides the timer panel.
-   *
-   * If the timer panel is displayed, the timer starts automatically when the survey begins. To specify time limits, use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimit) and [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimitPerPage) properties.
-   *
-   * The timer panel displays information about time spent on an individual page and the entire survey. If you want to display only the page timer or the survey timer, set the [`timerInfoMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timerInfoMode) property to `"page"` or `"survey"`.
-   * @see startTimer
-   * @see stopTimer
-   * @see timeSpent
-   * @see onTimerTick
+   * Obsolete. Use the [`showTimer`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimer) and [`timerLocation`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timerLocation) properties instead.
+   * @deprecated
    */
   public get showTimerPanel(): string {
     if(!this.showTimer) return "none";
@@ -7138,12 +7129,35 @@ export class SurveyModel extends SurveyElementCore
       this.timerLocation = val;
     }
   }
+  /**
+   * Specifies the timer's visibility. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   *
+   * Default value: `false`
+   *
+   * If you set this property to `true`, the timer starts automatically when the survey begins. To specify time limits, use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimit) and [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimitPerPage) properties.
+   *
+   * The timer displays information about time spent on an individual page and the entire survey. If you want to display only the page timer or the survey timer, set the [`timerInfoMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timerInfoMode) property to `"page"` or `"survey"`.
+   *
+   * You can enable the timer without displaying it. In this case, you need to specify the required time limits and use the [`startTimer()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startTimer) and [`stopTimer()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#stopTimer) methods to control the timer.
+   * @see timerLocation
+   * @see timeSpent
+   * @see onTimerTick
+   */
   public get showTimer(): boolean {
     return this.getPropertyValue("showTimer");
   }
   public set showTimer(val: boolean) {
     this.setPropertyValue("showTimer", val);
   }
+  /**
+   * Specifies the timer's position relative to the survey. Applies only if the [`showTimer`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimer) property is set to `true`.
+   *
+   * Possible values:
+   *
+   * - `"top"` (default) - Displays the timer at the top of the survey.
+   * - `"bottom"` - Displays the timer at the bottom of the survey.
+   * @see onTimerTick
+   */
   public get timerLocation(): string {
     return this.getPropertyValue("timerLocation");
   }
@@ -7178,6 +7192,10 @@ export class SurveyModel extends SurveyElementCore
   private getTimerInfoVal(val: string): string {
     return val === "all" ? "combined" : val;
   }
+  /**
+   * Obsolete. Use the [`timerInfoMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timerInfoMode) property instead.
+   * @deprecated
+   */
   public get showTimerPanelMode(): string {
     const res = this.timerInfoMode;
     return res === "combined" ? "all" : res;
@@ -7408,7 +7426,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * A time period that a respondent has to complete the survey; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    *
-   * A negative value or 0 sets an unlimited time period.
+   * Default value: 0 (time is unlimited)
    *
    * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
    * @see timeLimitPerPage
@@ -7421,6 +7439,10 @@ export class SurveyModel extends SurveyElementCore
   public set timeLimit(val: number) {
     this.setPropertyValue("timeLimit", val);
   }
+  /**
+   * Obsolete. Use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimit) property instead.
+   * @deprecated
+   */
   public get maxTimeToFinish(): number {
     return this.timeLimit;
   }
@@ -7430,7 +7452,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * A time period that a respondent has to complete each survey page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    *
-   * A negative value or 0 sets an unlimited time period.
+   * Default value: 0 (time is unlimited)
    *
    * You can also use `PageModel`'s [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeLimit) property to specify a time period for an individual survey page.
    *
@@ -7445,6 +7467,10 @@ export class SurveyModel extends SurveyElementCore
   public set timeLimitPerPage(val: number) {
     this.setPropertyValue("timeLimitPerPage", val);
   }
+  /**
+   * Obsolete. Use the [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimitPerPage) property instead.
+   * @deprecated
+   */
   public get maxTimeToFinishPage(): number {
     return this.timeLimitPerPage;
   }

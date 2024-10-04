@@ -258,7 +258,7 @@ export class PageModel extends PanelModelBase implements IPage {
   /**
    * A time period that a respondent has to complete this page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    *
-   * A negative value or 0 sets an unlimited time period.
+   * Default value: 0 (time is unlimited)
    *
    * Alternatively, you can use the `SurveyModel`'s [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/surveymodel#timeLimitPerPage) property to specify identical time periods for all survey pages.
    * @see timeSpent
@@ -269,6 +269,10 @@ export class PageModel extends PanelModelBase implements IPage {
   public set timeLimit(val: number) {
     this.setPropertyValue("timeLimit", val);
   }
+  /**
+   * Obsolete. Use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeLimit) property instead.
+   * @deprecated
+   */
   public get maxTimeToFinish(): number {
     return this.timeLimit;
   }

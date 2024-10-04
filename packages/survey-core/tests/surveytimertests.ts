@@ -134,8 +134,8 @@ QUnit.test("Spent time on pages with suspended timer, #1", function(assert) {
   var page2 = survey.addNewPage();
   page1.addNewQuestion("text");
   page2.addNewQuestion("text");
-  page1.maxTimeToFinish = 9;
-  page2.maxTimeToFinish = 8;
+  page1.timeLimit = 9;
+  page2.timeLimit = 8;
   survey.startTimer();
   assert.equal(page1.timeSpent, 0, "page1.timeSpent #1");
   assert.equal(survey.timeSpent, 0, "survey.timeSpent #1");
@@ -155,13 +155,13 @@ QUnit.test("Spent time on pages with suspended timer, #1", function(assert) {
 });
 QUnit.test("Spent time on pages with suspended timer, #2", function(assert) {
   var survey = new SurveyModel();
-  survey.maxTimeToFinish = 15;
+  survey.timeLimit = 15;
   var page1 = survey.addNewPage();
   var page2 = survey.addNewPage();
   page1.addNewQuestion("text");
   page2.addNewQuestion("text");
-  page1.maxTimeToFinish = 9;
-  page2.maxTimeToFinish = 8;
+  page1.timeLimit = 9;
+  page2.timeLimit = 8;
   survey.startTimer();
   assert.equal(page1.timeSpent, 0, "page1.timeSpent #1");
   assert.equal(survey.timeSpent, 0, "survey.timeSpent #1");
@@ -177,8 +177,8 @@ QUnit.test("Spent time on pages with suspended timer, #2", function(assert) {
 });
 QUnit.test("Spent time on pages with suspended timer, #3", function(assert) {
   var survey = new SurveyModel();
-  survey.maxTimeToFinish = 15;
-  survey.maxTimeToFinishPage = 10;
+  survey.timeLimit = 15;
+  survey.timeLimitPerPage = 10;
   var page1 = survey.addNewPage();
   var page2 = survey.addNewPage();
   page1.addNewQuestion("text");
@@ -202,7 +202,7 @@ QUnit.test("Complete survey by timer", function(assert) {
   survey.addNewPage();
   survey.pages[0].addNewQuestion("text");
   survey.pages[1].addNewQuestion("text");
-  survey.maxTimeToFinish = 10;
+  survey.timeLimit = 10;
   survey.startTimer();
   assert.equal(survey.state, "running", "The state is running");
   doTimer(5);
@@ -220,7 +220,7 @@ QUnit.test("Complete survey by timer with suspended", function(assert) {
   survey.addNewPage();
   survey.pages[0].addNewQuestion("text");
   survey.pages[1].addNewQuestion("text");
-  survey.maxTimeToFinish = 10;
+  survey.timeLimit = 10;
   survey.startTimer();
   assert.equal(survey.state, "running", "The state is running");
   doTimer(1, 4);
@@ -238,8 +238,8 @@ QUnit.test("Complete pages by timer", function(assert) {
   survey.addNewPage("p2");
   survey.pages[0].addNewQuestion("text");
   survey.pages[1].addNewQuestion("text");
-  survey.maxTimeToFinishPage = 10;
-  survey.pages[1].maxTimeToFinish = 5;
+  survey.timeLimitPerPage = 10;
+  survey.pages[1].timeLimit = 5;
   survey.startTimer();
   assert.equal(survey.state, "running", "The state is running");
   assert.equal(survey.currentPage.name, "p1", "The first page");
@@ -260,8 +260,8 @@ QUnit.test("Complete pages by timer with suspended", function(assert) {
   survey.addNewPage("p2");
   survey.pages[0].addNewQuestion("text");
   survey.pages[1].addNewQuestion("text");
-  survey.maxTimeToFinishPage = 10;
-  survey.pages[1].maxTimeToFinish = 5;
+  survey.timeLimitPerPage = 10;
+  survey.pages[1].timeLimit = 5;
   survey.startTimer();
   assert.equal(survey.state, "running", "The state is running");
   assert.equal(survey.currentPage.name, "p1", "The first page");
@@ -284,21 +284,21 @@ QUnit.test("Showing prev button", function(assert) {
   survey.pages[0].addNewQuestion("text");
   survey.pages[1].addNewQuestion("text");
   survey.pages[2].addNewQuestion("text");
-  survey.maxTimeToFinishPage = 10;
-  survey.pages[1].maxTimeToFinish = -1;
+  survey.timeLimitPerPage = 10;
+  survey.pages[1].timeLimit = -1;
   assert.equal(survey.currentPageNo, 0, "Init current page");
   assert.equal(survey.isShowPrevButton, false, "First page");
   survey.nextPage();
   assert.equal(
     survey.isShowPrevButton,
     false,
-    "maxTimeToFinishPage is working"
+    "timeLimitPerPage is working"
   );
   survey.nextPage();
   assert.equal(
     survey.isShowPrevButton,
     true,
-    "maxTimeToFinishPage is override"
+    "timeLimitPerPage is override"
   );
   survey.stopTimer();
 });
@@ -337,21 +337,21 @@ QUnit.test("Showing prev button, showTimerInfo='all'", function(assert) {
     "next page 65 sec passed"
   );
   assert.deepEqual(survey.timerClock, { majorText: "0:03", minorText: "1:05" }, "timerClock #4");
-  survey.maxTimeToFinish = 120;
+  survey.timeLimit = 120;
   assert.equal(
     survey.timerInfoText,
     "You have spent 3 sec on this page. You have spent 1 min 5 sec of 2 min in total.",
     "survey limit, next page 65 sec passed"
   );
   assert.deepEqual(survey.timerClock, { majorText: "0:55", minorText: "0:03" }, "timerClock #5");
-  survey.maxTimeToFinishPage = 60;
+  survey.timeLimitPerPage = 60;
   assert.equal(
     survey.timerInfoText,
     "You have spent 3 sec of 1 min on this page and 1 min 5 sec of 2 min in total.",
     "survey and page limit, next page 65 sec passed"
   );
   assert.deepEqual(survey.timerClock, { majorText: "0:57", minorText: "0:55" }, "timerClock #6");
-  survey.maxTimeToFinish = 0;
+  survey.timeLimit = 0;
   assert.equal(
     survey.timerInfoText,
     "You have spent 3 sec of 1 min on this page. You have spent 1 min 5 sec in total.",
@@ -371,8 +371,8 @@ QUnit.test("syrvey.timerClock, no negative value", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("p1");
   survey.pages[0].addNewQuestion("text");
-  survey.maxTimeToFinish = 60;
-  survey.maxTimeToFinishPage = 50;
+  survey.timeLimit = 60;
+  survey.timeLimitPerPage = 50;
   survey.startTimer();
   assert.deepEqual(survey.timerClock, { majorText: "0:50", minorText: "1:00" }, "timerClock #1");
   survey.timeSpent = 20;
@@ -442,8 +442,8 @@ QUnit.test("Test SurveyTimerModel", function(assert) {
 
 QUnit.test("Test SurveyTimerModel with clock", function(assert) {
   var survey = new SurveyModel();
-  survey.maxTimeToFinish = 25;
-  survey.maxTimeToFinishPage = 10;
+  survey.timeLimit = 25;
+  survey.timeLimitPerPage = 10;
   survey.addNewPage("p1");
   survey.addNewPage("p2");
   survey.addNewPage("p3");
@@ -484,10 +484,10 @@ QUnit.test("Test SurveyTimerModel with clock", function(assert) {
 });
 
 QUnit.test("Test showTimerAsClock flag", function(assert) {
-  const createSurvey = (maxTimeToFinish: number, maxTimeToFinishPage: number): SurveyModel => {
+  const createSurvey = (timeLimit: number, timeLimitPerPage: number): SurveyModel => {
     var survey = new SurveyModel();
-    survey.maxTimeToFinish = maxTimeToFinish;
-    survey.maxTimeToFinishPage = maxTimeToFinishPage;
+    survey.timeLimit = timeLimit;
+    survey.timeLimitPerPage = timeLimitPerPage;
     survey.addNewPage("p1");
     survey.pages[0].addNewQuestion("text");
     return survey;
@@ -501,11 +501,11 @@ QUnit.test("Test showTimerAsClock flag", function(assert) {
   survey.stopTimer();
 });
 QUnit.test("Check timer when limits are not specified", function(assert) {
-  const createSurvey = (showTimerModelMode: string, maxTimeToFinish: number, maxTimeToFinishPage: number): SurveyModel => {
+  const createSurvey = (showTimerModelMode: string, timeLimit: number, timeLimitPerPage: number): SurveyModel => {
     var survey = new SurveyModel();
     survey.showTimerPanelMode = showTimerModelMode;
-    survey.maxTimeToFinish = maxTimeToFinish;
-    survey.maxTimeToFinishPage = maxTimeToFinishPage;
+    survey.timeLimit = timeLimit;
+    survey.timeLimitPerPage = timeLimitPerPage;
     survey.addNewPage("p1");
     survey.pages[0].addNewQuestion("text");
     return survey;
@@ -579,10 +579,10 @@ QUnit.test("Check timer when limits are not specified", function(assert) {
 });
 
 QUnit.test("Progress shouldn't be more than 1", function (assert) {
-  const createSurvey = (maxTimeToFinish: number, maxTimeToFinishPage: number): SurveyModel => {
+  const createSurvey = (timeLimit: number, timeLimitPerPage: number): SurveyModel => {
     var survey = new SurveyModel();
-    survey.maxTimeToFinish = maxTimeToFinish;
-    survey.maxTimeToFinishPage = maxTimeToFinishPage;
+    survey.timeLimit = timeLimit;
+    survey.timeLimitPerPage = timeLimitPerPage;
     survey.addNewPage("p1");
     survey.pages[0].addNewQuestion("text");
     return survey;
@@ -615,10 +615,88 @@ QUnit.test("Do not start timer if the survey in the display mode", function (ass
   var survey = new SurveyModel();
   survey.addNewPage("p1");
   survey.pages[0].addNewQuestion("text");
-  survey.maxTimeToFinish = 10;
-  survey.maxTimeToFinishPage = 7;
+  survey.timeLimit = 10;
+  survey.timeLimitPerPage = 7;
   survey.mode = "display";
   survey.startTimer();
   doTimer(5);
   assert.equal(survey.timeSpent, 0, "Timmer is not started");
+});
+QUnit.test("showTimerPanelMode -> timerInfoMode", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #1");
+  assert.equal(survey.showTimerPanelMode, "all", "showTimerPanelMode, #1");
+  survey.timerInfoMode = "survey";
+  assert.equal(survey.timerInfoMode, "survey", "timerInfoMode, #2");
+  assert.equal(survey.showTimerPanelMode, "survey", "showTimerPanelMode, #2");
+  survey.timerInfoMode = "page";
+  assert.equal(survey.timerInfoMode, "page", "timerInfoMode, #3");
+  assert.equal(survey.showTimerPanelMode, "page", "showTimerPanelMode, #3");
+  survey.timerInfoMode = "combined";
+  assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #4");
+  assert.equal(survey.showTimerPanelMode, "all", "showTimerPanelMode, #4");
+
+  survey.showTimerPanelMode = "survey";
+  assert.equal(survey.timerInfoMode, "survey", "timerInfoMode, #5");
+  assert.equal(survey.showTimerPanelMode, "survey", "showTimerPanelMode, #5");
+  survey.showTimerPanelMode = "page";
+  assert.equal(survey.timerInfoMode, "page", "timerInfoMode, #6");
+  assert.equal(survey.showTimerPanelMode, "page", "showTimerPanelMode, #6");
+  survey.showTimerPanelMode = "all";
+  assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #7");
+  assert.equal(survey.showTimerPanelMode, "all", "showTimerPanelMode, #7");
+
+  survey.fromJSON({ showTimerPanelMode: "survey" });
+  assert.equal(survey.timerInfoMode, "survey", "timerInfoMode, #8");
+  assert.equal(survey.showTimerPanelMode, "survey", "showTimerPanelMode, #8");
+  survey.fromJSON({ showTimerPanelMode: "page" });
+  assert.equal(survey.timerInfoMode, "page", "timerInfoMode, #9");
+  assert.equal(survey.showTimerPanelMode, "page", "showTimerPanelMode, #9");
+  survey.fromJSON({ showTimerPanelMode: "all" });
+  assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #10");
+  assert.equal(survey.showTimerPanelMode, "all", "showTimerPanelMode, #10");
+});
+QUnit.test("showTimerPanel -> showTimer & timerLocation", function (assert) {
+  const survey = new SurveyModel();
+  let number = 1;
+  const testValues = (showTimerPanel: string, showTimer: boolean, timerLocation: string,
+    isOnTop: boolean, isOnBottom: boolean): void => {
+    assert.equal(survey.showTimerPanel, showTimerPanel, "showTimerPanel, #" + number);
+    assert.equal(survey.showTimer, showTimer, "showTimer, #" + number);
+    assert.equal(survey.timerLocation, timerLocation, "timerLocation, #" + number);
+    assert.equal(survey.isTimerPanelShowingOnTop, isOnTop, "isTimerPanelShowingOnTop, #" + number);
+    assert.equal(survey.isTimerPanelShowingOnBottom, isOnBottom, "isTimerPanelShowingOnBottom, #" + number);
+    number ++;
+  };
+  testValues("none", false, "top", false, false);
+
+  survey.showTimerPanel = "top";
+  testValues("top", true, "top", true, false);
+
+  survey.showTimerPanel = "bottom";
+  testValues("bottom", true, "bottom", false, true);
+
+  survey.showTimerPanel = "none";
+  testValues("none", false, "bottom", false, false);
+
+  survey.timerLocation = "top";
+  testValues("none", false, "top", false, false);
+
+  survey.timerLocation = "bottom";
+  testValues("none", false, "bottom", false, false);
+
+  survey.showTimer = true;
+  testValues("bottom", true, "bottom", false, true);
+
+  survey.showTimer = false;
+  testValues("none", false, "bottom", false, false);
+
+  survey.fromJSON({ showTimerPanel: "top" });
+  testValues("top", true, "top", true, false);
+
+  survey.fromJSON({ showTimerPanel: "bottom" });
+  testValues("bottom", true, "bottom", false, true);
+
+  survey.fromJSON({ showTimerPanel: "none" });
+  testValues("none", false, "bottom", false, false);
 });

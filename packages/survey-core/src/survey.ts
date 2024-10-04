@@ -1267,7 +1267,18 @@ export class SurveyModel extends SurveyElementCore
     });
   }
 
-  public showHeaderOnCompletedPage = false;
+  /**
+   * Specifies whether the [Complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page) should display the [survey header](https://surveyjs.io/form-library/examples/brand-your-survey-header/).
+   *
+   * Possible values:
+   *
+   * - `true` - Displays the survey header on the Complete page.
+   * - `false` - Hides the header when users reach the Complete page.
+   * - `"auto"` (default) - Displays a header with the basic view, but hides a header with the advanced view (see the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property description).
+   *
+   * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
+   */
+  public showHeaderOnCompletePage: true | false | "auto" = "auto";
 
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -7773,7 +7784,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (isStrCiEqual(layoutElement.id, "advanced-header")) {
-        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletedPage && this.state === "completed")) && layoutElement.container === container) {
+        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed")) && layoutElement.container === container) {
           containerLayoutElements.push(layoutElement);
         }
       } else {

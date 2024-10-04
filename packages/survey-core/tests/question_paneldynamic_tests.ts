@@ -7497,4 +7497,48 @@ QUnit.test("maxRowCount & footer buttons, Bug#8865", function (assert) {
   panel.maxPanelCount = 2;
   assert.equal(btnAdd.isVisible, true, "#4");
 });
-
+QUnit.test("A dynamic matrix cell value is reset when adding a new outer dynanic panel, Bug#8892", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "paneldynamic",
+        name: "main",
+        templateElements: [
+          {
+            type: "paneldynamic",
+            name: "detail",
+            templateElements: [
+              {
+                type: "matrixdynamic",
+                name: "matrix",
+                columns: [{ "name": "col1", "cellType": "text" }],
+                rowCount: 1,
+                minRowCount: 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  const mainPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("main");
+  const panel1 = mainPanel.addPanel();
+  const detailPanel1 = <QuestionPanelDynamicModel>panel1.getQuestionByName("detail");
+  const matrix1 = detailPanel1.addPanel().getQuestionByName("matrix");
+  matrix1.visibleRows[0].getQuestionByName("col1").value = "main1_detail1";
+  const matrix2 = detailPanel1.addPanel().getQuestionByName("matrix");
+  matrix2.visibleRows[0].getQuestionByName("col1").value = "main1_detail2";
+  assert.deepEqual(mainPanel.value, [
+    { detail: [{ matrix: [{ col1: "main1_detail1" }] }, { matrix: [{ col1: "main1_detail2" }] }] }
+  ], "main panel value #1");
+  const panel2 = mainPanel.addPanel();
+  const detailPanel2 = <QuestionPanelDynamicModel>panel2.getQuestionByName("detail");
+  const matrix3 = detailPanel2.addPanel().getQuestionByName("matrix");
+  matrix3.visibleRows[0].getQuestionByName("col1").value = "main2_detail1";
+  assert.deepEqual(mainPanel.value, [
+    { detail: [{ matrix: [{ col1: "main1_detail1" }] }, { matrix: [{ col1: "main1_detail2" }] }] },
+    { detail: [{ matrix: [{ col1: "main2_detail1" }] }] }
+  ], "main panel value #2");
+  assert.equal(matrix1.visibleRows[0].getQuestionByName("col1").value, "main1_detail1", "Last row value, matrix1");
+  assert.equal(matrix2.visibleRows[0].getQuestionByName("col1").value, "main1_detail2", "Last row value, matrix2");
+});

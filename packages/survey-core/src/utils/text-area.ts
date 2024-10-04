@@ -31,13 +31,16 @@ export interface ITextArea {
 export class TextAreaModel {
   private element: HTMLTextAreaElement;
 
+  private updateElement(): void {
+    if (this.element && this.autoGrow) {
+      setTimeout(() => increaseHeightByContent(this.element), 1);
+    }
+  }
+
   private onPropertyChangedCallback = () => {
     if (this.element) {
       this.element.value = this.getTextValue();
-
-      if (this.autoGrow) {
-        increaseHeightByContent(this.element);
-      }
+      this.updateElement();
     }
   }
 
@@ -48,6 +51,7 @@ export class TextAreaModel {
   public setElement(element: HTMLTextAreaElement | null): void {
     if (!!element) {
       this.element = element;
+      this.updateElement();
     }
   }
 

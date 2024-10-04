@@ -1261,7 +1261,7 @@ export class SurveyModel extends SurveyElementCore
     });
   }
 
-  public showHeaderOnCompletedPage = false;
+  public showHeaderOnCompletePage: true | false | "auto" = "auto";
 
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -7707,7 +7707,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (isStrCiEqual(layoutElement.id, "advanced-header")) {
-        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletedPage && this.state === "completed")) && layoutElement.container === container) {
+        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed")) && layoutElement.container === container) {
           containerLayoutElements.push(layoutElement);
         }
       } else {

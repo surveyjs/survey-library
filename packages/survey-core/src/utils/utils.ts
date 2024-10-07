@@ -227,7 +227,7 @@ const renamedIcons: any = {
   "copy-24x24": "copy",
   "toolbox-customquestion-24x24": "default",
   "delete-16x16": "delete_16x16",
-  "delete-24x24": "delete",
+  "delete-24x24": "delete_24x24",
   "hidehint-24x24": "description-hide",
   "hint-24x24": "description",
   "desktop-24x24": "device-desktop",

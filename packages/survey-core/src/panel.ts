@@ -1,6 +1,6 @@
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
-import { ArrayChanges, Base, RenderingCompletedAwaiter } from "./base";
+import { ArrayChanges, Base } from "./base";
 import {
   ISurveyImpl,
   IPage,
@@ -15,7 +15,7 @@ import {
   ISurvey,
   IFindElement
 } from "./base-interfaces";
-import { DragTypeOverMeEnum, SurveyElement } from "./survey-element";
+import { DragTypeOverMeEnum, SurveyElement, RenderingCompletedAwaiter } from "./survey-element";
 import { Question } from "./question";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -2036,6 +2036,9 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return this.layoutColumns.slice(0, tailIndex + 1);
   }
+  public afterRender(el: HTMLElement): void {
+    this.afterRenderCore(el);
+  }
   public dispose(): void {
     super.dispose();
     if (this.rows) {
@@ -2404,6 +2407,10 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   public getContainerCss() {
     return this.getCssRoot(this.cssClasses.panel);
+  }
+  public afterRenderCore(element: HTMLElement): void {
+    super.afterRenderCore(element);
+    this.survey?.afterRenderPanel(this, element);
   }
 }
 

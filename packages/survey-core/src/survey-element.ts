@@ -1,5 +1,5 @@
 import { JsonObjectProperty, Serializer, property } from "./jsonobject";
-import { Base } from "./base";
+import { Base, EventBase } from "./base";
 import { Action, IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import {
@@ -1200,10 +1200,66 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return super.getIsAnimationAllowed() && !!this.survey && !(this.survey as SurveyModel)["isEndLoadingFromJson"];
   }
 
+  public onAfterRenderElement: EventBase<SurveyElement<E>, any> = this.addEvent<SurveyElement<E>, any>();
+  public afterRenderCore(element: HTMLElement): void {
+    this.onAfterRenderElement.fire(this, { htmlElement: element });
+  }
+
   public dispose(): void {
     super.dispose();
     if (this.titleToolbarValue) {
       this.titleToolbarValue.dispose();
     }
+  }
+}
+
+export class RenderingCompletedAwaiter {
+  constructor(private _elements: Array<SurveyElement>, private _renderedHandler: () => void, waitingTimeout = 100) {
+    this._elements.forEach(element => {
+      if (element.onAfterRenderElement) {
+        element.onAfterRenderElement.add(this._elementRenderedHandler);
+        this._elementsToRenderCount++;
+      }
+    });
+    if (this._elementsToRenderCount > 0) {
+      this._elementsToRenderTimer = setTimeout(() => {
+        if (this._elementsToRenderCount > 0) {
+          this.visibleElementsRendered();
+        }
+      }, waitingTimeout);
+    } else {
+      this.visibleElementsRendered();
+    }
+  }
+  private _elementsToRenderCount = 0;
+  private _elementsToRenderTimer: any = undefined;
+  private _elementRenderedHandler = (s: SurveyElement, o: any) => {
+    s.onAfterRenderElement?.remove(this._elementRenderedHandler);
+    this._elementsToRenderCount--;
+    if (this._elementsToRenderCount <= 0) {
+      this.visibleElementsRendered();
+    }
+  }
+  private stopWaitingForElementsRendering() {
+    if (this._elementsToRenderTimer) {
+      clearTimeout(this._elementsToRenderTimer);
+      this._elementsToRenderTimer = undefined;
+    }
+    this._elements.forEach(element => {
+      element.onAfterRenderElement?.remove(this._elementRenderedHandler);
+    });
+    this._elementsToRenderCount = 0;
+  }
+  private visibleElementsRendered(): void {
+    const renderedHandler = this._renderedHandler;
+    this.dispose();
+    if (typeof renderedHandler == "function") {
+      renderedHandler();
+    }
+  }
+  public dispose(): void {
+    this.stopWaitingForElementsRendering();
+    this._elements = undefined;
+    this._renderedHandler = undefined;
   }
 }

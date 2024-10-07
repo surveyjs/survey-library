@@ -43,7 +43,7 @@ export class Panel extends BaseVue {
   }
   protected onMounted() {
     if (this.question.survey) {
-      this.question.survey.afterRenderPanel(this.question, this.$el as HTMLElement);
+      this.question.afterRender(this.$el as HTMLElement);
     }
     this.isCollapsedValue = this.question.isCollapsed;
 

@@ -210,14 +210,19 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     el.scrollIntoView(scrollIntoViewOptions);
     if (typeof doneCallback === "function") {
       let lastPos: number = null;
+      let same: number = 0;
       const checkPos = () => {
         const newPos = el.getBoundingClientRect().top;
         if (newPos === lastPos) {
-          doneCallback();
+          if (same++ > 2) {
+            doneCallback();
+            return;
+          }
         } else {
           lastPos = newPos;
-          requestAnimationFrame(checkPos);
+          same = 0;
         }
+        requestAnimationFrame(checkPos);
       };
       DomWindowHelper.requestAnimationFrame(checkPos);
       // let currPageXOffset = window.pageXOffset;

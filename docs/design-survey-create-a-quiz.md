@@ -56,7 +56,7 @@ const surveyJson = {
       choicesOrder: "random",
       choices: [
         "The foundation of the British parliamentary system",
-        "The Great Seal of the monarchs of England",
+        "The Great Seal of the Monarchs of England",
         "The French Declaration of the Rights of Man",
         "The charter signed by the Pilgrims on the Mayflower"
       ],
@@ -146,7 +146,7 @@ const surveyJson = {
       choicesOrder: "random",
       choices: [
         "The foundation of the British parliamentary system",
-        "The Great Seal of the monarchs of England",
+        "The Great Seal of the Monarchs of England",
         "The French Declaration of the Rights of Man",
         "The charter signed by the Pilgrims on the Mayflower"
       ],
@@ -241,7 +241,7 @@ const surveyJson = {
       choicesOrder: "random",
       choices: [
         "The foundation of the British parliamentary system",
-        "The Great Seal of the monarchs of England",
+        "The Great Seal of the Monarchs of England",
         "The French Declaration of the Rights of Man",
         "The charter signed by the Pilgrims on the Mayflower"
       ],
@@ -333,7 +333,7 @@ const surveyJson = {
       choicesOrder: "random",
       choices: [
         "The foundation of the British parliamentary system",
-        "The Great Seal of the monarchs of England",
+        "The Great Seal of the Monarchs of England",
         "The French Declaration of the Rights of Man",
         "The charter signed by the Pilgrims on the Mayflower"
       ],

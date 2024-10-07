@@ -2374,7 +2374,7 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", functio
   assert.equal(matrix.visibleTotalRow.cells[1].value, 10, "total sum #3");
 });
 QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", function(assert) {
-  var survey = new SurveyModel({
+  const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
       { type: "matrixdynamic", name: "matrix",
@@ -2382,7 +2382,7 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", functio
         columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] }
     ]
   });
-  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   matrix.value = [{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }];
   assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
   assert.equal(matrix.visibleTotalRow.cells[1].value, 30, "total sum #1");
@@ -2395,6 +2395,43 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", functio
   survey.setValue("q1", "c");
   assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
   assert.equal(matrix.visibleTotalRow.cells[1].value, 30, "total sum #4");
+});
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && no rows, Bug#8909", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "matrixdynamic", name: "matrix", rowCount: 3,
+        rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] },
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 0, "all rows are hidden");
+  matrix.addRow();
+  assert.equal(matrix.visibleRows.length, 0, "all rows are hidden #2");
+  survey.setValue("q1", "a");
+  assert.equal(matrix.visibleRows.length, 4, "all rows are show");
+});
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total && add new row, Bug#8909", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "matrixdynamic", name: "matrix",
+        rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.value = [{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }];
+  assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 30, "total sum #1");
+  survey.setValue("q1", "a");
+  assert.equal(matrix.visibleRows.length, 1, "row1, row3 are hidden");
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 10, "total sum #2");
+  matrix.addRow();
+  assert.equal(matrix.visibleRows.length, 2, "add new row");
+  matrix.visibleRows[1].cells[1].value = 40;
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 50, "total sum #3");
 });
 QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context & set data correctly", function(assert) {
   var survey = new SurveyModel({

@@ -209,7 +209,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public static ScrollIntoView(el: HTMLElement, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
     el.scrollIntoView(scrollIntoViewOptions);
     if (typeof doneCallback === "function") {
-      let lastPos = null;
+      let lastPos: number = null;
       const checkPos = () => {
         const newPos = el.getBoundingClientRect().top;
         if (newPos === lastPos) {

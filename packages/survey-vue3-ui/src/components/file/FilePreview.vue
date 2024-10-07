@@ -3,75 +3,24 @@
     v-if="question.showPreviewContainer"
     :class="question.cssClasses.fileList || undefined"
   >
-    <span
-      v-for="(val, index) in question.previewValue"
-      :key="question.inputId + '_' + index"
-      v-show="val && question.isPreviewVisible(index)"
-      :class="question.cssClasses.previewItem"
-      @click="question.doDownloadFileFromContainer($event)"
-    >
-      <div
-        v-if="val.name && question.cssClasses.fileSign"
-        :class="question.cssClasses.fileSign"
-      >
-        <a
-          @click="question.doDownloadFile($event, val)"
-          :href="val.content"
-          :title="val.name"
-          :download="val.name"
-          :style="{ width: question.imageWidth }"
-          >{{ val.name }}</a
-        >
-      </div>
-      <div :class="question.getImageWrapperCss(val)">
-        <img
-          v-if="question.canPreviewImage(val)"
-          :src="val.content"
-          :style="{
-            height: question.imageHeight,
-            width: question.imageWidth,
-          }"
-          alt="File preview"
-        />
-        <SvComponent
-          :is="'sv-svg-icon'"
-          v-if="question.defaultImage(val)"
-          :iconName="question.cssClasses.defaultImageIconId"
-          :class="question.cssClasses.defaultImage"
-          :size="'auto'"
-        ></SvComponent>
-        <div
-          v-if="val.name && !question.isReadOnly"
-          :class="question.getRemoveButtonCss()"
-          @click="question.doRemoveFile(val, $event)"
-        >
-          <span :class="question.cssClasses.removeFile">{{
-            question.removeFileCaption
-          }}</span>
-          <SvComponent
-            :is="'sv-svg-icon'"
-            v-if="question.cssClasses.removeFileSvgIconId"
-            :title="question.removeFileCaption"
-            :class="question.cssClasses.removeFileSvg"
-            :iconName="question.cssClasses.removeFileSvgIconId"
-            :size="'auto'"
-          ></SvComponent>
-        </div>
-      </div>
-      <div
-        v-if="val.name && question.cssClasses.fileSignBottom"
-        :class="question.cssClasses.fileSignBottom"
-      >
-        <a
-          @click="question.doDownloadFile($event, val)"
-          :href="val.content"
-          :title="val.name"
-          :download="val.name"
-          :style="{ width: question.imageWidth }"
-          >{{ val.name }}</a
-        >
-      </div>
-    </span>
+    <template v-if="question.supportFileNavigator">
+      <SvComponent
+        :is="'sv-file-page'"
+        v-for="page in question.renderedPages"
+        :key="page.id"
+        :page="page"
+        :question="question"
+      ></SvComponent>
+    </template>
+    <template v-if="!question.supportFileNavigator">
+      <SvComponent
+        :is="'sv-file-item'"
+        v-for="item in question.previewValue"
+        :key="item"
+        :item="item"
+        :question="question"
+      ></SvComponent>
+    </template>
   </div>
 </template>
 

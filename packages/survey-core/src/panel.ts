@@ -737,7 +737,7 @@ export class PanelModelBase extends SurveyElement<Question>
   public getValue(): any {
     var data: any = {};
     this.collectValues(data, 0);
-    return data;
+    return Helpers.getUnbindValue(data);
   }
   collectValues(data: any, level: number): boolean {
     let elements = this.elements;

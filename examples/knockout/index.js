@@ -1048,7 +1048,7 @@ function init() {
     });
 
   //model.render("surveyElement");
-  ko.applyBindings({model});
+  ko.applyBindings({ model });
 }
 
 if (!window["%hammerhead%"]) {

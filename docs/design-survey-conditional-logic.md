@@ -243,6 +243,34 @@ SurveyJS supports the following expression types:
 
 Expressions can include question names, variables, and calculated values (described in the [Dynamic Texts](#dynamic-texts) section). Plus, expressions can use [built-in](#built-in-functions) and [custom functions](#custom-functions).
 
+### Supported Operators
+
+The SurveyJS expression engine is built upon the <a href="https://pegjs.org/" target="_blank">PEG.js</a> parser generator. The following table gives a brief overview of operators that you can use within expressions. For a detailed look at the grammar rules used by the expression parser, refer to the [`survey-library`](https://github.com/surveyjs/survey-library/blob/master/packages/survey-core/src/expressions/grammar.pegjs) GitHub repository.
+
+| Operator | Description | Expression example |
+| -------- | ----------- | ------------------ |
+| `empty` | Returns `true` if the value is `undefined` or `null`. | `"{q1} empty"` | 
+| `notempty` | Returns `true` if the value is different from `undefined` and `null`. | `"{q1} notempty"` | 
+| <code>"&#124;&#124;"</code> / `"or"` | Combines two or more conditions and returns `true` if *any* of them is `true`. | `"{q1} empty or {q2} empty"` |
+| `"&&"` / `"and"`  | Combines two or more conditions and returns `true` if *all* of them are `true`. | `"{q1} empty and {q2} empty"` |
+| `"!"` / `"negate"` | Returns `true` if the condition returns `false`, and vice versa. | `!{q1}` |
+| `"<="` / `"lessorequal"`  | Compares two values and returns `true` if the first is less or equal to the second. | `"{q1} <= 10"` |
+| `">="` / `"greaterorequal"`  | Compares two values and returns `true` if the first is greater or equal to the second. | `"{q1} >= 10"` |
+| `"="` / `"=="` / `"equal"`  | Compares two values and returns `true` if they are loosely equal (that is, their type is disregarded). | `"{q1} = 10"` |
+| `"!="` / `"notequal"`  | Compares two values and returns `true` if they are not loosely equal. | `"{q1} != 10"` |
+| `"<"` / `"less"`  | Compares two values and returns `true` if the first is less than the second. | `"{q1} < 10"` |
+| `">"` / `"greater"`  | Compares two values and returns `true` if the first is greater than the second. | `"{q1} > 10"` |
+| `"+"`  | Adds up two values. | `"{q1} + {q2}"` |
+| `"-"`  | Subtracts the second value from the first. | `"{q1} - {q2}"` |
+| `"*"`  | Multiplies two values. | `"{q1} * {q2}"` |
+| `"/"`  | Divides the first value by the second. | `"{q1} / {q2}"` |
+| `"%"`  | Returns the remainder of the division of the first value by the second. | `"{q1} % {q2}"` |
+| `"^"` / `"power"`  | Raises the first value to the power of the second. | `"{q1} ^ {q2}"` |
+| `"*="` / `"contains"` / `"contain"`  | Compares two values and returns `true` if the first value contains the second value within it. | `"{q1} contains 'abc'"` |
+| `"notcontains"` / `"notcontain"` | Compares two values and returns `true` if the first value doesn't contain the second value within it. | `"{q1} notcontains 'abc'"` |
+| `"anyof"` | Compares a value with an array of values and returns `true` if the value is present in the array. | `"{q1} anyof [ 'value1', 'value2', 'value3' ]"` |
+| `"allof"` | Compares two arrays and returns `true` if the first array includes all values from the second. | `"{q1} allof [ 'value1', 'value2', 'value3' ]"` |
+
 ### Built-In Functions
 
 Functions allow you to perform additional calculations within an expression. One expression can contain multiple function calls.
@@ -688,24 +716,23 @@ You can specify whether an individual survey element is visible, read-only, or r
 
 A survey parses and runs all expressions on startup. If a Boolean expression evaluates to `false`, the corresponding element becomes invisible (or read-only, or optional); if it evaluates to `true`, the element becomes visible (or enabled, or required). After any value used in an expression changes, the survey re-evaluates this expression.
 
-The following table shows examples of Boolean expressions:
+The table below shows examples of Boolean expressions. For a full list of operators available within expressions, refer to the [Supported Operators](#supported-operators) section.
 
-| Expression                                                      | Description                                                                                                                                                                                                               |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `"{age} >= 21"`                                                 | Evaluates to `true` if the `"age"` question has a value of 21 or higher.                                                                                                                                                  |
-| `"({rank1} + {rank2} + {rank3}) > 21 and {isLoyal} = 'yes'"`    | The `or` and `and` operators combine two or more conditions.                                                                                                                                                              |
-| `"!({isLoyal} = 'yes' and ({rank1} + {rank2} + {rank3}) > 21)"` | The `!` or `not` operator reverts the result.                                                                                                                                                                             |
-| `"{name} notempty"`                                             | Evaluates to `true` if the `"name"` question has any value.                                                                                                                                                               |
-| `"{name} empty"`                                                | Evaluates to `true` if the `"name"` question has no value.                                                                                                                                                                |
-| `"{speakinglanguages} = ['English', 'Spanish']"`                | Evaluates to `true` if strictly English and Spanish are selected in the `"speakinglanguages"` question. If one of the languages is not selected or other languages are selected too, the expression evaluates to `false`. |
-| `"{speakinglanguages} contains 'Spanish'"`                      | Evaluates to `true` if Spanish is selected. Other languages may or may not be selected.                                                                                                                                   |
-| `"age({birthdate}) >= 21"`                                      | Evaluates to `true` if the `age` function returns 21 or higher.                                                                                                                                                           |
+| Expression | Description |
+| ---------- | ----------- |
+| `"{age} >= 21"` | Evaluates to `true` if the `"age"` question has a value of 21 or higher. |
+| `"({rank1} + {rank2} + {rank3}) > 21 and {isLoyal} = 'yes'"` | The `or` and `and` operators combine two or more conditions. |
+| `"{name} notempty"` | Evaluates to `true` if the `"name"` question has any value. |
+| `"{name} empty"`| Evaluates to `true` if the `"name"` question has no value. |
+| `"{speakinglanguages} = ['English', 'Spanish']"` | Evaluates to `true` if strictly English and Spanish are selected in the `"speakinglanguages"` question. If one of the languages is not selected or other languages are selected too, the expression evaluates to `false`. |
+| `"{speakinglanguages} contains 'Spanish'"` | Evaluates to `true` if Spanish is selected. Other languages may or may not be selected. |
+| `"age({birthdate}) >= 21"` | Evaluates to `true` if the `age` function returns 21 or higher. |
 
 You should use different properties to specify the visibility of [questions](#question-visibility) and [items (choices, rows, columns)](#item-visibility-choices-columns-rows).
 
 ### Question Visibility
 
-Assign Boolean expressions to the [visibleIf](https://surveyjs.io/Documentation/Library?id=Question#visibleIf), [enableIf](https://surveyjs.io/Documentation/Library?id=Question#enableIf), and [requiredIf](https://surveyjs.io/Documentation/Library?id=Question#requiredIf) properties of questions, panels, and pages. In the following example, the `visibleIf` property is used to hide the `drivers-license` question for respondents under 16 years old:
+Assign Boolean expressions to the [`visibleIf`](https://surveyjs.io/Documentation/Library?id=Question#visibleIf), [`enableIf`](https://surveyjs.io/Documentation/Library?id=Question#enableIf), and [`requiredIf`](https://surveyjs.io/Documentation/Library?id=Question#requiredIf) properties of questions, panels, and pages. In the following example, the `visibleIf` property is used to hide the `drivers-license` question for respondents under 16 years old:
 
 ```js
 const surveyJson = {

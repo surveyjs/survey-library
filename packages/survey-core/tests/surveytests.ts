@@ -18056,7 +18056,7 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
-QUnit.test("getContainerContent - do not advanced header on completed page", function (assert) {
+QUnit.test("getContainerContent - do not show advanced header on completed page", function (assert) {
   const json = {
     pages: [
       {
@@ -18099,6 +18099,66 @@ QUnit.test("getContainerContent - do not advanced header on completed page", fun
   survey.doComplete();
 
   assert.deepEqual(getContainerContent("header"), [], "header on complete page");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "buttons-navigation"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+});
+QUnit.test("getContainerContent - do show advanced header on completed page if showHeaderOnCompletePage is set", function (assert) {
+  const json = {
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  survey.headerView = "advanced";
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => {
+      delete item["data"];
+      delete item["processResponsiveness"];
+    });
+    return result;
+  }
+
+  assert.equal(survey.showHeaderOnCompletePage, "auto");
+  survey.showHeaderOnCompletePage = true;
+
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header",
+    "index": -100
+  }], "header for running survey");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "buttons-navigation"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+
+  survey.doComplete();
+
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header",
+    "index": -100
+  }], "header on complete page");
   assert.deepEqual(getContainerContent("footer"), [], "");
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{

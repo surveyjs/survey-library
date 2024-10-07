@@ -2201,3 +2201,35 @@ frameworks.forEach((framework) => {
     await t.expect(surveyResult).eql({ "q1-Comment": "ABC" });
   });
 });
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await t.resizeWindow(800, 600);
+      const json = { elements: [{
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "dropdown",
+            showOtherItem: true,
+            choices: [1, 2, 3],
+            otherText: "Other"
+          }
+        ],
+        "rows": ["row1"]
+      }] };
+      await initSurvey(framework, json);
+    }
+  );
+  test("Move to comment on choosing other #8878", async (t) => {
+    await t
+      .click(questionDropdownSelect)
+      .click(getListItemByText("Other"))
+      .pressKey("A B C")
+      .click(completeButton);
+
+    let surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({ q1: { row1: { col1: "other", "col1-Comment": "ABC" } } });
+  });
+});

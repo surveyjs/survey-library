@@ -130,6 +130,8 @@ import Logo from "./Logo.vue";
 import SvgBundle from "./SvgBundle.vue";
 import { ComponentFactory } from "./component-factory";
 import { key2ClickDirective } from "./directives/key2click";
+import FilePage from "./components/file/FilePage.vue";
+import FileItem from "./components/file/FileItem.vue";
 
 export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
 export { ComponentFactory };
@@ -182,6 +184,8 @@ function registerComponents(
   registerComponent("sv-file-choose-btn", FileChooseButton);
   registerComponent("sv-file-clean-btn", FileCleanButton);
   registerComponent("sv-file-preview", FilePreview);
+  registerComponent("sv-file-page", FilePage);
+  registerComponent("sv-file-item", FileItem);
   registerComponent("sv-file-video", FileVideo);
   registerComponent("survey-imagepicker", ImagePicker);
   registerComponent("survey-imagepicker-item", ImagePickerItem);

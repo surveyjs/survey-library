@@ -1,0 +1,29 @@
+<ng-template #template>
+    <span [class]="question.cssClasses.previewItem" (click)="question.doDownloadFileFromContainer($event)">
+        <div *ngIf="item.name && question.cssClasses.fileSign" [class]="question.cssClasses.fileSign">
+            <a (click)="question.doDownloadFile($event, item)" [attr.href]="item.content | safeUrl"
+                [attr.title]="item.name" [attr.download]="item.name" [style.width]="question.imageWidth">{{
+                item.name
+                }}</a>
+        </div>
+        <div [class]="question.getImageWrapperCss(item)">
+            <img *ngIf="question.canPreviewImage(item)" [attr.src]="item.content | safeUrl"
+                [style.height]="question.imageHeight" [style.width]="question.imageWidth" alt="File preview" />
+            <svg *ngIf="question.defaultImage(item)" [iconName]="question.cssClasses.defaultImageIconId"
+                [partCss]="question.cssClasses.defaultImage" [size]="'auto'" sv-ng-svg-icon></svg>
+            <div *ngIf="item.name && !question.isReadOnly" [class]="question.getRemoveButtonCss()"
+                (click)="question.doRemoveFile(item, $event)">
+                <span [class]="question.cssClasses.removeFile">{{ question.removeFileCaption }}</span>
+                <svg *ngIf="question.cssClasses.removeFileSvgIconId" [title]="question.removeFileCaption"
+                    [partCss]="question.cssClasses.removeFileSvg" [iconName]="question.cssClasses.removeFileSvgIconId"
+                    [size]="'auto'" sv-ng-svg-icon></svg>
+            </div>
+        </div>
+        <div *ngIf="item.name && question.cssClasses.fileSignBottom" [class]="question.cssClasses.fileSignBottom">
+            <a (click)="question.doDownloadFile($event, item)" [attr.href]="item.content | safeUrl"
+                [attr.title]="item.name" [attr.download]="item.name" [style.width]="question.imageWidth">{{
+                item.name
+                }}</a>
+        </div>
+    </span>
+</ng-template>

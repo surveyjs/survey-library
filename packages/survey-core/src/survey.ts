@@ -748,12 +748,18 @@ export class SurveyModel extends SurveyElementCore
   * An event that is raised every second while the timer is running.
   *
   * Use the [`timeSpent`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeSpent) property to find out how many seconds have elapsed.
-  * @see maxTimeToFinish
-  * @see maxTimeToFinishPage
-  * @see showTimerPanel
+  * @see timeLimit
+  * @see timeLimitPerPage
+  * @see showTimer
+  * @see timerLocation
   * @see startTimer
   */
-  public onTimer: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
+  public onTimerTick: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
+  /**
+   * Obsolete. Use the [`onTimerTick`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onTimerTick) event instead.
+   * @deprecated
+   */
+  public onTimer: EventBase<SurveyModel, {}> = this.onTimerTick;
 
   public onTimerPanelInfoText: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
 
@@ -883,7 +889,7 @@ export class SurveyModel extends SurveyElementCore
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.timerModelValue = new SurveyTimerModel(this);
-    this.timerModelValue.onTimer = (page: PageModel): void => {
+    this.timerModelValue.onTimerTick = (page: PageModel): void => {
       this.doTimer(page);
     };
     this.createNewArray(
@@ -1215,7 +1221,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public get bodyCss(): string {
     return new CssClassBuilder().append(this.css.body)
-      .append(this.css.bodyWithTimer, this.showTimerPanel != "none" && this.state === "running")
+      .append(this.css.bodyWithTimer, this.showTimer && this.state === "running")
       .append(this.css.body + "--" + this.calculatedWidthMode).toString();
   }
   public get bodyContainerCss(): string {
@@ -1260,6 +1266,19 @@ export class SurveyModel extends SurveyElementCore
       processResponsiveness: width => advHeader.processResponsiveness(width)
     });
   }
+
+  /**
+   * Specifies whether the [Complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page) should display the [survey header](https://surveyjs.io/form-library/examples/brand-your-survey-header/).
+   *
+   * Possible values:
+   *
+   * - `true` - Displays the survey header on the Complete page.
+   * - `false` - Hides the header when users reach the Complete page.
+   * - `"auto"` (default) - Displays a header with the basic view, but hides a header with the advanced view (see the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property description).
+   *
+   * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
+   */
+  public showHeaderOnCompletePage: true | false | "auto" = "auto";
 
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -7110,52 +7129,92 @@ export class SurveyModel extends SurveyElementCore
     return this.getInCorrectedAnswerCount();
   }
   /**
-   * Displays the timer panel and specifies its position. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   * Obsolete. Use the [`showTimer`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimer) and [`timerLocation`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timerLocation) properties instead.
+   * @deprecated
+   */
+  public get showTimerPanel(): string {
+    if(!this.showTimer) return "none";
+    return this.timerLocation;
+  }
+  public set showTimerPanel(val: string) {
+    this.showTimer = val !== "none";
+    if(this.showTimer) {
+      this.timerLocation = val;
+    }
+  }
+  /**
+   * Specifies the timer's visibility. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   *
+   * Default value: `false`
+   *
+   * If you set this property to `true`, the timer starts automatically when the survey begins. To specify time limits, use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimit) and [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimitPerPage) properties.
+   *
+   * The timer displays information about time spent on an individual page and the entire survey. If you want to display only the page timer or the survey timer, set the [`timerInfoMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timerInfoMode) property to `"page"` or `"survey"`.
+   *
+   * You can enable the timer without displaying it. In this case, you need to specify the required time limits and use the [`startTimer()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startTimer) and [`stopTimer()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#stopTimer) methods to control the timer.
+   * @see timerLocation
+   * @see timeSpent
+   * @see onTimerTick
+   */
+  public get showTimer(): boolean {
+    return this.getPropertyValue("showTimer");
+  }
+  public set showTimer(val: boolean) {
+    this.setPropertyValue("showTimer", val);
+  }
+  /**
+   * Specifies the timer's position relative to the survey. Applies only if the [`showTimer`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimer) property is set to `true`.
    *
    * Possible values:
    *
-   * - `"top"` - Displays the timer panel at the top of the survey.
-   * - `"bottom"` - Displays the timer panel at the bottom of the survey.
-   * - `"none"` (default) - Hides the timer panel.
-   *
-   * If the timer panel is displayed, the timer starts automatically when the survey begins. To specify time limits, use the [`maxTimeToFinish`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#maxTimeToFinish) and [`maxTimeToFinishPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#maxTimeToFinishPage) properties.
-   *
-   * The timer panel displays information about time spent on an individual page and the entire survey. If you want to display only the page timer or the survey timer, set the [`showTimerPanelMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimerPanelMode) property to `"page"` or `"survey"`.
-   * @see startTimer
-   * @see stopTimer
-   * @see timeSpent
-   * @see onTimer
+   * - `"top"` (default) - Displays the timer at the top of the survey.
+   * - `"bottom"` - Displays the timer at the bottom of the survey.
+   * @see onTimerTick
    */
-  public get showTimerPanel(): string {
-    return this.getPropertyValue("showTimerPanel");
+  public get timerLocation(): string {
+    return this.getPropertyValue("timerLocation");
   }
-  public set showTimerPanel(val: string) {
-    this.setPropertyValue("showTimerPanel", val);
+  public set timerLocation(val: string) {
+    this.setPropertyValue("timerLocation", val);
   }
-  public get isTimerPanelShowingOnTop() {
-    return this.showTimerPanel == "top";
+  public get isTimerPanelShowingOnTop(): boolean {
+    return this.showTimer && this.timerLocation === "top";
   }
-  public get isTimerPanelShowingOnBottom() {
-    return this.showTimerPanel == "bottom";
+  public get isTimerPanelShowingOnBottom(): boolean {
+    return this.showTimer && this.timerLocation === "bottom";
   }
   /**
-   * Specifies whether the timer panel displays timers for the current page, the entire survey, or both. Applies only if the timer panel is [visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimerPanel).
+   * Specifies whether the timer panel displays timers for the current page, the entire survey, or both. Applies only if the timer panel is [visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimer).
    *
    * Possible values:
    *
    * - `"survey"` - Displays only the survey timer.
    * - `"page"` - Displays only the page timer.
-   * - `"all"` (default) - Displays both the survey and page timers.
+   * - `"combined"` (default) - Displays both the survey and page timers.
    * @see timeSpent
-   * @see onTimer
+   * @see onTimerTick
    * @see startTimer
    * @see stopTimer
    */
+  public get timerInfoMode(): string {
+    return this.getTimerInfoVal(this.getPropertyValue("timerInfoMode"));
+  }
+  public set timerInfoMode(val: string) {
+    this.setPropertyValue("timerInfoMode", val);
+  }
+  private getTimerInfoVal(val: string): string {
+    return val === "all" ? "combined" : val;
+  }
+  /**
+   * Obsolete. Use the [`timerInfoMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timerInfoMode) property instead.
+   * @deprecated
+   */
   public get showTimerPanelMode(): string {
-    return this.getPropertyValue("showTimerPanelMode");
+    const res = this.timerInfoMode;
+    return res === "combined" ? "all" : res;
   }
   public set showTimerPanelMode(val: string) {
-    this.setPropertyValue("showTimerPanelMode", val);
+    this.timerInfoMode = this.getTimerInfoVal(val);
   }
   @property() gridLayoutEnabled: boolean;
   /**
@@ -7242,11 +7301,11 @@ export class SurveyModel extends SurveyElementCore
     let pageSpent = page.timeSpent;
     let surveySpent = this.timeSpent;
     let pageLimitSec = page.getMaxTimeToFinish();
-    let surveyLimit = this.maxTimeToFinish;
-    if (this.showTimerPanelMode == "page") {
+    let surveyLimit = this.timeLimit;
+    if (this.timerInfoMode == "page") {
       return { spent: pageSpent, limit: pageLimitSec };
     }
-    if (this.showTimerPanelMode == "survey") {
+    if (this.timerInfoMode == "survey") {
       return { spent: surveySpent, limit: surveyLimit };
     }
     else {
@@ -7270,19 +7329,19 @@ export class SurveyModel extends SurveyElementCore
     var surveySpent = this.getDisplayTime(this.timeSpent);
     var pageLimitSec = page.getMaxTimeToFinish();
     var pageLimit = this.getDisplayTime(pageLimitSec);
-    var surveyLimit = this.getDisplayTime(this.maxTimeToFinish);
-    if (this.showTimerPanelMode == "page")
+    var surveyLimit = this.getDisplayTime(this.timeLimit);
+    if (this.timerInfoMode == "page")
       return this.getTimerInfoPageText(page, pageSpent, pageLimit);
-    if (this.showTimerPanelMode == "survey")
+    if (this.timerInfoMode == "survey")
       return this.getTimerInfoSurveyText(surveySpent, surveyLimit);
-    if (this.showTimerPanelMode == "all") {
-      if (pageLimitSec <= 0 && this.maxTimeToFinish <= 0) {
+    if (this.timerInfoMode == "combined") {
+      if (pageLimitSec <= 0 && this.timeLimit <= 0) {
         return this.getLocalizationFormatString("timerSpentAll",
           pageSpent,
           surveySpent
         );
       }
-      if (pageLimitSec > 0 && this.maxTimeToFinish > 0) {
+      if (pageLimitSec > 0 && this.timeLimit > 0) {
         return this.getLocalizationFormatString("timerLimitAll",
           pageSpent,
           pageLimit,
@@ -7309,7 +7368,7 @@ export class SurveyModel extends SurveyElementCore
     surveySpent: string,
     surveyLimit: string
   ): string {
-    const strName = this.maxTimeToFinish > 0 ? "timerLimitSurvey" : "timerSpentSurvey";
+    const strName = this.timeLimit > 0 ? "timerLimitSurvey" : "timerSpentSurvey";
     return this.getLocalizationFormatString(strName, surveySpent, surveyLimit);
   }
   private getDisplayClockTime(val: number): string {
@@ -7339,10 +7398,10 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Starts a timer that calculates how many seconds a respondent has spent on the survey. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see stopTimer
-   * @see maxTimeToFinish
-   * @see maxTimeToFinishPage
+   * @see timeLimit
+   * @see timeLimitPerPage
    * @see timeSpent
-   * @see onTimer
+   * @see onTimerTick
    */
   public startTimer() {
     if (this.isEditMode) {
@@ -7350,19 +7409,19 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   startTimerFromUI() {
-    if (this.showTimerPanel != "none" && this.state === "running") {
+    if (this.showTimer && this.state === "running") {
       this.startTimer();
     }
   }
   /**
    * Stops the timer. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see startTimer
-   * @see maxTimeToFinish
-   * @see maxTimeToFinishPage
+   * @see timeLimit
+   * @see timeLimitPerPage
    * @see timeSpent
-   * @see onTimer
+   * @see onTimerTick
    */
-  public stopTimer() {
+  public stopTimer(): void {
     this.timerModel.stop();
   }
   /**
@@ -7371,8 +7430,8 @@ export class SurveyModel extends SurveyElementCore
    * Assign a number to this property if you need to start the quiz timer from a specific time (for instance, if you want to continue an interrupted quiz).
    *
    * You can also find out how many seconds a respondent has spent on an individual survey page. To do this, use the [`timeSpent`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeSpent) property of a [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model) object.
-   * @see maxTimeToFinish
-   * @see maxTimeToFinishPage
+   * @see timeLimit
+   * @see timeLimitPerPage
    * @see startTimer
    */
   public get timeSpent(): number { return this.timerModel.spent; }
@@ -7380,41 +7439,61 @@ export class SurveyModel extends SurveyElementCore
   /**
    * A time period that a respondent has to complete the survey; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    *
-   * A negative value or 0 sets an unlimited time period.
+   * Default value: 0 (time is unlimited)
    *
    * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
-   * @see maxTimeToFinishPage
+   * @see timeLimitPerPage
    * @see startTimer
    * @see timeSpent
    */
+  public get timeLimit(): number {
+    return this.getPropertyValue("timeLimit", 0);
+  }
+  public set timeLimit(val: number) {
+    this.setPropertyValue("timeLimit", val);
+  }
+  /**
+   * Obsolete. Use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimit) property instead.
+   * @deprecated
+   */
   public get maxTimeToFinish(): number {
-    return this.getPropertyValue("maxTimeToFinish", 0);
+    return this.timeLimit;
   }
   public set maxTimeToFinish(val: number) {
-    this.setPropertyValue("maxTimeToFinish", val);
+    this.timeLimit = val;
   }
   /**
    * A time period that a respondent has to complete each survey page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    *
-   * A negative value or 0 sets an unlimited time period.
+   * Default value: 0 (time is unlimited)
    *
-   * You can also use `PageModel`'s [`maxTimeToFinish`](https://surveyjs.io/form-library/documentation/api-reference/page-model#maxTimeToFinish) property to specify a time period for an individual survey page.
+   * You can also use `PageModel`'s [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeLimit) property to specify a time period for an individual survey page.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
-   * @see maxTimeToFinish
+   * @see timeLimit
    * @see startTimer
    * @see timeSpent
    */
+  public get timeLimitPerPage(): number {
+    return this.getPropertyValue("timeLimitPerPage", 0);
+  }
+  public set timeLimitPerPage(val: number) {
+    this.setPropertyValue("timeLimitPerPage", val);
+  }
+  /**
+   * Obsolete. Use the [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimitPerPage) property instead.
+   * @deprecated
+   */
   public get maxTimeToFinishPage(): number {
-    return this.getPropertyValue("maxTimeToFinishPage", 0);
+    return this.timeLimitPerPage;
   }
   public set maxTimeToFinishPage(val: number) {
-    this.setPropertyValue("maxTimeToFinishPage", val);
+    this.timeLimitPerPage = val;
   }
   private doTimer(page: PageModel): void {
-    this.onTimer.fire(this, {});
-    if (this.maxTimeToFinish > 0 && this.maxTimeToFinish <= this.timeSpent) {
-      this.timeSpent = this.maxTimeToFinish;
+    this.onTimerTick.fire(this, {});
+    if (this.timeLimit > 0 && this.timeLimit <= this.timeSpent) {
+      this.timeSpent = this.timeLimit;
       this.completeLastPage();
     }
     if (page) {
@@ -7705,7 +7784,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (isStrCiEqual(layoutElement.id, "advanced-header")) {
-        if ((this.state === "running" || this.state === "starting") && layoutElement.container === container) {
+        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed")) && layoutElement.container === container) {
           containerLayoutElements.push(layoutElement);
         }
       } else {
@@ -8110,18 +8189,13 @@ Serializer.addClass("survey", [
     default: "noPreview",
     choices: ["noPreview", "showAllQuestions", "showAnsweredQuestions"],
   },
-  { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
-  { name: "maxTimeToFinishPage:number", default: 0, minValue: 0 },
-  {
-    name: "showTimerPanel",
-    default: "none",
-    choices: ["none", "top", "bottom"],
-  },
-  {
-    name: "showTimerPanelMode",
-    default: "all",
-    choices: ["page", "survey", "all"],
-  },
+  { name: "showTimer:boolean" },
+  { name: "timeLimit:number", alternativeName: "maxTimeToFinish", default: 0, minValue: 0, enableIf: (obj) => obj.showTimer },
+  { name: "timeLimitPerPage:number", alternativeName: "maxTimeToFinishPage", default: 0, minValue: 0, enableIf: (obj) => obj.showTimer },
+  { name: "timerLocation", default: "top", choices: ["top", "bottom"], enableIf: (obj) => obj.showTimer },
+  { name: "timerInfoMode", alternativeName: "showTimerPanelMode",
+    default: "combined", choices: ["page", "survey", "combined"], enableIf: (obj) => obj.showTimer },
+  { name: "showTimerPanel", visible: false, isSerializable: false },
   {
     name: "widthMode",
     default: "auto",

@@ -300,7 +300,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       }
     });
     this.chooseFileAction = new Action({
-      iconName: "icon-load",
+      iconName: "icon-choosefile",
       id: "sv-file-choose-file",
       iconSize: "auto",
       data: { question: this },

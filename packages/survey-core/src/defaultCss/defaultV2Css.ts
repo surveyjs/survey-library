@@ -698,7 +698,7 @@ export var defaultV2Css = {
     chooseFileAsText: "sd-action sd-file__choose-btn--text",
     chooseFileAsTextDisabled: "sd-action--disabled",
     chooseFileAsIcon: "sd-file__choose-btn--icon",
-    chooseFileIconId: "icon-load",
+    chooseFileIconId: "icon-choosefile",
     disabled: "sd-file__choose-btn--disabled",
     controlDisabled: "sd-file__choose-file-btn--disabled",
     //todo: remove it in v2

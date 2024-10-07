@@ -76,13 +76,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     };
     this.createLocalizableString("removeRowText", this, false, "removeRow");
     this.createLocalizableString("emptyRowsText", this, false, true);
-    this.registerPropertyChangedHandlers(
-      ["hideColumnsIfEmpty", "allowAddRows"],
-      () => {
-        this.updateShowTableAndAddRow();
-      }
-    );
+    this.registerPropertyChangedHandlers(["hideColumnsIfEmpty", "allowAddRows"], () => { this.updateShowTableAndAddRow(); });
     this.registerPropertyChangedHandlers(["allowRowsDragAndDrop", "isReadOnly", "lockedRowCount"], () => { this.resetRenderedTable(); });
+    this.registerPropertyChangedHandlers(["minRowCount"], () => { this.onMinRowCountChanged(); });
+    this.registerPropertyChangedHandlers(["maxRowCount"], () => { this.onMaxRowCountChanged(); });
     this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
   }
 
@@ -174,7 +171,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     );
   }
   protected valueFromData(val: any): any {
-    if (this.minRowCount < 1) return super.valueFromData(val);
+    if (this.minRowCount < 1 || this.isEmpty()) return super.valueFromData(val);
     if (!Array.isArray(val)) val = [];
     for (var i = val.length; i < this.minRowCount; i++) val.push({});
     return val;
@@ -317,7 +314,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public set minRowCount(val: number) {
     if (val < 0) val = 0;
     this.setPropertyValue("minRowCount", val);
+  }
+  private onMinRowCountChanged(): void {
+    const val = this.minRowCount;
     if (val > this.maxRowCount) this.maxRowCount = val;
+    if(this.initialRowCount < val) this.initialRowCount = val;
     if (this.rowCount < val) this.rowCount = val;
   }
   /**
@@ -337,6 +338,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       val = settings.matrix.maxRowCount;
     if (val == this.maxRowCount) return;
     this.setPropertyValue("maxRowCount", val);
+  }
+  private onMaxRowCountChanged(): void {
+    const val = this.maxRowCount;
     if (val < this.minRowCount) this.minRowCount = val;
     if (this.rowCount > val) this.rowCount = val;
   }

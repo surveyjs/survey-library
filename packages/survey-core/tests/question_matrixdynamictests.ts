@@ -10101,3 +10101,24 @@ QUnit.test("check displayMode property", function (assert) {
   assert.ok(question.isMobile);
   assert.ok(question.getRootCss().includes("test_mobile"));
 });
+QUnit.test("minRowCount vs rowCount, Bug#8899", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "matrix", minRowCount: 1, columns: [{ name: "col1" }] },
+      { type: "matrixdynamic", name: "matrix1", minRowCount: 1, rowCount: 1, columns: [{ name: "col1" }] },
+      { type: "matrixdynamic", name: "matrix2", minRowCount: 1, rowCount: 2, columns: [{ name: "col1" }] },
+      { type: "matrixdynamic", name: "matrix3", minRowCount: 1, rowCount: 3, columns: [{ name: "col1" }] },
+      { type: "matrixdynamic", name: "matrix4", minRowCount: 1, rowCount: 4, defaultRowValue: { col1: 1 }, columns: [{ name: "col1", cellType: "text" }] },
+    ] });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  const matrix2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix2");
+  const matrix3 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix3");
+  const matrix4 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix4");
+  assert.equal(matrix.visibleRows.length, 2, "matrix rowCount: 2");
+  assert.equal(matrix1.visibleRows.length, 1, "matrix1 rowCount: 1");
+  assert.equal(matrix2.visibleRows.length, 2, "matrix2 rowCount: 2");
+  assert.equal(matrix3.visibleRows.length, 3, "matrix3 rowCount: 3");
+  assert.equal(matrix4.visibleRows.length, 4, "matrix4 rowCount: 4");
+  assert.deepEqual(matrix4.value, [{ col1: 1 }, { col1: 1 }, { col1: 1 }, { col1: 1 }], "matrix4 value");
+});

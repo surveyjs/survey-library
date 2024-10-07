@@ -2366,7 +2366,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return !!this.survey ? this.survey.isValidateOnValueChanging : false;
   }
   protected get hasInvisibleRows(): boolean {
-    return !!this.visibleRowsArray && this.visibleRowsArray.length !== this.generatedVisibleRows.length;
+    const rows = this.generatedVisibleRows;
+    if(!Array.isArray(rows)) return false;
+    for(let i = 0; i < rows.length; i ++) {
+      if(!rows[i].isVisible) return true;
+    }
+    return false;
   }
   getFilteredData(): any {
     if(this.isEmpty() || !this.generatedVisibleRows || !this.hasInvisibleRows) return this.value;

@@ -420,6 +420,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.addRow(true);
   }
   private getQuestionToFocusOnAddingRow(): Question {
+    if(this.visibleRows.length === 0) return null;
     var row = this.visibleRows[this.visibleRows.length - 1];
     for (var i = 0; i < row.cells.length; i++) {
       var q = row.cells[i].question;
@@ -495,8 +496,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.getDataFilteredValues(),
         this.getDataFilteredProperties()
       );
-      if(this.isValueEmpty(defaultValue)) {
-        const row = this.visibleRows[this.rowCount - 1];
+      const rows = this.visibleRows;
+      if(this.isValueEmpty(defaultValue) && rows.length > 0) {
+        const row = rows[rows.length - 1];
         if (!this.isValueEmpty(row.value)) {
           if (!newValue) {
             newValue = this.createNewValue();
@@ -512,11 +514,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     }
     if (this.survey) {
-      if (prevRowCount + 1 == this.rowCount) {
-        this.survey.matrixRowAdded(
-          this,
-          this.visibleRows[this.visibleRows.length - 1]
-        );
+      const rows = this.visibleRows;
+      if (prevRowCount + 1 == this.rowCount && rows.length > 0) {
+        const row = rows[rows.length - 1];
+        this.survey.matrixRowAdded(this, row);
         this.onRowsChanged();
       }
     }
@@ -881,10 +882,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return result;
   }
-  protected deleteRowValue(
-    newValue: any,
-    row: MatrixDropdownRowModelBase
-  ): any {
+  protected deleteRowValue(newValue: any, row: MatrixDropdownRowModelBase): any {
+    if(!Array.isArray(newValue)) return newValue;
     var isEmpty = true;
     for (var i = 0; i < newValue.length; i++) {
       if (this.isObject(newValue[i]) && Object.keys(newValue[i]).length > 0) {

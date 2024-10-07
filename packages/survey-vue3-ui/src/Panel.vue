@@ -77,7 +77,7 @@ useBase(() => props.element);
 
 onMounted(() => {
   if (props.element.survey) {
-    props.element.survey.afterRenderPanel(props.element, root.value);
+    props.element.afterRender(root.value);
   }
 });
 </script>

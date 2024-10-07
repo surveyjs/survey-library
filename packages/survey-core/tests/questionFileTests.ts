@@ -2209,7 +2209,7 @@ QUnit.test("Check pageAnimationOptions", (assert) => {
   q1["rootElement"] = document.createElement("div");
 
   //check animation enabled
-  q1.enableOnElementRenderedEvent();
+  q1.enableOnElementRerenderedEvent();
   assert.ok(fpNavigationOptions.isAnimationEnabled());
   q1["rootElement"] = undefined as any;
   assert.notOk(fpNavigationOptions.isAnimationEnabled());

@@ -5301,7 +5301,7 @@ export class SurveyModel extends SurveyElementCore
     this.onScrollingElementToTop.fire(this, options);
     if (!options.cancel) {
       const elementPage = this.getPageByElement(element as IElement);
-      if (this.isLazyRendering) {
+      if (this.isLazyRendering && !!elementPage) {
         let elementsToRenderBefore = 1;
         const { rootElement } = settings.environment;
         const surveyRootElement = this.rootElement || passedRootElement || rootElement as any;

@@ -975,7 +975,8 @@ export class Question extends SurveyElement<Question>
     }
     this.checkForResponsiveness(el);
   }
-  public afterRenderCore(el: HTMLElement): void {
+  public afterRenderCore(element: HTMLElement): void {
+    super.afterRenderCore(element);
   }
   protected getCommentElementsId(): Array<string> {
     return [this.commentId];

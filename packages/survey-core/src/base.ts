@@ -1143,7 +1143,7 @@ export class Base {
     return this.getIsAnimationAllowed();
   }
   protected getIsAnimationAllowed(): boolean {
-    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRenderedEvent);
+    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRerenderedEvent);
   }
   private animationAllowedLock: number = 0;
   public blockAnimations(): void {
@@ -1153,72 +1153,21 @@ export class Base {
     this.animationAllowedLock++;
   }
   //remove when knockout obsolete
-  public supportOnElementRenderedEvent = true;
-  public onElementRenderedEventEnabled = false;
-  public enableOnElementRenderedEvent(): void {
-    this.onElementRenderedEventEnabled = true;
+  public supportOnElementRerenderedEvent = true;
+  public onElementRerenderedEventEnabled = false;
+  public enableOnElementRerenderedEvent(): void {
+    this.onElementRerenderedEventEnabled = true;
   }
-  public disableOnElementRenderedEvent(): void {
+  public disableOnElementRerenderedEvent(): void {
     this.onElementRerendered?.fire(this, { isCancel: true });
-    this.onElementRenderedEventEnabled = false;
+    this.onElementRerenderedEventEnabled = false;
   }
   protected _onElementRerendered: EventBase<Base> = new EventBase();
   public get onElementRerendered(): EventBase<Base> {
-    return this.supportOnElementRenderedEvent && this.onElementRenderedEventEnabled ? this._onElementRerendered : undefined;
+    return this.supportOnElementRerenderedEvent && this.onElementRerenderedEventEnabled ? this._onElementRerendered : undefined;
   }
   public afterRerender(): void {
     this.onElementRerendered?.fire(this, { isCancel: false });
-  }
-}
-
-export class RenderingCompletedAwaiter {
-  constructor(private _elements: Array<Base>, private _renderedHandler: () => void, waitingTimeout = 100) {
-    this._elements.forEach(element => {
-      if (element.onElementRerendered) {
-        element.onElementRerendered.add(this._elementRenderedHandler);
-        this._elementsToRenderCount++;
-      }
-    });
-    if (this._elementsToRenderCount > 0) {
-      this._elementsToRenderTimer = setTimeout(() => {
-        if (this._elementsToRenderCount > 0) {
-          this.visibleElementsRendered();
-        }
-      }, waitingTimeout);
-    } else {
-      this.visibleElementsRendered();
-    }
-  }
-  private _elementsToRenderCount = 0;
-  private _elementsToRenderTimer: any = undefined;
-  private _elementRenderedHandler = (s: Base, o: any) => {
-    s.onElementRerendered?.remove(this._elementRenderedHandler);
-    this._elementsToRenderCount--;
-    if (this._elementsToRenderCount <= 0) {
-      this.visibleElementsRendered();
-    }
-  }
-  private stopWaitingForElementsRendering() {
-    if (this._elementsToRenderTimer) {
-      clearTimeout(this._elementsToRenderTimer);
-      this._elementsToRenderTimer = undefined;
-    }
-    this._elements.forEach(element => {
-      element.onElementRerendered?.remove(this._elementRenderedHandler);
-    });
-    this._elementsToRenderCount = 0;
-  }
-  private visibleElementsRendered(): void {
-    const renderedHandler = this._renderedHandler;
-    this.dispose();
-    if (typeof renderedHandler == "function") {
-      renderedHandler();
-    }
-  }
-  public dispose(): void {
-    this.stopWaitingForElementsRendering();
-    this._elements = undefined;
-    this._renderedHandler = undefined;
   }
 }
 

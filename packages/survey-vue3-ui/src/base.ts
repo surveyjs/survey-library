@@ -72,7 +72,7 @@ export function makeReactive(surveyElement: Base) {
       nextRenderManager.add();
     };
   }
-  surveyElement.enableOnElementRenderedEvent();
+  surveyElement.enableOnElementRerenderedEvent();
   (surveyElement as any).__vueImplemented++;
 }
 
@@ -89,7 +89,7 @@ export function unMakeReactive(surveyElement?: Base) {
       }
     });
     delete (surveyElement as any).__vueImplemented;
-    surveyElement.disableOnElementRenderedEvent();
+    surveyElement.disableOnElementRerenderedEvent();
     surveyElement.createArrayCoreHandler = undefined as any;
     surveyElement.getPropertyValueCoreHandler = undefined as any;
     surveyElement.setPropertyValueCoreHandler = undefined as any;

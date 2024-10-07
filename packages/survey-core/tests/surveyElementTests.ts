@@ -6,6 +6,7 @@ import { Serializer } from "../src/jsonobject";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
 import { StylesManager } from "@legacy/stylesmanager";
+import { RenderingCompletedAwaiter } from "../src/survey-element";
 
 export default QUnit.module("SurveyElement");
 
@@ -294,7 +295,8 @@ QUnit.test("question.errorLocation & panel.questionErrorLocation & page.question
     pages: [
       {
         elements: [
-          { name: "p1", type: "panel",
+          {
+            name: "p1", type: "panel",
             elements: [
               {
                 name: "q1",
@@ -354,4 +356,89 @@ QUnit.test("single page survey in preview", function (assert) {
   assert.notOk(survey.getQuestionByName("question1")["getIsNested"]());
   assert.ok((survey.pages[0].elements[0] as PanelModel).showPanelAsPage);
   survey.css = oldCss;
+});
+
+QUnit.test("wait for elements to render RenderingCompletedAwaiter + onAfterRenderElement event", function (assert) {
+  const json = {
+    "elements": [
+      { "type": "text", "name": "question1" },
+      { "type": "text", "name": "question2" }
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  const [q1, q2] = survey.getAllQuestions();
+
+  let qRenderLog = "";
+  survey.onAfterRenderQuestion.add((s, o) => {
+    qRenderLog += "->rendered(" + o.question.name + ")";
+  });
+
+  assert.ok(q1.onAfterRenderElement.isEmpty);
+  assert.ok(q2.onAfterRenderElement.isEmpty);
+
+  let log = "";
+  const awaiter = new RenderingCompletedAwaiter([q1, q2], () => {
+    log += "->elementsRendered";
+  });
+
+  assert.equal(log, "");
+  assert.equal(qRenderLog, "");
+  assert.equal(q1.onAfterRenderElement.length, 1);
+  assert.equal(q2.onAfterRenderElement.length, 1);
+
+  q1.afterRender({} as any);
+
+  assert.equal(log, "");
+  assert.equal(qRenderLog, "->rendered(question1)");
+  assert.equal(q1.onAfterRenderElement.length, 0);
+  assert.ok(q1.onAfterRenderElement.isEmpty);
+  assert.equal(q2.onAfterRenderElement.length, 1);
+  assert.notOk(q2.onAfterRenderElement.isEmpty);
+
+  q2.afterRender({} as any);
+
+  assert.equal(log, "->elementsRendered");
+  assert.equal(qRenderLog, "->rendered(question1)->rendered(question2)");
+  assert.ok(q1.onAfterRenderElement.isEmpty);
+  assert.ok(q2.onAfterRenderElement.isEmpty);
+});
+
+QUnit.test("wait for elements to render RenderingCompletedAwaiter by timeout", async function (assert) {
+  const done = assert.async();
+  const json = {
+    "elements": [
+      { "type": "text", "name": "question1" },
+      { "type": "text", "name": "question2" }
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  const [q1, q2] = survey.getAllQuestions();
+
+  let qRenderLog = "";
+  survey.onAfterRenderQuestion.add((s, o) => {
+    qRenderLog += "->rendered(" + o.question.name + ")";
+  });
+
+  assert.ok(q1.onAfterRenderElement.isEmpty);
+  assert.ok(q2.onAfterRenderElement.isEmpty);
+
+  let log = "";
+  const awaiter = new RenderingCompletedAwaiter([q1, q2], () => {
+    log += "->elementsRendered";
+  });
+
+  assert.equal(log, "");
+  assert.equal(qRenderLog, "");
+  assert.equal(q1.onAfterRenderElement.length, 1);
+  assert.equal(q2.onAfterRenderElement.length, 1);
+
+  setTimeout(() => {
+    assert.equal(log, "->elementsRendered");
+    assert.equal(qRenderLog, "");
+    assert.ok(q1.onAfterRenderElement.isEmpty);
+    assert.ok(q2.onAfterRenderElement.isEmpty);
+    done();
+  }, 500);
 });

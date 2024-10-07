@@ -359,7 +359,7 @@ const surveyJson = {
     pages: [{
         elements: [{
             type: "html",
-            html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
+            html: "<h2>In this survey, we will ask you a couple of questions about your impressions of our product.</h2>"
         }]
     },
     // ...
@@ -394,7 +394,7 @@ const surveyJson = {
     pages: [{
         elements: [{
             type: "html",
-            html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
+            html: "<h2>In this survey, we will ask you a couple of questions about your impressions of our product.</h2>"
         }]
     }, {
         elements: [{
@@ -479,7 +479,7 @@ An array that allows you to specify different complete page content based on con
     };
     ```
 
-    When none of the expressions evaluate to `true`, the complete page displays the HTML markup from the `completedHtml` property.
+    When none of the expressions evaluates to `true`, the complete page displays the HTML markup from the `completedHtml` property.
 
 If your survey should not display a complete page, disable the [`showCompletedPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#showCompletedPage) property.
 
@@ -491,7 +491,7 @@ const surveyJson = {
     pages: [{
         elements: [{
             type: "html",
-            html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
+            html: "<h2>In this survey, we will ask you a couple of questions about your impressions of our product.</h2>"
         }]
     }, {
         elements: [{
@@ -600,7 +600,7 @@ const surveyJson = {
     pages: [{
         elements: [{
             type: "html",
-            html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
+            html: "<h2>In this survey, we will ask you a couple of questions about your impressions of our product.</h2>"
         }]
     }, {
         elements: [{

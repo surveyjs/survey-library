@@ -1143,7 +1143,7 @@ export class Base {
     return this.getIsAnimationAllowed();
   }
   protected getIsAnimationAllowed(): boolean {
-    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRenderedEvent);
+    return settings.animationEnabled && this.animationAllowedLock >= 0 && !this.isLoadingFromJson && !this.isDisposed && (!!this.onElementRerendered || !this.supportOnElementRerenderedEvent);
   }
   private animationAllowedLock: number = 0;
   public blockAnimations(): void {
@@ -1153,18 +1153,18 @@ export class Base {
     this.animationAllowedLock++;
   }
   //remove when knockout obsolete
-  public supportOnElementRenderedEvent = true;
-  public onElementRenderedEventEnabled = false;
-  public enableOnElementRenderedEvent(): void {
-    this.onElementRenderedEventEnabled = true;
+  public supportOnElementRerenderedEvent = true;
+  public onElementRerenderedEventEnabled = false;
+  public enableOnElementRerenderedEvent(): void {
+    this.onElementRerenderedEventEnabled = true;
   }
-  public disableOnElementRenderedEvent(): void {
+  public disableOnElementRerenderedEvent(): void {
     this.onElementRerendered?.fire(this, { isCancel: true });
-    this.onElementRenderedEventEnabled = false;
+    this.onElementRerenderedEventEnabled = false;
   }
   protected _onElementRerendered: EventBase<Base> = new EventBase();
   public get onElementRerendered(): EventBase<Base> {
-    return this.supportOnElementRenderedEvent && this.onElementRenderedEventEnabled ? this._onElementRerendered : undefined;
+    return this.supportOnElementRerenderedEvent && this.onElementRerenderedEventEnabled ? this._onElementRerendered : undefined;
   }
   public afterRerender(): void {
     this.onElementRerendered?.fire(this, { isCancel: false });

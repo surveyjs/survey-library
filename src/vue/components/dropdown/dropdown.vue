@@ -130,14 +130,8 @@ export class DropdownComponent extends BaseVue {
   inputChange(event: any) {
     this.model.inputStringRendered = event.target.value;
   }
-
-  public get showSelectedItemLocText() {
-    return this.question.showSelectedItemLocText;
-  }
-
-  public get selectedItemLocText() {
-    return this.question.selectedItemLocText;
-  }
+  showSelectedItemLocText: any = null;
+  selectedItemLocText: any = false;
 
   public click(event: any) {
     this.model?.onClick(event);
@@ -175,8 +169,17 @@ export class DropdownComponent extends BaseVue {
       }
     }
   }
+  private updateSelectedItemProperties() {
+    this.showSelectedItemLocText = this.question.showSelectedItemLocText;
+    this.selectedItemLocText = this.question.selectedItemLocText;
+  }
+  onCreated(): void {
+    this.updateSelectedItemProperties();
+  }
+  onBeforeUpdated(): void {
+    this.updateSelectedItemProperties();
+  }
 }
-
 Vue.component("sv-dropdown", DropdownComponent);
 export default DropdownComponent;
 </script>

@@ -96,7 +96,7 @@ Our model exists only in JavaScript code, but SurveyJS works with JSON objects. 
 A string value that you returned from the model's `getType()` method. This property is used to associate the JSON object with the model's JavaScript class.
 
 - `propMeta[]`      
-An array of objects used to serialize custom model properties into JSON. This array must include all custom model properties. [Our model](#create-a-model) contains two custom properties (`colorPickerType` and `disableAlpha`), and the code below configures their serialization.
+An array of objects is used to serialize custom model properties into JSON. This array must include all custom model properties. [Our model](#create-a-model) contains two custom properties (`colorPickerType` and `disableAlpha`), and the code below configures their serialization.
 
 - `constructor`       
 A function that returns an instance of the model's JavaScript class (`QuestionColorPickerModel`) associated with the JSON object.

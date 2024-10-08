@@ -238,6 +238,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const needScroll = SurveyElement.IsNeedScrollIntoView(el, checkLeft, scrollIfVisible);
     if (needScroll) {
       SurveyElement.ScrollIntoView(el, scrollIntoViewOptions, doneCallback);
+    } else {
+      doneCallback && doneCallback();
     }
     return needScroll;
   }

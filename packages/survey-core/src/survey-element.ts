@@ -234,7 +234,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    if (!el || !el.scrollIntoView) return false;
+    if (!el || !el.scrollIntoView) {
+      doneCallback && doneCallback();
+      return false;
+    }
     const needScroll = SurveyElement.IsNeedScrollIntoView(el, checkLeft, scrollIfVisible);
     if (needScroll) {
       SurveyElement.ScrollIntoView(el, scrollIntoViewOptions, doneCallback);

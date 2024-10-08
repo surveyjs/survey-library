@@ -225,18 +225,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         requestAnimationFrame(checkPos);
       };
       DomWindowHelper.requestAnimationFrame(checkPos);
-      // let currPageXOffset = window.pageXOffset;
-      // let currPageYOffset = window.pageYOffset;
-      // var scrollDone = setInterval(() => {
-      //   DomWindowHelper.requestAnimationFrame(() => {
-      //     if (currPageXOffset == window.pageXOffset && currPageYOffset == window.pageYOffset) {
-      //       clearInterval(scrollDone);
-      //       doneCallback();
-      //     }
-      //     currPageXOffset = window.pageXOffset;
-      //     currPageYOffset = window.pageYOffset;
-      //   });
-      // }, 25);
     }
   }
   public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {

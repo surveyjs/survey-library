@@ -23,6 +23,7 @@ export class SurveyValidator extends Base {
     super();
     this.createLocalizableString("text", this, true);
   }
+  public get isValidator(): boolean { return true; }
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.errorOwner && !!(<any>this.errorOwner)["getSurvey"]
       ? (<any>this.errorOwner).getSurvey()

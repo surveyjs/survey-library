@@ -1702,9 +1702,8 @@ export class QuestionPanelDynamicModel extends Question
       : null;
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
-    const hasContext = !!context
-      ? context === true || this.template.questions.indexOf(context) > -1
-      : false;
+    const contextQ = !!context?.isValidator ? context.errorOwner : context;
+    const hasContext = !!context && (context === true || this.template.questions.indexOf(contextQ) > -1);
     const panelObjs = new Array<IConditionObject>();
     const questions = this.template.questions;
     for (var i = 0; i < questions.length; i++) {

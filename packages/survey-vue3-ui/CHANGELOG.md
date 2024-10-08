@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.12.5](https://github.com/surveyjs/survey-library/compare/v1.12.4...v1.12.5) (2024-10-08)
+
+
+### Bug Fixes
+
+* frames disappearing when using root css config ([53c0c17](https://github.com/surveyjs/survey-library/commit/53c0c172047871824bce5e6742d08faeb14ee9d2))
+
 ## [1.12.4](https://github.com/surveyjs/survey-library/compare/v1.12.3...v1.12.4) (2024-10-01)
 
 ## [1.12.3](https://github.com/surveyjs/survey-library/compare/v1.12.2...v1.12.3) (2024-09-24)

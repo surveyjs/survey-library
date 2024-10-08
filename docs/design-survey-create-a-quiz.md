@@ -70,14 +70,14 @@ const surveyJson = {
 
 You can set time limits for a page and for the entire quiz using the following properties:
 
-- [`SurveyModel.maxTimeToFinish`](https://surveyjs.io/Documentation/Library?id=surveymodel#maxTimeToFinish)      
+- [`SurveyModel.timeLimit`](https://surveyjs.io/Documentation/Library?id=surveymodel#timeLimit)      
 A time limit to finish the entire survey.
 
-- [`SurveyModel.maxTimeToFinishPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#maxTimeToFinishPage)      
+- [`SurveyModel.timeLimitPerPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#timeLimitPerPage)      
 A time limit to finish one page.
 
-- [`PageModel.maxTimeToFinish`](https://surveyjs.io/Documentation/Library?id=pagemodel#maxTimeToFinish)      
-A time limit to finish a specific page. Overrides the survey's `maxTimeToFinishPage` property.
+- [`PageModel.timeLimit`](https://surveyjs.io/Documentation/Library?id=pagemodel#timeLimit)      
+A time limit to finish a specific page. Overrides the survey's `timeLimitPerPage` property.
 
 These properties specify time limits in seconds. If a time limit is negative or 0, it does not apply. A survey with a page time limit doesn't display the Previous Page button, disallowing users to return to previous pages.
 
@@ -91,19 +91,19 @@ survey.startTimer();
 survey.stopTimer();
 ```
 
-To display elapsed and remaining time, set the `showTimerPanel` property to `top` or `bottom`:
+To display elapsed and remaining time, set the `showTimer` property to `true`:
 
 ```js
 const surveyJson = {
-  showTimerPanel: "top"
+  showTimer: true
 };
 ```
 
-The timer panel can include information about time spent on the current page, on the entire quiz, or both. Use the `showTimerPanelMode` property to specify the desired mode:
+The timer panel can include information about time spent on the current page, on the entire quiz, or both. Use the `timerInfoMode` property to specify the desired mode:
 
 ```js
 const surveyJson = {
-  showTimerPanelMode: "all" // or "page" | "survey"
+  timerInfoMode: "combined" // or "page" | "survey"
 };
 ```
 
@@ -114,9 +114,9 @@ const surveyJson = {
 const surveyJson = {
   title: "American History",
   showProgressBar: "bottom",
-  showTimerPanel: "top",
-  maxTimeToFinishPage: 10,
-  maxTimeToFinish: 25,
+  showTimer: true,
+  timeLimitPerPage: 10,
+  timeLimit: 25,
   pages: [{
     elements: [{
       type: "radiogroup",
@@ -197,9 +197,9 @@ const surveyJson = {
 const surveyJson = {
   title: "American History",
   showProgressBar: "bottom",
-  showTimerPanel: "top",
-  maxTimeToFinishPage: 10,
-  maxTimeToFinish: 25,
+  showTimer: true,
+  timeLimitPerPage: 10,
+  timeLimit: 25,
   firstPageIsStarted: true,
   startSurveyText: "Start Quiz",
   pages: [{
@@ -289,9 +289,9 @@ The `completedHtml` and `completedHtmlOnCondition` properties can be used togeth
 const surveyJson = {
   title: "American History",
   showProgressBar: "bottom",
-  showTimerPanel: "top",
-  maxTimeToFinishPage: 10,
-  maxTimeToFinish: 25,
+  showTimer: true,
+  timeLimitPerPage: 10,
+  timeLimit: 25,
   firstPageIsStarted: true,
   startSurveyText: "Start Quiz",
   pages: [{

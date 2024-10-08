@@ -80,9 +80,12 @@ import { ..., ElementFactory } from "survey-core";
 
 // ...
 
-ElementFactory.Instance.registerElement(CUSTOM_TYPE, (name: string) => {
-  return new QuestionColorPickerModel(name);
-});
+ElementFactory.Instance.registerElement(
+  CUSTOM_TYPE,
+  (name: string) => {
+    return new QuestionColorPickerModel(name);
+  }
+);
 </script>
 ```
 
@@ -325,6 +328,26 @@ creator.JSON = surveyJson;
   <SurveyCreatorComponent :model="creator" />
 </template>
 ```
+
+You might want to use a third-party component only as a property editor, without allowing survey editors to use it in questions. In this case, you need to hide the component from the Toolbox and the Add Question menu. To do this, pass `false` as a third argument to the `ElementFactory.Instance.registerElement` method when you register a [freshly created model](#create-a-model):
+
+```html
+<!-- src/components/ColorPicker.vue -->
+<script lang="ts">
+import { ..., ElementFactory } from "survey-core";
+
+// ...
+
+ElementFactory.Instance.registerElement(
+  CUSTOM_TYPE,
+  (name: string) => {
+    return new QuestionColorPickerModel(name);
+  },
+  false
+);
+</script>
+```
+
 
 [View Demo](/survey-creator/examples/custom-colorpicker-property-editor/vue3js (linkStyle))
 

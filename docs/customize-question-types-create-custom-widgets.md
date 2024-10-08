@@ -93,7 +93,7 @@ The second and main function is _afterRender()_. It has two parameters: a questi
 
 ### Add a new property in existing question.
 
-In the previous example we added the search functionality into Comment question. It applies to all comment question. Now, let us add a boolean property “hasSearch” that will turn this functionality on and off.
+In the previous example we added the search functionality into Comment question. It applies to all comment questions. Now, let us add a boolean property “hasSearch” that will turn this functionality on and off.
 
 ```javascript
 //SurveyJS calls it right after adding a new widget into custom widget collection.
@@ -111,14 +111,14 @@ init() {
 },
 //Add a check for hasSearch property in the beginning.
 afterRender: function (question, el) {
-    //property hasSearch is false. SurveyJS Cretor user doesn't want search functionality for this question.
+    //property hasSearch is false. SurveyJS Creator user doesn't want search functionality for this question.
     if (!question.hasSearch) return;
     ...
 }
 ```
 You have to use _init()_ function for adding new classes and properties. Additionally you have to modify _afterRender()_ function and do nothing if hasSearch property is not true.
 
-The following code works perfect in general. The only problem, if this property is changed in run-time or in designer, the end-user will not see changes in UI. To make the better users experience in SurveyJS Creator, we must render our search panel all the time but hide/show it on changing the property. 
+The following code works perfectly in general. The only problem, if this property is changed in run-time or in designer, the end-user will not see changes in UI. To make the better user experience in SurveyJS Creator, we must render our search panel all the time but hide/show it on changing the property. 
 
 We must change _afterRender()_ function only. Remove the check on hasSearch property in the beginning and add the following code at the end:
 ```javascript

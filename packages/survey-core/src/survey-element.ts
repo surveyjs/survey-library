@@ -225,18 +225,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         requestAnimationFrame(checkPos);
       };
       DomWindowHelper.requestAnimationFrame(checkPos);
-      // let currPageXOffset = window.pageXOffset;
-      // let currPageYOffset = window.pageYOffset;
-      // var scrollDone = setInterval(() => {
-      //   DomWindowHelper.requestAnimationFrame(() => {
-      //     if (currPageXOffset == window.pageXOffset && currPageYOffset == window.pageYOffset) {
-      //       clearInterval(scrollDone);
-      //       doneCallback();
-      //     }
-      //     currPageXOffset = window.pageXOffset;
-      //     currPageYOffset = window.pageYOffset;
-      //   });
-      // }, 25);
     }
   }
   public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
@@ -246,10 +234,15 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    if (!el || !el.scrollIntoView) return false;
+    if (!el || !el.scrollIntoView) {
+      doneCallback && doneCallback();
+      return false;
+    }
     const needScroll = SurveyElement.IsNeedScrollIntoView(el, checkLeft, scrollIfVisible);
     if (needScroll) {
       SurveyElement.ScrollIntoView(el, scrollIntoViewOptions, doneCallback);
+    } else {
+      doneCallback && doneCallback();
     }
     return needScroll;
   }

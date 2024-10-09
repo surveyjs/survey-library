@@ -4906,6 +4906,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.rootFitToContainer, this.fitToContainer)
       .toString();
   }
+  private isSmoothScrollEnabled = false;
   private resizeObserver: ResizeObserver;
   afterRenderSurvey(htmlElement: any) {
     this.destroyResizeObserver();
@@ -5289,7 +5290,8 @@ export class SurveyModel extends SurveyElementCore
   scrollElementToTop(
     element: ISurveyElement, question: Question, page: PageModel,
     id: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions,
-    passedRootElement?: HTMLElement
+    passedRootElement?: HTMLElement,
+    onScolledCallback?: () => void
   ): any {
     const options: ScrollingElementToTopEvent = {
       element: element,
@@ -5313,10 +5315,11 @@ export class SurveyModel extends SurveyElementCore
           SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, () => {
             this.releaseLazyRendering();
             activateLazyRenderingChecks(elementPage.id);
+            onScolledCallback && onScolledCallback();
           });
         }, elementsToRenderBefore);
       } else {
-        SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions);
+        SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
       }
     }
   }

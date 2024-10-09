@@ -44,7 +44,6 @@ export class RatingItem extends RatingItemBase {
           this.item.text
         )}
       >
-        5555
         <input
           type="radio"
           className="sv-visuallyhidden"

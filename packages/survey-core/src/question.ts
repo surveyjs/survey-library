@@ -1244,15 +1244,16 @@ export class Question extends SurveyElement<Question>
     if (shouldChangePage) {
       this.survey.focusQuestionByInstance(this, onError);
     } else {
-      this.focuscore(onError, scrollIfVisible);
+      if (!!this.survey) {
+        this.expandAllParents();
+        const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] ? { behavior: "smooth" } : undefined;
+        this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible, scrollOptions, undefined, () => {
+          this.focusInputElement(onError);
+        });
+      } else {
+        this.focusInputElement(onError);
+      }
     }
-  }
-  private focuscore(onError: boolean = false, scrollIfVisible?: boolean): void {
-    if (!!this.survey) {
-      this.expandAllParents();
-      this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible);
-    }
-    this.focusInputElement(onError);
   }
   focusInputElement(onError: boolean): void {
     const id = !onError ? this.getFirstInputElementId() : this.getFirstErrorInputElementId();

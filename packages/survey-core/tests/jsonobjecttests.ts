@@ -3430,3 +3430,16 @@ QUnit.test("circular dependsOn, #8885", function (assert) {
   assert.notEqual(onGetValueObjType, q2.columns[0].getType(), "object is not a column in onGetValueObjType");
   Serializer.removeProperty("question", "prop1");
 });
+QUnit.test("Add availableInMatrixColumn attribute", function (assert) {
+  const prop1 = Serializer.addProperty("question", { name: "prop1", availableInMatrixColumn: true });
+  const prop2 = Serializer.addProperty("question", { name: "prop2", availableInMatrixColumn: false });
+  const prop3 = Serializer.addProperty("question", { name: "prop3" });
+
+  assert.equal(prop1.availableInMatrixColumn, true, "prop1");
+  assert.equal(prop2.availableInMatrixColumn, undefined, "prop2");
+  assert.equal(prop3.availableInMatrixColumn, undefined, "prop3");
+
+  Serializer.removeProperty("question", "prop1");
+  Serializer.removeProperty("question", "prop2");
+  Serializer.removeProperty("question", "prop3");
+});

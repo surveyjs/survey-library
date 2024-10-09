@@ -37,8 +37,8 @@ export class RenderedRatingItem extends Base {
 }
 
 class RatingItemValue extends ItemValue {
-  constructor(value: any, public description: LocalizableString) {
-    super(value);
+  constructor(value: any, text: string = null, public description: LocalizableString) {
+    super(value, text);
   }
 }
 
@@ -403,7 +403,7 @@ export class QuestionRatingModel extends Question {
     if (value === this.rateMax || index === settings.ratingMaximumRateValueCount) {
       description = this.maxRateDescription && this.locMaxRateDescription;
     }
-    let newItem = new RatingItemValue(value, description);
+    let newItem = new RatingItemValue(value, item.text, description);
     newItem.locOwner = item.locOwner;
     newItem.ownerPropertyName = item.ownerPropertyName;
     return newItem;

@@ -37,7 +37,14 @@ export class RatingItem extends RatingItemBase {
   render(): JSX.Element | null {
     var itemText = this.renderLocString(this.item.locText);
     return (
-      <label onMouseDown={this.handleOnMouseDown} className={this.question.getItemClassByText(this.item.itemValue, this.item.text)}>
+      <label
+        onMouseDown={this.handleOnMouseDown}
+        className={this.question.getItemClassByText(
+          this.item.itemValue,
+          this.item.text
+        )}
+      >
+        5555
         <input
           type="radio"
           className="sv-visuallyhidden"
@@ -48,13 +55,18 @@ export class RatingItem extends RatingItemBase {
           readOnly={this.question.isReadOnlyAttr}
           checked={this.question.value == this.item.value}
           onClick={this.props.handleOnClick}
-          onChange={() => { }}
+          onChange={() => {}}
           aria-required={this.question.ariaRequired}
           aria-label={this.question.ariaLabel}
           aria-invalid={this.question.ariaInvalid}
           aria-errormessage={this.question.ariaErrormessage}
         />
-        <span className={this.question.cssClasses.itemText} data-text={this.item.text}>{itemText}</span>
+        <span
+          className={this.question.cssClasses.itemText}
+          data-text={this.item.text}
+        >
+          {itemText}
+        </span>
       </label>
     );
   }

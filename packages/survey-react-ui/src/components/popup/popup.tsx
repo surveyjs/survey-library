@@ -170,6 +170,12 @@ export class PopupContainer extends SurveyElementBase<any, any> {
       </div>
     );
   }
+  componentDidMount(): void {
+    super.componentDidMount();
+    if(this.model.isVisible) {
+      this.model.updateOnShowing();
+    }
+  }
 }
 export class PopupDropdownContainer extends PopupContainer {
 
@@ -233,9 +239,7 @@ export function showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElem
   let root: any;
   if(typeof (ReactDOM as any).createRoot == "function") {
     root = (ReactDOM as any).createRoot(popupViewModel.container);
-    (ReactDOM as any).flushSync(() => {
-      root.render(<PopupContainer model={popupViewModel} />);
-    });
+    root.render(<PopupContainer model={popupViewModel} />);
   } else {
     ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
   }

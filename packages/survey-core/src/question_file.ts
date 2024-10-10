@@ -143,12 +143,6 @@ export class QuestionFileModelBase extends Question {
   }
 }
 
-/**
- * A class that describes the File Upload question type.
- *
- * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
- */
-
 export class QuestionFilePage extends Base {
   private static pageCounter = 0;
   private static getId() {
@@ -164,6 +158,12 @@ export class QuestionFilePage extends Base {
     return this.question.cssClasses.page;
   }
 }
+
+/**
+ * A class that describes the File Upload question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+ */
 export class QuestionFileModel extends QuestionFileModelBase {
   @property() isDragging: boolean = false;
   @propertyArray({}) public previewValue: any[];

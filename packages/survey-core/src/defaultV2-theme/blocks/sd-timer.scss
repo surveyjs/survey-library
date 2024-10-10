@@ -64,7 +64,10 @@
 }
 
 .sd-timer__text--minor {
-  color: $foreground-light;
+  color: var(--lbr-timer-text-color-secondary, $foreground-dim-light);
+  font-size: var(--lbr-font-default-size, calcFontSize(1));
+  font-style: normal;
   font-weight: 600;
-  font-size: calcFontSize(0.75);
+  line-height: var(--lbr-font-default-line-height, calcLineHeight(1.5));
+  margin-top: calcSize(-0.5);
 }

@@ -219,13 +219,26 @@ export function showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElem
     options: { isVisible: boolean }
   ) => {
     if (!options.isVisible) {
-      ReactDOM.unmountComponentAtNode(popupViewModel.container);
+      if(typeof (ReactDOM as any).createRoot == "function") {
+        if(!!root) {
+          root.unmount();
+        }
+      } else {
+        ReactDOM.unmountComponentAtNode(popupViewModel.container);
+      }
       popupViewModel.dispose();
     }
   };
   popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);
-
-  ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
+  let root: any;
+  if(typeof (ReactDOM as any).createRoot == "function") {
+    root = (ReactDOM as any).createRoot(popupViewModel.container);
+    (ReactDOM as any).flushSync(() => {
+      root.render(<PopupContainer model={popupViewModel} />);
+    });
+  } else {
+    ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
+  }
   popupViewModel.model.isVisible = true;
 
   return popupViewModel;

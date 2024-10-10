@@ -65,7 +65,9 @@ export const initSurvey = ClientFunction(
       document.getElementById("surveyElement").innerHTML = "";
       SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
     } else if (framework === "react") {
-      document.getElementById("surveyElement").innerHTML = "";
+      if(!!window.root) {
+        window.root.unmount();
+      }
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
@@ -125,7 +127,9 @@ export const initSurveyPopup = ClientFunction(
         allowFullScreen: true
       });
     } else if (framework === "react") {
-      document.getElementById("surveyElement").innerHTML = "";
+      if(!!window.root) {
+        window.root.unmount();
+      }
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(

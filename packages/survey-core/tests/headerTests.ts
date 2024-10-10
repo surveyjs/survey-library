@@ -295,7 +295,6 @@ QUnit.test("calculateActualHeight mobile",
     cover.actualHeight = actualHeight;
     assert.equal(cover.renderedHeight, undefined, "logo + 40 - no mobileHeight");
 
-    logoHeight = 50;
     cover.mobileHeight = 100;
 
     cover.actualHeight = 300;

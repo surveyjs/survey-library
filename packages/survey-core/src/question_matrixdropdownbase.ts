@@ -414,9 +414,8 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     res[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>, rowsVisibleIf?: string): void {
-    if (!!this.data) {
-      values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.getFilteredData();
-    }
+    if(!this.data) return;
+    values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.getFilteredData();
     const rowIndex = this.rowIndex;
     this.applyRowVariablesToValues(values, rowIndex);
     const newProps = Helpers.createCopy(properties);
@@ -831,6 +830,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     return this.textPreProcessor;
   }
   public get rowIndex(): number {
+    return this.getRowIndex();
+  }
+  protected getRowIndex(): number {
     return !!this.data ? this.data.getRowIndex(this) + 1 : -1;
   }
   public get editingObj(): Base {
@@ -1442,9 +1444,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return !!question ? question.getConditionJson(operator) : null;
   }
   public clearIncorrectValues(): void {
-    var rows = this.visibleRows;
-    if (!rows) return;
-    for (var i = 0; i < rows.length; i++) {
+    if (!Array.isArray(this.visibleRows)) return;
+    const rows = this.generatedVisibleRows;
+    for (let i = 0; i < rows.length; i++) {
       rows[i].clearIncorrectValues(this.getRowValue(i));
     }
   }
@@ -1794,12 +1796,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @param rowIndex A zero-based row index.
    * @see setRowValue
    */
-  public getRowValue(rowIndex: number) {
-    if (rowIndex < 0) return null;
-    var visRows = this.visibleRows;
-    if (rowIndex >= visRows.length) return null;
+  public getRowValue(rowIndex: number): any {
+    if (rowIndex < 0 || !Array.isArray(this.visibleRows)) return null;
+    var rows = this.generatedVisibleRows;
+    if (rowIndex >= rows.length) return null;
     var newValue = this.createNewValue();
-    return this.getRowValueCore(visRows[rowIndex], newValue);
+    return this.getRowValueCore(rows[rowIndex], newValue);
   }
   public checkIfValueInRowDuplicated(
     checkedRow: MatrixDropdownRowModelBase,
@@ -2456,8 +2458,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return { value: newValue, rowValue: rowValue };
   }
   getRowIndex(row: MatrixDropdownRowModelBase): number {
-    if (!this.generatedVisibleRows) return -1;
-    return this.visibleRows.indexOf(row);
+    if (!Array.isArray(this.generatedVisibleRows)) return -1;
+    return this.generatedVisibleRows.indexOf(row);
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     let elements: Array<IElement>;

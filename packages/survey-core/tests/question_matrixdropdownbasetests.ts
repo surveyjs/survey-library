@@ -1783,3 +1783,35 @@ QUnit.test("Support columnsVisibleIf property, Bug#8796", function (assert) {
   assert.equal(table.rows[1].cells.length, 1 + 2, "Row: the last column is invisible, #3");
   assert.equal(table.headerRow.cells[2].headers, "col2", "The last column is col2, #3");
 });
+QUnit.test("rowVisibleIf & rowIndex, Bug#8796", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowsVisibleIf": "{row.no} = 1 or {row.no} empty",
+        "columns": [
+          {
+            "name": "no",
+            "cellType": "text",
+            "defaultValueExpression": "{rowIndex}"
+          },
+          {
+            "name": "column1"
+          },
+          {
+            "name": "column2",
+            "cellType": "expression",
+            "expression": "{rowIndex}"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 1, "The first row is visible only");
+  matrix.addRow();
+  matrix.addRow();
+  assert.equal(matrix.visibleRows.length, 1, "The first row is visible only, #2");
+  assert.deepEqual(matrix.value, [{ no: 1, column2: 1 }, { no: 2, column2: 2 }, { no: 3, column2: 3 }, { no: 4, column2: 4 }], "matrix.data");
+});

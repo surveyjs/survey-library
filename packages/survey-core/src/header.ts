@@ -167,7 +167,7 @@ export class Cover extends Base {
       return this.height ? Math.max(this.height, this.actualHeight + 40) + "px" : undefined;
     }
     if (this.survey && this.survey.isMobile) {
-      return this.mobileHeight ? Math.max(this.mobileHeight, this.actualHeight + 40) + "px" : undefined;
+      return this.mobileHeight ? Math.max(this.mobileHeight, this.actualHeight) + "px" : undefined;
     }
     return undefined;
   }
@@ -233,13 +233,18 @@ export class Cover extends Base {
   }
   public processResponsiveness(width: number): void {
     if (this.survey && this.survey.rootElement) {
-      const logoEl = this.survey.rootElement.querySelectorAll(".sv-header__logo")[0];
-      const titleEl = this.survey.rootElement.querySelectorAll(".sv-header__title")[0];
-      const descriptionEl = this.survey.rootElement.querySelectorAll(".sv-header__description")[0];
-      const logoHeight = logoEl ? logoEl.getBoundingClientRect().height : 0;
-      const titleHeight = titleEl ? titleEl.getBoundingClientRect().height : 0;
-      const descriptionHeight = descriptionEl ? descriptionEl.getBoundingClientRect().height : 0;
-      this.actualHeight = this.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
+      if (!this.survey.isMobile) {
+        const logoEl = this.survey.rootElement.querySelectorAll(".sv-header__logo")[0];
+        const titleEl = this.survey.rootElement.querySelectorAll(".sv-header__title")[0];
+        const descriptionEl = this.survey.rootElement.querySelectorAll(".sv-header__description")[0];
+        const logoHeight = logoEl ? logoEl.getBoundingClientRect().height : 0;
+        const titleHeight = titleEl ? titleEl.getBoundingClientRect().height : 0;
+        const descriptionHeight = descriptionEl ? descriptionEl.getBoundingClientRect().height : 0;
+        this.actualHeight = this.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
+      } else {
+        const headerContainer = this.survey.rootElement.querySelectorAll(".sv-header > div")[0];
+        this.actualHeight = headerContainer ? headerContainer.getBoundingClientRect().height : 0;
+      }
     }
   }
 

@@ -61,7 +61,4 @@ onMounted(() => {
 onUpdated(() => {
   props.model.setElement(contentElement.value);
 });
-onUnmounted(() => {
-  props.model.dispose();
-});
 </script>

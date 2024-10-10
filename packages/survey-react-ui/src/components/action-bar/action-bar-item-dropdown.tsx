@@ -8,7 +8,6 @@ export class SurveyActionBarItemDropdown extends SurveyActionBarItem {
   private viewModel: ActionDropdownViewModel;
   constructor(props: any) {
     super(props);
-    this.viewModel = new ActionDropdownViewModel(this.item);
   }
   renderInnerButton() {
     const button = super.renderInnerButton();
@@ -18,6 +17,9 @@ export class SurveyActionBarItemDropdown extends SurveyActionBarItem {
         <Popup model={this.item.popupModel} getTarget={getActionDropdownButtonTarget}></Popup>
       </>
     );
+  }
+  componentDidMount(): void {
+    this.viewModel = new ActionDropdownViewModel(this.item);
   }
   componentWillUnmount(): void {
     super.componentWillUnmount();

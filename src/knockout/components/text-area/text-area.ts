@@ -11,9 +11,6 @@ ko.components.register("sv-text-area", {
       return {
         model: params,
         value: ko.observable(params.getTextValue() || ""),
-        dispose: () => {
-          params.dispose();
-        },
       };
     },
   },

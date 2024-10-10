@@ -66,9 +66,6 @@ export class TextAreaComponent extends BaseVue {
   protected onUpdated() {
     this.model.setElement(this.$refs["contentElement"] as HTMLTextAreaElement);
   }
-  protected beforeDestroy() {
-    this.model.dispose();
-  }
 }
 
 Vue.component("sv-text-area", TextAreaComponent);

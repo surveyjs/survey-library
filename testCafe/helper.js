@@ -65,14 +65,13 @@ export const initSurvey = ClientFunction(
       document.getElementById("surveyElement").innerHTML = "";
       SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
     } else if (framework === "react") {
-      document.getElementById("surveyElement").innerHTML = "";
+      if(!!window.root) {
+        window.root.unmount();
+      }
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
-        window["React"].createElement(window["SurveyReact"].Survey, {
-          model: model,
-          onComplete: surveyComplete,
-        }),
+        React.createElement(React.StrictMode, { children: React.createElement(SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
       );
     } else if (framework === "vue") {
       document.getElementById("surveyElement").innerHTML =
@@ -128,17 +127,20 @@ export const initSurveyPopup = ClientFunction(
         allowFullScreen: true
       });
     } else if (framework === "react") {
-      document.getElementById("surveyElement").innerHTML = "";
+      if(!!window.root) {
+        window.root.unmount();
+      }
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
-        window["React"].createElement(window["SurveyReact"].PopupSurvey, {
-          model: model,
-          isExpanded: true,
-          allowClose: true,
-          allowFullScreen: true
-        }),
-      );
+        React.createElement(React.StrictMode, { children: React.createElement(SurveyReact.PopupSurvey,
+          {
+            model: model,
+            isExpanded: true,
+            allowClose: true,
+            allowFullScreen: true
+          }
+        ) }));
     } else if (framework === "vue") {
       document.getElementById("surveyElement").innerHTML =
         "<popup-survey :survey='survey' :isExpanded='true' :allowClose='true' :allowFullScreen='true'/>";

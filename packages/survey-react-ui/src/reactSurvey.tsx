@@ -44,6 +44,7 @@ export class Survey extends SurveyElementBase<any, any>
       const el = this.rootRef.current;
       if (!!el) this.survey.afterRenderSurvey(el);
       this.survey.startTimerFromUI();
+      this.setSurveyEvents();
     }
   }
   shouldComponentUpdate(nextProps: any, nextState: any) {
@@ -223,7 +224,6 @@ export class Survey extends SurveyElementBase<any, any>
     if (!!newProps.css) {
       this.survey.css = this.css;
     }
-    this.setSurveyEvents();
   }
   private isModelJSONChanged(newProps: any): boolean {
     if (!!newProps["model"]) {

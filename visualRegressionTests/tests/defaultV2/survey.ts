@@ -497,6 +497,44 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-timer-without-progress.png", Selector("body"), t, comparer);
     });
   });
+  test("Check survey timer both values - page and total", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1400, 800);
+      const json = {
+        "showTimer": true,
+        "timeLimit": 227,
+        "timeLimitPerPage": 107,
+        "widthMode": "static",
+        "pages": [
+          {
+            "elements": [
+              {
+                "type": "radiogroup",
+                "name": "civilwar",
+                "title": "When was the American Civil War?",
+                "choices": [
+                  "1796-1803",
+                  "1810-1814",
+                  "1861-1865",
+                  "1939-1945"
+                ],
+                "correctAnswer": "1861-1865"
+              },
+            ]
+          }
+        ]
+      };
+      await ClientFunction(() => {
+        const style = document.createElement("style");
+        style.innerHTML = ".sd-timer__progress--animation { transition: none !important; }";
+        document.body.appendChild(style);
+        (<any>window).Survey.SurveyTimer.instance.start = () => { };
+      })();
+      await initSurvey(framework, json);
+      await resetHoverToBody(t);
+      await takeElementScreenshot("survey-timer-both.png", Selector("body"), t, comparer);
+    });
+  });
 
   const notifierJson = {
     "pages": [

@@ -25,6 +25,10 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
     super(data, value);
     this.buildCells(value);
   }
+  protected getRowIndex(): number {
+    const res = super.getRowIndex();
+    return res > 0 ? res : this.index + 1;
+  }
   public get rowName() {
     return this.id;
   }
@@ -222,6 +226,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.rowCountValue;
   }
   public set rowCount(val: number) {
+    val = Helpers.getNumber(val);
     if (val < 0 || val > settings.matrix.maxRowCount) return;
     this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
@@ -249,6 +254,22 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
     this.onRowsChanged();
+  }
+  protected updateBindingProp(propName: string, value: any): void {
+    super.updateBindingProp(propName, value);
+    const rows = this.generatedVisibleRows;
+    if(propName !== "rowCount" || !Array.isArray(rows)) return;
+    const val = this.getUnbindValue(this.value) || [];
+    if(val.length < rows.length) {
+      let hasValue = false;
+      for(let i = val.length; i < rows.length; i ++) {
+        hasValue ||= !rows[i].isEmpty;
+        val.push(rows[i].value || {});
+      }
+      if(hasValue) {
+        this.value = val;
+      }
+    }
   }
   protected updateProgressInfoByValues(res: IProgressInfo): void {
     let val = this.value;

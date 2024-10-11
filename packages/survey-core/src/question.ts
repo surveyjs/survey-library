@@ -2522,8 +2522,11 @@ export class Question extends SurveyElement<Question>
       if (this.isValueEmpty(value) && Helpers.isNumber(this[propName])) {
         value = 0;
       }
-      this[propName] = value;
+      this.updateBindingProp(propName, value);
     }
+  }
+  protected updateBindingProp(propName: string, value: any): void {
+    this[propName] = value;
   }
   public getComponentName(): string {
     return RendererFactory.Instance.getRendererByQuestion(this);

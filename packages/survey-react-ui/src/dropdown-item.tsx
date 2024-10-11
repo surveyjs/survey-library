@@ -12,6 +12,10 @@ export class SurveyQuestionOptionItem extends ReactSurveyElement {
     super.componentDidUpdate(prevProps, prevState);
     this.setupModel();
   }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.setupModel();
+  }
   componentWillUnmount(): void {
     super.componentWillUnmount();
     if (!!this.item) {

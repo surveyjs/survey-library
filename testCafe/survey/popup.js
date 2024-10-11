@@ -26,13 +26,13 @@ const initPopupSurvey = ClientFunction(
       popupSurvey.show();
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
-      window["ReactDOM"].render(
-        window["React"].createElement(window["SurveyReact"].PopupSurvey, {
-          model: model,
-          onComplete: surveyComplete,
-        }),
-        document.getElementById("surveyElement")
-      );
+      const root = ReactDOM.createRoot(document.getElementById("surveyElement"));
+      root.render(React.createElement(React.StrictMode, { children: React.createElement(window["SurveyReact"].PopupSurvey, {
+        model: model,
+        onComplete: surveyComplete,
+      })
+      }
+      ));
     } else if (framework === "vue") {
       document.getElementById("surveyElement").innerHTML =
         "<popup-survey :survey='survey'/>";

@@ -13065,41 +13065,27 @@ QUnit.test("Remove errors on settings correct values, matrtixdynamic", function 
   question.value = "val1";
   assert.equal(question.errors.length, 0, "There is no errors in question");
 });
-QUnit.test(
-  "Survey.checkErrorsMode=onValueChanged, check input date error onNextpage, Bug #2141",
-  function (assert) {
-    var survey = new SurveyModel({
-      elements: [
-        {
-          type: "text",
-          name: "birthdate",
-          isRequired: true,
-          validators: [
-            {
-              type: "expression",
-              expression: "getDate({birthdate}) < getDate('2020-01-01')",
-            },
-          ],
-          inputType: "date",
-        },
-      ],
-      checkErrorsMode: "onValueChanged",
-    });
-    var question1 = survey.getQuestionByName("birthdate");
-    question1.value = new Date("2020-01-02");
-    assert.equal(question1.errors.length, 0, "There is no errors yet");
-    survey.completeLastPage();
-    assert.equal(
-      question1.errors.length,
-      1,
-      "There is one error, birthdate is incorrect"
-    );
-    question1.value = new Date("2020-02-02");
-    assert.equal(question1.errors.length, 1, "The error was not fixed");
-    question1.value = new Date("2019-01-02");
-    assert.equal(question1.errors.length, 0, "The error is gone");
-  }
-);
+QUnit.test("Survey.checkErrorsMode=onValueChanged, do not set incorrect value #8928, Revert #2141", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "birthdate",
+        isRequired: true,
+        maxValueExpression: "getDate('2020-01-01')",
+        inputType: "date",
+      },
+    ],
+    checkErrorsMode: "onValueChanged",
+  });
+  var question1 = survey.getQuestionByName("birthdate");
+  question1.value = "2020-01-02";
+  assert.equal(question1.errors.length, 1, "There is one error");
+  assert.notOk(survey.getValue("birthdate"), "There is no incorrect value in survey data");
+  question1.value = "2000-01-02";
+  assert.equal(question1.errors.length, 0, "There is no errors");
+  assert.ok(survey.getValue("birthdate"), "The value is correct");
+});
 QUnit.test(
   "Update question errors on value change if question has error already regardless survey.checkErrorsMode property. #2265",
   function (assert) {

@@ -269,3 +269,48 @@ frameworks.forEach((framework) => {
     await setTimeZoneUnsafe(t, oldTimeZone);
   });
 });
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+
+  test("Date validation", async (t) => {
+    await initSurvey(framework, {
+      elements: [
+        {
+          type: "text",
+          name: "date1",
+          defaultValue: "2020-05-04",
+          inputType: "date",
+          maxValueExpression: "getDate('2020-05-05')",
+          maxErrorText: "Max error"
+        },
+        {
+          type: "text",
+          name: "date2",
+          defaultValue: "2020-05-04",
+          inputType: "date",
+          validators: [
+            {
+              type: "expression",
+              text: "Validator error",
+              expression: "{date2} < getDate('2020-05-05')"
+            }
+          ]
+        }
+      ],
+      checkErrorsMode: "onValueChanged",
+      focusFirstQuestionAutomatic: true
+    });
+
+    await t
+      .pressKey("tab up up  tab tab tab")
+      .expect(Selector("span").withText("Max error").visible).ok()
+      .pressKey("tab up up  tab tab tab")
+      .expect(Selector("span").withText("Validator error").visible).ok()
+
+      .pressKey("shift+tab shift+tab  shift+tab down down  shift+tab shift+tab")
+      .expect(Selector("span").withText("Validator error").visible).notOk()
+      .pressKey("shift+tab shift+tab  down down  tab tab tab")
+      .expect(Selector("span").withText("Max error").visible).notOk();
+  });
+
+});

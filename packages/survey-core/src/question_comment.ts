@@ -112,8 +112,11 @@ export class QuestionCommentModel extends QuestionTextBase {
   }
   public get renderedAllowResize(): boolean {
     const res = this.allowResize;
-    const allowResize = res === undefined && this.survey ? this.survey.allowResizeComment : !!res;
-    return allowResize && !this.isPreviewStyle && !this.isReadOnlyStyle;
+    if (res === undefined && this.survey) {
+      return this.survey.allowResizeComment;
+    } else {
+      return !!res;
+    }
   }
   public get resizeStyle() {
     return this.renderedAllowResize ? "both" : "none";

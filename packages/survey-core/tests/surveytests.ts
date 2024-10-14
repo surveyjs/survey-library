@@ -15609,13 +15609,9 @@ QUnit.test("survey.allowResizeComment", function (assert) {
   assert.equal(comment1.renderedAllowResize, true, "comment1 survey.allowResizeComment = true, #3");
   assert.equal(comment2.renderedAllowResize, false, "comment2 survey.allowResizeComment = true, #4");
 
-  comment1.readOnly = true;
-  assert.equal(comment1.renderedAllowResize, false, "#5");
-  comment1.readOnly = false;
-
   survey.showPreview();
   let comment1Preview = survey.getQuestionByName("comment1");
-  assert.equal(comment1Preview.renderedAllowResize, false, "#6");
+  assert.equal(comment1Preview.renderedAllowResize, true, "#5");
 });
 
 QUnit.test("survey.allowResizeComment & survey.autoGrowComment override this properties for individual properties", function (assert) {

@@ -307,7 +307,7 @@ function getIconNameFromProxy(iconName: string): string {
 export function getNewIconName(iconName: string): string {
   const prefix = "icon-";
   const nameWithoutPrefix = iconName.replace(prefix, "");
-  const result = renamedIcons[nameWithoutPrefix] || nameWithoutPrefix;
+  const result = <string>renamedIcons[nameWithoutPrefix] || nameWithoutPrefix;
   return prefix + result;
 }
 

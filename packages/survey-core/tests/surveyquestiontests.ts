@@ -4841,10 +4841,13 @@ QUnit.test("question.isInputTextUpdate", function (assert) {
     true,
     "survey.textUpdateMode == onTyping"
   );
-  question.inputType = "date";
-  assert.equal(question.isInputTextUpdate, false, "inputType = date");
   question.inputType = "number";
   assert.equal(question.isInputTextUpdate, true, "inputType = number");
+  question.inputType = "date";
+  assert.equal(question.isInputTextUpdate, false, "inputType = date");
+  settings.updateDateOnTyping = true;
+  assert.equal(question.isInputTextUpdate, true, "inputType = date && settings.updateDateOnTyping = true");
+  settings.updateDateOnTyping = true;
 });
 QUnit.test("question.isInputTextUpdate && mask", function (assert) {
   const survey = new SurveyModel({

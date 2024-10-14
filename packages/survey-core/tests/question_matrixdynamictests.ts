@@ -2656,7 +2656,7 @@ QUnit.test("rowValue variable, in text processing", function (assert) {
   );
 });
 QUnit.test("rowValue variable in expression", function (assert) {
-  var json = {
+  var survey = new SurveyModel({
     elements: [
       {
         type: "matrixdropdown",
@@ -2667,22 +2667,30 @@ QUnit.test("rowValue variable in expression", function (assert) {
         rows: ["Row 1", "Row 2"],
       },
     ],
-  };
-  var survey = new SurveyModel(json);
-  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
-  var rows = question.visibleRows;
-  assert.equal(
-    rows[0].cells[0].question.value,
-    "Row 1",
-    "The first row has rowValue 'Row 1'"
-  );
-  assert.equal(
-    rows[1].cells[0].question.value,
-    "Row 2",
-    "The first row has rowValue 'Row 2'"
-  );
+  });
+  const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const rows = question.visibleRows;
+  assert.equal(rows[0].cells[0].question.value, "Row 1", "The first row has rowValue 'Row 1'");
+  assert.equal(rows[1].cells[0].question.value, "Row 2", "The first row has rowValue 'Row 2'");
 });
-
+QUnit.test("rowName variable in expression", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          { name: "column1", cellType: "expression", expression: "{rowName}" },
+        ],
+        rows: ["Row 1", "Row 2"],
+      },
+    ],
+  });
+  const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const rows = question.visibleRows;
+  assert.equal(rows[0].cells[0].question.value, "Row 1", "The first row has rowName 'Row 1'");
+  assert.equal(rows[1].cells[0].question.value, "Row 2", "The first row has rowName 'Row 2'");
+});
 QUnit.test("row property in custom function", function (assert) {
   var rowCustomFunc = function (params: any) {
     var val = this.row.getValue(params[0]);

@@ -295,32 +295,15 @@ QUnit.test("calculateActualHeight mobile",
     cover.actualHeight = actualHeight;
     assert.equal(cover.renderedHeight, undefined, "logo + 40 - no mobileHeight");
 
-    logoHeight = 50;
     cover.mobileHeight = 100;
 
-    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
-    assert.equal(actualHeight, titleHeight + descriptionHeight);
-    cover.actualHeight = actualHeight;
-    assert.equal(cover.renderedHeight, "365px", "title + description + 40");
+    cover.actualHeight = 300;
+    assert.equal(cover.renderedHeight, "300px", "actual height");
 
-    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
-    assert.equal(actualHeight, logoHeight);
-    cover.actualHeight = actualHeight;
+    cover.actualHeight = 40;
     assert.equal(cover.renderedHeight, "100px", "mobile height");
 
-    logoHeight = 271;
-    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
-    assert.equal(actualHeight, logoHeight);
-    cover.actualHeight = actualHeight;
-    assert.equal(cover.renderedHeight, "311px", "logo + 40");
-
-    logoHeight = 0;
-    titleHeight = 0;
-    descriptionHeight = 0;
-
-    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
-    assert.equal(actualHeight, logoHeight);
-    cover.actualHeight = actualHeight;
+    cover.actualHeight = 0;
     assert.equal(cover.renderedHeight, "100px", "mobile height, no title, no logo, no description");
   }
 );

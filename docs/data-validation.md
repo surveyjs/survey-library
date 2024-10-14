@@ -145,7 +145,7 @@ If your validation logic requires a request to a server, make this request withi
 
 - `data` - An object that contains question values.
 - `errors` - An object for your error messages. Set error messages as follows: `errors["questionName"] = "My error message";`
-- `complete()` - A method that you should call when the request has completed. 
+- `complete()` - A method that you should call when the request has been completed. 
 
 In the following example, a callback assigned to the `onServerValidateQuestions` event handler fetches a list of countries and checks if an entered country is in this list:
 

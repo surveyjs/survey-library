@@ -975,7 +975,8 @@ export class Question extends SurveyElement<Question>
     }
     this.checkForResponsiveness(el);
   }
-  public afterRenderCore(el: HTMLElement): void {
+  public afterRenderCore(element: HTMLElement): void {
+    super.afterRenderCore(element);
   }
   protected getCommentElementsId(): Array<string> {
     return [this.commentId];
@@ -1243,15 +1244,16 @@ export class Question extends SurveyElement<Question>
     if (shouldChangePage) {
       this.survey.focusQuestionByInstance(this, onError);
     } else {
-      this.focuscore(onError, scrollIfVisible);
+      if (!!this.survey) {
+        this.expandAllParents();
+        const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] ? { behavior: "smooth" } : undefined;
+        this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible, scrollOptions, undefined, () => {
+          this.focusInputElement(onError);
+        });
+      } else {
+        this.focusInputElement(onError);
+      }
     }
-  }
-  private focuscore(onError: boolean = false, scrollIfVisible?: boolean): void {
-    if (!!this.survey) {
-      this.expandAllParents();
-      this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible);
-    }
-    this.focusInputElement(onError);
   }
   focusInputElement(onError: boolean): void {
     const id = !onError ? this.getFirstInputElementId() : this.getFirstErrorInputElementId();
@@ -2520,8 +2522,11 @@ export class Question extends SurveyElement<Question>
       if (this.isValueEmpty(value) && Helpers.isNumber(this[propName])) {
         value = 0;
       }
-      this[propName] = value;
+      this.updateBindingProp(propName, value);
     }
+  }
+  protected updateBindingProp(propName: string, value: any): void {
+    this[propName] = value;
   }
   public getComponentName(): string {
     return RendererFactory.Instance.getRendererByQuestion(this);

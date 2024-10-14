@@ -68,7 +68,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
           this.update(key);
         }
       };
-      stateElement.enableOnElementRenderedEvent();
+      stateElement.enableOnElementRerenderedEvent();
     }
   }
   private unMakeBaseElementAngular(stateElement?: Base) {
@@ -83,7 +83,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
           val["onArrayChanged"] = () => { };
         }
       });
-      stateElement.disableOnElementRenderedEvent();
+      stateElement.disableOnElementRerenderedEvent();
     }
   }
 

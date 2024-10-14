@@ -13,8 +13,8 @@ export class QuestionRow extends QuestionRowModel {
     super(panel);
     new ImplementorBase(this);
     var self = this;
-    this.koElementAfterRender = function (el: any, con: any) {
-      return self.elementAfterRender(el, con);
+    this.koElementAfterRender = function (el: any, renderedElement: any) {
+      return self.elementAfterRender(el, renderedElement);
     };
   }
   public getElementType(el: any) {
@@ -34,17 +34,16 @@ export class QuestionRow extends QuestionRowModel {
       }
     }
   }
-  private elementAfterRender(elements: any, con: any) {
+  private elementAfterRender(elements: any, renderedElement: any) {
     if (!this.panel || !this.panel.survey) return;
-
     setTimeout(() => {
       !!ko.tasks && ko.tasks.runEarly();
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (!el) return;
-      var element = <IElement>con;
-      if((<Base><any>element).isDisposed) return;
-      if (element.isPanel && this.panel.survey) {
-        this.panel.survey.afterRenderPanel(con, el);
+      var element = <IElement>renderedElement;
+      if ((<Base><any>element).isDisposed) return;
+      if (element.isPanel) {
+        (<PanelModel>element).afterRender(el);
       } else {
         (<Question>element).afterRender(el);
       }
@@ -61,7 +60,7 @@ export class QuestionRow extends QuestionRowModel {
       ko.utils.domNodeDisposal.addDisposeCallback(rowContainerDiv, () => {
         clearTimeout(timer);
         model.stopLazyRendering();
-        if(!model.isDisposed) {
+        if (!model.isDisposed) {
           model.isNeedRender = !model.isLazyRendering();
         }
       });

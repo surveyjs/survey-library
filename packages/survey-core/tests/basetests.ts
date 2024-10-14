@@ -805,7 +805,7 @@ QUnit.test("check animationAllowed", function (assert) {
   const question = survey.getAllQuestions()[0];
   assert.notOk(question.animationAllowed);
   settings.animationEnabled = true;
-  question.supportOnElementRenderedEvent = false;
+  question.supportOnElementRerenderedEvent = false;
   assert.ok(question.animationAllowed);
   question.blockAnimations();
   assert.notOk(question.animationAllowed);
@@ -822,13 +822,13 @@ QUnit.test("check afterRerender function", (assert) => {
   const survey = new SurveyModel({});
   assert.notOk(!!survey.onElementRerendered);
   survey.afterRerender();
-  survey.enableOnElementRenderedEvent();
+  survey.enableOnElementRerenderedEvent();
   let log = "";
   survey.onElementRerendered.add((_, options) => log += `->callback: ${!!options.isCancel}`);
   survey.afterRerender();
   assert.equal(log, "->callback: false");
   log = "";
-  survey.disableOnElementRenderedEvent();
+  survey.disableOnElementRerenderedEvent();
   assert.equal(log, "->callback: true");
   log = "";
   survey.afterRerender();

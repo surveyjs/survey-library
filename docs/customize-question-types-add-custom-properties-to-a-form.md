@@ -229,27 +229,28 @@ A string value that specifies the property type. Accepts one of the values descr
 `type` can also accept custom values. In this case, you need to register a property editor for the custom type in the `PropertyGridEditorCollection` and specify a standard JSON object that the custom type should produce. For example, the following code configures a `"shortname"` property that has a custom `"shorttext"` type: 
 
 ```js
-import { Serializer } from "survey-core";
 import { PropertyGridEditorCollection } from "survey-creator-core";
-
-Serializer.addProperty("question", {
-  name: "shortname",
-  type: "shorttext",
-  isRequired: true,
-  category: "general",
-  visibleIndex: 3
-});
+import { Serializer } from "survey-core";
 
 PropertyGridEditorCollection.register({
-  // Returns `true` for a property with type "shorttext"
+  // Use this editor for properties with `type: "shorttext"`
   fit: (prop) => {
     return prop.type === "shorttext";
   },
-  // Returns a standard question JSON configuration for the property editor
-  // (a text editor that is limited to 5 characters)
+  // Return a standard question JSON configuration for the property editor
+  // (a single-line input editor that is limited to 15 characters)
   getJSON: (obj, prop, options) => {
-    return { type: "text", maxLength: 5 };
+    return { type: "text", maxLength: 15 };
   }
+});
+
+// Add a custom property that uses the "shorttext" editor
+Serializer.addProperty("question", {
+  name: "shortname",
+  displayName: "Short name",
+  type: "shorttext",
+  category: "general",
+  visibleIndex: 3
 });
 ```
 

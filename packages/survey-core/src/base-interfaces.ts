@@ -159,7 +159,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   maxOthersLength: number;
   clearValueOnDisableItems: boolean;
 
-  maxTimeToFinishPage: number;
+  timeLimitPerPage: number;
 
   uploadFiles(
     question: IQuestion,
@@ -239,7 +239,9 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     question: IQuestion,
     page: IPage,
     id: string, scrollIfVisible?: boolean,
-    scrollIntoViewOptions?: ScrollIntoViewOptions
+    scrollIntoViewOptions?: ScrollIntoViewOptions,
+    passedRootElement?: HTMLElement,
+    onScolledCallback?: () => void
   ): any;
   runExpression(expression: string, callback?: (res: any) => void): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;

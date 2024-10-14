@@ -18108,7 +18108,7 @@ QUnit.test("getContainerContent - do not show advanced header on completed page"
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
-QUnit.test("getContainerContent - do show advanced header on completed page if showHeaderOnCompletedPage is set", function (assert) {
+QUnit.test("getContainerContent - do show advanced header on completed page if showHeaderOnCompletePage is set", function (assert) {
   const json = {
     pages: [
       {
@@ -18133,8 +18133,8 @@ QUnit.test("getContainerContent - do show advanced header on completed page if s
     return result;
   }
 
-  assert.notOk(survey.showHeaderOnCompletedPage);
-  survey.showHeaderOnCompletedPage = true;
+  assert.equal(survey.showHeaderOnCompletePage, "auto");
+  survey.showHeaderOnCompletePage = true;
 
   assert.deepEqual(getContainerContent("header"), [{
     "component": "sv-header",

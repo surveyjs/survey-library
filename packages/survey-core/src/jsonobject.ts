@@ -195,6 +195,7 @@ export interface IJsonPropertyInfo {
   isSerializable?: boolean;
   isLightSerializable?: boolean;
   readOnly?: boolean;
+  availableInMatrixColumn?: boolean;
   serializationProperty?: string;
   dependsOn?: Array<string> | string;
 
@@ -312,6 +313,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public nextToProperty: string;
   public overridingProperty: string;
   public showMode: string;
+  public availableInMatrixColumn: boolean;
   public maxLength: number = -1;
   public maxValue: any;
   public minValue: any;
@@ -956,6 +958,9 @@ export class JsonMetadataClass {
       }
       if (propInfo.readOnly === true) {
         prop.readOnly = true;
+      }
+      if(propInfo.availableInMatrixColumn === true) {
+        prop.availableInMatrixColumn = true;
       }
       if (propInfo.choices) {
         var choicesFunc =

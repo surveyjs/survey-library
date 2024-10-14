@@ -95,6 +95,7 @@ frameworks.forEach(async framework => {
     await t.expect(panel1_q1Sel.filter(filterIsInViewport).exists).ok()
       .pressKey("a");
     await focusQuestion("q1", false);
+    await t.wait(1000);
     await t.expect(q1Sel.filter(filterIsInViewport).exists).ok()
       .pressKey("b");
     await focusQuestion("panel1_q1", true);

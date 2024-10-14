@@ -2374,7 +2374,7 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", functio
   assert.equal(matrix.visibleTotalRow.cells[1].value, 10, "total sum #3");
 });
 QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", function(assert) {
-  var survey = new SurveyModel({
+  const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
       { type: "matrixdynamic", name: "matrix",
@@ -2382,7 +2382,7 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", functio
         columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] }
     ]
   });
-  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   matrix.value = [{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }];
   assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
   assert.equal(matrix.visibleTotalRow.cells[1].value, 30, "total sum #1");
@@ -2395,6 +2395,43 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", functio
   survey.setValue("q1", "c");
   assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
   assert.equal(matrix.visibleTotalRow.cells[1].value, 30, "total sum #4");
+});
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && no rows, Bug#8909", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "matrixdynamic", name: "matrix", rowCount: 3,
+        rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] },
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 0, "all rows are hidden");
+  matrix.addRow();
+  assert.equal(matrix.visibleRows.length, 0, "all rows are hidden #2");
+  survey.setValue("q1", "a");
+  assert.equal(matrix.visibleRows.length, 4, "all rows are show");
+});
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total && add new row, Bug#8909", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "matrixdynamic", name: "matrix",
+        rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.value = [{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }];
+  assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 30, "total sum #1");
+  survey.setValue("q1", "a");
+  assert.equal(matrix.visibleRows.length, 1, "row1, row3 are hidden");
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 10, "total sum #2");
+  matrix.addRow();
+  assert.equal(matrix.visibleRows.length, 2, "add new row");
+  matrix.visibleRows[1].cells[1].value = 40;
+  assert.equal(matrix.visibleTotalRow.cells[1].value, 50, "total sum #3");
 });
 QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context & set data correctly", function(assert) {
   var survey = new SurveyModel({
@@ -10100,4 +10137,25 @@ QUnit.test("check displayMode property", function (assert) {
   question.isMobile = false;
   assert.ok(question.isMobile);
   assert.ok(question.getRootCss().includes("test_mobile"));
+});
+QUnit.test("minRowCount vs rowCount, Bug#8899", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "matrix", minRowCount: 1, columns: [{ name: "col1" }] },
+      { type: "matrixdynamic", name: "matrix1", minRowCount: 1, rowCount: 1, columns: [{ name: "col1" }] },
+      { type: "matrixdynamic", name: "matrix2", minRowCount: 1, rowCount: 2, columns: [{ name: "col1" }] },
+      { type: "matrixdynamic", name: "matrix3", minRowCount: 1, rowCount: 3, columns: [{ name: "col1" }] },
+      { type: "matrixdynamic", name: "matrix4", minRowCount: 1, rowCount: 4, defaultRowValue: { col1: 1 }, columns: [{ name: "col1", cellType: "text" }] },
+    ] });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  const matrix2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix2");
+  const matrix3 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix3");
+  const matrix4 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix4");
+  assert.equal(matrix.visibleRows.length, 2, "matrix rowCount: 2");
+  assert.equal(matrix1.visibleRows.length, 1, "matrix1 rowCount: 1");
+  assert.equal(matrix2.visibleRows.length, 2, "matrix2 rowCount: 2");
+  assert.equal(matrix3.visibleRows.length, 3, "matrix3 rowCount: 3");
+  assert.equal(matrix4.visibleRows.length, 4, "matrix4 rowCount: 4");
+  assert.deepEqual(matrix4.value, [{ col1: 1 }, { col1: 1 }, { col1: 1 }, { col1: 1 }], "matrix4 value");
 });

@@ -82,7 +82,9 @@ export class ResponsivityManager {
     const _items = this.container.querySelectorAll(this.itemsSelector);
     (_items || []).forEach((item: HTMLDivElement, index: number) => {
       let currentAction = actions[index];
-      this.calcActionDimensions(currentAction, item);
+      if (!!currentAction) {
+        this.calcActionDimensions(currentAction, item);
+      }
     });
   }
   protected calcActionDimensions(currentAction: Action, item: HTMLDivElement) {

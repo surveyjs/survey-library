@@ -55,13 +55,14 @@ export const initSurvey = ClientFunction(
       document.getElementById("surveyElement").innerHTML = "";
       model.render("surveyElement");
     } else if (framework === "react") {
-      document.getElementById("surveyElement").innerHTML = "";
-      window["ReactDOM"].render(
-        window["React"].createElement(window["SurveyReact"].Survey, {
-          model: model,
-          onComplete: surveyComplete,
-        }),
-        document.getElementById("surveyElement")
+      if(!!(window as any).root) {
+        (window as any).root.unmount();
+      }
+      const root = (window as any).ReactDOM.createRoot(document.getElementById("surveyElement"));
+      window["root"] = root;
+      root.render(
+        (window as any).React.createElement((window as any).React.StrictMode,
+          { children: (window as any).React.createElement((window as any).SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
       );
     } else if (framework === "vue") {
       document.getElementById("surveyElement").innerHTML =

@@ -92,7 +92,7 @@ export interface IHeader {
    *
    * Default value: 256
    */
-  height: number;
+  height?: number;
   /**
    * The height of the survey header on smartphones, measured in pixels.
    *
@@ -112,13 +112,13 @@ export interface IHeader {
    * @see [SurveyModel.width](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#width)
    * @see [SurveyModel.widthMode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#widthMode)
    */
-  inheritWidthFrom: "survey" | "container";
+  inheritWidthFrom?: "survey" | "container";
   /**
    * The width of the header area that contains the survey [title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title) and [description](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#description), measured in pixels.
    *
    * Default value: 512
    */
-  textAreaWidth: number;
+  textAreaWidth?: number;
 
   // textGlowEnabled: boolean;
 
@@ -127,15 +127,15 @@ export interface IHeader {
    *
    * Default value: `false`
    */
-  overlapEnabled: boolean;
+  overlapEnabled?: boolean;
   /**
    * An image to display in the background of the header. Accepts a base64 or URL string value.
    */
-  backgroundImage: string;
+  backgroundImage?: string;
   /**
    * A value from 0 to 1 that specifies how transparent the [background image](#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
    */
-  backgroundImageOpacity: number;
+  backgroundImageOpacity?: number;
   /**
    * A string value that specifies how to resize a [background image](#backgroundImage) to fit it into the header.
    *
@@ -150,7 +150,7 @@ export interface IHeader {
    * - `"tile"`\
    * Tiles as many copies of the image as needed to fill the entire header.
    */
-  backgroundImageFit: "cover" | "fill" | "contain" | "tile";
+  backgroundImageFit?: "cover" | "fill" | "contain" | "tile";
   /**
    * A string value that specifies the logo position within the header in the horizontal direction.
    *
@@ -162,7 +162,7 @@ export interface IHeader {
    *
    * To specify a logo, set `SurveyModel`'s [`logo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logo) property.
    */
-  logoPositionX: HorizontalAlignment;
+  logoPositionX?: HorizontalAlignment;
   /**
    * A string value that specifies the logo position within the header in the vertical direction.
    *
@@ -174,7 +174,7 @@ export interface IHeader {
    *
    * To specify a logo, set `SurveyModel`'s [`logo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logo) property.
    */
-  logoPositionY: VerticalAlignment;
+  logoPositionY?: VerticalAlignment;
   /**
    * A string value that specifies the survey title position within the header in the horizontal direction.
    *
@@ -186,7 +186,7 @@ export interface IHeader {
    *
    * To specify a survey title, set `SurveyModel`'s [`title`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title) property.
    */
-  titlePositionX: HorizontalAlignment;
+  titlePositionX?: HorizontalAlignment;
   /**
    * A string value that specifies the survey title position within the header in the vertical direction.
    *
@@ -198,7 +198,7 @@ export interface IHeader {
    *
    * To specify a survey title, set `SurveyModel`'s [`title`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title) property.
    */
-  titlePositionY: VerticalAlignment;
+  titlePositionY?: VerticalAlignment;
   /**
    * A string value that specifies the survey description position within the header in the horizontal direction.
    *
@@ -210,7 +210,7 @@ export interface IHeader {
    *
    * To specify a survey description, set `SurveyModel`'s [`description`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#description) property.
    */
-  descriptionPositionX: HorizontalAlignment;
+  descriptionPositionX?: HorizontalAlignment;
   /**
    * A string value that specifies the survey description position within the header in the vertical direction.
    *
@@ -222,5 +222,5 @@ export interface IHeader {
    *
    * To specify a survey description, set `SurveyModel`'s [`description`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#description) property.
    */
-  descriptionPositionY: VerticalAlignment;
+  descriptionPositionY?: VerticalAlignment;
 }

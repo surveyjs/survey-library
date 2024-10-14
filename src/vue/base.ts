@@ -19,8 +19,10 @@ export class BaseVue extends Vue {
   }
   protected onMounted() { }
   protected onUpdated() { }
+  protected onBeforeUpdated() {}
   protected onDestroyed() { }
-  protected onCreated() {
+  protected onCreated() {}
+  created() {
     var model = this.getModel();
     if (!model) return;
     model.iteratePropertiesHash((propertiesHash: any, name: any) => {
@@ -41,8 +43,6 @@ export class BaseVue extends Vue {
         Vue.set(propertiesHash, name, val);
       else propertiesHash[name] = val;
     };
-  }
-  created() {
     this.onCreated();
   }
   beforeMount() {
@@ -50,6 +50,7 @@ export class BaseVue extends Vue {
   }
   beforeUpdate() {
     this.setIsRendering(true);
+    this.onBeforeUpdated();
   }
   mounted() {
     this.setIsRendering(false);

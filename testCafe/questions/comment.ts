@@ -186,3 +186,42 @@ frameworks.forEach(framework => {
       .expect(characterCounter.textContent).eql("0/10");
   });
 });
+
+const json2 = {
+  "logoPosition": "right",
+  "pages": [
+    {
+      "name": "page1",
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "question3"
+        },
+        {
+          "type": "text",
+          "name": "question1"
+        },
+        {
+          "type": "comment",
+          "name": "question2",
+          "visibleIf": "{question3} = true",
+          "setValueExpression": "{question1}"
+        }
+      ]
+    }
+  ]
+};
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+
+  test("Bug: 8921 - check long text reactivity when change visible property", async t => {
+    await initSurvey(framework, json2);
+    await t
+      .click(Selector("span").withText("Yes"))
+      .click(Selector("span").withText("No"))
+      .click(Selector("span").withText("Yes"))
+      .typeText(Selector("input[type='text']"), "test")
+      .pressKey("tab")
+      .expect(Selector("textarea").value).eql("test");
+  });
+});

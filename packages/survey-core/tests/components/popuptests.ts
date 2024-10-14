@@ -1713,7 +1713,7 @@ QUnit.test("PopupViewModel: check animation's onEnter, onLeave are called correc
   viewModel.onVisibilityChanged.add((_: PopupBaseViewModel, options: { isVisible: boolean }) => {
     logger.log += `->viewModel:isVisible:${options.isVisible}`;
   });
-  viewModel.enableOnElementRenderedEvent();
+  viewModel.enableOnElementRerenderedEvent();
   model.isVisible = true;
   viewModel.afterRerender();
   assert.equal(logger.log, "->model:isVisible:true->viewModel:isVisible:true->onEnter", "correct order of updates when entering");

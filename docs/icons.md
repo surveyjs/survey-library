@@ -34,16 +34,18 @@ settings.customIcons["icon-export"] = "icon-import";
 If you want to replace a built-in icon with a custom SVG icon, call the `registerIconFromSvg` method on the `SvgRegistry` object. Pass the name of the built-in icon as the first argument and the custom icon markup converted to a string as the second argument. In the following code, a custom icon replaces the `icon-delete` icon:
 
 ```js
-const creator = new SurveyCreator.SurveyCreator(creatorOptions);
+// Option 1: Embed an SVG icon in code:
+const customIcon = '<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="..."/></svg>';
+Survey.SvgRegistry.registerIconFromSvg("icon-delete", customIcon);
 
+// Option 2: Fetch an icon from a file
 fetch("./my-icon.svg")
   .then(response => response.text())
   .then(svg => {
     Survey.SvgRegistry.registerIconFromSvg("icon-delete", svg);
-    creator.render("creatorElement");
   });
 
-// In React:
+// Option 2 in React:
 import { SvgRegistry } from "survey-core";
 import { ReactComponent as MyIcon } from "./my-icon.svg";
 import ReactDOMServer from "react-dom/server";

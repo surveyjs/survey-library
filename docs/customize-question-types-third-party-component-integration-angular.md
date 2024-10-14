@@ -75,9 +75,16 @@ export class QuestionColorPickerModel extends Question {
 Register the created model in the `ElementFactory` under the name returned by the `getType()` method:
 
 ```js
-ElementFactory.Instance.registerElement(CUSTOM_TYPE, (name) => {
-  return new QuestionColorPickerModel(name);
-});
+import { ElementFactory } from "survey-core";
+
+const CUSTOM_TYPE = "color-picker";
+
+ElementFactory.Instance.registerElement(
+  CUSTOM_TYPE,
+  (name) => {
+    return new QuestionColorPickerModel(name);
+  }
+);
 ```
 
 ## Configure JSON Serialization
@@ -232,9 +239,12 @@ export class QuestionColorPickerModel extends Question {
   }
 }
 
-ElementFactory.Instance.registerElement(CUSTOM_TYPE, (name) => {
-  return new QuestionColorPickerModel(name);
-});
+ElementFactory.Instance.registerElement(
+  CUSTOM_TYPE,
+  (name) => {
+    return new QuestionColorPickerModel(name);
+  }
+);
 
 // Add question type metadata for further serialization into JSON
 Serializer.addClass(
@@ -351,9 +361,12 @@ export class QuestionColorPickerModel extends Question {
   }
 }
 
-ElementFactory.Instance.registerElement(CUSTOM_TYPE, (name) => {
-  return new QuestionColorPickerModel(name);
-});
+ElementFactory.Instance.registerElement(
+  CUSTOM_TYPE,
+  (name) => {
+    return new QuestionColorPickerModel(name);
+  }
+);
 
 // Add question type metadata for further serialization into JSON
 Serializer.addClass(
@@ -485,9 +498,12 @@ export class QuestionColorPickerModel extends Question {
   }
 }
 
-ElementFactory.Instance.registerElement(CUSTOM_TYPE, (name) => {
-  return new QuestionColorPickerModel(name);
-});
+ElementFactory.Instance.registerElement(
+  CUSTOM_TYPE,
+  (name) => {
+    return new QuestionColorPickerModel(name);
+  }
+);
 
 // Add question type metadata for further serialization into JSON
 Serializer.addClass(
@@ -633,6 +649,22 @@ export class SurveyCreatorComponent implements OnInit {
 }
 ```
 
+You might want to use a third-party component only as a property editor, without allowing survey editors to use it in questions. In this case, you need to hide the component from the Toolbox and the Add Question menu. To do this, pass `false` as a third argument to the `ElementFactory.Instance.registerElement` method when you register a [freshly created model](#create-a-model):
+
+```js
+import { ElementFactory } from "survey-core";
+
+const CUSTOM_TYPE = "color-picker";
+
+ElementFactory.Instance.registerElement(
+  CUSTOM_TYPE,
+  (name) => {
+    return new QuestionColorPickerModel(name);
+  },
+  false
+);
+```
+
 <details>
   <summary>View Full Code</summary>
 
@@ -678,9 +710,12 @@ export class QuestionColorPickerModel extends Question {
   }
 }
 
-ElementFactory.Instance.registerElement(CUSTOM_TYPE, (name) => {
-  return new QuestionColorPickerModel(name);
-});
+ElementFactory.Instance.registerElement(
+  CUSTOM_TYPE,
+  (name) => {
+    return new QuestionColorPickerModel(name);
+  }
+);
 
 // Add question type metadata for further serialization into JSON
 Serializer.addClass(

@@ -33,10 +33,11 @@ export class SurveyTimer {
   private listenerCounter = 0;
   private timerId = -1;
   private prevTimeInMs: number;
-  public onTimer: EventBase<SurveyTimer, SurveyTimerEvent> = new EventBase<SurveyTimer, SurveyTimerEvent>();
+  public onTimerTick: EventBase<SurveyTimer, SurveyTimerEvent> = new EventBase<SurveyTimer, SurveyTimerEvent>();
+  public onTimer: EventBase<SurveyTimer, SurveyTimerEvent> = this.onTimerTick;
   public start(func: (timer: SurveyTimer, options: SurveyTimerEvent) => void = null): void {
     if (func) {
-      this.onTimer.add(func);
+      this.onTimerTick.add(func);
     }
     this.prevTimeInMs = surveyTimerFunctions.now();
     if (this.timerId < 0) {
@@ -48,7 +49,7 @@ export class SurveyTimer {
   }
   public stop(func: (timer: SurveyTimer, options: SurveyTimerEvent) => any = null): void {
     if (func) {
-      this.onTimer.remove(func);
+      this.onTimerTick.remove(func);
     }
     this.listenerCounter--;
     if (this.listenerCounter == 0 && this.timerId > -1) {
@@ -57,7 +58,7 @@ export class SurveyTimer {
     }
   }
   public doTimer(): void {
-    if(this.onTimer.isEmpty || this.listenerCounter == 0) {
+    if(this.onTimerTick.isEmpty || this.listenerCounter == 0) {
       this.timerId = -1;
     }
     if (this.timerId < 0) return;
@@ -68,7 +69,7 @@ export class SurveyTimer {
       seconds = 1;
     }
     const prevItem = this.timerId;
-    this.onTimer.fire(this, { seconds: seconds });
+    this.onTimerTick.fire(this, { seconds: seconds });
     //We have to check that we have the same timerId
     //It could be changed during events execution and it will lead to double timer events
     if(prevItem !== this.timerId) return;

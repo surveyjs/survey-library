@@ -104,7 +104,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private makeBaseElementsReact() {
     var els = this.getStateElements();
     for (var i = 0; i < els.length; i++) {
-      els[i].enableOnElementRenderedEvent();
+      els[i].enableOnElementRerenderedEvent();
       this.makeBaseElementReact(els[i]);
     }
   }
@@ -116,7 +116,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   protected disableStateElementsRerenderEvent(els: Array<Base>): void {
     els.forEach(el => {
-      el.disableOnElementRenderedEvent();
+      el.disableOnElementRerenderedEvent();
     });
   }
   protected getStateElements(): Array<Base> {

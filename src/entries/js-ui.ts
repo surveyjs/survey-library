@@ -65,7 +65,9 @@ function doPopupSurvey(props: any): void {
   });
 }
 
-let jQueryInst = window["jQuery"] || window["$"];
+let gcontext = globalThis;
+if (typeof globalThis === "undefined") gcontext = window;
+let jQueryInst = gcontext["jQuery"] || gcontext["$"];
 
 if (typeof jQueryInst !== "undefined") {
   initJquery(jQueryInst);

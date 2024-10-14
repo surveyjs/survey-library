@@ -65,7 +65,7 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
     var el = this.rootRef.current;
     if (el && this.survey) {
       if (this.panelBase.isPanel) {
-        this.survey.afterRenderPanel(this.panelBase as PanelModel, el);
+        this.panelBase.afterRender(el);
       } else {
         this.survey.afterRenderPage(el);
       }

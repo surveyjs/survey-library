@@ -1,5 +1,5 @@
 import { JsonObjectProperty, Serializer, property } from "./jsonobject";
-import { Base } from "./base";
+import { Base, EventBase } from "./base";
 import { Action, IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import {
@@ -188,14 +188,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    const { root } = settings.environment;
-    if (!elementId || typeof root === "undefined") return false;
-    const el = root.getElementById(elementId);
-    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
-  }
-  public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    if (!el || !el.scrollIntoView) return false;
+  private static IsNeedScrollIntoView(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean) {
     const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
     let needScroll = elTop < 0;
     let elLeft: number = -1;
@@ -211,20 +204,45 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         needScroll = width > 0 && width < elLeft;
       }
     }
-    if (needScroll) {
-      el.scrollIntoView(scrollIntoViewOptions);
-      if (typeof doneCallback === "function") {
-        let currPageXOffset = window.pageXOffset;
-        let currPageYOffset = window.pageYOffset;
-        var scrollDone = setInterval(function () {
-          if (currPageXOffset == window.pageXOffset && currPageYOffset == window.pageYOffset) {
-            clearInterval(scrollDone);
+    return needScroll;
+  }
+  public static ScrollIntoView(el: HTMLElement, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
+    el.scrollIntoView(scrollIntoViewOptions);
+    if (typeof doneCallback === "function") {
+      let lastPos: number = null;
+      let same: number = 0;
+      const checkPos = () => {
+        const newPos = el.getBoundingClientRect().top;
+        if (newPos === lastPos) {
+          if (same++ > 2) {
             doneCallback();
+            return;
           }
-          currPageXOffset = window.pageXOffset;
-          currPageYOffset = window.pageYOffset;
-        }, 25);
-      }
+        } else {
+          lastPos = newPos;
+          same = 0;
+        }
+        requestAnimationFrame(checkPos);
+      };
+      DomWindowHelper.requestAnimationFrame(checkPos);
+    }
+  }
+  public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
+    const { root } = settings.environment;
+    if (!elementId || typeof root === "undefined") return false;
+    const el = root.getElementById(elementId);
+    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
+  }
+  public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
+    if (!el || !el.scrollIntoView) {
+      doneCallback && doneCallback();
+      return false;
+    }
+    const needScroll = SurveyElement.IsNeedScrollIntoView(el, checkLeft, scrollIfVisible);
+    if (needScroll) {
+      SurveyElement.ScrollIntoView(el, scrollIntoViewOptions, doneCallback);
+    } else {
+      doneCallback && doneCallback();
     }
     return needScroll;
   }
@@ -264,6 +282,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return false;
   }
+  // TODO V2: get rid of this flag
   public static CreateDisabledDesignElements: boolean = false;
   public disableDesignActions: boolean =
     SurveyElement.CreateDisabledDesignElements;
@@ -1192,10 +1211,66 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return super.getIsAnimationAllowed() && !!this.survey && !(this.survey as SurveyModel)["isEndLoadingFromJson"];
   }
 
+  public onAfterRenderElement: EventBase<SurveyElement<E>, any> = this.addEvent<SurveyElement<E>, any>();
+  public afterRenderCore(element: HTMLElement): void {
+    this.onAfterRenderElement.fire(this, { htmlElement: element });
+  }
+
   public dispose(): void {
     super.dispose();
     if (this.titleToolbarValue) {
       this.titleToolbarValue.dispose();
     }
+  }
+}
+
+export class RenderingCompletedAwaiter {
+  constructor(private _elements: Array<SurveyElement>, private _renderedHandler: () => void, waitingTimeout = 100) {
+    this._elements.forEach(element => {
+      if (element.onAfterRenderElement) {
+        element.onAfterRenderElement.add(this._elementRenderedHandler);
+        this._elementsToRenderCount++;
+      }
+    });
+    if (this._elementsToRenderCount > 0) {
+      this._elementsToRenderTimer = setTimeout(() => {
+        if (this._elementsToRenderCount > 0) {
+          this.visibleElementsRendered();
+        }
+      }, waitingTimeout);
+    } else {
+      this.visibleElementsRendered();
+    }
+  }
+  private _elementsToRenderCount = 0;
+  private _elementsToRenderTimer: any = undefined;
+  private _elementRenderedHandler = (s: SurveyElement, o: any) => {
+    s.onAfterRenderElement?.remove(this._elementRenderedHandler);
+    this._elementsToRenderCount--;
+    if (this._elementsToRenderCount <= 0) {
+      this.visibleElementsRendered();
+    }
+  }
+  private stopWaitingForElementsRendering() {
+    if (this._elementsToRenderTimer) {
+      clearTimeout(this._elementsToRenderTimer);
+      this._elementsToRenderTimer = undefined;
+    }
+    this._elements.forEach(element => {
+      element.onAfterRenderElement?.remove(this._elementRenderedHandler);
+    });
+    this._elementsToRenderCount = 0;
+  }
+  private visibleElementsRendered(): void {
+    const renderedHandler = this._renderedHandler;
+    this.dispose();
+    if (typeof renderedHandler == "function") {
+      renderedHandler();
+    }
+  }
+  public dispose(): void {
+    this.stopWaitingForElementsRendering();
+    this._elements = undefined;
+    this._renderedHandler = undefined;
   }
 }

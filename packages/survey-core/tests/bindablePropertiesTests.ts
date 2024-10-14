@@ -289,5 +289,6 @@ QUnit.test("Dynamic Matrix, bind rowCount and expression column", function (asse
   assert.equal(matrix.rowCount, 0, "row count is 0 by default");
   survey.setValue("q1", 3);
   assert.equal(matrix.rowCount, 3, "bindable question value is 3");
+  assert.equal(matrix.visibleRows.length, 3, "visible rows is 3");
   assert.deepEqual(matrix.value, [{ col1: "Row 1" }, { col1: "Row 2" }, { col1: "Row 3" }], "expression set correct value");
 });

@@ -236,15 +236,9 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   /**
    * A time period that a respondent has spent on this page so far; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
-   * @see maxTimeToFinish
+   * @see timeLimit
    */
   public timeSpent = 0;
-  // public get timeSpent(): number {
-  //   return this.getPropertyValue("timeSpent", 0);
-  // }
-  // public set timeSpent(val: number) {
-  //   this.setPropertyValue("timeSpent", val);
-  // }
   /**
    * Returns a list of all panels on this page.
    * @param visibleOnly A Boolean value that specifies whether to include only visible panels.
@@ -264,20 +258,30 @@ export class PageModel extends PanelModelBase implements IPage {
   /**
    * A time period that a respondent has to complete this page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    *
-   * A negative value or 0 sets an unlimited time period.
+   * Default value: 0 (time is unlimited)
    *
-   * Alternatively, you can use the `SurveyModel`'s [`maxTimeToFinishPage`](https://surveyjs.io/form-library/documentation/surveymodel#maxTimeToFinishPage) property to specify identical time periods for all survey pages.
+   * Alternatively, you can use the `SurveyModel`'s [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/surveymodel#timeLimitPerPage) property to specify identical time periods for all survey pages.
    * @see timeSpent
    */
+  public get timeLimit(): number {
+    return this.getPropertyValue("timeLimit", 0);
+  }
+  public set timeLimit(val: number) {
+    this.setPropertyValue("timeLimit", val);
+  }
+  /**
+   * Obsolete. Use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeLimit) property instead.
+   * @deprecated
+   */
   public get maxTimeToFinish(): number {
-    return this.getPropertyValue("maxTimeToFinish", 0);
+    return this.timeLimit;
   }
   public set maxTimeToFinish(val: number) {
-    this.setPropertyValue("maxTimeToFinish", val);
+    this.timeLimit = val;
   }
   public getMaxTimeToFinish(): number {
-    if(this.maxTimeToFinish !== 0) return this.maxTimeToFinish;
-    const res = !!this.survey ? this.survey.maxTimeToFinishPage : 0;
+    if(this.timeLimit !== 0) return this.timeLimit;
+    const res = !!this.survey ? this.survey.timeLimitPerPage : 0;
     return res > 0 ? res : 0;
   }
   protected onNumChanged(value: number) { }
@@ -321,7 +325,7 @@ Serializer.addClass(
       default: "inherit",
       choices: ["inherit", "show", "hide"],
     },
-    { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
+    { name: "timeLimit:number", alternativeName: "maxTimeToFinish", default: 0, minValue: 0 },
     {
       name: "navigationTitle",
       visibleIf: function (obj: any) {

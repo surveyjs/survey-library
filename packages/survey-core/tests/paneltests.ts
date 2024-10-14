@@ -3000,8 +3000,8 @@ QUnit.test("forceRenderRows for page", async function (assert) {
     const survey = new SurveyModel(json);
     survey.lazyRendering = true;
     survey.getAllQuestions().forEach(q => {
-      q.supportOnElementRenderedEvent = true;
-      q.onElementRenderedEventEnabled = true;
+      q.supportOnElementRerenderedEvent = true;
+      q.onElementRerenderedEventEnabled = true;
     });
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();
@@ -3061,8 +3061,8 @@ QUnit.test("forceRenderElement for page the exact element, gap = 0", async funct
     const survey = new SurveyModel(json);
     survey.lazyRendering = true;
     survey.getAllQuestions().forEach(q => {
-      q.supportOnElementRenderedEvent = true;
-      q.onElementRenderedEventEnabled = true;
+      q.supportOnElementRerenderedEvent = true;
+      q.onElementRerenderedEventEnabled = true;
     });
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();
@@ -3121,8 +3121,8 @@ QUnit.test("forceRenderElement for page with one prev element, gap = 1", async f
     const survey = new SurveyModel(json);
     survey.lazyRendering = true;
     survey.getAllQuestions().forEach(q => {
-      q.supportOnElementRenderedEvent = true;
-      q.onElementRenderedEventEnabled = true;
+      q.supportOnElementRerenderedEvent = true;
+      q.onElementRerenderedEventEnabled = true;
     });
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();

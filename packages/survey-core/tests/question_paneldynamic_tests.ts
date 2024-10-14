@@ -1690,6 +1690,25 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
     "addConditionObjectsByContext work correctly for panel dynamic with context equals true"
   );
 });
+QUnit.test("panelDynamic.addConditionObjectsByContext && question validator, Bug#8914", function(assert) {
+  const objs = [];
+  const panel = new QuestionPanelDynamicModel("qPanel");
+  const q1 = panel.template.addNewQuestion("text", "q1");
+  q1.validators.push(new ExpressionValidator());
+  panel.template.addNewQuestion("text", "q2");
+  panel.addConditionObjectsByContext(objs, q1.validators[0]);
+  updateObjsQuestions(objs);
+  assert.deepEqual(
+    objs,
+    [
+      { name: "qPanel[0].q1", text: "qPanel[0].q1", question: "q1" },
+      { name: "qPanel[0].q2", text: "qPanel[0].q2", question: "q2" },
+      { name: "panel.q1", text: "panel.q1", question: "q1", context: "qPanel" },
+      { name: "panel.q2", text: "panel.q2", question: "q2", context: "qPanel" }
+    ],
+    "addConditionObjectsByContext work correctly for panel dynamic"
+  );
+});
 QUnit.test("panelDynamic.getNestedQuestions", function(assert) {
   const panel = new QuestionPanelDynamicModel("qPanel");
   panel.template.addNewQuestion("text", "q1");

@@ -10,7 +10,7 @@ export class SvgIconRegistry {
 
   private processId(iconId: string, iconPrefix: string) {
     if (iconId.indexOf(iconPrefix) == 0) iconId = iconId.substring(iconPrefix.length);
-    iconId = <string>renamedIcons[iconId] || iconId;
+    iconId = renamedIcons[iconId] || iconId;
     return iconId;
   }
   public registerIconFromSymbol(iconId: string, iconSymbolSvg: string) {

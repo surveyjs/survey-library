@@ -165,7 +165,7 @@ function wrapUrlForBackgroundImage(url: string): string {
 }
 
 // old-name: new-name
-const renamedIcons = {
+const renamedIcons:any = {
   "changecamera": "flip-24x24",
   "choosefile": "toolbox-file-24x24",
   "clear": "clear-24x24",
@@ -307,7 +307,7 @@ function getIconNameFromProxy(iconName: string): string {
 export function getNewIconName(iconName: string): string {
   const prefix = "icon-";
   const nameWithoutPrefix = iconName.replace(prefix, "");
-  const result = <string>renamedIcons[nameWithoutPrefix] || nameWithoutPrefix;
+  const result = renamedIcons[nameWithoutPrefix] || nameWithoutPrefix;
   return prefix + result;
 }
 

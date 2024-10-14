@@ -167,10 +167,10 @@ function wrapUrlForBackgroundImage(url: string): string {
 // old-name: new-name
 const renamedIcons:any = {
   "changecamera": "flip-24x24",
-  "choosefile": "toolbox-file-24x24",
   "clear": "clear-24x24",
   "closecamera": "close-24x24",
   "defaultfile": "file-72x72",
+  "file": "toolbox-file-24x24",
   "left": "chevronleft-16x16",
   "modernbooleancheckchecked": "plus-32x32",
   "modernbooleancheckunchecked": "minus-32x32",
@@ -192,7 +192,6 @@ const renamedIcons:any = {
   "minimize_16x16": "minimize-16x16",
   "next_16x16": "chevronright-16x16",
   "no-image": "noimage-48x48",
-  "ranking-arrows": "reorder-24x24",
   "rankingundefined-16x16": "ranking-dash",
   "restore_16x16": "fullsize-16x16",
   "reset": "restore-24x24",
@@ -297,6 +296,7 @@ const renamedIcons:any = {
   "v2dragelement_16x16": "drag-24x24",
   "progressbuttonv2": "arrowleft-16x16",
   "right": "chevronright-16x16",
+  "add-lg": "noimage-48x48",
 };
 
 function getIconNameFromProxy(iconName: string): string {

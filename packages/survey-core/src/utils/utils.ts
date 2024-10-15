@@ -262,9 +262,9 @@ const renamedIcons:any = {
   "import": "import-24x24",
   "invisible-items": "invisible-24x24",
   "language": "language-24x24",
-  "load": "folder-24x24",
-  "logic-collapse": "collapsepage-16x16",
-  "logic-expand": "expandpage-16x16",
+  "load": "import-24x24",
+  "logic-collapse": "collapse-24x24",
+  "logic-expand": "expand-24x24",
   "logo": "image-48x48",
   "matrix": "toolbox-matrix-24x24",
   "matrixdropdown": "toolbox-multimatrix-24x24",
@@ -300,6 +300,7 @@ const renamedIcons:any = {
   "progressbuttonv2": "arrowleft-16x16",
   "right": "chevronright-16x16",
   "add-lg": "noimage-48x48",
+  "add": "add-24x24",
 };
 
 function getIconNameFromProxy(iconName: string): string {

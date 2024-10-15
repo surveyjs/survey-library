@@ -138,8 +138,7 @@ export class QuestionTextModel extends QuestionTextBase {
     });
   }
   protected isTextValue(): boolean {
-    if(settings.updateDateOnTyping && this.isDateInputType) return true;
-    return ["text", "number", "password"].indexOf(this.inputType) > -1;
+    return this.isDateInputType || ["text", "number", "password"].indexOf(this.inputType) > -1;
   }
   public getType(): string {
     return "text";

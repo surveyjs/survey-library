@@ -427,7 +427,7 @@ export class QuestionTextModel extends QuestionTextBase {
   protected canSetValueToSurvey(): boolean {
     if (!this.isMinMaxType) return true;
     const isValid = !this.isValueLessMin && !this.isValueGreaterMax;
-    if(this.inputType === "number" && !!this.survey &&
+    if((!isValid || this.errors.length > 0) && !!this.survey &&
       (this.survey.isValidateOnValueChanging || this.survey.isValidateOnValueChanged)) {
       this.hasErrors();
     }
@@ -539,13 +539,6 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public get dataListId(): string {
     return this.locDataList.hasValue() ? this.id + "_datalist" : undefined;
-  }
-  protected canRunValidators(isOnValueChanged: boolean): boolean {
-    return (
-      this.errors.length > 0 ||
-      !isOnValueChanged ||
-      this.supportGoNextPageError()
-    );
   }
   protected setNewValue(newValue: any): void {
     newValue = this.correctValueType(newValue);

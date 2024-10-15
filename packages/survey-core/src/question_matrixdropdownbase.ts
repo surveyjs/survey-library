@@ -218,7 +218,7 @@ class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
       textValue.value = this.row.rowIndex;
       return true;
     }
-    if (textValue.name == MatrixDropdownRowModelBase.RowValueVariableName) {
+    if ([MatrixDropdownRowModelBase.RowValueVariableName, MatrixDropdownRowModelBase.RowNameVariableName].indexOf(textValue.name) > -1) {
       textValue.isExists = true;
       textValue.value = this.row.rowName;
       return true;
@@ -232,6 +232,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public static OwnerVariableName = "self";
   public static IndexVariableName = "rowIndex";
   public static RowValueVariableName = "rowValue";
+  public static RowNameVariableName = "rowName";
 
   private static idCounter: number = 1;
   private static getId(): string {
@@ -412,6 +413,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   private applyRowVariablesToValues(res: any, rowIndex: number): void {
     res[MatrixDropdownRowModelBase.IndexVariableName] = rowIndex;
     res[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
+    res[MatrixDropdownRowModelBase.RowNameVariableName] = this.rowName;
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>, rowsVisibleIf?: string): void {
     if(!this.data) return;

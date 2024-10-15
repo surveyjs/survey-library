@@ -99,19 +99,19 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     var res = {};
     if (!rows) return res;
     for (var i = 0; i < rows.length; i++) {
-      var rowValue = rows[i].rowName;
-      var val = value[rowValue];
+      var rowName = rows[i].rowName;
+      var val = value[rowName];
       if (!val) continue;
       if (keysAsText) {
         var displayRowValue = ItemValue.getTextOrHtmlByValue(
           this.rows,
-          rowValue
+          rowName
         );
         if (!!displayRowValue) {
-          rowValue = displayRowValue;
+          rowName = displayRowValue;
         }
       }
-      (<any>res)[rowValue] = this.getRowDisplayValue(keysAsText, rows[i], val);
+      (<any>res)[rowName] = this.getRowDisplayValue(keysAsText, rows[i], val);
     }
     return res;
   }
@@ -162,10 +162,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     super.clearGeneratedRows();
   }
-  private getRowValueForCreation(val: any, rowValue: any): any {
-    const res = val[rowValue];
+  private getRowValueForCreation(val: any, rowName: any): any {
+    const res = val[rowName];
     if(!res) return res;
-    const names = this.defaultValuesInRows[rowValue];
+    const names = this.defaultValuesInRows[rowName];
     if(!Array.isArray(names) || names.length === 0) return res;
     names.forEach(name => {
       delete res[name];
@@ -207,8 +207,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     if(!val) val = {};
     for(var i = 0; i < this.rows.length; i ++) {
       const row = this.rows[i];
-      const rowValue = val[row.value];
-      this.updateProgressInfoByRow(res, !!rowValue ? rowValue : {});
+      const rowName = val[row.value];
+      this.updateProgressInfoByRow(res, !!rowName ? rowName : {});
     }
   }
 }

@@ -168,6 +168,7 @@ function wrapUrlForBackgroundImage(url: string): string {
 const renamedIcons:any = {
   "changecamera": "flip-24x24",
   "clear": "clear-24x24",
+  "cancel": "cancel-24x24",
   "closecamera": "close-24x24",
   "defaultfile": "file-72x72",
   "choosefile": "folder-24x24",
@@ -194,7 +195,9 @@ const renamedIcons:any = {
   "next_16x16": "chevronright-16x16",
   "previous_16x16": "chevronleft-16x16",
   "no-image": "noimage-48x48",
-  "rankingundefined-16x16": "ranking-dash",
+  "ranking-dash": "rankingundefined-16x16",
+  "drag-n-drop": "drag-24x24",
+  "ranking-arrows": "reorder-24x24",
   "restore_16x16": "fullsize-16x16",
   "reset": "restore-24x24",
   "search": "search-24x24",
@@ -232,7 +235,7 @@ const renamedIcons:any = {
   "delete_16x16": "delete-16x16",
   "delete_24x24": "delete-24x24",
   "delete": "delete-24x24",
-  "description-hide": "hidehint-24x24",
+  "description-hide": "hidehint-16x16",
   "description": "hint-16x16",
   "device-desktop": "desktop-24x24",
   "device-phone": "phone-24x24",
@@ -299,7 +302,7 @@ const renamedIcons:any = {
   "v2dragelement_16x16": "drag-24x24",
   "progressbuttonv2": "arrowleft-16x16",
   "right": "chevronright-16x16",
-  "add-lg": "noimage-48x48",
+  "add-lg": "add-24x24",
   "add": "add-24x24",
 };
 

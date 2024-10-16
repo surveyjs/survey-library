@@ -428,7 +428,7 @@ export var defaultV2Css = {
     itemDecorator: "sd-item__svg sd-radio__svg",
     cleanButton: "sd-dropdown_clean-button",
     cleanButtonSvg: "sd-dropdown_clean-button-svg",
-    cleanButtonIconId: "icon-clear",
+    cleanButtonIconId: "icon-cancel",
     chevronButton: "sd-dropdown_chevron-button",
     chevronButtonSvg: "sd-dropdown_chevron-button-svg",
     chevronButtonIconId: "icon-chevron",

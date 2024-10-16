@@ -10167,3 +10167,33 @@ QUnit.test("minRowCount vs rowCount, Bug#8899", function (assert) {
   assert.equal(matrix4.visibleRows.length, 4, "matrix4 rowCount: 4");
   assert.deepEqual(matrix4.value, [{ col1: 1 }, { col1: 1 }, { col1: 1 }, { col1: 1 }], "matrix4 value");
 });
+QUnit.test("Validation doesn't work if a user doensn't visit the page, Bug#8937", function (assert) {
+  const survey = new SurveyModel({
+    logoPosition: "right",
+    pages: [
+      {
+        elements: [{ type: "text", name: "question1" }]
+      },
+      {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            columns: [{ cellType: "text", name: "col1", isRequired: true }],
+            rowCount: 1
+          }
+        ]
+      },
+      {
+        elements: [{ type: "text", name: "question3" }]
+      }
+    ],
+    checkErrorsMode: "onComplete"
+  });
+  survey.currentPageNo = 2;
+  survey.completeLastPage();
+  assert.equal(survey.state, "running", "Still running");
+  assert.equal(survey.currentPageNo, 1, "move to page with panel");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows[0].getQuestionByName("col1").errors.length, 1, "has an error");
+});

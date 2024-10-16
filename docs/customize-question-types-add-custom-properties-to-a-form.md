@@ -536,6 +536,22 @@ Serializer.addProperty("question",
 );
 ```
 
+### `availableInMatrixColumn`
+
+A Boolean value that specifies whether the property is available in [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) settings. Defaults to `false`.
+
+If you enable this setting, the property will be added to the same [category](#category) and at the same [position](#visibleindex) that it has in a standalone question.
+
+A matrix column's [`cellType`](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values#cellType) must match the class name to which you add the property. For example, the following code adds a property to [Rating Scale](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model) questions and matrix columns of the `"rating"` `cellType`.
+
+```js
+import { Serializer } from "survey-core";
+
+Serializer.addProperty("rating", 
+  { name: "myStringProperty", availableInMatrixColumn: true }
+);
+```
+
 ### `maxLength`
 
 A numeric value that specifies the maximum number of characters users can enter into the text input.

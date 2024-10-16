@@ -138,12 +138,12 @@ export class QuestionTextModel extends QuestionTextBase {
     });
   }
   protected isTextValue(): boolean {
-    return ["text", "number", "password"].indexOf(this.inputType) > -1;
+    return this.isDateInputType || ["text", "number", "password"].indexOf(this.inputType) > -1;
   }
   public getType(): string {
     return "text";
   }
-  public onSurveyLoad() {
+  public onSurveyLoad(): void {
     super.onSurveyLoad();
     this.setRenderedMinMax();
     this.updateInputSize();

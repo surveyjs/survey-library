@@ -94,15 +94,13 @@ You can also use prefixes, such as `row`, `panel`, and `parentPanel`, to access 
     </thead>
     <tbody>
       <tr>
-        <td><a href="/form-library/documentation/api-reference/matrix-table-question-model" class="v2-class---paragraph-link">Single-Select Matrix</a></td>
-        <td rowspan="3" style="vertical-align:middle"><code>{row.columnname}</code></td>
-        <td rowspan="3" style="vertical-align:middle">Accesses a cell in the same row.</td>
+        <td rowspan="2" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/matrix-table-question-model" class="v2-class---paragraph-link">Single-Select Matrix</a>, <a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list" class="v2-class---paragraph-link">Multi-Select Matrix</a>, <a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model" class="v2-class---paragraph-link">Dynamic Matrix</a></td>
+        <td><code>{row.columnname}</code></td>
+        <td>Accesses a cell in the same row.</td>
       </tr>
       <tr>
-        <td><a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list" class="v2-class---paragraph-link">Multi-Select Matrix</a></td>
-      </tr>
-      <tr>
-        <td><a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model" class="v2-class---paragraph-link">Dynamic Matrix</a></td>
+        <td style="vertical-align:middle"><code>{rowName}</code></td>
+        <td>Accesses the row name (the <code>value</code> property within objects in the <a href="https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#rows"><code>rows</code></a> array). Use this placeholder if you need to distinguish between matrix rows.</td>
       </tr>
       <tr>
         <td rowspan="2" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/dynamic-panel-model" class="v2-class---paragraph-link">Dynamic Panel</a></td>
@@ -245,7 +243,7 @@ Expressions can include question names, variables, and calculated values (descri
 
 ### Supported Operators
 
-The SurveyJS expression engine is built upon the <a href="https://pegjs.org/" target="_blank">PEG.js</a> parser generator. The following table gives a brief overview of operators that you can use within expressions. For a detailed look at the grammar rules used by the expression parser, refer to the [`survey-library`](https://github.com/surveyjs/survey-library/blob/master/packages/survey-core/src/expressions/grammar.pegjs) GitHub repository.
+The SurveyJS expression engine is built upon the <a href="https://github.com/pegjs/pegjs" target="_blank">PEG.js</a> parser generator. The following table gives a brief overview of operators that you can use within expressions. For a detailed look at the grammar rules used by the expression parser, refer to the [`survey-library`](https://github.com/surveyjs/survey-library/blob/master/packages/survey-core/src/expressions/grammar.pegjs) GitHub repository.
 
 | Operator | Description | Expression example |
 | -------- | ----------- | ------------------ |

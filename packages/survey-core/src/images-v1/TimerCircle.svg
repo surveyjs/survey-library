@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 160 160">
+    <circle cx="80" cy="80" r="70" style="stroke: var(--sd-timer-stroke-background-color); stroke-width: var(--sd-timer-stroke-background-width)" stroke-dasharray="none" stroke-dashoffset="none"  />   
+    <circle cx="80" cy="80" r="70" />
+</svg>

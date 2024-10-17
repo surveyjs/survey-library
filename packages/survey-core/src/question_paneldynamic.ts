@@ -2025,7 +2025,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private hasErrorInPanels(fireCallback: boolean, rec: any): boolean {
     var res = false;
-    var panels = this.visiblePanelsCore;
+    var panels = this.visiblePanels;
     var keyValues: Array<any> = [];
     for (var i = 0; i < panels.length; i++) {
       this.setOnCompleteAsyncInPanel(panels[i]);

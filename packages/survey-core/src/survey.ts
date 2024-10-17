@@ -85,6 +85,7 @@ import { SurveyTaskManagerModel } from "./surveyTaskManager";
 import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { svgBundle, SvgRegistry } from "./svgbundle";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -1055,7 +1056,9 @@ export class SurveyModel extends SurveyElementCore
     });
 
     this.locTitle.onStringChanged.add(() => this.titleIsEmpty = this.locTitle.isEmpty);
+    this.registerIcons();
   }
+
   processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
     throw new Error("Method not implemented.");
   }
@@ -7920,6 +7923,16 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public questionErrorComponent = "sv-question-error";
+
+  protected registerIcons() {
+    let path;
+    if (settings.useLegacyIcons) {
+      path = svgBundle.V1;
+    } else {
+      path = svgBundle.V2;
+    }
+    SvgRegistry.registerIconsFromFolder(path);
+  }
 }
 
 function isStrCiEqual(a: string, b: string) {

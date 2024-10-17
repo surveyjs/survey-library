@@ -63,6 +63,7 @@ export class SvgIconRegistry {
 }
 export var SvgRegistry: SvgIconRegistry = new SvgIconRegistry();
 export var SvgBundleViewModel: any;
-const path = (<any>require).context("./images-v1", false, /\.svg$/);
-// const path = (<any>require).context("./images-v2", false, /\.svg$/);
-SvgRegistry.registerIconsFromFolder(path);
+
+export var svgBundle: {V1?: string, V2?: string} = {};
+svgBundle.V1 = (<any>require).context("./images-v1", true, /\.svg$/);
+svgBundle.V2 = (<any>require).context("./images-v2", true, /\.svg$/);

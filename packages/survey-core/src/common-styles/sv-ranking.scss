@@ -56,6 +56,8 @@
   width: calcSize(3);
   height: calcSize(3);
   align-self: flex-start;
+  padding-left: calcSize(1);
+  padding-right: calcSize(1);
 }
 
 .sv-ranking-item--disabled.sv-ranking-item--disabled,
@@ -253,8 +255,8 @@
 }
 
 .sv-ranking-shortcut .sv-ranking-item__icon {
-  width: calcSize(1.75);
-  height: calcSize(2);
+  width: calcSize(3);
+  height: calcSize(3);
   top: calcSize(1);
 }
 

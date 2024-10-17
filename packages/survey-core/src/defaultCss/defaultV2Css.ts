@@ -859,7 +859,7 @@ export var defaultV2Css = {
     itemLeave: "sd-item--leave",
     cleanButton: "sd-tagbox_clean-button sd-dropdown_clean-button",
     cleanButtonSvg: "sd-tagbox_clean-button-svg sd-dropdown_clean-button-svg",
-    cleanButtonIconId: "icon-clear",
+    cleanButtonIconId: "icon-cancel-24x24",
     cleanItemButton: "sd-tagbox-item_clean-button",
     cleanItemButtonSvg: "sd-tagbox-item_clean-button-svg",
     cleanItemButtonIconId: "icon-clear_16x16",

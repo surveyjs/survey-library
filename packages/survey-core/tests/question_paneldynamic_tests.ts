@@ -7561,3 +7561,33 @@ QUnit.test("A dynamic matrix cell value is reset when adding a new outer dynanic
   assert.equal(matrix1.visibleRows[0].getQuestionByName("col1").value, "main1_detail1", "Last row value, matrix1");
   assert.equal(matrix2.visibleRows[0].getQuestionByName("col1").value, "main1_detail2", "Last row value, matrix2");
 });
+QUnit.test("Validation doesn't work if a user doensn't visit the page, Bug#8937", function (assert) {
+  const survey = new SurveyModel({
+    logoPosition: "right",
+    pages: [
+      {
+        elements: [{ type: "text", name: "question1" }]
+      },
+      {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            templateElements: [{ type: "text", name: "question2", isRequired: true }],
+            panelCount: 1
+          }
+        ]
+      },
+      {
+        elements: [{ type: "text", name: "question3" }]
+      }
+    ],
+    checkErrorsMode: "onComplete"
+  });
+  survey.currentPageNo = 2;
+  survey.completeLastPage();
+  assert.equal(survey.state, "running", "Still running");
+  assert.equal(survey.currentPageNo, 1, "move to page with panel");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.panels[0].getQuestionByName("question2").errors.length, 1, "has an error");
+});

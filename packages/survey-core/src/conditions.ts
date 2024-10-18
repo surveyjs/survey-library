@@ -197,10 +197,7 @@ export class ExpressionRunnerBase {
   public canRun(): boolean {
     return this.expressionExecutor.canRun();
   }
-  protected runCore(
-    values: HashTable<any>,
-    properties: HashTable<any> = null
-  ): any {
+  protected runCore(values: HashTable<any>, properties: HashTable<any> = null): any {
     if(this.onBeforeAsyncRun && this.isAsync) {
       this.onBeforeAsyncRun(this.id);
     }
@@ -215,10 +212,7 @@ export class ExpressionRunnerBase {
 
 export class ConditionRunner extends ExpressionRunnerBase {
   public onRunComplete: (result: boolean) => void;
-  public run(
-    values: HashTable<any>,
-    properties: HashTable<any> = null
-  ): boolean {
+  public run(values: HashTable<any>, properties: HashTable<any> = null): boolean {
     return this.runCore(values, properties) == true;
   }
   protected doOnComplete(res: any): void {

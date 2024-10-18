@@ -621,7 +621,9 @@ frameworks.forEach((framework) => {
     });
     await t.pressKey("tab tab tab")
       .pressKey("space")
+      .wait(200)
       .pressKey("space")
+      .wait(200)
       .pressKey("space")
       .wait(200)
       .pressKey("space")

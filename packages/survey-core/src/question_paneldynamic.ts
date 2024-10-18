@@ -1561,7 +1561,7 @@ export class QuestionPanelDynamicModel extends Question
       const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
       let id = pnlCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getPanelRemoveButtonId(this.visiblePanels[nextIndex]) : "");
       if(!!id) {
-        SurveyElement.FocusElement(id, pnlCount === 0);
+        SurveyElement.FocusElement(id, true);
       }
     };
     if (this.isRequireConfirmOnDelete(value)) {

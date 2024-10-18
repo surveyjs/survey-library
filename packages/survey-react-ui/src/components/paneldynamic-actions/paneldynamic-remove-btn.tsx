@@ -1,7 +1,5 @@
 import React from "react";
 import { ReactElementFactory } from "../../element-factory";
-import { ReactSurveyElement } from "../../reactquestion_element";
-import { SurveyQuestionPanelDynamic } from "../../reactquestion_paneldynamic";
 import { SurveyQuestionPanelDynamicAction } from "./paneldynamic-add-btn";
 
 export class SurveyQuestionPanelDynamicRemoveButton extends SurveyQuestionPanelDynamicAction {
@@ -10,8 +8,9 @@ export class SurveyQuestionPanelDynamicRemoveButton extends SurveyQuestionPanelD
   }
   protected renderElement(): JSX.Element {
     const btnText = this.renderLocString(this.question.locPanelRemoveText);
+    const id = this.question.getPanelRemoveButtonId(this.data.panel);
     return (
-      <button
+      <button id={id}
         className={this.question.getPanelRemoveButtonCss()}
         onClick={this.handleClick}
         type="button">

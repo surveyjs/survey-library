@@ -1561,7 +1561,7 @@ export class QuestionPanelDynamicModel extends Question
       const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
       let id = pnlCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getPanelRemoveButtonId(this.visiblePanels[nextIndex]) : "");
       if(!!id) {
-        SurveyElement.FocusElement(id, true);
+        SurveyElement.FocusElement(id, pnlCount === 0);
       }
     };
     if (this.isRequireConfirmOnDelete(value)) {
@@ -1571,7 +1571,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   public getPanelRemoveButtonId(panel: PanelModel): string {
-    return panel.id + "_delete_button";
+    return panel.id + "_remove_button";
   }
   public isRequireConfirmOnDelete(val: any): boolean {
     if (!this.confirmDelete) return false;

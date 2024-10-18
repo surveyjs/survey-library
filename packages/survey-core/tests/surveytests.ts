@@ -20530,3 +20530,26 @@ QUnit.test("Trim key in setting the data, Bug#8586", function (assert) {
   assert.equal(survey.getQuestionByName("q3").value, "c", "q3.value");
   assert.equal(survey.getQuestionByName("q4").value, "d", "q3.value");
 });
+
+QUnit.test("Check that focusInput works correctly with shadow dom", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+    ]
+  });
+  const root = document.createElement("div");
+  root.attachShadow({ mode: "open" });
+  const question = survey.getAllQuestions()[0];
+  survey.rootElement = document.createElement("div");
+  const input = document.createElement("input");
+  input.id = question.inputId;
+  survey.rootElement.appendChild(input);
+  root.shadowRoot?.appendChild(survey.rootElement);
+  document.body.appendChild(root);
+  document.body.focus();
+  assert.equal(document.activeElement, document.body);
+  question.focusInputElement(false);
+  assert.equal(document.activeElement, root);
+  assert.equal(root.shadowRoot?.activeElement, input);
+  root.remove();
+});

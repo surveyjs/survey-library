@@ -26,8 +26,8 @@ const panel = computed(
   () => (props.item && props.item.data.panel) || props.data.panel
 );
 
-const getId = (panel: PanelModel) => {
-  question.value.getPanelRemoveButtonId(panel);
+const getId = (panel: PanelModel): string => {
+  return question.value.getPanelRemoveButtonId(panel);
 };
 const removePanelClick = (panel: PanelModel) => {
   if (!question.value.isInputReadOnly) {

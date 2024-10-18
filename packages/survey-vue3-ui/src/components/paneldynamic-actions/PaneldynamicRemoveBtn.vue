@@ -1,6 +1,7 @@
 <template>
   <button
     type="button"
+    :id="getId(panel)"
     :class="question.getPanelRemoveButtonCss()"
     @click="removePanelClick(panel)"
   >
@@ -25,6 +26,9 @@ const panel = computed(
   () => (props.item && props.item.data.panel) || props.data.panel
 );
 
+const getId = (panel: PanelModel) => {
+  question.value.getPanelRemoveButtonId(panel);
+};
 const removePanelClick = (panel: PanelModel) => {
   if (!question.value.isInputReadOnly) {
     question.value.removePanelUI(panel);

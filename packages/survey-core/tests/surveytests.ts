@@ -20531,7 +20531,7 @@ QUnit.test("Trim key in setting the data, Bug#8586", function (assert) {
   assert.equal(survey.getQuestionByName("q4").value, "d", "q3.value");
 });
 
-QUnit.only("Check that focusInput works correctly with shadow dom", function (assert) {
+QUnit.test("Check that focusInput works correctly with shadow dom", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },

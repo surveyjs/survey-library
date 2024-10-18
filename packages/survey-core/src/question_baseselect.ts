@@ -2023,7 +2023,7 @@ export class QuestionSelectBase extends Question {
     return !this.isDisabledAttr && item.isEnabled;
   }
   private focusOtherComment() {
-    SurveyElement.FocusElement(this.otherId);
+    SurveyElement.FocusElement(this.otherId, this.survey?.rootElement);
   }
   private prevIsOtherSelected: boolean = false;
   protected onValueChanged(): void {

@@ -10,6 +10,9 @@ export interface AsyncFunctionItem {
 }
 
 export abstract class Operand {
+  private static counter = 1;
+  private _id: number = Operand.counter ++;
+  public get id(): number { return this._id; }
   public toString(func: (op: Operand) => string = undefined): string {
     return "";
   }
@@ -349,12 +352,8 @@ export class Variable extends Const {
 }
 
 export class FunctionOperand extends Operand {
-  private isReadyValue: boolean;
-  private asynResult: any;
-  public onAsyncReady: () => void;
   constructor(private originalValue: string, private parameters: ArrayOperand) {
     super();
-    this.isReadyValue = false;
     if (Array.isArray(parameters) && parameters.length === 0) {
       this.parameters = new ArrayOperand([]);
     }
@@ -362,48 +361,48 @@ export class FunctionOperand extends Operand {
   public getType(): string {
     return "function";
   }
-  public evaluateAsync(processValue: ProcessValue) {
-    this.isReadyValue = false;
-    var asyncProcessValue = new ProcessValue();
-    asyncProcessValue.values = Helpers.createCopy(processValue.values);
-    asyncProcessValue.properties = Helpers.createCopy(processValue.properties);
-    asyncProcessValue.properties.returnResult = (result: any) => {
-      this.asynResult = result;
-      this.isReadyValue = true;
-      this.onAsyncReady();
-    };
-    this.evaluateCore(asyncProcessValue);
-  }
   public evaluate(processValue?: ProcessValue): any {
-    if (this.isReady) return this.asynResult;
+    const asyncVal = this.getAsynValue(processValue);
+    if (!!asyncVal) return asyncVal.value;
     return this.evaluateCore(processValue);
   }
   private evaluateCore(processValue?: ProcessValue): any {
+    let properties = processValue.properties;
+    if(this.isAsyncFunction) {
+      properties = Helpers.createCopy(processValue.properties);
+      const id = this.id;
+      const asyncValues = processValue.asyncValues;
+      const onComplete = processValue.onCompleteAsyncFunc;
+      const item = this;
+      properties.returnResult = (result: any) => {
+        asyncValues[id]= { value: result };
+        onComplete(item);
+      };
+    }
     return FunctionFactory.Instance.run(
       this.originalValue,
       this.parameters.evaluate(processValue),
-      processValue.properties,
+      properties,
       this.parameters.values
     );
   }
-
-  public toString(func: (op: Operand) => string = undefined) {
+  public toString(func: (op: Operand) => string = undefined): string {
     if (!!func) {
       var res = func(this);
       if (!!res) return res;
     }
     return this.originalValue + "(" + this.parameters.toString(func) + ")";
   }
-
-  public setVariables(variables: Array<string>) {
+  public setVariables(variables: Array<string>): void {
     this.parameters.setVariables(variables);
   }
-  public get isReady(): boolean {
-    return this.isReadyValue;
+  public isReady(proccessValue: ProcessValue): boolean {
+    return !!this.getAsynValue(proccessValue);
   }
-  public hasFunction(): boolean {
-    return true;
+  private getAsynValue(proccessValue: ProcessValue): any {
+    return proccessValue.asyncValues[this.id];
   }
+  public hasFunction(): boolean { return true; }
   public hasAsyncFunction(): boolean {
     return this.isAsyncFunction() || this.parameters.hasAsyncFunction();
   }

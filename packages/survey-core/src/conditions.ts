@@ -1,4 +1,4 @@
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { ProcessValue } from "./conditionProcessValue";
 import { ConsoleWarnings } from "./console-warnings";
 import { Operand, FunctionOperand, AsyncFunctionItem } from "./expressions/expressions";
@@ -11,7 +11,7 @@ export interface IExpresionExecutor {
   /**
    * This call back runs on executing expression if there is at least one async function
    */
-  onComplete: (res: any) => void;
+  onComplete: (res: any, id: number) => void;
   /**
    * The expression as string, property with get
    */
@@ -26,7 +26,7 @@ export interface IExpresionExecutor {
    * @param values has with values names and their results. Normally it is question names and their values
    * @param properties the list of properties that are available in functions. Commonly it is survey and question, if expression execuited in a question context
    */
-  run(values: HashTable<any>, properties: HashTable<any>): any;
+  run(values: HashTable<any>, properties: HashTable<any>, id: number): any;
   /**
    * Returns the list of variables that used in the expression. They defined as: {variableName} in default parser.
    */
@@ -41,17 +41,93 @@ export interface IExpresionExecutor {
   isAsync: boolean;
 }
 
+export class ExpressionExecutorRunner {
+  private processValue: ProcessValue;
+  private asyncFuncList: Array<AsyncFunctionItem>;
+  constructor(private operand: Operand, private id: number, private onComplete: (res: any, id: number) => void, values: HashTable<any>, properties: HashTable<any>) {
+    this.processValue = new ProcessValue();
+    this.processValue.values = values;
+    this.processValue.properties = properties;
+  }
+  public run(isAsync: boolean): any {
+    if (!isAsync) return this.runValues();
+    this.processValue.values = Helpers.createCopy(this.processValue.values);
+    this.processValue.onCompleteAsyncFunc = (op: any): void => {
+      const item = this.getAsyncItemByOperand(op, this.asyncFuncList);
+      if(item) {
+        this.doAsyncFunctionReady(item);
+      }
+    };
+    this.asyncFuncList = new Array<AsyncFunctionItem>();
+    this.operand.addToAsyncList(this.asyncFuncList);
+    for (var i = 0; i < this.asyncFuncList.length; i++) {
+      this.runAsyncItem(this.asyncFuncList[i]);
+    }
+    return false;
+  }
+  private getAsyncItemByOperand(op: FunctionOperand, list: Array<AsyncFunctionItem>): AsyncFunctionItem {
+    if(!Array.isArray(list)) return null;
+    for(let i = 0; i < list.length; i ++) {
+      if(list[i].operand === op) return list[i];
+      const res = this.getAsyncItemByOperand(op, list[i].children);
+      if(!!res) return res;
+    }
+    return null;
+  }
+  private runAsyncItem(item: AsyncFunctionItem): void {
+    if(item.children) {
+      item.children.forEach(child => this.runAsyncItem(child));
+    } else {
+      this.runAsyncItemCore(item);
+    }
+  }
+  private runAsyncItemCore(item: AsyncFunctionItem): void {
+    if(item.operand) {
+      item.operand.evaluate(this.processValue);
+    } else {
+      this.doAsyncFunctionReady(item);
+    }
+  }
+  private doAsyncFunctionReady(item: AsyncFunctionItem): void {
+    if(item.parent && this.isAsyncChildrenReady(item)) {
+      this.runAsyncItemCore(item.parent);
+      return;
+    }
+    for (var i = 0; i < this.asyncFuncList.length; i++) {
+      if (!this.isAsyncFuncReady(this.asyncFuncList[i])) return;
+    }
+    this.runValues();
+  }
+  private isAsyncFuncReady(item: AsyncFunctionItem): boolean {
+    if(item.operand && !item.operand.isReady(this.processValue)) return false;
+    return this.isAsyncChildrenReady(item);
+  }
+  private isAsyncChildrenReady(item: AsyncFunctionItem): boolean {
+    if(item.children) {
+      for(let i = 0; i < item.children.length; i ++) {
+        if(!this.isAsyncFuncReady(item.children[i])) return false;
+      }
+    }
+    return true;
+  }
+  private runValues(): any {
+    var res = this.operand.evaluate(this.processValue);
+    if(!!this.onComplete) {
+      this.onComplete(res, this.id);
+    }
+    return res;
+  }
+}
+
 export class ExpressionExecutor implements IExpresionExecutor {
   public static createExpressionExecutor: (expression: string) => IExpresionExecutor =
     (expression: string) => { return new ExpressionExecutor(expression); }
-  public onComplete: (res: any) => void;
+  public onComplete: (res: any, id: number) => void;
   private expressionValue: string;
   private operand: Operand;
-  private processValue = new ProcessValue();
   private parser = new ConditionsParser();
   private isAsyncValue: boolean = false;
   private hasFunctionValue: boolean = false;
-  private asyncFuncList: Array<AsyncFunctionItem>;
   constructor(expression: string) {
     this.setExpression(expression);
   }
@@ -86,69 +162,15 @@ export class ExpressionExecutor implements IExpresionExecutor {
     return !!this.operand;
   }
 
-  public run(
-    values: HashTable<any>,
-    properties: HashTable<any> = null
-  ): any {
+  public run(values: HashTable<any>, properties: HashTable<any> = null, id: number): any {
     if (!this.operand) {
       if(!!this.expression) {
         ConsoleWarnings.warn("Invalid expression: " + this.expression);
       }
       return null;
     }
-    this.processValue.values = values;
-    this.processValue.properties = properties;
-    if (!this.isAsync) return this.runValues();
-    this.asyncFuncList = new Array<AsyncFunctionItem>();
-    this.operand.addToAsyncList(this.asyncFuncList);
-    for (var i = 0; i < this.asyncFuncList.length; i++) {
-      this.runAsyncItem(this.asyncFuncList[i]);
-    }
-    return false;
-  }
-  private runAsyncItem(item: AsyncFunctionItem): void {
-    if(item.children) {
-      item.children.forEach(child => this.runAsyncItem(child));
-    } else {
-      this.runAsyncItemCore(item);
-    }
-  }
-  private runAsyncItemCore(item: AsyncFunctionItem): void {
-    if(item.operand) {
-      item.operand.onAsyncReady = () => this.doAsyncFunctionReady(item);
-      item.operand.evaluateAsync(this.processValue);
-    } else {
-      this.doAsyncFunctionReady(item);
-    }
-  }
-  private doAsyncFunctionReady(item: AsyncFunctionItem): void {
-    if(item.parent && this.isAsyncChildrenReady(item)) {
-      this.runAsyncItemCore(item.parent);
-      return;
-    }
-    for (var i = 0; i < this.asyncFuncList.length; i++) {
-      if (!this.isAsyncFuncReady(this.asyncFuncList[i])) return;
-    }
-    this.runValues();
-  }
-  private isAsyncFuncReady(item: AsyncFunctionItem): boolean {
-    if(item.operand && !item.operand.isReady) return false;
-    return this.isAsyncChildrenReady(item);
-  }
-  private isAsyncChildrenReady(item: AsyncFunctionItem): boolean {
-    if(item.children) {
-      for(let i = 0; i < item.children.length; i ++) {
-        if(!this.isAsyncFuncReady(item.children[i])) return false;
-      }
-    }
-    return true;
-  }
-  private runValues(): any {
-    var res = this.operand.evaluate(this.processValue);
-    if(!!this.onComplete) {
-      this.onComplete(res);
-    }
-    return res;
+    const runner = new ExpressionExecutorRunner(this.operand, id, this.onComplete, values, properties);
+    return runner.run(this.isAsync);
   }
 }
 
@@ -156,15 +178,13 @@ export class ExpressionRunnerBase {
   private expressionExecutor: IExpresionExecutor;
   private variables: string[];
   private containsFunc: boolean;
-  private static IdCounter = 1;
-  private _id: number = ExpressionRunnerBase.IdCounter ++;
+  private static IdRunnerCounter = 1;
   public onBeforeAsyncRun: (id: number) => void;
   public onAfterAsyncRun: (id: number) => void;
 
   public constructor(expression: string) {
     this.expression = expression;
   }
-  public get id(): number { return this._id; }
   public get expression(): string {
     return !!this.expressionExecutor ? this.expressionExecutor.expression : "";
   }
@@ -172,7 +192,7 @@ export class ExpressionRunnerBase {
   public set expression(value: string) {
     if(!!this.expressionExecutor && value === this.expression) return;
     this.expressionExecutor = ExpressionExecutor.createExpressionExecutor(value);
-    this.expressionExecutor.onComplete = (res: any) => { this.doOnComplete(res); };
+    this.expressionExecutor.onComplete = (res: any, id: number) => { this.doOnComplete(res, id); };
     this.variables = undefined;
     this.containsFunc = undefined;
   }
@@ -198,14 +218,15 @@ export class ExpressionRunnerBase {
     return this.expressionExecutor.canRun();
   }
   protected runCore(values: HashTable<any>, properties: HashTable<any> = null): any {
+    const id = ExpressionRunnerBase.IdRunnerCounter ++;
     if(this.onBeforeAsyncRun && this.isAsync) {
-      this.onBeforeAsyncRun(this.id);
+      this.onBeforeAsyncRun(id);
     }
-    return this.expressionExecutor.run(values, properties);
+    return this.expressionExecutor.run(values, properties, id);
   }
-  protected doOnComplete(res: any): void {
+  protected doOnComplete(res: any, id: number): void {
     if(this.onAfterAsyncRun && this.isAsync) {
-      this.onAfterAsyncRun(this.id);
+      this.onAfterAsyncRun(id);
     }
   }
 }
@@ -215,9 +236,9 @@ export class ConditionRunner extends ExpressionRunnerBase {
   public run(values: HashTable<any>, properties: HashTable<any> = null): boolean {
     return this.runCore(values, properties) == true;
   }
-  protected doOnComplete(res: any): void {
+  protected doOnComplete(res: any, id: number): void {
     if (!!this.onRunComplete) this.onRunComplete(res == true);
-    super.doOnComplete(res);
+    super.doOnComplete(res, id);
   }
 }
 
@@ -226,8 +247,8 @@ export class ExpressionRunner extends ExpressionRunnerBase {
   public run(values: HashTable<any>, properties: HashTable<any> = null): any {
     return this.runCore(values, properties);
   }
-  protected doOnComplete(res: any): void {
+  protected doOnComplete(res: any, id: number): void {
     if (!!this.onRunComplete) this.onRunComplete(res);
-    super.doOnComplete(res);
+    super.doOnComplete(res, id);
   }
 }

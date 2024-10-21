@@ -7810,6 +7810,9 @@ export class SurveyModel extends SurveyElementCore
     this.onOpenDropdownMenu.fire(this, newOptions as OpenDropdownMenuEvent);
     options.menuType = newOptions.menuType;
   }
+  public getCssTitleExpandableSvg(): string {
+    return null;
+  }
 
   /**
    * Applies a specified theme to the survey.

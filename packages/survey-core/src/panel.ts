@@ -2343,6 +2343,9 @@ export class PanelModel extends PanelModelBase implements IElement {
   public get cssTitle(): string {
     return this.getCssTitle(this.cssClasses.panel);
   }
+  public getCssTitleExpandableSvg(): string {
+    return this.cssClasses.panel.titleExpandableSvg;
+  }
   public get showErrorsAbovePanel(): boolean {
     return this.isDefaultV2Theme && !this.showPanelAsPage;
   }

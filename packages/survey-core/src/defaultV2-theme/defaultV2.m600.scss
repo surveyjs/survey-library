@@ -17,7 +17,11 @@
       @include num_inline();
     }
 
-    .sd-element__title--expandable:before {
+    // .sd-element__title--expandable:before {
+    //   inset-inline-start: calcSize(-2.5);
+    // }
+
+    .sd-element__title-expandable-svg {
       inset-inline-start: calcSize(-2.5);
     }
 

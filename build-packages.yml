@@ -280,6 +280,7 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
       displayName: "install chrome"
 
@@ -403,6 +404,7 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
       displayName: "install chrome"
 
@@ -509,6 +511,7 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
       displayName: "install chrome"
 
@@ -616,6 +619,7 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
       displayName: "install chrome"
 
@@ -738,6 +742,7 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
       displayName: "install chrome"
   
@@ -955,6 +960,7 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
       displayName: "install chrome"
 

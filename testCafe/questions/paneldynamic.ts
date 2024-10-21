@@ -601,4 +601,35 @@ frameworks.forEach((framework) => {
 
     await t.expect(await getSurveyResult()).eql({ panel1: [{ name: "123" }] });
   });
+  test("Focus first input on removing and adding panels, #8940", async (t) => {
+    await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 3,
+          templateElements: [
+            {
+              type: "text",
+              name: "name",
+              defaultValue: "abc"
+            },
+          ],
+        }
+      ]
+    });
+    await t.pressKey("tab tab tab")
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .pressKey("1 2 3")
+      .click(Selector(".sd-navigation__complete-btn"));
+
+    await t.expect(await getSurveyResult()).eql({ panel1: [{ name: "abc123" }] });
+  });
 });

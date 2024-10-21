@@ -260,13 +260,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return null;
   }
-  public static FocusElement(elementId: string): boolean {
+  public static FocusElement(elementId: string, isTimeOut?: boolean): boolean {
     if (!elementId || !DomDocumentHelper.isAvailable()) return false;
-    const res: boolean = SurveyElement.focusElementCore(elementId);
+    const res: boolean = !isTimeOut ? SurveyElement.focusElementCore(elementId) : false;
     if (!res) {
       setTimeout(() => {
         SurveyElement.focusElementCore(elementId);
-      }, 10);
+      }, isTimeOut ? 100 : 10);
     }
     return res;
   }

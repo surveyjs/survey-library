@@ -280,6 +280,10 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
+
+    - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run release -- --release-as $(SurveyJSVersion)
         git status
@@ -399,6 +403,10 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
+
+    - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run release -- --release-as $(SurveyJSVersion)
         git status
@@ -499,6 +507,10 @@ jobs:
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+    - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -603,6 +615,10 @@ jobs:
         workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
+    - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
+
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
@@ -720,6 +736,10 @@ jobs:
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+    - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
   
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -933,6 +953,10 @@ jobs:
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+    - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library

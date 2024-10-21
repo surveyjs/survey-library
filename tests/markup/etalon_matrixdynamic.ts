@@ -67,6 +67,7 @@ registerMarkupTests(
       },
       before: () => StylesManager.applyTheme("defaultV2"),
       after: () => StylesManager.applyTheme("default"),
+      removeIds: true,
       snapshot: "matrixdynamic-defaultV2"
     },
     {

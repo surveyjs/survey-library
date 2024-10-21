@@ -628,7 +628,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public get addButtonId(): string { return this.id + "_add_button"; }
   public getRowRemoveButtonId(row: MatrixDropdownRowModelBase): string {
-    return this.id + row.id + "_remove_button";
+    return row.id + "_remove_button";
   }
   private removeRowCore(index: number) {
     var row = this.generatedVisibleRows

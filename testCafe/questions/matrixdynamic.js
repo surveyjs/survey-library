@@ -485,3 +485,40 @@ frameworks.forEach((framework) => {
   });
 });
 
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            rowCount: 3,
+            columns: [
+              {
+                cellType: "text",
+                name: "name",
+                defaultValue: "abc"
+              },
+            ],
+          }
+        ]
+      });
+    }
+  );
+  test("Focus remove or add button removing", async (t) => {
+    await t.pressKey("tab tab tab")
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .pressKey("1 2 3")
+      .click(completeButton);
+
+    await t.expect(await getSurveyResult()).eql({ matrix: [{ name: "abc123" }] });
+  });
+});

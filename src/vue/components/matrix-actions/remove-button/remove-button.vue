@@ -1,6 +1,7 @@
 <template>
   <button
     type="button"
+    :id="id"
     :class="question.getRemoveRowButtonCss()"
     :disabled="question.isInputReadOnly"
     @click="() => question.removeRowUI(row)"
@@ -20,6 +21,9 @@ import BaseVue from "../../../base";
 export class SurveyQuestionMatrixDynamicRemoveButton extends BaseVue {
   @Prop() public item: Action;
 
+  public get id(): string {
+    return this.question.getRowRemoveButtonId(this.row);
+  }
   get question() {
     return this.item.data.question;
   }

@@ -23,6 +23,7 @@ export interface IAction {
    * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    */
   id?: string;
+  innerId?: string;
   /**
    * Specifies the action item's visibility.
    * @see enabled
@@ -243,6 +244,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() ariaExpanded: boolean;
   @property({ defaultValue: "button" }) ariaRole: string;
   public id: string;
+  public innerId: string;
   public removePriority: number;
   @property() iconName: string;
   @property({ defaultValue: 24 }) iconSize: number;

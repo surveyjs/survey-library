@@ -19,6 +19,7 @@
       (event) => { item.doFocus(event); }
     "
     v-bind:disabled="item.disabled"
+    v-bind:id="item.innerId"
     v-bind:title="item.tooltip || item.title"
     v-bind:aria-checked="item.ariaChecked"
     v-bind:aria-expanded="item.ariaExpanded"

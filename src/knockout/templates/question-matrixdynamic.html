@@ -6,7 +6,7 @@
       >
         <button
           type="button"
-          data-bind="click: question.isDesignMode ? undefined : question.koAddRowClick, css: question.getAddRowButtonCss(), disable: question.isInputReadOnly"
+          data-bind="click: question.isDesignMode ? undefined : question.koAddRowClick, css: question.getAddRowButtonCss(), disable: question.isInputReadOnly, attr: { id: question.addButtonId }"
         >
           <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
           <span data-bind="css: question.cssClasses.iconAdd"></span>
@@ -23,7 +23,7 @@
         <!-- ko if: question.koTable().showAddRow -->  
         <button
           type="button"
-          data-bind="click:question.koAddRowClick, css: question.getAddRowButtonCss(true), disable: question.isInputReadOnly"
+          data-bind="click:question.koAddRowClick, css: question.getAddRowButtonCss(true), disable: question.isInputReadOnly, attr: { id: question.addButtonId }"
         >
           <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
           <span data-bind="css: question.cssClasses.iconAdd"></span>
@@ -37,7 +37,7 @@
       >
         <button
           type="button"
-          data-bind="click: question.koAddRowClick, css: question.getAddRowButtonCss(), disable: question.isInputReadOnly"
+          data-bind="click: question.koAddRowClick, css: question.getAddRowButtonCss(), disable: question.isInputReadOnly, attr: { id: question.addButtonId }"
         >
           <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
           <span data-bind="css: question.cssClasses.iconAdd"></span>

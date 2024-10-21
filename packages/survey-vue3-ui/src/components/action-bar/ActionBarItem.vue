@@ -1,6 +1,7 @@
 <template>
   <button
     :class="item.getActionBarItemCss()"
+    :id="item.innerId"
     type="button"
     v-on:click="
       (args: any) => {

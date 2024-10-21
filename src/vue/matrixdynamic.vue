@@ -26,6 +26,7 @@
       </div>
       <button
         type="button"
+        :id="question.addButtonId"
         v-if="question.renderedTable.showAddRow"
         :class="question.getAddRowButtonCss(true)"
         @click="addRowClick"
@@ -40,6 +41,7 @@
     >
       <button
         type="button"
+        :id="question.addButtonId"
         :class="question.getAddRowButtonCss()"
         @click="addRowClick"
       >

@@ -76,7 +76,7 @@ export class SurveyQuestionMatrixDynamicAddButton extends ReactSurveyElement {
   }
   protected renderElement(): JSX.Element {
     const addRowText: JSX.Element = this.renderLocString(this.matrix.locAddRowText);
-    const addButton = (<button
+    const addButton = (<button id={this.props.question.addButtonId}
       className={this.matrix.getAddRowButtonCss(this.props.isEmptySection)}
       type="button"
       disabled={this.matrix.isInputReadOnly}

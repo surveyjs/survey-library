@@ -693,10 +693,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       settings.matrix.renderRemoveAsIcon && this.matrix.survey && (<any>this.matrix.survey).css.root === "sd-root-modern"
     );
   }
-  protected setDefaultRowActions(
-    row: MatrixDropdownRowModelBase,
-    actions: Array<IAction>
-  ) {
+  protected setDefaultRowActions(row: MatrixDropdownRowModelBase, actions: Array<IAction>): void {
     const matrix = <QuestionMatrixDynamicModel>this.matrix;
     if (this.hasRemoveRows && this.canRemoveRow(row)) {
       if (!this.showRemoveButtonAsIcon) {
@@ -713,6 +710,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         actions.push(
           new Action({
             id: "remove-row",
+            innerId: this.matrix.getRowRemoveButtonId(row),
             iconName: "icon-delete",
             iconSize: "auto",
             component: "sv-action-bar-item",

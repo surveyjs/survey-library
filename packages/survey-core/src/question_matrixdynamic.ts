@@ -17,6 +17,7 @@ import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
+import { SurveyElement } from "./survey-element";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   private dragOrClickHelper: DragOrClickHelper;
@@ -574,13 +575,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return res;
   }
-  public removeRowUI(value: any) {
+  public removeRowUI(value: any): void {
     if (!!value && !!value.rowName) {
       var index = this.visibleRows.indexOf(value);
       if (index < 0) return;
       value = index;
     }
-    this.removeRow(value);
+    this.removeRow(value, undefined, true);
   }
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;
@@ -595,7 +596,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @param index A zero-based row index.
    * @param confirmDelete *(Optional)* A Boolean value that specifies whether to display a confirmation dialog. If you do not specify this parameter, the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#confirmDelete) property value is used.
    */
-  public removeRow(index: number, confirmDelete?: boolean): void {
+  public removeRow(index: number, confirmDelete?: boolean, fromUI?: boolean): void {
     if (!this.canRemoveRows) return;
     if (index < 0 || index >= this.rowCount) return;
     var row =
@@ -606,16 +607,28 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
     if (confirmDelete) {
-      confirmActionAsync(this.confirmDeleteText, () => { this.removeRowAsync(index, row); }, undefined, this.getLocale(), this.survey.rootElement);
+      confirmActionAsync(this.confirmDeleteText, () => { this.removeRowAsync(index, row, fromUI); }, undefined, this.getLocale(), this.survey.rootElement);
       return;
     }
-    this.removeRowAsync(index, row);
+    this.removeRowAsync(index, row, fromUI);
   }
-  private removeRowAsync(index: number, row: MatrixDropdownRowModelBase): void {
+  private removeRowAsync(index: number, row: MatrixDropdownRowModelBase, fromUI: boolean): void {
     if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
     this.onEndRowRemoving(row);
+    if(fromUI) {
+      const rowCount = this.visibleRows.length;
+      const nextIndex = index >= rowCount ? rowCount - 1 : index;
+      const id = rowCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getRowRemoveButtonId(this.visibleRows[nextIndex]) : "");
+      if(!!id) {
+        SurveyElement.FocusElement(id, true);
+      }
+    }
+  }
+  public get addButtonId(): string { return this.id + "_add_button"; }
+  public getRowRemoveButtonId(row: MatrixDropdownRowModelBase): string {
+    return this.id + row.id + "_remove_button";
   }
   private removeRowCore(index: number) {
     var row = this.generatedVisibleRows

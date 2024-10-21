@@ -15,7 +15,7 @@
     </div>
   </div>
   <ng-template #addRowButton>
-    <button type="button" [class]="model.getAddRowButtonCss(true)" (click)="model.addRowUI()">
+    <button type="button" [id]="model.addButtonId" [class]="model.getAddRowButtonCss(true)" (click)="model.addRowUI()">
         <sv-ng-string [model]="model.locAddRowText" ></sv-ng-string>
         <span [class]="model.cssClasses.iconAdd"></span>
     </button>

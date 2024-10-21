@@ -1,6 +1,6 @@
 <button
   type="button"
-  data-bind="click: question.koRemoveRowClick, disable: question.isInputReadOnly, css: question.getRemoveRowButtonCss()"
+  data-bind="click: question.koRemoveRowClick, disable: question.isInputReadOnly, css: question.getRemoveRowButtonCss(), attr: { id: question.getRowRemoveButtonId(row) }"
 >
   <!-- ko template: { name: 'survey-string', data: question.locRemoveRowText } --><!-- /ko -->
   <span data-bind="css: question.cssClasses.iconRemove"></span>

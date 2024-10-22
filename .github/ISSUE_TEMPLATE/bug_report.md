@@ -26,7 +26,7 @@ If applicable, add screenshots to help explain your problem.
 **Please complete the following information:**
 - Browser: [e.g. chrome, safari]
 - Browser version: [e.g. 22]
-- JS framework/library: [e.g. React, Angular, Vue 2 or 3, Knockout, jQuery]
+- JS framework/library: [e.g. React, Angular, Vue 2 or 3, Knockout, jQuery, Vanilla JS]
 - SurveyJS Form Library versions: [e.g. v1.12.7]
 - Device: [e.g. PC, iPhone 6]
 

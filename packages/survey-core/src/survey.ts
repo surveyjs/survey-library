@@ -1176,7 +1176,6 @@ export class SurveyModel extends SurveyElementCore
     } else {
       this.cssValue = value;
     }
-    this.updateCss();
     this.updateElementCss(false);
   }
 

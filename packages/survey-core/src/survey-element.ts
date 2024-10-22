@@ -260,20 +260,20 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return null;
   }
-  public static FocusElement(elementId: string): boolean {
+  public static FocusElement(elementId: string, isTimeOut?: boolean, containerEl?: HTMLElement): boolean {
     if (!elementId || !DomDocumentHelper.isAvailable()) return false;
-    const res: boolean = SurveyElement.focusElementCore(elementId);
+    const res: boolean = !isTimeOut ? SurveyElement.focusElementCore(elementId, containerEl) : false;
     if (!res) {
       setTimeout(() => {
-        SurveyElement.focusElementCore(elementId);
-      }, 10);
+        SurveyElement.focusElementCore(elementId, containerEl);
+      }, isTimeOut ? 100 : 10);
     }
     return res;
   }
-  private static focusElementCore(elementId: string): boolean {
+  private static focusElementCore(elementId: string, containerEl?: HTMLElement): boolean {
     const { root } = settings.environment;
-    if (!root) return false;
-    const el = root.getElementById(elementId);
+    if (!root && !containerEl) return false;
+    const el: HTMLElement = containerEl ? containerEl.querySelector(`#${CSS.escape(elementId)}`) : root.getElementById(elementId);
     // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
     if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
       SurveyElement.ScrollElementToViewCore(el, true, false);

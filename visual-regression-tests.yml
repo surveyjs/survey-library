@@ -29,7 +29,7 @@ jobs:
 
   - task: NodeTool@0
     inputs:
-      versionSpec: '14.x'
+      versionSpec: '16.x'
     displayName: 'Install Node.js'
 
   - task: CopyFiles@2
@@ -52,6 +52,10 @@ jobs:
       command: install
       verbose: false
     condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+  - script: |
+      npx puppeteer browsers install chrome
+    displayName: "install chrome"
   
   - script: |
       npm run build_knockout_prod
@@ -90,7 +94,7 @@ jobs:
 
   - task: NodeTool@0
     inputs:
-      versionSpec: '14.x'
+      versionSpec: '16.x'
     displayName: 'Install Node.js'
   
   - task: CopyFiles@2
@@ -115,6 +119,10 @@ jobs:
       verbose: false
     condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
+  - script: |
+      npx puppeteer browsers install chrome
+    displayName: "install chrome"
+
   - powershell: |
       npm run build_react_prod
       npm run build_core
@@ -156,7 +164,7 @@ jobs:
 
   - task: NodeTool@0
     inputs:
-      versionSpec: '14.x'
+      versionSpec: '16.x'
     displayName: 'Install Node.js'
   
   - task: CopyFiles@2
@@ -180,6 +188,11 @@ jobs:
       verbose: false
     condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
+  - script: |
+      npx puppeteer browsers install chrome
+    displayName: "install chrome"
+
+
   - script: |
       npm run build_vue_prod
     displayName: 'build prod'
@@ -219,7 +232,7 @@ jobs:
 
   - task: NodeTool@0
     inputs:
-      versionSpec: "14.x"
+      versionSpec: "16.x"
     displayName: "Install Node.js"
 
   - task: CopyFiles@2
@@ -243,6 +256,10 @@ jobs:
       command: install
       verbose: false
     condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+  - script: |
+      npx puppeteer browsers install chrome
+    displayName: "install chrome"
 
   - powershell: |
       npm run build_core
@@ -330,6 +347,10 @@ jobs:
       verbose: false
     condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
+  - script: |
+      npx puppeteer browsers install chrome
+    displayName: "install chrome"
+
   - powershell: |
       npm run build_core
       npm run build_i18n_dev
@@ -389,7 +410,7 @@ jobs:
 
 #   - task: NodeTool@0
 #     inputs:
-#       versionSpec: '14.x'
+#       versionSpec: '16.x'
 #     displayName: 'Install Node.js'
 
 #   - task: CopyFiles@2
@@ -456,7 +477,7 @@ jobs:
 
   - task: NodeTool@0
     inputs:
-      versionSpec: '14.x'
+      versionSpec: '16.x'
     displayName: 'Install Node.js'
 
   - task: CopyFiles@2
@@ -479,6 +500,10 @@ jobs:
       command: install
       verbose: false
     condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+  - script: |
+      npx puppeteer browsers install chrome
+    displayName: "install chrome"
 
   - script: |
       npm run build_core

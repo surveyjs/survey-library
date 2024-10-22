@@ -42,7 +42,7 @@ jobs:
 
     - task: NodeTool@0
       inputs:
-        versionSpec: "14.x"
+        versionSpec: "16.x"
       displayName: "Install Node.js"
 
     - task: CopyFiles@2
@@ -81,7 +81,7 @@ jobs:
 
     - task: NodeTool@0
       inputs:
-        versionSpec: "14.x"
+        versionSpec: "16.x"
       displayName: "Install Node.js"
 
     - task: CopyFiles@2
@@ -228,7 +228,7 @@ jobs:
 
     - task: NodeTool@0
       inputs:
-        versionSpec: "14.x"
+        versionSpec: "16.x"
       displayName: "Install Node.js"
 
     - task: CopyFiles@2
@@ -278,6 +278,11 @@ jobs:
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -348,7 +353,7 @@ jobs:
 
     - task: NodeTool@0
       inputs:
-        versionSpec: "14.x"
+        versionSpec: "16.x"
       displayName: "Install Node.js"
 
     - task: CopyFiles@2
@@ -397,6 +402,11 @@ jobs:
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -450,7 +460,7 @@ jobs:
 
     - task: NodeTool@0
       inputs:
-        versionSpec: "14.x"
+        versionSpec: "16.x"
       displayName: "Install Node.js"
 
     - task: CopyFiles@2
@@ -499,6 +509,11 @@ jobs:
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -552,7 +567,7 @@ jobs:
 
     - task: NodeTool@0
       inputs:
-        versionSpec: "14.x"
+        versionSpec: "16.x"
       displayName: "Install Node.js"
 
     - task: CopyFiles@2
@@ -603,6 +618,11 @@ jobs:
         workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
+
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
@@ -720,6 +740,11 @@ jobs:
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
   
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -788,7 +813,7 @@ jobs:
 
 #     - task: NodeTool@0
 #       inputs:
-#         versionSpec: "14.x"
+#         versionSpec: "16.x"
 #       displayName: "Install Node.js"
 
 #     - task: CopyFiles@2
@@ -884,7 +909,7 @@ jobs:
 
     - task: NodeTool@0
       inputs:
-        versionSpec: "14.x"
+        versionSpec: "16.x"
       displayName: "Install Node.js"
 
     - task: CopyFiles@2
@@ -933,6 +958,11 @@ jobs:
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library

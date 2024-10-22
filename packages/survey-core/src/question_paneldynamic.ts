@@ -1552,12 +1552,26 @@ export class QuestionPanelDynamicModel extends Question
    * @see addPanelUI
    */
   public removePanelUI(value: any): void {
+    const visIndex = this.getVisualPanelIndex(value);
+    if(visIndex < 0 || visIndex >= this.visiblePanelCount) return;
     if (!this.canRemovePanel) return;
+    const removePanel = () => {
+      this.removePanel(visIndex);
+      const pnlCount = this.visiblePanelCount;
+      const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
+      let id = pnlCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getPanelRemoveButtonId(this.visiblePanels[nextIndex]) : "");
+      if(!!id) {
+        SurveyElement.FocusElement(id, true, this.survey?.rootElement);
+      }
+    };
     if (this.isRequireConfirmOnDelete(value)) {
-      confirmActionAsync(this.confirmDeleteText, () => { this.removePanel(value); }, undefined, this.getLocale(), this.survey.rootElement);
+      confirmActionAsync(this.confirmDeleteText, () => { removePanel(); }, undefined, this.getLocale(), this.survey.rootElement);
     } else {
-      this.removePanel(value);
+      removePanel();
     }
+  }
+  public getPanelRemoveButtonId(panel: PanelModel): string {
+    return panel.id + "_remove_button";
   }
   public isRequireConfirmOnDelete(val: any): boolean {
     if (!this.confirmDelete) return false;

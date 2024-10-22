@@ -1,6 +1,7 @@
 <template>
   <button
     type="button"
+    :id="id"
     :class="question.getPanelRemoveButtonCss()"
     @click="removePanelClick(panel)"
   >
@@ -19,7 +20,10 @@ export class PanelDynamicRemoveButton extends PaneldynamicAction {
   public get panel() {
     return (this.item && this.item.data.panel) || this.data.panel;
   }
-  removePanelClick(panel: any) {
+  public get id(): string {
+    return this.question.getPanelRemoveButtonId(this.panel);
+  }
+  removePanelClick(panel: any): void {
     if (!this.question.isInputReadOnly) {
       this.question.removePanelUI(panel);
     }

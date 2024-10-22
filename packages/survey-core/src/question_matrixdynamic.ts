@@ -622,7 +622,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const nextIndex = index >= rowCount ? rowCount - 1 : index;
       const id = rowCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getRowRemoveButtonId(this.visibleRows[nextIndex]) : "");
       if(!!id) {
-        SurveyElement.FocusElement(id, true);
+        SurveyElement.FocusElement(id, true, this.survey?.rootElement);
       }
     }
   }

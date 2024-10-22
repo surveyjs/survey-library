@@ -51,6 +51,10 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
+
+    - script: |
         npm run build_core
         npm run build_knockout_prod
       displayName: "Build Knockout"
@@ -109,6 +113,10 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
+
+    - script: |
         npm run build_react_prod
         npm run build_core
         npm run build_i18n
@@ -158,6 +166,10 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
+
+    - script: |
         npm run build_vue_prod
       displayName: "Build Vue"
 
@@ -202,6 +214,10 @@ jobs:
         verbose: false
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
+    - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
+
     - script: |
         npm run build_core
         npm run build_i18n
@@ -270,6 +286,10 @@ jobs:
         verbose: false
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
+    - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
+
     - script: |
         npm run build_core
         npm run build_i18n
@@ -384,6 +404,10 @@ jobs:
         verbose: false
         workingDir: $(Build.SourcesDirectory)
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+    - script: |
+        npx puppeteer browsers install chrome
+      displayName: "install chrome"
 
     - script: |
         npm run build_core

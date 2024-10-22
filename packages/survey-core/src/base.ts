@@ -729,7 +729,7 @@ export class Base {
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {
-    if(!this.asynExpressionHash) this.asynExpressionHash = [];
+    if(!this.asynExpressionHash) this.asynExpressionHash = {};
     const isChanged = !this.isAsyncExpressionRunning;
     this.asynExpressionHash[id] = true;
     if(isChanged) {

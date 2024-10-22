@@ -3409,3 +3409,33 @@ QUnit.test("Dynamic serializable properties, bug#8852", function (assert) {
   assert.equal(q1.contentQuestion.hasMinRateDescription, true, "hasMinRateDescription");
   assert.equal(q1.contentQuestion.hasMaxRateDescription, true, "hasMaxRateDescription");
 });
+QUnit.test("Single: Register and load from json", function (assert) {
+  let isDesignMode1Counter = 0;
+  let isDesignMode2Counter = 0;
+  ComponentCollection.Instance.add({
+    name: "newquestion1",
+    questionJSON: { type: "text" },
+    onSetSurvey: (question: Question): void => {
+      isDesignMode1Counter += question.isDesignMode ? 10: 1;
+    }
+  });
+  ComponentCollection.Instance.add({
+    name: "newquestion2",
+    elementsJSON: [{ type: "text", name: "q1" }],
+    onSetSurvey: (question: Question): void => {
+      isDesignMode2Counter += question.isDesignMode ? 10: 1;
+    }
+  });
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [{ type: "newquestion1", name: "q1" }, { type: "newquestion2", name: "q2" }],
+  });
+  assert.equal(isDesignMode1Counter, 10, "isDesignMode1 #1");
+  assert.equal(isDesignMode2Counter, 10, "isDesignMode2 #1");
+  survey.currentPage.addNewQuestion("newquestion1", "q3");
+  survey.currentPage.addNewQuestion("newquestion2", "q4");
+  assert.equal(isDesignMode1Counter, 20, "isDesignMode1 #2");
+  assert.equal(isDesignMode2Counter, 20, "isDesignMode2 #2");
+  ComponentCollection.Instance.clear();
+});

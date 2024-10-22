@@ -42,11 +42,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyElementCore, doKey2ClickUp } from "survey-core";
+import { SurveyElement, doKey2ClickUp } from "survey-core";
 
 @Component
 export class TitleElement extends Vue {
-  @Prop() element: SurveyElementCore;
+  @Prop() element: SurveyElement;
   @Prop() css: any;
 
   keyup(evt: any) {

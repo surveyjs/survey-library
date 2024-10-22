@@ -18,6 +18,6 @@ import { useMatrixAction } from "../matrix-action";
 const props = defineProps<{ item: Action }>();
 const { question, row } = useMatrixAction(props);
 const getId = (panel: MatrixDropdownRowModelBase): string => {
-  return question.value.getPanelRemoveButtonId(panel);
+  return question.value.getRowRemoveButtonId(panel);
 };
 </script>

@@ -2041,7 +2041,7 @@ export class QuestionSelectBase extends Question {
    *
    * [View Dropdown Demo](https://surveyjs.io/form-library/examples/dropdown-box-with-custom-items/ (linkStyle))
    *
-   * [View Ranking Demo](https://surveyjs.io/form-library/examples/dropdown-box-with-custom-items/ (linkStyle))
+   * [View Ranking Demo](https://surveyjs.io/form-library/examples/ranking-with-custom-items/ (linkStyle))
    */
   public get itemComponent(): string {
     return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());

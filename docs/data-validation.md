@@ -15,11 +15,12 @@ Data validation ensures that respondents fill out all required form fields and t
 
 ## Enable Immediate Data Validation
 
-By default, data validation activates when a respondent proceeds to the next page. If the current page contains errors, the survey indicates them and focuses the first question with an invalid answer. If you want to run validation immediately after a respondent answers a question, set the Survey's [`checkErrorsMode`](https://surveyjs.io/Documentation/Library?id=surveymodel#checkErrorsMode) property to `"onValueChanged"`.
+By default, data validation activates when a respondent proceeds to the next page. If the current page contains errors, the survey indicates them and focuses the first question with an invalid answer. If you want to run validation immediately after a respondent leaves an input field, set the Survey's [`checkErrorsMode`](https://surveyjs.io/Documentation/Library?id=surveymodel#checkErrorsMode) property to `"onValueChanged"`. In addition, you can set the [`textUpdateMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#textUpdateMode) property to `"onTyping"` if you want to validate text input while users are typing.
 
 ```js
 const surveyJson = {
   "checkErrorsMode": "onValueChanged",
+  "textUpdateMode": "onTyping",
   "elements": [
     // ...
   ]

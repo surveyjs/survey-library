@@ -284,22 +284,30 @@ export class LocalizableString implements ILocalizableString {
     }
     return res;
   }
-  public setJson(value: any): void {
+  public setJson(value: any, isLoading?: boolean): void {
     if (!!this.sharedData) {
-      this.sharedData.setJson(value);
+      this.sharedData.setJson(value, isLoading);
       return;
     }
     this.values = {};
     this.htmlValues = {};
     if (value === null || value === undefined) return;
-    if (typeof value === "string") {
-      this.setLocaleText(null, value);
-    } else {
-      for (var key in value) {
-        this.setLocaleText(key, value[key]);
+    if(isLoading) {
+      if (typeof value === "string") {
+        this.values[settings.defaultLocaleName] = value;
+      } else {
+        this.values = value;
       }
+    } else {
+      if (typeof value === "string") {
+        this.setLocaleText(null, value);
+      } else {
+        for (var key in value) {
+          this.setLocaleText(key, value[key]);
+        }
+      }
+      this.strChanged();
     }
-    this.strChanged();
   }
   public get renderAs(): string {
     if (!this.owner || typeof this.owner.getRenderer !== "function") {

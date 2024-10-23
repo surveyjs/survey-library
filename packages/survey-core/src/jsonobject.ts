@@ -1086,7 +1086,7 @@ export class JsonMetadata {
   public setObjPropertyValue(obj: any, name: string, val: any) {
     if (obj[name] === val) return;
     if (!!obj[name] && !!obj[name].setJson) {
-      obj[name].setJson(val);
+      obj[name].setJson(val, true);
     } else {
       if (Array.isArray(val)) {
         const newVal = [];

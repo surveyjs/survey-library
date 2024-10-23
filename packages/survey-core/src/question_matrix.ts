@@ -225,7 +225,7 @@ export class MatrixCells extends Base {
     }
     return res;
   }
-  public setJson(value: any): void {
+  public setJson(value: any, isLoading?: boolean): void {
     this.values = {};
     if (!!value) {
       for (var row in value) {
@@ -241,7 +241,9 @@ export class MatrixCells extends Base {
     this.locNotification = true;
     this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.setJson(this.getCellLocData(row, col)));
     this.locNotification = false;
-    this.valuesChanged();
+    if(!isLoading) {
+      this.valuesChanged();
+    }
   }
   public locStrsChanged(): void {
     this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.strChanged());

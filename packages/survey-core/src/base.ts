@@ -88,7 +88,7 @@ export class Bindings {
     }
     return res;
   }
-  public setJson(value: any) {
+  public setJson(value: any, isLoading?: boolean): void {
     const oldValue = this.getJson();
     this.values = null;
     if (!!value) {
@@ -97,7 +97,9 @@ export class Bindings {
         this.values[key] = value[key];
       }
     }
-    this.onChangedJSON(oldValue);
+    if(!isLoading) {
+      this.onChangedJSON(oldValue);
+    }
   }
   private fillProperties() {
     if (this.properties !== null) return;

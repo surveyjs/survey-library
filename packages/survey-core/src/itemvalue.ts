@@ -379,7 +379,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     super.locStrsChanged();
     this.locText.strChanged();
   }
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     if (name === "value" && !this.hasText) {
       this.locText.strChanged();
     }

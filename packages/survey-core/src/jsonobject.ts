@@ -451,7 +451,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       this.onSetValue(obj, value, jsonConv);
     } else {
       if (this.serializationProperty && !!obj[this.serializationProperty])
-        obj[this.serializationProperty].setJson(value);
+        obj[this.serializationProperty].setJson(value, true);
       else {
         if (value && typeof value === "string") {
           if (this.type == "number") {

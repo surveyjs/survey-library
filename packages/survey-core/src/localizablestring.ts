@@ -297,6 +297,7 @@ export class LocalizableString implements ILocalizableString {
         this.values[settings.defaultLocaleName] = value;
       } else {
         this.values = value;
+        delete this.values["pos"];
       }
     } else {
       if (typeof value === "string") {

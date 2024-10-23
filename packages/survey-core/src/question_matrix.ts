@@ -241,9 +241,7 @@ export class MatrixCells extends Base {
     this.locNotification = true;
     this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.setJson(this.getCellLocData(row, col)));
     this.locNotification = false;
-    if(!isLoading) {
-      this.valuesChanged();
-    }
+    this.valuesChanged();
   }
   public locStrsChanged(): void {
     this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.strChanged());

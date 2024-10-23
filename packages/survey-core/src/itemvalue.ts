@@ -237,7 +237,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public get locText(): LocalizableString {
     return this.locTextValue;
   }
-  setLocText(locText: LocalizableString) {
+  setLocText(locText: LocalizableString): void {
     this.locTextValue = locText;
   }
   private _locOwner: ILocalizableOwner;
@@ -291,7 +291,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public set text(newText: string) {
     this.locText.text = newText;
   }
-  public get calculatedText() {
+  public get calculatedText(): string {
     return this.locText.calculatedText;
   }
   public get shortcutText(): string {

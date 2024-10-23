@@ -48,8 +48,14 @@ export class LocalizableString implements ILocalizableString {
       this.strChanged();
     }
   }
-  private _allowLineBreaks: boolean = false;
+  private _allowLineBreaks: boolean;
   public get allowLineBreaks(): boolean {
+    if(this._allowLineBreaks === undefined) {
+      this._allowLineBreaks = false;
+      if (!!this.name && this.owner instanceof SurveyElementCore) {
+        this._allowLineBreaks = Serializer.findProperty((this.owner as SurveyElementCore).getType(), this.name)?.type == "text";
+      }
+    }
     return this._allowLineBreaks;
   }
   public onGetTextCallback: (str: string) => string;
@@ -67,9 +73,6 @@ export class LocalizableString implements ILocalizableString {
     public useMarkdown: boolean = false,
     public name?: string
   ) {
-    if (owner instanceof SurveyElementCore) {
-      this._allowLineBreaks = Serializer.findProperty((owner as SurveyElementCore).getType(), name)?.type == "text";
-    }
     this.onCreating();
   }
   public getIsMultiple(): boolean { return false; }

@@ -68,11 +68,9 @@ export class LocalizableString implements ILocalizableString {
   public searchIndex: number;
   public disableLocalization: boolean;
   public defaultValue: string;
-  constructor(
-    public owner: ILocalizableOwner,
-    public useMarkdown: boolean = false,
-    public name?: string
-  ) {
+  constructor(public owner: ILocalizableOwner, public useMarkdown: boolean = false,
+    public name?: string, locName?: string) {
+    this._localizationName = locName;
     this.onCreating();
   }
   public getIsMultiple(): boolean { return false; }

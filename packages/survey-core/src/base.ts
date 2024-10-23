@@ -835,10 +835,11 @@ export class Base {
     useMarkDown: boolean = false,
     defaultStr: boolean|string = false
   ): LocalizableString {
-    var locStr = new LocalizableString(owner, useMarkDown, name);
+    let locName = undefined;
     if (defaultStr) {
-      locStr.localizationName = defaultStr === true ? name : defaultStr;
+      locName = defaultStr === true ? name : defaultStr;
     }
+    const locStr = new LocalizableString(owner, useMarkDown, name, locName);
     locStr.onStrChanged = (oldValue: string, newValue: string) => {
       this.propertyValueChanged(name, oldValue, newValue);
     };

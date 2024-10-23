@@ -198,6 +198,15 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   public getRootElement(): HTMLTableRowElement {
     return this.rootElement;
   }
+  public focusCell(cellIndex: number): void {
+    if (this.rootElement) {
+      const inputElementSelector = `td:nth-child(${cellIndex}) input, td:nth-child(${cellIndex}) button`;
+      const inputElement = this.rootElement.querySelectorAll(inputElementSelector)[0] as HTMLInputElement;
+      if (inputElement) {
+        inputElement.focus();
+      }
+    }
+  }
 }
 export class QuestionMatrixDropdownRenderedErrorRow extends QuestionMatrixDropdownRenderedRow {
   public isErrorsRow: boolean = true;
@@ -246,12 +255,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private getRenderedRowsAnimationOptions(): IAnimationGroupConsumer<QuestionMatrixDropdownRenderedRow> {
     const onBeforeRunAnimation = (el: HTMLElement) => {
-      el.querySelectorAll(":scope > td > *").forEach((el:HTMLElement) => {
+      el.querySelectorAll(":scope > td > *").forEach((el: HTMLElement) => {
         prepareElementForVerticalAnimation(el);
       });
     };
     const onAfterRunAnimation = (el: HTMLElement) => {
-      el.querySelectorAll(":scope > td > *").forEach((el:HTMLElement) => {
+      el.querySelectorAll(":scope > td > *").forEach((el: HTMLElement) => {
         cleanHtmlElementAfterAnimation(el);
       });
     };
@@ -452,7 +461,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       this.rows.splice(panelRowIndex, 1);
     }
   }
-  private getRenderedRowIndex(row: MatrixDropdownRowModelBase): number {
+  public getRenderedRowIndex(row: MatrixDropdownRowModelBase): number {
     for (var i = 0; i < this.rows.length; i++) {
       if (this.rows[i].row == row) return i;
     }

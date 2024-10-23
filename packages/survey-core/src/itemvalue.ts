@@ -189,11 +189,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   private visibleConditionRunner: ConditionRunner;
   private enableConditionRunner: ConditionRunner;
 
-  constructor(
-    value: any,
-    text: string = null,
-    protected typeName = "itemvalue"
-  ) {
+  constructor(value: any, text: string = null, protected typeName = "itemvalue") {
     super();
     this.locTextValue = new LocalizableString(this, true, "text");
     this.locTextValue.onStrChanged = (oldValue: string, newValue: string) => {
@@ -211,9 +207,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     };
     if (text) this.locText.text = text;
     if (!!value && typeof value === "object") {
-      this.setData(value);
+      this.setData(value, true);
     } else {
-      this.value = value;
+      this.setValue(value, true);
     }
     if (this.getType() != "itemvalue") {
       CustomPropertiesCollection.createProperties(this);
@@ -257,7 +253,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return this.getPropertyValue("value");
   }
   public set value(newValue: any) {
-    var text: string = undefined;
+    this.setValue(newValue, false);
+  }
+  private setValue(newValue: any, newItem: boolean): void {
+    let text: string = undefined;
     if (!Helpers.isValueEmpty(newValue)) {
       var str: string = newValue.toString();
       var index = str.indexOf(settings.itemValueSeparator);
@@ -266,7 +265,12 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
         text = str.slice(index + 1);
       }
     }
-    this.setPropertyValue("value", newValue);
+    if(newItem) {
+      this.setPropertyValueDirectly("value", newValue);
+    }
+    else {
+      this.setPropertyValue("value", newValue);
+    }
     if (!!text) {
       this.text = text;
     }
@@ -328,7 +332,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     }
     return res;
   }
-  public setData(value: any): void {
+  public setData(value: any, isNewItem?: boolean): void {
     if (Helpers.isValueEmpty(value)) return;
     if(typeof value.value === "undefined" && typeof value.text !== "undefined" && Object.keys(value).length === 1) {
       value.value = value.text;
@@ -342,9 +346,11 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       }
       new JsonObject().toObject(json, this);
     } else {
-      this.value = value;
+      this.setValue(value, isNewItem);
     }
-    this.locText.strChanged();
+    if(!isNewItem) {
+      this.locText.strChanged();
+    }
   }
   public get visibleIf(): string {
     return this.getPropertyValueWithoutDefault("visibleIf") || "";
@@ -387,7 +393,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     if (!this.locOwner || !(<any>this.locOwner)[funcName]) return;
     (<any>this.locOwner)[funcName](this, name, oldValue, newValue);
   }
-  protected getConditionRunner(isVisible: boolean) {
+  protected getConditionRunner(isVisible: boolean): ConditionRunner {
     if (isVisible) return this.getVisibleConditionRunner();
     return this.getEnableConditionRunner();
   }

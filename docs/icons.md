@@ -4,11 +4,23 @@ description: View the list of all available built-in icons used in SurveyJS libr
 ---
 # UI Icons
 
-This help topic describes icons built into SurveyJS components and shows how you can customize them.
+This help topic describes SVG icons built into SurveyJS Form Library and Survey Creator and shows how you can customize them.
 
-## Built-In Icons
+<div id="built-in-icons"></div>
 
-SurveyJS uses icons in SVG format. The following built-in SVG icons are available:
+## Built-In SVG Icons
+
+### Form Library Icons
+
+The following SVG icons are available if your application includes the `survey-core` bundle or package:
+
+<iframe src="/proxy/github/code-examples/icons/index-form-library.html"
+  style="width:100%; border:0; overflow:hidden;">
+</iframe>
+
+### Survey Creator Icons
+
+The SVG icons below are available if your application includes the `survey-creator-core` bundle or package. It depends on the `survey-core` bundle, and thus makes [Form Library icons](#form-library-icons) available as well.
 
 <iframe src="/proxy/github/code-examples/icons/index.html"
   style="width:100%; border:0; overflow:hidden;">
@@ -18,7 +30,7 @@ SurveyJS uses icons in SVG format. The following built-in SVG icons are availabl
 
 ### Swap Two Built-In Icons
 
-Swapping two built-in icons allows you to use one icon from the SurveyJS library instead of another, and vice versa. The following code shows how to swap the `icon-export` and `icon-import` icons:
+Swapping two built-in icons allows you to use one icon from SurveyJS Form Library or Survey Creator instead of another, and vice versa. The following code shows how to swap the `icon-export` and `icon-import` icons:
 
 ```js
 Survey.settings.customIcons["icon-import"] = "icon-export";

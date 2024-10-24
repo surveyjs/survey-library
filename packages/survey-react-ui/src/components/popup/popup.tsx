@@ -1,4 +1,3 @@
-import ReactDOM from "react-dom";
 import React from "react";
 import { Base, PopupModel, PopupBaseViewModel, PopupDropdownViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, createPopupViewModel, CssClassBuilder, settings } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
@@ -194,59 +193,3 @@ export class PopupDropdownContainer extends PopupContainer {
     );
   }
 }
-
-// replace to showDialog then delete
-export function showModal(
-  componentName: string,
-  data: any,
-  onApply: () => boolean,
-  onCancel?: () => void,
-  cssClass?: string,
-  title?: string,
-  displayMode: "popup" | "overlay" = "popup"
-): PopupBaseViewModel {
-  const options = createDialogOptions(
-    componentName,
-    data,
-    onApply,
-    onCancel,
-    undefined,
-    undefined,
-    cssClass,
-    title,
-    displayMode
-  );
-  return showDialog(options);
-}
-export function showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, rootElement);
-  const onVisibilityChangedCallback = (
-    _: PopupBaseViewModel,
-    options: { isVisible: boolean }
-  ) => {
-    if (!options.isVisible) {
-      if(typeof (ReactDOM as any).createRoot == "function") {
-        if(!!root) {
-          root.unmount();
-        }
-      } else {
-        ReactDOM.unmountComponentAtNode(popupViewModel.container);
-      }
-      popupViewModel.dispose();
-    }
-  };
-  popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);
-  let root: any;
-  if(typeof (ReactDOM as any).createRoot == "function") {
-    root = (ReactDOM as any).createRoot(popupViewModel.container);
-    root.render(<PopupContainer model={popupViewModel} />);
-  } else {
-    ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
-  }
-  popupViewModel.model.isVisible = true;
-
-  return popupViewModel;
-}
-
-settings.showModal = showModal;
-settings.showDialog = showDialog;

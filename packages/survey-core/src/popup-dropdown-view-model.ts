@@ -97,7 +97,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       actualHorizontalPosition = PopupUtils.updateHorizontalPosition(
         targetElementRect,
         width,
-        this.model.horizontalPosition,
+        actualHorizontalPosition,
         area.width
       );
     }

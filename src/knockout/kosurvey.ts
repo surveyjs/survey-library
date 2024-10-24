@@ -184,6 +184,7 @@ LocalizableString.prototype["onCreating"] = function () {
 ItemValue.prototype["onCreating"] = function () {
   new ImplementorBase(this);
   this.koText = ko.pureComputed(() => { return this.locText.koRenderedHtml(); });
+  this.locText.strChanged();
 };
 
 ko.components.register("survey", {

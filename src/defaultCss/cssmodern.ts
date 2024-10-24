@@ -368,7 +368,8 @@ export var modernCss = {
     emptyRowsSection: "sv-table__empty--rows--section",
     emptyRowsText: "sv-table__empty--rows--text",
     emptyRowsButton: "",
-    ghostRow: "sv-matrix-row--drag-drop-ghost-mod"
+    ghostRow: "sv-matrix-row--drag-drop-ghost-mod",
+    draggedRow: "sv-matrixdynamic-dragged-row",
   },
   rating: {
     root: "sv-rating",

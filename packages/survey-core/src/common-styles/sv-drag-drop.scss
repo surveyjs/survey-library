@@ -32,6 +32,23 @@
   margin-top: calcSize(1.5);
 }
 
+.sv-matrixdynamic-dragged-row {
+  cursor: grabbing;
+  position: absolute;
+  z-index: 10000;
+  font-family: $font-family;
+
+  .sd-table__row {
+    box-shadow: $shadow-medium;
+    background-color: $background;
+    display: flex;
+    flex-grow: 0;
+    flex-shrink: 0;
+    align-items: center;
+    line-height: 0;
+  }
+}
+
 .sv-matrix-row--drag-drop-ghost-mod td {
   background-color: $background-dim;
 }

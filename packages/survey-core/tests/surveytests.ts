@@ -3510,10 +3510,10 @@ QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   });
   assert.equal(question.no, "a.b.2)", "use event");
 });
-QUnit.test("survey.onGetPageNo event", function (assert) {
+QUnit.test("survey.onGetPageNumber event", function (assert) {
   const survey = new SurveyModel();
   survey.showPageNumbers = true;
-  survey.onGetPageNo.add((sender, options) => {
+  survey.onGetPageNumber.add((sender, options) => {
     if(options.page.isStartPage) {
       options.no = "";
     } else {

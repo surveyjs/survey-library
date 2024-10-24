@@ -394,7 +394,9 @@ export interface GetQuestionNoEvent extends QuestionEventMixin {
    */
   no: string;
 }
-export interface GetPageNoEvent extends PageEventMixin {
+export interface GetQuestionNumberEvent extends GetQuestionNoEvent {
+}
+export interface GetPageNumberEvent extends PageEventMixin {
   no: string;
 }
 export interface ProgressTextEvent {

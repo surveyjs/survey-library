@@ -1,3 +1,4 @@
+import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { DomDocumentHelper } from "../global_variables_utils";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_matrixdynamic";
@@ -17,6 +18,13 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     }
   }
 
+  private get shortcutClass(): string {
+    return new CssClassBuilder()
+      .append(this.parentElement.cssClasses.draggedRow)
+      //.append(this.parentElement.cssClasses.dragShortcutMobileMod, IsMobile)
+      .toString();
+  }
+
   protected createDraggedElementShortcut(
     text: string,
     draggedElementNode: HTMLElement,
@@ -25,13 +33,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     const draggedElementShortcut: any = DomDocumentHelper.createElement("div");
     if(!draggedElementShortcut) return;
 
-    // draggedElementShortcut.innerText = text;
-    draggedElementShortcut.style.cssText = ` 
-          cursor: grabbing;
-          position: absolute;
-          z-index: 10000;
-          font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));
-        `;
+    draggedElementShortcut.className = this.shortcutClass;
 
     const isDeepClone = true;
 
@@ -41,13 +43,6 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       const clone = <HTMLElement>(row.cloneNode(isDeepClone));
 
       clone.style.cssText = `
-        box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
-        background-color: var(--sjs-general-backcolor, var(--background, #fff));
-        display: flex;
-        flex-grow: 0;
-        flex-shrink: 0;
-        align-items: center;
-        line-height: 0;
         width: ${row.offsetWidth}px;
       `;
 

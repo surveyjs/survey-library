@@ -232,7 +232,8 @@ export var defaultCss = {
     emptyRowsSection: "sv_matrix_empty_rows_section",
     emptyRowsText: "sv_matrix_empty_rows_text",
     emptyRowsButton: "",
-    ghostRow: "sv-matrix-row--drag-drop-ghost-mod"
+    ghostRow: "sv-matrix-row--drag-drop-ghost-mod",
+    draggedRow: "sv-matrixdynamic-dragged-row"
   },
   paneldynamic: {
     root: "",

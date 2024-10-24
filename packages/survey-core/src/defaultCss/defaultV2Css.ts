@@ -597,7 +597,7 @@ export var defaultV2Css = {
     iconAdd: "sd-hidden",
     iconRemove: "",
     dragElementDecorator: "sd-drag-element__svg",
-    iconDragElement: "#icon-v2dragelement_16x16",
+    iconDragElement: "#icon-draghorizontal-24x16",
     footer: "sd-matrixdynamic__footer",
     footerTotalCell: "sd-table__cell sd-table__cell--footer-total",
     emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",

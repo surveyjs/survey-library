@@ -97,7 +97,7 @@
     float: right;
   }
 
-  .sd-element__title--expandable:before {
+  .sd-element__title--collapsed .sd-element__title-expandable-svg {
     transform: rotate(180deg);
   }
 }

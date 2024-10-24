@@ -2052,6 +2052,14 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     this.elements.splice(0, this.elements.length);
   }
+  public blockUpdates(deep?: boolean): void {
+    super.blockUpdates();
+    if(deep) this.elements.forEach(el => (el as unknown as Base).blockUpdates(true));
+  }
+  public releaseUpdates(deep?: boolean): void {
+    super.releaseUpdates();
+    if(deep) this.elements.forEach(el => (el as unknown as Base).releaseUpdates(true));
+  }
 }
 
 /**

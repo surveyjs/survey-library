@@ -1169,6 +1169,16 @@ export class Base {
   public afterRerender(): void {
     this.onElementRerendered?.fire(this, { isCancel: false });
   }
+  private isUpdatesBlockedLock: number = 0;
+  public blockUpdates(deep?: boolean): void {
+    this.isUpdatesBlockedLock++;
+  }
+  public get isUpdatesBlocked(): boolean {
+    return this.isUpdatesBlockedLock > 0;
+  }
+  public releaseUpdates(deep?: boolean): void {
+    this.isUpdatesBlockedLock--;
+  }
 }
 
 export class ArrayChanges<T = any> {

@@ -895,9 +895,13 @@ export class SurveyModel extends SurveyElementCore
     this.createNewArray(
       "pages",
       (value: any) => {
+        if(value.isUpdatesBlocked) {
+          value.releaseUpdates(true);
+        }
         this.doOnPageAdded(value);
       },
       (value: any) => {
+        value.blockUpdates(true);
         this.doOnPageRemoved(value);
       }
     );

@@ -12,6 +12,7 @@ import {
   onBeforeUnmount,
   watchEffect,
   nextTick,
+  toRaw,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});
@@ -44,8 +45,10 @@ export function makeReactive(surveyElement: Base) {
       const arrayRef = shallowRef(arr);
 
       arr.onArrayChanged = () => {
-        triggerRef(arrayRef);
-        nextRenderManager.add();
+        if (!surveyElement.isUpdatesBlocked) {
+          triggerRef(arrayRef);
+          nextRenderManager.add();
+        }
       };
       hash[key] = arrayRef;
       return unref(hash[key]);
@@ -54,8 +57,10 @@ export function makeReactive(surveyElement: Base) {
       if (Array.isArray(hash[key])) {
         const arrayRef = shallowRef(hash[key]);
         hash[key]["onArrayChanged"] = () => {
-          triggerRef(arrayRef);
-          nextRenderManager.add();
+          if (!surveyElement.isUpdatesBlocked) {
+            triggerRef(arrayRef);
+            nextRenderManager.add();
+          }
         };
         hash[key] = arrayRef;
       }
@@ -64,6 +69,9 @@ export function makeReactive(surveyElement: Base) {
       return unref(hash[key]);
     };
     surveyElement.setPropertyValueCoreHandler = (hash, key, val) => {
+      if (surveyElement.isUpdatesBlocked) {
+        hash = toRaw(hash);
+      }
       if (isRef(hash[key])) {
         hash[key].value = val;
       } else {

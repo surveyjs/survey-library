@@ -54,7 +54,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       this.unMakeBaseElementsReact();
       this.prevStateElements = this.getStateElements();
     }
-    return this._allowComponentUpdate;
+    return this.getStateElements().every(el => !el.isUpdatesBlocked) && this._allowComponentUpdate;
   }
   render(): JSX.Element | null {
     if (!this.canRender()) {

@@ -157,6 +157,42 @@ QUnit.test("PopupDropdownViewModel defaults", (assert) => {
   targetElement.remove();
 });
 
+QUnit.test("PopupDropdownViewModel RTL", (assert) => {
+  surveyLocalization.currentLocale = "";
+  const data = {};
+  const model: PopupModel = new PopupModel("sv-list", data, { horizontalPosition: "right" });
+
+  document.dir = "rtl";
+  const targetElement: HTMLElement = document.createElement("div");
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "1000px";
+  targetElement.style.left = "1000px";
+  targetElement.style.width = "32px";
+  targetElement.style.height = "24px";
+  addElementIntoBody(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = viewModel.container.querySelector(".sv-popup__container") as HTMLElement;
+  popupContainer.style.width = "200px";
+  popupContainer.style.height = "400px";
+  popupContainer.style.margin = "8px";
+
+  (<any>window).innerHeight = 2000;
+  (<any>window).innerWidth = 2000;
+  viewModel.updateOnShowing();
+
+  viewModel.updatePosition(false, false);
+  assert.equal(viewModel.popupDirection, "left");
+
+  viewModel.dispose();
+  targetElement.remove();
+  document.dir = "";
+});
+
 QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
   const data = {};
   const model: PopupModel = new PopupModel("sv-list", data);

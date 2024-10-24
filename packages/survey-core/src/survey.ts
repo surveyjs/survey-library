@@ -6830,26 +6830,20 @@ export class SurveyModel extends SurveyElementCore
   questionCreated(question: Question): any {
     this.onQuestionCreated.fire(this, { question: question });
   }
-  questionAdded(
-    question: Question,
-    index: number,
-    parentPanel: any,
-    rootPanel: any
-  ) {
+  questionAdded(question: Question, index: number, parentPanel: any, rootPanel: any): void {
     if (!question.name) {
-      question.name = this.generateNewName(
-        this.getAllQuestions(false, true),
-        "question"
-      );
+      question.name = this.generateNewName(this.getAllQuestions(false, true), "question");
     }
     if (!!(<Question>question).page) {
       this.questionHashesAdded(<Question>question);
     }
-    if (!this.currentPage) {
-      this.updateCurrentPage();
+    if(!this.isLoadingFromJson) {
+      if (!this.currentPage) {
+        this.updateCurrentPage();
+      }
+      this.updateVisibleIndexes();
+      this.setCalculatedWidthModeUpdater();
     }
-    this.updateVisibleIndexes();
-    this.setCalculatedWidthModeUpdater();
     if (this.canFireAddElement()) {
       this.onQuestionAdded.fire(this, {
         question: question,
@@ -7236,13 +7230,14 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("widthMode", val);
   }
   private calculatedWidthModeUpdater: ComputedUpdater;
-  public setCalculatedWidthModeUpdater() {
+  public setCalculatedWidthModeUpdater(): void {
+    if(this.isLoadingFromJson) return;
     if (this.calculatedWidthModeUpdater) this.calculatedWidthModeUpdater.dispose();
     this.calculatedWidthModeUpdater = new ComputedUpdater(() => this.calculateWidthMode());
     this.calculatedWidthMode = <any>this.calculatedWidthModeUpdater;
   }
   @property() calculatedWidthMode: string;
-  public calculateWidthMode() {
+  public calculateWidthMode(): string {
     if (this.widthMode == "auto") {
       let isResponsive = false;
       this.pages.forEach((page) => {

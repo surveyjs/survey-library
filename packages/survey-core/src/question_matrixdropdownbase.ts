@@ -1958,6 +1958,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public onHidingContent(): void {
     super.onHidingContent();
+    if(!this.generatedVisibleRows) return;
     const questions: Question[] = [];
     this.collectNestedQuestions(questions, true);
     questions.forEach(q => q.onHidingContent());

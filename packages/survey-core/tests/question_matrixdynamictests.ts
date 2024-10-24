@@ -1618,7 +1618,7 @@ QUnit.test(
 
 function updateObjsQuestions(objs: Array<any>, removeQuestion: boolean = false): void {
   for (var i = 0; i < objs.length; i++) {
-    if(removeQuestion) {
+    if (removeQuestion) {
       delete objs[i].question;
     } else {
       objs[i].question = objs[i].question.name;
@@ -2337,11 +2337,13 @@ QUnit.test("matrix.rowsVisibleIf", function (assert) {
   qBestCar.rowsVisibleIf = "";
   assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
 });
-QUnit.test("matrix.rowsVisibleIf, use 'row.' context", function(assert) {
+QUnit.test("matrix.rowsVisibleIf, use 'row.' context", function (assert) {
   var survey = new SurveyModel({
     elements: [
-      { type: "matrixdropdown", name: "matrix", rows: ["row1", "row2", "row3"],
-        rowsVisibleIf: "{row.col1} != 'a'", cellType: "text", columns: [{ name: "col1" }, { name: "col2" }] }
+      {
+        type: "matrixdropdown", name: "matrix", rows: ["row1", "row2", "row3"],
+        rowsVisibleIf: "{row.col1} != 'a'", cellType: "text", columns: [{ name: "col1" }, { name: "col2" }]
+      }
     ]
   });
   var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
@@ -2354,12 +2356,14 @@ QUnit.test("matrix.rowsVisibleIf, use 'row.' context", function(assert) {
   matrix.clearValue();
   assert.equal(matrix.visibleRows.length, 3, "all rows are shown again");
 });
-QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", function(assert) {
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", function (assert) {
   var survey = new SurveyModel({
     elements: [
-      { type: "matrixdropdown", name: "matrix", rows: ["row1", "row2", "row3"],
+      {
+        type: "matrixdropdown", name: "matrix", rows: ["row1", "row2", "row3"],
         rowsVisibleIf: "{row.col1} != 'a'", cellType: "text",
-        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] }
+        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }]
+      }
     ]
   });
   var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
@@ -2373,13 +2377,15 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", functio
   assert.equal(matrix.visibleRows.length, 1, "row1, row3 are hidden");
   assert.equal(matrix.visibleTotalRow.cells[1].value, 10, "total sum #3");
 });
-QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", function(assert) {
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
-      { type: "matrixdynamic", name: "matrix",
+      {
+        type: "matrixdynamic", name: "matrix",
         rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
-        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] }
+        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }]
+      }
     ]
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -2396,13 +2402,15 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total", functio
   assert.equal(matrix.visibleRows.length, 3, "all rows are shown");
   assert.equal(matrix.visibleTotalRow.cells[1].value, 30, "total sum #4");
 });
-QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && no rows, Bug#8909", function(assert) {
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && no rows, Bug#8909", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
-      { type: "matrixdynamic", name: "matrix", rowCount: 3,
+      {
+        type: "matrixdynamic", name: "matrix", rowCount: 3,
         rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
-        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] },
+        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }]
+      },
     ]
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -2412,13 +2420,15 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && no rows, Bug#89
   survey.setValue("q1", "a");
   assert.equal(matrix.visibleRows.length, 4, "all rows are show");
 });
-QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total && add new row, Bug#8909", function(assert) {
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total && add new row, Bug#8909", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
-      { type: "matrixdynamic", name: "matrix",
+      {
+        type: "matrixdynamic", name: "matrix",
         rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
-        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }] }
+        columns: [{ name: "col1" }, { name: "col2", totalType: "sum" }]
+      }
     ]
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -2433,13 +2443,15 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total && add ne
   matrix.visibleRows[1].cells[1].value = 40;
   assert.equal(matrix.visibleTotalRow.cells[1].value, 50, "total sum #3");
 });
-QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context & set data correctly", function(assert) {
+QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context & set data correctly", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
-      { type: "matrixdynamic", name: "matrix",
+      {
+        type: "matrixdynamic", name: "matrix",
         rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
-        columns: [{ name: "col1" }, { name: "col2" }] }
+        columns: [{ name: "col1" }, { name: "col2" }]
+      }
     ]
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -2452,11 +2464,12 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context & set data correct
   survey.doComplete();
   assert.deepEqual(matrix.value, [{ col1: "b", col2: 100 }], "Remove items correctly");
 });
-QUnit.test("Invisible rows & validation, Bug#8853", function(assert) {
+QUnit.test("Invisible rows & validation, Bug#8853", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "checkbox", name: "q1", choices: ["row1", "row2", "row3"] },
-      { type: "matrixdropdown", name: "matrix",
+      {
+        type: "matrixdropdown", name: "matrix",
         rowsVisibleIf: "{q1} contains {item}", cellType: "text",
         columns: [{ name: "col1", isRequired: true }, { name: "col2", isRequired: true }],
         rows: ["row1", "row2", "row3"]
@@ -2475,18 +2488,24 @@ QUnit.test("Invisible rows & validation, Bug#8853", function(assert) {
   assert.equal(survey.state, "completed", "survey state");
   assert.deepEqual(survey.data, data, "survey.data");
 });
-QUnit.test("Do not clear data for shared values & rowsVisibleIf", function(assert) {
+QUnit.test("Do not clear data for shared values & rowsVisibleIf", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
-      { type: "matrixdynamic", name: "matrix", cellType: "text",
-        columns: [{ name: "col1" }, { name: "col2" }] },
-      { type: "matrixdynamic", name: "matrix1", valueName: "matrix",
+      {
+        type: "matrixdynamic", name: "matrix", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2" }]
+      },
+      {
+        type: "matrixdynamic", name: "matrix1", valueName: "matrix",
         rowsVisibleIf: "{row.col1} = {q1}", cellType: "text",
-        columns: [{ name: "col1" }, { name: "col2" }] },
-      { type: "matrixdynamic", name: "matrix2", valueName: "matrix",
+        columns: [{ name: "col1" }, { name: "col2" }]
+      },
+      {
+        type: "matrixdynamic", name: "matrix2", valueName: "matrix",
         rowsVisibleIf: "{row.col1} != {q1}", cellType: "text",
-        columns: [{ name: "col1" }, { name: "col2" }] }
+        columns: [{ name: "col1" }, { name: "col2" }]
+      }
     ]
   });
   survey.setValue("q1", "a");
@@ -2506,7 +2525,8 @@ QUnit.test("matrixdropdown.rowsVisibleIf, clear value on making the value invisi
     clearInvisibleValues: "onHidden",
     elements: [
       { type: "checkbox", name: "cars", choices: ["Audi", "BMW", "Mercedes", "Volkswagen"] },
-      { type: "matrixdropdown", name: "bestCar", rows: ["Audi", "BMW", "Mercedes", "Volkswagen"],
+      {
+        type: "matrixdropdown", name: "bestCar", rows: ["Audi", "BMW", "Mercedes", "Volkswagen"],
         columns: [{ name: "col1" }, { name: "col2" }], cellType: "text", rowsVisibleIf: "{cars} contains {item}"
       }
     ]
@@ -8686,7 +8706,8 @@ QUnit.test("Test property hideIfRowsEmpty for matrix dropdown on loading, Bug#88
   var survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
-      { type: "matrixdropdown", name: "matrix", rowsVisibleIf: "{q1} != 'a'",
+      {
+        type: "matrixdropdown", name: "matrix", rowsVisibleIf: "{q1} != 'a'",
         columns: [{ name: "col1", cellType: "text" }],
         rows: ["row1", "row2"], hideIfRowsEmpty: true
       }
@@ -10056,7 +10077,8 @@ QUnit.test("check cell.isVisible property", function (assert) {
           "row2"
         ]
       }
-    ] });
+    ]
+  });
   survey.data = { matrix: { row1: { col1: 1 } } };
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   let renderedTable = matrix.renderedTable;
@@ -10119,7 +10141,8 @@ QUnit.test("check displayMode property", function (assert) {
           "row2"
         ]
       }
-    ] });
+    ]
+  });
   const question = <QuestionMatrixDropdownModel>survey.getAllQuestions()[0];
   survey.css = { question: { mobile: "test_mobile" } };
   question.isMobile = true;
@@ -10154,7 +10177,8 @@ QUnit.test("minRowCount vs rowCount, Bug#8899", function (assert) {
       { type: "matrixdynamic", name: "matrix2", minRowCount: 1, rowCount: 2, columns: [{ name: "col1" }] },
       { type: "matrixdynamic", name: "matrix3", minRowCount: 1, rowCount: 3, columns: [{ name: "col1" }] },
       { type: "matrixdynamic", name: "matrix4", minRowCount: 1, rowCount: 4, defaultRowValue: { col1: 1 }, columns: [{ name: "col1", cellType: "text" }] },
-    ] });
+    ]
+  });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
   const matrix2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix2");
@@ -10196,4 +10220,24 @@ QUnit.test("Validation doesn't work if a user doensn't visit the page, Bug#8937"
   assert.equal(survey.currentPageNo, 1, "move to page with panel");
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   assert.equal(matrix.visibleRows[0].getQuestionByName("col1").errors.length, 1, "has an error");
+});
+
+QUnit.test("column width settings passed to all rows", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 2,
+        columns: [{ name: "1", width: "15%", minWidth: "10%" }, { name: "2" }],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  var table = matrix.renderedTable;
+  assert.equal(table.rows.length, 4);
+  assert.equal(table.rows[1].cells[0].width, "15%", "The first row cell width 15%");
+  assert.equal(table.rows[1].cells[0].minWidth, "10%", "The first row cell min width 10%");
+  assert.equal(table.rows[3].cells[0].width, "15%", "The second row cell width 15%");
+  assert.equal(table.rows[3].cells[0].minWidth, "10%", "The second row cell min width 10%");
 });

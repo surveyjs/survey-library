@@ -226,7 +226,7 @@ export var defaultStandardCss = {
   matrixdynamic: {
     root: "sv_q_matrix_dynamic",
     button: "sv_matrix_dynamic_button",
-    buttonAdd: "",
+    buttonAdd: "sv_matrix_dynamic_button--add",
     buttonRemove: "",
     iconAdd: "",
     iconRemove: "",

@@ -198,6 +198,15 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   public getRootElement(): HTMLTableRowElement {
     return this.rootElement;
   }
+  public focusCell(cellIndex: number): void {
+    if (this.rootElement) {
+      const inputElementSelector = `:scope td:nth-of-type(${cellIndex + 1}) input, :scope td:nth-of-type(${cellIndex + 1}) button`;
+      const inputElement = this.rootElement.querySelectorAll(inputElementSelector)[0] as HTMLInputElement;
+      if (inputElement) {
+        inputElement.focus();
+      }
+    }
+  }
 }
 export class QuestionMatrixDropdownRenderedErrorRow extends QuestionMatrixDropdownRenderedRow {
   public isErrorsRow: boolean = true;
@@ -451,7 +460,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       this.rows.splice(panelRowIndex, 1);
     }
   }
-  private getRenderedRowIndex(row: MatrixDropdownRowModelBase): number {
+  public getRenderedRowIndex(row: MatrixDropdownRowModelBase): number {
     for (var i = 0; i < this.rows.length; i++) {
       if (this.rows[i].row == row) return i;
     }

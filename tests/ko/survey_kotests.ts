@@ -1785,7 +1785,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
+QUnit.test("survey.firstPageIsStarted=true + multiple-language, #1", function (
   assert
 ) {
   var json = {
@@ -1815,18 +1815,18 @@ QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
   var q1 = survey.getQuestionByName("q1");
   var q2 = survey.getQuestionByName("q2");
   assert.equal(q1.locTitle["koRenderedHtml"](), "q1-en", "en locale, q1");
-  assert.equal(q2.locTitle["koRenderedHtml"](), "q2-en", "en locale, q2");
   var prevLocale = survey.locale;
   survey.locale = "de";
   assert.equal(q1.locTitle["koRenderedHtml"](), "q1-de", "de locale, q1");
   survey.locale = prevLocale;
   survey.start();
+  assert.equal(q2.locTitle["koRenderedHtml"](), "q2-en", "en locale, q2");
   survey.locale = "de";
   assert.equal(q2.locTitle["koRenderedHtml"](), "q2-de", "de locale, q2");
   survey.locale = prevLocale;
 });
 
-QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
+QUnit.test("survey.firstPageIsStarted=true + multiple-language, #2", function (
   assert
 ) {
   var survey = new Survey({

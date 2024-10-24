@@ -279,8 +279,12 @@
   cursor: pointer;
 
   .sd-file__default-image {
-    width: calcSize(7);
-    height: calcSize(8.5);
+    width: calcSize(9);
+    height: calcSize(9);
+
+    use {
+      fill: $foreground-light;
+    }
   }
   &:hover {
     .sd-file__remove-file-button {

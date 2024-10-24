@@ -57,6 +57,7 @@ export var defaultCss = {
     requiredText: "sv_q_required_text",
     title: "",
     titleExpandable: "sv_q_title_expandable",
+    titleExpandableSvg: "sd-element__title-expandable-svg",
     titleExpanded: "sv_q_title_expanded",
     titleCollapsed: "sv_q_title_collapsed",
     number: "sv_q_num",
@@ -73,6 +74,7 @@ export var defaultCss = {
   panel: {
     title: "sv_p_title",
     titleExpandable: "sv_p_title_expandable",
+    titleExpandableSvg: "sd-element__title-expandable-svg",
     titleExpanded: "sv_p_title_expanded",
     titleCollapsed: "sv_p_title_collapsed",
     titleOnError: "",

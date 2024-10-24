@@ -1,12 +1,8 @@
 /* eslint-disable indent */
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
+import { frameworks, initSurvey, url_test, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "File Screenshot";
-
-fixture`${title}`.page`${url}`.beforeEach(async (t) => {
-
-});
 
 const applyTheme = ClientFunction(theme => {
   (<any>window).Survey.StylesManager.applyTheme(theme);

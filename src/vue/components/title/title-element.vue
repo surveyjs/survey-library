@@ -14,6 +14,18 @@
       }
     "
   >
+    <sv-svg-icon
+      v-if="!element.isExpanded && element.getCssTitleExpandableSvg()"
+      :class="element.getCssTitleExpandableSvg()"
+      :iconName="'icon-expand-16x16'"
+      size="16"
+    ></sv-svg-icon>
+    <sv-svg-icon
+      v-if="element.isExpanded && element.getCssTitleExpandableSvg()"
+      :class="element.getCssTitleExpandableSvg()"
+      :iconName="'icon-collapse-16x16'"
+      size="16"
+    ></sv-svg-icon>
     <survey-element-title-content
       v-if="!element.hasTitleActions"
       :element="element"
@@ -30,11 +42,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyElementCore, doKey2ClickUp } from "survey-core";
+import { SurveyElement, doKey2ClickUp } from "survey-core";
 
 @Component
 export class TitleElement extends Vue {
-  @Prop() element: SurveyElementCore;
+  @Prop() element: SurveyElement;
   @Prop() css: any;
 
   keyup(evt: any) {

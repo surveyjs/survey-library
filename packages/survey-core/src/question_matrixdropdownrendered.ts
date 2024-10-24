@@ -200,7 +200,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   }
   public focusCell(cellIndex: number): void {
     if (this.rootElement) {
-      const inputElementSelector = `td:nth-child(${cellIndex}) input, td:nth-child(${cellIndex}) button`;
+      const inputElementSelector = `td:nth-child(${cellIndex + 1}) input, td:nth-child(${cellIndex + 1}) button`;
       const inputElement = this.rootElement.querySelectorAll(inputElementSelector)[0] as HTMLInputElement;
       if (inputElement) {
         inputElement.focus();

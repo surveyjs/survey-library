@@ -394,6 +394,9 @@ export interface GetQuestionNoEvent extends QuestionEventMixin {
    */
   no: string;
 }
+export interface GetPageNoEvent extends PageEventMixin {
+  no: string;
+}
 export interface ProgressTextEvent {
   /**
    * The number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are not counted.

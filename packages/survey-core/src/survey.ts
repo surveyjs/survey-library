@@ -58,7 +58,7 @@ import {
   TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent,
   ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent,
   QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
-  ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNoEvent, ProgressTextEvent,
+  ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNoEvent, GetPageNoEvent, ProgressTextEvent,
   TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, LoadChoicesFromServerEvent,
   ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
   AfterRenderHeaderEvent, AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
@@ -425,6 +425,7 @@ export class SurveyModel extends SurveyElementCore
    * @see questionStartIndex
    */
   public onGetQuestionNo: EventBase<SurveyModel, GetQuestionNoEvent> = this.addEvent<SurveyModel, GetQuestionNoEvent>();
+  public onGetPageNo: EventBase<SurveyModel, GetPageNoEvent> = this.addEvent<SurveyModel, GetPageNoEvent>();
   /**
    * An event that is raised before the survey displays progress text. Handle this event to change the progress text in code.
    * @see showProgressBar
@@ -2668,6 +2669,12 @@ export class SurveyModel extends SurveyElementCore
     if (this.onGetQuestionNo.isEmpty) return no;
     const options: GetQuestionNoEvent = { question: question, no: no };
     this.onGetQuestionNo.fire(this, options);
+    return options.no;
+  }
+  getUpdatedPageNo(page: PageModel, no: string): string {
+    if (this.onGetPageNo.isEmpty) return no;
+    const options: GetPageNoEvent = { page: page, no: no };
+    this.onGetPageNo.fire(this, options);
     return options.no;
   }
   /**

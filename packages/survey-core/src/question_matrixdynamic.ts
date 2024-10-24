@@ -576,7 +576,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public focusAddBUtton(): void {
     const rootElement = this.getRootElement();
-    if (!!rootElement) {
+    if (!!rootElement && !!this.cssClasses.buttonAdd) {
       const addButton = rootElement.querySelectorAll("." + this.cssClasses.buttonAdd)[0] as HTMLButtonElement;
       addButton && addButton.focus();
     }

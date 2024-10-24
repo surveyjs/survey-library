@@ -114,6 +114,7 @@ export { SurveyLocStringEditor } from "../src/string-editor";
 export { LoadingIndicatorComponent } from "../src/components/loading-indicator";
 
 export { SvgBundleComponent } from "../src/svgbundle";
+export { PopupModal } from "../src/components/popup/popup-modal";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

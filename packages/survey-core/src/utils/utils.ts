@@ -181,7 +181,6 @@ const renamedIcons:any = {
   "removefile": "error-24x24",
   "takepicture": "camera-32x32",
   "takepicture_24x24": "camera-24x24",
-  "timercircle": "pg-quiz-24x24",
   "v2check": "check-16x16",
   "v2check_24x24": "check-24x24",
   "back-to-panel_16x16": "restoredown-16x16",

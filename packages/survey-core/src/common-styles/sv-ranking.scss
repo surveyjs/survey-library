@@ -267,7 +267,7 @@
   }
 
   .sv-ranking-item__icon-container {
-    margin-left: calcSize(1);
+    margin-left: calcSize(0);
   }
 }
 
@@ -493,5 +493,16 @@
         padding-right: 0;
       }
     }
+  }
+}
+
+.sd-question--mobile,
+.sd-root-modern.sd-root-modern--mobile {
+  .sv-ranking-item__icon-container {
+    margin-left: calcSize(-2);
+    display: flex;
+    justify-content: flex-end;
+    padding: 0;
+    width: calcSize(5);
   }
 }

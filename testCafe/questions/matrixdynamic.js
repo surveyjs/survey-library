@@ -489,23 +489,23 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Focus remove or add button removing", async (t) => {
-      await initSurvey(framework, {
-        focusFirstQuestionAutomatic: true,
-        elements: [
-          {
-            type: "matrixdynamic",
-            name: "matrix",
-            rowCount: 3,
-            columns: [
-              {
-                cellType: "text",
-                name: "name",
-                defaultValue: "abc"
-              },
-            ],
-          }
-        ]
-      });
+    await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 3,
+          columns: [
+            {
+              cellType: "text",
+              name: "name",
+              defaultValue: "abc"
+            },
+          ],
+        }
+      ]
+    });
 
     await t.pressKey("tab tab tab")
       .pressKey("space")

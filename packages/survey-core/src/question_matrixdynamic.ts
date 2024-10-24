@@ -574,6 +574,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return res;
   }
+  public focusAddBUtton(): void {
+    const rootElement = this.getRootElement();
+    if (!!rootElement) {
+      const addButton = rootElement.querySelectorAll("." + this.cssClasses.buttonAdd)[0] as HTMLButtonElement;
+      addButton && addButton.focus();
+    }
+  }
   public getActionCellIndex(row: MatrixDropdownRowModelBase): number {
     const headerShift = this.showHeader ? 1 : 0;
     if (this.isColumnLayoutHorizontal) {
@@ -591,16 +598,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const rowCount = this.visibleRows.length;
       const nextIndex = index >= rowCount ? rowCount - 1 : index;
       const nextRow = this.visibleRows[nextIndex];
-      if (nextRow) {
         setTimeout(() => {
+        if (nextRow) {
           let row2Focus = this.renderedTable.rows[this.renderedTable.rows.length - 1];
           if (this.isColumnLayoutHorizontal) {
           const nextRenderedRowIndex = this.renderedTable.getRenderedRowIndex(nextRow);
             row2Focus = this.renderedTable.rows[nextRenderedRowIndex];
           }
           row2Focus.focusCell(this.getActionCellIndex(nextRow));
-        }, 10);
+        } else {
+          this.focusAddBUtton();
       }
+      }, 10);
     });
   }
   public isRequireConfirmOnRowDelete(index: number): boolean {

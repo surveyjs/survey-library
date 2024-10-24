@@ -598,17 +598,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const rowCount = this.visibleRows.length;
       const nextIndex = index >= rowCount ? rowCount - 1 : index;
       const nextRow = this.visibleRows[nextIndex];
-        setTimeout(() => {
+      setTimeout(() => {
         if (nextRow) {
           let row2Focus = this.renderedTable.rows[this.renderedTable.rows.length - 1];
           if (this.isColumnLayoutHorizontal) {
-          const nextRenderedRowIndex = this.renderedTable.getRenderedRowIndex(nextRow);
+            const nextRenderedRowIndex = this.renderedTable.getRenderedRowIndex(nextRow);
             row2Focus = this.renderedTable.rows[nextRenderedRowIndex];
           }
           row2Focus.focusCell(this.getActionCellIndex(nextRow));
         } else {
           this.focusAddBUtton();
-      }
+        }
       }, 10);
     });
   }

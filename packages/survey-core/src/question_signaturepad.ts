@@ -203,7 +203,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     this.updateValueHandler();
     this.readOnlyChangedCallback();
     var propertyChangedHandler = (sender: any, options: any) => {
-      if (options.name === "signatureWidth" || options.name === "signatureHeight" || options.name === "value") {
+      if (options.name === "signatureWidth" || options.name === "signatureHeight") {
         if (!this.valueIsUpdatingInternally) this.updateValueHandler();
       }
     };

@@ -104,6 +104,18 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       }
     }
   }
+
+  private fromUrl(url: string): void {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = url;
+    img.onload = () => {
+      const ctx = this.canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      var dataURL = this.canvas.toDataURL(this.getFormat());
+      this.fromDataUrl(dataURL);
+    };
+  }
   private fromDataUrl(data: string) {
     this.signaturePad.fromDataURL(data, { width: this.canvas.width * this.scale, height: this.canvas.height * this.scale });
   }
@@ -138,18 +150,6 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       });
       this._previewLoader.load(newValues);
     }
-  }
-
-  private fromUrl(url: string): void {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = url;
-    img.onload = () => {
-      const ctx = this.canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      var dataURL = this.canvas.toDataURL(this.getFormat());
-      this.fromDataUrl(dataURL);
-    };
   }
 
   public onSurveyLoad(): void {

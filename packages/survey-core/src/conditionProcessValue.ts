@@ -4,6 +4,8 @@ const surveyBuiltInVarible: string = "@survey";
 export class ProcessValue {
   public values: HashTable<any> = null;
   public properties: HashTable<any> = null;
+  public asyncValues: HashTable<any> = {};
+  public onCompleteAsyncFunc: (op: any) => void;
   constructor() {}
   public getFirstName(text: string, obj: any = null): string {
     if (!text) return text;

@@ -195,6 +195,14 @@ export class LocalizableString implements ILocalizableString {
   }
   public setLocaleText(loc: string, value: string): void {
     loc = this.getValueLoc(loc);
+    if(!!loc && value === undefined) {
+      const oldValue = this.getValue(loc);
+      if(oldValue !== undefined) {
+        this.deleteValue(loc);
+        this.fireStrChanged(loc, oldValue);
+      }
+      return;
+    }
     if (!this.storeDefaultText && this.isLocaleTextEqualsWithDefault(loc, value)) {
       if (!this.isValueEmpty(value) || !!loc && loc !== this.defaultLoc) return;
       let dl = surveyLocalization.defaultLocale;

@@ -39,7 +39,7 @@
   font-family: $font-family;
 
   .sd-table__row {
-    box-shadow: $shadow-medium;
+    box-shadow: $shadow-large, $shadow-medium;
     background-color: $background;
     display: flex;
     flex-grow: 0;

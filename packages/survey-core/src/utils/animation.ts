@@ -22,12 +22,18 @@ interface IGroupAnimationInfo {
   isDeletingRunning: boolean;
   isAddingRunning: boolean;
 }
+interface IGroupAnimationCompareInfo<T> {
+  addedItems: Array<T>;
+  deletedItems: Array<T>;
+  reorderedItems: Array<{ item: T, movedForward: boolean}>;
+  mergedItems: Array<T>;
+}
 export interface IAnimationGroupConsumer<T> extends IAnimationConsumer<[T]> {
   getLeaveOptions?(item: T, info? : IGroupAnimationInfo): AnimationOptions;
   getEnterOptions?(item: T, info?: IGroupAnimationInfo): AnimationOptions;
   getReorderOptions?(item: T, movedForward: boolean, info?: IGroupAnimationInfo): AnimationOptions;
   getKey?: (item: T) => any;
-  onCompareArrays?(addedItems: Array<T>, deletedItems: Array<T>, reorderedItems: Array<{ item: T, movedForward: boolean}>, mergedItems: Array<T>): void;
+  onCompareArrays?(options: IGroupAnimationCompareInfo<T>): void;
   allowSyncRemovalAddition?: boolean;
 }
 
@@ -317,12 +323,16 @@ export class AnimationGroup<T> extends AnimationProperty<Array<T>, IAnimationGro
     newValue = [].concat(newValue);
     const oldValue = [].concat(this.getCurrentValue());
     const allowSyncRemovalAddition = this.animationOptions.allowSyncRemovalAddition ?? true;
-    let { addedItems, deletedItems, reorderedItems, mergedItems } = compareArrays(oldValue, newValue, this.animationOptions.getKey ?? ((item: T) => item));
-    this.animationOptions.onCompareArrays && this.animationOptions.onCompareArrays(addedItems, deletedItems, reorderedItems, mergedItems);
-    if(!allowSyncRemovalAddition && (reorderedItems.length > 0 || addedItems.length > 0)) {
-      deletedItems = [];
-      mergedItems = newValue;
+    let compareResult = compareArrays(oldValue, newValue, this.animationOptions.getKey ?? ((item: T) => item));
+
+    if(!allowSyncRemovalAddition && (compareResult.reorderedItems.length > 0 || compareResult.addedItems.length > 0)) {
+      compareResult.deletedItems = [];
+      compareResult.mergedItems = newValue;
     }
+    if(!!this.animationOptions.onCompareArrays) {
+      this.animationOptions.onCompareArrays(compareResult);
+    }
+    let { addedItems, reorderedItems, deletedItems, mergedItems } = compareResult;
     const runAnimationCallback = () => {
       this.animation.runGroupAnimation(this.animationOptions, addedItems, deletedItems, reorderedItems, () => {
         if(deletedItems.length > 0) {

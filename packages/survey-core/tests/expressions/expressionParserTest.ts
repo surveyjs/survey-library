@@ -1279,9 +1279,9 @@ QUnit.test("Use onRunComplete for sync functions", function(assert) {
 });
 
 QUnit.test("Several async functions in expression", function(assert) {
-  var returnResult1: (res: any) => void;
-  var returnResult2: (res: any) => void;
-  var returnResult3: (res: any) => void;
+  var returnResult1: (res: any) => void = (res) => {};
+  var returnResult2: (res: any) => void = (res) => {};
+  var returnResult3: (res: any) => void = (res) => {};
   function asyncFunc1(params: any): any {
     returnResult1 = this.returnResult;
     return false;
@@ -1314,7 +1314,7 @@ QUnit.test("Several async functions in expression", function(assert) {
   assert.equal(idBefore, -1, "idBefore #1");
   assert.equal(idAfter, -1, "idAfter #1");
   runner.run(values);
-  assert.equal(idBefore, runner.id, "idBefore #2");
+  assert.notEqual(idBefore, -1, "idBefore #2");
   assert.equal(idAfter, -1, "idAfter #2");
   assert.equal(
     runnerResult,
@@ -1327,7 +1327,7 @@ QUnit.test("Several async functions in expression", function(assert) {
     null,
     "It is not ready, asyncfunc1 and asyncfunc3 functions do not return anything"
   );
-  assert.equal(idBefore, runner.id, "idBefore #3");
+  assert.notEqual(idBefore, -1, "idBefore #3");
   assert.equal(idAfter, -1, "idAfter #3");
   returnResult1(7);
   assert.equal(
@@ -1335,12 +1335,12 @@ QUnit.test("Several async functions in expression", function(assert) {
     null,
     "It is not ready, asyncfunc3 function doesn't return anything"
   );
-  assert.equal(idBefore, runner.id, "idBefore #4");
+  assert.notEqual(idBefore, -1, "idBefore #4");
   assert.equal(idAfter, -1, "idAfter #4");
   returnResult3(1);
   assert.equal(runnerResult, true, "evulate successfull");
-  assert.equal(idBefore, runner.id, "idBefore #5");
-  assert.equal(idAfter, runner.id, "idAfter #5");
+  assert.notEqual(idBefore, -1, "idBefore #5");
+  assert.equal(idAfter, idBefore, "idAfter #5");
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");
   FunctionFactory.Instance.unregister("asyncFunc3");

@@ -42,6 +42,7 @@ export class PopupModal extends SurveyElementBase<{}, any> {
         if(!options.isVisible) {
           this.model.dispose();
           this.model = undefined as any;
+          this.setState({ changed: this.state.changed + 1 });
         }
       };
       this.model.onVisibilityChanged.add(onVisibilityChangedCallback);

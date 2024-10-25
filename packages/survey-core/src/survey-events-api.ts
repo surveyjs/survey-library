@@ -390,14 +390,21 @@ export interface GetTitleTagNameEvent {
 }
 export interface GetQuestionNoEvent extends QuestionEventMixin {
   /**
-   * A question number that is calculated based upon the question's [`visibleIndex`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIndex) and survey's [`questionStartIndex`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionStartIndex) properties. You can change this parameter's value.
+   * Obsolete. Use `options.number` instead.
    */
   no: string;
 }
 export interface GetQuestionNumberEvent extends GetQuestionNoEvent {
+  /**
+   * A question number that is calculated based upon the question's [`visibleIndex`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIndex) and survey's [`questionStartIndex`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionStartIndex) properties. You can change this parameter's value.
+   */
+  number: string;
 }
 export interface GetPageNumberEvent extends PageEventMixin {
-  no: string;
+  /**
+   * A page number. Note that this is a string value that contains not only the number itself but also the characters that separate the number from the page title: `"1. "`, `"2. "`, etc. You can change this parameter's value.
+   */
+  number: string;
 }
 export interface ProgressTextEvent {
   /**

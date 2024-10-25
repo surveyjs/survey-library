@@ -3515,9 +3515,9 @@ QUnit.test("survey.onGetPageNumber event", function (assert) {
   survey.showPageNumbers = true;
   survey.onGetPageNumber.add((sender, options) => {
     if(options.page.isStartPage) {
-      options.no = "";
+      options.number = "";
     } else {
-      options.no = (survey.pages.indexOf(options.page) + 1) + "-";
+      options.number = (survey.pages.indexOf(options.page) + 1) + "-";
     }
   });
   survey.fromJSON({

@@ -61,20 +61,18 @@ import {
   ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent, ProgressTextEvent,
   TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, LoadChoicesFromServerEvent,
   ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
-  AfterRenderHeaderEvent, AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
+  AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
   MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
   MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent,
   DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent,
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
-  OpenFileChooserEvent, ElementWrapperComponentNameEvent, ElementWrapperComponentDataEvent,
-  OpenDropdownMenuEvent,
-  ResizeEvent
+  OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
-import { QuestionFileModel, QuestionFileModelBase } from "./question_file";
+import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
@@ -425,7 +423,19 @@ export class SurveyModel extends SurveyElementCore
    * @see questionStartIndex
    */
   public onGetQuestionNumber: EventBase<SurveyModel, GetQuestionNumberEvent> = this.addEvent<SurveyModel, GetQuestionNumberEvent>();
+  /**
+   * This event is obsolete. Use the [`onGetQuestionNumber`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNumber) event instead.
+   */
   public onGetQuestionNo: EventBase<SurveyModel, GetQuestionNumberEvent> = this.onGetQuestionNumber;
+  /**
+   * An event that is raised before the survey calculates a page number. Handle this event to modify page numbers.
+   *
+   * This event is raised only if the [`showPageNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showPageNumbers) property is enabled.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   * @see onGetQuestionTitle
+   * @see questionStartIndex
+   */
   public onGetPageNumber: EventBase<SurveyModel, GetPageNumberEvent> = this.addEvent<SurveyModel, GetPageNumberEvent>();
   /**
    * An event that is raised before the survey displays progress text. Handle this event to change the progress text in code.
@@ -2668,20 +2678,21 @@ export class SurveyModel extends SurveyElementCore
   }
   getUpdatedQuestionNo(question: Question, no: string): string {
     if (this.onGetQuestionNumber.isEmpty) return no;
-    const options: GetQuestionNumberEvent = { question: question, no: no };
+    const options: GetQuestionNumberEvent = { question: question, number: no, no: no };
     this.onGetQuestionNumber.fire(this, options);
-    return options.no;
+    return options.number;
   }
   getUpdatedPageNo(page: PageModel, no: string): string {
     if (this.onGetPageNumber.isEmpty) return no;
-    const options: GetPageNumberEvent = { page: page, no: no };
+    const options: GetPageNumberEvent = { page: page, number: no };
     this.onGetPageNumber.fire(this, options);
-    return options.no;
+    return options.number;
   }
   /**
    * Specifies whether page titles contain page numbers.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
+   * @see onGetPageNumber
    */
   public get showPageNumbers(): boolean {
     return this.getPropertyValue("showPageNumbers");
@@ -2703,6 +2714,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
    *
    * If you want to hide the number of an individual question, enable its [`hideNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#hideNumber) property.
+   * @see onGetQuestionNumber
    */
   public get showQuestionNumbers(): string | boolean {
     return this.getPropertyValue("showQuestionNumbers");

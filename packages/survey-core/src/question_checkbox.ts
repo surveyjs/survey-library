@@ -193,6 +193,22 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return false;
   }
+  protected convertFuncValuetoQuestionValue(val: any): any {
+    if(!!this.valuePropertyName && Array.isArray(val) && val.length > 0) {
+      const res = [];
+      val.forEach(item => {
+        const isObj = typeof item === "object";
+        let obj: any = isObj ? item : {};
+        if(!isObj) {
+          obj[this.valuePropertyName] = item;
+        }
+        res.push(obj);
+      });
+      val = res;
+    }
+    return super.convertDefaultValue(val);
+
+  }
   private getRealValue(val: any): any {
     if (!val) return val;
     return !this.valuePropertyName ? val : val[this.valuePropertyName];

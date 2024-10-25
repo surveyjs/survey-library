@@ -605,7 +605,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
             const nextRenderedRowIndex = this.renderedTable.getRenderedRowIndex(nextRow);
             row2Focus = this.renderedTable.rows[nextRenderedRowIndex];
           }
-          row2Focus.focusCell(this.getActionCellIndex(nextRow));
+          row2Focus?.focusCell(this.getActionCellIndex(nextRow));
         } else {
           this.focusAddBUtton();
         }

@@ -905,3 +905,11 @@ QUnit.test("allowLineBreaks check", function (assert) {
   assert.notOk(tester.locText.allowLineBreaks);
   assert.ok(testerText.locText.allowLineBreaks);
 });
+QUnit.test("Remove locale for en empty string", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locStr = new LocalizableString(owner, true);
+  locStr.setJson({ default: "str", de: "" }, true);
+  assert.deepEqual(locStr.getJson(), { default: "str", de: "" }, "getJson #1");
+  locStr.clearLocale("de");
+  assert.deepEqual(locStr.getJson(), "str", "getJson #2");
+});

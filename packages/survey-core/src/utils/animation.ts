@@ -27,6 +27,7 @@ export interface IAnimationGroupConsumer<T> extends IAnimationConsumer<[T]> {
   getEnterOptions?(item: T, info?: IGroupAnimationInfo): AnimationOptions;
   getReorderOptions?(item: T, movedForward: boolean, info?: IGroupAnimationInfo): AnimationOptions;
   getKey?: (item: T) => any;
+  onCompareArrays?(addedItems: Array<T>, deletedItems: Array<T>, reorderedItems: Array<{ item: T, movedForward: boolean}>, mergedItems: Array<T>): void;
   allowSyncRemovalAddition?: boolean;
 }
 
@@ -317,6 +318,7 @@ export class AnimationGroup<T> extends AnimationProperty<Array<T>, IAnimationGro
     const oldValue = [].concat(this.getCurrentValue());
     const allowSyncRemovalAddition = this.animationOptions.allowSyncRemovalAddition ?? true;
     let { addedItems, deletedItems, reorderedItems, mergedItems } = compareArrays(oldValue, newValue, this.animationOptions.getKey ?? ((item: T) => item));
+    this.animationOptions.onCompareArrays && this.animationOptions.onCompareArrays(addedItems, deletedItems, reorderedItems, mergedItems);
     if(!allowSyncRemovalAddition && (reorderedItems.length > 0 || addedItems.length > 0)) {
       deletedItems = [];
       mergedItems = newValue;

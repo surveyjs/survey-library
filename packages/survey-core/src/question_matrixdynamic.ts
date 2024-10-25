@@ -597,15 +597,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.removeRow(value, undefined, () => {
       const rowCount = this.visibleRows.length;
       const nextIndex = index >= rowCount ? rowCount - 1 : index;
-      const nextRow = this.visibleRows[nextIndex];
+      const nextRow = nextIndex > -1 ? this.visibleRows[nextIndex] : undefined;
       setTimeout(() => {
         if (nextRow) {
-          let row2Focus = this.renderedTable.rows[this.renderedTable.rows.length - 1];
-          if (this.isColumnLayoutHorizontal) {
-            const nextRenderedRowIndex = this.renderedTable.getRenderedRowIndex(nextRow);
-            row2Focus = this.renderedTable.rows[nextRenderedRowIndex];
-          }
-          row2Focus?.focusCell(this.getActionCellIndex(nextRow));
+          this.renderedTable.focusActionCell(nextRow, this.getActionCellIndex(nextRow));
         } else {
           this.focusAddBUtton();
         }

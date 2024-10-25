@@ -573,9 +573,9 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
     ],
   });
   const question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
-  assert.equal(question.isReady, false, "question is not ready");
+  assert.equal(question.isReady, true, "question is ready before init");
   question.initSignaturePad(el);
-  assert.equal(question.isReady, false, "question is not ready");
+  assert.equal(question.isReady, true, "question is ready after init");
   let log = "";
   const callbacks = new Array<any>();
   const contents = new Array<string>();
@@ -589,6 +589,7 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
   question.onReadyChanged.add(() => {
     readyLogs.push(question.isReady);
   });
+  assert.equal(question.isReady, true, "question is ready before data assignment");
   survey.data = {
     "signature": "file1.svg"
   };

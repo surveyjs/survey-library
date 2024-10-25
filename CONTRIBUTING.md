@@ -113,14 +113,15 @@ SurveyJS Team follows the [GitHub flow](https://docs.github.com/en/get-started/u
 1. Fork the repository and create a branch from `master`.
 2. Change the code as required and add a test to ensure that your code works as expected.
 3. If you're implementing a UI feature, make sure to do this for the following frontend frameworks supported by SurveyJS: React, Angular, Vue 2, Vue 3, and Knockout.
-4. Run our test suite from the root folder and ensure all tests are successfully passed:
+4. [Build the library](./README.md#build-the-surveyjs-form-library-from-sources).
+5. Run our test suite from the root folder and ensure all tests are successfully passed:
      - Unit tests: `npm run test`
      - Markup tests: `npm run test:markup`
      - Functional tests: `npm run testcafe`
      - Screenshot tests: `npm run visual-regression-tests`
      - Accessibility tests: `npm run accessibility-tests`
      - Lint checks: `npm run lint`
-5. Push your branch to our repository and create a pull request.
+6. Push your branch to our repository and create a pull request.
 
 ## Style Guides
 

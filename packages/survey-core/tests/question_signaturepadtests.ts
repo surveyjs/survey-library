@@ -573,7 +573,9 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
     ],
   });
   const question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
+  assert.equal(question.isReady, false, "question is not ready");
   question.initSignaturePad(el);
+  assert.equal(question.isReady, false, "question is not ready");
   let log = "";
   const callbacks = new Array<any>();
   const contents = new Array<string>();
@@ -597,8 +599,9 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
     callbacks[i]("success", contents[i]);
   }
   assert.equal(question.isReady, true, "question is ready");
-  assert.equal(readyLogs.length, 1, "readyLogs.length");
-  assert.equal(readyLogs[0], true, "readyLogs[0]");
+  assert.equal(readyLogs.length, 2, "readyLogs.length");
+  assert.equal(readyLogs[0], false, "readyLogs[0]");
+  assert.equal(readyLogs[1], true, "readyLogs[1]");
 
   canv.remove();
   el.remove();

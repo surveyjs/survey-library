@@ -99,26 +99,23 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       this.signaturePad.maxWidth = this.penMaxWidth * scale;
       canvas.getContext("2d").scale(1 / scale, 1 / scale);
 
-      if (refresh) this.refreshCanvas();
+      if (refresh) {
+        this.loadPreview(this.value);
+      }
     }
   }
   private fromDataUrl(data: string) {
     this.signaturePad.fromDataURL(data, { width: this.canvas.width * this.scale, height: this.canvas.height * this.scale });
   }
 
-  private refreshCanvas() {
-    if (!this.signaturePad || !this.canvas) return;
-    if (!this.value) {
+  protected loadPreview(newValue: any): void {
+    if (!this.signaturePad || !this.canvas) {
+      return;
+    }
+    if (!newValue) {
       this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
       this.signaturePad.clear();
       this.valueWasChangedFromLastUpload = false;
-    } else {
-      this.loadPreview(this.value);
-    }
-  }
-
-  protected loadPreview(newValue: any): void {
-    if (!this.signaturePad) {
       return;
     }
     if (this.storeDataAsText) {
@@ -162,7 +159,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
   private updateValueHandler = () => {
     this.scaleCanvas(false, true);
-    this.refreshCanvas();
+    this.loadPreview(this.value);
   };
 
   initSignaturePad(el: HTMLElement) {
@@ -413,7 +410,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   public clearValue(keepComment?: boolean): void {
     this.valueWasChangedFromLastUpload = false;
     super.clearValue(keepComment);
-    this.refreshCanvas();
+    this.loadPreview(this.value);
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();

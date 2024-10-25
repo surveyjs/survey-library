@@ -2680,7 +2680,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.onGetQuestionNumber.isEmpty) return no;
     const options: GetQuestionNumberEvent = { question: question, number: no, no: no };
     this.onGetQuestionNumber.fire(this, options);
-    return options.number || options.no;
+    return options.no === no ? options.number : options.no;
   }
   getUpdatedPageNo(page: PageModel, no: string): string {
     if (this.onGetPageNumber.isEmpty) return no;

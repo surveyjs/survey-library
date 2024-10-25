@@ -25,7 +25,7 @@ If you like the project, but just don't have time to contribute, that's fine. Th
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the [SurveyJS Form Library Code of Conduct](https://github.com/surveyjs/survey-libraryblob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to info@devsoftbaltic.com.
+This project and everyone participating in it is governed by the [SurveyJS Form Library Code of Conduct](https://github.com/surveyjs/survey-library/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to info@devsoftbaltic.com.
 
 ## I Have a Question
 

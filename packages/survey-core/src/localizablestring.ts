@@ -201,6 +201,7 @@ export class LocalizableString implements ILocalizableString {
         this.deleteValue(loc);
         this.fireStrChanged(loc, oldValue);
       }
+      return;
     }
     if (!this.storeDefaultText && this.isLocaleTextEqualsWithDefault(loc, value)) {
       if (!this.isValueEmpty(value) || !!loc && loc !== this.defaultLoc) return;

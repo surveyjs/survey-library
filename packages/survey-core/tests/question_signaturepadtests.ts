@@ -558,3 +558,48 @@ QUnit.test("Check signature download file event", (assert) => {
   canv.remove();
   el.remove();
 });
+
+QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
+  var el = document.createElement("div");
+  var canv = document.createElement("canvas");
+  el.appendChild(canv);
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "signaturepad",
+        name: "signature",
+        storeDataAsText: false,
+      }
+    ],
+  });
+  const question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
+  question.initSignaturePad(el);
+  let log = "";
+  const callbacks = new Array<any>();
+  const contents = new Array<string>();
+  survey.onDownloadFile.add((survey, options) => {
+    assert.equal(options.question.isReady, false);
+    contents.push("data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>'));
+    callbacks.push(options.callback);
+    log += "->" + options.fileValue;
+  });
+  const readyLogs = new Array<boolean>();
+  question.onReadyChanged.add(() => {
+    readyLogs.push(question.isReady);
+  });
+  survey.data = {
+    "signature": "file1.svg"
+  };
+  assert.equal(question.isReady, false, "question is not ready");
+  assert.equal(log, "->file1.svg");
+  assert.equal(callbacks.length, 1, "One callback");
+  for (let i = 0; i < callbacks.length; i++) {
+    callbacks[i]("success", contents[i]);
+  }
+  assert.equal(question.isReady, true, "question is ready");
+  assert.equal(readyLogs.length, 1, "readyLogs.length");
+  assert.equal(readyLogs[0], true, "readyLogs[0]");
+
+  canv.remove();
+  el.remove();
+});

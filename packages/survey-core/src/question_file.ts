@@ -141,6 +141,16 @@ export class QuestionFileModelBase extends Question {
       this.loadPreview(newValue);
     }
   }
+
+  protected getIsQuestionReady(): boolean {
+    return super.getIsQuestionReady() && !this.isFileLoading;
+  }
+  private isFileLoadingValue: boolean;
+  protected get isFileLoading(): boolean { return this.isFileLoadingValue; }
+  protected set isFileLoading(val: boolean) {
+    this.isFileLoadingValue = val;
+    this.updateIsReady();
+  }
 }
 
 export class QuestionFilePage extends Base {
@@ -214,12 +224,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   get supportFileNavigator(): boolean {
     return this.isDefaultV2Theme;
-  }
-  private isFileLoadingValue: boolean;
-  protected get isFileLoading(): boolean { return this.isFileLoadingValue; }
-  protected set isFileLoading(val: boolean) {
-    this.isFileLoadingValue = val;
-    this.updateIsReady();
   }
 
   get fileNavigatorVisible(): boolean {
@@ -860,9 +864,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
       });
       this._previewLoader.load(newValues);
     }
-  }
-  protected getIsQuestionReady(): boolean {
-    return super.getIsQuestionReady() && !this.isFileLoading;
   }
   private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;

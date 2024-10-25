@@ -106,6 +106,43 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     this.signaturePad.fromDataURL(data, { width: this.canvas.width * this.scale, height: this.canvas.height * this.scale });
   }
 
+  private refreshCanvas() {
+    if (!this.signaturePad || !this.canvas) return;
+    if (!this.value) {
+      this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
+      this.signaturePad.clear();
+      this.valueWasChangedFromLastUpload = false;
+    } else {
+      this.loadPreview(this.value);
+    }
+  }
+
+  protected loadPreview(newValue: any): void {
+    if (!this.signaturePad) {
+      return;
+    }
+    if (this.storeDataAsText) {
+      this.fromDataUrl(newValue);
+    } else {
+      var newValues = !!newValue ? [newValue] : [];
+      if (!!this._previewLoader) {
+        this._previewLoader.dispose();
+      }
+      this.isFileLoading = true;
+      this._previewLoader = new FileLoader(this, (status, loaded) => {
+        this.isFileLoading = false;
+        if (status === "success" && loaded && loaded.length > 0 && loaded[0].content) {
+          this.fromDataUrl(loaded[0].content);
+        } else if (status === "skipped") {
+          this.fromUrl(newValue);
+        }
+        this._previewLoader.dispose();
+        this._previewLoader = undefined;
+      });
+      this._previewLoader.load(newValues);
+    }
+  }
+
   private fromUrl(url: string): void {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -117,47 +154,16 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       this.fromDataUrl(dataURL);
     };
   }
-  private refreshCanvas() {
-    if (!this.signaturePad || !this.canvas) return;
-    if (!this.value) {
-      this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
-      this.signaturePad.clear();
-      this.valueWasChangedFromLastUpload = false;
-    } else {
-      if (this.storeDataAsText) {
-        this.fromDataUrl(this.value);
-      } else {
-        this.fromUrl(this.value);
-      }
-    }
+
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    this.loadPreview(this.value);
   }
 
   private updateValueHandler = () => {
     this.scaleCanvas(false, true);
     this.refreshCanvas();
   };
-
-  protected loadPreview(newValue: any): void {
-    if (!this.storeDataAsText) {
-      var newValues = !!newValue ? [newValue] : [];
-      if (!!this._previewLoader) {
-        this._previewLoader.dispose();
-      }
-      this.isFileLoading = true;
-      this._previewLoader = new FileLoader(this, (status, loaded) => {
-        this.isFileLoading = false;
-        if (loaded && loaded.length > 0 && loaded[0].content && status === "success") this.fromDataUrl(loaded[0].content);
-        this._previewLoader.dispose();
-        this._previewLoader = undefined;
-      });
-      this._previewLoader.load(newValues);
-    }
-  }
-
-  public onSurveyLoad(): void {
-    super.onSurveyLoad();
-    this.loadPreview(this.value);
-  }
 
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];
@@ -187,7 +193,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
     (signaturePad as any).addEventListener("endStroke", () => {
       this.isDrawingValue = false;
-      if(this.storeDataAsText) {
+      if (this.storeDataAsText) {
         this.updateValue();
       } else {
         this.valueWasChangedFromLastUpload = true;

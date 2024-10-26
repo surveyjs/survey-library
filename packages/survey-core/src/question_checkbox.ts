@@ -195,7 +195,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
     if(!!this.valuePropertyName && Array.isArray(val) && val.length > 0) {
-      const res = [];
+      const res: Array<any> = [];
       val.forEach(item => {
         const isObj = typeof item === "object";
         let obj: any = isObj ? item : {};

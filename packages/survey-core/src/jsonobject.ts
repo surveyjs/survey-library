@@ -407,19 +407,22 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     return this.isDefaultValueByObj(undefined, value);
   }
   public isDefaultValueByObj(obj: Base, value: any): boolean {
+    if(this.isLocalizable) return value === null || value === undefined;
     const dValue = this.getDefaultValue(obj);
     if (!Helpers.isValueEmpty(dValue)) {
       return Helpers.isTwoValueEquals(value, dValue, false, true, false);
     }
-    if(this.isLocalizable) return value === null || value === undefined;
     return (
       (value === false && (this.type == "boolean" || this.type == "switch") && !this.defaultValueFunc) ||
       value === "" || Helpers.isValueEmpty(value)
     );
   }
-  public getSerializableValue(obj: any): any {
+  public getSerializableValue(obj: any, storeDefaults: boolean): any {
     if(!!this.onSerializeValue) return this.onSerializeValue(obj);
-    return this.getValue(obj);
+    const value = this.getValue(obj);
+    if(value === undefined || value === null) return undefined;
+    if (!storeDefaults && this.isDefaultValueByObj(obj, value)) return undefined;
+    return value;
   }
   public getValue(obj: any): any {
     if (this.onGetValue) {
@@ -1818,8 +1821,8 @@ export class JsonObject {
       this.valueToJsonCore(obj, result, serProp, options);
       return;
     }
-    var value = prop.getSerializableValue(obj);
-    if (!options.storeDefaults && prop.isDefaultValueByObj(obj, value)) return;
+    var value = prop.getSerializableValue(obj, options.storeDefaults);
+    if(value === undefined) return;
     if (this.isValueArray(value)) {
       var arrValue = [];
       for (var i = 0; i < value.length; i++) {

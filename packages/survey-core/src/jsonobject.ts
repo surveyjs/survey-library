@@ -417,7 +417,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       value === "" || Helpers.isValueEmpty(value)
     );
   }
-  public getSerializableValue(obj: any, storeDefaults: boolean): any {
+  public getSerializableValue(obj: any, storeDefaults?: boolean): any {
     if(!!this.onSerializeValue) return this.onSerializeValue(obj);
     const value = this.getValue(obj);
     if(value === undefined || value === null) return undefined;

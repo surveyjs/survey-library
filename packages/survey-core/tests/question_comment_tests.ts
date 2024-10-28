@@ -64,3 +64,24 @@ QUnit.test("A Comment displays undefined when resetting the value", function (as
   textArea1.remove();
   textArea2.remove();
 });
+QUnit.test("The text length validation error occurs when the minLength validator is enabled and 'allowDigits' is false Bug#8988", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "comment", name: "q1",
+        validators: [
+          { type: "text", minLength: 5,
+            allowDigits: false
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionCommentModel>survey.getQuestionByName("q1");
+  q1.value = "abcdedf";
+  survey.validate(true);
+  assert.equal(q1.errors.length, 0, "No errors");
+  q1.value = "123456";
+  survey.validate(true);
+  assert.equal(q1.errors.length, 1, "There are errors");
+  assert.equal(q1.errors[0].text, "Please do not enter any numbers", "No digits allowing");
+});

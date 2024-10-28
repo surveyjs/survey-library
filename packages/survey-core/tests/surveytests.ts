@@ -20405,6 +20405,7 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
   let survey = new SurveyModel(json);
   const getContainerContent = getContainerContentFunction(survey);
 
+  assert.equal(survey.progressBarType, "pages");
   assert.equal(survey.questionsOnPageMode, "standard");
   assert.deepEqual(getContainerContent("header"), [], "");
   assert.deepEqual(getContainerContent("center"), [{
@@ -20422,6 +20423,32 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
   assert.deepEqual(getContainerContent("header"), [], "");
   assert.deepEqual(getContainerContent("center"), [], "Buttons progress is not shown in the single page mode");
   assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+
+  survey.progressBarType = "questions";
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("center"), [{
+    "component": "sv-progress-questions",
+    "id": "progress-questions"
+  }], "Buttons progress is shown in the single page mode for questions mode");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+
+  survey.showProgressBar = "bottom";
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("center"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [{
+    "component": "sv-progress-questions",
+    "id": "progress-questions"
+  }], "Buttons progress is shown in the single page mode for questions mode in bottom");
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [], "");
   assert.deepEqual(getContainerContent("left"), [], "");

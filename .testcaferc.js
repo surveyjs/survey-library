@@ -1,5 +1,4 @@
 
-
 module.exports = {
   "browsers": [`chrome:${require("puppeteer").executablePath()}:headless`],
   "nativeAutomation": "true",

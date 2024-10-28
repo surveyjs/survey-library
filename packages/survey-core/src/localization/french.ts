@@ -12,6 +12,7 @@ export var frenchSurveyStrings = {
   refuseItemText: "Refuser de répondre",
   dontKnowItemText: "Sais pas",
   selectAllItemText: "Tout sélectionner",
+  deselectAllItemText: "Désélectionner tout",
   progressText: "Page {0} sur {1}",
   indexText: "{0} sur {1}",
   panelDynamicProgressText: "Enregistrement {0} sur {1}",
@@ -31,6 +32,7 @@ export var frenchSurveyStrings = {
   numericError: "La réponse doit être un nombre.",
   minError: "La valeur ne doit pas être inférieure à {0}",
   maxError: "La valeur ne doit pas être supérieure à {0}",
+  textNoDigitsAllow: "Les numéros ne sont pas autorisés.",
   textMinLength: "Merci de saisir au moins {0} caractères.",
   textMaxLength: "Merci de saisir moins de {0} caractères.",
   textMinMaxLength: "Merci de saisir entre {0} et {1} caractères.",
@@ -129,4 +131,5 @@ surveyLocalization.setupLocale("fr", frenchSurveyStrings, "français", "French")
 // cancel: "Cancel" => "Annuler"
 // refuseItemText: "Refuse to answer" => "Refuser de répondre"
 // dontKnowItemText: "Don't know" => "Sais pas"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Votre réponse dépasse 64 Ko. Veuillez réduire la taille de votre ou vos fichiers et réessayer ou contacter un propriétaire de sondage."
-// signaturePlaceHolderReadOnly: "No signature" => "Pas de signature"// tabTitlePlaceholder: "New Panel" => "Nouveau panneau"
+// signaturePlaceHolderReadOnly: "No signature" => "Pas de signature"// tabTitlePlaceholder: "New Panel" => "Nouveau panneau"// deselectAllItemText: "Deselect all" => "Désélectionner tout"
+// textNoDigitsAllow: "Numbers are not allowed." => "Les numéros ne sont pas autorisés."

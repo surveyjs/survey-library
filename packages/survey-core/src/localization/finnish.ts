@@ -12,6 +12,7 @@ export var finnishSurveyStrings = {
   refuseItemText: "Kieltäydy vastaamasta",
   dontKnowItemText: "Ei tiedä",
   selectAllItemText: "Valitse kaikki",
+  deselectAllItemText: "Poista kaikkien valinta",
   progressText: "Sivu {0} / {1}",
   indexText: "{0} / {1}",
   panelDynamicProgressText: "Osio {0} / {1}",
@@ -31,6 +32,7 @@ export var finnishSurveyStrings = {
   numericError: "Arvon tulee olla numeerinen.",
   minError: "Arvo ei saa olla pienempi kuin {0}",
   maxError: "Arvo ei saa olla suurempi kuin {0}",
+  textNoDigitsAllow: "Numerot eivät ole sallittuja.",
   textMinLength: "Syötä vähintään {0} merkkiä.",
   textMaxLength: "Älä syötä yli {0} merkkiä.",
   textMinMaxLength: "Syötä vähintään {0} ja enintään {1} merkkiä.",
@@ -129,4 +131,5 @@ surveyLocalization.setupLocale("fi", finnishSurveyStrings, "suomi", "Finnish");
 // cancel: "Cancel" => "Perua"
 // refuseItemText: "Refuse to answer" => "Kieltäydy vastaamasta"
 // dontKnowItemText: "Don't know" => "Ei tiedä"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vastauksesi ylittää 64 kt. Pienennä tiedostojesi kokoa ja yritä uudelleen tai ota yhteyttä kyselyn omistajaan."
-// signaturePlaceHolderReadOnly: "No signature" => "Ei allekirjoitusta"// tabTitlePlaceholder: "New Panel" => "Uusi paneeli"
+// signaturePlaceHolderReadOnly: "No signature" => "Ei allekirjoitusta"// tabTitlePlaceholder: "New Panel" => "Uusi paneeli"// deselectAllItemText: "Deselect all" => "Poista kaikkien valinta"
+// textNoDigitsAllow: "Numbers are not allowed." => "Numerot eivät ole sallittuja."

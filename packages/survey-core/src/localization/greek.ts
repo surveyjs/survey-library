@@ -12,6 +12,7 @@ export var greekSurveyStrings = {
   refuseItemText: "Αρνηθείτε να απαντήσετε",
   dontKnowItemText: "Δεν ξέρω",
   selectAllItemText: "Επιλογή όλων",
+  deselectAllItemText: "Αποεπιλογή όλων",
   progressText: "Σελίδα {0} από {1}",
   indexText: "{0} από {1}",
   panelDynamicProgressText: "Εγγραφή {0} από {1}",
@@ -31,6 +32,7 @@ export var greekSurveyStrings = {
   numericError: "Η τιμή πρέπει να είναι αριθμητική.",
   minError: "Η τιμή δεν πρέπει να είναι μικρότερη από {0}",
   maxError: "Η τιμή δεν πρέπει να είναι μεγαλύτερη από {0}",
+  textNoDigitsAllow: "Οι αριθμοί δεν επιτρέπονται.",
   textMinLength: "Παρακαλώ συμπληρώστε τουλάχιστον {0} χαρακτήρες.",
   textMaxLength: "Εισαγάγετε λιγότερους από {0} χαρακτήρες.",
   textMinMaxLength: "Εισαγάγετε περισσότερους από {0} και λιγότερους από {1} χαρακτήρες.",
@@ -126,4 +128,5 @@ surveyLocalization.setupLocale("gr", greekSurveyStrings, "ελληνικά", "Gr
 // cancel: "Cancel" => "Ακυρώνω"
 // refuseItemText: "Refuse to answer" => "Αρνηθείτε να απαντήσετε"
 // dontKnowItemText: "Don't know" => "Δεν ξέρω"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Η απάντησή σας υπερβαίνει τα 64KB. Μειώστε το μέγεθος των αρχείων σας και προσπαθήστε ξανά ή επικοινωνήστε με έναν κάτοχο έρευνας."
-// signaturePlaceHolderReadOnly: "No signature" => "Χωρίς υπογραφή"// tabTitlePlaceholder: "New Panel" => "Νέο πάνελ"
+// signaturePlaceHolderReadOnly: "No signature" => "Χωρίς υπογραφή"// tabTitlePlaceholder: "New Panel" => "Νέο πάνελ"// deselectAllItemText: "Deselect all" => "Αποεπιλογή όλων"
+// textNoDigitsAllow: "Numbers are not allowed." => "Οι αριθμοί δεν επιτρέπονται."

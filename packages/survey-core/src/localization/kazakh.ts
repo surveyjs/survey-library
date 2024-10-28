@@ -12,6 +12,7 @@ export var kazakhStrings = {
   refuseItemText: "Жауап беруден бас тарту",
   dontKnowItemText: "Білмеймін",
   selectAllItemText: "Барлығын таңдау",
+  deselectAllItemText: "Барлығын жоққа шығару",
   progressText: "{0} ден {1} бет ",
   indexText: "{1} {0}",
   panelDynamicProgressText: "{0} ден {1} жазба",
@@ -31,6 +32,7 @@ export var kazakhStrings = {
   numericError: "Жауап сан түрінде болуы керек.",
   minError: "Мәні {0} кем болмауы тиіс",
   maxError: "Мән {0} артық болмауы тиіс",
+  textNoDigitsAllow: "Нөмірлерді беруге жол берілмейді.",
   textMinLength: "Өтінеміз, {0} ден көп таңба енгізіңіз.",
   textMaxLength: "Өтінеміз, {0} ден аз таңба енгізіңіз.",
   textMinMaxLength: "Өтінеміз, {0} аз және {1} көп таңба енгізіңіз.",
@@ -140,4 +142,5 @@ surveyLocalization.setupLocale("kk", kazakhStrings, "kazakh", "Kazakh");
 // cancel: "Cancel" => "Болдырмау"
 // refuseItemText: "Refuse to answer" => "Жауап беруден бас тарту"
 // dontKnowItemText: "Don't know" => "Білмеймін"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Сіздің жауабыңыз 64КБ-тан асады. Файлдың өлшемін азайтып, қайталап көріңіз немесе сауалнама иесіне хабарласыңыз."
-// signaturePlaceHolderReadOnly: "No signature" => "Қолдың No"// tabTitlePlaceholder: "New Panel" => "Жаңа панель"
+// signaturePlaceHolderReadOnly: "No signature" => "Қолдың No"// tabTitlePlaceholder: "New Panel" => "Жаңа панель"// deselectAllItemText: "Deselect all" => "Барлығын жоққа шығару"
+// textNoDigitsAllow: "Numbers are not allowed." => "Нөмірлерді беруге жол берілмейді."

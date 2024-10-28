@@ -12,6 +12,7 @@ export var basqueSurveyStrings = {
   refuseItemText: "Erantzuteari uko egin",
   dontKnowItemText: "Ez dakit",
   selectAllItemText: "Guztia hautatu",
+  deselectAllItemText: "Guztiaren aukeraketa bertan behera utzi",
   progressText: "{1}-(e)tik {0} orrialde",
   indexText: "{1} {0}",
   panelDynamicProgressText: "{0} errigistro {1}-(e)tik",
@@ -31,6 +32,7 @@ export var basqueSurveyStrings = {
   numericError: "Estimazioa zenbakizkoa izan behar du.",
   minError: "Balioa ez da {0} baino txikiagoa izan behar",
   maxError: "Balioa ez da {0} baino handiagoa izan behar",
+  textNoDigitsAllow: "Ezin da zenbakirik egin.",
   textMinLength: "Mesedez, gutxienez {0} karaktere erabili behar dira.",
   textMaxLength: "Mesedez, gehienez {0} karaktere erabili behar dira.",
   textMinMaxLength: "Mesedez, gehienez {0} eta gutxienez {1} karaktere erabili behar dira.",
@@ -134,4 +136,5 @@ surveyLocalization.setupLocale("eu", basqueSurveyStrings, "euskara", "Basque");
 // cancel: "Cancel" => "Ezeztatu"
 // refuseItemText: "Refuse to answer" => "Erantzuteari uko egin"
 // dontKnowItemText: "Don't know" => "Ez dakit"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Erantzuna 64 KB-tik gorakoa da. Murriztu artxiboaren tamaina, eta berriro saiatu edo jarri harremanetan inkesta baten jabearekin."
-// signaturePlaceHolderReadOnly: "No signature" => "Sinadurarik gabe"// tabTitlePlaceholder: "New Panel" => "Panel berria"
+// signaturePlaceHolderReadOnly: "No signature" => "Sinadurarik gabe"// tabTitlePlaceholder: "New Panel" => "Panel berria"// deselectAllItemText: "Deselect all" => "Guztiaren aukeraketa bertan behera utzi"
+// textNoDigitsAllow: "Numbers are not allowed." => "Ezin da zenbakirik egin."

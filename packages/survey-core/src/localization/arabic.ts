@@ -12,6 +12,7 @@ export var arabicSurveyStrings = {
   refuseItemText: "رفض الإجابة",
   dontKnowItemText: "لا أعرف",
   selectAllItemText: "اختر الكل",
+  deselectAllItemText: "إلغاء تحديد الكل",
   progressText: "{1} صفحة {0} من",
   indexText: "{0} من {1}",
   panelDynamicProgressText: "سجل {0} من {1}",
@@ -31,6 +32,7 @@ export var arabicSurveyStrings = {
   numericError: "يجب أن تكون القيمة رقمية.",
   minError: "يجب ألا تقل القيمة عن {0}",
   maxError: "يجب ألا تزيد القيمة عن {0}",
+  textNoDigitsAllow: "الأرقام غير مسموح بها.",
   textMinLength: "الرجاء إدخال ما لا يقل عن {0} حروف",
   textMaxLength: "الرجاء إدخال أقل من {0} حروف",
   textMinMaxLength: "يرجى إدخال أكثر من {0} وأقل من {1} حروف",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("ar", arabicSurveyStrings, "العربية", "Ara
 // cancel: "Cancel" => "إلغاء الأمر"
 // refuseItemText: "Refuse to answer" => "رفض الإجابة"
 // dontKnowItemText: "Don't know" => "لا أعرف"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "ردك يتجاوز 64 كيلوبايت. يرجى تقليل حجم الملف (الملفات) والمحاولة مرة أخرى أو الاتصال بمالك الاستطلاع."
-// signaturePlaceHolderReadOnly: "No signature" => "لا يوجد توقيع"// tabTitlePlaceholder: "New Panel" => "لوحة جديدة"
+// signaturePlaceHolderReadOnly: "No signature" => "لا يوجد توقيع"// tabTitlePlaceholder: "New Panel" => "لوحة جديدة"// deselectAllItemText: "Deselect all" => "إلغاء تحديد الكل"
+// textNoDigitsAllow: "Numbers are not allowed." => "الأرقام غير مسموح بها."

@@ -12,6 +12,7 @@ export var macedonianSurveyStrings = {
   refuseItemText: "Одбиј да одговориш.",
   dontKnowItemText: "Не знам",
   selectAllItemText: "Селектирај се",
+  deselectAllItemText: "Отстранете селекција на сите",
   progressText: "Страница {0} од {1}",
   indexText: "{0} на {1}",
   panelDynamicProgressText: "Сними {0} од {1}",
@@ -31,6 +32,7 @@ export var macedonianSurveyStrings = {
   numericError: "Вредноста треба да биде нумеричка.",
   minError: "Вредноста не треба да биде помала од {0}",
   maxError: "Вредноста не треба да биде поголема од {0}",
+  textNoDigitsAllow: "Броевите не се дозволени.",
   textMinLength: "Внесете најмалку {0} знак/ци.",
   textMaxLength: "Внесете не повеќе од {0} знак/ци.",
   textMinMaxLength: "Внесете најмалку {0} и не повеќе од {1} знаци.",
@@ -135,4 +137,5 @@ surveyLocalization.setupLocale("mk", macedonianSurveyStrings, "македонс�
 // cancel: "Cancel" => "Откажи"
 // refuseItemText: "Refuse to answer" => "Одбиј да одговориш."
 // dontKnowItemText: "Don't know" => "Не знам"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Вашиот одговор надминува 64KB. Ве молиме да ја намалите големината на вашата(ите) датотека(и) и обидете се повторно или контактирајте го сопственикот на истражувањето."
-// signaturePlaceHolderReadOnly: "No signature" => "Нема потпис"// tabTitlePlaceholder: "New Panel" => "Нов панел"
+// signaturePlaceHolderReadOnly: "No signature" => "Нема потпис"// tabTitlePlaceholder: "New Panel" => "Нов панел"// deselectAllItemText: "Deselect all" => "Отстранете селекција на сите"
+// textNoDigitsAllow: "Numbers are not allowed." => "Броевите не се дозволени."

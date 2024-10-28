@@ -12,6 +12,7 @@ export var slovakSurveyStrings = {
   refuseItemText: "Odmietnuť odpovedať",
   dontKnowItemText: "Neviem",
   selectAllItemText: "Vybrať všetky",
+  deselectAllItemText: "Zrušte výber všetkých",
   progressText: "Strana {0} z {1}",
   indexText: "{0} {1}",
   panelDynamicProgressText: "Záznam {0} z {1}",
@@ -31,6 +32,7 @@ export var slovakSurveyStrings = {
   numericError: "Hodnota má byť číselná.",
   minError: "Hodnota nemá byť nižšia než {0}",
   maxError: "Hodnota nemá byť vyššia než {0}",
+  textNoDigitsAllow: "Čísla nie sú povolené.",
   textMinLength: "Zadajte aspoň {0} znak(-y/-ov).",
   textMaxLength: "Nezadávajte viac než {0} znak(-y/-ov).",
   textMinMaxLength: "Zadajte aspoň {0} a nie viac než {1} znaky(-ov).",
@@ -131,4 +133,5 @@ surveyLocalization.setupLocale("sk", slovakSurveyStrings, "slovak", "Slovak");
 // cancel: "Cancel" => "Zrušiť"
 // refuseItemText: "Refuse to answer" => "Odmietnuť odpovedať"
 // dontKnowItemText: "Don't know" => "Neviem"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaša odpoveď presahuje 64 kB. Zmenšite veľkosť svojich súborov a skúste to znova alebo kontaktujte vlastníka prieskumu."
-// signaturePlaceHolderReadOnly: "No signature" => "Bez podpisu"// tabTitlePlaceholder: "New Panel" => "Nový panel"
+// signaturePlaceHolderReadOnly: "No signature" => "Bez podpisu"// tabTitlePlaceholder: "New Panel" => "Nový panel"// deselectAllItemText: "Deselect all" => "Zrušte výber všetkých"
+// textNoDigitsAllow: "Numbers are not allowed." => "Čísla nie sú povolené."

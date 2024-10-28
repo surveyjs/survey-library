@@ -12,6 +12,7 @@ export var japaneseSurveyStrings = {
   refuseItemText: "回答を拒否する",
   dontKnowItemText: "わからない",
   selectAllItemText: "すべて選択",
+  deselectAllItemText: "すべて選択解除",
   progressText: "ページ{0}/{1}",
   indexText: "{1}の{0}",
   panelDynamicProgressText: "{1}の{0}を記録する",
@@ -31,6 +32,7 @@ export var japaneseSurveyStrings = {
   numericError: "数字でご記入下さい",
   minError: "値は {0} 以上である必要があります",
   maxError: "値は {0} 以下である必要があります",
+  textNoDigitsAllow: "数字は使用できません。",
   textMinLength: "少なくとも {0} 文字を入力してください。",
   textMaxLength: "{0} 文字以内で入力してください。",
   textMinMaxLength: "{0} 文字以上 {1} 文字以内で入力してください。",
@@ -142,3 +144,5 @@ surveyLocalization.setupLocale("ja", japaneseSurveyStrings, "日本語", "Japane
 // refuseItemText: "Refuse to answer" => "回答を拒否する"
 // dontKnowItemText: "Don't know" => "わかりません"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "回答は 64 KB を超えています。ファイルのサイズを小さくしてもう一度お試しいただくか、アンケートの所有者にお問い合わせください。"
 // signaturePlaceHolderReadOnly: "No signature" => "署名なし"// tabTitlePlaceholder: "New Panel" => "新規パネル"
+// deselectAllItemText: "Deselect all" => "すべて選択解除"
+// textNoDigitsAllow: "Numbers are not allowed." => "数字は使用できません。"

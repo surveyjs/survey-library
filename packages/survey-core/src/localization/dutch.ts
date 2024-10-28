@@ -12,6 +12,7 @@ export var dutchSurveyStrings = {
   refuseItemText: "Weiger te antwoorden",
   dontKnowItemText: "Weet niet",
   selectAllItemText: "Selecteer Alles",
+  deselectAllItemText: "Alles deselecteren",
   progressText: "Pagina {0} van {1}",
   indexText: "{0} van {1}",
   panelDynamicProgressText: "Record {0} of {1}",
@@ -31,6 +32,7 @@ export var dutchSurveyStrings = {
   numericError: "Het antwoord moet een getal zijn",
   minError: "De waarde mag niet lager zijn dan {0}",
   maxError: "De waarde mag niet groter zijn dan {0}",
+  textNoDigitsAllow: "Nummers zijn niet toegestaan.",
   textMinLength: "Vul minstens {0} karakters in",
   textMaxLength: "Gelieve minder dan {0} karakters in te vullen.",
   textMinMaxLength: "Gelieve meer dan {0} en minder dan {1} karakters in te vullen.",
@@ -139,4 +141,5 @@ surveyLocalization.setupLocale("nl", dutchSurveyStrings, "nederlands", "Dutch");
 // cancel: "Cancel" => "Annuleren"
 // refuseItemText: "Refuse to answer" => "Weiger te antwoorden"
 // dontKnowItemText: "Don't know" => "Weet niet"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Uw antwoord is groter dan 64 kB. Verklein de grootte van uw bestand(en) en probeer het opnieuw of neem contact op met een enquête-eigenaar."
-// signaturePlaceHolderReadOnly: "No signature" => "Geen handtekening"// tabTitlePlaceholder: "New Panel" => "Nieuw paneel"
+// signaturePlaceHolderReadOnly: "No signature" => "Geen handtekening"// tabTitlePlaceholder: "New Panel" => "Nieuw paneel"// deselectAllItemText: "Deselect all" => "Alles deselecteren"
+// textNoDigitsAllow: "Numbers are not allowed." => "Nummers zijn niet toegestaan."

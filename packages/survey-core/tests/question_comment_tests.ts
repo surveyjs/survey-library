@@ -83,5 +83,5 @@ QUnit.test("The text length validation error occurs when the minLength validator
   q1.value = "123456";
   survey.validate(true);
   assert.equal(q1.errors.length, 1, "There are errors");
-  assert.equal(q1.errors[0].text, "Please do not enter any numbers", "No digits allowing");
+  assert.equal(q1.errors[0].text, "Numbers are not allowed.", "No digits allowing");
 });

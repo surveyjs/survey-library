@@ -124,8 +124,12 @@ textarea {
   inset-block-end: calcSize(1.5);
 }
 
-.sd-question__content:focus-within .sd-remaining-character-counter {
-  display: flex;
+.sd-text__content,
+.sd-comment__content,
+.sd-multipletext__content {
+  &:focus-within .sd-remaining-character-counter {
+    display: flex;
+  }
 }
 
 @mixin runnable-track {

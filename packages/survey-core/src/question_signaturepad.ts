@@ -119,38 +119,55 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     };
   }
   private fromDataUrl(data: string) {
-    this.signaturePad.fromDataURL(data, { width: this.canvas.width * this.scale, height: this.canvas.height * this.scale });
-  }
-
-  protected loadPreview(newValue: any): void {
-    if (!this.signaturePad || !this.canvas) {
-      return;
+    this._loadedData = data;
+    if (this.signaturePad) {
+      this.signaturePad.fromDataURL(data, { width: this.canvas.width * this.scale, height: this.canvas.height * this.scale });
     }
+  }
+  private _loadedData: string = undefined;
+  public get loadedData(): string {
+    return this._loadedData;
+  }
+  protected loadPreview(newValue: any): void {
     if (!newValue) {
-      this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
-      this.signaturePad.clear();
+      if (this.signaturePad && this.canvas) {
+        this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
+        this.signaturePad.clear();
+      }
       this.valueWasChangedFromLastUpload = false;
       return;
     }
     if (this.storeDataAsText) {
       this.fromDataUrl(newValue);
     } else {
-      var newValues = !!newValue ? [newValue] : [];
-      if (!!this._previewLoader) {
-        this._previewLoader.dispose();
-      }
-      this.isFileLoading = true;
-      this._previewLoader = new FileLoader(this, (status, loaded) => {
-        if (status === "success" && loaded && loaded.length > 0 && loaded[0].content) {
-          this.fromDataUrl(loaded[0].content);
-        } else if (status === "skipped") {
-          this.fromUrl(newValue);
+      if (this.loadedData) {
+        this.fromDataUrl(this.loadedData);
+      } else {
+        var newValues = !!newValue ? [newValue] : [];
+        if (!!this._previewLoader) {
+          this._previewLoader.dispose();
         }
-        this.isFileLoading = false;
-        this._previewLoader.dispose();
-        this._previewLoader = undefined;
-      });
-      this._previewLoader.load(newValues);
+        this.isFileLoading = true;
+        this._previewLoader = new FileLoader(this, (status, loaded) => {
+          if (status === "success" && loaded && loaded.length > 0 && loaded[0].content) {
+            this.fromDataUrl(loaded[0].content);
+          } else if (status === "skipped") {
+            this.fromUrl(newValue);
+          }
+          this.isFileLoading = false;
+          this._previewLoader.dispose();
+          this._previewLoader = undefined;
+        });
+        this._previewLoader.load(newValues);
+      }
+    }
+  }
+
+  protected onChangeQuestionValue(newValue: any): void {
+    super.onChangeQuestionValue(newValue);
+    if (!this.isLoadingFromJson) {
+      this._loadedData = undefined;
+      this.loadPreview(newValue);
     }
   }
 
@@ -160,6 +177,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
 
   private updateValueHandler = () => {
+    this._loadedData = undefined;
     this.scaleCanvas(false, true);
     this.loadPreview(this.value);
   };
@@ -412,6 +430,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   public clearValue(keepComment?: boolean): void {
     this.valueWasChangedFromLastUpload = false;
     super.clearValue(keepComment);
+    this._loadedData = undefined;
     this.loadPreview(this.value);
   }
   endLoadingFromJson(): void {

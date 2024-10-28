@@ -607,3 +607,103 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
   canv.remove();
   el.remove();
 });
+
+QUnit.test("Check signature image cached in loadedData and loaded only once until value changed", (assert) => {
+  var el = document.createElement("div");
+  var canv = document.createElement("canvas");
+  el.appendChild(canv);
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "signaturepad",
+        name: "signature",
+        storeDataAsText: false,
+      }
+    ],
+  });
+  const loadedData = {
+    "file1.svg": "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="1"></svg>'),
+    "file2.svg": "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="2"></svg>')
+  };
+  const question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
+
+  let log = "";
+  const callbacks = new Array<any>();
+  const contents = new Array<string>();
+  survey.onDownloadFile.add((survey, options) => {
+    assert.equal(options.question.isReady, false);
+    contents.push(loadedData[options.question.value]);
+    callbacks.push(options.callback);
+    log += "->" + options.fileValue;
+  });
+
+  assert.equal(log, "");
+  assert.equal(callbacks.length, 0, "No callbacks");
+  assert.equal(question.value, undefined);
+  assert.equal(question.loadedData, undefined);
+  assert.equal(question.isReady, true, "question is ready before data assignment");
+
+  survey.data = {
+    "signature": "file1.svg"
+  };
+  assert.equal(log, "->file1.svg");
+  assert.equal(callbacks.length, 1, "One callback");
+  assert.equal(question.value, "file1.svg");
+  assert.equal(question.loadedData, undefined);
+  assert.equal(question.isReady, false, "question is not ready after data assignment");
+  for (let i = 0; i < callbacks.length; i++) {
+    callbacks[i]("success", contents[i]);
+  }
+  callbacks.length = 0;
+  contents.length = 0;
+
+  let dataFromUrlLog = "";
+  // question.initSignaturePad(el);
+  question.signaturePad = {
+    fromDataURL: (data: string) => (dataFromUrlLog += "->" + data)
+  };
+  question["canvas"] = canv;
+  question["loadPreview"](question.value);
+
+  assert.equal(log, "->file1.svg");
+  assert.equal(callbacks.length, 0, "No callbacks");
+  assert.equal(question.value, "file1.svg");
+  assert.equal(question.loadedData, loadedData["file1.svg"], "loadedData after widget initialized");
+  assert.equal(dataFromUrlLog, "->" + loadedData["file1.svg"], "signaturepad.fromDataURL after widget initialized");
+  assert.equal(question.isReady, true, "question ready after widget initialized");
+
+  question.signatureWidth = 1000;
+
+  assert.equal(log, "->file1.svg");
+  assert.equal(callbacks.length, 0, "No callbacks");
+  assert.equal(question.value, "file1.svg");
+  assert.equal(question.loadedData, loadedData["file1.svg"], "loadedData after resize");
+  assert.equal(dataFromUrlLog, "->" + loadedData["file1.svg"], "signaturepad.fromDataURL after resize");
+  assert.equal(question.isReady, true, "question ready after resize");
+
+  question.value = "file2.svg";
+  // survey.data = {
+  //   "signature": "file2.svg"
+  // };
+
+  assert.equal(log, "->file1.svg->file2.svg");
+  assert.equal(callbacks.length, 1, "One callback");
+  assert.equal(question.value, "file2.svg");
+  assert.equal(question.loadedData, undefined, "No data available for a while after value changed");
+  assert.equal(dataFromUrlLog, "->" + loadedData["file1.svg"], "signaturepad.fromDataURL after resize");
+  assert.equal(question.isReady, false, "question is not ready after data assignment");
+  for (let i = 0; i < callbacks.length; i++) {
+    callbacks[i]("success", contents[i]);
+  }
+  callbacks.length = 0;
+
+  assert.equal(log, "->file1.svg->file2.svg");
+  assert.equal(callbacks.length, 0, "No callbacks");
+  assert.equal(question.value, "file2.svg");
+  assert.equal(question.loadedData, loadedData["file2.svg"], "Another data loaded");
+  assert.equal(dataFromUrlLog, "->" + loadedData["file1.svg"] + "->" + loadedData["file2.svg"], "signaturepad.fromDataURL after value changed");
+  assert.equal(question.isReady, true, "question ready after loading data after value changedt");
+
+  canv.remove();
+  el.remove();
+});

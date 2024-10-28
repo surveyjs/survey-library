@@ -228,7 +228,7 @@ export var defaultStandardCss = {
   matrixdynamic: {
     root: "sv_q_matrix_dynamic",
     button: "sv_matrix_dynamic_button",
-    buttonAdd: "",
+    buttonAdd: "sv_matrix_dynamic_button--add",
     buttonRemove: "",
     iconAdd: "",
     iconRemove: "",
@@ -249,7 +249,8 @@ export var defaultStandardCss = {
     emptyRowsSection: "sv_matrix_empty_rows_section",
     emptyRowsText: "sv_matrix_empty_rows_text",
     emptyRowsButton: "",
-    ghostRow: "sv-matrix-row--drag-drop-ghost-mod"
+    ghostRow: "sv-matrix-row--drag-drop-ghost-mod",
+    draggedRow: "sv-matrixdynamic-dragged-row"
   },
   paneldynamic: {
     root: "sv_panel_dynamic",

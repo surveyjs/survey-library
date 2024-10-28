@@ -11,6 +11,7 @@ import { BrandInfo } from "./components/brand-info";
 import { NotifierComponent } from "./components/notifier";
 import { ComponentsContainer } from "./components/components-container";
 import { SvgBundleComponent } from "./svgbundle";
+import { PopupModal } from "./components/popup/popup-modal";
 
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
@@ -110,6 +111,7 @@ export class Survey extends SurveyElementBase<any, any>
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables} lang={this.survey.locale || "en"} dir={this.survey.localeDir}>
         {this.survey.needRenderIcons ? <SvgBundleComponent></SvgBundleComponent> : null }
+        {<PopupModal></PopupModal>}
         <div className={this.survey.wrapperFormCss}>
           {backgroundImage}
           <form onSubmit={onSubmit}>

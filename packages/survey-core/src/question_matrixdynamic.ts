@@ -574,13 +574,38 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return res;
   }
-  public removeRowUI(value: any) {
+  public focusAddBUtton(): void {
+    const rootElement = this.getRootElement();
+    if (!!rootElement && !!this.cssClasses.buttonAdd) {
+      const addButton = rootElement.querySelectorAll("." + this.cssClasses.buttonAdd)[0] as HTMLButtonElement;
+      addButton && addButton.focus();
+    }
+  }
+  public getActionCellIndex(row: MatrixDropdownRowModelBase): number {
+    const headerShift = this.showHeader ? 1 : 0;
+    if (this.isColumnLayoutHorizontal) {
+      return row.cells.length - 1 + headerShift;
+    }
+    return this.visibleRows.indexOf(row) + headerShift;
+  }
+  public removeRowUI(value: any): void {
     if (!!value && !!value.rowName) {
       var index = this.visibleRows.indexOf(value);
       if (index < 0) return;
       value = index;
     }
-    this.removeRow(value);
+    this.removeRow(value, undefined, () => {
+      const rowCount = this.visibleRows.length;
+      const nextIndex = index >= rowCount ? rowCount - 1 : index;
+      const nextRow = nextIndex > -1 ? this.visibleRows[nextIndex] : undefined;
+      setTimeout(() => {
+        if (nextRow) {
+          this.renderedTable.focusActionCell(nextRow, this.getActionCellIndex(nextRow));
+        } else {
+          this.focusAddBUtton();
+        }
+      }, 10);
+    });
   }
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;
@@ -595,21 +620,25 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @param index A zero-based row index.
    * @param confirmDelete *(Optional)* A Boolean value that specifies whether to display a confirmation dialog. If you do not specify this parameter, the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#confirmDelete) property value is used.
    */
-  public removeRow(index: number, confirmDelete?: boolean): void {
+  public removeRow(index: number, confirmDelete?: boolean, onRowRemoved?: () => void): void {
     if (!this.canRemoveRows) return;
     if (index < 0 || index >= this.rowCount) return;
     var row =
       !!this.visibleRows && index < this.visibleRows.length
         ? this.visibleRows[index]
         : null;
-    if(confirmDelete === undefined) {
+    if (confirmDelete === undefined) {
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
     if (confirmDelete) {
-      confirmActionAsync(this.confirmDeleteText, () => { this.removeRowAsync(index, row); }, undefined, this.getLocale(), this.survey.rootElement);
+      confirmActionAsync(this.confirmDeleteText, () => {
+        this.removeRowAsync(index, row);
+        onRowRemoved && onRowRemoved();
+      }, undefined, this.getLocale(), this.survey.rootElement);
       return;
     }
     this.removeRowAsync(index, row);
+    onRowRemoved && onRowRemoved();
   }
   private removeRowAsync(index: number, row: MatrixDropdownRowModelBase): void {
     if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;

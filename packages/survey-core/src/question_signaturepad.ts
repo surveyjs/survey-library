@@ -107,6 +107,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
 
   private fromUrl(url: string): void {
+    this.isFileLoading = true;
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = url;
@@ -115,6 +116,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       ctx.drawImage(img, 0, 0);
       var dataURL = this.canvas.toDataURL(this.getFormat());
       this.fromDataUrl(dataURL);
+      this.isFileLoading = false;
     };
   }
   private refreshCanvas() {
@@ -145,8 +147,8 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       }
       this.isFileLoading = true;
       this._previewLoader = new FileLoader(this, (status, loaded) => {
-        this.isFileLoading = false;
         if (loaded && loaded.length > 0 && loaded[0].content && status === "success") this.fromDataUrl(loaded[0].content);
+        this.isFileLoading = false;
         this._previewLoader.dispose();
         this._previewLoader = undefined;
       });
@@ -187,7 +189,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
     (signaturePad as any).addEventListener("endStroke", () => {
       this.isDrawingValue = false;
-      if(this.storeDataAsText) {
+      if (this.storeDataAsText) {
         this.updateValue();
       } else {
         this.valueWasChangedFromLastUpload = true;

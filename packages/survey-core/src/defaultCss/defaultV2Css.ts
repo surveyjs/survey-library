@@ -603,6 +603,7 @@ export var defaultV2Css = {
     emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
     iconDrag: "sv-matrixdynamic__drag-icon",
     ghostRow: "sv-matrix-row--drag-drop-ghost-mod",
+    draggedRow: "sv-matrixdynamic-dragged-row",
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
     cellQuestionWrapper: "sd-table__question-wrapper",

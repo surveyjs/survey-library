@@ -1753,3 +1753,18 @@ QUnit.test("Check dropdoun rating close on blur, #8862", function (assert) {
   question.onBlur({ target: null, stopPropagation: () => { } });
   assert.notOk(popup.isVisible);
 });
+
+QUnit.test("Check dropdown rating text, #8953", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "type": "rating",
+      "name": "question1",
+      "rateValues": [
+        { "value": "Value0", "text": "Label0" },
+        { "value": "Value1", "text": "Label1" }
+      ]
+    }]
+  });
+  const question = <QuestionRatingModel>survey.getAllQuestions()[0];
+  assert.deepEqual(question.visibleChoices.map(c => c.text), ["Label0", "Label1"]);
+});

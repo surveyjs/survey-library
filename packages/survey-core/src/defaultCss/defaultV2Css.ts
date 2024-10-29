@@ -548,7 +548,7 @@ export var defaultV2Css = {
     actionsCellDrag: "sd-table__cell--drag",
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
-    cellQuestionWrapper: "sd-table__question-wrapper sd-matrix__question-wrapper",
+    cellQuestionWrapper: "sd-matrix__question-wrapper sd-table__question-wrapper",
     compact: "sd-element--with-frame sd-element--compact"
   },
   matrixdynamic: {
@@ -604,7 +604,7 @@ export var defaultV2Css = {
     draggedRow: "sv-matrixdynamic-dragged-row",
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
-    cellQuestionWrapper: "sd-table__question-wrapper sd-matrix__question-wrapper",
+    cellQuestionWrapper: "sd-matrix__question-wrapper sd-table__question-wrapper",
     errorsCell: "sd-table__cell--error",
     errorsCellTop: "sd-table__cell--error-top",
     errorsCellBottom: "sd-table__cell--error-bottom",

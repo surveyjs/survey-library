@@ -126,7 +126,8 @@ textarea {
 
 .sd-text__content,
 .sd-comment__content,
-.sd-multipletext__content {
+.sd-multipletext__content,
+.sd-matrix__question-wrapper {
   &:focus-within .sd-remaining-character-counter {
     display: flex;
   }

@@ -75,7 +75,7 @@ jobs:
         npm run test:knockout:single
       displayName: "run markup tests"
 
-    - script: |
+    - bash: |
         npm run testcafe:ko
       displayName: "run functional tests"
 
@@ -128,7 +128,7 @@ jobs:
         npm run test:react:single
       displayName: "run markup tests"
 
-    - script: |
+    - bash: |
         npm run testcafe:react
       displayName: "run functional tests"
 
@@ -177,7 +177,7 @@ jobs:
         npm run test:vue:single
       displayName: "run markup tests"
 
-    - script: |
+    - bash: |
         npm run testcafe:vue
       displayName: "Vue functional tests"
 
@@ -249,7 +249,7 @@ jobs:
         npm run test:single
       displayName: "run unit and markup tests"
 
-    - script: |
+    - bash: |
         npm run testcafe:ci:angular
       displayName: "run functional tests"
 
@@ -321,7 +321,7 @@ jobs:
         npm run test:single
       displayName: "run unit and markup tests"
 
-    - script: |
+    - bash: |
         npm run testcafe:ci:vue3
       displayName: "run functional tests"
 
@@ -419,6 +419,6 @@ jobs:
         npm run build_js_ui_prod
       displayName: "Build survey-js-ui"
 
-    - script: |
+    - bash: |
         npm run testcafe:survey-js-ui:ci
       displayName: "run functional tests"

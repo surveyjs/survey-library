@@ -439,10 +439,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.rows.splice(rowIndex, removeCount);
     this.updateShowTableAndAddRow();
   }
-  public onDetailPanelChangeVisibility(
-    row: MatrixDropdownRowModelBase,
-    isShowing: boolean
-  ) {
+  public onDetailPanelChangeVisibility(row: MatrixDropdownRowModelBase, isShowing: boolean): void {
     const rowIndex = this.getRenderedRowIndex(row);
     if (rowIndex < 0) return;
     let currentIndex = rowIndex;
@@ -460,7 +457,15 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       this.rows.splice(panelRowIndex, 1);
     }
   }
-  public getRenderedRowIndex(row: MatrixDropdownRowModelBase): number {
+  public focusActionCell(row: MatrixDropdownRowModelBase, actionCellIndex: number): void {
+    let row2Focus = this.rows[this.rows.length - 1];
+    if (this.matrix.isColumnLayoutHorizontal) {
+      const nextRenderedRowIndex = this.getRenderedRowIndex(row);
+      row2Focus = this.rows[nextRenderedRowIndex];
+    }
+    row2Focus?.focusCell(actionCellIndex);
+  }
+  private getRenderedRowIndex(row: MatrixDropdownRowModelBase): number {
     for (var i = 0; i < this.rows.length; i++) {
       if (this.rows[i].row == row) return i;
     }

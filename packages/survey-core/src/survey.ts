@@ -7748,7 +7748,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, this.progressBarComponentName)) {
-        if (this.questionsOnPageMode != "singlePage") {
+        if (this.questionsOnPageMode != "singlePage" || this.progressBarType == "questions") {
           const headerLayoutElement = this.findLayoutElement("advanced-header");
           const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
           let isBelowHeader = !advHeader || advHeader.hasBackground;

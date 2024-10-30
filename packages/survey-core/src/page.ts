@@ -37,7 +37,7 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get no(): string {
     if(!this.canShowPageNumber() || !this.survey) return "";
-    let no = this.num + ". ";
+    let no = this.isStartPage ? "" : this.num + ". ";
     return this.survey.getUpdatedPageNo(this, no);
   }
   public get cssTitleNumber(): string {

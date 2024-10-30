@@ -641,6 +641,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateRemainingCharacterCounter(event.target.value);
   };
   protected onBlurCore(event: any): void {
+    this.updateDateValidationMessage(event);
     this.updateValueOnEvent(event);
     this.updateRemainingCharacterCounter(event.target.value);
     super.onBlurCore(event);

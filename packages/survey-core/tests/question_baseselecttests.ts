@@ -663,7 +663,7 @@ QUnit.test("checkbox:readonly:clickItemHandler", (assert) => {
   });
   const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q.clickItemHandler(q.choices[2], true);
-  assert.deepEqual(q.value, ["banana"], "nothing changed");
+  assert.deepEqual(q.value, [{ fruit: "banana" }], "nothing changed");
 });
 QUnit.test("checkbox vs valuePropertyName, check hasOther", (assert) => {
   const survey = new SurveyModel({
@@ -749,6 +749,73 @@ QUnit.test("checkbox vs valuePropertyName, use in expression", (assert) => {
   q1.renderedValue = ["orange"];
   assert.deepEqual(q1.value, [{ fruit: "orange" }], "q1.value. #2");
   assert.equal(q2.isVisible, false, "#3");
+});
+
+QUnit.test("checkbox vs valuePropertyName & defaultValue, Bug#8973", (assert) => {
+  const survey = new SurveyModel({
+    storeOthersAsComment: false,
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit",
+        defaultValue: ["apple", "orange"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.renderedValue = ["apple", "orange"];
+  assert.deepEqual(q1.value, [{ fruit: "apple" }, { fruit: "orange" }], "q1.value");
+});
+QUnit.test("checkbox vs valuePropertyName & defaultValueExpression, Bug#8973", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit",
+        defaultValueExpression: "{q2}"
+      },
+      {
+        type: "checkbox",
+        name: "q2",
+        choices: ["apple", "banana", "orange"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q2.renderedValue = ["apple", "orange"];
+  assert.deepEqual(q2.value, ["apple", "orange"], "q2.value");
+  assert.deepEqual(q1.value, [{ fruit: "apple" }, { fruit: "orange" }], "q1.value");
+});
+QUnit.test("checkbox vs valuePropertyName & setValueExpression, Bug#8973", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit",
+        setValueExpression: "{q2}"
+      },
+      {
+        type: "checkbox",
+        name: "q2",
+        choices: ["apple", "banana", "orange"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q2.renderedValue = ["apple", "orange"];
+  assert.deepEqual(q2.value, ["apple", "orange"], "q2.value, #1");
+  assert.deepEqual(q1.value, [{ fruit: "apple" }, { fruit: "orange" }], "q1.value, #2");
+  q2.renderedValue = ["banana", "orange"];
+  assert.deepEqual(q2.value, ["banana", "orange"], "q2.value, #2");
+  assert.deepEqual(q1.value, [{ fruit: "banana" }, { fruit: "orange" }], "q1.value, #2");
 });
 
 QUnit.test("check radiogroup title actions", (assert) => {

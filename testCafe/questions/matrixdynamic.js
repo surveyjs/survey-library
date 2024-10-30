@@ -485,3 +485,73 @@ frameworks.forEach((framework) => {
   });
 });
 
+frameworks.forEach((framework) => {
+  if(framework == "vue") return;
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+
+  test("Focus remove or add button removing", async (t) => {
+    await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 3,
+          columns: [
+            {
+              cellType: "text",
+              name: "name",
+              defaultValue: "abc"
+            },
+          ],
+        }
+      ]
+    });
+
+    await t.pressKey("tab tab tab")
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .pressKey("1 2 3")
+      .click(completeButton);
+
+    await t.expect(await getSurveyResult()).eql({ matrix: [{ name: "abc123" }] });
+  });
+  test("Focus remove or add button removing for horizontal columns layout", async (t) => {
+    await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
+      elements: [
+        {
+          type: "matrixdynamic",
+          transposeData: true,
+          name: "matrix",
+          rowCount: 3,
+          columns: [
+            {
+              cellType: "text",
+              name: "name",
+              defaultValue: "abc"
+            },
+          ],
+        }
+      ]
+    });
+
+    await t.pressKey("tab tab tab")
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .pressKey("1 2 3")
+      .click(completeButton);
+
+    await t.expect(await getSurveyResult()).eql({ matrix: [{ name: "abc123" }] });
+  });
+});

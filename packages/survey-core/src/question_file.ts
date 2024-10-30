@@ -137,9 +137,16 @@ export class QuestionFileModelBase extends Question {
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
     this.stateChanged(this.isEmpty() ? "empty" : "loaded");
-    if (!this.isLoadingFromJson) {
-      this.loadPreview(newValue);
-    }
+  }
+
+  protected getIsQuestionReady(): boolean {
+    return super.getIsQuestionReady() && !this.isFileLoading;
+  }
+  private isFileLoadingValue: boolean;
+  protected get isFileLoading(): boolean { return this.isFileLoadingValue; }
+  protected set isFileLoading(val: boolean) {
+    this.isFileLoadingValue = val;
+    this.updateIsReady();
   }
 }
 
@@ -214,12 +221,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   get supportFileNavigator(): boolean {
     return this.isDefaultV2Theme;
-  }
-  private isFileLoadingValue: boolean;
-  protected get isFileLoading(): boolean { return this.isFileLoadingValue; }
-  protected set isFileLoading(val: boolean) {
-    this.isFileLoadingValue = val;
-    this.updateIsReady();
   }
 
   get fileNavigatorVisible(): boolean {
@@ -469,6 +470,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public getType(): string {
     return "file";
   }
+
+  protected onChangeQuestionValue(newValue: any): void {
+    super.onChangeQuestionValue(newValue);
+    if (!this.isLoadingFromJson) {
+      this.loadPreview(newValue);
+    }
+  }
+
   /**
    * Disable this property only to implement a custom preview.
    *
@@ -860,9 +869,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
       });
       this._previewLoader.load(newValues);
     }
-  }
-  protected getIsQuestionReady(): boolean {
-    return super.getIsQuestionReady() && !this.isFileLoading;
   }
   private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;

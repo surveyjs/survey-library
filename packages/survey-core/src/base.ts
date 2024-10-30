@@ -88,7 +88,7 @@ export class Bindings {
     }
     return res;
   }
-  public setJson(value: any) {
+  public setJson(value: any, isLoading?: boolean): void {
     const oldValue = this.getJson();
     this.values = null;
     if (!!value) {
@@ -97,7 +97,9 @@ export class Bindings {
         this.values[key] = value[key];
       }
     }
-    this.onChangedJSON(oldValue);
+    if(!isLoading) {
+      this.onChangedJSON(oldValue);
+    }
   }
   private fillProperties() {
     if (this.properties !== null) return;
@@ -729,7 +731,7 @@ export class Base {
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {
-    if(!this.asynExpressionHash) this.asynExpressionHash = [];
+    if(!this.asynExpressionHash) this.asynExpressionHash = {};
     const isChanged = !this.isAsyncExpressionRunning;
     this.asynExpressionHash[id] = true;
     if(isChanged) {
@@ -833,10 +835,11 @@ export class Base {
     useMarkDown: boolean = false,
     defaultStr: boolean|string = false
   ): LocalizableString {
-    var locStr = new LocalizableString(owner, useMarkDown, name);
+    let locName = undefined;
     if (defaultStr) {
-      locStr.localizationName = defaultStr === true ? name : defaultStr;
+      locName = defaultStr === true ? name : defaultStr;
     }
+    const locStr = new LocalizableString(owner, useMarkDown, name, locName);
     locStr.onStrChanged = (oldValue: string, newValue: string) => {
       this.propertyValueChanged(name, oldValue, newValue);
     };

@@ -225,7 +225,7 @@ export class MatrixCells extends Base {
     }
     return res;
   }
-  public setJson(value: any): void {
+  public setJson(value: any, isLoading?: boolean): void {
     this.values = {};
     if (!!value) {
       for (var row in value) {

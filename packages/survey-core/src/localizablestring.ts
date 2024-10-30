@@ -48,8 +48,14 @@ export class LocalizableString implements ILocalizableString {
       this.strChanged();
     }
   }
-  private _allowLineBreaks: boolean = false;
+  private _allowLineBreaks: boolean;
   public get allowLineBreaks(): boolean {
+    if(this._allowLineBreaks === undefined) {
+      this._allowLineBreaks = false;
+      if (!!this.name && this.owner instanceof SurveyElementCore) {
+        this._allowLineBreaks = Serializer.findProperty((this.owner as SurveyElementCore).getType(), this.name)?.type == "text";
+      }
+    }
     return this._allowLineBreaks;
   }
   public onGetTextCallback: (str: string) => string;
@@ -62,14 +68,9 @@ export class LocalizableString implements ILocalizableString {
   public searchIndex: number;
   public disableLocalization: boolean;
   public defaultValue: string;
-  constructor(
-    public owner: ILocalizableOwner,
-    public useMarkdown: boolean = false,
-    public name?: string
-  ) {
-    if (owner instanceof SurveyElementCore) {
-      this._allowLineBreaks = Serializer.findProperty((owner as SurveyElementCore).getType(), name)?.type == "text";
-    }
+  constructor(public owner: ILocalizableOwner, public useMarkdown: boolean = false,
+    public name?: string, locName?: string) {
+    this._localizationName = locName;
     this.onCreating();
   }
   public getIsMultiple(): boolean { return false; }
@@ -194,6 +195,14 @@ export class LocalizableString implements ILocalizableString {
   }
   public setLocaleText(loc: string, value: string): void {
     loc = this.getValueLoc(loc);
+    if(!!loc && value === undefined) {
+      const oldValue = this.getValue(loc);
+      if(oldValue !== undefined) {
+        this.deleteValue(loc);
+        this.fireStrChanged(loc, oldValue);
+      }
+      return;
+    }
     if (!this.storeDefaultText && this.isLocaleTextEqualsWithDefault(loc, value)) {
       if (!this.isValueEmpty(value) || !!loc && loc !== this.defaultLoc) return;
       let dl = surveyLocalization.defaultLocale;
@@ -284,22 +293,31 @@ export class LocalizableString implements ILocalizableString {
     }
     return res;
   }
-  public setJson(value: any): void {
+  public setJson(value: any, isLoading?: boolean): void {
     if (!!this.sharedData) {
-      this.sharedData.setJson(value);
+      this.sharedData.setJson(value, isLoading);
       return;
     }
     this.values = {};
     this.htmlValues = {};
     if (value === null || value === undefined) return;
-    if (typeof value === "string") {
-      this.setLocaleText(null, value);
-    } else {
-      for (var key in value) {
-        this.setLocaleText(key, value[key]);
+    if(isLoading) {
+      if (typeof value === "string") {
+        this.values[settings.defaultLocaleName] = value;
+      } else {
+        this.values = value;
+        delete this.values["pos"];
       }
+    } else {
+      if (typeof value === "string") {
+        this.setLocaleText(null, value);
+      } else {
+        for (var key in value) {
+          this.setLocaleText(key, value[key]);
+        }
+      }
+      this.strChanged();
     }
-    this.strChanged();
   }
   public get renderAs(): string {
     if (!this.owner || typeof this.owner.getRenderer !== "function") {

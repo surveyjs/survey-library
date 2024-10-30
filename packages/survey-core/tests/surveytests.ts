@@ -20546,6 +20546,29 @@ QUnit.test("Question is not in the hash with it is on the first page & questions
   const q = survey.getQuestionByName("q1");
   assert.equal(q.name, "q1", "q1 name is here");
 });
+QUnit.test("The Start Page has -1 index when enabling auto-numeration for survey pages, Bug#8983", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [{
+      "elements": [{
+        "type": "text",
+        "name": "q1"
+      }
+      ]
+    },
+    {
+      "elements": [{
+        "type": "text",
+        "name": "q2"
+      }] }],
+    "showPageNumbers": true,
+    "firstPageIsStarted": true,
+  });
+  assert.equal(survey.pages[0].no, "", "start page should be empty, #1");
+  assert.equal(survey.pages[1].no, "1. ", "pages[1], #1");
+  survey.firstPageIsStarted = false;
+  assert.equal(survey.pages[0].no, "1. ", "pages[0], #2");
+  assert.equal(survey.pages[1].no, "2. ", "pages[1], #2");
+});
 QUnit.test("Trim key in setting the data, Bug#8586", function (assert) {
   const survey = new SurveyModel({
     elements: [

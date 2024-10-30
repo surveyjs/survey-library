@@ -302,14 +302,13 @@ frameworks.forEach((framework) => {
     });
 
     await t
-      .pressKey("tab up up  tab tab tab")
+      .pressKey("tab up up  tab tab")
       .expect(Selector("span").withText("Max error").visible).ok()
-      .pressKey("tab up up  tab tab tab")
+      .pressKey("tab up up  tab tab")
       .expect(Selector("span").withText("Validator error").visible).ok()
-
-      .pressKey("shift+tab shift+tab  shift+tab down down  shift+tab shift+tab")
+      .pressKey("shift+tab shift+tab down down shift+tab shift+tab")
       .expect(Selector("span").withText("Validator error").visible).notOk()
-      .pressKey("shift+tab shift+tab  down down  tab tab tab")
+      .pressKey("shift+tab  down down  tab tab tab")
       .expect(Selector("span").withText("Max error").visible).notOk();
   });
 

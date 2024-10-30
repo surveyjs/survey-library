@@ -137,9 +137,6 @@ export class QuestionFileModelBase extends Question {
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
     this.stateChanged(this.isEmpty() ? "empty" : "loaded");
-    if (!this.isLoadingFromJson) {
-      this.loadPreview(newValue);
-    }
   }
 
   protected getIsQuestionReady(): boolean {
@@ -473,6 +470,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public getType(): string {
     return "file";
   }
+
+  protected onChangeQuestionValue(newValue: any): void {
+    super.onChangeQuestionValue(newValue);
+    if (!this.isLoadingFromJson) {
+      this.loadPreview(newValue);
+    }
+  }
+
   /**
    * Disable this property only to implement a custom preview.
    *

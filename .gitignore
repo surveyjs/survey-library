@@ -44,5 +44,3 @@ visualRegressionTests/artifacts
 packages/survey-angular-ui/src/**/*.js
 dist
 junit.xml
-playwright-report/index.html
-test-results/.last-run.json

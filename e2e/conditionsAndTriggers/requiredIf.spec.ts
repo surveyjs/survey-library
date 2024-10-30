@@ -1,5 +1,7 @@
 import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { test, expect } from "@playwright/test";
+import type { Page } from "@playwright/test";
+
 const title = "RequiredIf property";
 
 const themeName = "defaultV2";
@@ -17,6 +19,26 @@ const json = {
   ]
 };
 
+["react"].forEach((framework) => {
+  test.describe("RequiredIf", () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url_test}${themeName}/${framework}`);
+      await applyTheme(page, themeName);
+      await initSurvey(page, framework, json);
+      await page.setViewportSize({ width: 1000, height: 1000 });
+    });
+    test("check requriedIf for standard question", async ({ page }) => {
+      const requiredText = page.locator('span:has-text("*")');
+      await expect(requiredText).not.toBeVisible();
+      await page.getByText("item1").click();
+      await expect(requiredText).toBeVisible();
+      await page.getByText("item3").click();
+      await expect(requiredText).not.toBeVisible();
+    });
+  });
+});
+
+/*
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
     .page`${url_test}${themeName}/${framework}`
@@ -42,4 +64,4 @@ frameworks.forEach((framework) => {
     await t.expect(requiredText.exists).notOk();
   });
 });
-
+*/

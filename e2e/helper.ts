@@ -1,3 +1,5 @@
+import type { Page, Locator } from "@playwright/test";
+
 const minimist = require("minimist");
 
 // eslint-disable-next-line no-undef
@@ -15,8 +17,75 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/defaultV2/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
-export const applyTheme = async (page, theme: string) => {
+export const applyTheme = async (page: Page, theme: string) => {
   await page.evaluate((theme) => {
     window["Survey"].StylesManager.applyTheme(theme);
   }, theme);
+};
+export const initSurvey = async (page: Page, framework: string, json: any, events?: any, isDesignMode?: boolean, props?: any) => {
+  await page.evaluate(([framework, json, events, isDesignMode, props]) => {
+    // eslint-disable-next-line no-console
+    console.error = (msg) => {
+      throw new Error(msg);
+    };
+    // eslint-disable-next-line no-console
+    console.warn = (msg) => {
+      throw new Error(msg);
+    };
+    // eslint-disable-next-line no-console
+    console.log("surveyjs console.error and console.warn override");
+
+    const model = new window["Survey"].Model(json);
+    model.setDesignMode(isDesignMode);
+    const surveyComplete = function (model) {
+      window["SurveyResult"] = model.data;
+      document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
+        model.data
+      );
+    };
+    if (!!events) {
+      for (var str in events) {
+        model[str].add(events[str]);
+      }
+    }
+    if (!!props) {
+      for (var key in props) {
+        model[key] = props[key];
+      }
+    }
+    model.onComplete.add(surveyComplete);
+
+    if (framework === "knockout") {
+      document.getElementById("surveyElement").innerHTML = "";
+      model.render("surveyElement");
+    } else if (framework === "jquery-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      window["$"]("#surveyElement").Survey({
+        model: model
+      });
+    } else if (framework === "survey-js-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
+    } else if (framework === "react") {
+      if(!!window.root) {
+        window.root.unmount();
+      }
+      const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
+      window["root"] = root;
+      root.render(
+        React.createElement(React.StrictMode, { children: React.createElement(SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
+      );
+    } else if (framework === "vue") {
+      document.getElementById("surveyElement").innerHTML =
+        "<survey :survey='survey'/>";
+      !!window["vueApp"] && window["vueApp"].$destroy();
+      window["vueApp"] = new window["Vue"]({
+        el: "#surveyElement",
+        data: { survey: model },
+      });
+    } else if (framework === "angular" || framework == "vue3") {
+      window.setSurvey(model);
+    }
+    window["survey"] = model;
+  }, [framework, json, events, isDesignMode, props]);
 };

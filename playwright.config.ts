@@ -72,7 +72,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "http-server  -p 8080 -o -c1",
+    command: "http-server  -p 8080 -c1",
     url: "http://127.0.0.1:8080",
     reuseExistingServer: !process.env.CI,
   },

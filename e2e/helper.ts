@@ -91,9 +91,6 @@ export const initSurvey = async (page: Page, framework: string, json: any, event
   }, [framework, json, events, isDesignMode, props]);
 };
 
-export const getData = (page: Page) => {
-  page.evaluate(() => { return window["survey"].data; });
-};
 export async function checkSurveyData(page: Page, json: any): Promise<void> {
   const data = await page.evaluate(() => { return window["survey"].data; });
   await expect(data).toStrictEqual(json);

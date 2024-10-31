@@ -1,5 +1,5 @@
-import { frameworks, url_test, initSurvey, applyTheme, checkSurveyData } from "../helper";
-import { QuestionSingleSelect, QuestionMultipleSelect } from "../questionHelper";
+import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
+import { QuestionSingleSelect } from "../questionHelper";
 import { test, expect } from "@playwright/test";
 
 const title = "RequiredIf property";

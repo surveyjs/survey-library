@@ -1,27 +1,26 @@
-import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
+import { frameworks, url_test, initSurvey, applyTheme, checkSurveyData } from "../helper";
+import { QuestionSingleSelect, QuestionMultipleSelect } from "../questionHelper";
 import { test, expect } from "@playwright/test";
-import type { Page } from "@playwright/test";
 
 const title = "RequiredIf property";
 
 const themeName = "defaultV2";
 
-const json = {
-  elements: [
-    { type: "radiogroup", name: "a", choices: ["item1", "item2", "item3"] },
-    { type: "text", name: "b", requiredIf: "{a} = 'item1'" },
-    {
-      type: "matrixdynamic", name: "c", rowCount: 2,
-      columns: [
-        { cellType: "text", name: "col1", requiredIf: "{a} = 'item2'" }
-      ]
-    },
-  ]
-};
-
-["react"].forEach((framework) => {
-  test.describe("RequiredIf", () => {
+frameworks.forEach((framework) => {
+  test.describe(title + " - " + framework, () => {
     test.beforeEach(async ({ page }) => {
+      const json = {
+        elements: [
+          { type: "radiogroup", name: "a", choices: ["item1", "item2", "item3"] },
+          { type: "text", name: "b", requiredIf: "{a} = 'item1'" },
+          {
+            type: "matrixdynamic", name: "c", rowCount: 2,
+            columns: [
+              { cellType: "text", name: "col1", requiredIf: "{a} = 'item2'" }
+            ]
+          },
+        ]
+      };
       await page.goto(`${url_test}${themeName}/${framework}`);
       await applyTheme(page, themeName);
       await initSurvey(page, framework, json);
@@ -29,39 +28,49 @@ const json = {
     });
     test("check requriedIf for standard question", async ({ page }) => {
       const requiredText = page.locator('span:has-text("*")');
+      const a = new QuestionSingleSelect(page, "a");
       await expect(requiredText).not.toBeVisible();
-      await page.getByText("item1").click();
-      await expect(requiredText).toBeVisible();
-      await page.getByText("item3").click();
+      await a.clickByValue("item1");
+      await expect(requiredText.isVisible).toBeTruthy();
+      await a.clickByValue("item3");
+      await expect(requiredText).not.toBeVisible();
+    });
+    test("check requriedIf for matrix column", async ({ page }) => {
+      const requiredText = page.locator('span:has-text("*")');
+      const a = new QuestionSingleSelect(page, "a");
+      await expect(requiredText).not.toBeVisible();
+      await a.clickByValue("item2");
+      await expect(requiredText.isVisible).toBeTruthy();
+      await a.clickByValue("item3");
       await expect(requiredText).not.toBeVisible();
     });
   });
-});
+  /*
+  Test functions
+  test.describe(title + "2 - " + framework, () => {
+    test.beforeEach(async ({ page }) => {
+      const json = {
+        elements: [
+          { type: "radiogroup", name: "a", choices: ["item1", "item2", "item3"] },
+          { type: "radiogroup", name: "b", choices: ["item1", "item2", "item3"] },
+          { type: "checkbox", name: "c", choices: ["item1", "item2", "item3"] }
+        ]
+      };
+      await page.goto(`${url_test}${themeName}/${framework}`);
+      await applyTheme(page, themeName);
+      await initSurvey(page, framework, json);
+      await page.setViewportSize({ width: 1000, height: 1000 });
+    });
+    test("Two radiogroups & checkbox", async ({ page }) => {
+      const a = new QuestionSingleSelect(page, "a");
+      const b = new QuestionSingleSelect(page, "b");
+      const c = new QuestionMultipleSelect(page, "c");
+      await a.clickByValue("item1");
+      await b.clickByValue("item2");
+      await c.clicksByValue(["item1", "item3"]);
 
-/*
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}`
-    .beforeEach(async (t) => {
-      await applyTheme(themeName);
-      await initSurvey(framework, json);
-      await t.resizeWindow(1000, 1000);
+      await checkSurveyData(page, { a: "item1", b: "item2", c: ["item1", "item3"] });
     });
-  test("check requriedIf for standard question", async (t) => {
-    const requiredText = Selector("span").withText("*");
-    await t.expect(requiredText.exists).notOk();
-    await t.click("input[value=item1]");
-    await t.expect(requiredText.exists).ok();
-    await t.click("input[value=item3]");
-    await t.expect(requiredText.exists).notOk();
   });
-  test("check requriedIf for matrix column", async (t) => {
-    const requiredText = Selector("span").withText("*");
-    await t.expect(requiredText.exists).notOk();
-    await t.click("input[value=item2]");
-    await t.expect(requiredText.exists).ok();
-    await t.click("input[value=item3]");
-    await t.expect(requiredText.exists).notOk();
-  });
-});
 */
+});

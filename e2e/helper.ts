@@ -1,4 +1,5 @@
-import type { Page, Locator } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 
 const minimist = require("minimist");
 
@@ -11,7 +12,7 @@ export const frameworks = environment
   : ["knockout", "react", "vue"/*, "jquery-ui"*/];
 
 // eslint-disable-next-line no-console
-console.log("Frameworks: " + frameworks.join(", "));
+//console.log("Frameworks: " + frameworks.join(", "));
 export const url = "http://127.0.0.1:8080/examples_test/default/";
 export const urlV2 = "http://127.0.0.1:8080/examples_test/defaultV2/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
@@ -89,3 +90,11 @@ export const initSurvey = async (page: Page, framework: string, json: any, event
     window["survey"] = model;
   }, [framework, json, events, isDesignMode, props]);
 };
+
+export const getData = (page: Page) => {
+  page.evaluate(() => { return window["survey"].data; });
+};
+export async function checkSurveyData(page: Page, json: any): Promise<void> {
+  const data = await page.evaluate(() => { return window["survey"].data; });
+  await expect(data).toStrictEqual(json);
+}

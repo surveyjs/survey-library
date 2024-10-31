@@ -80,7 +80,7 @@ ko.components.register("sv-popup", {
     createViewModel: (params: any, componentInfo: any) => {
       const container = componentInfo.element.nodeType === Node.COMMENT_NODE ? componentInfo.element.nextElementSibling : componentInfo.element;
       const viewModel = createPopupViewModel(ko.unwrap(params.model));
-      viewModel.setComponentElement(container, params.getTarget ? params.getTarget(container) : undefined, params.getArea ? params.getArea(container) : undefined);
+      viewModel.setComponentElement(container);
       return new PopupViewModel(viewModel);
     },
   },

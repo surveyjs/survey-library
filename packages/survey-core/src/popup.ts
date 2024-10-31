@@ -9,6 +9,8 @@ export interface IPopupOptionsBase {
   onShow?: () => void;
   onCancel?: () => void;
   onDispose?: () => void;
+  getTargetCallback?: (container: HTMLElement) => HTMLElement;
+  getAreaCallback?: (container: HTMLElement) => HTMLElement;
   cssClass?: string;
   title?: string;
   verticalPosition?: VerticalPosition;
@@ -34,6 +36,8 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   public onHide: () => void = () => { };
   public onShow: () => void = () => { };
   public onDispose: () => void = () => { };
+  public getTargetCallback?: (container: HTMLElement) => HTMLElement;
+  public getAreaCallback?: (container: HTMLElement) => HTMLElement;
 
   @property() contentComponentName: string;
   @property() contentComponentData: T;

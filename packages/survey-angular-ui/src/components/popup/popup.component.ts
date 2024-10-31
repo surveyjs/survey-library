@@ -34,9 +34,7 @@ export class PopupComponent extends BaseAngular<PopupModel> {
   private setContainerElement(): void {
     if (!!this.containerRef?.nativeElement) {
       const container = this.containerRef.nativeElement as HTMLElement;
-      this.model.setComponentElement(container,
-        this.getTarget ? this.getTarget(container.parentElement as HTMLElement) : container?.parentElement?.parentElement,
-        this.getArea ? this.getArea(container.parentElement as HTMLElement) : undefined);
+      this.model.setComponentElement(container);
     }
   }
   ngAfterViewInit(): void {

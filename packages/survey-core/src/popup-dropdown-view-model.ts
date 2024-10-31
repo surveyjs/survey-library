@@ -211,8 +211,11 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     super(model);
     this.model.onRecalculatePosition.add(this.recalculatePositionHandler);
   }
-  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null, areaElement?: HTMLElement | null): void {
+  public setComponentElement(componentRoot: HTMLElement): void {
     super.setComponentElement(componentRoot);
+
+    const targetElement: HTMLElement = this.model.getTargetCallback ? this.model.getTargetCallback(componentRoot) : undefined;
+    const areaElement: HTMLElement = this.model.getAreaCallback ? this.model.getAreaCallback(componentRoot) : undefined;
 
     if (!!componentRoot && !!componentRoot.parentElement && !this.isModal) {
       this.targetElement = targetElement || componentRoot.parentElement;

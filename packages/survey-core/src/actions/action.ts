@@ -205,6 +205,7 @@ export function createPopupModelWithListModel(listOptions: IListModel, popupOpti
   _popupOptions.onDispose = () => { listModel.dispose(); };
   const popupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, _popupOptions);
   popupModel.isFocusedContent = listModel.showFilter;
+  popupModel.getTargetCallback = getActionDropdownButtonTarget;
   popupModel.onShow = () => {
     if (!!_popupOptions.onShow) _popupOptions.onShow();
     listModel.scrollToSelectedItem();

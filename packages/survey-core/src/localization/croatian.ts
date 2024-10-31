@@ -12,6 +12,7 @@ export var croatianStrings = {
   refuseItemText: "Odbijte odgovoriti",
   dontKnowItemText: "Ne znam",
   selectAllItemText: "Select All",
+  deselectAllItemText: "Poništite odabir svega",
   progressText: "Stranica {0} od {1}",
   indexText: "{0} {1}",
   panelDynamicProgressText: "Zapisa {0} od {1}",
@@ -31,6 +32,7 @@ export var croatianStrings = {
   numericError: "Vrijednost bi trebala biti brojčana.",
   minError: "Vrijednost ne smije biti manja od {0}",
   maxError: "Vrijednost ne smije biti veća od {0}",
+  textNoDigitsAllow: "Brojevi nisu dopušteni.",
   textMinLength: "Unesite najmanje {0} znak(ova).",
   textMaxLength: "Unesite manje od {0} znak(ova).",
   textMinMaxLength: "Unesite više od {0} i manje od {1} znakova.",
@@ -139,4 +141,5 @@ surveyLocalization.setupLocale("hr", croatianStrings, "hrvatski", "Croatian");
 // cancel: "Cancel" => "Otkazati"
 // refuseItemText: "Refuse to answer" => "Odbijte odgovoriti"
 // dontKnowItemText: "Don't know" => "Ne znam"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaš odgovor premašuje 64KB. Smanjite veličinu datoteka i pokušajte ponovno ili se obratite vlasniku upitnika."
-// signaturePlaceHolderReadOnly: "No signature" => "Bez potpisa"// tabTitlePlaceholder: "New Panel" => "Nova ploča"
+// signaturePlaceHolderReadOnly: "No signature" => "Bez potpisa"// tabTitlePlaceholder: "New Panel" => "Nova ploča"// deselectAllItemText: "Deselect all" => "Poništite odabir svega"
+// textNoDigitsAllow: "Numbers are not allowed." => "Brojevi nisu dopušteni."

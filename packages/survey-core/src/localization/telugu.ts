@@ -12,6 +12,7 @@ export var teluguStrings = {
   refuseItemText: "సమాధానం ఇవ్వడానికి నిరాకరించండి",
   dontKnowItemText: "తెలియదు",
   selectAllItemText: "అన్ని ఎంచుకో",
+  deselectAllItemText: "Deselect all",
   progressText: "పేజీ{0}/{1}",
   indexText: "{1} {0}[మార్చు]",
   panelDynamicProgressText: "దాఖలాలు{0}/{1}",
@@ -31,6 +32,7 @@ export var teluguStrings = {
   numericError: "విలువను సంఖ్యలలో తెలియజేయండి",
   minError: "విలువ {0} కంటే తక్కువగా ఉండకూడదు.",
   maxError: "విలువ {0} కంటే ఎక్కువ ఉండకూడదు.",
+  textNoDigitsAllow: "అంకెలు అనుమతించబడవు.",
   textMinLength: "దయచేసి కనీసం {0} అక్షరాలను నమోదు చేయండి",
   textMaxLength: "దయచేసి {0} కన్నా తక్కువ అక్షరాలను నమోదు చేయండి",
   textMinMaxLength: "దయచేసి {0} కన్నా ఎక్కువ మరియు{1} కన్నా తక్కువ అక్షరాలను నమోదు చేయండి",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("tel", teluguStrings, "telugu", "Telugu");
 // ok: "OK" => "సరే"
 // cancel: "Cancel" => "రద్దు"// refuseItemText: "Refuse to answer" => "సమాధానం ఇవ్వడానికి నిరాకరించండి"
 // dontKnowItemText: "Don't know" => "తెలియదు"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "మీ ప్రతిస్పందన 64KBని మించిపోయింది. దయచేసి మీ ఫైల్(లు) పరిమాణాన్ని తగ్గించండి మరియు మళ్లీ ప్రయత్నించండి లేదా సర్వే యజమానిని సంప్రదించండి."
-// signaturePlaceHolderReadOnly: "No signature" => "సంతకం లేదు"// tabTitlePlaceholder: "New Panel" => "కొత్త ప్యానెల్"
+// signaturePlaceHolderReadOnly: "No signature" => "సంతకం లేదు"// tabTitlePlaceholder: "New Panel" => "కొత్త ప్యానెల్"// deselectAllItemText: "Deselect all" => "Deselect all"
+// textNoDigitsAllow: "Numbers are not allowed." => "అంకెలు అనుమతించబడవు."

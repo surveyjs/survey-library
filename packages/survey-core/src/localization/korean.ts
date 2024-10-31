@@ -12,6 +12,7 @@ export var koreanStrings = {
   refuseItemText: "대답 거부",
   dontKnowItemText: "모르다",
   selectAllItemText: "모두 선택",
+  deselectAllItemText: "모두 선택 해제",
   progressText: "페이지 {1} / {0}",
   indexText: "{0} / {1}",
   panelDynamicProgressText: "{0} / {1}",
@@ -31,6 +32,7 @@ export var koreanStrings = {
   numericError: "값은 숫자여야 합니다.",
   minError: "값은 {0}보다 작으면 안됩니다.",
   maxError: "값은 {0}보다 클 수 없습니다.",
+  textNoDigitsAllow: "숫자는 허용되지 않습니다.",
   textMinLength: "답변의 길이는 최소 {0}자여야 입니다.",
   textMaxLength: "답변의 길이는 {0}자를 초과 할 수 없습니다.",
   textMinMaxLength: "답변의 길이는 {0} - {1}자 사이여야 합니다.",
@@ -128,4 +130,5 @@ surveyLocalization.setupLocale("ko", koreanStrings, "한국어", "Korean");
 // cancel: "Cancel" => "취소"
 // refuseItemText: "Refuse to answer" => "대답 거부"
 // dontKnowItemText: "Don't know" => "모르다"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "응답이 64KB를 초과합니다. 파일 크기를 줄인 후 다시 시도하거나 설문조사 소유자에게 문의하세요."
-// signaturePlaceHolderReadOnly: "No signature" => "서명 없음"// tabTitlePlaceholder: "New Panel" => "새 패널"
+// signaturePlaceHolderReadOnly: "No signature" => "서명 없음"// tabTitlePlaceholder: "New Panel" => "새 패널"// deselectAllItemText: "Deselect all" => "모두 선택 해제"
+// textNoDigitsAllow: "Numbers are not allowed." => "숫자는 허용되지 않습니다."

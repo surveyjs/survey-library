@@ -12,6 +12,7 @@ export var turkishSurveyStrings = {
   refuseItemText: "Cevap vermeyi reddet",
   dontKnowItemText: "Bilmiyorum",
   selectAllItemText: "Tümünü Seç",
+  deselectAllItemText: "Tümünün seçimini kaldır",
   progressText: "Sayfa {0}/{1}",
   indexText: "{0}/{1}",
   panelDynamicProgressText: "{0}/{1}",
@@ -31,6 +32,7 @@ export var turkishSurveyStrings = {
   numericError: "Değer sayısal olmalıdır.",
   minError: "Değer {0}'den küçük olmamalıdır",
   maxError: "Değer {0}'dan büyük olmamalıdır",
+  textNoDigitsAllow: "Numaralara izin verilmez.",
   textMinLength: "Lütfen en az {0} karakter girin.",
   textMaxLength: "Lütfen en fazla {0} karakter girin.",
   textMinMaxLength: "Lütfen {0}’den fazla ve {1}’den az karakter girin.",
@@ -122,4 +124,5 @@ surveyLocalization.setupLocale("tr", turkishSurveyStrings, "türkçe", "Turkish"
 // ok: "OK" => "TAMAM"
 // cancel: "Cancel" => "İptal"// refuseItemText: "Refuse to answer" => "Cevap vermeyi reddet"
 // dontKnowItemText: "Don't know" => "Bilmiyorum"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Yanıtınız 64 KB'ı aşıyor. Lütfen dosyalarınızın boyutunu küçültün ve tekrar deneyin veya bir anket sahibiyle iletişime geçin."
-// signaturePlaceHolderReadOnly: "No signature" => "İmza yok"// tabTitlePlaceholder: "New Panel" => "Yeni Panel"
+// signaturePlaceHolderReadOnly: "No signature" => "İmza yok"// tabTitlePlaceholder: "New Panel" => "Yeni Panel"// deselectAllItemText: "Deselect all" => "Tümünün seçimini kaldır"
+// textNoDigitsAllow: "Numbers are not allowed." => "Numaralara izin verilmez."

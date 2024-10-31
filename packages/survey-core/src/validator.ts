@@ -251,9 +251,9 @@ export class TextValidator extends SurveyValidator {
   ): ValidatorResult {
     if (this.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
-      var reg = /^[A-Za-z\s\.]*$/;
-      if (!reg.test(value)) {
-        return new ValidatorResult(null, this.createCustomError(name));
+      var reg = /\d+$/;
+      if (reg.test(value)) {
+        return new ValidatorResult(null, this.createCustomError("textNoDigitsAllow"));
       }
     }
     if (this.minLength > 0 && value.length < this.minLength) {
@@ -265,6 +265,7 @@ export class TextValidator extends SurveyValidator {
     return null;
   }
   protected getDefaultErrorText(name: string): string {
+    if(name === "textNoDigitsAllow") return this.getLocalizationString(name);
     if (this.minLength > 0 && this.maxLength > 0)
       return this.getLocalizationFormatString("textMinMaxLength", this.minLength, this.maxLength);
     if (this.minLength > 0)

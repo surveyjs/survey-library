@@ -12,6 +12,7 @@ export var swedishSurveyStrings = {
   refuseItemText: "Vägra svara",
   dontKnowItemText: "Vet inte",
   selectAllItemText: "Välj alla",
+  deselectAllItemText: "Avmarkera alla",
   progressText: "Sida {0} av {1}",
   indexText: "{0} av {1}",
   panelDynamicProgressText: "{0} av {1}",
@@ -31,6 +32,7 @@ export var swedishSurveyStrings = {
   numericError: "Värdet ska vara numeriskt.",
   minError: "Värdet får inte vara mindre än {0}",
   maxError: "Värdet får inte vara större än {0}",
+  textNoDigitsAllow: "Nummer är inte tillåtna.",
   textMinLength: "Ange minst {0} tecken.",
   textMaxLength: "Ange färre än {0} tecken.",
   textMinMaxLength: "Ange mer än {0} och färre än {1} tecken.",
@@ -129,4 +131,5 @@ surveyLocalization.setupLocale("sv", swedishSurveyStrings, "svenska", "Swedish")
 // cancel: "Cancel" => "Annullera"
 // refuseItemText: "Refuse to answer" => "Vägra svara"
 // dontKnowItemText: "Don't know" => "Vet inte"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ditt svar överskrider 64 kB. Minska storleken på dina filer och försök igen eller kontakta en undersökningsägare."
-// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"// tabTitlePlaceholder: "New Panel" => "Ny panel"
+// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"// tabTitlePlaceholder: "New Panel" => "Ny panel"// deselectAllItemText: "Deselect all" => "Avmarkera alla"
+// textNoDigitsAllow: "Numbers are not allowed." => "Nummer är inte tillåtna."

@@ -12,6 +12,7 @@ export var latvianSurveyStrings = {
   refuseItemText: "Atteikties atbildēt",
   dontKnowItemText: "Es nezinu",
   selectAllItemText: "Izvēlēties visus",
+  deselectAllItemText: "Noņemt atlasi visiem",
   progressText: "{0}. lapa no {1}",
   indexText: "{0} no {1}",
   panelDynamicProgressText: "Ierakstīt {0} no {1}",
@@ -31,6 +32,7 @@ export var latvianSurveyStrings = {
   numericError: "Atbildei ir jābūt skaitlim.",
   minError: "Vērtība nedrīkst būt mazāka par {0}",
   maxError: "Vērtība nedrīkst būt lielāka par {0}",
+  textNoDigitsAllow: "Numuri nav atļauti.",
   textMinLength: "Lūdzu, ievadiet vismaz {0} simbolus.",
   textMaxLength: "Lūdzu, ievadiet mazāk nekā {0} rakstzīmes.",
   textMinMaxLength: "Lūdzu, ievadiet vairāk nekā {0} rakstzīmes un mazāk nekā {1} rakstzīmes.",
@@ -129,4 +131,5 @@ surveyLocalization.setupLocale("lv", latvianSurveyStrings, "latviešu", "Latvian
 // cancel: "Cancel" => "Atcelt"
 // refuseItemText: "Refuse to answer" => "Atteikties atbildēt"
 // dontKnowItemText: "Don't know" => "Es nezinu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jūsu atbilde pārsniedz 64 KB. Lūdzu, samaziniet sava(-u) faila(-u) lielumu un mēģiniet vēlreiz vai sazinieties ar aptaujas īpašnieku."
-// signaturePlaceHolderReadOnly: "No signature" => "Nav paraksta"// tabTitlePlaceholder: "New Panel" => "Jauns panelis"
+// signaturePlaceHolderReadOnly: "No signature" => "Nav paraksta"// tabTitlePlaceholder: "New Panel" => "Jauns panelis"// deselectAllItemText: "Deselect all" => "Noņemt atlasi visiem"
+// textNoDigitsAllow: "Numbers are not allowed." => "Numuri nav atļauti."

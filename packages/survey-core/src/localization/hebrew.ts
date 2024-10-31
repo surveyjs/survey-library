@@ -12,6 +12,7 @@ export var hebrewSurveyStrings = {
   refuseItemText: "מסרבים לענות",
   dontKnowItemText: "לא יודע",
   selectAllItemText: "בחר הכל",
+  deselectAllItemText: "בטל את הבחירה בהכל",
   progressText: "דף {0} מתוך {1}",
   indexText: "{0} מתוך {1}",
   panelDynamicProgressText: "הקלטה {0} מתוך {1}",
@@ -31,6 +32,7 @@ export var hebrewSurveyStrings = {
   numericError: "התשובה צריכה להיות מספר.",
   minError: "הערך לא צריך להיות קטן מ {0}",
   maxError: "הערך לא צריך להיות גדול מ- {0}",
+  textNoDigitsAllow: "מספרים אינם מותרים.",
   textMinLength: "הזן לפחות {0} תווים.",
   textMaxLength: "הזן פחות מ- {0} תווים.",
   textMinMaxLength: "הזן יותר מ- {0} ופחות מ- {1} תווים.",
@@ -142,4 +144,5 @@ surveyLocalization.setupLocale("he", hebrewSurveyStrings, "עברית", "Hebrew"
 // refuseItemText: "Refuse to answer" => "מסרבים לענות"
 // dontKnowItemText: "Don't know" => "לא יודע"
 // savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "תגובתך עולה על 64KB. הקטן את גודל הקבצים שלך ונסה שוב או פנה לבעלים של סקר."
-// signaturePlaceHolderReadOnly: "No signature" => "אין חתימה"// tabTitlePlaceholder: "New Panel" => "פאנל חדש"
+// signaturePlaceHolderReadOnly: "No signature" => "אין חתימה"// tabTitlePlaceholder: "New Panel" => "פאנל חדש"// deselectAllItemText: "Deselect all" => "בטל את הבחירה בהכל"
+// textNoDigitsAllow: "Numbers are not allowed." => "מספרים אינם מותרים."

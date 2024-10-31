@@ -12,6 +12,7 @@ export var serbianStrings = {
   refuseItemText: "Odbijanje odgovora",
   dontKnowItemText: "Ne znam",
   selectAllItemText: "Izaberi sve",
+  deselectAllItemText: "Poništi izbor svih",
   progressText: "Stranica {0} od {1}",
   indexText: "{0} {1}",
   panelDynamicProgressText: "Upis {0} od {1}",
@@ -31,6 +32,7 @@ export var serbianStrings = {
   numericError: "Vrednost bi trebalo da bude numerička.",
   minError: "Vrednost ne bi trebalo da bude manja od {0}",
   maxError: "Vrednost ne bi trebalo da bude veća od {0}",
+  textNoDigitsAllow: "Brojevi nisu dozvoljeni.",
   textMinLength: "Molimo unesite bar {0} znak(ov)a.",
   textMaxLength: "Molimo unesite najviše {0} znak(ov)a.",
   textMinMaxLength: "Molimo unesite najmanje {0} i ne više od {1} znak(ov)a.",
@@ -136,4 +138,5 @@ surveyLocalization.setupLocale("rs", serbianStrings, "srpski", "Serbian");
 // cancel: "Cancel" => "Otkaži"
 // refuseItemText: "Refuse to answer" => "Odbijanje odgovora"
 // dontKnowItemText: "Don't know" => "Ne znam"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaš odgovor premašuje 64KB. Smanjite veličinu datoteka i pokušajte ponovo ili se obratite vlasniku ankete."
-// signaturePlaceHolderReadOnly: "No signature" => "Bez potpisa"// tabTitlePlaceholder: "New Panel" => "Nova tabla"
+// signaturePlaceHolderReadOnly: "No signature" => "Bez potpisa"// tabTitlePlaceholder: "New Panel" => "Nova tabla"// deselectAllItemText: "Deselect all" => "Poništi izbor svih"
+// textNoDigitsAllow: "Numbers are not allowed." => "Brojevi nisu dozvoljeni."

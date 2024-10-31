@@ -12,6 +12,7 @@ export var vietnameseSurveyStrings = {
   refuseItemText: "Từ chối trả lời",
   dontKnowItemText: "Không biết",
   selectAllItemText: "Chọn tất cả",
+  deselectAllItemText: "Bỏ chọn tất cả",
   progressText: "Trang {0} / {1}",
   indexText: "{0} của {1}",
   panelDynamicProgressText: "Dòng {0} / {1}",
@@ -31,6 +32,7 @@ export var vietnameseSurveyStrings = {
   numericError: "Giá trị nên là kiểu số.",
   minError: "Giá trị không được nhỏ hơn {0}",
   maxError: "Giá trị không được lớn hơn {0}",
+  textNoDigitsAllow: "Số không được phép.",
   textMinLength: "Vui lòng nhập ít nhất {0} kí tự.",
   textMaxLength: "Vui lòng nhập ít hơn {0} kí tự.",
   textMinMaxLength: "Vui lòng nhập nhiều hơn {0} hoặc ít hơn {1} kí tự.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("vi", vietnameseSurveyStrings, "việt nam", "Vie
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Hủy"// refuseItemText: "Refuse to answer" => "Từ chối trả lời"
 // dontKnowItemText: "Don't know" => "Không biết"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Phản hồi của bạn vượt quá 64KB. Vui lòng giảm kích thước (các) tệp của bạn và thử lại hoặc liên hệ với chủ sở hữu khảo sát."
-// signaturePlaceHolderReadOnly: "No signature" => "Không có chữ ký"// tabTitlePlaceholder: "New Panel" => "Bảng điều khiển mới"
+// signaturePlaceHolderReadOnly: "No signature" => "Không có chữ ký"// tabTitlePlaceholder: "New Panel" => "Bảng điều khiển mới"// deselectAllItemText: "Deselect all" => "Bỏ chọn tất cả"
+// textNoDigitsAllow: "Numbers are not allowed." => "Số không được phép."

@@ -12,6 +12,7 @@ export var estonianSurveyStrings = {
   refuseItemText: "Keeldu vastamast",
   dontKnowItemText: "Ei tea",
   selectAllItemText: "Vali kõik",
+  deselectAllItemText: "Kõigi valiku tühistamine",
   progressText: "Lehekülg {0}/{1}",
   indexText: "{0} {1}",
   panelDynamicProgressText: "Kirje {0}/{1}",
@@ -31,6 +32,7 @@ export var estonianSurveyStrings = {
   numericError: "See peaks olema numbriline väärtus.",
   minError: "Väärtus ei tohiks olla väiksem kui {0}",
   maxError: "Väärtus ei tohiks olla suurem kui {0}",
+  textNoDigitsAllow: "Numbrid ei ole lubatud.",
   textMinLength: "Palun sisesta vähemalt {0} tähemärki.",
   textMaxLength: "Palun ära sisesta rohkem kui {0} tähemärki.",
   textMinMaxLength: "Sisesta palun {0} - {1} tähemärki.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("et", estonianSurveyStrings, "eesti keel", "Eston
 // cancel: "Cancel" => "Tühistama"
 // refuseItemText: "Refuse to answer" => "Keeldu vastamast"
 // dontKnowItemText: "Don't know" => "Ei tea"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Teie vastus ületab 64 KB. Vähendage faili(de) mahtu ja proovige uuesti või võtke ühendust uuringu omanikuga."
-// signaturePlaceHolderReadOnly: "No signature" => "Allkiri puudub"// tabTitlePlaceholder: "New Panel" => "Uus paneel"
+// signaturePlaceHolderReadOnly: "No signature" => "Allkiri puudub"// tabTitlePlaceholder: "New Panel" => "Uus paneel"// deselectAllItemText: "Deselect all" => "Kõigi valiku tühistamine"
+// textNoDigitsAllow: "Numbers are not allowed." => "Numbrid ei ole lubatud."

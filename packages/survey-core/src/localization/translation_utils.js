@@ -27,7 +27,11 @@ module.exports = {
   },
   getLocale: function(name) {
     const text = this.readFile(name);
-    const subStr = "surveyLocalization.locales[\"";
+    let loc = this.getLocaleByText(text, "surveyLocalization.locales[\"");
+    if(!!loc) return loc;
+    return this.getLocaleByText(text, "surveyLocalization.setupLocale(\"");
+  },
+  getLocaleByText: function(text, subStr) {
     let index = text.indexOf(subStr);
     if(index < 0) return undefined;
     index += subStr.length;

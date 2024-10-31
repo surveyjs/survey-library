@@ -176,7 +176,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     }
   };
   const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
-
+  popupModel.getTargetCallback = getActionDropdownButtonTarget;
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
     popupModel: popupModel,
@@ -205,7 +205,6 @@ export function createPopupModelWithListModel(listOptions: IListModel, popupOpti
   _popupOptions.onDispose = () => { listModel.dispose(); };
   const popupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, _popupOptions);
   popupModel.isFocusedContent = listModel.showFilter;
-  popupModel.getTargetCallback = getActionDropdownButtonTarget;
   popupModel.onShow = () => {
     if (!!_popupOptions.onShow) _popupOptions.onShow();
     listModel.scrollToSelectedItem();

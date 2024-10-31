@@ -19,8 +19,14 @@ export class Survey {
     await this.checkButtonVisibility(this.completeButtonValue, isVisible);
   }
   public async checkData(json: any): Promise<void> {
-    const data = await this.page.evaluate(() => { return window["survey"].data; });
+    const data = await this.page.evaluate(() => {
+      return window["survey"].data;
+    });
     await expect(data).toStrictEqual(json);
+  }
+  public async checkVisibleQuestions(num: number): Promise<void> {
+    const len = await this.page.evaluate(() => { return window["survey"].getAllQuestions(true).length; });
+    await expect(num).toStrictEqual(len);
   }
   private getNavigatorButton(value: string): Locator {
     return this.page.locator("input[value='" + value + "']").last();

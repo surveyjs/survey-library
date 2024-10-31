@@ -105,7 +105,7 @@ frameworks.forEach((framework) => {
       await exit2.clickByValue("Yes");
       await survey.complete();
 
-      survey.checkData({ exit1: "No", exit2: "Yes" });
+      await survey.checkData({ exit1: "No", exit2: "Yes" });
     });
     test("check complete and next buttons visibility", async ({ page }) => {
       const survey = new Survey(page);
@@ -121,7 +121,7 @@ frameworks.forEach((framework) => {
       await survey.checkCompleteButtonVisibility(true);
       await survey.complete();
 
-      survey.checkData({ exit1: "Yes" });
+      await survey.checkData({ exit1: "Yes" });
     });
   });
 });

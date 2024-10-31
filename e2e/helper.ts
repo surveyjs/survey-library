@@ -36,6 +36,8 @@ export const initSurvey = async (page: Page, framework: string, json: any, event
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
 
+    //!!!TODO!!!
+    //window["Survey"].settings.animationEnabled = false;
     const model = new window["Survey"].Model(json);
     model.setDesignMode(isDesignMode);
     const surveyComplete = function (model) {

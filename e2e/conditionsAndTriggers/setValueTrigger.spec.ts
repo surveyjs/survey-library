@@ -1,5 +1,5 @@
 import { frameworks, url_test, initSurvey } from "../helper";
-import { QuestionSingleSelect } from "../questionHelper";
+import { QuestionRadiogroup } from "../questionHelper";
 import { test, expect } from "@playwright/test";
 import { Survey } from "../surveyHelper";
 
@@ -93,7 +93,7 @@ frameworks.forEach((framework) => {
     });
     test("check triggers execution", async ({ page }) => {
       const survey = new Survey(page);
-      const copy = new QuestionSingleSelect(page, "copy");
+      const copy = new QuestionRadiogroup(page, "copy");
       await copy.clickByValue("Yes");
       await survey.complete();
       await expect(page.locator("b").getByLabel("Jon Snow").isVisible).toBeTruthy();

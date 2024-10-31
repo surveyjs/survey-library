@@ -1,5 +1,5 @@
 import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
-import { QuestionSingleSelect } from "../questionHelper";
+import { QuestionRadiogroup } from "../questionHelper";
 import { test, expect } from "@playwright/test";
 
 const title = "RequiredIf property";
@@ -28,7 +28,7 @@ frameworks.forEach((framework) => {
     });
     test("check requriedIf for standard question", async ({ page }) => {
       const requiredText = page.locator('span:has-text("*")');
-      const a = new QuestionSingleSelect(page, "a");
+      const a = new QuestionRadiogroup(page, "a");
       await expect(requiredText).not.toBeVisible();
       await a.clickByValue("item1");
       await expect(requiredText.isVisible).toBeTruthy();
@@ -37,7 +37,7 @@ frameworks.forEach((framework) => {
     });
     test("check requriedIf for matrix column", async ({ page }) => {
       const requiredText = page.locator('span:has-text("*")');
-      const a = new QuestionSingleSelect(page, "a");
+      const a = new QuestionRadiogroup(page, "a");
       await expect(requiredText).not.toBeVisible();
       await a.clickByValue("item2");
       await expect(requiredText.isVisible).toBeTruthy();

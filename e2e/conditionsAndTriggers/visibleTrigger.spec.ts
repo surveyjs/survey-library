@@ -1,5 +1,5 @@
 import { frameworks, url_test, initSurvey } from "../helper";
-import { QuestionSingleSelect } from "../questionHelper";
+import { QuestionRadiogroup } from "../questionHelper";
 import { test, expect } from "@playwright/test";
 import { Survey } from "../surveyHelper";
 
@@ -178,16 +178,16 @@ frameworks.forEach((framework) => {
     });
     test("check question visibility using deprecated visible trigger", async ({ page }) => {
       const survey = new Survey(page);
-      const typeQ = new QuestionSingleSelect(page, "type");
+      const typeQ = new QuestionRadiogroup(page, "type");
 
       await typeQ.clickByValue("Hot hatch");
 
-      const hothatch = new QuestionSingleSelect(page, "Hot hatch");
+      const hothatch = new QuestionRadiogroup(page, "Hot hatch");
       await hothatch.clickByValue("Honda Civic Type R");
       await hothatch.clickByValue("Fiat 500 Abarth");
 
       await typeQ.clickByValue("Pony car");
-      const ponyCar = new QuestionSingleSelect(page, "Pony car");
+      const ponyCar = new QuestionRadiogroup(page, "Pony car");
       await ponyCar.clickByValue("Dodge Challenger");
       await survey.complete();
 

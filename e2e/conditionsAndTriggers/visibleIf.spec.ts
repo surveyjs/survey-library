@@ -1,5 +1,5 @@
 import { frameworks, url_test, initSurvey } from "../helper";
-import { QuestionSingleSelect, QuestionDropdownSelect } from "../questionHelper";
+import { QuestionRadiogroup, QuestionDropdown } from "../questionHelper";
 import { test, expect } from "@playwright/test";
 import { Survey } from "../surveyHelper";
 
@@ -79,18 +79,18 @@ frameworks.forEach((framework) => {
     });
     test("check question visibility", async ({ page }) => {
       const survey = new Survey(page);
-      const haveKids = new QuestionSingleSelect(page, "haveKids");
+      const haveKids = new QuestionRadiogroup(page, "haveKids");
 
       await survey.checkVisibleQuestions(1);
       await haveKids.clickByValue("Yes");
       await survey.checkVisibleQuestions(2);
 
-      const kids = new QuestionDropdownSelect(page, "kids");
+      const kids = new QuestionDropdown(page, "kids");
       await kids.selectItemByText("5");
       await survey.checkVisibleQuestions(7);
       await kids.selectItemByText("1");
       await survey.checkVisibleQuestions(3);
-      const kid1Age = new QuestionDropdownSelect(page, "kid1Age");
+      const kid1Age = new QuestionDropdown(page, "kid1Age");
       await kid1Age.selectItemByText("7");
 
       await survey.checkData({

@@ -1,5 +1,5 @@
 import { frameworks, url_test, initSurvey } from "../helper";
-import { QuestionSingleSelect } from "../questionHelper";
+import { QuestionRadiogroup } from "../questionHelper";
 import { test, expect } from "@playwright/test";
 import { Survey } from "../surveyHelper";
 
@@ -98,10 +98,10 @@ frameworks.forEach((framework) => {
     });
     test("check visibility", async ({ page }) => {
       const survey = new Survey(page);
-      const exit1 = new QuestionSingleSelect(page, "exit1");
+      const exit1 = new QuestionRadiogroup(page, "exit1");
       await exit1.clickByValue("No");
       await survey.nextPage();
-      const exit2 = new QuestionSingleSelect(page, "exit2");
+      const exit2 = new QuestionRadiogroup(page, "exit2");
       await exit2.clickByValue("Yes");
       await survey.complete();
 
@@ -109,7 +109,7 @@ frameworks.forEach((framework) => {
     });
     test("check complete and next buttons visibility", async ({ page }) => {
       const survey = new Survey(page);
-      const exit1 = new QuestionSingleSelect(page, "exit1");
+      const exit1 = new QuestionRadiogroup(page, "exit1");
       await exit1.clickByValue("Yes");
       await survey.checkNextButtonVisibility(false);
       await survey.checkCompleteButtonVisibility(true);

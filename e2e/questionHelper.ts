@@ -22,7 +22,7 @@ export class QuestionSelect extends Question {
     return this.question.locator("label").filter({ has: this.page.locator("input[value='" + val + "']") }).first();
   }
 }
-export class QuestionDropdownSelect extends Question {
+export class QuestionDropdown extends Question {
   public async click(): Promise<void> {
     await this.question.locator(".sd-input.sd-dropdown").click();
   }
@@ -32,9 +32,9 @@ export class QuestionDropdownSelect extends Question {
     //await this.question.locator("li").filter({ has: this.page.getByText(val) }).first().click();
   }
 }
-export class QuestionSingleSelect extends QuestionSelect {
+export class QuestionRadiogroup extends QuestionSelect {
 }
-export class QuestionMultipleSelect extends QuestionSelect {
+export class QuestionCheckbox extends QuestionSelect {
   public async clicksByLabel(val: Array<string>): Promise<void> {
     for(let i = 0; i < val.length; i ++) {
       await this.clickByLabel(val[i]);

@@ -12,6 +12,7 @@ export var georgianSurveyStrings = {
   refuseItemText: "უარი პასუხზე",
   dontKnowItemText: "არ ვიცი",
   selectAllItemText: "ყველას მონიშნა",
+  deselectAllItemText: "ყველას არჩევა",
   progressText: "გვერდი {0} / {1}",
   indexText: "{1} {0}",
   panelDynamicProgressText: "{1} {0}",
@@ -31,6 +32,7 @@ export var georgianSurveyStrings = {
   numericError: "პასუხი უნდა იყოს რიცხვი.",
   minError: "ღირებულება არ უნდა იყოს ნაკლები {0}",
   maxError: "ღირებულება არ უნდა იყოს {0}",
+  textNoDigitsAllow: "ნომრები არ არის დაშვებული.",
   textMinLength: "გთხოვთ შეიყვანეთ არანაკლებ {0} სიმბოლო.",
   textMaxLength: "გთხოვთ, შეიყვანოთ არაუმეტეს {0} სიმბოლო(ებ)ი.",
   textMinMaxLength: "გთხოვთ, შეიყვანოთ მინიმუმ {0} და არაუმეტეს {1} სიმბოლო.",
@@ -194,4 +196,5 @@ surveyLocalization.setupLocale("ka", georgianSurveyStrings, "ქართულ�
 // cancel: "Cancel" => "გაუქმება"
 // refuseItemText: "Refuse to answer" => "უარი პასუხზე"
 // dontKnowItemText: "Don't know" => "არ ვიცი"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "თქვენი პასუხი აღემატება 64KB. გთხოვთ, შეამციროთ თქვენი ფაილ(ებ)ის ზომა და სცადოთ ხელახლა ან დაუკავშირდეთ გამოკითხვის მფლობელს."
-// signaturePlaceHolderReadOnly: "No signature" => "ხელმოწერა არ არის"// tabTitlePlaceholder: "New Panel" => "ახალი პანელი"
+// signaturePlaceHolderReadOnly: "No signature" => "ხელმოწერა არ არის"// tabTitlePlaceholder: "New Panel" => "ახალი პანელი"// deselectAllItemText: "Deselect all" => "ყველას არჩევა"
+// textNoDigitsAllow: "Numbers are not allowed." => "ნომრები არ არის დაშვებული."

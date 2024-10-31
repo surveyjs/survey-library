@@ -12,6 +12,7 @@ export var ukrainianSurveyStrings = {
   refuseItemText: "Відмовтеся відповідати",
   dontKnowItemText: "Не знаю",
   selectAllItemText: "Вибрати все",
+  deselectAllItemText: "Зніміть позначку з усіх",
   progressText: "Сторінка {0} з {1}",
   indexText: "{0} {1}",
   panelDynamicProgressText: "Запис {0} із {1}",
@@ -31,6 +32,7 @@ export var ukrainianSurveyStrings = {
   numericError: "Відповідь повинна бути числом.",
   minError: "Значення не повинно бути менше {0}",
   maxError: "Значення не повинно бути більше {0}",
+  textNoDigitsAllow: "Номери не допускаються.",
   textMinLength: "Будь ласка введіть більше {0} символів.",
   textMaxLength: "Будь ласка введіть менше {0} символів.",
   textMinMaxLength: "Будь ласка введіть більше {0} и менше {1} символів.",
@@ -140,4 +142,5 @@ surveyLocalization.setupLocale("ua", ukrainianSurveyStrings, "українськ
 // ok: "OK" => "ГАРАЗД"
 // cancel: "Cancel" => "Скасувати"// refuseItemText: "Refuse to answer" => "Відмовтеся відповідати"
 // dontKnowItemText: "Don't know" => "Не знаю"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ваша відповідь перевищує 64 КБ. Будь ласка, зменшіть розмір файлу (файлів) і повторіть спробу або зв'яжіться з власником опитування."
-// signaturePlaceHolderReadOnly: "No signature" => "Без підпису"// tabTitlePlaceholder: "New Panel" => "Нова панель"
+// signaturePlaceHolderReadOnly: "No signature" => "Без підпису"// tabTitlePlaceholder: "New Panel" => "Нова панель"// deselectAllItemText: "Deselect all" => "Зніміть позначку з усіх"
+// textNoDigitsAllow: "Numbers are not allowed." => "Номери не допускаються."

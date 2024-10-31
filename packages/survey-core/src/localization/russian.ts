@@ -12,6 +12,7 @@ export var russianSurveyStrings = {
   refuseItemText: "Отказываюсь отвечать",
   dontKnowItemText: "Не знаю",
   selectAllItemText: "Выбрать всё",
+  deselectAllItemText: "Отмена выбора всех",
   progressText: "Страница {0} из {1}",
   indexText: "{0} из {1}",
   panelDynamicProgressText: "Запись {0} из {1}",
@@ -31,6 +32,7 @@ export var russianSurveyStrings = {
   numericError: "Ответ должен быть числом.",
   minError: "Значение не должно быть меньше {0}.",
   maxError: "Значение не должно превышать {0}.",
+  textNoDigitsAllow: "Номера не допускаются.",
   textMinLength: "Пожалуйста введите больше {0} символов.",
   textMaxLength: "Пожалуйста введите меньше {0} символов.",
   textMinMaxLength: "Пожалуйста введите больше {0} и меньше {1} символов.",
@@ -125,4 +127,5 @@ surveyLocalization.setupLocale("ru", russianSurveyStrings, "русский", "Ru
 // showDetails: "Show Details" => "Показать подробности"
 // hideDetails: "Hide Details" => "Скрыть подробности"
 // cancel: "Cancel" => "Отмена"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ваш ответ превышает 64 КБ. Уменьшите размер файла (файлов) и повторите попытку или обратитесь к владельцу опроса."
-// signaturePlaceHolderReadOnly: "No signature" => "Без подписи"// tabTitlePlaceholder: "New Panel" => "Новая панель"
+// signaturePlaceHolderReadOnly: "No signature" => "Без подписи"// tabTitlePlaceholder: "New Panel" => "Новая панель"// deselectAllItemText: "Deselect all" => "Отмена выбора всех"
+// textNoDigitsAllow: "Numbers are not allowed." => "Номера не допускаются."

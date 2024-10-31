@@ -12,6 +12,7 @@ export var hindiStrings = {
   refuseItemText: "जवाब देने से इनकार",
   dontKnowItemText: "नहीं मालूम",
   selectAllItemText: "सभी का चयन करें",
+  deselectAllItemText: "सभी को अचयनित करें",
   progressText: "पृष्ठ 1 में से 0",
   indexText: "{1} का {0}",
   panelDynamicProgressText: " दस्तावेज {1} के {0}",
@@ -31,6 +32,7 @@ export var hindiStrings = {
   numericError: "मूल्य संख्यात्मक होना चाहिए",
   minError: "मान {0} से कम नहीं होना चाहिए",
   maxError: "मान {0} से अधिक नहीं होना चाहिए",
+  textNoDigitsAllow: "संख्या की अनुमति नहीं है।",
   textMinLength: "कृपया कम से कम {0} वर्ण दर्ज करें",
   textMaxLength: "कृपया {0} से कम वर्ण दर्ज करें",
   textMinMaxLength: "कृपया {0} से अधिक और {1} से कम पात्रों में प्रवेश करें",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("hi", hindiStrings, "hindi", "Hindi");
 // ok: "OK" => "ठीक है"
 // cancel: "Cancel" => "रद्द करना"// refuseItemText: "Refuse to answer" => "जवाब देने से इनकार"
 // dontKnowItemText: "Don't know" => "नहीं मालूम"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "आपकी प्रतिक्रिया 64KB से अधिक है। कृपया अपनी फ़ाइल(फ़ाइलों) का आकार घटाएँ और पुन: प्रयास करें या सर्वेक्षण स्वामी से संपर्क करें."
-// signaturePlaceHolderReadOnly: "No signature" => "कोई हस्ताक्षर नहीं"// tabTitlePlaceholder: "New Panel" => "नया पैनल"
+// signaturePlaceHolderReadOnly: "No signature" => "कोई हस्ताक्षर नहीं"// tabTitlePlaceholder: "New Panel" => "नया पैनल"// deselectAllItemText: "Deselect all" => "सभी को अचयनित करें"
+// textNoDigitsAllow: "Numbers are not allowed." => "संख्या की अनुमति नहीं है।"

@@ -12,6 +12,7 @@ export var norwegianSurveyStrings = {
   refuseItemText: "Nekter å svare",
   dontKnowItemText: "Vet ikke",
   selectAllItemText: "Velg alle",
+  deselectAllItemText: "Fjern merket for alle",
   progressText: "Side {0} av {1}",
   indexText: "{0} av {1}",
   panelDynamicProgressText: "Ta opp {0} av {1}",
@@ -31,6 +32,7 @@ export var norwegianSurveyStrings = {
   numericError: "Verdien skal være numerisk.",
   minError: "Verdien bør ikke være mindre enn {0}",
   maxError: "Verdien bør ikke være større enn {0}",
+  textNoDigitsAllow: "Tall er ikke tillatt.",
   textMinLength: "Vennligst skriv inn minst {0} tegn.",
   textMaxLength: "Vennligst skriv inn mindre enn {0} tegn.",
   textMinMaxLength: "Vennligst skriv inn mer enn {0} og mindre enn {1} tegn.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("no", norwegianSurveyStrings, "norsk", "Norwegian
 // cancel: "Cancel" => "Annullere"
 // refuseItemText: "Refuse to answer" => "Nekter å svare"
 // dontKnowItemText: "Don't know" => "Vet ikke"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Svaret ditt overstiger 64 kB. Reduser størrelsen på filen(e) din(e), og prøv på nytt, eller kontakt eieren av en spørreundersøkelse."
-// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"// tabTitlePlaceholder: "New Panel" => "Nytt panel"
+// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"// tabTitlePlaceholder: "New Panel" => "Nytt panel"// deselectAllItemText: "Deselect all" => "Fjern merket for alle"
+// textNoDigitsAllow: "Numbers are not allowed." => "Tall er ikke tillatt."

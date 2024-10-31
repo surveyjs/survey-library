@@ -12,6 +12,7 @@ export var icelandicSurveyStrings = {
   refuseItemText: "Neita að svara",
   dontKnowItemText: "Veit ekki",
   selectAllItemText: "Velja allt",
+  deselectAllItemText: "Afveljið allt",
   progressText: "Síða {0} of {1}",
   indexText: "{0} af {1}",
   panelDynamicProgressText: "Taka upp {0} af {1}",
@@ -31,6 +32,7 @@ export var icelandicSurveyStrings = {
   numericError: "Þetta gildi verður að vera tala.",
   minError: "Gildið má ekki vera lægra en {0}",
   maxError: "Gildið má ekki vera hærra en {0}",
+  textNoDigitsAllow: "Tölur eru ekki leyfðar.",
   textMinLength: "Það ætti að vera minnst {0} tákn.",
   textMaxLength: "Það ætti að vera mest {0} tákn.",
   textMinMaxLength: "Það ætti að vera fleiri en {0} og færri en {1} tákn.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("is", icelandicSurveyStrings, "íslenska", "Icela
 // cancel: "Cancel" => "Afturkalla"
 // refuseItemText: "Refuse to answer" => "Neita að svara"
 // dontKnowItemText: "Don't know" => "Veit ekki"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Svar þitt fer yfir 64KB. Vinsamlegast minnkaðu stærð skráa þinna og reyndu aftur eða hafðu samband við eiganda könnunarinnar."
-// signaturePlaceHolderReadOnly: "No signature" => "Engin undirskrift"// tabTitlePlaceholder: "New Panel" => "Nýtt spjald"
+// signaturePlaceHolderReadOnly: "No signature" => "Engin undirskrift"// tabTitlePlaceholder: "New Panel" => "Nýtt spjald"// deselectAllItemText: "Deselect all" => "Afveljið allt"
+// textNoDigitsAllow: "Numbers are not allowed." => "Tölur eru ekki leyfðar."

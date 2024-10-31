@@ -12,6 +12,7 @@ export var catalanSurveyStrings = {
   refuseItemText: "Negar-se a respondre",
   dontKnowItemText: "No sé",
   selectAllItemText: "Selecciona-ho tot",
+  deselectAllItemText: "Desselecciona-ho tot",
   progressText: "Pàgina {0} de {1}",
   indexText: "{0} de {1}",
   panelDynamicProgressText: "{0} de {1}",
@@ -31,6 +32,7 @@ export var catalanSurveyStrings = {
   numericError: "L'estimació ha de ser numèrica.",
   minError: "El valor no ha de ser inferior a {0}",
   maxError: "El valor no ha de ser superior a {0}",
+  textNoDigitsAllow: "No es permeten números.",
   textMinLength: "Si us plau entre almenys {0} símbols.",
   textMaxLength: "Si us plau entre menys de {0} símbols.",
   textMinMaxLength: "Si us plau entre més de {0} i menys de {1} símbols.",
@@ -180,4 +182,5 @@ surveyLocalization.setupLocale("ca", catalanSurveyStrings, "català", "Catalan")
 // cancel: "Cancel" => "Cancel·lar"
 // refuseItemText: "Refuse to answer" => "Negar-se a respondre"
 // dontKnowItemText: "Don't know" => "No sé"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "La teva resposta supera els 64KB. Reduïu la mida dels fitxers i torneu-ho a provar o poseu-vos en contacte amb el propietari de l'enquesta."
-// signaturePlaceHolderReadOnly: "No signature" => "Sense signatura"// tabTitlePlaceholder: "New Panel" => "Nou Panell"
+// signaturePlaceHolderReadOnly: "No signature" => "Sense signatura"// tabTitlePlaceholder: "New Panel" => "Nou Panell"// deselectAllItemText: "Deselect all" => "Desselecciona-ho tot"
+// textNoDigitsAllow: "Numbers are not allowed." => "No es permeten números."

@@ -12,6 +12,7 @@ export var thaiStrings = {
   refuseItemText: "ปฏิเสธที่จะตอบ",
   dontKnowItemText: "ไม่ทราบ",
   selectAllItemText: "เลือกทั้งหมด",
+  deselectAllItemText: "ยกเลิกการเลือกทั้งหมด",
   progressText: "หน้าที่ {0} จาก {1}",
   indexText: "{0} of {1}",
   panelDynamicProgressText: "รายการที่ {0} จาก {1}",
@@ -31,6 +32,7 @@ export var thaiStrings = {
   numericError: "ข้อมูลที่ใส่ต้องเป็นตัวเลข",
   minError: "ค่าไม่ควรน้อยกว่า {0}",
   maxError: "ค่าไม่ควรเกิน{0}",
+  textNoDigitsAllow: "ไม่อนุญาตให้ใช้หมายเลข",
   textMinLength: "กรุณาใส่ขั้นต่ำจำนวน {0} ตัวอักษร",
   textMaxLength: "กรุณาใส่ไม่เกินจำนวน {0} ตัวอักษร",
   textMinMaxLength: "กรุณาใส่ขั้นต่ำจำนวน {0} และไม่เกินจำนวน {1} ตัวอักษร",
@@ -140,4 +142,5 @@ surveyLocalization.setupLocale("th", thaiStrings, "ไทย", "Thai");
 // ok: "OK" => "ตกลง, ได้"
 // cancel: "Cancel" => "ยกเลิก"// refuseItemText: "Refuse to answer" => "ปฏิเสธที่จะตอบ"
 // dontKnowItemText: "Don't know" => "ไม่ทราบ"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "คําตอบของคุณเกิน 64KB โปรดลดขนาดไฟล์ของคุณแล้วลองอีกครั้งหรือติดต่อเจ้าของแบบสํารวจ"
-// signaturePlaceHolderReadOnly: "No signature" => "ไม่มีลายเซ็น"// tabTitlePlaceholder: "New Panel" => "แผงใหม่"
+// signaturePlaceHolderReadOnly: "No signature" => "ไม่มีลายเซ็น"// tabTitlePlaceholder: "New Panel" => "แผงใหม่"// deselectAllItemText: "Deselect all" => "ยกเลิกการเลือกทั้งหมด"
+// textNoDigitsAllow: "Numbers are not allowed." => "ไม่อนุญาตให้ใช้หมายเลข"

@@ -88,7 +88,7 @@
     "vrt:ko": "testcafe ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --reporter minimal --env=knockout --selector-timeout 1500 --config-file .testcaferc.dev.js",
     "vrt:react": "testcafe ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --reporter minimal --env=react --selector-timeout 1500 --config-file .testcaferc.dev.js",
     "visual-regression-tests:ci": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal",
-    "visual-regression-tests:ci:knockout": "testcafe  ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --env=knockout",
+    "visual-regression-tests:ci:knockout": "testcafe  ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --env=knockout --reporter minimal",
     "visual-regression-tests:ci:angular": "testcafe  ./visualRegressionTests/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=angular",
     "visual-regression-tests:angular": "testcafe ./visualRegressionTests/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=angular --config-file .testcaferc.dev.js",
     "visual-regression-tests:ci:react": "testcafe  ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react",

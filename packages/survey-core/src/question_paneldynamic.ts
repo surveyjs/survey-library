@@ -2643,7 +2643,7 @@ Serializer.addClass(
     { name: "minPanelCount:number", default: 0, minValue: 0 },
     {
       name: "maxPanelCount:number",
-      default: settings.panel.maxPanelCount,
+      defaultFunc: () => settings.panel.maxPanelCount,
     },
     "defaultPanelValue:panelvalue",
     "defaultValueFromLastPanel:boolean",

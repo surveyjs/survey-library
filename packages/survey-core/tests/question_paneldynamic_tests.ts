@@ -7591,3 +7591,10 @@ QUnit.test("Validation doesn't work if a user doensn't visit the page, Bug#8937"
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   assert.equal(panel.panels[0].getQuestionByName("question2").errors.length, 1, "has an error");
 });
+QUnit.test("default value for maxPanelCount, Bug#9000", function (assert) {
+  assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 100, "default value");
+  settings.panel.maxPanelCount = 300;
+  assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 300, "updated default value");
+  settings.panel.maxPanelCount = 100;
+  assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 100, "default value again");
+});

@@ -549,6 +549,7 @@ f-panel {
   width: calc(3 * var(--base-unit, 8px));
   flex-shrink: 0;
   align-items: self-start;
+  box-sizing: content-box;
 
   svg:nth-of-type(1) {
     height: 16px;

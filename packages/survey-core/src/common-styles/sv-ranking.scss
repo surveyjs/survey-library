@@ -59,6 +59,7 @@
   padding-left: calcSize(1);
   padding-right: calcSize(1);
   margin-left: calcSize(-2);
+  box-sizing: content-box;
 }
 
 .sv-ranking-item--disabled.sv-ranking-item--disabled,

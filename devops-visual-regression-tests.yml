@@ -463,7 +463,7 @@ jobs:
 #     condition: always()
 #     displayName: 'publish vrt artifacts'
 
-- job: SurveyUI
+- job: SurveyUI-and-CSS-Frameworks
   steps:
   - checkout: self
 

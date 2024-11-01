@@ -897,7 +897,7 @@ jobs:
 #         ArtifactName: "SurveyJSLibraryBuildJQueryUI"
 #         publishLocation: "Container"
 
-- job: SurveyUI
+- job: SurveyUI-and-CSS-Frameworks
   dependsOn:
     - NPMCache
 

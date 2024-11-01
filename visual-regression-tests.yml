@@ -465,7 +465,7 @@ jobs:
 #     condition: always()
 #     displayName: 'publish vrt artifacts'
 
-- job: SurveyUI-and-CSS-Frameworks
+- job: SurveyUI_and_CSSFrameworks
   steps:
   - checkout: self
 

@@ -372,7 +372,7 @@ jobs:
 #         npm run testcafe:jquery-ui:ci
 #       displayName: "run functional tests"
 
-- job: SurveyUI-and-CSS-Frameworks
+- job: SurveyUI_and_CSSFrameworks
   steps:
     - checkout: self
       persistCredentials: true

@@ -9,8 +9,6 @@ import { PopupBaseViewModel, PopupModel, createPopupViewModel } from "survey-cor
 
 export class PopupComponent extends BaseAngular<PopupModel> {
   @Input() popupModel!: PopupModel;
-  @Input() getTarget?: (container: HTMLElement) => HTMLElement;
-  @Input() getArea?: (container: HTMLElement) => HTMLElement;
   @ViewChild("containerRef") containerRef!: ElementRef<HTMLDivElement>;
 
   public model!: PopupBaseViewModel;

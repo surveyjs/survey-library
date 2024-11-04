@@ -117,7 +117,7 @@ export class QuestionMatrixDropdownBase extends Question {
     await this.scrollIntoViewIfNeeded();
     const label = "row " + rowVal.toString() + ", column " + colVal;
     const div = this.page.locator("div[aria-label='" + label + "']");
-    const cellQuestion = this.question.locator(".sd-matrix__question-wrapper").filter({ has: div });
+    const cellQuestion = this.question.locator(".sd-table__question-wrapper").filter({ has: div });
     const row = this.question.locator("tr").filter({ has: div });
     row.scrollIntoViewIfNeeded();
 

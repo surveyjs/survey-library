@@ -219,7 +219,7 @@ frameworks.forEach((framework) => {
     const titleSelector = Selector(".sv_p_title");
     await t.expect(titleSelector.exists).notOk();
     await setTitle("panel title");
-    await t.expect(titleSelector.exists).ok().expect(titleSelector.innerText).eql("panel title");
+    await t.expect(titleSelector.exists).ok().expect(titleSelector.find(".sv-string-viewer").innerText).eql("panel title");
     await setTitle("");
     await t.expect(titleSelector.exists).notOk();
   });

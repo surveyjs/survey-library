@@ -24,7 +24,9 @@
 
 .sd-image__no-image use {
   fill: $foreground-light;
+  opacity: 0.5;
 }
+
 .sd-question--image {
   width: 100%;
 }

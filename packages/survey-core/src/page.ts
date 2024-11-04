@@ -43,6 +43,9 @@ export class PageModel extends PanelModelBase implements IPage {
   public get cssTitleNumber(): string {
     return this.cssClasses.page.number;
   }
+  public getCssTitleExpandableSvg(): string {
+    return null;
+  }
   public get cssRequiredText(): string {
     return "";
   }

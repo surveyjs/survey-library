@@ -671,13 +671,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public get dragDropSvgIcon(): string {
-    return this.cssClasses.dragDropSvgIconId || "#icon-drag-n-drop";
+    return this.cssClasses.dragDropSvgIconId || "#icon-drag-24x24";
   }
   public get arrowsSvgIcon(): string {
-    return this.cssClasses.arrowsSvgIconId || "#icon-ranking-arrows";
+    return this.cssClasses.arrowsSvgIconId || "#icon-reorder-24x24";
   }
   public get dashSvgIcon(): string {
-    return this.cssClasses.dashSvgIconId || "#icon-ranking-dash";
+    return this.cssClasses.dashSvgIconId || "#icon-rankingundefined-16x16";
   }
 
   //a11y

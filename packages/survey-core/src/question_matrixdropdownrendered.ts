@@ -725,7 +725,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         actions.push(
           new Action({
             id: "remove-row",
-            iconName: "icon-delete",
+            iconName: "icon-delete-24x24",
             iconSize: "auto",
             component: "sv-action-bar-item",
             innerCss: new CssClassBuilder().append(this.matrix.cssClasses.button).append(this.matrix.cssClasses.buttonRemove).toString(),

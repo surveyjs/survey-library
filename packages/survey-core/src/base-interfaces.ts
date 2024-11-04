@@ -311,6 +311,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   dispose(): void;
   needResponsiveWidth(): boolean;
   updateRootStyle(): void;
+  updateElementVisibility();
 }
 
 export interface IQuestion extends IElement, ISurveyErrorOwner {

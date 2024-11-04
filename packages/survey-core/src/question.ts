@@ -164,9 +164,7 @@ export class Question extends SurveyElement<Question>
     });
     this.commentTextAreaModel = new TextAreaModel(this.getCommentTextAreaOptions());
 
-    this.addExpressionProperty("visibleIf",
-      (obj: Base, res: any) => { this.visible = res === true; },
-      (obj: Base) => { return !this.areInvisibleElementsShowing; });
+    this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; });
     this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
@@ -417,6 +415,9 @@ export class Question extends SurveyElement<Question>
       this.onHidingContent();
     }
   }
+  public updateElementVisibility(): void {
+    this.updateIsVisibleProp();
+  }
   private updateIsVisibleProp(): void {
     const prev = this.getPropertyValue("isVisible");
     const val = this.isVisible;
@@ -425,6 +426,9 @@ export class Question extends SurveyElement<Question>
       if (!val) {
         this.onHidingContent();
       }
+    }
+    if(val !== this.visible && this.areInvisibleElementsShowing) {
+      this.updateQuestionCss(true);
     }
   }
   /**

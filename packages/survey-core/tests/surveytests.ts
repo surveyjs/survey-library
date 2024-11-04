@@ -8979,6 +8979,44 @@ QUnit.test("survey.showInvisibleElements property, Bug#2423", function (assert) 
   );
 });
 
+QUnit.test("survey.showInvisibleElements property & question invisible css style, Bug#9002", function (assert) {
+  const survey = new SurveyModel();
+  survey.css = { question: { invisible: "sd-element--invisible" } };
+  assert.equal(survey.css.question.invisible, "sd-element--invisible", "survey css is updated");
+  survey.fromJSON({
+    "elements": [
+      {
+        "type": "text",
+        "name": "q2",
+        "visibleIf": "{q1} = true"
+      },
+      {
+        "type": "boolean",
+        "name": "q1",
+        "title": "Show Textbox"
+      }
+    ]
+  });
+  survey.showInvisibleElements = true;
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.visible, false, "visible is false, #1");
+  assert.equal(q2.isVisible, true, "isVisible is true, #1");
+  assert.equal(q2.getRootCss().indexOf("sd-element--invisible") > -1, true, "#1");
+  q1.value = true;
+  assert.equal(q2.visible, true, "visible is false, #2");
+  assert.equal(q2.isVisible, true, "isVisible is true, #2");
+  assert.equal(q2.getRootCss().indexOf("sd-element--invisible") > -1, false, "#2");
+  q1.value = false;
+  assert.equal(q2.visible, false, "visible is false, #3");
+  assert.equal(q2.isVisible, true, "isVisible is true, #3");
+  assert.equal(q2.getRootCss().indexOf("sd-element--invisible") > -1, true, "#3");
+  survey.showInvisibleElements = false;
+  assert.equal(q2.visible, false, "visible is false, #4");
+  assert.equal(q2.isVisible, false, "isVisible is true, #4");
+  assert.equal(q2.getRootCss().indexOf("sd-element--invisible") > -1, false, "#4");
+});
+
 QUnit.test(
   "panel.visibleIf doesn't work if it is a single panel on the page, #1329",
   function (assert) {

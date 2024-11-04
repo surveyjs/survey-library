@@ -70,6 +70,12 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       };
       stateElement.enableOnElementRerenderedEvent();
     }
+    stateElement.onBlockUpdatesCallback = () => {
+      this.getChangeDetectorRef().detach();
+    };
+    stateElement.onReleaseUpdatesCallback = () => {
+      this.getChangeDetectorRef().reattach();
+    };
   }
   private unMakeBaseElementAngular(stateElement?: Base) {
     if (!!stateElement && this.isModelSubsribed) {
@@ -84,11 +90,13 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
         }
       });
       stateElement.disableOnElementRerenderedEvent();
+      stateElement.onBlockUpdatesCallback = undefined as any;
+      stateElement.onReleaseUpdatesCallback = undefined as any;
     }
   }
 
   protected update(key?: string): void {
-    if (this.getIsRendering()) return;
+    if (this.getIsRendering() || this.getModel().isUpdatesBlocked) return;
     this.beforeUpdate();
     if (key && this.getPropertiesToUpdateSync().indexOf(key) > -1) {
       this.detectChanges();

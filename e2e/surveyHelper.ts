@@ -19,24 +19,41 @@ export class Survey {
     await this.checkButtonVisibility(this.completeButtonValue, isVisible);
   }
   public async checkData(json: any): Promise<void> {
-    const data = await this.page.evaluate(() => {
-      return window["survey"].data;
-    });
-    await expect(data).toStrictEqual(json);
+    await this.doDataCheck(json);
+  }
+  public async checkQuestionValue(questionName: string, value: any): Promise<void> {
+    await this.doDataCheck(value, questionName);
   }
   public async checkVisibleQuestions(num: number): Promise<void> {
     const len = await this.page.evaluate(() => { return window["survey"].getAllQuestions(true).length; });
-    await expect(num).toStrictEqual(len);
+    expect(num).toStrictEqual(len);
   }
-  private getNavigatorButton(value: string): Locator {
+  public async checkIfCssClassExists(className: string, shouldExists: boolean): Promise<void> {
+    const classExists = await this.page.evaluate(className => {
+      return !!document.querySelector(`.${className}`);
+    }, className);
+    if(shouldExists) {
+      expect(classExists).toBeTruthy();
+    } else {
+      expect(classExists).toBeFalsy();
+    }
+  }
+  public getNavigatorButton(value: string): Locator {
     return this.page.locator("input[value='" + value + "']").last();
   }
   private async checkButtonVisibility(btnValue: string, isVisible: boolean): Promise<void> {
     const l = this.getNavigatorButton(btnValue);
     if(isVisible) {
-      await expect(l.isVisible).toBeTruthy();
+      expect(l.isVisible).toBeTruthy();
     } else {
-      await expect(l.isHidden).toBeTruthy();
+      expect(l.isHidden).toBeTruthy();
     }
+  }
+  private async doDataCheck(json: any, questionName?: string): Promise<void> {
+    const data = await this.page.evaluate(() => {
+      return window["survey"].data;
+    });
+    const checkData = !!questionName ? data[questionName] : data;
+    await expect(checkData).toStrictEqual(json);
   }
 }

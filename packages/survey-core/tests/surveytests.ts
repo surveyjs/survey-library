@@ -9016,6 +9016,34 @@ QUnit.test("survey.showInvisibleElements property & question invisible css style
   assert.equal(q2.isVisible, false, "isVisible is true, #4");
   assert.equal(q2.getRootCss().indexOf("sd-element--invisible") > -1, false, "#4");
 });
+QUnit.test("survey.showInvisibleElements property & multiple pages", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "radiogroup", name: "q1", choices: ["Yes", "No"] },
+          {
+            type: "text",
+            name: "q2",
+            defaultValue: "q2Value",
+            visibleIf: "{q1} = 'Yes'",
+          },
+        ],
+      },
+      {
+        elements: [{ type: "text", name: "q3", visibleIf: "{q1} = 'Yes'" }],
+      },
+    ],
+  });
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, true, "sv-nav-complete, #1");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-next").isVisible, false, "sv-nav-next, #1");
+  survey.showInvisibleElements = true;
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, false, "sv-nav-complete, #2");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-next").isVisible, true, "sv-nav-next, #2");
+  survey.showInvisibleElements = false;
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, true, "sv-nav-complete, #3");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-next").isVisible, false, "sv-nav-next, #3");
+});
 
 QUnit.test(
   "panel.visibleIf doesn't work if it is a single panel on the page, #1329",

@@ -1018,10 +1018,10 @@ export class PanelModelBase extends SurveyElement<Question>
     return false;
   }
   updateElementVisibility(): void {
-    super.updateElementVisibility();
     for (let i = 0; i < this.elements.length; i++) {
       this.elements[i].updateElementVisibility();
     }
+    super.updateElementVisibility();
   }
   getFirstQuestionToFocus(withError: boolean = false, ignoreCollapseState: boolean = false): Question {
     if (!withError && !ignoreCollapseState && this.isCollapsed) return null;

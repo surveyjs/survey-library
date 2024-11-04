@@ -293,6 +293,12 @@ export class QuestionRowModel extends Base {
   public getRootElement(): HTMLElement {
     return this.rootElement;
   }
+  public blockUpdates(deep?: boolean): void {
+    super.blockUpdates(deep);
+    if(deep) {
+      this.visibleElements.forEach(el => (el as unknown as Base).blockUpdates(deep));
+    }
+  }
 }
 
 /**
@@ -2054,11 +2060,15 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   public blockUpdates(deep?: boolean): void {
     super.blockUpdates();
-    if(deep) this.elements.forEach(el => (el as unknown as Base).blockUpdates(true));
+    if(deep) {
+      this.visibleRows.forEach(el => (el as unknown as Base).blockUpdates(true));
+    }
   }
   public releaseUpdates(deep?: boolean): void {
     super.releaseUpdates();
-    if(deep) this.elements.forEach(el => (el as unknown as Base).releaseUpdates(true));
+    if(deep) {
+      this.visibleRows.forEach(el => (el as unknown as Base).releaseUpdates(true));
+    }
   }
 }
 

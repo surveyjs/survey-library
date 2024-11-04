@@ -96,16 +96,20 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
 
   protected update(key?: string): void {
-    if (this.getIsRendering() || this.getModel().isUpdatesBlocked) return;
+    if (this.getIsRendering()) return;
     this.beforeUpdate();
     if (key && this.getPropertiesToUpdateSync().indexOf(key) > -1) {
-      this.detectChanges();
+      if(!this.getModel().isUpdatesBlocked) {
+        this.detectChanges();
+      }
       this.afterUpdate(true);
     } else {
       queueMicrotask(() => {
         if (!this.isDestroyed) {
           this.setIsRendering(true);
-          this.detectChanges();
+          if(!this.getModel().isUpdatesBlocked) {
+            this.detectChanges();
+          }
         }
         this.afterUpdate();
       });

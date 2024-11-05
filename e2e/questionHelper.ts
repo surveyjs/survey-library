@@ -14,6 +14,14 @@ export class Question {
       await this.question.scrollIntoViewIfNeeded();
     }
   }
+  protected async hasClassIncluded(loc: Locator, isChecked: boolean, className: string): Promise<void> {
+    const reg = new RegExp(className);
+    if(isChecked) {
+      await expect(loc).toHaveClass(reg);
+    } else {
+      await expect(loc).not.toHaveClass(reg);
+    }
+  }
 }
 
 export class QuestionSelect extends Question {
@@ -82,9 +90,13 @@ export class QuestionImagePicker extends Question {
   }
 }
 export class QuestionBoolean extends Question {
+  public get rootLoc(): Locator { return this.question.locator("label"); }
   public async clickItemByText(val: string): Promise<void> {
     await this.scrollIntoViewIfNeeded();
     await this.question.locator("span").getByText(val).first().click();
+  }
+  public async isClassChecked(isChecked: boolean): Promise<void> {
+    await this.hasClassIncluded(this.rootLoc, isChecked, "sd-boolean--checked");
   }
 }
 export class QuestionHtml extends Question {

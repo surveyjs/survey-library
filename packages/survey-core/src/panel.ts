@@ -1017,14 +1017,11 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return false;
   }
-  updateElementVisibility() {
-    for (var i = 0; i < this.elements.length; i++) {
-      var el = this.elements[i];
-      (<Base>(<any>el)).setPropertyValue("isVisible", el.isVisible);
-      if (el.isPanel) {
-        (<PanelModelBase>(<any>el)).updateElementVisibility();
-      }
+  updateElementVisibility(): void {
+    for (let i = 0; i < this.elements.length; i++) {
+      this.elements[i].updateElementVisibility();
     }
+    super.updateElementVisibility();
   }
   getFirstQuestionToFocus(withError: boolean = false, ignoreCollapseState: boolean = false): Question {
     if (!withError && !ignoreCollapseState && this.isCollapsed) return null;
@@ -1046,8 +1043,8 @@ export class PanelModelBase extends SurveyElement<Question>
    * Focuses the first question in this panel/page.
    * @see focusFirstErrorQuestion
    */
-  public focusFirstQuestion() {
-    var q = this.getFirstQuestionToFocus();
+  public focusFirstQuestion(): void {
+    const q = this.getFirstQuestionToFocus();
     if (!!q) {
       q.focus();
     }

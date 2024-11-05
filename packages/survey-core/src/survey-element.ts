@@ -339,6 +339,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.onParentQuestionChanged();
   }
   protected onParentQuestionChanged(): void { }
+  public updateElementVisibility(): void {
+    this.setPropertyValue("isVisible", this.isVisible);
+  }
 
   public get skeletonComponentName(): string {
     return this.getSkeletonComponentNameCore();

@@ -12,7 +12,6 @@ import {
   onBeforeUnmount,
   watchEffect,
   nextTick,
-  customRef,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});
@@ -34,35 +33,6 @@ class NextRenderManager {
   }
 }
 
-export function useArrayRef(
-  value: Array<any>,
-  nextRenderManager: NextRenderManager
-) {
-  const ref = customRef((track, trigger) => {
-    const setupArray = (value: Array<any>) => {
-      (value as any).onArrayChanged = () => {
-        trigger();
-        nextRenderManager.add();
-      };
-    };
-    setupArray(value);
-    return {
-      get() {
-        track();
-        return value;
-      },
-      set(newValue) {
-        if (value !== newValue) {
-          value = newValue;
-          trigger();
-          setupArray(newValue);
-        }
-      },
-    };
-  });
-  return ref;
-}
-
 export function makeReactive(surveyElement: Base) {
   if (!surveyElement) return;
   (surveyElement as any).__vueImplemented =
@@ -70,12 +40,24 @@ export function makeReactive(surveyElement: Base) {
   if ((surveyElement as any).__vueImplemented <= 0) {
     const nextRenderManager = new NextRenderManager(surveyElement);
     surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
-      hash[key] = useArrayRef([], nextRenderManager);
+      const arr: any = [];
+      const arrayRef = shallowRef(arr);
+
+      arr.onArrayChanged = () => {
+        triggerRef(arrayRef);
+        nextRenderManager.add();
+      };
+      hash[key] = arrayRef;
       return unref(hash[key]);
     };
     surveyElement.iteratePropertiesHash((hash, key) => {
       if (Array.isArray(hash[key])) {
-        hash[key] = useArrayRef(hash[key], nextRenderManager);
+        const arrayRef = shallowRef(hash[key]);
+        hash[key]["onArrayChanged"] = () => {
+          triggerRef(arrayRef);
+          nextRenderManager.add();
+        };
+        hash[key] = arrayRef;
       }
     });
     surveyElement.getPropertyValueCoreHandler = (hash, key) => {

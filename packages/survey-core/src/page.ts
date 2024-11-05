@@ -317,6 +317,14 @@ export class PageModel extends PanelModelBase implements IPage {
     super.ensureRowsVisibility();
     this.getPanels().forEach((panel) => panel.ensureRowsVisibility());
   }
+  public onDetachFromUICallback: () => void;
+  public get isAttachedToUI(): boolean {
+    return !!this.onElementRerendered;
+  }
+  public disableOnElementRerenderedEvent(): void {
+    super.disableOnElementRerenderedEvent();
+    this.onDetachFromUICallback && this.onDetachFromUICallback();
+  }
 }
 
 Serializer.addClass(

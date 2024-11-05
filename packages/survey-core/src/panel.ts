@@ -293,12 +293,6 @@ export class QuestionRowModel extends Base {
   public getRootElement(): HTMLElement {
     return this.rootElement;
   }
-  public blockUpdates(deep?: boolean): void {
-    super.blockUpdates(deep);
-    if(deep) {
-      this.visibleElements.forEach(el => (el as unknown as Base).blockUpdates(deep));
-    }
-  }
 }
 
 /**
@@ -2057,18 +2051,6 @@ export class PanelModelBase extends SurveyElement<Question>
       this.elements[i].dispose();
     }
     this.elements.splice(0, this.elements.length);
-  }
-  public blockUpdates(deep?: boolean): void {
-    super.blockUpdates();
-    if(deep) {
-      this.visibleRows.forEach(el => (el as unknown as Base).blockUpdates(true));
-    }
-  }
-  public releaseUpdates(deep?: boolean): void {
-    super.releaseUpdates();
-    if(deep) {
-      this.visibleRows.forEach(el => (el as unknown as Base).releaseUpdates(true));
-    }
   }
 }
 

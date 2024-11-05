@@ -12,7 +12,6 @@ import {
   onBeforeUnmount,
   watchEffect,
   nextTick,
-  toRaw,
   customRef,
 } from "vue";
 Base.createPropertiesHash = () => {
@@ -37,16 +36,13 @@ class NextRenderManager {
 
 export function useArrayRef(
   value: Array<any>,
-  surveyElement: Base,
   nextRenderManager: NextRenderManager
 ) {
   const ref = customRef((track, trigger) => {
     const setupArray = (value: Array<any>) => {
       (value as any).onArrayChanged = () => {
-        if (!surveyElement.isUpdatesBlocked) {
-          trigger();
-          nextRenderManager.add();
-        }
+        trigger();
+        nextRenderManager.add();
       };
     };
     setupArray(value);
@@ -74,21 +70,18 @@ export function makeReactive(surveyElement: Base) {
   if ((surveyElement as any).__vueImplemented <= 0) {
     const nextRenderManager = new NextRenderManager(surveyElement);
     surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
-      hash[key] = useArrayRef([], surveyElement, nextRenderManager);
+      hash[key] = useArrayRef([], nextRenderManager);
       return unref(hash[key]);
     };
     surveyElement.iteratePropertiesHash((hash, key) => {
       if (Array.isArray(hash[key])) {
-        hash[key] = useArrayRef(hash[key], surveyElement, nextRenderManager);
+        hash[key] = useArrayRef(hash[key], nextRenderManager);
       }
     });
     surveyElement.getPropertyValueCoreHandler = (hash, key) => {
       return unref(hash[key]);
     };
     surveyElement.setPropertyValueCoreHandler = (hash, key, val) => {
-      if (surveyElement.isUpdatesBlocked) {
-        hash = toRaw(hash);
-      }
       if (isRef(hash[key])) {
         hash[key].value = val;
       } else {

@@ -1172,26 +1172,6 @@ export class Base {
   public afterRerender(): void {
     this.onElementRerendered?.fire(this, { isCancel: false });
   }
-  private isUpdatesBlockedLock: number = 0;
-  public onBlockUpdatesCallback: () => void;
-  public blockUpdates(deep?: boolean): void {
-    const oldIsUpdatesBlocked = this.isUpdatesBlocked;
-    this.isUpdatesBlockedLock++;
-    if (this.isUpdatesBlocked !== oldIsUpdatesBlocked) {
-      this.onBlockUpdatesCallback && this.onBlockUpdatesCallback();
-    }
-  }
-  public get isUpdatesBlocked(): boolean {
-    return this.isUpdatesBlockedLock > 0;
-  }
-  public onReleaseUpdatesCallback: () => void;
-  public releaseUpdates(deep?: boolean): void {
-    const oldIsUpdatesBlocked = this.isUpdatesBlocked;
-    this.isUpdatesBlockedLock--;
-    if (this.isUpdatesBlocked !== oldIsUpdatesBlocked) {
-      this.onReleaseUpdatesCallback && this.onReleaseUpdatesCallback();
-    }
-  }
 }
 
 export class ArrayChanges<T = any> {

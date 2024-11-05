@@ -115,6 +115,7 @@ export interface ICustomQuestionTypeConfiguration {
    * A custom question.
    */
   onLoaded?(question: Question): void;
+  onSetSurvey?(question: Question): void;
   /**
    * A function that is called after the entire question is rendered.
    *
@@ -294,17 +295,25 @@ export class ComponentQuestionJSON {
     );
     this.onInit();
   }
-  public onInit() {
-    if (!this.json.onInit) return;
-    this.json.onInit();
+  public onInit(): void {
+    if (!!this.json.onInit) {
+      this.json.onInit();
+    }
   }
-  public onCreated(question: Question) {
-    if (!this.json.onCreated) return;
-    this.json.onCreated(question);
+  public onCreated(question: Question): void {
+    if (!!this.json.onCreated) {
+      this.json.onCreated(question);
+    }
   }
-  public onLoaded(question: Question) {
-    if (!this.json.onLoaded) return;
-    this.json.onLoaded(question);
+  public onLoaded(question: Question): void {
+    if (!!this.json.onLoaded) {
+      this.json.onLoaded(question);
+    }
+  }
+  public onSetSurvey(question: Question): void {
+    if (!!this.json.onSetSurvey) {
+      this.json.onSetSurvey(question);
+    }
   }
   public onAfterRender(question: Question, htmlElement: any): void {
     if (!this.json.onAfterRender) return;
@@ -598,7 +607,7 @@ export abstract class QuestionCustomModelBase extends Question
     return res;
   }
   protected abstract getElement(): SurveyElement;
-  protected initElement(el: SurveyElement) {
+  protected initElement(el: SurveyElement): void {
     if (!el) return;
     el.setSurveyImpl(this);
     el.disableDesignActions = true;
@@ -608,9 +617,15 @@ export abstract class QuestionCustomModelBase extends Question
     this.isSettingValOnLoading = true;
     super.setSurveyImpl(value, isLight);
     this.initElement(this.getElement());
+    this.callSetSurvey();
     this.isSettingValOnLoading = false;
   }
-  public onSurveyLoad() {
+  private callSetSurvey(): void {
+    if(!!this.survey) {
+      this.customQuestion?.onSetSurvey(this);
+    }
+  }
+  public onSurveyLoad(): void {
     super.onSurveyLoad();
     if (!!this.getElement()) {
       this.getElement().onSurveyLoad();

@@ -20608,7 +20608,7 @@ QUnit.test("Check that focusInput works correctly with shadow dom", function (as
   root.remove();
 });
 
-QUnit.only("Check page is cleared only after unmount", function (assert) {
+QUnit.test("Check page is cleared only after unmount", function (assert) {
   const survey = new SurveyModel({
     pages: [
       {

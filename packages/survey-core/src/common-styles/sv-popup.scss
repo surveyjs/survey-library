@@ -286,10 +286,6 @@ sv-popup {
   }
 }
 
-.sv-popup--dropdown > .sv-popup__container > .sv-popup__body-content .sv-list {
-  background-color: transparent;
-}
-
 .sv-dropdown-popup {
   .sv-popup__body-content {
     padding: calcSize(0.5) 0;

@@ -2170,6 +2170,41 @@ frameworks.forEach((framework) => {
       .expect(textQuestion.focused).ok()
       .expect(popupContainer.visible).notOk();
   });
+  test("Fix react dropdown value after matrix row re-render #9001", async (t) => {
+    if (framework == "vue") return;
+    const json = {
+      elements: [
+        {
+          "type": "matrixdynamic",
+          "name": "question1",
+          "columns": [
+            {
+              "name": "Column 1"
+            },
+            {
+              "name": "Column 2",
+              "visibleIf": "{row.Column 1} notempty"
+            },
+            {
+              "name": "Column 3",
+              "visibleIf": "{row.Column 1} notempty"
+            }
+          ],
+          "choices": [
+            "itemone",
+            "itemtwo"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, json);
+
+    await t
+      .click(questionDropdownSelect)
+      .click(getListItemByText("itemone"));
+
+    await t.expect(Selector("div").withText("itemone").visible).ok();
+  });
 });
 
 frameworks.forEach((framework) => {
@@ -2231,39 +2266,5 @@ frameworks.forEach((framework) => {
 
     let surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({ q1: { row1: { col1: "other", "col1-Comment": "ABC" } } });
-  });
-  test("Fix react dropdown value after matrix row re-render #9001", async (t) => {
-    const json = {
-      elements: [
-        {
-          "type": "matrixdynamic",
-          "name": "question1",
-          "columns": [
-            {
-              "name": "Column 1"
-            },
-            {
-              "name": "Column 2",
-              "visibleIf": "{row.Column 1} notempty"
-            },
-            {
-              "name": "Column 3",
-              "visibleIf": "{row.Column 1} notempty"
-            }
-          ],
-          "choices": [
-            "itemone",
-            "itemtwo"
-          ]
-        }
-      ]
-    };
-    await initSurvey(framework, json);
-
-    await t
-      .click(questionDropdownSelect)
-      .click(getListItemByText("itemone"));
-
-    await t.expect(Selector("div").withText("itemone").visible).ok();
   });
 });

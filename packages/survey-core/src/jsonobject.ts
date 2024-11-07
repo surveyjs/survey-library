@@ -1738,7 +1738,7 @@ export class JsonObject {
         parentProps[key] = true;
         dProps.forEach(propKey => {
           if(!parentProps[propKey]) {
-            this.setPropertyValueToObj(jsonObj, obj, propKey, properties, processedProps, parentProps, objType, needAddErrors, options);
+            this.setPropertyValueToObj(jsonObj, obj, propKey, properties, processedProps, parentProps, objType, false, options);
           }
         });
       }

@@ -53,21 +53,30 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
 
   protected getAvailableAreaRect(): Rect {
-    if (this.areaElement) {
-      const areaRect = this.areaElement.getBoundingClientRect();
+    const areaElement: HTMLElement = this.model.getAreaCallback ? this.model.getAreaCallback(this.container) : undefined;
+    if (areaElement) {
+      const areaRect = areaElement.getBoundingClientRect();
       return new Rect(areaRect.x, areaRect.y, areaRect.width, areaRect.height);
     }
     return new Rect(0, 0, DomWindowHelper.getInnerWidth(), DomWindowHelper.getInnerHeight());
   }
   protected getTargetElementRect(): Rect {
-    const rect = this.targetElement.getBoundingClientRect();
+    const componentRoot = this.container;
+    let targetElement: HTMLElement = this.model.getTargetCallback ? this.model.getTargetCallback(componentRoot) : undefined;
+
+    if (!targetElement) targetElement = this.targetElement;
+    if (!!componentRoot && !!componentRoot.parentElement && !this.isModal && !targetElement) {
+      targetElement = componentRoot.parentElement;
+    }
+    if (!targetElement) return null;
+    const rect = targetElement.getBoundingClientRect();
     const areaRect = this.getAvailableAreaRect();
     return new Rect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
   }
 
   private _updatePosition() {
-    if (!this.targetElement) return;
     const targetElementRect = this.getTargetElementRect();
+    if (!targetElementRect) return;
     const area = this.getAvailableAreaRect();
     const popupContainer = <HTMLElement>this.container?.querySelector(this.containerSelector);
     if (!popupContainer) return;
@@ -207,25 +216,15 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   private recalculatePositionHandler: (_: any, options: { isResetHeight: boolean }) => void;
 
-  constructor(model: PopupModel, public targetElement?: HTMLElement, public areaElement?: HTMLElement) {
+  constructor(model: PopupModel, public targetElement?: HTMLElement) {
     super(model);
     this.model.onRecalculatePosition.add(this.recalculatePositionHandler);
   }
   public setComponentElement(componentRoot: HTMLElement): void {
     super.setComponentElement(componentRoot);
-
-    const targetElement: HTMLElement = this.model.getTargetCallback ? this.model.getTargetCallback(componentRoot) : undefined;
-    const areaElement: HTMLElement = this.model.getAreaCallback ? this.model.getAreaCallback(componentRoot) : undefined;
-
-    if (!!componentRoot && !!componentRoot.parentElement && !this.isModal) {
-      this.targetElement = targetElement || componentRoot.parentElement;
-      this.areaElement = areaElement;
-    }
   }
   public resetComponentElement() {
     super.resetComponentElement();
-    this.targetElement = undefined;
-    this.areaElement = undefined;
   }
   public updateOnShowing(): void {
     const { root } = settings.environment;

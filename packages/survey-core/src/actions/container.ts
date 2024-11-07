@@ -175,7 +175,6 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   public dispose(): void {
     super.dispose();
-    this.resetResponsivityManager();
     this.actions.forEach(action => action.dispose());
     this.actions.length = 0;
   }

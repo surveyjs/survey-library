@@ -1534,12 +1534,13 @@ export class Question extends SurveyElement<Question>
   protected onSetData(): void {
     super.onSetData();
     if (!this.survey) return;
-    this.initDataFromSurvey();
-    this.onSurveyValueChanged(this.value);
-    this.updateValueWithDefaults();
     this.onIndentChanged();
-    this.updateQuestionCss();
-    this.updateIsAnswered();
+    if(!this.isDesignMode) {
+      this.initDataFromSurvey();
+      this.onSurveyValueChanged(this.value);
+      this.updateValueWithDefaults();
+      this.updateIsAnswered();
+    }
   }
   protected initDataFromSurvey(): void {
     if (!!this.data) {

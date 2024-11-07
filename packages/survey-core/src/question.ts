@@ -2105,7 +2105,7 @@ export class Question extends SurveyElement<Question>
     return this.isValueEmpty(this.value, !this.allowSpaceAsAnswer);
   }
   public get isAnswered(): boolean {
-    return this.getPropertyValue("isAnswered");
+    return this.getPropertyValue("isAnswered") || false;
   }
   public set isAnswered(val: boolean) {
     this.setPropertyValue("isAnswered", val);

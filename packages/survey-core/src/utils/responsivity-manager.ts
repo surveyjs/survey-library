@@ -110,6 +110,9 @@ export class ResponsivityManager {
       };
       if(!this.isInitialized) {
         const callback = () => {
+          if (!this.container) {
+            return;
+          }
           this.calcItemsSizes();
           this.isInitialized = true;
           processResponsiveness();
@@ -129,7 +132,9 @@ export class ResponsivityManager {
     this.model.updateCallback = undefined;
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
+      this.resizeObserver = undefined;
     }
+    this.container = undefined;
   }
 }
 

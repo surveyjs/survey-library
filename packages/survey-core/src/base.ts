@@ -170,6 +170,7 @@ export class ComputedUpdater<T = any> {
   }
   dispose(): any {
     this.clearDependencies();
+    this._updater = undefined;
   }
 }
 
@@ -323,6 +324,13 @@ export class Base {
     this.onPropertyValueChangedCallback = undefined;
     this.isDisposedValue = true;
     Object.keys(this.dependencies).forEach(key => this.dependencies[key].dispose());
+    // this.dependencies = {};
+    Object.keys(this.propertyHash).forEach(key => {
+      const propVal = this.getPropertyValueCore(this.propertyHash, key);
+      if (!!propVal && propVal.type == ComputedUpdater.ComputedUpdaterType) {
+        (propVal as ComputedUpdater).dispose();
+      }
+    });
   }
   public get isDisposed() {
     return this.isDisposedValue === true;

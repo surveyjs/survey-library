@@ -110,6 +110,9 @@ export class ResponsivityManager {
       };
       if (!this.isInitialized) {
         const callback = () => {
+          if (!this.container) {
+            return;
+          }
           this.calcItemsSizes();
           this.isInitialized = true;
           processResponsiveness();

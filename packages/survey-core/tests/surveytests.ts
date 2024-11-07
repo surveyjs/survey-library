@@ -20700,3 +20700,61 @@ QUnit.test("Check that focusInput works correctly with shadow dom", function (as
   assert.equal(root.shadowRoot?.activeElement, input);
   root.remove();
 });
+QUnit.test("Reduce the number of calls of setVisibleIndexes function", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  let counter = 0;
+  survey.onProgressText.add((sender, options) => {
+    counter ++;
+  });
+  survey.fromJSON({
+    pages: [{
+      elements: [
+        {
+          name: "p1_q1",
+          type: "paneldynamic",
+          templateElements: [
+            { type: "text", name: "p1_q2" },
+            {
+              name: "p1_q3",
+              type: "paneldynamic",
+              templateElements: [
+                { type: "text", name: "p1_q4" },
+                { type: "text", name: "p1_q5" }],
+            }
+          ]
+        }
+      ]
+    },
+    {
+      elements: [
+        {
+          name: "p2_q1",
+          type: "paneldynamic",
+          templateElements: [
+            { type: "text", name: "p2_q2" },
+            {
+              name: "p2_q3",
+              type: "paneldynamic",
+              templateElements: [
+                { type: "text", name: "p2_q4" },
+                { type: "text", name: "p2_q5" }],
+            }
+          ]
+        }
+      ]
+    }]
+  });
+  assert.equal(counter, 3, "On loading");
+  survey.pages[1].onFirstRendering();
+  assert.equal(counter, 3, "page[1].onFirstRendering(), do nothing");
+});
+QUnit.test("Do not include questions.values into survey.getFilteredValue in design time", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", defaultValue: 1 }],
+    calculatedValues: [{ name: "val1", expression: "2" }]
+  });
+  assert.deepEqual(survey.getFilteredValues(), { q1: 1, val1: 2 }, "survey in running state");
+  survey.setDesignMode(true);
+  assert.deepEqual(survey.getFilteredValues(), { val1: 2 }, "survey at design time");
+});

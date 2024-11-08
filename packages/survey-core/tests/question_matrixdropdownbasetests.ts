@@ -1815,3 +1815,30 @@ QUnit.test("rowVisibleIf & rowIndex, Bug#8796", function (assert) {
   assert.equal(matrix.visibleRows.length, 1, "The first row is visible only, #2");
   assert.deepEqual(matrix.value, [{ no: 1, column2: 1 }, { no: 2, column2: 2 }, { no: 3, column2: 3 }, { no: 4, column2: 4 }], "matrix.data");
 });
+QUnit.test("isQuestion answered & design time", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        titleLocation: "hidden",
+        cellType: "text",
+        "type": "matrixdropdown",
+        "name": "m",
+        "columns": ["Col 1", "Col 2"],
+        "rows": [
+          "Row 1",
+          "Row 2"
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("m");
+  assert.ok(matrix.renderedTable, "create rendered table");
+  assert.strictEqual(matrix.isAnswered, false, "Matrix is not answered");
+  const rows = matrix.visibleRows;
+  assert.strictEqual(rows[0].cells[0].question.isAnswered, false, "[0, 0]");
+  assert.strictEqual(rows[0].cells[1].question.isAnswered, false, "[0, 1]");
+  assert.strictEqual(rows[1].cells[0].question.isAnswered, false, "[1, 0]");
+  assert.strictEqual(rows[1].cells[1].question.isAnswered, false, "[1, 1]");
+});

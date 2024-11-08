@@ -3387,6 +3387,8 @@ QUnit.test("a11y", function (assert) {
   });
   const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
   assert.equal(q1.ariaRole, "group", "check role attribute");
+
+  ComponentCollection.Instance.clear();
 });
 QUnit.test("Dynamic serializable properties, bug#8852", function (assert) {
   ComponentCollection.Instance.add({
@@ -3408,4 +3410,29 @@ QUnit.test("Dynamic serializable properties, bug#8852", function (assert) {
   assert.equal(q1.contentQuestion.maxRateDescription, "val2", "maxRateDescription");
   assert.equal(q1.contentQuestion.hasMinRateDescription, true, "hasMinRateDescription");
   assert.equal(q1.contentQuestion.hasMaxRateDescription, true, "hasMaxRateDescription");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Dynamic serializable properties, bug#8852", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "dropdownWithComment",
+    inheritBaseProps: ["choices"],
+    questionJSON: {
+      type: "dropdown",
+      name: "dropdownElement",
+      choices: [
+        { value: 0, text: "Item 1 (with comments)", comments: true },
+        { value: 1, text: "Item 2 (without comments)", comments: false },
+        { value: 2, text: "Item 3 (with comments)", comments: true },
+      ],
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "dropdownWithComment", name: "q1", choices: [1] }
+    ]
+  });
+  assert.notOk(survey.jsonErrors, "There is not errors");
+
+  ComponentCollection.Instance.clear();
 });

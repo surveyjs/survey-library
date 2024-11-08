@@ -905,13 +905,24 @@ export class SurveyModel extends SurveyElementCore
     this.timerModelValue.onTimerTick = (page: PageModel): void => {
       this.doTimer(page);
     };
+
     this.createNewArray(
       "pages",
-      (value: any) => {
+      (value: PageModel) => {
+        if(value.isReadyForCleanChangedCallback) {
+          value.isReadyForCleanChangedCallback();
+        }
         this.doOnPageAdded(value);
       },
-      (value: any) => {
-        this.doOnPageRemoved(value);
+      (value: PageModel) => {
+        if(!value.isReadyForClean) {
+          value.isReadyForCleanChangedCallback = () => {
+            this.doOnPageRemoved(value);
+            value.isReadyForCleanChangedCallback = undefined;
+          };
+        } else {
+          this.doOnPageRemoved(value);
+        }
       }
     );
     this.createNewArray("triggers", (value: any) => {

@@ -20700,6 +20700,51 @@ QUnit.test("Check that focusInput works correctly with shadow dom", function (as
   assert.equal(root.shadowRoot?.activeElement, input);
   root.remove();
 });
+QUnit.test("Check page is cleared only after unmount", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "p1",
+        elements: [
+          { type: "text", name: "q1" },
+        ]
+      },
+      {
+        name: "p2",
+        elements: [
+          { type: "text", name: "q2" },
+        ]
+      },
+      {
+        name: "p3",
+        elements: [
+          { type: "text", name: "q3" },
+        ]
+      }
+    ]
+  });
+  const page1 = survey.getPageByName("p1");
+  page1.supportOnElementRerenderedEvent = true;
+  page1.enableOnElementRerenderedEvent();
+  survey.removePage(page1);
+  assert.ok(!!page1.survey);
+  page1.disableOnElementRerenderedEvent();
+  assert.notOk(!!page1.survey);
+
+  const page2 = survey.getPageByName("p2");
+  page2.supportOnElementRerenderedEvent = true;
+  page2.enableOnElementRerenderedEvent();
+  survey.removePage(page2);
+  survey.addPage(page2);
+  assert.ok(!!page2.survey);
+  page2.disableOnElementRerenderedEvent();
+  assert.ok(!!page2.survey);
+
+  const page3 = survey.getPageByName("p3");
+  page3.supportOnElementRerenderedEvent = true;
+  survey.removePage(page3);
+  assert.notOk(!!page3.survey);
+});
 QUnit.test("Reduce the number of calls of setVisibleIndexes function", function (assert) {
   const survey = new SurveyModel();
   survey.setDesignMode(true);

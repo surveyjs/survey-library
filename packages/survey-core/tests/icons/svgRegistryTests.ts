@@ -1,5 +1,5 @@
-import { settings, ISurveyEnvironment } from "../src/settings";
-import { SvgIconRegistry } from "../src/svgbundle";
+import { settings, ISurveyEnvironment } from "../../src/settings";
+import { SvgIconRegistry } from "../../src/svgbundle";
 export default QUnit.module("SvgRegistryTests");
 
 QUnit.test("svg import from raw symbol", function (assert) {
@@ -78,4 +78,24 @@ QUnit.test("svg import from svg via string - use prefix", function (assert) {
   let res = svg.registerIconFromSvg("icon-a", "<svg viewBox=\"0 0 100 100\"><circle/></svg>");
   assert.ok(res);
   assert.equal(svg.iconsRenderedHtml(), "<symbol id=\"icon-a\" viewBox=\"0 0 100 100\"><circle/></symbol>");
+});
+
+QUnit.test("check that user's svgs with old name will be supported after icons renaming", function (assert) {
+  const oldIconName = "icon-changecamera"; // see renamedIcons dictionary
+  const newIconName = "icon-flip-24x24";
+
+  let svg = new SvgIconRegistry();
+  let res = svg.registerIconFromSvg(oldIconName, "<svg viewBox=\"0 0 100 100\"><circle/></svg>");
+  assert.ok(res);
+  assert.equal(svg.iconsRenderedHtml(), `<symbol id="${newIconName}" viewBox="0 0 100 100"><circle/></symbol>`);
+});
+
+QUnit.test("check that user's svgs with old name will be supported after icons renaming: whithout 'icon-' prefix", function (assert) {
+  const oldIconName = "changecamera"; // see renamedIcons dictionary
+  const newIconName = "flip-24x24";
+
+  let svg = new SvgIconRegistry();
+  let res = svg.registerIconFromSvg(oldIconName, "<svg viewBox=\"0 0 100 100\"><circle/></svg>");
+  assert.ok(res);
+  assert.equal(svg.iconsRenderedHtml(), `<symbol id="icon-${newIconName}" viewBox="0 0 100 100"><circle/></symbol>`);
 });

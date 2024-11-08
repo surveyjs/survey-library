@@ -339,6 +339,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.onParentQuestionChanged();
   }
   protected onParentQuestionChanged(): void { }
+  public updateElementVisibility(): void {
+    this.setPropertyValue("isVisible", this.isVisible);
+  }
 
   public get skeletonComponentName(): string {
     return this.getSkeletonComponentNameCore();
@@ -651,6 +654,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get cssRequiredText(): any {
     const css = this.cssClasses;
     return css.requiredText || (css.panel && css.panel.requiredText);
+  }
+  public getCssTitleExpandableSvg(): string {
+    if (this.state === "default") return null;
+    return this.cssClasses.titleExpandableSvg;
   }
   protected calcCssClasses(css: any): any { return undefined; }
   protected updateElementCssCore(cssClasses: any) { }

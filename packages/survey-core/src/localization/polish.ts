@@ -12,6 +12,7 @@ export var polishSurveyStrings = {
   refuseItemText: "Odmów odpowiedzi",
   dontKnowItemText: "Nie wiem",
   selectAllItemText: "Wybierz wszystkie",
+  deselectAllItemText: "Odznacz wszystko",
   progressText: "Strona {0} z {1}",
   indexText: "{0} od {1}",
   panelDynamicProgressText: "Zapis {0} z {1}",
@@ -31,6 +32,7 @@ export var polishSurveyStrings = {
   numericError: "W tym polu można wpisać tylko liczby.",
   minError: "Wartość nie powinna być mniejsza niż {0}",
   maxError: "Wartość nie powinna być większa niż {0}",
+  textNoDigitsAllow: "Liczby są niedozwolone.",
   textMinLength: "Proszę wpisać co najmniej {0} znaków.",
   textMaxLength: "Proszę wpisać mniej niż {0} znaków.",
   textMinMaxLength: "Proszę wpisać więcej niż {0} i mniej niż {1} znaków.",
@@ -129,4 +131,5 @@ surveyLocalization.setupLocale("pl", polishSurveyStrings, "polski", "Polish");
 // cancel: "Cancel" => "Anuluj"
 // refuseItemText: "Refuse to answer" => "Odmów odpowiedzi"
 // dontKnowItemText: "Don't know" => "Nie wiem"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Twoja odpowiedź przekracza 64 KB. Zmniejsz rozmiar plików i spróbuj ponownie lub skontaktuj się z właścicielem ankiety."
-// signaturePlaceHolderReadOnly: "No signature" => "Brak podpisu"// tabTitlePlaceholder: "New Panel" => "Nowy panel"
+// signaturePlaceHolderReadOnly: "No signature" => "Brak podpisu"// tabTitlePlaceholder: "New Panel" => "Nowy panel"// deselectAllItemText: "Deselect all" => "Odznacz wszystko"
+// textNoDigitsAllow: "Numbers are not allowed." => "Liczby są niedozwolone."

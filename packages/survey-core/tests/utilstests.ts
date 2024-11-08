@@ -142,26 +142,6 @@ export function createListContainerHtmlElement(): HTMLElement {
 }
 
 QUnit.test(
-  "utils: createSvg",
-  function (assert) {
-    var element: HTMLSpanElement = document.createElement("svg");
-    element.innerHTML = "<use></use>";
-    document.body.appendChild(element);
-    createSvg(16, 0, 0, "test", element, "titletext");
-    assert.equal(element.querySelector("use")?.getAttribute("xlink:href"), "#test");
-    assert.equal(element.querySelectorAll("title").length, 1);
-    assert.equal(element.querySelector("title")?.innerHTML, "titletext");
-
-    createSvg(16, 0, 0, "test", element, "titletext2");
-    assert.equal(element.querySelector("use")?.getAttribute("xlink:href"), "#test");
-    assert.equal(element.querySelectorAll("title").length, 1);
-    assert.equal(element.querySelector("title")?.innerHTML, "titletext2");
-
-    element.remove();
-  }
-);
-
-QUnit.test(
   "utils: keytoclick - skip UP if there was no DOWN",
   function (assert) {
     var clicked = false;

@@ -12,6 +12,7 @@ export var danishSurveyStrings = {
   refuseItemText: "Nægt at svare",
   dontKnowItemText: "Ved ikke",
   selectAllItemText: "Vælg alle",
+  deselectAllItemText: "Fravælg alle",
   progressText: "Side {0} af {1}",
   indexText: "{0} af {1}",
   panelDynamicProgressText: "Optag {0} af {1}",
@@ -31,6 +32,7 @@ export var danishSurveyStrings = {
   numericError: "Angiv et tal.",
   minError: "Værdien bør ikke være mindre end {0}",
   maxError: "Værdien bør ikke være større end {0}",
+  textNoDigitsAllow: "Numre er ikke tilladt.",
   textMinLength: "Angiv mindst {0} tegn.",
   textMaxLength: "Please enter less than {0} characters.",
   textMinMaxLength: "Angiv mere end {0} og mindre end {1} tegn.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("da", danishSurveyStrings, "dansk", "Danish");
 // cancel: "Cancel" => "Aflyse"
 // refuseItemText: "Refuse to answer" => "Nægt at svare"
 // dontKnowItemText: "Don't know" => "Ved ikke"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Dit svar overstiger 64 KB. Reducer størrelsen på din(e) fil(er), og prøv igen, eller kontakt en undersøgelsesejer."
-// signaturePlaceHolderReadOnly: "No signature" => "Ingen underskrift"// tabTitlePlaceholder: "New Panel" => "Nyt panel"
+// signaturePlaceHolderReadOnly: "No signature" => "Ingen underskrift"// tabTitlePlaceholder: "New Panel" => "Nyt panel"// deselectAllItemText: "Deselect all" => "Fravælg alle"
+// textNoDigitsAllow: "Numbers are not allowed." => "Numre er ikke tilladt."

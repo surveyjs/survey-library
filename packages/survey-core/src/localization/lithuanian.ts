@@ -12,6 +12,7 @@ export var lithuaniaSurveyStrings = {
   refuseItemText: "Atsisakyti atsakyti",
   dontKnowItemText: "Nežinau",
   selectAllItemText: "Pasirinkti visus",
+  deselectAllItemText: "Panaikinkite visų žymėjimą",
   progressText: "Puslapis {0} iš {1}",
   indexText: "{1} {0}",
   panelDynamicProgressText: "Įrašyti {0} iš {1}",
@@ -31,6 +32,7 @@ export var lithuaniaSurveyStrings = {
   numericError: "Turi būti skaičiai.",
   minError: "Vertė neturėtų būti mažesnė nei {0}",
   maxError: "Vertė neturėtų būti didesnė nei {0}",
+  textNoDigitsAllow: "Numeriai neleidžiami.",
   textMinLength: "Prašome suvesti bent {0} simbolius.",
   textMaxLength: "Prašome suvesti mažiau nei {0} simbolių.",
   textMinMaxLength: "Prašome suvesti daugiau nei {0} ir mažiau nei {1} simbolių.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("lt", lithuaniaSurveyStrings, "lietuvių", "Lithu
 // cancel: "Cancel" => "Atšaukti"
 // refuseItemText: "Refuse to answer" => "Atsisakyti atsakyti"
 // dontKnowItemText: "Don't know" => "Nežinau"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jūsų atsakymas viršija 64 KB. Sumažinkite failo (-ų) dydį ir bandykite dar kartą arba susisiekite su apklausos savininku."
-// signaturePlaceHolderReadOnly: "No signature" => "Nėra parašo"// tabTitlePlaceholder: "New Panel" => "Naujas skydelis"
+// signaturePlaceHolderReadOnly: "No signature" => "Nėra parašo"// tabTitlePlaceholder: "New Panel" => "Naujas skydelis"// deselectAllItemText: "Deselect all" => "Panaikinkite visų žymėjimą"
+// textNoDigitsAllow: "Numbers are not allowed." => "Numeriai neleidžiami."

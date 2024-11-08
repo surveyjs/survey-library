@@ -30,6 +30,6 @@ frameworks.forEach(async framework => {
     await t
       .expect(Selector("#sv-icon-holder-global-container").exists).ok()
       .expect(svgContainer()).contains("<symbol id=\"icon-icn-test\" viewBox=\"1 2 3 4\"></symbol>")
-      .expect(svgContainer()).contains("<symbol id=\"icon-left\"");
+      .expect(svgContainer()).contains("<symbol id=\"icon-chevronright-16x16\"");
   });
 });

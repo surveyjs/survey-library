@@ -287,7 +287,9 @@ export {
   prepareElementForVerticalAnimation,
   cleanHtmlElementAfterAnimation,
   classesToSelector,
-  IAttachKey2clickOptions
+  IAttachKey2clickOptions,
+  renamedIcons,
+  getIconNameFromProxy
 } from "../../src/utils/utils";
 export { InputMaskBase } from "../../src/mask/mask_base";
 export { InputMaskPattern } from "../../src/mask/mask_pattern";

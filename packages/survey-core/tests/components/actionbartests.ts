@@ -5,7 +5,6 @@ import { LocalizableString } from "../../src/localizablestring";
 import { PopupModel } from "../../src/popup";
 import { ListModel } from "../../src/list";
 import { settings } from "../../src/settings";
-import { getIconNameFromProxy } from "../../src/utils/utils";
 import { PageModel } from "../../src/page";
 import { ComputedUpdater } from "../../src/base";
 import { SurveyModel } from "../../src/survey";
@@ -34,26 +33,6 @@ QUnit.test("Check action sort items", (assert) => {
   //item with undefined index should be put in the end of array
   assert.equal(model.actions[3].id, "undefined_index");
 });
-
-QUnit.test(
-  "Use proxy to get icons in svg, function getIconNameFromProxy",
-  (assert) => {
-    settings.customIcons["icon-proxy"] = "new-icon";
-    assert.equal(getIconNameFromProxy("icon-normal"), "icon-normal");
-    assert.equal(getIconNameFromProxy("icon-proxy"), "new-icon");
-  }
-);
-
-QUnit.test(
-  "Support old customIcons names in svg, function getIconNameFromProxy",
-  (assert) => {
-    settings.customIcons["changecamera"] = "new-changecamera";
-    assert.equal(getIconNameFromProxy("changecamera"), "new-changecamera");
-    assert.equal(getIconNameFromProxy("flip-24x24"), "new-changecamera");
-    assert.equal(getIconNameFromProxy("flip-24x24-new"), "flip-24x24-new");
-    delete settings.customIcons["changecamera"];
-  }
-);
 
 QUnit.test(
   "isVisible",

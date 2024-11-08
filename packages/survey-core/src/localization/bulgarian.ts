@@ -12,6 +12,7 @@ export var bulgarianStrings = {
   refuseItemText: "Отказва да отговори",
   dontKnowItemText: "Не знам",
   selectAllItemText: "Всички",
+  deselectAllItemText: "Премахване на избора на всички",
   progressText: "стр. {0}, общо стр. {1}",
   indexText: "{0} на {1}",
   panelDynamicProgressText: "Запис {0} от {1}",
@@ -31,6 +32,7 @@ export var bulgarianStrings = {
   numericError: "Стойността следва да бъде число.",
   minError: "Стойността не трябва да бъде по-малка от {0}",
   maxError: "Стойността не трябва да бъде по-голяма от {0}",
+  textNoDigitsAllow: "Номерата не са позволени.",
   textMinLength: "Моля, използвайте поне {0} символа.",
   textMaxLength: "Моля, използвайте не повече от {0} символа.",
   textMinMaxLength: "Моля, използвайте повече от {0} и по-малко от {1} символа.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("bg", bulgarianStrings, "български", "Bu
 // cancel: "Cancel" => "Отмени"
 // refuseItemText: "Refuse to answer" => "Отказва да отговори"
 // dontKnowItemText: "Don't know" => "Не знам"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Вашият отговор надхвърля 64KB. Намалете размера на вашите файлове и опитайте отново или се свържете със собственика на проучването."
-// signaturePlaceHolderReadOnly: "No signature" => "Няма подпис"// tabTitlePlaceholder: "New Panel" => "Нов панел"
+// signaturePlaceHolderReadOnly: "No signature" => "Няма подпис"// tabTitlePlaceholder: "New Panel" => "Нов панел"// deselectAllItemText: "Deselect all" => "Премахване на избора на всички"
+// textNoDigitsAllow: "Numbers are not allowed." => "Номерата не са позволени."

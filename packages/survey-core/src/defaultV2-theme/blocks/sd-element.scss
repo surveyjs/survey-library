@@ -60,6 +60,7 @@
 
   .sv-string-viewer {
     white-space: normal;
+
     &.sv-string-viewer--multiline {
       white-space: pre-wrap;
     }
@@ -82,8 +83,9 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-.sd-page__num + span,
-.sd-element__num + span {
+
+.sd-page__num+span,
+.sd-element__num+span {
   float: left;
   width: 0;
 }
@@ -94,7 +96,8 @@
   .sd-element__num {
     float: right;
   }
-  .sd-element__title--expandable:before {
+
+  .sd-element__title--collapsed .sd-element__title-expandable-svg {
     transform: rotate(180deg);
   }
 }
@@ -110,23 +113,22 @@
   display: block;
 }
 
-.sd-element__title--expandable:before {
-  content: "";
+.sd-element__title-expandable-svg {
   display: inline-block;
-  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 14L5 13L10 8L5 3L6 2L12 8L6 14Z' fill='%23909090'/%3E%3C/svg%3E%0A");
-  background-repeat: no-repeat;
-  background-position: center center;
   height: calcSize(2);
   width: calcSize(2);
   position: absolute;
   inset-inline-start: calcSize(-3);
   top: calcSize(0.5);
-  transition-property: transform;
+
+  use {
+    fill: $foreground-light;
+  }
 }
 
-.sd-element__title--expandable.sd-element__title--expanded:before {
-  transform: rotate(90deg);
-}
+// .sd-element__title--expandable.sd-element__title--expanded:before {
+//   transform: rotate(90deg);
+// }
 
 //with borders styles
 .sd-element--with-frame {
@@ -191,6 +193,7 @@
 .sd-element__content {
   box-sizing: border-box;
 }
+
 .sd-element__content--enter,
 .sd-element__content--leave {
   --animation-padding-top: 0;
@@ -218,8 +221,9 @@
 }
 
 .sd-element--expandable.sd-elemenet--expandable--animating {
-  & > .sd-element__header:focus-within,
-  & > .sd-element__header:hover {
+
+  &>.sd-element__header:focus-within,
+  &>.sd-element__header:hover {
     background-color: transparent;
   }
 }
@@ -227,7 +231,7 @@
 .sd-elemenet--expandable--animating.sd-element--expandable {
   transition-property: padding-top, padding-bottom;
 
-  & > .sd-element__header {
+  &>.sd-element__header {
     transition-property: padding-top, padding-bottom;
   }
 
@@ -235,7 +239,7 @@
     transition-timing-function: $ease-out;
     transition-duration: $expand-move-in-duration;
 
-    & > .sd-element__header {
+    &>.sd-element__header {
       transition-timing-function: $ease-out;
       transition-duration: $expand-move-in-duration;
 
@@ -250,7 +254,7 @@
     transition-duration: $collapse-move-out-duration;
     transition-delay: $collapse-move-out-delay;
 
-    & > .sd-element__header {
+    &>.sd-element__header {
       transition-timing-function: $ease-out;
       transition-duration: $collapse-move-out-duration;
       transition-delay: $collapse-move-out-delay;
@@ -263,7 +267,7 @@
   }
 
   &.sd-element--complex:not(.sd-question--empty) {
-    & > .sd-element__header--location-top:after {
+    &>.sd-element__header--location-top:after {
       display: block;
       opacity: 0;
       height: 0;

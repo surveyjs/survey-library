@@ -12,6 +12,7 @@ export var swahiliStrings = {
   refuseItemText: "Kukataa kujibu",
   dontKnowItemText: "Sijui",
   selectAllItemText: "Chagua Zote",
+  deselectAllItemText: "Delete All",
   progressText: "Ukurasa {0} wa {1}",
   indexText: "{0} ya {1}",
   panelDynamicProgressText: "Rekodi {0} ya {1}",
@@ -31,6 +32,7 @@ export var swahiliStrings = {
   numericError: "Thamani inapaswa kuwa ya nambari.",
   minError: "Thamani haipaswi kuwa chini ya {0}",
   maxError: "Thamani haipaswi kuwa kubwa kuliko {0}",
+  textNoDigitsAllow: "Hesabu haziruhusiwi.",
   textMinLength: "Tafadhali ingiza angalau{0} husika.",
   textMaxLength: "Tafadhali ingiza isiozidi {0} husika.",
   textMinMaxLength: "Tafadhali ingiza kiwango zaidi ya {0} na kisichopungua {1} husika.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("sw", swahiliStrings, "swahili", "Swahili");
 // cancel: "Cancel" => "Katisha"
 // refuseItemText: "Refuse to answer" => "Kukataa kujibu"
 // dontKnowItemText: "Don't know" => "Sijui"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jibu lako ni zaidi ya 64KB. Tafadhali punguza ukubwa wa faili yako na jaribu tena au wasiliana na mmiliki wa utafiti."
-// signaturePlaceHolderReadOnly: "No signature" => "Hakuna saini"// tabTitlePlaceholder: "New Panel" => "Jopo Jipya"
+// signaturePlaceHolderReadOnly: "No signature" => "Hakuna saini"// tabTitlePlaceholder: "New Panel" => "Jopo Jipya"// deselectAllItemText: "Deselect all" => "Delete All"
+// textNoDigitsAllow: "Numbers are not allowed." => "Hesabu haziruhusiwi."

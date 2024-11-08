@@ -8979,6 +8979,72 @@ QUnit.test("survey.showInvisibleElements property, Bug#2423", function (assert) 
   );
 });
 
+QUnit.test("survey.showInvisibleElements property & question invisible css style, Bug#9002", function (assert) {
+  const survey = new SurveyModel();
+  survey.css = { question: { invisible: "sd-element--invisible" } };
+  assert.equal(survey.css.question.invisible, "sd-element--invisible", "survey css is updated");
+  survey.fromJSON({
+    "elements": [
+      {
+        "type": "text",
+        "name": "q2",
+        "visibleIf": "{q1} = true"
+      },
+      {
+        "type": "boolean",
+        "name": "q1",
+        "title": "Show Textbox"
+      }
+    ]
+  });
+  survey.showInvisibleElements = true;
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.visible, false, "visible is false, #1");
+  assert.equal(q2.isVisible, true, "isVisible is true, #1");
+  assert.equal(q2.getRootCss().indexOf("sd-element--invisible") > -1, true, "#1");
+  q1.value = true;
+  assert.equal(q2.visible, true, "visible is false, #2");
+  assert.equal(q2.isVisible, true, "isVisible is true, #2");
+  assert.equal(q2.getRootCss().indexOf("sd-element--invisible") > -1, false, "#2");
+  q1.value = false;
+  assert.equal(q2.visible, false, "visible is false, #3");
+  assert.equal(q2.isVisible, true, "isVisible is true, #3");
+  assert.equal(q2.getRootCss().indexOf("sd-element--invisible") > -1, true, "#3");
+  survey.showInvisibleElements = false;
+  assert.equal(q2.visible, false, "visible is false, #4");
+  assert.equal(q2.isVisible, false, "isVisible is true, #4");
+  assert.equal(q2.getRootCss().indexOf("sd-element--invisible") > -1, false, "#4");
+});
+QUnit.test("survey.showInvisibleElements property & multiple pages", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "radiogroup", name: "q1", choices: ["Yes", "No"] },
+          {
+            type: "text",
+            name: "q2",
+            defaultValue: "q2Value",
+            visibleIf: "{q1} = 'Yes'",
+          },
+        ],
+      },
+      {
+        elements: [{ type: "text", name: "q3", visibleIf: "{q1} = 'Yes'" }],
+      },
+    ],
+  });
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, true, "sv-nav-complete, #1");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-next").isVisible, false, "sv-nav-next, #1");
+  survey.showInvisibleElements = true;
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, false, "sv-nav-complete, #2");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-next").isVisible, true, "sv-nav-next, #2");
+  survey.showInvisibleElements = false;
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, true, "sv-nav-complete, #3");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-next").isVisible, false, "sv-nav-next, #3");
+});
+
 QUnit.test(
   "panel.visibleIf doesn't work if it is a single panel on the page, #1329",
   function (assert) {
@@ -20405,6 +20471,7 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
   let survey = new SurveyModel(json);
   const getContainerContent = getContainerContentFunction(survey);
 
+  assert.equal(survey.progressBarType, "pages");
   assert.equal(survey.questionsOnPageMode, "standard");
   assert.deepEqual(getContainerContent("header"), [], "");
   assert.deepEqual(getContainerContent("center"), [{
@@ -20422,6 +20489,32 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
   assert.deepEqual(getContainerContent("header"), [], "");
   assert.deepEqual(getContainerContent("center"), [], "Buttons progress is not shown in the single page mode");
   assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+
+  survey.progressBarType = "questions";
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("center"), [{
+    "component": "sv-progress-questions",
+    "id": "progress-questions"
+  }], "Buttons progress is shown in the single page mode for questions mode");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+
+  survey.showProgressBar = "bottom";
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("center"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [{
+    "component": "sv-progress-questions",
+    "id": "progress-questions"
+  }], "Buttons progress is shown in the single page mode for questions mode in bottom");
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [], "");
   assert.deepEqual(getContainerContent("left"), [], "");
@@ -20607,7 +20700,6 @@ QUnit.test("Check that focusInput works correctly with shadow dom", function (as
   assert.equal(root.shadowRoot?.activeElement, input);
   root.remove();
 });
-
 QUnit.test("Check page is cleared only after unmount", function (assert) {
   const survey = new SurveyModel({
     pages: [
@@ -20652,4 +20744,62 @@ QUnit.test("Check page is cleared only after unmount", function (assert) {
   page3.supportOnElementRerenderedEvent = true;
   survey.removePage(page3);
   assert.notOk(!!page3.survey);
+});
+QUnit.test("Reduce the number of calls of setVisibleIndexes function", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  let counter = 0;
+  survey.onProgressText.add((sender, options) => {
+    counter ++;
+  });
+  survey.fromJSON({
+    pages: [{
+      elements: [
+        {
+          name: "p1_q1",
+          type: "paneldynamic",
+          templateElements: [
+            { type: "text", name: "p1_q2" },
+            {
+              name: "p1_q3",
+              type: "paneldynamic",
+              templateElements: [
+                { type: "text", name: "p1_q4" },
+                { type: "text", name: "p1_q5" }],
+            }
+          ]
+        }
+      ]
+    },
+    {
+      elements: [
+        {
+          name: "p2_q1",
+          type: "paneldynamic",
+          templateElements: [
+            { type: "text", name: "p2_q2" },
+            {
+              name: "p2_q3",
+              type: "paneldynamic",
+              templateElements: [
+                { type: "text", name: "p2_q4" },
+                { type: "text", name: "p2_q5" }],
+            }
+          ]
+        }
+      ]
+    }]
+  });
+  assert.equal(counter, 3, "On loading");
+  survey.pages[1].onFirstRendering();
+  assert.equal(counter, 3, "page[1].onFirstRendering(), do nothing");
+});
+QUnit.test("Do not include questions.values into survey.getFilteredValue in design time", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", defaultValue: 1 }],
+    calculatedValues: [{ name: "val1", expression: "2" }]
+  });
+  assert.deepEqual(survey.getFilteredValues(), { q1: 1, val1: 2 }, "survey in running state");
+  survey.setDesignMode(true);
+  assert.deepEqual(survey.getFilteredValues(), { val1: 2 }, "survey at design time");
 });

@@ -12,6 +12,7 @@ export var romanianSurveyStrings: any = {
   refuseItemText: "Refuză să răspundă",
   dontKnowItemText: "Nu ştiu",
   selectAllItemText: "Selectează tot",
+  deselectAllItemText: "Deselectează tot",
   progressText: "Pagina {0} din {1}",
   indexText: "{0} de {1}",
   panelDynamicProgressText: "Înregistrare {0} din {1}",
@@ -31,6 +32,7 @@ export var romanianSurveyStrings: any = {
   numericError: "Răspunsul trebuie să fie numeric.",
   minError: "Valoarea nu trebuie să fie mai mică de {0}",
   maxError: "Valoarea nu trebuie să fie mai mare de {0}",
+  textNoDigitsAllow: "Numerele nu sunt permise.",
   textMinLength: "Trebuie să introduceți minim {0} caractere.",
   textMaxLength: "Trebuie să introduceți maxim {0} caractere.",
   textMinMaxLength: "Trebuie să introduceți mai mult de {0} și mai puțin de {1} caractere.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("ro", romanianSurveyStrings, "română", "Romania
 // cancel: "Cancel" => "Anula"
 // refuseItemText: "Refuse to answer" => "Refuză să răspundă"
 // dontKnowItemText: "Don't know" => "Nu ştiu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Răspunsul tău depășește 64KB. Reduceți dimensiunea fișierelor și încercați din nou sau contactați un proprietar de sondaj."
-// signaturePlaceHolderReadOnly: "No signature" => "Fără semnătură"// tabTitlePlaceholder: "New Panel" => "Panou nou"
+// signaturePlaceHolderReadOnly: "No signature" => "Fără semnătură"// tabTitlePlaceholder: "New Panel" => "Panou nou"// deselectAllItemText: "Deselect all" => "Deselectează tot"
+// textNoDigitsAllow: "Numbers are not allowed." => "Numerele nu sunt permise."

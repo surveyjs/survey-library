@@ -12,6 +12,7 @@ export var urduSurveyStrings = {
   refuseItemText: "جواب دینے سے انکار",
   dontKnowItemText: "معلوم نہيں",
   selectAllItemText: "تمام منتخب کریں",
+  deselectAllItemText: "Deselect all",
   progressText: "صفحہ {0} از {1}",
   indexText: "{1} کے {0}",
   panelDynamicProgressText: "ریکارڈ {0} {1}",
@@ -31,6 +32,7 @@ export var urduSurveyStrings = {
   numericError: "اس کا جواب عدد میں ہونا چاہئے۔",
   minError: "عدد صفر سے کم نہیں ہونی چاہئے",
   maxError: "عدد صفر سے زیادہ نہیں ہونی چاہیے",
+  textNoDigitsAllow: "نمبروں کی اجازت نہیں ہے۔",
   textMinLength: "براہ کرم کم از کم صفر حروف درج کریں۔",
   textMaxLength: "براہ کرم صفر سے زیادہ حروف درج نہ کریں۔",
   textMinMaxLength: "براہ کرم کم از کم صفر اور ایک سے زیادہ حروف درج کریں۔",
@@ -133,4 +135,5 @@ surveyLocalization.setupLocale("ur", urduSurveyStrings, "urdu", "Urdu");
 // ok: "OK" => "ٹھيک ہے"
 // cancel: "Cancel" => "منسوخ"// refuseItemText: "Refuse to answer" => "جواب دینے سے انکار"
 // dontKnowItemText: "Don't know" => "معلوم نہيں"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "آپ کا جواب 64KB سے تجاوز کر گیا ہے۔ براہ کرم اپنی فائل کا سائز کم کریں اور دوبارہ کوشش کریں یا سروے کے مالک سے رابطہ کریں۔"
-// signaturePlaceHolderReadOnly: "No signature" => "کوئی دستخط نہیں"// tabTitlePlaceholder: "New Panel" => "نیا پینل"
+// signaturePlaceHolderReadOnly: "No signature" => "کوئی دستخط نہیں"// tabTitlePlaceholder: "New Panel" => "نیا پینل"// deselectAllItemText: "Deselect all" => "Deselect all"
+// textNoDigitsAllow: "Numbers are not allowed." => "نمبروں کی اجازت نہیں ہے۔"

@@ -12,6 +12,7 @@ export var welshSurveyStrings = {
   refuseItemText: "Gwrthod ateb",
   dontKnowItemText: "Ddim yn gwybod",
   selectAllItemText: "Dewis y Cyfan ",
+  deselectAllItemText: "Dad-ddethol yr holl",
   progressText: "Tudalen {0} o {1}",
   indexText: "{0} o {1}",
   panelDynamicProgressText: "Cofnod {0} o {1}",
@@ -31,6 +32,7 @@ export var welshSurveyStrings = {
   numericError: "Dylai’r gwerth fod yn rhif.",
   minError: "Ni ddylai'r gwerth fod yn llai na {0}",
   maxError: "Ni ddylai'r gwerth fod yn fwy na {0}",
+  textNoDigitsAllow: "Ni chaniateir rhifau.",
   textMinLength: "Rhowch o leiaf {0} nod.",
   textMaxLength: "Rhowch lai na {0} nod.",
   textMinMaxLength: "Rhowch o leiaf {0} nod ond dim mwy na {1}.",
@@ -140,4 +142,5 @@ surveyLocalization.setupLocale("cy", welshSurveyStrings, "cymraeg", "Welsh");
 // ok: "OK" => "OCÊ"
 // cancel: "Cancel" => "Canslo"// refuseItemText: "Refuse to answer" => "Gwrthod ateb"
 // dontKnowItemText: "Don't know" => "Ddim yn gwybod"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Mae eich ymateb yn fwy na 64KB. Lleihau maint eich ffeil(au) a cheisiwch eto neu cysylltwch â pherchennog yr arolwg."
-// signaturePlaceHolderReadOnly: "No signature" => "Dim llofnod"// tabTitlePlaceholder: "New Panel" => "Panel newydd"
+// signaturePlaceHolderReadOnly: "No signature" => "Dim llofnod"// tabTitlePlaceholder: "New Panel" => "Panel newydd"// deselectAllItemText: "Deselect all" => "Dad-ddethol yr holl"
+// textNoDigitsAllow: "Numbers are not allowed." => "Ni chaniateir rhifau."

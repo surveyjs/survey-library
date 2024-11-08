@@ -12,6 +12,7 @@ export var traditionalChineseSurveyStrings = {
   refuseItemText: "拒絕回答",
   dontKnowItemText: "不知道",
   selectAllItemText: "全選",
+  deselectAllItemText: "取消全選",
   progressText: "第 {0} 頁, 共 {1} 頁",
   indexText: "{1}{0}",
   panelDynamicProgressText: "{1}{0}",
@@ -31,6 +32,7 @@ export var traditionalChineseSurveyStrings = {
   numericError: "答案必須是個數字",
   minError: "該值不應小於 {0}",
   maxError: "該值不應大於 {0}",
+  textNoDigitsAllow: "不允許使用數位。",
   textMinLength: "答案長度至少 {0} 個字元",
   textMaxLength: "答案長度不能超過 {0} 個字元",
   textMinMaxLength: "答案長度必須在 {0} - {1} 個字元之間",
@@ -175,4 +177,5 @@ surveyLocalization.setupLocale("zh-tw", traditionalChineseSurveyStrings, "繁體
 // ok: "OK" => "還行"
 // cancel: "Cancel" => "取消"// refuseItemText: "Refuse to answer" => "拒絕回答"
 // dontKnowItemText: "Don't know" => "不知道"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "您的回復超過 64KB。請減小檔的大小，然後重試或聯繫調查擁有者。"
-// signaturePlaceHolderReadOnly: "No signature" => "無簽名"// tabTitlePlaceholder: "New Panel" => "新面板"
+// signaturePlaceHolderReadOnly: "No signature" => "無簽名"// tabTitlePlaceholder: "New Panel" => "新面板"// deselectAllItemText: "Deselect all" => "取消全選"
+// textNoDigitsAllow: "Numbers are not allowed." => "不允許使用數位。"

@@ -12,6 +12,7 @@ export var czechSurveyStrings = {
   refuseItemText: "Odmítnout odpovědět",
   dontKnowItemText: "Nevím",
   selectAllItemText: "Vybrat vše",
+  deselectAllItemText: "Zrušit výběr všech",
   progressText: "Strana {0} z {1}",
   indexText: "{0} z {1}",
   panelDynamicProgressText: "Záznam {0} z {1}",
@@ -31,6 +32,7 @@ export var czechSurveyStrings = {
   numericError: "V tomto poli lze zadat pouze čísla.",
   minError: "Hodnota by neměla být menší než {0}",
   maxError: "Hodnota by neměla být větší než {0}",
+  textNoDigitsAllow: "Čísla nejsou povolena.",
   textMinLength: "Zadejte prosím alespoň {0} znaků.",
   textMaxLength: "Zadejte prosím méně než {0} znaků.",
   textMinMaxLength: "Zadejte prosím více než {0} a méně než {1} znaků.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("cs", czechSurveyStrings, "čeština", "Czech");
 // cancel: "Cancel" => "Zrušit"
 // refuseItemText: "Refuse to answer" => "Odmítnout odpovědět"
 // dontKnowItemText: "Don't know" => "Nevím"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaše odpověď překračuje 64 kB. Zmenšete prosím velikost svých souborů a zkuste to znovu nebo kontaktujte vlastníka průzkumu."
-// signaturePlaceHolderReadOnly: "No signature" => "Bez podpisu"// tabTitlePlaceholder: "New Panel" => "Nový panel"
+// signaturePlaceHolderReadOnly: "No signature" => "Bez podpisu"// tabTitlePlaceholder: "New Panel" => "Nový panel"// deselectAllItemText: "Deselect all" => "Zrušit výběr všech"
+// textNoDigitsAllow: "Numbers are not allowed." => "Čísla nejsou povolena."

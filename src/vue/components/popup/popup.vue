@@ -16,7 +16,7 @@ export class Popup extends BaseVue {
   }
   constructor(props: any) {
     super(props);
-    this.popupViewModel = createPopupViewModel(this.model, undefined as any);
+    this.popupViewModel = createPopupViewModel(this.model);
   }
   onMounted() {
     const container = (this.$el as HTMLElement) as HTMLElement;

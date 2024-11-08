@@ -23,7 +23,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     return this.model;
   }
   private createModel(): void {
-    this.popup = createPopupViewModel(this.props.model, undefined as any);
+    this.popup = createPopupViewModel(this.props.model);
   }
   private setTargetElement(): void {
     const container = this.containerRef.current as HTMLElement;

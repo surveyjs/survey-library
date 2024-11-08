@@ -64,7 +64,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const componentRoot = this.container;
     let targetElement: HTMLElement = this.model.getTargetCallback ? this.model.getTargetCallback(componentRoot) : undefined;
 
-    if (!targetElement) targetElement = this.targetElement;
     if (!!componentRoot && !!componentRoot.parentElement && !this.isModal && !targetElement) {
       targetElement = componentRoot.parentElement;
     }
@@ -216,7 +215,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   private recalculatePositionHandler: (_: any, options: { isResetHeight: boolean }) => void;
 
-  constructor(model: PopupModel, public targetElement?: HTMLElement) {
+  constructor(model: PopupModel) {
     super(model);
     this.model.onRecalculatePosition.add(this.recalculatePositionHandler);
   }

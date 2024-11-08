@@ -30,7 +30,7 @@ watch(
     if (popupViewModel.value) {
       popupViewModel.value.dispose();
     }
-    popupViewModel.value = createPopupViewModel(newValue, undefined as any);
+    popupViewModel.value = createPopupViewModel(newValue);
     setContainerElement();
   },
   { immediate: true }

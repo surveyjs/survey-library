@@ -25,7 +25,7 @@ export class PopupComponent extends BaseAngular<PopupModel> {
       this.model.resetComponentElement();
       this.model.dispose();
     }
-    this.model = createPopupViewModel(this.popupModel, this.viewContainerRef?.element.nativeElement);
+    this.model = createPopupViewModel(this.popupModel);
     this.setContainerElement();
   }
 

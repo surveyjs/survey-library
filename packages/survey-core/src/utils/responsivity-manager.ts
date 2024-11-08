@@ -85,7 +85,7 @@ export class ResponsivityManager {
   }
 
   private calcItemsSizes() {
-    if(this.isInitialized) return;
+    if (!this.container || this.isInitialized) return;
     const actions = this.model.actions;
     const _items = this.container.querySelectorAll(this.itemsSelector);
     (_items || []).forEach((item: HTMLDivElement, index: number) => {
@@ -100,7 +100,7 @@ export class ResponsivityManager {
     currentAction.minDimension = this.calcMinDimension(currentAction, item);
   }
   private get isContainerVisible(): boolean {
-    return isContainerVisible(this.container);
+    return !!this.container && isContainerVisible(this.container);
   }
 
   private process(): void {
@@ -116,8 +116,11 @@ export class ResponsivityManager {
         }
         this.model.fit(this.getAvailableSpace(), dotsItemSize);
       };
-      if(!this.isInitialized) {
+      if (!this.isInitialized) {
         const callback = () => {
+          if (!this.container) {
+            return;
+          }
           this.calcItemsSizes();
           this.isInitialized = true;
           processResponsiveness();
@@ -138,6 +141,8 @@ export class ResponsivityManager {
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
+    this.resizeObserver = undefined;
+    this.container = undefined;
   }
 }
 

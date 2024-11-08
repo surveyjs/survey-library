@@ -512,11 +512,11 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return true;
   }
   private isMouseDown: boolean;
-  public doMouseDown(args: any) : void {
+  public doMouseDown(args: any): void {
     this.isMouseDown = true;
   }
   public doFocus(args: any): void {
-    if(!!this.onFocus) {
+    if (!!this.onFocus) {
       const evt = !!args.originalEvent ? args.originalEvent : args;
       this.onFocus(this.isMouseDown, evt);
     }
@@ -573,14 +573,14 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public dispose(): void {
     this.updateCallback = undefined;
+    if (!!this.locTitleValue) {
+      this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
+    }
+    this.locTitleChanged = undefined;
     this.action = undefined;
     super.dispose();
     if (this.popupModel) {
       this.popupModel.dispose();
-    }
-    if (!!this.locTitleValue) {
-      this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
-      this.locTitleChanged = undefined;
     }
   }
 }

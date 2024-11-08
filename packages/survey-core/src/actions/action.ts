@@ -245,7 +245,7 @@ export abstract class BaseAction extends Base implements IAction {
   public id: string;
   public removePriority: number;
   @property() iconName: string;
-  @property({ defaultValue: 24 }) iconSize: number;
+  @property({ defaultValue: 24 }) iconSize: number | string;
   @property() markerIconName: string;
   @property() markerIconSize: number = 16;
   @property() css?: string

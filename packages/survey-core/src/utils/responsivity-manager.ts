@@ -16,6 +16,9 @@ export class ResponsivityManager {
   private separatorAddConst = 1;
   private paddingSizeConst = 8;
   private dotsSizeConst = 48;
+  private dotsIconClass = ".sv-dots";
+  private iconClass = ".sv-svg-icon";
+
   protected recalcMinDimensionConst = true;
 
   public getComputedStyle = (elt: Element): CSSStyleDeclaration => {
@@ -65,11 +68,16 @@ export class ResponsivityManager {
     return item.offsetWidth;
   }
 
-  private calcMinDimension(currentAction: Action) {
-    let minDimensionConst = this.minDimensionConst;
-    if (currentAction.iconSize && this.recalcMinDimensionConst) {
-      minDimensionConst = 2 * currentAction.iconSize + this.paddingSizeConst;
+  private calcMinDimension(currentAction: Action, item?: HTMLDivElement) {
+    let iconSize;
+    if (!!item && (!currentAction.iconSize || currentAction.iconSize === "auto")) {
+      const iconElement: HTMLDivElement = item.querySelector(this.iconClass);
+      iconSize = iconElement && this.calcItemSize(iconElement);
+    } else if (currentAction.iconSize && typeof (currentAction.iconSize) === "number" && this.recalcMinDimensionConst) {
+      iconSize = currentAction.iconSize;
     }
+
+    let minDimensionConst = !!iconSize ? (iconSize + 2 * this.paddingSizeConst) : this.minDimensionConst;
     return currentAction.canShrink
       ? minDimensionConst +
       (currentAction.needSeparator ? this.separatorSize : 0)
@@ -89,7 +97,7 @@ export class ResponsivityManager {
   }
   protected calcActionDimensions(currentAction: Action, item: HTMLDivElement) {
     currentAction.maxDimension = this.calcItemSize(item);
-    currentAction.minDimension = this.calcMinDimension(currentAction);
+    currentAction.minDimension = this.calcMinDimension(currentAction, item);
   }
   private get isContainerVisible(): boolean {
     return isContainerVisible(this.container);
@@ -103,7 +111,7 @@ export class ResponsivityManager {
       const processResponsiveness = () => {
         let dotsItemSize = this.dotsItemSize;
         if (!this.dotsItemSize) {
-          const dotsItemElement: HTMLDivElement = this.container?.querySelector(".sv-dots");
+          const dotsItemElement: HTMLDivElement = this.container?.querySelector(this.dotsIconClass);
           dotsItemSize = dotsItemElement && this.calcItemSize(dotsItemElement) || this.dotsSizeConst;
         }
         this.model.fit(this.getAvailableSpace(), dotsItemSize);

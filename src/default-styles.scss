@@ -1281,6 +1281,7 @@ sv-popup {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  background: var(--background, #fff);
 }
 
 .sv-popup--show-pointer.sv-popup--top .sv-popup__pointer {
@@ -1484,7 +1485,6 @@ sv-popup {
 
 .sv-list__filter {
   border-bottom: 1px solid rgba(0, 0, 0, 0.16);
-  background: var(--background, #fff);
   padding-bottom: calcSize(1);
 }
 

@@ -200,6 +200,7 @@ sv-popup {
   flex-direction: column;
   min-height: 0;
   position: relative;
+  background: $background;
 }
 
 .sv-popup--show-pointer.sv-popup--top {

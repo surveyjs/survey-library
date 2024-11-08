@@ -908,16 +908,16 @@ export class SurveyModel extends SurveyElementCore
     this.createNewArray(
       "pages",
       (value: PageModel) => {
-        if(value.onDetachFromUICallback) {
-          value.onDetachFromUICallback();
+        if(value.isReadyForCleanChangedCallback) {
+          value.isReadyForCleanChangedCallback();
         }
         this.doOnPageAdded(value);
       },
       (value: PageModel) => {
-        if(value.isAttachedToUI) {
-          value.onDetachFromUICallback = () => {
+        if(!value.isReadyForClean) {
+          value.isReadyForCleanChangedCallback = () => {
             this.doOnPageRemoved(value);
-            value.onDetachFromUICallback = undefined;
+            value.isReadyForCleanChangedCallback = undefined;
           };
         } else {
           this.doOnPageRemoved(value);

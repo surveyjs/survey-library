@@ -25,6 +25,10 @@ $font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-f
     padding-top: calcSize(1.5);
     padding-bottom: calcSize(1.5);
   }
+
+  use {
+    fill: $foreground-light;
+  }
 }
 
 .sv_progress-toc--left {

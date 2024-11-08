@@ -15,6 +15,20 @@
     "
   >
     <SvComponent
+      :is="'sv-svg-icon'"
+      v-if="!element.isExpanded && element.getCssTitleExpandableSvg()"
+      :class="element.getCssTitleExpandableSvg()"
+      :iconName="'icon-expand-16x16'"
+      size="16"
+    ></SvComponent>
+    <SvComponent
+      :is="'sv-svg-icon'"
+      v-if="element.isExpanded && element.getCssTitleExpandableSvg()"
+      :class="element.getCssTitleExpandableSvg()"
+      :iconName="'icon-collapse-16x16'"
+      size="16"
+    ></SvComponent>
+    <SvComponent
       :is="'survey-element-title-content'"
       v-if="!element.hasTitleActions"
       :element="element"
@@ -31,9 +45,9 @@
 
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import { doKey2ClickUp, type SurveyElementCore } from "survey-core";
+import { doKey2ClickUp, type SurveyElement } from "survey-core";
 defineProps<{
-  element: SurveyElementCore;
+  element: SurveyElement;
   css: any;
 }>();
 

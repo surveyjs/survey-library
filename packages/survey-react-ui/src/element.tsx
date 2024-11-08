@@ -80,13 +80,16 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
         onFocus={focusIn}
         ref={this.rootRef}
       >
-        {this.row.isNeedRender ? innerElement : ReactElementFactory.Instance.createElement(element.skeletonComponentName, { element: element, css: this.css, })}
+        {innerElement}
       </div>
     );
   }
 
   protected createElement(element: IElement, elementIndex?: number): JSX.Element {
     const index = elementIndex ? "-" + elementIndex : 0;
+    if(!this.row.isNeedRender) {
+      return ReactElementFactory.Instance.createElement(element.skeletonComponentName, { key: element.name + index, element: element, css: this.css, })
+    }
     var elementType = element.getType();
     if (!ReactElementFactory.Instance.isElementRegistered(elementType)) {
       elementType = "question";

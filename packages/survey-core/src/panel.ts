@@ -1017,14 +1017,11 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return false;
   }
-  updateElementVisibility() {
-    for (var i = 0; i < this.elements.length; i++) {
-      var el = this.elements[i];
-      (<Base>(<any>el)).setPropertyValue("isVisible", el.isVisible);
-      if (el.isPanel) {
-        (<PanelModelBase>(<any>el)).updateElementVisibility();
-      }
+  updateElementVisibility(): void {
+    for (let i = 0; i < this.elements.length; i++) {
+      this.elements[i].updateElementVisibility();
     }
+    super.updateElementVisibility();
   }
   getFirstQuestionToFocus(withError: boolean = false, ignoreCollapseState: boolean = false): Question {
     if (!withError && !ignoreCollapseState && this.isCollapsed) return null;
@@ -1046,8 +1043,8 @@ export class PanelModelBase extends SurveyElement<Question>
    * Focuses the first question in this panel/page.
    * @see focusFirstErrorQuestion
    */
-  public focusFirstQuestion() {
-    var q = this.getFirstQuestionToFocus();
+  public focusFirstQuestion(): void {
+    const q = this.getFirstQuestionToFocus();
     if (!!q) {
       q.focus();
     }
@@ -2236,7 +2233,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return this.showQuestionNumbers !== "off" && this.showQuestionNumbers !== "onpanel";
   }
   private notifySurveyOnVisibilityChanged() {
-    if (this.survey != null && !this.isLoadingFromJson) {
+    if (this.survey != null && !this.isLoadingFromJson && !!this.page) {
       this.survey.panelVisibilityChanged(this, this.isVisible);
     }
   }
@@ -2342,6 +2339,10 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   public get cssTitle(): string {
     return this.getCssTitle(this.cssClasses.panel);
+  }
+  public getCssTitleExpandableSvg(): string {
+    if (this.state === "default") return null;
+    return this.cssClasses.panel.titleExpandableSvg;
   }
   public get showErrorsAbovePanel(): boolean {
     return this.isDefaultV2Theme && !this.showPanelAsPage;

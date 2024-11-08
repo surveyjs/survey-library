@@ -8,5 +8,9 @@
 </template>
 <script lang="ts" setup>
 import { SvComponent } from 'survey-vue3-ui';
-defineProps<{ item: any }>()
+const props = defineProps<{ item: any }>();
+// eslint-disable-next-line vue/no-mutating-props
+props.item.iconName = "icon-defaultfile";
+// eslint-disable-next-line vue/no-mutating-props
+props.item.hint = props.item.title + " - Description";
 </script>

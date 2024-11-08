@@ -65,7 +65,7 @@ export class ResponsivityManager {
   }
 
   protected calcItemSize(item: HTMLDivElement): number {
-    return item.offsetWidth;
+    return item.offsetWidth || item.getBoundingClientRect().width;
   }
 
   private calcMinDimension(currentAction: Action, item?: HTMLDivElement) {

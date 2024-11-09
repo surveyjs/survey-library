@@ -6,6 +6,7 @@ import { SurveyModel } from "./survey";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
 import { dataUrl2File, FileLoader, QuestionFileModelBase } from "./question_file";
+import { isBase64URL } from "./utils/utils";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -47,6 +48,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
   protected updateValue() {
     if (this.signaturePad) {
+
       var data = this.signaturePad.toDataURL(this.getFormat());
       this.valueIsUpdatingInternally = true;
       this.value = data;
@@ -107,16 +109,26 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
   private fromUrl(url: string): void {
     this.isFileLoading = true;
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = url;
-    img.onload = () => {
-      const ctx = this.canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      var dataURL = this.canvas.toDataURL(this.getFormat());
-      this.fromDataUrl(dataURL);
+    if(isBase64URL(url)) {
+      this.fromDataUrl(url);
       this.isFileLoading = false;
-    };
+    } else {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = url;
+      img.onload = () => {
+        if(!!this.canvas) {
+          const ctx = this.canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          var dataURL = this.canvas.toDataURL(this.getFormat());
+          this.fromDataUrl(dataURL);
+        }
+        this.isFileLoading = false;
+      };
+      img.onerror = () => {
+        this.isFileLoading = false;
+      };
+    }
   }
   private fromDataUrl(data: string) {
     this._loadedData = data;
@@ -151,10 +163,10 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
         this._previewLoader = new FileLoader(this, (status, loaded) => {
           if (status === "success" && loaded && loaded.length > 0 && loaded[0].content) {
             this.fromDataUrl(loaded[0].content);
+            this.isFileLoading = false;
           } else if (status === "skipped") {
             this.fromUrl(newValue);
           }
-          this.isFileLoading = false;
           this._previewLoader.dispose();
           this._previewLoader = undefined;
         });

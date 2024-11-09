@@ -608,6 +608,59 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
   el.remove();
 });
 
+QUnit.test("Check storeDataAsText: false and base64 data", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "signaturepad",
+        name: "signature",
+        storeDataAsText: false,
+      }
+    ],
+  });
+  const question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
+  assert.equal(question.isReady, true, "question is ready before data");
+  let log = "";
+  question.onReadyChanged.add((_, opt) => {
+    log += `->${opt.isReady}`;
+  });
+  const base64Url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII";
+  survey.data = {
+    signature: base64Url
+  };
+  assert.equal(question.loadedData, base64Url);
+  assert.equal(log, "->false->true", "isReady changed only one time");
+});
+
+QUnit.test("Check storeDataAsText: false and no download file callback and incorrect link passed", (assert) => {
+  const done = assert.async();
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "signaturepad",
+        name: "signature",
+        storeDataAsText: false,
+      }
+    ],
+  });
+  const question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
+  assert.equal(question.isReady, true, "question is ready before data");
+  let log = "";
+  question.onReadyChanged.add((_, opt) => {
+    log += `->${opt.isReady}`;
+  });
+  const url = "http://localhost:7777/image.jpg";
+  survey.data = {
+    signature: url
+  };
+  setTimeout(() => {
+    assert.equal(question.loadedData, undefined);
+    assert.equal(question.value, url);
+    assert.equal(log, "->false->true", "isReady changed only one time");
+    done();
+  }, 100);
+});
+
 QUnit.test("Check signature image cached in loadedData and loaded only once until value changed", (assert) => {
   var el = document.createElement("div");
   var canv = document.createElement("canvas");

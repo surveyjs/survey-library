@@ -2389,6 +2389,14 @@ export class SurveyModel extends SurveyElementCore
     };
     return exp.run(values, properties) || onCompleteRes;
   }
+  private setValueOnExpressionCounter: number = 0;
+  public get isSettingValueOnExpression(): boolean { return this.setValueOnExpressionCounter > 0; }
+  startSetValueOnExpression(): void {
+    this.setValueOnExpressionCounter ++;
+  }
+  finishSetValueOnExpression(): void {
+    this.setValueOnExpressionCounter --;
+  }
   /**
    * Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns `true` or `false`.
    * @param expression An expression to calculate.
@@ -5821,6 +5829,8 @@ export class SurveyModel extends SurveyElementCore
       question: <Question>this.getQuestionByValueName(questionValueName || valueName),
       value: this.getUnbindValue(newValue),
       oldValue: this.getValue(valueName),
+      isExpressionRunning: this.isSettingValueOnExpression,
+      isFromTrigger: this.isSettingValueFromTrigger
     };
     this.onValueChanging.fire(this, options);
     return options.value;
@@ -5880,6 +5890,15 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
+  private fireOnValueChanged(name: string, value: any, question: Question): void {
+    this.onValueChanged.fire(this, {
+      name: name,
+      question: question,
+      value: value,
+      isExpressionRunning: this.isSettingValueOnExpression,
+      isFromTrigger: this.isSettingValueFromTrigger
+    });
+  }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any, questionName: string): void {
     if (this.isLoadingFromJson) return;
     var questions = this.getQuestionsByValueName(valueName);
@@ -5888,18 +5907,10 @@ export class SurveyModel extends SurveyElementCore
         var question = questions[i];
         this.checkQuestionErrorOnValueChanged(question);
         question.onSurveyValueChanged(newValue);
-        this.onValueChanged.fire(this, {
-          name: valueName,
-          question: question,
-          value: newValue,
-        });
+        this.fireOnValueChanged(valueName, newValue, question);
       }
     } else {
-      this.onValueChanged.fire(this, {
-        name: valueName,
-        question: null,
-        value: newValue,
-      });
+      this.fireOnValueChanged(valueName, newValue, null);
     }
     if (this.isDisposed) return;
     this.checkElementsBindings(valueName, newValue);
@@ -6693,8 +6704,9 @@ export class SurveyModel extends SurveyElementCore
     if (locNotification === true || this.isDisposed || this.isRunningElementsBindings) return;
     questionName = questionName || name;
     this.checkTriggersAndRunConditions(name, newValue, oldValue);
-    if (allowNotifyValueChanged)
+    if (allowNotifyValueChanged) {
       this.notifyQuestionOnValueChanged(name, newValue, questionName);
+    }
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
     }
@@ -6815,11 +6827,7 @@ export class SurveyModel extends SurveyElementCore
     }
     var question = this.getQuestionByValueName(name);
     if (question) {
-      this.onValueChanged.fire(this, {
-        name: commentName,
-        question: question,
-        value: newValue,
-      });
+      this.fireOnValueChanged(commentName, newValue, question);
       question.comment = newValue;
       if (question.comment != newValue) {
         question.comment = newValue;
@@ -6830,7 +6838,7 @@ export class SurveyModel extends SurveyElementCore
    * Deletes an answer from survey results.
    * @param {string} name An object property that stores the answer to delete. Pass a question's [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName) or [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
    */
-  public clearValue(name: string) {
+  public clearValue(name: string): void {
     this.setValue(name, null);
     this.setComment(name, null);
   }
@@ -7577,12 +7585,13 @@ export class SurveyModel extends SurveyElementCore
     Array.prototype.push.apply(result, this.getQuestionsByNames(questions));
     return result;
   }
-  setTriggerValue(name: string, value: any, isVariable: boolean) {
+  setTriggerValue(name: string, value: any, isVariable: boolean): void {
     if (!name) return;
     if (isVariable) {
       this.setVariable(name, value);
     } else {
       var question = this.getQuestionByName(name);
+      this.startSetValueFromTrigger();
       if (!!question) {
         question.value = value;
       } else {
@@ -7597,6 +7606,7 @@ export class SurveyModel extends SurveyElementCore
           this.setValue(firstName, data[firstName]);
         }
       }
+      this.finishSetValueFromTrigger();
     }
   }
   copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {
@@ -7612,6 +7622,14 @@ export class SurveyModel extends SurveyElementCore
   }
   triggerExecuted(trigger: Trigger): void {
     this.onTriggerExecuted.fire(this, { trigger: trigger });
+  }
+  private setValueFromTriggerCounter: number = 0;
+  public get isSettingValueFromTrigger(): boolean { return this.setValueFromTriggerCounter > 0; }
+  private startSetValueFromTrigger(): void {
+    this.setValueFromTriggerCounter ++;
+  }
+  private finishSetValueFromTrigger(): void {
+    this.setValueFromTriggerCounter --;
   }
   private focusingQuestionInfo: any;
   private isMovingQuestion: boolean;

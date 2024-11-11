@@ -165,7 +165,7 @@ function wrapUrlForBackgroundImage(url: string): string {
 }
 function isBase64URL(url: string): boolean {
   if(typeof url == "string") {
-    return /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),/.test(url);
+    return /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[^;]*?[^;])*),/.test(url);
   }
   return null;
 }

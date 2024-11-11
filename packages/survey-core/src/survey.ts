@@ -839,7 +839,7 @@ export class SurveyModel extends SurveyElementCore
   public onGetPageTitleActions: EventBase<SurveyModel, GetPageTitleActionsEvent> = this.addEvent<SurveyModel, GetPageTitleActionsEvent>();
 
   /**
-   * An event that allows you to add, delete, or modify actions in the footer of a [Panel](https://surveyjs.io/form-library/documentation/panelmodel).
+   * An event that allows you to add, delete, or modify actions in the footer of a [Panel](https://surveyjs.io/form-library/documentation/panelmodel). This panel may belong to a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model) or be standalone survey element.
    * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
    */
   public onGetPanelFooterActions: EventBase<SurveyModel, GetPanelFooterActionsEvent> = this.addEvent<SurveyModel, GetPanelFooterActionsEvent>();

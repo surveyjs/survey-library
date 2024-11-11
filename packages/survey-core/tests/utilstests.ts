@@ -1074,6 +1074,17 @@ QUnit.test("animation helper functions", (assert) => {
 QUnit.test("test isBase64", (assert) => {
   assert.ok(isBase64URL("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"));
   assert.ok(isBase64URL("data:image/jpg;base64,AAA"));
+  assert.ok(isBase64URL("data:image/jpeg;base64,UEsDBBQAAAAI"));
+  assert.ok(isBase64URL("data:image/jpeg;key=value;base64,UEsDBBQAAAAI"));
+  assert.ok(isBase64URL("data:image/jpeg;key=value,UEsDBBQAAAAI"));
+  assert.ok(isBase64URL("data:;base64;sdfgsdfgsdfasdfa=s,UEsDBBQAAAAI"));
+  assert.ok(isBase64URL("data:,UEsDBBQAAAAI"));
+  assert.ok(isBase64URL("data:image/jpeg;e,UEsDBBQAAAA"));
+
+  assert.notOk(isBase64URL("data:image/jpeg;base64;UEsDBBQAAAA"));
+  assert.notOk(isBase64URL("data:image/jpeg;,UEsDBBQAAAA"));
+  assert.notOk(isBase64URL("data:image/jpeg;;,UEsDBBQAAAA"));
+  assert.notOk(isBase64URL("data:image/jpeg;;e,UEsDBBQAAAA"));
   assert.notOk(isBase64URL("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"));
   assert.notOk(isBase64URL("image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"));
   assert.notOk(isBase64URL("https://localhost:7777/image.jpg"));

@@ -5818,6 +5818,10 @@ export class SurveyModel extends SurveyElementCore
     page.name = name;
     return page;
   }
+  private getValueChangeReason(): "trigger" | "expression" | undefined {
+    if(this.isSettingValueOnExpression) return "expression";
+    return this.isSettingValueFromTrigger ? "trigger" : undefined;
+  }
   protected questionOnValueChanging(valueName: string, newValue: any, questionValueName?: string): any {
     if (!!this.editingObj) {
       const prop = Serializer.findProperty(this.editingObj.getType(), valueName);
@@ -5829,8 +5833,7 @@ export class SurveyModel extends SurveyElementCore
       question: <Question>this.getQuestionByValueName(questionValueName || valueName),
       value: this.getUnbindValue(newValue),
       oldValue: this.getValue(valueName),
-      isExpressionRunning: this.isSettingValueOnExpression,
-      isFromTrigger: this.isSettingValueFromTrigger
+      reason: this.getValueChangeReason()
     };
     this.onValueChanging.fire(this, options);
     return options.value;
@@ -5895,8 +5898,7 @@ export class SurveyModel extends SurveyElementCore
       name: name,
       question: question,
       value: value,
-      isExpressionRunning: this.isSettingValueOnExpression,
-      isFromTrigger: this.isSettingValueFromTrigger
+      reason: this.getValueChangeReason()
     });
   }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any, questionName: string): void {

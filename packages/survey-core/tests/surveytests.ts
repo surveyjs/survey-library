@@ -20820,30 +20820,29 @@ QUnit.test("onValueChanged event & isExpressionRunning parameter", function (ass
   survey.getQuestionByName("q4").value = 4;
   const logs: Array<any> = [];
   survey.onValueChanged.add((sender, options) => {
-    logs.push({ name: options.name, val: options.value, 
-      isExpressionRunning: options.isExpressionRunning,
-      isFromTrigger: options.isFromTrigger
+    logs.push({ name: options.name, val: options.value,
+      reason: options.reason
     });
   });
   survey.getQuestionByName("q1").value = 1;
   assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3 }, "survey.data #1");
   assert.deepEqual(logs, [
-    { name: "q3", val: 3, isExpressionRunning: true, isFromTrigger: false },
-    { name: "q2", val: 2, isExpressionRunning: true, isFromTrigger: false },
-    { name: "q4", val: undefined, isExpressionRunning: true, isFromTrigger: false },
-    { name: "q1", val: 1, isExpressionRunning: false, isFromTrigger: false }], "logs #1");
+    { name: "q3", val: 3, reason: "expression" },
+    { name: "q2", val: 2, reason: "expression" },
+    { name: "q4", val: undefined, reason: "expression" },
+    { name: "q1", val: 1, reason: undefined }], "logs #1");
 
   logs.splice(0, logs.length);
   survey.getQuestionByName("q4").value = 2;
   assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 2, q5: 5 }, "survey.data #2");
   assert.deepEqual(logs, [
-    { name: "q5", val: 5, isExpressionRunning: false, isFromTrigger: true },
-    { name: "q4", val: 2, isExpressionRunning: false, isFromTrigger: false }], "logs #2");
+    { name: "q5", val: 5, reason: "trigger" },
+    { name: "q4", val: 2, reason: undefined }], "logs #2");
 
   logs.splice(0, logs.length);
   survey.getQuestionByName("q4").value = 3;
   assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 3, q5: 8 }, "survey.data #3");
   assert.deepEqual(logs, [
-    { name: "q5", val: 8, isExpressionRunning: false, isFromTrigger: true },
-    { name: "q4", val: 3, isExpressionRunning: false, isFromTrigger: false }], "logs #3");
+    { name: "q5", val: 8, reason: "trigger" },
+    { name: "q4", val: 3, reason: undefined }], "logs #3");
 });

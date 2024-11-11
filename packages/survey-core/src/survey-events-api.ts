@@ -216,8 +216,7 @@ export interface ValueChangeBaseEvent extends QuestionEventMixin {
    * The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
    */
   name: string;
-  isExpressionRunning: boolean;
-  isFromTrigger: boolean;
+  reason: "trigger" | "expression" | undefined;
 }
 export interface ValueChangedEvent extends ValueChangeBaseEvent {
   /**

@@ -307,3 +307,21 @@ QUnit.test("calculateActualHeight mobile",
     assert.equal(cover.renderedHeight, "100px", "mobile height, no title, no logo, no description");
   }
 );
+
+QUnit.test("renderedtextAreaWidth",
+  function (assert) {
+    const cover = new Cover();
+    cover.survey = {
+      width: undefined,
+      onPropertyChanged: { add: () => { } },
+      calculateWidthMode: () => { }
+    } as any;
+    assert.equal(cover.renderedtextAreaWidth, "512px", "default text area width");
+    cover.textAreaWidth = 300;
+    assert.equal(cover.renderedtextAreaWidth, "300px", "given text area width");
+    cover.textAreaWidth = 0;
+    assert.equal(cover.renderedtextAreaWidth, "100%", "full width text area width");
+    cover.survey.width = "400px";
+    assert.equal(cover.renderedtextAreaWidth, "400px", "text area width from survey");
+  }
+);

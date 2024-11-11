@@ -61,6 +61,9 @@ export class CoverCell {
     }
     return "" + this.cover.textAreaWidth + "px";
   }
+  get renderedtextAreaWidth(): string {
+    return this.cover.renderedtextAreaWidth;
+  }
 }
 
 export class Cover extends Base {
@@ -172,7 +175,13 @@ export class Cover extends Base {
     return undefined;
   }
   public get renderedtextAreaWidth(): string {
-    return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
+    if (this.textAreaWidth) {
+      return this.textAreaWidth + "px";
+    }
+    if (this.survey && this.survey.width) {
+      return this.survey.width;
+    }
+    return "100%";
   }
   public get survey(): SurveyModel {
     return this._survey;

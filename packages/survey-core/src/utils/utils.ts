@@ -182,6 +182,7 @@ const renamedIcons:any = {
   "takepicture": "camera-32x32",
   "takepicture_24x24": "camera-24x24",
   "v2check": "check-16x16",
+  "checked": "check-16x16",
   "v2check_24x24": "check-24x24",
   "back-to-panel_16x16": "restoredown-16x16",
   "clear_16x16": "clear-16x16",

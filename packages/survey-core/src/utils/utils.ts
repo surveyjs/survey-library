@@ -163,6 +163,12 @@ function navigateToUrl(url: string): void {
 function wrapUrlForBackgroundImage(url: string): string {
   return !!url ? ["url(", url, ")"].join("") : "";
 }
+function isBase64URL(url: string): boolean {
+  if(typeof url == "string") {
+    return /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[^;]+?)*),(.+)$/.test(url);
+  }
+  return null;
+}
 
 // old-name: new-name
 const renamedIcons:any = {
@@ -821,5 +827,6 @@ export {
   findParentByClassNames,
   getFirstVisibleChild,
   chooseFiles,
+  isBase64URL,
   renamedIcons
 };

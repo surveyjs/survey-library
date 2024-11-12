@@ -222,6 +222,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   public resetComponentElement() {
     super.resetComponentElement();
     this.targetElement = undefined;
+    this.areaElement = undefined;
   }
   public updateOnShowing(): void {
     const { root } = settings.environment;

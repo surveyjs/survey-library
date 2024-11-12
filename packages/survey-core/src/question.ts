@@ -171,8 +171,10 @@ export class Question extends SurveyElement<Question>
     this.createLocalizableString("commentText", this, true, "otherItemText");
     this.createLocalizableString("requiredErrorText", this);
     this.addTriggerInfo("resetValueIf", (): boolean => !this.isEmpty(), (): void => {
+      this.startSetValueOnExpression();
       this.clearValue();
       this.updateValueWithDefaults();
+      this.finishSetValueOnExpression();
     });
     const setValueIfInfo = this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
     setValueIfInfo.runSecondCheck = (keys: any): boolean => this.checkExpressionIf(keys);
@@ -1534,12 +1536,13 @@ export class Question extends SurveyElement<Question>
   protected onSetData(): void {
     super.onSetData();
     if (!this.survey) return;
-    this.initDataFromSurvey();
-    this.onSurveyValueChanged(this.value);
-    this.updateValueWithDefaults();
     this.onIndentChanged();
-    this.updateQuestionCss();
-    this.updateIsAnswered();
+    if(!this.isDesignMode) {
+      this.initDataFromSurvey();
+      this.onSurveyValueChanged(this.value);
+      this.updateValueWithDefaults();
+      this.updateIsAnswered();
+    }
   }
   protected initDataFromSurvey(): void {
     if (!!this.data) {
@@ -2035,9 +2038,17 @@ export class Question extends SurveyElement<Question>
   private runExpressionSetValue(val: any): void {
     this.runExpressionSetValueCore(val, (val: any): void => {
       if (!this.isTwoValueEquals(this.value, val)) {
+        this.startSetValueOnExpression();
         this.value = val;
+        this.finishSetValueOnExpression();
       }
     });
+  }
+  protected startSetValueOnExpression(): void {
+    this.survey?.startSetValueOnExpression();
+  }
+  protected finishSetValueOnExpression(): void {
+    this.survey?.finishSetValueOnExpression();
   }
   private runDefaultValueExpression(runner: ExpressionRunner, values: HashTable<any> = null,
     properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
@@ -2104,7 +2115,7 @@ export class Question extends SurveyElement<Question>
     return this.isValueEmpty(this.value, !this.allowSpaceAsAnswer);
   }
   public get isAnswered(): boolean {
-    return this.getPropertyValue("isAnswered");
+    return this.getPropertyValue("isAnswered") || false;
   }
   public set isAnswered(val: boolean) {
     this.setPropertyValue("isAnswered", val);

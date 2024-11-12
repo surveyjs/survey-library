@@ -348,12 +348,43 @@ QUnit.test("ResponsivityManager minDimension calc test", function (assert) {
 
   const newAction = new Action({ id: "first", iconName: "icon" });
   model.actions.push(newAction);
-  assert.equal(manager["calcMinDimension"](newAction), 56);
+  assert.equal(manager["calcMinDimension"](newAction), 40);
 
   model.actions = [];
   const smallAction = new Action({ id: "first", iconName: "icon", iconSize: 16 });
+  model.actions.push(smallAction);
+  assert.equal(manager["calcMinDimension"](smallAction), 32);
+});
+
+QUnit.test("ResponsivityManager minDimension calc by html element test", function (assert) {
+  const container: SimpleContainer = new SimpleContainer({});
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model, "");
+  (<any>manager.getComputedStyle) = () => {
+    return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
+  };
+
+  const itemElement = document.createElement("div");
+  document.body.appendChild(itemElement);
+  const iconElement = document.createElement("div");
+  iconElement.style["width"] = "13px";
+  iconElement.style["height"] = "23px";
+  iconElement.className = "sv-svg-icon";
+  itemElement.appendChild(iconElement);
+
+  const newAction = new Action({ id: "first", iconName: "icon" });
+  newAction.iconSize = "";
   model.actions.push(newAction);
-  assert.equal(manager["calcMinDimension"](smallAction), 40);
+  manager["calcActionDimensions"](newAction, itemElement);
+  assert.equal(newAction.minDimension, 29);
+
+  model.actions = [];
+  const smallAction = new Action({ id: "first", iconName: "icon", iconSize: "auto" });
+  model.actions.push(smallAction);
+  manager["calcActionDimensions"](smallAction, itemElement);
+  assert.equal(smallAction.minDimension, 29);
+
+  itemElement.remove();
 });
 
 QUnit.test(

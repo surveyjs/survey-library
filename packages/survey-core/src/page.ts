@@ -320,6 +320,27 @@ export class PageModel extends PanelModelBase implements IPage {
     super.ensureRowsVisibility();
     this.getPanels().forEach((panel) => panel.ensureRowsVisibility());
   }
+
+  private _isReadyForClean: boolean = true;
+  public get isReadyForClean(): boolean {
+    return this._isReadyForClean;
+  }
+  public set isReadyForClean(val: boolean) {
+    const oldValue = this._isReadyForClean;
+    this._isReadyForClean = val;
+    if(this._isReadyForClean !== oldValue) {
+      this.isReadyForCleanChangedCallback && this.isReadyForCleanChangedCallback();
+    }
+  }
+  public isReadyForCleanChangedCallback: () => void;
+  public enableOnElementRerenderedEvent(): void {
+    super.enableOnElementRerenderedEvent();
+    this.isReadyForClean = false;
+  }
+  public disableOnElementRerenderedEvent(): void {
+    super.disableOnElementRerenderedEvent();
+    this.isReadyForClean = true;
+  }
 }
 
 Serializer.addClass(

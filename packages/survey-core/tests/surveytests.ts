@@ -20700,3 +20700,149 @@ QUnit.test("Check that focusInput works correctly with shadow dom", function (as
   assert.equal(root.shadowRoot?.activeElement, input);
   root.remove();
 });
+QUnit.test("Check page is cleared only after unmount", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "p1",
+        elements: [
+          { type: "text", name: "q1" },
+        ]
+      },
+      {
+        name: "p2",
+        elements: [
+          { type: "text", name: "q2" },
+        ]
+      },
+      {
+        name: "p3",
+        elements: [
+          { type: "text", name: "q3" },
+        ]
+      }
+    ]
+  });
+  const page1 = survey.getPageByName("p1");
+  page1.supportOnElementRerenderedEvent = true;
+  page1.enableOnElementRerenderedEvent();
+  survey.removePage(page1);
+  assert.ok(!!page1.survey);
+  page1.disableOnElementRerenderedEvent();
+  assert.notOk(!!page1.survey);
+
+  const page2 = survey.getPageByName("p2");
+  page2.supportOnElementRerenderedEvent = true;
+  page2.enableOnElementRerenderedEvent();
+  survey.removePage(page2);
+  survey.addPage(page2);
+  assert.ok(!!page2.survey);
+  page2.disableOnElementRerenderedEvent();
+  assert.ok(!!page2.survey);
+
+  const page3 = survey.getPageByName("p3");
+  page3.supportOnElementRerenderedEvent = true;
+  survey.removePage(page3);
+  assert.notOk(!!page3.survey);
+});
+QUnit.test("Reduce the number of calls of setVisibleIndexes function", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  let counter = 0;
+  survey.onProgressText.add((sender, options) => {
+    counter ++;
+  });
+  survey.fromJSON({
+    pages: [{
+      elements: [
+        {
+          name: "p1_q1",
+          type: "paneldynamic",
+          templateElements: [
+            { type: "text", name: "p1_q2" },
+            {
+              name: "p1_q3",
+              type: "paneldynamic",
+              templateElements: [
+                { type: "text", name: "p1_q4" },
+                { type: "text", name: "p1_q5" }],
+            }
+          ]
+        }
+      ]
+    },
+    {
+      elements: [
+        {
+          name: "p2_q1",
+          type: "paneldynamic",
+          templateElements: [
+            { type: "text", name: "p2_q2" },
+            {
+              name: "p2_q3",
+              type: "paneldynamic",
+              templateElements: [
+                { type: "text", name: "p2_q4" },
+                { type: "text", name: "p2_q5" }],
+            }
+          ]
+        }
+      ]
+    }]
+  });
+  assert.equal(counter, 3, "On loading");
+  survey.pages[1].onFirstRendering();
+  assert.equal(counter, 3, "page[1].onFirstRendering(), do nothing");
+});
+QUnit.test("Do not include questions.values into survey.getFilteredValue in design time", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", defaultValue: 1 }],
+    calculatedValues: [{ name: "val1", expression: "2" }]
+  });
+  assert.deepEqual(survey.getFilteredValues(), { q1: 1, val1: 2 }, "survey in running state");
+  survey.setDesignMode(true);
+  assert.deepEqual(survey.getFilteredValues(), { val1: 2 }, "survey at design time");
+});
+QUnit.test("onValueChanged event & isExpressionRunning parameter", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2", setValueExpression: "{q1} + 1" },
+      { type: "text", name: "q3", defaultValueExpression: "{q1} + 2" },
+      { type: "text", name: "q4", resetValueIf: "{q1} > 0" },
+      { type: "text", name: "q5", resetValueIf: "{q1} > 0" }
+    ],
+    triggers: [
+      { type: "setvalue", setToName: "q5", expression: "{q4} = 2", setValue: 5 },
+      { type: "runexpression", setToName: "q5", expression: "{q4} = 3", runExpression: "{q4} + 5" },
+    ]
+  });
+  survey.getQuestionByName("q4").value = 4;
+  const logs: Array<any> = [];
+  survey.onValueChanged.add((sender, options) => {
+    logs.push({ name: options.name, val: options.value,
+      reason: options.reason
+    });
+  });
+  survey.getQuestionByName("q1").value = 1;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3 }, "survey.data #1");
+  assert.deepEqual(logs, [
+    { name: "q3", val: 3, reason: "expression" },
+    { name: "q2", val: 2, reason: "expression" },
+    { name: "q4", val: undefined, reason: "expression" },
+    { name: "q1", val: 1, reason: undefined }], "logs #1");
+
+  logs.splice(0, logs.length);
+  survey.getQuestionByName("q4").value = 2;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 2, q5: 5 }, "survey.data #2");
+  assert.deepEqual(logs, [
+    { name: "q5", val: 5, reason: "trigger" },
+    { name: "q4", val: 2, reason: undefined }], "logs #2");
+
+  logs.splice(0, logs.length);
+  survey.getQuestionByName("q4").value = 3;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 3, q5: 8 }, "survey.data #3");
+  assert.deepEqual(logs, [
+    { name: "q5", val: 8, reason: "trigger" },
+    { name: "q4", val: 3, reason: undefined }], "logs #3");
+});

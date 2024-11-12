@@ -216,6 +216,10 @@ export interface ValueChangeBaseEvent extends QuestionEventMixin {
    * The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
    */
   name: string;
+  /**
+   * A value that indicates what caused the value change: an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) evaluation or a run of a [trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers). If the value is changed for other reasons, this parameter is `undefined`.
+   */
+  reason: "trigger" | "expression" | undefined;
 }
 export interface ValueChangedEvent extends ValueChangeBaseEvent {
   /**

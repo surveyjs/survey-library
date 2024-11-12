@@ -214,7 +214,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.value = newValue;
   }
 
-  private getChoicesAnimationOptions(isRankingChoices: boolean): Required<IAnimationGroupConsumer<ItemValue>> {
+  private getChoicesAnimationOptions(isRankingChoices: boolean): IAnimationGroupConsumer<ItemValue> {
     return {
       getKey(item: ItemValue) {
         return item.value;

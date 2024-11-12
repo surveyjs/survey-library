@@ -1,6 +1,6 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays, setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation } from "../src/utils/utils";
+import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays, setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation, isBase64URL } from "../src/utils/utils";
 import { mouseInfo, detectMouseSupport, MatchMediaMethod } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
@@ -1069,4 +1069,23 @@ QUnit.test("animation helper functions", (assert) => {
   assert.equal(el["__sv_created_properties"], undefined);
   assert.equal(el.style.getPropertyValue("--animation-height"), "");
   assert.equal(el.style.getPropertyValue("--animation-margin-top"), "");
+});
+
+QUnit.test("test isBase64", (assert) => {
+  assert.ok(isBase64URL("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"));
+  assert.ok(isBase64URL("data:image/jpg;base64,AAA"));
+  assert.ok(isBase64URL("data:image/jpeg;base64,UEsDBBQAAAAI"));
+  assert.ok(isBase64URL("data:image/jpeg;key=value;base64,UEsDBBQAAAAI"));
+  assert.ok(isBase64URL("data:image/jpeg;key=value,UEsDBBQAAAAI"));
+  assert.ok(isBase64URL("data:;base64;sdfgsdfgsdfasdfa=s,UEsDBBQAAAAI"));
+  assert.ok(isBase64URL("data:,UEsDBBQAAAAI"));
+  assert.ok(isBase64URL("data:image/jpeg;e,UEsDBBQAAAA"));
+
+  assert.notOk(isBase64URL("data:image/jpeg;base64;UEsDBBQAAAA"));
+  assert.notOk(isBase64URL("data:image/jpeg;,UEsDBBQAAAA"));
+  assert.notOk(isBase64URL("data:image/jpeg;;,UEsDBBQAAAA"));
+  assert.notOk(isBase64URL("data:image/jpeg;;e,UEsDBBQAAAA"));
+  assert.notOk(isBase64URL("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"));
+  assert.notOk(isBase64URL("image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"));
+  assert.notOk(isBase64URL("https://localhost:7777/image.jpg"));
 });

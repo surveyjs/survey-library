@@ -132,6 +132,12 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     }
   }
   public initResponsivityManager(container: HTMLDivElement, delayedUpdateFunction?: (callback: () => void) => void): void {
+    if (!!this.responsivityManager) {
+      if (this.responsivityManager.container == container) {
+        return;
+      }
+      this.responsivityManager.dispose();
+    }
     this.responsivityManager = new ResponsivityManager(
       container, this,
       ":scope > .sv-action:not(.sv-dots) > .sv-action__content", null,

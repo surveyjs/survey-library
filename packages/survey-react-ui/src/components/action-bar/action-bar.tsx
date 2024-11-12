@@ -46,10 +46,9 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
   componentDidUpdate(prevProps: IActionBarProps, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
-    if(prevProps.model == this.props.model) {
-      return;
+    if(prevProps.model != this.props.model) {
+      prevProps.model.resetResponsivityManager();
     }
-    this.model.resetResponsivityManager();
     if (!!this.model.hasActions) {
       const container: HTMLDivElement | null = this.rootRef.current;
       if(!!container) {

@@ -26,7 +26,7 @@ export class ResponsivityManager {
   }
 
   constructor(
-    protected container: HTMLDivElement,
+    public container: HTMLDivElement,
     private model: AdaptiveActionContainer,
     private itemsSelector: string,
     private dotsItemSize: number = null,

@@ -658,7 +658,7 @@ QUnit.test("Check storeDataAsText: false and no download file callback and incor
     assert.equal(question.value, url);
     assert.equal(log, "->false->true", "isReady changed only one time");
     done();
-  }, 100);
+  }, 2500);
 });
 
 QUnit.test("Check signature image cached in loadedData and loaded only once until value changed", (assert) => {

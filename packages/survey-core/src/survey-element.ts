@@ -229,9 +229,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     const { root } = settings.environment;
-    if (!elementId || typeof root === "undefined") return false;
-    const el = root.getElementById(elementId);
-    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
+    if (typeof root === "undefined") return false;
+    let element: HTMLElement;
+    if (elementId) {
+      element = root.getElementById(elementId);
+    } else {
+      element = root instanceof Document ? root.body : root.firstElementChild as HTMLElement;
+    }
+    return SurveyElement.ScrollElementToViewCore(element, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     if (!el || !el.scrollIntoView) {

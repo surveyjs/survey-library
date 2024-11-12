@@ -417,6 +417,7 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
   }
   private onCompleteRunExpression(newValue: any) {
     if (!!this.setToName && newValue !== undefined) {
+
       this.owner.setTriggerValue(this.setToName, Helpers.convertValToQuestionVal(newValue), false);
     }
   }

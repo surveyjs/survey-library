@@ -20803,3 +20803,46 @@ QUnit.test("Do not include questions.values into survey.getFilteredValue in desi
   survey.setDesignMode(true);
   assert.deepEqual(survey.getFilteredValues(), { val1: 2 }, "survey at design time");
 });
+QUnit.test("onValueChanged event & isExpressionRunning parameter", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2", setValueExpression: "{q1} + 1" },
+      { type: "text", name: "q3", defaultValueExpression: "{q1} + 2" },
+      { type: "text", name: "q4", resetValueIf: "{q1} > 0" },
+      { type: "text", name: "q5", resetValueIf: "{q1} > 0" }
+    ],
+    triggers: [
+      { type: "setvalue", setToName: "q5", expression: "{q4} = 2", setValue: 5 },
+      { type: "runexpression", setToName: "q5", expression: "{q4} = 3", runExpression: "{q4} + 5" },
+    ]
+  });
+  survey.getQuestionByName("q4").value = 4;
+  const logs: Array<any> = [];
+  survey.onValueChanged.add((sender, options) => {
+    logs.push({ name: options.name, val: options.value,
+      reason: options.reason
+    });
+  });
+  survey.getQuestionByName("q1").value = 1;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3 }, "survey.data #1");
+  assert.deepEqual(logs, [
+    { name: "q3", val: 3, reason: "expression" },
+    { name: "q2", val: 2, reason: "expression" },
+    { name: "q4", val: undefined, reason: "expression" },
+    { name: "q1", val: 1, reason: undefined }], "logs #1");
+
+  logs.splice(0, logs.length);
+  survey.getQuestionByName("q4").value = 2;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 2, q5: 5 }, "survey.data #2");
+  assert.deepEqual(logs, [
+    { name: "q5", val: 5, reason: "trigger" },
+    { name: "q4", val: 2, reason: undefined }], "logs #2");
+
+  logs.splice(0, logs.length);
+  survey.getQuestionByName("q4").value = 3;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 3, q5: 8 }, "survey.data #3");
+  assert.deepEqual(logs, [
+    { name: "q5", val: 8, reason: "trigger" },
+    { name: "q4", val: 3, reason: undefined }], "logs #3");
+});

@@ -5366,7 +5366,11 @@ export class SurveyModel extends SurveyElementCore
         }, elementsToRenderBefore);
       } else {
         if (!elementPage && !this.isSinglePage && !this.isDesignMode) {
-          SurveyElement.ScrollElementToViewCore(this.rootElement, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+          if (!this.fitToContainer) {
+            SurveyElement.ScrollElementToViewCore(this.rootElement as any, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+          } else {
+            this.rootElement.scrollTop = 0;
+          }
         } else {
           SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         }

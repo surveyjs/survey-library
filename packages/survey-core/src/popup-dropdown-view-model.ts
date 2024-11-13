@@ -84,6 +84,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const popupComputedStyle = DomDocumentHelper.getComputedStyle(popupContainer);
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
+    const marginTop = (parseFloat(popupComputedStyle.marginTop) || 0);
+    const marginBottom = (parseFloat(popupComputedStyle.marginBottom) || 0);
     let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
     const width = popupContainer.getBoundingClientRect().width;
     this.model.setWidthByTarget && (this.minWidth = targetElementRect.width + "px");
@@ -128,7 +130,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         height,
         area.height,
         verticalPosition,
-        this.model.canShrink
+        this.model.canShrink,
+        { top: marginTop, bottom: marginBottom }
       );
       if (!!newVerticalDimensions) {
         this.height = newVerticalDimensions.height + "px";

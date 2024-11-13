@@ -176,7 +176,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     }
   };
   const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
-
+  popupModel.getTargetCallback = getActionDropdownButtonTarget;
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
     popupModel: popupModel,

@@ -34,8 +34,7 @@
       >
     </button>
     <sv-popup
-      :model="item.popupModel"
-      :getTarget="getTarget"></sv-popup>
+      :model="item.popupModel"></sv-popup>
   </div>
 </template>
 
@@ -48,7 +47,6 @@ import { ActionDropdownViewModel, getActionDropdownButtonTarget } from "survey-c
 @Component
 export class ActionBarItemDropdownViewModel extends ActionBarItemViewModel {
   private viewModel: ActionDropdownViewModel;
-  public getTarget: (container: HTMLElement) => HTMLElement = getActionDropdownButtonTarget;
   constructor() {
     super();
     this.viewModel = new ActionDropdownViewModel(this.item);

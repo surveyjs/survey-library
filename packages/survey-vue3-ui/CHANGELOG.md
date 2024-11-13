@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.12.10](https://github.com/surveyjs/survey-library/compare/v1.12.9...v1.12.10) (2024-11-13)
+
 ## [1.12.9](https://github.com/surveyjs/survey-library/compare/v1.12.8...v1.12.9) (2024-11-07)
 
 ## [1.12.8](https://github.com/surveyjs/survey-library/compare/v1.12.7...v1.12.8) (2024-10-31)

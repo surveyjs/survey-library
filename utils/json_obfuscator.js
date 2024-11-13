@@ -1,6 +1,9 @@
 // eslint-disable-next-line no-undef
 const fs = require("fs");
-const Survey = require("../js/survey.core.js");
+// eslint-disable-next-line no-undef
+const path = require("path");
+
+const Survey = require("../build/survey-core/survey.core");
 // eslint-disable-next-line no-undef
 let args = process.argv;
 if(!Array.isArray(args)) return;
@@ -17,7 +20,8 @@ fs.readFile(fileName, (err, data) => {
         return;
     }
     const newJSON = obfuscateJSON(data);
-    const newFileName = fileName + ".obf";
+    const ext = path.extname(fileName);
+    const newFileName = fileName.substring(0, fileName.length - ext.length) + ".obf" + ext;
     fs.writeFile(newFileName, newJSON, err => {
         if (err) {
             // eslint-disable-next-line no-console
@@ -31,24 +35,32 @@ fs.readFile(fileName, (err, data) => {
 
 function obfuscateJSON(data) {
     const model = new Survey.Model(JSON.parse(data));
+    let index = 0;
+    model.getAllPanels().forEach(panel => {
+        panel.name = "panel" + (++index);
+    });
+    const containers = [model];
+    model.pages.forEach(page => containers.push(page));
+    model.getAllPanels().forEach(panel => containers.push(panel));
+    const propsToObs = ["title", "description", "requiredErrorText"];
+    containers.forEach(container => obfuscatePropsText(container, propsToObs));
+
     let questions = model.getAllQuestions();
     questions.forEach( q => {
         if(q.getType() === "html") {
             q.delete();
             return;
         }
-        q.title = obfuscateText(q.title);
-        q.description = obfuscateText(q.description);
-        ["choices", "columns", "rows"].forEach(name => {
+        obfuscatePropsText(q, propsToObs);
+        ["choices", "columns", "rows", "validators"].forEach(name => {
             obfuscateArrayText(q[name]);
-        });            
+        });
     });
     questions = model.getAllQuestions();
     const qNames = [];
-    let index = 1;
+    index = 0;
     questions.forEach(q => {
-        const newName = "q" + index;
-        index ++;
+        const newName = "q" + (++index);
         const oldName = q.name;
         q.name = newName;
         qNames.push({ oldName: oldName, newName: newName });
@@ -56,10 +68,17 @@ function obfuscateJSON(data) {
     let json = JSON.stringify(model.toJSON(), null, 2);
     qNames.forEach(item => {
         ["{", "{panel.", "{row."].forEach(prefix =>
-            json = renameQuestionInExpression(json, prefix + item.oldName, prefix + item.newName, ["}", "."])//, "/["])
+            json = renameQuestionInExpression(json, prefix + item.oldName, prefix + item.newName, ["}", ".", "["])
         );
     });
     return json;
+}
+function obfuscatePropsText(el, props) {
+    props.forEach(
+        prop => {
+            if(!!el[prop]) el[prop] = obfuscateText(el[prop]);
+        }
+    );
 }
 function obfuscateArrayText(items) {
     if(Array.isArray(items)) {
@@ -79,8 +98,8 @@ function obfuscateText(text) {
     for(let i = 0; i < text.length; i ++) {
         const ch = text[i];
         let newCh = ch;
-        if(ch >= "a" &&  ch <= "z") newCh = getRandomChar("a", "z"); 
-        if(ch >= "A" &&  ch <= "Z") newCh = getRandomChar("A", "Z");
+        if(ch >= "a" && ch <= "z") newCh = getRandomChar("a", "z"); 
+        if(ch >= "A" && ch <= "Z") newCh = getRandomChar("A", "Z");
         newText += newCh;
     };
     return newText;
@@ -93,7 +112,7 @@ function getRandomChar(min, max) {
 }
 function renameQuestionInExpression(json, oldName, newName, postFixes) {
   postFixes.forEach(post => {
-    const re = new RegExp(oldName + post, "gi");
+    const re = new RegExp(oldName + "\\" + post, "gi");
     json = json.replace(re, newName + post);
   });
   return json;

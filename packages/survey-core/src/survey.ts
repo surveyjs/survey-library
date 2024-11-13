@@ -5370,7 +5370,7 @@ export class SurveyModel extends SurveyElementCore
             SurveyElement.ScrollElementToViewCore(this.rootElement as any, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
           } else {
             this.rootElement.scrollTop = 0;
-            onScolledCallback();
+            if (onScolledCallback) onScolledCallback();
           }
         } else {
           SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);

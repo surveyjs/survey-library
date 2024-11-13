@@ -64,7 +64,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
   public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
-      this.initSignaturePad(el);
+      if (!this.isDesignMode) this.initSignaturePad(el);
       this.element = el;
     }
     super.afterRenderQuestionElement(el);

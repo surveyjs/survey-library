@@ -760,3 +760,23 @@ QUnit.test("Check signature image cached in loadedData and loaded only once unti
   canv.remove();
   el.remove();
 });
+
+QUnit.test("do not init in design mode", (assert) => {
+  var el = document.createElement("div");
+  var json = {
+    questions: [
+      {
+        type: "signaturepad",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  survey.setDesignMode(true);
+  const signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  signaturepad.afterRenderQuestionElement(el);
+
+  assert.notOk(signaturepad["signaturePad"]);
+
+  el.remove();
+});

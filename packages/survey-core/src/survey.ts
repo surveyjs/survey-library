@@ -5368,8 +5368,6 @@ export class SurveyModel extends SurveyElementCore
         if (!elementPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
           const elementToScroll = this.rootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
-          this.rootElement.querySelector(classesToSelector(this.css.rootWrapper)).scrollTop = 0;
-          if (onScolledCallback) onScolledCallback();
         } else {
           SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         }

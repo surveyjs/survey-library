@@ -32,17 +32,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     return this.visibleActions.filter(action => !action.disableHide).sort((a, b) => a.removePriority || 0 - b.removePriority || 0);
   }
 
-  private getVisibleItemsCount(availableSize: number): number {
-    this.visibleActions.filter((action) => action.disableHide).forEach(action => availableSize -= action.minDimension);
-    const itemsSizes: number[] = this.getActionsToHide().map((item) => item.minDimension);
-    let currSize: number = 0;
-    for (var i = 0; i < itemsSizes.length; i++) {
-      currSize += itemsSizes[i];
-      if (currSize > availableSize) return i;
-    }
-    return i;
-  }
-
   private updateItemMode(availableSize: number, itemsSize: number) {
     const items = this.visibleActions;
     for (let index = items.length - 1; index >= 0; index--) {
@@ -108,27 +97,36 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     }
   }
 
-  public fit(dimension: number, dotsItemSize: number) {
-    if (dimension <= 0) return;
+  private getVisibleItemsCount(options: { availableSize: number, gap: number }): number {
+    options.availableSize += options.gap;
+    this.visibleActions.filter((action) => action.disableHide).forEach(action => options.availableSize -= (action.minDimension + options.gap));
+    const itemsSizes: number[] = this.getActionsToHide().map((item) => item.minDimension + options.gap);
+    let currSize: number = 0;
+    for (var i = 0; i < itemsSizes.length; i++) {
+      currSize += itemsSizes[i];
+      if (currSize > options.availableSize) return i;
+    }
+    return i;
+  }
 
+  public fit(options: { availableSpace: number, gap?: number }): void {
+    if (options.availableSpace <= 0) return;
     this.dotsItem.visible = false;
-    let minSize = 0;
-    let maxSize = 0;
+    let minSize = - 1 * options.gap;
+    let maxSize = - 1 * options.gap;
     const items = this.visibleActions;
-
     items.forEach((item) => {
-      minSize += item.minDimension;
-      maxSize += item.maxDimension;
+      minSize += item.minDimension + options.gap;
+      maxSize += item.maxDimension + options.gap;
     });
-
-    if (dimension >= maxSize) {
+    if (options.availableSpace >= maxSize) {
       this.setActionsMode("large");
-    } else if (dimension < minSize) {
+    } else if (options.availableSpace < minSize) {
       this.setActionsMode("small");
-      this.hideItemsGreaterN(this.getVisibleItemsCount(dimension - dotsItemSize));
+      this.hideItemsGreaterN(this.getVisibleItemsCount({ availableSize: options.availableSpace - (options.gap + this.dotsItem.minDimension), gap: options.gap }));
       this.dotsItem.visible = !!this.hiddenItemsListModel.actions.length;
     } else {
-      this.updateItemMode(dimension, maxSize);
+      this.updateItemMode(options.availableSpace, maxSize);
     }
   }
   public initResponsivityManager(container: HTMLDivElement, delayedUpdateFunction?: (callback: () => void) => void): void {
@@ -140,8 +138,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     }
     this.responsivityManager = new ResponsivityManager(
       container, this,
-      ":scope > .sv-action:not(.sv-dots) > .sv-action__content", null,
-      delayedUpdateFunction
     );
   }
   public resetResponsivityManager(): void {
@@ -150,10 +146,13 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       this.responsivityManager = undefined;
     }
   }
-  public setActionsMode(mode: actionModeType) {
+  public setActionsMode(mode: actionModeType): void {
     this.actions.forEach((action) => {
-      if(mode == "small" && action.disableShrink) return;
-      action.mode = mode;
+      if(mode == "small" && action.disableShrink) {
+        action.mode = "large";
+      } else {
+        action.mode = mode;
+      }
     });
   }
   public dispose(): void {

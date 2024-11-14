@@ -305,6 +305,14 @@ export abstract class BaseAction extends Base implements IAction {
   public get canShrink() {
     return !this.disableShrink && !!this.iconName;
   }
+  public getHasTitle(mode: "small" | "large" | "removed" | "popup") {
+    return (
+      ((mode != "small" &&
+        (this.showTitle || this.showTitle === undefined)) ||
+        !this.iconName) &&
+      !!this.title
+    );
+  }
   public get hasTitle(): boolean {
     return (
       ((this.mode != "small" &&
@@ -322,11 +330,12 @@ export abstract class BaseAction extends Base implements IAction {
       .append(this.cssClasses.itemTitleWithIcon, !!this.iconName)
       .toString();
   }
-  public getActionBarItemCss(): string {
+  public getActionBarItemCss(mode: "small" | "large" | "removed" | "popup"): string {
+    const hasTitle = this.getHasTitle(mode);
     return new CssClassBuilder()
       .append(this.cssClasses.item)
-      .append(this.cssClasses.itemWithTitle, this.hasTitle)
-      .append(this.cssClasses.itemAsIcon, !this.hasTitle)
+      .append(this.cssClasses.itemWithTitle, hasTitle)
+      .append(this.cssClasses.itemAsIcon, !hasTitle)
       .append(this.cssClasses.itemActive, !!this.active)
       .append(this.cssClasses.itemPressed, !!this.pressed)
       .append(this.innerCss)
@@ -583,6 +592,47 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       this.popupModel.dispose();
     }
   }
+  @property({}) public renderTest: boolean = false;
+  public getTestMinElementCallback: () => HTMLElement;
+  public getTestMaxElementCallback: () => HTMLElement;
+  public updateDimension(mode: "large" | "small", calcDimension: (el: HTMLElement) => number): void {
+    const property = mode == "large" ? "maxDimension" : "minDimension";
+    const getTestElementCallback = mode == "small" ? this.getTestMinElementCallback : this.getTestMaxElementCallback;
+    const el = getTestElementCallback && getTestElementCallback();
+    if(el) {
+      const actionContainer = el.parentElement.parentElement;
+      const oldDisplay = el.style.display;
+      if(getComputedStyle(actionContainer).display == "none") {
+        actionContainer.style.display = "block";
+        this[property] = calcDimension(el);
+        actionContainer.style.display = oldDisplay;
+      } else {
+        this[property] = calcDimension(el);
+      }
+    }
+  }
+  public updateDimensions(calcDimension: (el: HTMLElement) => number, callback: () => void): void {
+    if(this.renderTest || !this.onElementRerendered) {
+      this.updateDimension("small", calcDimension);
+      this.updateDimension("large", calcDimension);
+      callback();
+    } else {
+      const onRerenderedCallback = (_: Base, opt: { isCancel: boolean }) => {
+        if(opt.isCancel || (this.getTestMinElementCallback && this.getTestMinElementCallback() && this.getTestMaxElementCallback && this.getTestMaxElementCallback())) {
+          this.onElementRerendered.remove(onRerenderedCallback);
+          if(!opt.isCancel) {
+            this.updateDimension("small", calcDimension);
+            this.updateDimension("large", calcDimension);
+            callback();
+          }
+          this.renderTest = false;
+        }
+      };
+      this.onElementRerendered.add(onRerenderedCallback);
+      this.renderTest = true;
+    }
+  }
+
 }
 
 export class ActionDropdownViewModel {

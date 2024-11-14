@@ -8,14 +8,26 @@ import { SurveyActionBarSeparator } from "./action-bar-separator";
 
 interface IActionBarItemProps {
   item: Action;
+  mode?: "large" | "small";
 }
 
 export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
+  private ref: React.RefObject<any>;
+  private ref2: React.RefObject<any>;
+  constructor(props: any) {
+    super(props);
+    this.ref = React.createRef();
+    this.ref2 = React.createRef();
+  }
   get item() {
     return this.props.item;
   }
   protected getStateElement(): Base {
     return this.item;
+  }
+
+  shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    return super.shouldComponentUpdate(nextProps, nextState);
   }
 
   renderElement() {
@@ -31,14 +43,46 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
         item: this.item,
       }
     );
+    const testElements = this.item.renderTest ? <>
+      <div style={{ width: 0, height: 0, overflow: "hidden" }} ref={node => node && node.setAttribute("inert", "")}>
+        <div style={{ width: "max-content" }} ref={this.ref}>
+          {separator}
+          { ReactElementFactory.Instance.createElement(
+            this.item.component || "sv-action-bar-item",
+            {
+              item: this.item,
+              mode: "large"
+            }
+          )}
+        </div>
+      </div>
+      <div style={{ width: 0, height: 0, overflow: "hidden" }} ref={node => node && node.setAttribute("inert", "")}>
+        <div style={{ minWidth: "max-content", width: "100%" }} ref={this.ref2}>
+          {separator}
+          { ReactElementFactory.Instance.createElement(
+            this.item.component || "sv-action-bar-item",
+            {
+              item: this.item,
+              mode: "small"
+            }
+          )}
+        </div>
+      </div>
+    </> : null;
     return (
       <div className={itemClass} id={this.item.id}>
         <div className="sv-action__content">
           {separator}
           {itemComponent}
         </div>
+        {testElements}
       </div>
     );
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.item.getTestMaxElementCallback = () => this.ref.current;
+    this.item.getTestMinElementCallback = () => this.ref2.current;
   }
 }
 
@@ -58,7 +102,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderText() {
-    if (!this.item.hasTitle) return null;
+    if (!this.item.getHasTitle(this.props.mode ?? this.item.mode)) return null;
     const titleClass = this.item.getActionBarItemTitleCss();
     return <span className={titleClass}>{this.item.title}</span>;
   }
@@ -82,7 +126,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderInnerButton() {
-    const className = this.item.getActionBarItemCss();
+    const className = this.item.getActionBarItemCss(this.props.mode ?? this.item.mode);
     const title = this.item.tooltip || this.item.title;
     const buttonContent = this.renderButtonContent();
     const tabIndex = this.item.disableTabStop ? -1 : undefined;

@@ -62,6 +62,7 @@
     "build-themes": "npm run build-themes-dev && npm run build-themes-prod",
     "build-themes-dev": "webpack --config ./build-scripts/survey-core/webpack.themes.config.js --env.buildType dev",
     "build-themes-prod": "webpack --config ./build-scripts/survey-core/webpack.themes.config.js --env.buildType prod",
+    "build-icons-dev": "webpack --config ./build-scripts/survey-core/webpack.icons.config.js --env.buildType dev",
     "build_i18n": "npm run build_i18n_dev && npm run build_i18n_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_jquery_ui": "npm run build_jquery_ui_dev && npm run build_jquery_ui_prod",

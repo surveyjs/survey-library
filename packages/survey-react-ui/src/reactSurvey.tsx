@@ -1,5 +1,7 @@
 import * as React from "react";
 import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, settings } from "survey-core";
+//import { iconsV1 } from "@coreIconsV1";
+const iconsV1 = require("@coreIconsV1");
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -28,7 +30,7 @@ export class Survey extends SurveyElementBase<any, any>
   private rootNodeId: string; // root dom node ID attr
   private rootNodeClassName: string; // root dom node class
 
-  private svgBundleV1 = (require as any).context("../../survey-core/src/images-v1", true, /\.svg$/);
+  private svgBundleV1 = iconsV1;
   private svgBundleV2 = (require as any).context("../../survey-core/src/images-v2", true, /\.svg$/);
 
   constructor(props: any) {

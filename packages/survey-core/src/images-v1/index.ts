@@ -1,0 +1,1 @@
+export const iconsV1 = (require as any).context("./", true, /\.svg$/);

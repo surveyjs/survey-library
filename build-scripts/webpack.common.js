@@ -123,6 +123,9 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
       plugins: [new TsconfigPathsPlugin({ configFile: options.tsConfigFile || "./tsconfig.json" })],
+      alias: {
+        "@coreIconsV1": path.resolve(__dirname, "../build/survey-core/icons/v1.js"),
+      },
     },
     optimization: {
       minimize: isProductionBuild,

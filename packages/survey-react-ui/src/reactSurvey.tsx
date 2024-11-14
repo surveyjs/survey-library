@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions } from "survey-core";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, settings } from "survey-core";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -28,6 +28,9 @@ export class Survey extends SurveyElementBase<any, any>
   private rootNodeId: string; // root dom node ID attr
   private rootNodeClassName: string; // root dom node class
 
+  private svgBundleV1 = (require as any).context("../../survey-core/src/images-v1", true, /\.svg$/);
+  private svgBundleV2 = (require as any).context("../../survey-core/src/images-v2", true, /\.svg$/);
+
   constructor(props: any) {
     super(props);
     this.createSurvey(props);
@@ -35,6 +38,7 @@ export class Survey extends SurveyElementBase<any, any>
     this.rootRef = React.createRef();
     this.rootNodeId = props.id || null;
     this.rootNodeClassName = props.className || "";
+    this.registerIcons();
   }
   protected getStateElement(): Base {
     return this.survey;
@@ -260,6 +264,17 @@ export class Survey extends SurveyElementBase<any, any>
       }
     }
   }
+
+  protected registerIcons() {
+    let path;
+    if (settings.useLegacyIcons) {
+      path = this.svgBundleV1;
+    } else {
+      path = this.svgBundleV2;
+    }
+    SvgRegistry.registerIconsFromFolder(path);
+  }
+
   protected setSurveyEvents() {
     var self = this;
 

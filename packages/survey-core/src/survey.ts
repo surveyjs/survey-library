@@ -1079,7 +1079,7 @@ export class SurveyModel extends SurveyElementCore
     });
 
     this.locTitle.onStringChanged.add(() => this.titleIsEmpty = this.locTitle.isEmpty);
-    this.registerIcons();
+    //this.registerIcons();
   }
 
   processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
@@ -7991,15 +7991,15 @@ export class SurveyModel extends SurveyElementCore
   }
   public questionErrorComponent = "sv-question-error";
 
-  protected registerIcons() {
-    let path;
-    if (settings.useLegacyIcons) {
-      path = svgBundle.V1;
-    } else {
-      path = svgBundle.V2;
-    }
-    SvgRegistry.registerIconsFromFolder(path);
-  }
+  // protected registerIcons() {
+  //   let path;
+  //   if (settings.useLegacyIcons) {
+  //     path = svgBundle.V1;
+  //   } else {
+  //     path = svgBundle.V2;
+  //   }
+  //   SvgRegistry.registerIconsFromFolder(path);
+  // }
 }
 
 function isStrCiEqual(a: string, b: string) {

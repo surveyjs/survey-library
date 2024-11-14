@@ -14,6 +14,11 @@ export class Question {
       await this.question.scrollIntoViewIfNeeded();
     }
   }
+  public async resetFocusToBody(): Promise<void> {
+    await this.page.evaluate(() => {
+      document.body.focus();
+    });
+  }
   protected async hasClassIncluded(loc: Locator, isChecked: boolean, className: string): Promise<void> {
     const reg = new RegExp(className);
     if(isChecked) {

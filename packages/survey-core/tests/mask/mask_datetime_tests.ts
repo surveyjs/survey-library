@@ -995,6 +995,66 @@ QUnit.test("dateTime processInput: min & max", function (assert) {
   assert.equal(result.caretPosition, 10, "type 1");
 });
 
+QUnit.only("dateTime processInput: min & max medium range mm/dd/yyyy", function (assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.pattern = "mm/dd/yyyy";
+  maskInstance.min = "2023-11-13";
+  maskInstance.max = "2024-12-13";
+  let result = maskInstance.processInput({ insertedChars: "0", selectionStart: 0, selectionEnd: 0, prevValue: "mm/dd/yyyy", inputDirection: "forward" });
+  assert.equal(result.value, "0m/dd/yyyy", "type 0");
+  assert.equal(result.caretPosition, 1, "type 0");
+
+  result = maskInstance.processInput({ insertedChars: "5", selectionStart: 1, selectionEnd: 1, prevValue: "0m/dd/yyyy", inputDirection: "forward" });
+  assert.equal(result.value, "05/dd/yyyy", "type 5");
+  assert.equal(result.caretPosition, 3, "type 5");
+
+  result = maskInstance.processInput({ insertedChars: "2", selectionStart: 0, selectionEnd: 0, prevValue: "mm/dd/yyyy", inputDirection: "forward" });
+  assert.equal(result.value, "02/dd/yyyy", "try type 2");
+  assert.equal(result.caretPosition, 3, "try type 2");
+
+  result = maskInstance.processInput({ insertedChars: "1", selectionStart: 0, selectionEnd: 0, prevValue: "mm/dd/yyyy", inputDirection: "forward" });
+  assert.equal(result.value, "1m/dd/yyyy", "type 1");
+  assert.equal(result.caretPosition, 1, "type 1");
+
+  result = maskInstance.processInput({ insertedChars: "2", selectionStart: 1, selectionEnd: 1, prevValue: "1m/dd/yyyy", inputDirection: "forward" });
+  assert.equal(result.value, "12/dd/yyyy", "type 2");
+  assert.equal(result.caretPosition, 3, "type 2");
+
+  result = maskInstance.processInput({ insertedChars: "4", selectionStart: 9, selectionEnd: 9, prevValue: "05/12/202y", inputDirection: "forward" });
+  assert.equal(result.value, "05/12/2024", "type 4");
+  assert.equal(result.caretPosition, 10, "type 4");
+});
+
+QUnit.only("dateTime processInput: min & max medium range mm/dd/yy", function (assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.pattern = "mm/dd/yy";
+  maskInstance.min = "2023-11-13";
+  maskInstance.max = "2024-12-13";
+  let result = maskInstance.processInput({ insertedChars: "0", selectionStart: 0, selectionEnd: 0, prevValue: "mm/dd/yy", inputDirection: "forward" });
+  assert.equal(result.value, "0m/dd/yy", "type 0");
+  assert.equal(result.caretPosition, 1, "type 0");
+
+  result = maskInstance.processInput({ insertedChars: "5", selectionStart: 1, selectionEnd: 1, prevValue: "0m/dd/yy", inputDirection: "forward" });
+  assert.equal(result.value, "05/dd/yy", "type 5");
+  assert.equal(result.caretPosition, 3, "type 5");
+
+  result = maskInstance.processInput({ insertedChars: "2", selectionStart: 0, selectionEnd: 0, prevValue: "mm/dd/yy", inputDirection: "forward" });
+  assert.equal(result.value, "02/dd/yy", "try type 2");
+  assert.equal(result.caretPosition, 3, "try type 2");
+
+  result = maskInstance.processInput({ insertedChars: "1", selectionStart: 0, selectionEnd: 0, prevValue: "mm/dd/yy", inputDirection: "forward" });
+  assert.equal(result.value, "1m/dd/yy", "type 1");
+  assert.equal(result.caretPosition, 1, "type 1");
+
+  result = maskInstance.processInput({ insertedChars: "2", selectionStart: 1, selectionEnd: 1, prevValue: "1m/dd/yy", inputDirection: "forward" });
+  assert.equal(result.value, "12/dd/yy", "type 2");
+  assert.equal(result.caretPosition, 3, "type 2");
+
+  result = maskInstance.processInput({ insertedChars: "4", selectionStart: 7, selectionEnd: 7, prevValue: "05/12/2y", inputDirection: "forward" });
+  assert.equal(result.value, "05/12/24", "type 4");
+  assert.equal(result.caretPosition, 8, "type 4");
+});
+
 QUnit.test("dateTime processInput: min & max small range", function (assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yyyy";
@@ -1012,6 +1072,16 @@ QUnit.test("dateTime processInput: min & max small range", function (assert) {
   result = maskInstance.processInput({ insertedChars: "1", prevValue: "05/dd/yyyy", selectionStart: 3, selectionEnd: 3, inputDirection: "forward" });
   assert.equal(result.value, "05/01/yyyy", "type 1");
   assert.equal(result.caretPosition, 6, "type 1");
+});
+
+QUnit.test("dateTime processInput: min & max 1 year range mm/dd/yyyy", function (assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.pattern = "mm/dd/yyyy";
+  maskInstance.min = "2023-01-13";
+  maskInstance.max = "2024-01-13";
+  let result = maskInstance.processInput({ insertedChars: "2", selectionStart: 0, selectionEnd: 0, prevValue: "mm/dd/yy", inputDirection: "forward" });
+  assert.equal(result.value, "02/dd/yyyy", "type 0");
+  assert.equal(result.caretPosition, 3, "type 0");
 });
 
 QUnit.test("dateTime processInput: time", function (assert) {

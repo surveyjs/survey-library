@@ -55,19 +55,19 @@ function trimDatePart(lexem: IDateTimeMaskLexem, data: string): string {
   return result;
 }
 
-function getDefaultYearForValidation(minYear: number, maxYear: number): number {
+function getDefaultYearForValidation(minYear: number, maxYear: number, isUpperLimit: boolean): number {
   let defaultVal = 2000;
   if(defaultVal > maxYear) {
     defaultVal = parseInt(maxYear.toString().slice(0, maxYear.toString().length - 2)) * 100;
   }
   if(defaultVal < minYear) {
-    const middle = (maxYear - minYear)/2 + minYear;
+    const middle = Math.ceil((maxYear - minYear) / 2 + minYear);
     defaultVal = parseInt(middle.toString().slice(0, middle.toString().length - 1)) * 10;
   }
   if(defaultVal >= minYear && defaultVal <= maxYear) {
     return defaultVal;
   }
-  return minYear;
+  return isUpperLimit ? maxYear : minYear;
 }
 
 export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
@@ -321,7 +321,7 @@ export class InputMaskDateTime extends InputMaskPattern {
   private createIDateTimeCompositionWithDefaults(dateTime: IDateTimeComposition, isUpperLimit: boolean): IDateTimeComposition {
     const min = dateTime.min;
     const max = dateTime.max;
-    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear());
+    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear(), isUpperLimit);
     const month = dateTime.month !== undefined ? dateTime.month : (isUpperLimit && this.hasDatePart ? 12 : 1);
     const day = dateTime.day !== undefined ? dateTime.day : (isUpperLimit && this.hasDatePart ? this.getMaxDateForMonth(year, month) : 1);
     const hour = dateTime.hour !== undefined ? dateTime.hour : (isUpperLimit ? 23 : 0);
@@ -339,7 +339,7 @@ export class InputMaskDateTime extends InputMaskPattern {
   private isDateValid(dateTime: IDateTimeComposition): boolean {
     const min = dateTime.min;
     const max = dateTime.max;
-    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear());
+    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear(), false);
     const month = dateTime.month !== undefined ? dateTime.month : 1;
     const day = dateTime.day !== undefined ? dateTime.day : 1;
     const monthIndex = month - 1;
@@ -408,7 +408,7 @@ export class InputMaskDateTime extends InputMaskPattern {
 
     const propertyName = newItem.lexem.type;
     const tempDateTime = { ...dateTime };
-    (tempDateTime as any)[propertyName] = parseInt(data);
+    (tempDateTime as any)[propertyName] = parseInt(this.parseTwoDigitYear(newItem));
     if(data.length === newItem.lexem.maxCount) {
       if(this.isDateValid12(tempDateTime)) {
         newItem.isCompleted = true;

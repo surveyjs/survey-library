@@ -7357,8 +7357,8 @@ QUnit.test(
     survey.isSinglePage = true;
     var panels = survey.getAllPanels();
     assert.equal(panels.length, 2, "There are two panels");
-    assert.notOk((<PanelModel>panels[0]).title, "Panel1 title is empty");
-    assert.notOk((<PanelModel>panels[1]).title, "Panel2 title is empty");
+    assert.equal((<PanelModel>panels[0]).hasTitle, false, "Panel1 title is hidden");
+    assert.equal((<PanelModel>panels[1]).hasTitle, false, "Panel2 title is hidden");
   }
 );
 
@@ -20638,6 +20638,42 @@ QUnit.test("Question is not in the hash with it is on the first page & questions
 
   const q = survey.getQuestionByName("q1");
   assert.equal(q.name, "q1", "q1 name is here");
+});
+QUnit.test("Check showPageTitles & questionsOnPageMode is 'singlePage' on switching locales, Bug#9048", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [{
+      "title": {
+        "default": "Page 1",
+        "de": "Page 1, de"
+      },
+      "elements": [{
+        "type": "text",
+        "name": "q1"
+      }
+      ]
+    },
+    {
+      "title": {
+        "default": "Page 2",
+        "de": "Page 2, de"
+      },
+      "elements": [{
+        "type": "text",
+        "name": "q2"
+      }] }],
+    "showPageTitles": false,
+    "questionsOnPageMode": "singlePage",
+  });
+  const panels = survey.getAllPanels();
+  assert.equal(panels.length, 2, "There are two panels");
+  assert.equal((<PanelModel>panels[0]).hasTitle, false, "panels[0], locale en");
+  assert.equal((<PanelModel>panels[1]).hasTitle, false, "panels[1], locale en");
+  survey.locale = "de";
+  assert.equal((<PanelModel>panels[0]).hasTitle, false, "panels[0], locale de");
+  assert.equal((<PanelModel>panels[1]).hasTitle, false, "panels[1], locale de");
+  survey.locale = "";
+  assert.equal((<PanelModel>panels[0]).hasTitle, false, "panels[0], locale ''");
+  assert.equal((<PanelModel>panels[1]).hasTitle, false, "panels[1], locale ''");
 });
 QUnit.test("The Start Page has -1 index when enabling auto-numeration for survey pages, Bug#8983", function (assert) {
   const survey = new SurveyModel({

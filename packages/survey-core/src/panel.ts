@@ -2333,9 +2333,14 @@ export class PanelModel extends PanelModelBase implements IElement {
     if (this.survey && this.survey.state === "preview") return (this.parent && this.parent instanceof PageModel);
     return false;
   }
-  public cancelPreview() {
+  public cancelPreview(): void {
     if (!this.hasEditButton) return;
     this.survey.cancelPreviewByPage(this);
+  }
+  protected canShowTitle(): boolean {
+    const page = (<any>this).originalPage;
+    if(!!page) return page.canShowTitle();
+    return super.canShowTitle();
   }
   public get cssTitle(): string {
     return this.getCssTitle(this.cssClasses.panel);

@@ -12,6 +12,7 @@ import {
   onBeforeUnmount,
   watchEffect,
   nextTick,
+  onUnmounted,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});
@@ -121,9 +122,12 @@ export function useBase<T extends Base>(
     const model = getModel();
     if (model) {
       unMakeReactive(model);
-      if (clean) clean(model);
       stopWatch();
     }
+  });
+  onUnmounted(() => {
+    const model = getModel();
+    if (model && clean) clean(model);
   });
 }
 
@@ -163,6 +167,10 @@ export function useLocString(
     { immediate: true }
   );
   onBeforeUnmount(() => {
+    const locString = getLocString();
+    if (locString) {
+      locString.onChanged = () => {};
+    }
     stopWatch();
   });
   return renderedHtml;

@@ -115,16 +115,19 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     switch (menuType) {
       case "dropdown": {
         this.displayMode = "popup";
+        this.setWidthByTarget = true;
         break;
       }
       case "popup": {
         this.displayMode = "overlay";
         this.overlayDisplayMode = "tablet-dropdown-overlay";
+        this.setWidthByTarget = false;
         break;
       }
       case "overlay": {
         this.displayMode = "overlay";
         this.overlayDisplayMode = "dropdown-overlay";
+        this.setWidthByTarget = false;
         break;
       }
     }

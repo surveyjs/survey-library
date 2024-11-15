@@ -66,6 +66,8 @@ import { StylesManager } from "@legacy/stylesmanager";
 import { ITheme } from "../src/themes";
 import { Cover } from "../src/header";
 import { DomWindowHelper } from "../src/global_variables_utils";
+import { ListModel } from "../src/list";
+import { _setIsTouch } from "../src/utils/devices";
 
 export default QUnit.module("Survey");
 
@@ -18802,6 +18804,40 @@ QUnit.test("Check onOpenDropdownMenu events", function (assert) {
   popup.toggleVisibility();
   assert.equal(popup.displayMode, "overlay");
   assert.equal(popup.overlayDisplayMode, "dropdown-overlay");
+});
+
+QUnit.test("Search disabled & onOpenDropdownMenu events", function (assert) {
+  _setIsTouch(true);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "car",
+        showNoneItem: true,
+        showOtherItem: true,
+        choices: ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"],
+        allowClear: false,
+        searchEnabled: false,
+      },
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const popup = question.dropdownListModel.popupModel;
+  const list: ListModel = popup.contentComponentData.model as ListModel;
+  survey.onOpenDropdownMenu.add((_, options) => {
+    options.menuType = "dropdown";
+  });
+
+  assert.equal(popup.setWidthByTarget, false, "#3");
+  assert.equal(list.searchEnabled, false, "#4");
+  assert.equal(list.showFilter, false, "#5");
+
+  popup.toggleVisibility();
+  assert.equal(popup.setWidthByTarget, true, "#3.1");
+  assert.equal(list.searchEnabled, false, "#4.1");
+  assert.equal(list.showFilter, false, "#5.1");
+
+  _setIsTouch(false);
 });
 
 QUnit.test("Shared data #6584", (assert) => {

@@ -992,7 +992,9 @@ export class PanelModelBase extends SurveyElement<Question>
         }
       }
     }
-    this.hasErrorsInPanels(rec);
+    if(this.isPanel) {
+      this.hasErrorsInPanels(rec);
+    }
     this.updateContainsErrors();
     if(!firstErroredEl && this.errors.length > 0) {
       firstErroredEl = this.getFirstQuestionToFocus(false, true);

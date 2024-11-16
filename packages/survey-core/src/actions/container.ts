@@ -129,23 +129,31 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   public addAction(val: IAction, sortByVisibleIndex = true): T {
     const res: T = this.createAction(val);
-    this.actions.push(<T>res);
-    this.sortItems();
+    if(sortByVisibleIndex && !this.isActionVisible(res)) return res;
+    const items = [].concat(this.actions, res);
+    items.sort(this.compareByVisibleIndex);
+    this.actions = items;
     return res;
   }
-  private sortItems(): void {
-    this.actions = []
-      .concat(this.actions.filter((item) => item.visibleIndex === undefined || item.visibleIndex >= 0))
-      .sort((firstItem, secondItem) => {
-        return firstItem.visibleIndex - secondItem.visibleIndex;
-      });
-  }
-
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
-    this.actions = <any>items.map((item) => this.createAction(item));
+    const newActions: Array<T> = [];
+    items.forEach(item => {
+      if(!sortByVisibleIndex || this.isActionVisible(item)) {
+        newActions.push(this.createAction(item));
+      }
+    });
     if (sortByVisibleIndex) {
-      this.sortItems();
+      newActions.sort(this.compareByVisibleIndex);
     }
+    this.actions = newActions;
+  }
+  private compareByVisibleIndex(first: T, second: T): number {
+    if(first.visibleIndex === undefined) return 1;
+    if(second.visibleIndex === undefined) return -1;
+    return first.visibleIndex - second.visibleIndex;
+  }
+  private isActionVisible(item: IAction): boolean {
+    return item.visibleIndex >= 0 || item.visibleIndex === undefined;
   }
   @property({ defaultValue: 300 }) subItemsShowDelay: number;
   @property({ defaultValue: 300 }) subItemsHideDelay: number;

@@ -1616,7 +1616,7 @@ QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
 
   const model: PopupModel = new PopupModel("sv-list", {});
   model.isModal = true;
-  const viewModel: PopupModalViewModel = createPopupViewModelTest(model) as PopupModalViewModel;
+  const viewModel: PopupModalViewModel = createPopupViewModelTest(model, undefined) as PopupModalViewModel;
 
   const container = document.createElement("div");
   container.innerHTML = `<div style="height: 200px; overflow: auto;">

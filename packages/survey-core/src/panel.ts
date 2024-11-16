@@ -934,7 +934,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private hasErrorsInPanels(rec: any): void {
     var errors = <Array<any>>[];
     this.hasRequiredError(rec, errors);
-    if (this.survey) {
+    if (this.isPanel && this.survey) {
       var customError = this.survey.validatePanel(this);
       if (customError) {
         errors.push(customError);
@@ -992,9 +992,7 @@ export class PanelModelBase extends SurveyElement<Question>
         }
       }
     }
-    if(this.isPanel) {
-      this.hasErrorsInPanels(rec);
-    }
+    this.hasErrorsInPanels(rec);
     this.updateContainsErrors();
     if(!firstErroredEl && this.errors.length > 0) {
       firstErroredEl = this.getFirstQuestionToFocus(false, true);

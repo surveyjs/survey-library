@@ -20675,6 +20675,41 @@ QUnit.test("Check showPageTitles & questionsOnPageMode is 'singlePage' on switch
   assert.equal((<PanelModel>panels[0]).hasTitle, false, "panels[0], locale ''");
   assert.equal((<PanelModel>panels[1]).hasTitle, false, "panels[1], locale ''");
 });
+QUnit.test("Check questionsOnPageMode is 'singlePage' on switching locales, Bug#9048", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [{
+      "title": {
+        "default": "Page 1",
+        "de": "Page 1, de"
+      },
+      "elements": [{
+        "type": "text",
+        "name": "q1"
+      }
+      ]
+    },
+    {
+      "title": {
+        "default": "Page 2",
+        "de": "Page 2, de"
+      },
+      "elements": [{
+        "type": "text",
+        "name": "q2"
+      }] }],
+    "questionsOnPageMode": "singlePage",
+  });
+  const panels = survey.getAllPanels();
+  assert.equal(panels.length, 2, "There are two panels");
+  assert.equal((<PanelModel>panels[0]).hasTitle, true, "panels[0], locale en");
+  assert.equal((<PanelModel>panels[1]).hasTitle, true, "panels[1], locale en");
+  survey.locale = "de";
+  assert.equal((<PanelModel>panels[0]).hasTitle, true, "panels[0], locale de");
+  assert.equal((<PanelModel>panels[1]).hasTitle, true, "panels[1], locale de");
+  survey.locale = "";
+  assert.equal((<PanelModel>panels[0]).hasTitle, true, "panels[0], locale ''");
+  assert.equal((<PanelModel>panels[1]).hasTitle, true, "panels[1], locale ''");
+});
 QUnit.test("The Start Page has -1 index when enabling auto-numeration for survey pages, Bug#8983", function (assert) {
   const survey = new SurveyModel({
     "pages": [{

@@ -432,7 +432,7 @@ export class PanelModelBase extends SurveyElement<Question>
 
   get hasTitle(): boolean {
     return (
-      (this.canShowTitle() && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
+      (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
       (this.isDesignMode && !(settings.supportCreatorV2 && this.isPanel) && this.showTitle && settings.designMode.showEmptyTitles)
     );
   }
@@ -454,7 +454,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   protected removeFromParent(): void {}
-  protected canShowTitle(): boolean { return true; }
+  protected canShowTitle(survey: ISurvey): boolean { return true; }
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
     if(!this.hasTitle && this.isDesignMode) return false;
@@ -2337,10 +2337,10 @@ export class PanelModel extends PanelModelBase implements IElement {
     if (!this.hasEditButton) return;
     this.survey.cancelPreviewByPage(this);
   }
-  protected canShowTitle(): boolean {
+  protected canShowTitle(survey: ISurvey): boolean {
     const page = (<any>this).originalPage;
-    if(!!page) return page.canShowTitle();
-    return super.canShowTitle();
+    if(!!page) return page.canShowTitle(survey);
+    return super.canShowTitle(survey);
   }
   public get cssTitle(): string {
     return this.getCssTitle(this.cssClasses.panel);

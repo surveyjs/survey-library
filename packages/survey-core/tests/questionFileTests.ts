@@ -1506,10 +1506,10 @@ QUnit.test("new Camera().getMediaConstraints", function (assert) {
   Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "user" }]));
   let mConst: any = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 2, "Device is correct");
-  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "enviroment" }, { label: "user" }]));
+  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
   mConst = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 3, "Device is correct");
-  Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "enviroment" }]));
+  Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "environment" }]));
   mConst = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 2, "Device is correct");
   Camera.clear();
@@ -1518,7 +1518,7 @@ QUnit.test("new Camera().flip", function (assert) {
   assert.equal(new Camera().canFlip(), false, "There is no devices");
   Camera.setCameraList(createDevices([{ label: "abd" }]));
   assert.equal(new Camera().canFlip(), false, "There is one device");
-  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "enviroment" }, { label: "user" }]));
+  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
   assert.equal(new Camera().canFlip(), true, "There are 3 devices");
   let mConst: any = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 3, "Device is correct");
@@ -1541,7 +1541,7 @@ QUnit.test("Check file question change camera action", function (assert) {
   const changeCameraAction = q1.changeCameraAction;
   q1.setPropertyValue("isPlayingVideo", true);
   assert.notOk(changeCameraAction.visible);
-  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "enviroment" }, { label: "user" }]));
+  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
   assert.notOk(changeCameraAction.visible);
   q1["camera"]["updateCanFlipValue"]();
   assert.ok(changeCameraAction.visible);
@@ -1553,7 +1553,7 @@ QUnit.test("Check file question change camera action", function (assert) {
   q1["camera"].flip();
   assert.equal(Camera["cameraIndex"], 0);
 
-  Camera.setCameraList(createDevices([{ label: "enviroment" }]));
+  Camera.setCameraList(createDevices([{ label: "environment" }]));
   q1["camera"]["updateCanFlipValue"]();
   assert.notOk(changeCameraAction.visible);
   Camera["canSwitchFacingMode"] = true;

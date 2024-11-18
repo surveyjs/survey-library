@@ -2557,7 +2557,9 @@ QUnit.test("onValidatePanel test", function (assert) {
   var panel = page.addNewPanel("panel");
   var q1 = <QuestionTextModel>panel.addNewQuestion("text", "q1");
   var q2 = <QuestionTextModel>panel.addNewQuestion("text", "q2");
+  let counter = 0;
   survey.onValidatePanel.add(function (sender, options) {
+    counter ++;
     var panel = <PanelModel>options.panel;
     var pq1 = <QuestionTextModel>panel.getQuestionByName("q1");
     var pq2 = <QuestionTextModel>panel.getQuestionByName("q2");
@@ -2572,6 +2574,7 @@ QUnit.test("onValidatePanel test", function (assert) {
     true,
     "failed, values are undefined : 10 < q1.value + q2.value < 100"
   );
+  assert.equal(counter, 1, "onValidatePanel calls one time");
   q1.value = 5;
   q2.value = 50;
   assert.equal(
@@ -2579,6 +2582,7 @@ QUnit.test("onValidatePanel test", function (assert) {
     false,
     "passed: 5 + 50, 10 < q1.value + q2.value < 100"
   );
+  assert.equal(counter, 2, "onValidatePanel calls two time");
   q1.value = 55;
 
   assert.equal(
@@ -2586,6 +2590,7 @@ QUnit.test("onValidatePanel test", function (assert) {
     true,
     "failed: 55 + 50, 10 < q1.value + q2.value < 100"
   );
+  assert.equal(counter, 3, "onValidatePanel calls three time");
 });
 QUnit.test(
   "isCurrentPageHasErrors, required question in the invisible panel, #325",

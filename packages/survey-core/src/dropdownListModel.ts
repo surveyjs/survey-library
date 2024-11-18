@@ -145,8 +145,12 @@ export class DropdownListModel extends Base {
         this.updatePopupFocusFirstInputSelector();
 
         const dropdownMenuOptions = this.getDropdownMenuOptions();
+        const prevMenuType = dropdownMenuOptions.menuType;
         this.question.processOpenDropdownMenu(dropdownMenuOptions);
-        this._popupModel.updateDisplayMode(dropdownMenuOptions.menuType);
+        if (prevMenuType !== dropdownMenuOptions.menuType) {
+          this._popupModel.updateDisplayMode(dropdownMenuOptions.menuType);
+          this.listModel.setSearchEnabled(this.searchEnabled && dropdownMenuOptions.menuType !== "dropdown");
+        }
 
         if (!!this.question.onOpenedCallBack) {
           this.question.onOpenedCallBack();
@@ -435,8 +439,7 @@ export class DropdownListModel extends Base {
   }
 
   public setSearchEnabled(newValue: boolean): void {
-    this.listModel.searchEnabled = IsTouch && newValue;
-    this.listModel.showSearchClearButton = IsTouch && newValue;
+    this.listModel.setSearchEnabled(IsTouch && newValue);
     this.searchEnabled = newValue;
   }
 

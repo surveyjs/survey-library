@@ -18813,8 +18813,6 @@ QUnit.test("Search disabled & onOpenDropdownMenu events", function (assert) {
       {
         type: "dropdown",
         name: "car",
-        showNoneItem: true,
-        showOtherItem: true,
         choices: ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"],
         allowClear: false,
         searchEnabled: false,
@@ -18828,14 +18826,48 @@ QUnit.test("Search disabled & onOpenDropdownMenu events", function (assert) {
     options.menuType = "dropdown";
   });
 
-  assert.equal(popup.setWidthByTarget, false, "#3");
+  assert.equal(popup.displayMode, "overlay", "#1");
+  assert.equal(popup.setWidthByTarget, false, "#2");
+  assert.equal(list.showFilter, false, "#3");
   assert.equal(list.searchEnabled, false, "#4");
-  assert.equal(list.showFilter, false, "#5");
 
-  popup.toggleVisibility();
-  assert.equal(popup.setWidthByTarget, true, "#3.1");
+  popup.show();
+  assert.equal(popup.displayMode, "popup", "#1.1");
+  assert.equal(popup.setWidthByTarget, true, "#2.1");
+  assert.equal(list.showFilter, false, "#3.1");
   assert.equal(list.searchEnabled, false, "#4.1");
-  assert.equal(list.showFilter, false, "#5.1");
+
+  _setIsTouch(false);
+});
+
+QUnit.test("Search disabled after change popup displayMode", function (assert) {
+  _setIsTouch(true);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "car",
+        choices: ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"],
+      },
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const popup = question.dropdownListModel.popupModel;
+  const list: ListModel = popup.contentComponentData.model as ListModel;
+  survey.onOpenDropdownMenu.add((_, options) => {
+    options.menuType = "dropdown";
+  });
+
+  assert.equal(popup.displayMode, "overlay", "#1");
+  assert.equal(popup.setWidthByTarget, false, "#2");
+  assert.equal(list.showFilter, true, "#3");
+  assert.equal(list.searchEnabled, true, "#4");
+
+  popup.show();
+  assert.equal(popup.displayMode, "popup", "#1.1");
+  assert.equal(popup.setWidthByTarget, true, "#2.1");
+  assert.equal(list.showFilter, false, "#3.1");
+  assert.equal(list.searchEnabled, false, "#4.1");
 
   _setIsTouch(false);
 });
@@ -20786,7 +20818,7 @@ QUnit.test("Reduce the number of calls of setVisibleIndexes function", function 
   survey.setDesignMode(true);
   let counter = 0;
   survey.onProgressText.add((sender, options) => {
-    counter ++;
+    counter++;
   });
   survey.fromJSON({
     pages: [{

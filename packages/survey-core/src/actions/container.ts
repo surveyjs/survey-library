@@ -131,7 +131,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     const res: T = this.createAction(val);
     if(sortByVisibleIndex && !this.isActionVisible(res)) return res;
     const items = [].concat(this.actions, res);
-    items.sort(this.compareByVisibleIndex);
+    this.sortItems(items);
     this.actions = items;
     return res;
   }
@@ -143,13 +143,23 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
       }
     });
     if (sortByVisibleIndex) {
-      newActions.sort(this.compareByVisibleIndex);
+      this.sortItems(newActions);
     }
     this.actions = newActions;
   }
-  private compareByVisibleIndex(first: T, second: T): number {
-    if(first.visibleIndex === undefined) return 1;
-    if(second.visibleIndex === undefined) return -1;
+  private sortItems(items: Array<IAction>): void {
+    if(this.hasSetVisibleIndex(items)) {
+      items.sort(this.compareByVisibleIndex);
+    }
+  }
+  private hasSetVisibleIndex(items: Array<IAction>): boolean {
+    for(let i = 0; i < items.length; i ++) {
+      const index = items[i].visibleIndex;
+      if(index !== undefined && index >= 0) return true;
+    }
+    return false;
+  }
+  private compareByVisibleIndex(first: IAction, second: IAction): number {
     return first.visibleIndex - second.visibleIndex;
   }
   private isActionVisible(item: IAction): boolean {

@@ -326,6 +326,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.maskSettings;
   }
   public get inputValue(): string {
+    if (!this.value && !this.maskTypeIsEmpty) return this.maskInstance.getMaskedValue(this._inputValue);
     return this._inputValue;
   }
   public set inputValue(val: string) {

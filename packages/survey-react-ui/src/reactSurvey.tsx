@@ -1,7 +1,5 @@
 import * as React from "react";
 import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, settings } from "survey-core";
-//import { iconsV1 } from "@coreIconsV1";
-const iconsV1 = require("@coreIconsV1");
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -14,6 +12,9 @@ import { NotifierComponent } from "./components/notifier";
 import { ComponentsContainer } from "./components/components-container";
 import { SvgBundleComponent } from "./svgbundle";
 import { PopupModal } from "./components/popup/popup-modal";
+
+const iconsV1 = require("@coreIconsV1");
+const iconsV2 = require("@coreIconsV2");
 
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
@@ -29,9 +30,6 @@ export class Survey extends SurveyElementBase<any, any>
 
   private rootNodeId: string; // root dom node ID attr
   private rootNodeClassName: string; // root dom node class
-
-  private svgBundleV1 = iconsV1;
-  private svgBundleV2 = (require as any).context("../../survey-core/src/images-v2", true, /\.svg$/);
 
   constructor(props: any) {
     super(props);
@@ -270,9 +268,9 @@ export class Survey extends SurveyElementBase<any, any>
   protected registerIcons() {
     let path;
     if (settings.useLegacyIcons) {
-      path = this.svgBundleV1;
+      path = iconsV1.path;
     } else {
-      path = this.svgBundleV2;
+      path = iconsV2.path;
     }
     SvgRegistry.registerIconsFromFolder(path);
   }

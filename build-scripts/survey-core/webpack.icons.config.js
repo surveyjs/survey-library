@@ -8,7 +8,7 @@ var path = require("path");
 const config = {
   entry: {
     "v1": path.resolve(__dirname, "../../packages/survey-core/src/images-v1/index.ts"),
-    // "v2": path.resolve(__dirname, "../../packages/survey-core/src/images-v2/index.ts"),
+    "v2": path.resolve(__dirname, "../../packages/survey-core/src/images-v2/index.ts"),
   },
   plugins: [new FixStyleOnlyEntriesPlugin()],
   externals: {

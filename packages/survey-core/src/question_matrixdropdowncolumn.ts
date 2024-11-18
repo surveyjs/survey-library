@@ -111,13 +111,14 @@ export class MatrixDropdownColumn extends Base
     return res;
   }
   private templateQuestionValue: Question;
-  private colOwnerValue: IMatrixColumnOwner = null;
+  private colOwnerValue: IMatrixColumnOwner;
   private indexValue = -1;
   private _hasVisibleCell = true;
   private _visiblechoices: Array<any>;
 
-  constructor(name: string, title: string = null) {
+  constructor(name: string, title?: string, colOwner?: IMatrixColumnOwner) {
     super();
+    this.colOwnerValue = colOwner;
     this.createLocalizableString("totalFormat", this);
     this.createLocalizableString("cellHint", this);
     this.registerPropertyChangedHandlers(["showInMultipleColumns"], () => { this.doShowInMultipleColumnsChanged(); });

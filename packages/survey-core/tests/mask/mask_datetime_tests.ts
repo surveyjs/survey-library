@@ -628,7 +628,6 @@ QUnit.test("dateTime processInput: editing by delete characters by backspace", f
   result = maskInstance.processInput({ prevValue: "05/12/2024", selectionStart: 1, selectionEnd: 2, insertedChars: null, inputDirection: "backward" });
   assert.equal(result.value, "0m/12/2024", "delete 5");
   assert.equal(result.caretPosition, 1, "delete 5");
-
   result = maskInstance.processInput({ prevValue: "04/05/2024", selectionStart: 4, selectionEnd: 5, insertedChars: null, inputDirection: "backward" });
   assert.equal(result.value, "04/0d/2024", "delete 5");
   assert.equal(result.caretPosition, 4, "delete 5");
@@ -995,7 +994,7 @@ QUnit.test("dateTime processInput: min & max", function (assert) {
   assert.equal(result.caretPosition, 10, "type 1");
 });
 
-QUnit.only("dateTime processInput: min & max medium range mm/dd/yyyy", function (assert) {
+QUnit.test("dateTime processInput: min & max medium range mm/dd/yyyy", function (assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yyyy";
   maskInstance.min = "2023-11-13";
@@ -1025,7 +1024,7 @@ QUnit.only("dateTime processInput: min & max medium range mm/dd/yyyy", function 
   assert.equal(result.caretPosition, 10, "type 4");
 });
 
-QUnit.only("dateTime processInput: min & max medium range mm/dd/yy", function (assert) {
+QUnit.test("dateTime processInput: min & max medium range mm/dd/yy", function (assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yy";
   maskInstance.min = "2023-11-13";
@@ -1053,6 +1052,26 @@ QUnit.only("dateTime processInput: min & max medium range mm/dd/yy", function (a
   result = maskInstance.processInput({ insertedChars: "4", selectionStart: 7, selectionEnd: 7, prevValue: "05/12/2y", inputDirection: "forward" });
   assert.equal(result.value, "05/12/24", "type 4");
   assert.equal(result.caretPosition, 8, "type 4");
+});
+
+QUnit.test("dateTime processInput: min & max medium range leap year YYYY", function (assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.pattern = "mm/dd/yyyy";
+  maskInstance.min = "2023-11-13";
+  maskInstance.max = "2025-12-13";
+  let result = maskInstance.processInput({ insertedChars: "9", selectionStart: 4, selectionEnd: 4, prevValue: "02/2d/yy", inputDirection: "forward" });
+  assert.equal(result.value, "02/29/yyyy", "type 9");
+  assert.equal(result.caretPosition, 6, "type 9");
+});
+
+QUnit.test("dateTime processInput: min & max medium range leap year YY", function (assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.pattern = "mm/dd/yy";
+  maskInstance.min = "2023-11-13";
+  maskInstance.max = "2025-12-13";
+  let result = maskInstance.processInput({ insertedChars: "9", selectionStart: 4, selectionEnd: 4, prevValue: "02/2d/yy", inputDirection: "forward" });
+  assert.equal(result.value, "02/29/yy", "type 9");
+  assert.equal(result.caretPosition, 6, "type 9");
 });
 
 QUnit.test("dateTime processInput: min & max small range", function (assert) {

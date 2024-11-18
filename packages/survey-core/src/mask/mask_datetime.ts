@@ -319,9 +319,18 @@ export class InputMaskDateTime extends InputMaskPattern {
   }
 
   private createIDateTimeCompositionWithDefaults(dateTime: IDateTimeComposition, isUpperLimit: boolean): IDateTimeComposition {
-    const min = dateTime.min;
-    const max = dateTime.max;
-    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear(), isUpperLimit);
+    const checkOnlyLeapYears = dateTime.day == 29 && dateTime.month == 2;
+    let minYear = dateTime.min.getFullYear();
+    let maxYear = dateTime.max.getFullYear();
+    if (checkOnlyLeapYears) {
+      minYear = Math.ceil(minYear / 4) * 4;
+      maxYear = Math.floor(minYear / 4) * 4;
+      if (minYear > maxYear) {
+        minYear = undefined;
+        maxYear = undefined;
+      }
+    }
+    const year = dateTime.year !== undefined ? dateTime.year : isUpperLimit ? maxYear : minYear;
     const month = dateTime.month !== undefined ? dateTime.month : (isUpperLimit && this.hasDatePart ? 12 : 1);
     const day = dateTime.day !== undefined ? dateTime.day : (isUpperLimit && this.hasDatePart ? this.getMaxDateForMonth(year, month) : 1);
     const hour = dateTime.hour !== undefined ? dateTime.hour : (isUpperLimit ? 23 : 0);
@@ -337,20 +346,13 @@ export class InputMaskDateTime extends InputMaskPattern {
   }
 
   private isDateValid(dateTime: IDateTimeComposition): boolean {
-    const min = dateTime.min;
-    const max = dateTime.max;
-    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear(), false);
-    const month = dateTime.month !== undefined ? dateTime.month : 1;
-    const day = dateTime.day !== undefined ? dateTime.day : 1;
-    const monthIndex = month - 1;
-
     const date = new Date(this.getISO_8601Format(this.createIDateTimeCompositionWithDefaults(dateTime, false)));
     const dateH = new Date(this.getISO_8601Format(this.createIDateTimeCompositionWithDefaults(dateTime, true)));
 
     return !isNaN(date as any) &&
-      date.getDate() === day &&
-      date.getMonth() === monthIndex &&
-      date.getFullYear() === year &&
+      (date.getDate() === dateTime.day || dateTime.day === undefined) &&
+      (date.getMonth() === dateTime.month - 1 || dateTime.month === undefined) &&
+      (date.getFullYear() === dateTime.year || dateTime.year === undefined) &&
     dateH >= dateTime.min && date <= dateTime.max;
   }
 

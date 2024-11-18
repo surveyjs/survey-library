@@ -55,21 +55,6 @@ function trimDatePart(lexem: IDateTimeMaskLexem, data: string): string {
   return result;
 }
 
-function getDefaultYearForValidation(minYear: number, maxYear: number, isUpperLimit: boolean): number {
-  let defaultVal = 2000;
-  if(defaultVal > maxYear) {
-    defaultVal = parseInt(maxYear.toString().slice(0, maxYear.toString().length - 2)) * 100;
-  }
-  if(defaultVal < minYear) {
-    const middle = Math.ceil((maxYear - minYear) / 2 + minYear);
-    defaultVal = parseInt(middle.toString().slice(0, middle.toString().length - 1)) * 10;
-  }
-  if(defaultVal >= minYear && defaultVal <= maxYear) {
-    return defaultVal;
-  }
-  return isUpperLimit ? maxYear : minYear;
-}
-
 export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
   const result: Array<IDateTimeMaskLexem> = [];
   let prevLexemType: string;

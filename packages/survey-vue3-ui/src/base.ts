@@ -147,7 +147,7 @@ export function useQuestion<T extends Question>(
     props.question.beforeDestroyQuestionElement(root.value);
   });
 }
-
+function noop() {}
 export function useLocString(
   getLocString: () => LocalizableString
 ): Ref<string> {
@@ -161,7 +161,7 @@ export function useLocString(
   const stopWatch = watch(
     getLocString,
     (newValue, oldValue) => {
-      if (oldValue) oldValue.onChanged = () => {};
+      if (oldValue) oldValue.onChanged = noop;
       setupOnChangedCallback(newValue);
     },
     { immediate: true }
@@ -169,7 +169,7 @@ export function useLocString(
   onBeforeUnmount(() => {
     const locString = getLocString();
     if (locString) {
-      locString.onChanged = () => {};
+      locString.onChanged = noop;
     }
     stopWatch();
   });

@@ -551,7 +551,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }
 
   public setVisible(val: boolean): void {
-    this._visible = val;
+    if(this.visible !== val) {
+      this._visible = val;
+    }
   }
   public getVisible(): boolean {
     return this._visible;

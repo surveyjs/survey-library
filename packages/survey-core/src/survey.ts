@@ -4457,15 +4457,12 @@ export class SurveyModel extends SurveyElementCore
     var single = this.createNewPage("all");
     single.setSurveyImpl(this);
     for (var i = startIndex; i < this.pages.length; i++) {
-      var page = this.pages[i];
-      var panel = Serializer.createClass("panel");
-      panel.originalPage = page;
+      const page = this.pages[i];
+      const panel: PanelModel = Serializer.createClass("panel");
+      (<any>panel).originalPage = page;
       single.addPanel(panel);
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
-      if (!this.showPageTitles) {
-        panel.title = "";
-      }
     }
     return single;
   }

@@ -84,6 +84,7 @@ export class InputElementAdapter {
   }
   public dispose(): void {
     this.removeInputEventListener();
+    this.inputElement = undefined as any;
     this.inputMaskInstance.onPropertyChanged.remove(this.inputMaskInstancePropertyChangedHandler);
   }
 }

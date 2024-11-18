@@ -209,6 +209,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   vueSurvey.value.stopTimer();
+  vueSurvey.value.rootElement = undefined as any;
   vueSurvey.value.renderCallback = undefined as any;
 });
 </script>

@@ -1,6 +1,8 @@
 import { settings } from "../settings";
 import { DomDocumentHelper } from "../global_variables_utils";
 
+const envStr = "environment";
+const userStr = "user";
 export class Camera {
   public static mediaDevicesCallback: ((callback: (devices: Array<MediaDeviceInfo>) => void) => void) | undefined;
   public static clear(): void {
@@ -10,8 +12,10 @@ export class Camera {
   public static setCameraList(list: Array<MediaDeviceInfo>): void {
     const getDeviceType = function(device: MediaDeviceInfo): string {
       const lbl = device.label.toLocaleLowerCase();
-      if(lbl.indexOf("user") > -1) return "user";
-      if(lbl.indexOf("enviroment") > -1) return "enviroment";
+      if(lbl.indexOf(userStr) > -1) return userStr;
+      if(lbl.indexOf(envStr) > -1) return envStr;
+      if(lbl.indexOf("front") > -1) return userStr;
+      if(lbl.indexOf("back") > -1) return envStr;
       return "";
     };
     Camera.clear();
@@ -23,10 +27,10 @@ export class Camera {
           const lblA = getDeviceType(a);
           const lblB = getDeviceType(b);
           if(lblA !== lblB) {
-            if(lblA === "user") return -1;
-            if(lblB === "user") return 1;
-            if(lblA === "enviroment") return -1;
-            if(lblB === "enviroment") return 1;
+            if(lblA === userStr) return -1;
+            if(lblB === userStr) return 1;
+            if(lblA === envStr) return -1;
+            if(lblB === envStr) return 1;
           }
         }
         const iA = list.indexOf(a);
@@ -38,7 +42,7 @@ export class Camera {
   }
   private static cameraList: Array<MediaDeviceInfo>;
   private static cameraIndex: number = -1;
-  private static cameraFacingMode: string = "user";
+  private static cameraFacingMode: string = userStr;
   private static canSwitchFacingMode: boolean = false;
   public hasCamera(callback: (res: boolean) => void): void {
     if(Camera.cameraList !== undefined) {
@@ -162,7 +166,7 @@ export class Camera {
   public flip(): void {
     if(!this.canFlip()) return;
     if(Camera.canSwitchFacingMode) {
-      Camera.cameraFacingMode = Camera.cameraFacingMode === "user" ? "environment" : "user";
+      Camera.cameraFacingMode = Camera.cameraFacingMode === userStr ? "environment" : userStr;
     }
     else if(Camera.cameraIndex >= Camera.cameraList.length - 1) {
       Camera.cameraIndex = 0;

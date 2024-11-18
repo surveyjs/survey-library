@@ -1,9 +1,10 @@
+const Survey = require("../build/survey-core/survey.core");
+
 // eslint-disable-next-line no-undef
 const fs = require("fs");
 // eslint-disable-next-line no-undef
 const path = require("path");
 
-const Survey = require("../build/survey-core/survey.core");
 // eslint-disable-next-line no-undef
 let args = process.argv;
 if(!Array.isArray(args)) return;
@@ -45,7 +46,7 @@ function obfuscateJSON(data) {
     const propsToObs = ["title", "description", "requiredErrorText"];
     containers.forEach(container => obfuscatePropsText(container, propsToObs));
 
-    let questions = model.getAllQuestions();
+    let questions = model.getAllQuestions(false, true, false);
     questions.forEach( q => {
         if(q.getType() === "html") {
             q.delete();
@@ -56,7 +57,7 @@ function obfuscateJSON(data) {
             obfuscateArrayText(q[name]);
         });
     });
-    questions = model.getAllQuestions();
+    questions = model.getAllQuestions(false, true, false);
     const qNames = [];
     index = 0;
     questions.forEach(q => {
@@ -76,19 +77,34 @@ function obfuscateJSON(data) {
 function obfuscatePropsText(el, props) {
     props.forEach(
         prop => {
-            if(!!el[prop]) el[prop] = obfuscateText(el[prop]);
+            let isDone = false;
+            const loc = el["loc" + prop[0].toUpperCase() + prop.substring(1)];
+            if(!!loc && !loc.isEmpty) {
+                data = loc.getJson();
+                if(!!data && typeof data === "object") {
+                    for(let key in data) {
+                        data[key] = obfuscateText(data[key]);
+                    }
+                    loc.setJson(data);
+                    isDone = true;
+                }
+            }
+            if(!isDone && !!el[prop]) el[prop] = obfuscateText(el[prop]);
         }
     );
 }
 function obfuscateArrayText(items) {
     if(Array.isArray(items)) {
         items.forEach(item => {
+            obfuscatePropsText(item, ["text", "title"]);
+            /*
             if(item.text) {
                 item.text = obfuscateText(item.text);
             }
             if(item.title) {
                 item.title = obfuscateText(item.title);
             }
+            */
         });
     }
 }

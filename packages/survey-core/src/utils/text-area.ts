@@ -54,6 +54,9 @@ export class TextAreaModel {
       this.updateElement();
     }
   }
+  public resetElement() {
+    this.element = undefined as any;
+  }
 
   public getTextValue(): string {
     if (!!this.options.getTextValue)
@@ -144,10 +147,10 @@ export class TextAreaModel {
     if (this.options.ariaErrormessage)
       return this.options.ariaErrormessage();
   }
-
   public dispose(): void {
     if (this.question) {
       this.question.unRegisterFunctionOnPropertyValueChanged(this.options.propertyName, "__textarea");
     }
+    this.resetElement();
   }
 }

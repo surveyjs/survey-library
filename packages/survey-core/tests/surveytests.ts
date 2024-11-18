@@ -2557,7 +2557,9 @@ QUnit.test("onValidatePanel test", function (assert) {
   var panel = page.addNewPanel("panel");
   var q1 = <QuestionTextModel>panel.addNewQuestion("text", "q1");
   var q2 = <QuestionTextModel>panel.addNewQuestion("text", "q2");
+  let counter = 0;
   survey.onValidatePanel.add(function (sender, options) {
+    counter ++;
     var panel = <PanelModel>options.panel;
     var pq1 = <QuestionTextModel>panel.getQuestionByName("q1");
     var pq2 = <QuestionTextModel>panel.getQuestionByName("q2");
@@ -2572,6 +2574,7 @@ QUnit.test("onValidatePanel test", function (assert) {
     true,
     "failed, values are undefined : 10 < q1.value + q2.value < 100"
   );
+  assert.equal(counter, 1, "onValidatePanel calls one time");
   q1.value = 5;
   q2.value = 50;
   assert.equal(
@@ -2579,6 +2582,7 @@ QUnit.test("onValidatePanel test", function (assert) {
     false,
     "passed: 5 + 50, 10 < q1.value + q2.value < 100"
   );
+  assert.equal(counter, 2, "onValidatePanel calls two time");
   q1.value = 55;
 
   assert.equal(
@@ -2586,6 +2590,7 @@ QUnit.test("onValidatePanel test", function (assert) {
     true,
     "failed: 55 + 50, 10 < q1.value + q2.value < 100"
   );
+  assert.equal(counter, 3, "onValidatePanel calls three time");
 });
 QUnit.test(
   "isCurrentPageHasErrors, required question in the invisible panel, #325",
@@ -7357,8 +7362,8 @@ QUnit.test(
     survey.isSinglePage = true;
     var panels = survey.getAllPanels();
     assert.equal(panels.length, 2, "There are two panels");
-    assert.notOk((<PanelModel>panels[0]).title, "Panel1 title is empty");
-    assert.notOk((<PanelModel>panels[1]).title, "Panel2 title is empty");
+    assert.equal((<PanelModel>panels[0]).hasTitle, false, "Panel1 title is hidden");
+    assert.equal((<PanelModel>panels[1]).hasTitle, false, "Panel2 title is hidden");
   }
 );
 
@@ -20638,6 +20643,77 @@ QUnit.test("Question is not in the hash with it is on the first page & questions
 
   const q = survey.getQuestionByName("q1");
   assert.equal(q.name, "q1", "q1 name is here");
+});
+QUnit.test("Check showPageTitles & questionsOnPageMode is 'singlePage' on switching locales, Bug#9048", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [{
+      "title": {
+        "default": "Page 1",
+        "de": "Page 1, de"
+      },
+      "elements": [{
+        "type": "text",
+        "name": "q1"
+      }
+      ]
+    },
+    {
+      "title": {
+        "default": "Page 2",
+        "de": "Page 2, de"
+      },
+      "elements": [{
+        "type": "text",
+        "name": "q2"
+      }] }],
+    "showPageTitles": false,
+    "questionsOnPageMode": "singlePage",
+  });
+  const panels = survey.getAllPanels();
+  assert.equal(panels.length, 2, "There are two panels");
+  assert.equal((<PanelModel>panels[0]).hasTitle, false, "panels[0], locale en");
+  assert.equal((<PanelModel>panels[1]).hasTitle, false, "panels[1], locale en");
+  survey.locale = "de";
+  assert.equal((<PanelModel>panels[0]).hasTitle, false, "panels[0], locale de");
+  assert.equal((<PanelModel>panels[1]).hasTitle, false, "panels[1], locale de");
+  survey.locale = "";
+  assert.equal((<PanelModel>panels[0]).hasTitle, false, "panels[0], locale ''");
+  assert.equal((<PanelModel>panels[1]).hasTitle, false, "panels[1], locale ''");
+});
+QUnit.test("Check questionsOnPageMode is 'singlePage' on switching locales, Bug#9048", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [{
+      "title": {
+        "default": "Page 1",
+        "de": "Page 1, de"
+      },
+      "elements": [{
+        "type": "text",
+        "name": "q1"
+      }
+      ]
+    },
+    {
+      "title": {
+        "default": "Page 2",
+        "de": "Page 2, de"
+      },
+      "elements": [{
+        "type": "text",
+        "name": "q2"
+      }] }],
+    "questionsOnPageMode": "singlePage",
+  });
+  const panels = survey.getAllPanels();
+  assert.equal(panels.length, 2, "There are two panels");
+  assert.equal((<PanelModel>panels[0]).hasTitle, true, "panels[0], locale en");
+  assert.equal((<PanelModel>panels[1]).hasTitle, true, "panels[1], locale en");
+  survey.locale = "de";
+  assert.equal((<PanelModel>panels[0]).hasTitle, true, "panels[0], locale de");
+  assert.equal((<PanelModel>panels[1]).hasTitle, true, "panels[1], locale de");
+  survey.locale = "";
+  assert.equal((<PanelModel>panels[0]).hasTitle, true, "panels[0], locale ''");
+  assert.equal((<PanelModel>panels[1]).hasTitle, true, "panels[1], locale ''");
 });
 QUnit.test("The Start Page has -1 index when enabling auto-numeration for survey pages, Bug#8983", function (assert) {
   const survey = new SurveyModel({

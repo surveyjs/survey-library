@@ -452,7 +452,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return isVisible && visible;
   }
   protected setVisible(val: boolean): void {
-    this._visible = val;
+    if(this.visible !== val) {
+      this._visible = val;
+    }
   }
   protected getLocTitle(): LocalizableString {
     return this.locText;

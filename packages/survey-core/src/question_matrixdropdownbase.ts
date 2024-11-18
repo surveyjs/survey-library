@@ -1715,8 +1715,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get storeOthersAsComment(): boolean {
     return !!this.survey ? this.survey.storeOthersAsComment : false;
   }
-  public addColumn(name: string, title: string = null): MatrixDropdownColumn {
-    var column = new MatrixDropdownColumn(name, title);
+  public addColumn(name: string, title?: string): MatrixDropdownColumn {
+    var column = new MatrixDropdownColumn(name, title, this);
     this.columns.push(column);
     return column;
   }

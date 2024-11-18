@@ -855,6 +855,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   protected setPage(parent: IPanel, newPage: IPage): void {
     const oldPage: IPage = this.getPage(parent);
+    (<any>this).prevSurvey = this.survey;
 
     //fix for the creator v1: https://github.com/surveyjs/survey-creator/issues/1744
     if (typeof newPage === "string") {
@@ -869,6 +870,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (newPage) {
       newPage.addElement(<IElement>(<any>this), -1);
     }
+    (<any>this).prevSurvey = undefined;
   }
   protected getSearchableLocKeys(keys: Array<string>) {
     keys.push("title");

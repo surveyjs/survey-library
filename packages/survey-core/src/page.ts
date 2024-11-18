@@ -6,6 +6,7 @@ import {
   IElement,
   ISurveyElement,
   IQuestion,
+  ISurvey,
 } from "./base-interfaces";
 import { PanelModelBase, QuestionRowModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
@@ -52,8 +53,8 @@ export class PageModel extends PanelModelBase implements IPage {
   protected canShowPageNumber(): boolean {
     return this.survey && (<any>this.survey).showPageNumbers;
   }
-  protected canShowTitle(): boolean {
-    return this.survey && (<any>this.survey).showPageTitles;
+  protected canShowTitle(survey: ISurvey): boolean {
+    return !survey || (<any>survey).showPageTitles;
   }
   protected setTitleValue(val: string): void {
     super.setTitleValue(val);

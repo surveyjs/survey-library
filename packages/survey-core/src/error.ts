@@ -53,7 +53,7 @@ export class ExceedSizeError extends SurveyError {
     return "exceedsize";
   }
   public getDefaultText(): string {
-    return getSurveyString("exceedMaxSize")["format"](this.getTextSize());
+    return (<any>getSurveyString("exceedMaxSize"))["format"](this.getTextSize());
   }
   private getTextSize() {
     var sizes = ["Bytes", "KB", "MB", "GB", "TB"];
@@ -148,7 +148,7 @@ export class MinRowCountError extends SurveyError {
     return "minrowcounterror";
   }
   protected getDefaultText(): string {
-    return getSurveyString("minRowCountError")["format"](this.minRowCount);
+    return (<any>getSurveyString("minRowCountError"))["format"](this.minRowCount);
   }
 }
 export class KeyDuplicationError extends SurveyError {

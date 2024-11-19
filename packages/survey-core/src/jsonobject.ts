@@ -1,4 +1,4 @@
-import { surveyLocalization } from "./surveyStrings";
+import { getSurveyString } from "./surveyStrings";
 import { Base, ComputedUpdater } from "./base";
 import { Helpers, HashTable } from "./helpers";
 import { ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
@@ -43,7 +43,7 @@ function getLocStringValue(
   if (!!res) return res;
   if (typeof options.localizable === "object" && options.localizable.defaultStr) {
     const loc = !!target.getLocale ? target.getLocale() : "";
-    return surveyLocalization.getString(options.localizable.defaultStr, loc);
+    return getSurveyString(options.localizable.defaultStr, loc);
   }
   return "";
 }

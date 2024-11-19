@@ -1,5 +1,5 @@
 import { settings } from "./settings";
-import { surveyLocalization } from "./surveyStrings";
+import { getSurveyString } from "./surveyStrings";
 
 const surveyIOSite = "surveyjs.io";
 const surveyIOMaxPostSize = 65536;
@@ -60,7 +60,7 @@ export class dxSurveyService {
     onSendResult: (success: boolean, response: any, request?: any) => void,
     clientId: string = null, isPartialCompleted: boolean = false): void {
     if(!this.canSendResult(result)) {
-      onSendResult(false, surveyLocalization.getString("savingExceedSize", this.locale), undefined);
+      onSendResult(false, getSurveyString("savingExceedSize", this.locale), undefined);
     } else {
       this.sendResultCore(postId, result, onSendResult, clientId, isPartialCompleted);
     }

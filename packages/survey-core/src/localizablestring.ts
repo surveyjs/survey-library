@@ -1,5 +1,5 @@
 import { Helpers } from "./helpers";
-import { surveyLocalization } from "./surveyStrings";
+import { surveyLocalization, getSurveyString } from "./surveyStrings";
 import { settings } from "./settings";
 import { Base, EventBase } from "./base";
 import { Serializer } from "./jsonobject";
@@ -156,7 +156,7 @@ export class LocalizableString implements ILocalizableString {
   }
   private getLocalizationStr(): string {
     const name = this.getLocalizationName();
-    return !!name ? surveyLocalization.getString(name, this.locale) : "";
+    return !!name ? getSurveyString(name, this.locale) : "";
   }
   public get hasHtml(): boolean {
     return this.hasHtmlValue();

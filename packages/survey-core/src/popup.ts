@@ -112,6 +112,9 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     return options.actions;
   }
   public updateDisplayMode(menuType: "dropdown" | "popup" | "overlay"): void {
+    if(this.displayMode !== menuType) {
+      this.setWidthByTarget = menuType === "dropdown";
+    }
     switch (menuType) {
       case "dropdown": {
         this.displayMode = "popup";

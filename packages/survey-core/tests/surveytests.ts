@@ -66,6 +66,8 @@ import { StylesManager } from "@legacy/stylesmanager";
 import { ITheme } from "../src/themes";
 import { Cover } from "../src/header";
 import { DomWindowHelper } from "../src/global_variables_utils";
+import { ListModel } from "../src/list";
+import { _setIsTouch } from "../src/utils/devices";
 
 export default QUnit.module("Survey");
 
@@ -18809,6 +18811,72 @@ QUnit.test("Check onOpenDropdownMenu events", function (assert) {
   assert.equal(popup.overlayDisplayMode, "dropdown-overlay");
 });
 
+QUnit.test("Search disabled & onOpenDropdownMenu events", function (assert) {
+  _setIsTouch(true);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "car",
+        choices: ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"],
+        allowClear: false,
+        searchEnabled: false,
+      },
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const popup = question.dropdownListModel.popupModel;
+  const list: ListModel = popup.contentComponentData.model as ListModel;
+  survey.onOpenDropdownMenu.add((_, options) => {
+    options.menuType = "dropdown";
+  });
+
+  assert.equal(popup.displayMode, "overlay", "#1");
+  assert.equal(popup.setWidthByTarget, false, "#2");
+  assert.equal(list.showFilter, false, "#3");
+  assert.equal(list.searchEnabled, false, "#4");
+
+  popup.show();
+  assert.equal(popup.displayMode, "popup", "#1.1");
+  assert.equal(popup.setWidthByTarget, true, "#2.1");
+  assert.equal(list.showFilter, false, "#3.1");
+  assert.equal(list.searchEnabled, false, "#4.1");
+
+  _setIsTouch(false);
+});
+
+QUnit.test("Search disabled after change popup displayMode", function (assert) {
+  _setIsTouch(true);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "car",
+        choices: ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"],
+      },
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const popup = question.dropdownListModel.popupModel;
+  const list: ListModel = popup.contentComponentData.model as ListModel;
+  survey.onOpenDropdownMenu.add((_, options) => {
+    options.menuType = "dropdown";
+  });
+
+  assert.equal(popup.displayMode, "overlay", "#1");
+  assert.equal(popup.setWidthByTarget, false, "#2");
+  assert.equal(list.showFilter, true, "#3");
+  assert.equal(list.searchEnabled, true, "#4");
+
+  popup.show();
+  assert.equal(popup.displayMode, "popup", "#1.1");
+  assert.equal(popup.setWidthByTarget, true, "#2.1");
+  assert.equal(list.showFilter, false, "#3.1");
+  assert.equal(list.searchEnabled, false, "#4.1");
+
+  _setIsTouch(false);
+});
+
 QUnit.test("Shared data #6584", (assert) => {
   const json = {
     logoPosition: "right",
@@ -20826,7 +20894,7 @@ QUnit.test("Reduce the number of calls of setVisibleIndexes function", function 
   survey.setDesignMode(true);
   let counter = 0;
   survey.onProgressText.add((sender, options) => {
-    counter ++;
+    counter++;
   });
   survey.fromJSON({
     pages: [{

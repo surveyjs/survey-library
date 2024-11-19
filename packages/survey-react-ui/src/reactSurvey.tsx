@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, settings } from "survey-core";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, registerIcons } from "survey-core";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -38,7 +38,7 @@ export class Survey extends SurveyElementBase<any, any>
     this.rootRef = React.createRef();
     this.rootNodeId = props.id || null;
     this.rootNodeClassName = props.className || "";
-    this.registerIcons();
+    registerIcons(iconsV1, iconsV2);
   }
   protected getStateElement(): Base {
     return this.survey;
@@ -263,16 +263,6 @@ export class Survey extends SurveyElementBase<any, any>
         this.survey[key] = newProps[key];
       }
     }
-  }
-
-  protected registerIcons() {
-    let path;
-    if (settings.useLegacyIcons) {
-      path = iconsV1.path;
-    } else {
-      path = iconsV2.path;
-    }
-    SvgRegistry.registerIconsFromFolder(path);
   }
 
   protected setSurveyEvents() {

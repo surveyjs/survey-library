@@ -1,4 +1,5 @@
 import { DomDocumentHelper } from "./global_variables_utils";
+import { settings } from "./settings";
 import { renamedIcons } from "./utils/utils";
 
 class SvgIconData {
@@ -67,3 +68,13 @@ export var SvgBundleViewModel: any;
 // export var svgBundle: {V1?: string, V2?: string} = {};
 // svgBundle.V1 = (<any>require).context("./images-v1", true, /\.svg$/);
 // svgBundle.V2 = (<any>require).context("./images-v2", true, /\.svg$/);
+
+export function registerIcons(iconsV1:any, iconsV2:any) {
+  let path;
+  if (settings.useLegacyIcons) {
+    path = iconsV1.path;
+  } else {
+    path = iconsV2.path;
+  }
+  SvgRegistry.registerIconsFromFolder(path);
+}

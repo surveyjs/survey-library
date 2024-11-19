@@ -64,8 +64,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { Base, StylesManager, surveyCss, SvgRegistry, SurveyModel, doKey2ClickUp, IAttachKey2clickOptions } from "survey-core";
+import { Base, StylesManager, surveyCss, SurveyModel, registerIcons } from "survey-core";
 import { BaseVue } from "./base";
+
+const iconsV1 = require("@coreIconsV1");
+const iconsV2 = require("@coreIconsV2");
 
 @Component
 export class Survey extends BaseVue {
@@ -82,6 +85,7 @@ export class Survey extends BaseVue {
 
   constructor() {
     super();
+    registerIcons(iconsV1, iconsV2);
   }
   protected getModel(): Base {
     return this.vueSurvey;

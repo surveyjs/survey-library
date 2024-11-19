@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 import * as ko from "knockout";
-import { Base, SurveyModel, SvgRegistry, doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOptions, settings } from "survey-core";
+import { Base, SurveyModel, registerIcons, doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOptions, settings } from "survey-core";
 import { SurveyElement } from "survey-core";
 import { koTemplate, SurveyTemplateText } from "./templateText";
 import { CustomWidgetCollection } from "survey-core";
@@ -9,6 +9,9 @@ import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
 import { getElement } from "survey-core";
 import { ILoadFromJSONOptions } from "survey-core";
+
+const iconsV1 = require("@coreIconsV1");
+const iconsV2 = require("@coreIconsV2");
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;
@@ -131,6 +134,7 @@ export class Survey extends SurveyModel {
   constructor(jsonObj: any = null, renderedElement: any = null) {
     super(jsonObj, renderedElement);
     this.implementor = new SurveyImplementor(this);
+    registerIcons(iconsV1, iconsV2);
   }
   public render(element: any = null): void {
     this.implementor.render(element);

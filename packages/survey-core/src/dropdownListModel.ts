@@ -633,6 +633,7 @@ export class DropdownListModel extends Base {
     if (!!this.popupModel) {
       this.popupModel.dispose();
     }
+    this.htmlCleanerElement = undefined;
   }
 
   scrollToFocusedItem(): void {

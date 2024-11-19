@@ -1460,26 +1460,26 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
+  private canFireAddRemoveNotifications(element: IElement): boolean {
+    return !!this.survey && (<any>element).prevSurvey !== this.survey;
+  }
   protected onAddElement(element: IElement, index: number): void {
+    const survey = this.survey;
+    const fireNotification = this.canFireAddRemoveNotifications(element);
     element.setSurveyImpl(this.surveyImpl);
     element.parent = this;
     this.markQuestionListDirty();
     if (this.canBuildRows()) {
       this.updateRowsOnElementAdded(element);
     }
-    if (element.isPanel) {
-      var p = <PanelModel>element;
-      if (this.survey) {
-        this.survey.panelAdded(p, index, this, this.root);
-      }
-    } else {
-      if (this.survey) {
-        var q = <Question>element;
-        this.survey.questionAdded(q, index, this, this.root);
+    if(fireNotification) {
+      if (element.isPanel) {
+        survey.panelAdded(<PanelModel>element, index, this, this.root);
+      } else {
+        survey.questionAdded(<Question>element, index, this, this.root);
       }
     }
     if (!!this.addElementCallback) this.addElementCallback(element);
-    var self = this;
     (<Base>(<any>element)).registerPropertyChangedHandlers(
       ["visible", "isVisible"], () => {
         this.onElementVisibilityChanged(element);
@@ -1491,7 +1491,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }, this.id);
     this.onElementVisibilityChanged(this);
   }
-  protected onRemoveElement(element: IElement) {
+  protected onRemoveElement(element: IElement): void {
     element.parent = null;
     this.markQuestionListDirty();
     (<Base>(<any>element)).unregisterPropertyChangedHandlers(["visible", "isVisible", "startWithNewLine"], this.id);
@@ -1502,7 +1502,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.onElementVisibilityChanged(this);
   }
   private onRemoveElementNotifySurvey(element: IElement): void {
-    if(!this.survey) return;
+    if(!this.canFireAddRemoveNotifications(element)) return;
     if (!element.isPanel) {
       this.survey.questionRemoved(<Question>element);
     } else {

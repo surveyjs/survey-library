@@ -1461,25 +1461,22 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   protected onAddElement(element: IElement, index: number): void {
+    const survey = this.survey;
+    const fireNotification = !!this.survey && (<any>element).prevSurvey !== this.survey;
     element.setSurveyImpl(this.surveyImpl);
     element.parent = this;
     this.markQuestionListDirty();
     if (this.canBuildRows()) {
       this.updateRowsOnElementAdded(element);
     }
-    if (element.isPanel) {
-      var p = <PanelModel>element;
-      if (this.survey) {
-        this.survey.panelAdded(p, index, this, this.root);
-      }
-    } else {
-      if (this.survey) {
-        var q = <Question>element;
-        this.survey.questionAdded(q, index, this, this.root);
+    if(fireNotification) {
+      if (element.isPanel) {
+        survey.panelAdded(<PanelModel>element, index, this, this.root);
+      } else {
+        survey.questionAdded(<Question>element, index, this, this.root);
       }
     }
     if (!!this.addElementCallback) this.addElementCallback(element);
-    var self = this;
     (<Base>(<any>element)).registerPropertyChangedHandlers(
       ["visible", "isVisible"], () => {
         this.onElementVisibilityChanged(element);

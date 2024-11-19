@@ -660,6 +660,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public beforeDestroyQuestionElement(el: HTMLElement) {
     this.deleteMaskAdapter();
+    this.input = undefined;
   }
 }
 

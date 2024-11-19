@@ -123,13 +123,7 @@ export class MatrixDropdownColumn extends Base
     this.createLocalizableString("cellHint", this);
     this.registerPropertyChangedHandlers(["showInMultipleColumns"], () => { this.doShowInMultipleColumnsChanged(); });
     this.registerPropertyChangedHandlers(["visible"], () => { this.doColumnVisibilityChanged(); });
-    this.updateTemplateQuestion();
-    this.name = name;
-    if (title) {
-      this.title = title;
-    } else {
-      this.templateQuestion.locTitle.strChanged();
-    }
+    this.updateTemplateQuestion(undefined, name, title);
   }
   public getOriginalObj(): Base {
     return this.templateQuestion;
@@ -698,7 +692,7 @@ export class MatrixDropdownColumn extends Base
       );
     }
   }
-  defaultCellTypeChanged() {
+  defaultCellTypeChanged(): void {
     this.updateTemplateQuestion();
   }
   protected calcCellQuestionType(row: MatrixDropdownRowModelBase): string {
@@ -714,7 +708,7 @@ export class MatrixDropdownColumn extends Base
     if (this.colOwner) return this.colOwner.getCellType();
     return settings.matrix.defaultCellType;
   }
-  protected updateTemplateQuestion(newCellType?: string): void {
+  protected updateTemplateQuestion(newCellType?: string, name?: string, title?: string): void {
     const curCellType = this.getDefaultCellQuestionType(newCellType);
     const prevCellType = this.templateQuestion
       ? this.templateQuestion.getType()
@@ -726,6 +720,14 @@ export class MatrixDropdownColumn extends Base
     this.templateQuestionValue = this.createNewQuestion(curCellType);
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
+    if(!!name) {
+      this.name = name;
+    }
+    if(!!title) {
+      this.title = title;
+    } else {
+      this.templateQuestion.locTitle.strChanged();
+    }
     this.templateQuestion.onPropertyChanged.add((sender, options) => {
       this.propertyValueChanged(
         options.name,

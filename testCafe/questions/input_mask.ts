@@ -2,7 +2,7 @@ import { Selector, fixture, test, ClientFunction } from "testcafe";
 import { frameworks, url, initSurvey, getSurveyResult, setTimeZoneUnsafe, getTimeZone } from "../helper";
 const title = "Input mask";
 
-["vue"].forEach((framework) => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Save unmasked value", async (t) => {

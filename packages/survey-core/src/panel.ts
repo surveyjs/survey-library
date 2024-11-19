@@ -1460,9 +1460,12 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
+  private canFireAddRemoveNotifications(element: IElement): boolean {
+    return !!this.survey && (<any>element).prevSurvey !== this.survey;
+  }
   protected onAddElement(element: IElement, index: number): void {
     const survey = this.survey;
-    const fireNotification = !!this.survey && (<any>element).prevSurvey !== this.survey;
+    const fireNotification = this.canFireAddRemoveNotifications(element);
     element.setSurveyImpl(this.surveyImpl);
     element.parent = this;
     this.markQuestionListDirty();
@@ -1488,7 +1491,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }, this.id);
     this.onElementVisibilityChanged(this);
   }
-  protected onRemoveElement(element: IElement) {
+  protected onRemoveElement(element: IElement): void {
     element.parent = null;
     this.markQuestionListDirty();
     (<Base>(<any>element)).unregisterPropertyChangedHandlers(["visible", "isVisible", "startWithNewLine"], this.id);
@@ -1499,7 +1502,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.onElementVisibilityChanged(this);
   }
   private onRemoveElementNotifySurvey(element: IElement): void {
-    if(!this.survey) return;
+    if(!this.canFireAddRemoveNotifications(element)) return;
     if (!element.isPanel) {
       this.survey.questionRemoved(<Question>element);
     } else {

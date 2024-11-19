@@ -16181,17 +16181,24 @@ QUnit.test("onQuestionAdded & changing parent", function (assert) {
       }
     ]
   });
-  var counter = 0;
+  let addedCounter = 0;
+  let removedCounter = 0;
   survey.onQuestionAdded.add((sender, options) => {
-    counter++;
+    addedCounter++;
   });
-  assert.equal(counter, 0, "onQuestionAdded is not fired, #1");
+  survey.onQuestionRemoved.add((sender, options) => {
+    removedCounter++;
+  });
+  assert.equal(addedCounter, 0, "onQuestionAdded is not fired, #1");
   survey.getQuestionByName("q1").page = survey.pages[1];
   survey.getQuestionByName("q3").page = survey.pages[0];
-  assert.equal(counter, 0, "onQuestionAdded is not fired, #2");
+  assert.equal(addedCounter, 0, "onQuestionAdded is not fired, #2");
   const q = new QuestionTextModel("q5");
   q.page = survey.pages[1];
-  assert.equal(counter, 1, "onQuestionAdded is fired for q5, #3");
+  assert.equal(addedCounter, 1, "onQuestionAdded is fired for q5, #3");
+  assert.equal(removedCounter, 0, "onQuestionRemoved #1");
+  q.delete();
+  assert.equal(removedCounter, 1, "onQuestionRemoved #2");
 });
 QUnit.test("Set values into radiogroup and checkbox questions before creating them", function (assert) {
   const survey = new SurveyModel();

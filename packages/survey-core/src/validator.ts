@@ -2,7 +2,6 @@ import { Base } from "./base";
 import { ISurveyErrorOwner, ISurvey } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { CustomError, RequreNumericError } from "./error";
-import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";

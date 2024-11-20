@@ -1,6 +1,6 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base, ComputedUpdater } from "../base";
-import { surveyLocalization } from "../surveyStrings";
+import { getLocaleString } from "../surveyStrings";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
@@ -540,7 +540,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   private locTooltipChanged(): void {
     if (!this.locTooltipName) return;
-    this.tooltip = surveyLocalization.getString(this.locTooltipName, this.locTitle.locale);
+    this.tooltip = getLocaleString(this.locTooltipName, this.locTitle.locale);
   }
 
   //ILocalizableOwner
@@ -551,7 +551,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }
 
   public setVisible(val: boolean): void {
-    if(this.visible !== val) {
+    if (this.visible !== val) {
       this._visible = val;
     }
   }

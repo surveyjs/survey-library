@@ -728,6 +728,9 @@ export class MatrixDropdownColumn extends Base
     } else {
       this.templateQuestion.locTitle.strChanged();
     }
+    if(settings.serialization.columnSerializeTitle) {
+      this.templateQuestion.locTitle.serializeCallBackText = true;
+    }
     this.templateQuestion.onPropertyChanged.add((sender, options) => {
       this.propertyValueChanged(
         options.name,

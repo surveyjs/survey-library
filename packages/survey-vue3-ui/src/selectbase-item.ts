@@ -1,5 +1,5 @@
 import type { ItemValue, QuestionSelectBase } from "survey-core";
-import { onMounted, type Ref } from "vue";
+import { onMounted, onUnmounted, type Ref } from "vue";
 import { useBase } from "./base";
 
 export function useSelectBaseItem(
@@ -14,24 +14,19 @@ export function useSelectBaseItem(
       }
     }
   });
-  useBase(
-    getItem,
-    (newValue, oldValue) => {
-      if (!getQuestion().isDesignMode) {
-        if (newValue && root.value) {
-          newValue.setRootElement(root.value);
-        }
-        if (oldValue) {
-          oldValue.setRootElement(undefined as any);
-        }
+  onUnmounted(() => {
+    if (!getQuestion().isDesignMode) {
+      getItem().setRootElement(undefined as any);
+    }
+  });
+  useBase(getItem, (newValue, oldValue) => {
+    if (!getQuestion().isDesignMode) {
+      if (newValue && root.value) {
+        newValue.setRootElement(root.value);
       }
-    },
-    () => {
-      const item = getItem();
-      const question = getQuestion();
-      if (question && item && question.isDesignMode) {
-        item.setRootElement(undefined as any);
+      if (oldValue) {
+        oldValue.setRootElement(undefined as any);
       }
     }
-  );
+  });
 }

@@ -4976,6 +4976,11 @@ export class SurveyModel extends SurveyElementCore
     this.rootElement = htmlElement;
     this.addScrollEventListener();
   }
+  beforeDestroySurveyElement() {
+    this.destroyResizeObserver();
+    this.removeScrollEventListener();
+    this.rootElement = undefined;
+  }
   /**
    * An event that is raised when the survey's width or height is changed.
    */

@@ -152,8 +152,11 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
   public setActionsMode(mode: actionModeType) {
     this.actions.forEach((action) => {
-      if (mode == "small" && action.disableShrink) return;
-      action.mode = mode;
+      if(mode == "small" && action.disableShrink) {
+        action.mode = "large";
+      } else {
+        action.mode = mode;
+      }
     });
   }
   public dispose(): void {

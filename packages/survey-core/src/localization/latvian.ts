@@ -110,7 +110,7 @@ export var latvianSurveyStrings = {
   cancel: "Atcelt"
 };
 
-setupLocale({ localeName: "lv", strings: latvianSurveyStrings, nativeName: "latviešu", englishName: "Latvian" });
+setupLocale({ localeCode: "lv", strings: latvianSurveyStrings, nativeName: "latviešu", englishName: "Latvian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

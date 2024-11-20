@@ -110,7 +110,7 @@ export var romanianSurveyStrings: any = {
   cancel: "Anula"
 };
 
-setupLocale({ localeName: "ro", strings: romanianSurveyStrings, nativeName: "română", englishName: "Romanian" });
+setupLocale({ localeCode: "ro", strings: romanianSurveyStrings, nativeName: "română", englishName: "Romanian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

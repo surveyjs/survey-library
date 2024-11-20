@@ -112,7 +112,7 @@ export var portugueseBrSurveyStrings = {
   cancel: "Cancelar"
 };
 
-setupLocale({ localeName: "pt-br", strings: portugueseBrSurveyStrings, nativeName: "português brasileiro", englishName: "Brazilian Portuguese" });
+setupLocale({ localeCode: "pt-br", strings: portugueseBrSurveyStrings, nativeName: "português brasileiro", englishName: "Brazilian Portuguese" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

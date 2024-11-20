@@ -110,7 +110,7 @@ export var arabicSurveyStrings = {
   cancel: "إلغاء الأمر"
 };
 
-setupLocale({ localeName: "ar", strings: arabicSurveyStrings, nativeName: "العربية", englishName: "Arabic", rtl: true });
+setupLocale({ localeCode: "ar", strings: arabicSurveyStrings, nativeName: "العربية", englishName: "Arabic", rtl: true });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

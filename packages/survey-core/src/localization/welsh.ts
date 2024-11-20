@@ -110,7 +110,7 @@ export var welshSurveyStrings = {
   cancel: "Canslo"
 };
 
-setupLocale({ localeName: "cy", strings: welshSurveyStrings, nativeName: "cymraeg", englishName: "Welsh" });
+setupLocale({ localeCode: "cy", strings: welshSurveyStrings, nativeName: "cymraeg", englishName: "Welsh" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -110,7 +110,7 @@ export var turkishSurveyStrings = {
   cancel: "İptal"
 };
 
-setupLocale({ localeName: "tr", strings: turkishSurveyStrings, nativeName: "türkçe", englishName: "Turkish" });
+setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "türkçe", englishName: "Turkish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

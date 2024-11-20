@@ -110,7 +110,7 @@ export var persianSurveyStrings = {
   cancel: "لغو"
 };
 
-setupLocale({ localeName: "fa", strings: persianSurveyStrings, nativeName: "فارْسِى", englishName: "Persian", rtl: true });
+setupLocale({ localeCode: "fa", strings: persianSurveyStrings, nativeName: "فارْسِى", englishName: "Persian", rtl: true });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

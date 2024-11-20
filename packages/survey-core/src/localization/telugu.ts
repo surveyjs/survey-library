@@ -110,7 +110,7 @@ export var teluguStrings = {
   cancel: "రద్దు"
 };
 
-setupLocale({ localeName: "tel", strings: teluguStrings, nativeName: "telugu", englishName: "Telugu" });
+setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "telugu", englishName: "Telugu" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

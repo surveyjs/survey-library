@@ -110,7 +110,7 @@ export var macedonianSurveyStrings = {
   cancel: "Откажи"
 };
 
-setupLocale({ localeName: "mk", strings: macedonianSurveyStrings, nativeName: "македонски", englishName: "Macedonian" });
+setupLocale({ localeCode: "mk", strings: macedonianSurveyStrings, nativeName: "македонски", englishName: "Macedonian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

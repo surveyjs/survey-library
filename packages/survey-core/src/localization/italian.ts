@@ -110,7 +110,7 @@ export var italianSurveyStrings = {
   cancel: "Annulla"
 };
 
-setupLocale({ localeName: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });
+setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -90,4 +90,4 @@ export var tajikSurveyStrings = {
   // more: "More"
 };
 
-setupLocale({ localeName: "tg", strings: tajikSurveyStrings, nativeName: "тоҷикӣ", englishName: "Tajik" });
+setupLocale({ localeCode: "tg", strings: tajikSurveyStrings, nativeName: "тоҷикӣ", englishName: "Tajik" });

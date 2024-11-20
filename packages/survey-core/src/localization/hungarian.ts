@@ -110,7 +110,7 @@ export var hungarianSurveyStrings = {
   cancel: "Érvénytelenít"
 };
 
-setupLocale({ localeName: "hu", strings: hungarianSurveyStrings, nativeName: "magyar", englishName: "Hungarian" });
+setupLocale({ localeCode: "hu", strings: hungarianSurveyStrings, nativeName: "magyar", englishName: "Hungarian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

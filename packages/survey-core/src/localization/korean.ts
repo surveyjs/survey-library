@@ -110,7 +110,7 @@ export var koreanStrings = {
   cancel: "취소"
 };
 
-setupLocale({ localeName: "ko", strings: koreanStrings, nativeName: "한국어", englishName: "Korean" });
+setupLocale({ localeCode: "ko", strings: koreanStrings, nativeName: "한국어", englishName: "Korean" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

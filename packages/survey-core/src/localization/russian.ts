@@ -110,7 +110,7 @@ export var russianSurveyStrings = {
   cancel: "Отмена"
 };
 
-setupLocale({ localeName: "ru", strings: russianSurveyStrings, nativeName: "русский", englishName: "Russian" });
+setupLocale({ localeCode: "ru", strings: russianSurveyStrings, nativeName: "русский", englishName: "Russian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

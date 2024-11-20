@@ -110,7 +110,7 @@ export var indonesianStrings = {
   cancel: "Membatalkan"
 };
 
-setupLocale({ localeName: "id", strings: indonesianStrings, nativeName: "bahasa indonesia", englishName: "Indonesian" });
+setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa indonesia", englishName: "Indonesian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -110,7 +110,7 @@ export var hindiStrings = {
   cancel: "रद्द करना"
 };
 
-setupLocale({ localeName: "hi", strings: hindiStrings, nativeName: "hindi", englishName: "Hindi" });
+setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "hindi", englishName: "Hindi" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -110,7 +110,7 @@ export var kazakhStrings = {
   cancel: "Болдырмау"
 };
 
-setupLocale({ localeName: "kk", strings: kazakhStrings, nativeName: "kazakh", englishName: "Kazakh" });
+setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", englishName: "Kazakh" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

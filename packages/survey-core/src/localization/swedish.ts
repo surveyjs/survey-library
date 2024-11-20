@@ -110,7 +110,7 @@ export var swedishSurveyStrings = {
   cancel: "Annullera"
 };
 
-setupLocale({ localeName: "sv", strings: swedishSurveyStrings, nativeName: "svenska", englishName: "Swedish" });
+setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "svenska", englishName: "Swedish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

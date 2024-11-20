@@ -110,7 +110,7 @@ export var estonianSurveyStrings = {
   cancel: "Tühistama"
 };
 
-setupLocale({ localeName: "et", strings: estonianSurveyStrings, nativeName: "eesti keel", englishName: "Estonian" });
+setupLocale({ localeCode: "et", strings: estonianSurveyStrings, nativeName: "eesti keel", englishName: "Estonian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

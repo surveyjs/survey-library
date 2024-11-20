@@ -110,7 +110,7 @@ export var polishSurveyStrings = {
   cancel: "Anuluj"
 };
 
-setupLocale({ localeName: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });
+setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -110,7 +110,7 @@ export var catalanSurveyStrings = {
   cancel: "Cancel·lar"
 };
 
-setupLocale({ localeName: "ca", strings: catalanSurveyStrings, nativeName: "català", englishName: "Catalan" });
+setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "català", englishName: "Catalan" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

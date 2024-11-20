@@ -110,7 +110,7 @@ export var czechSurveyStrings = {
   cancel: "Zrušit"
 };
 
-setupLocale({ localeName: "cs", strings: czechSurveyStrings, nativeName: "čeština", englishName: "Czech" });
+setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "čeština", englishName: "Czech" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

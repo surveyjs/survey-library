@@ -110,7 +110,7 @@ export var bulgarianStrings = {
   cancel: "Отмени"
 };
 
-setupLocale({ localeName: "bg", strings: bulgarianStrings, nativeName: "български", englishName: "Bulgarian" });
+setupLocale({ localeCode: "bg", strings: bulgarianStrings, nativeName: "български", englishName: "Bulgarian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

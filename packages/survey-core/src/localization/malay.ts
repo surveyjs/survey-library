@@ -110,7 +110,7 @@ export var malaySurveyStrings = {
   cancel: "Batal"
 };
 
-setupLocale({ localeName: "ms", strings: malaySurveyStrings, nativeName: "melayu", englishName: "Malay" });
+setupLocale({ localeCode: "ms", strings: malaySurveyStrings, nativeName: "melayu", englishName: "Malay" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

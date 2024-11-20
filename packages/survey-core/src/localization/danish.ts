@@ -110,7 +110,7 @@ export var danishSurveyStrings = {
   cancel: "Aflyse"
 };
 
-setupLocale({ localeName: "da", strings: danishSurveyStrings, nativeName: "dansk", englishName: "Danish" });
+setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk", englishName: "Danish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

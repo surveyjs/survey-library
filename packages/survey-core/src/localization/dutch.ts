@@ -110,7 +110,7 @@ export var dutchSurveyStrings = {
   cancel: "Annuleren"
 };
 
-setupLocale({ localeName: "nl", strings: dutchSurveyStrings, nativeName: "nederlands", englishName: "Dutch" });
+setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederlands", englishName: "Dutch" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

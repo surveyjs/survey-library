@@ -110,7 +110,7 @@ export var lithuaniaSurveyStrings = {
   cancel: "Atšaukti"
 };
 
-setupLocale({ localeName: "lt", strings: lithuaniaSurveyStrings, nativeName: "lietuvių", englishName: "Lithuanian" });
+setupLocale({ localeCode: "lt", strings: lithuaniaSurveyStrings, nativeName: "lietuvių", englishName: "Lithuanian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

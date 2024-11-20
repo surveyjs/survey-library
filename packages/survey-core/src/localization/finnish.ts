@@ -110,7 +110,7 @@ export var finnishSurveyStrings = {
   cancel: "Perua"
 };
 
-setupLocale({ localeName: "fi", strings: finnishSurveyStrings, nativeName: "suomi", englishName: "Finnish" });
+setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suomi", englishName: "Finnish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

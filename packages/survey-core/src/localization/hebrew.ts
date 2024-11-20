@@ -110,7 +110,7 @@ export var hebrewSurveyStrings = {
   cancel: "ביטל"
 };
 
-setupLocale({ localeName: "he", strings: hebrewSurveyStrings, nativeName: "עברית", englishName: "Hebrew" });
+setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עברית", englishName: "Hebrew" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

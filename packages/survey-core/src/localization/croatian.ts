@@ -110,7 +110,7 @@ export var croatianStrings = {
   cancel: "Otkazati"
 };
 
-setupLocale({ localeName: "hr", strings: croatianStrings, nativeName: "hrvatski", englishName: "Croatian" });
+setupLocale({ localeCode: "hr", strings: croatianStrings, nativeName: "hrvatski", englishName: "Croatian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

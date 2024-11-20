@@ -110,7 +110,7 @@ export var vietnameseSurveyStrings = {
   cancel: "Hủy"
 };
 
-setupLocale({ localeName: "vi", strings: vietnameseSurveyStrings, nativeName: "việt nam", englishName: "Vietnamese" });
+setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "việt nam", englishName: "Vietnamese" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

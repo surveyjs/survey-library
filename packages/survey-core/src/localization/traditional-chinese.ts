@@ -110,7 +110,7 @@ export var traditionalChineseSurveyStrings = {
   cancel: "取消"
 };
 
-setupLocale({ localeName: "zh-tw", strings: traditionalChineseSurveyStrings, nativeName: "繁體中文", englishName: "Tranditional Chinese" });
+setupLocale({ localeCode: "zh-tw", strings: traditionalChineseSurveyStrings, nativeName: "繁體中文", englishName: "Tranditional Chinese" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

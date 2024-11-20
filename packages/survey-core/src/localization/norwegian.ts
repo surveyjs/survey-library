@@ -110,7 +110,7 @@ export var norwegianSurveyStrings = {
   cancel: "Annullere"
 };
 
-setupLocale({ localeName: "no", strings: norwegianSurveyStrings, nativeName: "norsk", englishName: "Norwegian" });
+setupLocale({ localeCode: "no", strings: norwegianSurveyStrings, nativeName: "norsk", englishName: "Norwegian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -110,7 +110,7 @@ export var germanSurveyStrings = {
   cancel: "Abbrechen"
 };
 
-setupLocale({ localeName: "de", strings: germanSurveyStrings, nativeName: "deutsch", englishName: "German" });
+setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deutsch", englishName: "German" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

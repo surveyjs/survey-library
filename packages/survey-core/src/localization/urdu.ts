@@ -110,7 +110,7 @@ export var urduSurveyStrings = {
   cancel: "منسوخ"
 };
 
-setupLocale({ localeName: "ur", strings: urduSurveyStrings, nativeName: "urdu", englishName: "Urdu" });
+setupLocale({ localeCode: "ur", strings: urduSurveyStrings, nativeName: "urdu", englishName: "Urdu" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

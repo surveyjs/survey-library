@@ -110,7 +110,7 @@ export var icelandicSurveyStrings = {
   cancel: "Afturkalla"
 };
 
-setupLocale({ localeName: "is", strings: icelandicSurveyStrings, nativeName: "íslenska", englishName: "Icelandic" });
+setupLocale({ localeCode: "is", strings: icelandicSurveyStrings, nativeName: "íslenska", englishName: "Icelandic" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

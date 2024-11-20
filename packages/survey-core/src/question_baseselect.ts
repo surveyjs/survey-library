@@ -4,7 +4,7 @@ import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomP
 import { SurveyModel } from "./survey";
 import { IQuestionPlainData, Question } from "./question";
 import { ItemValue } from "./itemvalue";
-import { getSurveyString } from "./surveyStrings";
+import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
 import { ChoicesRestful } from "./choicesRestful";
 import { LocalizableString } from "./localizablestring";
@@ -2119,7 +2119,7 @@ Serializer.addClass(
     {
       name: "choices:itemvalue[]", uniqueProperty: "value",
       baseValue: function () {
-        return getSurveyString("choices_Item");
+        return getLocaleString("choices_Item");
       },
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {

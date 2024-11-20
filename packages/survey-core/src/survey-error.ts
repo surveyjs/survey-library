@@ -1,6 +1,6 @@
 import { ISurveyErrorOwner } from "./base-interfaces";
 import { LocalizableString } from "./localizablestring";
-import { getSurveyString } from "./surveyStrings";
+import { getLocaleString } from "./surveyStrings";
 
 export class SurveyError {
   private locTextValue: LocalizableString;
@@ -8,10 +8,10 @@ export class SurveyError {
   constructor(
     public text: string = null,
     protected errorOwner: ISurveyErrorOwner = null
-  ) {}
+  ) { }
   public equals(error: SurveyError): boolean {
-    if(!error || !error.getErrorType) return false;
-    if(this.getErrorType() !== error.getErrorType()) return false;
+    if (!error || !error.getErrorType) return false;
+    if (this.getErrorType() !== error.getErrorType()) return false;
     return this.text === error.text && this.visible === error.visible;
   }
   public get locText(): LocalizableString {
@@ -38,14 +38,14 @@ export class SurveyError {
     return "";
   }
   protected getLocale(): string {
-    return !!this.errorOwner ? this.errorOwner.getLocale(): "";
+    return !!this.errorOwner ? this.errorOwner.getLocale() : "";
   }
   protected getLocalizationString(locStrName: string): string {
-    return getSurveyString(locStrName, this.getLocale());
+    return getLocaleString(locStrName, this.getLocale());
   }
   public onUpdateErrorTextCallback: (error: SurveyError) => void = undefined;
   public updateText(): void {
-    if(this.onUpdateErrorTextCallback) {
+    if (this.onUpdateErrorTextCallback) {
       this.onUpdateErrorTextCallback(this);
     }
     this.locText.text = this.getText();

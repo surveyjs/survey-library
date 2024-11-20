@@ -1,7 +1,7 @@
 import { LocalizableString } from "../localizablestring";
 import { settings, ISurveyEnvironment } from "./../settings";
 import { IDialogOptions } from "../popup";
-import { getSurveyString } from "../surveyStrings";
+import { getLocaleString } from "../surveyStrings";
 import { PopupBaseViewModel } from "../popup-view-model";
 import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 
@@ -165,14 +165,14 @@ function wrapUrlForBackgroundImage(url: string): string {
   return !!url ? ["url(", url, ")"].join("") : "";
 }
 function isBase64URL(url: string): boolean {
-  if(typeof url == "string") {
+  if (typeof url == "string") {
     return /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[^;]+?)*),(.+)$/.test(url);
   }
   return null;
 }
 
 // old-name: new-name
-const renamedIcons:any = {
+const renamedIcons: any = {
   "changecamera": "flip-24x24",
   "clear": "clear-24x24",
   "cancel": "cancel-24x24",
@@ -327,7 +327,7 @@ export function getNewIconName(iconName: string): string {
   return prefix + result;
 }
 
-export function getCustomNewIconNameIfExists(iconName: string):string {
+export function getCustomNewIconNameIfExists(iconName: string): string {
   // only for settings.customIcons["icon-import"] = "icon-export"; feature
   let result = (<any>settings.customIcons)[iconName];
   if (result) return getNewIconName(result);
@@ -375,8 +375,8 @@ function createSvg(
   titleElement.textContent = title;
 }
 export function getSafeUrl(url: string): string {
-  if(!url) return url;
-  if(url.toLocaleLowerCase().indexOf("javascript:")> -1) return encodeURIComponent(url);
+  if (!url) return url;
+  if (url.toLocaleLowerCase().indexOf("javascript:") > -1) return encodeURIComponent(url);
   return url;
 }
 
@@ -499,7 +499,7 @@ function preventDefaults(event: any) {
   event.stopPropagation();
 }
 function classesToSelector(str: string): string {
-  if(!str) return str;
+  if (!str) return str;
   const re = /\s*?([\w-]+)\s*?/g;
   return str.replace(re, ".$1");
 }
@@ -618,9 +618,9 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   const toolbar = popupViewModel.footerToolbar;
   const applyBtn = toolbar.getActionById("apply");
   const cancelBtn = toolbar.getActionById("cancel");
-  cancelBtn.title = getSurveyString("cancel", locale);
+  cancelBtn.title = getLocaleString("cancel", locale);
   cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
-  applyBtn.title = applyTitle || getSurveyString("ok", locale);
+  applyBtn.title = applyTitle || getLocaleString("ok", locale);
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
   configConfirmDialog(popupViewModel);
   return true;
@@ -651,7 +651,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   const commonItemsInOldMap = new Map<any, number>();
   oldValue.forEach((item) => {
     const itemKey = getKey(item);
-    if(!oldItemsMap.has(itemKey)) {
+    if (!oldItemsMap.has(itemKey)) {
       oldItemsMap.set(getKey(item), item);
     } else {
       //if keys are set incorrectly do not process comparing
@@ -660,7 +660,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   });
   newValue.forEach((item) => {
     const itemKey = getKey(item);
-    if(!newItemsMap.has(itemKey)) {
+    if (!newItemsMap.has(itemKey)) {
       newItemsMap.set(itemKey, item);
     } else {
       //if keys are set incorrectly do not process comparing
@@ -672,7 +672,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
 
   //calculating addedItems and items that exist in both arrays
   newItemsMap.forEach((item, key) => {
-    if(!oldItemsMap.has(key)) {
+    if (!oldItemsMap.has(key)) {
       addedItems.push(item);
     } else {
       commonItemsInNewMap.set(key, commonItemsInNewMap.size);
@@ -682,7 +682,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   //calculating deletedItems and items that exist in both arrays
 
   oldItemsMap.forEach((item, key) => {
-    if(!newItemsMap.has(key)) {
+    if (!newItemsMap.has(key)) {
       deletedItems.push(item);
     } else {
       commonItemsInOldMap.set(key, commonItemsInOldMap.size);
@@ -694,7 +694,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   commonItemsInNewMap.forEach((index, key) => {
     const oldIndex = commonItemsInOldMap.get(key);
     const item = newItemsMap.get(key);
-    if(oldIndex !== index) reorderedItems.push({ item: item, movedForward: oldIndex < index });
+    if (oldIndex !== index) reorderedItems.push({ item: item, movedForward: oldIndex < index });
   });
 
   //calculating merged array if multiple operations are applied at once
@@ -703,7 +703,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   let commonItemsIndex = 0;
   const commonItemsKeysOrder = Array.from(commonItemsInNewMap.keys());
   oldValue.forEach((item, index) => {
-    if(commonItemsInNewMap.has(getKey(item))) {
+    if (commonItemsInNewMap.has(getKey(item))) {
       oldItemsWithCorrectOrder[index] = newItemsMap.get(commonItemsKeysOrder[commonItemsIndex]);
       commonItemsIndex++;
     } else {
@@ -715,8 +715,8 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   let tempValuesArray: Array<T> = [];
   oldItemsWithCorrectOrder.forEach((item) => {
     const itemKey = getKey(item);
-    if(newItemsMap.has(itemKey)) {
-      if(tempValuesArray.length > 0) {
+    if (newItemsMap.has(itemKey)) {
+      if (tempValuesArray.length > 0) {
         valuesToInsertBeforeKey.set(itemKey, tempValuesArray);
         tempValuesArray = [];
       }
@@ -726,7 +726,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   });
   const mergedItems = new Array<T>();
   newItemsMap.forEach((item, key) => {
-    if(valuesToInsertBeforeKey.has(key)) {
+    if (valuesToInsertBeforeKey.has(key)) {
       valuesToInsertBeforeKey.get(key).forEach((item) => {
         mergedItems.push(item);
       });
@@ -751,10 +751,10 @@ interface IVerticalDimensions {
 }
 
 export function getVerticalDimensions(el: HTMLElement): IVerticalDimensions {
-  if(DomDocumentHelper.isAvailable()) {
+  if (DomDocumentHelper.isAvailable()) {
     const { paddingTop, paddingBottom, borderTopWidth, borderBottomWidth, marginTop, marginBottom, boxSizing } = DomDocumentHelper.getComputedStyle(el);
     let heightTo = el.offsetHeight + "px";
-    if(boxSizing == "content-box") {
+    if (boxSizing == "content-box") {
       let heightPx = el.offsetHeight;
       [borderBottomWidth, borderTopWidth, paddingBottom, paddingTop].forEach((style) => {
         heightPx -= parseFloat(style);
@@ -790,7 +790,7 @@ export function prepareElementForVerticalAnimation(el: HTMLElement): void {
 }
 
 export function cleanHtmlElementAfterAnimation(el: HTMLElement): void {
-  if(Array.isArray((el as any)["__sv_created_properties"])) {
+  if (Array.isArray((el as any)["__sv_created_properties"])) {
     (el as any)["__sv_created_properties"].forEach((propertyName: string) => {
       el.style.removeProperty(propertyName);
     });

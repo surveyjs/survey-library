@@ -4,7 +4,7 @@ import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject, Serializer } from "./jsonobject";
 import { Base } from "./base";
 import { SurveyError } from "./survey-error";
-import { getSurveyString } from "./surveyStrings";
+import { getLocaleString } from "./surveyStrings";
 import { RequiredInAllRowsError, EachRowUniqueError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
@@ -46,7 +46,7 @@ export class MatrixRowModel extends Base {
     this.registerPropertyChangedHandlers(["value"], () => {
       if (this.data) this.data.onMatrixRowChanged(this);
     });
-    if(this.data && this.data.hasErrorInRow(this)) {
+    if (this.data && this.data.hasErrorInRow(this)) {
       this.hasError = true;
     }
   }
@@ -63,7 +63,7 @@ export class MatrixRowModel extends Base {
     return this.getPropertyValue("value");
   }
   public set value(val: any) {
-    if(!this.isReadOnly) {
+    if (!this.isReadOnly) {
       this.setValueDirectly(this.data.getCorrectedRowValue(val));
     }
   }
@@ -110,7 +110,7 @@ export class MatrixCells extends Base {
   public onValuesChanged: () => void;
   private locNotification: boolean;
   private valuesChanged(): void {
-    if(!this.locNotification && !!this.onValuesChanged) {
+    if (!this.locNotification && !!this.onValuesChanged) {
       this.onValuesChanged();
     }
   }
@@ -132,9 +132,9 @@ export class MatrixCells extends Base {
       res = this.createString();
       res.setJson(this.getCellLocData(row, col));
       res.onGetTextCallback = (str: string): string => {
-        if(!str) {
+        if (!str) {
           const column = ItemValue.getItemByValue(this.columns, col);
-          if(column) {
+          if (column) {
             return column.locText.getJson() || column.value;
           }
         }
@@ -150,7 +150,7 @@ export class MatrixCells extends Base {
   private get defaultRowValue() { return settings.matrix.defaultRowName; }
   private getCellLocData(row: any, col: any): any {
     let data = this.getCellLocDataFromValue(row, col);
-    if(data) return data;
+    if (data) return data;
     return this.getCellLocDataFromValue(this.defaultRowValue, col);
   }
   private getCellLocDataFromValue(row: any, column: any): any {
@@ -164,7 +164,7 @@ export class MatrixCells extends Base {
   }
   public setCellText(row: any, column: any, val: string): void {
     const loc = this.getCellLocCore(row, column);
-    if(loc) {
+    if (loc) {
       loc.text = val;
     }
   }
@@ -217,7 +217,7 @@ export class MatrixCells extends Base {
       const resRow: { [index: string]: any } = {};
       const rowValues = this.values[row];
       for (let col in rowValues) {
-        if(row === this.defaultRowValue || !defaultRow || defaultRow[col] !== rowValues[col]) {
+        if (row === this.defaultRowValue || !defaultRow || defaultRow[col] !== rowValues[col]) {
           resRow[col] = rowValues[col];
         }
       }
@@ -427,7 +427,7 @@ export class QuestionMatrixModel
     super.onRowsChanged();
   }
   protected getVisibleRows(): Array<MatrixRowModel> {
-    if(!!this.generatedVisibleRows) return this.generatedVisibleRows;
+    if (!!this.generatedVisibleRows) return this.generatedVisibleRows;
     const result = new Array<MatrixRowModel>();
     let val = this.value;
     if (!val) val = {};
@@ -512,10 +512,10 @@ export class QuestionMatrixModel
     if (!isOnValueChanged || this.hasCssError()) {
       const rowsErrors = { noValue: false, isNotUnique: false };
       this.checkErrorsAllRows(fireCallback, rowsErrors);
-      if(rowsErrors.noValue) {
+      if (rowsErrors.noValue) {
         errors.push(new RequiredInAllRowsError(null, this));
       }
-      if(rowsErrors.isNotUnique) {
+      if (rowsErrors.isNotUnique) {
         errors.push(new EachRowUniqueError(null, this));
       }
     }
@@ -533,38 +533,38 @@ export class QuestionMatrixModel
     const rowsUnique = this.eachRowUnique;
     res.noValue = false;
     res.isNotUnique = false;
-    if(modifyErrors) {
+    if (modifyErrors) {
       this.errorsInRow = undefined;
     }
-    if(!rowsRequired && !rowsUnique) return;
+    if (!rowsRequired && !rowsUnique) return;
     const hash: HashTable<any> = {};
     for (var i = 0; i < rows.length; i++) {
       const val = rows[i].value;
       let isEmpty = this.isValueEmpty(val);
       const isNotUnique = rowsUnique && (!isEmpty && hash[val] === true);
       isEmpty = isEmpty && rowsRequired;
-      if(modifyErrors && (isEmpty || isNotUnique)) {
+      if (modifyErrors && (isEmpty || isNotUnique)) {
         this.addErrorIntoRow(rows[i]);
       }
-      if(!isEmpty) {
+      if (!isEmpty) {
         hash[val] = true;
       }
       res.noValue = res.noValue || isEmpty;
       res.isNotUnique = res.isNotUnique || isNotUnique;
     }
-    if(modifyErrors) {
+    if (modifyErrors) {
       rows.forEach(row => {
         row.hasError = this.hasErrorInRow(row);
       });
     }
   }
   private addErrorIntoRow(row: MatrixRowModel): void {
-    if(!this.errorsInRow) this.errorsInRow = {};
+    if (!this.errorsInRow) this.errorsInRow = {};
     this.errorsInRow[row.name] = true;
     row.hasError = true;
   }
   private refreshRowsErrors(): void {
-    if(!this.errorsInRow) return;
+    if (!this.errorsInRow) return;
     this.checkErrorsAllRows(true, { noValue: false, isNotUnique: false });
   }
   protected getIsAnswered(): boolean {
@@ -579,7 +579,7 @@ export class QuestionMatrixModel
     this.onMatrixRowCreated(row);
     return row;
   }
-  protected onMatrixRowCreated(row: MatrixRowModel) {}
+  protected onMatrixRowCreated(row: MatrixRowModel) { }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, this.isRowChanging || updateIsAnswered);
     if (!this.generatedVisibleRows || this.generatedVisibleRows.length == 0)
@@ -699,14 +699,14 @@ export class QuestionMatrixModel
     for (var i = 0; i < rows.length; i++) {
       var key = rows[i].value;
       if (!!updatedData[key]) {
-        if(inRows && !rows[i].isVisible || inColumns && !this.getVisibleColumnByValue(updatedData[key])) {
+        if (inRows && !rows[i].isVisible || inColumns && !this.getVisibleColumnByValue(updatedData[key])) {
           delete updatedData[key];
         } else {
           newData[key] = updatedData[key];
         }
       }
     }
-    if(inCorrectRows) {
+    if (inCorrectRows) {
       updatedData = newData;
     }
     if (this.isTwoValueEquals(updatedData, this.value)) return;
@@ -793,14 +793,14 @@ Serializer.addClass(
     "rowTitleWidth",
     {
       name: "columns:itemvalue[]", uniqueProperty: "value",
-      baseValue: function() {
-        return getSurveyString("matrix_column");
+      baseValue: function () {
+        return getLocaleString("matrix_column");
       },
     },
     {
       name: "rows:itemvalue[]", uniqueProperty: "value",
-      baseValue: function() {
-        return getSurveyString("matrix_row");
+      baseValue: function () {
+        return getLocaleString("matrix_row");
       },
     },
     { name: "cells:cells", serializationProperty: "cells" },
@@ -814,7 +814,7 @@ Serializer.addClass(
     "hideIfRowsEmpty:boolean",
     { name: "cellComponent", visible: false, default: "survey-matrix-cell" }
   ],
-  function() {
+  function () {
     return new QuestionMatrixModel("");
   },
   "matrixbase"

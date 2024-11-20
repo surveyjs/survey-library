@@ -1,26 +1,26 @@
 import { HashTable } from "./helpers";
 import { Question } from "./question";
 import { IElement } from "./base-interfaces";
-import { getSurveyString } from "./surveyStrings";
+import { getLocaleString } from "./surveyStrings";
 import { Serializer } from "./jsonobject";
 import { ComponentCollection } from "./question_custom";
 
 export class QuestionFactory {
   public static Instance: QuestionFactory = new QuestionFactory();
   public static get DefaultChoices(): string[] {
-    const choice = getSurveyString("choices_Item");
+    const choice = getLocaleString("choices_Item");
     return [choice + "1", choice + "2", choice + "3"];
   }
   public static get DefaultColums(): string[] {
-    var colName = getSurveyString("matrix_column") + " ";
+    var colName = getLocaleString("matrix_column") + " ";
     return [colName + "1", colName + "2", colName + "3"];
   }
   public static get DefaultRows(): string[] {
-    var rowName = getSurveyString("matrix_row") + " ";
+    var rowName = getLocaleString("matrix_row") + " ";
     return [rowName + "1", rowName + "2"];
   }
   public static get DefaultMutlipleTextItems(): string[] {
-    var itemName = getSurveyString("multipletext_itemname");
+    var itemName = getLocaleString("multipletext_itemname");
     return [itemName + "1", itemName + "2"];
   }
   public registerQuestion(questionType: string, questionCreator: (name: string) => Question, showInToolbox: boolean = true): void {

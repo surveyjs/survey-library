@@ -2,7 +2,6 @@ import { QuestionFactory } from "./questionfactory";
 import { property, Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
-import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/utils";
 import { ActionContainer } from "./actions/container";

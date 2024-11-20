@@ -13,7 +13,7 @@ import { Page, Panel, QuestionRow } from "../../src/knockout/kopage";
 import { CustomWidgetCollection } from "../../packages/survey-core/src//questionCustomWidgets";
 import { koTemplate } from "../../src/knockout/templateText";
 import { QuestionMatrixDynamic } from "../../src/knockout/koquestion_matrixdynamic";
-import { surveyLocalization } from "../../packages/survey-core/src//surveyStrings";
+import { getLocaleString } from "../../packages/survey-core/src//surveyStrings";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
 import { QuestionImagePicker } from "../../src/knockout/koquestion_imagepicker";
 import { ImageItemValue } from "../../packages/survey-core/src//question_imagepicker";
@@ -441,7 +441,7 @@ QUnit.test("Localization, otherItem", function (assert) {
   var defaultText = q1.visibleChoices[2].locText["koRenderedHtml"]();
   assert.equal(
     q1.visibleChoices[2].locText["koRenderedHtml"](),
-    surveyLocalization.getString("otherItemText"),
+    getLocaleString("otherItemText"),
     "use default locale"
   );
   survey.locale = "de";

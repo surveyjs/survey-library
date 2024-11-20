@@ -464,9 +464,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetResult: EventBase<SurveyModel, GetResultEvent> = this.addEvent<SurveyModel, GetResultEvent>();
   /**
-   * An event that is raised when Survey Creator opens a dialog window for users to select files.
-   * @see onUploadFile
-   * @see uploadFiles
+   * An event that is raised when a respondent opens a dialog window to select files.
+   * @see chooseFiles
    */
   public onOpenFileChooser: EventBase<SurveyModel, OpenFileChooserEvent> = this.addEvent<SurveyModel, OpenFileChooserEvent>();
   /**
@@ -4976,6 +4975,11 @@ export class SurveyModel extends SurveyElementCore
     });
     this.rootElement = htmlElement;
     this.addScrollEventListener();
+  }
+  beforeDestroySurveyElement() {
+    this.destroyResizeObserver();
+    this.removeScrollEventListener();
+    this.rootElement = undefined;
   }
   /**
    * An event that is raised when the survey's width or height is changed.

@@ -462,7 +462,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-theme-mobile-input-size.png", Selector(".sd-root-modern"), t, comparer);
 
       await t.resizeWindow(400, 1000);
-      await t.click(questionDropdownSelect);
+      await t.click(questionDropdownSelect.nth(1));
       await takeElementScreenshot("survey-theme-mobile-popup-input-size.png", popupContainer, t, comparer);
     });
   });

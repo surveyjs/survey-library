@@ -594,3 +594,20 @@ QUnit.test("check title change calls raise update", function (assert) {
   item1.title = "Test";
   assert.equal(log, "->called: true->called: true");
 });
+
+QUnit.test("check actions mode is set correctly when disableShrink is set", function (assert) {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const action = model.addAction({
+    disableShrink: true,
+    title: "test"
+  });
+  assert.equal(action.mode, "large");
+  model.setActionsMode("removed");
+  assert.equal(action.mode, "removed");
+  model.setActionsMode("large");
+  assert.equal(action.mode, "large");
+  model.setActionsMode("popup");
+  assert.equal(action.mode, "popup");
+  model.setActionsMode("small");
+  assert.equal(action.mode, "large");
+});

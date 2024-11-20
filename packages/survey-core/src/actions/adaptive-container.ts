@@ -2,7 +2,7 @@ import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
 import { Action, actionModeType, createDropdownActionModelAdvanced, IAction } from "./action";
 import { ActionContainer } from "./container";
-import { surveyLocalization } from "../surveyStrings";
+import { getLocaleString } from "../surveyStrings";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   public dotsItem: Action;
@@ -16,7 +16,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     const hiddenItems: IAction[] = [];
     actionsToHide.forEach((item) => {
       if (visibleItemsCount <= 0) {
-        if(item.removePriority) {
+        if (item.removePriority) {
           item.mode = "removed";
         } else {
           item.mode = "popup";
@@ -76,7 +76,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       innerCss: "sv-dots__item",
       iconName: "icon-more",
       visible: false,
-      tooltip: surveyLocalization.getString("more"),
+      tooltip: getLocaleString("more"),
     }, {
       items: [],
       allowSelection: false
@@ -152,8 +152,11 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
   public setActionsMode(mode: actionModeType) {
     this.actions.forEach((action) => {
-      if(mode == "small" && action.disableShrink) return;
-      action.mode = mode;
+      if(mode == "small" && action.disableShrink) {
+        action.mode = "large";
+      } else {
+        action.mode = mode;
+      }
     });
   }
   public dispose(): void {

@@ -243,7 +243,7 @@ export { Cover, CoverCell } from "../../src/header";
 
 export { dxSurveyService } from "../../src/dxSurveyService";
 export { englishStrings } from "../../src/localization/english";
-export { surveyLocalization, surveyStrings } from "../../src/surveyStrings";
+export { surveyLocalization, surveyStrings, getLocaleString } from "../../src/surveyStrings";
 // export { cultureInfo } from "../../src/cultureInfo";
 export {
   QuestionCustomWidget,

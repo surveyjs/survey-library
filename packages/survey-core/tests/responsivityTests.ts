@@ -348,12 +348,43 @@ QUnit.test("ResponsivityManager minDimension calc test", function (assert) {
 
   const newAction = new Action({ id: "first", iconName: "icon" });
   model.actions.push(newAction);
-  assert.equal(manager["calcMinDimension"](newAction), 56);
+  assert.equal(manager["calcMinDimension"](newAction), 40);
 
   model.actions = [];
   const smallAction = new Action({ id: "first", iconName: "icon", iconSize: 16 });
+  model.actions.push(smallAction);
+  assert.equal(manager["calcMinDimension"](smallAction), 32);
+});
+
+QUnit.test("ResponsivityManager minDimension calc by html element test", function (assert) {
+  const container: SimpleContainer = new SimpleContainer({});
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model, "");
+  (<any>manager.getComputedStyle) = () => {
+    return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
+  };
+
+  const itemElement = document.createElement("div");
+  document.body.appendChild(itemElement);
+  const iconElement = document.createElement("div");
+  iconElement.style["width"] = "13px";
+  iconElement.style["height"] = "23px";
+  iconElement.className = "sv-svg-icon";
+  itemElement.appendChild(iconElement);
+
+  const newAction = new Action({ id: "first", iconName: "icon" });
+  newAction.iconSize = "";
   model.actions.push(newAction);
-  assert.equal(manager["calcMinDimension"](smallAction), 40);
+  manager["calcActionDimensions"](newAction, itemElement);
+  assert.equal(newAction.minDimension, 29);
+
+  model.actions = [];
+  const smallAction = new Action({ id: "first", iconName: "icon", iconSize: "auto" });
+  model.actions.push(smallAction);
+  manager["calcActionDimensions"](smallAction, itemElement);
+  assert.equal(smallAction.minDimension, 29);
+
+  itemElement.remove();
 });
 
 QUnit.test(
@@ -562,4 +593,21 @@ QUnit.test("check title change calls raise update", function (assert) {
   assert.equal(log, "->called: true->called: true", "called from title change");
   item1.title = "Test";
   assert.equal(log, "->called: true->called: true");
+});
+
+QUnit.test("check actions mode is set correctly when disableShrink is set", function (assert) {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const action = model.addAction({
+    disableShrink: true,
+    title: "test"
+  });
+  assert.equal(action.mode, "large");
+  model.setActionsMode("removed");
+  assert.equal(action.mode, "removed");
+  model.setActionsMode("large");
+  assert.equal(action.mode, "large");
+  model.setActionsMode("popup");
+  assert.equal(action.mode, "popup");
+  model.setActionsMode("small");
+  assert.equal(action.mode, "large");
 });

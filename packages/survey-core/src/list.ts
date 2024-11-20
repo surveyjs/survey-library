@@ -178,6 +178,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       this.actions.push(this.loadingIndicator);
     }
   }
+  public setSearchEnabled(newValue: boolean): void {
+    this.searchEnabled = newValue;
+    this.showSearchClearButton = newValue;
+  }
   protected onSet(): void {
     this.showFilter = this.searchEnabled && (this.forceShowFilter || (this.actions || []).length > ListModel.MINELEMENTCOUNT);
     super.onSet();

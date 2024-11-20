@@ -1,10 +1,11 @@
 .sd-checkbox__decorator {
   border-radius: calcCornerRadius(0.5);
 }
+
 .sd-checkbox__svg {
   display: block;
-  width: calcSize(2.5);
-  height: calcSize(2.5);
+  width: calcSize(2);
+  height: calcSize(2);
 
   use {
     fill: transparent;

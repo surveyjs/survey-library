@@ -51,12 +51,15 @@
 .sv-ranking-item__icon-container {
   position: relative;
   left: 0;
-  top: 5px;
   bottom: 0;
   flex-shrink: 0;
   width: calcSize(3);
-  height: calcSize(4);
+  height: calcSize(3);
   align-self: flex-start;
+  padding-left: calcSize(1);
+  padding-right: calcSize(1);
+  margin-left: calcSize(-2);
+  box-sizing: content-box;
 }
 
 .sv-ranking-item--disabled.sv-ranking-item--disabled,
@@ -78,8 +81,8 @@
   fill: $primary;
   position: absolute;
   top: calcSize(1);
-  width: calcSize(1.75);
-  height: calcSize(2);
+  width: calcSize(3);
+  height: calcSize(3);
 }
 
 .sv-ranking-item__index.sv-ranking-item__index {
@@ -254,8 +257,8 @@
 }
 
 .sv-ranking-shortcut .sv-ranking-item__icon {
-  width: calcSize(1.75);
-  height: calcSize(2);
+  width: calcSize(3);
+  height: calcSize(3);
   top: calcSize(1);
 }
 
@@ -265,7 +268,7 @@
   }
 
   .sv-ranking-item__icon-container {
-    margin-left: calcSize(1);
+    margin-left: calcSize(0);
   }
 }
 
@@ -491,5 +494,16 @@
         padding-right: 0;
       }
     }
+  }
+}
+
+.sd-question--mobile,
+.sd-root-modern.sd-root-modern--mobile {
+  .sv-ranking-item__icon-container {
+    margin-left: calcSize(-2);
+    display: flex;
+    justify-content: flex-end;
+    padding: 0;
+    width: calcSize(5);
   }
 }

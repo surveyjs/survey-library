@@ -1,5 +1,5 @@
 import { settings } from "./settings";
-import { surveyLocalization } from "./surveyStrings";
+import { getLocaleString } from "./surveyStrings";
 
 const surveyIOSite = "surveyjs.io";
 const surveyIOMaxPostSize = 65536;
@@ -34,10 +34,10 @@ export class dxSurveyService {
     xhr.open(
       "GET",
       this.serviceUrl +
-        "/getSurveyAndIsCompleted?surveyId=" +
-        surveyId +
-        "&clientId=" +
-        clientId
+      "/getSurveyAndIsCompleted?surveyId=" +
+      surveyId +
+      "&clientId=" +
+      clientId
     );
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.onload = function () {
@@ -49,7 +49,7 @@ export class dxSurveyService {
     xhr.send();
   }
   public canSendResult(result: JSON): boolean {
-    if(!this.isSurveJSIOService) return true;
+    if (!this.isSurveJSIOService) return true;
     const str = JSON.stringify(result);
     return str.length < surveyIOMaxPostSize;
   }
@@ -59,8 +59,8 @@ export class dxSurveyService {
   public sendResult(postId: string, result: JSON,
     onSendResult: (success: boolean, response: any, request?: any) => void,
     clientId: string = null, isPartialCompleted: boolean = false): void {
-    if(!this.canSendResult(result)) {
-      onSendResult(false, surveyLocalization.getString("savingExceedSize", this.locale), undefined);
+    if (!this.canSendResult(result)) {
+      onSendResult(false, getLocaleString("savingExceedSize", this.locale), undefined);
     } else {
       this.sendResultCore(postId, result, onSendResult, clientId, isPartialCompleted);
     }

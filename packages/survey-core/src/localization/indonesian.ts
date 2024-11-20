@@ -12,6 +12,7 @@ export var indonesianStrings = {
   refuseItemText: "Menolak untuk menjawab",
   dontKnowItemText: "Tidak tahu",
   selectAllItemText: "Pilih Semua",
+  deselectAllItemText: "Batalkan pilihan semua",
   progressText: "Halaman {0} dari {1}",
   indexText: "{0} dari {1}",
   panelDynamicProgressText: "Rekam {0} dari {1}",
@@ -31,6 +32,7 @@ export var indonesianStrings = {
   numericError: "Nilai harus berupa angka.",
   minError: "Nilainya tidak boleh kurang dari {0}",
   maxError: "Nilai tidak boleh lebih besar dari {0}",
+  textNoDigitsAllow: "Nomor tidak diperbolehkan.",
   textMinLength: "Silahkan masukkan setidaknya {0} karakter.",
   textMaxLength: "Silahkan masukkan kurang {0} karakter.",
   textMinMaxLength: "PSilahkan masukkan lebih dari {0} dan kurang dari {1} karakter.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("id", indonesianStrings, "bahasa indonesia", "Ind
 // cancel: "Cancel" => "Membatalkan"
 // refuseItemText: "Refuse to answer" => "Menolak untuk menjawab"
 // dontKnowItemText: "Don't know" => "Tidak tahu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Respons Anda melebihi 64 KB. Harap kurangi ukuran file Anda dan coba lagi atau hubungi pemilik survei."
-// signaturePlaceHolderReadOnly: "No signature" => "Tidak ada tanda tangan"// tabTitlePlaceholder: "New Panel" => "Panel Baru"
+// signaturePlaceHolderReadOnly: "No signature" => "Tidak ada tanda tangan"// tabTitlePlaceholder: "New Panel" => "Panel Baru"// deselectAllItemText: "Deselect all" => "Batalkan pilihan semua"
+// textNoDigitsAllow: "Numbers are not allowed." => "Nomor tidak diperbolehkan."

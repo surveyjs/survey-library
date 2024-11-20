@@ -107,9 +107,9 @@ useQuestion(
     };
   },
   (value) => {
-    value.panelCountChangedCallback = () => {};
-    value.currentIndexChangedCallback = () => {};
-    value.renderModeChangedCallback = () => {};
+    value.panelCountChangedCallback = undefined as any;
+    value.currentIndexChangedCallback = undefined as any;
+    value.renderModeChangedCallback = undefined as any;
   }
 );
 

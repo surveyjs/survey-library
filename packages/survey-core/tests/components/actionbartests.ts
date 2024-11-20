@@ -5,7 +5,6 @@ import { LocalizableString } from "../../src/localizablestring";
 import { PopupModel } from "../../src/popup";
 import { ListModel } from "../../src/list";
 import { settings } from "../../src/settings";
-import { getIconNameFromProxy } from "../../src/utils/utils";
 import { PageModel } from "../../src/page";
 import { ComputedUpdater } from "../../src/base";
 import { SurveyModel } from "../../src/survey";
@@ -34,26 +33,6 @@ QUnit.test("Check action sort items", (assert) => {
   //item with undefined index should be put in the end of array
   assert.equal(model.actions[3].id, "undefined_index");
 });
-
-QUnit.test(
-  "Use proxy to get icons in svg, function getIconNameFromProxy",
-  (assert) => {
-    settings.customIcons["icon-proxy"] = "new-icon";
-    assert.equal(getIconNameFromProxy("icon-normal"), "icon-normal");
-    assert.equal(getIconNameFromProxy("icon-proxy"), "new-icon");
-  }
-);
-
-QUnit.test(
-  "Support old customIcons names in svg, function getIconNameFromProxy",
-  (assert) => {
-    settings.customIcons["changecamera"] = "new-changecamera";
-    assert.equal(getIconNameFromProxy("changecamera"), "new-changecamera");
-    assert.equal(getIconNameFromProxy("flip-24x24"), "new-changecamera");
-    assert.equal(getIconNameFromProxy("flip-24x24-new"), "flip-24x24-new");
-    delete settings.customIcons["changecamera"];
-  }
-);
 
 QUnit.test(
   "isVisible",
@@ -174,6 +153,7 @@ QUnit.test("Action title", (assert) => {
   assert.equal(action1.title, "Select All", "Update action title en localization");
   assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");
   survey.locale = "de";
+  assert.equal(action1.getLocale(), "de", "locale de");
   assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization");
   assert.equal(action1.title, "Alles auswählen", "Update action title de localization");
   assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");
@@ -188,11 +168,12 @@ QUnit.test("Action title in list model", (assert) => {
   });
   const list = new ListModel({ items: [action1], onSelectionChanged: () => { }, allowSelection: true } as any);
   const popupModel = new PopupModel("sv-list", list, { verticalPosition: "bottom", horizontalPosition: "center" });
-  survey.addNavigationItem({ id: "action1", title: "test", popupModel: popupModel });
+  survey.addNavigationItem({ id: "action2", title: "test", popupModel: popupModel });
   assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
   assert.equal(action1.title, "Select All", "Update action title en localization");
   assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");
   survey.locale = "de";
+  assert.equal(action1.getLocale(), "de");
   assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization");
   assert.equal(action1.title, "Alles auswählen", "Update action title de localization");
   assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");

@@ -12,6 +12,7 @@ export var germanSurveyStrings = {
   refuseItemText: "Antwort verweigern",
   dontKnowItemText: "Weiß ich nicht",
   selectAllItemText: "Alles auswählen",
+  deselectAllItemText: "Alle abwählen",
   progressText: "Seite {0} von {1}",
   indexText: "{0} von {1}",
   panelDynamicProgressText: "Eintrag {0} von {1}",
@@ -31,6 +32,7 @@ export var germanSurveyStrings = {
   numericError: "Der Wert muss eine Zahl sein.",
   minError: "Der Wert sollte nicht kleiner als {0} sein",
   maxError: "Der Wert sollte nicht größer als {0} sein",
+  textNoDigitsAllow: "Zahlen sind nicht erlaubt.",
   textMinLength: "Bitte geben Sie mindestens {0} Zeichen ein.",
   textMaxLength: "Bitte geben Sie nicht mehr als {0} Zeichen ein.",
   textMinMaxLength: "Bitte geben Sie mindestens {0} und maximal {1} Zeichen ein.",
@@ -112,4 +114,5 @@ surveyLocalization.setupLocale("de", germanSurveyStrings, "deutsch", "German");
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
-// tabTitlePlaceholder: "New Panel" => "Neues Panel"
+// tabTitlePlaceholder: "New Panel" => "Neues Panel"// deselectAllItemText: "Deselect all" => "Alle abwählen"
+// textNoDigitsAllow: "Numbers are not allowed." => "Zahlen sind nicht erlaubt."

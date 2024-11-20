@@ -12,6 +12,7 @@ export var italianSurveyStrings = {
   refuseItemText: "Rifiuta di rispondere",
   dontKnowItemText: "Non lo so",
   selectAllItemText: "Seleziona tutti",
+  deselectAllItemText: "Deseleziona tutto",
   progressText: "Pagina {0} di {1}",
   indexText: "{0} da {1}",
   panelDynamicProgressText: "Record di {0} di {1}",
@@ -31,6 +32,7 @@ export var italianSurveyStrings = {
   numericError: "Il valore deve essere numerico",
   minError: "Il valore non deve essere inferiore a {0}",
   maxError: "Il valore non deve essere maggiore di {0}",
+  textNoDigitsAllow: "I numeri non sono ammessi.",
   textMinLength: "Inserire almeno {0} caratteri",
   textMaxLength: "Lunghezza massima consentita {0} caratteri",
   textMinMaxLength: "Inserire una stringa con minimo {0} e massimo {1} caratteri",
@@ -129,4 +131,5 @@ surveyLocalization.setupLocale("it", italianSurveyStrings, "italiano", "Italian"
 // cancel: "Cancel" => "Annulla"
 // refuseItemText: "Refuse to answer" => "Rifiuta di rispondere"
 // dontKnowItemText: "Don't know" => "Non lo so"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "La tua risposta supera i 64 KB. Riduci le dimensioni dei tuoi file e riprova o contatta il proprietario di un'indagine."
-// signaturePlaceHolderReadOnly: "No signature" => "Nessuna firma"// tabTitlePlaceholder: "New Panel" => "Nuovo pannello"
+// signaturePlaceHolderReadOnly: "No signature" => "Nessuna firma"// tabTitlePlaceholder: "New Panel" => "Nuovo pannello"// deselectAllItemText: "Deselect all" => "Deseleziona tutto"
+// textNoDigitsAllow: "Numbers are not allowed." => "I numeri non sono ammessi."

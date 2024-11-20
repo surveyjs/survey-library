@@ -16,7 +16,7 @@ export var surveyLocalization = {
     this.locales[loc] = strings;
     this.localeNames[loc] = name;
     this.localeNamesInEnglish[loc] = nameInEngish;
-    if(direction !== undefined) {
+    if (direction !== undefined) {
       this.localeDirections[loc] = direction;
     }
   },
@@ -41,31 +41,31 @@ export var surveyLocalization = {
     const locs = new Array<any>();
     const addLocaleCore = (locName: string): void => {
       const strs = this.locales[locName];
-      if(!!strs) locs.push(strs);
+      if (!!strs) locs.push(strs);
     };
     const addLocale = (locName: string): void => {
-      if(!locName) return;
+      if (!locName) return;
       addLocaleCore(locName);
       const index = locName.indexOf("-");
-      if(index < 1) return;
+      if (index < 1) return;
       locName = locName.substring(0, index);
       addLocaleCore(locName);
     };
     addLocale(locale);
     addLocale(this.currentLocale);
     addLocale(this.defaultLocale);
-    if(this.defaultLocale !== "en") {
+    if (this.defaultLocale !== "en") {
       addLocaleCore("en");
     }
-    for(let i = 0; i < locs.length; i ++) {
+    for (let i = 0; i < locs.length; i++) {
       const res = locs[i][strName];
-      if(res !== undefined) return res;
+      if (res !== undefined) return res;
     }
     return this.onGetExternalString(strName, locale);
   },
   getLocaleName(loc: string, inEnglish?: boolean): string {
-    if(!loc) return "";
-    if(inEnglish === undefined) inEnglish = this.showNamesInEnglish;
+    if (!loc) return "";
+    if (inEnglish === undefined) inEnglish = this.showNamesInEnglish;
     const firstNames = inEnglish ? this.localeNamesInEnglish : this.localeNames;
     const secondNames = inEnglish ? this.localeNames : this.localeNamesInEnglish;
     return firstNames[loc] || secondNames[loc] || loc;
@@ -98,6 +98,9 @@ export var surveyLocalization = {
   onGetExternalString: function (name: string, locale: string): string { return undefined; }
 };
 
+export function getLocaleString(strName: string, locale: string = null): string {
+  return surveyLocalization.getString(strName, locale);
+}
 export var surveyStrings = englishStrings;
 (<any>surveyLocalization).locales["en"] = englishStrings;
 (<any>surveyLocalization).localeNames["en"] = "english";

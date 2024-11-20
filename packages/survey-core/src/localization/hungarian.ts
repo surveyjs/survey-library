@@ -12,6 +12,7 @@ export var hungarianSurveyStrings = {
   refuseItemText: "A válaszadás megtagadása",
   dontKnowItemText: "Nem tudom",
   selectAllItemText: "Mindet kiválaszt",
+  deselectAllItemText: "Az összes kijelölésének megszüntetése",
   progressText: "{0}./{1} oldal",
   indexText: "{0} {1} közül",
   panelDynamicProgressText: "{0} / {1} rekord",
@@ -31,6 +32,7 @@ export var hungarianSurveyStrings = {
   numericError: "Az érték szám kell, hogy legyen!",
   minError: "Az érték nem lehet kisebb, mint {0}",
   maxError: "Az érték nem lehet nagyobb, mint {0}",
+  textNoDigitsAllow: "Számok nem engedélyezettek.",
   textMinLength: "Adjon meg legalább {0} karaktert!",
   textMaxLength: "Legfeljebb {0} karaktert adjon meg!",
   textMinMaxLength: "Adjon meg legalább {0}, de legfeljebb {1} karaktert!",
@@ -140,4 +142,5 @@ surveyLocalization.setupLocale("hu", hungarianSurveyStrings, "magyar", "Hungaria
 // cancel: "Cancel" => "Érvénytelenít"
 // refuseItemText: "Refuse to answer" => "A válaszadás megtagadása"
 // dontKnowItemText: "Don't know" => "Nem tudom"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "A válasz meghaladja a 64 KB-ot. Kérjük, csökkentse a fájl(ok) méretét, és próbálja újra, vagy lépjen kapcsolatba egy felmérés tulajdonosával."
-// signaturePlaceHolderReadOnly: "No signature" => "Nincs aláírás"// tabTitlePlaceholder: "New Panel" => "Új panel"
+// signaturePlaceHolderReadOnly: "No signature" => "Nincs aláírás"// tabTitlePlaceholder: "New Panel" => "Új panel"// deselectAllItemText: "Deselect all" => "Az összes kijelölésének megszüntetése"
+// textNoDigitsAllow: "Numbers are not allowed." => "Számok nem engedélyezettek."

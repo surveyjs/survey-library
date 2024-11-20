@@ -33,6 +33,7 @@ export var englishStrings = {
   numericError: "The value should be numeric.",
   minError: "The value should not be less than {0}",
   maxError: "The value should not be greater than {0}",
+  textNoDigitsAllow: "Numbers are not allowed.",
   textMinLength: "Please enter at least {0} character(s).",
   textMaxLength: "Please enter no more than {0} character(s).",
   textMinMaxLength: "Please enter at least {0} and no more than {1} characters.",

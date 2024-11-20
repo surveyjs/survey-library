@@ -47,7 +47,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -83,6 +83,7 @@ import { SurveyTaskManagerModel } from "./surveyTaskManager";
 import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { svgBundle, SvgRegistry } from "./svgbundle";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -463,9 +464,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetResult: EventBase<SurveyModel, GetResultEvent> = this.addEvent<SurveyModel, GetResultEvent>();
   /**
-   * An event that is raised when Survey Creator opens a dialog window for users to select files.
-   * @see onUploadFile
-   * @see uploadFiles
+   * An event that is raised when a respondent opens a dialog window to select files.
+   * @see chooseFiles
    */
   public onOpenFileChooser: EventBase<SurveyModel, OpenFileChooserEvent> = this.addEvent<SurveyModel, OpenFileChooserEvent>();
   /**
@@ -838,7 +838,7 @@ export class SurveyModel extends SurveyElementCore
   public onGetPageTitleActions: EventBase<SurveyModel, GetPageTitleActionsEvent> = this.addEvent<SurveyModel, GetPageTitleActionsEvent>();
 
   /**
-   * An event that allows you to add, delete, or modify actions in the footer of a [Panel](https://surveyjs.io/form-library/documentation/panelmodel).
+   * An event that allows you to add, delete, or modify actions in the footer of a [Panel](https://surveyjs.io/form-library/documentation/panelmodel). This panel may belong to a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model) or be a standalone survey element.
    * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
    */
   public onGetPanelFooterActions: EventBase<SurveyModel, GetPanelFooterActionsEvent> = this.addEvent<SurveyModel, GetPanelFooterActionsEvent>();
@@ -904,13 +904,24 @@ export class SurveyModel extends SurveyElementCore
     this.timerModelValue.onTimerTick = (page: PageModel): void => {
       this.doTimer(page);
     };
+
     this.createNewArray(
       "pages",
-      (value: any) => {
+      (value: PageModel) => {
+        if(value.isReadyForCleanChangedCallback) {
+          value.isReadyForCleanChangedCallback();
+        }
         this.doOnPageAdded(value);
       },
-      (value: any) => {
-        this.doOnPageRemoved(value);
+      (value: PageModel) => {
+        if(!value.isReadyForClean) {
+          value.isReadyForCleanChangedCallback = () => {
+            this.doOnPageRemoved(value);
+            value.isReadyForCleanChangedCallback = undefined;
+          };
+        } else {
+          this.doOnPageRemoved(value);
+        }
       }
     );
     this.createNewArray("triggers", (value: any) => {
@@ -1067,7 +1078,9 @@ export class SurveyModel extends SurveyElementCore
     });
 
     this.locTitle.onStringChanged.add(() => this.titleIsEmpty = this.locTitle.isEmpty);
+    this.registerIcons();
   }
+
   processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
     throw new Error("Method not implemented.");
   }
@@ -2375,6 +2388,14 @@ export class SurveyModel extends SurveyElementCore
     };
     return exp.run(values, properties) || onCompleteRes;
   }
+  private setValueOnExpressionCounter: number = 0;
+  public get isSettingValueOnExpression(): boolean { return this.setValueOnExpressionCounter > 0; }
+  startSetValueOnExpression(): void {
+    this.setValueOnExpressionCounter ++;
+  }
+  finishSetValueOnExpression(): void {
+    this.setValueOnExpressionCounter --;
+  }
   /**
    * Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns `true` or `false`.
    * @param expression An expression to calculate.
@@ -3172,20 +3193,21 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   getFilteredValues(): any {
-    var values: { [index: string]: any } = {};
+    const values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     this.addCalculatedValuesIntoFilteredValues(values);
-    var keys = this.getValuesKeys();
-    for (var i = 0; i < keys.length; i++) {
-      var key = keys[i];
-      values[key] = this.getDataValueCore(this.valuesHash, key);
-    }
-    this.getAllQuestions().forEach(q => {
-      if (q.hasFilteredValue) {
-        values[q.getFilteredName()] = q.getFilteredValue();
+    if(!this.isDesignMode) {
+      const keys = this.getValuesKeys();
+      for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        values[key] = this.getDataValueCore(this.valuesHash, key);
       }
-    });
-
+      this.getAllQuestions().forEach(q => {
+        if (q.hasFilteredValue) {
+          values[q.getFilteredName()] = q.getFilteredValue();
+        }
+      });
+    }
     return values;
   }
   private addCalculatedValuesIntoFilteredValues(values: {
@@ -4434,15 +4456,12 @@ export class SurveyModel extends SurveyElementCore
     var single = this.createNewPage("all");
     single.setSurveyImpl(this);
     for (var i = startIndex; i < this.pages.length; i++) {
-      var page = this.pages[i];
-      var panel = Serializer.createClass("panel");
-      panel.originalPage = page;
+      const page = this.pages[i];
+      const panel: PanelModel = Serializer.createClass("panel");
+      (<any>panel).originalPage = page;
       single.addPanel(panel);
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
-      if (!this.showPageTitles) {
-        panel.title = "";
-      }
     }
     return single;
   }
@@ -4957,6 +4976,11 @@ export class SurveyModel extends SurveyElementCore
     this.rootElement = htmlElement;
     this.addScrollEventListener();
   }
+  beforeDestroySurveyElement() {
+    this.destroyResizeObserver();
+    this.removeScrollEventListener();
+    this.rootElement = undefined;
+  }
   /**
    * An event that is raised when the survey's width or height is changed.
    */
@@ -5176,9 +5200,9 @@ export class SurveyModel extends SurveyElementCore
     this.onMatrixCellValidate.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
   }
-  dynamicPanelAdded(question: QuestionPanelDynamicModel, panelIndex?: number, panel?: PanelModel) {
-    if (!this.isLoadingFromJson) {
-      this.updateVisibleIndexes();
+  dynamicPanelAdded(question: QuestionPanelDynamicModel, panelIndex?: number, panel?: PanelModel): void {
+    if (!this.isLoadingFromJson && this.hasQuestionVisibleIndeces(question, true)) {
+      this.updateVisibleIndexes(question.page);
     }
     if (this.onDynamicPanelAdded.isEmpty) return;
     var panels = (<any>question).panels;
@@ -5188,17 +5212,29 @@ export class SurveyModel extends SurveyElementCore
     }
     this.onDynamicPanelAdded.fire(this, { question: question, panel: panel, panelIndex: panelIndex });
   }
-  dynamicPanelRemoved(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel) {
+  dynamicPanelRemoved(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel): void {
     var questions = !!panel ? (<PanelModelBase>panel).questions : [];
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearOnDeletingContainer();
     }
-    this.updateVisibleIndexes();
+    if(this.hasQuestionVisibleIndeces(question, false)) {
+      this.updateVisibleIndexes(question.page);
+    }
     this.onDynamicPanelRemoved.fire(this, {
       question: question,
       panelIndex: panelIndex,
       panel: panel,
     });
+  }
+  private hasQuestionVisibleIndeces(question: Question, checkIndex: boolean): boolean {
+    if(checkIndex) {
+      question.setVisibleIndex(this.getStartVisibleIndex());
+    }
+    const qList = question.getNestedQuestions(true);
+    for(let i = 0; i < qList.length; i ++) {
+      if(qList[i].visibleIndex > -1) return true;
+    }
+    return false;
   }
   dynamicPanelRemoving(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel): boolean {
     const options = {
@@ -5338,7 +5374,12 @@ export class SurveyModel extends SurveyElementCore
           });
         }, elementsToRenderBefore);
       } else {
-        SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+        if (!elementPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
+          const elementToScroll = this.rootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
+          SurveyElement.ScrollElementToViewCore(elementToScroll, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+        } else {
+          SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+        }
       }
     }
   }
@@ -5783,6 +5824,10 @@ export class SurveyModel extends SurveyElementCore
     page.name = name;
     return page;
   }
+  private getValueChangeReason(): "trigger" | "expression" | undefined {
+    if(this.isSettingValueOnExpression) return "expression";
+    return this.isSettingValueFromTrigger ? "trigger" : undefined;
+  }
   protected questionOnValueChanging(valueName: string, newValue: any, questionValueName?: string): any {
     if (!!this.editingObj) {
       const prop = Serializer.findProperty(this.editingObj.getType(), valueName);
@@ -5794,6 +5839,7 @@ export class SurveyModel extends SurveyElementCore
       question: <Question>this.getQuestionByValueName(questionValueName || valueName),
       value: this.getUnbindValue(newValue),
       oldValue: this.getValue(valueName),
+      reason: this.getValueChangeReason()
     };
     this.onValueChanging.fire(this, options);
     return options.value;
@@ -5853,6 +5899,14 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
+  private fireOnValueChanged(name: string, value: any, question: Question): void {
+    this.onValueChanged.fire(this, {
+      name: name,
+      question: question,
+      value: value,
+      reason: this.getValueChangeReason()
+    });
+  }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any, questionName: string): void {
     if (this.isLoadingFromJson) return;
     var questions = this.getQuestionsByValueName(valueName);
@@ -5861,18 +5915,10 @@ export class SurveyModel extends SurveyElementCore
         var question = questions[i];
         this.checkQuestionErrorOnValueChanged(question);
         question.onSurveyValueChanged(newValue);
-        this.onValueChanged.fire(this, {
-          name: valueName,
-          question: question,
-          value: newValue,
-        });
+        this.fireOnValueChanged(valueName, newValue, question);
       }
     } else {
-      this.onValueChanged.fire(this, {
-        name: valueName,
-        question: null,
-        value: newValue,
-      });
+      this.fireOnValueChanged(valueName, newValue, null);
     }
     if (this.isDisposed) return;
     this.checkElementsBindings(valueName, newValue);
@@ -6216,7 +6262,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateVisibleIndexes();
   }
-  private updateVisibleIndexes() {
+  private updateVisibleIndexes(page?: IPage) {
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson || this.isLockingUpdateOnPageModes) return;
     if (
       this.isRunningConditions &&
@@ -6231,21 +6277,27 @@ export class SurveyModel extends SurveyElementCore
       this.updateVisibleIndexAfterBindings = true;
       return;
     }
-    this.updatePageVisibleIndexes(this.showPageNumbers);
+    this.updatePageVisibleIndexes();
+    this.updatePageElementsVisibleIndexes(page);
+    this.updateProgressText(true);
+  }
+  private updatePageElementsVisibleIndexes(page: IPage): void {
     if (this.showQuestionNumbers == "onPage") {
-      var visPages = this.visiblePages;
+      var visPages = !!page ? [page] : this.visiblePages;
       for (var i = 0; i < visPages.length; i++) {
         visPages[i].setVisibleIndex(0);
       }
     } else {
-      var index = this.showQuestionNumbers == "on" ? 0 : -1;
-      for (var i = 0; i < this.pages.length; i++) {
+      let index = this.getStartVisibleIndex();
+      for (let i = 0; i < this.pages.length; i++) {
         index += this.pages[i].setVisibleIndex(index);
       }
     }
-    this.updateProgressText(true);
   }
-  private updatePageVisibleIndexes(showIndex: boolean) {
+  private getStartVisibleIndex(): number {
+    return this.showQuestionNumbers == "on" ? 0 : -1;
+  }
+  private updatePageVisibleIndexes(): void {
     this.updateButtonsVisibility();
     var index = 0;
     for (var i = 0; i < this.pages.length; i++) {
@@ -6660,8 +6712,9 @@ export class SurveyModel extends SurveyElementCore
     if (locNotification === true || this.isDisposed || this.isRunningElementsBindings) return;
     questionName = questionName || name;
     this.checkTriggersAndRunConditions(name, newValue, oldValue);
-    if (allowNotifyValueChanged)
+    if (allowNotifyValueChanged) {
       this.notifyQuestionOnValueChanged(name, newValue, questionName);
+    }
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
     }
@@ -6782,11 +6835,7 @@ export class SurveyModel extends SurveyElementCore
     }
     var question = this.getQuestionByValueName(name);
     if (question) {
-      this.onValueChanged.fire(this, {
-        name: commentName,
-        question: question,
-        value: newValue,
-      });
+      this.fireOnValueChanged(commentName, newValue, question);
       question.comment = newValue;
       if (question.comment != newValue) {
         question.comment = newValue;
@@ -6797,7 +6846,7 @@ export class SurveyModel extends SurveyElementCore
    * Deletes an answer from survey results.
    * @param {string} name An object property that stores the answer to delete. Pass a question's [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName) or [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
    */
-  public clearValue(name: string) {
+  public clearValue(name: string): void {
     this.setValue(name, null);
     this.setComment(name, null);
   }
@@ -6821,7 +6870,7 @@ export class SurveyModel extends SurveyElementCore
   }
   questionVisibilityChanged(question: Question, newValue: boolean, resetIndexes: boolean): void {
     if (resetIndexes) {
-      this.updateVisibleIndexes();
+      this.updateVisibleIndexes(question.page);
     }
     this.onQuestionVisibleChanged.fire(this, {
       question: question,
@@ -6841,7 +6890,7 @@ export class SurveyModel extends SurveyElementCore
     });
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
-    this.updateVisibleIndexes();
+    this.updateVisibleIndexes(panel.page);
     this.onPanelVisibleChanged.fire(this, {
       panel: panel,
       visible: newValue,
@@ -6861,7 +6910,7 @@ export class SurveyModel extends SurveyElementCore
       if (!this.currentPage) {
         this.updateCurrentPage();
       }
-      this.updateVisibleIndexes();
+      this.updateVisibleIndexes(question.page);
       this.setCalculatedWidthModeUpdater();
     }
     if (this.canFireAddElement()) {
@@ -6879,13 +6928,13 @@ export class SurveyModel extends SurveyElementCore
   private canFireAddElement(): boolean {
     return !this.isMovingQuestion || this.isDesignMode && !settings.supportCreatorV2;
   }
-  questionRemoved(question: Question) {
+  questionRemoved(question: Question): void {
     this.questionHashesRemoved(
       <Question>question,
       question.name,
       question.getValueName()
     );
-    this.updateVisibleIndexes();
+    this.updateVisibleIndexes(question.page);
     this.onQuestionRemoved.fire(this, {
       question: question,
       name: question.name,
@@ -6989,7 +7038,7 @@ export class SurveyModel extends SurveyElementCore
       delete hash[name];
     }
   }
-  panelAdded(panel: PanelModel, index: number, parentPanel: any, rootPanel: any) {
+  panelAdded(panel: PanelModel, index: number, parentPanel: any, rootPanel: any): void {
     if (!panel.name) {
       panel.name = this.generateNewName(
         this.getAllPanels(false, true),
@@ -6997,7 +7046,7 @@ export class SurveyModel extends SurveyElementCore
       );
     }
     this.questionHashesPanelAdded(<PanelModelBase>(<any>panel));
-    this.updateVisibleIndexes();
+    this.updateVisibleIndexes(panel.page);
     if (this.canFireAddElement()) {
       this.onPanelAdded.fire(this, {
         panel: panel,
@@ -7010,8 +7059,8 @@ export class SurveyModel extends SurveyElementCore
       });
     }
   }
-  panelRemoved(panel: PanelModel) {
-    this.updateVisibleIndexes();
+  panelRemoved(panel: PanelModel): void {
+    this.updateVisibleIndexes(panel.page);
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
     this.updateLazyRenderingRowsOnRemovingElements();
   }
@@ -7544,12 +7593,13 @@ export class SurveyModel extends SurveyElementCore
     Array.prototype.push.apply(result, this.getQuestionsByNames(questions));
     return result;
   }
-  setTriggerValue(name: string, value: any, isVariable: boolean) {
+  setTriggerValue(name: string, value: any, isVariable: boolean): void {
     if (!name) return;
     if (isVariable) {
       this.setVariable(name, value);
     } else {
       var question = this.getQuestionByName(name);
+      this.startSetValueFromTrigger();
       if (!!question) {
         question.value = value;
       } else {
@@ -7564,6 +7614,7 @@ export class SurveyModel extends SurveyElementCore
           this.setValue(firstName, data[firstName]);
         }
       }
+      this.finishSetValueFromTrigger();
     }
   }
   copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {
@@ -7579,6 +7630,14 @@ export class SurveyModel extends SurveyElementCore
   }
   triggerExecuted(trigger: Trigger): void {
     this.onTriggerExecuted.fire(this, { trigger: trigger });
+  }
+  private setValueFromTriggerCounter: number = 0;
+  public get isSettingValueFromTrigger(): boolean { return this.setValueFromTriggerCounter > 0; }
+  private startSetValueFromTrigger(): void {
+    this.setValueFromTriggerCounter ++;
+  }
+  private finishSetValueFromTrigger(): void {
+    this.setValueFromTriggerCounter --;
   }
   private focusingQuestionInfo: any;
   private isMovingQuestion: boolean;
@@ -7748,7 +7807,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, this.progressBarComponentName)) {
-        if (this.questionsOnPageMode != "singlePage") {
+        if (this.questionsOnPageMode != "singlePage" || this.progressBarType == "questions") {
           const headerLayoutElement = this.findLayoutElement("advanced-header");
           const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
           let isBelowHeader = !advHeader || advHeader.hasBackground;
@@ -7820,6 +7879,9 @@ export class SurveyModel extends SurveyElementCore
     const newOptions = Object.assign({ question }, options);
     this.onOpenDropdownMenu.fire(this, newOptions as OpenDropdownMenuEvent);
     options.menuType = newOptions.menuType;
+  }
+  public getCssTitleExpandableSvg(): string {
+    return null;
   }
 
   /**
@@ -7934,6 +7996,16 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public questionErrorComponent = "sv-question-error";
+
+  protected registerIcons() {
+    let path;
+    if (settings.useLegacyIcons) {
+      path = svgBundle.V1;
+    } else {
+      path = svgBundle.V2;
+    }
+    SvgRegistry.registerIconsFromFolder(path);
+  }
 }
 
 function isStrCiEqual(a: string, b: string) {

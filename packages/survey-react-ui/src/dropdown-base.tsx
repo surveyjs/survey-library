@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Helpers, Question, DropdownListModel, settings } from "survey-core";
+import { Helpers, Question, DropdownListModel, settings, QuestionDropdownModel } from "survey-core";
 import { Popup } from "./components/popup/popup";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { ReactElementFactory } from "./element-factory";
@@ -202,6 +202,10 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   componentDidMount() {
     super.componentDidMount();
     this.updateInputDomElement();
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    if (this.question.dropdownListModel) this.question.dropdownListModel.focused = false;
   }
   updateInputDomElement() {
     if (!!this.inputElement) {

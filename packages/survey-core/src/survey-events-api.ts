@@ -216,6 +216,10 @@ export interface ValueChangeBaseEvent extends QuestionEventMixin {
    * The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
    */
   name: string;
+  /**
+   * A value that indicates what caused the value change: an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) evaluation or a run of a [trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers). If the value is changed for other reasons, this parameter is `undefined`.
+   */
+  reason: "trigger" | "expression" | undefined;
 }
 export interface ValueChangedEvent extends ValueChangeBaseEvent {
   /**
@@ -522,16 +526,16 @@ export interface OpenFileChooserEvent {
    */
   input: HTMLInputElement;
   /**
-   * A survey element (question, panel, page, or survey) or a theme JSON schema for which this event is raised.
+   * A question for which this event is raised.
    */
   element: Base;
   /**
    * The type of the element passed as the `options.element` parameter.\
-   * Possible values: `"theme"`, `"header"`, or any value returned from the [`getType()`](https://surveyjs.io/form-library/documentation/api-reference/question#getType) method.
+   * Possible values: any value returned from the [`getType()`](https://surveyjs.io/form-library/documentation/api-reference/question#getType) method.
    */
   elementType: String;
   /**
-   * The name of the survey element property or theme property for which files are being selected.
+   * The name of the survey element property for which files are being selected.
    */
   propertyName: String;
   /**

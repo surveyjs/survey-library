@@ -1,6 +1,6 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base, ComputedUpdater } from "../base";
-import { surveyLocalization } from "../surveyStrings";
+import { getLocaleString } from "../surveyStrings";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
@@ -176,7 +176,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     }
   };
   const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
-
+  popupModel.getTargetCallback = getActionDropdownButtonTarget;
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
     popupModel: popupModel,
@@ -245,7 +245,7 @@ export abstract class BaseAction extends Base implements IAction {
   public id: string;
   public removePriority: number;
   @property() iconName: string;
-  @property({ defaultValue: 24 }) iconSize: number;
+  @property({ defaultValue: 24 }) iconSize: number | string;
   @property() markerIconName: string;
   @property() markerIconSize: number = 16;
   @property() css?: string
@@ -512,11 +512,11 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return true;
   }
   private isMouseDown: boolean;
-  public doMouseDown(args: any) : void {
+  public doMouseDown(args: any): void {
     this.isMouseDown = true;
   }
   public doFocus(args: any): void {
-    if(!!this.onFocus) {
+    if (!!this.onFocus) {
       const evt = !!args.originalEvent ? args.originalEvent : args;
       this.onFocus(this.isMouseDown, evt);
     }
@@ -540,7 +540,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   private locTooltipChanged(): void {
     if (!this.locTooltipName) return;
-    this.tooltip = surveyLocalization.getString(this.locTooltipName, this.locTitle.locale);
+    this.tooltip = getLocaleString(this.locTooltipName, this.locTitle.locale);
   }
 
   //ILocalizableOwner
@@ -551,7 +551,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }
 
   public setVisible(val: boolean): void {
-    this._visible = val;
+    if (this.visible !== val) {
+      this._visible = val;
+    }
   }
   public getVisible(): boolean {
     return this._visible;
@@ -573,14 +575,14 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public dispose(): void {
     this.updateCallback = undefined;
+    if (!!this.locTitleValue) {
+      this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
+    }
+    this.locTitleChanged = undefined;
     this.action = undefined;
     super.dispose();
     if (this.popupModel) {
       this.popupModel.dispose();
-    }
-    if (!!this.locTitleValue) {
-      this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
-      this.locTitleChanged = undefined;
     }
   }
 }

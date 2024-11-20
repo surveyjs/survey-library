@@ -12,6 +12,7 @@ export var philippinesStrings = {
   refuseItemText: "Tumangging sumagot",
   dontKnowItemText: "hindi ko alam",
   selectAllItemText: "Piliin lahat",
+  deselectAllItemText: "Alisin ang pagpili ng lahat",
   progressText: "Pahina {0} ng {1}",
   indexText: "{0} ng {1}",
   panelDynamicProgressText: "{0} ng {1}",
@@ -31,6 +32,7 @@ export var philippinesStrings = {
   numericError: "Ang halaga ay dapat na numero.",
   minError: "Ang halaga ay hindi dapat mas mababa sa {0}",
   maxError: "Ang halaga ay hindi dapat mas malaki sa {0}",
+  textNoDigitsAllow: "Bawal ang mga numero.",
   textMinLength: "Mangyaring magpasok ng hindi bababa sa {0} (mga) character.",
   textMaxLength: "Mangyaring magpasok ng hindi hihigit sa {0} (mga) character.",
   textMinMaxLength: "Mangyaring magpasok ng hindi bababa sa {0} at hindi hihigit sa {1} (na) character.",
@@ -115,4 +117,5 @@ surveyLocalization.setupLocale("fil", philippinesStrings, "filipino", "Filipino"
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
-// tabTitlePlaceholder: "New Panel" => "Bagong Panel"
+// tabTitlePlaceholder: "New Panel" => "Bagong Panel"// deselectAllItemText: "Deselect all" => "Alisin ang pagpili ng lahat"
+// textNoDigitsAllow: "Numbers are not allowed." => "Bawal ang mga numero."

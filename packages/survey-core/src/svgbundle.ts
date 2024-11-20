@@ -1,4 +1,5 @@
 import { DomDocumentHelper } from "./global_variables_utils";
+import { renamedIcons } from "./utils/utils";
 
 class SvgIconData {
   [key: string]: string
@@ -9,6 +10,7 @@ export class SvgIconRegistry {
 
   private processId(iconId: string, iconPrefix: string) {
     if (iconId.indexOf(iconPrefix) == 0) iconId = iconId.substring(iconPrefix.length);
+    iconId = renamedIcons[iconId] || iconId;
     return iconId;
   }
   public registerIconFromSymbol(iconId: string, iconSymbolSvg: string) {
@@ -61,8 +63,7 @@ export class SvgIconRegistry {
 }
 export var SvgRegistry: SvgIconRegistry = new SvgIconRegistry();
 export var SvgBundleViewModel: any;
-const path = (<any>require).context("./images", false, /\.svg$/);
-const pathSmiley = (<any>require).context("./images/smiley", false, /\.svg$/);
 
-SvgRegistry.registerIconsFromFolder(path);
-SvgRegistry.registerIconsFromFolder(pathSmiley);
+export var svgBundle: {V1?: string, V2?: string} = {};
+svgBundle.V1 = (<any>require).context("./images-v1", true, /\.svg$/);
+svgBundle.V2 = (<any>require).context("./images-v2", true, /\.svg$/);

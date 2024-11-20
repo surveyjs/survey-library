@@ -12,6 +12,7 @@ export var malaySurveyStrings = {
   refuseItemText: "Enggan menjawab",
   dontKnowItemText: "Tak tahu",
   selectAllItemText: "Pilih Semua",
+  deselectAllItemText: "Nyahpilih semua",
   progressText: "Halaman {0} daripada {1}",
   indexText: "{0} {1}",
   panelDynamicProgressText: "Rekod {0} daripada {1}",
@@ -31,6 +32,7 @@ export var malaySurveyStrings = {
   numericError: "Nilai mestilah numerik.",
   minError: "Nilai tidak boleh kurang daripada {0}",
   maxError: "Nilai tidak boleh lebih besar daripada {0}",
+  textNoDigitsAllow: "Nombor tidak dibenarkan.",
   textMinLength: "Sila masukkan sekurang-kurangnya {0} aksara.",
   textMaxLength: "Sila masukkan tidak lebih daripada {0} aksara.",
   textMinMaxLength: "Sila masukkan sekurang-kurangnya {0} dan tidak lebih daripada {1} aksara.",
@@ -131,4 +133,5 @@ surveyLocalization.setupLocale("ms", malaySurveyStrings, "melayu", "Malay");
 // cancel: "Cancel" => "Batal"
 // refuseItemText: "Refuse to answer" => "Enggan menjawab"
 // dontKnowItemText: "Don't know" => "Tak tahu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jawapan anda melebihi 64KB. Sila kurangkan saiz fail anda dan cuba lagi atau hubungi pemilik tinjauan."
-// signaturePlaceHolderReadOnly: "No signature" => "Tiada tandatangan"// tabTitlePlaceholder: "New Panel" => "Panel Baru"
+// signaturePlaceHolderReadOnly: "No signature" => "Tiada tandatangan"// tabTitlePlaceholder: "New Panel" => "Panel Baru"// deselectAllItemText: "Deselect all" => "Nyahpilih semua"
+// textNoDigitsAllow: "Numbers are not allowed." => "Nombor tidak dibenarkan."

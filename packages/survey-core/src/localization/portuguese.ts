@@ -12,6 +12,7 @@ export var portugueseSurveyStrings = {
   refuseItemText: "Recusar-se a responder",
   dontKnowItemText: "Não sei",
   selectAllItemText: "Selecionar Todos",
+  deselectAllItemText: "Desmarcar tudo",
   progressText: "Página {0} de {1}",
   indexText: "{0} de {1}",
   panelDynamicProgressText: "Registo {0} de {1}",
@@ -31,6 +32,7 @@ export var portugueseSurveyStrings = {
   numericError: "O valor deve ser numérico.",
   minError: "O valor não deverá ser menor que {0}",
   maxError: "O valor não deverá ser maior que {0}",
+  textNoDigitsAllow: "Números não são permitidos.",
   textMinLength: "Por favor, insira pelo menos {0} caracteres.",
   textMaxLength: "Por favor, insira menos de {0} caracteres.",
   textMinMaxLength: "Por favor, insira mais de {0} e menos de {1} caracteres.",
@@ -126,4 +128,5 @@ surveyLocalization.setupLocale("pt", portugueseSurveyStrings, "português", "Por
 // cancel: "Cancel" => "Cancelar"
 // refuseItemText: "Refuse to answer" => "Recusar-se a responder"
 // dontKnowItemText: "Don't know" => "Não sei"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Sua resposta excede 64KB. Reduza o tamanho do(s) seu(s) arquivo(s) e tente novamente ou entre em contato com o proprietário do questionário."
-// signaturePlaceHolderReadOnly: "No signature" => "Sem assinatura"// tabTitlePlaceholder: "New Panel" => "Novo Painel"
+// signaturePlaceHolderReadOnly: "No signature" => "Sem assinatura"// tabTitlePlaceholder: "New Panel" => "Novo Painel"// deselectAllItemText: "Deselect all" => "Desmarcar tudo"
+// textNoDigitsAllow: "Numbers are not allowed." => "Números não são permitidos."

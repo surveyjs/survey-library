@@ -53,21 +53,29 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
 
   protected getAvailableAreaRect(): Rect {
-    if (this.areaElement) {
-      const areaRect = this.areaElement.getBoundingClientRect();
+    const areaElement: HTMLElement = this.model.getAreaCallback ? this.model.getAreaCallback(this.container) : undefined;
+    if (areaElement) {
+      const areaRect = areaElement.getBoundingClientRect();
       return new Rect(areaRect.x, areaRect.y, areaRect.width, areaRect.height);
     }
     return new Rect(0, 0, DomWindowHelper.getInnerWidth(), DomWindowHelper.getInnerHeight());
   }
   protected getTargetElementRect(): Rect {
-    const rect = this.targetElement.getBoundingClientRect();
+    const componentRoot = this.container;
+    let targetElement: HTMLElement = this.model.getTargetCallback ? this.model.getTargetCallback(componentRoot) : undefined;
+
+    if (!!componentRoot && !!componentRoot.parentElement && !this.isModal && !targetElement) {
+      targetElement = componentRoot.parentElement;
+    }
+    if (!targetElement) return null;
+    const rect = targetElement.getBoundingClientRect();
     const areaRect = this.getAvailableAreaRect();
     return new Rect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
   }
 
   private _updatePosition() {
-    if (!this.targetElement) return;
     const targetElementRect = this.getTargetElementRect();
+    if (!targetElementRect) return;
     const area = this.getAvailableAreaRect();
     const popupContainer = <HTMLElement>this.container?.querySelector(this.containerSelector);
     if (!popupContainer) return;
@@ -76,6 +84,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const popupComputedStyle = DomDocumentHelper.getComputedStyle(popupContainer);
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
+    const marginTop = (parseFloat(popupComputedStyle.marginTop) || 0);
+    const marginBottom = (parseFloat(popupComputedStyle.marginBottom) || 0);
     let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
     const width = popupContainer.getBoundingClientRect().width;
     this.model.setWidthByTarget && (this.minWidth = targetElementRect.width + "px");
@@ -120,7 +130,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         height,
         area.height,
         verticalPosition,
-        this.model.canShrink
+        this.model.canShrink,
+        { top: marginTop, bottom: marginBottom }
       );
       if (!!newVerticalDimensions) {
         this.height = newVerticalDimensions.height + "px";
@@ -207,21 +218,15 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   private recalculatePositionHandler: (_: any, options: { isResetHeight: boolean }) => void;
 
-  constructor(model: PopupModel, public targetElement?: HTMLElement, public areaElement?: HTMLElement) {
+  constructor(model: PopupModel) {
     super(model);
     this.model.onRecalculatePosition.add(this.recalculatePositionHandler);
   }
-  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null, areaElement?: HTMLElement | null): void {
+  public setComponentElement(componentRoot: HTMLElement): void {
     super.setComponentElement(componentRoot);
-
-    if (!!componentRoot && !!componentRoot.parentElement && !this.isModal) {
-      this.targetElement = targetElement || componentRoot.parentElement;
-      this.areaElement = areaElement;
-    }
   }
   public resetComponentElement() {
     super.resetComponentElement();
-    this.targetElement = undefined;
   }
   public updateOnShowing(): void {
     const { root } = settings.environment;

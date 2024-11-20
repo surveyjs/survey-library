@@ -93,7 +93,7 @@ export class MatrixDropdownCell {
       return this.column.colOwner.getCellAriaLabel(rowTitle, this.questionValue.title);
     };
   }
-  public locStrsChanged() {
+  public locStrsChanged(): void {
     this.question.locStrsChanged();
   }
   protected createQuestion(
@@ -128,7 +128,7 @@ export class MatrixDropdownCell {
   public getQuestionWrapperClassName(className: string): string {
     return className;
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     this.question.runCondition(values, properties);
   }
 }
@@ -442,6 +442,12 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     if(this.isRowHasEnabledCondition()) {
       this.onQuestionReadOnlyChanged();
+    }
+  }
+  public updateElementVisibility(): void {
+    this.cells.forEach(cell => cell.question.updateElementVisibility());
+    if (!!this.detailPanel) {
+      this.detailPanel.updateElementVisibility();
     }
   }
   protected setRowsVisibleIfValues(values: any): void {}
@@ -1489,6 +1495,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     super.runTriggers(name, value);
     this.runFuncForCellQuestions((q: Question) => { q.runTriggers(name, value); });
   }
+  public updateElementVisibility(): void {
+    super.updateElementVisibility();
+    const rows = this.generatedVisibleRows;
+    if (!!rows) {
+      rows.forEach(row => row.updateElementVisibility());
+    }
+  }
   protected shouldRunColumnExpression(): boolean {
     return false;
   }
@@ -1702,8 +1715,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get storeOthersAsComment(): boolean {
     return !!this.survey ? this.survey.storeOthersAsComment : false;
   }
-  public addColumn(name: string, title: string = null): MatrixDropdownColumn {
-    var column = new MatrixDropdownColumn(name, title);
+  public addColumn(name: string, title?: string): MatrixDropdownColumn {
+    var column = new MatrixDropdownColumn(name, title, this);
     this.columns.push(column);
     return column;
   }

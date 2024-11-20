@@ -12,6 +12,7 @@ export var persianSurveyStrings = {
   refuseItemText: "امتناع از پاسخ دادن",
   dontKnowItemText: "نمی دانم",
   selectAllItemText: "انتخاب همه",
+  deselectAllItemText: "لغو انتخاب همه",
   progressText: "صفحه {0} از {1}",
   indexText: "{0} {1}",
   panelDynamicProgressText: "مورد {0} از {1}",
@@ -31,6 +32,7 @@ export var persianSurveyStrings = {
   numericError: "مقدار باید عددی باشد",
   minError: "ارزش نباید کمتر از {0}",
   maxError: "ارزش نباید بیشتر از {0}",
+  textNoDigitsAllow: "شماره ها مجاز نیستند.",
   textMinLength: "لطفا حداقل  {0} حرف وارد کنید",
   textMaxLength: "لطفا کمتر از  {0} حرف وارد کنید.",
   textMinMaxLength: "لطفا بیشتر از  {0} حرف و کمتر از {1} حرف وارد کنید.",
@@ -141,4 +143,5 @@ surveyLocalization.setupLocale("fa", persianSurveyStrings, "فارْسِى", "Pe
 // cancel: "Cancel" => "لغو"
 // refuseItemText: "Refuse to answer" => "امتناع از پاسخ دادن"
 // dontKnowItemText: "Don't know" => "نمی دانم"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "پاسخ شما بیش از 64KB است. لطفا اندازه فایل(های) خود را کاهش دهید و دوباره تلاش کنید یا با صاحب نظرسنجی تماس بگیرید."
-// signaturePlaceHolderReadOnly: "No signature" => "بدون امضا"// tabTitlePlaceholder: "New Panel" => "پنل جدید"
+// signaturePlaceHolderReadOnly: "No signature" => "بدون امضا"// tabTitlePlaceholder: "New Panel" => "پنل جدید"// deselectAllItemText: "Deselect all" => "لغو انتخاب همه"
+// textNoDigitsAllow: "Numbers are not allowed." => "شماره ها مجاز نیستند."

@@ -12,6 +12,7 @@ import {
   onBeforeUnmount,
   watchEffect,
   nextTick,
+  onUnmounted,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});
@@ -117,12 +118,16 @@ export function useBase<T extends Base>(
       immediate: true,
     }
   );
+  let isOnBeforeUnmountCalled = false;
   onBeforeUnmount(() => {
-    const model = getModel();
-    if (model) {
-      unMakeReactive(model);
-      if (clean) clean(model);
-      stopWatch();
+    if (!isOnBeforeUnmountCalled) {
+      const model = getModel();
+      if (model) {
+        unMakeReactive(model);
+        stopWatch();
+        if (clean) clean(model);
+      }
+      isOnBeforeUnmountCalled = true;
     }
   });
 }
@@ -143,7 +148,7 @@ export function useQuestion<T extends Question>(
     props.question.beforeDestroyQuestionElement(root.value);
   });
 }
-
+function noop() {}
 export function useLocString(
   getLocString: () => LocalizableString
 ): Ref<string> {
@@ -157,12 +162,16 @@ export function useLocString(
   const stopWatch = watch(
     getLocString,
     (newValue, oldValue) => {
-      if (oldValue) oldValue.onChanged = () => {};
+      if (oldValue) oldValue.onChanged = noop;
       setupOnChangedCallback(newValue);
     },
     { immediate: true }
   );
   onBeforeUnmount(() => {
+    const locString = getLocString();
+    if (locString) {
+      locString.onChanged = noop;
+    }
     stopWatch();
   });
   return renderedHtml;

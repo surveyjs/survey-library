@@ -12,6 +12,7 @@ export var spanishSurveyStrings = {
   refuseItemText: "Negarse a responder",
   dontKnowItemText: "No sé",
   selectAllItemText: "Seleccionar todo",
+  deselectAllItemText: "Anular la selección de todo",
   progressText: "Página {0} de {1}",
   indexText: "{0} de {1}",
   panelDynamicProgressText: "Registro {0} de {1}",
@@ -31,6 +32,7 @@ export var spanishSurveyStrings = {
   numericError: "La estimación debe ser numérica.",
   minError: "La estimación no debe ser menor que {0}",
   maxError: "La estimación no debe ser mayor que {0}",
+  textNoDigitsAllow: "No se permiten números.",
   textMinLength: "Por favor entre por lo menos {0} símbolos.",
   textMaxLength: "Por favor entre menos de {0} símbolos.",
   textMinMaxLength: "Por favor entre más de {0} y menos de {1} símbolos.",
@@ -129,4 +131,5 @@ surveyLocalization.setupLocale("es", spanishSurveyStrings, "español", "Spanish"
 // cancel: "Cancel" => "Cancelar"
 // refuseItemText: "Refuse to answer" => "Negarse a responder"
 // dontKnowItemText: "Don't know" => "No sé"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Su respuesta supera los 64 KB. Reduzca el tamaño de su(s) archivo(s) e inténtelo de nuevo o póngase en contacto con el propietario de una encuesta."
-// signaturePlaceHolderReadOnly: "No signature" => "Sin firma"// tabTitlePlaceholder: "New Panel" => "Nuevo panel"
+// signaturePlaceHolderReadOnly: "No signature" => "Sin firma"// tabTitlePlaceholder: "New Panel" => "Nuevo panel"// deselectAllItemText: "Deselect all" => "Anular la selección de todo"
+// textNoDigitsAllow: "Numbers are not allowed." => "No se permiten números."

@@ -14,7 +14,8 @@
     "testcafe:survey-js-ui": "testcafe testCafe/ --app \"http-server --silent\" --env=survey-js-ui --config-file .testcaferc.dev.js",
     "testcafe:survey-js-ui:ci": "testcafe  testCafe/ --app \"http-server --silent\" --reporter minimal --env=survey-js-ui",
     "vrt:jquery-ui:ci": "testcafe ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=jquery-ui",
-    "vrt:survey-js-ui:ci": "testcafe  ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=survey-js-ui",
+    "vrt:survey-js-ui:ci": "testcafe ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=survey-js-ui",
+    "vrt:survey-js-ui": "testcafe ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file .testcaferc.dev.js",
     "testcafe:react": "testcafe  testCafe/ --app \"http-server --silent\" --reporter minimal --env=react",
     "testcafe:vue": "testcafe  testCafe/  --app \"http-server --silent\" --reporter minimal --env=vue",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
@@ -88,7 +89,7 @@
     "vrt:ko": "testcafe ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --reporter minimal --env=knockout --selector-timeout 1500 --config-file .testcaferc.dev.js",
     "vrt:react": "testcafe ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --reporter minimal --env=react --selector-timeout 1500 --config-file .testcaferc.dev.js",
     "visual-regression-tests:ci": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal",
-    "visual-regression-tests:ci:knockout": "testcafe  ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=knockout",
+    "visual-regression-tests:ci:knockout": "testcafe  ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --env=knockout --reporter minimal",
     "visual-regression-tests:ci:angular": "testcafe  ./visualRegressionTests/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=angular",
     "visual-regression-tests:angular": "testcafe ./visualRegressionTests/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=angular --config-file .testcaferc.dev.js",
     "visual-regression-tests:ci:react": "testcafe  ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react",
@@ -109,7 +110,7 @@
     "prepare": "husky install",
     "test:postcss": "postcss build/survey-core/defaultV2.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -o defaultV2.postcss.css && rimraf defaultV2.postcss.css"
   },
-  "version": "1.12.7",
+  "version": "1.12.10",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

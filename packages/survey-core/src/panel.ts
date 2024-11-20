@@ -432,7 +432,7 @@ export class PanelModelBase extends SurveyElement<Question>
 
   get hasTitle(): boolean {
     return (
-      (this.canShowTitle() && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
+      (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
       (this.isDesignMode && !(settings.supportCreatorV2 && this.isPanel) && this.showTitle && settings.designMode.showEmptyTitles)
     );
   }
@@ -454,7 +454,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   protected removeFromParent(): void {}
-  protected canShowTitle(): boolean { return true; }
+  protected canShowTitle(survey: ISurvey): boolean { return true; }
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
     if(!this.hasTitle && this.isDesignMode) return false;
@@ -934,7 +934,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private hasErrorsInPanels(rec: any): void {
     var errors = <Array<any>>[];
     this.hasRequiredError(rec, errors);
-    if (this.survey) {
+    if (this.isPanel && this.survey) {
       var customError = this.survey.validatePanel(this);
       if (customError) {
         errors.push(customError);
@@ -1017,14 +1017,11 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return false;
   }
-  updateElementVisibility() {
-    for (var i = 0; i < this.elements.length; i++) {
-      var el = this.elements[i];
-      (<Base>(<any>el)).setPropertyValue("isVisible", el.isVisible);
-      if (el.isPanel) {
-        (<PanelModelBase>(<any>el)).updateElementVisibility();
-      }
+  updateElementVisibility(): void {
+    for (let i = 0; i < this.elements.length; i++) {
+      this.elements[i].updateElementVisibility();
     }
+    super.updateElementVisibility();
   }
   getFirstQuestionToFocus(withError: boolean = false, ignoreCollapseState: boolean = false): Question {
     if (!withError && !ignoreCollapseState && this.isCollapsed) return null;
@@ -1046,8 +1043,8 @@ export class PanelModelBase extends SurveyElement<Question>
    * Focuses the first question in this panel/page.
    * @see focusFirstErrorQuestion
    */
-  public focusFirstQuestion() {
-    var q = this.getFirstQuestionToFocus();
+  public focusFirstQuestion(): void {
+    const q = this.getFirstQuestionToFocus();
     if (!!q) {
       q.focus();
     }
@@ -1463,26 +1460,26 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
+  private canFireAddRemoveNotifications(element: IElement): boolean {
+    return !!this.survey && (<any>element).prevSurvey !== this.survey;
+  }
   protected onAddElement(element: IElement, index: number): void {
+    const survey = this.survey;
+    const fireNotification = this.canFireAddRemoveNotifications(element);
     element.setSurveyImpl(this.surveyImpl);
     element.parent = this;
     this.markQuestionListDirty();
     if (this.canBuildRows()) {
       this.updateRowsOnElementAdded(element);
     }
-    if (element.isPanel) {
-      var p = <PanelModel>element;
-      if (this.survey) {
-        this.survey.panelAdded(p, index, this, this.root);
-      }
-    } else {
-      if (this.survey) {
-        var q = <Question>element;
-        this.survey.questionAdded(q, index, this, this.root);
+    if(fireNotification) {
+      if (element.isPanel) {
+        survey.panelAdded(<PanelModel>element, index, this, this.root);
+      } else {
+        survey.questionAdded(<Question>element, index, this, this.root);
       }
     }
     if (!!this.addElementCallback) this.addElementCallback(element);
-    var self = this;
     (<Base>(<any>element)).registerPropertyChangedHandlers(
       ["visible", "isVisible"], () => {
         this.onElementVisibilityChanged(element);
@@ -1494,7 +1491,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }, this.id);
     this.onElementVisibilityChanged(this);
   }
-  protected onRemoveElement(element: IElement) {
+  protected onRemoveElement(element: IElement): void {
     element.parent = null;
     this.markQuestionListDirty();
     (<Base>(<any>element)).unregisterPropertyChangedHandlers(["visible", "isVisible", "startWithNewLine"], this.id);
@@ -1505,7 +1502,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.onElementVisibilityChanged(this);
   }
   private onRemoveElementNotifySurvey(element: IElement): void {
-    if(!this.survey) return;
+    if(!this.canFireAddRemoveNotifications(element)) return;
     if (!element.isPanel) {
       this.survey.questionRemoved(<Question>element);
     } else {
@@ -2236,7 +2233,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return this.showQuestionNumbers !== "off" && this.showQuestionNumbers !== "onpanel";
   }
   private notifySurveyOnVisibilityChanged() {
-    if (this.survey != null && !this.isLoadingFromJson) {
+    if (this.survey != null && !this.isLoadingFromJson && !!this.page) {
       this.survey.panelVisibilityChanged(this, this.isVisible);
     }
   }
@@ -2336,12 +2333,21 @@ export class PanelModel extends PanelModelBase implements IElement {
     if (this.survey && this.survey.state === "preview") return (this.parent && this.parent instanceof PageModel);
     return false;
   }
-  public cancelPreview() {
+  public cancelPreview(): void {
     if (!this.hasEditButton) return;
     this.survey.cancelPreviewByPage(this);
   }
+  protected canShowTitle(survey: ISurvey): boolean {
+    const page = (<any>this).originalPage;
+    if(!!page) return page.canShowTitle(survey);
+    return super.canShowTitle(survey);
+  }
   public get cssTitle(): string {
     return this.getCssTitle(this.cssClasses.panel);
+  }
+  public getCssTitleExpandableSvg(): string {
+    if (this.state === "default") return null;
+    return this.cssClasses.panel.titleExpandableSvg;
   }
   public get showErrorsAbovePanel(): boolean {
     return this.isDefaultV2Theme && !this.showPanelAsPage;

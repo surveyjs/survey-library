@@ -110,13 +110,6 @@
   }
 }
 
-@mixin ranking_responsive {
-  .sv-ranking-item__icon-container {
-    margin-left: 0;
-    margin-right: 0;
-  }
-}
-
 .sv-ranking-item__content.sd-ranking-item__content {
   line-height: calcLineHeight(1.5);
 }

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var spanishSurveyStrings = {
   pagePrevText: "Anterior",
@@ -110,7 +110,7 @@ export var spanishSurveyStrings = {
   cancel: "Cancelar"
 };
 
-surveyLocalization.setupLocale("es", spanishSurveyStrings, "español", "Spanish");
+setupLocale({ localeName: "es", strings: spanishSurveyStrings, nativeName: "español", englishName: "Spanish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

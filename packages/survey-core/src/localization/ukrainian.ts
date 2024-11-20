@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var ukrainianSurveyStrings = {
   pagePrevText: "Назад",
@@ -110,7 +110,7 @@ export var ukrainianSurveyStrings = {
   cancel: "Скасувати"
 };
 
-surveyLocalization.setupLocale("ua", ukrainianSurveyStrings, "українська", "Ukrainian");
+setupLocale({ localeName: "ua", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

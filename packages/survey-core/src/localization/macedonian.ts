@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var macedonianSurveyStrings = {
   pagePrevText: "Претходна",
@@ -110,7 +110,7 @@ export var macedonianSurveyStrings = {
   cancel: "Откажи"
 };
 
-surveyLocalization.setupLocale("mk", macedonianSurveyStrings, "македонски", "Macedonian");
+setupLocale({ localeName: "mk", strings: macedonianSurveyStrings, nativeName: "македонски", englishName: "Macedonian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

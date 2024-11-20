@@ -101,6 +101,9 @@ export var surveyLocalization = {
 export function getLocaleString(strName: string, locale: string = null): string {
   return surveyLocalization.getString(strName, locale);
 }
+export function setupLocale(localeConfig: { localeName: string, strings: any, nativeName: string, englishName: string, rtl?: boolean }): void {
+  surveyLocalization.setupLocale(localeConfig.localeName, localeConfig.strings, localeConfig.nativeName, localeConfig.englishName, localeConfig.rtl ? "rtl" : undefined);
+}
 export var surveyStrings = englishStrings;
 (<any>surveyLocalization).locales["en"] = englishStrings;
 (<any>surveyLocalization).localeNames["en"] = "english";

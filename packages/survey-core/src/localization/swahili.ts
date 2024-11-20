@@ -110,7 +110,7 @@ export var swahiliStrings = {
   cancel: "Katisha"
 };
 
-surveyLocalization.setupLocale("sw", swahiliStrings, "swahili", "Swahili");
+setupLocale({ localeName: "sw", strings: swahiliStrings, nativeName: "swahili", englishName: "Swahili" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

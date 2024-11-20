@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var dutchSurveyStrings = {
   pagePrevText: "Vorige",
@@ -110,7 +110,7 @@ export var dutchSurveyStrings = {
   cancel: "Annuleren"
 };
 
-surveyLocalization.setupLocale("nl", dutchSurveyStrings, "nederlands", "Dutch");
+setupLocale({ localeName: "nl", strings: dutchSurveyStrings, nativeName: "nederlands", englishName: "Dutch" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

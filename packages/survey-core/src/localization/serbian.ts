@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var serbianStrings = {
   pagePrevText: "Nazad",
@@ -110,8 +110,7 @@ export var serbianStrings = {
   cancel: "Otkaži"
 };
 
-//Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
-surveyLocalization.setupLocale("rs", serbianStrings, "srpski", "Serbian");
+setupLocale({ localeName: "rs", strings: serbianStrings, nativeName: "srpski", englishName: "Serbian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

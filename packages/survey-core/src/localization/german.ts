@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var germanSurveyStrings = {
   pagePrevText: "Zurück",
@@ -110,7 +110,7 @@ export var germanSurveyStrings = {
   cancel: "Abbrechen"
 };
 
-surveyLocalization.setupLocale("de", germanSurveyStrings, "deutsch", "German");
+setupLocale({ localeName: "de", strings: germanSurveyStrings, nativeName: "deutsch", englishName: "German" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

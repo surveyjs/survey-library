@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 import { dutchSurveyStrings } from "./dutch";
 
 /**
@@ -6,4 +6,4 @@ import { dutchSurveyStrings } from "./dutch";
  * - Copy the Dutch set once and move forward as if it are 2 totally different languages
  * - Override the relevant strings only
  */
-surveyLocalization.setupLocale("nl-BE", dutchSurveyStrings, "vlaams", "Flemish");
+setupLocale({ localeName: "nl-BE", strings: dutchSurveyStrings, nativeName: "vlaams", englishName: "Flemish" });

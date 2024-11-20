@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 /**
  * You don't need to translate strings that have the same value as Portuguese translation
  */
@@ -112,7 +112,7 @@ export var portugueseBrSurveyStrings = {
   cancel: "Cancelar"
 };
 
-surveyLocalization.setupLocale("pt-br", portugueseBrSurveyStrings, "português brasileiro", "Brazilian Portuguese");
+setupLocale({ localeName: "pt-br", strings: portugueseBrSurveyStrings, nativeName: "português brasileiro", englishName: "Brazilian Portuguese" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var romanianSurveyStrings: any = {
   pagePrevText: "Precedent",
@@ -110,7 +110,7 @@ export var romanianSurveyStrings: any = {
   cancel: "Anula"
 };
 
-surveyLocalization.setupLocale("ro", romanianSurveyStrings, "română", "Romanian");
+setupLocale({ localeName: "ro", strings: romanianSurveyStrings, nativeName: "română", englishName: "Romanian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

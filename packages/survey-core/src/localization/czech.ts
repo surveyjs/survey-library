@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var czechSurveyStrings = {
   pagePrevText: "Předchozí",
@@ -110,7 +110,7 @@ export var czechSurveyStrings = {
   cancel: "Zrušit"
 };
 
-surveyLocalization.setupLocale("cs", czechSurveyStrings, "čeština", "Czech");
+setupLocale({ localeName: "cs", strings: czechSurveyStrings, nativeName: "čeština", englishName: "Czech" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

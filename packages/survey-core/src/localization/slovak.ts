@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var slovakSurveyStrings = {
   pagePrevText: "Predchádzajúca",
@@ -110,7 +110,7 @@ export var slovakSurveyStrings = {
   cancel: "Zrušiť"
 };
 
-surveyLocalization.setupLocale("sk", slovakSurveyStrings, "slovak", "Slovak");
+setupLocale({ localeName: "sk", strings: slovakSurveyStrings, nativeName: "slovak", englishName: "Slovak" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

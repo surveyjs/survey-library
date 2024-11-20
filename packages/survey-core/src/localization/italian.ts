@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var italianSurveyStrings = {
   pagePrevText: "Precedente",
@@ -110,7 +110,7 @@ export var italianSurveyStrings = {
   cancel: "Annulla"
 };
 
-surveyLocalization.setupLocale("it", italianSurveyStrings, "italiano", "Italian");
+setupLocale({ localeName: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

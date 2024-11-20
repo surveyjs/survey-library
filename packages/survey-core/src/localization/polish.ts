@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var polishSurveyStrings = {
   pagePrevText: "Wstecz",
@@ -110,7 +110,7 @@ export var polishSurveyStrings = {
   cancel: "Anuluj"
 };
 
-surveyLocalization.setupLocale("pl", polishSurveyStrings, "polski", "Polish");
+setupLocale({ localeName: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

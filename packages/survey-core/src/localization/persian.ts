@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var persianSurveyStrings = {
   pagePrevText: "قبلی",
@@ -110,7 +110,7 @@ export var persianSurveyStrings = {
   cancel: "لغو"
 };
 
-surveyLocalization.setupLocale("fa", persianSurveyStrings, "فارْسِى", "Persian");
+setupLocale({ localeName: "fa", strings: persianSurveyStrings, nativeName: "فارْسِى", englishName: "Persian", rtl: true });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

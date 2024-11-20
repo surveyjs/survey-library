@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var lithuaniaSurveyStrings = {
   pagePrevText: "Atgal",
@@ -110,7 +110,7 @@ export var lithuaniaSurveyStrings = {
   cancel: "Atšaukti"
 };
 
-surveyLocalization.setupLocale("lt", lithuaniaSurveyStrings, "lietuvių", "Lithuanian");
+setupLocale({ localeName: "lt", strings: lithuaniaSurveyStrings, nativeName: "lietuvių", englishName: "Lithuanian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var frenchSurveyStrings = {
   pagePrevText: "Précédent",
@@ -110,7 +110,7 @@ export var frenchSurveyStrings = {
   cancel: "Annuler"
 };
 
-surveyLocalization.setupLocale("fr", frenchSurveyStrings, "français", "French");
+setupLocale({ localeName: "fr", strings: frenchSurveyStrings, nativeName: "français", englishName: "French" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var teluguStrings = {
   pagePrevText: "వెనకటి",
@@ -110,7 +110,7 @@ export var teluguStrings = {
   cancel: "రద్దు"
 };
 
-surveyLocalization.setupLocale("tel", teluguStrings, "telugu", "Telugu");
+setupLocale({ localeName: "tel", strings: teluguStrings, nativeName: "telugu", englishName: "Telugu" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

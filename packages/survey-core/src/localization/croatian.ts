@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var croatianStrings = {
   pagePrevText: "Prethodni",
@@ -110,7 +110,7 @@ export var croatianStrings = {
   cancel: "Otkazati"
 };
 
-surveyLocalization.setupLocale("hr", croatianStrings, "hrvatski", "Croatian");
+setupLocale({ localeName: "hr", strings: croatianStrings, nativeName: "hrvatski", englishName: "Croatian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

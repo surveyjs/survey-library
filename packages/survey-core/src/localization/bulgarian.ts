@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var bulgarianStrings = {
   pagePrevText: "Назад",
@@ -110,7 +110,7 @@ export var bulgarianStrings = {
   cancel: "Отмени"
 };
 
-surveyLocalization.setupLocale("bg", bulgarianStrings, "български", "Bulgarian");
+setupLocale({ localeName: "bg", strings: bulgarianStrings, nativeName: "български", englishName: "Bulgarian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

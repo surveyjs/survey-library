@@ -118,16 +118,17 @@ export function useBase<T extends Base>(
       immediate: true,
     }
   );
+  let isOnBeforeUnmountCalled = false;
   onBeforeUnmount(() => {
-    const model = getModel();
-    if (model) {
-      unMakeReactive(model);
-      stopWatch();
+    if (!isOnBeforeUnmountCalled) {
+      const model = getModel();
+      if (model) {
+        unMakeReactive(model);
+        stopWatch();
+        if (clean) clean(model);
+      }
+      isOnBeforeUnmountCalled = true;
     }
-  });
-  onUnmounted(() => {
-    const model = getModel();
-    if (model && clean) clean(model);
   });
 }
 

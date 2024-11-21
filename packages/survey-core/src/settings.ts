@@ -213,7 +213,8 @@ export var settings = {
   serialization: {
     itemValueSerializeAsObject: false,
     itemValueSerializeDisplayText: false,
-    localizableStringSerializeAsObject: false
+    localizableStringSerializeAsObject: false,
+    matrixDropdownColumnSerializeTitle: false
   },
 
   //#region serialization section, Obsolete properties

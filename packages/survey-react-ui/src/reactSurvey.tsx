@@ -16,7 +16,7 @@ import { PopupModal } from "./components/popup/popup-modal";
 import iconsV1 from "@coreIconsV1";
 import iconsV2 from "@coreIconsV2";
 addIconsToThemeSet("v1", iconsV1);
-addIconsToThemeSet("v2", iconsV1);
+addIconsToThemeSet("v2", iconsV2);
 
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {

@@ -14,7 +14,7 @@ import iconsV1 from "@coreIconsV1";
 import iconsV2 from "@coreIconsV2";
 
 addIconsToThemeSet("v1", iconsV1);
-addIconsToThemeSet("v2", iconsV1);
+addIconsToThemeSet("v2", iconsV2);
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;

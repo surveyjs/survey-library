@@ -5,7 +5,7 @@ import { BaseAngular } from "./base-angular";
 import iconsV1 from "survey-core/icons/iconsV1";
 import iconsV2 from "survey-core/icons/iconsV2";
 addIconsToThemeSet("v1", iconsV1);
-addIconsToThemeSet("v2", iconsV1);
+addIconsToThemeSet("v2", iconsV2);
 @Component({
   selector: "survey",
   template: "<sv-ng-modal-container></sv-ng-modal-container><survey-content [model]='model'></survey-content>"

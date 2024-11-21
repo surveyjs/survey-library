@@ -7,7 +7,7 @@ import iconsV1 from "@coreIconsV1";
 import iconsV2 from "@coreIconsV2";
 
 addIconsToThemeSet("v1", iconsV1);
-addIconsToThemeSet("v2", iconsV1);
+addIconsToThemeSet("v2", iconsV2);
 
 export class PopupSurveyImplementor extends ImplementorBase {
   constructor(public window: PopupSurveyModel) {

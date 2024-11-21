@@ -70,7 +70,7 @@ import { BaseVue } from "./base";
 import iconsV1 from "@coreIconsV1";
 import iconsV2 from "@coreIconsV2";
 addIconsToThemeSet("v1", iconsV1);
-addIconsToThemeSet("v2", iconsV1);
+addIconsToThemeSet("v2", iconsV2);
 
 @Component
 export class Survey extends BaseVue {

@@ -127,9 +127,17 @@
   </div>
 </template>
 
+<script lang="ts">
+import { SvgThemeSets } from "survey-core";
+import iconsV1 from "survey-core/icons/iconsV1";
+import iconsV2 from "survey-core/icons/iconsV2";
+SvgThemeSets["v1"] = iconsV1;
+SvgThemeSets["v2"] = iconsV2;
+</script>
+
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import type { SurveyModel } from "survey-core";
+import { settings, type SurveyModel, SvgRegistry } from "survey-core";
 import {
   toRaw,
   ref,
@@ -139,7 +147,7 @@ import {
   onUnmounted,
 } from "vue";
 import { useBase } from "./base";
-
+SvgRegistry.registerIcons(settings.useLegacyIcons ? iconsV1 : iconsV2);
 const props = defineProps<
   | {
       model: SurveyModel;

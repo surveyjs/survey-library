@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var swahiliStrings = {
   pagePrevText: "Iliyotangulia",

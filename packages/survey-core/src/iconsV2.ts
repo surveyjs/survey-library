@@ -5,4 +5,4 @@ path.keys().forEach((key: string) => {
   icons[key.substring(2, key.length - 4).toLowerCase()] = path(key);
 });
 
-export default icons;
+export { icons };

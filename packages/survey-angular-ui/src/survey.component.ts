@@ -2,8 +2,8 @@ import { ChangeDetectorRef, Component, Input } from "@angular/core";
 import { settings, SurveyModel, SvgRegistry, addIconsToThemeSet } from "survey-core";
 import { BaseAngular } from "./base-angular";
 
-import iconsV1 from "survey-core/icons/iconsV1";
-import iconsV2 from "survey-core/icons/iconsV2";
+import { icons as iconsV1 } from "survey-core/icons/iconsV1";
+import { icons as iconsV2 } from "survey-core/icons/iconsV2";
 addIconsToThemeSet("v1", iconsV1);
 addIconsToThemeSet("v2", iconsV2);
 @Component({

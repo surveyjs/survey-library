@@ -3,8 +3,8 @@ import { SurveyModel, PopupSurveyModel, settings, SvgRegistry, addIconsToThemeSe
 import { ImplementorBase } from "./kobase";
 var koTemplate = require("html-loader?interpolate!val-loader!./templates/window.html");
 
-import iconsV1 from "@coreIconsV1";
-import iconsV2 from "@coreIconsV2";
+import { icons as iconsV1 } from "@coreIconsV1";
+import { icons as iconsV2 } from "@coreIconsV2";
 
 addIconsToThemeSet("v1", iconsV1);
 addIconsToThemeSet("v2", iconsV2);

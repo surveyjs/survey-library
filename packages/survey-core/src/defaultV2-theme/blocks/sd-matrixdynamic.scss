@@ -71,6 +71,8 @@
     align-items: center;
     margin-left: calcSize(-5);
     width: calcSize(5);
+    background-color: $question-background;
+    min-height: calcSize(6);
   }
 }
 

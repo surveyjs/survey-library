@@ -1,10 +1,10 @@
-import { DomDocumentHelper } from "./global_variables_utils";
-import { settings } from "./settings";
 import { renamedIcons } from "./utils/utils";
+import { DomDocumentHelper } from "./global_variables_utils";
 
-class SvgIconData {
-  [key: string]: string
+interface SvgIconData {
+  [key: string]: string;
 }
+
 export class SvgIconRegistry {
   icons: SvgIconData = {};
   private iconPrefix = "icon-";
@@ -18,7 +18,7 @@ export class SvgIconRegistry {
     this.icons[iconId] = iconSymbolSvg;
   }
   public registerIconFromSvgViaElement(iconId: string, iconSvg: string, iconPrefix: string = this.iconPrefix): void {
-    if(!DomDocumentHelper.isAvailable()) return;
+    if (!DomDocumentHelper.isAvailable()) return;
     iconId = this.processId(iconId, iconPrefix);
     let divSvg = DomDocumentHelper.createElement("div");
     divSvg.innerHTML = iconSvg;
@@ -40,41 +40,34 @@ export class SvgIconRegistry {
     iconSvg = iconSvg.trim();
     const str = iconSvg.toLowerCase();
 
-    if(str.substring(0, startStr.length) === startStr &&
-       str.substring(str.length - endStr.length, str.length) === endStr) {
+    if (str.substring(0, startStr.length) === startStr &&
+      str.substring(str.length - endStr.length, str.length) === endStr) {
       this.registerIconFromSymbol(iconId, "<symbol " +
-              "id=\"" + iconPrefix + iconId + "\" " +
-              iconSvg.substring(startStr.length, str.length - endStr.length) +
-              "</symbol>");
+        "id=\"" + iconPrefix + iconId + "\" " +
+        iconSvg.substring(startStr.length, str.length - endStr.length) +
+        "</symbol>");
       return true;
     }
-    else{
+    else {
       return false;
     }
 
   }
-  public registerIconsFromFolder(r: any) {
+  // TODO: remove in V2
+  public registerIconsFromFolder(r: any): void {
     r.keys().forEach((key: string) => {
       this.registerIconFromSvg(key.substring(2, key.length - 4).toLowerCase(), r(key));
     });
   }
-  public iconsRenderedHtml() {
+  public registerIcons(icons: SvgIconData): void {
+    for (const iconId in icons) {
+      this.registerIconFromSvg(iconId, icons[iconId]);
+    }
+  }
+  public iconsRenderedHtml(): string {
     return Object.keys(this.icons).map(icon => this.icons[icon]).join("");
   }
 }
-export var SvgRegistry: SvgIconRegistry = new SvgIconRegistry();
-export var SvgBundleViewModel: any;
 
-// export var svgBundle: {V1?: string, V2?: string} = {};
-// svgBundle.V1 = (<any>require).context("./images-v1", true, /\.svg$/);
-// svgBundle.V2 = (<any>require).context("./images-v2", true, /\.svg$/);
-
-export function registerIcons(iconsV1:any, iconsV2:any) {
-  let path;
-  if (settings.useLegacyIcons) {
-    path = iconsV1.path;
-  } else {
-    path = iconsV2.path;
-  }
-  SvgRegistry.registerIconsFromFolder(path);
-}
+export const SvgRegistry: SvgIconRegistry = new SvgIconRegistry();
+export const SvgThemeSets: { [index: string]: SvgIconData } = {};

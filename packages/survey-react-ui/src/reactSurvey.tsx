@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, registerIcons } from "survey-core";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SurveyModel, settings, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, SvgRegistry, SvgThemeSets } from "survey-core";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -13,8 +13,10 @@ import { ComponentsContainer } from "./components/components-container";
 import { SvgBundleComponent } from "./svgbundle";
 import { PopupModal } from "./components/popup/popup-modal";
 
-const iconsV1 = require("@coreIconsV1");
-const iconsV2 = require("@coreIconsV2");
+import iconsV1 from "@coreIconsV1";
+import iconsV2 from "@coreIconsV2";
+SvgThemeSets["v1"] = iconsV1;
+SvgThemeSets["v2"] = iconsV2;
 
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
@@ -38,7 +40,8 @@ export class Survey extends SurveyElementBase<any, any>
     this.rootRef = React.createRef();
     this.rootNodeId = props.id || null;
     this.rootNodeClassName = props.className || "";
-    registerIcons(iconsV1, iconsV2);
+
+    SvgRegistry.registerIcons(settings.useLegacyIcons ? iconsV1 : iconsV2);
   }
   protected getStateElement(): Base {
     return this.survey;

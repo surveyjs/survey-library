@@ -1,1 +1,0 @@
-export const path = (require as any).context("./", true, /\.svg$/);

@@ -11,8 +11,8 @@
     "declarationDir": "../../build/survey-core/icons/"
   },
   "include": [
-    "../../packages/survey-core/src/images-v1/index.ts",
-    "../../packages/survey-core/src/images-v2/index.ts",
+    "../../packages/survey-core/src/iconsV1.ts",
+    "../../packages/survey-core/src/iconsV2.ts",
   ],
   "exclude": [],
 }

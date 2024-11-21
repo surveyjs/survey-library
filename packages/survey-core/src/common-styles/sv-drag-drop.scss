@@ -47,6 +47,13 @@
     align-items: center;
     line-height: 0;
   }
+
+  .sd-table__cell.sd-table__cell--drag {
+    >div {
+      background-color: $question-background;
+      min-height: calcSize(6);
+    }
+  }
 }
 
 .sv-matrix-row--drag-drop-ghost-mod td {

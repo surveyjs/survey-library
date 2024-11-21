@@ -1844,7 +1844,7 @@ QUnit.test("isQuestion answered & design time", function (assert) {
   assert.strictEqual(rows[1].cells[1].question.isAnswered, false, "[1, 1]");
 });
 QUnit.test("Serialize empty column title, #9007", function (assert) {
-  settings.serialization.columnSerializeTitle = true;
+  settings.serialization.matrixDropdownColumnSerializeTitle = true;
 
   const matrix = new QuestionMatrixDropdownModel("q1");
   matrix.addColumn("col1");
@@ -1854,5 +1854,5 @@ QUnit.test("Serialize empty column title, #9007", function (assert) {
     columns: [{ name: "col1", title: "col1" }, { name: "col2", title: "Column2" }]
   }, "Serialize empty title");
 
-  settings.serialization.columnSerializeTitle = false;
+  settings.serialization.matrixDropdownColumnSerializeTitle = false;
 });

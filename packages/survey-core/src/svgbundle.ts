@@ -71,3 +71,13 @@ export class SvgIconRegistry {
 
 export const SvgRegistry: SvgIconRegistry = new SvgIconRegistry();
 export const SvgThemeSets: { [index: string]: SvgIconData } = {};
+
+export function addIconsToThemeSet(name: string, iconsData: SvgIconData): void {
+  if(!SvgThemeSets[name]) {
+    SvgThemeSets[name] = {};
+  }
+  const set = SvgThemeSets[name];
+  for (const iconId in iconsData) {
+    set[iconId] = iconsData[iconId];
+  }
+}

@@ -1,12 +1,11 @@
 import { ChangeDetectorRef, Component, Input } from "@angular/core";
-import { settings, SurveyModel, SvgRegistry, SvgThemeSets } from "survey-core";
+import { settings, SurveyModel, SvgRegistry, addIconsToThemeSet } from "survey-core";
 import { BaseAngular } from "./base-angular";
 
 import iconsV1 from "survey-core/icons/iconsV1";
 import iconsV2 from "survey-core/icons/iconsV2";
-
-SvgThemeSets["v1"] = iconsV1;
-SvgThemeSets["v2"] = iconsV2;
+addIconsToThemeSet("v1", iconsV1);
+addIconsToThemeSet("v2", iconsV1);
 @Component({
   selector: "survey",
   template: "<sv-ng-modal-container></sv-ng-modal-container><survey-content [model]='model'></survey-content>"

@@ -128,11 +128,11 @@
 </template>
 
 <script lang="ts">
-import { SvgThemeSets } from "survey-core";
+import { addIconsToThemeSet } from "survey-core";
 import iconsV1 from "survey-core/icons/iconsV1";
 import iconsV2 from "survey-core/icons/iconsV2";
-SvgThemeSets["v1"] = iconsV1;
-SvgThemeSets["v2"] = iconsV2;
+addIconsToThemeSet("v1", iconsV1);
+addIconsToThemeSet("v2", iconsV1);
 </script>
 
 <script lang="ts" setup>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SurveyModel, settings, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, SvgRegistry, SvgThemeSets } from "survey-core";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SurveyModel, settings, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, SvgRegistry, addIconsToThemeSet } from "survey-core";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -15,8 +15,8 @@ import { PopupModal } from "./components/popup/popup-modal";
 
 import iconsV1 from "@coreIconsV1";
 import iconsV2 from "@coreIconsV2";
-SvgThemeSets["v1"] = iconsV1;
-SvgThemeSets["v2"] = iconsV2;
+addIconsToThemeSet("v1", iconsV1);
+addIconsToThemeSet("v2", iconsV1);
 
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {

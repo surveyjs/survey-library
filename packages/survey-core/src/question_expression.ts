@@ -4,6 +4,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
+import { settings } from "./settings";
 
 /**
  * A class that describes the Expression question type. It is a read-only question type that calculates a value based on a specified expression.
@@ -220,7 +221,7 @@ export class QuestionExpressionModel extends Question {
   }
   protected getValueAsStr(val: any): string {
     if (this.displayStyle == "date") {
-      var d = new Date(val);
+      const d = settings.createDate("question-expression", val);
       if (!!d && !!d.toLocaleDateString) return d.toLocaleDateString();
     }
     if (this.displayStyle != "none" && Helpers.isNumber(val)) {

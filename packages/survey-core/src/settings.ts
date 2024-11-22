@@ -793,6 +793,16 @@ export var settings = {
    */
   storeUtcDates: false,
   /**
+   *
+   * @param reason "function-[functionname]", "question-[questionname]", "expression-operand"
+   * @param val
+   * @returns
+   */
+  createDate: (reason: string, val?: number | string | Date): Date => {
+    if(!val) return new Date();
+    return new Date(val);
+  },
+  /**
    * A function that allows you to define custom parsing rules for numbers represented as string values.
    *
    * The following code shows a template that you can use to implement the `parseNumber` function:

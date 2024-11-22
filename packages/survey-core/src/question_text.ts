@@ -359,16 +359,19 @@ export class QuestionTextModel extends QuestionTextBase {
   private hasToConvertToUTC(val: any): boolean {
     return settings.storeUtcDates && this.isDateTimeLocaleType() && !!val;
   }
+  private createDate(val?: number | string | Date): Date {
+    return settings.createDate("question-text", val);
+  }
   protected valueForSurveyCore(val: any): any {
     if(this.hasToConvertToUTC(val)) {
-      val = new Date(val).toISOString();
+      val = this.createDate(val).toISOString();
     }
     return super.valueForSurveyCore(val);
   }
   protected valueFromDataCore(val: any): any {
     if(this.hasToConvertToUTC(val)) {
-      const d = new Date(val);
-      const locale_d = new Date(d.getTime() - d.getTimezoneOffset() * 60 * 1000);
+      const d = this.createDate(val);
+      const locale_d = this.createDate(d.getTime() - d.getTimezoneOffset() * 60 * 1000);
       let res = locale_d.toISOString();
       val = res.substring(0, res.length - 2);
     }
@@ -468,7 +471,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   private getCalculatedMinMax(minMax: any): any {
     if (this.isValueEmpty(minMax)) return minMax;
-    return this.isDateInputType ? new Date(minMax) : minMax;
+    return this.isDateInputType ? this.createDate(minMax) : minMax;
   }
   private setRenderedMinMax(
     values: HashTable<any> = null,
@@ -554,7 +557,7 @@ export class QuestionTextModel extends QuestionTextBase {
       return Helpers.isNumber(newValue) ? Helpers.getNumber(newValue) : "";
     }
     if(this.inputType === "month") {
-      const d = new Date(newValue);
+      const d = this.createDate(newValue);
       const isUtc = d.toISOString().indexOf(newValue) == 0 && newValue.indexOf("T") == -1;
       const month = isUtc ? d.getUTCMonth() : d.getMonth();
       const year = isUtc ? d.getUTCFullYear() : d.getFullYear();
@@ -697,8 +700,9 @@ function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: bool
   if(Helpers.isValueEmpty(min) || Helpers.isValueEmpty(max)) return val;
   if(obj.inputType.indexOf("date") === 0 || obj.inputType === "month") {
     const isMonth = obj.inputType === "month";
-    const dMin = new Date(isMonth ? min + "-01" : min);
-    const dMax = new Date(isMonth ? max + "-01" : max);
+    const reason = "question-text-minmax";
+    const dMin = settings.createDate(reason, isMonth ? min + "-01" : min);
+    const dMax = settings.createDate(reason, isMonth ? max + "-01" : max);
     if(!dMin || !dMax) return val;
     if(dMin > dMax) return isMax ? min : max;
   }

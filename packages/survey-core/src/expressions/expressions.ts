@@ -631,7 +631,7 @@ static unaryFunctions: HashTable<Function> = {
   }
   static convertValForDateCompare(val: any, second: any): any {
     if(second instanceof Date && typeof val === "string") {
-      let res = new Date(val);
+      let res = settings.createDate("expression-operand", val);
       res.setHours(0, 0, 0);
       return res;
     }

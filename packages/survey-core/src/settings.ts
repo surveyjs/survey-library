@@ -187,27 +187,16 @@ export var settings = {
    * Nested properties:
    *
    * - `itemValueSerializeAsObject`: `boolean`\
-   * Enable this property if you want to serialize [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) instances as objects even when they include only the `value` property. Default value: `false`. View an example below.
+   * Enable this property if you want to serialize [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) instances (choice options, matrix rows, columns in a [Single-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model)) as objects even when they include only the `value` property. Default value: `false`.
    *
    * - `itemValueSerializeDisplayText`: `boolean`\
-   * Enable this property if you want to serialize the `text` property of [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) objects even when it is empty or equal to the `value` property. Default value: `false`. View an example below.
+   * Enable this property if you want to serialize the `text` property of [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) objects even when it is empty or equal to the `value` property. Default value: `false`.
    *
    * - `localizableStringSerializeAsObject`: `boolean`\
    * Enable this property if you want to serialize [`LocalizableString`](https://surveyjs.io/form-library/documentation/api-reference/localizablestring) instances as objects even when they include only a translation string for the default locale. For example, `"Custom String"` will be serialized as `{ default: "Custom String" }`. Default value: `false`.
    *
-   * ```js
-   * import { ItemValue, settings } from "survey-core";
-   *
-   * // `itemValueSerializeAsObject` example
-   * settings.serialization.itemValueSerializeAsObject = true;
-   * const item = new ItemValue(5);
-   * const itemString = item.toJSON(); // Produces { value: 5 } instead of 5
-   *
-   * // `itemValueSerializeDisplayText` example
-   * settings.serialization.itemValueSerializeDisplayText = true;
-   * const item = new ItemValue("item1");
-   * const itemString = item.toJSON(); // Produces { value: "item1", text: "item1" } instead of "item1"
-   * ```
+   * - `matrixDropdownColumnSerializeTitle`: `boolean`\
+   * Enable this property if you want to serialize the `title` property of [`MatrixDropdownColumn`](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) objects even when it is empty or equal to the `name` property. Default value: `false`.
    * @see [settings.parseNumber](https://surveyjs.io/form-library/documentation/api-reference/settings#parseNumber)
    */
   serialization: {

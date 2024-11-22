@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var catalanSurveyStrings = {
   pagePrevText: "Anterior",
@@ -110,7 +110,8 @@ export var catalanSurveyStrings = {
   cancel: "Cancel·lar"
 };
 
-surveyLocalization.setupLocale("ca", catalanSurveyStrings, "català", "Catalan");
+setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "català", englishName: "Catalan" });
+
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
 // previewText: "Preview" => "Preestrena"

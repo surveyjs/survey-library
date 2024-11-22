@@ -60,6 +60,7 @@ export class LocalizableString implements ILocalizableString {
   }
   public onGetTextCallback: (str: string) => string;
   public storeDefaultText: boolean;
+  public serializeCallBackText: boolean;
   public onGetLocalizationTextCallback: (str: string) => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
   public onSearchChanged: () => void;
@@ -280,7 +281,13 @@ export class LocalizableString implements ILocalizableString {
   public getJson(): any {
     if (!!this.sharedData) return this.sharedData.getJson();
     const keys = this.getValuesKeys();
-    if (keys.length == 0) return null;
+    if (keys.length == 0) {
+      if(this.serializeCallBackText) {
+        const text = this.calcText();
+        if(!!text) return text;
+      }
+      return null;
+    }
     if (
       keys.length == 1 &&
       keys[0] == settings.localization.defaultLocaleName &&

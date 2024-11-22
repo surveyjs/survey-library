@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var latvianSurveyStrings = {
   pagePrevText: "Iepriekšēja lapa",
@@ -110,7 +110,7 @@ export var latvianSurveyStrings = {
   cancel: "Atcelt"
 };
 
-surveyLocalization.setupLocale("lv", latvianSurveyStrings, "latviešu", "Latvian");
+setupLocale({ localeCode: "lv", strings: latvianSurveyStrings, nativeName: "latviešu", englishName: "Latvian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var thaiStrings = {
   pagePrevText: "ก่อนหน้า",
@@ -110,7 +110,7 @@ export var thaiStrings = {
   cancel: "ยกเลิก"
 };
 
-surveyLocalization.setupLocale("th", thaiStrings, "ไทย", "Thai");
+setupLocale({ localeCode: "th", strings: thaiStrings, nativeName: "ไทย", englishName: "Thai" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

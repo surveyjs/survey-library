@@ -52,7 +52,6 @@ var buildPlatformJson = {
 };
 
 module.exports = function (options) {
-  debugger;
   var buildPath = __dirname + "/build/";
   var isProductionBuild = options.buildType === "prod";
 

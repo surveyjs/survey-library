@@ -544,8 +544,8 @@ Serializer.addClass(
       default: "png",
       choices: [
         { value: "png", text: "PNG" },
-        { value: "image/jpeg", text: "JPEG" },
-        { value: "image/svg+xml", text: "SVG" },
+        { value: "jpeg", text: "JPEG" },
+        { value: "svg", text: "SVG" },
       ],
       onSettingValue: (obj: any, val: any): any => {
         return correctFormatData(val);

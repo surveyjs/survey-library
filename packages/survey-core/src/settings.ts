@@ -827,5 +827,4 @@ export var settings = {
    * @see [settings.serialization](https://surveyjs.io/form-library/documentation/api-reference/settings#serialization)
    */
   parseNumber: (stringValue: any, numericValue: number): number => { return numericValue; },
-  useLegacyIcons: true
 };

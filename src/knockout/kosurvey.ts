@@ -15,6 +15,7 @@ import { icons as iconsV2 } from "@coreIconsV2";
 
 addIconsToThemeSet("v1", iconsV1);
 addIconsToThemeSet("v2", iconsV2);
+SvgRegistry.registerIcons(iconsV1);
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;
@@ -137,7 +138,6 @@ export class Survey extends SurveyModel {
   constructor(jsonObj: any = null, renderedElement: any = null) {
     super(jsonObj, renderedElement);
     this.implementor = new SurveyImplementor(this);
-    SvgRegistry.registerIcons(settings.useLegacyIcons ? iconsV1 : iconsV2);
   }
   public render(element: any = null): void {
     this.implementor.render(element);

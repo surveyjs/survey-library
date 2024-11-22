@@ -1,13 +1,7 @@
 import * as ko from "knockout";
-import { SurveyModel, PopupSurveyModel, settings, SvgRegistry, addIconsToThemeSet } from "survey-core";
+import { SurveyModel, PopupSurveyModel, settings } from "survey-core";
 import { ImplementorBase } from "./kobase";
 var koTemplate = require("html-loader?interpolate!val-loader!./templates/window.html");
-
-import { icons as iconsV1 } from "@coreIconsV1";
-import { icons as iconsV2 } from "@coreIconsV2";
-
-addIconsToThemeSet("v1", iconsV1);
-addIconsToThemeSet("v2", iconsV2);
 
 export class PopupSurveyImplementor extends ImplementorBase {
   constructor(public window: PopupSurveyModel) {
@@ -44,7 +38,6 @@ export class PopupSurveyImplementor extends ImplementorBase {
 }
 
 PopupSurveyModel.prototype["onCreating"] = function() {
-  SvgRegistry.registerIcons(settings.useLegacyIcons ? iconsV1 : iconsV2);
   this.implementor = new PopupSurveyImplementor(this);
 };
 

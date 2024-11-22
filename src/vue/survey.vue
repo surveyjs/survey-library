@@ -64,14 +64,14 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { Base, StylesManager, surveyCss, SurveyModel, SvgRegistry, settings, addIconsToThemeSet } from "survey-core";
+import { Base, StylesManager, surveyCss, SurveyModel, SvgRegistry, addIconsToThemeSet } from "survey-core";
 import { BaseVue } from "./base";
 
 import { icons as iconsV1 } from "@coreIconsV1";
 import { icons as iconsV2 } from "@coreIconsV2";
 addIconsToThemeSet("v1", iconsV1);
 addIconsToThemeSet("v2", iconsV2);
-
+SvgRegistry.registerIcons(iconsV1);
 @Component
 export class Survey extends BaseVue {
   @Prop() survey: SurveyModel;
@@ -87,7 +87,6 @@ export class Survey extends BaseVue {
 
   constructor() {
     super();
-    SvgRegistry.registerIcons(settings.useLegacyIcons ? iconsV1 : iconsV2);
   }
   protected getModel(): Base {
     return this.vueSurvey;

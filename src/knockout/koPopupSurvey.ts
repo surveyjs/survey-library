@@ -44,13 +44,13 @@ export class PopupSurveyImplementor extends ImplementorBase {
 }
 
 PopupSurveyModel.prototype["onCreating"] = function() {
+  SvgRegistry.registerIcons(settings.useLegacyIcons ? iconsV1 : iconsV2);
   this.implementor = new PopupSurveyImplementor(this);
 };
 
 export class PopupSurvey extends PopupSurveyModel {
   constructor(jsonObj: any, initialModel: SurveyModel = null) {
     super(jsonObj, initialModel);
-    SvgRegistry.registerIcons(settings.useLegacyIcons ? iconsV1 : iconsV2);
   }
 }
 

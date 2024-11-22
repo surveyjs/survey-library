@@ -1,5 +1,6 @@
 import { renamedIcons } from "./utils/utils";
 import { DomDocumentHelper } from "./global_variables_utils";
+import { EventBase } from "./base";
 
 interface SvgIconData {
   [key: string]: string;
@@ -63,10 +64,15 @@ export class SvgIconRegistry {
     for (const iconId in icons) {
       this.registerIconFromSvg(iconId, icons[iconId]);
     }
+    this.updateMarkup();
   }
   public iconsRenderedHtml(): string {
     return Object.keys(this.icons).map(icon => this.icons[icon]).join("");
   }
+  public updateMarkup(): void {
+    this.onIconsChanged.fire(this, {});
+  }
+  public onIconsChanged = new EventBase<SvgIconRegistry, {}>()
 }
 
 export const SvgRegistry: SvgIconRegistry = new SvgIconRegistry();

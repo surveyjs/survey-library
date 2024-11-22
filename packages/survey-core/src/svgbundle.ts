@@ -14,6 +14,7 @@ export class SvgIconRegistry {
     if (iconId.indexOf(iconPrefix) == 0) {
       iconId = iconId.substring(iconPrefix.length);
     }
+    iconId = renamedIcons[iconId] || iconId;
     return iconId;
   }
   public registerIconFromSymbol(iconId: string, iconSymbolSvg: string) {

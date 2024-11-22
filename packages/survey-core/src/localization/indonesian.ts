@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var indonesianStrings = {
   pagePrevText: "Sebelumnya",
@@ -110,7 +110,7 @@ export var indonesianStrings = {
   cancel: "Membatalkan"
 };
 
-surveyLocalization.setupLocale("id", indonesianStrings, "bahasa indonesia", "Indonesian");
+setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa indonesia", englishName: "Indonesian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

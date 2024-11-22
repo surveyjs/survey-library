@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var estonianSurveyStrings = {
   pagePrevText: "Tagasi",
@@ -110,7 +110,7 @@ export var estonianSurveyStrings = {
   cancel: "Tühistama"
 };
 
-surveyLocalization.setupLocale("et", estonianSurveyStrings, "eesti keel", "Estonian");
+setupLocale({ localeCode: "et", strings: estonianSurveyStrings, nativeName: "eesti keel", englishName: "Estonian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

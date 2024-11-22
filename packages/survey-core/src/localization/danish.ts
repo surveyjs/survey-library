@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var danishSurveyStrings = {
   pagePrevText: "Tilbage",
@@ -110,7 +110,7 @@ export var danishSurveyStrings = {
   cancel: "Aflyse"
 };
 
-surveyLocalization.setupLocale("da", danishSurveyStrings, "dansk", "Danish");
+setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk", englishName: "Danish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

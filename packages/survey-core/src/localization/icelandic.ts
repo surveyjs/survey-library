@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var icelandicSurveyStrings = {
   pagePrevText: "Tilbaka",
@@ -110,7 +110,7 @@ export var icelandicSurveyStrings = {
   cancel: "Afturkalla"
 };
 
-surveyLocalization.setupLocale("is", icelandicSurveyStrings, "íslenska", "Icelandic");
+setupLocale({ localeCode: "is", strings: icelandicSurveyStrings, nativeName: "íslenska", englishName: "Icelandic" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

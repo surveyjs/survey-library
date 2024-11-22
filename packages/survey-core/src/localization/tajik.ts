@@ -1,6 +1,6 @@
 // This dictionary contains 25 untranslated or inherited localization strings.
 // These strings are commented out. Uncomment and edit them if you want to add your translations.
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var tajikSurveyStrings = {
   pagePrevText: "Бозгашт",
@@ -90,4 +90,4 @@ export var tajikSurveyStrings = {
   // more: "More"
 };
 
-surveyLocalization.setupLocale("tg", tajikSurveyStrings, "тоҷикӣ", "Tajik");
+setupLocale({ localeCode: "tg", strings: tajikSurveyStrings, nativeName: "тоҷикӣ", englishName: "Tajik" });

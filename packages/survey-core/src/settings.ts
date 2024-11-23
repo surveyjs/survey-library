@@ -792,12 +792,7 @@ export var settings = {
    * ```
    */
   storeUtcDates: false,
-  /**
-   *
-   * @param reason "function-[functionname]", "question-[questionname]", "expression-operand"
-   * @param val
-   * @returns
-   */
+  // @param reason "function-[functionname]", "question-[questionname]", "expression-operand"
   createDate: (reason: string, val?: number | string | Date): Date => {
     if(!val) return new Date();
     return new Date(val);

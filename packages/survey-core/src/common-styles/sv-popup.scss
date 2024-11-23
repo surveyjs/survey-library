@@ -120,6 +120,10 @@ sv-popup {
   }
 }
 
+.sd-root-modern--mobile .sv-popup--confirm-delete .sv-popup__body-content {
+  min-width: auto;
+}
+
 .sv-popup--overlay {
   width: 100%;
   height: $popup-overlay-height;

@@ -253,6 +253,43 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check Matrixdynamic delete confirm dialog", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrixdynamic",
+                "name": "question1",
+                "defaultValue": [
+                  { "Column 1": 1, "Column 2": 2, "Column 3": 3 },
+                  { "Column 1": 4, "Column 2": 5, "Column 3": 5 }
+                ],
+                "columns": [{ "name": "Column 1" }, { "name": "Column 2" }, { "name": "Column 3" }],
+                "choices": [1, 2, 3, 4, 5],
+                "confirmDelete": true
+              }
+            ]
+          }
+        ]
+      });
+
+      const confirmDelete = Selector(".sv-popup--confirm-delete .sv-popup__container");
+      await t.click(".sd-matrixdynamic__remove-btn");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdynamic-delete-confirm-dialog.png", confirmDelete, t, comparer);
+      await t.click(Selector("span").withText("Cancel"));
+
+      await t.resizeWindow(375, 667);
+      await t.click(".sd-matrixdynamic__remove-btn");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdynamic-delete-confirm-dialog-mobile.png", confirmDelete, t, comparer);
+    });
+  });
+
   test("Check matrixdropdown with showInMultipleColumns", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);

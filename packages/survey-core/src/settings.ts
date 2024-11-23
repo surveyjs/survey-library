@@ -793,9 +793,8 @@ export var settings = {
    */
   storeUtcDates: false,
   // @param reason "function-[functionname]", "question-[questionname]", "expression-operand"
-  createDate: (reason: string, val?: number | string | Date): Date => {
-    if(!val) return new Date();
-    return new Date(val);
+  onDateCreated: (newDate: Date, reason: string, val?: number | string | Date): Date => {
+    return newDate;
   },
   /**
    * A function that allows you to define custom parsing rules for numbers represented as string values.

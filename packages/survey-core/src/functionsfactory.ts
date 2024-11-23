@@ -1,4 +1,4 @@
-import { HashTable, Helpers } from "./helpers";
+import { HashTable, Helpers, createDate } from "./helpers";
 import { settings } from "./settings";
 import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner } from "./conditions";
@@ -238,14 +238,14 @@ FunctionFactory.Instance.register("iif", iif);
 function getDate(params: any[]): any {
   if (!params && params.length < 1) return null;
   if (!params[0]) return null;
-  return settings.createDate("function-getDate", params[0]);
+  return createDate("function-getDate", params[0]);
 }
 FunctionFactory.Instance.register("getDate", getDate);
 
 function dateDiffMonths(date1Param: any, date2Param: any, type: string): number {
   if(type === "days") return diffDays([date1Param, date2Param]);
-  const date1 = settings.createDate("function-dateDiffMonths", date1Param);
-  const date2 = settings.createDate("function-dateDiffMonths", date2Param);
+  const date1 = createDate("function-dateDiffMonths", date1Param);
+  const date2 = createDate("function-dateDiffMonths", date2Param);
   const age = date2.getFullYear() - date1.getFullYear();
   type = type || "years";
   let ageInMonths = age * 12 + date2.getMonth() - date1.getMonth();
@@ -304,12 +304,12 @@ function isDisplayMode() {
 FunctionFactory.Instance.register("isDisplayMode", isDisplayMode);
 
 function currentDate() {
-  return settings.createDate("function-currentDate");
+  return createDate("function-currentDate");
 }
 FunctionFactory.Instance.register("currentDate", currentDate);
 
 function today(params: any[]) {
-  var res = settings.createDate("function-today");
+  var res = createDate("function-today");
   if(settings.localization.useLocalTimeZone) {
     res.setHours(0, 0, 0, 0);
   } else {
@@ -324,20 +324,20 @@ FunctionFactory.Instance.register("today", today);
 
 function getYear(params: any[]) {
   if(params.length !== 1 || !params[0]) return undefined;
-  return settings.createDate("function-getYear", params[0]).getFullYear();
+  return createDate("function-getYear", params[0]).getFullYear();
 }
 FunctionFactory.Instance.register("getYear", getYear);
 
 function currentYear() {
-  return settings.createDate("function-currentYear").getFullYear();
+  return createDate("function-currentYear").getFullYear();
 }
 FunctionFactory.Instance.register("currentYear", currentYear);
 
 function diffDays(params: any[]) {
   if (!Array.isArray(params) || params.length !== 2) return 0;
   if (!params[0] || !params[1]) return 0;
-  const date1: any = settings.createDate("function-diffDays", params[0]);
-  const date2: any = settings.createDate("function-diffDays", params[1]);
+  const date1: any = createDate("function-diffDays", params[0]);
+  const date2: any = createDate("function-diffDays", params[1]);
   const diffTime = Math.abs(date2 - date1);
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
@@ -346,7 +346,7 @@ FunctionFactory.Instance.register("diffDays", diffDays);
 function dateFromFirstParameterOrToday(name: string, params: any[]) {
   let date = today(undefined);
   if (params && params[0]) {
-    date = settings.createDate("function-" + name, params[0]);
+    date = createDate("function-" + name, params[0]);
   }
   return date;
 }

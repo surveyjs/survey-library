@@ -1,4 +1,4 @@
-import { HashTable, Helpers } from "./helpers";
+import { HashTable, Helpers, createDate } from "./helpers";
 import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -221,7 +221,7 @@ export class QuestionExpressionModel extends Question {
   }
   protected getValueAsStr(val: any): string {
     if (this.displayStyle == "date") {
-      const d = settings.createDate("question-expression", val);
+      const d = createDate("question-expression", val);
       if (!!d && !!d.toLocaleDateString) return d.toLocaleDateString();
     }
     if (this.displayStyle != "none" && Helpers.isNumber(val)) {

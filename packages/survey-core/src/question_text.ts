@@ -1,7 +1,7 @@
 import { QuestionFactory } from "./questionfactory";
 import { Serializer, property } from "./jsonobject";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
-import { Helpers, HashTable } from "./helpers";
+import { Helpers, HashTable, createDate } from "./helpers";
 import { EmailValidator } from "./validator";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
@@ -360,7 +360,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return settings.storeUtcDates && this.isDateTimeLocaleType() && !!val;
   }
   private createDate(val?: number | string | Date): Date {
-    return settings.createDate("question-text", val);
+    return createDate("question-text", val);
   }
   protected valueForSurveyCore(val: any): any {
     if(this.hasToConvertToUTC(val)) {
@@ -701,8 +701,8 @@ function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: bool
   if(obj.inputType.indexOf("date") === 0 || obj.inputType === "month") {
     const isMonth = obj.inputType === "month";
     const reason = "question-text-minmax";
-    const dMin = settings.createDate(reason, isMonth ? min + "-01" : min);
-    const dMax = settings.createDate(reason, isMonth ? max + "-01" : max);
+    const dMin = createDate(reason, isMonth ? min + "-01" : min);
+    const dMax = createDate(reason, isMonth ? max + "-01" : max);
     if(!dMin || !dMax) return val;
     if(dMin > dMax) return isMax ? min : max;
   }

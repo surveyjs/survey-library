@@ -596,10 +596,14 @@ QUnit.test("createDate & settings.onDateCreated", function(assert) {
     return newDate;
   };
   assert.equal(createDate("#2", "2024-10-10").getDate(), 11, "#2");
-  assert.equal(func_val, "2024-10-10", "val");
+  assert.equal(func_val, "2024-10-10T00:00:00", "val");
   assert.equal(func_reason, "#2", "reason");
   settings.onDateCreated = (date, reason, val) => {
     return date;
   };
   assert.equal(createDate("#3", "2024-10-10").getDate(), 10, "#3");
+});
+QUnit.test("createDate & T00:00:00", function(assert) {
+  assert.equal(createDate("#1", "2024-10-10").getHours(), 0, "#1");
+  assert.notEqual(createDate("#2", "2024-10-10T02:00:00").getHours(), 0, "#2");
 });

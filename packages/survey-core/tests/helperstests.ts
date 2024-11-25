@@ -613,10 +613,12 @@ QUnit.test("createDate & T00:00:00 & settings.storeUtcDates", function(assert) {
   assert.equal(func_val, "2024-10-10T00:00:00", "#1");
   createDate("#2", "2024-10-10T02:00:00");
   assert.equal(func_val, "2024-10-10T02:00:00", "#2");
+  createDate("#3", "10/10/2024");
+  assert.equal(func_val, "10/10/2024", "#3");
 
   settings.storeUtcDates = true;
-  createDate("#3", "2024-10-10");
-  assert.equal(func_val, "2024-10-10", "#3");
+  createDate("#4", "2024-10-10");
+  assert.equal(func_val, "2024-10-10", "#4");
   settings.storeUtcDates = false;
 
   settings.onDateCreated = (date, reason, val) => {

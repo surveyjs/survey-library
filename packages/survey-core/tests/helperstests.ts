@@ -603,7 +603,23 @@ QUnit.test("createDate & settings.onDateCreated", function(assert) {
   };
   assert.equal(createDate("#3", "2024-10-10").getDate(), 10, "#3");
 });
-QUnit.test("createDate & T00:00:00", function(assert) {
-  assert.equal(createDate("#1", "2024-10-10").getHours(), 0, "#1");
-  assert.notEqual(createDate("#2", "2024-10-10T02:00:00").getHours(), 0, "#2");
+QUnit.test("createDate & T00:00:00 & settings.storeUtcDates", function(assert) {
+  let func_val: any = "";
+  settings.onDateCreated = (newDate, reason, val) => {
+    func_val = val;
+    return newDate;
+  };
+  createDate("#1", "2024-10-10");
+  assert.equal(func_val, "2024-10-10T00:00:00", "#1");
+  createDate("#2", "2024-10-10T02:00:00");
+  assert.equal(func_val, "2024-10-10T02:00:00", "#2");
+
+  settings.storeUtcDates = true;
+  createDate("#3", "2024-10-10");
+  assert.equal(func_val, "2024-10-10", "#3");
+  settings.storeUtcDates = false;
+
+  settings.onDateCreated = (date, reason, val) => {
+    return date;
+  };
 });

@@ -56,6 +56,13 @@
   }
 }
 
+.sd-table__cell--header,
+.sd-table__cell {
+  &.sd-table__cell--drag {
+    padding-right: 0;
+  }
+}
+
 .sv-matrix-row--drag-drop-ghost-mod td {
   background-color: $background-dim;
 }

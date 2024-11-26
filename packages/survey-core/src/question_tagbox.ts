@@ -175,13 +175,9 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.onOpened.fire(this, { question: this, choices: this.choices });
   }
 
-  protected hasUnknownValue(
-    val: any,
-    includeOther: boolean,
-    isFilteredChoices: boolean,
-    checkEmptyValue: boolean
-  ): boolean {
-    if(this.choicesLazyLoadEnabled) { return false; }
+  protected hasUnknownValue(val: any, includeOther: boolean = false,
+    isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
+    if(this.choicesLazyLoadEnabled) return false;
     return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected needConvertRenderedOtherToDataValue(): boolean {

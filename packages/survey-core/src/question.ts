@@ -2765,7 +2765,7 @@ export class Question extends SurveyElement<Question>
   public get ariaDescribedBy(): string {
     if (this.isNewA11yStructure) return null;
 
-    if (this.hasTitle) {
+    if (this.hasTitle && this.hasDescription) {
       return this.ariaDescriptionId;
     } else {
       return null;
@@ -2804,7 +2804,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
-    if (this.hasTitle && !this.parentQuestion) {
+    if (this.hasTitle && !this.parentQuestion && this.hasDescription) {
       return this.ariaDescriptionId;
     } else {
       return null;

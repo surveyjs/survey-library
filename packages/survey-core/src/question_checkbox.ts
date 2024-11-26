@@ -192,6 +192,14 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return false;
   }
+  protected hasUnknownValueItem(val: any, includeOther: boolean = false,
+    isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
+    const propName = this.valuePropertyName;
+    if(!!propName && typeof val === "object" && val[propName] !== undefined) {
+      val = val[propName];
+    }
+    return super.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue);
+  }
   protected convertFuncValuetoQuestionValue(val: any): any {
     if(!!this.valuePropertyName && Array.isArray(val) && val.length > 0) {
       const res: Array<any> = [];
@@ -413,10 +421,21 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (ind < 0) return "";
     return newValue[ind];
   }
+  public getStoreOthersAsComment(): boolean {
+    if(!!this.valuePropertyName) return false;
+    return super.getStoreOthersAsComment();
+  }
   protected setOtherValueIntoValue(newValue: any): any {
     var ind = this.getFirstUnknownIndex(newValue);
     if (ind < 0) return newValue;
-    newValue.splice(ind, 1, this.otherItem.value);
+    let otherVal: any = this.otherItem.value;
+    const propName = this.valuePropertyName;
+    if(propName) {
+      const obj: any = {};
+      obj[propName] = otherVal;
+      otherVal = obj;
+    }
+    newValue.splice(ind, 1, otherVal);
     return newValue;
   }
   private getFirstUnknownIndex(newValue: any): number {

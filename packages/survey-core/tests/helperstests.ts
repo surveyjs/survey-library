@@ -1,4 +1,4 @@
-import { Helpers } from "../src/helpers";
+import { Helpers, createDate } from "../src/helpers";
 import { EmailValidator } from "../src/validator";
 import { SurveyModel } from "../src/survey";
 import { ProcessValue } from "../src/conditionProcessValue";
@@ -584,4 +584,44 @@ QUnit.test("compareVersions", function(assert) {
   assert.equal(Helpers.compareVerions("1.2.3", "1"), 1, "#9");
   assert.equal(Helpers.compareVerions("1.2", "1.2.3"), -1, "#10");
   assert.equal(Helpers.compareVerions("1.2.3", "1.2"), 1, "#11");
+});
+QUnit.test("createDate & settings.onDateCreated", function(assert) {
+  assert.equal(createDate("#1", "2024-10-10").getDate(), 10, "#1");
+  let func_val: any = "";
+  let func_reason = "";
+  settings.onDateCreated = (newDate, reason, val) => {
+    func_val = val;
+    func_reason = reason;
+    newDate.setDate(newDate.getDate() + 1);
+    return newDate;
+  };
+  assert.equal(createDate("#2", "2024-10-10").getDate(), 11, "#2");
+  assert.equal(func_val, "2024-10-10T00:00:00", "val");
+  assert.equal(func_reason, "#2", "reason");
+  settings.onDateCreated = (date, reason, val) => {
+    return date;
+  };
+  assert.equal(createDate("#3", "2024-10-10").getDate(), 10, "#3");
+});
+QUnit.test("createDate & T00:00:00 & settings.storeUtcDates", function(assert) {
+  let func_val: any = "";
+  settings.onDateCreated = (newDate, reason, val) => {
+    func_val = val;
+    return newDate;
+  };
+  createDate("#1", "2024-10-10");
+  assert.equal(func_val, "2024-10-10T00:00:00", "#1");
+  createDate("#2", "2024-10-10T02:00:00");
+  assert.equal(func_val, "2024-10-10T02:00:00", "#2");
+  createDate("#3", "10/10/2024");
+  assert.equal(func_val, "10/10/2024", "#3");
+
+  settings.storeUtcDates = true;
+  createDate("#4", "2024-10-10");
+  assert.equal(func_val, "2024-10-10", "#4");
+  settings.storeUtcDates = false;
+
+  settings.onDateCreated = (date, reason, val) => {
+    return date;
+  };
 });

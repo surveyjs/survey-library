@@ -1032,12 +1032,9 @@ frameworks.forEach(framework => {
       await t.click(Selector(".sd-navigation__complete-btn"));
       await resetFocusToBody();
       await takeElementScreenshot("question-matrix-alternate-rows-invalid-value.png", rowElement, t, comparer);
-
-      await ClientFunction(() => {
-        (window as any).survey.getAllQuestions()[0].value = { "Row 1": "Column 1" };
-        document.body.focus();
-      })();
-
+      await t.click(Selector("input"));
+      await takeElementScreenshot("question-matrix-alternate-rows-selected-focused.png", rowElement, t, comparer);
+      await resetFocusToBody();
       await takeElementScreenshot("question-matrix-alternate-rows-selected-value.png", rowElement, t, comparer);
     });
   });

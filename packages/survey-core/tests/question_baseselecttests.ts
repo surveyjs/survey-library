@@ -678,10 +678,11 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther", (assert) => {
     ]
   });
   const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.getStoreOthersAsComment(), false, "It becomes false because of valuePropertyName");
   q.renderedValue = ["other"];
   assert.deepEqual(q.value, [{ fruit: "other" }], "#1");
   q.comment = "text1";
-  assert.deepEqual(survey.data, { q1: [{ fruit: "other" }], "q1-Comment": "text1" }, "2");
+  assert.deepEqual(survey.data, { q1: [{ fruit: "text1" }] }, "2");
 });
 QUnit.test("checkbox vs valuePropertyName, getDisplayValue", (assert) => {
   const survey = new SurveyModel({
@@ -719,6 +720,39 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsCommen
   q.comment = "text1";
   assert.deepEqual(q.value, [{ fruit: "text1" }], "#2");
   assert.deepEqual(survey.data, { q1: [{ fruit: "text1" }] }, "#3");
+});
+QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsComment & matrix", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit",
+        hasOther: true
+      },
+      {
+        type: "matrixdynamic",
+        name: "q2",
+        valueName: "q1",
+        columns: [
+          { cellType: "text", name: "col1" },
+          { cellType: "expression", name: "col2", expression: "{row.fruit}" }
+        ]
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.getStoreOthersAsComment(), false, "it is false valuePropertyName is not empty");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  q.renderedValue = ["apple", "other"];
+  const rows = matrix.visibleRows;
+  assert.equal(rows.length, 2, "matrix rows");
+  q.comment = "text1";
+  assert.equal(rows.length, 2, "matrix rows");
+  assert.equal(rows[0].cells[1].question.value, "apple", "rows[0]");
+  assert.equal(rows[1].cells[1].question.value, "text1", "rows[1]");
+  assert.deepEqual(survey.data, { q1: [{ fruit: "apple", col2: "apple" }, { fruit: "text1", col2: "text1" }] }, "survey.data");
 });
 QUnit.test("checkbox vs valuePropertyName, use in expression", (assert) => {
   const survey = new SurveyModel({

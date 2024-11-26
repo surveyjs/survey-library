@@ -4,12 +4,27 @@ export interface HashTable<T = any> {
   [key: string]: T;
 }
 
+export function createDate(reason: string, val?: number | string | Date): Date {
+  if(!val) return new Date();
+  if(!settings.storeUtcDates && typeof val === "string" && isISODateOnly(val)) {
+    val += "T00:00:00";
+  }
+  const d = new Date(val);
+  return settings.onDateCreated(d, reason, val);
+}
+
+function isISODateOnly(str: string): boolean {
+  if(str.indexOf("T") > 0) return false;
+  if (!/\d{4}-\d{2}-\d{2}/.test(str)) return false;
+  return !isNaN(new Date(str).getTime());
+}
+
 export class Helpers {
   /**
    * A static methods that returns true if a value undefined, null, empty string or empty array.
    * @param value
    */
-  public static isValueEmpty(value: any) {
+  public static isValueEmpty(value: any): boolean {
     if (Array.isArray(value) && value.length === 0) return true;
     if (!!value && Helpers.isValueObject(value) && value.constructor === Object) {
       for (var key in value) {

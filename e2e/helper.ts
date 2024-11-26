@@ -23,8 +23,8 @@ export const applyTheme = async (page: Page, theme: string) => {
     window["Survey"].StylesManager.applyTheme(theme);
   }, theme);
 };
-export const initSurvey = async (page: Page, framework: string, json: any, events?: any, isDesignMode?: boolean, props?: any) => {
-  await page.evaluate(([framework, json, events, isDesignMode, props]) => {
+export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any) => {
+  await page.evaluate(([framework, json, isDesignMode, props]) => {
     // eslint-disable-next-line no-console
     console.error = (msg) => {
       throw new Error(msg);
@@ -46,11 +46,6 @@ export const initSurvey = async (page: Page, framework: string, json: any, event
         model.data
       );
     };
-    if (!!events) {
-      for (var str in events) {
-        model[str].add(events[str]);
-      }
-    }
     if (!!props) {
       for (var key in props) {
         model[key] = props[key];
@@ -90,7 +85,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, event
       window.setSurvey(model);
     }
     window["survey"] = model;
-  }, [framework, json, events, isDesignMode, props]);
+  }, [framework, json, isDesignMode, props]);
 };
 
 export async function checkSurveyData(page: Page, json: any): Promise<void> {

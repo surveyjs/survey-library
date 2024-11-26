@@ -1,10 +1,9 @@
 import { frameworks, url_test, initSurvey } from "../helper";
-import { QuestionBoolean } from "../questionHelper";
+import { Question, QuestionBoolean } from "../questionHelper";
 import { test, expect } from "@playwright/test";
-import { Survey } from "../surveyHelper";
 
 const themeName = "defaultV2";
-const title = "visibleTrigger";
+const title = "boolean";
 frameworks.forEach((framework) => {
   test.describe(title + " - " + framework, () => {
     test.beforeEach(async ({ page }) => {
@@ -43,18 +42,6 @@ frameworks.forEach((framework) => {
       await question.clickThumb(false);
       await question.checkQuestionValue(false);
     });
-    test("check arrow keydowns", async ({ page }) => {
-      const question = new QuestionBoolean(page, "bool");
-      await question.focus();
-      await question.checkQuestionValue(undefined);
-      page.keyboard.down("ArrowRight");
-      page.keyboard.up("ArrowRight");
-      await question.checkQuestionValue(true);
-      page.keyboard.down("ArrowLeft");
-      page.keyboard.up("ArrowLeft");
-      await question.checkQuestionValue(false);
-    });
-
     /*
     Can't click on invisible element in playwright
     test("click on right side of switch in intermediate state", async ({ page }) => {
@@ -70,297 +57,195 @@ frameworks.forEach((framework) => {
       await question.checkQuestionValue(false);
     });
     */
-  });
-});
-
-/*
-var json = {
-  questions: [
-    {
-      type: "boolean",
-      name: "bool",
-      title: "Are you 21 or older?",
-      isRequired: true,
-    },
-  ],
-};
-
-var jsonCheckbox = {
-  questions: [
-    {
-      type: "boolean",
-      name: "bool",
-      title: "Are you 21 or older?",
-      renderAs: "checkbox",
-      isRequired: true,
-    },
-  ],
-};
-var jsonCheckbox2 = {
-  elements: [
-    {
-      type: "boolean",
-      name: "bool",
-      title: "Are you 21 or older?",
-      titleLocation: "hidden",
-      renderAs: "checkbox",
-    },
-  ],
-};
-
-var jsonRadio = {
-  questions: [
-    {
-      type: "boolean",
-      name: "bool",
-      title: "Are you 21 or older?",
-      isRequired: true,
-      renderAs: "radio"
-    },
-  ],
-};
-
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, json);
-    }
-  );
-
-  test("checked class", async (t) => {
-    const label = Selector("div label");
-    await t
-      .expect(label.classNames).notContains("checked")
-
-      .click("div label", { offsetX: 1 })
-      .expect(label.classNames).notContains("checked")
-
-      .click("div label")
-      .expect(label.classNames).contains("checked");
-  });
-
-  test("click on true label in intermediate state", async (t) => {
-    let questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(undefined);
-
-    await t.click(Selector(".sv-boolean__thumb-ghost").nth(1));
-
-    questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(true);
-  });
-
-  test("click on false label in intermediate state", async (t) => {
-    let questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(undefined);
-
-    await t.click(".sv-boolean__label:first-of-type");
-
-    questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(false);
-  });
-
-  test("click on right side of switch in intermediate state", async (t) => {
-    let questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(undefined);
-
-    await t.click(".sv-boolean__switch", { offsetX: -1 });
-
-    questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(true);
-  });
-
-  test("click on left side of switch in intermediate state", async (t) => {
-    let questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(undefined);
-
-    await t.click(".sv-boolean__switch", { offsetX: 1 });
-
-    questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(false);
-  });
-
-  test("check arrow keydowns", async (t) => {
-    await ClientFunction(() => { document.querySelector(".sv-boolean input").focus(); })();
-    await t
-      .expect(getQuestionValue()).eql(undefined)
-      .pressKey("right")
-      .expect(getQuestionValue()).ok()
-      .pressKey("left")
-      .expect(getQuestionValue()).eql(false);
-  });
-});
-
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, json, undefined, true);
-    }
-  );
-
-  test("click on question title state editable", async (t) => {
-    var newTitle = "MyText";
-    var json = JSON.parse(await getQuestionJson());
-    let questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(undefined);
-
-    var outerSelector = ".sv_q_title";
-    var innerSelector = ".sv-string-editor";
-    await t
-      .click(outerSelector)
-      .selectEditableContent(outerSelector + " " + innerSelector, outerSelector + " " + innerSelector)
-      .typeText(outerSelector + " " + innerSelector, newTitle)
-      .click("body");
-
-    questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(undefined);
-
-    json = JSON.parse(await getQuestionJson());
-    await t.expect(json.title).eql(newTitle);
-  });
-
-  test("click on true label in intermediate state editable", async (t) => {
-    var newLabelTrue = "MyText";
-    var json = JSON.parse(await getQuestionJson());
-    var labelFalse = json.labelFalse;
-    let questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(undefined);
-
-    var outerSelector = Selector(".sv-boolean__label").nth(1);
-    await t
-      .click(outerSelector)
-      .typeText(outerSelector.find(".sv-string-editor"), newLabelTrue, { replace: true })
-      .click("body", { offsetX: 0, offsetY: 0 });
-
-    questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(undefined);
-
-    json = JSON.parse(await getQuestionJson());
-    await t
-      .expect(json.labelFalse).eql(labelFalse)
-      .expect(json.labelTrue).eql(newLabelTrue);
-  });
-
-  test("click on false label in intermediate state editable", async (t) => {
-    var newLabelFalse = "MyText";
-    var json = JSON.parse(await getQuestionJson());
-    var labelTrue = json.labelTrue;
-    let questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(undefined);
-
-    var outerSelector = ".sv-boolean__label:nth-of-type(1)";
-    var innerSelector = ".sv-string-editor";
-    await t
-      .click(outerSelector)
-      .typeText(outerSelector + " " + innerSelector, newLabelFalse, { replace: true })
-      .click("body", { offsetX: 0, offsetY: 0 });
-
-    questionValue = await getQuestionValue();
-    await t.expect(questionValue).eql(undefined);
-
-    json = JSON.parse(await getQuestionJson());
-    await t
-      .expect(json.labelFalse).eql(newLabelFalse)
-      .expect(json.labelTrue).eql(labelTrue);
-  });
-});
-
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`;
-  test("check first clink on boolean-checkbox input", async (t) => {
-    await initSurvey(framework, jsonCheckbox);
-    const selector = Selector(".sv_qbln input");
-    await t
-      .click(selector)
-      .expect(selector.checked).ok();
-  });
-
-  test("test radio boolean", async (t) => {
-    await initSurvey(framework, jsonRadio);
-    await t
-      .expect(Selector("input[type=radio]").nth(0).checked).notOk()
-      .expect(Selector("input[type=radio]").nth(1).checked).notOk()
-      .click(Selector(".sv-string-viewer").withText("No"))
-      .expect(Selector("input[type=radio]").nth(0).checked).ok()
-      .expect(Selector("input[type=radio]").nth(1).checked).notOk()
-      .click(Selector(".sv-string-viewer").withText("Yes"))
-      .expect(Selector("input[type=radio]").nth(0).checked).notOk()
-      .expect(Selector("input[type=radio]").nth(1).checked).ok();
-  });
-});
-frameworks.forEach((framework) => {
-  const theme = "defaultV2";
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`;
-
-  test("Check actions", async (t) => {
-    await applyTheme(theme);
-    await initSurvey(framework, jsonCheckbox2, { onGetQuestionTitleActions: (_, options) => {
-      options.titleActions = [
-        {
-          title: "Click me",
-          action: () => {
-            const q = options.question;
-            if(!q.description) {
-              q.description = "Description!";
-            } else {
-              q.descriptionLocation = q.descriptionLocation === "hidden" ? "default" : "hidden";
-            }
-          },
-        }];
-    } });
-
-    await t
-      .expect(Selector(".sv-string-viewer").withText("21").exists).ok()
-      .expect(Selector(".sv-string-viewer").withText("Description!").exists).notOk()
-      .click(Selector(".sd-action__title").withText("Click me"))
-      .expect(Selector(".sv-string-viewer").withText("Description!").exists).ok()
-      .click(Selector(".sd-action__title").withText("Click me"))
-      .expect(Selector("div").withText("Description!").exists).notOk()
-      .click(Selector(".sd-action__title").withText("Click me"))
-      .expect(Selector(".sv-string-viewer").withText("Description!").exists).ok();
-  });
-
-  test("test radio boolean with values", async (t) => {
-    const checkQuestionValue = ClientFunction(
-      (val) => {
-        return window["survey"].getQuestionByName("q").value == val;
-      }
-    );
-    await applyTheme(theme);
-    await initSurvey(framework, {
-      "elements": [{
-        "type": "boolean",
-        "name": "q",
-        "title": "Are you 21 or older?",
-        "valueTrue": "Yes",
-        "valueFalse": "No",
-        "renderAs": "radio"
-      }],
-      "showQuestionNumbers": false
+    test("check arrow keydowns", async ({ page }) => {
+      const question = new QuestionBoolean(page, "bool");
+      await question.focus();
+      await question.checkQuestionValue(undefined);
+      page.keyboard.press("ArrowRight");
+      await question.checkQuestionValue(true);
+      page.keyboard.press("ArrowLeft");
+      await question.checkQuestionValue(false);
     });
-    await t
-      .expect(Selector("input[type=radio]").nth(0).checked).notOk()
-      .expect(Selector(".sd-item").nth(0).hasClass("sd-radio--checked")).notOk()
-      .expect(Selector("input[type=radio]").nth(1).checked).notOk()
-      .expect(Selector(".sd-item").nth(1).hasClass("sd-radio--checked")).notOk()
-      .expect(checkQuestionValue(null)).ok()
-
-      .click(Selector(".sv-string-viewer").withText("No"))
-      .expect(Selector("input[type=radio]").nth(0).checked).ok()
-      .expect(Selector(".sd-item").nth(0).hasClass("sd-radio--checked")).ok()
-      .expect(Selector("input[type=radio]").nth(1).checked).notOk()
-      .expect(Selector(".sd-item").nth(1).hasClass("sd-radio--checked")).notOk()
-      .expect(checkQuestionValue("No")).ok()
-
-      .click(Selector(".sv-string-viewer").withText("Yes"))
-      .expect(Selector("input[type=radio]").nth(0).checked).notOk()
-      .expect(Selector("input[type=radio]").nth(1).checked).ok()
-      .expect(checkQuestionValue("Yes")).ok()
-
-      .click(Selector(".sv-string-viewer").withText("No"))
-      .expect(Selector("input[type=radio]").nth(0).checked).ok()
-      .expect(Selector("input[type=radio]").nth(1).checked).notOk()
-      .expect(checkQuestionValue("No")).ok();
   });
 });
-*/
+frameworks.forEach((framework) => {
+  test.describe(title + ": design time - " + framework, () => {
+    test.beforeEach(async ({ page }) => {
+      const json = {
+        questions: [
+          {
+            type: "boolean",
+            name: "bool",
+            title: "Question1",
+            isRequired: true,
+          },
+        ],
+      };
+      await page.goto(`${url_test}${themeName}/${framework}`);
+      await initSurvey(page, framework, json, true);
+    });
+    test("click on question title state editable", async ({ page }) => {
+      const question = new QuestionBoolean(page, "bool");
+      const loc = question.question.locator("span").getByText("Question1");
+      await loc.click();
+      await loc.selectText();
+      await page.keyboard.type("MyText");
+      await page.keyboard.press("Tab");
+      await question.checkPropertyVal("title", "MyText");
+    });
+    test("click on true label in intermediate state editable", async ({ page }) => {
+      const question = new QuestionBoolean(page, "bool");
+      const loc = question.question.locator("span").getByText("Yes");
+      await loc.click();
+      await loc.selectText();
+      await page.keyboard.type("MyText");
+      await page.keyboard.press("Tab");
+      await question.checkPropertyVal("labelFalse", "No");
+      await question.checkPropertyVal("labelTrue", "MyText");
+    });
+    test("click on false label in intermediate state editable", async ({ page }) => {
+      const question = new QuestionBoolean(page, "bool");
+      const loc = question.question.locator("span").getByText("No");
+      await loc.click();
+      await loc.selectText();
+      await page.keyboard.type("MyText");
+      await page.keyboard.press("Tab");
+      await question.checkPropertyVal("labelFalse", "MyText");
+      await question.checkPropertyVal("labelTrue", "Yes");
+    });
+  });
+});
+frameworks.forEach((framework) => {
+  test.describe(title + ": custom input - " + framework, () => {
+    test("click on question title state editable", async ({ page }) => {
+      const json = {
+        questions: [
+          {
+            type: "boolean",
+            name: "bool",
+            title: "Are you 21 or older?",
+            renderAs: "checkbox",
+            isRequired: true,
+          },
+        ],
+      };
+      await page.goto(`${url_test}${themeName}/${framework}`);
+      await initSurvey(page, framework, json);
+      const question = new Question(page, "bool");
+      await question.checkQuestionValue(undefined);
+      await page.locator(".sd-selectbase__label").click();
+      await question.checkQuestionValue(true);
+      await page.locator(".sd-selectbase__label").click();
+      await question.checkQuestionValue(false);
+    });
+    test("test radio boolean", async ({ page }) => {
+      const json = {
+        questions: [
+          {
+            type: "boolean",
+            name: "bool",
+            title: "Are you 21 or older?",
+            isRequired: true,
+            renderAs: "radio"
+          },
+        ],
+      };
+      await page.goto(`${url_test}${themeName}/${framework}`);
+      await initSurvey(page, framework, json);
+      const question = new Question(page, "bool");
+      await question.checkQuestionValue(undefined);
+      await page.locator(".sv-string-viewer").getByText("No").click();
+      await question.checkQuestionValue(false);
+      await page.locator(".sv-string-viewer").getByText("Yes").click();
+      await question.checkQuestionValue(true);
+    });
+  });
+});
+frameworks.forEach((framework) => {
+  test.describe(title + ": custom - " + framework, () => {
+    test("Check actions", async ({ page }) => {
+      await page.goto(`${url_test}${themeName}/${framework}`);
+      await initSurvey(page, framework, {});
+      await page.evaluate(() => {
+        const survey = window["survey"];
+        survey.onGetQuestionTitleActions.add((_, options) => {
+          options.titleActions = [
+            {
+              title: "Click me",
+              action: () => {
+                const q = options.question;
+                if(!q.description) {
+                  q.description = "Description1";
+                } else {
+                  q.descriptionLocation = q.descriptionLocation === "hidden" ? "default" : "hidden";
+                }
+              },
+            }];
+        });
+        const json = {
+          elements: [
+            {
+              type: "boolean",
+              name: "bool",
+              title: "21",
+              titleLocation: "hidden",
+              renderAs: "checkbox",
+            },
+          ],
+        };
+        survey.fromJSON(json);
+      });
+
+      const strLoc = page.locator(".sv-string-viewer");
+      const action = page.locator(".sd-action__title").getByText("Click me");
+      const locDesc = strLoc.getByText("Description1");
+
+      expect(strLoc.getByText("21")).toBeVisible();
+
+      await action.click();
+      expect(locDesc).toBeVisible();
+      await action.click();
+      expect(locDesc).toBeVisible({ visible: false });
+      await action.click();
+      expect(locDesc).toBeVisible();
+    });
+    test("test radio boolean with values", async ({ page }) => {
+      await page.goto(`${url_test}${themeName}/${framework}`);
+      await initSurvey(page, framework, {
+        "elements": [{
+          "type": "boolean",
+          "name": "q",
+          "title": "Are you 21 or older?",
+          "valueTrue": "Yes",
+          "valueFalse": "No",
+          "renderAs": "radio"
+        }],
+        "showQuestionNumbers": false
+      });
+      const question = new QuestionBoolean(page, "q");
+      const radioInput = page.locator("input[type='radio']");
+      const sdItem = page.locator(".sd-item");
+      const checkedClass = "sd-radio--checked";
+
+      await question.checkQuestionValue(undefined);
+      expect(radioInput.nth(0)).toBeChecked({ checked: false });
+      expect(radioInput.nth(1)).toBeChecked({ checked: false });
+      question.hasClassIncluded(sdItem.nth(0), false, checkedClass);
+      question.hasClassIncluded(sdItem.nth(1), false, checkedClass);
+
+      await question.clickItemByText("No");
+      await question.checkQuestionValue("No");
+      expect(radioInput.nth(0)).toBeChecked({ checked: true });
+      expect(radioInput.nth(1)).toBeChecked({ checked: false });
+      question.hasClassIncluded(sdItem.nth(0), true, checkedClass);
+      question.hasClassIncluded(sdItem.nth(1), false, checkedClass);
+
+      await question.clickItemByText("Yes");
+      await question.checkQuestionValue("Yes");
+      expect(radioInput.nth(0)).toBeChecked({ checked: false });
+      expect(radioInput.nth(1)).toBeChecked({ checked: true });
+      question.hasClassIncluded(sdItem.nth(0), false, checkedClass);
+      question.hasClassIncluded(sdItem.nth(1), true, checkedClass);
+    });
+  });
+});

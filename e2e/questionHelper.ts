@@ -35,7 +35,15 @@ export class Question {
     }, this.name);
     await expect(questionValue).toStrictEqual(val);
   }
-  protected async hasClassIncluded(loc: Locator, isChecked: boolean, className: string): Promise<void> {
+  public async checkPropertyVal(propName: string, val: any): Promise<void> {
+    const vals = [this.name, propName];
+    const propValue = await this.page.evaluate(params => {
+      const q = window["survey"].getQuestionByName(params[0]);
+      return q[params[1]];
+    }, vals);
+    await expect(propValue).toStrictEqual(val);
+  }
+  public async hasClassIncluded(loc: Locator, isChecked: boolean, className: string): Promise<void> {
     const reg = new RegExp(className);
     if(isChecked) {
       await expect(loc).toHaveClass(reg);

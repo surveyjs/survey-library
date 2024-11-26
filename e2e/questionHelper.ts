@@ -23,6 +23,12 @@ export class Question {
       return q.value;
     }, this.name);
   }
+  public async hover(locator: string | Locator): Promise<void> {
+    if(typeof locator === "string") {
+      locator = this.question.locator(locator).first();
+    }
+    await locator.hover();
+  }
   public async resetFocusToBody(): Promise<void> {
     await this.page.evaluate(() => {
       document.body.focus();
@@ -35,13 +41,19 @@ export class Question {
     }, this.name);
     await expect(questionValue).toStrictEqual(val);
   }
-  public async checkPropertyVal(propName: string, val: any): Promise<void> {
+  public async checkPropertyValue(propName: string, val: any): Promise<void> {
     const vals = [this.name, propName];
     const propValue = await this.page.evaluate(params => {
       const q = window["survey"].getQuestionByName(params[0]);
       return q[params[1]];
     }, vals);
     await expect(propValue).toStrictEqual(val);
+  }
+  public async setPropertyValue(propName: string, val: any): Promise<void> {
+    await this.page.evaluate(params => {
+      const q = window["survey"].getQuestionByName(params[0]);
+      q[params[1]] = params[2];
+    }, [this.name, propName, val]);
   }
   public async hasClassIncluded(loc: Locator, isChecked: boolean, className: string): Promise<void> {
     const reg = new RegExp(className);
@@ -50,6 +62,12 @@ export class Question {
     } else {
       await expect(loc).not.toHaveClass(reg);
     }
+  }
+  public async toHaveScreenshot(name: string, locator?: Locator): Promise<void> {
+    if(!locator) {
+      locator = this.question;
+    }
+    await expect(locator).toHaveScreenshot(name);
   }
 }
 

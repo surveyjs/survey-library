@@ -8,21 +8,53 @@ const title = "Boolean Screenshot";
 frameworks.forEach((framework) => {
   test.describe(title + " - " + framework, () => {
     test.beforeEach(async ({ page }) => {
-      const json = {
+      await page.goto(`${url_test}${themeName}/${framework}`);
+    });
+    test("Check boolean question", async ({ page }) => {
+      await initSurvey(page, framework, {
         questions: [
           {
             type: "boolean",
             name: "boolean_question",
           },
         ]
-      };
-      await page.goto(`${url_test}${themeName}/${framework}`);
-      await initSurvey(page, framework, json);
-    });
-    test("Check boolean question", async ({ page }) => {
+      });
       const question = new QuestionBoolean(page, "boolean_question");
       await question.resetFocusToBody();
-      await expect(question.question).toHaveScreenshot("boolean-question-indeterminate.png");
+      await question.toHaveScreenshot("boolean-question-indeterminate.png");
+
+      await question.hover(".sd-boolean__thumb-ghost");
+      await question.toHaveScreenshot("boolean-question-indeterminate-hovered.png");
+
+      question.clickThumb(false);
+      await question.toHaveScreenshot("boolean-question-clicked.png");
+
+      await question.hover(question.question.locator(".sd-boolean__thumb-ghost").nth(1));
+      await question.toHaveScreenshot("boolean-question-clicked-hovered.png");
+
+      //await question.hover(".sd-boolean__thumb-ghost");
+      await question.setPropertyValue("readOnly", true);
+      await question.toHaveScreenshot("boolean-question-clicked-disabled.png");
+
+      await question.setPropertyValue("value", undefined);
+      await question.toHaveScreenshot("boolean-question-disabled.png");
+      /*
+      await t.hover(".sd-boolean__thumb-ghost");
+      await takeElementScreenshot("boolean-question-indeterminate-hovered.png", questionRoot, t, comparer);
+
+      await t.click(Selector(".sv-string-viewer").withText("No"));
+      await takeElementScreenshot("boolean-question-clicked.png", questionRoot, t, comparer);
+
+      await t.hover(Selector(".sd-boolean__thumb-ghost").nth(1));
+      await takeElementScreenshot("boolean-question-clicked-hovered.png", questionRoot, t, comparer);
+
+      await t.hover(".sd-boolean__thumb-ghost");
+      await setOptions("boolean_question", { readOnly: true });
+      await takeElementScreenshot("boolean-question-clicked-disabled.png", questionRoot, t, comparer);
+
+      await setOptions("boolean_question", { value: null });
+      await takeElementScreenshot("boolean-question-disabled.png", questionRoot, t, comparer);
+      */
     });
   });
 });

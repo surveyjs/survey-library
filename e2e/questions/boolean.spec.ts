@@ -91,7 +91,7 @@ frameworks.forEach((framework) => {
       await loc.selectText();
       await page.keyboard.type("MyText");
       await page.keyboard.press("Tab");
-      await question.checkPropertyVal("title", "MyText");
+      await question.checkPropertyValue("title", "MyText");
     });
     test("click on true label in intermediate state editable", async ({ page }) => {
       const question = new QuestionBoolean(page, "bool");
@@ -100,8 +100,8 @@ frameworks.forEach((framework) => {
       await loc.selectText();
       await page.keyboard.type("MyText");
       await page.keyboard.press("Tab");
-      await question.checkPropertyVal("labelFalse", "No");
-      await question.checkPropertyVal("labelTrue", "MyText");
+      await question.checkPropertyValue("labelFalse", "No");
+      await question.checkPropertyValue("labelTrue", "MyText");
     });
     test("click on false label in intermediate state editable", async ({ page }) => {
       const question = new QuestionBoolean(page, "bool");
@@ -110,8 +110,8 @@ frameworks.forEach((framework) => {
       await loc.selectText();
       await page.keyboard.type("MyText");
       await page.keyboard.press("Tab");
-      await question.checkPropertyVal("labelFalse", "MyText");
-      await question.checkPropertyVal("labelTrue", "Yes");
+      await question.checkPropertyValue("labelFalse", "MyText");
+      await question.checkPropertyValue("labelTrue", "Yes");
     });
   });
 });

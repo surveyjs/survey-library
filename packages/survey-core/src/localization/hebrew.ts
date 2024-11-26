@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var hebrewSurveyStrings = {
   pagePrevText: "אחורה",
@@ -110,7 +110,7 @@ export var hebrewSurveyStrings = {
   cancel: "ביטל"
 };
 
-surveyLocalization.setupLocale("he", hebrewSurveyStrings, "עברית", "Hebrew");
+setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עברית", englishName: "Hebrew", rtl: true });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var norwegianSurveyStrings = {
   pagePrevText: "Forrige",
@@ -110,7 +110,7 @@ export var norwegianSurveyStrings = {
   cancel: "Annullere"
 };
 
-surveyLocalization.setupLocale("no", norwegianSurveyStrings, "norsk", "Norwegian");
+setupLocale({ localeCode: "no", strings: norwegianSurveyStrings, nativeName: "norsk", englishName: "Norwegian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

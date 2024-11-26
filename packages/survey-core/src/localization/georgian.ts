@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var georgianSurveyStrings = {
   pagePrevText: "უკან",
@@ -110,7 +110,7 @@ export var georgianSurveyStrings = {
   cancel: "გაუქმება"
 };
 
-surveyLocalization.setupLocale("ka", georgianSurveyStrings, "ქართული", "Georgian");
+setupLocale({ localeCode: "ka", strings: georgianSurveyStrings, nativeName: "ქართული", englishName: "Georgian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

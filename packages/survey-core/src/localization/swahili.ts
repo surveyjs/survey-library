@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var swahiliStrings = {
   pagePrevText: "Iliyotangulia",
@@ -110,7 +110,7 @@ export var swahiliStrings = {
   cancel: "Katisha"
 };
 
-surveyLocalization.setupLocale("sw", swahiliStrings, "swahili", "Swahili");
+setupLocale({ localeCode: "sw", strings: swahiliStrings, nativeName: "swahili", englishName: "Swahili" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

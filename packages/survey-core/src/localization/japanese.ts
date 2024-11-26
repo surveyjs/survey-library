@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var japaneseSurveyStrings = {
   pagePrevText: "前へ",
@@ -110,7 +110,7 @@ export var japaneseSurveyStrings = {
   cancel: "キャンセル"
 };
 
-surveyLocalization.setupLocale("ja", japaneseSurveyStrings, "日本語", "Japanese");
+setupLocale({ localeCode: "ja", strings: japaneseSurveyStrings, nativeName: "日本語", englishName: "Japanese" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

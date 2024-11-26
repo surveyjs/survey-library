@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var basqueSurveyStrings = {
   pagePrevText: "Aurrekoa",
@@ -110,7 +110,7 @@ export var basqueSurveyStrings = {
   cancel: "Ezeztatu"
 };
 
-surveyLocalization.setupLocale("eu", basqueSurveyStrings, "euskara", "Basque");
+setupLocale({ localeCode: "eu", strings: basqueSurveyStrings, nativeName: "euskara", englishName: "Basque" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

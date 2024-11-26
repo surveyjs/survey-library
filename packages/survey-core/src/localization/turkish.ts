@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var turkishSurveyStrings = {
   pagePrevText: "Önceki",
@@ -110,7 +110,7 @@ export var turkishSurveyStrings = {
   cancel: "İptal"
 };
 
-surveyLocalization.setupLocale("tr", turkishSurveyStrings, "türkçe", "Turkish");
+setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "türkçe", englishName: "Turkish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

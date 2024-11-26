@@ -9,12 +9,19 @@ export class SvgBundleComponent extends React.Component {
     super(props);
     this.containerRef = React.createRef();
   }
-  componentDidMount() {
+  private onIconsChanged = () => {
     if (!!this.containerRef.current) {
       this.containerRef.current.innerHTML = SvgRegistry.iconsRenderedHtml();
     }
   }
-  render() {
+  componentDidMount(): void {
+    this.onIconsChanged();
+    SvgRegistry.onIconsChanged.add(this.onIconsChanged);
+  }
+  componentWillUnmount(): void {
+    SvgRegistry.onIconsChanged.remove(this.onIconsChanged);
+  }
+  render(): JSX.Element {
     const svgStyle = {
       display: "none"
     };

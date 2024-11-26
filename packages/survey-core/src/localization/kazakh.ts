@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var kazakhStrings = {
   pagePrevText: "Артқа",
@@ -110,7 +110,8 @@ export var kazakhStrings = {
   cancel: "Болдырмау"
 };
 
-surveyLocalization.setupLocale("kk", kazakhStrings, "kazakh", "Kazakh");
+setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", englishName: "Kazakh" });
+
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
 // indexText: "{0} of {1}" => "{1} {0}"

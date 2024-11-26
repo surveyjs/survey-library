@@ -1,5 +1,5 @@
 import { frameworks, url_test, initSurvey } from "../helper";
-import { QuestionBoolean, QuestionRadiogroup } from "../questionHelper";
+import { QuestionBoolean } from "../questionHelper";
 import { test, expect } from "@playwright/test";
 import { Survey } from "../surveyHelper";
 
@@ -25,24 +25,51 @@ frameworks.forEach((framework) => {
       const question = new QuestionBoolean(page, "bool");
       await question.isClassChecked(false);
       await question.rootLoc.click();
-      //await question.rootLoc.click({ position: { x: 1, y: 0 } });
       await question.isClassChecked(true);
       await question.rootLoc.click();
       await question.isClassChecked(false);
       await question.rootLoc.click();
       await question.isClassChecked(true);
-    /*
-    const label = Selector("div label");
-    await t
-      .expect(label.classNames).notContains("checked")
-
-      .click("div label", { offsetX: 1 })
-      .expect(label.classNames).notContains("checked")
-
-      .click("div label")
-      .expect(label.classNames).contains("checked");
-    */
     });
+    test("click on true label in intermediate state", async ({ page }) => {
+      const question = new QuestionBoolean(page, "bool");
+      await question.checkQuestionValue(undefined);
+      await question.clickThumb(true);
+      await question.checkQuestionValue(true);
+    });
+    test("click on false label in intermediate state", async ({ page }) => {
+      const question = new QuestionBoolean(page, "bool");
+      await question.checkQuestionValue(undefined);
+      await question.clickThumb(false);
+      await question.checkQuestionValue(false);
+    });
+    test("check arrow keydowns", async ({ page }) => {
+      const question = new QuestionBoolean(page, "bool");
+      await question.focus();
+      await question.checkQuestionValue(undefined);
+      page.keyboard.down("ArrowRight");
+      page.keyboard.up("ArrowRight");
+      await question.checkQuestionValue(true);
+      page.keyboard.down("ArrowLeft");
+      page.keyboard.up("ArrowLeft");
+      await question.checkQuestionValue(false);
+    });
+
+    /*
+    Can't click on invisible element in playwright
+    test("click on right side of switch in intermediate state", async ({ page }) => {
+      const question = new QuestionBoolean(page, "bool");
+      await question.checkQuestionValue(undefined);
+      //await question.clickSwitch(-2);
+      await question.checkQuestionValue(true);
+    });
+    test("click on left side of switch in intermediate state", async ({ page }) => {
+      const question = new QuestionBoolean(page, "bool");
+      await question.checkQuestionValue(undefined);
+      //await question.clickSwitch(2);
+      await question.checkQuestionValue(false);
+    });
+    */
   });
 });
 

@@ -14,10 +14,26 @@ export class Question {
       await this.question.scrollIntoViewIfNeeded();
     }
   }
+  public async focus(): Promise<void> {
+    await this.page.evaluate(questionName => {
+      const q = window["survey"].getQuestionByName(questionName);
+      if(q.inputId) {
+        document.getElementById(q.inputId)?.focus();
+      }
+      return q.value;
+    }, this.name);
+  }
   public async resetFocusToBody(): Promise<void> {
     await this.page.evaluate(() => {
       document.body.focus();
     });
+  }
+  public async checkQuestionValue(val: any): Promise<void> {
+    const questionValue = await this.page.evaluate(questionName => {
+      const q = window["survey"].getQuestionByName(questionName);
+      return q.value;
+    }, this.name);
+    await expect(questionValue).toStrictEqual(val);
   }
   protected async hasClassIncluded(loc: Locator, isChecked: boolean, className: string): Promise<void> {
     const reg = new RegExp(className);
@@ -100,6 +116,18 @@ export class QuestionBoolean extends Question {
     await this.scrollIntoViewIfNeeded();
     await this.question.locator("span").getByText(val).first().click();
   }
+  public async clickThumb(isTrue: boolean): Promise<void> {
+    await this.scrollIntoViewIfNeeded();
+    await this.question.locator(".sd-boolean__thumb-ghost").nth(isTrue ? 1: 0).click();
+  }
+  /*
+  public async clickSwitch(offsetX: number): Promise<void> {
+    await this.scrollIntoViewIfNeeded();
+    const lb = this.question.locator(".sd-boolean-root");
+    //const rect = await lb.boundingBox();
+    lb.click({ position: { x: offsetX, y: 0 }, force: true });
+  }
+  */
   public async isClassChecked(isChecked: boolean): Promise<void> {
     await this.hasClassIncluded(this.rootLoc, isChecked, "sd-boolean--checked");
   }

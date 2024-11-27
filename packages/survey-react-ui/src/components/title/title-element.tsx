@@ -17,7 +17,7 @@ export class TitleElement extends React.Component<any, any> {
     return <SvgIcon
       className={this.element.getCssTitleExpandableSvg() }
       iconName={iconName}
-      size={16}
+      size={"auto"}
     ></SvgIcon>;
   }
   render(): JSX.Element | any {

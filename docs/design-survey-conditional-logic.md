@@ -191,7 +191,7 @@ Variables and calculated values are both used to perform custom calculations wit
 |--------- | --------- | ----------------- |
 | Configuration | Configured using JavaScript code | Configured using an expression in the survey JSON schema |
 | Evaluation / Re-evaluation | Evaluated only once&mdash;when set | Evaluated when the survey model is instantiated and re-evaluated each time dynamic values within the expression are changed |
-| Inclusion in survey results | Aren't saved in survey results, but can be (see below) | Saved in survey results if the `includeIntoResult` property is enabled |
+| Inclusion in survey results | Aren't saved in survey results but can be (see below) | Saved in survey results if the `includeIntoResult` property is enabled |
 
 If you need to save a variable in survey results, create an intermediary calculated value that references the variable. Enable the calculated value's `includeIntoResult` property to save the value in survey results. The following code shows how to save a `currentyear-var` variable value in survey results via a `currentyear` calculated value:
 
@@ -249,25 +249,25 @@ The SurveyJS expression engine is built upon the <a href="https://github.com/peg
 | -------- | ----------- | ------------------ |
 | `empty` | Returns `true` if the value is `undefined` or `null`. | `"{q1} empty"` | 
 | `notempty` | Returns `true` if the value is different from `undefined` and `null`. | `"{q1} notempty"` | 
-| <code>"&#124;&#124;"</code> / `"or"` | Combines two or more conditions and returns `true` if *any* of them is `true`. | `"{q1} empty or {q2} empty"` |
-| `"&&"` / `"and"`  | Combines two or more conditions and returns `true` if *all* of them are `true`. | `"{q1} empty and {q2} empty"` |
-| `"!"` / `"negate"` | Returns `true` if the condition returns `false`, and vice versa. | `!{q1}` |
-| `"<="` / `"lessorequal"`  | Compares two values and returns `true` if the first is less or equal to the second. | `"{q1} <= 10"` |
-| `">="` / `"greaterorequal"`  | Compares two values and returns `true` if the first is greater or equal to the second. | `"{q1} >= 10"` |
-| `"="` / `"=="` / `"equal"`  | Compares two values and returns `true` if they are loosely equal (that is, their type is disregarded). | `"{q1} = 10"` |
-| `"!="` / `"notequal"`  | Compares two values and returns `true` if they are not loosely equal. | `"{q1} != 10"` |
-| `"<"` / `"less"`  | Compares two values and returns `true` if the first is less than the second. | `"{q1} < 10"` |
-| `">"` / `"greater"`  | Compares two values and returns `true` if the first is greater than the second. | `"{q1} > 10"` |
-| `"+"`  | Adds up two values. | `"{q1} + {q2}"` |
-| `"-"`  | Subtracts the second value from the first. | `"{q1} - {q2}"` |
-| `"*"`  | Multiplies two values. | `"{q1} * {q2}"` |
-| `"/"`  | Divides the first value by the second. | `"{q1} / {q2}"` |
-| `"%"`  | Returns the remainder of the division of the first value by the second. | `"{q1} % {q2}"` |
-| `"^"` / `"power"`  | Raises the first value to the power of the second. | `"{q1} ^ {q2}"` |
-| `"*="` / `"contains"` / `"contain"`  | Compares two values and returns `true` if the first value contains the second value within it. | `"{q1} contains 'abc'"` |
-| `"notcontains"` / `"notcontain"` | Compares two values and returns `true` if the first value doesn't contain the second value within it. | `"{q1} notcontains 'abc'"` |
-| `"anyof"` | Compares a value with an array of values and returns `true` if the value is present in the array. | `"{q1} anyof [ 'value1', 'value2', 'value3' ]"` |
-| `"allof"` | Compares two arrays and returns `true` if the first array includes all values from the second. | `"{q1} allof [ 'value1', 'value2', 'value3' ]"` |
+| <code>&#124;&#124;</code> / `or` | Combines two or more conditions and returns `true` if *any* of them is `true`. | `"{q1} empty or {q2} empty"` |
+| `&&"` / `and`  | Combines two or more conditions and returns `true` if *all* of them are `true`. | `"{q1} empty and {q2} empty"` |
+| `!` / `negate` | Returns `true` if the condition returns `false`, and vice versa. | `!{q1}` |
+| `<=` / `lessorequal`  | Compares two values and returns `true` if the first is less or equal to the second. | `"{q1} <= 10"` |
+| `>=` / `greaterorequal`  | Compares two values and returns `true` if the first is greater or equal to the second. | `"{q1} >= 10"` |
+| `=` / `==` / `equal`  | Compares two values and returns `true` if they are loosely equal (that is, their type is disregarded). | `"{q1} = 10"` |
+| `!=` / `<>` / `notequal`  | Compares two values and returns `true` if they are not loosely equal. | `"{q1} != 10"` |
+| `<` / `less`  | Compares two values and returns `true` if the first is less than the second. | `"{q1} < 10"` |
+| `>` / `greater`  | Compares two values and returns `true` if the first is greater than the second. | `"{q1} > 10"` |
+| `+`  | Adds up two values. | `"{q1} + {q2}"` |
+| `-`  | Subtracts the second value from the first. | `"{q1} - {q2}"` |
+| `*`  | Multiplies two values. | `"{q1} * {q2}"` |
+| `/`  | Divides the first value by the second. | `"{q1} / {q2}"` |
+| `%`  | Returns the remainder of the division of the first value by the second. | `"{q1} % {q2}"` |
+| `^` / `power`  | Raises the first value to the power of the second. | `"{q1} ^ {q2}"` |
+| `*=` / `contains` / `contain`  | Compares two values and returns `true` if the first value contains the second value within it. | `"{q1} contains 'abc'"` |
+| `notcontains` / `notcontain` | Compares two values and returns `true` if the first value doesn't contain the second value within it. | `"{q1} notcontains 'abc'"` |
+| `anyof` | Compares a value with an array of values and returns `true` if the value is present in the array. | `"{q1} anyof [ 'value1', 'value2', 'value3' ]"` |
+| `allof` | Compares two arrays and returns `true` if the first array includes all values from the second. | `"{q1} allof [ 'value1', 'value2', 'value3' ]"` |
 
 ### Built-In Functions
 
@@ -524,7 +524,7 @@ Returns the average of passed numbers.
 
 Returns the sum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
 
-The following code sums up values from a `"total"` matrix column but includes only the rows with a `"categoryId"` column equaling 1:
+The following code sums up values from a `"total"` matrix column but includes only the rows where a `"categoryId"` column equals 1:
 
 *Example*: `"expression": "sumInArray({matrixdynamic}, 'total', {categoryId} = 1)"`
 
@@ -552,7 +552,7 @@ The following code finds a maximum value within a `"quantity"` matrix column, bu
  
 Returns the minimum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
 
-The following code finds a minimum value within a `"quantity"` matrix column but searches for it only in the rows with a `"categoryId"` column equaling 1 and includes only positive values:
+The following code finds a minimum value within a `"quantity"` matrix column but searches for it only in the rows where a `"categoryId"` column equals 1 and the values are positive:
 
 *Example*: `"expression": "minInArray({matrixdynamic}, 'quantity', {quantity} > 0 and {categoryId} = 1)"`
 
@@ -580,7 +580,7 @@ The following code finds an average of values within a `"quantity"` matrix colum
 
 Returns the total number of array items in which a specified data field has a value other than `null` or `undefined`. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question.
 
-The following code finds the total number of matrix rows with a `"quantity"` column value greater than zero but includes only the rows with a `"categoryId"` column equaling 1:
+The following code finds the total number of matrix rows with a `"quantity"` column value greater than zero but includes only the rows where a `"categoryId"` column equals 1.:
 
 *Example*: `"expression": "countInArray({matrixdynamic}, 'quantity', {quantity} > 0 and {categoryId} = 1)"`
 
@@ -781,7 +781,7 @@ This technique has one drawback: if a question contains many items, you have to 
 
 You can specify one expression that will run against every item (choice, row, column). If the expression evaluates to `true`, the item becomes visible. Assign your expression to the [`choicesVisibleIf`](/Documentation/Library?id=QuestionSelectBase#choicesVisibleIf), [`rowsVisibleIf`](/Documentation/Library?id=questionmatrixmodel#rowsVisibleIf), or [`columnsVisibleIf`](/Documentation/Library?id=questionmatrixmodel#columnsVisibleIf) property. To access the current item, use the `{item}` operand.
 
-The following code shows how to specify the `choicesVisibleIf` property. The `"default"` question includes selected choices from the `"installed"` question. The `"secondChoice"` question also includes selected choices from the `"installed"` question, but uses the `choiceVisibleIf` property to filter out the choice selected in the `"default"` question.
+The following code shows how to specify the `choicesVisibleIf` property. The `"default"` question includes selected choices from the `"installed"` question. The `"secondChoice"` question also includes selected choices from the `"installed"` question but uses the `choiceVisibleIf` property to filter out the choice selected in the `"default"` question.
 
 ```js
 const surveyJson = {

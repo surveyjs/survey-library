@@ -31,7 +31,7 @@ export interface ITextArea {
 export class TextAreaModel {
   private element: HTMLTextAreaElement;
 
-  private updateElement(): void {
+  public updateElement(): void {
     if (this.element && this.autoGrow) {
       setTimeout(() => increaseHeightByContent(this.element), 1);
     }
@@ -54,7 +54,7 @@ export class TextAreaModel {
       this.updateElement();
     }
   }
-  public resetElement() {
+  public resetElement(): void {
     this.element = undefined as any;
   }
 

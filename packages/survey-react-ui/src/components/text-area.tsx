@@ -8,11 +8,13 @@ interface ITextAreaProps {
 }
 
 export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
+  private textareaRef: React.RefObject<HTMLTextAreaElement>;
   private initialValue;
 
   constructor(props: ITextAreaProps) {
     super(props);
     this.initialValue = this.viewModel.getTextValue() || "";
+    this.textareaRef = React.createRef();
   }
   get viewModel(): TextAreaModel {
     return this.props.viewModel;
@@ -21,12 +23,24 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
     return !!this.viewModel.question;
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    let el = this.textareaRef.current;
+    if (!!el) {
+      this.viewModel.setElement(el);
+    }
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    this.viewModel.resetElement();
+  }
+
   protected renderElement(): JSX.Element {
     return (
       <textarea
         id={this.viewModel.id}
         className={this.viewModel.className}
-        ref={(textarea) => (this.viewModel.setElement(textarea))}
+        ref={this.textareaRef}
         disabled={this.viewModel.isDisabledAttr}
         readOnly={this.viewModel.isReadOnlyAttr}
         rows={this.viewModel.rows}

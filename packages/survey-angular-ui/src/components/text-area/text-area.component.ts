@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnDestroy, ViewChild } from "@angular/core";
 import { TextAreaModel } from "survey-core";
 import { AngularComponentFactory } from "../../component-factory";
 import { EmbeddedViewContentComponent } from "../../embedded-view-content.component";
@@ -8,7 +8,7 @@ import { EmbeddedViewContentComponent } from "../../embedded-view-content.compon
   templateUrl: "./text-area.component.html",
   styleUrls: ["../../hide-host.scss"]
 })
-export class TextAreaComponent extends EmbeddedViewContentComponent {
+export class TextAreaComponent extends EmbeddedViewContentComponent implements OnDestroy {
   @Input() model!: TextAreaModel;
   @ViewChild("contentElement") elementContentRef!: ElementRef<HTMLElement>;
 
@@ -21,6 +21,9 @@ export class TextAreaComponent extends EmbeddedViewContentComponent {
       const element = this.elementContentRef.nativeElement;
       this.model.setElement(element as HTMLTextAreaElement);
     }
+  }
+  public ngOnDestroy(): void {
+    !!this.model && this.model.dispose();
   }
 }
 

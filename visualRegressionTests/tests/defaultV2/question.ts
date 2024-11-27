@@ -683,6 +683,44 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Update comment height", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1500, 900);
+      await initSurvey(framework, {
+        logoPosition: "right",
+        pages: [
+          {
+            name: "puslapis1",
+            validationType: "none",
+            elements: [
+              {
+                type: "comment",
+                name: "klausimas1",
+                state: "collapsed",
+                defaultValueExpression:
+                  "'To enhance experience of designers working with large forms in SurveyJS Creator, with v2.0, we plan to introduce the expand/collapse feature for form pages, panels and elements.To enhance experience of designers working with large forms in SurveyJS Creator, with v2.0, we plan to introduce the expand/collapse feature for form pages, panels and elements.'",
+                readOnly: true,
+                autoGrow: true,
+              },
+            ],
+          },
+        ],
+        widthMode: "static",
+        width: "500px",
+        autosaveMode: "ON_BLUR",
+      });
+
+      await ClientFunction(() => {
+        (window as any).survey.allowResizeComment = false;
+        (window as any).survey.autoGrowComment = true;
+      })();
+      const questionRoot = Selector(".sd-question");
+      await t.click(questionRoot);
+      await t.wait(500);
+      await takeElementScreenshot("question-comment-ajust-height.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Remaining character counter - mobile view", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(350, 900);

@@ -33,7 +33,7 @@ export class InputMaskBase extends Base implements IInputMask {
     const properties = Serializer.getProperties(this.getType());
     properties.forEach(property => {
       const currentValue = json[property.name];
-      (this as any)[property.name] = currentValue !== undefined ? currentValue : property.defaultValue;
+      (this as any)[property.name] = currentValue !== undefined ? currentValue : property.getDefaultValue(this);
     });
   }
   public getData(): any {

@@ -3443,3 +3443,21 @@ QUnit.test("Add availableInMatrixColumn attribute", function (assert) {
   Serializer.removeProperty("question", "prop2");
   Serializer.removeProperty("question", "prop3");
 });
+QUnit.test("Add defaultFunc attribute based on another property & obj parameter, Bug#9108", function (assert) {
+  Serializer.addProperty("question", { name: "secondName", defaultFunc: (obj: any) => { return obj.name + "_second"; } });
+  const obj: any = new QuestionTextModel("q1");
+  assert.equal(obj.secondName, "q1_second", "secondName #1");
+  obj.name = "q2";
+  assert.equal(obj.secondName, "q2_second", "secondName #2");
+  assert.deepEqual(obj.toJSON(), { name: "q2" }, "toJSON #1");
+
+  obj.secondName = "q3_s";
+  assert.equal(obj.secondName, "q3_s", "secondName #3");
+  assert.deepEqual(obj.toJSON(), { name: "q2", secondName: "q3_s" }, "toJSON #2");
+
+  obj.resetPropertyValue("secondName");
+  assert.equal(obj.secondName, "q2_second", "secondName #4");
+  assert.deepEqual(obj.toJSON(), { name: "q2" }, "toJSON #3");
+
+  Serializer.removeProperty("question", "secondName");
+});

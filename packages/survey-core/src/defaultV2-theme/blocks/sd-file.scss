@@ -123,8 +123,8 @@
 
   .sv-svg-icon {
     margin-left: calcSize(-1);
-    width: 24px;
-    height: 24px;
+    width: calcSize(3);
+    height: calcSize(3);
     fill: $primary;
   }
 }

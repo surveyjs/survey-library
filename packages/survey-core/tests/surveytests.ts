@@ -21019,3 +21019,45 @@ QUnit.test("onValueChanged event & isExpressionRunning parameter", function (ass
     { name: "q5", val: 8, reason: "trigger" },
     { name: "q4", val: 3, reason: undefined }], "logs #3");
 });
+
+QUnit.test("#9110 check focus question inside paneldynamic works correctly", function (assert) {
+  let log = "";
+  const oldScrollElementToViewCore = SurveyElement.ScrollElementToViewCore;
+  const oldScrollElementToTop = SurveyElement.ScrollElementToTop;
+  SurveyElement.ScrollElementToViewCore = ((el, _, __, ___, doneCallback) => {
+    log += `->${el.id}`;
+    doneCallback();
+  }) as any;
+  SurveyElement.ScrollElementToTop = ((elId, _, __, doneCallback) => {
+    (SurveyElement as any).ScrollElementToViewCore({ id: elId }, null, null, null, doneCallback);
+  }) as any;
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "paneldynamic",
+        name: "p1",
+        templateElements: [
+          {
+            type: "text",
+            name: "text"
+          }
+        ],
+        panelCount: 1
+      },
+    ],
+  });
+  const panelDynamic = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  const rootElement = document.createElement("div");
+  const rootWrapper = document.createElement("div");
+  rootWrapper.id = "root-wrapper";
+  rootWrapper.className = survey.css.rootWrapper;
+  rootElement.appendChild(rootWrapper);
+  survey.rootElement = rootElement;
+  const quesiton = panelDynamic.panels[0].questions[0];
+  survey.scrollElementToTop(quesiton, quesiton, null as any, "text_question_id", false, null, null, () => {
+    log += "->focused text question";
+  });
+  assert.equal(log, "->text_question_id->focused text question");
+  SurveyElement.ScrollElementToViewCore = oldScrollElementToViewCore;
+  SurveyElement.ScrollElementToTop = oldScrollElementToTop;
+});

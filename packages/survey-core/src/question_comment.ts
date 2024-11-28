@@ -156,7 +156,13 @@ export class QuestionCommentModel extends QuestionTextBase {
     super.setNewValue(newValue);
   }
   protected getValueSeparator(): string { return "\n"; }
-  public get className() {
+  protected notifyStateChanged(prevState: string): void {
+    super.notifyStateChanged(prevState);
+    if (!this.isCollapsed) {
+      this.textAreaModel.updateElement();
+    }
+  }
+  public get className(): string {
     return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
   }
 }

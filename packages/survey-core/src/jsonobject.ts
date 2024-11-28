@@ -682,7 +682,7 @@ export class CustomPropertiesCollection {
       obj.createCustomLocalizableObj
     ) {
       const locStr = obj.createCustomLocalizableObj(prop.name);
-      locStr.defaultValue = prop.defaultValue;
+      locStr.defaultValue = prop.getDefaultValue(obj);
       var locDesc = {
         get: function () {
           return obj.getLocalizableString(prop.name);
@@ -699,7 +699,6 @@ export class CustomPropertiesCollection {
       };
       Object.defineProperty(obj, prop.name, desc);
     } else {
-      var defaultValue = prop.defaultValue;
       var isArrayProp = prop.isArray || prop.type === "multiplevalues";
       if (typeof obj.createNewArray === "function") {
         if (Serializer.isDescendantOf(prop.className, "itemvalue")) {
@@ -715,10 +714,10 @@ export class CustomPropertiesCollection {
           }
         }
         if (isArrayProp) {
+          const defaultValue = prop.getDefaultValue(obj);
           if (Array.isArray(defaultValue)) {
             obj.setPropertyValue(prop.name, defaultValue);
           }
-          defaultValue = null;
         }
       }
       if (!!obj.getPropertyValue && !!obj.setPropertyValue) {
@@ -727,7 +726,7 @@ export class CustomPropertiesCollection {
             if (!!prop.onGetValue) {
               return prop.onGetValue(obj);
             }
-            return obj.getPropertyValue(prop.name, defaultValue);
+            return obj.getPropertyValue(prop.name, undefined);
           },
           set: function (v: any) {
             if (!!prop.onSetValue) {

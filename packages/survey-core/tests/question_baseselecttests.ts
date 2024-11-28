@@ -2330,3 +2330,19 @@ QUnit.test("question checkbox add a custom property into choicesByUrl, Bug#8783"
   assert.deepEqual(q1.toJSON(), { name: "q1", choicesByUrl: { valueName: "name", jsonpath: "newpath" } }, "#2");
   Serializer.removeProperty("choicesByUrl", "jsonpath");
 });
+QUnit.test("Clear action in locale & survey.locale change, Bug#9113", (assert) => {
+  const survey = new SurveyModel();
+  survey.css =survey.css = { root: "sd-root-modern" };
+  survey.fromJSON({
+    elements: [{ type: "radiogroup", name: "q1", showClearButton: true }]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(q1.isDefaultV2Theme, true, "V2 theme");
+  assert.ok(q1.getTitleToolbar());
+  assert.equal(q1.titleActions.length, 1, "one action");
+  const item = q1.titleActions[0];
+  assert.equal(item.locTitle.localizationName, "clearCaption", "locName");
+  assert.equal(item.locTitle.locale, "", "locale #1");
+  survey.locale = "de";
+  assert.equal(item.locTitle.locale, "de", "locale #2");
+});

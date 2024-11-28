@@ -451,6 +451,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
       this.titleToolbarValue = <AdaptiveActionContainer>this.createActionContainer(true);
+      this.titleToolbarValue.locOwner = this;
       this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
       this.titleToolbarValue.setItems(this.getTitleActions());
     }
@@ -484,6 +485,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       actions = this.survey.getUpdatedElementTitleActions(this, actions);
     }
     this.setPropertyValue("titleActions", actions);
+  }
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    if(!!this.titleToolbarValue) {
+      this.titleToolbarValue.locStrsChanged();
+    }
   }
   public get hasTitleActions(): boolean {
     return this.getTitleActions().length > 0;

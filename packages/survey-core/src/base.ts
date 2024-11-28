@@ -468,8 +468,8 @@ export class Base {
   public getProgressInfo(): IProgressInfo {
     return Base.createProgressInfo();
   }
-  public localeChanged() { }
-  public locStrsChanged() {
+  public localeChanged(): void { }
+  public locStrsChanged(): void {
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
         let item = this.arraysInfo[key];

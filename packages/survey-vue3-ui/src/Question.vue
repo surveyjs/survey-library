@@ -56,7 +56,7 @@
         />
         <div
           v-if="element.hasDescriptionUnderInput"
-          :class="element.cssClasses.descriptionUnderInput"
+          :class="element.cssDescription"
           :id="element.ariaDescriptionId"
         >
           <SvComponent

@@ -17504,7 +17504,7 @@ QUnit.test("check descriptionLocation change css classes", function (assert) {
     }
   };
   const question = survey.getAllQuestions()[0];
-  assert.equal(question.cssDescription, "");
+  assert.equal(question.cssDescription, "description_under_title");
   question.descriptionLocation = "underTitle";
   assert.equal(question.cssDescription, "description_under_title");
   question.descriptionLocation = "underInput";

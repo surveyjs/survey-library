@@ -442,3 +442,15 @@ QUnit.test("wait for elements to render RenderingCompletedAwaiter by timeout", a
     done();
   }, 500);
 });
+QUnit.test("description css should be calculated even if description is empty", function (assert) {
+  const json = {
+    "elements": [
+      { "type": "text", "name": "q1" },
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  const q = survey.getQuestionByName("q1");
+  assert.notOk(q.description);
+  assert.ok(q.cssDescription);
+});

@@ -6,7 +6,7 @@ export class Question {
   protected isCell: boolean;
   constructor(public readonly page: Page, protected name: string, locator?: Locator) {
     this.isCell = !!locator;
-    this.questionValue = !locator ? this.page.locator("[data-name='"+ name + "']") : locator;
+    this.questionValue = !locator ? this.page.locator("[data-name='"+ name + "']").first() : locator;
   }
   public get question(): Locator { return this.questionValue; }
   public async scrollIntoViewIfNeeded(): Promise<void> {
@@ -63,11 +63,12 @@ export class Question {
       await expect(loc).not.toHaveClass(reg);
     }
   }
+  public screenShortOptions: any;
   public async toHaveScreenshot(name: string, locator?: Locator): Promise<void> {
     if(!locator) {
       locator = this.question;
     }
-    await expect(locator).toHaveScreenshot(name);
+    await expect(locator).toHaveScreenshot(name, this.screenShortOptions);
   }
 }
 

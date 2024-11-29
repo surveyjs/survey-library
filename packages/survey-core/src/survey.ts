@@ -5372,7 +5372,7 @@ export class SurveyModel extends SurveyElementCore
           });
         }, elementsToRenderBefore);
       } else {
-        if (!elementPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
+        if (element.isPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
           const elementToScroll = this.rootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         } else {

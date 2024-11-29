@@ -215,11 +215,13 @@ export class Helpers {
   }
   private static getNumberCore(value: any): number {
     if (typeof value == "string") {
-      if(!value.trim()) return NaN;
+      value = value.trim();
+      if(!value) return NaN;
       if(value.indexOf("0x") == 0) {
         if(value.length > 32) return NaN;
         return parseInt(value);
       }
+      if(value.length > 15 && Helpers.isDigitsOnly(value)) return NaN;
       if(Helpers.isStringHasOperator(value)) return NaN;
     }
     value = this.prepareStringToNumber(value);
@@ -319,6 +321,13 @@ export class Helpers {
   }
   public static isCharDigit(ch: string): boolean {
     return ch >= "0" && ch <= "9";
+  }
+  public static isDigitsOnly(str: string): boolean {
+    if(!str) return false;
+    for(let i = 0; i < str.length; i ++) {
+      if(!Helpers.isCharDigit(str[i])) return false;
+    }
+    return true;
   }
   private static getNumberFromStr(str: string, index: number): number {
     if(!this.isCharDigit(str[index])) return NaN;

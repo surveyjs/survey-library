@@ -204,6 +204,7 @@ sv-popup {
   flex-direction: column;
   min-height: 0;
   position: relative;
+  background: $background;
 }
 
 .sv-popup--show-pointer.sv-popup--top {
@@ -288,10 +289,6 @@ sv-popup {
     padding: calcSize(1) 0;
     height: 100%;
   }
-}
-
-.sv-popup--dropdown > .sv-popup__container > .sv-popup__body-content .sv-list {
-  background-color: transparent;
 }
 
 .sv-dropdown-popup {

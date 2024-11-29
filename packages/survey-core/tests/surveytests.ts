@@ -17499,16 +17499,16 @@ QUnit.test("check descriptionLocation change css classes", function (assert) {
   });
   survey.css = {
     question: {
-      description: "description_under_title",
+      description: "description_default",
       descriptionUnderInput: "description_under_input"
     }
   };
   const question = survey.getAllQuestions()[0];
-  assert.equal(question.cssDescription, "");
+  assert.equal(question.cssDescription, "description_default");
   question.descriptionLocation = "underTitle";
-  assert.equal(question.cssDescription, "description_under_title");
+  assert.equal(question.cssDescription, "description_default");
   question.descriptionLocation = "underInput";
-  assert.equal(question.cssDescription, "description_under_input");
+  assert.equal(question.cssDescription, "description_default description_under_input");
 });
 QUnit.test("Get first focused question on collapsed question", function (assert) {
   const survey = new SurveyModel({

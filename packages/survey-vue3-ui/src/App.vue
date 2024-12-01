@@ -10,7 +10,16 @@ const json = {
    "name": "page1",
    "elements": [
     {
-     "type": "text",
+     "type": "checkbox",
+     "choices": [
+        { text: "OptionA", value: "a" },
+        { text: "OptionB", value: "b" },
+        { text: "OptionC", value: "c" },
+        { text: "OptionD", value: "d" },
+     ],
+     "choicesOrder": "random",
+     "randomSubset": ["a", "b"],
+     "dummy": "three",
      "name": "question1"
     },
     {
@@ -22,6 +31,7 @@ const json = {
   }
  ]
 };
+
 
 StylesManager.applyTheme("defaultV2");
 

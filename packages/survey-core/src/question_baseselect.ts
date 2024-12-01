@@ -951,6 +951,17 @@ export class QuestionSelectBase extends Question {
     this.onVisibleChoicesChanged();
   }
   /**
+   * Specifies subset of choices to be randomized
+   * List of a subset of choice values.
+   */
+  public get randomSubset(): string[] {
+    return this.getPropertyValue("randomSubset");
+  }
+  public set randomSubset(val: string[]) {
+    this.setPropertyValue("randomSubset", val);
+    this.onVisibleChoicesChanged();
+  }
+  /**
    * Gets or sets a caption for the "Other" choice item.
    * @see showOtherItem
    */
@@ -1661,7 +1672,13 @@ export class QuestionSelectBase extends Question {
     var order = this.choicesOrder.toLowerCase();
     if (order == "asc") return this.sortArray(array, 1);
     if (order == "desc") return this.sortArray(array, -1);
-    if (order == "random") return this.randomizeArray(array);
+    if (order == "random") {
+      if (this.randomSubset) {
+        return this.randomizeSubset(array, this.randomSubset);
+      } else {
+        return this.randomizeArray(array);
+      }
+    }
     return array;
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
@@ -1672,6 +1689,26 @@ export class QuestionSelectBase extends Question {
   private randomizeArray(array: Array<ItemValue>): Array<ItemValue> {
     return Helpers.randomizeArray<ItemValue>(array);
   }
+  private randomizeSubset(array: Array<ItemValue>, valueSubset: Array<string>): Array<ItemValue> {
+    const subsetItems: ItemValue[] = [];
+    const subsetIndex: number[] = [];
+    for (let i = 0; i < array.length; i++) {
+      const value = array[i].value;
+      if (valueSubset.includes(value)) {
+        subsetItems.push(array[i]);
+        subsetIndex.push(i);
+      }
+    }
+    const randomItems = Helpers.randomizeArray<ItemValue>(subsetItems);
+
+    for (let i = 0; i < subsetIndex.length; i++) {
+      const idx = subsetIndex[i];
+      array[idx] = randomItems[i];
+    }
+
+    return array;
+  }
+
   private get hasChoicesUrl(): boolean {
     return this.choicesByUrl && !!this.choicesByUrl.url;
   }
@@ -2158,7 +2195,13 @@ Serializer.addClass(
         return !obj.choicesFromQuestion;
       },
     },
-
+    {
+      name: "randomSubset",
+      dependsOn: "choicesOrder",
+      visibleIf: (obj: any) => {
+        return obj.choicesOrder === "random";
+      }
+    },
     {
       name: "choicesByUrl:restfull",
       className: "choicesByUrl",

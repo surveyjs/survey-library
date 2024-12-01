@@ -1,0 +1,6 @@
+{
+  "watch": ["../../build/survey-core"],
+  "ext": "js,json",
+  "ignore": ["node_modules/**"],
+  "exec": "rm -rf node_modules/.vite && npm run dev"
+}

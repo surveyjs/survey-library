@@ -194,7 +194,7 @@ export class Question extends SurveyElement<Question>
     this.registerPropertyChangedHandlers(
       ["indent", "rightIndent"],
       () => {
-        this.onIndentChanged();
+        this.resetIndents();
       }
     );
 
@@ -643,7 +643,6 @@ export class Question extends SurveyElement<Question>
     if (isLight !== true) {
       this.runConditions();
     }
-    this.calcRenderedCommentPlaceholder();
     if (!this.visible) {
       this.updateIsVisibleProp();
     }
@@ -895,7 +894,7 @@ export class Question extends SurveyElement<Question>
    * @see comment
    * @see commentText
    */
-  @property({ localizable: true, onSet: (val, target) => target.calcRenderedCommentPlaceholder() }) commentPlaceholder: string;
+  @property({ localizable: true, onSet: (val, target) => target.resetRenderedCommentPlaceholder() }) commentPlaceholder: string;
 
   public get commentPlaceHolder(): string {
     return this.commentPlaceholder;
@@ -904,11 +903,13 @@ export class Question extends SurveyElement<Question>
     this.commentPlaceholder = newValue;
   }
   public get renderedCommentPlaceholder(): string {
-    return this.getPropertyValue("renderedCommentPlaceholder");
+    const func = (): any => {
+      return !this.isReadOnly ? this.commentPlaceHolder : undefined;
+    };
+    return this.getPropertyValue("renderedCommentPlaceholder", undefined, func);
   }
-  private calcRenderedCommentPlaceholder() {
-    const res = !this.isReadOnly ? this.commentPlaceHolder : undefined;
-    this.setPropertyValue("renderedCommentPlaceholder", res);
+  private resetRenderedCommentPlaceholder() {
+    this.resetPropertyValue("renderedCommentPlaceholder");
   }
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
@@ -931,7 +932,7 @@ export class Question extends SurveyElement<Question>
   }
   public localeChanged(): void {
     super.localeChanged();
-    this.calcRenderedCommentPlaceholder();
+    this.resetRenderedCommentPlaceholder();
     if (!!this.localeChangedCallback) {
       this.localeChangedCallback();
     }
@@ -1179,7 +1180,7 @@ export class Question extends SurveyElement<Question>
     if (reNew) {
       this.updateQuestionCss(true);
     }
-    this.onIndentChanged();
+    this.resetIndents();
   }
   protected updateQuestionCss(reNew?: boolean): void {
     if (
@@ -1231,9 +1232,11 @@ export class Question extends SurveyElement<Question>
   public get renderCssRoot(): string {
     return this.cssClasses.root || undefined;
   }
-  private onIndentChanged() {
-    this.paddingLeft = this.getIndentSize(this.indent);
-    this.paddingRight = this.getIndentSize(this.rightIndent);
+  protected calcPaddingLeft(): string {
+    return this.getIndentSize(this.indent);
+  }
+  protected calcPaddingRight(): string {
+    return this.getIndentSize(this.rightIndent);
   }
   private getIndentSize(indent: number): string {
     if (indent < 1 || !this.getSurvey() || !this.cssClasses || !this.cssClasses.indent) return "";
@@ -1461,7 +1464,7 @@ export class Question extends SurveyElement<Question>
       this.clearErrors();
     }
     this.updateQuestionCss();
-    this.calcRenderedCommentPlaceholder();
+    this.resetRenderedCommentPlaceholder();
   }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes read-only.
@@ -1530,13 +1533,10 @@ export class Question extends SurveyElement<Question>
     if (this.isEmpty()) {
       this.initDataFromSurvey();
     }
-    this.calcRenderedCommentPlaceholder();
-    this.onIndentChanged();
   }
   protected onSetData(): void {
     super.onSetData();
     if (!this.survey) return;
-    this.onIndentChanged();
     if(!this.isDesignMode) {
       this.initDataFromSurvey();
       this.onSurveyValueChanged(this.value);

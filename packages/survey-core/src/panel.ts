@@ -2068,7 +2068,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       }
     });
     this.registerPropertyChangedHandlers(
-      ["indent", "innerIndent", "rightIndent"], () => { this.onIndentChanged(); });
+      ["indent", "innerIndent", "rightIndent"], () => { this.resetIndents(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
   }
   public getType(): string {
@@ -2083,13 +2083,8 @@ export class PanelModel extends PanelModelBase implements IElement {
     }
     return super.getSurvey(live);
   }
-  onSurveyLoad() {
-    super.onSurveyLoad();
-    this.onIndentChanged();
-  }
   protected onSetData() {
     super.onSetData();
-    this.onIndentChanged();
     this.calcHasTextInTitle();
   }
   public get isPanel(): boolean {
@@ -2269,24 +2264,33 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("allowAdaptiveActions", val);
   }
   get innerPaddingLeft(): string {
-    return this.getPropertyValue("innerPaddingLeft", "");
+    const func = (): string => {
+      return this.getIndentSize(this.innerIndent);
+    };
+    return this.getPropertyValue("innerPaddingLeft", undefined, func);
   }
   set innerPaddingLeft(val: string) {
     this.setPropertyValue("innerPaddingLeft", val);
   }
-  private onIndentChanged() {
-    if (!this.getSurvey()) return;
-    this.innerPaddingLeft = this.getIndentSize(this.innerIndent);
-    this.paddingLeft = this.getIndentSize(this.indent);
-    this.paddingRight = this.getIndentSize(this.rightIndent);
+  protected calcPaddingLeft(): string {
+    return this.getIndentSize(this.indent);
   }
+  protected calcPaddingRight(): string {
+    return this.getIndentSize(this.rightIndent);
+  }
+  protected resetIndents(): void {
+    this.resetPropertyValue("innerPaddingLeft");
+    super.resetIndents();
+  }
+
   private getIndentSize(indent: number): string {
+    if(!this.survey) return undefined;
     if (indent < 1) return "";
     var css = (<any>this).survey["css"];
-    if (!css || !css.question.indent) return "";
+    if (!css || !css.question || !css.question.indent) return "";
     return indent * css.question.indent + "px";
   }
-  public clearOnDeletingContainer() {
+  public clearOnDeletingContainer(): void {
     this.elements.forEach((element) => {
       if (element instanceof Question || element instanceof PanelModel) {
         element.clearOnDeletingContainer();

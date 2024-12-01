@@ -495,12 +495,19 @@ export class Base {
    * @param name A property name.
    * @param defaultValue *(Optional)* A value to return if the property is not found or does not have a value.
    */
-  public getPropertyValue(name: string, defaultValue: any = null): any {
+  public getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
     const res = this.getPropertyValueWithoutDefault(name);
     if (this.isPropertyEmpty(res)) {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
       if (locStr) return locStr.text;
       if (defaultValue !== null && defaultValue !== undefined) return defaultValue;
+      if(!!calcFunc) {
+        const newVal = calcFunc();
+        if(newVal !== undefined) {
+          this.setPropertyValueDirectly(name, newVal);
+          return newVal;
+        }
+      }
       const propDefaultValue = this.getDefaultPropertyValue(name);
       if (propDefaultValue !== undefined) return propDefaultValue;
     }

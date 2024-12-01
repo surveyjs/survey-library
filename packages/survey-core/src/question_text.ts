@@ -134,7 +134,7 @@ export class QuestionTextModel extends QuestionTextBase {
     );
     this.registerPropertyChangedHandlers(["inputType", "size"], () => {
       this.updateInputSize();
-      this.calcRenderedPlaceholder();
+      this.resetRenderedPlaceholder();
     });
   }
   protected isTextValue(): boolean {

@@ -4,15 +4,14 @@ import { SurveyModel, StylesManager } from "survey-core";
 import Survey from "./Survey.vue";
 
 const json = {
- "logoPosition": "right",
  "pages": [
   {
    "name": "page1",
    "elements": [
     {
      "type": "maxdiff",
-     "name": "panel1",
-     "description": "description goes at the top",
+     "name": "maxdiffQ",
+     "description": "Optional description at the top",
      "title": "title above each item",
      "choices": ["a", "b", "c", "d"],
     },

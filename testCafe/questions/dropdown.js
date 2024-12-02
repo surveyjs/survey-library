@@ -2295,20 +2295,24 @@ frameworks.forEach((framework) => {
       window.survey.locale = locale;
     });
     await t
-      .click("input")
-      .click("body", { offsetX: 0 })
       .expect(Selector(".sv_q_dropdown__value span").withExactText("notenglish").exists).ok()
+      .click("input")
       .expect(Selector("li div").withAttribute("title", "notenglish").exists).ok()
-      .expect(Selector("li div span").withExactText("notenglish").exists).ok();
+      .expect(Selector("li div span").withExactText("notenglish").exists).ok()
+      .click("body", { offsetX: 0 });
     await changeLocale("en");
     await t
       .expect(Selector(".sv_q_dropdown__value span").withExactText("english").exists).ok()
+      .click("input")
       .expect(Selector("li div").withAttribute("title", "english").exists).ok()
-      .expect(Selector("li div span").withExactText("english").exists).ok();
+      .expect(Selector("li div span").withExactText("english").exists).ok()
+      .click("body", { offsetX: 0 });
     await changeLocale("de");
     await t
       .expect(Selector(".sv_q_dropdown__value span").withExactText("notenglish").exists).ok()
+      .click("input")
       .expect(Selector("li div").withAttribute("title", "notenglish").exists).ok()
-      .expect(Selector("li div span").withExactText("notenglish").exists).ok();
+      .expect(Selector("li div span").withExactText("notenglish").exists).ok()
+      .click("body", { offsetX: 0 });
   });
 });

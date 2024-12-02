@@ -183,6 +183,7 @@ export {
   MultipleTextEditorModel
 } from "../../src/question_multipletext";
 export { PanelModel, PanelModelBase, QuestionRowModel } from "../../src/panel";
+export { MaxdiffModel } from "../../src/question_maxdiff";
 export { FlowPanelModel } from "../../src/flowpanel";
 export { PageModel } from "../../src/page";
 export * from "../../src/template-renderer";

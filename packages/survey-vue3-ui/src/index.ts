@@ -132,6 +132,7 @@ import { ComponentFactory } from "./component-factory";
 import { key2ClickDirective } from "./directives/key2click";
 import FilePage from "./components/file/FilePage.vue";
 import FileItem from "./components/file/FileItem.vue";
+import Maxdiff from "./Maxdiff.vue";
 
 export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
 export { ComponentFactory };
@@ -165,6 +166,7 @@ function registerComponents(
   registerComponent("survey-row", Row);
   registerComponent("survey-question", Question);
   registerComponent("survey-panel", Panel);
+  registerComponent("survey-maxdiff", Maxdiff);
   registerComponent("survey-element-header", ElementHeader);
   registerComponent("survey-string", String);
   registerComponent("sv-string-viewer", StringViewer);

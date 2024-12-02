@@ -10,14 +10,12 @@ const json = {
    "name": "page1",
    "elements": [
     {
-     "type": "text",
-     "name": "question1"
+     "type": "maxdiff",
+     "name": "panel1",
+     "description": "description goes at the top",
+     "title": "title above each item",
+     "choices": ["a", "b", "c", "d"],
     },
-    {
-     "type": "text",
-     "name": "question2",
-     "visibleIf": "{question1} notempty"
-    }
    ]
   }
  ]

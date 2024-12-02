@@ -404,7 +404,8 @@ export class PanelModelBase extends SurveyElement<Question>
   public getType(): string {
     return "panelbase";
   }
-  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
+    //if(this.surveyImpl === value) return; TODO refactor
     this.blockAnimations();
     super.setSurveyImpl(value, isLight);
     if (this.isDesignMode) this.onVisibleChanged();
@@ -1359,12 +1360,10 @@ export class PanelModelBase extends SurveyElement<Question>
     this.releaseAnimations();
     this.calcHasTextInTitle();
   }
-  public onFirstRendering(): void {
-    super.onFirstRendering();
-    for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].onFirstRendering();
-    }
+  protected onFirstRenderingCore(): void {
+    super.onFirstRenderingCore();
     this.onRowsChanged();
+    this.elements.forEach(el => el.onFirstRendering());
   }
   public updateRows(): void {
     if (this.isLoadingFromJson) return;
@@ -1759,22 +1758,20 @@ export class PanelModelBase extends SurveyElement<Question>
   protected getPanelStartIndex(index: number): number {
     return index;
   }
-  protected isContinueNumbering() {
-    return true;
-  }
+  protected isContinueNumbering(): boolean { return true; }
   public get isReadOnly(): boolean {
     var isParentReadOnly = !!this.parent && this.parent.isReadOnly;
     var isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
     return this.readOnly || isParentReadOnly || isSurveyReadOnly;
   }
-  protected onReadOnlyChanged() {
+  protected onReadOnlyChanged(): void {
     for (var i = 0; i < this.elements.length; i++) {
       var el = <SurveyElement>(<any>this.elements[i]);
       el.setPropertyValue("isReadOnly", el.isReadOnly);
     }
     super.onReadOnlyChanged();
   }
-  public updateElementCss(reNew?: boolean) {
+  public updateElementCss(reNew?: boolean): void {
     super.updateElementCss(reNew);
     for (let i = 0; i < this.elements.length; i++) {
       const el = <SurveyElement>(<any>this.elements[i]);

@@ -570,7 +570,8 @@ export abstract class QuestionCustomModelBase extends Question
       );
     }
   }
-  public onFirstRendering() {
+  protected onFirstRenderingCore(): void {
+    super.onFirstRenderingCore();
     const el = this.getElement();
     if (!!el) {
       el.onFirstRendering();

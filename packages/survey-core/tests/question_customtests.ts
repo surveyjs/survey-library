@@ -1902,9 +1902,13 @@ QUnit.test("Check updateElementCss for custom question", function (assert) {
     elements: [{ type: "newquestion", name: "q1" }],
   });
   const question = <QuestionCustomModel>survey.getAllQuestions()[0];
+  const css1 = question.cssClassesValue;
+  const css2 = question.contentQuestion.cssClassesValue;
+  assert.ok(css1);
+  assert.ok(css2);
   question.updateElementCss();
-  assert.equal(question.cssClassesValue, undefined);
-  assert.equal(question.contentQuestion.cssClassesValue, undefined);
+  assert.notStrictEqual(question.cssClassesValue, css1);
+  assert.notStrictEqual(question.contentQuestion.cssClassesValue, css2);
   ComponentCollection.Instance.clear();
 });
 QUnit.test("onvalueChanging/Changed events", function (assert) {

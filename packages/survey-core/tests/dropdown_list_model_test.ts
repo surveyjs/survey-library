@@ -281,7 +281,7 @@ QUnit.test("Check list classes with onUpdateQuestionCssClasses", function (asser
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
   question.dropdownListModel = dropdownListModel;
-  question.onFirstRendering();
+  assert.ok(question.cssClassesValue);
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   assert.equal(list.cssClasses.item, "original-class custom-class");
   assert.equal(list.cssClasses.itemSelected, "original-class-selected custom-class-selected");

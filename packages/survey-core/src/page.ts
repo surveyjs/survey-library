@@ -108,10 +108,6 @@ export class PageModel extends PanelModelBase implements IPage {
       this.removeSelfFromList(this.survey.pages);
     }
   }
-  public onFirstRendering(): void {
-    if (this.wasShown) return;
-    super.onFirstRendering();
-  }
   /**
    * The visible index of the page. It has values from 0 to visible page count - 1.
    * @see SurveyModel.visiblePages

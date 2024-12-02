@@ -654,7 +654,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("isPlayingVideo", show);
   }
   private updateCurrentMode(): void {
-    if (!this.isDesignMode) {
+    if (!this.isDesignMode && this.survey) {
       if (this.sourceType !== "file") {
         this.camera.hasCamera((res: boolean) => {
           this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.sourceType : "file");

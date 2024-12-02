@@ -2267,7 +2267,7 @@ frameworks.forEach((framework) => {
     let surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({ q1: { row1: { col1: "other", "col1-Comment": "ABC" } } });
   });
-  test.only("Check item title changes when locale is changed", async (t) => {
+  test("Check item title changes when locale is changed", async (t) => {
     await initSurvey(framework, {
       locale: "de",
       elements: [

@@ -594,10 +594,8 @@ export class Question extends SurveyElement<Question>
     this.triggersInfo.push(info);
     return info;
   }
-  private runTriggerInfo(info: TriggerExpressionInfo, name: string, value: any): void {
+  private runTriggerInfo(info: TriggerExpressionInfo, keys: any): void {
     const expression = this[info.name];
-    const keys: any = {};
-    keys[name] = value;
     if (!expression || info.isRunning || !info.canRun()) {
       if (info.runSecondCheck(keys)) {
         info.doComplete();
@@ -619,10 +617,14 @@ export class Question extends SurveyElement<Question>
     info.isRunning = true;
     info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
-  public runTriggers(name: string, value: any): void {
+  public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
+    if(!keys) {
+      keys = {};
+      keys[name] = value;
+    }
     this.triggersInfo.forEach(info => {
-      this.runTriggerInfo(info, name, value);
+      this.runTriggerInfo(info, keys);
     });
   }
   private runConditions() {

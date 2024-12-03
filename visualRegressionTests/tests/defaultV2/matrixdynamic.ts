@@ -231,6 +231,7 @@ frameworks.forEach(framework => {
 
       const matrixdynamicRoot = Selector(".sd-question");
       await resetFocusToBody();
+      await t.hover(matrixdynamicRoot.find(".sd-table__row"));
       await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop.png", matrixdynamicRoot, t, comparer);
     });
   });
@@ -246,7 +247,10 @@ frameworks.forEach(framework => {
 
       const matrixdynamicRoot = Selector(".sd-question");
       await resetFocusToBody();
+      await t.hover(matrixdynamicRoot.find(".sd-table__row").nth(0));
       await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop-lockedRowCount.png", matrixdynamicRoot, t, comparer);
+      await t.hover(matrixdynamicRoot.find(".sd-table__row").nth(1));
+      await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop-lockedRowCount-2.png", matrixdynamicRoot, t, comparer);
 
       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].allowRowsDragAndDrop = false; })();
       await takeElementScreenshot("matrixdynamic-lockedRowCount.png", matrixdynamicRoot, t, comparer);

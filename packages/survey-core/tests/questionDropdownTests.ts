@@ -2119,3 +2119,60 @@ QUnit.test("Rapidly Changing Search Filter", (assert) => {
     done1();
   }, callbackTimeOutDelta);
 });
+
+QUnit.test("Dropdown with Lazy Loading - A list of items display duplicate entries #9111", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const done4 = assert.async();
+  const newValueDebouncedInputValue = onChoicesLazyLoadCallbackTimeOut;
+  const oldValueDebouncedInputValue = settings.dropdownSearchDelay;
+  settings.dropdownSearchDelay = newValueDebouncedInputValue;
+
+  const json = {
+    questions: [{ "type": "dropdown", "name": "q1", "choicesLazyLoadEnabled": true }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((_, opt) => {
+    setTimeout(() => {
+      opt.setItems(getNumberArray(0, 5, opt.filter), 5);
+    }, onChoicesLazyLoadCallbackTimeOut);
+  });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const itemsSettings = question.dropdownListModel["itemsSettings"];
+
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+  assert.equal(question.choices.length, 0, "question.choices.length #1");
+  assert.equal(itemsSettings.items.length, 0, "itemsSettings.items.length #1");
+
+  question.dropdownListModel.popupModel.show();
+  setTimeout(() => {
+    assert.equal(question.choices.length, 5, "question.choices.length #2");
+
+    question.dropdownListModel.filterString = "22";
+    setTimeout(() => {
+      assert.equal(question.choices.length, 5, "question.choices.length #3");
+
+      question.dropdownListModel.filterString = "2";
+      setTimeout(() => {
+        assert.equal(question.choices.length, 5, "question.choices.length #4");
+
+        question.dropdownListModel.filterString = "";
+        setTimeout(() => {
+          assert.equal(question.choices.length, 5, "question.choices.length #5");
+
+          settings.dropdownSearchDelay = oldValueDebouncedInputValue;
+          done4();
+        }, onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue + callbackTimeOutDelta);
+
+        done3();
+      }, callbackTimeOutDelta);
+
+      done2();
+    }, onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue + callbackTimeOutDelta);
+
+    done1();
+  }, onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue + callbackTimeOutDelta);
+});

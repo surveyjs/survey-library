@@ -5913,11 +5913,9 @@ export class SurveyModel extends SurveyElementCore
         var question = questions[i];
         this.checkQuestionErrorOnValueChanged(question);
         question.onSurveyValueChanged(newValue);
-        this.fireOnValueChanged(valueName, newValue, question);
       }
-    } else {
-      this.fireOnValueChanged(valueName, newValue, null);
     }
+    this.fireOnValueChanged(valueName, newValue, !!questionName ? this.getQuestionByName(questionName) : undefined);
     if (this.isDisposed) return;
     this.checkElementsBindings(valueName, newValue);
     this.notifyElementsOnAnyValueOrVariableChanged(valueName, questionName);

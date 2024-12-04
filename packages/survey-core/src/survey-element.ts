@@ -522,7 +522,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.textProcessorValue = this.surveyImplValue.getTextProcessor();
       this.onSetData();
     }
-    if (!!this.survey) {
+    if (!!this.survey && !this.isLoadingFromJson) {
       this.updateDescriptionVisibility(this.description);
       this.clearCssClasses();
     }
@@ -843,7 +843,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!html || !this.textProcessor) return html;
     return this.textProcessor.processText(html, true);
   }
-  protected onSetData() { }
+  protected onSetData(): void { }
   public get parent(): IPanel {
     return this.getPropertyValue("parent", null);
   }

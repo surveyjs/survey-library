@@ -1541,8 +1541,7 @@ export class Question extends SurveyElement<Question>
   }
   protected onSetData(): void {
     super.onSetData();
-    if (!this.survey) return;
-    if(!this.isDesignMode) {
+    if(!this.isDesignMode && !!this.survey && !this.isLoadingFromJson) {
       this.initDataFromSurvey();
       this.onSurveyValueChanged(this.value);
       this.updateValueWithDefaults();

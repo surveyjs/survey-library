@@ -2218,7 +2218,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected onSetData(): void {
     super.onSetData();
-    if (this.useTemplatePanel) {
+    if(!this.isLoadingFromJson && this.useTemplatePanel) {
       this.setTemplatePanelSurveyImpl();
       this.rebuildPanels();
     }

@@ -86,9 +86,11 @@ export function property(options: IPropertyDecoratorOptions = {}) {
         set: function (val: any) {
           const newValue = processComputedUpdater(this, val);
           const prevValue = this.getPropertyValue(key);
-          this.setPropertyValue(key, newValue);
-          if (!!options && options.onSet) {
-            options.onSet(newValue, this, prevValue);
+          if(newValue !== prevValue) {
+            this.setPropertyValue(key, newValue);
+            if (!!options && options.onSet) {
+              options.onSet(newValue, this, prevValue);
+            }
           }
         },
       });

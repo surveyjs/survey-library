@@ -202,7 +202,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
-      if (!!target.dropdownListModel) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setSearchEnabled(newValue);
       }
     }
@@ -236,7 +236,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
-      if (!!target.dropdownListModel) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setChoicesLazyLoadEnabled(newValue);
       }
     }

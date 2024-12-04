@@ -58,13 +58,33 @@
   }
 }
 
+.sd-table__row:hover {
+  .sd-drag-element__svg {
+    visibility: visible;
+  }
+}
+
+.sd-table__cell.sd-table__cell--drag {
+  >div {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    margin-left: calcSize(-4);
+    width: calcSize(4);
+    background-color: $question-background;
+    min-height: calcSize(6);
+  }
+}
+
 .sd-drag-element__svg {
-  width: calcSize(2);
-  height: calcSize(2);
+  width: calcSize(3);
+  height: calcSize(3);
   display: block;
+  cursor: pointer;
+  visibility: hidden;
 
   use {
-    fill: $foreground-light;
+    fill: $primary;
   }
 }
 
@@ -72,15 +92,18 @@
   from {
     border-width: 0px;
   }
+
   to {
     border-width: 8px;
   }
 }
+
 @keyframes paddingAnimation {
   from {
     padding-top: 0;
     padding-bottom: 0;
   }
+
   to {
     padding-top: 24px;
     padding-bottom: 32px;
@@ -88,25 +111,27 @@
 }
 
 @keyframes empty {
-  from {
-  }
-  to {
-  }
+  from {}
+
+  to {}
 }
+
 .sd-table__row--leave,
 .sd-table__row--enter {
   animation-name: empty;
   --move-whole-animation-duration: calc(var(--move-animation-duration) + var(--move-animation-delay));
   --fade-whole-animation-duration: calc(var(--fade-animation-duration) + var(--fade-animation-delay));
   animation-duration: max(var(--fade-whole-animation-duration), var(--move-whole-animation-duration));
-  & > td {
+
+  &>td {
     animation-name: borderAnimation;
     animation-direction: var(--animation-direction);
     animation-timing-function: var(--animation-timing-function);
     animation-duration: var(--move-animation-duration);
     animation-fill-mode: forwards;
     animation-delay: var(--move-animation-delay);
-    & > div {
+
+    &>div {
       animation-name: fadeIn, moveInWithOverflow;
       opacity: 0;
       animation-direction: var(--animation-direction);
@@ -117,6 +142,7 @@
     }
   }
 }
+
 .sd-table__row--enter {
   --move-animation-delay: 0s;
   --move-animation-duration: #{$matrix-row-move-in-duration};
@@ -125,6 +151,7 @@
   --animation-direction: normal;
   --animation-timing-function: #{$ease-out};
 }
+
 .sd-table__row--leave {
   --move-animation-delay: #{$matrix-row-move-out-delay};
   --move-animation-duration: #{$matrix-row-move-out-duration};
@@ -133,10 +160,12 @@
   --animation-direction: reverse;
   --animation-timing-function: #{$reverse-ease-out};
 }
+
 .sd-table__row--detail {
+
   &.sd-table__row--enter,
   &.sd-table__row--leave {
-    & > td {
+    &>td {
       animation-name: borderAnimation, paddingAnimation;
       animation-duration: var(--move-animation-duration);
       animation-fill-mode: forwards;
@@ -153,6 +182,7 @@
     --animation-direction: normal;
     --animation-timing-function: #{$ease-out};
   }
+
   &.sd-table__row--leave {
     --move-animation-delay: #{$matrix-detail-row-move-out-delay};
     --move-animation-duration: #{$matrix-detail-row-move-out-duration};

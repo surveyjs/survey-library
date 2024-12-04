@@ -47,6 +47,31 @@
     align-items: center;
     line-height: 0;
   }
+
+  .sd-table__cell.sd-table__cell--drag {
+    >div {
+      background-color: $question-background;
+      min-height: calcSize(6);
+    }
+  }
+}
+
+.sd-table__cell--header,
+.sd-table__cell {
+  &.sd-table__cell--drag {
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+.sd-question--mobile {
+
+  .sd-table__cell--header,
+  .sd-table__cell {
+    &.sd-table__cell--drag {
+      display: none;
+    }
+  }
 }
 
 .sv-matrix-row--drag-drop-ghost-mod td {

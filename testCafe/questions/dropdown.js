@@ -2268,3 +2268,54 @@ frameworks.forEach((framework) => {
     await t.expect(surveyResult).eql({ q1: { row1: { col1: "other", "col1-Comment": "ABC" } } });
   });
 });
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+  test("Check item title changes when locale is changed", async (t) => {
+    await initSurvey(framework, {
+      locale: "de",
+      elements: [
+        {
+          defaultValue: "one",
+          choices: [
+            {
+              text: {
+                default: "english",
+                de: "notenglish",
+              },
+              value: "one",
+            },
+          ],
+          name: "q1",
+          title: {
+            default: "english",
+            de: "notenglish",
+          },
+          type: "dropdown",
+        },
+      ],
+    });
+    const changeLocale = ClientFunction((locale) => {
+      window.survey.locale = locale;
+    });
+    await t
+      .expect(Selector(".sv_q_dropdown__value span").withExactText("notenglish").exists).ok()
+      .click("input")
+      .expect(Selector("li div").withAttribute("title", "notenglish").exists).ok()
+      .expect(Selector("li div span").withExactText("notenglish").exists).ok()
+      .click("body", { offsetX: 0 });
+    await changeLocale("en");
+    await t
+      .expect(Selector(".sv_q_dropdown__value span").withExactText("english").exists).ok()
+      .click("input")
+      .expect(Selector("li div").withAttribute("title", "english").exists).ok()
+      .expect(Selector("li div span").withExactText("english").exists).ok()
+      .click("body", { offsetX: 0 });
+    await changeLocale("de");
+    await t
+      .expect(Selector(".sv_q_dropdown__value span").withExactText("notenglish").exists).ok()
+      .click("input")
+      .expect(Selector("li div").withAttribute("title", "notenglish").exists).ok()
+      .expect(Selector("li div span").withExactText("notenglish").exists).ok()
+      .click("body", { offsetX: 0 });
+  });
+});

@@ -148,21 +148,21 @@ export function useQuestion<T extends Question>(
     props.question.beforeDestroyQuestionElement(root.value);
   });
 }
-function noop() {}
 export function useLocString(
   getLocString: () => LocalizableString
 ): Ref<string> {
   const renderedHtml = ref();
+  const onStringChangedCallbck = (locString: LocalizableString) => {
+    renderedHtml.value = locString.renderedHtml;
+  };
   const setupOnChangedCallback = (locString: LocalizableString) => {
     renderedHtml.value = locString.renderedHtml;
-    locString.onChanged = () => {
-      renderedHtml.value = locString.renderedHtml;
-    };
+    locString.onStringChanged.add(onStringChangedCallbck);
   };
   const stopWatch = watch(
     getLocString,
     (newValue, oldValue) => {
-      if (oldValue) oldValue.onChanged = noop;
+      if (oldValue) oldValue.onStringChanged.remove(onStringChangedCallbck);
       setupOnChangedCallback(newValue);
     },
     { immediate: true }
@@ -170,7 +170,7 @@ export function useLocString(
   onBeforeUnmount(() => {
     const locString = getLocString();
     if (locString) {
-      locString.onChanged = noop;
+      locString.onStringChanged.remove(onStringChangedCallbck);
     }
     stopWatch();
   });

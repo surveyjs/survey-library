@@ -14,7 +14,7 @@ import { settings } from "./settings";
 import { SurveyElement } from "./survey-element";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
-import { cleanHtmlElementAfterAnimation, mergeValues, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
+import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 
 /**
@@ -2048,22 +2048,6 @@ export class QuestionSelectBase extends Question {
   }
   public set itemComponent(value: string) {
     this.setPropertyValue("itemComponent", value);
-  }
-  protected updateCssClasses(res: any, css: any) {
-    super.updateCssClasses(res, css);
-    if (!!this.dropdownListModel) {
-      const listCssClasses = {};
-      mergeValues(css.list, listCssClasses);
-      mergeValues(res.list, listCssClasses);
-      res["list"] = listCssClasses;
-    }
-  }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    if (this.dropdownListModel) {
-      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
-    }
-    return classes;
   }
 }
 /**

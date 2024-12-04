@@ -158,6 +158,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
             (this as any)[key] = options[key];
         }
       });
+      this.updateActionsIds();
     } else {
       this.setItems(items as Array<IAction>);
       this.selectedItem = selectedItem;
@@ -171,11 +172,14 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     super.setItems(items, sortByVisibleIndex);
-    if (this.elementId) {
-      this.renderedActions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
-    }
+    this.updateActionsIds();
     if (!this.isAllDataLoaded && !!this.actions.length) {
       this.actions.push(this.loadingIndicator);
+    }
+  }
+  private updateActionsIds(): void {
+    if (this.elementId) {
+      this.renderedActions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
     }
   }
   public setSearchEnabled(newValue: boolean): void {

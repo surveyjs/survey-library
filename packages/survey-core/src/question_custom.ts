@@ -576,7 +576,6 @@ export abstract class QuestionCustomModelBase extends Question
     if (!!el) {
       el.onFirstRendering();
     }
-    super.onFirstRendering();
   }
   public onHidingContent(): void {
     super.onHidingContent();

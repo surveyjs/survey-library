@@ -7,7 +7,7 @@ import { settings } from "./settings";
 import { getLocaleString } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Base } from "./base";
-import { mergeValues } from "./utils/utils";
+import { updateListCssValues } from "./utils/utils";
 import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
@@ -869,7 +869,7 @@ export class QuestionRatingModel extends Question {
   }
   protected onBeforeSetCompactRenderer(): void {
     if (!this.dropdownListModelValue) {
-      this.dropdownListModel = new DropdownListModel(this);
+      this.dropdownListModelValue = new DropdownListModel(this);
     }
   }
   protected getCompactRenderAs(): string {
@@ -896,17 +896,12 @@ export class QuestionRatingModel extends Question {
   }
   protected updateCssClasses(res: any, css: any) {
     super.updateCssClasses(res, css);
-    if(!!this.dropdownListModel) {
-      const listCssClasses = {};
-      mergeValues(css.list, listCssClasses);
-      mergeValues(res.list, listCssClasses);
-      res["list"] = listCssClasses;
-    }
+    updateListCssValues(res, css);
   }
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
-    if(this.dropdownListModel) {
-      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
+    if(this.dropdownListModelValue) {
+      this.dropdownListModelValue.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
   }
@@ -925,6 +920,7 @@ export class QuestionRatingModel extends Question {
     super.dispose();
     if(!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
+      this.dropdownListModelValue = undefined;
     }
   }
 }

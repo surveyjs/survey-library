@@ -9,6 +9,7 @@ import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupDropdownViewModel } from "../src/popup-dropdown-view-model";
 import { PopupModalViewModel } from "../src/popup-modal-view-model";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { IAction } from "../src/actions/action";
 
 export default QUnit.module("Dropdown question");
 
@@ -1050,6 +1051,25 @@ QUnit.test("itemsSettings property", assert => {
 
     done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});
+QUnit.test("rendering actions id", assert => {
+  const json = {
+    questions: [{
+      type: "dropdown",
+      name: "q1",
+      choices: ["Item1", "Item2"]
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  question.id = "el1";
+  const listModel = question.popupModel.contentComponentData.model as ListModel;
+  const actions = listModel.renderedActions;
+  assert.equal(actions.length, 2, "two actions");
+  assert.equal((<IAction>actions[0]).elementId, "el1i_listItem1", "elementId, action1");
+  assert.equal((<IAction>actions[1]).elementId, "el1i_listItem2", "elementId, action2");
+  assert.equal((<IAction>actions[0]).disableTabStop, true, "disableTabStop, action1");
+  assert.equal((<IAction>actions[1]).disableTabStop, true, "disableTabStop, action2");
 });
 
 QUnit.test("Test dropdown choices change should update strings", function (assert) {

@@ -1837,7 +1837,7 @@ export class QuestionPanelDynamicModel extends Question
   private get canBuildPanels(): boolean {
     return !this.isLoadingFromJson && !this.useTemplatePanel;
   }
-  public onFirstRenderingCore(): void {
+  protected onFirstRenderingCore(): void {
     super.onFirstRenderingCore();
     this.buildPanelsFirstTime();
     this.template.onFirstRendering();

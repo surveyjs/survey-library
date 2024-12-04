@@ -1491,9 +1491,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     );
     this.updateVisibilityBasedOnRows();
   }
-  public runTriggers(name: string, value: any): void {
-    super.runTriggers(name, value);
-    this.runFuncForCellQuestions((q: Question) => { q.runTriggers(name, value); });
+  public runTriggers(name: string, value: any, keys?: any): void {
+    super.runTriggers(name, value, keys);
+    this.runFuncForCellQuestions((q: Question) => { q.runTriggers(name, value, keys); });
   }
   public updateElementVisibility(): void {
     super.updateElementVisibility();

@@ -6090,13 +6090,20 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
+  private questionTriggersKeys: any;
   private runConditionOnValueChanged(name: string, value: any) {
     if (this.isRunningConditions) {
       this.conditionValues[name] = value;
+      if(this.questionTriggersKeys) {
+        this.questionTriggersKeys[name] = value;
+      }
       this.isValueChangedOnRunningCondition = true;
     } else {
+      this.questionTriggersKeys = {};
+      this.questionTriggersKeys[name] = value;
       this.runConditions();
       this.runQuestionsTriggers(name, value);
+      this.questionTriggersKeys = undefined;
     }
   }
   private runConditionsCore(properties: any) {
@@ -6119,7 +6126,9 @@ export class SurveyModel extends SurveyElementCore
   private runQuestionsTriggers(name: string, value: any): void {
     if (this.isDisplayMode || this.isDesignMode) return;
     const questions = this.getAllQuestions();
-    questions.forEach(q => q.runTriggers(name, value));
+    questions.forEach(q => {
+      q.runTriggers(name, value, this.questionTriggersKeys);
+    });
   }
   private checkIfNewPagesBecomeVisible(oldCurrentPageIndex: number) {
     var newCurrentPageIndex = this.pages.indexOf(this.currentPage);

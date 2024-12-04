@@ -7907,3 +7907,58 @@ QUnit.test("Show parent number in the question #8813, #3", function (assert) {
   assert.equal(survey.getQuestionByName("q6").no, "2.", "q6.no");
   assert.equal(survey.getQuestionByName("q7").no, "3.", "q7.no");
 });
+QUnit.test("Recursive changes setValueExpression #9132", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "question1",
+        choices: ["Item 1", "Item 2", "Item 3"],
+      },
+      {
+        type: "text",
+        name: "question2",
+        setValueExpression:
+          "iif({question1} = 'Item 1', 1, iif({question1} = 'Item 2', 2, iif({question1} = 'Item 3', 3, 0)))",
+        inputType: "number",
+      },
+      {
+        type: "dropdown",
+        name: "question3",
+        choices: ["Item 1", "Item 2", "Item 3"],
+      },
+      {
+        type: "text",
+        name: "question4",
+        setValueExpression:
+          "iif({question3} = 'Item 1', 1, iif({question3} = 'Item 2', 2, iif({question3} = 'Item 3', 3, 0)))",
+        inputType: "number",
+      },
+      {
+        type: "text",
+        name: "question5",
+        defaultValueExpression: "{question2}+{question4}",
+        inputType: "number",
+        readOnly: true,
+      },
+      {
+        type: "text",
+        name: "question6",
+        setValueExpression:
+          "iif({question5} > 5, 'High Risk', iif({question5} > 3, 'Medium Risk', iif({question5} > 1, 'Low Risk', '')))"
+      }
+    ],
+  });
+  const q6 = survey.getQuestionByName("question6");
+  assert.equal(q6.isEmpty(), true, "#0");
+  survey.setValue("question6", "test");
+  assert.equal(q6.value, "test", "#1");
+  survey.setValue("question1", "Item 1");
+  assert.equal(q6.value, "", "#2");
+  survey.setValue("question3", "Item 1");
+  assert.equal(q6.value, "Low Risk", "#3");
+  survey.setValue("question1", "Item 3");
+  assert.equal(q6.value, "Medium Risk", "#4");
+  survey.setValue("question3", "Item 3");
+  assert.equal(q6.value, "High Risk", "#5");
+});

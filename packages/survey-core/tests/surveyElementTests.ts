@@ -454,3 +454,30 @@ QUnit.test("description css should be calculated even if description is empty", 
   assert.notOk(q.description);
   assert.ok(q.cssDescription);
 });
+QUnit.test("description css under input", function (assert) {
+  const json = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+            "description": "123"
+          }
+        ]
+      }
+    ],
+    "questionDescriptionLocation": "underInput"
+  };
+
+  const survey = new SurveyModel(json);
+  survey.css = {
+    question: {
+      description: "sd-desc",
+      descriptionUnderInput: "sd-desc--ui"
+    }
+  };
+  const q = survey.getQuestionByName("q1");
+  assert.equal(q.cssDescription, "sd-desc sd-desc--ui");
+});

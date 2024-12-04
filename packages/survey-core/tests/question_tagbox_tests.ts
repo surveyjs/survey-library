@@ -1842,3 +1842,21 @@ QUnit.test("rendering actions id", assert => {
   assert.equal((<IAction>actions[0]).disableTabStop, true, "disableTabStop, action1");
   assert.equal((<IAction>actions[1]).disableTabStop, true, "disableTabStop, action2");
 });
+QUnit.test("List actions disableTabStop", assert => {
+  const json = {
+    questions: [{
+      type: "tagbox",
+      name: "q1",
+      searchEnabled: true,
+      choices: ["Item1", "Item2"]
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+  question.dropdownListModel.inputStringRendered = "o";
+  const listModel = question.popupModel.contentComponentData.model as ListModel;
+  const actions = listModel.renderedActions;
+  assert.equal(actions.length, 2, "two actions");
+  assert.equal((<IAction>actions[0]).disableTabStop, true, "disableTabStop, action1");
+  assert.equal((<IAction>actions[1]).disableTabStop, true, "disableTabStop, action2");
+});

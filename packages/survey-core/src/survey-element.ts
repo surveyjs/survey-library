@@ -522,7 +522,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.textProcessorValue = this.surveyImplValue.getTextProcessor();
       this.onSetData();
     }
-    if (!!this.survey && !this.isLoadingFromJson) {
+    if (!!this.survey/* && !this.isLoadingFromJson*/) {
       this.updateDescriptionVisibility(this.description);
       this.clearCssClasses();
     }

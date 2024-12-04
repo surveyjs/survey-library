@@ -2023,7 +2023,7 @@ export class QuestionSelectBase extends Question {
   public get questionName() {
     return this.name + "_" + this.id;
   }
-  public getItemEnabled(item: ItemValue) {
+  public getItemEnabled(item: ItemValue): boolean {
     return !this.isDisabledAttr && item.isEnabled;
   }
   private focusOtherComment() {

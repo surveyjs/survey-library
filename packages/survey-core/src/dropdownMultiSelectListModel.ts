@@ -69,7 +69,6 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       elementId: this.listElementId
     };
     const res = new MultiSelectListModel<ItemValue>(listOptions);
-    res.actions.forEach(a => a.disableTabStop = true);
     this.setOnTextSearchCallbackForListModel(res);
     res.forceShowFilter = true;
     return res;

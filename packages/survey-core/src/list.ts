@@ -14,6 +14,7 @@ export let defaultListCss = {
   loadingIndicator: "sv-list__loading-indicator",
   itemSelected: "sv-list__item--selected",
   itemGroup: "sv-list__item--group",
+  itemGroupSelected: "sv-list__item--group-selected",
   itemWithIcon: "sv-list__item--with-icon",
   itemDisabled: "sv-list__item--disabled",
   itemFocused: "sv-list__item--focused",
@@ -39,6 +40,7 @@ export interface IListModel {
   selectedItem?: IAction;
   elementId?: string;
   locOwner?: ILocalizableOwner;
+  cssClasses?: any;
   onFilterStringChangedCallback?: (text: string) => void;
   onTextSearchCallback?: (item: IAction, textToSearch: string) => boolean;
 }
@@ -243,13 +245,16 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       .toString();
   }
   public getItemClass: (itemValue: T) => string = (itemValue: T) => {
+    const isSelected = this.isItemSelected(itemValue);
     return new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemWithIcon, !!itemValue.iconName)
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
       .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
-      .append(this.cssClasses.itemSelected, this.isItemSelected(itemValue))
+      .append(this.cssClasses.itemSelected, !itemValue.hasSubItems && isSelected)
       .append(this.cssClasses.itemGroup, itemValue.hasSubItems)
+      .append(this.cssClasses.itemGroupSelected, itemValue.hasSubItems && isSelected)
+
       .append(this.cssClasses.itemHovered, itemValue.isHovered)
       .append(this.cssClasses.itemTextWrap, this.textWrapEnabled)
       .append(itemValue.css)

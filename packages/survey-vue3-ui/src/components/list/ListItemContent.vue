@@ -12,7 +12,7 @@
     v-if="item.markerIconName"
     v-bind:class="item.cssClasses.itemMarkerIcon"
     :iconName="item.markerIconName"
-    :size="item.markerIconSize"
+    :size="'auto'"
   ></SvComponent>
 </template>
 

@@ -396,7 +396,7 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     );
     this.registerPropertyChangedHandlers(["title"], () => {
-      this.calcHasTextInTitle();
+      this.resetHasTextInTitle();
     });
 
     this.dragDropPanelHelper = new DragDropPanelHelperV1(this);
@@ -426,11 +426,12 @@ export class PanelModelBase extends SurveyElement<Question>
 
   @property({ defaultValue: true }) showTitle: boolean;
 
-  @property({ defaultValue: false }) public hasTextInTitle: boolean;
-  protected calcHasTextInTitle(): void {
-    this.hasTextInTitle = !!this.title;
+  public get hasTextInTitle(): boolean {
+    return this.getPropertyValue("hasTextInTitle", undefined, (): boolean => !!this.title);
   }
-
+  private resetHasTextInTitle(): void {
+    this.resetPropertyValue("hasTextInTitle");
+  }
   get hasTitle(): boolean {
     return (
       (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
@@ -1358,7 +1359,6 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     this.onElementVisibilityChanged(this);
     this.releaseAnimations();
-    this.calcHasTextInTitle();
   }
   protected onFirstRenderingCore(): void {
     super.onFirstRenderingCore();
@@ -2079,10 +2079,6 @@ export class PanelModel extends PanelModelBase implements IElement {
       return !!this.parent ? this.parent.getSurvey(live) : null;
     }
     return super.getSurvey(live);
-  }
-  protected onSetData() {
-    super.onSetData();
-    this.calcHasTextInTitle();
   }
   public get isPanel(): boolean {
     return true;

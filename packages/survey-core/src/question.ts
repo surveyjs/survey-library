@@ -663,7 +663,9 @@ export class Question extends SurveyElement<Question>
     if (this.parent === val) return;
     this.removeFromParent();
     this.setPropertyValue("parent", val);
-    this.updateQuestionCss();
+    if(!!val) {
+      this.updateQuestionCss();
+    }
     this.onParentChanged();
   }
   protected onParentChanged(): void { }

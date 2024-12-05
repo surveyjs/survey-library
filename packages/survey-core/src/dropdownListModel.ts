@@ -412,7 +412,6 @@ export class DropdownListModel extends Base {
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
-    this.question.ariaExpanded = "false";
     question.onPropertyChanged.add(this.questionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 

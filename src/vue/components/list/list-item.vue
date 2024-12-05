@@ -13,7 +13,7 @@
         :iconName="item.iconName" :size="item.iconSize"></sv-svg-icon>
       <survey-string v-if="isDefaultItem" :locString="item.locTitle" />
       <sv-svg-icon v-if="item.markerIconName" v-bind:class="item.cssClasses.itemMarkerIcon"
-        :iconName="item.markerIconName" :size="item.markerIconSize"></sv-svg-icon>
+        :iconName="item.markerIconName" :size="'auto'"></sv-svg-icon>
       <sv-popup v-if="item.popupModel && isDefaultItem" :model="item.popupModel"></sv-popup>
       <component v-if="item.component" :is="item.component" :item="item"> </component>
     </div>

@@ -116,6 +116,8 @@
 .sv-list-item__marker-icon {
   position: absolute;
   right: calcSize(1);
+  width: calcSize(2);
+  height: calcSize(2);
   flex-shrink: 0;
   padding: calcSize(0.5);
   box-sizing: content-box;
@@ -178,15 +180,13 @@ li:focus .sv-list__item.sv-list__item--selected {
   }
 }
 
-.sv-list__item.sv-list__item--selected.sv-list__item--group {
-  & > .sv-list__item-body {
-    background-color: $primary-light;
-    color: $font-questiontitle-color;
-    font-weight: 400;
+.sv-list__item--group-selected > .sv-list__item-body {
+  background-color: $primary-light;
+  color: $font-questiontitle-color;
+  font-weight: 400;
 
-    use {
-      fill: $foreground-light;
-    }
+  use {
+    fill: $foreground-light;
   }
 }
 

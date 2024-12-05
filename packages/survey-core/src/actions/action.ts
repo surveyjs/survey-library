@@ -156,7 +156,6 @@ export interface IAction {
   elementId?: string;
   items?: Array<IAction>;
   markerIconName?: string;
-  markerIconSize?: number;
   showPopup?: () => void;
   hidePopup?: () => void;
 }
@@ -247,7 +246,6 @@ export abstract class BaseAction extends Base implements IAction {
   @property() iconName: string;
   @property({ defaultValue: 24 }) iconSize: number | string;
   @property() markerIconName: string;
-  @property() markerIconSize: number = 16;
   @property() css?: string
   minDimension: number;
   maxDimension: number;

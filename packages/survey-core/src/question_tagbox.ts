@@ -169,9 +169,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   protected updateCssClasses(res: any, css: any): void {
     super.updateCssClasses(res, css);
-    if (this.useDropdownList) {
-      updateListCssValues(res, css);
-    }
+    updateListCssValues(res, css);
   }
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);

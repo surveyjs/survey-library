@@ -118,6 +118,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if (!!this.onFilterStringChangedCallback) {
       this.onFilterStringChangedCallback(text);
     }
+    this.updateIsEmpty();
+  }
+  private updateIsEmpty(): void {
     this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
   }
   private scrollToItem(selector: string, ms = 0): void {
@@ -315,7 +318,11 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public onPointerDown(event: PointerEvent, item: any) { }
   public refresh(): void { // used in popup
-    this.filterString = "";
+    if(this.filterString !== "") {
+      this.filterString = "";
+    } else {
+      this.updateIsEmpty();
+    }
     this.resetFocusedItem();
   }
   public onClickSearchClearButton(event: any) {

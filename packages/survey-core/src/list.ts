@@ -273,7 +273,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return this.isAllDataLoaded ? this.getLocalizationString("emptyMessage") : this.loadingText;
   }
   public get scrollableContainer(): HTMLElement {
-    return this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemsContainer);
+    return this.listContainerHtmlElement.querySelector("." + this.cssClasses.itemsContainer);
   }
   public get loadingText(): string {
     return this.getLocalizationString("loadingFile");
@@ -380,10 +380,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   }
   public scrollToFocusedItem(): void {
-    this.scrollToItem(this.getDefaultCssClasses().itemFocused);
+    this.scrollToItem(this.cssClasses.itemFocused);
   }
   public scrollToSelectedItem(): void {
-    this.scrollToItem(this.getDefaultCssClasses().itemSelected, 110);
+    this.scrollToItem(this.cssClasses.itemSelected, 110);
   }
 
   public addScrollEventListener(handler: (e?: any) => void): void {

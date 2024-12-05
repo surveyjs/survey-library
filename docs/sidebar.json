@@ -23,6 +23,10 @@
         {
           "Name": "get-started-html-css-javascript",
           "Title": "HTML/CSS/JavaScript"
+        },
+        {
+          "Name": "supported-browsers",
+          "Title": "Supported Browsers"
         }
       ]
     },

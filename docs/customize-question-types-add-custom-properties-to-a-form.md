@@ -300,7 +300,7 @@ surveyLocalization.getLocaleStrings("en")["myStringProperty"] = "Default value f
 surveyLocalization.getLocaleStrings("fr")["myStringProperty"] = "Default value for French";
 ```
 
-Alternatively, you can add your custom property to each used [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization). In this case, the default value for the current locale will be applied automatically. [Rebuild the library](https://github.com/surveyjs/survey-library/tree/master/src/localization#update-an-existing-dictionary) after updating the dictionaries.
+Alternatively, you can add your custom property to each used [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). In this case, the default value for the current locale will be applied automatically. [Rebuild the library](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization#update-an-existing-dictionary) after updating the dictionaries.
 
 ```js
 // localization/english.ts

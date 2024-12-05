@@ -268,6 +268,7 @@ The SurveyJS expression engine is built upon the <a href="https://github.com/peg
 | `notcontains` / `notcontain` | Compares two values and returns `true` if the first value doesn't contain the second value within it. | `"{q1} notcontains 'abc'"` |
 | `anyof` | Compares a value with an array of values and returns `true` if the value is present in the array. | `"{q1} anyof [ 'value1', 'value2', 'value3' ]"` |
 | `allof` | Compares two arrays and returns `true` if the first array includes all values from the second. | `"{q1} allof [ 'value1', 'value2', 'value3' ]"` |
+| `#` | Disables type conversion for a referenced value (e.g., string values `"true"`, `"false"`, `"123"` won't be converted to corresponding Boolean and numeric values). | `"{#q1}"` |
 
 ### Built-In Functions
 

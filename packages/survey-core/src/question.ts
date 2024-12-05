@@ -1120,7 +1120,7 @@ export class Question extends SurveyElement<Question>
   protected getCssDescription(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.description)
-      .append(cssClasses.descriptionUnderInput, this.descriptionLocation == "underInput")
+      .append(cssClasses.descriptionUnderInput, this.getDescriptionLocation() == "underInput")
       .toString();
   }
   public showErrorOnCore(location: string): boolean {

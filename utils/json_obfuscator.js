@@ -20,7 +20,7 @@ fs.readFile(fileName, (err, data) => {
         console.error("Unable to read the file: " + err);
         return;
     }
-    const newJSON = obfuscateJSON(data);
+    const newJSON = obfuscateJSON(data.toString().trim());
     const ext = path.extname(fileName);
     const newFileName = fileName.substring(0, fileName.length - ext.length) + ".obf" + ext;
     fs.writeFile(newFileName, newJSON, err => {

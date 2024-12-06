@@ -383,7 +383,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.scrollToItem(this.cssClasses.itemFocused);
   }
   public scrollToSelectedItem(): void {
-    if (this.selectedItem.items && this.selectedItem.items.length > 0) {
+    if (!!this.selectedItem && this.selectedItem.items && this.selectedItem.items.length > 0) {
       this.scrollToItem(this.cssClasses.itemGroupSelected, 110);
     } else {
       this.scrollToItem(this.cssClasses.itemSelected, 110);

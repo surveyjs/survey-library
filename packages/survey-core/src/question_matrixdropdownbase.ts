@@ -1477,6 +1477,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
+    const oldRowVariables = values[MatrixDropdownRowModelBase.RowVariableName];
     super.runCondition(values, properties);
     var counter = 0;
     var prevTotalValue;
@@ -1490,6 +1491,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       counter < 3
     );
     this.updateVisibilityBasedOnRows();
+    values[MatrixDropdownRowModelBase.RowVariableName] = oldRowVariables;
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);

@@ -1,21 +1,3 @@
-/**
- * SurveyJS JSON Obfuscator
- * ------------------------
- * This tool is designed to obfuscate survey JSON schemas by replacing titles, descriptions, placeholders,
- * and other meaningful texts with randomized sequences of characters. The obfuscation may be useful if you
- * need to attach a survey JSON schema to a bug report for investigation by the SurveyJS team
- * and want to strip the schema of all meaningful data.
- *
- * Usage:
- *
- * 1. Clone the `survey-library` GitHub repository.
- * 2. Open the console in the root folder and build the `survey-core` bundle: `npm run build_core`.
- * 3. Run the following command: `node .\utils\json_obfuscator.js [path\to\the\survey\json\schema.json]`.
- *
- * This command produces a file named as the original with suffix `obf`. For example, `nps.json` => `nps.obf.json`.
- * The obfuscated file is placed in the same folder as the original.
- */
-
 const Survey = require("../build/survey-core/survey.core");
 
 // eslint-disable-next-line no-undef
@@ -25,8 +7,8 @@ const path = require("path");
 
 // eslint-disable-next-line no-undef
 let args = process.argv;
-if(!Array.isArray(args)) return;
-if(args.length < 3) {
+if (!Array.isArray(args)) return;
+if (args.length < 3) {
   // eslint-disable-next-line no-console
   console.error("Please provide a path to the survey JSON file.");
   return;
@@ -75,7 +57,7 @@ function obfuscateJSON(data) {
 
   let questions = model.getAllQuestions(false, true, false);
   questions.forEach(q => {
-    if(q.getType() === "html") {
+    if (q.getType() === "html") {
       q.delete();
       return;
     }
@@ -106,22 +88,22 @@ function obfuscatePropsText(el, props) {
     prop => {
       let isDone = false;
       const loc = el["loc" + prop[0].toUpperCase() + prop.substring(1)];
-      if(!!loc && !loc.isEmpty) {
+      if (!!loc && !loc.isEmpty) {
         data = loc.getJson();
-        if(!!data && typeof data === "object") {
-          for(let key in data) {
+        if (!!data && typeof data === "object") {
+          for (let key in data) {
             data[key] = obfuscateText(data[key]);
           }
           loc.setJson(data);
           isDone = true;
         }
       }
-      if(!isDone && !!el[prop]) el[prop] = obfuscateText(el[prop]);
+      if (!isDone && !!el[prop]) el[prop] = obfuscateText(el[prop]);
     }
   );
 }
 function obfuscateArrayText(items) {
-  if(Array.isArray(items)) {
+  if (Array.isArray(items)) {
     items.forEach(item => {
       obfuscatePropsText(item, ["text", "title"]);
       /*
@@ -136,13 +118,13 @@ function obfuscateArrayText(items) {
   }
 }
 function obfuscateText(text) {
-  if(!text) return text;
+  if (!text) return text;
   let newText = "";
-  for(let i = 0; i < text.length; i ++) {
+  for (let i = 0; i < text.length; i++) {
     const ch = text[i];
     let newCh = ch;
-    if(ch >= "a" && ch <= "z") newCh = getRandomChar("a", "z");
-    if(ch >= "A" && ch <= "Z") newCh = getRandomChar("A", "Z");
+    if (ch >= "a" && ch <= "z") newCh = getRandomChar("a", "z");
+    if (ch >= "A" && ch <= "Z") newCh = getRandomChar("A", "Z");
     newText += newCh;
   }
   return newText;

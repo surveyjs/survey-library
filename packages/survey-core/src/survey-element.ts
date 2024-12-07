@@ -1028,6 +1028,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   get paddingRight(): string {
     return this.getPropertyValue("paddingRight", undefined, () => this.calcPaddingRight());
   }
+  set paddingRight(val: string) {
+    this.setPropertyValue("paddingRight", val);
+  }
   protected calcPaddingRight(): string {
     return "";
   }

@@ -343,7 +343,6 @@ QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => 
   const dropdownListModel = new DropdownListModel(q1);
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   q1.dropdownListModel = dropdownListModel;
-  q1.cssClasses;
   assert.ok(dropdownListModel.popupModel.cssClass.includes("custom-popup-class"));
   assert.equal(list.cssClasses.item, "original-class custom-class");
   assert.equal(list.cssClasses.itemSelected, "original-class-selected custom-class-selected");

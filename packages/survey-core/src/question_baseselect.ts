@@ -14,7 +14,7 @@ import { settings } from "./settings";
 import { SurveyElement } from "./survey-element";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
-import { cleanHtmlElementAfterAnimation, mergeValues, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
+import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 
 /**
@@ -23,8 +23,8 @@ import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
-  public otherTextAreaModel: TextAreaModel;
   public renderedChoicesChangedCallback: () => void;
+  private otherTextAreaModelValue: TextAreaModel;
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -49,26 +49,6 @@ export class QuestionSelectBase extends Question {
     }
   }) protected selectedItemValues: any;
 
-  private getOtherTextAreaOptions(): ITextArea {
-    const options: ITextArea = {
-      question: this,
-      id: () => this.otherId,
-      propertyName: "otherValue",
-      className: () => this.cssClasses.other,
-      placeholder: () => this.otherPlaceholder,
-      isDisabledAttr: () => this.isInputReadOnly || false,
-      rows: () => this.commentAreaRows,
-      maxLength: () => this.getOthersMaxLength(),
-      autoGrow: () => this.survey && this.survey.autoGrowComment,
-      ariaRequired: () => this.ariaRequired || this.a11y_input_ariaRequired,
-      ariaLabel: () => this.ariaLabel || this.a11y_input_ariaLabel,
-      getTextValue: () => { return this.otherValue; },
-      onTextAreaChange: (e) => { this.onOtherValueChange(e); },
-      onTextAreaInput: (e) => { this.onOtherValueInput(e); },
-    };
-    return options;
-  }
-
   constructor(name: string) {
     super(name);
     this.noneItemValue = this.createDefaultItem(settings.noneItemValue, "noneText", "noneItemText");
@@ -90,7 +70,6 @@ export class QuestionSelectBase extends Question {
     this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
       this.onVisibleChanged();
     });
-    this.otherTextAreaModel = new TextAreaModel(this.getOtherTextAreaOptions());
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
     this.setNewRestfulProperty();
     var locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
@@ -125,6 +104,31 @@ export class QuestionSelectBase extends Question {
     if (!!q) {
       q.removeDependedQuestion(this);
     }
+  }
+  public get otherTextAreaModel(): TextAreaModel {
+    if(!this.otherTextAreaModelValue) {
+      this.otherTextAreaModelValue = new TextAreaModel(this.getOtherTextAreaOptions());
+    }
+    return this.otherTextAreaModelValue;
+  }
+  private getOtherTextAreaOptions(): ITextArea {
+    const options: ITextArea = {
+      question: this,
+      id: () => this.otherId,
+      propertyName: "otherValue",
+      className: () => this.cssClasses.other,
+      placeholder: () => this.otherPlaceholder,
+      isDisabledAttr: () => this.isInputReadOnly || false,
+      rows: () => this.commentAreaRows,
+      maxLength: () => this.getOthersMaxLength(),
+      autoGrow: () => this.survey && this.survey.autoGrowComment,
+      ariaRequired: () => this.ariaRequired || this.a11y_input_ariaRequired,
+      ariaLabel: () => this.ariaLabel || this.a11y_input_ariaLabel,
+      getTextValue: () => { return this.otherValue; },
+      onTextAreaChange: (e) => { this.onOtherValueChange(e); },
+      onTextAreaInput: (e) => { this.onOtherValueInput(e); },
+    };
+    return options;
   }
   protected resetDependedQuestion(): void {
     this.choicesFromQuestion = "";
@@ -2019,7 +2023,7 @@ export class QuestionSelectBase extends Question {
   public get questionName() {
     return this.name + "_" + this.id;
   }
-  public getItemEnabled(item: ItemValue) {
+  public getItemEnabled(item: ItemValue): boolean {
     return !this.isDisabledAttr && item.isEnabled;
   }
   private focusOtherComment() {
@@ -2048,22 +2052,6 @@ export class QuestionSelectBase extends Question {
   }
   public set itemComponent(value: string) {
     this.setPropertyValue("itemComponent", value);
-  }
-  protected updateCssClasses(res: any, css: any) {
-    super.updateCssClasses(res, css);
-    if (!!this.dropdownListModel) {
-      const listCssClasses = {};
-      mergeValues(css.list, listCssClasses);
-      mergeValues(res.list, listCssClasses);
-      res["list"] = listCssClasses;
-    }
-  }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    if (this.dropdownListModel) {
-      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
-    }
-    return classes;
   }
 }
 /**

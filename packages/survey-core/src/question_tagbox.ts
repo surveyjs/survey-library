@@ -8,6 +8,7 @@ import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
 import { EventBase } from "./base";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
+import { updateListCssValues } from "./utils/utils";
 
 /**
  * A class that describes the Multi-Select Dropdown (Tag Box) question type.
@@ -15,12 +16,13 @@ import { ItemValue } from "./itemvalue";
  * [View Demo](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/ (linkStyle))
  */
 export class QuestionTagboxModel extends QuestionCheckboxModel {
-  dropdownListModel: DropdownMultiSelectListModel;
+  private dropdownListModelValue: DropdownMultiSelectListModel;
   private itemDisplayNameMap: { [key: string]: string} = {};
   private deselectAllItemText: LocalizableString;
 
   constructor(name: string) {
     super(name);
+    this.ariaExpanded = "false";
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("clearCaption", this, false, true);
     this.createLocalizableString("readOnlyText", this, true);
@@ -33,7 +35,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public locStrsChanged(): void {
     super.locStrsChanged();
     this.updateReadOnlyText();
-    this.dropdownListModel?.locStrsChanged();
+    this.dropdownListModelValue?.locStrsChanged();
   }
   private updateReadOnlyText(): void {
     this.readOnlyText = this.displayValue || this.placeholder;
@@ -41,18 +43,14 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   protected getDefaultItemComponent(): string {
     return "";
   }
-  public onSurveyLoad(): void {
-    super.onSurveyLoad();
-    this.createDropdownListModel();
-  }
-  protected onSetData(): void {
-    super.onSetData();
-    this.createDropdownListModel();
-  }
-  private createDropdownListModel(): void {
-    if (!this.dropdownListModel && !this.isLoadingFromJson) {
-      this.dropdownListModel = new DropdownMultiSelectListModel(this);
+  public get dropdownListModel(): DropdownMultiSelectListModel {
+    if (!this.dropdownListModelValue) {
+      this.dropdownListModelValue = new DropdownMultiSelectListModel(this);
     }
+    return this.dropdownListModelValue;
+  }
+  public set dropdownListModel(val: DropdownMultiSelectListModel) {
+    this.dropdownListModelValue = val;
   }
   /**
    * Specifies a comparison operation used to filter the drop-down list. Applies only if [`searchEnabled`](#searchEnabled) is `true`.
@@ -74,7 +72,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
-      if (!!target.dropdownListModel) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setSearchEnabled(newValue);
       }
     }
@@ -85,7 +83,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
-      if (!!target.dropdownListModel) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setHideSelectedItems(newValue);
       }
     }
@@ -98,7 +96,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
-      if (!!target.dropdownListModel) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setChoicesLazyLoadEnabled(newValue);
       }
     }
@@ -156,7 +154,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     return "combobox";
   }
   public get popupModel(): PopupModel {
-    return this.dropdownListModel?.popupModel;
+    return this.dropdownListModel.popupModel;
   }
 
   public getControlClass(): string {
@@ -169,6 +167,17 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
       .append(this.cssClasses.controlPreview, this.isPreviewStyle)
       .toString();
+  }
+  protected updateCssClasses(res: any, css: any): void {
+    super.updateCssClasses(res, css);
+    updateListCssValues(res, css);
+  }
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    if (this.dropdownListModelValue) {
+      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
+    }
+    return classes;
   }
   public onOpened: EventBase<QuestionTagboxModel> = this.addEvent<QuestionTagboxModel>();
   public onOpenedCallBack(): void {
@@ -188,7 +197,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
-    if (this.popupModel) {
+    if (!!this.dropdownListModelValue) {
       this.dropdownListModel.updateItems();
     }
   }
@@ -236,11 +245,11 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   protected supportEmptyValidation(): boolean { return true; }
   protected onBlurCore(event: any): void {
-    this.dropdownListModel?.onBlur(event);
+    this.dropdownListModel.onBlur(event);
     super.onBlurCore(event);
   }
   protected onFocusCore(event: any): void {
-    this.dropdownListModel?.onFocus(event);
+    this.dropdownListModel.onFocus(event);
     super.onFocusCore(event);
   }
   protected allElementsSelected(): boolean {
@@ -255,13 +264,14 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
 
   public dispose(): void {
     super.dispose();
-    if(!!this.dropdownListModel) {
-      this.dropdownListModel.dispose();
+    if(!!this.dropdownListModelValue) {
+      this.dropdownListModelValue.dispose();
+      this.dropdownListModelValue = undefined;
     }
   }
   public clearValue(keepComment?: boolean): void {
     super.clearValue(keepComment);
-    this.dropdownListModel?.clear();
+    this.dropdownListModelValue?.clear();
   }
   public get showClearButton(): boolean {
     return this.allowClear && !this.isEmpty() && (!this.isDesignMode || settings.supportCreatorV2);

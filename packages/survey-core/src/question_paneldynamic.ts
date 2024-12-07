@@ -1837,21 +1837,21 @@ export class QuestionPanelDynamicModel extends Question
   private get canBuildPanels(): boolean {
     return !this.isLoadingFromJson && !this.useTemplatePanel;
   }
-  public onFirstRendering(): void {
-    super.onFirstRendering();
+  protected onFirstRenderingCore(): void {
+    super.onFirstRenderingCore();
     this.buildPanelsFirstTime();
     this.template.onFirstRendering();
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.panelsCore[i].onFirstRendering();
     }
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.panelsCore[i].localeChanged();
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     super.runCondition(values, properties);
     this.runPanelsCondition(this.panelsCore, values, properties);
   }
@@ -2119,12 +2119,14 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isDesignMode && !this.isReadOnly && !this.isValueEmpty(panel.getValue())) {
       this.runPanelsCondition([panel], this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
-    panel.onFirstRendering();
     var questions = panel.questions;
     for (var i = 0; i < questions.length; i++) {
       questions[i].setParentQuestion(this);
     }
-    panel.locStrsChanged();
+    if(this.wasRendered) {
+      panel.onFirstRendering();
+      panel.locStrsChanged();
+    }
     panel.onGetFooterActionsCallback = () => {
       return this.getPanelActions(panel);
     };
@@ -2216,7 +2218,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected onSetData(): void {
     super.onSetData();
-    if (this.useTemplatePanel) {
+    if(!this.isLoadingFromJson && this.useTemplatePanel) {
       this.setTemplatePanelSurveyImpl();
       this.rebuildPanels();
     }

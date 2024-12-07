@@ -522,7 +522,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.textProcessorValue = this.surveyImplValue.getTextProcessor();
       this.onSetData();
     }
-    if (!!this.survey) {
+    if (!!this.survey/* && !this.isLoadingFromJson*/) {
       this.updateDescriptionVisibility(this.description);
       this.clearCssClasses();
     }
@@ -625,17 +625,26 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private get css(): any {
     return !!this.survey ? this.survey.getCss() : {};
   }
+  private isCssValueCalculating: boolean;
   public get cssClassesValue(): any {
-    return this.getPropertyValueWithoutDefault("cssClassesValue");
-  }
-  public set cssClassesValue(val: any) {
-    this.setPropertyValue("cssClassesValue", val);
-  }
-  private ensureCssClassesValue() {
-    if (!this.cssClassesValue) {
-      this.cssClassesValue = this.calcCssClasses(this.css);
-      this.updateElementCssCore(this.cssClassesValue);
+    let res = this.getPropertyValueWithoutDefault("cssClassesValue");
+    if(!res && !this.isCssValueCalculating) {
+      this.isCssValueCalculating = true;
+      res = this.createCssClassesValue();
+      this.isCssValueCalculating = false;
     }
+    return res;
+  }
+  private ensureCssClassesValue(): void {
+    if (!this.cssClassesValue) {
+      this.createCssClassesValue();
+    }
+  }
+  private createCssClassesValue(): any {
+    const res = this.calcCssClasses(this.css);
+    this.setPropertyValue("cssClassesValue", res);
+    this.updateElementCssCore(this.cssClassesValue);
+    return res;
   }
   /**
    * Returns an object in which keys are UI elements and values are CSS classes applied to them.
@@ -667,13 +676,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.cssClasses.titleExpandableSvg;
   }
   protected calcCssClasses(css: any): any { return undefined; }
-  protected updateElementCssCore(cssClasses: any) { }
+  protected updateElementCssCore(cssClasses: any): void { }
   public get cssError(): string { return ""; }
-  public updateElementCss(reNew?: boolean) {
+  public updateElementCss(reNew?: boolean): void {
     this.clearCssClasses();
   }
-  protected clearCssClasses() {
-    this.cssClassesValue = undefined;
+  protected clearCssClasses(): void {
+    this.resetPropertyValue("cssClassesValue");
   }
   protected getIsLoadingFromJson(): boolean {
     if (super.getIsLoadingFromJson()) return true;
@@ -751,7 +760,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private wasRenderedValue: boolean;
   public get wasRendered(): boolean { return !!this.wasRenderedValue; }
   public onFirstRendering(): void {
-    this.wasRenderedValue = true;
+    if(!this.wasRendered) {
+      this.wasRenderedValue = true;
+      this.onFirstRenderingCore();
+    }
+  }
+  protected onFirstRenderingCore(): void {
     this.ensureCssClassesValue();
   }
   endLoadingFromJson(): void {
@@ -829,7 +843,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!html || !this.textProcessor) return html;
     return this.textProcessor.processText(html, true);
   }
-  protected onSetData() { }
+  protected onSetData(): void { }
   public get parent(): IPanel {
     return this.getPropertyValue("parent", null);
   }
@@ -1006,16 +1020,20 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return style;
   }
   get paddingLeft(): string {
-    return this.getPropertyValue("paddingLeft", "");
+    return this.getPropertyValue("paddingLeft", undefined, () => this.calcPaddingLeft());
   }
-  set paddingLeft(val: string) {
-    this.setPropertyValue("paddingLeft", val);
+  protected calcPaddingLeft(): string {
+    return "";
   }
   get paddingRight(): string {
-    return this.getPropertyValue("paddingRight", "");
+    return this.getPropertyValue("paddingRight", undefined, () => this.calcPaddingRight());
   }
-  set paddingRight(val: string) {
-    this.setPropertyValue("paddingRight", val);
+  protected calcPaddingRight(): string {
+    return "";
+  }
+  protected resetIndents(): void {
+    this.resetPropertyValue("paddingLeft");
+    this.resetPropertyValue("paddingRight");
   }
 
   @property({ defaultValue: true }) allowRootStyle: boolean;

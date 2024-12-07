@@ -4851,6 +4851,7 @@ QUnit.test("cssClasses for a question in nested panel dynamic, #2", function (as
   const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("panel2");
   const panel = nestedPanel.panels[0];
   const question = panel.getQuestionByName("q1");
+  assert.equal(question.wasRendered, true, "question.onFirstRendering was called");
   assert.ok(question.cssClassesValue.mainRoot, "Main root style is set");
   assert.equal(panel.rows.length, 1, "There is one row");
   const row = panel.rows[0];

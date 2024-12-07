@@ -91,27 +91,7 @@ export class Question extends SurveyElement<Question>
   private isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
   private dependedQuestions: Array<Question> = [];
-  public commentTextAreaModel: TextAreaModel;
-
-  private getCommentTextAreaOptions(): ITextArea {
-    const options: ITextArea = {
-      question: this,
-      id: () => this.commentId,
-      propertyName: "comment",
-      className: () => this.cssClasses.comment,
-      placeholder: () => this.renderedCommentPlaceholder,
-      isDisabledAttr: () => this.isInputReadOnly || false,
-      rows: () => this.commentAreaRows,
-      autoGrow: () => this.autoGrowComment,
-      maxLength: () => this.getOthersMaxLength(),
-      ariaRequired: () => this.a11y_input_ariaRequired,
-      ariaLabel: () => this.a11y_input_ariaLabel,
-      getTextValue: () => { return this.comment; },
-      onTextAreaChange: (e) => { this.onCommentChange(e); },
-      onTextAreaInput: (e) => { this.onCommentInput(e); },
-    };
-    return options;
-  }
+  private commentTextAreaModelValue: TextAreaModel;
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
@@ -162,7 +142,6 @@ export class Question extends SurveyElement<Question>
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
-    this.commentTextAreaModel = new TextAreaModel(this.getCommentTextAreaOptions());
 
     this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; });
     this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
@@ -194,7 +173,7 @@ export class Question extends SurveyElement<Question>
     this.registerPropertyChangedHandlers(
       ["indent", "rightIndent"],
       () => {
-        this.onIndentChanged();
+        this.resetIndents();
       }
     );
 
@@ -225,7 +204,31 @@ export class Question extends SurveyElement<Question>
     this.locProcessedTitle.sharedData = locTitleValue;
     return locTitleValue;
   }
-
+  public get commentTextAreaModel(): TextAreaModel {
+    if(!this.commentTextAreaModelValue) {
+      this.commentTextAreaModelValue = new TextAreaModel(this.getCommentTextAreaOptions());
+    }
+    return this.commentTextAreaModelValue;
+  }
+  private getCommentTextAreaOptions(): ITextArea {
+    const options: ITextArea = {
+      question: this,
+      id: () => this.commentId,
+      propertyName: "comment",
+      className: () => this.cssClasses.comment,
+      placeholder: () => this.renderedCommentPlaceholder,
+      isDisabledAttr: () => this.isInputReadOnly || false,
+      rows: () => this.commentAreaRows,
+      autoGrow: () => this.autoGrowComment,
+      maxLength: () => this.getOthersMaxLength(),
+      ariaRequired: () => this.a11y_input_ariaRequired,
+      ariaLabel: () => this.a11y_input_ariaLabel,
+      getTextValue: () => { return this.comment; },
+      onTextAreaChange: (e) => { this.onCommentChange(e); },
+      onTextAreaInput: (e) => { this.onCommentInput(e); },
+    };
+    return options;
+  }
   public getSurvey(live: boolean = false): ISurvey {
     if (live) {
       return !!this.parent ? (<Base>(<any>this.parent)).getSurvey(live) : null;
@@ -645,7 +648,6 @@ export class Question extends SurveyElement<Question>
     if (isLight !== true) {
       this.runConditions();
     }
-    this.calcRenderedCommentPlaceholder();
     if (!this.visible) {
       this.updateIsVisibleProp();
     }
@@ -661,7 +663,9 @@ export class Question extends SurveyElement<Question>
     if (this.parent === val) return;
     this.removeFromParent();
     this.setPropertyValue("parent", val);
-    this.updateQuestionCss();
+    if(!!val) {
+      this.updateQuestionCss();
+    }
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
@@ -897,7 +901,7 @@ export class Question extends SurveyElement<Question>
    * @see comment
    * @see commentText
    */
-  @property({ localizable: true, onSet: (val, target) => target.calcRenderedCommentPlaceholder() }) commentPlaceholder: string;
+  @property({ localizable: true, onSet: (val, target) => target.resetRenderedCommentPlaceholder() }) commentPlaceholder: string;
 
   public get commentPlaceHolder(): string {
     return this.commentPlaceholder;
@@ -906,11 +910,13 @@ export class Question extends SurveyElement<Question>
     this.commentPlaceholder = newValue;
   }
   public get renderedCommentPlaceholder(): string {
-    return this.getPropertyValue("renderedCommentPlaceholder");
+    const func = (): any => {
+      return !this.isReadOnly ? this.commentPlaceHolder : undefined;
+    };
+    return this.getPropertyValue("renderedCommentPlaceholder", undefined, func);
   }
-  private calcRenderedCommentPlaceholder() {
-    const res = !this.isReadOnly ? this.commentPlaceHolder : undefined;
-    this.setPropertyValue("renderedCommentPlaceholder", res);
+  private resetRenderedCommentPlaceholder() {
+    this.resetPropertyValue("renderedCommentPlaceholder");
   }
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
@@ -933,7 +939,7 @@ export class Question extends SurveyElement<Question>
   }
   public localeChanged(): void {
     super.localeChanged();
-    this.calcRenderedCommentPlaceholder();
+    this.resetRenderedCommentPlaceholder();
     if (!!this.localeChangedCallback) {
       this.localeChangedCallback();
     }
@@ -1181,7 +1187,7 @@ export class Question extends SurveyElement<Question>
     if (reNew) {
       this.updateQuestionCss(true);
     }
-    this.onIndentChanged();
+    this.resetIndents();
   }
   protected updateQuestionCss(reNew?: boolean): void {
     if (
@@ -1233,9 +1239,11 @@ export class Question extends SurveyElement<Question>
   public get renderCssRoot(): string {
     return this.cssClasses.root || undefined;
   }
-  private onIndentChanged() {
-    this.paddingLeft = this.getIndentSize(this.indent);
-    this.paddingRight = this.getIndentSize(this.rightIndent);
+  protected calcPaddingLeft(): string {
+    return this.getIndentSize(this.indent);
+  }
+  protected calcPaddingRight(): string {
+    return this.getIndentSize(this.rightIndent);
   }
   private getIndentSize(indent: number): string {
     if (indent < 1 || !this.getSurvey() || !this.cssClasses || !this.cssClasses.indent) return "";
@@ -1463,7 +1471,7 @@ export class Question extends SurveyElement<Question>
       this.clearErrors();
     }
     this.updateQuestionCss();
-    this.calcRenderedCommentPlaceholder();
+    this.resetRenderedCommentPlaceholder();
   }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes read-only.
@@ -1532,14 +1540,10 @@ export class Question extends SurveyElement<Question>
     if (this.isEmpty()) {
       this.initDataFromSurvey();
     }
-    this.calcRenderedCommentPlaceholder();
-    this.onIndentChanged();
   }
   protected onSetData(): void {
     super.onSetData();
-    if (!this.survey) return;
-    this.onIndentChanged();
-    if(!this.isDesignMode) {
+    if(!this.isDesignMode && !!this.survey && !this.isLoadingFromJson) {
       this.initDataFromSurvey();
       this.onSurveyValueChanged(this.value);
       this.updateValueWithDefaults();
@@ -1705,7 +1709,6 @@ export class Question extends SurveyElement<Question>
   protected clearValueIfInvisibleCore(reason: string): void {
     if (this.canClearValueAsInvisible(reason)) {
       this.clearValue();
-      this.setValueChangedDirectly(undefined);
     }
   }
   /**

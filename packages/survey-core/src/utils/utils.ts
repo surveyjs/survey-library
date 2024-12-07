@@ -573,7 +573,7 @@ export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean =
     range.setStart(range.endContainer, range.endOffset);
   }
 }
-function mergeValues(src: any, dest: any) {
+function mergeValues(src: any, dest: any): void {
   if (!dest || !src) return;
   if (typeof dest !== "object") return;
   for (var key in src) {
@@ -585,6 +585,12 @@ function mergeValues(src: any, dest: any) {
       dest[key] = value;
     }
   }
+}
+function updateListCssValues(res: any, css: any): void {
+  const listCssClasses = {};
+  mergeValues(css.list, listCssClasses);
+  mergeValues(res.list, listCssClasses);
+  res["list"] = listCssClasses;
 }
 
 export class Logger {
@@ -803,6 +809,7 @@ export function roundTo2Decimals(number: number): number {
 
 export {
   mergeValues,
+  updateListCssValues,
   getElementWidth,
   isContainerVisible,
   classesToSelector,

@@ -8,6 +8,7 @@ import { PopupModel } from "./popup";
 import { EventBase } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
+import { updateListCssValues } from "./utils/utils";
 
 /**
  * A class that describes the Dropdown question type.
@@ -34,6 +35,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   constructor(name: string) {
     super(name);
+    this.ariaExpanded = "false";
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("clearCaption", this, false, true);
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
@@ -201,7 +203,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
-      if (!!target.dropdownListModel) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setSearchEnabled(newValue);
       }
     }
@@ -235,7 +237,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
-      if (!!target.dropdownListModel) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setChoicesLazyLoadEnabled(newValue);
       }
     }
@@ -257,6 +259,19 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       .append(this.cssClasses.controlInputFieldComponent, !!this.inputFieldComponentName)
       .toString();
   }
+  protected updateCssClasses(res: any, css: any): void {
+    super.updateCssClasses(res, css);
+    if (this.useDropdownList) {
+      updateListCssValues(res, css);
+    }
+  }
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    if (this.dropdownListModelValue) {
+      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
+    }
+    return classes;
+  }
 
   @property() suggestedItem: ItemValue;
   public get selectedItemLocText() {
@@ -276,8 +291,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     const item = this.selectedItem;
     return !!item ? item.text : "";
   }
+  private get useDropdownList(): boolean { return this.renderAs !== "select"; }
   public get dropdownListModel(): DropdownListModel {
-    if (this.renderAs !== "select" && !this.dropdownListModelValue) {
+    if (this.useDropdownList && !this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownListModel(this);
     }
     return this.dropdownListModelValue;
@@ -286,7 +302,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.dropdownListModelValue = val;
   }
   public get popupModel(): PopupModel {
-    return this.dropdownListModel?.popupModel;
+    return this.dropdownListModel.popupModel;
   }
 
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
@@ -294,7 +310,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.onOpened.fire(this, { question: this, choices: this.choices });
   }
   protected onSelectedItemValuesChangedHandler(newValue: any): void {
-    this.dropdownListModel?.setInputStringFromSelectedItem(newValue);
+    this.dropdownListModelValue?.setInputStringFromSelectedItem(newValue);
     super.onSelectedItemValuesChangedHandler(newValue);
   }
   protected hasUnknownValue(
@@ -321,7 +337,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
-    if (!this.isLoadingFromJson && this.popupModel) {
+    if (!!this.dropdownListModelValue) {
       this.dropdownListModel.updateItems();
     }
   }
@@ -335,7 +351,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public clearValue(keepComment?: boolean): void {
     super.clearValue(keepComment);
     this.lastSelectedItemValue = null;
-    this.dropdownListModel?.clear();
+    this.dropdownListModelValue?.clear();
   }
 
   public afterRenderCore(el: any): void {
@@ -359,11 +375,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   protected supportEmptyValidation(): boolean { return true; }
   protected onBlurCore(event: any): void {
-    this.dropdownListModel?.onBlur(event);
+    this.dropdownListModel.onBlur(event);
     super.onBlurCore(event);
   }
   protected onFocusCore(event: any): void {
-    this.dropdownListModel?.onFocus(event);
+    this.dropdownListModel.onFocus(event);
     super.onFocusCore(event);
   }
 
@@ -371,6 +387,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     super.dispose();
     if(!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
+      this.dropdownListModelValue = undefined;
     }
   }
 }

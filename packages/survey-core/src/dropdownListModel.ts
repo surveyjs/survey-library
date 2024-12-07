@@ -39,7 +39,6 @@ export class DropdownListModel extends Base {
   }
   private itemsSettings: { skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
   protected listModel: ListModel<ItemValue>;
-  protected popupCssClasses = "sv-single-select-list";
   protected listModelFilterStringChanged = (newValue: string) => {
     if (this.filterString !== newValue) {
       this.filterString = newValue;
@@ -134,7 +133,6 @@ export class DropdownListModel extends Base {
     this.listModel.registerPropertyChangedHandlers(["showFilter"], () => {
       this.updatePopupFocusFirstInputSelector();
     });
-    this._popupModel.cssClass = this.popupCssClasses;
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       if (option.isVisible) {
         this.listModel.renderElements = true;
@@ -251,8 +249,9 @@ export class DropdownListModel extends Base {
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
     model.actions.forEach(a => a.disableTabStop = true);
   }
+  protected getPopupCssClasses(): string { return "sv-single-select-list"; }
   public updateCssClasses(popupCssClass: string, listCssClasses: any): void {
-    this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.popupCssClasses).toString();
+    this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.getPopupCssClasses()).toString();
     this.listModel.cssClasses = listCssClasses;
   }
   protected resetFilterString(): void {
@@ -413,7 +412,6 @@ export class DropdownListModel extends Base {
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
-    this.question.ariaExpanded = "false";
     question.onPropertyChanged.add(this.questionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
@@ -424,6 +422,8 @@ export class DropdownListModel extends Base {
     this.setTextWrapEnabled(this.question.textWrapEnabled);
     this.createPopup();
     this.resetItemsSettings();
+    const classes = question.cssClasses;
+    this.updateCssClasses(classes.popup, classes.list);
   }
 
   get popupModel(): PopupModel {

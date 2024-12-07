@@ -396,7 +396,7 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     );
     this.registerPropertyChangedHandlers(["title"], () => {
-      this.calcHasTextInTitle();
+      this.resetHasTextInTitle();
     });
 
     this.dragDropPanelHelper = new DragDropPanelHelperV1(this);
@@ -404,7 +404,8 @@ export class PanelModelBase extends SurveyElement<Question>
   public getType(): string {
     return "panelbase";
   }
-  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
+    //if(this.surveyImpl === value) return; TODO refactor
     this.blockAnimations();
     super.setSurveyImpl(value, isLight);
     if (this.isDesignMode) this.onVisibleChanged();
@@ -425,11 +426,12 @@ export class PanelModelBase extends SurveyElement<Question>
 
   @property({ defaultValue: true }) showTitle: boolean;
 
-  @property({ defaultValue: false }) public hasTextInTitle: boolean;
-  protected calcHasTextInTitle(): void {
-    this.hasTextInTitle = !!this.title;
+  public get hasTextInTitle(): boolean {
+    return this.getPropertyValue("hasTextInTitle", undefined, (): boolean => !!this.title);
   }
-
+  private resetHasTextInTitle(): void {
+    this.resetPropertyValue("hasTextInTitle");
+  }
   get hasTitle(): boolean {
     return (
       (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
@@ -1357,14 +1359,11 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     this.onElementVisibilityChanged(this);
     this.releaseAnimations();
-    this.calcHasTextInTitle();
   }
-  public onFirstRendering(): void {
-    super.onFirstRendering();
-    for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].onFirstRendering();
-    }
+  protected onFirstRenderingCore(): void {
+    super.onFirstRenderingCore();
     this.onRowsChanged();
+    this.elements.forEach(el => el.onFirstRendering());
   }
   public updateRows(): void {
     if (this.isLoadingFromJson) return;
@@ -1759,22 +1758,20 @@ export class PanelModelBase extends SurveyElement<Question>
   protected getPanelStartIndex(index: number): number {
     return index;
   }
-  protected isContinueNumbering() {
-    return true;
-  }
+  protected isContinueNumbering(): boolean { return true; }
   public get isReadOnly(): boolean {
     var isParentReadOnly = !!this.parent && this.parent.isReadOnly;
     var isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
     return this.readOnly || isParentReadOnly || isSurveyReadOnly;
   }
-  protected onReadOnlyChanged() {
+  protected onReadOnlyChanged(): void {
     for (var i = 0; i < this.elements.length; i++) {
       var el = <SurveyElement>(<any>this.elements[i]);
       el.setPropertyValue("isReadOnly", el.isReadOnly);
     }
     super.onReadOnlyChanged();
   }
-  public updateElementCss(reNew?: boolean) {
+  public updateElementCss(reNew?: boolean): void {
     super.updateElementCss(reNew);
     for (let i = 0; i < this.elements.length; i++) {
       const el = <SurveyElement>(<any>this.elements[i]);
@@ -2068,7 +2065,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       }
     });
     this.registerPropertyChangedHandlers(
-      ["indent", "innerIndent", "rightIndent"], () => { this.onIndentChanged(); });
+      ["indent", "innerIndent", "rightIndent"], () => { this.resetIndents(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
   }
   public getType(): string {
@@ -2082,15 +2079,6 @@ export class PanelModel extends PanelModelBase implements IElement {
       return !!this.parent ? this.parent.getSurvey(live) : null;
     }
     return super.getSurvey(live);
-  }
-  onSurveyLoad() {
-    super.onSurveyLoad();
-    this.onIndentChanged();
-  }
-  protected onSetData() {
-    super.onSetData();
-    this.onIndentChanged();
-    this.calcHasTextInTitle();
   }
   public get isPanel(): boolean {
     return true;
@@ -2269,24 +2257,33 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("allowAdaptiveActions", val);
   }
   get innerPaddingLeft(): string {
-    return this.getPropertyValue("innerPaddingLeft", "");
+    const func = (): string => {
+      return this.getIndentSize(this.innerIndent);
+    };
+    return this.getPropertyValue("innerPaddingLeft", undefined, func);
   }
   set innerPaddingLeft(val: string) {
     this.setPropertyValue("innerPaddingLeft", val);
   }
-  private onIndentChanged() {
-    if (!this.getSurvey()) return;
-    this.innerPaddingLeft = this.getIndentSize(this.innerIndent);
-    this.paddingLeft = this.getIndentSize(this.indent);
-    this.paddingRight = this.getIndentSize(this.rightIndent);
+  protected calcPaddingLeft(): string {
+    return this.getIndentSize(this.indent);
   }
+  protected calcPaddingRight(): string {
+    return this.getIndentSize(this.rightIndent);
+  }
+  protected resetIndents(): void {
+    this.resetPropertyValue("innerPaddingLeft");
+    super.resetIndents();
+  }
+
   private getIndentSize(indent: number): string {
+    if(!this.survey) return undefined;
     if (indent < 1) return "";
     var css = (<any>this).survey["css"];
-    if (!css || !css.question.indent) return "";
+    if (!css || !css.question || !css.question.indent) return "";
     return indent * css.question.indent + "px";
   }
-  public clearOnDeletingContainer() {
+  public clearOnDeletingContainer(): void {
     this.elements.forEach((element) => {
       if (element instanceof Question || element instanceof PanelModel) {
         element.clearOnDeletingContainer();

@@ -654,7 +654,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("isPlayingVideo", show);
   }
   private updateCurrentMode(): void {
-    if (!this.isDesignMode) {
+    if (!this.isDesignMode && this.survey) {
       if (this.sourceType !== "file") {
         this.camera.hasCamera((res: boolean) => {
           this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.sourceType : "file");
@@ -830,9 +830,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public canPreviewImage(fileItem: any): boolean {
     return this.allowImagesPreview && !!fileItem && this.isFileImage(fileItem);
   }
+  private prevLoadedPreviewValue: any;
   protected loadPreview(newValue: any): void {
+    if (this.showPreview && this.prevLoadedPreviewValue === newValue) return;
     this.previewValue.splice(0, this.previewValue.length);
     if (!this.showPreview || !newValue) return;
+    this.prevLoadedPreviewValue = newValue;
     var newValues = Array.isArray(newValue)
       ? newValue
       : !!newValue

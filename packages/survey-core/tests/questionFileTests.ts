@@ -1416,10 +1416,10 @@ QUnit.test("QuestionFile current mode property, camera is not available", functi
       { type: "file", name: "q4", sourceType: "file-camera" },
     ]
   });
-  assert.equal(survey.getQuestionByName("q1").currentMode, "file");
-  assert.equal(survey.getQuestionByName("q2").currentMode, "file");
-  assert.equal(survey.getQuestionByName("q3").currentMode, "camera");
-  assert.equal(survey.getQuestionByName("q4").currentMode, "file-camera");
+  assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#1.1");
+  assert.equal(survey.getQuestionByName("q2").currentMode, "file", "#1.2");
+  assert.equal(survey.getQuestionByName("q3").currentMode, "camera", "#1.3");
+  assert.equal(survey.getQuestionByName("q4").currentMode, "file-camera", "#1.4");
   assert.ok(callbacks.length > 0, "callbacks are set");
   callbacks.forEach(cb => cb([]));
   assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#1");
@@ -1459,10 +1459,10 @@ QUnit.test("QuestionFile current mode property, camera is available", function (
       { type: "file", name: "q4", sourceType: "file-camera" },
     ]
   });
-  assert.equal(survey.getQuestionByName("q1").currentMode, "file");
-  assert.equal(survey.getQuestionByName("q2").currentMode, "file");
-  assert.equal(survey.getQuestionByName("q3").currentMode, "camera");
-  assert.equal(survey.getQuestionByName("q4").currentMode, "file-camera");
+  assert.equal(survey.getQuestionByName("q1").currentMode, "file", "1.1");
+  assert.equal(survey.getQuestionByName("q2").currentMode, "file", "1.2");
+  assert.equal(survey.getQuestionByName("q3").currentMode, "camera", "1.3");
+  assert.equal(survey.getQuestionByName("q4").currentMode, "file-camera", "1.4");
   assert.ok(callbacks.length > 0, "callbacks are set");
 
   callbacks.forEach(cb => cb(devices));

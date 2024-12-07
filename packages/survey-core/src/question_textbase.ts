@@ -46,7 +46,7 @@ export class QuestionTextBase extends Question {
   /**
    * A placeholder for the input field.
    */
-  @property({ localizable: true, onSet: (val, target) => target.calcRenderedPlaceholder() })
+  @property({ localizable: true, onSet: (val, target) => target.resetRenderedPlaceholder() })
   public placeholder: string;
   public get placeHolder(): string { return this.placeholder; }
   public set placeHolder(val: string) { this.placeholder = val; }
@@ -80,34 +80,22 @@ export class QuestionTextBase extends Question {
     return this.textUpdateMode == "onTyping";
   }
   public get renderedPlaceholder(): string {
-    return this.getPropertyValue("renderedPlaceholder");
-  }
-  protected setRenderedPlaceholder(val: string): void {
-    this.setPropertyValue("renderedPlaceholder", val);
+    const func = (): string => {
+      return this.hasPlaceholder() ? this.placeHolder : undefined;
+    };
+    return this.getPropertyValue("renderedPlaceholder", undefined, func);
   }
   protected onReadOnlyChanged(): void {
     super.onReadOnlyChanged();
-    this.calcRenderedPlaceholder();
-  }
-  public onSurveyLoad(): void {
-    this.calcRenderedPlaceholder();
-    super.onSurveyLoad();
+    this.resetRenderedPlaceholder();
   }
   public localeChanged(): void {
     super.localeChanged();
-    this.calcRenderedPlaceholder();
-  }
-  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
-    super.setSurveyImpl(value, isLight);
-    this.calcRenderedPlaceholder();
+    this.resetRenderedPlaceholder();
   }
   protected supportEmptyValidation(): boolean { return true; }
-  protected calcRenderedPlaceholder() {
-    let res = this.placeHolder;
-    if(!!res && !this.hasPlaceholder()) {
-      res = undefined;
-    }
-    this.setRenderedPlaceholder(res);
+  protected resetRenderedPlaceholder(): void {
+    this.resetPropertyValue("renderedPlaceholder");
   }
   protected hasPlaceholder(): boolean {
     return !this.isReadOnly;

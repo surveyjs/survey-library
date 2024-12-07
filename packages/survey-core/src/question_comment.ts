@@ -12,8 +12,17 @@ import { Helpers } from "./helpers";
  */
 export class QuestionCommentModel extends QuestionTextBase {
   private element: HTMLElement;
-  public textAreaModel: TextAreaModel;
+  private textAreaModelValue: TextAreaModel;
 
+  constructor(name: string) {
+    super(name);
+  }
+  public get textAreaModel(): TextAreaModel {
+    if(!this.textAreaModelValue) {
+      this.textAreaModelValue = new TextAreaModel(this.getTextAreaOptions());
+    }
+    return this.textAreaModelValue;
+  }
   private getTextAreaOptions(): ITextArea {
     const _this = this;
     const updateQuestionValue = (newValue: any) => {
@@ -48,12 +57,6 @@ export class QuestionCommentModel extends QuestionTextBase {
       onTextAreaBlur: (event) => { this.onBlur(event); }
     };
     return options;
-  }
-
-  constructor(name: string) {
-    super(name);
-
-    this.textAreaModel = new TextAreaModel(this.getTextAreaOptions());
   }
   /**
    * Specifies the visible height of the comment area, measured in lines.

@@ -8,7 +8,7 @@ import {
   IQuestion,
   ISurvey,
 } from "./base-interfaces";
-import { PanelModelBase, QuestionRowModel } from "./panel";
+import { PanelModelBase, PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DragDropPageHelperV1 } from "./drag-drop-page-helper-v1";
@@ -18,7 +18,7 @@ import { DragDropPageHelperV1 } from "./drag-drop-page-helper-v1";
  *
  * [View Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
  */
-export class PageModel extends PanelModelBase implements IPage {
+export class PageModel extends PanelModel implements IPage {
   private hasShownValue: boolean = false;
   private dragDropPageHelper: DragDropPageHelperV1;
 
@@ -35,6 +35,9 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isPage(): boolean {
     return true;
+  }
+  public get isPanel(): boolean {
+    return false;
   }
   public get no(): string {
     if(!this.canShowPageNumber() || !this.survey) return "";
@@ -362,12 +365,10 @@ Serializer.addClass(
         return !!obj.survey && obj.survey.progressBarType === "buttons";
       },
       serializationProperty: "locNavigationDescription",
-    },
-    { name: "title:text", serializationProperty: "locTitle" },
-    { name: "description:text", serializationProperty: "locDescription" },
+    }
   ],
   function () {
     return new PageModel();
   },
-  "panelbase"
+  "panel"
 );

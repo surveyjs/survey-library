@@ -3372,3 +3372,28 @@ QUnit.test("row.isNeedRender panel dynamic different modes - ordinary and design
     settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
   }
 });
+QUnit.only("Nested pages", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1" }] },
+      { name: "page2", elements: [{ type: "text", name: "q2" }] }
+    ]
+  });
+  const page1 = survey.pages[0];
+  assert.equal(page1.isPage, true, "isPage #1");
+  assert.equal(page1.isPanel, false, "isPanel #1");
+  assert.equal(page1.getTemplate(), "page", "template #1");
+  assert.equal(page1.survey.state, "running", "survey state #1");
+  const rootPage = new PageModel("p1");
+  rootPage.isPageContainer = true;
+  rootPage.addElement(page1);
+  assert.equal(page1.isPage, false, "isPage #2");
+  assert.equal(page1.isPanel, true, "isPanel #2");
+  assert.equal(page1.getTemplate(), "panel", "template #2");
+  assert.equal(page1.survey.state, "running", "survey state #2");
+  page1.parent = null;
+  assert.equal(page1.isPage, true, "isPage #3");
+  assert.equal(page1.isPanel, false, "isPanel #3");
+  assert.equal(page1.getTemplate(), "page", "template #3");
+  assert.equal(page1.survey.state, "running", "survey state #3");
+});

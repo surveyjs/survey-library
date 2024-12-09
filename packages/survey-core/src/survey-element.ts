@@ -511,7 +511,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return "button";
   }
 
-  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.surveyImplValue = value;
     if (!this.surveyImplValue) {
       this.setSurveyCore(null);
@@ -563,7 +563,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return this.surveyValue;
   }
-  protected setSurveyCore(value: ISurvey) {
+  protected setSurveyCore(value: ISurvey): void {
     this.surveyValue = value;
     if (!!this.surveyChangedCallback) {
       this.surveyChangedCallback();
@@ -853,7 +853,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   protected getPage(parent: IPanel): IPage {
     while (parent && parent.parent) parent = parent.parent;
-    if (parent && parent.getType() == "page") return <IPage>(<any>parent);
+    if (parent && parent.isPage) return <IPage>(<any>parent);
     return null;
   }
   protected moveToBase(

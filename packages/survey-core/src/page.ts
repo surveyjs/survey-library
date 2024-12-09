@@ -5,7 +5,7 @@ import {
   IPanel,
   IElement,
   ISurveyElement,
-  IQuestion,
+  ISurveyImpl,
   ISurvey,
 } from "./base-interfaces";
 import { PanelModelBase, PanelModel } from "./panel";
@@ -21,6 +21,7 @@ import { DragDropPageHelperV1 } from "./drag-drop-page-helper-v1";
 export class PageModel extends PanelModel implements IPage {
   private hasShownValue: boolean = false;
   private dragDropPageHelper: DragDropPageHelperV1;
+  public isPageContainer: boolean;
 
   constructor(name: string = "") {
     super(name);
@@ -34,10 +35,30 @@ export class PageModel extends PanelModel implements IPage {
     return this.name;
   }
   public get isPage(): boolean {
-    return true;
+    return !this.isPanel;
   }
   public get isPanel(): boolean {
-    return false;
+    return !!this.parent;
+  }
+  protected setSurveyImplChildren(value: ISurveyImpl, isLight?: boolean): void {
+    if(!this.isPageContainer) {
+      super.setSurveyImplChildren(value, isLight);
+    }
+  }
+  /*
+  protected onAddElement(element: IElement, index: number): void {
+    if(!this.isPageContainer) {
+      super.onAddElement(element, index);
+    }
+  }
+  protected onRemoveElement(element: IElement): void {
+    if(!this.isPageContainer) {
+      super.onRemoveElement(element);
+    }
+  }
+*/
+  public getTemplate(): string {
+    return this.isPanel ? "panel" : super.getTemplate();
   }
   public get no(): string {
     if(!this.canShowPageNumber() || !this.survey) return "";
@@ -135,6 +156,7 @@ export class PageModel extends PanelModel implements IPage {
   }
   public get isStarted(): boolean { return this.isStartPage; }
   protected calcCssClasses(css: any): any {
+    if(this.isPanel) return super.calcCssClasses(css);
     const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowReplace: "" };
     this.copyCssClasses(classes.page, css.page);
     this.copyCssClasses(classes.error, css.error);

@@ -409,10 +409,13 @@ export class PanelModelBase extends SurveyElement<Question>
     this.blockAnimations();
     super.setSurveyImpl(value, isLight);
     if (this.isDesignMode) this.onVisibleChanged();
+    this.setSurveyImplChildren(value, isLight);
+    this.releaseAnimations();
+  }
+  protected setSurveyImplChildren(value: ISurveyImpl, isLight?: boolean): void {
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].setSurveyImpl(value, isLight);
     }
-    this.releaseAnimations();
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
@@ -573,7 +576,7 @@ export class PanelModelBase extends SurveyElement<Question>
   /**
    * Returns a survey element (panel or page) that contains this panel and allows you to move this question to a different survey element.
    *
-   * This property is always `null` for the `PageModel` object.
+   *  //TODO-#9144
    */
   public get parent(): PanelModelBase {
     return this.getPropertyValue("parent", null);
@@ -2409,12 +2412,14 @@ export class PanelModel extends PanelModelBase implements IElement {
       .append(cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }
-  public getContainerCss() {
+  public getContainerCss(): string {
     return this.getCssRoot(this.cssClasses.panel);
   }
   public afterRenderCore(element: HTMLElement): void {
     super.afterRenderCore(element);
-    this.survey?.afterRenderPanel(this, element);
+    if(this.isPanel) {
+      this.survey?.afterRenderPanel(this, element);
+    }
   }
 }
 

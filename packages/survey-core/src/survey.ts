@@ -3291,6 +3291,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public get visiblePages(): Array<PageModel> {
     if (this.isDesignMode) return this.pages;
+    if(this.isShowingPreview && !!this.pageContainerValue) return [this.pageContainerValue];
     var result = new Array<PageModel>();
     for (var i = 0; i < this.pages.length; i++) {
       if (this.isPageInVisibleList(this.pages[i])) {
@@ -4356,8 +4357,33 @@ export class SurveyModel extends SurveyElementCore
     this.pageVisibilityChanged(this.pages[0], !this.isStartedState);
   }
   private runningPages: any;
+  private pageContainerValue: PageModel;
   private onShowingPreviewChanged() {
     if (this.isDesignMode) return;
+    if (this.isShowingPreview) {
+      const rootPage = Serializer.createClass("page");
+      rootPage.name = "container";
+      rootPage.isPageContainer = true;
+      this.pages.forEach(page => rootPage.addElement(page));
+      rootPage.setSurveyImpl(this);
+      this.pageContainerValue = rootPage;
+      this.currentPage = this.pageContainerValue;
+    } else {
+      this.pages.forEach(page => page.parent = null);
+      this.pageContainerValue.dispose();
+      this.pageContainerValue = undefined;
+      let curPage = this.gotoPageFromPreview;
+      this.gotoPageFromPreview = null;
+      if (Helpers.isValueEmpty(curPage) && this.visiblePageCount > 0) {
+        curPage = this.visiblePages[this.visiblePageCount - 1];
+      }
+      if (!!curPage) {
+        this.changeCurrentPageFromPreview = true;
+        this.currentPage = curPage;
+        this.changeCurrentPageFromPreview = false;
+      }
+    }
+    /*
     if (this.isShowingPreview) {
       this.runningPages = this.pages.slice(0, this.pages.length);
       this.setupPagesForPageModes(true, false);
@@ -4383,7 +4409,7 @@ export class SurveyModel extends SurveyElementCore
         this.currentPage = curPage;
         this.changeCurrentPageFromPreview = false;
       }
-    }
+    }*/
   }
   private changeCurrentPageFromPreview: boolean;
   private originalPages: any;

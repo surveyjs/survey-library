@@ -2,7 +2,8 @@ import React from "react";
 import {
   Base,
   Action,
-  ActionContainer
+  ActionContainer,
+  AdaptiveActionContainer
 } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
@@ -76,12 +77,12 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
       </div>
     );
   }
-
+  actionForCalc = new Action({ id: "test", title: "test", iconName: "test" })
   renderItems() {
-    return this.model.renderedActions.map(
+    return this.model.renderedActions.concat([this.actionForCalc]).map(
       (item: Action, itemIndex: number) => {
         return (
-          <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>
+          <SurveyAction item={item} key={"item" + itemIndex} actionsRepo={this.actionForCalc == item ? (this.model as AdaptiveActionContainer).actionsRepo : undefined}></SurveyAction>
         );
       }
     );

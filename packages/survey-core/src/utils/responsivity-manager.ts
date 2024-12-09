@@ -1,7 +1,7 @@
 import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
-import { isContainerVisible } from "./utils";
+import { classesToSelector, isContainerVisible } from "./utils";
 
 interface IDimensions {
   scroll: number;
@@ -61,7 +61,7 @@ export class ResponsivityManager {
     return 0;
   }
 
-  protected calcItemSize(item: HTMLDivElement): number {
+  protected calcItemSize(item: HTMLElement): number {
     return item.offsetWidth || item.getBoundingClientRect().width;
   }
 
@@ -69,14 +69,16 @@ export class ResponsivityManager {
     if (!this.container || this.isInitialized) return;
     const actions = this.model.renderedActions;
     let actionsCounter = actions.length;
-    const onUpdatedCallback = () => {
-      if(--actionsCounter<=0) {
-        callback();
-      }
-    };
     actions.forEach((action: Action) => {
-      action.updateDimensions((el) => this.calcItemSize(el as HTMLDivElement), onUpdatedCallback);
+      const actionForCalc = this.model.actionsRepo.getAction(action.component);
+      if(actionForCalc) {
+        actionForCalc.getLargeRootElement().querySelector("span").innerHTML = action.title;
+        // actionForCalc.getTitleElement().innerHTML = action.locTitle.renderedHtml;
+        action.minDimension = this.calcItemSize(actionForCalc.getSmallRootElement());
+        action.maxDimension = this.calcItemSize(actionForCalc.getLargeRootElement());
+      }
     });
+    callback();
   }
   private get isContainerVisible(): boolean {
     return !!this.container && isContainerVisible(this.container);

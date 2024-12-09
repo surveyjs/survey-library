@@ -8,6 +8,7 @@ import { SurveyActionBarSeparator } from "./action-bar-separator";
 
 interface IActionBarItemProps {
   item: Action;
+  actionsRepo?: any;
   mode?: "large" | "small";
 }
 
@@ -29,21 +30,13 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     return super.shouldComponentUpdate(nextProps, nextState);
   }
-
-  renderElement() {
-    //refactor
+  renderTest() {
     const itemClass = this.item.getActionRootCss();
     const separator = this.item.needSeparator ? (
       <SurveyActionBarSeparator></SurveyActionBarSeparator>
     ) : null;
 
-    const itemComponent = ReactElementFactory.Instance.createElement(
-      this.item.component || "sv-action-bar-item",
-      {
-        item: this.item,
-      }
-    );
-    const testElements = this.item.renderTest ? <>
+    return <div className={itemClass} id={this.item.id}>
       <div style={{ width: 0, height: 0, overflow: "hidden" }} ref={node => node && node.setAttribute("inert", "")}>
         <div style={{ width: "max-content" }} ref={this.ref}>
           {separator}
@@ -68,21 +61,41 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
           )}
         </div>
       </div>
-    </> : null;
+    </div>;
+  }
+
+  renderElement() {
+    //refactor
+    if(this.props.actionsRepo) {
+      return this.renderTest();
+    }
+    const itemClass = this.item.getActionRootCss();
+    const separator = this.item.needSeparator ? (
+      <SurveyActionBarSeparator></SurveyActionBarSeparator>
+    ) : null;
+
+    const itemComponent = ReactElementFactory.Instance.createElement(
+      this.item.component || "sv-action-bar-item",
+      {
+        item: this.item,
+      }
+    );
     return (
       <div className={itemClass} id={this.item.id}>
         <div className="sv-action__content">
           {separator}
           {itemComponent}
         </div>
-        {testElements}
       </div>
     );
   }
   componentDidMount(): void {
     super.componentDidMount();
-    this.item.getTestMaxElementCallback = () => this.ref.current;
-    this.item.getTestMinElementCallback = () => this.ref2.current;
+    if(!this.props.actionsRepo) return null;
+    this.props.actionsRepo.addAction("default", {
+      getLargeRootElement: () => this.ref.current,
+      getSmallRootElement: () => this.ref2.current,
+    });
   }
 }
 

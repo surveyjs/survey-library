@@ -41,7 +41,7 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
 }
 
 function getTOCItems(survey: SurveyModel, onAction: () => void) {
-  const pagesSource: PanelModelBase[] = survey.questionsOnPageMode === "singlePage" ? (survey.pages[0]?.elements as any) : survey.pages;
+  const pagesSource: PanelModelBase[] = survey.pages;
   var items = (pagesSource || []).map(page => {
     return new Action({
       id: page.name,

@@ -75,7 +75,7 @@ QUnit.test("generate survey schema", function (assert) {
   );
   assert.equal(
     schema.definitions.page.allOf[0].$ref,
-    "panelbase",
+    "panel",
     "page parent is here"
   );
   assert.ok(

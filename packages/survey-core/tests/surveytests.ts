@@ -7204,14 +7204,10 @@ QUnit.test("Survey show several pages as one + firstPageIsStarted", function (
   survey.pages.push(thirdPage);
   survey.firstPageIsStarted = true;
   survey.isSinglePage = true;
-  assert.equal(survey.pages.length, 2, "Start page + single page");
+  assert.equal(survey.pages.length, 3, "We have two pages here");
   assert.equal(survey.visiblePages.length, 1, "You have one page");
   var page = survey.visiblePages[0];
-  assert.equal(
-    page.elements.length,
-    2,
-    "two pages has converted into two panels"
-  );
+  assert.equal(page.elements.length, 2, "two pages has converted into two panels");
   assert.equal(page.questions.length, 4, "there are 4 questions on the page");
 });
 
@@ -7354,21 +7350,17 @@ QUnit.test(
   }
 );
 
-QUnit.test(
-  "isSinglePage = true and survey.showPageTitles = false, Bug#1914",
-  function (assert) {
-    var survey = twoPageSimplestSurvey();
-    survey.pages[0].title = "Page 1";
-    survey.pages[1].title = "Page 2";
-    survey.showPageTitles = false;
-    survey.isSinglePage = true;
-    var panels = survey.getAllPanels();
-    assert.equal(panels.length, 2, "There are two panels");
-    assert.equal((<PanelModel>panels[0]).hasTitle, false, "Panel1 title is hidden");
-    assert.equal((<PanelModel>panels[1]).hasTitle, false, "Panel2 title is hidden");
-  }
-);
-
+QUnit.test("isSinglePage = true and survey.showPageTitles = false, Bug#1914", function (assert) {
+  const survey = twoPageSimplestSurvey();
+  survey.pages[0].title = "Page 1";
+  survey.pages[1].title = "Page 2";
+  survey.showPageTitles = false;
+  survey.isSinglePage = true;
+  var panels = survey.currentPage.elements;
+  assert.equal(panels.length, 2, "There are two panels");
+  assert.equal((<PanelModel>panels[0]).hasTitle, false, "Panel1 title is hidden");
+  assert.equal((<PanelModel>panels[1]).hasTitle, false, "Panel2 title is hidden");
+});
 QUnit.test(
   "check synhronization properties isSinglePage and questionsOnPageMode",
   function (assert) {
@@ -7487,36 +7479,25 @@ QUnit.test(
   }
 );
 
-QUnit.test("survey.questionsOnPageMode", function (assert) {
+QUnit.test("survey.questionsOnPageMode, property test", function (assert) {
   var survey = twoPageSimplestSurvey();
   var questions = survey.getAllQuestions();
   survey.questionsOnPageMode = "questionOnPage";
-  assert.equal(
-    survey.pages.length,
-    questions.length,
-    "The number of pages equals to questions"
-  );
+  assert.equal(survey.pages.length, questions.length, "The number of pages equals to questions");
   for (var i = 0; i < questions.length; i++) {
-    assert.equal(
-      survey.pages[i].questions[0].name,
-      questions[i].name,
-      "questions set correctly per page"
-    );
+    assert.equal(survey.pages[i].questions[0].name, questions[i].name, "questions set correctly per page");
   }
-  survey.questionsOnPageMode = "singlePage";
-  assert.equal(survey.pages.length, 1, "We have one page");
-  assert.equal(
-    survey.pages[0].questions.length,
-    questions.length,
-    "All questions on single page"
-  );
   survey.questionsOnPageMode = "standard";
-  assert.equal(survey.pages.length, 2, "Origional pages");
-  assert.equal(
-    survey.pages[0].questions.length,
-    2,
-    "There are two questions on the origional first page"
-  );
+  assert.equal(survey.visiblePages.length, 2, "Origional pages, #1");
+  assert.equal(survey.visiblePages[0].questions.length, 2, "There are two questions on the origional first page, #1");
+
+  survey.questionsOnPageMode = "singlePage";
+  assert.equal(survey.visiblePages.length, 1, "We have one page");
+  assert.equal(survey.currentPage.questions.length, questions.length, "All questions on single page");
+
+  survey.questionsOnPageMode = "standard";
+  assert.equal(survey.visiblePages.length, 2, "Origional pages, #2");
+  assert.equal(survey.visiblePages[0].questions.length, 2, "There are two questions on the origional first page, #2");
 });
 
 QUnit.test(
@@ -14042,7 +14023,7 @@ QUnit.test("Update preview edit button on changing locale, Bug#6523", function (
     ]
   });
   survey.showPreview();
-  const panel = <PanelModel>survey.getAllPanels()[0];
+  const panel = <PanelModel>survey.currentPage.elements[0];
   assert.equal(survey.locEditText.textOrHtml, "Edit", "Edit - en");
   const editAction = panel.getFooterToolbar().getActionById("cancel-preview");
   assert.equal(editAction.locTitle.textOrHtml, "Edit", "Action - en");
@@ -18449,14 +18430,13 @@ QUnit.test("check titleNumInline cssClass", function (assert) {
 QUnit.test("Survey setDesignMode should not trigger pages regeneration if not changed", function (assert) {
   var survey = twoPageSimplestSurvey();
   survey.isSinglePage = true;
-  assert.equal(survey.pages.length, 1, "We should have 1 page");
-  assert.equal(survey.getAllPanels().length, 2, "We should have 2 panels");
+  assert.equal(survey.visiblePages.length, 1, "We should have 1 page, #1");
+  assert.equal(survey.currentPage.elements.length, 2, "We should have 2 panels, #1");
   survey.setDesignMode(false);
-  assert.equal(survey.pages.length, 1, "We should have 1 page");
-  assert.equal(survey.getAllPanels().length, 2, "We should have 2 panels");
+  assert.equal(survey.visiblePages.length, 1, "We should have 1 page, #2");
+  assert.equal(survey.currentPage.elements.length, 2, "We should have 2 panels, #2");
   survey.setDesignMode(true);
-  assert.equal(survey.pages.length, 2, "We should have 2 pages");
-  assert.equal(survey.getAllPanels().length, 0, "We should have 0 panels");
+  assert.equal(survey.visiblePages.length, 2, "We should have 2 pages, #3");
 });
 QUnit.test("Try again button should call onComplete", function (assert) {
   class SurveyModelTester extends SurveyModel {
@@ -20766,7 +20746,7 @@ QUnit.test("Check showPageTitles & questionsOnPageMode is 'singlePage' on switch
     "showPageTitles": false,
     "questionsOnPageMode": "singlePage",
   });
-  const panels = survey.getAllPanels();
+  const panels = survey.currentPage.elements;
   assert.equal(panels.length, 2, "There are two panels");
   assert.equal((<PanelModel>panels[0]).hasTitle, false, "panels[0], locale en");
   assert.equal((<PanelModel>panels[1]).hasTitle, false, "panels[1], locale en");
@@ -20801,7 +20781,7 @@ QUnit.test("Check questionsOnPageMode is 'singlePage' on switching locales, Bug#
       }] }],
     "questionsOnPageMode": "singlePage",
   });
-  const panels = survey.getAllPanels();
+  const panels = survey.currentPage.elements;
   assert.equal(panels.length, 2, "There are two panels");
   assert.equal((<PanelModel>panels[0]).hasTitle, true, "panels[0], locale en");
   assert.equal((<PanelModel>panels[1]).hasTitle, true, "panels[1], locale en");

@@ -3291,6 +3291,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public get visiblePages(): Array<PageModel> {
     if (this.isDesignMode) return this.pages;
+    if(!!this.pageContainerValue && (this.isShowingPreview || this.isSinglePage)) return [this.pageContainerValue];
     var result = new Array<PageModel>();
     for (var i = 0; i < this.pages.length; i++) {
       if (this.isPageInVisibleList(this.pages[i])) {
@@ -4272,7 +4273,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private gotoPageFromPreview: PageModel;
   public cancelPreviewByPage(panel: IPanel): any {
-    this.cancelPreview((<any>panel)["originalPage"]);
+    this.cancelPreview(<PageModel>panel);
   }
   protected doCurrentPageComplete(doComplete: boolean): boolean {
     if (this.isValidatingOnServer) return false;
@@ -4356,23 +4357,29 @@ export class SurveyModel extends SurveyElementCore
     this.pageVisibilityChanged(this.pages[0], !this.isStartedState);
   }
   private runningPages: any;
+  private pageContainerValue: PageModel;
   private onShowingPreviewChanged() {
+    if(this.isSinglePage) return;
+    this.updatePagesContainer(this.isShowingPreview);
+  }
+  private updatePagesContainer(showOnePage: boolean): void {
     if (this.isDesignMode) return;
-    if (this.isShowingPreview) {
-      this.runningPages = this.pages.slice(0, this.pages.length);
-      this.setupPagesForPageModes(true, false);
+    if (showOnePage) {
+      const rootPage = Serializer.createClass("page");
+      rootPage.name = "container";
+      rootPage.isPageContainer = true;
+      this.pages.forEach(page => {
+        if(!page.isStartPage) {
+          rootPage.addElement(page);
+        }
+      });
+      rootPage.setSurveyImpl(this);
+      this.pageContainerValue = rootPage;
+      this.currentPage = rootPage;
     } else {
-      if (this.runningPages) {
-        this.restoreOriginalPages(this.runningPages);
-      }
-      this.runningPages = undefined;
-    }
-    this.runConditions();
-    this.updateAllElementsVisibility(this.pages);
-    this.updateVisibleIndexes();
-    if (this.isShowingPreview) {
-      this.currentPageNo = 0;
-    } else {
+      this.pages.forEach(page => page.parent = null);
+      this.pageContainerValue.dispose();
+      this.pageContainerValue = undefined;
       let curPage = this.gotoPageFromPreview;
       this.gotoPageFromPreview = null;
       if (Helpers.isValueEmpty(curPage) && this.visiblePageCount > 0) {
@@ -4389,6 +4396,10 @@ export class SurveyModel extends SurveyElementCore
   private originalPages: any;
   protected onQuestionsOnPageModeChanged(oldValue: string, isFirstLoad: boolean = false): void {
     if (this.isShowingPreview) return;
+    if(this.isSinglePage || oldValue === "singlePage") {
+      this.updatePagesContainer(this.isSinglePage);
+      return;
+    }
     if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
       if (this.originalPages) {
         this.restoreOriginalPages(this.originalPages);
@@ -4445,23 +4456,7 @@ export class SurveyModel extends SurveyElementCore
     isSinglePage: boolean,
     startIndex: number
   ): Array<PageModel> {
-    if (isSinglePage) {
-      return [this.createSinglePage(startIndex)];
-    }
     return this.createPagesForEveryQuestion(startIndex);
-  }
-  private createSinglePage(startIndex: number): PageModel {
-    var single = this.createNewPage("all");
-    single.setSurveyImpl(this);
-    for (var i = startIndex; i < this.pages.length; i++) {
-      const page = this.pages[i];
-      const panel: PanelModel = Serializer.createClass("panel");
-      (<any>panel).originalPage = page;
-      single.addPanel(panel);
-      var json = new JsonObject().toJsonObject(page);
-      new JsonObject().toObject(json, panel);
-    }
-    return single;
   }
   private createPagesForEveryQuestion(startIndex: number): Array<PageModel> {
     var res: Array<PageModel> = [];
@@ -6338,12 +6333,12 @@ export class SurveyModel extends SurveyElementCore
   endLoadingFromJson() {
     this.isEndLoadingFromJson = "processing";
     this.onFirstPageIsStartedChanged();
-    this.onQuestionsOnPageModeChanged("standard", true);
     super.endLoadingFromJson();
     if (this.hasCookie) {
       this.isCompletedBefore = true;
     }
     this.doElementsOnLoad();
+    this.onQuestionsOnPageModeChanged("standard", true);
     this.isEndLoadingFromJson = "conditions";
     this.runConditions();
     this.notifyElementsOnAnyValueOrVariableChanged("");

@@ -409,13 +409,10 @@ export class PanelModelBase extends SurveyElement<Question>
     this.blockAnimations();
     super.setSurveyImpl(value, isLight);
     if (this.isDesignMode) this.onVisibleChanged();
-    this.setSurveyImplChildren(value, isLight);
-    this.releaseAnimations();
-  }
-  protected setSurveyImplChildren(value: ISurveyImpl, isLight?: boolean): void {
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].setSurveyImpl(value, isLight);
     }
+    this.releaseAnimations();
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
@@ -2039,15 +2036,18 @@ export class PanelModelBase extends SurveyElement<Question>
   public dispose(): void {
     super.dispose();
     if (this.rows) {
-      for (var i = 0; i < this.rows.length; i++) {
+      for (let i = 0; i < this.rows.length; i++) {
         this.rows[i].dispose();
       }
       this.rows.splice(0, this.rows.length);
     }
-    for (var i = 0; i < this.elements.length; i++) {
+    this.disposeElements();
+    this.elements.splice(0, this.elements.length);
+  }
+  protected disposeElements(): void {
+    for (let i = 0; i < this.elements.length; i++) {
       this.elements[i].dispose();
     }
-    this.elements.splice(0, this.elements.length);
   }
 }
 
@@ -2330,18 +2330,10 @@ export class PanelModel extends PanelModelBase implements IElement {
     }
     return this.footerToolbarValue;
   }
-  public get hasEditButton(): boolean {
-    if (this.survey && this.survey.state === "preview") return (this.parent && this.parent instanceof PageModel);
-    return false;
-  }
+  public get hasEditButton(): boolean { return false; }
   public cancelPreview(): void {
     if (!this.hasEditButton) return;
     this.survey.cancelPreviewByPage(this);
-  }
-  protected canShowTitle(survey: ISurvey): boolean {
-    const page = (<any>this).originalPage;
-    if(!!page) return page.canShowTitle(survey);
-    return super.canShowTitle(survey);
   }
   public get cssTitle(): string {
     return this.getCssTitle(this.cssClasses.panel);
@@ -2382,9 +2374,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return super.getIsNested() && this.parent !== undefined;
   }
   public get showPanelAsPage(): boolean {
-    const panel = <any>this;
-    if (!!panel.originalPage) return true;
-    return panel.survey.isShowingPreview && panel.survey.isSinglePage && !!panel.parent && !!panel.parent.originalPage;
+    return false;
   }
   private forcusFirstQuestionOnExpand = true;
   public expand(focusFirstQuestion: boolean = true) {

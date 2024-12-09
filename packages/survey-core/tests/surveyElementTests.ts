@@ -349,12 +349,12 @@ QUnit.test("single page survey in preview", function (assert) {
   survey.css = {
     root: "sd-root-modern"
   };
-  assert.ok(survey.getQuestionByName("question1")["getHasFrameV2"]());
-  assert.notOk(survey.getQuestionByName("question1")["getIsNested"]());
+  assert.ok(survey.getQuestionByName("question1")["getHasFrameV2"](), "question1.getHasFrameV2, #1");
+  assert.notOk(survey.getQuestionByName("question1")["getIsNested"](), "question1.getIsNested, #1");
   survey.showPreview();
-  assert.ok(survey.getQuestionByName("question1")["getHasFrameV2"]());
-  assert.notOk(survey.getQuestionByName("question1")["getIsNested"]());
-  assert.ok((survey.pages[0].elements[0] as PanelModel).showPanelAsPage);
+  assert.ok(survey.getQuestionByName("question1")["getHasFrameV2"](), "question1.getHasFrameV2, #2");
+  assert.notOk(survey.getQuestionByName("question1")["getIsNested"](), "question1.getIsNested, #2");
+  assert.ok((survey.currentPage.elements[0] as PanelModel).showPanelAsPage);
   survey.css = oldCss;
 });
 

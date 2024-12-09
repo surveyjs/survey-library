@@ -1861,7 +1861,7 @@ QUnit.test("Check panel styles with originalPage", function(assert) {
     root: "sd-root-modern",
     pageRow: "page_row"
   };
-  const panel = <PanelModel>survey.getPanelByName("panel");
+  const panel = <PanelModel>survey.getPageByName("panel");
   const innerPanel = <PanelModel>survey.getPanelByName("innerPanel");
   const question = survey.getQuestionByName("q1");
   const question2 = survey.getQuestionByName("q2");
@@ -3372,7 +3372,7 @@ QUnit.test("row.isNeedRender panel dynamic different modes - ordinary and design
     settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
   }
 });
-QUnit.only("Nested pages", function (assert) {
+QUnit.test("Nested pages", function (assert) {
   const survey = new SurveyModel({
     pages: [
       { name: "page1", elements: [{ type: "text", name: "q1" }] },
@@ -3390,10 +3390,8 @@ QUnit.only("Nested pages", function (assert) {
   assert.equal(page1.isPage, false, "isPage #2");
   assert.equal(page1.isPanel, true, "isPanel #2");
   assert.equal(page1.getTemplate(), "panel", "template #2");
-  assert.equal(page1.survey.state, "running", "survey state #2");
   page1.parent = null;
   assert.equal(page1.isPage, true, "isPage #3");
   assert.equal(page1.isPanel, false, "isPanel #3");
   assert.equal(page1.getTemplate(), "page", "template #3");
-  assert.equal(page1.survey.state, "running", "survey state #3");
 });

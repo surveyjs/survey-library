@@ -235,13 +235,14 @@ QUnit.test("questionsOnPageMode singlePage", function (assert) {
       }
     ]
   };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
-
+  const survey: SurveyModel = new SurveyModel(json);
+  const tocListModel = createTOCListModel(survey);
+  const page = survey.currentPage;
+  assert.equal(page.elements.length, 3, "There are two elements in the root");
   assert.equal(tocListModel.visibleItems.length, 3, "3 items is TOC");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].elements[0].name, "Page 1");
-  assert.equal(tocListModel.visibleItems[1].id, survey.pages[0].elements[1].name, "Page 2");
-  assert.equal(tocListModel.visibleItems[2].id, survey.pages[0].elements[2].name, "Page 3");
+  assert.equal(tocListModel.visibleItems[0].id, page.elements[0].name, "Page 1");
+  assert.equal(tocListModel.visibleItems[1].id, page.elements[1].name, "Page 2");
+  assert.equal(tocListModel.visibleItems[2].id, page.elements[2].name, "Page 3");
 });
 
 QUnit.test("respects markup", function (assert) {

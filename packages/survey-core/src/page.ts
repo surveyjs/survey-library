@@ -40,23 +40,17 @@ export class PageModel extends PanelModel implements IPage {
   public get isPanel(): boolean {
     return !!this.parent;
   }
-  protected setSurveyImplChildren(value: ISurveyImpl, isLight?: boolean): void {
+  public get showPanelAsPage(): boolean {
+    return true;
+  }
+  public get hasEditButton(): boolean {
+    return this.isPanel && this.survey && this.survey.state === "preview";
+  }
+  protected disposeElements(): void {
     if(!this.isPageContainer) {
-      super.setSurveyImplChildren(value, isLight);
+      super.disposeElements();
     }
   }
-  /*
-  protected onAddElement(element: IElement, index: number): void {
-    if(!this.isPageContainer) {
-      super.onAddElement(element, index);
-    }
-  }
-  protected onRemoveElement(element: IElement): void {
-    if(!this.isPageContainer) {
-      super.onRemoveElement(element);
-    }
-  }
-*/
   public getTemplate(): string {
     return this.isPanel ? "panel" : super.getTemplate();
   }

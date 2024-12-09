@@ -1167,7 +1167,7 @@ QUnit.test("QuestionFile download file content on preview, #1", function (assert
   const q2: QuestionFileModel = <any>survey.getQuestionByName("file");
   assert.notOk(q2.storeDataAsText);
 
-  assert.equal(downloadLog, "->f1->f1");
+  assert.equal(downloadLog, "->f1");
 });
 
 QUnit.test("Check previewValue order is correct", (assert) => {

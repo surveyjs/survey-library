@@ -32,17 +32,17 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    this.question.panelCountChangedCallback = () => {};
-    this.question.currentIndexChangedCallback = () => {};
-    this.question.renderModeChangedCallback = () => {};
+    this.question.panelCountChangedCallback = () => { };
+    this.question.currentIndexChangedCallback = () => { };
+    this.question.renderModeChangedCallback = () => { };
   }
   private updateQuestionRendering() {
     this.setState({
       panelCounter: this.state ? this.state.panelCounter + 1 : 1,
     });
   }
-  protected renderElement(): JSX.Element {
-    const panels:Array<JSX.Element> = [];
+  protected renderElement(): React.JSX.Element {
+    const panels: Array<React.JSX.Element> = [];
     this.question.renderedPanels.forEach((panel, index) => {
       panels.push(<SurveyQuestionPanelDynamicItem
         key={panel.id}
@@ -54,13 +54,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         creator={this.creator}
       />);
     });
-    const btnAdd: JSX.Element | null = this.question.isRenderModeList && this.question["showLegacyNavigation"]
+    const btnAdd: React.JSX.Element | null = this.question.isRenderModeList && this.question["showLegacyNavigation"]
       ? this.renderAddRowButton()
       : null;
-    const navTop: JSX.Element | null = this.question.isProgressTopShowing
+    const navTop: React.JSX.Element | null = this.question.isProgressTopShowing
       ? this.renderNavigator()
       : null;
-    const navBottom: JSX.Element | null = this.question.isProgressBottomShowing
+    const navBottom: React.JSX.Element | null = this.question.isProgressBottomShowing
       ? this.renderNavigator()
       : null;
 
@@ -79,18 +79,18 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       </div>
     );
   }
-  protected renderNavigator(): JSX.Element | null {
-    if(!this.question["showLegacyNavigation"]) {
-      if(this.question.isRangeShowing && this.question.isProgressTopShowing) {
+  protected renderNavigator(): React.JSX.Element | null {
+    if (!this.question["showLegacyNavigation"]) {
+      if (this.question.isRangeShowing && this.question.isProgressTopShowing) {
         return this.renderRange();
       } else {
         return null;
       }
     }
-    const range: JSX.Element | null = this.question.isRangeShowing ? this.renderRange() : null;
-    const btnPrev: JSX.Element = this.rendrerPrevButton();
-    const btnNext: JSX.Element = this.rendrerNextButton();
-    const btnAdd: JSX.Element | null = this.renderAddRowButton();
+    const range: React.JSX.Element | null = this.question.isRangeShowing ? this.renderRange() : null;
+    const btnPrev: React.JSX.Element = this.rendrerPrevButton();
+    const btnNext: React.JSX.Element = this.rendrerNextButton();
+    const btnAdd: React.JSX.Element | null = this.renderAddRowButton();
     const progressClass: string = this.question.isProgressTopShowing
       ? this.question.cssClasses.progressTop
       : this.question.cssClasses.progressBottom;
@@ -108,24 +108,24 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       </div>
     );
   }
-  private renderProgressText(): JSX.Element {
+  private renderProgressText(): React.JSX.Element {
     return (
-      <SurveyQuestionPanelDynamicProgressText data={ { question: this.question }}></SurveyQuestionPanelDynamicProgressText>
+      <SurveyQuestionPanelDynamicProgressText data={{ question: this.question }}></SurveyQuestionPanelDynamicProgressText>
     );
   }
 
   protected rendrerPrevButton() {
     return (
-      <SurveyQuestionPanelDynamicPrevButton data={ { question: this.question }}></SurveyQuestionPanelDynamicPrevButton>
+      <SurveyQuestionPanelDynamicPrevButton data={{ question: this.question }}></SurveyQuestionPanelDynamicPrevButton>
     );
   }
   protected rendrerNextButton() {
     return (
-      <SurveyQuestionPanelDynamicNextButton data={ { question: this.question }}></SurveyQuestionPanelDynamicNextButton>
+      <SurveyQuestionPanelDynamicNextButton data={{ question: this.question }}></SurveyQuestionPanelDynamicNextButton>
     );
   }
 
-  protected renderRange(): JSX.Element {
+  protected renderRange(): React.JSX.Element {
     return (
       <div className={this.question.cssClasses.progress}>
         <div
@@ -136,14 +136,14 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       </div>
     );
   }
-  protected renderAddRowButton(): JSX.Element | null {
+  protected renderAddRowButton(): React.JSX.Element | null {
     return ReactElementFactory.Instance.createElement("sv-paneldynamic-add-btn", {
       data: { question: this.question }
     });
   }
-  protected renderNavigatorV2(): JSX.Element | null {
+  protected renderNavigatorV2(): React.JSX.Element | null {
     if (!this.question.showNavigation) return null;
-    const range: JSX.Element | null = this.question.isRangeShowing && this.question.isProgressBottomShowing ? this.renderRange() : null;
+    const range: React.JSX.Element | null = this.question.isRangeShowing && this.question.isProgressBottomShowing ? this.renderRange() : null;
     return (<div className={this.question.cssClasses.footer}>
       <hr className={this.question.cssClasses.separator} />
       {range}
@@ -152,7 +152,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       </div>) : null}
     </div>);
   }
-  protected renderPlaceholder(): JSX.Element | null {
+  protected renderPlaceholder(): React.JSX.Element | null {
     if (this.question.getShowNoEntriesPlaceholder()) {
       return (
         <div className={this.question.cssClasses.noEntriesPlaceholder}>
@@ -182,7 +182,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
   public render() {
     const panel = super.render();
     const removeButton = this.renderButton();
-    const separator: JSX.Element | null = this.question.showSeparator(this.index) ?
+    const separator: React.JSX.Element | null = this.question.showSeparator(this.index) ?
       (<hr className={this.question.cssClasses.separator} />) : null;
     return (
       <>
@@ -194,7 +194,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
       </>
     );
   }
-  protected renderButton(): JSX.Element | null {
+  protected renderButton(): React.JSX.Element | null {
     if (
       this.question.panelRemoveButtonLocation !== "right" ||
       !this.question.canRemovePanel ||

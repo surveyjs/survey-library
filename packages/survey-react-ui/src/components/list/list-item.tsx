@@ -22,7 +22,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
   getStateElement() {
     return this.item;
   }
-  render(): JSX.Element | null {
+  render(): React.JSX.Element | null {
     if (!this.item) return null;
     const contentWrapStyle = {
       paddingInlineStart: this.model.getItemIndent(this.item)
@@ -31,16 +31,16 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
     const itemContent = this.item.component || this.model.itemComponent;
     const newElement = ReactElementFactory.Instance.createElement(itemContent, { item: this.item, key: this.item.id, model: this.model });
     const contentWrap =
-        <div
-          style={contentWrapStyle}
-          className={this.model.cssClasses.itemBody}
-          title={this.item.locTitle.calculatedText}
-          onMouseOver={(event: any) => { this.model.onItemHover(this.item); }}
-          onMouseLeave={(event: any) => { this.model.onItemLeave(this.item); }}
-        >
-          {newElement}
-        </div>;
-    const separator = this.item.needSeparator ? <div className = {this.model.cssClasses.itemSeparator}/>:null;
+      <div
+        style={contentWrapStyle}
+        className={this.model.cssClasses.itemBody}
+        title={this.item.locTitle.calculatedText}
+        onMouseOver={(event: any) => { this.model.onItemHover(this.item); }}
+        onMouseLeave={(event: any) => { this.model.onItemLeave(this.item); }}
+      >
+        {newElement}
+      </div>;
+    const separator = this.item.needSeparator ? <div className={this.model.cssClasses.itemSeparator} /> : null;
     const isVisible = this.model.isItemVisible(this.item);
     const style = {
       display: isVisible ? null : "none"

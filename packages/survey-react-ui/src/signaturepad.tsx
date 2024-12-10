@@ -13,7 +13,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
   protected get question(): QuestionSignaturePadModel {
     return this.questionBase as QuestionSignaturePadModel;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
     const loadingIndicator = this.question.showLoadingIndicator ? this.renderLoadingIndicator() : null;
     var clearButton = this.renderCleanButton();
@@ -35,17 +35,17 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
     );
   }
 
-  renderBackgroundImage(): JSX.Element | null {
-    if(!this.question.backgroundImage) return null;
+  renderBackgroundImage(): React.JSX.Element | null {
+    if (!this.question.backgroundImage) return null;
 
     return <img className={this.question.cssClasses.backgroundImage} src={this.question.backgroundImage} style={{ width: this.question.renderedCanvasWidth }}></img>;
   }
-  protected renderLoadingIndicator(): JSX.Element {
+  protected renderLoadingIndicator(): React.JSX.Element {
     return <div className={this.question.cssClasses.loadingIndicator}><LoadingIndicatorComponent></LoadingIndicatorComponent></div>;
   }
 
-  renderCleanButton(): JSX.Element | null {
-    if(!this.question.canShowClearButton) return null;
+  renderCleanButton(): React.JSX.Element | null {
+    if (!this.question.canShowClearButton) return null;
 
     var cssClasses = this.question.cssClasses;
     return <div className={cssClasses.controls}>

@@ -10,7 +10,7 @@ export interface IQuestionErrorComponentProps {
 }
 
 export class QuestionErrorComponent extends React.Component<IQuestionErrorComponentProps, any> {
-  render(): JSX.Element | null {
+  render(): React.JSX.Element | null {
     return (
       <div>
         <span className={this.props.cssClasses.error.icon || undefined} aria-hidden="true" />

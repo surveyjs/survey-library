@@ -10,7 +10,7 @@ export class SurveyNavigationButton extends ReactSurveyElement {
   protected canRender(): boolean {
     return this.item.isVisible;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return (
       <input
         className={this.item.innerCss}

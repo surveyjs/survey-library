@@ -13,7 +13,7 @@ export class CharacterCounterComponent extends SurveyElementBase<ICharacterCount
     return this.props.counter;
   }
 
-  renderElement(): JSX.Element | null {
+  renderElement(): React.JSX.Element | null {
     return (<div className={this.props.remainingCharacterCounter}>{this.props.counter.remainingCharacterCounter}</div>);
   }
 }

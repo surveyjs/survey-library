@@ -462,7 +462,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     if (this.previewValue.length > 0 && !this.calculatedGapBetweenItems && !this.calculatedItemWidth) {
       setTimeout(() => {
         this.processResponsiveness(0, this._width);
-      });
+      }, 1);
     }
     this.prevPreviewLength = this.previewValue.length;
   }

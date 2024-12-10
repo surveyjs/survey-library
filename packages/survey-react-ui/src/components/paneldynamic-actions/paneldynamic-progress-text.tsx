@@ -3,7 +3,7 @@ import { ReactElementFactory } from "../../element-factory";
 import { SurveyQuestionPanelDynamicAction } from "./paneldynamic-add-btn";
 
 export class SurveyQuestionPanelDynamicProgressText extends SurveyQuestionPanelDynamicAction {
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return (<div className={this.question.cssClasses.progressText}>
       {this.question.progressText}
     </div>);

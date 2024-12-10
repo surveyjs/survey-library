@@ -36,7 +36,7 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
 
   componentDidMount(): void {
     super.componentDidMount();
-    if(this.rootRef.current) {
+    if (this.rootRef.current) {
       (this.element).setWrapperElement(this.rootRef.current);
     }
   }
@@ -49,10 +49,10 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     if (nextProps.element !== this.element) {
-      if(nextProps.element) {
+      if (nextProps.element) {
         nextProps.element.setWrapperElement(this.rootRef.current);
       }
-      if(this.element) {
+      if (this.element) {
         this.element.setWrapperElement(undefined);
       }
     }
@@ -61,7 +61,7 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
     return true;
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const element = this.element;
     const innerElement = this.createElement(element, this.index);
     const css = (element as Question).cssClassesValue;
@@ -85,9 +85,9 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
     );
   }
 
-  protected createElement(element: IElement, elementIndex?: number): JSX.Element {
+  protected createElement(element: IElement, elementIndex?: number): React.JSX.Element {
     const index = elementIndex ? "-" + elementIndex : 0;
-    if(!this.row.isNeedRender) {
+    if (!this.row.isNeedRender) {
       return ReactElementFactory.Instance.createElement(element.skeletonComponentName, { key: element.name + index, element: element, css: this.css, })
     }
     var elementType = element.getType();

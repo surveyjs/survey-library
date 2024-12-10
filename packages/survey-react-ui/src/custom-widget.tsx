@@ -43,7 +43,7 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
   protected canRender(): boolean {
     return super.canRender() && this.questionBase.visible;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     let customWidget = this.questionBase.customWidget;
 
     if (customWidget.isDefaultRender) {

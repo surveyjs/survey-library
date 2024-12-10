@@ -7532,6 +7532,16 @@ QUnit.test("survey.questionsOnPageMode = 'questionOnPage', page rows & currentSi
   assert.equal(survey.pages[1].rows.length, 2, "page1 standard rows.length");
   assert.equal(survey.pages[1].rows.length, 2, "page2 standard rows.length");
 });
+QUnit.test("survey.questionsOnPageMode = 'questionOnPage' & survey.clear", function (assert) {
+  const survey = twoPageSimplestSurvey();
+  const questions = survey.getAllQuestions(true);
+  survey.questionsOnPageMode = "questionOnPage";
+  survey.performNext();
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, questions[2].name, "currentSingleQuestion, #1");
+  survey.clear();
+  assert.equal(survey.currentSingleQuestion.name, questions[0].name, "currentSingleQuestion, #2");
+});
 
 QUnit.test("survey.questionsOnPageMode, property test", function (assert) {
   var survey = twoPageSimplestSurvey();

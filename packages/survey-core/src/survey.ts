@@ -3629,7 +3629,7 @@ export class SurveyModel extends SurveyElementCore
    * @param clearData *(Optional)* Specifies whether to clear survey data. Default value: `true`.
    * @param goToFirstPage *(Optional)* Specifies whether to switch the survey to the first page. Default value: `true`.
    */
-  public clear(clearData: boolean = true, goToFirstPage: boolean = true) {
+  public clear(clearData: boolean = true, goToFirstPage: boolean = true): void {
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
@@ -3646,15 +3646,19 @@ export class SurveyModel extends SurveyElementCore
     this.onFirstPageIsStartedChanged();
     if (goToFirstPage) {
       this.currentPage = this.firstVisiblePage;
+      if(this.currentSingleQuestion) {
+        const questions = this.getAllQuestions(true);
+        this.currentSingleQuestion = questions.length > 0 ? questions[0] : undefined;
+      }
     }
     if (clearData) {
       this.updateValuesWithDefaults();
     }
   }
-  public mergeValues(src: any, dest: any) {
+  public mergeValues(src: any, dest: any): void {
     mergeValues(src, dest);
   }
-  private updateValuesWithDefaults() {
+  private updateValuesWithDefaults(): void {
     if (this.isDesignMode || this.isLoading) return;
     for (var i = 0; i < this.pages.length; i++) {
       var questions = this.pages[i].questions;
@@ -3663,7 +3667,7 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  protected updateCustomWidgets(page: PageModel) {
+  protected updateCustomWidgets(page: PageModel): void {
     if (!page) return;
     page.updateCustomWidgets();
   }

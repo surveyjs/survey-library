@@ -3685,7 +3685,7 @@ export class SurveyModel extends SurveyElementCore
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.notifyQuestionsOnHidingContent(oldValue);
     const options = this.createPageChangeEventOptions(newValue, oldValue);
-    if (oldValue && !oldValue.passed) {
+    if (oldValue && !oldValue.isDisposed && !oldValue.passed) {
       if (oldValue.validate(false)) {
         oldValue.passed = true;
       }
@@ -3696,8 +3696,9 @@ export class SurveyModel extends SurveyElementCore
     this.onCurrentPageChanged.fire(this, options);
   }
   private notifyQuestionsOnHidingContent(page: PageModel): void {
-    if (!page) return;
-    page.questions.forEach(q => q.onHidingContent());
+    if (page && !page.isDisposed) {
+      page.questions.forEach(q => q.onHidingContent());
+    }
   }
   private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel): any {
     const diff = !!newValue && !!oldValue ? newValue.visibleIndex - oldValue.visibleIndex : 0;

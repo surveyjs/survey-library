@@ -251,7 +251,7 @@ QUnit.test(
     survey.currentPageNo = 1;
     survey.showPreview();
     assert.equal(survey.visiblePages.length, 1, "We have one page");
-    assert.equal(survey.currentPage.elements.length, 4, "There is four panels");
+    assert.equal(survey.currentPage.elements.length, 2, "There are two pages");
     assert.equal(
       survey.getAllQuestions().length,
       4,
@@ -263,11 +263,8 @@ QUnit.test(
       "Questions are readonly"
     );
     survey.cancelPreview();
-    assert.equal(
-      survey.visiblePages.length,
-      4,
-      "We have one page per question"
-    );
+    assert.equal(survey.visiblePages.length, 2, "We two pages");
+    assert.equal(survey.currentSingleQuestion.name, "q1", "the single question is set correctly");
     assert.equal(survey.getAllPanels().length, 0, "There is no panels");
     assert.equal(
       survey.getAllQuestions().length,

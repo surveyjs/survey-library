@@ -1367,24 +1367,24 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   public updateRows(): void {
     if (this.isLoadingFromJson) return;
-    for (var i = 0; i < this.elements.length; i++) {
-      if (this.elements[i].isPanel) {
-        (<PanelModel>this.elements[i]).updateRows();
+    this.getElementsForRows().forEach(el => {
+      if(el.isPanel) {
+        (<PanelModel>el).updateRows();
       }
-    }
+    });
     this.onRowsChanged();
   }
   get rows(): Array<QuestionRowModel> {
     return this.getPropertyValue("rows");
   }
 
-  public ensureRowsVisibility() {
+  public ensureRowsVisibility(): void {
     this.rows.forEach((row) => {
       row.ensureVisibility();
     });
   }
 
-  protected onRowsChanged() {
+  protected onRowsChanged(): void {
     if (this.isLoadingFromJson) return;
     this.blockAnimations();
     this.setArrayPropertyDirectly("rows", this.buildRows());
@@ -1534,23 +1534,25 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  public canBuildRows() {
+  public canBuildRows(): boolean {
     return !this.isLoadingFromJson && this.getChildrenLayoutType() == "row";
   }
   private buildRows(): Array<QuestionRowModel> {
     if (!this.canBuildRows()) return [];
-    var result = new Array<QuestionRowModel>();
-    for (var i = 0; i < this.elements.length; i++) {
-      var el = this.elements[i];
-      var isNewRow = i == 0 || el.startWithNewLine;
-      var row = isNewRow ? this.createRowAndSetLazy(result.length) : result[result.length - 1];
-      if (isNewRow) result.push(row);
+    const res = new Array<QuestionRowModel>();
+    const els = this.getElementsForRows();
+    for (let i = 0; i < els.length; i++) {
+      const el = els[i];
+      const isNewRow = i == 0 || el.startWithNewLine;
+      const row = isNewRow ? this.createRowAndSetLazy(res.length) : res[res.length - 1];
+      if (isNewRow) res.push(row);
       row.addElement(el);
     }
-    for (var i = 0; i < result.length; i++) {
-      result[i].updateVisible();
-    }
-    return result;
+    res.forEach(row => row.updateVisible());
+    return res;
+  }
+  protected getElementsForRows(): Array<IElement> {
+    return this.elements;
   }
   public getDragDropInfo(): any {
     const page: PanelModelBase = <any>this.getPage(this.parent);
@@ -1561,10 +1563,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.updateRowsRemoveElementFromRow(element, this.findRowByElement(element));
     this.updateColumns();
   }
-  public updateRowsRemoveElementFromRow(
-    element: IElement,
-    row: QuestionRowModel
-  ) {
+  public updateRowsRemoveElementFromRow(element: IElement, row: QuestionRowModel): void {
     if (!row || !row.panel) return;
     var elIndex = row.elements.indexOf(element);
     if (elIndex < 0) return;

@@ -7478,18 +7478,73 @@ QUnit.test(
     assert.deepEqual(survey.getComment("q1"), "", "survey comment");
   }
 );
+QUnit.test("survey.questionsOnPageMode = 'questionOnPage', page rows & currentSingleQuestion", function (assert) {
+  const survey = twoPageSimplestSurvey();
+  const questions = survey.getAllQuestions(true);
+  survey.questionsOnPageMode = "questionOnPage";
+  assert.equal(survey.pages.length, 2, "We have the same number of pages");
+  assert.equal(survey.isSingleVisibleQuestion, true, "it is single visible question mode");
+  assert.equal(survey.currentSingleQuestion.name, questions[0].name, "currentSingleQuestion, #1");
+  assert.equal(survey.pages[0].rows.length, 1, "rows.length, #1");
+  assert.equal(survey.pages[0].rows[0].elements[0].name, questions[0].name, "rows element, #1");
+  assert.equal(survey.isShowPrevButton, false, "prev buttton, #1");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #1");
+  assert.equal(survey.isCompleteButtonVisible, false, "next buttton, #1");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, questions[1].name, "currentSingleQuestion, #2");
+  assert.equal(survey.pages[0].rows.length, 1, "rows.length, #2");
+  assert.equal(survey.pages[0].rows[0].elements[0].name, questions[1].name, "rows element, #2");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #2");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #2");
+  assert.equal(survey.isCompleteButtonVisible, false, "next buttton, #2");
+  survey.performNext();
+  assert.equal(survey.currentPage.name, "Page 2", "currentSingleQuestion, #3");
+  assert.equal(survey.currentSingleQuestion.name, questions[2].name, "currentSingleQuestion, #3");
+  assert.equal(survey.pages[1].rows.length, 1, "rows.length, #3");
+  assert.equal(survey.pages[1].rows[0].elements[0].name, questions[2].name, "rows element, #3");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #3");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #3");
+  assert.equal(survey.isCompleteButtonVisible, false, "next buttton, #3");
+  survey.performNext();
+  assert.equal(survey.currentPage.name, "Page 2", "currentSingleQuestion, #4");
+  assert.equal(survey.currentSingleQuestion.name, questions[3].name, "currentSingleQuestion, #4");
+  assert.equal(survey.pages[1].rows.length, 1, "rows.length, #4");
+  assert.equal(survey.pages[1].rows[0].elements[0].name, questions[3].name, "rows element, #4");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #4");
+  assert.equal(survey.isShowNextButton, false, "next buttton, #4");
+  assert.equal(survey.isCompleteButtonVisible, true, "next buttton, #4");
+  survey.performPrevious();
+  assert.equal(survey.currentPage.name, "Page 2", "currentSingleQuestion, #5");
+  assert.equal(survey.currentSingleQuestion.name, questions[2].name, "currentSingleQuestion, #5");
+  assert.equal(survey.pages[1].rows.length, 1, "rows.length, #5");
+  assert.equal(survey.pages[1].rows[0].elements[0].name, questions[2].name, "rows element, #5");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #5");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #5");
+  assert.equal(survey.isCompleteButtonVisible, false, "next buttton, #5");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, questions[1].name, "currentSingleQuestion, #6");
+  assert.equal(survey.pages[0].rows.length, 1, "rows.length, #6");
+  assert.equal(survey.pages[0].rows[0].elements[0].name, questions[1].name, "rows element, #6");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #6");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #6");
+  assert.equal(survey.isCompleteButtonVisible, false, "next buttton, #6");
+  survey.questionsOnPageMode = "standard";
+  assert.equal(survey.pages[1].rows.length, 2, "page1 standard rows.length");
+  assert.equal(survey.pages[1].rows.length, 2, "page2 standard rows.length");
+});
 
 QUnit.test("survey.questionsOnPageMode, property test", function (assert) {
   var survey = twoPageSimplestSurvey();
   var questions = survey.getAllQuestions();
   survey.questionsOnPageMode = "questionOnPage";
-  assert.equal(survey.pages.length, questions.length, "The number of pages equals to questions");
-  for (var i = 0; i < questions.length; i++) {
-    assert.equal(survey.pages[i].questions[0].name, questions[i].name, "questions set correctly per page");
-  }
-  survey.questionsOnPageMode = "standard";
-  assert.equal(survey.visiblePages.length, 2, "Origional pages, #1");
-  assert.equal(survey.visiblePages[0].questions.length, 2, "There are two questions on the origional first page, #1");
+  assert.equal(survey.pages.length, 2, "We have the same number of pages");
+  assert.equal(survey.isSingleVisibleQuestion, true, "it is single visible question mode");
+  assert.equal(survey.currentSingleQuestion.name, questions[0].name, "currentSingleQuestion, #1");
+  assert.equal(survey.pages[0].rows.length, 1, "rows.length, #1");
+  assert.equal(survey.pages[0].rows[0].elements[0].name, questions[0].name, "rows element, #1");
+  assert.equal(survey.isShowPrevButton, false, "prev buttton, #1");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #1");
+  assert.equal(survey.isCompleteButtonVisible, false, "next buttton, #1");
 
   survey.questionsOnPageMode = "singlePage";
   assert.equal(survey.visiblePages.length, 1, "We have one page");
@@ -7500,46 +7555,6 @@ QUnit.test("survey.questionsOnPageMode, property test", function (assert) {
   assert.equal(survey.visiblePages[0].questions.length, 2, "There are two questions on the origional first page, #2");
 });
 
-QUnit.test(
-  "survey.questionsOnPageMode=questionOnPage, make sure to copy properties from origional page",
-  function (assert) {
-    var survey = twoPageSimplestSurvey();
-    survey.pages[0].title = "Title 1";
-    survey.pages[1].title = "Title 2";
-    var questions = survey.getAllQuestions();
-    survey.questionsOnPageMode = "questionOnPage";
-    assert.equal(
-      survey.pages.length,
-      questions.length,
-      "The number of pages equals to questions"
-    );
-    assert.equal(
-      survey.pages[0].title,
-      "Title 1",
-      "Copy title from the first page"
-    );
-    assert.equal(
-      survey.pages[questions.length - 1].title,
-      "Title 2",
-      "Copy title from the second page"
-    );
-    for (var i = 0; i < survey.pages.length; i++) {
-      assert.equal(survey.pages[i].elements.length, 1, "One question per page");
-    }
-  }
-);
-QUnit.test("survey.questionsOnPageMode=questionOnPage, name pages better", function (assert) {
-  var survey = new SurveyModel({
-    elements: [
-      { type: "text", name: "firstName" },
-      { type: "text", name: "lastName" }
-    ]
-  });
-  survey.questionsOnPageMode = "questionOnPage";
-  assert.equal(survey.pages.length, 2, "Two pages");
-  assert.equal(survey.pages[0].name, "firstName", "first page name");
-  assert.equal(survey.pages[1].name, "lastName", "last page name");
-});
 QUnit.test(
   "survey.questionsOnPageMode=singlePage, defualt value and visibleIf",
   function (assert) {
@@ -13645,58 +13660,6 @@ QUnit.test("Do allow to set incrorect name", function (assert) {
     "Remove trailing space and { } from question"
   );
 });
-QUnit.test(
-  "setvaluetrigger doesn't work correctly for when questionsOnPageMode=questionPerPage and question in a panel, Bug#2328",
-  function (assert) {
-    var survey = new SurveyModel({
-      pages: [
-        {
-          name: "page1",
-          elements: [
-            {
-              type: "radiogroup",
-              name: "question2",
-              choices: ["item1", "item2", "item3"],
-            },
-            {
-              type: "panel",
-              name: "panel2",
-              elements: [
-                {
-                  type: "text",
-                  name: "question3",
-                },
-              ],
-              title: "panel2",
-            },
-          ],
-        },
-      ],
-      triggers: [
-        {
-          type: "setvalue",
-          expression: "{question2} notempty",
-          setToName: "question3",
-          setValue: "abcd",
-        },
-      ],
-      textUpdateMode: "onTyping",
-      questionsOnPageMode: "questionPerPage",
-    });
-    assert.ok(survey.getQuestionByName("question3"), "question3 is here");
-    var q3 = survey.visiblePages[1].questions[0];
-    assert.equal(q3.name, "question3", "Question name is correct");
-    assert.equal(q3.parent.name, "panel2", "Parent is correct for question3");
-    survey.setValue("question2", "item2");
-    survey.nextPage();
-    assert.equal(survey.getValue("question3"), "abcd", "Trigger set value");
-    assert.equal(
-      survey.getQuestionByName("question3").value,
-      "abcd",
-      "Trigger set question value"
-    );
-  }
-);
 QUnit.test(
   "comment doesn't set when storeOthersAsComment equals false, Bug#2353",
   function (assert) {

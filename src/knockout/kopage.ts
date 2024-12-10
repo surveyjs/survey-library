@@ -84,7 +84,6 @@ export class Panel extends PanelModel {
   constructor(name: string = "") {
     super(name);
     this.onCreating();
-    var self = this;
     this.koElementType = ko.observable("survey-panel");
   }
   protected onBaseCreating() {
@@ -106,10 +105,12 @@ export class Panel extends PanelModel {
 }
 
 export class Page extends PageModel {
+  koElementType: any;
   private _implementor: ImplementorBase;
   constructor(name: string = "") {
     super(name);
     this.onCreating();
+    this.koElementType = ko.observable("survey-panel");
   }
   protected onBaseCreating() {
     super.onBaseCreating();

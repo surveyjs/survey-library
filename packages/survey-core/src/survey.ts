@@ -4430,7 +4430,13 @@ export class SurveyModel extends SurveyElementCore
       if(!!val) {
         const page = <PageModel>val.page;
         page.updateRows();
-        this.currentPage = page;
+        if(page !== this.currentPage) {
+          this.currentPage = page;
+        } else {
+          if(this.focusFirstQuestionAutomatic) {
+            val.focus();
+          }
+        }
         this.updateButtonsVisibility();
       } else {
         this.visiblePages.forEach(page => page.updateRows());

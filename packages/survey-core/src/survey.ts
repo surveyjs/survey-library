@@ -4394,6 +4394,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private updatePagesContainer(showOnePage: boolean): void {
     if (this.isDesignMode) return;
+    this.getAllQuestions().forEach(q => q.updateElementVisibility());
     if (showOnePage) {
       const rootPage = Serializer.createClass("page");
       rootPage.name = "container";
@@ -4421,6 +4422,11 @@ export class SurveyModel extends SurveyElementCore
         this.changeCurrentPageFromPreview = false;
       }
     }
+    this.pages.forEach(page => {
+      if(page.hasShown) {
+        page.updateElementCss(true);
+      }
+    });
   }
   private currentSingleQuestionValue: Question;
   public get currentSingleQuestion(): Question { return this.currentSingleQuestionValue; }

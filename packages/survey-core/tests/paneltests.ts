@@ -3390,8 +3390,11 @@ QUnit.test("Nested pages", function (assert) {
   assert.equal(page1.isPage, false, "isPage #2");
   assert.equal(page1.isPanel, true, "isPanel #2");
   assert.equal(page1.getTemplate(), "panel", "template #2");
+  assert.equal(page1.survey.state, "running", "survey state #2");
   page1.parent = null;
   assert.equal(page1.isPage, true, "isPage #3");
   assert.equal(page1.isPanel, false, "isPanel #3");
   assert.equal(page1.getTemplate(), "page", "template #3");
+  assert.equal(page1.survey.state, "running", "survey state #3");
+  assert.equal(page1.isDisposed, false, "The page is not disposed");
 });

@@ -4408,6 +4408,7 @@ export class SurveyModel extends SurveyElementCore
       this.pageContainerValue = rootPage;
       this.currentPage = rootPage;
     } else {
+      this.setPropertyValue("currentPage", undefined);
       this.pages.forEach(page => page.parent = null);
       this.pageContainerValue.dispose();
       this.pageContainerValue = undefined;
@@ -4453,6 +4454,7 @@ export class SurveyModel extends SurveyElementCore
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
     if (this.isShowingPreview) return;
     if(this.isSinglePage || oldValue === "singlePage") {
+      this.currentSingleQuestion = undefined;
       this.updatePagesContainer(this.isSinglePage);
     } else if(this.isSingleVisibleQuestion || this.isSingleVisibleQuestionVal(oldValue)) {
       const questions = this.getAllQuestions(true);

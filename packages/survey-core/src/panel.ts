@@ -1465,7 +1465,9 @@ export class PanelModelBase extends SurveyElement<Question>
   protected onAddElement(element: IElement, index: number): void {
     const survey = this.survey;
     const fireNotification = this.canFireAddRemoveNotifications(element);
-    element.setSurveyImpl(this.surveyImpl);
+    if(!!this.surveyImpl) {
+      element.setSurveyImpl(this.surveyImpl);
+    }
     element.parent = this;
     this.markQuestionListDirty();
     if (this.canBuildRows()) {

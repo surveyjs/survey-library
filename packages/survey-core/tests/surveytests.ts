@@ -7528,9 +7528,19 @@ QUnit.test("survey.questionsOnPageMode = 'questionOnPage', page rows & currentSi
   assert.equal(survey.isShowPrevButton, true, "prev buttton, #6");
   assert.equal(survey.isShowNextButton, true, "next buttton, #6");
   assert.equal(survey.isCompleteButtonVisible, false, "next buttton, #6");
+
   survey.questionsOnPageMode = "standard";
   assert.equal(survey.pages[1].rows.length, 2, "page1 standard rows.length");
   assert.equal(survey.pages[1].rows.length, 2, "page2 standard rows.length");
+  assert.notOk(survey.currentSingleQuestion, "No current question in standard mode");
+
+  survey.questionsOnPageMode = "questionOnPage";
+  assert.equal(survey.pages.length, 2, "We have the same number of pages");
+  assert.equal(survey.currentSingleQuestion.name, questions[0].name, "currentSingleQuestion, #6");
+
+  survey.questionsOnPageMode = "singlePage";
+  assert.equal(survey.visiblePages.length, 1, "one visible page");
+  assert.notOk(survey.currentSingleQuestion, "No current question in single page");
 });
 QUnit.test("survey.questionsOnPageMode = 'questionOnPage' & survey.clear", function (assert) {
   const survey = twoPageSimplestSurvey();

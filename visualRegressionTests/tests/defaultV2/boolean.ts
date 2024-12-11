@@ -196,5 +196,36 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("boolean-switch-thumb-swapped-yes.png", questionRoot.nth(0), t, comparer);
     });
   });
+
+  test("Check boolean rtl", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "rtl");
+      })();
+
+      await initSurvey(framework, {
+          "elements": [
+            {
+              "type": "boolean",
+              "name": "slider",
+              "title": "Are you 21 or older?",
+              "description": "Display mode = Default (Slider)",
+              "valueTrue": "Yes",
+              "valueFalse": "No",
+              "defaultValue": "No"
+            }
+          ]
+      });
+
+      const questionRoot = Selector(".sd-question--boolean");
+      await takeElementScreenshot("boolean-question-rtl.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "ltr");
+      })();
+    });
+
+  });
 });
 

@@ -87,7 +87,23 @@
   transform: translateX(-100%);
 }
 
+[dir="rtl"] {
+  .sd-boolean__thumb {
+    left: calcSize(0.5);
+    right: unset;
+    transform: translateX(100%);
+  }
+
+  .sd-boolean--checked:not(.sd-boolean--exchanged) .sd-boolean__thumb,
+  .sd-boolean--exchanged:not(.sd-boolean--checked) .sd-boolean__thumb {
+    left: calcSize(0.5);
+    right: unset;
+    transform: translateX(0);
+  }
+}
+
 .sd-boolean--exchanged {
+
   &.sd-boolean:not(.sd-boolean--checked):not(sd-boolean--indeterminate) .sd-boolean__label--false,
   &.sd-boolean.sd-boolean--checked .sd-boolean__label--true {
     color: $font-editorfont-placeholdercolor;

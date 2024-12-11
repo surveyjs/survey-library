@@ -2,6 +2,8 @@
 
 This tool is designed to obfuscate survey JSON schemas by replacing titles, descriptions, placeholders, and other meaningful texts with randomized sequences of characters. The obfuscation may be useful if you need to attach a survey JSON schema to a bug report for investigation by the SurveyJS team and want to strip the schema of all sensitive data.
 
+![SurveyJS JSON Obfuscator](https://surveyjs.io/stay-updated/release-notes/articles/v1.12.14/json-obfuscator.png)
+
 Usage:
 
 1. Clone the `survey-library` GitHub repository.

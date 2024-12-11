@@ -7541,6 +7541,10 @@ QUnit.test("survey.questionsOnPageMode = 'questionOnPage', page rows & currentSi
   survey.questionsOnPageMode = "singlePage";
   assert.equal(survey.visiblePages.length, 1, "one visible page");
   assert.notOk(survey.currentSingleQuestion, "No current question in single page");
+
+  survey.questionsOnPageMode = "questionOnPage";
+  assert.equal(survey.pages.length, 2, "We have the same number of pages");
+  assert.equal(survey.currentSingleQuestion.name, questions[0].name, "currentSingleQuestion, #7");
 });
 QUnit.test("survey.questionsOnPageMode = 'questionOnPage' & survey.clear", function (assert) {
   const survey = twoPageSimplestSurvey();

@@ -24,15 +24,12 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
   }
   render(): React.JSX.Element | null {
     if (!this.item) return null;
-    const contentWrapStyle = {
-      paddingInlineStart: this.model.getItemIndent(this.item)
-    };
     const className = this.model.getItemClass(this.item);
     const itemContent = this.item.component || this.model.itemComponent;
     const newElement = ReactElementFactory.Instance.createElement(itemContent, { item: this.item, key: this.item.id, model: this.model });
     const contentWrap =
       <div
-        style={contentWrapStyle}
+        style={this.model.getItemStyle(this.item) as any}
         className={this.model.cssClasses.itemBody}
         title={this.item.locTitle.calculatedText}
         onMouseOver={(event: any) => { this.model.onItemHover(this.item); }}

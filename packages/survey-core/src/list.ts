@@ -268,9 +268,16 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       .toString();
   };
 
-  public getItemIndent = (itemValue: any) => {
+  // public getItemIndent = (itemValue: any) => {
+  //   const level: number = itemValue.level || 0;
+  //   return (level + 1) * ListModel.INDENT + "px";
+  // };
+
+  public getItemStyle = (itemValue: any) => {
     const level: number = itemValue.level || 0;
-    return (level + 1) * ListModel.INDENT + "px";
+    return {
+      "--sjs-list-item-level": level + 1
+    };
   };
 
   public get filterStringPlaceholder(): string {

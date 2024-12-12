@@ -4408,8 +4408,9 @@ export class SurveyModel extends SurveyElementCore
       this.currentPage = rootPage;
     } else {
       this.setPropertyValue("currentPage", undefined);
-      this.pages.forEach(page => page.parent = null);
-      this.pageContainerValue.dispose();
+      const cPage = this.pageContainerValue;
+      this.pages.forEach(page => cPage.removeElement(page));
+      cPage.dispose();
       this.pageContainerValue = undefined;
       let curPage = this.gotoPageFromPreview;
       this.gotoPageFromPreview = null;
@@ -4454,13 +4455,18 @@ export class SurveyModel extends SurveyElementCore
   private changeCurrentPageFromPreview: boolean;
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
     if (this.isShowingPreview) return;
-    if((this.isSinglePage || oldValue === "singlePage") && !this.isSingleVisibleQuestion) {
-      this.currentSingleQuestion = undefined;
-      this.updatePagesContainer(this.isSinglePage);
-    } else if(this.isSingleVisibleQuestion || this.isSingleVisibleQuestionVal(oldValue)) {
+    this.currentSingleQuestion = undefined;
+    if(oldValue === "singlePage") {
+      this.updatePagesContainer(false);
+    }
+    if(this.isSinglePage) {
+      this.updatePagesContainer(true);
+    }
+    if(this.isSingleVisibleQuestion) {
       const questions = this.getAllQuestions(true);
-      this.currentSingleQuestion = this.isSingleVisibleQuestion && questions.length > 0 ?
-        questions[0] : undefined;
+      if(questions.length > 0) {
+        this.currentSingleQuestion = questions[0];
+      }
     }
   }
   private getPageStartIndex(): number {

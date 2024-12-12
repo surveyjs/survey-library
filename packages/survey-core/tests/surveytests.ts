@@ -7533,18 +7533,22 @@ QUnit.test("survey.questionsOnPageMode = 'questionOnPage', page rows & currentSi
   assert.equal(survey.pages[1].rows.length, 2, "page1 standard rows.length");
   assert.equal(survey.pages[1].rows.length, 2, "page2 standard rows.length");
   assert.notOk(survey.currentSingleQuestion, "No current question in standard mode");
+  assert.equal(questions[0].page.name, "Page 1", "question1.page #1");
 
   survey.questionsOnPageMode = "questionOnPage";
   assert.equal(survey.pages.length, 2, "We have the same number of pages");
   assert.equal(survey.currentSingleQuestion.name, questions[0].name, "currentSingleQuestion, #6");
+  assert.equal(questions[0].page.name, "Page 1", "question1.page #2");
 
   survey.questionsOnPageMode = "singlePage";
   assert.equal(survey.visiblePages.length, 1, "one visible page");
   assert.notOk(survey.currentSingleQuestion, "No current question in single page");
+  assert.equal(questions[0].page.name, "container", "question1.page #3");
 
   survey.questionsOnPageMode = "questionOnPage";
   assert.equal(survey.pages.length, 2, "We have the same number of pages");
   assert.equal(survey.currentSingleQuestion.name, questions[0].name, "currentSingleQuestion, #7");
+  assert.equal(questions[0].page.name, "Page 1", "question1.page #4");
 });
 QUnit.test("survey.questionsOnPageMode = 'questionOnPage' & survey.clear", function (assert) {
   const survey = twoPageSimplestSurvey();
@@ -7573,10 +7577,12 @@ QUnit.test("survey.questionsOnPageMode, property test", function (assert) {
   survey.questionsOnPageMode = "singlePage";
   assert.equal(survey.visiblePages.length, 1, "We have one page");
   assert.equal(survey.currentPage.questions.length, questions.length, "All questions on single page");
+  assert.equal(questions[0].page.name, "container", "question1.page #1");
 
   survey.questionsOnPageMode = "standard";
   assert.equal(survey.visiblePages.length, 2, "Origional pages, #2");
   assert.equal(survey.visiblePages[0].questions.length, 2, "There are two questions on the origional first page, #2");
+  assert.equal(questions[0].page.name, "Page 1", "question1.page #2");
 });
 
 QUnit.test(

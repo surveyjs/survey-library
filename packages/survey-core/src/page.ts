@@ -59,6 +59,14 @@ export class PageModel extends PanelModel implements IPage {
       super.disposeElements();
     }
   }
+  protected onRemoveElement(element: IElement): void {
+    if(this.isPageContainer) {
+      element.parent = null;
+      this.unregisterElementPropertiesChanged(element);
+    } else {
+      super.onRemoveElement(element);
+    }
+  }
   public getTemplate(): string {
     return this.isPanel ? "panel" : super.getTemplate();
   }

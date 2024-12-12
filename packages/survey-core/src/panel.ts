@@ -1494,13 +1494,16 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   protected onRemoveElement(element: IElement): void {
     element.parent = null;
+    this.unregisterElementPropertiesChanged(element);
     this.markQuestionListDirty();
-    (<Base>(<any>element)).unregisterPropertyChangedHandlers(["visible", "isVisible", "startWithNewLine"], this.id);
     this.updateRowsOnElementRemoved(element);
     if (this.isRandomizing) return;
     this.onRemoveElementNotifySurvey(element);
     if (!!this.removeElementCallback) this.removeElementCallback(element);
     this.onElementVisibilityChanged(this);
+  }
+  protected unregisterElementPropertiesChanged(element: IElement): void {
+    (<Base>(<any>element)).unregisterPropertyChangedHandlers(["visible", "isVisible", "startWithNewLine"], this.id);
   }
   private onRemoveElementNotifySurvey(element: IElement): void {
     if(!this.canFireAddRemoveNotifications(element)) return;

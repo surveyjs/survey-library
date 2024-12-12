@@ -18,7 +18,7 @@ export class SurveyPanel extends SurveyPanelBase {
   public get panel(): PanelModel {
     return this.panelBase as PanelModel;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const header = this.renderHeader();
     const errors = (
       <SurveyElementErrors
@@ -31,15 +31,15 @@ export class SurveyPanel extends SurveyPanelBase {
       paddingLeft: this.panel.innerPaddingLeft,
       display: this.panel.renderedIsExpanded ? undefined : "none",
     };
-    let content: JSX.Element | null = null;
+    let content: React.JSX.Element | null = null;
     if (this.panel.renderedIsExpanded) {
       // this.hasBeenExpanded = true;
-      const rows: JSX.Element[] = this.renderRows(this.panelBase.cssClasses);
+      const rows: React.JSX.Element[] = this.renderRows(this.panelBase.cssClasses);
       const className: string = this.panelBase.cssClasses.panel.content;
       content = this.renderContent(style, rows, className);
     }
     const focusIn = () => {
-      if(this.panelBase) (this.panelBase as PanelModel).focusIn();
+      if (this.panelBase) (this.panelBase as PanelModel).focusIn();
     };
     return (
       <div
@@ -62,16 +62,16 @@ export class SurveyPanel extends SurveyPanelBase {
     }
     return <SurveyElementHeader element={this.panel}></SurveyElementHeader>;
   }
-  protected wrapElement(element: JSX.Element): JSX.Element {
+  protected wrapElement(element: React.JSX.Element): React.JSX.Element {
     const survey: SurveyModel = this.panel.survey as SurveyModel;
-    let wrapper: JSX.Element | null = null;
+    let wrapper: React.JSX.Element | null = null;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapElement(survey, element, this.panel);
     }
     return wrapper ?? element;
   }
-  protected renderContent(style: any, rows: JSX.Element[], className: string): JSX.Element {
-    const bottom: JSX.Element | null = this.renderBottom();
+  protected renderContent(style: any, rows: React.JSX.Element[], className: string): React.JSX.Element {
+    const bottom: React.JSX.Element | null = this.renderBottom();
     return (
       <div style={style} className={className} id={this.panel.contentId}>
         {rows}
@@ -79,18 +79,18 @@ export class SurveyPanel extends SurveyPanelBase {
       </div>
     );
   }
-  protected renderTitle(): JSX.Element | null {
+  protected renderTitle(): React.JSX.Element | null {
     if (!this.panelBase.title) return null;
     return <TitleElement element={this.panelBase}></TitleElement>;
   }
-  protected renderDescription(): JSX.Element | null {
+  protected renderDescription(): React.JSX.Element | null {
     if (!this.panelBase.description) return null;
     var text = SurveyElementBase.renderLocString(this.panelBase.locDescription);
     return (
       <div className={this.panel.cssClasses.panel.description}>{text}</div>
     );
   }
-  protected renderBottom(): JSX.Element | null {
+  protected renderBottom(): React.JSX.Element | null {
     const footerToolbar = this.panel.getFooterToolbar();
     if (!footerToolbar.hasActions) return null;
     return <SurveyActionBar model={footerToolbar}></SurveyActionBar>;

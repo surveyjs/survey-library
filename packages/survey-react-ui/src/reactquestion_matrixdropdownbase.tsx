@@ -23,7 +23,7 @@ import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-act
 import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { ReactElementFactory } from "./element-factory";
 
-class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMatrixDropdownModelBase, wrapCell: (cell: QuestionMatrixDropdownRenderedCell, element: JSX.Element, reason: string) => JSX.Element, creator: ISurveyCreator}, any> {
+class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMatrixDropdownModelBase, wrapCell: (cell: QuestionMatrixDropdownRenderedCell, element: React.JSX.Element, reason: string) => React.JSX.Element, creator: ISurveyCreator }, any> {
   protected get question() {
     return this.props.question;
   }
@@ -36,10 +36,10 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
   protected getStateElement() {
     return this.table;
   }
-  protected wrapCell(cell: QuestionMatrixDropdownRenderedCell, element: JSX.Element, reason: string): JSX.Element {
+  protected wrapCell(cell: QuestionMatrixDropdownRenderedCell, element: React.JSX.Element, reason: string): React.JSX.Element {
     return this.props.wrapCell(cell, element, reason);
   }
-  renderHeader(): JSX.Element | null {
+  renderHeader(): React.JSX.Element | null {
     const table = this.question.renderedTable;
     if (!table.showHeader) return null;
     const headers: any[] = [];
@@ -66,7 +66,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
       </thead>
     );
   }
-  renderFooter(): JSX.Element | null {
+  renderFooter(): React.JSX.Element | null {
     const table = this.question.renderedTable;
     if (!table.showFooter) return null;
     const row = this.renderRow(
@@ -77,9 +77,9 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     );
     return <tfoot>{row}</tfoot>;
   }
-  renderRows(): JSX.Element {
+  renderRows(): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
-    const rows:Array<JSX.Element> = [];
+    const rows: Array<React.JSX.Element> = [];
     const renderedRows = this.question.renderedTable.renderedRows;
     for (var i = 0; i < renderedRows.length; i++) {
       rows.push(
@@ -93,8 +93,8 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     row: QuestionMatrixDropdownRenderedRow,
     cssClasses: any,
     reason?: string
-  ): JSX.Element {
-    const matrixrow:Array<JSX.Element> = [];
+  ): React.JSX.Element {
+    const matrixrow: Array<React.JSX.Element> = [];
     const cells = row.cells;
 
     for (var i = 0; i < cells.length; i++) {
@@ -114,7 +114,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     index: number,
     cssClasses: any,
     reason?: string
-  ): JSX.Element {
+  ): React.JSX.Element {
     const key = "cell" + index;
     if (cell.hasQuestion) {
       return (
@@ -128,7 +128,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
       );
     }
     if (cell.isErrorsCell) {
-      if(cell.isErrorsCell) {
+      if (cell.isErrorsCell) {
         return (
           <SurveyQuestionMatrixDropdownErrorsCell
             cell={cell}
@@ -142,7 +142,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
       }
     }
     let calcReason = reason;
-    if(!calcReason) {
+    if (!calcReason) {
       calcReason = cell.hasTitle ? "row-header" : "";
     }
     const cellContent = this.renderCellContent(cell, calcReason, cssClasses);
@@ -168,8 +168,8 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     cell: QuestionMatrixDropdownRenderedCell,
     reason: string,
     cssClasses: any
-  ): JSX.Element | null {
-    let cellContent: JSX.Element | null = null;
+  ): React.JSX.Element | null {
+    let cellContent: React.JSX.Element | null = null;
     let cellStyle: any = null;
     if (!!cell.width || !!cell.minWidth) {
       cellStyle = {};
@@ -179,12 +179,12 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     if (cell.hasTitle) {
       reason = "row-header";
       const str = this.renderLocString(cell.locTitle);
-      const require = !!cell.column ? <SurveyQuestionMatrixHeaderRequired column={cell.column} question={this.question}/> : null;
+      const require = !!cell.column ? <SurveyQuestionMatrixHeaderRequired column={cell.column} question={this.question} /> : null;
       cellContent = (<>{str}{require}</>);
     }
     if (cell.isDragHandlerCell) {
       cellContent = (<>
-        <SurveyQuestionMatrixDynamicDragDropIcon item={{ data: { row: cell.row, question: this.question } }}/>
+        <SurveyQuestionMatrixDynamicDragDropIcon item={{ data: { row: cell.row, question: this.question } }} />
       </>);
     }
     if (cell.isActionsCell) {
@@ -215,7 +215,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     );
     return this.wrapCell(cell, readyCell, reason);
   }
-  protected renderElement(): JSX.Element | null {
+  protected renderElement(): React.JSX.Element | null {
     const header = this.renderHeader();
     const footers = this.renderFooter();
     const rows = this.renderRows();
@@ -254,12 +254,12 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   }
   componentWillUnmount(): void {
     super.componentWillUnmount();
-    this.question.onRenderedTableResetCallback = () => {};
+    this.question.onRenderedTableResetCallback = () => { };
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return this.renderTableDiv();
   }
-  renderTableDiv(): JSX.Element {
+  renderTableDiv(): React.JSX.Element {
     var divStyle = this.question.showHorizontalScroll
       ? ({ overflowX: "scroll" } as React.CSSProperties)
       : ({} as React.CSSProperties);
@@ -278,7 +278,7 @@ class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
   get model(): AdaptiveActionContainer {
     return this.props.model;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return (
       <SurveyActionBar model={this.model} handleClick={false}></SurveyActionBar>
     );
@@ -295,8 +295,8 @@ class SurveyQuestionMatrixDropdownErrorsCell extends SurveyQuestionErrorCell {
   protected get cell() {
     return this.props.cell;
   }
-  public render(): JSX.Element | null {
-    if(!this.cell.isVisible) return null;
+  public render(): React.JSX.Element | null {
+    if (!this.cell.isVisible) return null;
     return <td
       className={this.cell.className}
       key={this.key}
@@ -330,8 +330,8 @@ class SurveyQuestionMatrixHeaderRequired extends ReactSurveyElement {
   protected getStateElement(): Base {
     return this.column;
   }
-  protected renderElement(): JSX.Element | null {
-    if(!this.column.isRenderedRequired) return null;
+  protected renderElement(): React.JSX.Element | null {
+    if (!this.column.isRenderedRequired) return null;
     return (
       <>
         <span>&nbsp;</span>
@@ -397,8 +397,8 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   protected getHeaderText(): string {
     return this.cell.headers;
   }
-  protected renderElement(): JSX.Element | null {
-    if(!this.cell.isVisible) {
+  protected renderElement(): React.JSX.Element | null {
+    if (!this.cell.isVisible) {
       return null;
     }
     return super.renderElement();
@@ -411,20 +411,20 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
       {content}
     </>;
   }
-  protected renderQuestion(): JSX.Element {
-    if(!this.question.isVisible) return <></>;
+  protected renderQuestion(): React.JSX.Element {
+    if (!this.question.isVisible) return <></>;
     if (!this.cell.isChoice)
       return SurveyQuestion.renderQuestionBody(this.creator, this.question);
     if (this.cell.isOtherChoice) return this.renderOtherComment();
     if (this.cell.isCheckbox) return this.renderCellCheckboxButton();
     return this.renderCellRadiogroupButton();
   }
-  private renderOtherComment(): JSX.Element {
+  private renderOtherComment(): React.JSX.Element {
     const question = this.cell.question;
     const cssClasses = question.cssClasses || {};
     return <SurveyQuestionOtherValueItem question={question} cssClasses={cssClasses} otherCss={cssClasses.other} isDisplayMode={question.isInputReadOnly} />;
   }
-  private renderCellCheckboxButton(): JSX.Element {
+  private renderCellCheckboxButton(): React.JSX.Element {
     var key = this.cell.question.id + "item" + this.cell.choiceIndex;
     return (
       <SurveyQuestionCheckboxItem
@@ -439,7 +439,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
       />
     );
   }
-  private renderCellRadiogroupButton(): JSX.Element {
+  private renderCellRadiogroupButton(): React.JSX.Element {
     var key = this.cell.question.id + "item" + this.cell.choiceIndex;
     return (
       <SurveyQuestionRadioItem

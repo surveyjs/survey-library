@@ -37,11 +37,11 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   protected getValueCore(): any {
     return this.questionBase.renderedValue;
   }
-  protected renderReadOnlyElement(): JSX.Element | null {
+  protected renderReadOnlyElement(): React.JSX.Element | null {
     return <div>{this.question.readOnlyText}</div>;
   }
-  protected renderSelect(cssClasses: any): JSX.Element {
-    let selectElement: JSX.Element | null = null;
+  protected renderSelect(cssClasses: any): React.JSX.Element {
+    let selectElement: React.JSX.Element | null = null;
     if (this.question.isReadOnly) {
       const text = (this.question.selectedItemLocText) ? this.renderLocString(this.question.selectedItemLocText) : "";
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -70,7 +70,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     );
   }
 
-  renderValueElement(dropdownListModel: DropdownListModel): JSX.Element | null {
+  renderValueElement(dropdownListModel: DropdownListModel): React.JSX.Element | null {
     if (this.question.showInputFieldComponent) {
       return ReactElementFactory.Instance.createElement(this.question.inputFieldComponentName, { item: dropdownListModel.getSelectedAction(), question: this.question });
     } else if (this.question.showSelectedItemLocText) {
@@ -79,8 +79,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     return null;
   }
 
-  protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
-    let valueElement: JSX.Element | null = this.renderValueElement(dropdownListModel);
+  protected renderInput(dropdownListModel: DropdownListModel): React.JSX.Element {
+    let valueElement: React.JSX.Element | null = this.renderValueElement(dropdownListModel);
     const { root } = settings.environment;
 
     const onInputChange = (e: any) => {
@@ -144,7 +144,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     </div>);
   }
 
-  createClearButton(): JSX.Element | null {
+  createClearButton(): React.JSX.Element | null {
     if (!this.question.allowClear || !this.question.cssClasses.cleanButtonIconId) return null;
 
     const style = { display: !this.question.showClearButton ? "none" : "" };
@@ -165,7 +165,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     );
   }
 
-  createChevronButton(): JSX.Element | null {
+  createChevronButton(): React.JSX.Element | null {
     if (!this.question.cssClasses.chevronButtonIconId) return null;
 
     return (
@@ -181,7 +181,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     );
   }
 
-  protected renderOther(cssClasses: any): JSX.Element {
+  protected renderOther(cssClasses: any): React.JSX.Element {
     return (
       <div className={this.question.getCommentAreaCss(true)}>
         <SurveyQuestionOtherValueItem

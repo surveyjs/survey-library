@@ -8,7 +8,7 @@ export class SurveyElementHeader extends React.Component<any, any> {
   private get element(): Question | PanelModel {
     return this.props.element;
   }
-  public render(): JSX.Element {
+  public render(): React.JSX.Element {
     const element = this.element;
     const title = element.hasTitle ? (
       <TitleElement element={element}></TitleElement>
@@ -20,7 +20,7 @@ export class SurveyElementHeader extends React.Component<any, any> {
     const additionalTitleToolbarElement = element.hasAdditionalTitleToolbar ? <SurveyActionBar model={element.additionalTitleToolbar}></SurveyActionBar> : null;
 
     const headerStyle: any = { width: undefined };
-    if(element instanceof Question) {
+    if (element instanceof Question) {
       headerStyle.width = element.titleWidth;
     }
 

@@ -34,7 +34,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
     this.survey.locLogo.onChanged = function () { };
   }
 
-  private renderTitle(): JSX.Element | null {
+  private renderTitle(): React.JSX.Element | null {
     if (!this.survey.renderedHasTitle) return null;
     const description = SurveyElementBase.renderLocString(
       this.survey.locDescription
@@ -50,7 +50,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
     );
   }
 
-  private renderLogoImage(isRender: boolean): JSX.Element | null {
+  private renderLogoImage(isRender: boolean): React.JSX.Element | null {
     if (!isRender) return null;
     const componentName: string = this.survey.getElementWrapperComponentName(
       this.survey,
@@ -64,7 +64,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
       data: componentData,
     });
   }
-  public render(): JSX.Element | null {
+  public render(): React.JSX.Element | null {
     if (!this.survey.renderedHasHeader) return null;
     return (
       <div className={this.css.header} ref={this.rootRef}>

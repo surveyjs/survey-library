@@ -11,12 +11,12 @@ export class SurveyQuestionCustom extends SurveyQuestionUncontrolledElement<Ques
   }
   protected getStateElements(): Array<Base> {
     const res = super.getStateElements();
-    if(!!this.question.contentQuestion) {
+    if (!!this.question.contentQuestion) {
       res.push(this.question.contentQuestion);
     }
     return res;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return SurveyQuestion.renderQuestionBody(
       this.creator,
       this.question.contentQuestion
@@ -31,7 +31,7 @@ export class SurveyQuestionComposite extends SurveyQuestionUncontrolledElement<Q
   protected canRender(): boolean {
     return !!this.question.contentPanel;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return (
       <SurveyPanel
         element={this.question.contentPanel}

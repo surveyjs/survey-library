@@ -7,7 +7,7 @@ export class SurveyQuestionPanelDynamicNextButton extends SurveyQuestionPanelDyn
   protected handleClick = (event: any) => {
     this.question.goToNextPanel();
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return (
       <div title={this.question.panelNextText} onClick={this.handleClick} className={this.question.getNextButtonCss()}>
         <SvgIcon

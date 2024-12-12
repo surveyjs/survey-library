@@ -14,7 +14,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     return this.questionBase as QuestionRankingModel;
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
 
     if (!this.question.selectToRankEnabled) {
       return (
@@ -49,7 +49,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
   }
 
   protected getItems(choices: any = this.question.renderedRankingChoices, unrankedItem?: boolean): Array<any> {
-    const items: Array<JSX.Element> = [];
+    const items: Array<React.JSX.Element> = [];
     for (let i = 0; i < choices.length; i++) {
       const item = choices[i];
       items.push(
@@ -99,9 +99,9 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     itemClass: string,
     question: QuestionRankingModel,
     unrankedItem?: boolean
-  ): JSX.Element {
+  ): React.JSX.Element {
     const key: string = "id-" + item.renderedId;
-    const text: JSX.Element = this.renderLocString(item.locText);
+    const text: React.JSX.Element = this.renderLocString(item.locText);
     const index = i;
     const indexText: string = this.question.getNumberByIndex(index);
     const tabIndex: number = this.question.getItemTabIndex(item);
@@ -124,7 +124,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
       />
     );
     const survey = this.question.survey as SurveyModel;
-    let wrappedItem: JSX.Element | null = null;
+    let wrappedItem: React.JSX.Element | null = null;
     if (!!survey) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
@@ -170,7 +170,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
     return this.props.item;
   }
 
-  protected renderEmptyIcon(): JSX.Element {
+  protected renderEmptyIcon(): React.JSX.Element {
     return (
       <svg>
         <use xlinkHref={this.question.dashSvgIcon}></use>
@@ -178,7 +178,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
     );
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     let itemContent = ReactElementFactory.Instance.createElement(this.question.itemComponent, { item: this.item, cssClasses: this.cssClasses });
     return (
       <div
@@ -225,7 +225,7 @@ export class SurveyQuestionRankingItemContent extends ReactSurveyElement {
     return this.props.cssClasses;
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return <div className={this.cssClasses.controlLabel}>{SurveyElementBase.renderLocString(this.item.locText)}</div>;
   }
 }

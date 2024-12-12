@@ -9,7 +9,7 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
     super(props);
   }
 
-  protected renderSelect(cssClasses: any): JSX.Element {
+  protected renderSelect(cssClasses: any): React.JSX.Element {
     const click = (event: any) => {
       this.question.onClick(event);
     };

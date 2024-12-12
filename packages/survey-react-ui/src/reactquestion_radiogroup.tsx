@@ -13,9 +13,9 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   protected get question(): QuestionRadiogroupModel {
     return this.questionBase as QuestionRadiogroupModel;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var clearButton: JSX.Element | null = null;
+    var clearButton: React.JSX.Element | null = null;
     if (this.question.showClearButtonInContent) {
       clearButton = (
         <div>
@@ -81,7 +81,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     });
   }
 
-  protected getBody(cssClasses: any): JSX.Element {
+  protected getBody(cssClasses: any): React.JSX.Element {
     if (this.question.blockedRow) {
       return <div className={cssClasses.rootRow}>{this.getItems(cssClasses, this.question.dataChoices)}</div>;
     }
@@ -89,7 +89,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
 
   protected getItems(cssClasses: any, choices: Array<ItemValue>): Array<any> {
-    var items: Array<JSX.Element> = [];
+    var items: Array<React.JSX.Element> = [];
     var value = this.getStateValue();
     for (var i = 0; i < choices.length; i++) {
       var item = choices[i];
@@ -101,7 +101,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   protected get textStyle(): any {
     return null;//{ display: "inline", position: "static" };
   }
-  protected renderOther(cssClasses: any): JSX.Element {
+  protected renderOther(cssClasses: any): React.JSX.Element {
     return (
       <div className={this.question.getCommentAreaCss(true)}>
         <SurveyQuestionOtherValueItem
@@ -118,7 +118,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     value: any,
     cssClasses: any,
     index?: string
-  ): JSX.Element {
+  ): React.JSX.Element {
     const renderedItem = ReactElementFactory.Instance.createElement(this.question.itemComponent, {
       key: item.value,
       question: this.question,
@@ -130,7 +130,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       isChecked: value === item.value,
     });
     const survey = this.question.survey as SurveyModel;
-    let wrappedItem: JSX.Element | null = null;
+    let wrappedItem: React.JSX.Element | null = null;
     if (!!survey) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
@@ -193,16 +193,16 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   public componentDidUpdate(prevProps: any, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
     if (prevProps.item !== this.props.item && !this.question.isDesignMode) {
-      if(this.props.item) {
+      if (this.props.item) {
         this.props.item.setRootElement(this.rootRef.current);
       }
-      if(prevProps.item) {
+      if (prevProps.item) {
         prevProps.item.setRootElement(undefined);
       }
     }
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var itemClass = this.question.getItemClass(this.item);
     var labelClass = this.question.getLabelClass(this.item);
     var controlLabelClass = this.question.getControlLabelClass(this.item);
@@ -247,13 +247,13 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   }
   componentDidMount(): void {
     super.componentDidMount();
-    if(!this.question.isDesignMode) {
+    if (!this.question.isDesignMode) {
       this.item.setRootElement(this.rootRef.current as HTMLElement);
     }
   }
   public componentWillUnmount(): void {
     super.componentWillUnmount();
-    if(!this.question.isDesignMode) {
+    if (!this.question.isDesignMode) {
       this.item.setRootElement(undefined as any);
     }
   }

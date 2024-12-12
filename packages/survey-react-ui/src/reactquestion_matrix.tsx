@@ -20,7 +20,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     super.componentDidMount();
     if (this.question) {
       var self = this;
-      this.question.visibleRowsChangedCallback = function() {
+      this.question.visibleRowsChangedCallback = function () {
         self.setState({ rowsChanged: self.state.rowsChanged + 1 });
       };
     }
@@ -32,10 +32,10 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     }
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
     var rowsTH = this.question.hasRows ? <td /> : null;
-    var headers:Array<JSX.Element> = [];
+    var headers: Array<React.JSX.Element> = [];
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
       var column = this.question.visibleColumns[i];
       var key = "column" + i;
@@ -51,7 +51,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         </th>
       );
     }
-    var rows:Array<JSX.Element> = [];
+    var rows: Array<React.JSX.Element> = [];
     var visibleRows = this.question.visibleRows;
     for (var i = 0; i < visibleRows.length; i++) {
       var row = visibleRows[i];
@@ -96,7 +96,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     super(props);
   }
   protected getStateElement(): Base | null {
-    if(!!this.row) return this.row.item;
+    if (!!this.row) return this.row.item;
     return super.getStateElement();
   }
   private get question(): QuestionMatrixModel {
@@ -105,12 +105,12 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   private get row(): MatrixRowModel {
     return this.props.row;
   }
-  protected wrapCell(cell: any, element: JSX.Element, reason: string): JSX.Element {
-    if(!reason) {
+  protected wrapCell(cell: any, element: React.JSX.Element, reason: string): React.JSX.Element {
+    if (!reason) {
       return element;
     }
     const survey: SurveyModel = this.question.survey as SurveyModel;
-    let wrapper: JSX.Element | null = null;
+    let wrapper: React.JSX.Element | null = null;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, reason);
     }
@@ -119,8 +119,8 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.row;
   }
-  protected renderElement(): JSX.Element {
-    var rowsTD: JSX.Element | null = null;
+  protected renderElement(): React.JSX.Element {
+    var rowsTD: React.JSX.Element | null = null;
 
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
@@ -143,12 +143,12 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     );
   }
 
-  generateTds(): Array<JSX.Element> {
-    const tds:Array<JSX.Element> = [];
+  generateTds(): Array<React.JSX.Element> {
+    const tds: Array<React.JSX.Element> = [];
     const row = this.row;
     const cellComponent = this.question.cellComponent;
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
-      let td: JSX.Element | null = null;
+      let td: React.JSX.Element | null = null;
       const column = this.question.visibleColumns[i];
       const key = "value" + i;
 
@@ -159,7 +159,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
           <td
             key={key}
             className={itemClass}
-            onClick={getHandler ? getHandler(column) : () => {}}
+            onClick={getHandler ? getHandler(column) : () => { }}
           >
             {this.renderLocString(
               this.question.getCellDisplayLocText(row.name, column)
@@ -195,7 +195,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
     this.handleOnChange = this.handleOnChange.bind(this);
   }
   handleOnChange(event: any): void {
-    if(!!this.props.cellChanged) {
+    if (!!this.props.cellChanged) {
       this.props.cellChanged();
     }
   }
@@ -217,7 +217,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.question && !!this.row;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const isChecked = this.row.value == this.column.value;
     const inputId = this.question.inputId + "_" + this.row.name + "_" + this.columnIndex;
     const itemClass = this.question.getItemClass(this.row, this.column);
@@ -239,7 +239,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
       {mobileSpan}
     </label>);
   }
-  protected renderInput(inputId: string, isChecked: boolean): JSX.Element {
+  protected renderInput(inputId: string, isChecked: boolean): React.JSX.Element {
     return (<input
       id={inputId}
       type="radio"

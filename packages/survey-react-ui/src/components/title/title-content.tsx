@@ -14,13 +14,13 @@ export class TitleContent extends React.Component<any, any> {
   private get element(): SurveyElementCore {
     return this.props.element;
   }
-  render(): JSX.Element {
-    if(this.element.isTitleRenderedAsString)
+  render(): React.JSX.Element {
+    if (this.element.isTitleRenderedAsString)
       return SurveyElementBase.renderLocString(this.element.locTitle);
     var spans = this.renderTitleSpans(this.element.getTitleOwner(), this.cssClasses);
     return <>{spans}</>;
   }
-  protected renderTitleSpans(element: ITitleOwner, cssClasses: any): Array<JSX.Element> {
+  protected renderTitleSpans(element: ITitleOwner, cssClasses: any): Array<React.JSX.Element> {
     var getSpaceSpan = (key: any) => {
       return (
         <span data-key={key} key={key}>
@@ -28,7 +28,7 @@ export class TitleContent extends React.Component<any, any> {
         </span>
       );
     };
-    var spans: Array<JSX.Element> = [];
+    var spans: Array<React.JSX.Element> = [];
     if (element.isRequireTextOnStart) {
       spans.push(this.renderRequireText(element));
       spans.push(getSpaceSpan("req-sp"));
@@ -62,7 +62,7 @@ export class TitleContent extends React.Component<any, any> {
     return spans;
   }
 
-  private renderRequireText(element: ITitleOwner): JSX.Element {
+  private renderRequireText(element: ITitleOwner): React.JSX.Element {
     return (
       <span
         data-key={"req-text"}

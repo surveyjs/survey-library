@@ -68,7 +68,7 @@ export const initSurvey = ClientFunction(
       if(!!window.root) {
         window.root.unmount();
       }
-      const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
+      const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
         React.createElement(React.StrictMode, { children: React.createElement(SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
@@ -130,7 +130,7 @@ export const initSurveyPopup = ClientFunction(
       if(!!window.root) {
         window.root.unmount();
       }
-      const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
+      const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
         React.createElement(React.StrictMode, { children: React.createElement(SurveyReact.PopupSurvey,

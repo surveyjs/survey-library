@@ -14,7 +14,7 @@ const json = {
 const disposeSurvey = ClientFunction(framework => {
   window["survey"].dispose();
   if (framework === "react") {
-    window["ReactDOM"].unmountComponentAtNode(document.getElementById("surveyElement"));
+    window["ReactDOMClient"].unmountComponentAtNode(document.getElementById("surveyElement"));
   }
 });
 

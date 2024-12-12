@@ -7,7 +7,7 @@ import { SvgIcon } from "../svg-icon/svg-icon";
 import { IRatingItemProps, RatingItemBase } from "./rating-item";
 
 export class RatingItemSmiley extends RatingItemBase {
-  render(): JSX.Element | null {
+  render(): React.JSX.Element | null {
     return (
       <label onMouseDown={this.handleOnMouseDown}
         style={this.question.getItemStyle(this.item.itemValue, this.item.highlight) as any}

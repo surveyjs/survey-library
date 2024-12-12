@@ -32,9 +32,7 @@
   float: left;
 }
 
-[dir="rtl"],
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
+:dir(rtl) {
   .sv-footer__complete-btn {
     float: left;
   }

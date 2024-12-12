@@ -114,7 +114,7 @@ $header-background-color: #e7e7e7;
   float: left;
 }
 
-[dir="rtl"] .sv_q_mt_item_value {
+:dir(rtl) .sv_q_mt_item_value {
   float: right;
 }
 
@@ -128,7 +128,7 @@ $header-background-color: #e7e7e7;
   max-width: 50%;
 }
 
-[dir="rtl"] .sv_qstn .title-left {
+:dir(rtl) .sv_qstn .title-left {
   float: right;
   margin-left: 1em;
 }
@@ -613,7 +613,7 @@ f-panel {
   left: 25px;
 }
 
-[dir="rtl"] .sv-ranking-item__ghost {
+:dir(rtl) .sv-ranking-item__ghost {
   left: initilal;
   right: 25px;
 }
@@ -832,35 +832,35 @@ f-panel {
   margin-left: calc(100% - 20px);
 }
 
-[dir="rtl"] .sv-boolean__label {
+:dir(rtl) .sv-boolean__label {
   float: right;
 }
 
-[dir="rtl"] .sv-boolean--indeterminate .sv-boolean__slider {
+:dir(rtl) .sv-boolean--indeterminate .sv-boolean__slider {
   margin-right: calc(50% - 0.625em);
 }
 
-[dir="rtl"] .sv-boolean--checked .sv-boolean__slider {
+:dir(rtl) .sv-boolean--checked .sv-boolean__slider {
   margin-right: calc(100% - 1.25em);
 }
 
-[dir="rtl"] .sv-boolean__switch {
+:dir(rtl) .sv-boolean__switch {
   float: right;
 }
 
-[style*="direction:rtl"] .sv-boolean__label {
+:dir(rtl) .sv-boolean__label {
   float: right;
 }
 
-[style*="direction:rtl"] .sv-boolean--indeterminate .sv-boolean__slider {
+:dir(rtl) .sv-boolean--indeterminate .sv-boolean__slider {
   margin-right: calc(50% - 0.625em);
 }
 
-[style*="direction:rtl"] .sv-boolean--checked .sv-boolean__slider {
+:dir(rtl) .sv-boolean--checked .sv-boolean__slider {
   margin-right: calc(100% - 1.25em);
 }
 
-[style*="direction:rtl"] .sv-boolean__switch {
+:dir(rtl) .sv-boolean__switch {
   float: right;
 }
 

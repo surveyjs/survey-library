@@ -1,8 +1,9 @@
-﻿[dir="rtl"] .sv_main, [style*="direction:rtl"] .sv_main {
+﻿:dir(rtl) .sv_main {
 
   input {
     text-align: right;
   }
+
   th {
     text-align: right;
   }
@@ -18,6 +19,7 @@
         .sv_complete_btn {
           float: left;
         }
+
         .sv_prev_btn {
           float: right;
         }

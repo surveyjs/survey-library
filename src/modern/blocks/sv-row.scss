@@ -19,9 +19,7 @@
     }
   }
 
-  [dir="rtl"],
-  [style*="direction:rtl"],
-  [style*="direction: rtl"] {
+  :dir(rtl) {
     .sv-row__question:not(:last-child) {
       float: right;
     }
@@ -77,9 +75,7 @@
 //     float: none;
 //   }
 // }
-// [dir="rtl"],
-// [style*="direction:rtl"],
-// [style*="direction: rtl"] {
+// :dir(rtl) {
 //   .sv-row__question:not(:last-child) {
 //     float: right;
 //   }

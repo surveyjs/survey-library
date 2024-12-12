@@ -305,10 +305,7 @@
   margin: auto;
 }
 
-[dir="rtl"],
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
-
+:dir(rtl) {
   .sd-progress-buttons__list {
     li {
       &:not(:first-child)>.sd-progress-buttons__connector {

@@ -26,9 +26,7 @@
   min-height: 30px;
 }
 
-[dir="rtl"],
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
+:dir(rtl) {
   .sv-selectbase__label {
     margin-right: 41px;
     margin-left: 0;
@@ -40,9 +38,7 @@
   left: -41px;
 }
 
-[dir="rtl"],
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
+:dir(rtl) {
   .sv-selectbase__decorator.sv-item__decorator {
     left: initial;
     right: -41px;

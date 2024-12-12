@@ -71,9 +71,7 @@
   margin-right: 0.875em;
 }
 
-[dir="rtl"],
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
+:dir(rtl) {
   .sv-question__header--location--left {
     float: right;
   }

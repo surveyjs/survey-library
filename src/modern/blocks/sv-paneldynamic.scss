@@ -11,9 +11,7 @@
   margin-top: -18px;
 }
 
-[dir="rtl"],
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
+:dir(rtl) {
   .sv-paneldynamic__add-btn {
     float: left;
   }
@@ -91,7 +89,7 @@
   margin-top: 1em;
 }
 
-.sv-paneldynamic__panel-wrapper ~ .sv-paneldynamic__panel-wrapper {
+.sv-paneldynamic__panel-wrapper~.sv-paneldynamic__panel-wrapper {
   padding-top: 2.5em;
 }
 

@@ -83,14 +83,14 @@
 }
 
 .sv-list__item:focus .sv-list__item-body,
-.sv-list__item--hovered > .sv-list__item-body {
+.sv-list__item--hovered>.sv-list__item-body {
   background-color: $background-dark;
 }
 
 .sv-list__item--with-icon.sv-list__item--with-icon {
   padding: 0;
 
-  & > .sv-list__item-body {
+  &>.sv-list__item-body {
     padding-top: calcSize(1.5);
     padding-bottom: calcSize(1.5);
     gap: calcSize(2);
@@ -131,9 +131,7 @@
   }
 }
 
-[dir="rtl"],
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
+:dir(rtl) {
   .sv-list__item-icon {
     float: right;
   }
@@ -156,7 +154,7 @@
 .sv-list__item.sv-list__item--selected.sv-list__item--focused,
 .sv-multi-select-list .sv-list__item.sv-list__item--selected.sv-list__item--focused,
 li:focus .sv-list__item.sv-list__item--selected {
-  & > .sv-list__item-body {
+  &>.sv-list__item-body {
     background-color: $primary;
     color: $primary-foreground;
     font-weight: 600;
@@ -180,7 +178,7 @@ li:focus .sv-list__item.sv-list__item--selected {
   }
 }
 
-.sv-list__item--group-selected > .sv-list__item-body {
+.sv-list__item--group-selected>.sv-list__item-body {
   background-color: $primary-light;
   color: $font-questiontitle-color;
   font-weight: 400;

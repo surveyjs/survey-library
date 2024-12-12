@@ -20808,6 +20808,27 @@ QUnit.test("Check questionsOnPageMode is 'singlePage' & buttons visibility", fun
   assert.equal(survey.isShowPrevButton, false, "Prev button is hidden");
   assert.equal(survey.isCompleteButtonVisible, true, "Complete button is visible");
 });
+
+QUnit.skip("Check questionsOnPageMode is 'singlePage' & showPreview", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [{
+      "elements": [{
+        "type": "text",
+        "name": "q1"
+      }
+      ]
+    },
+    {
+      "elements": [{
+        "type": "text",
+        "name": "q2"
+      }] }],
+    "questionsOnPageMode": "singlePage"
+  });
+  survey.showPreview();
+  assert.equal(survey.visiblePageCount, 1, "There is one visible page");
+});
+
 QUnit.test("The Start Page has -1 index when enabling auto-numeration for survey pages, Bug#8983", function (assert) {
   const survey = new SurveyModel({
     "pages": [{

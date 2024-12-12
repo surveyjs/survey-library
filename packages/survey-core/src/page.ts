@@ -205,14 +205,15 @@ export class PageModel extends PanelModel implements IPage {
     }
     return classes;
   }
-  public get cssTitle(): string {
+  protected getCssPanelTitle(): string {
+    if(this.isPanel) return super.getCssPanelTitle();
     if(!this.cssClasses.page) return "";
     return new CssClassBuilder()
       .append(this.cssClasses.page.title)
       .toString();
   }
   public get cssRoot(): string {
-    if(!this.cssClasses.page || !this.survey) return "";
+    if(this.isPanel || !this.cssClasses.page || !this.survey) return "";
     return new CssClassBuilder()
       .append(this.cssClasses.page.root)
       .append(this.cssClasses.page.emptyHeaderRoot, !(<any>this.survey).renderedHasHeader &&
@@ -220,6 +221,7 @@ export class PageModel extends PanelModel implements IPage {
       .toString();
   }
   protected getCssError(cssClasses: any): string {
+    if(this.isPanel) return super.getCssError(cssClasses);
     return new CssClassBuilder()
       .append(super.getCssError(cssClasses))
       .append(cssClasses.page.errorsContainer).toString();

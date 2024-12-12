@@ -2340,6 +2340,9 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.survey.cancelPreviewByPage(this);
   }
   public get cssTitle(): string {
+    return this.getCssPanelTitle();
+  }
+  protected getCssPanelTitle(): string {
     return this.getCssTitle(this.cssClasses.panel);
   }
   public getCssTitleExpandableSvg(): string {
@@ -2350,6 +2353,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return this.isDefaultV2Theme && !this.showPanelAsPage;
   }
   protected getCssError(cssClasses: any): string {
+    if(this.isPage) return super.getCssError(cssClasses);
     const builder = new CssClassBuilder()
       .append(super.getCssError(cssClasses))
       .append(cssClasses.panel.errorsContainer);

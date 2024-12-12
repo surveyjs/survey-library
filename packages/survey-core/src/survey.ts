@@ -4429,7 +4429,6 @@ export class SurveyModel extends SurveyElementCore
         page.updateElementCss(true);
       }
     });
-    this.updateButtonsVisibility();
   }
   private currentSingleQuestionValue: Question;
   public get currentSingleQuestion(): Question { return this.currentSingleQuestionValue; }

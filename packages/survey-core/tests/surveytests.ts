@@ -7631,6 +7631,9 @@ QUnit.test(
       ["item1"],
       "Set default value into rendered value"
     );
+    survey.data = {};
+    q1.isRequired = true;
+    assert.equal(survey.completeLastPage(), false, "You can't complete the last page");
   }
 );
 

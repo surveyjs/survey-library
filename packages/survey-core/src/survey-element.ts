@@ -1115,7 +1115,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected getAdditionalTitleToolbar(): ActionContainer | null {
     return null;
   }
-  protected getCssTitle(cssClasses: any) {
+  protected getCssTitle(cssClasses: any): string {
+    if(!cssClasses) return "";
     const isExpandable = this.state !== "default";
     const numInlineLimit = 4;
     return new CssClassBuilder()

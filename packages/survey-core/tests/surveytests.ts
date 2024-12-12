@@ -20788,6 +20788,26 @@ QUnit.test("Check questionsOnPageMode is 'singlePage' on switching locales, Bug#
   assert.equal((<PanelModel>panels[0]).hasTitle, true, "panels[0], locale ''");
   assert.equal((<PanelModel>panels[1]).hasTitle, true, "panels[1], locale ''");
 });
+QUnit.test("Check questionsOnPageMode is 'singlePage' & buttons visibility", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [{
+      "elements": [{
+        "type": "text",
+        "name": "q1"
+      }
+      ]
+    },
+    {
+      "elements": [{
+        "type": "text",
+        "name": "q2"
+      }] }],
+    "questionsOnPageMode": "singlePage",
+  });
+  assert.equal(survey.isShowNextButton, false, "Next button is hidden");
+  assert.equal(survey.isShowPrevButton, false, "Prev button is hidden");
+  assert.equal(survey.isCompleteButtonVisible, true, "Complete button is visible");
+});
 QUnit.test("The Start Page has -1 index when enabling auto-numeration for survey pages, Bug#8983", function (assert) {
   const survey = new SurveyModel({
     "pages": [{

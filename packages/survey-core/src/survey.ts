@@ -4429,6 +4429,7 @@ export class SurveyModel extends SurveyElementCore
         page.updateElementCss(true);
       }
     });
+    this.updateButtonsVisibility();
   }
   private currentSingleQuestionValue: Question;
   public get currentSingleQuestion(): Question { return this.currentSingleQuestionValue; }
@@ -4568,6 +4569,7 @@ export class SurveyModel extends SurveyElementCore
     );
   }
   private get firstVisiblePage(): PageModel {
+    if(this.visiblePageCount === 1) return this.visiblePages[0];
     const pages = this.pages;
     for (let i = 0; i < pages.length; i++) {
       if (this.isPageInVisibleList(pages[i])) return pages[i];
@@ -4575,6 +4577,7 @@ export class SurveyModel extends SurveyElementCore
     return null;
   }
   private get lastVisiblePage(): PageModel {
+    if(this.visiblePageCount === 1) return this.visiblePages[0];
     const pages = this.pages;
     for (let i = pages.length - 1; i >= 0; i--) {
       if (this.isPageInVisibleList(pages[i])) return pages[i];

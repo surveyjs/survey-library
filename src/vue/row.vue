@@ -44,7 +44,7 @@ export class Row extends BaseVue {
     }
   }
   beforeDestroy() {
-    if (!!this.row) {
+    if (!!this.row && !this.row.isDisposed) {
       this.row.isNeedRender = !this.row.isLazyRendering();
     }
   }

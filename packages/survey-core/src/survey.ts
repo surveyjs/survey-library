@@ -5000,6 +5000,7 @@ export class SurveyModel extends SurveyElementCore
       width,
     };
     this.onResize.fire(this, options);
+    this.setResponsiveStartWidth(width);
     return isMobileChanged;
   }
 
@@ -7341,9 +7342,25 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("width", val);
   }
   public get renderedWidth(): string {
+    const isStaticWidth = this.getPropertyValue("calculatedWidthMode") == "static";
     let width = this.getPropertyValue("width");
+    if (this.isScaled && this.responsiveStartWidth > 1) {
+      let initialWidth = this.responsiveStartWidth;
+      try {
+        initialWidth = !isNaN(width) ? width : parseFloat(width.toString().replace("px", ""));
+      } catch (e) { }
+      return (isStaticWidth ? initialWidth : this.responsiveStartWidth) * this.widthScale / 100 + "px";
+    }
     if (width && !isNaN(width)) width = width + "px";
-    return this.getPropertyValue("calculatedWidthMode") == "static" && width || undefined;
+    return isStaticWidth && width || undefined;
+  }
+  @property({ defaultValue: 100 }) widthScale: number;
+  @property() responsiveStartWidth: number;
+  public setResponsiveStartWidth(width: number): void {
+    this.responsiveStartWidth = width;
+  }
+  get isScaled(): boolean {
+    return Math.abs(this.widthScale - 100) > 0.001;
   }
   public get timerInfo(): { spent: number, limit?: number } {
     return this.getTimerInfo();

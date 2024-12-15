@@ -24,12 +24,12 @@ const initSurvey = ClientFunction((framework, json) => {
     model.css = myCss;
     model.render("surveyElement");
   } else if (framework === "react") {
-    window["ReactDOM"].render(
+    const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
+    root.render(
       window["React"].createElement(window["SurveyReact"].Survey, {
         model: model,
         css: myCss,
       }),
-      document.getElementById("surveyElement")
     );
   } else if (framework === "vue") {
     model.css = myCss;

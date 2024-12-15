@@ -10,7 +10,7 @@ export class SurveyQuestionExpression extends SurveyQuestionElementBase {
   protected get question(): QuestionExpressionModel {
     return this.questionBase as QuestionExpressionModel;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
     return (
       <div

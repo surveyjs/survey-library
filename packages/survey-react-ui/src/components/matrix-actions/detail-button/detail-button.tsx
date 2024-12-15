@@ -24,7 +24,7 @@ export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
   handleOnShowHideClick(event: any) {
     this.row.showHideDetailPanelClick();
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var isExpanded = this.row.isDetailPanelShowing;
     var ariaExpanded = isExpanded;
     var ariaControls = isExpanded ? this.row.detailPanelId : undefined;

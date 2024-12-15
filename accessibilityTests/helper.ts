@@ -58,7 +58,7 @@ export const initSurvey = ClientFunction(
       if(!!(window as any).root) {
         (window as any).root.unmount();
       }
-      const root = (window as any).ReactDOM.createRoot(document.getElementById("surveyElement"));
+      const root = (window as any).ReactDOMClient.createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
         (window as any).React.createElement((window as any).React.StrictMode,

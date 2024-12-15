@@ -12,7 +12,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   protected get question(): QuestionImagePickerModel {
     return this.questionBase as QuestionImagePickerModel;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset className={this.question.getSelectBaseRootCss()}>
@@ -40,7 +40,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   }
 
   protected getItems(cssClasses: any): Array<any> {
-    var items:Array<JSX.Element> = [];
+    var items: Array<React.JSX.Element> = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
@@ -55,11 +55,11 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     key: string,
     item: ImageItemValue,
     cssClasses: any
-  ): JSX.Element {
+  ): React.JSX.Element {
     const renderedItem = <SurveyQuestionImagePickerItem key={key} question={this.question} item={item} cssClasses={cssClasses}></SurveyQuestionImagePickerItem>;
     const survey = this.question.survey as SurveyModel;
-    let wrappedItem: JSX.Element | null = null;
-    if(!!survey) {
+    let wrappedItem: React.JSX.Element | null = null;
+    if (!!survey) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;
@@ -79,7 +79,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    this.item.locImageLink.onChanged = function () {};
+    this.item.locImageLink.onChanged = function () { };
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
@@ -118,13 +118,13 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
     this.setState({ value: this.question.value });
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const item = this.item;
     const question = this.question;
     const cssClasses = this.cssClasses;
     var isChecked = question.isItemSelected(item);
     var itemClass = question.getItemClass(item);
-    var text: JSX.Element | null = null;
+    var text: React.JSX.Element | null = null;
     if (question.showLabel) {
       text = (
         <span
@@ -137,14 +137,14 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
 
     var style: any = { objectFit: this.question.imageFit };
 
-    var control: JSX.Element | null = null;
+    var control: React.JSX.Element | null = null;
     if (item.locImageLink.renderedHtml && this.question.contentMode === "image") {
       control = (
         <img
           className={cssClasses.image}
           src={item.locImageLink.renderedHtml}
-          width={ this.question.renderedImageWidth }
-          height={ this.question.renderedImageHeight }
+          width={this.question.renderedImageWidth}
+          height={this.question.renderedImageHeight}
           alt={item.locText.renderedHtml}
           style={style}
           onLoad={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
@@ -157,8 +157,8 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
         <video controls
           className={cssClasses.image}
           src={item.locImageLink.renderedHtml}
-          width={ this.question.renderedImageWidth }
-          height={ this.question.renderedImageHeight }
+          width={this.question.renderedImageWidth}
+          height={this.question.renderedImageHeight}
           style={style}
           onLoadedMetadata={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
           onError={(event: any) => { item.onErrorHandler(item, event.nativeEvent); }}
@@ -182,7 +182,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
                 className={cssClasses.itemNoImageSvgIcon}
                 iconName={this.question.cssClasses.itemNoImageSvgIconId}
                 size={48}
-              ></SvgIcon>:
+              ></SvgIcon> :
               null
           }
         </div>
@@ -210,7 +210,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
           <div className={this.question.cssClasses.itemDecorator}>
             <div className={this.question.cssClasses.imageContainer}>
               {!!this.question.cssClasses.checkedItemDecorator ?
-                <span className={this.question.cssClasses.checkedItemDecorator }>
+                <span className={this.question.cssClasses.checkedItemDecorator}>
                   {!!this.question.cssClasses.checkedItemSvgIconId ? <SvgIcon size={"auto"} className={this.question.cssClasses.checkedItemSvgIcon} iconName={this.question.cssClasses.checkedItemSvgIconId}></SvgIcon> : null}
                 </span> : null}
               {control}

@@ -22,7 +22,7 @@ You can use the following values as placeholders:
 
 ### Question Values
 
-To use a question value as a placeholder, specify the question's [`name`](https://surveyjs.io/Documentation/Library?id=Question#name) in curly brackets. The name will be replaced with the question value. For instance, the following example defines two [Text](https://surveyjs.io/Documentation/Library?id=questiontextmodel) questions: First Name and Last Name. An [Html](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel) question uses their `name` property to reference them and display their values:
+To use a question value as a placeholder, specify the question's [`name`](https://surveyjs.io/Documentation/Library?id=Question#name) in curly brackets. The name will be replaced with the question value. For instance, the following example defines two [Single-Line Input](https://surveyjs.io/Documentation/Library?id=questiontextmodel) questions: First Name and Last Name. An [HTML](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel) question uses their `name` property to reference them and display their values:
 
 ```js
 const surveyJson = {
@@ -40,7 +40,7 @@ const surveyJson = {
 
 > For questions with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName) property, use its value instead of the `name` value.
 
-In single- and multiple-selection question types (Dropdown, Checkbox, Radiogroup, Tag Box, Image Picker), items can contain a display value in addition to a question value. In this case, placeholders are replaced with display values. If you want to use question values instead, disable the [`useDisplayValuesInDynamicTexts`](https://surveyjs.io/form-library/documentation/api-reference/question#useDisplayValuesInDynamicTexts) property.
+In single- and multiple-selection question types (Dropdown, Checkbox, Radio Button Group, Tag Box, Image Picker), items can contain a display value in addition to a question value. In this case, placeholders are replaced with display values. If you want to use question values instead, disable the [`useDisplayValuesInDynamicTexts`](https://surveyjs.io/form-library/documentation/api-reference/question#useDisplayValuesInDynamicTexts) property.
 
 Certain question types can contain multiple values. Use a dot symbol to access a specific value (item or cell):
 
@@ -72,14 +72,34 @@ Certain question types can contain multiple values. Use a dot symbol to access a
   </table>
 </div>
 
-[View Demo](/Examples/Library?id=condition-complexquestions (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/use-and-represent-complex-questions-in-expressions/ (linkStyle))
 
-In dynamic questions, use a zero-based index to access a specific value (question or cell):
+In question types whose value is an array, you can use zero-based indexes to access a specific item, question, or cell:
 
-| Question Type                                                          | Syntax                                     |
-| ---------------------------------------------------------------------- | ------------------------------------------ |
-| [Dynamic Panel](/Documentation/Library?id=questionpaneldynamicmodel)   | `{dynamicpanelname[index].questionname}`   |
-| [Dynamic Matrix](/Documentation/Library?id=questionmatrixdynamicmodel) | `{dynamicmatrixname[rowindex].columnname}` |
+<div class="v2-class---doc-table-container">
+  <table class="v2-class---doc-table-container__table">
+    <thead>
+      <tr>
+        <th>Question Type</th>
+        <th>Syntax</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model" class="v2-class---paragraph-link">Checkboxes</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/image-picker-question-model" class="v2-class---paragraph-link">Image Picker</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model" class="v2-class---paragraph-link">Multiple Textboxes</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model" class="v2-class---paragraph-link">Ranking</a></td>
+        <td style="vertical-align:middle"><code>{questionname[index]}</code></td>
+      </tr>
+      <tr>
+        <td><a href="/Documentation/Library?id=questionpaneldynamicmodel" class="v2-class---paragraph-link">Dynamic Panel</a></td>
+        <td style="vertical-align:middle"><code>{dynamicpanelname[index].questionname}</code></td>
+      </tr>
+      <tr>
+        <td><a href="/Documentation/Library?id=questionmatrixdynamicmodel" class="v2-class---paragraph-link">Dynamic Matrix</a></td>
+        <td style="vertical-align:middle"><code>{dynamicmatrixname[rowindex].columnname}</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 You can also use prefixes, such as `row`, `panel`, and `parentPanel`, to access a specific question or cell relative to the question you configure: 
 

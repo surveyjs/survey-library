@@ -14,7 +14,7 @@ export class SurveyFlowPanel extends SurveyPanel {
   componentDidMount() {
     super.componentDidMount();
     if (!!this.flowPanel) {
-      this.flowPanel.onCustomHtmlProducing = function() {
+      this.flowPanel.onCustomHtmlProducing = function () {
         return "";
       };
       this.flowPanel.onGetHtmlForQuestion = this.renderQuestion;
@@ -33,9 +33,9 @@ export class SurveyFlowPanel extends SurveyPanel {
   protected renderQuestion(question: Question): string {
     return "<question>" + question.name + "</question>";
   }
-  protected renderRows(): Array<JSX.Element> {
+  protected renderRows(): Array<React.JSX.Element> {
     const result = this.renderHtml();
-    if(!!result) {
+    if (!!result) {
       return [result];
     } else {
       return [];
@@ -45,7 +45,7 @@ export class SurveyFlowPanel extends SurveyPanel {
   private getNodeIndex(): number {
     return this.renderedIndex++;
   }
-  protected renderHtml(): JSX.Element | null {
+  protected renderHtml(): React.JSX.Element | null {
     if (!this.flowPanel) return null;
     const html = "<span>" + this.flowPanel.produceHtml() + "</span>";
     if (!DOMParser) {
@@ -56,11 +56,11 @@ export class SurveyFlowPanel extends SurveyPanel {
     this.renderedIndex = 0;
     return this.renderParentNode(doc);
   }
-  protected renderNodes(domNodes: Array<Node>): Array<JSX.Element> {
-    const nodes: Array<JSX.Element> = [];
+  protected renderNodes(domNodes: Array<Node>): Array<React.JSX.Element> {
+    const nodes: Array<React.JSX.Element> = [];
     for (let i = 0; i < domNodes.length; i++) {
       const node = this.renderNode(domNodes[i]);
-      if(!!node) {
+      if (!!node) {
         nodes.push(node);
       }
     }
@@ -79,7 +79,7 @@ export class SurveyFlowPanel extends SurveyPanel {
     }
     return style;
   }
-  protected renderParentNode(node: Node): JSX.Element {
+  protected renderParentNode(node: Node): React.JSX.Element {
     const nodeType = node.nodeName.toLowerCase();
     const children = this.renderNodes(this.getChildDomNodes(node));
     if (nodeType === "div")
@@ -90,7 +90,7 @@ export class SurveyFlowPanel extends SurveyPanel {
       </span>
     );
   }
-  protected renderNode(node: Node): JSX.Element | null {
+  protected renderNode(node: Node): React.JSX.Element | null {
     if (!this.hasTextChildNodesOnly(node)) {
       return this.renderParentNode(node);
     }
@@ -131,7 +131,7 @@ export class SurveyFlowPanel extends SurveyPanel {
     }
     return true;
   }
-  protected renderContent(style: any, rows: JSX.Element[]): JSX.Element {
+  protected renderContent(style: any, rows: React.JSX.Element[]): React.JSX.Element {
     return React.createElement("f-panel", { style: style }, rows);
   }
 }

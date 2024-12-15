@@ -14,7 +14,7 @@ export class SurveyQuestionHtml extends SurveyQuestionElementBase {
     this.reactOnStrChanged();
   }
   componentWillUnmount() {
-    this.question.locHtml.onChanged = function () {};
+    this.question.locHtml.onChanged = function () { };
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     this.reactOnStrChanged();
@@ -27,7 +27,7 @@ export class SurveyQuestionHtml extends SurveyQuestionElementBase {
   protected canRender(): boolean {
     return super.canRender() && !!this.question.html;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var htmlValue = { __html: this.question.locHtml.renderedHtml };
     return (
       <div

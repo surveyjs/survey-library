@@ -114,13 +114,12 @@ const initSurvey = ClientFunction(framework => {
       survey.sendResultOnPageNext = document.getElementById(
         "sendResultOnPageNext"
       ).checked;
-      window["ReactDOM"].render(
+      window["ReactDOMClient"].createRoot(document.getElementById("surveyElement")).render(
         window["React"].createElement(window["SurveyReact"].Survey, {
           model: survey,
           onComplete: surveyComplete,
           onSendResult: surveySendResult
         }),
-        document.getElementById("surveyElement")
       );
     };
   } else if (framework === "vue") {

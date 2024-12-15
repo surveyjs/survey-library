@@ -21,7 +21,7 @@ export class SvgBundleComponent extends React.Component {
   componentWillUnmount(): void {
     SvgRegistry.onIconsChanged.remove(this.onIconsChanged);
   }
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     const svgStyle = {
       display: "none"
     };

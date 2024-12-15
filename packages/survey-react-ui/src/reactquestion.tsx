@@ -15,8 +15,8 @@ import { SurveyCustomWidget } from "./custom-widget";
 import { SurveyElementHeader } from "./element-header";
 
 export interface ISurveyCreator {
-  createQuestionElement(question: Question): JSX.Element | null;
-  renderError(key: string, error: SurveyError, cssClasses: any, element?: any): JSX.Element;
+  createQuestionElement(question: Question): React.JSX.Element | null;
+  renderError(key: string, error: SurveyError, cssClasses: any, element?: any): React.JSX.Element;
   questionTitleLocation(): string;
   questionErrorLocation(): string;
 }
@@ -26,7 +26,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   public static renderQuestionBody(
     creator: ISurveyCreator,
     question: Question
-  ): JSX.Element | any {
+  ): React.JSX.Element | any {
     // if (!question.isVisible) return null;
     var customWidget = question.customWidget;
     if (!customWidget) {
@@ -95,7 +95,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     );
   }
 
-  protected renderQuestionContent(): JSX.Element {
+  protected renderQuestionContent(): React.JSX.Element {
     let question = this.question;
     var contentStyle = {
       display: this.question.renderedIsExpanded ? "" : "none",
@@ -127,7 +127,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       </div>
     );
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var question = this.question;
     var cssClasses = question.cssClasses;
     var header = this.renderHeader(question);
@@ -168,29 +168,29 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       </>
     );
   }
-  protected wrapElement(element: JSX.Element): JSX.Element {
+  protected wrapElement(element: React.JSX.Element): React.JSX.Element {
     const survey: SurveyModel = this.question.survey as SurveyModel;
-    let wrapper: JSX.Element | null = null;
+    let wrapper: React.JSX.Element | null = null;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapElement(survey, element, this.question);
     }
     return wrapper ?? element;
   }
-  protected wrapQuestionContent(element: JSX.Element): JSX.Element {
+  protected wrapQuestionContent(element: React.JSX.Element): React.JSX.Element {
     const survey: SurveyModel = this.question.survey as SurveyModel;
-    let wrapper: JSX.Element | null = null;
+    let wrapper: React.JSX.Element | null = null;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapQuestionContent(survey, element, this.question);
     }
     return wrapper ?? element;
   }
-  protected renderQuestion(): JSX.Element {
+  protected renderQuestion(): React.JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
-  protected renderDescription(): JSX.Element {
+  protected renderDescription(): React.JSX.Element {
     return SurveyElementBase.renderQuestionDescription(this.question);
   }
-  protected renderComment(cssClasses: any): JSX.Element {
+  protected renderComment(cssClasses: any): React.JSX.Element {
     const commentText = SurveyElementBase.renderLocString(
       this.question.locCommentText
     );
@@ -206,10 +206,10 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       </div>
     );
   }
-  protected renderHeader(question: Question): JSX.Element {
+  protected renderHeader(question: Question): React.JSX.Element {
     return <SurveyElementHeader element={question}></SurveyElementHeader>;
   }
-  protected renderErrors(cssClasses: any, location: string): JSX.Element {
+  protected renderErrors(cssClasses: any, location: string): React.JSX.Element {
     return (
       <SurveyElementErrors
         element={this.question}
@@ -251,8 +251,8 @@ export class SurveyElementErrors extends ReactSurveyElement {
   }
   componentWillUnmount() {
   }
-  protected renderElement(): JSX.Element {
-    const errors: Array<JSX.Element> = [];
+  protected renderElement(): React.JSX.Element {
+    const errors: Array<React.JSX.Element> = [];
     for (let i = 0; i < this.element.errors.length; i++) {
       const key: string = "error" + i;
       errors.push(
@@ -305,7 +305,7 @@ export abstract class SurveyQuestionAndErrorsWrapped extends ReactSurveyElement 
   protected canRender(): boolean {
     return !!this.question;
   }
-  protected renderContent(): JSX.Element {
+  protected renderContent(): React.JSX.Element {
     var renderedQuestion = this.renderQuestion();
     return (
       <>
@@ -313,11 +313,11 @@ export abstract class SurveyQuestionAndErrorsWrapped extends ReactSurveyElement 
       </>
     );
   }
-  protected abstract renderElement(): JSX.Element;
+  protected abstract renderElement(): React.JSX.Element;
   protected getShowErrors(): boolean {
     return this.question.isVisible;
   }
-  protected renderQuestion(): JSX.Element {
+  protected renderQuestion(): React.JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
 }
@@ -338,14 +338,14 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
       }
     }
   }
-  protected renderCellContent(): JSX.Element {
+  protected renderCellContent(): React.JSX.Element {
     return (
       <div className={this.props.cell.cellQuestionWrapperClassName}>
         {this.renderQuestion()}
       </div>
     );
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var style = this.getCellStyle();
     const cell = this.props.cell;
     const focusIn = () => { cell.focusIn(); };
@@ -370,13 +370,13 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
   }
   protected wrapCell(
     cell: QuestionMatrixDropdownRenderedCell,
-    element: JSX.Element
-  ): JSX.Element {
+    element: React.JSX.Element
+  ): React.JSX.Element {
     if (!cell) {
       return element;
     }
     const survey: SurveyModel = this.question.survey as SurveyModel;
-    let wrapper: JSX.Element | null = null;
+    let wrapper: React.JSX.Element | null = null;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, this.props.reason);
     }
@@ -390,7 +390,7 @@ export class SurveyQuestionErrorCell extends React.Component<any, any> {
     this.state = {
       changed: 0
     };
-    if(this.question) {
+    if (this.question) {
       this.registerCallback(this.question);
     }
   }
@@ -412,19 +412,19 @@ export class SurveyQuestionErrorCell extends React.Component<any, any> {
     question.unRegisterFunctionOnPropertiesValueChanged(this.getQuestionPropertiesToTrack(), "__reactSubscription");
   }
   componentDidUpdate(prevProps: Readonly<any>): void {
-    if(prevProps.question && prevProps.question !== this.question) {
+    if (prevProps.question && prevProps.question !== this.question) {
       this.unRegisterCallback(prevProps.cell);
     }
-    if(this.question) {
+    if (this.question) {
       this.registerCallback(this.question);
     }
   }
   componentWillUnmount(): void {
-    if(this.question) {
+    if (this.question) {
       this.unRegisterCallback(this.question);
     }
   }
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     return <SurveyElementErrors element={this.question} creator={this.props.creator} cssClasses={this.question.cssClasses}></SurveyElementErrors>;
   }
 }

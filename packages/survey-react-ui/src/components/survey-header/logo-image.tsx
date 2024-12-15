@@ -14,12 +14,12 @@ export class LogoImage extends React.Component<ILogoImageProps, any> {
     return this.props.data;
   }
   public render() {
-    const content: JSX.Element[] = [];
+    const content: React.JSX.Element[] = [];
     content.push(
       <div key={"logo-image"} className={this.survey.logoClassNames}>
         <img
           className={this.survey.css.logoImage}
-          src={this.survey.locLogo.renderedHtml}
+          src={this.survey.locLogo.renderedHtml || null}
           alt={this.survey.locTitle.renderedHtml}
           width={this.survey.renderedLogoWidth}
           height={this.survey.renderedLogoHeight}

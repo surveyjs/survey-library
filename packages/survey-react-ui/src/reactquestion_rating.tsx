@@ -20,7 +20,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
   protected renderItem(
     item: any,
     index: Number
-  ): JSX.Element {
+  ): React.JSX.Element {
     const renderedItem = ReactElementFactory.Instance.createElement(this.question.itemComponent, {
       question: this.question,
       item: item,
@@ -32,7 +32,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     return renderedItem;
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
     var minText = this.question.minRateDescription
       ? this.renderLocString(this.question.locMinRateDescription)
@@ -44,9 +44,9 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
       <div className={this.question.ratingRootCss} ref={(div) => (this.setControl(div))}>
         <fieldset role="radiogroup">
           <legend role="presentation" className={"sv-hidden"}></legend>
-          {!!this.question.hasMinLabel ? <span className={cssClasses.minText}>{minText}</span>: null}
+          {!!this.question.hasMinLabel ? <span className={cssClasses.minText}>{minText}</span> : null}
           {this.question.renderedRateItems.map((item, index) => this.renderItem(item, index))}
-          {!!this.question.hasMaxLabel ? <span className={cssClasses.maxText}>{maxText}</span>: null}
+          {!!this.question.hasMaxLabel ? <span className={cssClasses.maxText}>{maxText}</span> : null}
         </fieldset>
       </div>
     );

@@ -9781,6 +9781,78 @@ QUnit.test("matrix dynamic detail panel & checkbox valuePropertyName & matrix dy
   matrix1 = <QuestionMatrixDynamicModel>rows[1].getQuestionByName("matrix1");
   assert.deepEqual(matrix1.value, [{ prop1: 3 }], "#2");
 });
+QUnit.test("matrix dynamic & detail panel, add a new row when the last row is expanded, errorLocation: 'bottom', Bug9147", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        errorLocation: "bottom",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text"
+          }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            name: "q2",
+            type: "text"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rendredTable = matrix.renderedTable;
+  const rows = matrix.visibleRows;
+  rows[1].showDetailPanel();
+  assert.equal(rendredTable.rows.length, 2 * 2 + 1, "There are 5 rows");
+  assert.equal(rendredTable.rows[4].isDetailRow, true, "The last row is a detail row");
+  matrix.addRow();
+  assert.equal(rendredTable.rows.length, 3 * 2 + 1, "There are 7 rows");
+  assert.equal(rendredTable.rows[4].isDetailRow, true, "The 5th row is a detail row");
+  assert.equal(rendredTable.rows[5].cells[1].question.name, "col1", "The 6th row is a data row");
+  assert.equal(rendredTable.rows[5].isDetailRow, false, "The 6th row is not a detail row");
+  assert.equal(rendredTable.rows[6].isErrorsRow, true, "The 7th row is an error row");
+  assert.equal(rendredTable.rows[6].isDetailRow, false, "The 7th row is not a detail row");
+});
+QUnit.test("matrix dynamic & detail panel, add a new row when the last row is expanded, errorLocation: 'top' (default), Bug9147", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text"
+          }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            name: "q2",
+            type: "text"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rendredTable = matrix.renderedTable;
+  const rows = matrix.visibleRows;
+  rows[1].showDetailPanel();
+  assert.equal(rendredTable.rows.length, 2 * 2 + 1, "There are 5 rows");
+  assert.equal(rendredTable.rows[4].isDetailRow, true, "The last row is a detail row");
+  matrix.addRow();
+  assert.equal(rendredTable.rows.length, 3 * 2 + 1, "There are 7 rows");
+  assert.equal(rendredTable.rows[4].isDetailRow, true, "The 5th row is a detail row");
+  assert.equal(rendredTable.rows[5].isErrorsRow, true, "The 6th row is an error row");
+  assert.equal(rendredTable.rows[6].isDetailRow, false, "The 7th row is not a detail row");
+  assert.equal(rendredTable.rows[6].cells[1].question.name, "col1", "The 7th row is a data row");
+});
 QUnit.test("Totals alingment", function (assert) {
   var json = {
     pages: [

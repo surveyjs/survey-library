@@ -21,7 +21,7 @@ export class SurveyPage extends SurveyPanelBase {
   //   return true;
   // }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var title = this.renderTitle();
     var description = this.renderDescription();
     var rows = this.renderRows(this.panelBase.cssClasses);
@@ -41,10 +41,10 @@ export class SurveyPage extends SurveyPanelBase {
       </div >
     );
   }
-  protected renderTitle(): JSX.Element {
+  protected renderTitle(): React.JSX.Element {
     return <TitleElement element={this.page}></TitleElement>;
   }
-  protected renderDescription(): JSX.Element | null {
+  protected renderDescription(): React.JSX.Element | null {
     if (!this.page._showDescription) return null;
     var text = SurveyElementBase.renderLocString(this.page.locDescription);
     return (

@@ -9,7 +9,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   constructor(props: any) {
     super(props);
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
     const itemClass = this.question.getCheckboxItemCss();
     const description = this.question.canRenderLabelDescription ?

@@ -2,11 +2,11 @@ import { HashTable } from "survey-core";
 
 export class ReactElementFactory {
   public static Instance: ReactElementFactory = new ReactElementFactory();
-  private creatorHash: HashTable<(name: string) => JSX.Element> = {};
+  private creatorHash: HashTable<(name: string) => React.JSX.Element> = {};
 
   public registerElement(
     elementType: string,
-    elementCreator: (props: any) => JSX.Element
+    elementCreator: (props: any) => React.JSX.Element
   ) {
     this.creatorHash[elementType] = elementCreator;
   }
@@ -20,7 +20,7 @@ export class ReactElementFactory {
   public isElementRegistered(elementType: string) {
     return !!this.creatorHash[elementType];
   }
-  public createElement(elementType: string, params: any): JSX.Element | any {
+  public createElement(elementType: string, params: any): React.JSX.Element | any {
     var creator = this.creatorHash[elementType];
     if (creator == null) return null;
     return creator(params);

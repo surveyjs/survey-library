@@ -7,7 +7,7 @@ export class SurveyQuestionPanelDynamicPrevButton extends SurveyQuestionPanelDyn
   protected handleClick = (event: any) => {
     this.question.goToPrevPanel();
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return (
       <div title={this.question.panelPrevText} onClick={this.handleClick} className={this.question.getPrevButtonCss()}>
         <SvgIcon

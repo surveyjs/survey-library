@@ -8,7 +8,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionDropdownBase<Question>
     super(props);
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
     const comment = this.question.isOtherSelected ? this.renderOther(cssClasses) : null;
     const select = this.renderSelect(cssClasses);

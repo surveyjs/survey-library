@@ -7,31 +7,31 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
   constructor(props: any) {
     super(props);
   }
-  private renderRadioItem(value: any, locText: any): JSX.Element {
+  private renderRadioItem(value: any, locText: any): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
     return (
-      <div role="presentation" className={ this.question.getRadioItemClass(cssClasses, value) }>
-        <label className= { cssClasses.radioLabel }>
+      <div role="presentation" className={this.question.getRadioItemClass(cssClasses, value)}>
+        <label className={cssClasses.radioLabel}>
           <input
             type="radio"
-            name = { this.question.name }
-            value = { value }
-            aria-errormessage = { this.question.ariaErrormessage }
+            name={this.question.name}
+            value={value}
+            aria-errormessage={this.question.ariaErrormessage}
             checked={value === this.question.booleanValueRendered}
             disabled={this.question.isDisabledAttr}
             readOnly={this.question.isReadOnlyAttr}
-            className = { cssClasses.itemRadioControl }
-            onChange={ this.handleOnChange }
+            className={cssClasses.itemRadioControl}
+            onChange={this.handleOnChange}
           />
-          { this.question.cssClasses.materialRadioDecorator?
-            (<span className={ cssClasses.materialRadioDecorator }>
-              { this.question.itemSvgIcon ?
+          {this.question.cssClasses.materialRadioDecorator ?
+            (<span className={cssClasses.materialRadioDecorator}>
+              {this.question.itemSvgIcon ?
                 (<svg className={cssClasses.itemRadioDecorator}>
                   <use xlinkHref={this.question.itemSvgIcon}></use>
-                </svg>):null}
-            </span>):null}
-          <span className= { cssClasses.radioControlLabel }>
-            { this.renderLocString(locText) }
+                </svg>) : null}
+            </span>) : null}
+          <span className={cssClasses.radioControlLabel}>
+            {this.renderLocString(locText)}
           </span>
         </label>
       </div>
@@ -40,11 +40,11 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
   handleOnChange = (event: any) => {
     this.question.booleanValue = event.nativeEvent.target.value == "true";
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
     return (
       <div className={cssClasses.rootRadio}>
-        <fieldset role="presentation" className= { cssClasses.radioFieldset }>
+        <fieldset role="presentation" className={cssClasses.radioFieldset}>
           {!this.question.swapOrder ?
             (<>{this.renderRadioItem(false, this.question.locLabelFalse)}
               {this.renderRadioItem(true, this.question.locLabelTrue)}</>)

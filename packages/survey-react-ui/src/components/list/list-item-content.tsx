@@ -19,12 +19,12 @@ export class ListItemContent extends SurveyElementBase<IListItemProps, any> {
   getStateElement() {
     return this.item;
   }
-  render(): JSX.Element | null {
+  render(): React.JSX.Element | null {
     if (!this.item) return null;
 
-    const content: Array<JSX.Element> = [];
+    const content: Array<React.JSX.Element> = [];
     const text = this.renderLocString(this.item.locTitle, undefined, "locString");
-    if(this.item.iconName) {
+    if (this.item.iconName) {
       const icon = <SvgIcon
         key={"icon"}
         className={this.model.cssClasses.itemIcon}
@@ -38,7 +38,7 @@ export class ListItemContent extends SurveyElementBase<IListItemProps, any> {
       content.push(text);
     }
 
-    if(this.item.markerIconName) {
+    if (this.item.markerIconName) {
       const icon = <SvgIcon
         key={"marker"}
         className={this.item.cssClasses.itemMarkerIcon}

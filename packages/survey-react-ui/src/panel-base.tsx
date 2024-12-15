@@ -81,10 +81,10 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
       super.canRender() && !!this.survey && !!this.panelBase && !!this.panelBase.survey && this.getIsVisible()
     );
   }
-  protected renderRows(css: any): Array<JSX.Element> {
+  protected renderRows(css: any): Array<React.JSX.Element> {
     return this.panelBase.visibleRows.map((row) => this.createRow(row, css));
   }
-  protected createRow(row: QuestionRowModel, css: any): JSX.Element {
+  protected createRow(row: QuestionRowModel, css: any): React.JSX.Element {
     return (
       <SurveyRow
         key={row.id}

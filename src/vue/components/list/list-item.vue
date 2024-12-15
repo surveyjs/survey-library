@@ -5,7 +5,7 @@
     v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }">
     <div v-if="item.needSeparator" v-bind:class="model.cssClasses.itemSeparator" />
 
-    <div :style="{ paddingInlineStart: model.getItemIndent(item) }" v-bind:class="model.cssClasses.itemBody"
+    <div :style="model.getItemStyle(item)" v-bind:class="model.cssClasses.itemBody"
       :title="item.locTitle.calculatedText"
       @mouseover="(e) => model.onItemHover(item)"
       @mouseleave="(e) => model.onItemLeave(item)">

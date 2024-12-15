@@ -44,7 +44,8 @@ export class PageModel extends PanelModel implements IPage {
     return true;
   }
   public get hasEditButton(): boolean {
-    return this.isPanel && this.survey && this.survey.state === "preview";
+    return this.isPanel && this.survey && this.survey.state === "preview"
+     && !!this.parent && !this.parent.isPanel;
   }
   protected getElementsForRows(): Array<IElement> {
     const q = this.survey?.currentSingleQuestion;

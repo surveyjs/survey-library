@@ -7543,7 +7543,7 @@ QUnit.test("survey.questionsOnPageMode = 'questionOnPage', page rows & currentSi
   survey.questionsOnPageMode = "singlePage";
   assert.equal(survey.visiblePages.length, 1, "one visible page");
   assert.notOk(survey.currentSingleQuestion, "No current question in single page");
-  assert.equal(questions[0].page.name, "container", "question1.page #3");
+  assert.equal(questions[0].page.name, "single-page", "question1.page #3");
 
   survey.questionsOnPageMode = "questionOnPage";
   assert.equal(survey.pages.length, 2, "We have the same number of pages");
@@ -7577,7 +7577,7 @@ QUnit.test("survey.questionsOnPageMode, property test", function (assert) {
   survey.questionsOnPageMode = "singlePage";
   assert.equal(survey.visiblePages.length, 1, "We have one page");
   assert.equal(survey.currentPage.questions.length, questions.length, "All questions on single page");
-  assert.equal(questions[0].page.name, "container", "question1.page #1");
+  assert.equal(questions[0].page.name, "single-page", "question1.page #1");
 
   survey.questionsOnPageMode = "standard";
   assert.equal(survey.visiblePages.length, 2, "Origional pages, #2");
@@ -20809,24 +20809,45 @@ QUnit.test("Check questionsOnPageMode is 'singlePage' & buttons visibility", fun
   assert.equal(survey.isCompleteButtonVisible, true, "Complete button is visible");
 });
 
-QUnit.skip("Check questionsOnPageMode is 'singlePage' & showPreview", function (assert) {
+QUnit.test("Check questionsOnPageMode is 'singlePage' & showPreview", function (assert) {
   const survey = new SurveyModel({
     "pages": [{
-      "elements": [{
-        "type": "text",
-        "name": "q1"
-      }
+      "elements": [
+        { "type": "text", "name": "q1" },
+        { "type": "text", "name": "q2" }
       ]
     },
     {
-      "elements": [{
-        "type": "text",
-        "name": "q2"
-      }] }],
-    "questionsOnPageMode": "singlePage"
+      "elements": [
+        { "type": "text", "name": "q3" },
+        { "type": "text", "name": "q4" }
+      ] }],
+    "questionsOnPageMode": "singlePage",
+    "showPreviewBeforeComplete": "showAllQuestions"
   });
+  assert.equal(survey.visiblePageCount, 1, "There is one visible page, #1");
+  assert.equal(survey.visiblePages[0].name, "single-page", "The name is single-page, #1");
   survey.showPreview();
   assert.equal(survey.visiblePageCount, 1, "There is one visible page");
+  assert.equal(survey.visiblePages[0].name, "preview-page", "The name is preview-page");
+  assert.equal(survey.visiblePages[0].elements.length, 1, "It has only one element");
+  let singlePage = <PageModel>survey.visiblePages[0].elements[0];
+  const singlePageId = singlePage.id;
+  assert.equal(singlePage.getType(), "page", "It is a page");
+  assert.equal(singlePage.name, "single-page", "It is a single page in the preview, page name");
+  assert.equal(singlePage.isPage, false, "Single page in not a page in the preview");
+  assert.equal(singlePage.isPanel, true, "Single page in not a panel in the preview");
+  assert.equal(singlePage.elements.length, 2, "Two pages in the single page");
+  assert.equal(singlePage.elements[0].getType(), "page", "Panel is page");
+  assert.equal(singlePage.hasEditButton, true, "Single page has the cancel preview button");
+  assert.ok(singlePage.getFooterToolbar().getActionById("cancel-preview"), "single page has Cancel preview button");
+  assert.equal((<PageModel>singlePage.elements[0]).getFooterToolbar().actions.length, 0, "original pages don't have Cancel preview button");
+  assert.equal((<PageModel>singlePage.elements[0]).hasEditButton, false, "original page doesn't have the cancel preview button");
+
+  singlePage.cancelPreview();
+  assert.equal(survey.visiblePageCount, 1, "There is one visible page, #2");
+  assert.equal(survey.visiblePages[0].name, "single-page", "The name is single-page, #2");
+  assert.equal(survey.visiblePages[0].id, singlePageId, "We do not re-create the single-page, #2");
 });
 
 QUnit.test("The Start Page has -1 index when enabling auto-numeration for survey pages, Bug#8983", function (assert) {

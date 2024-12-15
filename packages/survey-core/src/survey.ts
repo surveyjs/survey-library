@@ -4389,29 +4389,51 @@ export class SurveyModel extends SurveyElementCore
   private runningPages: any;
   private pageContainerValue: PageModel;
   private onShowingPreviewChanged() {
-    if(this.isSinglePage) return;
-    this.updatePagesContainer(this.isShowingPreview);
+    this.updatePagesContainer();
   }
-  private updatePagesContainer(showOnePage: boolean): void {
+  private createRootPage(name: string, pages: Array<PageModel>): PageModel {
+    const container = Serializer.createClass("page");
+    container.name = name;
+    container.isPageContainer = true;
+    pages.forEach(page => {
+      if(!page.isStartPage) {
+        container.addElement(page);
+      }
+    });
+    return container;
+  }
+  private updatePagesContainer(): void {
     if (this.isDesignMode) return;
-    if (showOnePage) {
-      const rootPage = Serializer.createClass("page");
-      rootPage.name = "container";
-      rootPage.isPageContainer = true;
-      this.pages.forEach(page => {
-        if(!page.isStartPage) {
-          rootPage.addElement(page);
-        }
-      });
+    const disposeContainerPage = (): void => {
+      this.setPropertyValue("currentPage", undefined);
+      let cPage = this.pageContainerValue;
+      const elements = [].concat(cPage.elements);
+      elements.forEach(el => cPage.removeElement(el));
+      cPage.dispose();
+      this.pageContainerValue = undefined;
+    };
+    const singleName = "single-page";
+    const previewName = "preview-page";
+    let rootPage: PageModel = undefined;
+    if(this.isSinglePage) {
+      const cPage = this.pageContainerValue;
+      if(cPage && cPage.name === previewName) {
+        rootPage = <PageModel>cPage.elements[0];
+        disposeContainerPage();
+      } else {
+        rootPage = this.createRootPage(singleName, this.pages);
+      }
+    }
+    if(this.isShowingPreview) {
+      rootPage = this.createRootPage(previewName, rootPage ? [rootPage] : this.pages);
+    }
+    if(rootPage) {
       rootPage.setSurveyImpl(this);
       this.pageContainerValue = rootPage;
       this.currentPage = rootPage;
-    } else {
-      this.setPropertyValue("currentPage", undefined);
-      const cPage = this.pageContainerValue;
-      this.pages.forEach(page => cPage.removeElement(page));
-      cPage.dispose();
-      this.pageContainerValue = undefined;
+    }
+    if(!this.isSinglePage && !this.isShowingPreview) {
+      disposeContainerPage();
       let curPage = this.gotoPageFromPreview;
       this.gotoPageFromPreview = null;
       if (Helpers.isValueEmpty(curPage) && this.visiblePageCount > 0) {
@@ -4457,10 +4479,10 @@ export class SurveyModel extends SurveyElementCore
     if (this.isShowingPreview) return;
     this.currentSingleQuestion = undefined;
     if(oldValue === "singlePage") {
-      this.updatePagesContainer(false);
+      this.updatePagesContainer();
     }
     if(this.isSinglePage) {
-      this.updatePagesContainer(true);
+      this.updatePagesContainer();
     }
     if(this.isSingleVisibleQuestion) {
       const questions = this.getAllQuestions(true);

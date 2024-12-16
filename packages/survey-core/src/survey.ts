@@ -4993,7 +4993,7 @@ export class SurveyModel extends SurveyElementCore
       width,
     };
     this.onResize.fire(this, options);
-    this.setResponsiveStartWidth(width);
+    // this.setResponsiveStartWidth(width);
     return isMobileChanged;
   }
 
@@ -7337,7 +7337,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public get renderedWidth(): string {
     const isStaticWidth = this.getPropertyValue("calculatedWidthMode") == "static";
-    let width = this.getPropertyValue("width");
+    let width: any = this.getPropertyValue("width") || this.staticStartWidth;
     if (this.isScaled && this.responsiveStartWidth > 1) {
       let initialWidth = this.responsiveStartWidth;
       try {
@@ -7349,6 +7349,10 @@ export class SurveyModel extends SurveyElementCore
     return isStaticWidth && width || undefined;
   }
   @property({ defaultValue: 100 }) widthScale: number;
+  @property() staticStartWidth: number;
+  public setStaticStartWidth(width: number): void {
+    this.staticStartWidth = width;
+  }
   @property() responsiveStartWidth: number;
   public setResponsiveStartWidth(width: number): void {
     this.responsiveStartWidth = width;

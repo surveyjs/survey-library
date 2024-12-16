@@ -2447,21 +2447,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.isValueInColumnDuplicated(columnName, !!rowObj);
     }
   }
-  private getNewValueOnRowChanged(
-    row: MatrixDropdownRowModelBase,
-    columnName: string,
-    newRowValue: any,
-    isDeletingValue: boolean,
-    newValue: any
-  ): any {
-    var rowValue = this.getRowValueCore(row, newValue, true);
+  private getNewValueOnRowChanged(row: MatrixDropdownRowModelBase,
+    columnName: string, newRowValue: any, isDeletingValue: boolean, newValue: any): any {
+    const rowValue = this.getRowValueCore(row, newValue, true);
     if (isDeletingValue) {
       delete rowValue[columnName];
     }
-    for (var i = 0; i < row.cells.length; i++) {
-      var key = row.cells[i].question.getValueName();
-      delete rowValue[key];
-    }
+    row.questions.forEach(q => {
+      delete rowValue[q.getValueName()];
+    });
     if (newRowValue) {
       newRowValue = JSON.parse(JSON.stringify(newRowValue));
       for (var key in newRowValue) {

@@ -410,11 +410,14 @@ export abstract class BaseAction extends Base implements IAction {
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
   public updateCallback: (isResetInitialized: boolean) => void;
+  public innerItem: IAction;
   private raiseUpdate(isResetInitialized: boolean = false) {
     this.updateCallback && this.updateCallback(isResetInitialized);
   }
-  constructor(public innerItem: IAction) {
+  constructor(innerItemData: IAction) {
     super();
+    const innerItem: IAction = (innerItemData instanceof Action) ? innerItemData.innerItem : innerItemData;
+    this.innerItem = innerItem;
     this.locTitle = !!innerItem ? innerItem["locTitle"] : null;
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {

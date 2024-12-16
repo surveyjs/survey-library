@@ -7309,6 +7309,37 @@ QUnit.test("Detail panel, Process text in titles", function (assert) {
     "Text preprocessed correctly"
   );
 });
+QUnit.test("Detail panel & survey.onValueChanged & empty value, Bug#9169", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }, { name: "col2" }],
+        detailElements: [
+          { type: "text", name: "q1" }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+
+  matrix.visibleRows[0].showDetailPanel();
+  const q1 = matrix.visibleRows[0].detailPanel.getQuestionByName("q1");
+  const logs: any = [];
+  survey.onValueChanged.add((sender, options) => {
+    logs.push({ name: options.name, value: options.value });
+  });
+  q1.value = "abc";
+  assert.deepEqual(logs, [{ name: "matrix", value: [{ q1: "abc" }, {}] }], "#1");
+  q1.clearValue();
+  assert.deepEqual(logs, [
+    { name: "matrix", value: [{ q1: "abc" }, {}] },
+    { name: "matrix", value: [] }
+  ], "#2");
+});
 
 QUnit.test("copyvalue trigger for dropdown matrix cell", function (assert) {
   var survey = new SurveyModel({

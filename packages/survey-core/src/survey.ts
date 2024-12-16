@@ -4412,6 +4412,7 @@ export class SurveyModel extends SurveyElementCore
       cPage.dispose();
       this.pageContainerValue = undefined;
     };
+    this.getAllQuestions().forEach(q => q.updateElementVisibility());
     const singleName = "single-page";
     const previewName = "preview-page";
     let rootPage: PageModel = undefined;
@@ -4445,7 +4446,6 @@ export class SurveyModel extends SurveyElementCore
         this.changeCurrentPageFromPreview = false;
       }
     }
-    this.getAllQuestions().forEach(q => q.updateElementVisibility());
     this.pages.forEach(page => {
       if(page.hasShown) {
         page.updateElementCss(true);

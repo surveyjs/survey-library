@@ -4405,13 +4405,13 @@ export class SurveyModel extends SurveyElementCore
   private updatePagesContainer(): void {
     if (this.isDesignMode) return;
     const disposeContainerPage = (): void => {
-      this.setPropertyValue("currentPage", undefined);
       let cPage = this.pageContainerValue;
       const elements = [].concat(cPage.elements);
       elements.forEach(el => cPage.removeElement(el));
       cPage.dispose();
       this.pageContainerValue = undefined;
     };
+    this.setPropertyValue("currentPage", undefined);
     this.getAllQuestions().forEach(q => q.updateElementVisibility());
     const singleName = "single-page";
     const previewName = "preview-page";
@@ -4445,6 +4445,9 @@ export class SurveyModel extends SurveyElementCore
         this.currentPage = curPage;
         this.changeCurrentPageFromPreview = false;
       }
+    }
+    if(!this.currentPage && this.visiblePageCount > 0) {
+      this.currentPage = this.visiblePages[0];
     }
     this.pages.forEach(page => {
       if(page.hasShown) {

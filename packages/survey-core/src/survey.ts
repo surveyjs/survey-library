@@ -4411,8 +4411,8 @@ export class SurveyModel extends SurveyElementCore
       cPage.dispose();
       this.pageContainerValue = undefined;
     };
-    this.setPropertyValue("currentPage", undefined);
     this.getAllQuestions().forEach(q => q.updateElementVisibility());
+    this.setPropertyValue("currentPage", undefined);
     const singleName = "single-page";
     const previewName = "preview-page";
     let rootPage: PageModel = undefined;

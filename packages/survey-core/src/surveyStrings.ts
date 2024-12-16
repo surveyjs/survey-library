@@ -12,12 +12,13 @@ export var surveyLocalization = {
   //TODO remove on next week
   get showNamesInEnglish(): boolean { return this.useEnglishNames; },
   set showNamesInEnglish(val: boolean) { this.useEnglishNames = val; },
-  setupLocale(loc: string, strings: any, name: string, nameInEngish: string, direction?: string): void {
-    this.locales[loc] = strings;
-    this.localeNames[loc] = name;
-    this.localeNamesInEnglish[loc] = nameInEngish;
-    if (direction !== undefined) {
-      this.localeDirections[loc] = direction;
+  setupLocale(localeConfig: { localeCode: string, strings: any, nativeName: string, englishName: string, rtl?: boolean }): void {
+    const loc = localeConfig.localeCode;
+    this.locales[loc] = localeConfig.strings;
+    this.localeNames[loc] = localeConfig.nativeName;
+    this.localeNamesInEnglish[loc] = localeConfig.englishName;
+    if (localeConfig.rtl !== undefined) {
+      this.localeDirections[loc] = localeConfig.rtl;
     }
   },
   get currentLocale(): string {
@@ -102,7 +103,7 @@ export function getLocaleString(strName: string, locale: string = null): string 
   return surveyLocalization.getString(strName, locale);
 }
 export function setupLocale(localeConfig: { localeCode: string, strings: any, nativeName: string, englishName: string, rtl?: boolean }): void {
-  surveyLocalization.setupLocale(localeConfig.localeCode, localeConfig.strings, localeConfig.nativeName, localeConfig.englishName, localeConfig.rtl ? "rtl" : undefined);
+  surveyLocalization.setupLocale(localeConfig);
 }
 export var surveyStrings = englishStrings;
 (<any>surveyLocalization).locales["en"] = englishStrings;

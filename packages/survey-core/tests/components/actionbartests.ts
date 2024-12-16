@@ -46,6 +46,17 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "Create Action from Action",
+  (assert) => {
+    const action = new Action(<any>{ title: "action" });
+    const newAction = new Action(action);
+    newAction.title = "new action";
+    assert.equal(newAction.title, "new action");
+    assert.equal(action.title, "action");
+  }
+);
+
 QUnit.test("AdaptiveActionContainer.css",
   (assert) => {
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();

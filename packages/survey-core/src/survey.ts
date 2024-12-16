@@ -7337,10 +7337,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public get renderedWidth(): string {
     const isStaticWidth = this.getPropertyValue("calculatedWidthMode") == "static";
-    let width: any = this.getPropertyValue("width") || this.staticStartWidth;
+    let width: any = this.getPropertyValue("width");
     if (this.isScaled && this.responsiveStartWidth > 1) {
       let initialWidth = this.responsiveStartWidth;
       try {
+        width = width || this.staticStartWidth;
         initialWidth = !isNaN(width) ? width : parseFloat(width.toString().replace("px", ""));
       } catch (e) { }
       return (isStaticWidth ? initialWidth : this.responsiveStartWidth) * this.widthScale / 100 + "px";

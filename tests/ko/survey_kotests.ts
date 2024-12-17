@@ -628,7 +628,8 @@ QUnit.test("Load Panel from Json + isSinglePage", function (assert) {
     ],
   };
   var survey = new Survey(json);
-  var page = survey.pages[0];
+  var page = survey.currentPage;
+  assert.ok(page, "The page is here");
   var rows = (<Page>page).rows;
   var row = rows[1];
 

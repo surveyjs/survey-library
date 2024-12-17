@@ -90,7 +90,7 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
     if (!this.row.isNeedRender) {
       return ReactElementFactory.Instance.createElement(element.skeletonComponentName, { key: element.name + index, element: element, css: this.css, })
     }
-    var elementType = element.getType();
+    let elementType = (element as any).getTemplate();
     if (!ReactElementFactory.Instance.isElementRegistered(elementType)) {
       elementType = "question";
     }

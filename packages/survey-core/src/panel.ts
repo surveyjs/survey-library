@@ -2471,38 +2471,24 @@ Serializer.addClass(
 Serializer.addClass(
   "panel",
   [
-    {
-      name: "state",
-      default: "default",
-      choices: ["default", "collapsed", "expanded"],
-      visibleIf: (obj: PanelModel): boolean => obj.isPanel
-    },
-    { name: "isRequired:switch", overridingProperty: "requiredIf", visibleIf: (obj: PanelModel): boolean => obj.isPanel },
-    {
-      name: "requiredErrorText:text",
-      serializationProperty: "locRequiredErrorText",
-      visibleIf: (obj: PanelModel): boolean => obj.isPanel
-    },
-    { name: "startWithNewLine:boolean", default: true, visibleIf: (obj: PanelModel): boolean => obj.isPanel },
-    { name: "width", visibleIf: (obj: PanelModel): boolean => obj.isPanel },
-    { name: "minWidth", defaultFunc: () => "auto", visibleIf: (obj: PanelModel): boolean => obj.isPanel },
-    { name: "maxWidth", defaultFunc: () => settings.maxWidth, visibleIf: (obj: PanelModel): boolean => obj.isPanel },
-    {
-      name: "colSpan:number", visible: false,
-      onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },
-      visibleIf: (obj: PanelModel): boolean => obj.isPanel
-    },
+    { name: "state", default: "default", choices: ["default", "collapsed", "expanded"] },
+    { name: "isRequired:switch", overridingProperty: "requiredIf" },
+    { name: "requiredErrorText:text", serializationProperty: "locRequiredErrorText" },
+    { name: "startWithNewLine:boolean", default: true },
+    { name: "width" },
+    { name: "minWidth", defaultFunc: () => "auto" },
+    { name: "maxWidth", defaultFunc: () => settings.maxWidth },
+    { name: "colSpan:number", visible: false, onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); } },
     {
       name: "effectiveColSpan:number", minValue: 1, isSerializable: false,
-      visibleIf: function (obj: any) { return obj.isPanel && !!obj.survey && obj.survey.gridLayoutEnabled; }
+      visibleIf: function (obj: any) { return !!obj.survey && obj.survey.gridLayoutEnabled; }
     },
-    { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3], visibleIf: (obj: PanelModel): boolean => obj.isPanel },
+    { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     { name: "indent:number", default: 0, choices: [0, 1, 2, 3], visible: false },
     {
       name: "page",
       isSerializable: false,
       visibleIf: function (obj: any) {
-        if(!obj.isPanel) return false;
         var survey = obj ? obj.survey : null;
         return !survey || !survey.pages || survey.pages.length > 1;
       },
@@ -2515,13 +2501,8 @@ Serializer.addClass(
           : [];
       },
     },
-    { name: "showNumber:boolean", visibleIf: (obj: PanelModel): boolean => obj.isPanel },
-    {
-      name: "showQuestionNumbers",
-      default: "default",
-      choices: ["default", "onpanel", "off"],
-      visibleIf: (obj: PanelModel): boolean => obj.isPanel
-    },
+    { name: "showNumber:boolean" },
+    { name: "showQuestionNumbers", default: "default", choices: ["default", "onpanel", "off"] },
     { name: "questionStartIndex", visibleIf: (obj: PanelModel): boolean => obj.isPanel },
     { name: "allowAdaptiveActions:boolean", default: true, visible: false },
   ],

@@ -4402,15 +4402,15 @@ export class SurveyModel extends SurveyElementCore
     });
     return container;
   }
+  private disposeContainerPage(): void {
+    let cPage = this.pageContainerValue;
+    const elements = [].concat(cPage.elements);
+    elements.forEach(el => cPage.removeElement(el));
+    cPage.dispose();
+    this.pageContainerValue = undefined;
+  }
   private updatePagesContainer(): void {
     if (this.isDesignMode) return;
-    const disposeContainerPage = (): void => {
-      let cPage = this.pageContainerValue;
-      const elements = [].concat(cPage.elements);
-      elements.forEach(el => cPage.removeElement(el));
-      cPage.dispose();
-      this.pageContainerValue = undefined;
-    };
     this.getAllQuestions().forEach(q => q.updateElementVisibility());
     this.setPropertyValue("currentPage", undefined);
     const singleName = "single-page";
@@ -4420,7 +4420,7 @@ export class SurveyModel extends SurveyElementCore
       const cPage = this.pageContainerValue;
       if(cPage && cPage.name === previewName) {
         rootPage = <PageModel>cPage.elements[0];
-        disposeContainerPage();
+        this.disposeContainerPage();
       } else {
         rootPage = this.createRootPage(singleName, this.pages);
       }
@@ -4434,7 +4434,7 @@ export class SurveyModel extends SurveyElementCore
       this.currentPage = rootPage;
     }
     if(!this.isSinglePage && !this.isShowingPreview) {
-      disposeContainerPage();
+      this.disposeContainerPage();
       let curPage = this.gotoPageFromPreview;
       this.gotoPageFromPreview = null;
       if (Helpers.isValueEmpty(curPage) && this.visiblePageCount > 0) {

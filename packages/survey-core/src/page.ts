@@ -400,7 +400,23 @@ Serializer.addClass(
         return !!obj.survey && obj.survey.progressBarType === "buttons";
       },
       serializationProperty: "locNavigationDescription",
-    }
+    },
+    { name: "state", visible: false },
+    { name: "isRequired", visible: false },
+    { name: "startWithNewLine", visible: false },
+    { name: "width", visible: false },
+    { name: "minWidth", visible: false },
+    { name: "maxWidth", visible: false },
+    { name: "colSpan", visible: false },
+    { name: "effectiveColSpan:number", visible: false },
+    { name: "innerIndent", visible: false },
+    { name: "indent", visible: false },
+    { name: "page", visible: false },
+    { name: "showNumber", visible: false },
+    { name: "showQuestionNumbers", visible: false },
+    { name: "questionStartIndex", visible: false },
+    { name: "allowAdaptiveActions", visible: false },
+    { name: "requiredErrorText:text", serializationProperty: "locRequiredErrorText", visible: false },
   ],
   function () {
     return new PageModel();

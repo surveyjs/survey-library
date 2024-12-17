@@ -401,6 +401,8 @@ Serializer.addClass(
       },
       serializationProperty: "locNavigationDescription",
     },
+    { name: "title:text", serializationProperty: "locTitle" },
+    { name: "description:text", serializationProperty: "locDescription" },
     { name: "state", visible: false },
     { name: "isRequired", visible: false },
     { name: "startWithNewLine", visible: false },

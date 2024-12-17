@@ -3453,3 +3453,17 @@ QUnit.test("Add defaultFunc attribute based on another property & obj parameter,
 
   Serializer.removeProperty("question", "secondName");
 });
+QUnit.test("Page & Panel should have different title&description properties", function (assert) {
+  const pageTitle = Serializer.findProperty("page", "title");
+  const pageDescription = Serializer.findProperty("page", "description");
+  const panelTitle = Serializer.findProperty("panel", "title");
+  const panelDescription = Serializer.findProperty("panel", "description");
+  pageTitle.placeholder = "pageT";
+  pageDescription.placeholder = "pageD";
+  panelTitle.placeholder = "panelT";
+  panelDescription.placeholder = "panelD";
+  assert.equal(pageTitle.placeholder, "pageT", "page title unique");
+  assert.equal(pageDescription.placeholder, "pageD", "page description unique");
+  assert.equal(panelTitle.placeholder, "panelT", "panel title unique");
+  assert.equal(panelDescription.placeholder, "panelD", "panel description unique");
+});

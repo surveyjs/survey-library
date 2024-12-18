@@ -245,6 +245,46 @@ QUnit.test("questionsOnPageMode singlePage", function (assert) {
   assert.equal(tocListModel.visibleItems[2].id, page.elements[2].name, "Page 3");
 });
 
+QUnit.test("questionsOnPageMode singlePage selectedItem tracks focused question", function (assert) {
+  let json: any = {
+    "questionsOnPageMode": "singlePage",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "html",
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      }
+    ]
+  };
+  const survey: SurveyModel = new SurveyModel(json);
+  const tocListModel = createTOCListModel(survey);
+  assert.equal(tocListModel.visibleItems.length, 3, "3 items is TOC");
+  assert.equal(tocListModel.selectedItem.id, "page1", "first page is active");
+  survey.getQuestionByName("question3").focusIn();
+  assert.equal(tocListModel.selectedItem.id, "page3", "3rd page is active after question3 focused");
+});
+
 QUnit.test("respects markup", function (assert) {
   let json: any = {
     "pages": [

@@ -26,17 +26,17 @@ function confirmAction(message: string): boolean {
   return confirm(message);
 }
 
-function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void, locale?: string, rootElement?: HTMLElement): void {
+function confirmActionAsync(options: IConfirmDialogOptions): void {
   const callbackFunc = (res: boolean): void => {
-    if (res) funcOnYes();
-    else if (!!funcOnNo) funcOnNo();
+    if (res) options.funcOnYes();
+    else if (!!options.funcOnNo) options.funcOnNo();
   };
 
   if (!!settings && !!settings.confirmActionAsync) {
-    if (settings.confirmActionAsync(message, callbackFunc, undefined, locale, rootElement)) return;
+    if (settings.confirmActionAsync(options.message, callbackFunc, options)) return;
   }
 
-  callbackFunc(confirmAction(message));
+  callbackFunc(confirmAction(options.message));
 }
 function detectIEBrowser(): boolean {
   const ua: string = navigator.userAgent;
@@ -603,7 +603,16 @@ export class Logger {
   }
 }
 
-export function showConfirmDialog(message: string, callback: (res: boolean) => void, applyTitle?: string, locale?: string, rootElement?: HTMLElement): boolean {
+export interface IConfirmDialogOptions {
+  message?: string;
+  funcOnYes?: () => void;
+  funcOnNo?: () => void;
+  applyTitle?: string;
+  locale?: string;
+  rootElement?: HTMLElement;
+  cssClass?: string;
+}
+export function showConfirmDialog(message: string, callback: (res: boolean) => void, options: IConfirmDialogOptions): boolean {
   const locStr = new LocalizableString(undefined);
   const popupViewModel: PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
     componentName: "sv-string-viewer",
@@ -616,17 +625,17 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
       callback(false);
       return false;
     },
-    title: message,
+    title: message || options.message,
     displayMode: "popup",
     isFocusedContent: false,
-    cssClass: "sv-popup--confirm-delete"
-  }, rootElement);
+    cssClass: options.cssClass || "sv-popup--confirm"
+  }, options.rootElement);
   const toolbar = popupViewModel.footerToolbar;
   const applyBtn = toolbar.getActionById("apply");
   const cancelBtn = toolbar.getActionById("cancel");
-  cancelBtn.title = getLocaleString("cancel", locale);
+  cancelBtn.title = getLocaleString("cancel", options.locale);
   cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
-  applyBtn.title = applyTitle || getLocaleString("ok", locale);
+  applyBtn.title = options.applyTitle || getLocaleString("ok", options.locale);
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
   configConfirmDialog(popupViewModel);
   return true;

@@ -82,7 +82,7 @@ sv-popup {
   overflow: visible;
 }
 
-.sv-popup--confirm-delete {
+.sv-popup--confirm {
   .sv-popup__container {
     border-radius: calcSize(1);
   }
@@ -120,7 +120,7 @@ sv-popup {
   }
 }
 
-.sd-root-modern--mobile .sv-popup--confirm-delete .sv-popup__body-content {
+.sd-root-modern--mobile .sv-popup--confirm .sv-popup__body-content {
   min-width: auto;
 }
 

@@ -1144,7 +1144,13 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   doClean = () => {
     if (this.needConfirmRemoveFile) {
-      confirmActionAsync(this.confirmRemoveAllMessage, () => { this.clearFilesCore(); }, undefined, this.getLocale(), this.survey.rootElement);
+      confirmActionAsync({
+        message: this.confirmRemoveAllMessage,
+        funcOnYes: () => { this.clearFilesCore(); },
+        locale: this.getLocale(),
+        rootElement: this.survey.rootElement,
+        cssClass: this.cssClasses.confirmDialog
+      });
       return;
     }
     this.clearFilesCore();
@@ -1161,7 +1167,13 @@ export class QuestionFileModel extends QuestionFileModelBase {
   doRemoveFile(data: any, event: any) {
     event.stopPropagation();
     if (this.needConfirmRemoveFile) {
-      confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); }, undefined, this.getLocale(), this.survey.rootElement);
+      confirmActionAsync({
+        message: this.getConfirmRemoveMessage(data.name),
+        funcOnYes: () => { this.clearFilesCore(); },
+        locale: this.getLocale(),
+        rootElement: this.survey.rootElement,
+        cssClass: this.cssClasses.confirmDialog
+      });
       return;
     }
     this.removeFileCore(data);

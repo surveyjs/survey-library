@@ -161,13 +161,13 @@ frameworks.forEach(framework => {
     await t
       .click("input[type=file] + div label")
       .click(".sv_q_file_remove_button")
-      .click(".sv-popup--confirm-delete .sd-btn");
+      .click(".sv-popup--confirm .sd-btn");
 
     let data = await getData();
     await t.expect(data["image"][0].name).eql("small_Dashka.jpg")
 
       .click(".sv_q_file_remove_button")
-      .click(".sv-popup--confirm-delete .sd-btn--danger");
+      .click(".sv-popup--confirm .sd-btn--danger");
 
     data = await getData();
     await t.expect(data["image"]).eql(undefined);

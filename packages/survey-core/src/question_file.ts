@@ -984,14 +984,16 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.loadFiles(files);
   }
 
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    this.actionsContainer.cssClasses = css.actionBar;
-    this.actionsContainer.cssClasses.itemWithTitle = this.actionsContainer.cssClasses.item;
-    this.actionsContainer.cssClasses.item = "";
-    this.actionsContainer.cssClasses.itemAsIcon = classes.contextButton;
-    this.actionsContainer.containerCss = classes.actionsContainer;
-    return classes;
+  protected onCalcCssClasses(classes: any): void {
+    super.onCalcCssClasses(classes);
+    const container = this.actionsContainer;
+    if(container) {
+      container.cssClasses = classes.actionBar;
+      container.cssClasses.itemWithTitle = container.cssClasses.item;
+      container.cssClasses.item = "";
+      container.cssClasses.itemAsIcon = classes.contextButton;
+      container.containerCss = classes.actionsContainer;
+    }
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();

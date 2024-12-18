@@ -2590,16 +2590,15 @@ export class QuestionPanelDynamicModel extends Question
     return this.isRenderModeList && index < this.renderedPanels.length - 1;
   }
 
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
+  protected onCalcCssClasses(classes: any): void {
+    super.onCalcCssClasses(classes);
     const additionalTitleToolbar = <AdaptiveActionContainer>this.additionalTitleToolbar;
     if (!!additionalTitleToolbar) {
       additionalTitleToolbar.containerCss = this.getAdditionalTitleToolbarCss(classes);
       additionalTitleToolbar.cssClasses = classes.tabs;
       additionalTitleToolbar.dotsItem.cssClasses = classes.tabs;
-      additionalTitleToolbar.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
+      additionalTitleToolbar.dotsItem.popupModel.contentComponentData.model.cssClasses = classes.list;
     }
-    return classes;
   }
   protected onMobileChanged(): void {
     super.onMobileChanged();

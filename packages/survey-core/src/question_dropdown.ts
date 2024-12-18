@@ -265,12 +265,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       updateListCssValues(res, css);
     }
   }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
+  protected onCalcCssClasses(classes: any): void {
+    super.onCalcCssClasses(classes);
     if (this.dropdownListModelValue) {
       this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
     }
-    return classes;
   }
 
   @property() suggestedItem: ItemValue;

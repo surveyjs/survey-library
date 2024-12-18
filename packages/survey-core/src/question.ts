@@ -158,7 +158,7 @@ export class Question extends SurveyElement<Question>
     const setValueIfInfo = this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
     setValueIfInfo.runSecondCheck = (keys: any): boolean => this.checkExpressionIf(keys);
     this.registerPropertyChangedHandlers(["width"], () => {
-      this.updateQuestionCss();
+      this.updateElementCss();
       if (!!this.parent) {
         this.parent.elementWidthChanged(this);
       }
@@ -168,7 +168,7 @@ export class Question extends SurveyElement<Question>
         this.validate();
       }
       this.locTitle.strChanged();
-      this.clearCssClasses();
+      this.updateElementCss(true);
     });
     this.registerPropertyChangedHandlers(
       ["indent", "rightIndent"],
@@ -184,7 +184,7 @@ export class Question extends SurveyElement<Question>
       }
     );
     this.registerFunctionOnPropertiesValueChanged(["no", "readOnly", "hasVisibleErrors", "containsErrors"], () => {
-      this.updateQuestionCss();
+      this.updateElementCss();
     });
     this.registerPropertyChangedHandlers(["_isMobile"], () => { this.onMobileChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
@@ -433,7 +433,7 @@ export class Question extends SurveyElement<Question>
       }
     }
     if(val !== this.visible && this.areInvisibleElementsShowing) {
-      this.updateQuestionCss(true);
+      this.updateElementCss(true);
     }
   }
   /**
@@ -664,7 +664,7 @@ export class Question extends SurveyElement<Question>
     this.removeFromParent();
     this.setPropertyValue("parent", val);
     if(!!val) {
-      this.updateQuestionCss();
+      this.updateElementCss();
     }
     this.onParentChanged();
   }
@@ -702,7 +702,7 @@ export class Question extends SurveyElement<Question>
     var isVisibilityChanged =
       this.titleLocation == "hidden" || value == "hidden";
     this.setPropertyValue("titleLocation", value.toLowerCase());
-    this.updateQuestionCss();
+    this.updateElementCss();
     if (isVisibilityChanged) {
       this.notifySurveyVisibilityChanged();
     }
@@ -843,7 +843,7 @@ export class Question extends SurveyElement<Question>
   }
   public set descriptionLocation(val: string) {
     this.setPropertyValue("descriptionLocation", val);
-    this.updateQuestionCss();
+    this.updateElementCss();
   }
   get hasDescriptionUnderTitle(): boolean {
     return this.getDescriptionLocation() == "underTitle" && this.hasDescription;
@@ -1041,7 +1041,7 @@ export class Question extends SurveyElement<Question>
     return classes;
   }
   public get cssRoot(): string {
-    this.ensureElementCss();
+    this.ensureCssClasses();
     return this.getPropertyValue("cssRoot", "");
   }
   protected setCssRoot(val: string): void {
@@ -1067,7 +1067,7 @@ export class Question extends SurveyElement<Question>
       .toString();
   }
   public get cssHeader(): string {
-    this.ensureElementCss();
+    this.ensureCssClasses();
     return this.getPropertyValue("cssHeader", "");
   }
   protected setCssHeader(val: string): void {
@@ -1085,7 +1085,7 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   public get cssContent(): string {
-    this.ensureElementCss();
+    this.ensureCssClasses();
     return this.getPropertyValue("cssContent", "");
   }
   protected setCssContent(val: string): void {
@@ -1099,7 +1099,7 @@ export class Question extends SurveyElement<Question>
       .toString();
   }
   public get cssTitle(): string {
-    this.ensureElementCss();
+    this.ensureCssClasses();
     return this.getPropertyValue("cssTitle", "");
   }
   protected setCssTitle(val: string): void {
@@ -1113,7 +1113,7 @@ export class Question extends SurveyElement<Question>
       .toString();
   }
   public get cssDescription(): string {
-    this.ensureElementCss();
+    this.ensureCssClasses();
     return this.getPropertyValue("cssDescription", "");
   }
   protected setCssDescription(val: string): void {
@@ -1146,7 +1146,7 @@ export class Question extends SurveyElement<Question>
   }
 
   public get cssError(): string {
-    this.ensureElementCss();
+    this.ensureCssClasses();
     return this.getPropertyValue("cssError", "");
   }
   protected setCssError(val: string): void {
@@ -1176,34 +1176,24 @@ export class Question extends SurveyElement<Question>
       .toString();
   }
 
-  public getQuestionRootCss() {
+  public getQuestionRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.rootMobile, this.isMobile)
       .toString();
   }
-  public updateElementCss(reNew?: boolean): void {
-    super.updateElementCss(reNew);
-    if (reNew) {
-      this.updateQuestionCss(true);
-    }
+  protected clearElementsCssClasses(): void {
+    super.clearElementsCssClasses();
+    this.resetPropertyValue("cssRoot");
+    this.resetPropertyValue("cssHeader");
+    this.resetPropertyValue("cssContent");
+    this.resetPropertyValue("cssTitle");
+    this.resetPropertyValue("cssDescription");
+    this.resetPropertyValue("cssError");
     this.resetIndents();
   }
-  protected updateQuestionCss(reNew?: boolean): void {
-    if (
-      this.isLoadingFromJson ||
-      !this.survey ||
-      (reNew !== true && !this.cssClassesValue)
-    )
-      return;
-    this.updateElementCssCore(this.cssClasses);
-  }
-  private ensureElementCss() {
-    if (!this.cssClassesValue) {
-      this.updateQuestionCss(true);
-    }
-  }
   protected updateElementCssCore(cssClasses: any): void {
+    super.updateElementCssCore(cssClasses);
     this.setCssRoot(this.getCssRoot(cssClasses));
     this.setCssHeader(this.getCssHeader(cssClasses));
     this.setCssContent(this.getCssContent(cssClasses));
@@ -1470,7 +1460,7 @@ export class Question extends SurveyElement<Question>
     if (this.isReadOnly) {
       this.clearErrors();
     }
-    this.updateQuestionCss();
+    this.updateElementCss();
     this.resetRenderedCommentPlaceholder();
   }
   /**
@@ -2129,7 +2119,7 @@ export class Question extends SurveyElement<Question>
     const oldVal = this.isAnswered;
     this.setPropertyValue("isAnswered", this.getIsAnswered());
     if (oldVal !== this.isAnswered) {
-      this.updateQuestionCss();
+      this.updateElementCss();
     }
   }
   protected getIsAnswered(): boolean {
@@ -2355,7 +2345,7 @@ export class Question extends SurveyElement<Question>
     this.allowNotifyValueChanged && this.onValueChanged();
     this.isSettingQuestionValue = false;
     if (this.isAnswered !== this.isOldAnswered) {
-      this.updateQuestionCss();
+      this.updateElementCss();
     }
     this.isOldAnswered = undefined;
     if (this.parent) {

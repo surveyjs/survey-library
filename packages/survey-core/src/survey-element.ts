@@ -524,7 +524,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     if (!!this.survey/* && !this.isLoadingFromJson*/) {
       this.updateDescriptionVisibility(this.description);
-      this.clearCssClasses();
+      this.updateElementCss(true);
     }
   }
   protected canRunConditions(): boolean {
@@ -617,7 +617,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.setPropertyValue("isReadOnly", this.isReadOnly);
     }
   }
-  protected onReadOnlyChanged() {
+  protected onReadOnlyChanged(): void {
     if (!!this.readOnlyChangedCallback) {
       this.readOnlyChangedCallback();
     }
@@ -635,15 +635,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return res;
   }
-  private ensureCssClassesValue(): void {
-    if (!this.cssClassesValue) {
-      this.createCssClassesValue();
+  protected ensureCssClasses(): void {
+    const css = this.cssClassesValue;
+    if(!this.isElementCssClassesReady) {
+      this.isElementCssClassesReady = true;
+      this.updateElementCssCore(css);
     }
   }
   private createCssClassesValue(): any {
     const res = this.calcCssClasses(this.css);
     this.setPropertyValue("cssClassesValue", res);
-    this.updateElementCssCore(this.cssClassesValue);
+    this.onCalcCssClasses(res);
     return res;
   }
   /**
@@ -659,7 +661,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get cssClasses(): any {
     const _dummy = this.cssClassesValue;
     if (!this.survey) return this.calcCssClasses(this.css);
-    this.ensureCssClassesValue();
+    this.ensureCssClasses();
     return this.cssClassesValue;
   }
   public get cssTitleNumber(): any {
@@ -676,10 +678,20 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.cssClasses.titleExpandableSvg;
   }
   protected calcCssClasses(css: any): any { return undefined; }
+  protected onCalcCssClasses(css: any): void {}
   protected updateElementCssCore(cssClasses: any): void { }
   public get cssError(): string { return ""; }
+  private isElementCssClassesReady: boolean;
   public updateElementCss(reNew?: boolean): void {
-    this.clearCssClasses();
+    if(reNew) {
+      this.resetPropertyValue("cssClassesValue");
+    }
+    if(this.isElementCssClassesReady) {
+      this.clearElementsCssClasses();
+      this.isElementCssClassesReady = false;
+    }
+  }
+  protected clearElementsCssClasses(): void {
   }
   protected clearCssClasses(): void {
     this.resetPropertyValue("cssClassesValue");
@@ -759,6 +771,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public onSurveyLoad(): void { }
   private wasRenderedValue: boolean;
   public get wasRendered(): boolean { return !!this.wasRenderedValue; }
+  protected clearWasRendered(): void {
+    this.wasRenderedValue = false;
+  }
   public onFirstRendering(): void {
     if(!this.wasRendered) {
       this.wasRenderedValue = true;
@@ -766,7 +781,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }
   protected onFirstRenderingCore(): void {
-    this.ensureCssClassesValue();
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();

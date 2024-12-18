@@ -249,15 +249,26 @@ export class PageModel extends PanelModel implements IPage {
    * Returns `true` if the respondent has already seen this page during the current session.
    */
   public get wasShown(): boolean {
-    return this.hasShownValue;
+    return this.wasRendered;
   }
+  //TODO remove this property & property above
   get hasShown(): boolean {
-    return this.wasShown;
+    return this.wasRendered;
   }
-  public setWasShown(val: boolean) {
-    if (val == this.hasShownValue) return;
-    this.hasShownValue = val;
-    if (this.isDesignMode || val !== true) return;
+  protected onFirstRenderingCore(): void {
+    if (!this.isDesignMode) {
+      this.randomizeElementsCore();
+    }
+    super.onFirstRenderingCore();
+  }
+  public setWasShown(val: boolean): void {
+    if(val) {
+      this.onFirstRendering();
+    } else {
+      this.clearWasRendered();
+    }
+  }
+  private randomizeElementsCore(): void {
     var els = this.elements;
     for (var i = 0; i < els.length; i++) {
       if (els[i].isPanel) {
@@ -269,7 +280,7 @@ export class PageModel extends PanelModel implements IPage {
   /**
    * Scrolls this page to the top.
    */
-  public scrollToTop() {
+  public scrollToTop(): void {
     if (!!this.survey) {
       this.survey.scrollElementToTop(this, null, this, this.id);
     }

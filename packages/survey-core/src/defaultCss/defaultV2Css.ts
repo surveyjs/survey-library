@@ -248,7 +248,8 @@ export var defaultV2Css = {
     noPointerEventsMode: "sd-question--no-pointer-events",
     errorsContainer: "sd-element__erbox sd-question__erbox",
     errorsContainerTop: "sd-element__erbox--above-element sd-question__erbox--above-question",
-    errorsContainerBottom: "sd-question__erbox--below-question"
+    errorsContainerBottom: "sd-question__erbox--below-question",
+    confirmDialog: "sd-popup--confirm sv-popup--confirm"
   },
   image: {
     mainRoot: "sd-question sd-question--image",

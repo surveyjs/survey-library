@@ -281,7 +281,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const confirmDelete = Selector(".sv-popup--confirm-delete .sv-popup__container");
+      const confirmDelete = Selector(".sv-popup--confirm .sv-popup__container");
       await t.click(".sd-matrixdynamic__remove-btn");
       await resetFocusToBody();
       await takeElementScreenshot("matrixdynamic-delete-confirm-dialog.png", confirmDelete, t, comparer);

@@ -38,22 +38,32 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   }
   /**
    * Returns `true` if the survey element is a page.
-   * @see Base.getType
+   *
+   * This property returns `false` for [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model) objects in the following cases:
+   *
+   * - `SurveyModel`'s [`questionsOnPageMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode) is set to `"singlePage"`.
+   * - The page is included in a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
+   *
+   * In those cases, the survey creates an internal `PageModel` object to show all questions on one page, and all regular pages become panels.
    */
   public get isPage(): boolean { return false; }
   /**
-   * Returns `true` if the survey element is a panel.
-   * @see Base.getType
+   * Returns `true` if the survey element is a panel or acts as one.
+   *
+   * This property returns `true` for `PageModel` objects in the following cases:
+   *
+   * - `SurveyModel`'s [`questionsOnPageMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode) is set to `"singlePage"`.
+   * - The page is included in a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
+   *
+   * In those cases, the survey creates an internal `PageModel` object to show all questions on one page, and all regular pages become panels.
    */
   public get isPanel(): boolean { return false; }
   /**
    * Returns `true` if the survey element is a question.
-   * @see Base.getType
    */
   public get isQuestion(): boolean { return false; }
   /**
    * Returns `true` if the element is a survey.
-   * @see Base.getType
    */
   public get isSurvey(): boolean { return false; }
   /**

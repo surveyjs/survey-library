@@ -571,9 +571,14 @@ export class PanelModelBase extends SurveyElement<Question>
     return order == "random";
   }
   /**
-   * Returns a survey element (panel or page) that contains this panel and allows you to move this question to a different survey element.
+   * Returns a survey element (panel or page) that contains this panel and allows you to move the panel to a different survey element.
    *
-   *  //TODO-#9144
+   * For `PageModel` objects, the `parent` property is `null`, except in the following cases:
+   *
+   * - `SurveyModel`'s [`questionsOnPageMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode) is set to `"singlePage"`.
+   * - The page is included in a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
+   *
+   * In those cases, the survey creates an internal `PageModel` object to show all questions on one page, and the `parent` property contains this object.
    */
   public get parent(): PanelModelBase {
     return this.getPropertyValue("parent", null);
@@ -639,10 +644,6 @@ export class PanelModelBase extends SurveyElement<Question>
   public set id(val: string) {
     this.setPropertyValue("id", val);
   }
-  /**
-   * Returns `true` if the survey element is a panel.
-   * @see Base.getType
-   */
   public get isPanel(): boolean {
     return false;
   }

@@ -631,10 +631,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
     if (confirmDelete) {
-      confirmActionAsync(this.confirmDeleteText, () => {
-        this.removeRowAsync(index, row);
-        onRowRemoved && onRowRemoved();
-      }, undefined, this.getLocale(), this.survey.rootElement);
+      confirmActionAsync({
+        message: this.confirmDeleteText,
+        funcOnYes: () => {
+          this.removeRowAsync(index, row);
+          onRowRemoved && onRowRemoved();
+        },
+        locale: this.getLocale(),
+        rootElement: this.survey.rootElement,
+        cssClass: this.cssClasses.confirmDialog
+      });
       return;
     }
     this.removeRowAsync(index, row);

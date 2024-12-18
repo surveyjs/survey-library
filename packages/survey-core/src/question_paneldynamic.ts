@@ -1565,7 +1565,13 @@ export class QuestionPanelDynamicModel extends Question
       }
     };
     if (this.isRequireConfirmOnDelete(value)) {
-      confirmActionAsync(this.confirmDeleteText, () => { removePanel(); }, undefined, this.getLocale(), this.survey.rootElement);
+      confirmActionAsync({
+        message: this.confirmDeleteText,
+        funcOnYes: () => { removePanel(); },
+        locale: this.getLocale(),
+        rootElement: this.survey.rootElement,
+        cssClass: this.cssClasses.confirmDialog
+      });
     } else {
       removePanel();
     }

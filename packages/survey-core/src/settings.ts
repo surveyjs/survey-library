@@ -1,6 +1,6 @@
 import { DomDocumentHelper } from "./global_variables_utils";
 import { IDialogOptions } from "./popup";
-import { showConfirmDialog } from "./utils/utils";
+import { IConfirmDialogOptions, showConfirmDialog } from "./utils/utils";
 
 export type ISurveyEnvironment = {
   root: Document | ShadowRoot,
@@ -476,8 +476,8 @@ export var settings = {
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsync: function (message: string, callback: (res: boolean) => void, applyTitle?: string, locale?: string, rootElement?: HTMLElement): boolean {
-    return showConfirmDialog(message, callback, applyTitle, locale, rootElement);
+  confirmActionAsync: function (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): boolean {
+    return showConfirmDialog(message, callback, options);
   },
   /**
    * A minimum width value for all survey elements.

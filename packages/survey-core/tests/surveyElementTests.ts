@@ -349,12 +349,12 @@ QUnit.test("single page survey in preview", function (assert) {
   survey.css = {
     root: "sd-root-modern"
   };
-  assert.ok(survey.getQuestionByName("question1")["getHasFrameV2"]());
-  assert.notOk(survey.getQuestionByName("question1")["getIsNested"]());
+  assert.ok(survey.getQuestionByName("question1")["getHasFrameV2"](), "question1.getHasFrameV2, #1");
+  assert.notOk(survey.getQuestionByName("question1")["getIsNested"](), "question1.getIsNested, #1");
   survey.showPreview();
-  assert.ok(survey.getQuestionByName("question1")["getHasFrameV2"]());
-  assert.notOk(survey.getQuestionByName("question1")["getIsNested"]());
-  assert.ok((survey.pages[0].elements[0] as PanelModel).showPanelAsPage);
+  assert.ok(survey.getQuestionByName("question1")["getHasFrameV2"](), "question1.getHasFrameV2, #2");
+  assert.notOk(survey.getQuestionByName("question1")["getIsNested"](), "question1.getIsNested, #2");
+  assert.ok((survey.currentPage.elements[0] as PanelModel).showPanelAsPage);
   survey.css = oldCss;
 });
 
@@ -441,4 +441,43 @@ QUnit.test("wait for elements to render RenderingCompletedAwaiter by timeout", a
     assert.ok(q2.onAfterRenderElement.isEmpty);
     done();
   }, 500);
+});
+QUnit.test("description css should be calculated even if description is empty", function (assert) {
+  const json = {
+    "elements": [
+      { "type": "text", "name": "q1" },
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  const q = survey.getQuestionByName("q1");
+  assert.notOk(q.description);
+  assert.ok(q.cssDescription);
+});
+QUnit.test("description css under input", function (assert) {
+  const json = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+            "description": "123"
+          }
+        ]
+      }
+    ],
+    "questionDescriptionLocation": "underInput"
+  };
+
+  const survey = new SurveyModel(json);
+  survey.css = {
+    question: {
+      description: "sd-desc",
+      descriptionUnderInput: "sd-desc--ui"
+    }
+  };
+  const q = survey.getQuestionByName("q1");
+  assert.equal(q.cssDescription, "sd-desc sd-desc--ui");
 });

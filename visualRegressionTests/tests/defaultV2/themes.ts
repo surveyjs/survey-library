@@ -462,7 +462,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-theme-mobile-input-size.png", Selector(".sd-root-modern"), t, comparer);
 
       await t.resizeWindow(400, 1000);
-      await t.click(questionDropdownSelect);
+      await t.click(questionDropdownSelect.nth(1));
       await takeElementScreenshot("survey-theme-mobile-popup-input-size.png", popupContainer, t, comparer);
     });
   });
@@ -584,4 +584,35 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Question scaling", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+      });
+
+      await ClientFunction(() => {
+        (<any>window).survey.isCompact = true;
+        (<any>window).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-font-size": "3.2px",
+            "--sjs-base-unit": "1.6px",
+          }
+        });
+      })();
+      const question = Selector(".sd-question");
+      await takeElementScreenshot("question-scaling.png", question, t, comparer);
+    });
+  });
 });

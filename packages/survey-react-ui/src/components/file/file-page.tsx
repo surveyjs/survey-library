@@ -12,7 +12,7 @@ export class SurveyFilePage extends SurveyElementBase<{ question: QuestionFileMo
     return this.props.page;
   }
 
-  protected renderElement(): JSX.Element | null {
+  protected renderElement(): React.JSX.Element | null {
     const items = this.page.items.map((item: any, index: number) => { return (<SurveyFileItem item={item} question={this.question} key={index}></SurveyFileItem>); });
     return (
       <div className={this.page.css} id={this.page.id} >

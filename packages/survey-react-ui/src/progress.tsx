@@ -16,7 +16,7 @@ export class SurveyProgress extends SurveyNavigationBase {
   protected get progressText(): string {
     return this.survey.progressText;
   }
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     var progressStyle = {
       width: this.progress + "%",
     };

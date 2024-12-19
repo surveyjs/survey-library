@@ -9,8 +9,6 @@ import { settings } from "./settings";
 import { IsTouch } from "./utils/devices";
 
 export class DropdownMultiSelectListModel extends DropdownListModel {
-  protected popupCssClasses = "sv-multi-select-list";
-
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
   @property({ defaultValue: true }) closeOnSelect: boolean;
 
@@ -41,6 +39,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       return super.getFocusFirstInputSelector();
     }
   }
+  protected getPopupCssClasses(): string { return "sv-multi-select-list"; }
   protected createListModel(): MultiSelectListModel<ItemValue> {
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
@@ -70,7 +69,6 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       elementId: this.listElementId
     };
     const res = new MultiSelectListModel<ItemValue>(listOptions);
-    res.actions.forEach(a => a.disableTabStop = true);
     this.setOnTextSearchCallbackForListModel(res);
     res.forceShowFilter = true;
     return res;

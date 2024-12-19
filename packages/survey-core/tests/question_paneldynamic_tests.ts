@@ -1612,6 +1612,61 @@ QUnit.test(
     );
   }
 );
+QUnit.test("PanelDynamic vs MatrixDynamic onValueChanged, bug#9130", function(assert) {
+  const json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        rowCount: 1,
+        name: "employer_names",
+        valueName: "employers",
+        columns: [
+          {
+            name: "name",
+            isRequired: true,
+            cellType: "text",
+          },
+        ],
+      },
+      {
+        type: "paneldynamic",
+        renderMode: "list",
+        allowAddPanel: false,
+        allowRemovePanel: false,
+        name: "arrray_employer_info",
+        valueName: "employers",
+        templateTitle: "{panel.name}",
+        templateElements: [
+          {
+            type: "text",
+            name: "address",
+          },
+          {
+            type: "text",
+            name: "abn",
+          },
+          {
+            type: "text",
+            name: "name",
+          }
+        ],
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const logs = new Array<any>();
+  survey.onValueChanged.add((sender, options) => {
+    logs.push({ name: options.name, questionName: options.question.name });
+  });
+  const matrix = <QuestionMatrixDynamicModel>(survey.getQuestionByName("employer_names"));
+  const panel = <QuestionPanelDynamicModel>(survey.getQuestionByName("arrray_employer_info"));
+  matrix.visibleRows[0].getQuestionByName("name").value = "def";
+  panel.panels[0].getQuestionByName("name").value = "abc";
+  assert.deepEqual(logs, [
+    { name: "employers", questionName: "employer_names" },
+    { name: "employers", questionName: "arrray_employer_info" }
+  ], "check logs, #1");
+});
 
 function updateObjsQuestions(objs: Array<any>): void {
   for (var i = 0; i < objs.length; i++) {
@@ -4796,6 +4851,7 @@ QUnit.test("cssClasses for a question in nested panel dynamic, #2", function (as
   const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("panel2");
   const panel = nestedPanel.panels[0];
   const question = panel.getQuestionByName("q1");
+  assert.equal(question.wasRendered, true, "question.onFirstRendering was called");
   assert.ok(question.cssClassesValue.mainRoot, "Main root style is set");
   assert.equal(panel.rows.length, 1, "There is one row");
   const row = panel.rows[0];

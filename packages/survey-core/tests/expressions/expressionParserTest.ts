@@ -1683,3 +1683,10 @@ QUnit.test("ExpressionRunner: apply custom converter, #8634", function(assert) {
 
   settings.parseNumber = oldCallback;
 });
+QUnit.test("ExpressionRunner: do not convert to number extreme large strings", function(assert) {
+  const runner = new ExpressionRunner("{a} + 2");
+  const values: any = { a: "999999999999999" };
+  assert.strictEqual(runner.run(values), 1000000000000001, "it is a number");
+  values.a = "9999999999999999";
+  assert.strictEqual(runner.run(values), "99999999999999992", "it is a string");
+});

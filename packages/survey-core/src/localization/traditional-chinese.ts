@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var traditionalChineseSurveyStrings = {
   pagePrevText: "上一頁",
@@ -110,7 +110,7 @@ export var traditionalChineseSurveyStrings = {
   cancel: "取消"
 };
 
-surveyLocalization.setupLocale("zh-tw", traditionalChineseSurveyStrings, "繁體中文", "Tranditional Chinese");
+setupLocale({ localeCode: "zh-tw", strings: traditionalChineseSurveyStrings, nativeName: "繁體中文", englishName: "Tranditional Chinese" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

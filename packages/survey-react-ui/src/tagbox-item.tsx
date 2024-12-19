@@ -16,7 +16,7 @@ export class SurveyQuestionTagboxItem extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.item && !!this.question;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const text = this.renderLocString(this.item.locText);
 
     const removeItem = (event: any) => {
@@ -28,7 +28,7 @@ export class SurveyQuestionTagboxItem extends ReactSurveyElement {
       <div className="sv-tagbox__item">
         <div className="sv-tagbox__item-text">{text}</div>
         <div
-          className={ this.question.cssClasses.cleanItemButton}
+          className={this.question.cssClasses.cleanItemButton}
           onClick={removeItem}
         >
           <SvgIcon

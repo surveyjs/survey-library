@@ -127,9 +127,18 @@
   </div>
 </template>
 
+<script lang="ts">
+import { addIconsToThemeSet, SvgRegistry } from "survey-core";
+import { icons as iconsV1 } from "survey-core/icons/iconsV1";
+import { icons as iconsV2 } from "survey-core/icons/iconsV2";
+addIconsToThemeSet("v1", iconsV1);
+addIconsToThemeSet("v2", iconsV2);
+SvgRegistry.registerIcons(iconsV1);
+</script>
+
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import type { SurveyModel } from "survey-core";
+import { settings, type SurveyModel } from "survey-core";
 import {
   toRaw,
   ref,
@@ -139,7 +148,6 @@ import {
   onUnmounted,
 } from "vue";
 import { useBase } from "./base";
-
 const props = defineProps<
   | {
       model: SurveyModel;
@@ -209,6 +217,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   vueSurvey.value.stopTimer();
+  vueSurvey.value.beforeDestroySurveyElement();
   vueSurvey.value.renderCallback = undefined as any;
 });
 </script>

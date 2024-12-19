@@ -26,7 +26,7 @@ const initPopupSurvey = ClientFunction(
       popupSurvey.show();
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
-      const root = ReactDOM.createRoot(document.getElementById("surveyElement"));
+      const root = ReactDOMClient.createRoot(document.getElementById("surveyElement"));
       root.render(React.createElement(React.StrictMode, { children: React.createElement(window["SurveyReact"].PopupSurvey, {
         model: model,
         onComplete: surveyComplete,

@@ -11,7 +11,7 @@ export class SurveyQuestionEmpty extends SurveyQuestionElementBase {
   protected get question(): QuestionEmptyModel {
     return this.questionBase as QuestionEmptyModel;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return <div />;
   }
 }

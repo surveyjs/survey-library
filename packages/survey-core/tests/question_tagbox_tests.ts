@@ -7,6 +7,7 @@ import { settings } from "../src/settings";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { ListModel } from "../src/list";
 import { PageModel } from "../src/page";
+import { IAction } from "../src/actions/action";
 
 export default QUnit.module("Tagbox question");
 
@@ -1622,9 +1623,10 @@ QUnit.test("Create tag box in the code, dropdownListModel instance", (assert) =>
   const question = new QuestionTagboxModel("q1");
   const page = new PageModel("page1");
   page.addQuestion(question);
-  assert.notOk(question.dropdownListModel, "It is not created yet");
+  assert.notOk(question["dropdownListModelValue"], "It is not created yet");
   survey.addPage(page);
-  assert.ok(question.dropdownListModel, "It is created");
+  assert.notOk(question["dropdownListModelValue"], "It is not created yet");
+  assert.ok(question.dropdownListModel, "It is created on demand");
 });
 QUnit.test("Create tag box from json, dropdownListModel instance", (assert) => {
   const survey = new SurveyModel({
@@ -1818,4 +1820,43 @@ QUnit.test("The new selected value is always replaced with the the first selecte
     }, callbackTimeOutDelta);
     done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});
+QUnit.test("rendering actions id", assert => {
+  const json = {
+    questions: [{
+      type: "tagbox",
+      name: "q1",
+      searchEnabled: false,
+      choices: ["Item1", "Item2"]
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+  assert.notOk(question["dropdownListModelValue"], "It is not created yet");
+  question.id = "el1";
+  const listModel = question.popupModel.contentComponentData.model as ListModel;
+  const actions = listModel.renderedActions;
+  assert.equal(actions.length, 2, "two actions");
+  assert.equal((<IAction>actions[0]).elementId, "el1i_listItem1", "elementId, action1");
+  assert.equal((<IAction>actions[1]).elementId, "el1i_listItem2", "elementId, action2");
+  assert.equal((<IAction>actions[0]).disableTabStop, true, "disableTabStop, action1");
+  assert.equal((<IAction>actions[1]).disableTabStop, true, "disableTabStop, action2");
+});
+QUnit.test("List actions disableTabStop", assert => {
+  const json = {
+    questions: [{
+      type: "tagbox",
+      name: "q1",
+      searchEnabled: true,
+      choices: ["Item1", "Item2"]
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+  question.dropdownListModel.inputStringRendered = "o";
+  const listModel = question.popupModel.contentComponentData.model as ListModel;
+  const actions = listModel.renderedActions;
+  assert.equal(actions.length, 2, "two actions");
+  assert.equal((<IAction>actions[0]).disableTabStop, true, "disableTabStop, action1");
+  assert.equal((<IAction>actions[1]).disableTabStop, true, "disableTabStop, action2");
 });

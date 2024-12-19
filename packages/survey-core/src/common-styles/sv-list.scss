@@ -39,6 +39,9 @@
 }
 
 .sv-list__item-body {
+  --sjs-list-item-padding-left-default: calc(2 * #{$base-unit});
+  --sjs-list-item-padding-left: calc(var(--sjs-list-item-level) * var(--sjs-list-item-padding-left-default));
+
   position: relative;
   width: 100%;
   align-items: center;
@@ -46,7 +49,7 @@
   // padding: calcSize(1) calcSize(8) calcSize(1) calcSize(2);
   padding-block: calcSize(1);
   padding-inline-end: calcSize(8);
-  padding-inline-start: calcSize(2);
+  padding-inline-start: var(--sjs-list-item-padding-left, calcSize(2));
   color: $font-questiontitle-color;
   font-weight: normal;
   font-size: calcFontSize(1);
@@ -116,6 +119,8 @@
 .sv-list-item__marker-icon {
   position: absolute;
   right: calcSize(1);
+  width: calcSize(2);
+  height: calcSize(2);
   flex-shrink: 0;
   padding: calcSize(0.5);
   box-sizing: content-box;
@@ -178,15 +183,13 @@ li:focus .sv-list__item.sv-list__item--selected {
   }
 }
 
-.sv-list__item.sv-list__item--selected.sv-list__item--group {
-  & > .sv-list__item-body {
-    background-color: $primary-light;
-    color: $font-questiontitle-color;
-    font-weight: 400;
+.sv-list__item--group-selected > .sv-list__item-body {
+  background-color: $primary-light;
+  color: $font-questiontitle-color;
+  font-weight: 400;
 
-    use {
-      fill: $foreground-light;
-    }
+  use {
+    fill: $foreground-light;
   }
 }
 

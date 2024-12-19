@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey } from "../helper";
+import { frameworks, url, url_test, initSurvey, applyTheme } from "../helper";
 import { ClientFunction, fixture, Selector, test } from "testcafe";
 const title = "navigation";
 
@@ -56,6 +56,79 @@ const tocJson = {
   ]
 };
 
+const scrollJson = {
+  "title": "Survey Title",
+  "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+  "pages": [
+    {
+      "name": "page1",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "question1"
+        },
+        {
+          "type": "comment",
+          "name": "question2"
+        },
+        {
+          "type": "comment",
+          "name": "question3"
+        },
+        {
+          "type": "comment",
+          "name": "question4"
+        },
+        {
+          "type": "comment",
+          "name": "question5"
+        },
+        {
+          "type": "comment",
+          "name": "question6"
+        },
+        {
+          "type": "comment",
+          "name": "question7"
+        }
+      ]
+    },
+    {
+      "name": "page2",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "question8"
+        },
+        {
+          "type": "comment",
+          "name": "question9"
+        },
+        {
+          "type": "comment",
+          "name": "question10"
+        },
+        {
+          "type": "comment",
+          "name": "question11"
+        },
+        {
+          "type": "comment",
+          "name": "question12"
+        },
+        {
+          "type": "comment",
+          "name": "question13"
+        },
+        {
+          "type": "comment",
+          "name": "question14"
+        }
+      ]
+    }
+  ]
+};
+
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
@@ -69,5 +142,39 @@ frameworks.forEach((framework) => {
     await t.expect(Selector("input[type=date]").visible).ok();
     await t.click(Selector(".sv-string-viewer").withText("page1"));
     await t.expect(Selector("input[type=text]").value).eql("some text");
+  });
+
+});
+frameworks.forEach((framework) => {
+  const theme = "defaultV2";
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}`;
+
+  test("Page should be scrolled to top of survey", async (t) => {
+    await applyTheme(theme);
+    await initSurvey(framework, scrollJson);
+
+    await t.scrollIntoView(Selector("input[value=Next]"));
+    await t.click(Selector("input[value=Next]"));
+    await t.expect(ClientFunction(() => document.querySelector("h3").getBoundingClientRect().y)()).gte(0);
+  });
+
+  test("Page should be scrolled to top of survey fit to container", async (t) => {
+    await applyTheme(theme);
+    await initSurvey(framework, scrollJson);
+
+    await ClientFunction(() => {
+      const container = window.document.getElementById("surveyElement");
+      container.style.position = "fixed";
+      container.style.top = 0;
+      container.style.bottom = 0;
+      container.style.left = 0;
+      container.style.right = 0;
+      window.survey.fitToContainer = true;
+    })();
+
+    await t.scrollIntoView(Selector("input[value=Next]"));
+    await t.click(Selector("input[value=Next]"));
+    await t.expect(ClientFunction(() => document.querySelector("h3").getBoundingClientRect().y)()).gte(0);
   });
 });

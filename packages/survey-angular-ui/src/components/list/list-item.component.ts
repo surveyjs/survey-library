@@ -24,8 +24,8 @@ export class ListItemComponent extends BaseAngular implements AfterViewInit {
   get class(): string {
     return this.listModel.getItemClass(this.model);
   }
-  get paddingLeft(): string {
-    return this.listModel.getItemIndent(this.model);
+  get itemStyle(): any {
+    return this.listModel.getItemStyle(this.model);
   }
   click(event: any): void {
     this.listModel.onItemClick(this.model);

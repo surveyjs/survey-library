@@ -12,6 +12,12 @@
     "paths": {
       "survey-core": [
         "../../build/survey-core"
+      ],
+      "@coreIconsV1": [
+        "../../build/survey-core/icons/iconsV1"
+      ],
+      "@coreIconsV2": [
+        "../../build/survey-core/icons/iconsV2"
       ]
     },
     "types": [

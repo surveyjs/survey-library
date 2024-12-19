@@ -1,7 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
-import { surveyLocalization } from "./surveyStrings";
 import { ItemValue } from "./itemvalue";
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
@@ -72,7 +71,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     if(this.isDefaultV2Theme && !this.isDesignMode) {
       const clearAction = new Action(
         {
-          title: this.clearButtonCaption,
+          locTitleName: "clearCaption",
           id: `sv-clr-btn-${this.id}`,
           action: () => { this.clearValue(true); },
           innerCss: this.cssClasses.clearButton,

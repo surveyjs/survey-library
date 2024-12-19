@@ -91,10 +91,10 @@ frameworks.forEach((framework) => {
             return null;
           }
         };
-        window["ReactDOM"].render(
+
+        window["ReactDOMClient"].createRoot(document.getElementById("surveyElement")).render(
           // eslint-disable-next-line react/react-in-jsx-scope
-          <App></App>,
-          document.getElementById("surveyElement")
+          <App></App>
         );
       }
     }

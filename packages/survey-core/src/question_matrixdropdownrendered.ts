@@ -396,7 +396,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     let dataRowIndex = 0;
     for (var i = 0; i < this.rows.length; i++) {
       if (dataRowIndex === index) {
-        if (this.rows[i].isErrorsRow || this.rows[i].isDetailRow) res++;
+        if (this.rows[i].isErrorsRow || this.rows[i].isDetailRow) {
+          res++;
+          if(i + 1 < this.rows.length && this.rows[i + 1].isDetailRow) {
+            res ++;
+          }
+        }
         break;
       }
       res++;
@@ -494,7 +499,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!isShown) return;
     this.headerRowValue = this.createRenderedRow(this.cssClasses);
     if (this.isRowsDragAndDrop) {
-      this.headerRow.cells.push(this.createHeaderCell(null, "action"));
+      this.headerRow.cells.push(this.createHeaderCell(null, "action", this.cssClasses.actionsCellDrag));
     }
     if (this.hasActionCellInRows("start")) {
       this.headerRow.cells.push(this.createHeaderCell(null, "action"));
@@ -1072,23 +1077,25 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!choices || !Array.isArray(choices)) return null;
     return choices;
   }
-  private setHeaderCellCssClasses(cell: QuestionMatrixDropdownRenderedCell, cellType?: string): void {
+  private setHeaderCellCssClasses(cell: QuestionMatrixDropdownRenderedCell, cellType?: string, classMod?: string): void {
     cell.className = new CssClassBuilder()
       .append(this.cssClasses.headerCell)
       .append(this.cssClasses.columnTitleCell, this.matrix.isColumnLayoutHorizontal)
       .append(this.cssClasses.emptyCell, !!cell.isEmpty)
       .append(this.cssClasses.cell + "--" + cellType, !!cellType)
+      .append(classMod, !!classMod)
       .toString();
   }
   private createHeaderCell(
     column: MatrixDropdownColumn,
-    cellType: string = null
+    cellType: string = null,
+    classMod?: string
   ): QuestionMatrixDropdownRenderedCell {
     let cell = !!column ? this.createTextCell(column.locTitle) : this.createEmptyCell();
     cell.column = column;
     this.setHeaderCell(column, cell);
     if (!cellType) cellType = (!!column && column.cellType !== "default") ? column.cellType : this.matrix.cellType;
-    this.setHeaderCellCssClasses(cell, cellType);
+    this.setHeaderCellCssClasses(cell, cellType, classMod);
     return cell;
   }
   private setHeaderCell(

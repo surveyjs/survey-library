@@ -1,6 +1,6 @@
 {
   "name": "survey-angular-ui",
-  "version": "1.12.10",
+  "version": "1.12.15",
   "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
   "keywords": [
     "Survey",
@@ -39,6 +39,8 @@
     "@angular/router": "~12.2.0",
     "@types/jasmine": "~3.8.0",
     "@types/node": "^12.11.1",
+    "@babel/core": "7.25.9",
+    "@babel/traverse": "7.25.9",
     "jasmine-core": "~3.8.0",
     "karma": "~6.3.0",
     "karma-chrome-launcher": "~3.1.0",

@@ -55,7 +55,7 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
   getStateElement() {
     return this.model;
   }
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     return (
       <div className={this.question.cssClasses.hint}>
         {this.model.showHintPrefix ?

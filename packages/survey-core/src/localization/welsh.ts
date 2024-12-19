@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var welshSurveyStrings = {
   pagePrevText: "Blaenorol",
@@ -110,7 +110,7 @@ export var welshSurveyStrings = {
   cancel: "Canslo"
 };
 
-surveyLocalization.setupLocale("cy", welshSurveyStrings, "cymraeg", "Welsh");
+setupLocale({ localeCode: "cy", strings: welshSurveyStrings, nativeName: "cymraeg", englishName: "Welsh" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

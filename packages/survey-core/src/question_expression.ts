@@ -1,9 +1,10 @@
-import { HashTable, Helpers } from "./helpers";
+import { HashTable, Helpers, createDate } from "./helpers";
 import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
+import { settings } from "./settings";
 
 /**
  * A class that describes the Expression question type. It is a read-only question type that calculates a value based on a specified expression.
@@ -220,7 +221,7 @@ export class QuestionExpressionModel extends Question {
   }
   protected getValueAsStr(val: any): string {
     if (this.displayStyle == "date") {
-      var d = new Date(val);
+      const d = createDate("question-expression", val);
       if (!!d && !!d.toLocaleDateString) return d.toLocaleDateString();
     }
     if (this.displayStyle != "none" && Helpers.isNumber(val)) {
@@ -454,6 +455,9 @@ Serializer.addClass(
     { name: "isRequired", visible: false },
     { name: "readOnly", visible: false },
     { name: "requiredErrorText", visible: false },
+    { name: "resetValueIf", visible: false },
+    { name: "setValueIf", visible: false },
+    { name: "setValueExpression", visible: false },
     { name: "defaultValueExpression", visible: false },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },

@@ -23,25 +23,25 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
     return this.questionBase as QuestionImageModel;
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.getImageCss();
     var style: any = { objectFit: this.question.imageFit, width: this.question.renderedStyleWidth, height: this.question.renderedStyleHeight };
-    if(!this.question.imageLink || this.question.contentNotLoaded) {
+    if (!this.question.imageLink || this.question.contentNotLoaded) {
       style["display"] = "none";
     }
-    var control: JSX.Element | null = null;
+    var control: React.JSX.Element | null = null;
     if (this.question.renderedMode === "image") {
       control = (
         <img
           className={cssClasses}
-          src={this.question.locImageLink.renderedHtml}
+          src={this.question.locImageLink.renderedHtml || null}
           alt={this.question.altText || this.question.title}
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           //alt={item.text || item.value}
           style={style}
-          onLoad={(event: any) => { this.question.onLoadHandler(); } }
-          onError={(event: any) => { this.question.onErrorHandler(); } }
+          onLoad={(event: any) => { this.question.onLoadHandler(); }}
+          onError={(event: any) => { this.question.onErrorHandler(); }}
         />
       );
     }
@@ -53,8 +53,8 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           style={style}
-          onLoadedMetadata={(event: any) => { this.question.onLoadHandler(); } }
-          onError={(event: any) => { this.question.onErrorHandler(); } }
+          onLoadedMetadata={(event: any) => { this.question.onLoadHandler(); }}
+          onError={(event: any) => { this.question.onErrorHandler(); }}
         ></video>
       );
     }
@@ -69,8 +69,8 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
         ></iframe>
       );
     }
-    var noImage: JSX.Element | null = null;
-    if(!this.question.imageLink || this.question.contentNotLoaded) {
+    var noImage: React.JSX.Element | null = null;
+    if (!this.question.imageLink || this.question.contentNotLoaded) {
       noImage = (
         <div className={this.question.cssClasses.noImage}>
           <SvgIcon

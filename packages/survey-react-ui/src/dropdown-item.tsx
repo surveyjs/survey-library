@@ -38,7 +38,7 @@ export class SurveyQuestionOptionItem extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.item;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return (
       <option value={this.item.value} disabled={!this.item.isEnabled}>
         {this.item.text}

@@ -1,9 +1,8 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions } from "survey-core";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions, SvgRegistry, addIconsToThemeSet } from "survey-core";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
-import { SurveyLocStringViewer } from "./string-viewer";
 import { SurveyHeader } from "./components/survey-header/survey-header";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElementFactory } from "./element-factory";
@@ -13,6 +12,11 @@ import { ComponentsContainer } from "./components/components-container";
 import { SvgBundleComponent } from "./svgbundle";
 import { PopupModal } from "./components/popup/popup-modal";
 
+import { icons as iconsV1 } from "@coreIconsV1";
+import { icons as iconsV2 } from "@coreIconsV2";
+addIconsToThemeSet("v1", iconsV1);
+addIconsToThemeSet("v2", iconsV2);
+SvgRegistry.registerIcons(iconsV1);
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
   private previousJSON = {};
@@ -61,7 +65,7 @@ export class Survey extends SurveyElementBase<any, any>
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
     this.updateSurvey(this.props, prevProps);
-    if(this.isSurveyUpdated) {
+    if (this.isSurveyUpdated) {
       this.onSurveyUpdated();
       this.isSurveyUpdated = false;
     }
@@ -82,8 +86,8 @@ export class Survey extends SurveyElementBase<any, any>
     super.componentWillUnmount();
     this.destroySurvey();
   }
-  doRender(): JSX.Element {
-    let renderResult: JSX.Element | null;
+  doRender(): React.JSX.Element {
+    let renderResult: React.JSX.Element | null;
     if (this.survey.state == "completed") {
       renderResult = this.renderCompleted();
     } else if (this.survey.state == "completedbefore") {
@@ -96,12 +100,12 @@ export class Survey extends SurveyElementBase<any, any>
       renderResult = this.renderSurvey();
     }
     const backgroundImage = !!this.survey.backgroundImage ? <div className={this.css.rootBackgroundImage} style={this.survey.backgroundImageStyle}></div> : null;
-    const header: JSX.Element | null = this.survey.headerView === "basic" ? <SurveyHeader survey={this.survey}></SurveyHeader> : null;
+    const header: React.JSX.Element | null = this.survey.headerView === "basic" ? <SurveyHeader survey={this.survey}></SurveyHeader> : null;
 
     const onSubmit = function (event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
     };
-    let customHeader: JSX.Element | null = <div className="sv_custom_header" />;
+    let customHeader: React.JSX.Element | null = <div className="sv_custom_header" />;
     if (this.survey.hasLogo) {
       customHeader = null;
     }
@@ -110,7 +114,7 @@ export class Survey extends SurveyElementBase<any, any>
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables} lang={this.survey.locale || "en"} dir={this.survey.localeDir}>
-        {this.survey.needRenderIcons ? <SvgBundleComponent></SvgBundleComponent> : null }
+        {this.survey.needRenderIcons ? <SvgBundleComponent></SvgBundleComponent> : null}
         {<PopupModal></PopupModal>}
         <div className={this.survey.wrapperFormCss}>
           {backgroundImage}
@@ -128,7 +132,7 @@ export class Survey extends SurveyElementBase<any, any>
       </div>
     );
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return this.doRender();
   }
   public get css(): any {
@@ -137,7 +141,7 @@ export class Survey extends SurveyElementBase<any, any>
   public set css(value: any) {
     this.survey.css = value;
   }
-  protected renderCompleted(): JSX.Element | null {
+  protected renderCompleted(): React.JSX.Element | null {
     if (!this.survey.showCompletedPage) return null;
 
     var htmlValue = { __html: this.survey.processedCompletedHtml };
@@ -151,19 +155,19 @@ export class Survey extends SurveyElementBase<any, any>
       </React.Fragment>
     );
   }
-  protected renderCompletedBefore(): JSX.Element {
+  protected renderCompletedBefore(): React.JSX.Element {
     var htmlValue = { __html: this.survey.processedCompletedBeforeHtml };
     return (
       <div dangerouslySetInnerHTML={htmlValue} className={this.survey.completedBeforeCss} />
     );
   }
-  protected renderLoading(): JSX.Element {
+  protected renderLoading(): React.JSX.Element {
     var htmlValue = { __html: this.survey.processedLoadingHtml };
     return (
       <div dangerouslySetInnerHTML={htmlValue} className={this.survey.loadingBodyCss} />
     );
   }
-  protected renderSurvey(): JSX.Element {
+  protected renderSurvey(): React.JSX.Element {
     var activePage = this.survey.activePage
       ? this.renderPage(this.survey.activePage)
       : null;
@@ -172,7 +176,7 @@ export class Survey extends SurveyElementBase<any, any>
 
     let className = this.survey.bodyCss;
     const style: any = {};
-    if(!!this.survey.renderedWidth) {
+    if (!!this.survey.renderedWidth) {
       style.maxWidth = this.survey.renderedWidth;
     }
     return (
@@ -188,14 +192,14 @@ export class Survey extends SurveyElementBase<any, any>
             <ComponentsContainer survey={this.survey} container={"contentTop"}></ComponentsContainer>
             {activePage}
             <ComponentsContainer survey={this.survey} container={"contentBottom"}></ComponentsContainer>
-            { this.survey.showBrandInfo ? <BrandInfo/> : null }
+            {this.survey.showBrandInfo ? <BrandInfo /> : null}
           </div>
         </div>
         <ComponentsContainer survey={this.survey} container={"right"}></ComponentsContainer>
       </div>
     );
   }
-  protected renderPage(page: PageModel): JSX.Element {
+  protected renderPage(page: PageModel): React.JSX.Element {
     return (
       <SurveyPage
         survey={this.survey}
@@ -205,7 +209,7 @@ export class Survey extends SurveyElementBase<any, any>
       />
     );
   }
-  protected renderEmptySurvey(): JSX.Element {
+  protected renderEmptySurvey(): React.JSX.Element {
     return <div className={this.css.bodyEmpty}>{this.survey.emptySurveyText}</div>;
   }
   protected createSurvey(newProps: any) {
@@ -260,6 +264,7 @@ export class Survey extends SurveyElementBase<any, any>
       }
     }
   }
+
   protected setSurveyEvents() {
     var self = this;
 
@@ -276,7 +281,7 @@ export class Survey extends SurveyElementBase<any, any>
   }
 
   //ISurveyCreator
-  public createQuestionElement(question: Question): JSX.Element | null {
+  public createQuestionElement(question: Question): React.JSX.Element | null {
     return ReactQuestionFactory.Instance.createQuestion(question.isDefaultRendering() ? question.getTemplate() : question.getComponentName(),
       {
         question: question,
@@ -290,7 +295,7 @@ export class Survey extends SurveyElementBase<any, any>
     error: SurveyError,
     cssClasses: any,
     element?: any
-  ): JSX.Element {
+  ): React.JSX.Element {
     return ReactElementFactory.Instance.createElement(this.survey.questionErrorComponent, { key: key, error, cssClasses, element });
   }
   public questionTitleLocation(): string {
@@ -305,7 +310,7 @@ ReactElementFactory.Instance.registerElement("survey", (props) => {
   return React.createElement(Survey, props);
 });
 
-export function attachKey2click(element: JSX.Element, viewModel?: any, options: IAttachKey2clickOptions = { processEsc: true, disableTabStop: false }): JSX.Element {
+export function attachKey2click(element: React.JSX.Element, viewModel?: any, options: IAttachKey2clickOptions = { processEsc: true, disableTabStop: false }): React.JSX.Element {
   if ((!!viewModel && viewModel.disableTabStop) || (!!options && options.disableTabStop)) {
     return React.cloneElement(element, { tabIndex: -1 });
   }

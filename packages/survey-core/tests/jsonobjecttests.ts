@@ -2496,16 +2496,8 @@ QUnit.test("Serializer.getAllClasses() function", function (assert) {
 });
 QUnit.test("Serializer.getAllPropertiesByName() function", function (assert) {
   var properties = Serializer.getAllPropertiesByName("description");
-  assert.equal(
-    properties.length,
-    6,
-    "survey, panelbase, page, question, customtruck, nonvalue"
-  );
-  assert.equal(
-    properties[0].name,
-    "description",
-    "Find property with the correct name"
-  );
+  assert.equal(properties.length, 6, "survey, panel, page, question, customtruck, nonvalue");
+  assert.equal(properties[0].name, "description", "Find property with the correct name");
 });
 QUnit.test("nextToProperty attribute", function (assert) {
   var prop = Serializer.addProperty("truck", {
@@ -3442,4 +3434,36 @@ QUnit.test("Add availableInMatrixColumn attribute", function (assert) {
   Serializer.removeProperty("question", "prop1");
   Serializer.removeProperty("question", "prop2");
   Serializer.removeProperty("question", "prop3");
+});
+QUnit.test("Add defaultFunc attribute based on another property & obj parameter, Bug#9108", function (assert) {
+  Serializer.addProperty("question", { name: "secondName", defaultFunc: (obj: any) => { return obj.name + "_second"; } });
+  const obj: any = new QuestionTextModel("q1");
+  assert.equal(obj.secondName, "q1_second", "secondName #1");
+  obj.name = "q2";
+  assert.equal(obj.secondName, "q2_second", "secondName #2");
+  assert.deepEqual(obj.toJSON(), { name: "q2" }, "toJSON #1");
+
+  obj.secondName = "q3_s";
+  assert.equal(obj.secondName, "q3_s", "secondName #3");
+  assert.deepEqual(obj.toJSON(), { name: "q2", secondName: "q3_s" }, "toJSON #2");
+
+  obj.resetPropertyValue("secondName");
+  assert.equal(obj.secondName, "q2_second", "secondName #4");
+  assert.deepEqual(obj.toJSON(), { name: "q2" }, "toJSON #3");
+
+  Serializer.removeProperty("question", "secondName");
+});
+QUnit.test("Page & Panel should have different title&description properties", function (assert) {
+  const pageTitle = Serializer.findProperty("page", "title");
+  const pageDescription = Serializer.findProperty("page", "description");
+  const panelTitle = Serializer.findProperty("panel", "title");
+  const panelDescription = Serializer.findProperty("panel", "description");
+  pageTitle.placeholder = "pageT";
+  pageDescription.placeholder = "pageD";
+  panelTitle.placeholder = "panelT";
+  panelDescription.placeholder = "panelD";
+  assert.equal(pageTitle.placeholder, "pageT", "page title unique");
+  assert.equal(pageDescription.placeholder, "pageD", "page description unique");
+  assert.equal(panelTitle.placeholder, "panelT", "panel title unique");
+  assert.equal(panelDescription.placeholder, "panelD", "panel description unique");
 });

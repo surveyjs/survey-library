@@ -7,7 +7,7 @@ import { SvgIcon } from "../svg-icon/svg-icon";
 import { IRatingItemProps, RatingItemBase } from "./rating-item";
 
 export class RatingItemStar extends RatingItemBase {
-  render(): JSX.Element | null {
+  render(): React.JSX.Element | null {
     return (
       <label onMouseDown={this.handleOnMouseDown}
         className={this.question.getItemClass(this.item.itemValue)}

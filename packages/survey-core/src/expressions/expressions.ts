@@ -1,4 +1,4 @@
-import { HashTable, Helpers } from "../helpers";
+import { HashTable, Helpers, createDate } from "../helpers";
 import { FunctionFactory } from "../functionsfactory";
 import { ProcessValue } from "../conditionProcessValue";
 import { settings } from "../settings";
@@ -631,7 +631,7 @@ static unaryFunctions: HashTable<Function> = {
   }
   static convertValForDateCompare(val: any, second: any): any {
     if(second instanceof Date && typeof val === "string") {
-      let res = new Date(val);
+      let res = createDate("expression-operand", val);
       res.setHours(0, 0, 0);
       return res;
     }

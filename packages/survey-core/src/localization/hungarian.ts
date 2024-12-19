@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var hungarianSurveyStrings = {
   pagePrevText: "Vissza",
@@ -110,7 +110,7 @@ export var hungarianSurveyStrings = {
   cancel: "Érvénytelenít"
 };
 
-surveyLocalization.setupLocale("hu", hungarianSurveyStrings, "magyar", "Hungarian");
+setupLocale({ localeCode: "hu", strings: hungarianSurveyStrings, nativeName: "magyar", englishName: "Hungarian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

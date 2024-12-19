@@ -1,5 +1,5 @@
 import { Helpers } from "./helpers";
-import { surveyLocalization } from "./surveyStrings";
+import { surveyLocalization, getLocaleString } from "./surveyStrings";
 import { settings } from "./settings";
 import { Base, EventBase } from "./base";
 import { Serializer } from "./jsonobject";
@@ -50,7 +50,7 @@ export class LocalizableString implements ILocalizableString {
   }
   private _allowLineBreaks: boolean;
   public get allowLineBreaks(): boolean {
-    if(this._allowLineBreaks === undefined) {
+    if (this._allowLineBreaks === undefined) {
       this._allowLineBreaks = false;
       if (!!this.name && this.owner instanceof SurveyElementCore) {
         this._allowLineBreaks = Serializer.findProperty((this.owner as SurveyElementCore).getType(), this.name)?.type == "text";
@@ -60,6 +60,7 @@ export class LocalizableString implements ILocalizableString {
   }
   public onGetTextCallback: (str: string) => string;
   public storeDefaultText: boolean;
+  public serializeCallBackText: boolean;
   public onGetLocalizationTextCallback: (str: string) => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
   public onSearchChanged: () => void;
@@ -156,7 +157,7 @@ export class LocalizableString implements ILocalizableString {
   }
   private getLocalizationStr(): string {
     const name = this.getLocalizationName();
-    return !!name ? surveyLocalization.getString(name, this.locale) : "";
+    return !!name ? getLocaleString(name, this.locale) : "";
   }
   public get hasHtml(): boolean {
     return this.hasHtmlValue();
@@ -195,9 +196,9 @@ export class LocalizableString implements ILocalizableString {
   }
   public setLocaleText(loc: string, value: string): void {
     loc = this.getValueLoc(loc);
-    if(!!loc && value === undefined) {
+    if (!!loc && value === undefined) {
       const oldValue = this.getValue(loc);
-      if(oldValue !== undefined) {
+      if (oldValue !== undefined) {
         this.deleteValue(loc);
         this.fireStrChanged(loc, oldValue);
       }
@@ -280,7 +281,13 @@ export class LocalizableString implements ILocalizableString {
   public getJson(): any {
     if (!!this.sharedData) return this.sharedData.getJson();
     const keys = this.getValuesKeys();
-    if (keys.length == 0) return null;
+    if (keys.length == 0) {
+      if(this.serializeCallBackText) {
+        const text = this.calcText();
+        if(!!text) return text;
+      }
+      return null;
+    }
     if (
       keys.length == 1 &&
       keys[0] == settings.localization.defaultLocaleName &&
@@ -288,7 +295,7 @@ export class LocalizableString implements ILocalizableString {
     )
       return (<any>this).values[keys[0]];
     const res: any = {};
-    for(let key in this.values) {
+    for (let key in this.values) {
       res[key] = this.values[key];
     }
     return res;
@@ -301,7 +308,7 @@ export class LocalizableString implements ILocalizableString {
     this.values = {};
     this.htmlValues = {};
     if (value === null || value === undefined) return;
-    if(isLoading) {
+    if (isLoading) {
       if (typeof value === "string") {
         this.values[settings.defaultLocaleName] = value;
       } else {

@@ -1477,6 +1477,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
+    const oldRowVariables = values[MatrixDropdownRowModelBase.RowVariableName];
     super.runCondition(values, properties);
     var counter = 0;
     var prevTotalValue;
@@ -1490,10 +1491,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       counter < 3
     );
     this.updateVisibilityBasedOnRows();
+    values[MatrixDropdownRowModelBase.RowVariableName] = oldRowVariables;
   }
-  public runTriggers(name: string, value: any): void {
-    super.runTriggers(name, value);
-    this.runFuncForCellQuestions((q: Question) => { q.runTriggers(name, value); });
+  public runTriggers(name: string, value: any, keys?: any): void {
+    super.runTriggers(name, value, keys);
+    this.runFuncForCellQuestions((q: Question) => { q.runTriggers(name, value, keys); });
   }
   public updateElementVisibility(): void {
     super.updateElementVisibility();
@@ -1700,7 +1702,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   /**
    * An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
    *
-   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
+   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
    * @see isUniqueCaseSensitive
    */
   public get keyDuplicationError(): string {
@@ -1715,8 +1717,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get storeOthersAsComment(): boolean {
     return !!this.survey ? this.survey.storeOthersAsComment : false;
   }
-  public addColumn(name: string, title: string = null): MatrixDropdownColumn {
-    var column = new MatrixDropdownColumn(name, title);
+  public addColumn(name: string, title?: string): MatrixDropdownColumn {
+    var column = new MatrixDropdownColumn(name, title, this);
     this.columns.push(column);
     return column;
   }
@@ -2445,21 +2447,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.isValueInColumnDuplicated(columnName, !!rowObj);
     }
   }
-  private getNewValueOnRowChanged(
-    row: MatrixDropdownRowModelBase,
-    columnName: string,
-    newRowValue: any,
-    isDeletingValue: boolean,
-    newValue: any
-  ): any {
-    var rowValue = this.getRowValueCore(row, newValue, true);
+  private getNewValueOnRowChanged(row: MatrixDropdownRowModelBase,
+    columnName: string, newRowValue: any, isDeletingValue: boolean, newValue: any): any {
+    const rowValue = this.getRowValueCore(row, newValue, true);
     if (isDeletingValue) {
       delete rowValue[columnName];
     }
-    for (var i = 0; i < row.cells.length; i++) {
-      var key = row.cells[i].question.getValueName();
-      delete rowValue[key];
-    }
+    row.questions.forEach(q => {
+      delete rowValue[q.getValueName()];
+    });
     if (newRowValue) {
       newRowValue = JSON.parse(JSON.stringify(newRowValue));
       for (var key in newRowValue) {

@@ -19,14 +19,14 @@
       v-if="!element.isExpanded && element.getCssTitleExpandableSvg()"
       :class="element.getCssTitleExpandableSvg()"
       :iconName="'icon-expand-16x16'"
-      size="16"
+      size="'auto'"
     ></SvComponent>
     <SvComponent
       :is="'sv-svg-icon'"
       v-if="element.isExpanded && element.getCssTitleExpandableSvg()"
       :class="element.getCssTitleExpandableSvg()"
       :iconName="'icon-collapse-16x16'"
-      size="16"
+      size="'auto'"
     ></SvComponent>
     <SvComponent
       :is="'survey-element-title-content'"

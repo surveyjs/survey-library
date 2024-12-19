@@ -1,6 +1,6 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base, ComputedUpdater } from "../base";
-import { surveyLocalization } from "../surveyStrings";
+import { getLocaleString } from "../surveyStrings";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
@@ -156,7 +156,6 @@ export interface IAction {
   elementId?: string;
   items?: Array<IAction>;
   markerIconName?: string;
-  markerIconSize?: number;
   showPopup?: () => void;
   hidePopup?: () => void;
 }
@@ -247,7 +246,6 @@ export abstract class BaseAction extends Base implements IAction {
   @property() iconName: string;
   @property({ defaultValue: 24 }) iconSize: number | string;
   @property() markerIconName: string;
-  @property() markerIconSize: number = 16;
   @property() css?: string
   minDimension: number;
   maxDimension: number;
@@ -413,11 +411,14 @@ export abstract class BaseAction extends Base implements IAction {
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
   public updateCallback: (isResetInitialized: boolean) => void;
+  public innerItem: IAction;
   private raiseUpdate(isResetInitialized: boolean = false) {
     this.updateCallback && this.updateCallback(isResetInitialized);
   }
-  constructor(public innerItem: IAction) {
+  constructor(innerItemData: IAction) {
     super();
+    const innerItem: IAction = (innerItemData instanceof Action) ? innerItemData.innerItem : innerItemData;
+    this.innerItem = innerItem;
     this.locTitle = !!innerItem ? innerItem["locTitle"] : null;
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
@@ -541,7 +542,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   private locTooltipChanged(): void {
     if (!this.locTooltipName) return;
-    this.tooltip = surveyLocalization.getString(this.locTooltipName, this.locTitle.locale);
+    this.tooltip = getLocaleString(this.locTooltipName, this.locTitle.locale);
   }
 
   //ILocalizableOwner
@@ -552,7 +553,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }
 
   public setVisible(val: boolean): void {
-    this._visible = val;
+    if (this.visible !== val) {
+      this._visible = val;
+    }
   }
   public getVisible(): boolean {
     return this._visible;

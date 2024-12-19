@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var simplifiedChineseSurveyStrings = {
   pagePrevText: "上一页",
@@ -110,7 +110,7 @@ export var simplifiedChineseSurveyStrings = {
   cancel: "取消"
 };
 
-surveyLocalization.setupLocale("zh-cn", simplifiedChineseSurveyStrings, "简体中文", "Simplified Chinese ");
+setupLocale({ localeCode: "zh-cn", strings: simplifiedChineseSurveyStrings, nativeName: "简体中文", englishName: "Simplified Chinese" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

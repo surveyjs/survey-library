@@ -7,6 +7,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
 import { dataUrl2File, FileLoader, QuestionFileModelBase } from "./question_file";
 import { isBase64URL } from "./utils/utils";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -64,7 +65,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
   public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
-      this.initSignaturePad(el);
+      if (!this.isDesignMode) this.initSignaturePad(el);
       this.element = el;
     }
     super.afterRenderQuestionElement(el);
@@ -109,7 +110,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
   private fromUrl(url: string): void {
     this.isFileLoading = true;
-    if(isBase64URL(url)) {
+    if (isBase64URL(url)) {
       this.fromDataUrl(url);
       this.isFileLoading = false;
     } else {
@@ -117,10 +118,13 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       img.crossOrigin = "anonymous";
       img.src = url;
       img.onload = () => {
-        if(!!this.canvas) {
-          const ctx = this.canvas.getContext("2d");
+        if (!!this.canvas) {
+          const canvas = DomDocumentHelper.createElement("canvas") as HTMLCanvasElement;
+          canvas.width = this.containerWidth;
+          canvas.height = this.containerHeight;
+          const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0);
-          var dataURL = this.canvas.toDataURL(this.getFormat());
+          var dataURL = canvas.toDataURL(this.getFormat());
           this.fromDataUrl(dataURL);
         }
         this.isFileLoading = false;
@@ -540,8 +544,8 @@ Serializer.addClass(
       default: "png",
       choices: [
         { value: "png", text: "PNG" },
-        { value: "image/jpeg", text: "JPEG" },
-        { value: "image/svg+xml", text: "SVG" },
+        { value: "jpeg", text: "JPEG" },
+        { value: "svg", text: "SVG" },
       ],
       onSettingValue: (obj: any, val: any): any => {
         return correctFormatData(val);

@@ -76,7 +76,7 @@
 import SvComponent from "@/SvComponent.vue";
 import { useBase, useComputedArray } from "@/base";
 import type { ListModel } from "survey-core";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, onUnmounted } from "vue";
 
 const props = defineProps<{ model: ListModel }>();
 const listContainerElement = ref<HTMLElement>(null as any);
@@ -99,5 +99,11 @@ useBase(() => props.model);
 
 onMounted(() => {
   props.model.initListContainerHtmlElement(listContainerElement.value);
+});
+onUnmounted(() => {
+  if (props.model) {
+    props.model.removeScrollEventListener();
+    props.model.initListContainerHtmlElement(undefined as any);
+  }
 });
 </script>

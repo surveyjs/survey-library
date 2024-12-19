@@ -21,7 +21,7 @@ ko.components.register("survey-element-title", {
 
       let iconExpandSvg, iconCollapseSvg;
       if (element.getCssTitleExpandableSvg()) {
-        const getSvgComponentString = (iconName: string)=>`<!-- ko component: { name: 'sv-svg-icon', params: { css: element.getCssTitleExpandableSvg(), iconName: '${iconName}', size: 16 } } --><!-- /ko -->`;
+        const getSvgComponentString = (iconName: string)=>`<!-- ko component: { name: 'sv-svg-icon', params: { css: element.getCssTitleExpandableSvg(), iconName: '${iconName}', size: 'auto' } } --><!-- /ko -->`;
         iconExpandSvg = `<!-- ko ifnot: element.isExpanded -->${getSvgComponentString("icon-expand-16x16")}<!-- /ko -->`;
         iconCollapseSvg = `<!-- ko if: element.isExpanded -->${getSvgComponentString("icon-collapse-16x16")}<!-- /ko -->`;
         innerHTML = iconExpandSvg + iconCollapseSvg + innerHTML;

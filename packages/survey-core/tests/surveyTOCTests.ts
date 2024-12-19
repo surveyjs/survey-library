@@ -235,13 +235,54 @@ QUnit.test("questionsOnPageMode singlePage", function (assert) {
       }
     ]
   };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
-
+  const survey: SurveyModel = new SurveyModel(json);
+  const tocListModel = createTOCListModel(survey);
+  const page = survey.currentPage;
+  assert.equal(page.elements.length, 3, "There are two elements in the root");
   assert.equal(tocListModel.visibleItems.length, 3, "3 items is TOC");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].elements[0].name, "Page 1");
-  assert.equal(tocListModel.visibleItems[1].id, survey.pages[0].elements[1].name, "Page 2");
-  assert.equal(tocListModel.visibleItems[2].id, survey.pages[0].elements[2].name, "Page 3");
+  assert.equal(tocListModel.visibleItems[0].id, page.elements[0].name, "Page 1");
+  assert.equal(tocListModel.visibleItems[1].id, page.elements[1].name, "Page 2");
+  assert.equal(tocListModel.visibleItems[2].id, page.elements[2].name, "Page 3");
+});
+
+QUnit.test("questionsOnPageMode singlePage selectedItem tracks focused question", function (assert) {
+  let json: any = {
+    "questionsOnPageMode": "singlePage",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "html",
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      }
+    ]
+  };
+  const survey: SurveyModel = new SurveyModel(json);
+  const tocListModel = createTOCListModel(survey);
+  assert.equal(tocListModel.visibleItems.length, 3, "3 items is TOC");
+  assert.equal(tocListModel.selectedItem.id, "page1", "first page is active");
+  survey.getQuestionByName("question3").focusIn();
+  assert.equal(tocListModel.selectedItem.id, "page3", "3rd page is active after question3 focused");
 });
 
 QUnit.test("respects markup", function (assert) {
@@ -525,4 +566,78 @@ QUnit.test("TOC navigation shows page numbers", function (assert) {
   assert.equal(tocListModel.actions.length, 1);
   assert.equal(tocListModel.actions[0].visible, true);
   assert.equal(tocListModel.actions[0].title, "1. page1");
+});
+
+QUnit.test("survey.tryNavigateToPage respects validationAllowSwitchPages and validationAllowComplete", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2",
+            "isRequired": true,
+            "requiredErrorText": "You SSN must be a 9-digit number.",
+            "validators": [
+              {
+                "type": "regex",
+                "text": "Your SSN must be a 9-digit number",
+                "regex": "^(?!0{3})(?!6{3})[0-8]\\d{2}-?(?!0{2})\\d{2}-?(?!0{4})\\d{4}$"
+              }
+            ],
+            "maxLength": 9
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3",
+          }
+        ]
+      },
+    ]
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.validationAllowSwitchPages, false);
+  assert.equal(survey.validationAllowComplete, false);
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), false, "navigate #1");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #2");
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "navigate #3");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #1");
+
+  survey.validationAllowSwitchPages = true;
+  assert.equal(survey.validationAllowSwitchPages, true);
+  assert.equal(survey.validationAllowComplete, false);
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), true, "navigate #4");
+  assert.equal(survey.currentPageNo, 2, "currentPageNo #3");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #5");
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "navigate #6");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
+
+  survey.validationAllowComplete = true;
+  assert.equal(survey.validationAllowSwitchPages, true);
+  assert.equal(survey.validationAllowComplete, true);
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), true, "navigate #7");
+  assert.equal(survey.currentPageNo, 2, "currentPageNo #3");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #8");
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "navigate #9");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
 });

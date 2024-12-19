@@ -115,8 +115,9 @@
 
 .sd-element__title-expandable-svg {
   display: inline-block;
-  height: calcSize(2);
-  width: calcSize(2);
+  width: var(--lbr-question-panel-expand-button-icon-width, calcSize(2));
+  height: var(--lbr-question-panel-expand-button-icon-height, calcSize(2));
+
   position: absolute;
   inset-inline-start: calcSize(-3);
   top: calcSize(0.5);

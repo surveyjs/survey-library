@@ -16,7 +16,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   handleOnRowAddClick(event: any) {
     this.matrix.addRowUI();
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
     var showTable = this.question.renderedTable.showTable;
     var mainDiv = showTable
@@ -30,18 +30,18 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       </div>
     );
   }
-  protected renderAddRowButtonOnTop(cssClasses: any): JSX.Element | null {
+  protected renderAddRowButtonOnTop(cssClasses: any): React.JSX.Element | null {
     if (!this.matrix.renderedTable.showAddRowOnTop) return null;
     return this.renderAddRowButton(cssClasses);
   }
-  protected renderAddRowButtonOnBottom(cssClasses: any): JSX.Element | null {
+  protected renderAddRowButtonOnBottom(cssClasses: any): React.JSX.Element | null {
     if (!this.matrix.renderedTable.showAddRowOnBottom) return null;
     return this.renderAddRowButton(cssClasses);
   }
-  protected renderNoRowsContent(cssClasses: any): JSX.Element {
-    const text: JSX.Element = this.renderLocString(this.matrix.locEmptyRowsText);
-    const textDiv: JSX.Element = <div className={cssClasses.emptyRowsText}>{text}</div>;
-    const btn: JSX.Element|undefined = this.matrix.renderedTable.showAddRow ? this.renderAddRowButton(cssClasses, true) : undefined;
+  protected renderNoRowsContent(cssClasses: any): React.JSX.Element {
+    const text: React.JSX.Element = this.renderLocString(this.matrix.locEmptyRowsText);
+    const textDiv: React.JSX.Element = <div className={cssClasses.emptyRowsText}>{text}</div>;
+    const btn: React.JSX.Element | undefined = this.matrix.renderedTable.showAddRow ? this.renderAddRowButton(cssClasses, true) : undefined;
     return (
       <div className={cssClasses.emptyRowsSection}>
         {textDiv}
@@ -52,7 +52,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   protected renderAddRowButton(
     cssClasses: any,
     isEmptySection: boolean = false
-  ): JSX.Element {
+  ): React.JSX.Element {
     return ReactElementFactory.Instance.createElement("sv-matrixdynamic-add-btn", {
       question: this.question, cssClasses, isEmptySection
     });
@@ -74,8 +74,8 @@ export class SurveyQuestionMatrixDynamicAddButton extends ReactSurveyElement {
   handleOnRowAddClick(event: any) {
     this.matrix.addRowUI();
   }
-  protected renderElement(): JSX.Element {
-    const addRowText: JSX.Element = this.renderLocString(this.matrix.locAddRowText);
+  protected renderElement(): React.JSX.Element {
+    const addRowText: React.JSX.Element = this.renderLocString(this.matrix.locAddRowText);
     const addButton = (<button
       className={this.matrix.getAddRowButtonCss(this.props.isEmptySection)}
       type="button"

@@ -131,6 +131,23 @@ QUnit.test("ListModel custom onFilter", assert => {
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
 });
 
+QUnit.test("ListModel: refresh & isEmpty", assert => {
+  const items = [
+    new Action({ id: "test1", title: "test1" }),
+    new Action({ id: "test2", title: "test2" })
+  ];
+  const myObject = new MyObject(items);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
+  assert.equal(list.isEmpty, false, "#1");
+  list.actions[0].setVisible(false);
+  list.actions[1].setVisible(false);
+  list.refresh();
+  assert.equal(list.isEmpty, true, "#2");
+  list.actions[1].setVisible(true);
+  list.refresh();
+  assert.equal(list.isEmpty, false, "#3");
+});
+
 QUnit.test("ListModel custom onFilter: item is not found when a search string contains a white space", assert => {
   ListModel.MINELEMENTCOUNT = 5;
   const items = [
@@ -440,6 +457,37 @@ QUnit.test("ListModel search in subitems", function (assert) {
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
 });
+
+QUnit.test("ListModel search in subitems with icons", function (assert) {
+  ListModel.MINELEMENTCOUNT = 5;
+
+  const items: Array<IAction> = [];
+  for (let index = 0; index < 7; ++index) {
+    items.push(new Action({ id: "test" + index, title: "test" + index, iconName: "icon" + index }));
+  }
+
+  const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
+  (items[2] as Action).setSubItems({ items: subitems });
+  const list = new ListModel(items, () => { }, true);
+  let filteredActions;
+  filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
+  assert.equal(filteredActions.length, 7);
+
+  list.filterString = "2";
+  filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
+  assert.equal(filteredActions.length, 3);
+  assert.deepEqual(filteredActions.map(a => a.title), ["test2", "test28", "test29"]);
+  assert.deepEqual(filteredActions.map(a => a.iconName), ["icon2", "icon2", "icon2"]);
+
+  list.filterString = "";
+  filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
+  assert.equal(filteredActions.length, 7);
+  assert.equal(filteredActions[2].items.length, 2);
+  assert.notOk(filteredActions[2].items[0].iconName);
+
+  ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
+});
+
 QUnit.test("ListModel onItemClick", function (assert) {
 
   let items: Array<Action> = [];

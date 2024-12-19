@@ -73,6 +73,24 @@ QUnit.test(
 );
 
 QUnit.test(
+  "a11y: aria-describedbby: empty description",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "text",
+          title: "Title",
+          name: "q1"
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var question = survey.getQuestionByName("q1");
+    assert.equal(question.a11y_input_ariaDescribedBy, null, "aria-describedbby is null");
+  }
+);
+
+QUnit.test(
   "a11y: aria-invalid",
   function(assert) {
     var question = new Question("q1");

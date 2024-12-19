@@ -13,8 +13,8 @@ export class SurveyFileItem extends SurveyElementBase<{ question: QuestionFileMo
     return this.props.item;
   }
 
-  protected renderFileSign(className: string, val: any): JSX.Element | null {
-    if(!className || !val.name) return null;
+  protected renderFileSign(className: string, val: any): React.JSX.Element | null {
+    if (!className || !val.name) return null;
     return (
       <div className={className}>
         <a
@@ -32,7 +32,7 @@ export class SurveyFileItem extends SurveyElementBase<{ question: QuestionFileMo
     );
   }
 
-  protected renderElement(): JSX.Element | null {
+  protected renderElement(): React.JSX.Element | null {
     const val = this.item;
     return (
       <span
@@ -47,9 +47,9 @@ export class SurveyFileItem extends SurveyElementBase<{ question: QuestionFileMo
               style={{ height: this.question.imageHeight, width: this.question.imageWidth }}
               alt="File preview"
             />
-          ) : (this.question.cssClasses.defaultImage?(
+          ) : (this.question.cssClasses.defaultImage ? (
             <SvgIcon iconName={this.question.cssClasses.defaultImageIconId} size={"auto"} className={this.question.cssClasses.defaultImage}></SvgIcon>
-          ):null)}
+          ) : null)}
           {val.name && !this.question.isReadOnly ? (
             <div className={this.question.getRemoveButtonCss()} onClick={(event) => this.question.doRemoveFile(val, event)}>
               <span
@@ -58,7 +58,7 @@ export class SurveyFileItem extends SurveyElementBase<{ question: QuestionFileMo
                 {this.question.removeFileCaption}
               </span>
               {(this.question.cssClasses.removeFileSvgIconId) ?
-                (<SvgIcon title={this.question.removeFileCaption} iconName={this.question.cssClasses.removeFileSvgIconId} size={"auto"} className={this.question.cssClasses.removeFileSvg}></SvgIcon>): null }
+                (<SvgIcon title={this.question.removeFileCaption} iconName={this.question.cssClasses.removeFileSvgIconId} size={"auto"} className={this.question.cssClasses.removeFileSvg}></SvgIcon>) : null}
             </div>
           ) : null}
         </div>

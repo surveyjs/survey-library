@@ -9,7 +9,7 @@ export class SurveyQuestionRatingDropdown extends SurveyQuestionDropdownBase<Que
   constructor(props: any) {
     super(props);
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
     var select = this.renderSelect(cssClasses);
     return (

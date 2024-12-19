@@ -28,7 +28,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
     this.setState({ canShowItemTitles: this.model.showItemTitles });
     this.setState({ canShowFooter: !this.model.showItemTitles });
   }
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     return (
       <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth }} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-label="progress">
         {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
@@ -64,14 +64,14 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
       </div>
     );
   }
-  protected getListElements(): JSX.Element[] {
-    let buttons: JSX.Element[] = [];
+  protected getListElements(): React.JSX.Element[] {
+    let buttons: React.JSX.Element[] = [];
     this.survey.visiblePages.forEach((page: PageModel, index: number) => {
       buttons.push(this.renderListElement(page, index));
     });
     return buttons;
   }
-  protected renderListElement(page: PageModel, index: number): JSX.Element {
+  protected renderListElement(page: PageModel, index: number): React.JSX.Element {
     const text = SurveyElementBase.renderLocString(page.locNavigationTitle);
     return (
       <li
@@ -118,7 +118,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
     }, 10);
   }
   componentWillUnmount() {
-    if(!!this.respManager) {
+    if (!!this.respManager) {
       this.respManager.dispose();
     }
     super.componentWillUnmount();

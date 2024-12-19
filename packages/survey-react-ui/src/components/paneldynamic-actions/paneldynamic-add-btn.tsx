@@ -21,7 +21,7 @@ export class SurveyQuestionPanelDynamicAddButton extends SurveyQuestionPanelDyna
   protected handleClick = (event: any) => {
     this.question.addPanelUI();
   }
-  protected renderElement(): JSX.Element | null {
+  protected renderElement(): React.JSX.Element | null {
     if (!this.question.canAddPanel) return null;
     const btnText = this.renderLocString(this.question.locPanelAddText);
     return (

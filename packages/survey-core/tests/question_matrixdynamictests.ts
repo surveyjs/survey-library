@@ -6669,63 +6669,55 @@ QUnit.test("Detail panel, run conditions", function (assert) {
       },
     ],
   });
-  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-  assert.equal(
-    matrix.detailPanelMode,
-    "underRow",
-    "detail panel mode load correctly"
-  );
-  assert.equal(
-    matrix.detailElements.length,
-    4,
-    "detail elements loads correctly"
-  );
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.detailPanelMode, "underRow", "detail panel mode load correctly");
+  assert.equal(matrix.detailElements.length, 4, "detail elements loads correctly");
   matrix.visibleRows[0].showDetailPanel();
   assert.ok(matrix.visibleRows[0].detailPanel, "Detail Panel is created");
-  var panel = matrix.visibleRows[0].detailPanel;
-  assert.equal(
-    panel.questions[0].isVisible,
-    false,
-    "first question is invisible"
-  );
-  assert.equal(
-    panel.questions[1].isVisible,
-    false,
-    "second question is invisible"
-  );
-  assert.equal(
-    panel.questions[2].isVisible,
-    false,
-    "third question is invisible"
-  );
-  assert.equal(
-    panel.questions[3].isVisible,
-    true,
-    "fourth question is invisible"
-  );
+  const panel = matrix.visibleRows[0].detailPanel;
+  assert.equal(panel.questions[0].isVisible, false, "first question is invisible");
+  assert.equal(panel.questions[1].isVisible, false, "second question is invisible");
+  assert.equal(panel.questions[2].isVisible, false, "third question is invisible");
+  assert.equal(panel.questions[3].isVisible, true, "fourth question is invisible");
   survey.setValue("question1", "val1");
-  assert.equal(
-    panel.questions[0].isVisible,
-    true,
-    "first question is visible now"
-  );
-  assert.equal(
-    panel.questions[3].isVisible,
-    false,
-    "fourth question is invisible now"
-  );
+  assert.equal(panel.questions[0].isVisible, true, "first question is visible now");
+  assert.equal(panel.questions[3].isVisible, false, "fourth question is invisible now");
   matrix.visibleRows[0].cells[0].question.value = "val2";
-  assert.equal(
-    panel.questions[1].isVisible,
-    true,
-    "second question is visible now"
-  );
+  assert.equal(panel.questions[1].isVisible, true, "second question is visible now");
   panel.getQuestionByName("q2").value = "val3";
-  assert.equal(
-    panel.questions[2].isVisible,
-    true,
-    "third question is visible now"
-  );
+  assert.equal(panel.questions[2].isVisible, true, "third question is visible now");
+});
+QUnit.test("Detail panel, run conditions & matrix before elements, bug#9137", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }, { name: "col2" }],
+        cellType: "text",
+        detailElements: [
+          { type: "matrixdynamic", name: "m1", columns: [{ name: "col1", defaultValue: "v1" }, { name: "col2", visibleIf: "{row.col1} notempty" }] },
+          { type: "text", name: "q1", visibleIf: "{row.col1} = 'val2'" },
+          { type: "text", name: "q2", visibleIf: "{row.q1} = 'val3'" }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.visibleRows[0].showDetailPanel();
+  assert.ok(matrix.visibleRows[0].detailPanel, "Detail Panel is created");
+  const panel = matrix.visibleRows[0].detailPanel;
+  assert.equal(panel.getQuestionByName("m1").visibleRows.length, 2, "nested matrix rows are created");
+  assert.equal(panel.getQuestionByName("q1").isVisible, false, "first question is invisible, #1");
+  assert.equal(panel.getQuestionByName("q2").isVisible, false, "second question is invisible, #1");
+  matrix.visibleRows[0].cells[0].question.value = "val2";
+  assert.equal(panel.getQuestionByName("q1").isVisible, true, "first question is visible, #2");
+  assert.equal(panel.getQuestionByName("q2").isVisible, false, "second question is invisible, #2");
+  panel.getQuestionByName("q1").value = "val3";
+  assert.equal(panel.getQuestionByName("q1").isVisible, true, "first question is visible, #3");
+  assert.equal(panel.getQuestionByName("q2").isVisible, true, "second question is visible, #3");
 });
 QUnit.test("Detail panel and defaultValueFromLastRow", function (assert) {
   var survey = new SurveyModel({
@@ -7316,6 +7308,37 @@ QUnit.test("Detail panel, Process text in titles", function (assert) {
     "rowIndex:2,rootQ:rootVal,row.col1:val1,row.q2:valQ2",
     "Text preprocessed correctly"
   );
+});
+QUnit.test("Detail panel & survey.onValueChanged & empty value, Bug#9169", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }, { name: "col2" }],
+        detailElements: [
+          { type: "text", name: "q1" }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+
+  matrix.visibleRows[0].showDetailPanel();
+  const q1 = matrix.visibleRows[0].detailPanel.getQuestionByName("q1");
+  const logs: any = [];
+  survey.onValueChanged.add((sender, options) => {
+    logs.push({ name: options.name, value: options.value });
+  });
+  q1.value = "abc";
+  assert.deepEqual(logs, [{ name: "matrix", value: [{ q1: "abc" }, {}] }], "#1");
+  q1.clearValue();
+  assert.deepEqual(logs, [
+    { name: "matrix", value: [{ q1: "abc" }, {}] },
+    { name: "matrix", value: [] }
+  ], "#2");
 });
 
 QUnit.test("copyvalue trigger for dropdown matrix cell", function (assert) {
@@ -9788,6 +9811,78 @@ QUnit.test("matrix dynamic detail panel & checkbox valuePropertyName & matrix dy
   rows[1].showDetailPanel();
   matrix1 = <QuestionMatrixDynamicModel>rows[1].getQuestionByName("matrix1");
   assert.deepEqual(matrix1.value, [{ prop1: 3 }], "#2");
+});
+QUnit.test("matrix dynamic & detail panel, add a new row when the last row is expanded, errorLocation: 'bottom', Bug9147", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        errorLocation: "bottom",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text"
+          }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            name: "q2",
+            type: "text"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rendredTable = matrix.renderedTable;
+  const rows = matrix.visibleRows;
+  rows[1].showDetailPanel();
+  assert.equal(rendredTable.rows.length, 2 * 2 + 1, "There are 5 rows");
+  assert.equal(rendredTable.rows[4].isDetailRow, true, "The last row is a detail row");
+  matrix.addRow();
+  assert.equal(rendredTable.rows.length, 3 * 2 + 1, "There are 7 rows");
+  assert.equal(rendredTable.rows[4].isDetailRow, true, "The 5th row is a detail row");
+  assert.equal(rendredTable.rows[5].cells[1].question.name, "col1", "The 6th row is a data row");
+  assert.equal(rendredTable.rows[5].isDetailRow, false, "The 6th row is not a detail row");
+  assert.equal(rendredTable.rows[6].isErrorsRow, true, "The 7th row is an error row");
+  assert.equal(rendredTable.rows[6].isDetailRow, false, "The 7th row is not a detail row");
+});
+QUnit.test("matrix dynamic & detail panel, add a new row when the last row is expanded, errorLocation: 'top' (default), Bug9147", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text"
+          }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            name: "q2",
+            type: "text"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rendredTable = matrix.renderedTable;
+  const rows = matrix.visibleRows;
+  rows[1].showDetailPanel();
+  assert.equal(rendredTable.rows.length, 2 * 2 + 1, "There are 5 rows");
+  assert.equal(rendredTable.rows[4].isDetailRow, true, "The last row is a detail row");
+  matrix.addRow();
+  assert.equal(rendredTable.rows.length, 3 * 2 + 1, "There are 7 rows");
+  assert.equal(rendredTable.rows[4].isDetailRow, true, "The 5th row is a detail row");
+  assert.equal(rendredTable.rows[5].isErrorsRow, true, "The 6th row is an error row");
+  assert.equal(rendredTable.rows[6].isDetailRow, false, "The 7th row is not a detail row");
+  assert.equal(rendredTable.rows[6].cells[1].question.name, "col1", "The 7th row is a data row");
 });
 QUnit.test("Totals alingment", function (assert) {
   var json = {

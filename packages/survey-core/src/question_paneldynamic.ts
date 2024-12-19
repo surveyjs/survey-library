@@ -439,7 +439,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * A placeholder for tab titles that applies when the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) expression doesn't produce a meaningful value.
    *
-   * Default value: `"New Panel"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization))
+   * Default value: `"New Panel"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization))
    */
   public get tabTitlePlaceholder(): string {
     return this.locTabTitlePlaceholder.text;
@@ -784,7 +784,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * An error message displayed when users enter a duplicate value into a question that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
    *
-   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
+   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
    * @see keyName
    */
   public get keyDuplicationError() {
@@ -1565,7 +1565,13 @@ export class QuestionPanelDynamicModel extends Question
       }
     };
     if (this.isRequireConfirmOnDelete(value)) {
-      confirmActionAsync(this.confirmDeleteText, () => { removePanel(); }, undefined, this.getLocale(), this.survey.rootElement);
+      confirmActionAsync({
+        message: this.confirmDeleteText,
+        funcOnYes: () => { removePanel(); },
+        locale: this.getLocale(),
+        rootElement: this.survey.rootElement,
+        cssClass: this.cssClasses.confirmDialog
+      });
     } else {
       removePanel();
     }
@@ -1837,28 +1843,28 @@ export class QuestionPanelDynamicModel extends Question
   private get canBuildPanels(): boolean {
     return !this.isLoadingFromJson && !this.useTemplatePanel;
   }
-  public onFirstRendering(): void {
-    super.onFirstRendering();
+  protected onFirstRenderingCore(): void {
+    super.onFirstRenderingCore();
     this.buildPanelsFirstTime();
     this.template.onFirstRendering();
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.panelsCore[i].onFirstRendering();
     }
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.panelsCore[i].localeChanged();
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     super.runCondition(values, properties);
     this.runPanelsCondition(this.panelsCore, values, properties);
   }
-  public runTriggers(name: string, value: any): void {
-    super.runTriggers(name, value);
+  public runTriggers(name: string, value: any, keys?: any): void {
+    super.runTriggers(name, value, keys);
     this.visiblePanelsCore.forEach(p => {
-      p.questions.forEach(q => q.runTriggers(name, value));
+      p.questions.forEach(q => q.runTriggers(name, value, keys));
     });
   }
   private reRunCondition() {
@@ -2119,12 +2125,14 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isDesignMode && !this.isReadOnly && !this.isValueEmpty(panel.getValue())) {
       this.runPanelsCondition([panel], this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
-    panel.onFirstRendering();
     var questions = panel.questions;
     for (var i = 0; i < questions.length; i++) {
       questions[i].setParentQuestion(this);
     }
-    panel.locStrsChanged();
+    if(this.wasRendered) {
+      panel.onFirstRendering();
+      panel.locStrsChanged();
+    }
     panel.onGetFooterActionsCallback = () => {
       return this.getPanelActions(panel);
     };
@@ -2216,7 +2224,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected onSetData(): void {
     super.onSetData();
-    if (this.useTemplatePanel) {
+    if(!this.isLoadingFromJson && this.useTemplatePanel) {
       this.setTemplatePanelSurveyImpl();
       this.rebuildPanels();
     }

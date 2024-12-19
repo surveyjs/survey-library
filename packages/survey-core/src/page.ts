@@ -5,9 +5,10 @@ import {
   IPanel,
   IElement,
   ISurveyElement,
-  IQuestion,
+  ISurveyImpl,
+  ISurvey,
 } from "./base-interfaces";
-import { PanelModelBase, QuestionRowModel } from "./panel";
+import { PanelModelBase, PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DragDropPageHelperV1 } from "./drag-drop-page-helper-v1";
@@ -17,9 +18,10 @@ import { DragDropPageHelperV1 } from "./drag-drop-page-helper-v1";
  *
  * [View Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
  */
-export class PageModel extends PanelModelBase implements IPage {
+export class PageModel extends PanelModel implements IPage {
   private hasShownValue: boolean = false;
   private dragDropPageHelper: DragDropPageHelperV1;
+  public isPageContainer: boolean;
 
   constructor(name: string = "") {
     super(name);
@@ -33,7 +35,41 @@ export class PageModel extends PanelModelBase implements IPage {
     return this.name;
   }
   public get isPage(): boolean {
+    return !this.isPanel;
+  }
+  public get isPanel(): boolean {
+    return !!this.parent;
+  }
+  public get showPanelAsPage(): boolean {
     return true;
+  }
+  public get hasEditButton(): boolean {
+    return this.isPanel && this.survey && this.survey.state === "preview"
+     && !!this.parent && !this.parent.isPanel;
+  }
+  protected getElementsForRows(): Array<IElement> {
+    const q = this.survey?.currentSingleQuestion;
+    if(!!q) {
+      if((<any>q).page === this) return [q];
+      return [];
+    }
+    return super.getElementsForRows();
+  }
+  protected disposeElements(): void {
+    if(!this.isPageContainer) {
+      super.disposeElements();
+    }
+  }
+  protected onRemoveElement(element: IElement): void {
+    if(this.isPageContainer) {
+      element.parent = null;
+      this.unregisterElementPropertiesChanged(element);
+    } else {
+      super.onRemoveElement(element);
+    }
+  }
+  public getTemplate(): string {
+    return this.isPanel ? "panel" : super.getTemplate();
   }
   public get no(): string {
     if(!this.canShowPageNumber() || !this.survey) return "";
@@ -52,8 +88,8 @@ export class PageModel extends PanelModelBase implements IPage {
   protected canShowPageNumber(): boolean {
     return this.survey && (<any>this.survey).showPageNumbers;
   }
-  protected canShowTitle(): boolean {
-    return this.survey && (<any>this.survey).showPageTitles;
+  protected canShowTitle(survey: ISurvey): boolean {
+    return !survey || (<any>survey).showPageTitles;
   }
   protected setTitleValue(val: string): void {
     super.setTitleValue(val);
@@ -107,10 +143,6 @@ export class PageModel extends PanelModelBase implements IPage {
       this.removeSelfFromList(this.survey.pages);
     }
   }
-  public onFirstRendering(): void {
-    if (this.wasShown) return;
-    super.onFirstRendering();
-  }
   /**
    * The visible index of the page. It has values from 0 to visible page count - 1.
    * @see SurveyModel.visiblePages
@@ -135,6 +167,7 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isStarted(): boolean { return this.isStartPage; }
   protected calcCssClasses(css: any): any {
+    if(this.isPanel) return super.calcCssClasses(css);
     const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowReplace: "" };
     this.copyCssClasses(classes.page, css.page);
     this.copyCssClasses(classes.error, css.error);
@@ -173,14 +206,15 @@ export class PageModel extends PanelModelBase implements IPage {
     }
     return classes;
   }
-  public get cssTitle(): string {
+  protected getCssPanelTitle(): string {
+    if(this.isPanel) return super.getCssPanelTitle();
     if(!this.cssClasses.page) return "";
     return new CssClassBuilder()
       .append(this.cssClasses.page.title)
       .toString();
   }
   public get cssRoot(): string {
-    if(!this.cssClasses.page || !this.survey) return "";
+    if(this.isPanel || !this.cssClasses.page || !this.survey) return "";
     return new CssClassBuilder()
       .append(this.cssClasses.page.root)
       .append(this.cssClasses.page.emptyHeaderRoot, !(<any>this.survey).renderedHasHeader &&
@@ -188,6 +222,7 @@ export class PageModel extends PanelModelBase implements IPage {
       .toString();
   }
   protected getCssError(cssClasses: any): string {
+    if(this.isPanel) return super.getCssError(cssClasses);
     return new CssClassBuilder()
       .append(super.getCssError(cssClasses))
       .append(cssClasses.page.errorsContainer).toString();
@@ -368,9 +403,25 @@ Serializer.addClass(
     },
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
+    { name: "state", visible: false },
+    { name: "isRequired", visible: false },
+    { name: "startWithNewLine", visible: false },
+    { name: "width", visible: false },
+    { name: "minWidth", visible: false },
+    { name: "maxWidth", visible: false },
+    { name: "colSpan", visible: false, isSerializable: false },
+    { name: "effectiveColSpan:number", visible: false, isSerializable: false },
+    { name: "innerIndent", visible: false },
+    { name: "indent", visible: false },
+    { name: "page", visible: false, isSerializable: false },
+    { name: "showNumber", visible: false },
+    { name: "showQuestionNumbers", visible: false },
+    { name: "questionStartIndex", visible: false },
+    { name: "allowAdaptiveActions", visible: false },
+    { name: "requiredErrorText:text", serializationProperty: "locRequiredErrorText", visible: false },
   ],
   function () {
     return new PageModel();
   },
-  "panelbase"
+  "panel"
 );

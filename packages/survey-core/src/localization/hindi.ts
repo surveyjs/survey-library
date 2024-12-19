@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var hindiStrings = {
   pagePrevText: "पिछला",
@@ -110,7 +110,7 @@ export var hindiStrings = {
   cancel: "रद्द करना"
 };
 
-surveyLocalization.setupLocale("hi", hindiStrings, "hindi", "Hindi");
+setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "hindi", englishName: "Hindi" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

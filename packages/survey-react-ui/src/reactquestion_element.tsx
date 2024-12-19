@@ -178,7 +178,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     };
   }
   protected canUsePropInState(key: string): boolean {
-    return true;
+    return !key.startsWith("css");
   }
   private unMakeBaseElementReact(stateElement: Base) {
     if (!this.canMakeReact(stateElement)) return;

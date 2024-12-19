@@ -6113,7 +6113,7 @@ QUnit.test("Check isAnswered property", function (assert) {
   });
   const prevStyle = survey.css.question.titleOnAnswer;
   survey.css.question.titleOnAnswer = "answer";
-  survey.currentPage.updateElementCss();
+  survey.updateElementCss(true);
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
   const q3 = survey.getQuestionByName("q3");
@@ -6125,34 +6125,34 @@ QUnit.test("Check isAnswered property", function (assert) {
   assert.notOk(q4.isAnswered);
   assert.ok(q5.isAnswered);
 
-  assert.notOk(q1.cssTitle.indexOf("answer") > 0);
-  assert.notOk(q2.cssTitle.indexOf("answer") > 0);
-  assert.ok(q3.cssTitle.indexOf("answer") > 0);
-  assert.notOk(q4.cssTitle.indexOf("answer") > 0);
-  assert.ok(q5.cssTitle.indexOf("answer") > 0);
+  assert.notOk(q1.cssTitle.indexOf("answer") > 0, "#1");
+  assert.notOk(q2.cssTitle.indexOf("answer") > 0, "#2");
+  assert.ok(q3.cssTitle.indexOf("answer") > 0, "#3");
+  assert.notOk(q4.cssTitle.indexOf("answer") > 0, "#4");
+  assert.ok(q5.cssTitle.indexOf("answer") > 0, "#5");
 
   q1.value = "abc";
-  assert.ok(q1.cssTitle.indexOf("answer") > 0);
+  assert.ok(q1.cssTitle.indexOf("answer") > 0, "#6");
   q1.value = "";
-  assert.notOk(q1.cssTitle.indexOf("answer") > 0);
+  assert.notOk(q1.cssTitle.indexOf("answer") > 0, "#7");
 
   q2.value = 2;
-  assert.ok(q2.cssTitle.indexOf("answer") > 0);
+  assert.ok(q2.cssTitle.indexOf("answer") > 0, "#8");
   q2.value = undefined;
-  assert.notOk(q2.cssTitle.indexOf("answer") > 0);
+  assert.notOk(q2.cssTitle.indexOf("answer") > 0, "#9");
 
   q3.clearValue();
-  assert.notOk(q3.cssTitle.indexOf("answer") > 0);
+  assert.notOk(q3.cssTitle.indexOf("answer") > 0, "#10");
 
   q4.value = [1];
-  assert.ok(q4.cssTitle.indexOf("answer") > 0);
+  assert.ok(q4.cssTitle.indexOf("answer") > 0, "#11");
   q4.value = [];
-  assert.notOk(q4.cssTitle.indexOf("answer") > 0);
+  assert.notOk(q4.cssTitle.indexOf("answer") > 0, "#12");
 
-  assert.notOk(q4.isAnswered, "q4 is not answered");
+  assert.notOk(q4.isAnswered, "q4 is not answered, #13");
   survey.setValue("q4", [1]);
-  assert.ok(q4.isAnswered, "q4 is answered");
-  assert.ok(q4.cssTitle.indexOf("answer") > 0);
+  assert.ok(q4.isAnswered, "q4 is answered, 14");
+  assert.ok(q4.cssTitle.indexOf("answer") > 0, "#15");
 
   survey.css.question.titleOnAnswer = prevStyle;
 });

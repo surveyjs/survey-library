@@ -144,9 +144,8 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private makeBaseElementReact(stateElement: Base) {
     if (!this.canMakeReact(stateElement)) return;
     stateElement.iteratePropertiesHash((hash, key) => {
-      if (!this.canUsePropInState(key)) return;
-      var val: any = hash[key];
-      if (Array.isArray(val)) {
+      var val = hash[key] as any;
+      if (Array.isArray(val) && this.canUsePropInState(key, val)) {
         var val: any = val;
         val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
           if (this.isRendering) return;
@@ -164,9 +163,10 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       key: string,
       val: any
     ) => {
-      if (hash[key] !== val) {
+      const oldVal: any = hash[key];
+      if (oldVal !== val) {
         hash[key] = val;
-        if (!this.canUsePropInState(key)) return;
+        if (!this.canUsePropInState(key, oldVal)) return;
         if (this.isRendering) return;
         this.changedStatePropNameValue = key;
         this.setState((state: any) => {
@@ -177,8 +177,8 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       }
     };
   }
-  protected canUsePropInState(key: string): boolean {
-    return !key.startsWith("css");
+  protected canUsePropInState(key: string, oldVal: any): boolean {
+    return oldVal !== undefined || !key.startsWith("css");
   }
   private unMakeBaseElementReact(stateElement: Base) {
     if (!this.canMakeReact(stateElement)) return;

@@ -22,7 +22,7 @@ trigger:
   batch: true
   branches:
     include:
-      - master
+      - legacy/1.12.15
   tags:
     exclude:
       - v*.*.*
@@ -169,13 +169,13 @@ jobs:
         $env:GIT_REDIRECT_STDERR = '2>&1'
         git config --global user.email "kurmanov.work@gmail.com"
         git config --global user.name "dmitrykurmanov"
-        git pull origin master
-        git fetch origin master --tags --force
-        git checkout master
+        git pull origin legacy/1.12.15
+        git fetch origin legacy/1.12.15 --tags --force
+        git checkout legacy/1.12.15
         git add surveyjs.io/App_Data/DocsLibrary
         git commit -m "updated survey-library docs [azurepipelines skip]"
-        git pull origin master
-        git push origin master
+        git pull origin legacy/1.12.15
+        git push origin legacy/1.12.15
       displayName: "git surveyjs/service push updated docs"
 
     - script: |

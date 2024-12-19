@@ -3,28 +3,9 @@ import { ListModel } from "../list";
 import { Action, actionModeType, createDropdownActionModelAdvanced, IAction } from "./action";
 import { ActionContainer } from "./container";
 import { surveyLocalization } from "../surveyStrings";
-type IDescriptor = {
-  getTitleElement: () => HTMLElement,
-  getLargeRootElement: () => HTMLElement,
-  getSmallRootElement: () => HTMLElement,
-}
-class ActionsRepo {
-  hash: {[name: string]: IDescriptor} = {};
-  addAction(component: string, descriptor: IDescriptor) {
-    this.hash[component] = descriptor;
-  }
-  removeAction(component: string) {
-    this.hash["default"] = undefined;
-  }
-  getAction(component: string) {
-    return this.hash["default"];
-  }
-}
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   public dotsItem: Action;
-
-  public readonly actionsRepo = new ActionsRepo();
 
   private responsivityManager: ResponsivityManager;
   public minVisibleItemsCount: number = 0;

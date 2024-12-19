@@ -8,17 +8,13 @@ import { SurveyActionBarSeparator } from "./action-bar-separator";
 
 interface IActionBarItemProps {
   item: Action;
-  actionsRepo?: any;
-  mode?: "large" | "small";
 }
 
 export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
   private ref: React.RefObject<any>;
-  private ref2: React.RefObject<any>;
   constructor(props: any) {
     super(props);
     this.ref = React.createRef();
-    this.ref2 = React.createRef();
   }
   get item() {
     return this.props.item;
@@ -30,45 +26,9 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     return super.shouldComponentUpdate(nextProps, nextState);
   }
-  renderTest() {
-    const itemClass = this.item.getActionRootCss();
-    const separator = this.item.needSeparator ? (
-      <SurveyActionBarSeparator></SurveyActionBarSeparator>
-    ) : null;
-
-    return <div className={itemClass} id={this.item.id}>
-      <div style={{ width: 0, height: 0, overflow: "hidden" }} ref={node => node && node.setAttribute("inert", "")}>
-        <div style={{ width: "max-content" }} ref={this.ref}>
-          {separator}
-          { ReactElementFactory.Instance.createElement(
-            this.item.component || "sv-action-bar-item",
-            {
-              item: this.item,
-              mode: "large"
-            }
-          )}
-        </div>
-      </div>
-      <div style={{ width: 0, height: 0, overflow: "hidden" }} ref={node => node && node.setAttribute("inert", "")}>
-        <div style={{ minWidth: "max-content", width: "100%" }} ref={this.ref2}>
-          {separator}
-          { ReactElementFactory.Instance.createElement(
-            this.item.component || "sv-action-bar-item",
-            {
-              item: this.item,
-              mode: "small"
-            }
-          )}
-        </div>
-      </div>
-    </div>;
-  }
 
   renderElement() {
     //refactor
-    if(this.props.actionsRepo) {
-      return this.renderTest();
-    }
     const itemClass = this.item.getActionRootCss();
     const separator = this.item.needSeparator ? (
       <SurveyActionBarSeparator></SurveyActionBarSeparator>
@@ -81,7 +41,7 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
       }
     );
     return (
-      <div className={itemClass} id={this.item.id}>
+      <div className={itemClass} id={this.item.id} ref={this.ref}>
         <div className="sv-action__content">
           {separator}
           {itemComponent}
@@ -89,13 +49,18 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
       </div>
     );
   }
+  componentWillUnmount(): void {
+    this.item.calcDimensionCallback = undefined;
+  }
   componentDidMount(): void {
     super.componentDidMount();
-    if(!this.props.actionsRepo) return null;
-    this.props.actionsRepo.addAction("default", {
-      getLargeRootElement: () => this.ref.current,
-      getSmallRootElement: () => this.ref2.current,
-    });
+    this.item.calcDimensionCallback = (mode, callback) => {
+      ((React as any)["flushSync"] ?? queueMicrotask)(() => {
+        this.item.mode = mode;
+        callback(mode, this.ref.current);
+      });
+    };
+    this.item.afterRender();
   }
 }
 
@@ -115,7 +80,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderText() {
-    if (!this.item.getHasTitle(this.props.mode ?? this.item.mode)) return null;
+    if (!this.item.hasTitle) return null;
     const titleClass = this.item.getActionBarItemTitleCss();
     return <span className={titleClass}>{this.item.title}</span>;
   }
@@ -139,7 +104,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderInnerButton() {
-    const className = this.item.getActionBarItemCss(this.props.mode ?? this.item.mode);
+    const className = this.item.getActionBarItemCss();
     const title = this.item.tooltip || this.item.title;
     const buttonContent = this.renderButtonContent();
     const tabIndex = this.item.disableTabStop ? -1 : undefined;

@@ -305,14 +305,6 @@ export abstract class BaseAction extends Base implements IAction {
   public get canShrink() {
     return !this.disableShrink && !!this.iconName;
   }
-  public getHasTitle(mode: "small" | "large" | "removed" | "popup") {
-    return (
-      ((mode != "small" &&
-        (this.showTitle || this.showTitle === undefined)) ||
-        !this.iconName) &&
-      !!this.title
-    );
-  }
   public get hasTitle(): boolean {
     return (
       ((this.mode != "small" &&
@@ -330,8 +322,8 @@ export abstract class BaseAction extends Base implements IAction {
       .append(this.cssClasses.itemTitleWithIcon, !!this.iconName)
       .toString();
   }
-  public getActionBarItemCss(mode: "small" | "large" | "removed" | "popup"): string {
-    const hasTitle = this.getHasTitle(mode);
+  public getActionBarItemCss(): string {
+    const hasTitle = this.hasTitle;
     return new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemWithTitle, hasTitle)
@@ -593,12 +585,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     }
   }
   @property({}) public renderTest: boolean = false;
-  public getTestMinElementCallback: () => HTMLElement;
-  public getTestMaxElementCallback: () => HTMLElement;
-  public updateDimension(mode: "large" | "small", calcDimension: (el: HTMLElement) => number): void {
-    const property = mode == "large" ? "maxDimension" : "minDimension";
-    const getTestElementCallback = mode == "small" ? this.getTestMinElementCallback : this.getTestMaxElementCallback;
-    const el = getTestElementCallback && getTestElementCallback();
+  public updateDimension(mode: actionModeType, el: HTMLElement, calcDimension: (el: HTMLElement) => number): void {
+    const property = mode == "small" ? "minDimension" : "maxDimension";
     if(el) {
       const actionContainer = el.parentElement.parentElement;
       const oldDisplay = el.style.display;
@@ -611,28 +599,32 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       }
     }
   }
-  public updateDimensions(calcDimension: (el: HTMLElement) => number, callback: () => void): void {
-    if(this.renderTest || !this.onElementRerendered) {
-      this.updateDimension("small", calcDimension);
-      this.updateDimension("large", calcDimension);
-      callback();
+
+  public calcDimensionCallback: (mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void) => void;
+  public afterRenderCallback: () => void;
+  public afterRender(): void {
+    this.afterRenderCallback && this.afterRenderCallback();
+  }
+  public calcDimension(mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void): void {
+    if(this.calcDimensionCallback) {
+      this.calcDimensionCallback(mode, callback);
     } else {
-      const onRerenderedCallback = (_: Base, opt: { isCancel: boolean }) => {
-        if(opt.isCancel || (this.getTestMinElementCallback && this.getTestMinElementCallback() && this.getTestMaxElementCallback && this.getTestMaxElementCallback())) {
-          this.onElementRerendered.remove(onRerenderedCallback);
-          if(!opt.isCancel) {
-            this.updateDimension("small", calcDimension);
-            this.updateDimension("large", calcDimension);
-            callback();
-          }
-          this.renderTest = false;
-        }
+      this.afterRenderCallback = () => {
+        this.calcDimensionCallback(mode, callback);
+        this.afterRenderCallback = undefined;
       };
-      this.onElementRerendered.add(onRerenderedCallback);
-      this.renderTest = true;
     }
   }
 
+  public updateDimensions(calcDimension: (htmlElement: HTMLElement) => number, callback: () => void): void {
+    this.calcDimension(this.mode, (mode, htmlElement) => {
+      this.updateDimension(mode, htmlElement, calcDimension);
+      this.calcDimension(this.mode !== "small" ? "small" : "large", (mode, htmlElement) => {
+        this.updateDimension(mode, htmlElement, calcDimension);
+        callback();
+      });
+    });
+  }
 }
 
 export class ActionDropdownViewModel {

@@ -2,6 +2,7 @@ import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 import { classesToSelector, isContainerVisible } from "./utils";
+import { debounce } from "./taskmanager";
 
 interface IDimensions {
   scroll: number;
@@ -15,14 +16,17 @@ export class ResponsivityManager {
   public getComputedStyle = (elt: Element): CSSStyleDeclaration => {
     return DomDocumentHelper.getComputedStyle(elt);
   }
-
+  private debouncedProcess = debounce(() => {
+    this.process();
+  })
   constructor(
     public container: HTMLDivElement, private model: AdaptiveActionContainer) {
-    this.model.updateCallback = (isResetInitialized: boolean) => {
+    this.model.updateCallback =
+    (isResetInitialized: boolean) => {
       if (isResetInitialized) {
         this.isInitialized = false;
       }
-      this.process();
+      this.debouncedProcess.run();
     };
     if (typeof ResizeObserver !== "undefined") {
       let isFirst = true;
@@ -70,15 +74,12 @@ export class ResponsivityManager {
     const actions = this.model.renderedActions;
     let actionsCounter = actions.length;
     actions.forEach((action: Action) => {
-      const actionForCalc = this.model.actionsRepo.getAction(action.component);
-      if(actionForCalc) {
-        actionForCalc.getLargeRootElement().querySelector("span").innerHTML = action.title;
-        // actionForCalc.getTitleElement().innerHTML = action.locTitle.renderedHtml;
-        action.minDimension = this.calcItemSize(actionForCalc.getSmallRootElement());
-        action.maxDimension = this.calcItemSize(actionForCalc.getLargeRootElement());
-      }
+      action.updateDimensions((el) => this.calcItemSize(el), () => {
+        if(--actionsCounter<= 0) {
+          callback();
+        }
+      });
     });
-    callback();
   }
   private get isContainerVisible(): boolean {
     return !!this.container && isContainerVisible(this.container);

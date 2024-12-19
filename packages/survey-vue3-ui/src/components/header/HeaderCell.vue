@@ -16,7 +16,7 @@
       <div
         v-if="model.showTitle"
         class="sv-header__title"
-        :style="{ maxWidth: model.textAreaWidth }"
+        :style="{ maxWidth: model.renderedtextAreaWidth }"
       >
         <SvComponent
           :is="'survey-element-title'"
@@ -27,7 +27,7 @@
       <div
         v-if="model.showDescription"
         class="sv-header__description"
-        :style="{ maxWidth: model.textAreaWidth }"
+        :style="{ maxWidth: model.renderedtextAreaWidth }"
       >
         <div
           v-if="model.survey.renderedHasDescription"

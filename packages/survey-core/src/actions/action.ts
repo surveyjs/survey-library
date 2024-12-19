@@ -431,7 +431,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       this.locTitleChanged();
     }
     this.registerFunctionOnPropertyValueChanged("_title", () => {
-      this.raiseUpdate(true);
+      this.needUpdateMaxDimension = true;
+      this.raiseUpdate();
     });
     this.locStrChangedInPopupModel();
   }
@@ -591,7 +592,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   public updateDimension(mode: actionModeType, el: HTMLElement, calcDimension: (el: HTMLElement) => number): void {
     const property = mode == "small" ? "minDimension" : "maxDimension";
     if(el) {
-      const actionContainer = el.parentElement.parentElement;
+      const actionContainer = el.parentElement;
       const oldDisplay = el.style.display;
       if(getComputedStyle(actionContainer).display == "none") {
         actionContainer.style.display = "block";
@@ -603,12 +604,14 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     }
   }
 
+  public needUpdateMaxDimension: boolean = false;
+  public needUpdateMinDimension: boolean = false;
   public updateModeCallback: (mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void) => void;
   public afterRenderCallback: () => void;
   public afterRender(): void {
     this.afterRenderCallback && this.afterRenderCallback();
   }
-  public calcDimension(mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void): void {
+  public updateMode(mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void): void {
     if(this.updateModeCallback) {
       this.updateModeCallback(mode, callback);
     } else {
@@ -618,14 +621,18 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       };
     }
   }
-
-  public updateDimensions(calcDimension: (htmlElement: HTMLElement) => number, callback: () => void): void {
-    this.calcDimension(this.mode, (mode, htmlElement) => {
+  public updateDimensions(calcDimension: (htmlElement: HTMLElement) => number, callback: () => void, modeToCalculate?: actionModeType): void {
+    let mode = !modeToCalculate || (modeToCalculate == "large" && this.mode !== "small") ? this.mode : modeToCalculate;
+    this.updateMode(mode, (mode, htmlElement) => {
       this.updateDimension(mode, htmlElement, calcDimension);
-      this.calcDimension(this.mode !== "small" ? "small" : "large", (mode, htmlElement) => {
-        this.updateDimension(mode, htmlElement, calcDimension);
+      if(!modeToCalculate) {
+        this.updateMode(this.mode !== "small" ? "small" : "large", (mode, htmlElement) => {
+          this.updateDimension(mode, htmlElement, calcDimension);
+          callback();
+        });
+      } else {
         callback();
-      });
+      }
     });
   }
 }

@@ -70,15 +70,28 @@ export class ResponsivityManager {
   }
 
   private calcItemsSizes(callback: () => void) {
-    if (!this.container || this.isInitialized) return;
-    const actions = this.model.renderedActions;
-    let actionsCounter = actions.length;
-    actions.forEach((action: Action) => {
+    if (!this.container) return;
+    const actionsToUpdateDimension = this.isInitialized
+      ? this.model.renderedActions.filter(action => action.needUpdateMaxDimension || action.needUpdateMinDimension)
+      : this.model.renderedActions;
+    let actionsCounter = actionsToUpdateDimension.length;
+    if(actionsCounter == 0) {
+      callback();
+    }
+    const finishCallback = () => {
+      if(--actionsCounter<= 0) {
+        callback();
+      }
+    };
+    actionsToUpdateDimension.forEach(action => {
+      const needUpdateMaxDimension = !this.isInitialized || action.needUpdateMaxDimension;
+      const needUpdateMinDimension = !this.isInitialized || action.needUpdateMinDimension;
+      const modeToCalculate = needUpdateMinDimension ? (needUpdateMaxDimension ? undefined : "small") : "large";
       action.updateDimensions((el) => this.calcItemSize(el), () => {
-        if(--actionsCounter<= 0) {
-          callback();
-        }
-      });
+        action.needUpdateMaxDimension = false;
+        action.needUpdateMinDimension = false;
+        finishCallback();
+      }, modeToCalculate);
     });
   }
   private get isContainerVisible(): boolean {
@@ -86,18 +99,14 @@ export class ResponsivityManager {
   }
 
   private process(): void {
-    if (this.isContainerVisible && !this.model.isResponsivenessDisabled && !this.isDisposed) {
-      const processResponsiveness = () => {
-        this.model.fit({ availableSpace: this.getAvailableSpace(), gap: this.getGap() });
-      };
-      if (!this.isInitialized) {
-        this.calcItemsSizes(() => {
-          processResponsiveness();
-          this.isInitialized = true;
-        });
-      } else {
-        processResponsiveness();
-      }
+    const shouldProcessResponsiveness = () => this.isContainerVisible && !this.model.isResponsivenessDisabled && !this.isDisposed;
+    if (shouldProcessResponsiveness()) {
+      this.calcItemsSizes(() => {
+        if(shouldProcessResponsiveness()) {
+          this.model.fit({ availableSpace: this.getAvailableSpace(), gap: this.getGap() });
+        }
+        this.isInitialized = true;
+      });
     }
   }
   private isDisposed: boolean = false;

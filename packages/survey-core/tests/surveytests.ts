@@ -6415,13 +6415,15 @@ QUnit.test("Survey Elements css", function (assert) {
 });
 
 QUnit.test("Question cssRoot", function (assert) {
-  var json = {
+  const prevCurrentType = surveyCss.currentType;
+  surveyCss.currentType = "default";
+  const json = {
     elements: [
       { type: "text", name: "q1" },
       { type: "checkbox", name: "q2" },
     ],
   };
-  var survey = new SurveyModel(json);
+  let survey = new SurveyModel(json);
   assert.equal(
     survey.getQuestionByName("q1").cssRoot,
     "sv_q sv_qstn",
@@ -6451,6 +6453,7 @@ QUnit.test("Question cssRoot", function (assert) {
     "testMainRoot",
     "checkbox question root class"
   );
+  surveyCss.currentType = prevCurrentType;
 });
 
 QUnit.test("Use send data to custom server", function (assert) {

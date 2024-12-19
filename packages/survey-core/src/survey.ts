@@ -994,6 +994,11 @@ export class SurveyModel extends SurveyElementCore
     this.onShowingChoiceItem.onCallbacksChanged = () => {
       this.rebuildQuestionChoices();
     };
+    this.onUpdateQuestionCssClasses.onCallbacksChanged = () => {
+      if(this.currentPage && this.currentPage.wasRendered) {
+        this.currentPage.updateElementCss(true);
+      }
+    };
     this.navigationBarValue = this.createNavigationBar();
     this.navigationBar.locOwner = this;
     this.onBeforeCreating();

@@ -736,12 +736,15 @@ export class QuestionMultipleTextModel extends Question
     }
     return result;
   }
-  public clearErrors() {
+  public clearErrors(): void {
     super.clearErrors();
-    for (var i = 0; i < this.items.length; i++) {
-      this.items[i].editor.clearErrors();
-    }
+    this.items.forEach(item => item.editor.clearErrors());
   }
+  public updateElementCss(reNew?: boolean): void {
+    super.updateElementCss(reNew);
+    this.items.forEach(item => item.editor.updateElementCss(true));
+  }
+
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();
     if (res) return res;

@@ -2339,7 +2339,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     return questionPlainData;
   }
-  public updateElementCss(reNew?: boolean) {
+  public updateElementCss(reNew?: boolean): void {
     super.updateElementCss(reNew);
     for (var i = 0; i < this.panelsCore.length; i++) {
       var el = this.panelsCore[i];

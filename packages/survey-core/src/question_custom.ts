@@ -1069,7 +1069,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     if (!this.contentPanel) return res;
     return this.contentPanel.hasErrors(fireCallback, false, rec) || res;
   }
-  public updateElementCss(reNew?: boolean) {
+  public updateElementCss(reNew?: boolean): void {
     super.updateElementCss(reNew);
     if (this.contentPanel) {
       this.contentPanel.updateElementCss(reNew);

@@ -210,14 +210,15 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return !this.isMobile && !this.columns.some(col => !!col.width);
   }
   public getTableCss(): string {
+    const css = this.cssClasses;
     return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.columnsAutoWidth, this.columnsAutoWidth)
-      .append(this.cssClasses.noHeader, !this.showHeader)
-      .append(this.cssClasses.hasFooter, !!this.renderedTable?.showAddRowOnBottom)
-      .append(this.cssClasses.rootAlternateRows, this.alternateRows)
-      .append(this.cssClasses.rootVerticalAlignTop, (this.verticalAlign === "top"))
-      .append(this.cssClasses.rootVerticalAlignMiddle, (this.verticalAlign === "middle")).toString();
+      .append(css.root)
+      .append(css.columnsAutoWidth, this.columnsAutoWidth)
+      .append(css.noHeader, !this.showHeader)
+      .append(css.hasFooter, !!this.renderedTable?.showAddRowOnBottom)
+      .append(css.rootAlternateRows, this.alternateRows)
+      .append(css.rootVerticalAlignTop, (this.verticalAlign === "top"))
+      .append(css.rootVerticalAlignMiddle, (this.verticalAlign === "middle")).toString();
   }
 
   /**

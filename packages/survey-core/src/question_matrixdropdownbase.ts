@@ -1594,6 +1594,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       if (dest.indexOf(ch.value) < 0) dest.push(ch.value);
     }
   }
+  public updateElementCss(reNew?: boolean): void {
+    super.updateElementCss(reNew);
+    this.getIsReadyNestedQuestions().forEach(q => q.updateElementCss(true));
+  }
   protected runTotalsCondition(
     values: HashTable<any>,
     properties: HashTable<any>

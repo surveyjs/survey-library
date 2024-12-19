@@ -386,10 +386,11 @@ export class QuestionMatrixModel
       .toString();
   }
   public get itemSvgIcon(): string {
-    if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
-      return this.cssClasses.itemPreviewSvgIconId;
+    const css = this.cssClasses;
+    if (this.isPreviewStyle && css.itemPreviewSvgIconId) {
+      return css.itemPreviewSvgIconId;
     }
-    return this.cssClasses.itemSvgIconId;
+    return css.itemSvgIconId;
   }
   public locStrsChanged(): void {
     super.locStrsChanged();

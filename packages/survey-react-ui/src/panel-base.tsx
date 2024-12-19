@@ -13,8 +13,8 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
   protected getStateElement(): Base {
     return this.panelBase;
   }
-  protected canUsePropInState(key: string): boolean {
-    return key !== "elements" && super.canUsePropInState(key);
+  protected canUsePropInState(key: string, oldVal: any): boolean {
+    return key !== "elements" && super.canUsePropInState(key, oldVal);
   }
   protected get survey(): SurveyModel | null {
     return this.getSurvey();

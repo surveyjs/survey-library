@@ -1906,9 +1906,9 @@ QUnit.test("Check updateElementCss for custom question", function (assert) {
   const css2 = question.contentQuestion.cssClassesValue;
   assert.ok(css1);
   assert.ok(css2);
-  question.updateElementCss();
-  assert.notStrictEqual(question.cssClassesValue, css1);
-  assert.notStrictEqual(question.contentQuestion.cssClassesValue, css2);
+  question.updateElementCss(true);
+  assert.notStrictEqual(question.cssClassesValue, css1, "#1");
+  assert.notStrictEqual(question.contentQuestion.cssClassesValue, css2, "2");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("onvalueChanging/Changed events", function (assert) {

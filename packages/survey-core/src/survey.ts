@@ -994,6 +994,11 @@ export class SurveyModel extends SurveyElementCore
     this.onShowingChoiceItem.onCallbacksChanged = () => {
       this.rebuildQuestionChoices();
     };
+    this.onUpdateQuestionCssClasses.onCallbacksChanged = () => {
+      if(this.currentPage && this.currentPage.wasRendered) {
+        this.currentPage.updateElementCss(true);
+      }
+    };
     this.navigationBarValue = this.createNavigationBar();
     this.navigationBar.locOwner = this;
     this.onBeforeCreating();
@@ -1190,13 +1195,13 @@ export class SurveyModel extends SurveyElementCore
     this.setCss(value);
   }
 
-  public setCss(value: any, needMerge = true) {
+  public setCss(value: any, needMerge = true): void {
     if (needMerge) {
       this.mergeValues(value, this.css);
     } else {
       this.cssValue = value;
     }
-    this.updateElementCss(false);
+    this.updateElementCss(true);
   }
 
   public get cssTitle(): string {
@@ -3344,7 +3349,6 @@ export class SurveyModel extends SurveyElementCore
       this.firstPageIsStarted && this.pages.length > 1 ? this.pages[0] : null;
     if (!!page) {
       page.onFirstRendering();
-      page.setWasShown(true);
     }
     return page;
   }
@@ -3378,7 +3382,6 @@ export class SurveyModel extends SurveyElementCore
     if (!!newPage) {
       newPage.onFirstRendering();
       newPage.updateCustomWidgets();
-      newPage.setWasShown(true);
     }
     this.locStrsChanged();
     if (!this.isShowingPreview) {

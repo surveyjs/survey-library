@@ -6156,6 +6156,37 @@ QUnit.test("Check isAnswered property", function (assert) {
 
   survey.css.question.titleOnAnswer = prevStyle;
 });
+QUnit.test("Do not update cssClassesValue while the element is not rendered", function (assert) {
+  const survey = new SurveyModel({
+    pages: [{
+      elements: [
+        { type: "text", name: "q1" },
+      ] }, {
+      elements: [
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3", defaultValue: 2 },
+      ]
+    }]
+  });
+  const prevStyle = survey.css.question.titleOnAnswer;
+  survey.css.question.titleOnAnswer = "answer";
+
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q2.value = 1;
+  assert.notOk(q2.getPropertyValue("cssClassesValue"), "#1");
+  assert.notOk(q3.getPropertyValue("cssClassesValue"), "#2");
+  assert.notOk(q2.wasRendered, "#1.1");
+  assert.notOk(q3.wasRendered, "#2.1");
+  survey.nextPage();
+  assert.ok(q2.isAnswered, "#3");
+  assert.ok(q3.isAnswered, "#4");
+
+  assert.ok(q2.cssTitle.indexOf("answer") > 0, "#5");
+  assert.ok(q3.cssTitle.indexOf("answer") > 0, "#6");
+
+  survey.css.question.titleOnAnswer = prevStyle;
+});
 QUnit.test("question.startWithNewLine", function (assert) {
   const survey = new SurveyModel({
     elements: [

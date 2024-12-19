@@ -693,12 +693,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get cssError(): string { return ""; }
   private isElementCssClassesReady: boolean;
   public updateElementCss(reNew?: boolean): void {
+    const wasReady = this.isElementCssClassesReady;
     if(reNew) {
       this.resetPropertyValue("cssClassesValue");
     }
-    if(this.isElementCssClassesReady) {
+    if(wasReady) {
       this.clearElementsCssClasses();
       this.isElementCssClassesReady = false;
+    }
+    //TODO remove it after removing knockout
+    if(this.wasRendered && wasReady) {
+      this.ensureCssClasses();
     }
   }
   protected clearElementsCssClasses(): void {

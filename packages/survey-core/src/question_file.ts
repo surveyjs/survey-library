@@ -274,7 +274,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
       iconName: "icon-takepicture",
       id: "sv-file-take-picture",
       iconSize: "auto",
-      innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.takePictureButton).toString()) as any),
       locTitle: this.locTakePhotoCaption,
       showTitle: false,
       action: () => {
@@ -285,7 +284,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
       iconName: "icon-closecamera",
       id: "sv-file-close-camera",
       iconSize: "auto",
-      innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.closeCameraButton).toString()) as any),
       action: () => {
         this.stopVideo();
       }
@@ -294,7 +292,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
       iconName: "icon-changecamera",
       id: "sv-file-change-camera",
       iconSize: "auto",
-      innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.changeCameraButton).toString()) as any),
       visible: <boolean>(new ComputedUpdater<boolean>(() => this.canFlipCamera()) as any),
       action: () => {
         this.flipCamera();
@@ -326,7 +323,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
       locTitle: this.locClearButtonCaption,
       showTitle: false,
       enabledIf: () => !this.isInputReadOnly,
-      innerCss: <string>(new ComputedUpdater<string>(() => this.cssClasses.removeButton) as any),
       action: () => {
         this.doClean();
       }
@@ -406,8 +402,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   protected updateElementCssCore(cssClasses: any): void {
     super.updateElementCssCore(cssClasses);
-    this.prevFileAction.iconName = this.cssClasses.leftIconId;
-    this.nextFileAction.iconName = this.cssClasses.rightIconId;
+    this.prevFileAction.iconName = cssClasses.leftIconId;
+    this.nextFileAction.iconName = cssClasses.rightIconId;
     this.updateCurrentMode();
   }
   private getFileIndexCaption(): string {
@@ -735,7 +731,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return this.showRemoveButtonCore && this.cssClasses.removeButton;
   }
   get showRemoveButtonBottom(): boolean {
-    const cssClasses = new CssClassBuilder().append(this.cssClasses.removeButtonBottom).append(this.cssClasses.contextButton).toString();
+    const css = this.cssClasses;
+    const cssClasses = new CssClassBuilder().append(css.removeButtonBottom).append(css.contextButton).toString();
     return this.showRemoveButtonCore && cssClasses as any;
   }
   //
@@ -920,7 +917,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return questionPlainData;
   }
   public getImageWrapperCss(data: any): string {
-    return new CssClassBuilder().append(this.cssClasses.imageWrapper).append(this.cssClasses.imageWrapperDefaultImage, this.defaultImage(data)).toString();
+    const css = this.cssClasses;
+    return new CssClassBuilder().append(css.imageWrapper).append(css.imageWrapperDefaultImage, this.defaultImage(data)).toString();
   }
   protected getActionsContainerCss(css: any): string {
     return new CssClassBuilder()
@@ -929,20 +927,22 @@ export class QuestionFileModel extends QuestionFileModelBase {
       .toString();
   }
   public getRemoveButtonCss(): string {
+    const css = this.cssClasses;
     return new CssClassBuilder()
-      .append(this.cssClasses.removeFileButton)
-      .append(this.cssClasses.contextButton)
+      .append(css.removeFileButton)
+      .append(css.contextButton)
       .toString();
   }
   public getChooseFileCss(): string {
+    const css = this.cssClasses;
     const isAnswered = this.isAnswered;
     return new CssClassBuilder()
-      .append(this.cssClasses.chooseFile)
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
-      .append(this.cssClasses.chooseFileAsText, !isAnswered)
-      .append(this.cssClasses.chooseFileAsTextDisabled, !isAnswered && this.isInputReadOnly)
-      .append(this.cssClasses.contextButton, isAnswered)
-      .append(this.cssClasses.chooseFileAsIcon, isAnswered)
+      .append(css.chooseFile)
+      .append(css.controlDisabled, this.isReadOnly)
+      .append(css.chooseFileAsText, !isAnswered)
+      .append(css.chooseFileAsTextDisabled, !isAnswered && this.isInputReadOnly)
+      .append(css.contextButton, isAnswered)
+      .append(css.chooseFileAsIcon, isAnswered)
       .toString();
   }
   public getReadOnlyFileCss(): string {
@@ -952,27 +952,28 @@ export class QuestionFileModel extends QuestionFileModelBase {
       .toString();
   }
   public get fileRootCss(): string {
+    const css = this.cssClasses;
     return new CssClassBuilder()
-      .append(this.cssClasses.root)
-      .append(this.cssClasses.rootDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.rootReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.rootPreview, this.isPreviewStyle)
-      .append(this.cssClasses.rootDragging, this.isDragging)
-      .append(this.cssClasses.rootAnswered, this.isAnswered)
-      .append(this.cssClasses.single, !this.allowMultiple)
-      .append(this.cssClasses.singleImage, !this.allowMultiple && this.isAnswered && this.canPreviewImage(this.value[0]))
-      .append(this.cssClasses.mobile, this.isMobile)
+      .append(css.root)
+      .append(css.rootDisabled, this.isDisabledStyle)
+      .append(css.rootReadOnly, this.isReadOnlyStyle)
+      .append(css.rootPreview, this.isPreviewStyle)
+      .append(css.rootDragging, this.isDragging)
+      .append(css.rootAnswered, this.isAnswered)
+      .append(css.single, !this.allowMultiple)
+      .append(css.singleImage, !this.allowMultiple && this.isAnswered && this.canPreviewImage(this.value[0]))
+      .append(css.mobile, this.isMobile)
       .toString();
   }
   public getFileDecoratorCss(): string {
+    const css = this.cssClasses;
     return new CssClassBuilder()
-      .append(this.cssClasses.fileDecorator)
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.fileDecoratorDrag, this.isDragging)
+      .append(css.fileDecorator)
+      .append(css.onError, this.hasCssError())
+      .append(css.fileDecoratorDrag, this.isDragging)
       .toString();
   }
-
-  private onChange(src: any) {
+  private onChange(src: any): void {
     if (!DomWindowHelper.isFileReaderAvailable()) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
@@ -985,12 +986,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
-    const actionBar = classes;
-    if(actionBar) {
-      actionBar.itemWithTitle = actionBar.item;
-      actionBar.item = "";
-      actionBar.itemAsIcon = classes.contextButton;
-    }
+    classes.actionBar = {};
+    this.copyCssClasses(classes.actionBar, css.actionBar);
+    classes.actionBar.itemWithTitle = classes.actionBar.item;
+    classes.actionBar.item = "";
+    classes.actionBar.itemAsIcon = classes.contextButton;
     return classes;
   }
   protected onCalcCssClasses(classes: any): void {
@@ -999,6 +999,18 @@ export class QuestionFileModel extends QuestionFileModelBase {
     if(container) {
       container.cssClasses = classes.actionBar;
       container.containerCss = classes.actionsContainer;
+    }
+    if(this.takePictureAction) {
+      this.takePictureAction.innerCss = new CssClassBuilder().append(classes.contextButton).append(classes.takePictureButton).toString();
+    }
+    if(this.closeCameraAction) {
+      this.closeCameraAction.innerCss = new CssClassBuilder().append(classes.contextButton).append(classes.closeCameraButton).toString();
+    }
+    if(this.changeCameraAction) {
+      this.changeCameraAction.innerCss = new CssClassBuilder().append(classes.contextButton).append(classes.changeCameraButton).toString();
+    }
+    if(this.cleanAction) {
+      this.cleanAction.innerCss = classes.removeButton;
     }
   }
   public onSurveyLoad(): void {
@@ -1083,9 +1095,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
         const fileListSelector = this.getFileListSelector();
         const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
         if(fileListElement) {
-          const visiblePage = fileListElement.querySelector(classesToSelector(this.cssClasses.page));
+          const css = this.cssClasses;
+          const visiblePage = fileListElement.querySelector(classesToSelector(css.page));
           if(visiblePage) {
-            const firstVisibleItem = visiblePage.querySelector(classesToSelector(this.cssClasses.previewItem));
+            const firstVisibleItem = visiblePage.querySelector(classesToSelector(css.previewItem));
             this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(visiblePage).gap));
             if(firstVisibleItem) {
               this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem).width));

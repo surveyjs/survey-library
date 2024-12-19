@@ -2357,44 +2357,50 @@ export class QuestionPanelDynamicModel extends Question
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();
   }
   public get cssHeader(): string {
+    const css = this.cssClasses;
     const showTab = this.isRenderModeTab && !!this.visiblePanelCount;
     return new CssClassBuilder()
-      .append(this.cssClasses.header)
-      .append(this.cssClasses.headerTop, this.hasTitleOnTop || showTab)
-      .append(this.cssClasses.headerTab, showTab)
+      .append(css.header)
+      .append(css.headerTop, this.hasTitleOnTop || showTab)
+      .append(css.headerTab, showTab)
       .toString();
   }
   public getPanelWrapperCss(panel: PanelModel): string {
+    const css = this.cssClasses;
     return new CssClassBuilder()
-      .append(this.cssClasses.panelWrapper, !panel || panel.visible)
-      .append(this.cssClasses.panelWrapperList, this.isRenderModeList)
-      .append(this.cssClasses.panelWrapperInRow, this.panelRemoveButtonLocation === "right")
+      .append(css.panelWrapper, !panel || panel.visible)
+      .append(css.panelWrapperList, this.isRenderModeList)
+      .append(css.panelWrapperInRow, this.panelRemoveButtonLocation === "right")
       .toString();
   }
   public getPanelRemoveButtonCss(): string {
+    const css = this.cssClasses;
     return new CssClassBuilder()
-      .append(this.cssClasses.button)
-      .append(this.cssClasses.buttonRemove)
-      .append(this.cssClasses.buttonRemoveRight, this.panelRemoveButtonLocation === "right")
+      .append(css.button)
+      .append(css.buttonRemove)
+      .append(css.buttonRemoveRight, this.panelRemoveButtonLocation === "right")
       .toString();
   }
   public getAddButtonCss(): string {
+    const css = this.cssClasses;
     return new CssClassBuilder()
-      .append(this.cssClasses.button)
-      .append(this.cssClasses.buttonAdd)
-      .append(this.cssClasses.buttonAdd + "--list-mode", this.displayMode === "list")
+      .append(css.button)
+      .append(css.buttonAdd)
+      .append(css.buttonAdd + "--list-mode", this.displayMode === "list")
       .toString();
   }
   public getPrevButtonCss(): string {
+    const css = this.cssClasses;
     return new CssClassBuilder()
-      .append(this.cssClasses.buttonPrev)
-      .append(this.cssClasses.buttonPrevDisabled, !this.isPrevButtonVisible)
+      .append(css.buttonPrev)
+      .append(css.buttonPrevDisabled, !this.isPrevButtonVisible)
       .toString();
   }
   public getNextButtonCss(): string {
+    const css = this.cssClasses;
     return new CssClassBuilder()
-      .append(this.cssClasses.buttonNext)
-      .append(this.cssClasses.buttonNextDisabled, !this.isNextButtonVisible)
+      .append(css.buttonNext)
+      .append(css.buttonNextDisabled, !this.isNextButtonVisible)
       .toString();
   }
   /**
@@ -2595,7 +2601,11 @@ export class QuestionPanelDynamicModel extends Question
   showSeparator(index: number): boolean {
     return this.isRenderModeList && index < this.renderedPanels.length - 1;
   }
-
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    classes.dotsItemList = css.list;
+    return classes;
+  }
   protected onCalcCssClasses(classes: any): void {
     super.onCalcCssClasses(classes);
     const additionalTitleToolbar = <AdaptiveActionContainer>this.additionalTitleToolbar;
@@ -2603,7 +2613,7 @@ export class QuestionPanelDynamicModel extends Question
       additionalTitleToolbar.containerCss = this.getAdditionalTitleToolbarCss(classes);
       additionalTitleToolbar.cssClasses = classes.tabs;
       additionalTitleToolbar.dotsItem.cssClasses = classes.tabs;
-      additionalTitleToolbar.dotsItem.popupModel.contentComponentData.model.cssClasses = classes.list;
+      additionalTitleToolbar.dotsItem.popupModel.contentComponentData.model.cssClasses = classes.dotsItemList;
     }
   }
   protected onMobileChanged(): void {

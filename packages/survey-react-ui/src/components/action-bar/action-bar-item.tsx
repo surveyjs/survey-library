@@ -50,11 +50,11 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
     );
   }
   componentWillUnmount(): void {
-    this.item.calcDimensionCallback = undefined;
+    this.item.updateModeCallback = undefined;
   }
   componentDidMount(): void {
     super.componentDidMount();
-    this.item.calcDimensionCallback = (mode, callback) => {
+    this.item.updateModeCallback = (mode, callback) => {
       ((React as any)["flushSync"] ?? queueMicrotask)(() => {
         this.item.mode = mode;
         callback(mode, this.ref.current);

@@ -603,17 +603,17 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     }
   }
 
-  public calcDimensionCallback: (mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void) => void;
+  public updateModeCallback: (mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void) => void;
   public afterRenderCallback: () => void;
   public afterRender(): void {
     this.afterRenderCallback && this.afterRenderCallback();
   }
   public calcDimension(mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void): void {
-    if(this.calcDimensionCallback) {
-      this.calcDimensionCallback(mode, callback);
+    if(this.updateModeCallback) {
+      this.updateModeCallback(mode, callback);
     } else {
       this.afterRenderCallback = () => {
-        this.calcDimensionCallback(mode, callback);
+        this.updateModeCallback(mode, callback);
         this.afterRenderCallback = undefined;
       };
     }

@@ -22,7 +22,7 @@ const componentName = computed(
 useBase(() => props.item);
 onMounted(() => {
   const item = props.item;
-  item.calcDimensionCallback = (mode, callback) => {
+  item.updateModeCallback = (mode, callback) => {
     item.mode = mode;
     nextTick(() => {
       callback(mode, root.value);
@@ -31,6 +31,6 @@ onMounted(() => {
 });
 onUnmounted(() => {
   const item = props.item;
-  item.calcDimensionCallback = undefined as any;
+  item.updateModeCallback = undefined as any;
 });
 </script>

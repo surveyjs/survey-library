@@ -1,6 +1,6 @@
 <template>
-  <div v-bind:class="item.getActionRootCss()" :id="item.id" ref="root">
-    <div class="sv-action__content">
+  <div v-bind:class="item.getActionRootCss()" :id="item.id">
+    <div class="sv-action__content" ref="root">
       <SvComponent
         :is="'sv-action-bar-separator'"
         v-if="item.needSeparator"

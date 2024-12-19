@@ -983,15 +983,21 @@ export class QuestionFileModel extends QuestionFileModelBase {
     src.value = "";
     this.loadFiles(files);
   }
-
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    const actionBar = classes;
+    if(actionBar) {
+      actionBar.itemWithTitle = actionBar.item;
+      actionBar.item = "";
+      actionBar.itemAsIcon = classes.contextButton;
+    }
+    return classes;
+  }
   protected onCalcCssClasses(classes: any): void {
     super.onCalcCssClasses(classes);
     const container = this.actionsContainer;
     if(container) {
       container.cssClasses = classes.actionBar;
-      container.cssClasses.itemWithTitle = container.cssClasses.item;
-      container.cssClasses.item = "";
-      container.cssClasses.itemAsIcon = classes.contextButton;
       container.containerCss = classes.actionsContainer;
     }
   }

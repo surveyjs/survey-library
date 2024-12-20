@@ -1071,7 +1071,7 @@ QUnit.test("animation helper functions", (assert) => {
   assert.equal(el.style.getPropertyValue("--animation-margin-top"), "");
 });
 
-QUnit.only("test isBase64", (assert) => {
+QUnit.test("test isBase64", (assert) => {
   assert.ok(isBase64URL("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"));
   assert.ok(isBase64URL("data:image/jpg;base64,AAA"));
   assert.ok(isBase64URL("data:image/jpeg;base64,UEsDBBQAAAAI"));

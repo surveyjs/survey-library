@@ -593,8 +593,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     const property = mode == "small" ? "minDimension" : "maxDimension";
     if(el) {
       const actionContainer = el.parentElement;
-      const oldDisplay = el.style.display;
-      if(getComputedStyle(actionContainer).display == "none") {
+      if(actionContainer && getComputedStyle(actionContainer).display == "none") {
+        const oldDisplay = actionContainer.style.display;
         actionContainer.style.display = "block";
         this[property] = calcDimension(el);
         actionContainer.style.display = oldDisplay;

@@ -112,6 +112,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
 
   public fit(options: { availableSpace: number, gap?: number }): void {
     if (options.availableSpace <= 0) return;
+    options.gap = options.gap ?? 0;
     this.dotsItem.visible = false;
     let minSize = - 1 * options.gap;
     let maxSize = - 1 * options.gap;

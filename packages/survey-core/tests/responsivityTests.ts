@@ -1,3 +1,4 @@
+import { update } from "lodash";
 import { Action } from "../src/actions/action";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
@@ -67,7 +68,8 @@ QUnit.test("ActionContainer: renderedActions & visibleActions if only one elemen
 QUnit.test("Fit items", function (assert) {
   const itemSmallWidth = 48;
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-
+  model.dotsItem.maxDimension = itemSmallWidth;
+  model.dotsItem.minDimension = itemSmallWidth;
   const item1 = new Action(<any>{});
   item1.minDimension = itemSmallWidth;
   item1.maxDimension = itemSmallWidth;
@@ -81,7 +83,7 @@ QUnit.test("Fit items", function (assert) {
   assert.equal(model.visibleActions.length, 2);
   assert.equal(model.renderedActions.length, 4);
 
-  model.fit(300, itemSmallWidth);
+  model.fit({ availableSpace: 300 });
   assert.equal(model.renderedActions.length, 4, "dimension 300");
   assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
   assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
@@ -90,7 +92,7 @@ QUnit.test("Fit items", function (assert) {
   assert.equal(item1.mode, "large", "dimension 300");
   assert.equal(item2.mode, "large", "dimension 300");
 
-  model.fit(200, itemSmallWidth);
+  model.fit({ availableSpace: 200 });
   assert.equal(model.renderedActions.length, 4, "dimension 200");
   assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
   assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
@@ -99,7 +101,7 @@ QUnit.test("Fit items", function (assert) {
   assert.equal(item1.mode, "large", "dimension 200");
   assert.equal(item2.mode, "small", "dimension 200");
 
-  model.fit(100, itemSmallWidth);
+  model.fit({ availableSpace: 100 });
   assert.equal(model.renderedActions.length, 4, "dimension 100");
   assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
   assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
@@ -108,7 +110,7 @@ QUnit.test("Fit items", function (assert) {
   assert.equal(item1.mode, "large", "dimension 100");
   assert.equal(item2.mode, "small", "dimension 100");
 
-  model.fit(50, itemSmallWidth);
+  model.fit({ availableSpace: 50 });
   assert.equal(model.renderedActions.length, 4, "dimension 50");
   assert.equal(model.renderedActions[0].isVisible, false, "hidden 1");
   assert.equal(model.renderedActions[1].isVisible, false, "hidden 2");
@@ -119,7 +121,7 @@ QUnit.test("Fit items", function (assert) {
   assert.equal(item2.mode, "popup", "dimension 50");
 
   item2.disableShrink = true;
-  model.fit(100, itemSmallWidth);
+  model.fit({ availableSpace: 100 });
   assert.equal(model.renderedActions.length, 4, "dimension 100");
   assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
   assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
@@ -133,6 +135,8 @@ QUnit.test("Fit items", function (assert) {
 QUnit.test("Fit items - hide if needed", function (assert) {
   const itemSmallWidth = 50;
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.dotsItem.minDimension = itemSmallWidth;
+  model.dotsItem.maxDimension = itemSmallWidth;
 
   const item1 = new Action(<any>{});
   item1.minDimension = 0;
@@ -155,18 +159,18 @@ QUnit.test("Fit items - hide if needed", function (assert) {
   assert.equal(model.actions.length, 3);
   assert.equal(model.visibleActions.length, 3);
 
-  model.fit(300, itemSmallWidth);
+  model.fit({ availableSpace: 300 });
   assert.equal(model.visibleActions.length, 3, "dimension 300");
   assert.equal(model.visibleActions[0].isVisible, true, "300 - visible 1");
   assert.equal(model.visibleActions[1].isVisible, true, "300 - visible 2");
   assert.equal(model.visibleActions[2].isVisible, true, "300 - visible 3");
 
-  model.fit(120, itemSmallWidth);
+  model.fit({ availableSpace: 120 });
   assert.equal(model.visibleActions.length, 3, "dimension 120");
   assert.equal(model.visibleActions[0].isVisible, true, "120 - visible 1");
   assert.equal(model.visibleActions[1].isVisible, false, "120 - invisible 2");
   assert.equal(model.visibleActions[2].isVisible, true, "120 - visible 3");
-  model.fit(70, itemSmallWidth);
+  model.fit({ availableSpace: 70 });
   assert.equal(model.visibleActions.length, 3, "dimension 70");
   assert.equal(model.visibleActions[0].isVisible, false, "70 - invisible 1");
   assert.equal(model.visibleActions[1].isVisible, false, "70 - invisible 2");
@@ -178,7 +182,8 @@ QUnit.test("Fit items - hide items with priority", function (assert) {
   const itemLargeWidth = 50;
   const dotsItemSize = 10;
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-
+  model.dotsItem.minDimension = dotsItemSize;
+  model.dotsItem.maxDimension = dotsItemSize;
   const item1 = new Action(<any>{});
   item1.minDimension = itemSmallWidth;
   item1.maxDimension = itemLargeWidth;
@@ -200,21 +205,21 @@ QUnit.test("Fit items - hide items with priority", function (assert) {
   assert.equal(model.actions.length, 3);
   assert.equal(model.visibleActions.length, 3);
 
-  model.fit(300, dotsItemSize);
+  model.fit({ availableSpace: 300 });
   assert.equal(model.visibleActions.length, 3, "dimension 300");
   assert.equal(model.visibleActions[0].isVisible, true, "300 - visible 1");
   assert.equal(model.visibleActions[1].isVisible, true, "300 - visible 2");
   assert.equal(model.visibleActions[2].isVisible, true, "300 - visible 3");
   assert.equal(model.renderedActions[3].isVisible, false, "300 - dots hidden");
 
-  model.fit(78, dotsItemSize);
+  model.fit({ availableSpace: 78 });
   assert.equal(model.visibleActions.length, 3, "dimension 78");
   assert.equal(model.visibleActions[0].isVisible, true, "78 - visible 1");
   assert.equal(model.visibleActions[1].isVisible, false, "78 - invisible 2");
   assert.equal(model.visibleActions[2].isVisible, true, "78 - visible 3");
   assert.equal(model.renderedActions[3].isVisible, false, "78 - dots hidden");
 
-  model.fit(29, dotsItemSize);
+  model.fit({ availableSpace: 29 });
   assert.equal(model.visibleActions.length, 3, "dimension 29");
   assert.equal(model.visibleActions[0].isVisible, true, "29 - visible 1");
   assert.equal(model.visibleActions[1].isVisible, false, "29 - invisible 2");
@@ -232,9 +237,7 @@ QUnit.test("getAvailableSpace with content-box test", function (assert) {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   const manager: ResponsivityManager = new ResponsivityManager(
     <any>container,
-    <any>model,
-    "",
-    itemSmallWidth
+    <any>model
   );
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
@@ -252,9 +255,7 @@ QUnit.test("getAvailableSpace with border-box test", function (assert) {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   const manager: ResponsivityManager = new ResponsivityManager(
     <any>container,
-    <any>model,
-    "",
-    itemSmallWidth
+    <any>model
   );
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "border-box", paddingLeft: 5, paddingRight: 5 };
@@ -272,7 +273,7 @@ QUnit.test("Ignore space for invisible items", function (assert) {
   item2.maxDimension = itemSmallWidth;
   model.actions.push(item1);
   model.actions.push(item2);
-  model.fit(50, itemSmallWidth);
+  model.fit({ availableSpace: 50 });
   assert.equal(item1.mode, "large");
 });
 
@@ -309,82 +310,37 @@ QUnit.test("Action container: updateCallback test", assert => {
 QUnit.test("ResponsivityManager process test", function (assert) {
   const container: SimpleContainer = new SimpleContainer({});
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-  const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model, "");
+  const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model);
+
+  const updateActions = () => {
+    model.renderedActions.forEach(action => {
+      action.updateModeCallback = (mode, callback) => {
+        action.mode = mode;
+        const offsetWidth = mode == "small" ? 20 : 100;
+        const content = new SimpleContainer({ offsetWidth });
+        content.parentElement = document.createElement("div");
+        callback(mode, content as any);
+      };
+      action.afterRender();
+    });
+  };
+  manager["debouncedProcess"] = { run: () => manager["process"](), cancel: () => {} };
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
   };
-  manager["calcItemsSizes"] = () => {
-    model.actions.forEach(action => {
-      action.minDimension = 20;
-      action.maxDimension = 100;
-    });
-  };
-  const oldQueueMicrotask = window.queueMicrotask;
-  window.queueMicrotask = undefined as any;
-  assert.equal(manager["isInitialized"], false, "before start");
-  manager["process"]();
+  assert.notOk(manager["isInitialized"], "before start");
+  updateActions();
   const newAction = new Action({ id: "first" });
   assert.equal(newAction.minDimension, undefined);
   assert.equal(newAction.maxDimension, undefined);
-  assert.equal(manager["isInitialized"], true, "before push");
+  assert.ok(manager["isInitialized"], "before push");
 
   model.actions.push(newAction);
-  assert.equal(manager["isInitialized"], false, "after push");
-
-  manager["process"]();
-  assert.equal(manager["isInitialized"], true, "after process");
+  assert.notOk(manager["isInitialized"], "after push");
+  updateActions();
+  assert.ok(manager["isInitialized"], "after process");
   assert.equal(newAction.minDimension, 20);
   assert.equal(newAction.maxDimension, 100);
-  window.queueMicrotask = oldQueueMicrotask;
-});
-
-QUnit.test("ResponsivityManager minDimension calc test", function (assert) {
-  const container: SimpleContainer = new SimpleContainer({});
-  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-  const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model, "");
-  (<any>manager.getComputedStyle) = () => {
-    return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
-  };
-
-  const newAction = new Action({ id: "first", iconName: "icon" });
-  model.actions.push(newAction);
-  assert.equal(manager["calcMinDimension"](newAction), 40);
-
-  model.actions = [];
-  const smallAction = new Action({ id: "first", iconName: "icon", iconSize: 16 });
-  model.actions.push(smallAction);
-  assert.equal(manager["calcMinDimension"](smallAction), 32);
-});
-
-QUnit.test("ResponsivityManager minDimension calc by html element test", function (assert) {
-  const container: SimpleContainer = new SimpleContainer({});
-  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-  const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model, "");
-  (<any>manager.getComputedStyle) = () => {
-    return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
-  };
-
-  const itemElement = document.createElement("div");
-  document.body.appendChild(itemElement);
-  const iconElement = document.createElement("div");
-  iconElement.style["width"] = "13px";
-  iconElement.style["height"] = "23px";
-  iconElement.className = "sv-svg-icon";
-  itemElement.appendChild(iconElement);
-
-  const newAction = new Action({ id: "first", iconName: "icon" });
-  newAction.iconSize = "";
-  model.actions.push(newAction);
-  manager["calcActionDimensions"](newAction, itemElement);
-  assert.equal(newAction.minDimension, 29);
-
-  model.actions = [];
-  const smallAction = new Action({ id: "first", iconName: "icon", iconSize: "auto" });
-  model.actions.push(smallAction);
-  manager["calcActionDimensions"](smallAction, itemElement);
-  assert.equal(smallAction.minDimension, 29);
-
-  itemElement.remove();
 });
 
 QUnit.test(
@@ -394,8 +350,7 @@ QUnit.test(
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();
     const manager: ResponsivityManager = new ResponsivityManager(
       <any>container,
-      <any>model,
-      ""
+      <any>model
     );
     container.offsetHeight = 0;
     container.offsetWidth = 0;
@@ -406,38 +361,9 @@ QUnit.test(
   }
 );
 
-QUnit.test("ResponsivityManager - vertical",
-  function (assert) {
-    const container: SimpleContainer = new SimpleContainer({});
-    const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-    const manager: VerticalResponsivityManager = new VerticalResponsivityManager(<any>container, <any>model, "");
-    (<any>manager.getComputedStyle) = () => {
-      return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
-    };
-
-    const newAction = new Action({ id: "item", iconName: "icon", title: "item title" });
-    model.actions.push(newAction);
-
-    assert.equal(manager["calcMinDimension"](newAction), 40);
-  }
-);
-
 QUnit.test("ResponsivityManager - vertical process", function (assert) {
-  const itemSmallWidth = 48;
-  const oldQueueMicrotask = window.queueMicrotask;
-  window.queueMicrotask = undefined as any;
   const container: SimpleContainer = new SimpleContainer({
     offsetHeight: 100,
-    querySelector: (query: string) => {
-      if(query == ".sv-dots") return { offsetWidth: 20, offsetHeight: 30 };
-    },
-    querySelectorAll: (query: string) => {
-      if(query == ".sv-action") {
-        let items: Array<{ offsetWidth: number, offsetHeight: number }> = [];
-        for(var i = 0; i < 10; i++) items.push({ offsetWidth: 20, offsetHeight: 20 });
-        return items;
-      }
-    }
   });
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   for(var i = 0; i < 10; i++) {
@@ -445,26 +371,35 @@ QUnit.test("ResponsivityManager - vertical process", function (assert) {
   }
   const manager: VerticalResponsivityManager = new VerticalResponsivityManager(
     <any>container,
-    <any>model,
-    ".sv-action"
+    <any>model
   );
-  (<any>manager.getComputedStyle) = () => {
+  (window as any).getComputedStyle = () => {
     return { boxSizing: "border-box", paddingTop: 5, paddingBottom: 5 };
   };
+  model.renderedActions.forEach(action => {
+    action.updateModeCallback = (mode, callback) => {
+      action.mode = mode;
+      const offsetHeight = action == model.dotsItem ? 30 : 20;
+      const content = new SimpleContainer({ offsetWidth: 20, offsetHeight });
+      content.parentElement = document.createElement("div");
+      callback(mode, content as any);
+    };
+  });
   manager["process"]();
   assert.equal(model.hiddenItemsListModel.actions.length, 7);
-  window.queueMicrotask = oldQueueMicrotask;
 });
 
 QUnit.test("isResponsivenessDisabled", function (assert) {
-  const oldQueueMicrotask = window.queueMicrotask;
-  window.queueMicrotask = undefined as any;
   const itemSmallWidth = 48;
   const container: SimpleContainer = new SimpleContainer({});
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-  const manager: VerticalResponsivityManager = new VerticalResponsivityManager(<any>container, <any>model, "");
+  const manager: VerticalResponsivityManager = new VerticalResponsivityManager(<any>container, <any>model);
+  manager["debouncedProcess"] = { run: () => manager["process"](), cancel: () => {} };
   manager["getAvailableSpace"] = () => { return 142; };
+  manager["getGap"] = () => { return 0; };
   manager["itemSmallWidth"] = itemSmallWidth;
+
+  model.dotsItem.minDimension = itemSmallWidth;
 
   const item1 = new Action(<any>{});
   item1.minDimension = itemSmallWidth;
@@ -504,13 +439,13 @@ QUnit.test("isResponsivenessDisabled", function (assert) {
   assert.equal(item1.mode, "large", "dimension 300");
   assert.equal(item2.mode, "large", "dimension 300");
   assert.equal(item3.mode, "large", "dimension 300");
-  window.queueMicrotask = oldQueueMicrotask;
 });
 
 QUnit.test("check disableHide property", function (assert) {
   const itemSmallWidth = 48;
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-
+  model.dotsItem.minDimension = 0;
+  model.dotsItem.maxDimension = 0;
   const item1 = new Action(<any>{});
   item1.minDimension = itemSmallWidth;
   item1.maxDimension = itemSmallWidth;
@@ -527,17 +462,17 @@ QUnit.test("check disableHide property", function (assert) {
   item3.disableHide = true;
   model.actions.push(item3);
 
-  model.fit(50, 0);
+  model.fit({ availableSpace: 50 });
   assert.notOk(item1.isVisible);
   assert.notOk(item2.isVisible);
   assert.ok(item3.isVisible);
 
-  model.fit(120, 0);
+  model.fit({ availableSpace: 120 });
   assert.ok(item1.isVisible);
   assert.notOk(item2.isVisible);
   assert.ok(item3.isVisible);
 
-  model.fit(160, 0);
+  model.fit({ availableSpace: 160 });
   assert.ok(item1.isVisible);
   assert.ok(item2.isVisible);
   assert.ok(item3.isVisible);
@@ -545,6 +480,8 @@ QUnit.test("check disableHide property", function (assert) {
 
 QUnit.test("check disableHide property in case of different widths", function (assert) {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.dotsItem.minDimension = 0;
+  model.dotsItem.maxDimension = 0;
   const item1 = new Action(<any>{});
   item1.minDimension = 50;
   item1.maxDimension = 50;
@@ -561,17 +498,17 @@ QUnit.test("check disableHide property in case of different widths", function (a
   item3.disableHide = true;
   model.actions.push(item3);
 
-  model.fit(125, 0);
+  model.fit({ availableSpace: 125 });
   assert.notOk(item1.isVisible);
   assert.notOk(item2.isVisible);
   assert.ok(item3.isVisible);
 
-  model.fit(150, 0);
+  model.fit({ availableSpace: 150 });
   assert.ok(item1.isVisible);
   assert.notOk(item2.isVisible);
   assert.ok(item3.isVisible);
 
-  model.fit(225, 0);
+  model.fit({ availableSpace: 225 });
   assert.ok(item1.isVisible);
   assert.ok(item2.isVisible);
   assert.ok(item3.isVisible);
@@ -589,10 +526,12 @@ QUnit.test("check title change calls raise update", function (assert) {
   item1.maxDimension = itemSmallWidth;
   model.actions.push(item1);
   assert.equal(log, "->called: true", "called from push");
+  assert.notOk(item1.needUpdateMaxDimension, "needUpdateMaxDimension is false by default");
   item1.title = "Test";
-  assert.equal(log, "->called: true->called: true", "called from title change");
+  assert.equal(log, "->called: true->called: false", "called from title change");
+  assert.ok(item1.needUpdateMaxDimension, "needUpdateMaxDimension is true when changing title");
   item1.title = "Test";
-  assert.equal(log, "->called: true->called: true");
+  assert.equal(log, "->called: true->called: false");
 });
 
 QUnit.test("check actions mode is set correctly when disableShrink is set", function (assert) {

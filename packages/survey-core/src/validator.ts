@@ -481,23 +481,22 @@ export class ExpressionValidator extends SurveyValidator {
   public getType(): string {
     return "expressionvalidator";
   }
-  public get isValidateAllValues() {
+  public get isValidateAllValues(): boolean {
     return true;
   }
   public get isAsync(): boolean {
-    if (!this.ensureConditionRunner()) return false;
+    if (!this.ensureConditionRunner(false)) return false;
     return this.conditionRunner.isAsync;
   }
   public get isRunning(): boolean {
     return this.isRunningValue;
   }
-  public validate(
-    value: any,
-    name: string = null,
-    values: any = null,
-    properties: any = null
-  ): ValidatorResult {
-    if (!this.ensureConditionRunner()) return null;
+  public validate(value: any, name: string = null, values: any = null, properties: any = null): ValidatorResult {
+    if (!this.expression) return null;
+    if(!!this.conditionRunner) {
+      this.conditionRunner.onRunComplete = null;
+    }
+    this.ensureConditionRunner(true);
     this.conditionRunner.onRunComplete = (res) => {
       this.isRunningValue = false;
       if (!!this.onAsyncCompleted) {
@@ -510,22 +509,22 @@ export class ExpressionValidator extends SurveyValidator {
     this.isRunningValue = false;
     return this.generateError(res, value, name);
   }
-  protected generateError(res: boolean, value: any, name: string) {
+  protected generateError(res: boolean, value: any, name: string): ValidatorResult {
     if (!res) {
       return new ValidatorResult(value, this.createCustomError(name));
     }
     return null;
   }
-  protected getDefaultErrorText(name: string) {
+  protected getDefaultErrorText(name: string): string {
     return this.getLocalizationFormatString("invalidExpression", this.expression);
   }
-  protected ensureConditionRunner(): boolean {
-    if (!!this.conditionRunner) {
-      this.conditionRunner.expression = this.expression;
-      return true;
-    }
+  private ensureConditionRunner(reNew: boolean): boolean {
     if (!this.expression) return false;
-    this.conditionRunner = new ConditionRunner(this.expression);
+    if(reNew || !this.conditionRunner) {
+      this.conditionRunner = new ConditionRunner(this.expression);
+    } else {
+      this.conditionRunner.expression = this.expression;
+    }
     return true;
   }
   /**

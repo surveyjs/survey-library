@@ -588,7 +588,6 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       this.popupModel.dispose();
     }
   }
-  @property({}) public renderTest: boolean = false;
   public updateDimension(mode: actionModeType, el: HTMLElement, calcDimension: (el: HTMLElement) => number): void {
     const property = mode == "small" ? "minDimension" : "maxDimension";
     if(el) {
@@ -622,11 +621,11 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     }
   }
   public updateDimensions(calcDimension: (htmlElement: HTMLElement) => number, callback: () => void, modeToCalculate?: actionModeType): void {
-    let mode = !modeToCalculate || (modeToCalculate == "large" && this.mode !== "small") ? this.mode : modeToCalculate;
+    const mode = !modeToCalculate || (modeToCalculate == "large" && this.mode !== "small") ? this.mode : modeToCalculate;
     this.updateMode(mode, (mode, htmlElement) => {
       this.updateDimension(mode, htmlElement, calcDimension);
       if(!modeToCalculate) {
-        this.updateMode(this.mode !== "small" ? "small" : "large", (mode, htmlElement) => {
+        this.updateMode(mode !== "small" ? "small" : "large", (mode, htmlElement) => {
           this.updateDimension(mode, htmlElement, calcDimension);
           callback();
         });

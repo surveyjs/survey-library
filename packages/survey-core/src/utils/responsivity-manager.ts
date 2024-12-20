@@ -69,7 +69,7 @@ export class ResponsivityManager {
     return item.offsetWidth || item.getBoundingClientRect().width;
   }
 
-  private calcItemsSizes(callback: () => void) {
+  private updateItemsDimensions(callback: () => void) {
     if (!this.container) return;
     const actionsToUpdateDimension = this.isInitialized
       ? this.model.renderedActions.filter(action => action.needUpdateMaxDimension || action.needUpdateMinDimension)
@@ -78,7 +78,7 @@ export class ResponsivityManager {
     if(actionsCounter == 0) {
       callback();
     }
-    const finishCallback = () => {
+    const onItemDimensionsUpdated = () => {
       if(--actionsCounter<= 0) {
         callback();
       }
@@ -90,7 +90,7 @@ export class ResponsivityManager {
       action.updateDimensions((el) => this.calcItemSize(el), () => {
         action.needUpdateMaxDimension = false;
         action.needUpdateMinDimension = false;
-        finishCallback();
+        onItemDimensionsUpdated();
       }, modeToCalculate);
     });
   }
@@ -101,7 +101,7 @@ export class ResponsivityManager {
   private process(): void {
     const shouldProcessResponsiveness = () => this.isContainerVisible && !this.model.isResponsivenessDisabled && !this.isDisposed;
     if (shouldProcessResponsiveness()) {
-      this.calcItemsSizes(() => {
+      this.updateItemsDimensions(() => {
         if(shouldProcessResponsiveness()) {
           this.model.fit({ availableSpace: this.getAvailableSpace(), gap: this.getGap() });
         }

@@ -21,6 +21,7 @@ export class ActionComponent extends BaseAngular implements AfterViewInit {
     return this.model.id || '';
   }
   public override ngOnDestroy(): void {
+    super.ngOnDestroy();
     this.model.updateModeCallback = undefined as any;
   }
   public ngAfterViewInit(): void {

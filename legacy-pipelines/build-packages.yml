@@ -142,12 +142,12 @@ jobs:
         git status
       displayName: "npm run release"
 
-    # - script: |
-    #     cd $(Build.SourcesDirectory)/survey-library
-    #     npm run build_core
-    #     npm run build_i18n
-    #     npm run build-plugins
-    #   displayName: "Build Core"
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run build_core
+        npm run build_i18n
+        npm run build-plugins
+      displayName: "Build Core"
 
     # - script: |
     #     cd $(Build.SourcesDirectory)/survey-library
@@ -166,21 +166,21 @@ jobs:
     #     CleanTargetFolder: false
     #   displayName: "copy generated docs to the local surveyjs/service repo"
 
-    # read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
-    # https://github.com/microsoft/azure-pipelines-yaml/issues/248
-    # https://stackoverflow.com/questions/58485585/azure-pipeline-powershell-and-git-on-windows-server-2019-gives-error-in-output
-    - powershell: |
-        cd $(Build.SourcesDirectory)/service
-        $env:GIT_REDIRECT_STDERR = '2>&1'
-        git config --global user.email "kurmanov.work@gmail.com"
-        git config --global user.name "dmitrykurmanov"
-        git pull origin
-        git fetch origin --tags --force
-        git add surveyjs.io/App_Data/DocsLibrary
-        git commit -m "updated survey-library docs [azurepipelines skip]"
-        git pull origin
-        git push origin
-      displayName: "git surveyjs/service push updated docs"
+    # # read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
+    # # https://github.com/microsoft/azure-pipelines-yaml/issues/248
+    # # https://stackoverflow.com/questions/58485585/azure-pipeline-powershell-and-git-on-windows-server-2019-gives-error-in-output
+    # - powershell: |
+    #     cd $(Build.SourcesDirectory)/service
+    #     $env:GIT_REDIRECT_STDERR = '2>&1'
+    #     git config --global user.email "kurmanov.work@gmail.com"
+    #     git config --global user.name "dmitrykurmanov"
+    #     git pull origin
+    #     git fetch origin --tags --force
+    #     git add surveyjs.io/App_Data/DocsLibrary
+    #     git commit -m "updated survey-library docs [azurepipelines skip]"
+    #     git pull origin
+    #     git push origin
+    #   displayName: "git surveyjs/service push updated docs"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library

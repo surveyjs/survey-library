@@ -621,7 +621,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     }
   }
   public updateDimensions(calcDimension: (htmlElement: HTMLElement) => number, callback: () => void, modeToCalculate?: actionModeType): void {
-    const mode = !modeToCalculate || (modeToCalculate == "large" && this.mode !== "small") ? this.mode : modeToCalculate;
+    const mode = !modeToCalculate ? (this.mode !== "small" ? "large" : "small") : modeToCalculate;
     this.updateMode(mode, (mode, htmlElement) => {
       this.updateDimension(mode, htmlElement, calcDimension);
       if(!modeToCalculate) {

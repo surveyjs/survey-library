@@ -34,6 +34,16 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PageModel } from "./page";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 
+function lcm(arr: Array<number>) {
+  var n = arr.length, a = Math.abs(arr[0]);
+  for (var i = 1; i < n; i++) {
+    var b = Math.abs(arr[i]), c = a;
+    while (a && b) { a > b ? a %= b : b %= a; }
+    a = Math.abs(c * arr[i]) / (a + b);
+  }
+  return a;
+}
+
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
   private static getRowId(): string {
@@ -1132,8 +1142,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   private calcMaxRowColSpan(): number {
-    let maxRowColSpan = 0;
-    this.rows.forEach(row => {
+    const rowSpanValues = this.rows.map(row => {
       let curRowSpan = 0;
       let userDefinedRow = false;
       row.elements.forEach(el => {
@@ -1142,9 +1151,9 @@ export class PanelModelBase extends SurveyElement<Question>
         }
         curRowSpan += (el.colSpan || 1);
       });
-
-      if (!userDefinedRow && curRowSpan > maxRowColSpan) maxRowColSpan = curRowSpan;
+      return !userDefinedRow ? curRowSpan : 1;
     });
+    const maxRowColSpan = lcm((rowSpanValues));
     return maxRowColSpan;
   }
   private updateColumnWidth(columns: Array<PanelLayoutColumnModel>): void {
@@ -1277,6 +1286,16 @@ export class PanelModelBase extends SurveyElement<Question>
     const row = this.findRowByElement(el);
     if (!row || !this.survey || !this.survey.gridLayoutEnabled) return [];
 
+    let userDefinedRow = false;
+    let rowDefinedSpans = 0;
+    row.elements.forEach(el => {
+      if (!!el.width) {
+        userDefinedRow = true;
+      }
+      rowDefinedSpans += (el.colSpan || 1);
+    });
+    const oneSpanWeight = userDefinedRow ? 1 : this.columns.length / rowDefinedSpans;
+
     let lastExpandableElementIndex = row.elements.length - 1;
     while (lastExpandableElementIndex >= 0) {
       if (!(row.elements[lastExpandableElementIndex] as any).getPropertyValueWithoutDefault("colSpan")) {
@@ -1288,17 +1307,19 @@ export class PanelModelBase extends SurveyElement<Question>
     const elementIndex = row.elements.indexOf(el);
     let startIndex = 0;
     for (let index = 0; index < elementIndex; index++) {
-      startIndex += row.elements[index].colSpan;
+      startIndex += row.elements[index].colSpan * oneSpanWeight;
     }
     let currentColSpan = (el as any).getPropertyValueWithoutDefault("colSpan");
     if (!currentColSpan && elementIndex === lastExpandableElementIndex) {
       let usedSpans = 0;
       for (let index = 0; index < row.elements.length; index++) {
         if (index !== lastExpandableElementIndex) {
-          usedSpans += row.elements[index].colSpan;
+          usedSpans += row.elements[index].colSpan * oneSpanWeight;
         }
       }
       currentColSpan = this.columns.length - usedSpans;
+    } else {
+      currentColSpan = (currentColSpan || 1) * oneSpanWeight;
     }
     const result = this.columns.slice(startIndex, startIndex + (currentColSpan || 1));
     (el as any).setPropertyValue("effectiveColSpan", result.length);

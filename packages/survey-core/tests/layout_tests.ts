@@ -36,18 +36,18 @@ QUnit.test("columns generate - simple", function (assert) {
   const q4 = surveyModel.getQuestionByName("q4");
 
   assert.equal(page.rows.length, 2, "There are two rows");
-  assert.equal(page.columns.length, 3);
+  assert.equal(page.columns.length, 6);
   assert.equal(page.columns[0].width, undefined);
-  assert.equal(roundTo2Decimals(page.columns[0].effectiveWidth), 33.33);
+  assert.equal(roundTo2Decimals(page.columns[0].effectiveWidth), 16.67);
 
-  assert.equal(page.getColumsForElement(q1).length, 1);
-  assert.deepEqual(page.getColumsForElement(q1), [page.columns[0]], "q1");
-  assert.equal(page.getColumsForElement(q2).length, 2);
-  assert.deepEqual(page.getColumsForElement(q2), [page.columns[1], page.columns[1]], "q2");
-  assert.equal(page.getColumsForElement(q3).length, 1);
-  assert.deepEqual(page.getColumsForElement(q3), [page.columns[0]], "q3");
-  assert.equal(page.getColumsForElement(q4).length, 2);
-  assert.deepEqual(page.getColumsForElement(q4), [page.columns[1], page.columns[1]], "q4");
+  assert.equal(page.getColumsForElement(q1).length, 2);
+  assert.deepEqual(page.getColumsForElement(q1), [page.columns[0], page.columns[1]], "q1");
+  assert.equal(page.getColumsForElement(q2).length, 4);
+  assert.deepEqual(page.getColumsForElement(q2), [page.columns[2], page.columns[3], page.columns[4], page.columns[5]], "q2");
+  assert.equal(page.getColumsForElement(q3).length, 3);
+  assert.deepEqual(page.getColumsForElement(q3), [page.columns[0], page.columns[1], page.columns[2]], "q3");
+  assert.equal(page.getColumsForElement(q4).length, 3);
+  assert.deepEqual(page.getColumsForElement(q4), [page.columns[3], page.columns[4], page.columns[5]], "q4");
 });
 
 QUnit.test("columns generate - complex", function (assert) {
@@ -372,7 +372,6 @@ QUnit.test("effectiveColSpan #1", assert => {
       {
         "type": "text",
         "name": "q2",
-        "colSpan": 2,
         "startWithNewLine": false
       },
       { "type": "text", "name": "q3" },
@@ -384,15 +383,35 @@ QUnit.test("effectiveColSpan #1", assert => {
     ]
   });
 
+  const q1 = surveyModel.getQuestionByName("q1");
+  const q2 = surveyModel.getQuestionByName("q2");
   const q3 = surveyModel.getQuestionByName("q3");
   const q4 = surveyModel.getQuestionByName("q4");
+  const page = surveyModel.pages[0];
 
+  assert.deepEqual(page.gridLayoutColumns.length, 2, "#0");
+  assert.equal(q1.effectiveColSpan, 1, "q1 effectiveColSpan #0");
+  assert.equal(q2.effectiveColSpan, 1, "q2 effectiveColSpan #0");
+  assert.equal(q3.effectiveColSpan, 1, "q3 effectiveColSpan #0");
+  assert.equal(q4.effectiveColSpan, 1, "q4 effectiveColSpan #0");
+
+  q2.colSpan = 2;
+  assert.deepEqual(page.gridLayoutColumns.length, 6, "#1");
+  assert.equal(q1.colSpan, 1, "q1 colSpan #1");
+  assert.equal(q1.effectiveColSpan, 2, "q1 effectiveColSpan #1");
+  assert.equal(q2.colSpan, 2, "q2 colSpan #1");
+  assert.equal(q2.effectiveColSpan, 4, "q2 effectiveColSpan #1");
   assert.equal(q3.colSpan, 1, "q3 colSpan #1");
-  assert.equal(q3.effectiveColSpan, 1, "q3 effectiveColSpan #1");
+  assert.equal(q3.effectiveColSpan, 3, "q3 effectiveColSpan #1");
   assert.equal(q4.colSpan, 1, "q4 colSpan #1");
-  assert.equal(q4.effectiveColSpan, 2, "q4 effectiveColSpan #1");
+  assert.equal(q4.effectiveColSpan, 3, "q4 effectiveColSpan #1");
 
-  q3.effectiveColSpan = 2;
+  q3.colSpan = 2;
+  assert.deepEqual(page.gridLayoutColumns.length, 3, "#2");
+  assert.equal(q1.colSpan, 1, "q1 colSpan #2");
+  assert.equal(q1.effectiveColSpan, 1, "q1 effectiveColSpan #2");
+  assert.equal(q2.colSpan, 2, "q2 colSpan #2");
+  assert.equal(q2.effectiveColSpan, 2, "q2 effectiveColSpan #2");
   assert.equal(q3.colSpan, 2, "q3 colSpan #2");
   assert.equal(q3.effectiveColSpan, 2, "q3 effectiveColSpan #2");
   assert.equal(q4.colSpan, 1, "q4 colSpan #2");
@@ -504,9 +523,9 @@ QUnit.test("expand last question in row whitch does not have colSpan set", asser
   const q10 = surveyModel.getQuestionByName("question10");
   const page = surveyModel.pages[0];
 
-  assert.equal(page.gridLayoutColumns.length, 5);
-  assert.equal(q9.effectiveColSpan, 3, "q9 effectiveColSpan");
-  assert.equal(q10.effectiveColSpan, 2, "q10 effectiveColSpan");
+  assert.equal(page.gridLayoutColumns.length, 15);
+  assert.equal(q9.effectiveColSpan, 5, "q9 effectiveColSpan");
+  assert.equal(q10.effectiveColSpan, 10, "q10 effectiveColSpan");
 });
 
 QUnit.test("recalculate column width after question added", assert => {
@@ -634,16 +653,32 @@ QUnit.test("gridLayoutColumns: serialize last column", assert => {
   const surveyModel = new SurveyModel(json);
   const page = surveyModel.pages[0];
 
-  assert.deepEqual(page.gridLayoutColumns.length, 4);
+  assert.deepEqual(page.gridLayoutColumns.length, 12);
   assert.deepEqual(page.gridLayoutColumns[0].width, 10);
-  assert.deepEqual(page.gridLayoutColumns[1].effectiveWidth, 30);
-  assert.deepEqual(page.gridLayoutColumns[2].effectiveWidth, 30);
-  assert.deepEqual(page.gridLayoutColumns[3].effectiveWidth, 30);
+  assert.deepEqual(page.gridLayoutColumns[1].effectiveWidth, 8.18);
+  assert.deepEqual(page.gridLayoutColumns[2].effectiveWidth, 8.18);
+  assert.deepEqual(page.gridLayoutColumns[3].effectiveWidth, 8.18);
+  assert.deepEqual(page.gridLayoutColumns[4].effectiveWidth, 8.18);
+  assert.deepEqual(page.gridLayoutColumns[5].effectiveWidth, 8.18);
+  assert.deepEqual(page.gridLayoutColumns[6].effectiveWidth, 8.18);
+  assert.deepEqual(page.gridLayoutColumns[7].effectiveWidth, 8.18);
+  assert.deepEqual(page.gridLayoutColumns[8].effectiveWidth, 8.18);
+  assert.deepEqual(page.gridLayoutColumns[9].effectiveWidth, 8.18);
+  assert.deepEqual(page.gridLayoutColumns[10].effectiveWidth, 8.18);
+  assert.deepEqual(page.gridLayoutColumns[11].effectiveWidth, 8.18);
 
-  page.gridLayoutColumns[3].width = 10;
+  page.gridLayoutColumns[11].width = 10;
   const result = surveyModel.toJSON();
   assert.deepEqual(result["pages"][0]["gridLayoutColumns"], [
     { "width": 10 },
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
     {},
     {},
     { "width": 10 }
@@ -728,3 +763,93 @@ QUnit.skip("Do not call survey.onPropertyValueChangedCallback on loading choices
   survey.fromJSON({ elements: [{ type: "text", name: "q1" }] });
   assert.equal(counter, 0, "We shouldn't call onPropertyValueChangedCallback on loading from JSON");
 });
+
+QUnit.test("gridLayoutColumns: 1 - 3 - 2 layout", assert => {
+  const json = {
+    gridLayoutEnabled: true,
+    "widthMode": "static",
+    "width": "1200px",
+    "elements": [
+      { "type": "text", "name": "street-address" },
+
+      { "type": "text", "name": "city" },
+      { "type": "text", "name": "zip", "startWithNewLine": false },
+      { "type": "dropdown", "name": "country", "startWithNewLine": false, "choices": ["Yes", "No"], },
+
+      { "type": "boolean", "name": "used-as-main-residence", },
+      { "type": "boolean", "name": "used-for-business", "startWithNewLine": false }
+    ]
+  };
+
+  const surveyModel = new SurveyModel(json);
+  const page = surveyModel.pages[0];
+
+  assert.deepEqual(page.gridLayoutColumns.length, 6);
+});
+
+QUnit.test("gridLayoutColumns: 2 - 2 - 3 layout", assert => {
+  const json = {
+    gridLayoutEnabled: true,
+    "widthMode": "static",
+    "width": "1200px",
+    "elements": [
+      {
+        "type": "multipletext",
+        "name": "full-name",
+        "items": [
+          { "name": "first-name", "title": "First name" },
+          { "name": "last-name", "title": "Last name" }
+        ]
+      },
+      {
+        "type": "multipletext",
+        "name": "birth-info",
+        "startWithNewLine": false,
+        "items": [
+          { "name": "birthplace", "title": "Place of birth" },
+          { "name": "birthdate", "inputType": "date", "title": "Date of birth" }
+        ]
+      },
+      {
+        "type": "text",
+        "name": "phone",
+        "title": "Phone number",
+        "titleLocation": "top",
+      },
+      {
+        "type": "text",
+        "name": "question1",
+        "startWithNewLine": false,
+        "title": "Street address",
+        "titleLocation": "top"
+      },
+      {
+        "type": "text",
+        "name": "city1",
+        "title": "City/Town",
+        "titleLocation": "top"
+      },
+      {
+        "type": "text",
+        "name": "zip1",
+        "startWithNewLine": false,
+        "title": "Zip Code",
+        "titleLocation": "top"
+      },
+      {
+        "type": "dropdown",
+        "name": "country1",
+        "startWithNewLine": false,
+        "title": "Country",
+        "titleLocation": "top",
+        "choices": ["Yes", "No"],
+      }
+    ]
+  };
+
+  const surveyModel = new SurveyModel(json);
+  const page = surveyModel.pages[0];
+
+  assert.deepEqual(page.gridLayoutColumns.length, 6);
+});
+

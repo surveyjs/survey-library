@@ -183,11 +183,10 @@ button.sv-action-bar-item {
 }
 
 .sv-action--hidden {
-  // width: 0px;
-  // height: 0px;
-  // overflow: hidden;
-  // visibility: hidden;
-  display: none;
+  width: 0px;
+  height: 0px;
+  overflow: hidden;
+  visibility: hidden;
   .sv-action__content {
     min-width: fit-content;
   }

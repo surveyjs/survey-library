@@ -1032,13 +1032,16 @@ export class Question extends SurveyElement<Question>
     this.copyCssClasses(classes, css.question);
     this.copyCssClasses(classes.error, css.error);
     this.updateCssClasses(classes, css);
+    return classes;
+  }
+  protected onCalcCssClasses(classes: any): void {
+    super.onCalcCssClasses(classes);
     if (this.survey) {
       this.survey.updateQuestionCssClasses(this, classes);
     }
     if (this.onUpdateCssClassesCallback) {
       this.onUpdateCssClassesCallback(classes);
     }
-    return classes;
   }
   public get cssRoot(): string {
     this.ensureElementCss();

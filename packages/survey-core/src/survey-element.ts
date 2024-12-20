@@ -653,9 +653,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private createCssClassesValue(): any {
     const res = this.calcCssClasses(this.css);
     this.setPropertyValue("cssClassesValue", res);
+    this.onCalcCssClasses(res);
     this.updateElementCssCore(this.cssClassesValue);
     return res;
   }
+  protected onCalcCssClasses(classes: any): void {}
   /**
    * Returns an object in which keys are UI elements and values are CSS classes applied to them.
    *

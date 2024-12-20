@@ -6449,6 +6449,19 @@ QUnit.test("Question cssRoot", function (assert) {
     "checkbox question root class"
   );
 });
+QUnit.test("Question onUpdateQuestionCssClasses, modify question props", function (assert) {
+  const survey = new SurveyModel();
+  survey.onUpdateQuestionCssClasses.add(function (survey, options) {
+    options.question.titleLocation = "left";
+  });
+  survey.fromJSON({
+    elements: [
+      { type: "text", name: "q1" },
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.titleLocation, "left", "titleLocation is changed");
+});
 
 QUnit.test("Use send data to custom server", function (assert) {
   var survey = twoPageSimplestSurvey();

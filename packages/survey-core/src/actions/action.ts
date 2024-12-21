@@ -588,17 +588,16 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       this.popupModel.dispose();
     }
   }
-  public updateDimension(mode: actionModeType, el: HTMLElement, calcDimension: (el: HTMLElement) => number): void {
+  public updateDimension(mode: actionModeType, htmlElement: HTMLElement, calcDimension: (el: HTMLElement) => number): void {
     const property = mode == "small" ? "minDimension" : "maxDimension";
-    if(el) {
-      const actionContainer = el.parentElement;
-      if(actionContainer && getComputedStyle(actionContainer).display == "none") {
-        const oldDisplay = actionContainer.style.display;
-        actionContainer.style.display = "block";
-        this[property] = calcDimension(el);
-        actionContainer.style.display = oldDisplay;
+    if(htmlElement) {
+      const actionContainer = htmlElement;
+      if(actionContainer.classList.contains("sv-action--hidden")) {
+        actionContainer.classList.remove("sv-action--hidden");
+        this[property] = calcDimension(htmlElement);
+        actionContainer.classList.add("sv-action--hidden");
       } else {
-        this[property] = calcDimension(el);
+        this[property] = calcDimension(htmlElement);
       }
     }
   }
@@ -621,7 +620,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     }
   }
   public updateDimensions(calcDimension: (htmlElement: HTMLElement) => number, callback: () => void, modeToCalculate?: actionModeType): void {
-    const mode = !modeToCalculate ? (this.mode !== "small" ? "large" : "small") : modeToCalculate;
+    const mode = !modeToCalculate || (modeToCalculate == "large" && this.mode !== "small") ? this.mode : modeToCalculate;
     this.updateMode(mode, (mode, htmlElement) => {
       this.updateDimension(mode, htmlElement, calcDimension);
       if(!modeToCalculate) {

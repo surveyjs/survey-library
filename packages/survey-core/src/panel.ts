@@ -34,6 +34,16 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PageModel } from "./page";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 
+function lcm(arr: Array<number>) {
+  var n = arr.length, a = Math.abs(arr[0]);
+  for (var i = 1; i < n; i++) {
+    var b = Math.abs(arr[i]), c = a;
+    while (a && b) { a > b ? a %= b : b %= a; }
+    a = Math.abs(c * arr[i]) / (a + b);
+  }
+  return a;
+}
+
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
   private static getRowId(): string {
@@ -311,7 +321,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private _columns: Array<PanelLayoutColumnModel> = undefined;
   private _columnsReady = false;
 
-  @propertyArray() layoutColumns: Array<PanelLayoutColumnModel>;
+  @propertyArray() gridLayoutColumns: Array<PanelLayoutColumnModel>;
 
   addElementCallback: (element: IElement) => void;
   removeElementCallback: (element: IElement) => void;
@@ -419,7 +429,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.updateDescriptionVisibility(this.description);
     this.markQuestionListDirty();
     this.onRowsChanged();
-    this.layoutColumns.forEach(col => {
+    this.gridLayoutColumns.forEach(col => {
       col.onPropertyValueChangedCallback = this.onColumnPropertyValueChangedCallback;
     });
   }
@@ -1132,8 +1142,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   private calcMaxRowColSpan(): number {
-    let maxRowColSpan = 0;
-    this.rows.forEach(row => {
+    const rowSpanValues = this.rows.map(row => {
       let curRowSpan = 0;
       let userDefinedRow = false;
       row.elements.forEach(el => {
@@ -1142,9 +1151,9 @@ export class PanelModelBase extends SurveyElement<Question>
         }
         curRowSpan += (el.colSpan || 1);
       });
-
-      if (!userDefinedRow && curRowSpan > maxRowColSpan) maxRowColSpan = curRowSpan;
+      return !userDefinedRow ? curRowSpan : 1;
     });
+    const maxRowColSpan = lcm((rowSpanValues));
     return maxRowColSpan;
   }
   private updateColumnWidth(columns: Array<PanelLayoutColumnModel>): void {
@@ -1174,7 +1183,7 @@ export class PanelModelBase extends SurveyElement<Question>
     arrayChanges: ArrayChanges
   ) => {
     if (this._columnsReady) {
-      this.updateColumnWidth(this.layoutColumns);
+      this.updateColumnWidth(this.gridLayoutColumns);
       this.updateRootStyle();
     }
   }
@@ -1253,11 +1262,11 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   protected generateColumns(): void {
     let maxRowColSpan = this.calcMaxRowColSpan();
-    let columns = [].concat(this.layoutColumns);
-    if (maxRowColSpan <= this.layoutColumns.length) {
-      columns = this.layoutColumns.slice(0, maxRowColSpan);
+    let columns = [].concat(this.gridLayoutColumns);
+    if (maxRowColSpan <= this.gridLayoutColumns.length) {
+      columns = this.gridLayoutColumns.slice(0, maxRowColSpan);
     } else {
-      for (let index = this.layoutColumns.length; index < maxRowColSpan; index++) {
+      for (let index = this.gridLayoutColumns.length; index < maxRowColSpan; index++) {
         const newCol = new PanelLayoutColumnModel();
         newCol.onPropertyValueChangedCallback = this.onColumnPropertyValueChangedCallback;
         columns.push(newCol);
@@ -1271,11 +1280,21 @@ export class PanelModelBase extends SurveyElement<Question>
     finally {
       this._columnsReady = true;
     }
-    this.layoutColumns = columns;
+    this.gridLayoutColumns = columns;
   }
   public getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
     const row = this.findRowByElement(el);
     if (!row || !this.survey || !this.survey.gridLayoutEnabled) return [];
+
+    let userDefinedRow = false;
+    let rowDefinedSpans = 0;
+    row.elements.forEach(el => {
+      if (!!el.width) {
+        userDefinedRow = true;
+      }
+      rowDefinedSpans += (el.colSpan || 1);
+    });
+    const oneSpanWeight = userDefinedRow ? 1 : this.columns.length / rowDefinedSpans;
 
     let lastExpandableElementIndex = row.elements.length - 1;
     while (lastExpandableElementIndex >= 0) {
@@ -1288,17 +1307,19 @@ export class PanelModelBase extends SurveyElement<Question>
     const elementIndex = row.elements.indexOf(el);
     let startIndex = 0;
     for (let index = 0; index < elementIndex; index++) {
-      startIndex += row.elements[index].colSpan;
+      startIndex += row.elements[index].colSpan * oneSpanWeight;
     }
     let currentColSpan = (el as any).getPropertyValueWithoutDefault("colSpan");
     if (!currentColSpan && elementIndex === lastExpandableElementIndex) {
       let usedSpans = 0;
       for (let index = 0; index < row.elements.length; index++) {
         if (index !== lastExpandableElementIndex) {
-          usedSpans += row.elements[index].colSpan;
+          usedSpans += row.elements[index].colSpan * oneSpanWeight;
         }
       }
       currentColSpan = this.columns.length - usedSpans;
+    } else {
+      currentColSpan = (currentColSpan || 1) * oneSpanWeight;
     }
     const result = this.columns.slice(startIndex, startIndex + (currentColSpan || 1));
     (el as any).setPropertyValue("effectiveColSpan", result.length);
@@ -2027,13 +2048,13 @@ export class PanelModelBase extends SurveyElement<Question>
 
   public getSerializableColumnsValue(): Array<PanelLayoutColumnModel> {
     let tailIndex = -1;
-    for (let index = this.layoutColumns.length - 1; index >= 0; index--) {
-      if (!this.layoutColumns[index].isEmpty()) {
+    for (let index = this.gridLayoutColumns.length - 1; index >= 0; index--) {
+      if (!this.gridLayoutColumns[index].isEmpty()) {
         tailIndex = index;
         break;
       }
     }
-    return this.layoutColumns.slice(0, tailIndex + 1);
+    return this.gridLayoutColumns.slice(0, tailIndex + 1);
   }
   public afterRender(el: HTMLElement): void {
     this.afterRenderCore(el);
@@ -2450,7 +2471,7 @@ Serializer.addClass(
       choices: ["default", "top", "bottom", "left", "hidden"],
     },
     {
-      name: "layoutColumns:panellayoutcolumns",
+      name: "gridLayoutColumns:panellayoutcolumns",
       className: "panellayoutcolumn", isArray: true,
       onSerializeValue: (obj: any): any => { return obj.getSerializableColumnsValue(); },
       visibleIf: function (obj: any) { return !!obj && !!obj.survey && obj.survey.gridLayoutEnabled; }

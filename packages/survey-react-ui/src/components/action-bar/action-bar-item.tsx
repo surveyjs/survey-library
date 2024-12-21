@@ -51,6 +51,7 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
     );
   }
   componentWillUnmount(): void {
+    super.componentWillUnmount();
     this.item.updateModeCallback = undefined;
   }
   componentDidMount(): void {

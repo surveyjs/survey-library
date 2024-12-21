@@ -25,6 +25,11 @@ class SimpleContainer {
   querySelectorAll(query: string) {
     return [];
   }
+  classList = {
+    contains() {
+      return false;
+    }
+  }
 }
 class ResizeObserver {
   observe() { }
@@ -72,13 +77,16 @@ QUnit.test("Fit items", function (assert) {
   model.dotsItem.minDimension = itemSmallWidth;
   const item1 = new Action(<any>{});
   item1.minDimension = itemSmallWidth;
-  item1.maxDimension = itemSmallWidth;
+  item1.maxDimension = 50;
   model.actions.push(item1);
   const item2 = new Action(<any>{});
   item2.minDimension = itemSmallWidth;
   item2.maxDimension = 200;
   model.actions.push(item2);
-  model.actions.push(new Action({ id: "invisible", visible: false }));
+  const item3 = new Action({ id: "invisible", visible: false });
+  item3.minDimension = 50;
+  item3.maxDimension = 100;
+  model.actions.push(item3);
   assert.equal(model.actions.length, 3);
   assert.equal(model.visibleActions.length, 2);
   assert.equal(model.renderedActions.length, 4);
@@ -121,14 +129,14 @@ QUnit.test("Fit items", function (assert) {
   assert.equal(item2.mode, "popup", "dimension 50");
 
   item2.disableShrink = true;
-  model.fit({ availableSpace: 100 });
+  model.fit({ availableSpace: 248 });
   assert.equal(model.renderedActions.length, 4, "dimension 100");
   assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
   assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
   assert.equal(model.renderedActions[2].isVisible, false, "invisible 3");
   assert.equal(model.renderedActions[3].isVisible, false, "dots hidden");
-  assert.equal(item1.mode, "small", "dimension 100");
-  assert.equal(item2.mode, "large", "dimension 100 unshrinkable");
+  assert.equal(item1.mode, "small", "dimension 248");
+  assert.equal(item2.mode, "large", "dimension 248 unshrinkable");
 
 });
 
@@ -318,7 +326,6 @@ QUnit.test("ResponsivityManager process test", function (assert) {
         action.mode = mode;
         const offsetWidth = mode == "small" ? 20 : 100;
         const content = new SimpleContainer({ offsetWidth });
-        content.parentElement = document.createElement("div");
         callback(mode, content as any);
       };
       action.afterRender();
@@ -381,7 +388,6 @@ QUnit.test("ResponsivityManager - vertical process", function (assert) {
       action.mode = mode;
       const offsetHeight = action == model.dotsItem ? 30 : 20;
       const content = new SimpleContainer({ offsetWidth: 20, offsetHeight });
-      content.parentElement = document.createElement("div");
       callback(mode, content as any);
     };
   });

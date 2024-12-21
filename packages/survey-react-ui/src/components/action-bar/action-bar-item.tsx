@@ -62,8 +62,10 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
           (ReactDOM as any)["flushSync"](() => {
             this.item.mode = mode;
           });
-          callback(mode, this.ref.current);
+        } else {
+          this.item.mode = mode;
         }
+        callback(mode, this.ref.current);
       });
     };
     this.item.afterRender();

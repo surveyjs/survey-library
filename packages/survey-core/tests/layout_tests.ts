@@ -606,7 +606,7 @@ QUnit.test("question root style", function (assert) {
     "flexShrink": 1,
     "maxWidth": "100%",
     "minWidth": "min(100%, 300px)"
-  });
+  }, "#1");
 
   const q2 = new QuestionTextModel("q2");
   q2.startWithNewLine = false;
@@ -614,19 +614,19 @@ QUnit.test("question root style", function (assert) {
 
   assert.deepEqual(q1.rootStyle, {
     "flexBasis": "50%",
-    "flexGrow": 0,
+    "flexGrow": 1,
     "flexShrink": 0,
-    "maxWidth": undefined,
+    "maxWidth": "100%",
     "minWidth": undefined
-  });
+  }, "#2");
 
   assert.deepEqual(q2.rootStyle, {
     "flexBasis": "50%",
-    "flexGrow": 0,
+    "flexGrow": 1,
     "flexShrink": 0,
-    "maxWidth": undefined,
+    "maxWidth": "100%",
     "minWidth": undefined
-  });
+  }, "#3");
 });
 
 QUnit.test("gridLayoutColumns: serialize last column", assert => {

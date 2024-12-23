@@ -1158,6 +1158,26 @@ export class QuestionPanelDynamicModel extends Question
     this.onFirstRendering();
     return super.getSingleInputQuestions();
   }
+  private templateSingleInputPanel: PanelModel;
+  protected getSingleQuestionRowElement(question: Question): IElement {
+    if(!this.templateTitle) return question;
+    if(!this.templateSingleInputPanel) {
+      this.templateSingleInputPanel = Serializer.createClass("panel");
+      const p = this.templateSingleInputPanel;
+      p.name = this.name + "_singlePanelWrapper";
+      p.addNewQuestion("text", this.name + "templateSingleInputQ");
+      p.setSurveyImpl(this.surveyImpl);
+    }
+    const panel = this.templateSingleInputPanel;
+    panel.locTitle.onGetTextCallback = (str: string): string => {
+      return (<PanelModel>question.parent).locTitle.renderedHtml;
+    };
+    (<any>panel).onGetElementsForRowsCallback = () => {
+      return [question];
+    };
+    panel.updateRows();
+    return panel;
+  }
   /**
    * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
    * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.
@@ -2187,6 +2207,7 @@ export class QuestionPanelDynamicModel extends Question
       this.panelUpdateValueFromSurvey(this.panelsCore[i]);
     }
     this.updateIsAnswered();
+    this.templateSingleInputPanel?.locTitle.strChanged();
   }
   public onSurveyValueChanged(newValue: any) {
     if (newValue === undefined && this.isAllPanelsEmpty()) return;

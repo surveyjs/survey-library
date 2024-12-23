@@ -685,16 +685,22 @@ export class Question extends SurveyElement<Question>
   private getSinleInputPanel(singleQuestion: Question): PanelModel {
     if(!this.singleInputPanel) {
       this.singleInputPanel = Serializer.createClass("panel");
-      this.singleInputPanel.name = this.name + "_singlePanel";
+      const p = this.singleInputPanel;
+      p.name = this.name + "_singlePanel";
+      p.addNewQuestion("text", this.name + "singleInputQ");
+      p.setSurveyImpl(this.surveyImpl);
     }
     const panel = this.singleInputPanel;
     panel.title = this.title;
     panel.description = this.description;
-    panel.addNewQuestion("text", this.name + "singleInputQ");
-    panel.setSurveyImpl(singleQuestion.surveyImpl);
-    (<any>panel).onGetElementsForRowsCallback = () => { return [this.singleInputQuestionValue]; };
+    (<any>panel).onGetElementsForRowsCallback = () => {
+      return [this.getSingleQuestionRowElement(this.singleInputQuestionValue)];
+    };
     panel.updateRows();
     return panel;
+  }
+  protected getSingleQuestionRowElement(question: Question): IElement {
+    return question;
   }
   private singleInputQuestionValue: Question;
   private getSingleInputQuestion(): Question {

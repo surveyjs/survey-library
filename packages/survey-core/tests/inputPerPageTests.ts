@@ -1,6 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { PanelModel } from "../src/panel";
+import { Question } from "../src/question";
 
 export default QUnit.module("Input Per Page Tests");
 
@@ -58,7 +59,7 @@ QUnit.test("singleInput for panel dynamic", assert => {
   assert.equal(panel.panels.length, 1, "There is one panel");
   const page: PageModel = survey.currentPage;
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is panel1, #1");
-  const el = <PanelModel>page.visibleRows[0].elements[0];
+  let el = <PanelModel>page.visibleRows[0].elements[0];
   assert.ok(el.survey, "survey is set");
   assert.ok(el.data, "survey data is set");
   assert.equal(el.isPanel, true, "visible question is panel, #1");
@@ -67,6 +68,7 @@ QUnit.test("singleInput for panel dynamic", assert => {
   assert.equal(el.visibleRows[0].elements[0].name, "q1", "The q1 is in the row, #1");
 
   survey.performNext();
+  el = <PanelModel>page.visibleRows[0].elements[0];
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is panel1, #2");
   assert.equal(el.isPanel, true, "visible question is panel, #2");
   assert.equal(el.name, "panel1_singlePanel", "visible question name, #2");
@@ -74,6 +76,7 @@ QUnit.test("singleInput for panel dynamic", assert => {
   assert.equal(el.visibleRows[0].elements[0].name, "q2", "The q1 is in the row, #2");
 
   survey.performPrevious();
+  el = <PanelModel>page.visibleRows[0].elements[0];
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is panel1, #3");
   assert.equal(el.isPanel, true, "visible question is panel, #3");
   assert.equal(el.name, "panel1_singlePanel", "visible question name, #3");
@@ -118,4 +121,49 @@ QUnit.test("singleInput and navigation buttons visibilty", assert => {
   assert.equal(survey.isShowPrevButton, false, "prev buttton, #5");
   assert.equal(survey.isShowNextButton, true, "next buttton, #5");
   assert.equal(survey.isCompleteButtonVisible, false, "complete buttton, #5");
+});
+QUnit.test("singleInput and panel dynamic with templateTitle", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        panelCount: 2,
+        templateTitle: "Item: {panelIndex} - {panel.q1}",
+        templateElements: [
+          { type: "text", name: "q1" },
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage",
+  });
+  const page: PageModel = survey.currentPage;
+  assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is panel1, #1");
+  let el = <PanelModel>page.visibleRows[0].elements[0];
+  assert.ok(el.survey, "survey is set");
+  assert.ok(el.data, "survey data is set");
+  assert.equal(el.isPanel, true, "visible question is panel, #1");
+  assert.equal(el.name, "panel1_singlePanel", "visible question name, #1");
+  assert.equal(el.visibleRows.length, 1, "There is one row, #1");
+  let panelWrapper = <PanelModel>el.visibleRows[0].elements[0];
+  assert.equal(panelWrapper.name, "panel1_singlePanelWrapper", "The panel wrapper is in the row, #1");
+  assert.equal(panelWrapper.visibleRows.length, 1, "There is one row, #1");
+  assert.equal(panelWrapper.visibleRows[0].elements[0].name, "q1", "The q1 is in the row, #1");
+  assert.equal(panelWrapper.locTitle.textOrHtml, "Item: 1 - ", "wrapper panel title, #1.1");
+  let q1 = <Question>panelWrapper.visibleRows[0].elements[0];
+  q1.value = "abc";
+  assert.equal(panelWrapper.locTitle.textOrHtml, "Item: 1 - abc", "wrapper panel title, #1.2");
+
+  survey.performNext();
+  el = <PanelModel>page.visibleRows[0].elements[0];
+  assert.equal(el.isPanel, true, "visible question is panel, #2");
+  assert.equal(el.name, "panel1_singlePanel", "visible question name, #2");
+  assert.equal(el.visibleRows.length, 1, "There is one row, #2");
+  panelWrapper = <PanelModel>el.visibleRows[0].elements[0];
+  assert.equal(panelWrapper.name, "panel1_singlePanelWrapper", "The panel wrapper is in the row, #2");
+  assert.equal(panelWrapper.visibleRows.length, 1, "There is one row, #2");
+  assert.equal(panelWrapper.visibleRows[0].elements[0].name, "q1", "The q1 is in the row, #2");
+  assert.equal(panelWrapper.locTitle.textOrHtml, "Item: 2 - ", "wrapper panel title, #2.2");
+  q1 = <Question>panelWrapper.visibleRows[0].elements[0];
+  q1.value = "edf";
+  assert.equal(panelWrapper.locTitle.textOrHtml, "Item: 2 - edf", "wrapper panel title, #2.2");
 });

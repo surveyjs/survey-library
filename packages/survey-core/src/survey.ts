@@ -7380,7 +7380,11 @@ export class SurveyModel extends SurveyElementCore
     if (width && !isNaN(width)) width = width + "px";
     return isStaticWidth && width || undefined;
   }
-  @property({ defaultValue: 100 }) widthScale: number;
+  @property({
+    defaultValue: 100, onSet(val: number, target: SurveyModel, prevVal: number) {
+      target.pages.forEach(p => p.updateRootStyle());
+    },
+  }) widthScale: number;
   @property() staticStartWidth: number;
   public setStaticStartWidth(width: number): void {
     this.staticStartWidth = width;

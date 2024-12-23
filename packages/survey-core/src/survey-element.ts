@@ -1069,8 +1069,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       }
     }
     if (Object.keys(style).length == 0) {
-      let minWidth = this.minWidth;
-      if (minWidth != "auto") minWidth = "min(100%, " + minWidth + ")";
+      let minWidth: any = this.minWidth;
+      if (!!minWidth && minWidth != "auto") {
+        if (minWidth.indexOf("px") != -1 && this.survey) {
+          minWidth = minWidth.replace("px", "");
+          let minWidthNum = parseFloat(minWidth);
+          if (!isNaN(minWidthNum)) {
+            minWidth = minWidthNum * (this.survey as any).widthScale / 100;
+            minWidth = "" + minWidth + "px";
+          }
+        }
+        minWidth = "min(100%, " + minWidth + ")";
+      }
       if (this.allowRootStyle && this.renderWidth) {
         // style["width"] = this.renderWidth;
         style["flexGrow"] = 1;

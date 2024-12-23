@@ -10,7 +10,7 @@ import { Action } from "survey-core";
 })
 export class ActionComponent extends BaseAngular implements AfterViewInit {
   @Input() model!: Action;
-  @ViewChild("container", { read: ElementRef, static: false }) containerRef!: ElementRef<HTMLElement>;
+  @ViewChild("container") containerRef!: ElementRef<HTMLElement>;
   getModel() {
     return this.model;
   }

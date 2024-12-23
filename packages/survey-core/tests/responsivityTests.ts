@@ -140,51 +140,6 @@ QUnit.test("Fit items", function (assert) {
 
 });
 
-QUnit.test("Fit items - hide if needed", function (assert) {
-  const itemSmallWidth = 50;
-  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-  model.dotsItem.minDimension = itemSmallWidth;
-  model.dotsItem.maxDimension = itemSmallWidth;
-
-  const item1 = new Action(<any>{});
-  item1.minDimension = 0;
-  item1.disableShrink = true;
-  item1.maxDimension = itemSmallWidth;
-  item1.removePriority = 2;
-  model.actions.push(item1);
-  const item2 = new Action(<any>{});
-  item2.minDimension = 0;
-  item2.disableShrink = true;
-  item2.maxDimension = itemSmallWidth;
-  item2.removePriority = 1;
-  model.actions.push(item2);
-  const item3 = new Action(<any>{});
-  item3.minDimension = 0;
-  item3.disableShrink = true;
-  item3.maxDimension = itemSmallWidth;
-  model.actions.push(item3);
-
-  assert.equal(model.actions.length, 3);
-  assert.equal(model.visibleActions.length, 3);
-
-  model.fit({ availableSpace: 300 });
-  assert.equal(model.visibleActions.length, 3, "dimension 300");
-  assert.equal(model.visibleActions[0].isVisible, true, "300 - visible 1");
-  assert.equal(model.visibleActions[1].isVisible, true, "300 - visible 2");
-  assert.equal(model.visibleActions[2].isVisible, true, "300 - visible 3");
-
-  model.fit({ availableSpace: 120 });
-  assert.equal(model.visibleActions.length, 3, "dimension 120");
-  assert.equal(model.visibleActions[0].isVisible, true, "120 - visible 1");
-  assert.equal(model.visibleActions[1].isVisible, false, "120 - invisible 2");
-  assert.equal(model.visibleActions[2].isVisible, true, "120 - visible 3");
-  model.fit({ availableSpace: 70 });
-  assert.equal(model.visibleActions.length, 3, "dimension 70");
-  assert.equal(model.visibleActions[0].isVisible, false, "70 - invisible 1");
-  assert.equal(model.visibleActions[1].isVisible, false, "70 - invisible 2");
-  assert.equal(model.visibleActions[2].isVisible, true, "70 - visible 3");
-});
-
 QUnit.test("Fit items - hide items with priority", function (assert) {
   const itemSmallWidth = 15;
   const itemLargeWidth = 50;
@@ -202,7 +157,6 @@ QUnit.test("Fit items - hide items with priority", function (assert) {
   item2.disableShrink = true;
   item2.maxDimension = itemLargeWidth;
   item2.title = "b";
-  item2.removePriority = 1;
   model.actions.push(item2);
   const item3 = new Action(<any>{});
   item3.minDimension = itemSmallWidth;
@@ -223,9 +177,9 @@ QUnit.test("Fit items - hide items with priority", function (assert) {
   model.fit({ availableSpace: 78 });
   assert.equal(model.visibleActions.length, 3, "dimension 78");
   assert.equal(model.visibleActions[0].isVisible, true, "78 - visible 1");
-  assert.equal(model.visibleActions[1].isVisible, false, "78 - invisible 2");
-  assert.equal(model.visibleActions[2].isVisible, true, "78 - visible 3");
-  assert.equal(model.renderedActions[3].isVisible, false, "78 - dots hidden");
+  assert.equal(model.visibleActions[1].isVisible, true, "78 - invisible 2");
+  assert.equal(model.visibleActions[2].isVisible, false, "78 - visible 3");
+  assert.equal(model.renderedActions[3].isVisible, true, "78 - dots hidden");
 
   model.fit({ availableSpace: 29 });
   assert.equal(model.visibleActions.length, 3, "dimension 29");

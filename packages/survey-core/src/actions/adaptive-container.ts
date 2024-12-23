@@ -17,12 +17,8 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     const hiddenItems: IAction[] = [];
     actionsToHide.forEach((item) => {
       if (visibleItemsCount <= 0) {
-        if (item.removePriority) {
-          item.mode = "removed";
-        } else {
-          item.mode = "popup";
-          hiddenItems.push(item.innerItem);
-        }
+        item.mode = "popup";
+        hiddenItems.push(item.innerItem);
       }
       visibleItemsCount--;
     });
@@ -30,7 +26,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   private getActionsToHide() {
-    return this.visibleActions.filter(action => !action.disableHide).sort((a, b) => a.removePriority || 0 - b.removePriority || 0);
+    return this.visibleActions.filter(action => !action.disableHide);
   }
 
   private updateItemMode(availableSpace: number, maxItemsSize: number) {
@@ -93,27 +89,17 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
 
   private getVisibleItemsCount(options: { availableSpace: number, gap?: number }): number {
     let { availableSpace, gap } = options;
-    availableSpace += gap;
+    availableSpace -= this.dotsItem.minDimension;
     this.visibleActions
       .filter((action) => action.disableHide)
       .forEach(action => {
         return availableSpace -= (this.getActionMinDimension(action) + gap);
       });
     const actionsToHide = this.getActionsToHide();
-    const hiddenInListLastIndex = actionsToHide.filter((action) => action.removePriority === undefined || action.removePriority === null).length - 1;
     let currentItemsSize = - 1 * gap;
     for(let i = 0; i < actionsToHide.length; i++) {
       currentItemsSize += this.getActionMinDimension(actionsToHide[i]) + gap;
       if (currentItemsSize > availableSpace) {
-        if(hiddenInListLastIndex >= 0 && hiddenInListLastIndex >= i && i > 0) {
-          availableSpace -= this.dotsItem.minDimension + gap;
-          let j = i;
-          while(currentItemsSize > availableSpace && j >= 0) {
-            currentItemsSize -= this.getActionMinDimension(actionsToHide[i]) + gap;
-            j--;
-          }
-          return j + 1;
-        }
         return i;
       }
     }

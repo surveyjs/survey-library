@@ -21,7 +21,7 @@ import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
 import { settings } from "./settings";
-import { cleanHtmlElementAfterAnimation, findScrollableParent, getElementWidth, isElementVisible, roundTo2Decimals, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
+import { cleanHtmlElementAfterAnimation, findScrollableParent, getElementWidth, isElementVisible, floorTo2Decimals, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
@@ -1167,7 +1167,7 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     });
     if (!!remainingColCount) {
-      const oneColumnWidth = roundTo2Decimals((100 - remainingSpace) / remainingColCount);
+      const oneColumnWidth = floorTo2Decimals((100 - remainingSpace) / remainingColCount);
       for (let index = 0; index < columns.length; index++) {
         if (!columns[index].width) {
           columns[index].setPropertyValue("effectiveWidth", oneColumnWidth);

@@ -2,7 +2,7 @@ import { ArrayChanges, Base } from "../src/base";
 import { Serializer } from "../src/jsonobject";
 import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
-import { roundTo2Decimals } from "../src/utils/utils";
+import { floorTo2Decimals } from "../src/utils/utils";
 
 export default QUnit.module("Layout:");
 
@@ -38,7 +38,7 @@ QUnit.test("columns generate - simple", function (assert) {
   assert.equal(page.rows.length, 2, "There are two rows");
   assert.equal(page.columns.length, 6);
   assert.equal(page.columns[0].width, undefined);
-  assert.equal(roundTo2Decimals(page.columns[0].effectiveWidth), 16.67);
+  assert.equal(floorTo2Decimals(page.columns[0].effectiveWidth), 16.66);
 
   assert.equal(page.getColumsForElement(q1).length, 2);
   assert.deepEqual(page.getColumsForElement(q1), [page.columns[0], page.columns[1]], "q1");
@@ -83,7 +83,7 @@ QUnit.test("columns generate - complex", function (assert) {
   assert.equal(page.rows.length, 2, "There are two rows");
   assert.equal(page.columns.length, 3);
   assert.equal(page.columns[0].width, undefined);
-  assert.equal(roundTo2Decimals(page.columns[0].effectiveWidth), 33.33);
+  assert.equal(floorTo2Decimals(page.columns[0].effectiveWidth), 33.33);
 
   assert.deepEqual(page.getColumsForElement(q1), [page.columns[0]]);
   assert.deepEqual(page.getColumsForElement(q2), [page.columns[1], page.columns[1]]);

@@ -1154,6 +1154,10 @@ export class QuestionPanelDynamicModel extends Question
   public set templateErrorLocation(value: string) {
     this.setPropertyValue("templateErrorLocation", value.toLowerCase());
   }
+  protected getSingleInputQuestions(): Array<Question> {
+    this.onFirstRendering();
+    return super.getSingleInputQuestions();
+  }
   /**
    * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
    * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.

@@ -3899,6 +3899,10 @@ export class SurveyModel extends SurveyElementCore
   public performNext(): boolean {
     const q = this.currentSingleQuestion;
     if(!q) return this.nextPage();
+    if(this.isSingleVisibleInput) {
+      if(!q.validateSingleInput()) return false;
+      if(q.nextSingleInput()) return true;
+    }
     if(!q.validate(true)) return false;
     const questions = this.getAllQuestions(true);
     const index = questions.indexOf(q);
@@ -3909,6 +3913,9 @@ export class SurveyModel extends SurveyElementCore
   public performPrevious(): boolean {
     const q = this.currentSingleQuestion;
     if(!q) return this.prevPage();
+    if(this.isSingleVisibleInput) {
+      if(q.prevSingleInput()) return true;
+    }
     const questions = this.getAllQuestions(true);
     const index = questions.indexOf(q);
     if(index === 0) return false;
@@ -4315,13 +4322,16 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
   public get isSinglePage(): boolean {
-    return this.questionsOnPageMode == "singlePage";
+    return this.questionsOnPageMode == "singlePage" && !this.isDesignMode;
   }
   public set isSinglePage(val: boolean) {
     this.questionsOnPageMode = val ? "singlePage" : "standard";
   }
   public get isSingleVisibleQuestion(): boolean {
-    return this.isSingleVisibleQuestionVal(this.questionsOnPageMode);
+    return !this.isDesignMode && (this.isSingleVisibleQuestionVal(this.questionsOnPageMode) || this.isSingleVisibleInput);
+  }
+  public get isSingleVisibleInput(): boolean {
+    return this.questionsOnPageMode == "inputPerPage";
   }
   private isSingleVisibleQuestionVal(val: string): boolean {
     return val === "questionPerPage" || val === "questionOnPage";
@@ -4548,11 +4558,18 @@ export class SurveyModel extends SurveyElementCore
     let lVal: boolean | undefined = undefined;
     const q = this.currentSingleQuestion;
     if(!!q) {
+      let isFirstInput = true;
+      let isLastInput = true;
+      if(this.isSingleVisibleInput) {
+        const inputState = q.getSingleInputElementPos();
+        isFirstInput = inputState < 0;
+        isLastInput = inputState > 0;
+      }
       const questions = this.getAllQuestions(true);
       const index = questions.indexOf(q);
       if(index >= 0) {
-        fVal = index === 0;
-        lVal = index === questions.length - 1;
+        fVal = isFirstInput && index === 0;
+        lVal = isLastInput && index === questions.length - 1;
       }
     }
     this.setPropertyValue("isFirstElement", fVal);

@@ -1557,7 +1557,9 @@ export class PanelModelBase extends SurveyElement<Question>
     res.forEach(row => row.updateVisible());
     return res;
   }
+  onGetElementsForRowsCallback: () => Array<IElement>;
   protected getElementsForRows(): Array<IElement> {
+    if(this.onGetElementsForRowsCallback) return this.onGetElementsForRowsCallback();
     return this.elements;
   }
   public getDragDropInfo(): any {

@@ -669,6 +669,63 @@ export class Question extends SurveyElement<Question>
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
+  public getSingleInputElement(): IElement {
+    const single = this.getSingleInputQuestion();
+    if(!single) return this;
+    return this.getSinleInputPanel(single);
+  }
+  public getSingleInputElementPos(): number {
+    const q = this.singleInputQuestionValue;
+    if(!q) return 1;
+    const questions = this.getSingleInputQuestions();
+    let index = questions.indexOf(q);
+    return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 0);
+  }
+  private singleInputPanel: PanelModel;
+  private getSinleInputPanel(singleQuestion: Question): PanelModel {
+    if(!this.singleInputPanel) {
+      this.singleInputPanel = Serializer.createClass("panel");
+      this.singleInputPanel.name = this.name + "_singlePanel";
+    }
+    const panel = this.singleInputPanel;
+    panel.title = this.title;
+    panel.description = this.description;
+    panel.addNewQuestion("text", this.name + "singleInputQ");
+    panel.setSurveyImpl(singleQuestion.surveyImpl);
+    (<any>panel).onGetElementsForRowsCallback = () => { return [this.singleInputQuestionValue]; };
+    panel.updateRows();
+    return panel;
+  }
+  private singleInputQuestionValue: Question;
+  private getSingleInputQuestion(): Question {
+    if(!!this.singleInputQuestionValue) return this.singleInputQuestionValue;
+    const questions = this.getSingleInputQuestions();
+    if(Array.isArray(questions) && questions.length > 0) {
+      this.singleInputQuestionValue = questions[0];
+    }
+    return this.singleInputQuestionValue;
+  }
+  protected getSingleInputQuestions(): Array<Question> {
+    return this.getNestedQuestions(true);
+  }
+  public nextSingleInput(): boolean {
+    return this.nextPrevSingleInput(1);
+  }
+  public prevSingleInput(): boolean {
+    return this.nextPrevSingleInput(-1);
+  }
+  private nextPrevSingleInput(skip: number): boolean {
+    const q = this.singleInputQuestionValue;
+    if(!q) return false;
+    const questions = this.getSingleInputQuestions();
+    let index = questions.indexOf(q);
+    if(index < 0) return false;
+    index += skip;
+    if(index < 0 || index >= questions.length) return false;
+    this.singleInputQuestionValue = questions[index];
+    this.getSinleInputPanel(this.singleInputQuestionValue);
+    return true;
+  }
   /**
    * Returns `false` if the `titleLocation` property is set to `"hidden"` or if the question cannot have a title (for example, an [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question).
    *
@@ -2237,6 +2294,11 @@ export class Question extends SurveyElement<Question>
       }
     }
     return !this.hasErrors(fireCallback, rec);
+  }
+  public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
+    const q = this.singleInputQuestionValue;
+    if(!q) return true;
+    return q.validate(fireCallback, rec);
   }
   public get currentErrorCount(): number {
     return this.errors.length;

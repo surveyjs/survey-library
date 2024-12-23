@@ -339,7 +339,8 @@ export class PanelModelBase extends SurveyElement<Question>
       isAnimationEnabled: () => this.animationAllowed,
       getAnimatedElement: (row: QuestionRowModel) => row.getRootElement(),
       getLeaveOptions: (row: QuestionRowModel, info) => {
-        return { cssClass: this.cssClasses.rowLeave,
+        return {
+          cssClass: this.cssClasses.rowLeave,
           onBeforeRunAnimation: prepareElementForVerticalAnimation,
           onAfterRunAnimation: cleanHtmlElementAfterAnimation,
 
@@ -1281,6 +1282,12 @@ export class PanelModelBase extends SurveyElement<Question>
       this._columnsReady = true;
     }
     this.gridLayoutColumns = columns;
+  }
+  public updateGridColumns(): void {
+    this.updateColumns();
+    this.elements.forEach(el => {
+      el.isPanel && (<any>el as PanelModelBase).updateGridColumns();
+    });
   }
   public getColumsForElement(el: IElement): Array<PanelLayoutColumnModel> {
     const row = this.findRowByElement(el);

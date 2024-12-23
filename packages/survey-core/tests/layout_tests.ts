@@ -853,3 +853,27 @@ QUnit.test("gridLayoutColumns: 2 - 2 - 3 layout", assert => {
   assert.deepEqual(page.gridLayoutColumns.length, 6);
 });
 
+QUnit.test("Update gridLayoutColumns after gridLayoutEnabled changed", assert => {
+  const json = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          { "type": "text", "name": "question1" },
+          { "type": "text", "name": "question2", "startWithNewLine": false },
+          { "type": "text", "name": "question3" },
+          { "type": "text", "name": "question4", "startWithNewLine": false }
+        ]
+      }
+    ]
+  };
+  const surveyModel = new SurveyModel(json);
+  const page = surveyModel.pages[0];
+  assert.deepEqual(page.gridLayoutColumns.length, 0, "#1");
+
+  surveyModel.gridLayoutEnabled = true;
+  assert.deepEqual(page.gridLayoutColumns.length, 2, "#2");
+
+  surveyModel.gridLayoutEnabled = false;
+  assert.deepEqual(page.gridLayoutColumns.length, 2, "#3");
+});

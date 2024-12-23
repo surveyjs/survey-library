@@ -7318,7 +7318,14 @@ export class SurveyModel extends SurveyElementCore
   public set showTimerPanelMode(val: string) {
     this.timerInfoMode = this.getTimerInfoVal(val);
   }
-  @property() gridLayoutEnabled: boolean;
+  @property({
+    onSet: (newValue: boolean, target: SurveyModel) => {
+      target.updateGridColumns();
+    }
+  }) gridLayoutEnabled: boolean;
+  public updateGridColumns(): void {
+    this.pages.forEach(page => page.updateGridColumns());
+  }
   /**
     * Specifies how to calculate the survey width.
     *

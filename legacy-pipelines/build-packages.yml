@@ -100,31 +100,26 @@ jobs:
       displayName: Cache NPM
 
     # setup next release version
-    # - task: DownloadBuildArtifacts@0
-    #   inputs:
-    #     buildType: "specific"
-    #     project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-    #     pipeline: "47"
-    #     buildVersionToDownload: "latest"
-    #     downloadType: "single"
-    #     artifactName: "ReleaseVersionFile"
-    #     downloadPath: "$(System.ArtifactsDirectory)"
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: "specific"
+        project: "44ed9012-3b38-49f8-a488-0e764469a04f"
+        pipeline: "100"
+        buildVersionToDownload: "latest"
+        downloadType: "single"
+        artifactName: "ReleaseVersionFile"
+        downloadPath: "$(System.ArtifactsDirectory)"
 
-    # - task: CopyFiles@2
-    #   inputs:
-    #     SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-    #     Contents: "version.txt"
-    #     TargetFolder: "$(Build.SourcesDirectory)/"
-    #     OverWrite: true
-    #   displayName: "Copy Build Artifact - SurveyJSVersion File"
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+        Contents: "version.txt"
+        TargetFolder: "$(Build.SourcesDirectory)/"
+        OverWrite: true
+      displayName: "Copy Build Artifact - SurveyJSVersion File"
 
-    # - powershell: |
-    #     $version = Get-Content $(Build.SourcesDirectory)/version.txt
-    #     Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-    #   displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-    
     - powershell: |
-        $version = "1.12.16"
+        $version = Get-Content $(Build.SourcesDirectory)/version.txt
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
@@ -251,30 +246,26 @@ jobs:
       displayName: Cache NPM
 
     # setup next release version
-    # - task: DownloadBuildArtifacts@0
-    #   inputs:
-    #     buildType: "specific"
-    #     project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-    #     pipeline: "47"
-    #     buildVersionToDownload: "latest"
-    #     downloadType: "single"
-    #     artifactName: "ReleaseVersionFile"
-    #     downloadPath: "$(System.ArtifactsDirectory)"
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: "specific"
+        project: "44ed9012-3b38-49f8-a488-0e764469a04f"
+        pipeline: "100"
+        buildVersionToDownload: "latest"
+        downloadType: "single"
+        artifactName: "ReleaseVersionFile"
+        downloadPath: "$(System.ArtifactsDirectory)"
 
-    # - task: CopyFiles@2
-    #   inputs:
-    #     SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-    #     Contents: "version.txt"
-    #     TargetFolder: "$(Build.SourcesDirectory)/"
-    #     OverWrite: true
-    #   displayName: "Copy Build Artifact - SurveyJSVersion File"
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+        Contents: "version.txt"
+        TargetFolder: "$(Build.SourcesDirectory)/"
+        OverWrite: true
+      displayName: "Copy Build Artifact - SurveyJSVersion File"
 
-    # - powershell: |
-    #     $version = Get-Content $(Build.SourcesDirectory)/version.txt
-    #     Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-    #   displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     - powershell: |
-        $version = "1.12.16"
+        $version = Get-Content $(Build.SourcesDirectory)/version.txt
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
@@ -379,30 +370,26 @@ jobs:
       displayName: Cache NPM
 
     # setup next release version
-    # - task: DownloadBuildArtifacts@0
-    #   inputs:
-    #     buildType: "specific"
-    #     project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-    #     pipeline: "47"
-    #     buildVersionToDownload: "latest"
-    #     downloadType: "single"
-    #     artifactName: "ReleaseVersionFile"
-    #     downloadPath: "$(System.ArtifactsDirectory)"
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: "specific"
+        project: "44ed9012-3b38-49f8-a488-0e764469a04f"
+        pipeline: "100"
+        buildVersionToDownload: "latest"
+        downloadType: "single"
+        artifactName: "ReleaseVersionFile"
+        downloadPath: "$(System.ArtifactsDirectory)"
 
-    # - task: CopyFiles@2
-    #   inputs:
-    #     SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-    #     Contents: "version.txt"
-    #     TargetFolder: "$(Build.SourcesDirectory)/"
-    #     OverWrite: true
-    #   displayName: "Copy Build Artifact - SurveyJSVersion File"
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+        Contents: "version.txt"
+        TargetFolder: "$(Build.SourcesDirectory)/"
+        OverWrite: true
+      displayName: "Copy Build Artifact - SurveyJSVersion File"
 
-    # - powershell: |
-    #     $version = Get-Content $(Build.SourcesDirectory)/version.txt
-    #     Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-    #   displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     - powershell: |
-        $version = "1.12.16"
+        $version = Get-Content $(Build.SourcesDirectory)/version.txt
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
@@ -490,30 +477,26 @@ jobs:
       displayName: Cache NPM
 
     # setup next release version
-    # - task: DownloadBuildArtifacts@0
-    #   inputs:
-    #     buildType: "specific"
-    #     project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-    #     pipeline: "47"
-    #     buildVersionToDownload: "latest"
-    #     downloadType: "single"
-    #     artifactName: "ReleaseVersionFile"
-    #     downloadPath: "$(System.ArtifactsDirectory)"
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: "specific"
+        project: "44ed9012-3b38-49f8-a488-0e764469a04f"
+        pipeline: "100"
+        buildVersionToDownload: "latest"
+        downloadType: "single"
+        artifactName: "ReleaseVersionFile"
+        downloadPath: "$(System.ArtifactsDirectory)"
 
-    # - task: CopyFiles@2
-    #   inputs:
-    #     SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-    #     Contents: "version.txt"
-    #     TargetFolder: "$(Build.SourcesDirectory)/"
-    #     OverWrite: true
-    #   displayName: "Copy Build Artifact - SurveyJSVersion File"
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+        Contents: "version.txt"
+        TargetFolder: "$(Build.SourcesDirectory)/"
+        OverWrite: true
+      displayName: "Copy Build Artifact - SurveyJSVersion File"
 
-    # - powershell: |
-    #     $version = Get-Content $(Build.SourcesDirectory)/version.txt
-    #     Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-    #   displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     - powershell: |
-        $version = "1.12.16"
+        $version = Get-Content $(Build.SourcesDirectory)/version.txt
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
@@ -602,30 +585,26 @@ jobs:
       displayName: Cache NPMs
 
     # setup next release version
-    # - task: DownloadBuildArtifacts@0
-    #   inputs:
-    #     buildType: "specific"
-    #     project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-    #     pipeline: "47"
-    #     buildVersionToDownload: "latest"
-    #     downloadType: "single"
-    #     artifactName: "ReleaseVersionFile"
-    #     downloadPath: "$(System.ArtifactsDirectory)"
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: "specific"
+        project: "44ed9012-3b38-49f8-a488-0e764469a04f"
+        pipeline: "100"
+        buildVersionToDownload: "latest"
+        downloadType: "single"
+        artifactName: "ReleaseVersionFile"
+        downloadPath: "$(System.ArtifactsDirectory)"
 
-    # - task: CopyFiles@2
-    #   inputs:
-    #     SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-    #     Contents: "version.txt"
-    #     TargetFolder: "$(Build.SourcesDirectory)/"
-    #     OverWrite: true
-    #   displayName: "Copy Build Artifact - SurveyJSVersion File"
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+        Contents: "version.txt"
+        TargetFolder: "$(Build.SourcesDirectory)/"
+        OverWrite: true
+      displayName: "Copy Build Artifact - SurveyJSVersion File"
 
-    # - powershell: |
-    #     $version = Get-Content $(Build.SourcesDirectory)/version.txt
-    #     Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-    #   displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     - powershell: |
-        $version = "1.12.16"
+        $version = Get-Content $(Build.SourcesDirectory)/version.txt
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
@@ -729,30 +708,26 @@ jobs:
       displayName: Cache NPMs
 
     # setup next release version
-    # - task: DownloadBuildArtifacts@0
-    #   inputs:
-    #     buildType: "specific"
-    #     project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-    #     pipeline: "47"
-    #     buildVersionToDownload: "latest"
-    #     downloadType: "single"
-    #     artifactName: "ReleaseVersionFile"
-    #     downloadPath: "$(System.ArtifactsDirectory)"
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: "specific"
+        project: "44ed9012-3b38-49f8-a488-0e764469a04f"
+        pipeline: "100"
+        buildVersionToDownload: "latest"
+        downloadType: "single"
+        artifactName: "ReleaseVersionFile"
+        downloadPath: "$(System.ArtifactsDirectory)"
 
-    # - task: CopyFiles@2
-    #   inputs:
-    #     SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-    #     Contents: "version.txt"
-    #     TargetFolder: "$(Build.SourcesDirectory)/"
-    #     OverWrite: true
-    #   displayName: "Copy Build Artifact - SurveyJSVersion File"
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+        Contents: "version.txt"
+        TargetFolder: "$(Build.SourcesDirectory)/"
+        OverWrite: true
+      displayName: "Copy Build Artifact - SurveyJSVersion File"
 
-    # - powershell: |
-    #     $version = Get-Content $(Build.SourcesDirectory)/version.txt
-    #     Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-    #   displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     - powershell: |
-        $version = "1.12.16"
+        $version = Get-Content $(Build.SourcesDirectory)/version.txt
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
@@ -855,30 +830,26 @@ jobs:
       displayName: Cache NPM
 
     # setup next release version
-    # - task: DownloadBuildArtifacts@0
-    #   inputs:
-    #     buildType: "specific"
-    #     project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-    #     pipeline: "47"
-    #     buildVersionToDownload: "latest"
-    #     downloadType: "single"
-    #     artifactName: "ReleaseVersionFile"
-    #     downloadPath: "$(System.ArtifactsDirectory)"
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: "specific"
+        project: "44ed9012-3b38-49f8-a488-0e764469a04f"
+        pipeline: "100"
+        buildVersionToDownload: "latest"
+        downloadType: "single"
+        artifactName: "ReleaseVersionFile"
+        downloadPath: "$(System.ArtifactsDirectory)"
 
-    # - task: CopyFiles@2
-    #   inputs:
-    #     SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-    #     Contents: "version.txt"
-    #     TargetFolder: "$(Build.SourcesDirectory)/"
-    #     OverWrite: true
-    #   displayName: "Copy Build Artifact - SurveyJSVersion File"
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+        Contents: "version.txt"
+        TargetFolder: "$(Build.SourcesDirectory)/"
+        OverWrite: true
+      displayName: "Copy Build Artifact - SurveyJSVersion File"
 
-    # - powershell: |
-    #     $version = Get-Content $(Build.SourcesDirectory)/version.txt
-    #     Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-    #   displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     - powershell: |
-        $version = "1.12.16"
+        $version = Get-Content $(Build.SourcesDirectory)/version.txt
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################

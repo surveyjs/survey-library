@@ -670,9 +670,9 @@ export class Question extends SurveyElement<Question>
   }
   protected onParentChanged(): void { }
   public getSingleInputElement(): IElement {
-    const single = this.getSingleInputQuestion();
+    const single = this.calculateSingleInputQuestion();
     if(!single) return this;
-    return this.getSinleInputPanel(single);
+    return this.getSinleInputPanel();
   }
   public getSingleInputElementPos(): number {
     const q = this.singleInputQuestionValue;
@@ -682,7 +682,8 @@ export class Question extends SurveyElement<Question>
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 0);
   }
   private singleInputPanel: PanelModel;
-  private getSinleInputPanel(singleQuestion: Question): PanelModel {
+  private getSinleInputPanel(): PanelModel {
+    if(!this.singleInputQuestion) return undefined;
     if(!this.singleInputPanel) {
       this.singleInputPanel = Serializer.createClass("panel");
       const p = this.singleInputPanel;
@@ -694,7 +695,7 @@ export class Question extends SurveyElement<Question>
     panel.title = this.title;
     panel.description = this.description;
     (<any>panel).onGetElementsForRowsCallback = () => {
-      return [this.getSingleQuestionRowElement(this.singleInputQuestionValue)];
+      return [this.getSingleQuestionRowElement(this.singleInputQuestion)];
     };
     panel.updateRows();
     return panel;
@@ -703,13 +704,15 @@ export class Question extends SurveyElement<Question>
     return question;
   }
   private singleInputQuestionValue: Question;
-  private getSingleInputQuestion(): Question {
-    if(!!this.singleInputQuestionValue) return this.singleInputQuestionValue;
+  protected get singleInputQuestion(): Question { return this.singleInputQuestionValue; }
+  private calculateSingleInputQuestion(): Question {
     const questions = this.getSingleInputQuestions();
     if(Array.isArray(questions) && questions.length > 0) {
       this.singleInputQuestionValue = questions[0];
+    } else {
+      this.singleInputQuestionValue = undefined;
     }
-    return this.singleInputQuestionValue;
+    return this.singleInputQuestion;
   }
   protected getSingleInputQuestions(): Array<Question> {
     return this.getNestedQuestions(true);
@@ -720,16 +723,39 @@ export class Question extends SurveyElement<Question>
   public prevSingleInput(): boolean {
     return this.nextPrevSingleInput(-1);
   }
+  public getSingleInputAddText(): string {
+    return this.getSingleInputAddTextCore(this.singleInputQuestion);
+  }
+  public getSingleInputRemoveText(): string {
+    const q = this.singleInputQuestion;
+    return !!q ? this.getSingleInputRemoveTextCore(q) : undefined;
+  }
+  public singleInputAddItem(): void {
+    this.singleInputAddItemCore(this.singleInputQuestion);
+  }
+  public singleInputRemoveItem(): void {
+    const q = this.singleInputQuestion;
+    if(q) {
+      this.singleInputRemoveItemCore(q);
+    }
+  }
+  protected getSingleInputAddTextCore(question: Question): string { return undefined; }
+  protected getSingleInputRemoveTextCore(question: Question): string { return undefined; }
+  protected singleInputAddItemCore(question: Question): void {}
+  protected singleInputRemoveItemCore(question: Question): void {}
+  protected setSingleInputQuestion(question: Question): void {
+    this.singleInputQuestionValue = question;
+    this.getSinleInputPanel();
+  }
   private nextPrevSingleInput(skip: number): boolean {
-    const q = this.singleInputQuestionValue;
+    const q = this.singleInputQuestion;
     if(!q) return false;
     const questions = this.getSingleInputQuestions();
     let index = questions.indexOf(q);
     if(index < 0) return false;
     index += skip;
     if(index < 0 || index >= questions.length) return false;
-    this.singleInputQuestionValue = questions[index];
-    this.getSinleInputPanel(this.singleInputQuestionValue);
+    this.setSingleInputQuestion(questions[index]);
     return true;
   }
   /**

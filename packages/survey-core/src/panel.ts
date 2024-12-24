@@ -679,6 +679,13 @@ export class PanelModelBase extends SurveyElement<Question>
 
     return this.questionsValue;
   }
+  public get visibleQuestions(): Array<Question> {
+    const res = [];
+    this.questions.forEach(q => {
+      if(q.isVisible) res.push(q);
+    });
+    return res;
+  }
   public getQuestions(includeNested: boolean): Array<Question> {
     const res = this.questions;
     if(!includeNested) return res;

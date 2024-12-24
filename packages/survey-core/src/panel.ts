@@ -1305,8 +1305,6 @@ export class PanelModelBase extends SurveyElement<Question>
         }
       }
       currentColSpan = this.columns.length - usedSpans;
-    } else {
-      currentColSpan = (currentColSpan || 1);
     }
     const result = this.columns.slice(startIndex, startIndex + (currentColSpan || 1));
     (el as any).setPropertyValue("effectiveColSpan", result.length);

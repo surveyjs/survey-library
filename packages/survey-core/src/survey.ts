@@ -2481,6 +2481,13 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.navigationBar.addAction(val);
   }
+  private removeNavigationItem(id: string): void {
+    const action = this.navigationBar.getActionById(id);
+    if(action) {
+      const actions = this.navigationBar.actions;
+      actions.splice(actions.indexOf(action), 1);
+    }
+  }
   /**
    * Gets or sets a caption for the Start button.
    * @see firstPageIsStarted
@@ -3899,6 +3906,13 @@ export class SurveyModel extends SurveyElementCore
   public performNext(): boolean {
     const q = this.currentSingleQuestion;
     if(!q) return this.nextPage();
+    if(this.isSingleVisibleInput) {
+      if(!q.validateSingleInput()) return false;
+      if(q.nextSingleInput()) {
+        this.updateButtonsVisibility();
+        return true;
+      }
+    }
     if(!q.validate(true)) return false;
     const questions = this.getAllQuestions(true);
     const index = questions.indexOf(q);
@@ -3909,6 +3923,12 @@ export class SurveyModel extends SurveyElementCore
   public performPrevious(): boolean {
     const q = this.currentSingleQuestion;
     if(!q) return this.prevPage();
+    if(this.isSingleVisibleInput) {
+      if(q.prevSingleInput()) {
+        this.updateButtonsVisibility();
+        return true;
+      }
+    }
     const questions = this.getAllQuestions(true);
     const index = questions.indexOf(q);
     if(index === 0) return false;
@@ -4321,7 +4341,10 @@ export class SurveyModel extends SurveyElementCore
     this.questionsOnPageMode = val ? "singlePage" : "standard";
   }
   public get isSingleVisibleQuestion(): boolean {
-    return this.isSingleVisibleQuestionVal(this.questionsOnPageMode);
+    return !this.isDesignMode && (this.isSingleVisibleQuestionVal(this.questionsOnPageMode) || this.isSingleVisibleInput);
+  }
+  public get isSingleVisibleInput(): boolean {
+    return !this.isDesignMode && this.questionsOnPageMode == "inputPerPage";
   }
   private isSingleVisibleQuestionVal(val: string): boolean {
     return val === "questionPerPage" || val === "questionOnPage";
@@ -4487,11 +4510,32 @@ export class SurveyModel extends SurveyElementCore
     if(this.isSinglePage) {
       this.updatePagesContainer();
     }
+    this.setupSingleInputNavigationActions();
     if(this.isSingleVisibleQuestion) {
       const questions = this.getAllQuestions(true);
       if(questions.length > 0) {
         this.currentSingleQuestion = questions[0];
       }
+    }
+  }
+  private setupSingleInputNavigationActions(): void {
+    const actionAddId = "sv-singleinput-add";
+    const actionRemoveId = "sv-singleinput-remove";
+    if(this.isSingleVisibleInput) {
+      const addItem = (): void => {
+        const q = this.currentSingleQuestion;
+        if(q.validateSingleInput()) {
+          this.currentSingleQuestion.singleInputAddItem();
+        }
+      };
+      const removeItem = (): void => {
+        this.currentSingleQuestion.singleInputRemoveItem();
+      };
+      this.addNavigationItem({ id: actionAddId, visible: false, action: (): void => addItem() });
+      this.addNavigationItem({ id: actionRemoveId, visible: false, action: (): void => removeItem() });
+    } else {
+      this.removeNavigationItem(actionAddId);
+      this.removeNavigationItem(actionRemoveId);
     }
   }
   private getPageStartIndex(): number {
@@ -4518,6 +4562,22 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("isCompleteButtonVisible", this.calcIsCompleteButtonVisible());
     this.setPropertyValue("isPreviewButtonVisible", this.calcIsPreviewButtonVisible());
     this.setPropertyValue("isCancelPreviewButtonVisible", this.calcIsCancelPreviewButtonVisible());
+    this.updateSingleInputActions();
+  }
+  private updateSingleInputActions() {
+    if(!this.isSingleVisibleInput) return;
+    const q = this.currentSingleQuestion;
+    if(!q) return;
+    const addBtn = this.navigationBar.getActionById("sv-singleinput-add");
+    const removeBtn = this.navigationBar.getActionById("sv-singleinput-remove");
+    if(addBtn) {
+      addBtn.title = q.getSingleInputAddText();
+      addBtn.visible = !!addBtn.title;
+    }
+    if(removeBtn) {
+      removeBtn.title = q.getSingleInputRemoveText();
+      removeBtn.visible = !!removeBtn.title;
+    }
   }
   public get isShowPrevButton(): boolean {
     return this.getPropertyValue("isShowPrevButton");
@@ -4548,11 +4608,18 @@ export class SurveyModel extends SurveyElementCore
     let lVal: boolean | undefined = undefined;
     const q = this.currentSingleQuestion;
     if(!!q) {
+      let isFirstInput = true;
+      let isLastInput = true;
+      if(this.isSingleVisibleInput) {
+        const inputState = q.getSingleInputElementPos();
+        isFirstInput = inputState < 0;
+        isLastInput = inputState > 0;
+      }
       const questions = this.getAllQuestions(true);
       const index = questions.indexOf(q);
       if(index >= 0) {
-        fVal = index === 0;
-        lVal = index === questions.length - 1;
+        fVal = isFirstInput && index === 0;
+        lVal = isLastInput && index === questions.length - 1;
       }
     }
     this.setPropertyValue("isFirstElement", fVal);
@@ -6754,6 +6821,19 @@ export class SurveyModel extends SurveyElementCore
     }
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
+    }
+    this.updatePageWithSingleQuestion(name, newValue, oldValue);
+  }
+  private updatePageWithSingleQuestion(name: string, newValue: any, oldValue: any): void {
+    const q = this.currentSingleQuestion;
+    if(!q || !this.currentPage || q.getValueName() !== name) return;
+    const newLen = Array.isArray(newValue) ? newValue.length : 0;
+    const oldLen = Array.isArray(oldValue) ? oldValue.length : 0;
+    if(newLen > 0 || oldLen > 0) {
+      if(newLen === 0 || oldLen === 0) {
+        this.currentPage.updateRows();
+      }
+      this.updateButtonsVisibility();
     }
   }
   private isValueEqual(name: string, newValue: any): boolean {

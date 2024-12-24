@@ -669,6 +669,95 @@ export class Question extends SurveyElement<Question>
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
+  public getSingleInputElement(): IElement {
+    const single = this.calculateSingleInputQuestion();
+    if(!single) return this;
+    return this.getSinleInputPanel();
+  }
+  public getSingleInputElementPos(): number {
+    const q = this.singleInputQuestionValue;
+    if(!q) return 1;
+    const questions = this.getSingleInputQuestions();
+    let index = questions.indexOf(q);
+    return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 0);
+  }
+  private singleInputPanel: PanelModel;
+  private getSinleInputPanel(): PanelModel {
+    if(!this.singleInputQuestion) return undefined;
+    if(!this.singleInputPanel) {
+      this.singleInputPanel = Serializer.createClass("panel");
+      const p = this.singleInputPanel;
+      p.name = this.name + "_singlePanel";
+      p.addNewQuestion("text", this.name + "singleInputQ");
+      p.setSurveyImpl(this.surveyImpl);
+    }
+    const panel = this.singleInputPanel;
+    panel.title = this.title;
+    panel.description = this.description;
+    (<any>panel).onGetElementsForRowsCallback = () => {
+      return [this.getSingleQuestionRowElement(this.singleInputQuestion)];
+    };
+    panel.updateRows();
+    return panel;
+  }
+  protected getSingleQuestionRowElement(question: Question): IElement {
+    return question;
+  }
+  private singleInputQuestionValue: Question;
+  protected get singleInputQuestion(): Question { return this.singleInputQuestionValue; }
+  private calculateSingleInputQuestion(): Question {
+    const questions = this.getSingleInputQuestions();
+    if(Array.isArray(questions) && questions.length > 0) {
+      this.singleInputQuestionValue = questions[0];
+    } else {
+      this.singleInputQuestionValue = undefined;
+    }
+    return this.singleInputQuestion;
+  }
+  protected getSingleInputQuestions(): Array<Question> {
+    return this.getNestedQuestions(true);
+  }
+  public nextSingleInput(): boolean {
+    return this.nextPrevSingleInput(1);
+  }
+  public prevSingleInput(): boolean {
+    return this.nextPrevSingleInput(-1);
+  }
+  public getSingleInputAddText(): string {
+    return this.getSingleInputAddTextCore(this.singleInputQuestion);
+  }
+  public getSingleInputRemoveText(): string {
+    const q = this.singleInputQuestion;
+    return !!q ? this.getSingleInputRemoveTextCore(q) : undefined;
+  }
+  public singleInputAddItem(): void {
+    this.singleInputAddItemCore(this.singleInputQuestion);
+  }
+  public singleInputRemoveItem(): void {
+    const q = this.singleInputQuestion;
+    if(q) {
+      this.singleInputRemoveItemCore(q);
+    }
+  }
+  protected getSingleInputAddTextCore(question: Question): string { return undefined; }
+  protected getSingleInputRemoveTextCore(question: Question): string { return undefined; }
+  protected singleInputAddItemCore(question: Question): void {}
+  protected singleInputRemoveItemCore(question: Question): void {}
+  protected setSingleInputQuestion(question: Question): void {
+    this.singleInputQuestionValue = question;
+    this.getSinleInputPanel();
+  }
+  private nextPrevSingleInput(skip: number): boolean {
+    const q = this.singleInputQuestion;
+    if(!q) return false;
+    const questions = this.getSingleInputQuestions();
+    let index = questions.indexOf(q);
+    if(index < 0) return false;
+    index += skip;
+    if(index < 0 || index >= questions.length) return false;
+    this.setSingleInputQuestion(questions[index]);
+    return true;
+  }
   /**
    * Returns `false` if the `titleLocation` property is set to `"hidden"` or if the question cannot have a title (for example, an [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question).
    *
@@ -2237,6 +2326,11 @@ export class Question extends SurveyElement<Question>
       }
     }
     return !this.hasErrors(fireCallback, rec);
+  }
+  public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
+    const q = this.singleInputQuestionValue;
+    if(!q) return true;
+    return q.validate(fireCallback, rec);
   }
   public get currentErrorCount(): number {
     return this.errors.length;

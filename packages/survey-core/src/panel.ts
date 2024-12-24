@@ -680,7 +680,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.questionsValue;
   }
   public get visibleQuestions(): Array<Question> {
-    const res = [];
+    const res = new Array<Question>();
     this.questions.forEach(q => {
       if(q.isVisible) res.push(q);
     });

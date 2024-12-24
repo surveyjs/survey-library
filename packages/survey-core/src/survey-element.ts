@@ -1061,11 +1061,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       const columns = this.parent.getColumsForElement(this as any);
       _width = columns.reduce((sum, col) => col.effectiveWidth + sum, 0);
       if (!!_width && _width !== 100) {
-        style["flexGrow"] = 0;
+        style["flexGrow"] = 1;
         style["flexShrink"] = 0;
         style["flexBasis"] = _width + "%";
         style["minWidth"] = undefined;
-        style["maxWidth"] = undefined;
+        style["maxWidth"] = this.maxWidth;
       }
     }
     if (Object.keys(style).length == 0) {

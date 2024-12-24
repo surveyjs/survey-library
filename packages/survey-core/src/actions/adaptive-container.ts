@@ -89,14 +89,19 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
 
   private getVisibleItemsCount(options: { availableSpace: number, gap?: number }): number {
     let { availableSpace, gap } = options;
-    availableSpace -= this.dotsItem.minDimension;
+    availableSpace -= this.dotsItem.minDimension + gap;
+    let currentItemsSize = 0;
+    if(this.visibleActions[0].disableHide) {
+      availableSpace += gap;
+    } else {
+      currentItemsSize -= gap;
+    }
     this.visibleActions
       .filter((action) => action.disableHide)
       .forEach(action => {
         return availableSpace -= (this.getActionMinDimension(action) + gap);
       });
     const actionsToHide = this.getActionsToHide();
-    let currentItemsSize = - 1 * gap;
     for(let i = 0; i < actionsToHide.length; i++) {
       currentItemsSize += this.getActionMinDimension(actionsToHide[i]) + gap;
       if (currentItemsSize > availableSpace) {

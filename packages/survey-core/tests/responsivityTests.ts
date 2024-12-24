@@ -510,3 +510,177 @@ QUnit.test("check actions mode is set correctly when disableShrink is set", func
   model.setActionsMode("small");
   assert.equal(action.mode, "large");
 });
+
+QUnit.test("Check fit with gap", function (assert) {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.dotsItem.minDimension = 50;
+  model.dotsItem.maxDimension = 50;
+  const item1 = new Action(<any>{});
+  item1.minDimension = 50;
+  item1.maxDimension = 100;
+  model.actions.push(item1);
+
+  const item2 = new Action(<any>{});
+  item2.minDimension = 50;
+  item2.maxDimension = 100;
+  model.actions.push(item2);
+
+  const item3 = new Action(<any>{});
+  item3.minDimension = 50;
+  item3.maxDimension = 100;
+  model.actions.push(item3);
+
+  model.fit({ availableSpace: 300, gap: 0 });
+  assert.equal(item1.mode, "large", "300 - 0 item1 large");
+  assert.equal(item2.mode, "large", "300 - 0 item2 large");
+  assert.equal(item3.mode, "large", "300 - 0 item3 large");
+  assert.notOk(model.dotsItem.isVisible, "300 - 0 dotsItem not visible");
+
+  model.fit({ availableSpace: 300, gap: 1 });
+  assert.equal(item1.mode, "large", "300 - 1 item1 large");
+  assert.equal(item2.mode, "large", "300 - 1 item2 large");
+  assert.equal(item3.mode, "small", "300 - 1 item3 small");
+  assert.notOk(model.dotsItem.isVisible, "300 - 1 dotsItem not visible");
+
+  model.fit({ availableSpace: 300, gap: 25 });
+  assert.equal(item1.mode, "large", "300 - 25 item1 large");
+  assert.equal(item2.mode, "large", "300 - 25 item2 large");
+  assert.equal(item3.mode, "small", "300 - 25 item3 small");
+  assert.notOk(model.dotsItem.isVisible, "300 - 25 dotsItem not visible");
+
+  model.fit({ availableSpace: 300, gap: 26 });
+  assert.equal(item1.mode, "large", "300 - 26 item1 large");
+  assert.equal(item2.mode, "small", "300 - 26 item2 small");
+  assert.equal(item3.mode, "small", "300 - 26 item3 small");
+  assert.notOk(model.dotsItem.isVisible, "300 - 26 dotsItem not visible");
+
+  model.fit({ availableSpace: 300, gap: 50 });
+  assert.equal(item1.mode, "large", "300 - 50 item1 large");
+  assert.equal(item2.mode, "small", "300 - 50 item2 small");
+  assert.equal(item3.mode, "small", "300 - 50 item3 small");
+  assert.notOk(model.dotsItem.isVisible, "300 - 50 dotsItem not visible");
+
+  model.fit({ availableSpace: 300, gap: 51 });
+  assert.equal(item1.mode, "small", "300 - 51 item1 small");
+  assert.equal(item2.mode, "small", "300 - 51 item2 small");
+  assert.equal(item3.mode, "small", "300 - 51 item3 small");
+  assert.notOk(model.dotsItem.isVisible, "300 - 51 dotsItem not visible");
+
+  model.fit({ availableSpace: 300, gap: 75 });
+  assert.equal(item1.mode, "small", "300 - 75 item1 small");
+  assert.equal(item2.mode, "small", "300 - 75 item2 small");
+  assert.equal(item3.mode, "small", "300 - 75 item3 small");
+  assert.notOk(model.dotsItem.isVisible, "300 - 75 dotsItem not visible");
+
+  model.fit({ availableSpace: 300, gap: 76 });
+  assert.equal(item1.mode, "small", "300 - 76 item1 small");
+  assert.equal(item2.mode, "popup", "300 - 76 item2 popup");
+  assert.equal(item3.mode, "popup", "300 - 76 item3 popup");
+  assert.ok(model.dotsItem.isVisible, "300 - 76 dotsItem visible");
+
+  model.fit({ availableSpace: 300, gap: 200 });
+  assert.equal(item1.mode, "small", "300 - 200 item1 small");
+  assert.equal(item2.mode, "popup", "300 - 200 item2 popup");
+  assert.equal(item3.mode, "popup", "300 - 200 item3 popup");
+  assert.ok(model.dotsItem.isVisible, "300 - 200 dotsItem visible");
+
+  model.fit({ availableSpace: 300, gap: 201 });
+  assert.equal(item1.mode, "popup", "300 - 201 item1 small");
+  assert.equal(item2.mode, "popup", "300 - 201 item2 popup");
+  assert.equal(item3.mode, "popup", "300 - 201 item3 popup");
+  assert.ok(model.dotsItem.isVisible, "300 - 201 dotsItem visible");
+});
+
+QUnit.test("Check fit with gap with disable hide on first action", function (assert) {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.dotsItem.minDimension = 50;
+  model.dotsItem.maxDimension = 50;
+  const item1 = new Action(<any>{});
+  item1.minDimension = 50;
+  item1.maxDimension = 100;
+  item1.disableHide = true;
+  model.actions.push(item1);
+
+  const item2 = new Action(<any>{});
+  item2.minDimension = 50;
+  item2.maxDimension = 100;
+  model.actions.push(item2);
+
+  const item3 = new Action(<any>{});
+  item3.minDimension = 50;
+  item3.maxDimension = 100;
+  model.actions.push(item3);
+
+  const item4 = new Action(<any>{});
+  item4.minDimension = 50;
+  item4.maxDimension = 100;
+  model.actions.push(item4);
+
+  model.fit({ availableSpace: 300, gap: 34 });
+  assert.equal(item1.mode, "small", "300 - 34 item1 small");
+  assert.equal(item2.mode, "small", "300 - 34 item2 small");
+  assert.equal(item3.mode, "popup", "300 - 34 item3 popup");
+  assert.equal(item4.mode, "popup", "300 - 34 item4 popup");
+  assert.ok(model.dotsItem.isVisible, "300 - 34 dotsItem visible");
+
+  model.fit({ availableSpace: 300, gap: 75 });
+  assert.equal(item1.mode, "small", "300 - 75 item1 small");
+  assert.equal(item2.mode, "small", "300 - 75 item2 popup");
+  assert.equal(item3.mode, "popup", "300 - 75 item3 popup");
+  assert.equal(item4.mode, "popup", "300 - 75 item4 popup");
+  assert.ok(model.dotsItem.isVisible, "300 - 75 dotsItem visible");
+
+  model.fit({ availableSpace: 300, gap: 76 });
+  assert.equal(item1.mode, "small", "300 - 76 item1 small");
+  assert.equal(item2.mode, "popup", "300 - 76 item2 popup");
+  assert.equal(item3.mode, "popup", "300 - 76 item3 popup");
+  assert.equal(item4.mode, "popup", "300 - 76 item4 popup");
+  assert.ok(model.dotsItem.isVisible, "300 - 76 dotsItem visible");
+});
+
+QUnit.test("Check fit with gap with disable hide on non-first action", function (assert) {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.dotsItem.minDimension = 50;
+  model.dotsItem.maxDimension = 50;
+  const item1 = new Action(<any>{});
+  item1.minDimension = 50;
+  item1.maxDimension = 100;
+  model.actions.push(item1);
+
+  const item2 = new Action(<any>{});
+  item2.minDimension = 50;
+  item2.maxDimension = 100;
+  model.actions.push(item2);
+
+  const item3 = new Action(<any>{});
+  item3.minDimension = 50;
+  item3.maxDimension = 100;
+  model.actions.push(item3);
+
+  const item4 = new Action(<any>{});
+  item4.minDimension = 50;
+  item4.maxDimension = 100;
+  item4.disableHide = true;
+  model.actions.push(item4);
+
+  model.fit({ availableSpace: 300, gap: 34 });
+  assert.equal(item1.mode, "small", "300 - 34 item1 small");
+  assert.equal(item2.mode, "popup", "300 - 34 item2 popup");
+  assert.equal(item3.mode, "popup", "300 - 34 item3 popup");
+  assert.equal(item4.mode, "small", "300 - 34 item4 small");
+  assert.ok(model.dotsItem.isVisible, "300 - 34 dotsItem visible");
+
+  model.fit({ availableSpace: 300, gap: 75 });
+  assert.equal(item1.mode, "small", "300 - 75 item1 small");
+  assert.equal(item2.mode, "popup", "300 - 75 item2 popup");
+  assert.equal(item3.mode, "popup", "300 - 75 item3 popup");
+  assert.equal(item4.mode, "small", "300 - 75 item4 small");
+  assert.ok(model.dotsItem.isVisible, "300 - 75 dotsItem visible");
+
+  model.fit({ availableSpace: 300, gap: 76 });
+  assert.equal(item1.mode, "popup", "300 - 76 item1 small");
+  assert.equal(item2.mode, "popup", "300 - 76 item2 popup");
+  assert.equal(item3.mode, "popup", "300 - 76 item3 popup");
+  assert.equal(item4.mode, "small", "300 - 76 item4 small");
+  assert.ok(model.dotsItem.isVisible, "300 - 76 dotsItem visible");
+});

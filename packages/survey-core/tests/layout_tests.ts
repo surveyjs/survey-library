@@ -36,18 +36,18 @@ QUnit.test("columns generate - simple", function (assert) {
   const q4 = surveyModel.getQuestionByName("q4");
 
   assert.equal(page.rows.length, 2, "There are two rows");
-  assert.equal(page.columns.length, 6);
+  assert.equal(page.columns.length, 3);
   assert.equal(page.columns[0].width, undefined);
-  assert.equal(floorTo2Decimals(page.columns[0].effectiveWidth), 16.66);
+  assert.equal(floorTo2Decimals(page.columns[0].effectiveWidth), 33.33);
 
-  assert.equal(page.getColumsForElement(q1).length, 2);
-  assert.deepEqual(page.getColumsForElement(q1), [page.columns[0], page.columns[1]], "q1");
-  assert.equal(page.getColumsForElement(q2).length, 4);
-  assert.deepEqual(page.getColumsForElement(q2), [page.columns[2], page.columns[3], page.columns[4], page.columns[5]], "q2");
-  assert.equal(page.getColumsForElement(q3).length, 3);
-  assert.deepEqual(page.getColumsForElement(q3), [page.columns[0], page.columns[1], page.columns[2]], "q3");
-  assert.equal(page.getColumsForElement(q4).length, 3);
-  assert.deepEqual(page.getColumsForElement(q4), [page.columns[3], page.columns[4], page.columns[5]], "q4");
+  assert.equal(page.getColumsForElement(q1).length, 1);
+  assert.deepEqual(page.getColumsForElement(q1), [page.columns[0]], "q1");
+  assert.equal(page.getColumsForElement(q2).length, 2);
+  assert.deepEqual(page.getColumsForElement(q2), [page.columns[1], page.columns[2]], "q2");
+  assert.equal(page.getColumsForElement(q3).length, 1);
+  assert.deepEqual(page.getColumsForElement(q3), [page.columns[0]], "q3");
+  assert.equal(page.getColumsForElement(q4).length, 2);
+  assert.deepEqual(page.getColumsForElement(q4), [page.columns[1], page.columns[2]], "q4");
 });
 
 QUnit.test("columns generate - complex", function (assert) {
@@ -396,15 +396,15 @@ QUnit.test("effectiveColSpan #1", assert => {
   assert.equal(q4.effectiveColSpan, 1, "q4 effectiveColSpan #0");
 
   q2.colSpan = 2;
-  assert.deepEqual(page.gridLayoutColumns.length, 6, "#1");
+  assert.deepEqual(page.gridLayoutColumns.length, 3, "#1");
   assert.equal(q1.colSpan, 1, "q1 colSpan #1");
-  assert.equal(q1.effectiveColSpan, 2, "q1 effectiveColSpan #1");
+  assert.equal(q1.effectiveColSpan, 1, "q1 effectiveColSpan #1");
   assert.equal(q2.colSpan, 2, "q2 colSpan #1");
-  assert.equal(q2.effectiveColSpan, 4, "q2 effectiveColSpan #1");
+  assert.equal(q2.effectiveColSpan, 2, "q2 effectiveColSpan #1");
   assert.equal(q3.colSpan, 1, "q3 colSpan #1");
-  assert.equal(q3.effectiveColSpan, 3, "q3 effectiveColSpan #1");
+  assert.equal(q3.effectiveColSpan, 1, "q3 effectiveColSpan #1");
   assert.equal(q4.colSpan, 1, "q4 colSpan #1");
-  assert.equal(q4.effectiveColSpan, 3, "q4 effectiveColSpan #1");
+  assert.equal(q4.effectiveColSpan, 2, "q4 effectiveColSpan #1");
 
   q3.colSpan = 2;
   assert.deepEqual(page.gridLayoutColumns.length, 3, "#2");
@@ -523,9 +523,9 @@ QUnit.test("expand last question in row whitch does not have colSpan set", asser
   const q10 = surveyModel.getQuestionByName("question10");
   const page = surveyModel.pages[0];
 
-  assert.equal(page.gridLayoutColumns.length, 15);
-  assert.equal(q9.effectiveColSpan, 5, "q9 effectiveColSpan");
-  assert.equal(q10.effectiveColSpan, 10, "q10 effectiveColSpan");
+  assert.equal(page.gridLayoutColumns.length, 5);
+  assert.equal(q9.effectiveColSpan, 3, "q9 effectiveColSpan");
+  assert.equal(q10.effectiveColSpan, 2, "q10 effectiveColSpan");
 });
 
 QUnit.test("recalculate column width after question added", assert => {
@@ -653,32 +653,16 @@ QUnit.test("gridLayoutColumns: serialize last column", assert => {
   const surveyModel = new SurveyModel(json);
   const page = surveyModel.pages[0];
 
-  assert.deepEqual(page.gridLayoutColumns.length, 12);
+  assert.deepEqual(page.gridLayoutColumns.length, 4);
   assert.deepEqual(page.gridLayoutColumns[0].width, 10);
-  assert.deepEqual(page.gridLayoutColumns[1].effectiveWidth, 8.18);
-  assert.deepEqual(page.gridLayoutColumns[2].effectiveWidth, 8.18);
-  assert.deepEqual(page.gridLayoutColumns[3].effectiveWidth, 8.18);
-  assert.deepEqual(page.gridLayoutColumns[4].effectiveWidth, 8.18);
-  assert.deepEqual(page.gridLayoutColumns[5].effectiveWidth, 8.18);
-  assert.deepEqual(page.gridLayoutColumns[6].effectiveWidth, 8.18);
-  assert.deepEqual(page.gridLayoutColumns[7].effectiveWidth, 8.18);
-  assert.deepEqual(page.gridLayoutColumns[8].effectiveWidth, 8.18);
-  assert.deepEqual(page.gridLayoutColumns[9].effectiveWidth, 8.18);
-  assert.deepEqual(page.gridLayoutColumns[10].effectiveWidth, 8.18);
-  assert.deepEqual(page.gridLayoutColumns[11].effectiveWidth, 8.18);
+  assert.deepEqual(page.gridLayoutColumns[1].effectiveWidth, 30);
+  assert.deepEqual(page.gridLayoutColumns[2].effectiveWidth, 30);
+  assert.deepEqual(page.gridLayoutColumns[3].effectiveWidth, 30);
 
-  page.gridLayoutColumns[11].width = 10;
+  page.gridLayoutColumns[3].width = 10;
   const result = surveyModel.toJSON();
   assert.deepEqual(result["pages"][0]["gridLayoutColumns"], [
     { "width": 10 },
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
     {},
     {},
     { "width": 10 }
@@ -784,7 +768,7 @@ QUnit.test("gridLayoutColumns: 1 - 3 - 2 layout", assert => {
   const surveyModel = new SurveyModel(json);
   const page = surveyModel.pages[0];
 
-  assert.deepEqual(page.gridLayoutColumns.length, 6);
+  assert.deepEqual(page.gridLayoutColumns.length, 3);
 });
 
 QUnit.test("gridLayoutColumns: 2 - 2 - 3 layout", assert => {
@@ -850,7 +834,7 @@ QUnit.test("gridLayoutColumns: 2 - 2 - 3 layout", assert => {
   const surveyModel = new SurveyModel(json);
   const page = surveyModel.pages[0];
 
-  assert.deepEqual(page.gridLayoutColumns.length, 6);
+  assert.deepEqual(page.gridLayoutColumns.length, 3);
 });
 
 QUnit.test("Update gridLayoutColumns after gridLayoutEnabled changed", assert => {

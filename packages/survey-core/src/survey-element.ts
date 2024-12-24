@@ -1069,7 +1069,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       }
     }
     if (Object.keys(style).length == 0) {
-      let minWidth: any = this.minWidth;
+      let minWidth: string | number = "" + this.minWidth;
       if (!!minWidth && minWidth != "auto") {
         if (minWidth.indexOf("px") != -1 && this.survey) {
           minWidth = minWidth.replace("px", "");

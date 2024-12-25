@@ -56,7 +56,7 @@
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4",
     "copyfiles": "~2.4.1",
-    "survey-core": "../../build/survey-core"
+    "survey-core": "../survey-core/build"
   },
   "scripts": {
     "build": "ng build && npx copyfiles -u 1 \"build/**/*\" ../../build/survey-angular-ui && node ./update-version.js",

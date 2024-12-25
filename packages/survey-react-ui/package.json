@@ -63,7 +63,7 @@
         "shelljs": "^0.8.3",
         "standard-version": "^9.5.0",
         "style-loader": "^1.2.1",
-        "survey-core": "../../build/survey-core",
+        "survey-core": "../survey-core/build",
         "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
         "testcafe": "3.6.2",
         "ts-jest": "^29.2.2",

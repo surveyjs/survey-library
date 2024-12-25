@@ -669,10 +669,22 @@ export class Question extends SurveyElement<Question>
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
-  public getSingleInputElement(): IElement {
-    const single = this.calculateSingleInputQuestion();
-    if(!single) return this;
-    return this.getSinleInputPanel();
+  public get singleInputElement(): IElement {
+    return this.getPropertyValue("singleInputElement", undefined, () => {
+      const q = this.calculateSingleInputQuestion();
+      return !!q ? this.getSingleQuestionRowElement(q): q;
+    });
+  }
+  public resetSingleInput(): void {
+    this.setSingleInputQuestion(undefined);
+  }
+  private resetSingleInputElement(): void {
+    this.resetPropertyValue("singleInputElement");
+  }
+  public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
+    const q = this.singleInputQuestionValue;
+    if(!q) return true;
+    return q.validate(fireCallback, rec);
   }
   public getSingleInputElementPos(): number {
     const q = this.singleInputQuestionValue;
@@ -681,31 +693,17 @@ export class Question extends SurveyElement<Question>
     let index = questions.indexOf(q);
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 0);
   }
-  private singleInputPanel: PanelModel;
-  private getSinleInputPanel(): PanelModel {
-    if(!this.singleInputQuestion) return undefined;
-    if(!this.singleInputPanel) {
-      this.singleInputPanel = Serializer.createClass("panel");
-      const p = this.singleInputPanel;
-      p.name = this.name + "_singlePanel";
-      p.addNewQuestion("text", this.name + "singleInputQ");
-      p.setSurveyImpl(this.surveyImpl);
-    }
-    const panel = this.singleInputPanel;
-    panel.title = this.title;
-    panel.description = this.description;
-    (<any>panel).onGetElementsForRowsCallback = () => {
-      return [this.getSingleQuestionRowElement(this.singleInputQuestion)];
-    };
-    panel.updateRows();
-    return panel;
-  }
   protected getSingleQuestionRowElement(question: Question): IElement {
     return question;
   }
   private singleInputQuestionValue: Question;
   protected get singleInputQuestion(): Question { return this.singleInputQuestionValue; }
   private calculateSingleInputQuestion(): Question {
+    if(this.survey?.currentSingleQuestion !== this) {
+      this.singleInputQuestionValue = undefined;
+      return undefined;
+    }
+    if(this.singleInputQuestion) return this.singleInputQuestion;
     const questions = this.getSingleInputQuestions();
     if(Array.isArray(questions) && questions.length > 0) {
       this.singleInputQuestionValue = questions[0];
@@ -724,10 +722,10 @@ export class Question extends SurveyElement<Question>
     return this.nextPrevSingleInput(-1);
   }
   public getSingleInputAddText(): string {
-    return this.getSingleInputAddTextCore(this.singleInputQuestion);
+    return this.getSingleInputAddTextCore(this.calculateSingleInputQuestion());
   }
   public getSingleInputRemoveText(): string {
-    const q = this.singleInputQuestion;
+    const q = this.calculateSingleInputQuestion();
     return !!q ? this.getSingleInputRemoveTextCore(q) : undefined;
   }
   public singleInputAddItem(): void {
@@ -744,8 +742,10 @@ export class Question extends SurveyElement<Question>
   protected singleInputAddItemCore(question: Question): void {}
   protected singleInputRemoveItemCore(question: Question): void {}
   protected setSingleInputQuestion(question: Question): void {
-    this.singleInputQuestionValue = question;
-    this.getSinleInputPanel();
+    if(this.singleInputQuestionValue !== question) {
+      this.singleInputQuestionValue = question;
+      this.resetSingleInputElement();
+    }
   }
   private nextPrevSingleInput(skip: number): boolean {
     const q = this.singleInputQuestion;
@@ -2326,11 +2326,6 @@ export class Question extends SurveyElement<Question>
       }
     }
     return !this.hasErrors(fireCallback, rec);
-  }
-  public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
-    const q = this.singleInputQuestionValue;
-    if(!q) return true;
-    return q.validate(fireCallback, rec);
   }
   public get currentErrorCount(): number {
     return this.errors.length;

@@ -12,7 +12,10 @@ function getSingleQuestion(page: PageModel): Question {
       return panel.visibleRows[0].elements[0];
     return undefined;
   };
-  let el = getElement(page);
+  let el: any = getElement(page);
+  if(el.isQuestion && el.singleInputElement) {
+    el = el.singleInputElement;
+  }
   while(el.isPanel) {
     el = getElement(<PanelModel>el);
   }
@@ -75,33 +78,24 @@ QUnit.test("singleInput for panel dynamic", assert => {
   assert.equal(panel.panels.length, 1, "There is one panel");
   const page: PageModel = survey.currentPage;
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is panel1, #1");
-  let el = <PanelModel>page.visibleRows[0].elements[0];
-  assert.ok(el.survey, "survey is set");
-  assert.ok(el.data, "survey data is set");
-  assert.equal(el.isPanel, true, "visible question is panel, #1");
-  assert.equal(el.name, "panel1_singlePanel", "visible question name, #1");
-  assert.equal(el.visibleRows.length, 1, "There is one row, #1");
-  assert.equal(el.visibleRows[0].elements[0].name, "q1", "The q1 is in the row, #1");
+  let el = page.visibleRows[0].elements[0];
+  assert.equal(el.name, "panel1", "page visible row is panel1, #1");
+  assert.equal(panel.singleInputElement.name, "q1", "singleInputElement, #1");
 
   survey.performNext();
   el = <PanelModel>page.visibleRows[0].elements[0];
+  assert.equal(el.name, "panel1", "page visible row is panel1, #2");
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is panel1, #2");
-  assert.equal(el.isPanel, true, "visible question is panel, #2");
-  assert.equal(el.name, "panel1_singlePanel", "visible question name, #2");
-  assert.equal(el.visibleRows.length, 1, "There is one row, #2");
-  assert.equal(el.visibleRows[0].elements[0].name, "q2", "The q1 is in the row, #2");
+  assert.equal(panel.singleInputElement.name, "q2", "singleInputElement, #2");
 
   survey.performPrevious();
-  el = <PanelModel>page.visibleRows[0].elements[0];
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is panel1, #3");
-  assert.equal(el.isPanel, true, "visible question is panel, #3");
-  assert.equal(el.name, "panel1_singlePanel", "visible question name, #3");
-  assert.equal(el.visibleRows.length, 1, "There is one row, #3");
-  assert.equal(el.visibleRows[0].elements[0].name, "q1", "The q1 is in the row, #3");
+  assert.equal(panel.singleInputElement.name, "q1", "singleInputElement, #3");
 
   survey.performNext();
   survey.performNext();
   assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion is q3, #4");
+  assert.notOk(survey.getQuestionByName("q3").singleInputElement, "singleInputElement, #4");
 });
 QUnit.test("singleInput and navigation buttons visibilty", assert => {
   const survey = new SurveyModel({
@@ -152,15 +146,10 @@ QUnit.test("singleInput and panel dynamic with templateTitle", assert => {
     ],
     questionsOnPageMode: "inputPerPage",
   });
+  const panel = survey.getQuestionByName("panel1");
   const page: PageModel = survey.currentPage;
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is panel1, #1");
-  let el = <PanelModel>page.visibleRows[0].elements[0];
-  assert.ok(el.survey, "survey is set");
-  assert.ok(el.data, "survey data is set");
-  assert.equal(el.isPanel, true, "visible question is panel, #1");
-  assert.equal(el.name, "panel1_singlePanel", "visible question name, #1");
-  assert.equal(el.visibleRows.length, 1, "There is one row, #1");
-  let panelWrapper = <PanelModel>el.visibleRows[0].elements[0];
+  let panelWrapper = <PanelModel>panel.singleInputElement;
   assert.equal(panelWrapper.name, "panel1_singlePanelWrapper", "The panel wrapper is in the row, #1");
   assert.equal(panelWrapper.visibleRows.length, 1, "There is one row, #1");
   assert.equal(panelWrapper.visibleRows[0].elements[0].name, "q1", "The q1 is in the row, #1");
@@ -170,11 +159,7 @@ QUnit.test("singleInput and panel dynamic with templateTitle", assert => {
   assert.equal(panelWrapper.locTitle.textOrHtml, "Item: 1 - abc", "wrapper panel title, #1.2");
 
   survey.performNext();
-  el = <PanelModel>page.visibleRows[0].elements[0];
-  assert.equal(el.isPanel, true, "visible question is panel, #2");
-  assert.equal(el.name, "panel1_singlePanel", "visible question name, #2");
-  assert.equal(el.visibleRows.length, 1, "There is one row, #2");
-  panelWrapper = <PanelModel>el.visibleRows[0].elements[0];
+  panelWrapper = <PanelModel>panel.singleInputElement;
   assert.equal(panelWrapper.name, "panel1_singlePanelWrapper", "The panel wrapper is in the row, #2");
   assert.equal(panelWrapper.visibleRows.length, 1, "There is one row, #2");
   assert.equal(panelWrapper.visibleRows[0].elements[0].name, "q1", "The q1 is in the row, #2");
@@ -200,10 +185,14 @@ QUnit.test("singleInput and panel dynamic & add/remove panels in navigation bar"
   const bar = survey.navigationBar;
   assert.ok(bar.getActionById("sv-singleinput-add"), "addBtn exists, #1");
   assert.ok(bar.getActionById("sv-singleinput-remove"), "removeBtn exists, #1");
+  assert.equal(panel1.singleInputElement.name, "q1", "singleInputElement, #1");
   survey.questionsOnPageMode = "standard";
   assert.notOk(bar.getActionById("sv-singleinput-add"), "addBtn exists, #2");
   assert.notOk(bar.getActionById("sv-singleinput-remove"), "removeBtn exists, #2");
+  assert.equal(survey.currentSingleQuestion?.name, undefined, "currentSingleQuestion #2");
+  assert.equal(panel1.singleInputElement?.name, undefined, "singleInputElement, #2");
   survey.questionsOnPageMode = "inputPerPage";
+  assert.equal(panel1.singleInputElement.name, "q1", "singleInputElement, #3");
   const addBtn = bar.getActionById("sv-singleinput-add");
   const removeBtn = bar.getActionById("sv-singleinput-remove");
   assert.ok(addBtn, "addBtn exists, #3");
@@ -249,13 +238,13 @@ QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel",
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #1");
   assert.equal(page.visibleRows.length, 1, "Just one visible row, #1");
   assert.equal(page.visibleRows[0].elements[0].name, "panel1", "visible question in row, #1");
+  assert.equal(panel1.singleInputElement?.name, undefined, "singleInputElement, #1");
   panel1.addPanelUI();
   assert.equal(panel1.panelCount, 1, "panelCount #2");
   assert.equal(addBtn.visible, false, "addBtn visible #2");
   assert.equal(removeBtn.visible, true, "removeBtn visible #2");
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #2");
-  assert.equal(page.visibleRows.length, 1, "Just one visible row, #2");
-  assert.equal(page.visibleRows[0].elements[0].name, "panel1_singlePanel", "visible question in tow, #2");
+  assert.equal(panel1.singleInputElement.name, "q1", "singleInputElement, #2");
   removeBtn.action();
   assert.equal(panel1.panelCount, 0, "panelCount #3");
   assert.equal(addBtn.visible, true, "addBtn visible #3");
@@ -263,8 +252,8 @@ QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel",
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #3");
   assert.equal(page.visibleRows.length, 1, "Just one visible row, #3");
   assert.equal(page.visibleRows[0].elements[0].name, "panel1", "visible question in row, #3");
+  assert.equal(panel1.singleInputElement?.name, undefined, "singleInputElement, #3");
 });
-
 QUnit.test("singleInput and panel dynamic & validation", assert => {
   const survey = new SurveyModel({
     elements: [

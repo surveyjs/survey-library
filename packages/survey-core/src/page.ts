@@ -50,7 +50,7 @@ export class PageModel extends PanelModel implements IPage {
   protected getElementsForRows(): Array<IElement> {
     const q = this.survey?.currentSingleQuestion;
     if(!!q) {
-      if((<any>q).page === this) return [this.survey.isSingleVisibleInput ? (<any>q).getSingleInputElement() : q];
+      if((<any>q).page === this) return [q];
       return [];
     }
     return super.getElementsForRows();

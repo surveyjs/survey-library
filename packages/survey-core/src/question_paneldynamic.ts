@@ -1213,15 +1213,12 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
   }
-  protected singleInputRemoveItemCore(question: Question): void {
-    let panel = this.getPanelByQuestion(question);
-    let index = this.visiblePanelsCore.indexOf(panel);
-    if(index > 0) { index --; }
-    this.removePanelUI(index);
-    const pnls = this.visiblePanelsCore;
-    if(pnls.indexOf(panel) < 0) {
-      if(pnls.length > 0) {
-        panel = pnls[index];
+  private singleInputOnRemovePanel(index: number): void {
+    if(this.survey?.currentSingleQuestion === this) {
+      const vsPanels = this.visiblePanelsCore;
+      if(index >= vsPanels.length) { index --; }
+      if(index >= 0) {
+        const panel = vsPanels[vsPanels.length - 1];
         const vQs = panel.visibleQuestions;
         if(vQs.length > 0) {
           this.setSingleInputQuestion(vQs[vQs.length - 1]);
@@ -1230,6 +1227,11 @@ export class QuestionPanelDynamicModel extends Question
         this.setSingleInputQuestion(undefined);
       }
     }
+  }
+  protected singleInputRemoveItemCore(question: Question): void {
+    const panel = this.getPanelByQuestion(question);
+    const index = this.visiblePanelsCore.indexOf(panel);
+    this.removePanelUI(index);
   }
   /**
    * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
@@ -1700,6 +1702,7 @@ export class QuestionPanelDynamicModel extends Question
     if (this.survey && !this.survey.dynamicPanelRemoving(this, index, panel)) return;
     this.panelsCore.splice(index, 1);
     this.updateBindings("panelCount", this.panelCount);
+    this.singleInputOnRemovePanel(visIndex);
     var value = this.value;
     if (!value || !Array.isArray(value) || index >= value.length) return;
     this.isValueChangingInternally = true;

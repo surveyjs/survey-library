@@ -4507,6 +4507,9 @@ export class SurveyModel extends SurveyElementCore
     if(oldValue === "singlePage") {
       this.updatePagesContainer();
     }
+    if(oldValue === "inputPerPage") {
+      this.getAllQuestions().forEach(q => q.resetSingleInput());
+    }
     if(this.isSinglePage) {
       this.updatePagesContainer();
     }

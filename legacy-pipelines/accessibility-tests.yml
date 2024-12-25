@@ -8,7 +8,7 @@ trigger:
   batch: true
   branches:
     include:
-    - legacy/1.12.15
+    - V1
   tags:
     exclude:
       - v*.*.*

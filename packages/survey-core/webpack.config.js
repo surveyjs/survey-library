@@ -6,7 +6,7 @@ const path = require("path");
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 var DashedNamePlugin = require("../../build-scripts/webpack-dashed-name");
-var RemoveCoreFromName = require("../../build-scripts/webpack-remove-core-from-name");
+var RemoveCoreFromName = require("./webpack-remove-core-from-name");
 const mergeFiles = require("merge-files");
 const packageJson = require("./package.json");
 

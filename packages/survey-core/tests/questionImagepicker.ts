@@ -1,6 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { ImageItemValue, QuestionImagePickerModel } from "../src/question_imagepicker";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { setOldTheme } from "./oldTheme";
 
 export default QUnit.module("imagepicker");
 
@@ -77,6 +78,7 @@ QUnit.test("check dependency getItemClass method on colCount", function (
   assert
 ) {
   let survey = new SurveyModel({});
+  setOldTheme(survey);
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
   question.choices = [{ value: "item1" }, { value: "item2" }];

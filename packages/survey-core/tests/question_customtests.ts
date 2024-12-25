@@ -14,10 +14,10 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
 import { LocalizableString } from "../src/localizablestring";
 import { PanelModel } from "../src/panel";
-import { StylesManager } from "@legacy/stylesmanager";
 import { ArrayChanges, Base } from "../src/base";
 import { QuestionFileModel } from "../src/question_file";
 import { ConsoleWarnings } from "../src/console-warnings";
+import { setOldTheme } from "./oldTheme";
 
 export default QUnit.module("custom questions");
 
@@ -435,8 +435,8 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Custom, get css from contentQuestion", function (assert) {
-  StylesManager.applyTheme("default");
   var survey = new SurveyModel();
+  setOldTheme(survey);
   survey.css.dropdown.small = "small";
   survey.css.dropdown.title = "title";
   survey.css.question.titleOnAnswer = "onAnswer";
@@ -483,8 +483,8 @@ QUnit.test("Custom, get css from contentQuestion", function (assert) {
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite, update panel css", function (assert) {
-  StylesManager.applyTheme("default");
   var survey = new SurveyModel();
+  setOldTheme(survey);
   survey.css.question.small = "small";
   survey.css.question.title = "title";
   survey.css.question.titleOnAnswer = "onAnswer";
@@ -1896,7 +1896,6 @@ QUnit.test("Check updateElementCss for custom question", function (assert) {
     name: "newquestion",
     questionJSON: { type: "text" },
   };
-  StylesManager.applyTheme("default");
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1" }],

@@ -172,7 +172,7 @@ module.exports = function (options) {
       new webpack.ProgressPlugin(percentage_handler),
       new DashedNamePlugin(),
       new webpack.DefinePlugin({
-        "process.env.ENVIRONMENT": JSON.stringify(options.buildType),
+        "process.env.RELEASE_DATE": JSON.stringify(new Date().toISOString().slice(0, 10)),
         "process.env.VERSION": JSON.stringify(packageJson.version),
       }),
       new RemoveCoreFromName(),

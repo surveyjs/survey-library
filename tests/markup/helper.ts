@@ -1,4 +1,4 @@
-import { StylesManager, Model, SurveyModel, PanelModel, settings } from "survey-core";
+import { Model, SurveyModel, PanelModel, settings } from "survey-core";
 export interface MarkupTestDescriptor {
   name: string;
   json: any;
@@ -101,7 +101,6 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
     reportElement.id = id+"_report";
     document.body.appendChild(reportElement);
   }
-  StylesManager.applyTheme("default");
   var done = assert.async();
   settings.animationEnabled = false;
   if (test.before)

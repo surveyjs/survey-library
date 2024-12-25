@@ -1,11 +1,10 @@
 import { TestBed } from "@angular/core/testing";
 import { SurveyModule } from "src/angular-ui.module";
 import { SurveyComponent } from "src/survey.component";
-import { SurveyModel, StylesManager } from "survey-core";
+import { SurveyModel } from "survey-core";
 
 describe("event tests", () => {
   beforeEach(async () => {
-    StylesManager.applyTheme("default");
     await TestBed.configureTestingModule({
       imports: [SurveyModule],
     }).compileComponents();

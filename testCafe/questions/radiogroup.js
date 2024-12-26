@@ -49,7 +49,7 @@ frameworks.forEach(framework => {
 
   test("change column count", async t => {
     const getClassName = ClientFunction(
-      () => document.querySelector("div[id*=sq_1] fieldset .sv_q_select_column").className
+      () => document.querySelector("div[id*=sq_1] fieldset > div > div").className
     );
     let className = await getClassName();
     assert.notEqual(className.indexOf("sv-q-column-4"), -1);
@@ -57,7 +57,7 @@ frameworks.forEach(framework => {
     await setOptions("car", { colCount: 1 });
 
     const getClassNameOneCol = ClientFunction(
-      () => document.querySelector("div[id*=sq_1] fieldset > .sv_q_radiogroup").className
+      () => document.querySelector("div[id*=sq_1] fieldset > div").className
     );
     className = await getClassNameOneCol();
     assert.notEqual(className.indexOf("sv-q-col-1"), -1);

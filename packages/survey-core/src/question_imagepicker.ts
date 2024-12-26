@@ -497,8 +497,8 @@ Serializer.addClass(
     { name: "imageWidth:number", minValue: 0 },
     { name: "minImageWidth:responsiveImageSize", default: 200, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
     { name: "minImageHeight:responsiveImageSize", default: 133, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
-    { name: "maxImageWidth:responsiveImageSize", default: 400, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
-    { name: "maxImageHeight:responsiveImageSize", default: 266, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
+    { name: "maxImageWidth:responsiveImageSize", default: 3000, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
+    { name: "maxImageHeight:responsiveImageSize", default: 3000, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
 
   ],
   function () {

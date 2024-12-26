@@ -103,7 +103,7 @@ module.exports = function (options) {
   var config = {
     mode: isProductionBuild ? "production" : "development",
     entry: {
-      [packageJson.name]: path.resolve(__dirname, "./entries/index.ts"),
+      "survey.core": path.resolve(__dirname, "./entries/index.ts"),
       defaultV2: path.resolve(__dirname, "./src/defaultV2-theme/defaultV2.scss"),
       "defaultV2.fontless": path.resolve(__dirname, "./src/defaultV2-theme/defaultV2.fontless.scss")
     },

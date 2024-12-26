@@ -916,6 +916,9 @@ export interface CheckAnswerCorrectEvent extends QuestionEventMixin {
   /**
    * A Boolean property that specifies whether the answer is correct (`true`) or incorrect (`false`). Use the `options.question.value` and `options.question.correctAnswer` properties to check the answer.
    */
+  result: boolean;
+}
+export interface IsAnswerCorrectEvent extends CheckAnswerCorrectEvent {
   /**
    * Obsolete. Use `options.correctAnswerCount` instead.
    */
@@ -924,9 +927,7 @@ export interface CheckAnswerCorrectEvent extends QuestionEventMixin {
    * Obsolete. Use `options.incorrectAnswerCount` instead.
    */
   incorrectAnswers: number;
-  result: boolean;
 }
-export interface IsAnswerCorrectEvent extends CheckAnswerCorrectEvent { }
 export interface DragDropAllowEvent {
   /**
    * A survey element being dragged.
@@ -979,6 +980,8 @@ export interface ScrollToTopEvent {
    * A Boolean property that you can set to `false` if you want to cancel the scroll operation.
    */
   allow: boolean;
+}
+export interface ScrollingElementToTopEvent extends ScrollToTopEvent {
   /**
    * Obsolete. Use `options.allow` instead.
    */
@@ -992,7 +995,6 @@ export interface ScrollToTopEvent {
    */
   page?: PageModel;
 }
-export interface ScrollingElementToTopEvent extends ScrollToTopEvent { }
 export interface GetQuestionTitleActionsEvent extends QuestionEventMixin, GetTitleActionsEventMixin { }
 export interface GetPanelTitleActionsEvent extends PanelEventMixin, GetTitleActionsEventMixin { }
 export interface GetPageTitleActionsEvent extends PageEventMixin, GetTitleActionsEventMixin { }

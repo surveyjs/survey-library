@@ -849,7 +849,7 @@ QUnit.test("Composite: remove invisible values", function (assert) {
   lastName.value = "last";
   assert.equal(lastName.value, "last", "value set correctly");
   firstName.value = "Jon";
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.deepEqual(
     survey.data,
     { q1: { firstName: "Jon" } },
@@ -3079,7 +3079,7 @@ QUnit.test("Single: showPreviewBeforeComplete Bug#8005", function (assert) {
   survey.getQuestionByName("question1").value = 1;
   survey.showPreview();
   assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
   ComponentCollection.Instance.clear();
 });

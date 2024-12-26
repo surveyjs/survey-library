@@ -128,7 +128,7 @@ registerMarkupTests(
       },
       before: () => StylesManager.applyTheme("defaultV2"),
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
       after: () => StylesManager.applyTheme("default"),
       snapshot: "multipletext-error-top-v2",
@@ -156,7 +156,7 @@ registerMarkupTests(
       },
       before: () => StylesManager.applyTheme("defaultV2"),
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
       after: () => StylesManager.applyTheme("default"),
       snapshot: "multipletext-error-bottom-v2",

@@ -173,7 +173,7 @@ QUnit.test(
     survey.showPreviewBeforeComplete = "showAllQuestions";
     survey.currentPageNo = 1;
     survey.showPreview();
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.visiblePages.length, 2, "We have two pages again");
     assert.equal(survey.currentPageNo, 1, "Current page is the last one");
   }
@@ -195,10 +195,10 @@ QUnit.test(
     survey.currentPageNo = 1;
     survey.showPreview();
     assert.equal(survey.state, "preview");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "preview", "Keep showing preview");
     allowComplete = true;
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "completed");
   }
 );
@@ -756,10 +756,10 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' and all question
     assert.equal(survey.state, "preview", "We do not check for errors");
     survey.cancelPreview();
     assert.equal(survey.state, "running", "running again");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "running", "We have errors, we can't fix errors");
     survey.setValue("q1", "a");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "completed", "No errors");
   }
 );
@@ -775,10 +775,10 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' & checkErrorsMod
     });
     survey.nextPage();
     survey.showPreview();
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "running", "We have errors, we can't fix errors");
     survey.setValue("q1", "a");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "completed", "No errors");
   }
 );

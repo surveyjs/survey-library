@@ -193,7 +193,7 @@ registerMarkupTests(
       },
       before: () => StylesManager.applyTheme("defaultV2"),
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
       after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdropdown-cell-errors-top"
@@ -220,7 +220,7 @@ registerMarkupTests(
       },
       before: () => StylesManager.applyTheme("defaultV2"),
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
       after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdropdown-cell-errors-bottom"

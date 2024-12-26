@@ -4231,7 +4231,7 @@ export class SurveyModel extends SurveyElementCore
    * @see isCurrentPageValid
    * @see nextPage
    */
-  public completeLastPage(): boolean {
+  public tryComplete(): boolean {
     if (this.isValidateOnComplete) {
       this.cancelPreview();
     }
@@ -4240,6 +4240,9 @@ export class SurveyModel extends SurveyElementCore
       this.cancelPreview();
     }
     return res;
+  }
+  public completeLastPage(): boolean {
+    return this.tryComplete();
   }
   private isNavigationButtonPressed: boolean = false;
   public navigationMouseDown(): boolean {
@@ -6445,7 +6448,7 @@ export class SurveyModel extends SurveyElementCore
         mouseDown: () => this.navigationMouseDown(),
       },
       locTitle: this.locCompleteText,
-      action: () => this.taskManager.waitAndExecute(() => this.completeLastPage()),
+      action: () => this.taskManager.waitAndExecute(() => this.tryComplete()),
       component: defaultComponent
     });
     this.updateNavigationItemCssCallback = () => {
@@ -6810,7 +6813,7 @@ export class SurveyModel extends SurveyElementCore
         if (this.isShowPreviewBeforeComplete) {
           this.showPreview();
         } else {
-          this.completeLastPage();
+          this.tryComplete();
         }
       }
     };
@@ -7615,13 +7618,13 @@ export class SurveyModel extends SurveyElementCore
     this.onTimerTick.fire(this, {});
     if (this.timeLimit > 0 && this.timeLimit <= this.timeSpent) {
       this.timeSpent = this.timeLimit;
-      this.completeLastPage();
+      this.tryComplete();
     }
     if (page) {
       var pageLimit = page.getMaxTimeToFinish();
       if (pageLimit > 0 && pageLimit == page.timeSpent) {
         if (this.isLastPage) {
-          this.completeLastPage();
+          this.tryComplete();
         } else {
           this.nextPage();
         }

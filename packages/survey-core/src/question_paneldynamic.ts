@@ -1165,23 +1165,15 @@ export class QuestionPanelDynamicModel extends Question
   private templateSingleInputPanel: PanelModel;
   protected getSingleQuestionRowElement(question: Question): IElement {
     if(!this.templateTitle) return question;
-    if(!this.templateSingleInputPanel) {
-      this.templateSingleInputPanel = Serializer.createClass("panel");
-      const p = this.templateSingleInputPanel;
-      p.name = this.name + "_singlePanelWrapper";
-      p.addNewQuestion("text", this.name + "templateSingleInputQ");
-      p.setSurveyImpl(this.surveyImpl);
-    }
-    const panel = this.templateSingleInputPanel;
-    const questionPanel = this.getPanelByQuestion(question);
-    panel.locTitle.onGetTextCallback = (str: string): string => {
-      return questionPanel.locTitle.renderedHtml;
-    };
+    const panel = this.getPanelByQuestion(question);
     (<any>panel).onGetElementsForRowsCallback = () => {
       return [question];
     };
-    panel.updateRows();
     return panel;
+  }
+  public resetSingleInput(): void {
+    super.resetSingleInput();
+    this.panelsCore.forEach(panel => (<any>panel).onGetElementsForRowsCallback = undefined);
   }
   private getPanelByQuestion(question: Question): PanelModel {
     let parent = question.parent;

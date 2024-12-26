@@ -4615,8 +4615,10 @@ export class SurveyModel extends SurveyElementCore
       let isLastInput = true;
       if(this.isSingleVisibleInput) {
         const inputState = q.getSingleInputElementPos();
-        isFirstInput = inputState < 0;
-        isLastInput = inputState > 0;
+        if(inputState !== 0) {
+          isFirstInput = inputState === -1;
+          isLastInput = inputState === 1;
+        }
       }
       const questions = this.getAllQuestions(true);
       const index = questions.indexOf(q);

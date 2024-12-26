@@ -688,10 +688,11 @@ export class Question extends SurveyElement<Question>
   }
   public getSingleInputElementPos(): number {
     const q = this.singleInputQuestionValue;
-    if(!q) return 1;
+    if(!q) return 0;
     const questions = this.getSingleInputQuestions();
+    if(questions.length < 2) return 0;
     let index = questions.indexOf(q);
-    return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 0);
+    return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
   protected getSingleQuestionRowElement(question: Question): IElement {
     return question;

@@ -1965,7 +1965,14 @@ export class Question extends SurveyElement<Question>
   protected checkIfAnswerCorrect(): boolean {
     const isEqual = Helpers.isTwoValueEquals(this.value, this.correctAnswer, this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
     const correct = isEqual ? 1 : 0;
-    const options = { result: isEqual, correctAnswer: correct, correctAnswers: correct, incorrectAnswers: this.quizQuestionCount - correct };
+    const incorrect = this.quizQuestionCount - correct;
+    const options = {
+      result: isEqual,
+      correctAnswers: correct,
+      correctAnswerCount: correct,
+      incorrectAnswers: incorrect,
+      incorrectAnswerCount: incorrect,
+    };
     if (!!this.survey) {
       this.survey.onCorrectQuestionAnswer(this, options);
     }

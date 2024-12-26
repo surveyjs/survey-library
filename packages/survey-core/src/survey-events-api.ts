@@ -904,20 +904,29 @@ export interface DynamicPanelGetTabTitleEvent extends DynamicPanelCurrentIndexCh
    */
   title: string;
 }
-export interface IsAnswerCorrectEvent extends QuestionEventMixin {
+export interface CheckAnswerCorrectEvent extends QuestionEventMixin {
   /**
    * The number of correct answers in a matrix where each row is considered as one quiz question.
    */
-  correctAnswers: number;
+  correctAnswerCount: number;
   /**
    * The number of incorrect answers in a matrix where each row is considered as one quiz question.
    */
-  incorrectAnswers: number;
+  incorrectAnswerCount: number;
   /**
    * A Boolean property that specifies whether the answer is correct (`true`) or incorrect (`false`). Use the `options.question.value` and `options.question.correctAnswer` properties to check the answer.
    */
+  /**
+   * Obsolete. Use `options.correctAnswerCount` instead.
+   */
+  correctAnswers: number;
+  /**
+   * Obsolete. Use `options.incorrectAnswerCount` instead.
+   */
+  incorrectAnswers: number;
   result: boolean;
 }
+export interface IsAnswerCorrectEvent extends CheckAnswerCorrectEvent { }
 export interface DragDropAllowEvent {
   /**
    * A survey element being dragged.
@@ -957,7 +966,7 @@ export interface DragDropAllowEvent {
    */
   source: IElement;
 }
-export interface ScrollingElementToTopEvent {
+export interface ScrollToTopEvent {
   /**
    * A survey element that will be scrolled to the top.
    */
@@ -967,7 +976,11 @@ export interface ScrollingElementToTopEvent {
    */
   elementId: string;
   /**
-   * A Boolean property that you can set to `true` if you want to cancel the scroll operation.
+   * A Boolean property that you can set to `false` if you want to cancel the scroll operation.
+   */
+  allow: boolean;
+  /**
+   * Obsolete. Use `options.allow` instead.
    */
   cancel: boolean;
   /**
@@ -979,6 +992,7 @@ export interface ScrollingElementToTopEvent {
    */
   page?: PageModel;
 }
+export interface ScrollingElementToTopEvent extends ScrollToTopEvent { }
 export interface GetQuestionTitleActionsEvent extends QuestionEventMixin, GetTitleActionsEventMixin { }
 export interface GetPanelTitleActionsEvent extends PanelEventMixin, GetTitleActionsEventMixin { }
 export interface GetPageTitleActionsEvent extends PageEventMixin, GetTitleActionsEventMixin { }

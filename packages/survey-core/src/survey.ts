@@ -65,7 +65,7 @@ import {
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
   MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
   MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent,
-  DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent,
+  DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent as CheckAnswerCorrectEvent, DragDropAllowEvent, ScrollToTopEvent, GetQuestionTitleActionsEvent,
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
   OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent
@@ -796,7 +796,10 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised to define whether a question answer is correct. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
    */
-  public onIsAnswerCorrect: EventBase<SurveyModel, IsAnswerCorrectEvent> = this.addEvent<SurveyModel, IsAnswerCorrectEvent>();
+  public onCheckAnswerCorrect: EventBase<SurveyModel, CheckAnswerCorrectEvent> = this.addEvent<SurveyModel, CheckAnswerCorrectEvent>();
+  public get onIsAnswerCorrect(): EventBase<SurveyModel, CheckAnswerCorrectEvent> {
+    return this.onCheckAnswerCorrect;
+  }
 
   /**
    * An event that is raised when users drag and drop survey elements while designing the survey in [Survey Creator](https://surveyjs.io/survey-creator/documentation/overview). Use this event to control drag and drop operations.
@@ -806,8 +809,10 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event this is raised before a survey element (usually page) is scrolled to the top. Use this event to cancel the scroll operation.
    */
-  public onScrollingElementToTop: EventBase<SurveyModel, ScrollingElementToTopEvent> = this.addEvent<SurveyModel, ScrollingElementToTopEvent>();
-
+  public onScrollToTop: EventBase<SurveyModel, ScrollToTopEvent> = this.addEvent<SurveyModel, ScrollToTopEvent>();
+  public get onScrollingElementToTop(): EventBase<SurveyModel, ScrollToTopEvent> {
+    return this.onScrollToTop;
+  }
   public onLocaleChangedEvent: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
 
   /**
@@ -5379,15 +5384,16 @@ export class SurveyModel extends SurveyElementCore
     passedRootElement?: HTMLElement,
     onScolledCallback?: () => void
   ): any {
-    const options: ScrollingElementToTopEvent = {
+    const options: ScrollToTopEvent = {
       element: element,
       question: question,
       page: page,
       elementId: id,
       cancel: false,
+      allow: true,
     };
     this.onScrollingElementToTop.fire(this, options);
-    if (!options.cancel) {
+    if (!options.cancel && options.allow) {
       const elementPage = this.getPageByElement(element as IElement);
       if (this.isLazyRendering && !!elementPage) {
         let elementsToRenderBefore = 1;

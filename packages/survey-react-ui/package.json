@@ -21,12 +21,10 @@
     },
     "scripts": {
         "build": "webpack --env buildType=dev && webpack --env buildType=prod",
-        "testcafe": "testcafe chrome ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --env=react",
-        "testcafe:ci": "testcafe chrome:headless -c 4 -q attemptLimit=5,successThreshold=1 ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --env=react",
-        "testcafe:a11y": "testcafe chrome ./accessibilityTests/ --app \"http-server\" --screenshots ./ --reporter minimal --selector-timeout 1500 --env=react",
-        "testcafe:a11y:ci": "testcafe chrome:headeless -c 4 -q ./accessibilityTests/ --app \"http-server\" --screenshots ./ --reporter minimal --selector-timeout 1500 --env=react",
-        "visual-regression-tests": "testcafe chrome --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --env=react",
-        "visual-regression-tests:ci": "testcafe chrome:headless -c 4 -q attemptLimit=5,successThreshold=1 --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --env=react"
+        "testcafe": "testcafe ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --env=react --config-file .testcaferc.dev.js",
+        "testcafe:ci": "testcafe ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --env=react --reporter minimal",
+        "visual-regression-tests": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --env=react --config-file .testcaferc.dev.js",
+        "visual-regression-tests:ci": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --env=react --reporter minimal"
     },
     "typings": "./typings/src/entries/react-ui.d.ts",
     "devDependencies": {

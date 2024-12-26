@@ -65,8 +65,8 @@ import {
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
   MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
   MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent,
-  DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent as CheckAnswerCorrectEvent, DragDropAllowEvent, ScrollToTopEvent, GetQuestionTitleActionsEvent,
-  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
+  DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, CheckAnswerCorrectEvent, DragDropAllowEvent, ScrollToTopEvent, GetQuestionTitleActionsEvent,
+  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
   OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent
 } from "./survey-events-api";
@@ -856,10 +856,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 
-  /**
-   * An event that is raised after a survey element is [expanded or collapsed](https://surveyjs.io/form-library/documentation/api-reference/question#state).
-   */
-  public onElementContentVisibilityChanged: EventBase<SurveyModel, ElementContentVisibilityChangedEvent> = this.addEvent<SurveyModel, ElementContentVisibilityChangedEvent>();
+  public onElementContentVisibilityChanged: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
 
   /**
    * An event that is raised before an [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) question displays a value. Use this event to override the display value.
@@ -5698,13 +5695,6 @@ export class SurveyModel extends SurveyElementCore
     }
     return null;
   }
-  /**
-   * Returns an array of questions with specified [names](https://surveyjs.io/form-library/documentation/api-reference/question#name).
-   * @param names An array of question names.
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
-   * @returns An array of questions with specified names
-   * @see getAllQuestions
-   */
   public getQuestionsByNames(
     names: string[],
     caseInsensitive: boolean = false
@@ -5746,10 +5736,6 @@ export class SurveyModel extends SurveyElementCore
     }
     return null;
   }
-  /**
-   * Returns an array of pages with specified names.
-   * @param names An array of page names.
-   */
   public getPagesByNames(names: string[]): PageModel[] {
     var result: PageModel[] = [];
     if (!names) return result;

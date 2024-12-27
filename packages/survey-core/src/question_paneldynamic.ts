@@ -1175,7 +1175,14 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected getSingleInputAddTextCore(question: Question): string {
     if(!this.canAddPanel) return undefined;
-    return this.getSingleInputIsLastQuestion() ? this.panelAddText : undefined;
+    if(!this.getSingleInputIsLastQuestion()) return undefined;
+    if(!question) return this.panelAddText;
+    const panel = this.getPanelByQuestion(question);
+    const questions = panel.visibleQuestions;
+    for(let i = 0; i < questions.length; i++) {
+      if(!questions[i].isEmpty()) return this.panelAddText;
+    }
+    return undefined;
   }
   protected getSingleInputRemoveTextCore(question: Question): string {
     return this.canRemovePanel ? this.panelRemoveText : undefined;

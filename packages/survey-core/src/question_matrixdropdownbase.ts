@@ -633,6 +633,15 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     return res;
   }
+  public get visibleQuestions(): Array<Question> {
+    const res = [];
+    this.questions.forEach(q => {
+      if (q.isVisible) {
+        res.push(q);
+      }
+    });
+    return res;
+  }
   public getQuestionByName(name: string): Question {
     var res = this.getQuestionByColumnName(name);
     if (!!res) return res;

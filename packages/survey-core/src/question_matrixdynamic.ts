@@ -682,7 +682,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected getSingleInputAddTextCore(question: Question): string {
     if(!this.canAddRow) return undefined;
-    return this.getSingleInputIsLastQuestion() ? this.addRowText : undefined;
+    if(!this.getSingleInputIsLastQuestion()) return undefined;
+    if(!question) return this.addRowText;
+    const row = this.getRowByQuestion(question);
+    return !!row && !row.isEmpty ? this.addRowText : undefined;
   }
   protected getSingleInputRemoveTextCore(question: Question): string {
     if(!this.canRemoveRows) return undefined;
@@ -700,7 +703,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if(rows.length > 0) {
       if(index < 0 || index >= rows.length) index = rows.length - 1;
       const row = rows[index];
-      const vQs = row.questions;
+      const vQs = row.visibleQuestions;
       if(vQs.length > 0) {
         return vQs[0];
       }

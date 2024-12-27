@@ -68,7 +68,8 @@ import {
   DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, CheckAnswerCorrectEvent, DragDropAllowEvent, ScrollToTopEvent, GetQuestionTitleActionsEvent,
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
-  OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent
+  OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent,
+  ScrollingElementToTopEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -5381,7 +5382,7 @@ export class SurveyModel extends SurveyElementCore
     passedRootElement?: HTMLElement,
     onScolledCallback?: () => void
   ): any {
-    const options: ScrollToTopEvent = {
+    const options: ScrollingElementToTopEvent = {
       element: element,
       question: question,
       page: page,

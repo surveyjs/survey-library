@@ -1328,7 +1328,8 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * @deprecated The property should not be used
+   * Obsolete. Use the [`lazyRenderingEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#lazyRenderingEnabled) property instead.
+   * @deprecated
    */
   public get lazyRendering(): boolean {
     return this.lazyRenderingEnabled;
@@ -1450,7 +1451,8 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("partialSendEnabled", val);
   }
   /**
-   * @deprecated The property should not be used
+   * Obsolete. Use the [`partialSend`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#partialSend) property instead.
+   * @deprecated
    */
   public get sendResultOnPageNext(): boolean {
     return this.partialSendEnabled;
@@ -1744,7 +1746,8 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("maxCommentLength", val);
   }
   /**
-   * @deprecated The property should not be used
+   * Obsolete. Use the [`maxCommentLength`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#maxCommentLength) property instead.
+   * @deprecated
    */
   public get maxOthersLength(): number {
     return this.maxCommentLength;

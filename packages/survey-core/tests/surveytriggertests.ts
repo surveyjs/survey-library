@@ -277,7 +277,7 @@ QUnit.test("On trigger executed && options.completeTrigger", function(
   });
   survey.setValue("q1", 3);
   assert.equal(survey.state, "running");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.state, "completed");
   assert.equal(isCompleteEvent, true);
   assert.equal(completeTrigger.expression, "{q1} = 3");

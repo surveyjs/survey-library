@@ -28,8 +28,8 @@ const setCustomNavigation = ClientFunction(() => {
     window["survey"].nextPage();
     event.preventDefault();
   };
-  document.getElementById("surveyComplete").onclick = function() {
-    window["survey"].completeLastPage();
+  document.getElementById("surveyComplete").onclick = function () {
+    window["survey"].tryComplete();
     event.preventDefault();
   };
 

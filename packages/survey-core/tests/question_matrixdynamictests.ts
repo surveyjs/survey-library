@@ -5743,7 +5743,7 @@ QUnit.test(
       0,
       "There is no errors yet in the cell, second row, first column"
     );
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(
       rows[0].cells[1].question.errors.length,
       1,
@@ -9072,7 +9072,7 @@ QUnit.test("Errors: matrixdropdown", function (assert) {
   assert.equal(table.rows[0].cells[2].isErrorsCell, true);
   assert.strictEqual(table.rows[0].cells[2].question, table.rows[1].cells[2].question);
 
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(table.rows[0].visible, true);
   assert.equal(table.rows[2].visible, true);
   table.rows[1].cells[1].question.value = "Item1";
@@ -10310,7 +10310,7 @@ QUnit.test("Validation doesn't work if a user doensn't visit the page, Bug#8937"
     checkErrorsMode: "onComplete"
   });
   survey.currentPageNo = 2;
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.state, "running", "Still running");
   assert.equal(survey.currentPageNo, 1, "move to page with panel");
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");

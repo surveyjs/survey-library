@@ -8395,7 +8395,7 @@ Serializer.addClass("survey", [
   {
     name: "questionsOnPageMode",
     default: "standard",
-    choices: ["standard", "singlePage", "questionPerPage"],
+    choices: ["standard", "singlePage", "questionPerPage", "inputPerPage"],
   },
   {
     name: "showPreviewBeforeComplete",

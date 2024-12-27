@@ -159,7 +159,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
 
   maxTextLength: number;
   maxOthersLength: number;
-  clearValueOnDisableItems: boolean;
+  clearDisabledChoices: boolean;
 
   timeLimitPerPage: number;
 

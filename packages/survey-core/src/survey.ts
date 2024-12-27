@@ -6894,11 +6894,17 @@ export class SurveyModel extends SurveyElementCore
    *
    * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
    */
-  public get clearValueOnDisableItems(): boolean {
+  public get clearDisabledChoices(): boolean {
     return this.getPropertyValue("clearValueOnDisableItems", false);
   }
-  public set clearValueOnDisableItems(val: boolean) {
+  public set clearDisabledChoices(val: boolean) {
     this.setPropertyValue("clearValueOnDisableItems", val);
+  }
+  public get clearValueOnDisableItems(): boolean {
+    return this.clearDisabledChoices;
+  }
+  public set clearValueOnDisableItems(val: boolean) {
+    this.clearDisabledChoices = val;
   }
   getQuestionClearIfInvisible(questionClearIf: string): string {
     if (this.isShowingPreview || this.runningPages) return "none";

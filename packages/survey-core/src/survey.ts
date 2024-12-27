@@ -6900,6 +6900,10 @@ export class SurveyModel extends SurveyElementCore
   public set clearDisabledChoices(val: boolean) {
     this.setPropertyValue("clearValueOnDisableItems", val);
   }
+  /**
+   * Obsolete. Use the [`clearDisabledChoices`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#clearDisabledChoices) property instead.
+   * @deprecated
+   */
   public get clearValueOnDisableItems(): boolean {
     return this.clearDisabledChoices;
   }

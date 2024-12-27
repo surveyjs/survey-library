@@ -634,7 +634,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     return res;
   }
   public get visibleQuestions(): Array<Question> {
-    const res = [];
+    const res: Array<Question> = [];
     this.questions.forEach(q => {
       if (q.isVisible) {
         res.push(q);
@@ -1264,7 +1264,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected getRowByQuestion(question: Question): MatrixDropdownRowModelBase {
     return <MatrixDropdownRowModelBase>question.data;
   }
-  protected onMatrixRowCreated(row: MatrixDropdownRowModelBase) {
+  protected onMatrixRowCreated(row: MatrixDropdownRowModelBase): void {
     if (!this.survey) return;
     var options = {
       rowValue: row.value,

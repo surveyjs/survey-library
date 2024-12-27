@@ -5388,7 +5388,7 @@ export class SurveyModel extends SurveyElementCore
     passedRootElement?: HTMLElement,
     onScolledCallback?: () => void
   ): any {
-    const options: ScrollingElementToTopEvent = {
+    const options: ScrollToTopEvent = {
       element: element,
       question: question,
       page: page,

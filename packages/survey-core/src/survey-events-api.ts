@@ -904,21 +904,10 @@ export interface DynamicPanelGetTabTitleEvent extends DynamicPanelCurrentIndexCh
    */
   title: string;
 }
-export interface CheckAnswerCorrectEvent extends QuestionEventMixin {
-  /**
-   * The number of correct answers in a matrix where each row is considered as one quiz question.
-   */
-  correctAnswerCount: number;
-  /**
-   * The number of incorrect answers in a matrix where each row is considered as one quiz question.
-   */
-  incorrectAnswerCount: number;
+export interface IsAnswerCorrectEvent extends QuestionEventMixin {
   /**
    * A Boolean property that specifies whether the answer is correct (`true`) or incorrect (`false`). Use the `options.question.value` and `options.question.correctAnswer` properties to check the answer.
    */
-  result: boolean;
-}
-export interface IsAnswerCorrectEvent extends Partial<CheckAnswerCorrectEvent> {
   result: boolean;
   /**
    * Obsolete. Use `options.correctAnswerCount` instead.
@@ -928,6 +917,16 @@ export interface IsAnswerCorrectEvent extends Partial<CheckAnswerCorrectEvent> {
    * Obsolete. Use `options.incorrectAnswerCount` instead.
    */
   incorrectAnswers?: number;
+}
+export interface CheckAnswerCorrectEvent extends IsAnswerCorrectEvent {
+  /**
+   * The number of correct answers in a matrix where each row is considered as one quiz question.
+   */
+  correctAnswerCount: number;
+  /**
+   * The number of incorrect answers in a matrix where each row is considered as one quiz question.
+   */
+  incorrectAnswerCount: number;
 }
 export interface DragDropAllowEvent {
   /**
@@ -968,7 +967,7 @@ export interface DragDropAllowEvent {
    */
   source: IElement;
 }
-export interface ScrollToTopEvent {
+export interface ScrollingElementToTopEvent {
   /**
    * A survey element that will be scrolled to the top.
    */
@@ -977,12 +976,6 @@ export interface ScrollToTopEvent {
    * A unique element ID within the DOM.
    */
   elementId: string;
-  /**
-   * A Boolean property that you can set to `false` if you want to cancel the scroll operation.
-   */
-  allow: boolean;
-}
-export interface ScrollingElementToTopEvent extends Partial<ScrollToTopEvent> {
   /**
    * Obsolete. Use `options.allow` instead.
    */
@@ -995,6 +988,12 @@ export interface ScrollingElementToTopEvent extends Partial<ScrollToTopEvent> {
    * Obsolete. Use `options.element` instead.
    */
   page?: PageModel;
+}
+export interface ScrollToTopEvent extends ScrollingElementToTopEvent {
+  /**
+   * A Boolean property that you can set to `false` if you want to cancel the scroll operation.
+   */
+  allow: boolean;
 }
 export interface GetQuestionTitleActionsEvent extends QuestionEventMixin, GetTitleActionsEventMixin { }
 export interface GetPanelTitleActionsEvent extends PanelEventMixin, GetTitleActionsEventMixin { }

@@ -13,6 +13,7 @@
   "scripts": {
     "build": "webpack --env buildType=dev && webpack --env buildType=prod",
     "watch:dev": "webpack --env buildType=dev --watch",
+    "start": "webpack-dev-server --env buildType=dev --open",
     "vrt": "testcafe ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file .testcaferc.dev.js",
     "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=survey-js-ui",
     "testcafe": "testcafe ../../testCafe/ --app \"http-server --silent\" --env=survey-js-ui --config-file .testcaferc.dev.js",

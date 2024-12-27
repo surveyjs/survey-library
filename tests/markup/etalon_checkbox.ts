@@ -45,7 +45,7 @@ registerMarkupTests(
       snapshot: "checkbox-other",
     },
     {
-      name: "Test checkbox question markup Other option with maxOthersLength",
+      name: "Test checkbox question markup Other option with maxCommentLength",
       json: {
         "maxOthersLength": 15,
         questions: [

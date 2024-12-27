@@ -81,7 +81,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var outerSelector = ".sv_q_title";
+    var outerSelector = ".sd-question__title";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -100,7 +100,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var selector = ".sv_q_mt_title .sv-string-editor";
+    var selector = ".sd-multipletext__item-title .sv-string-editor";
     await t
       .click(selector, { offsetX: 10, offsetY: 10 })
       .typeText(selector, newTitle, { replace: true })
@@ -112,7 +112,7 @@ frameworks.forEach((framework) => {
     assert.equal(json.items[0].title, newTitle);
   });
   test("Check item reactiveness, for example required title", async (t) => {
-    const requiredTitleSelector = Selector(".sv_q_mt_title .sv_q_required_text");
+    const requiredTitleSelector = Selector(".sd-multipletext__item-title .sd-question__required-text");
     await t.expect(requiredTitleSelector.exists).notOk();
     await ClientFunction(() => {
       window.survey.getAllQuestions()[0].items[0].isRequired = true;

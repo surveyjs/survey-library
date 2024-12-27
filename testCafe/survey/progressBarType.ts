@@ -129,6 +129,6 @@ frameworks.forEach(async framework => {
     await t.expect(page1.exists).ok();
     await t.expect(page2.exists).ok();
     await t.click(page2);
-    await t.expect(Selector("h5.sv_q_title").withText("q3").exists).ok();
+    await t.expect(Selector("h5.sd-question__title").withText("q3").exists).ok();
   });
 });

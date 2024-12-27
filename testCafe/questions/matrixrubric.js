@@ -81,9 +81,9 @@ frameworks.forEach((framework) => {
     const secondCellSelector = Selector("tbody tr:nth-child(4) td:nth-child(6)");
     await t
       .click(firstCellSelector)
-      .expect(firstCellSelector.hasClass("sv_q_m_cell_selected")).ok()
+      .expect(firstCellSelector.hasClass("sd-matrix__text--checked")).ok()
       .click(secondCellSelector)
-      .expect(secondCellSelector.hasClass("sv_q_m_cell_selected")).ok()
+      .expect(secondCellSelector.hasClass("sd-matrix__text--checked")).ok()
       .click("input[value=Complete]");
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult.Quality).eql({
@@ -148,7 +148,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
 
-    var outerSelector = ".sv_q_title";
+    var outerSelector = ".sd-question__title";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -167,7 +167,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
 
-    var outerSelector = ".sv_q_matrix th";
+    var outerSelector = ".sd-matrix__table th";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -186,7 +186,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
 
-    var selector = ".sv_q_matrix tbody tr td .sv-string-editor";
+    var selector = ".sd-matrix__table tbody tr td .sv-string-editor";
     await t
       .click(selector)
       .typeText(selector, newTitle, { replace: true })
@@ -204,7 +204,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
 
-    var selector = ".sv_q_matrix tbody tr:nth-child(4) td:nth-child(6) .sv-string-editor";
+    var selector = ".sd-matrix__table tbody tr:nth-child(4) td:nth-child(6) .sv-string-editor";
     await t
       .click(selector)
       .typeText(selector, newTitle, { replace: true })

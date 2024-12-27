@@ -60,15 +60,16 @@ frameworks.forEach((framework) => {
     };
 
     await initSurvey(framework, json, { onAfterRenderQuestion: f });
+    const questionSelector = Selector(".sd-question");
     await t
-      .expect(Selector(".sv_q.sv_qstn").count).eql(1)
+      .expect(questionSelector.count).eql(1)
       .click("input[value=valueYes]")
 
-      .expect(Selector(".sv_q.sv_qstn").count).eql(2)
+      .expect(questionSelector.count).eql(2)
       .expect(Selector("input[value='valueYes']").getStyleProperty("color")).eql("rgb(255, 99, 71)")
-      .expect(Selector(".sv_q.sv_qstn").nth(1).getStyleProperty("border-top-color")).eql("rgb(204, 204, 204)")
-      .expect(Selector(".sv_q.sv_qstn").nth(1).getStyleProperty("border-top-style")).eql("solid")
-      .expect(Selector(".sv_q.sv_qstn").nth(1).getStyleProperty("border-top-width")).eql("1px");
+      .expect(questionSelector.nth(1).getStyleProperty("border-top-color")).eql("rgb(204, 204, 204)")
+      .expect(questionSelector.nth(1).getStyleProperty("border-top-style")).eql("solid")
+      .expect(questionSelector.nth(1).getStyleProperty("border-top-width")).eql("1px");
   });
 });
 

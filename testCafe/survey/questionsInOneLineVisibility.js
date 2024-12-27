@@ -1,4 +1,4 @@
-import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
+import { frameworks, url, initSurvey } from "../helper";
 import { Selector, fixture, test } from "testcafe";
 const title = "questionsInOneLine and question visibility";
 
@@ -31,9 +31,8 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title} modern`
-    .page`${url_test}modern/${framework}`.beforeEach(async (t) => {
-    await applyTheme("modern");
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`.beforeEach(async (t) => {
     await initSurvey(framework, json);
   });
 
@@ -43,7 +42,7 @@ frameworks.forEach((framework) => {
     await t.click(Selector("span").withText("item 1"));
     await t
       .expect(
-        Selector("h5.sv-question__title--answer")
+        Selector("h5.sd-question__title--answer")
           .find("span")
           .withText("q1").exists
       )
@@ -52,7 +51,7 @@ frameworks.forEach((framework) => {
     await t.click(Selector("span").withText("item 4"));
     await t
       .expect(
-        Selector("h5.sv-question__title--answer")
+        Selector("h5.sd-question__title--answer")
           .find("span")
           .withText("q2").exists
       )

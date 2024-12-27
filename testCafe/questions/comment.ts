@@ -2,7 +2,7 @@ import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionVa
 import { ClientFunction, Selector } from "testcafe";
 const title = "comment";
 
-const commentQuestion = Selector(".sv_q textarea");
+const commentQuestion = Selector(".sd-question textarea");
 const json = {
   questions: [
     {
@@ -46,28 +46,28 @@ frameworks.forEach(framework => {
     await t
       .click(commentQuestion)
       .expect(commentQuestion.getStyleProperty("resize")).eql("none")
-      .expect(commentQuestion.clientHeight).eql(116)
+      .expect(commentQuestion.clientHeight).eql(120)
       .pressKey("a enter a enter a enter a enter")
       .expect(commentQuestion.clientHeight).eql(144)
 
       .pressKey("backspace")
-      .expect(commentQuestion.clientHeight).eql(116)
+      .expect(commentQuestion.clientHeight).eql(120)
 
       .pressKey("tab")
       .expect(commentQuestion.nth(1).getStyleProperty("resize")).eql("none")
-      .expect(commentQuestion.nth(1).clientHeight).eql(60)
+      .expect(commentQuestion.nth(1).clientHeight).eql(72)
 
       .pressKey("a enter a enter")
-      .expect(commentQuestion.nth(1).clientHeight).eql(88)
+      .expect(commentQuestion.nth(1).clientHeight).eql(96)
 
       .pressKey("backspace")
-      .expect(commentQuestion.nth(1).clientHeight).eql(60)
+      .expect(commentQuestion.nth(1).clientHeight).eql(72)
 
       .pressKey("tab")
       .expect(commentQuestion.nth(2).getStyleProperty("resize")).eql("none")
-      .expect(commentQuestion.nth(2).clientHeight).eql(116)
+      .expect(commentQuestion.nth(2).clientHeight).eql(120)
       .pressKey("a enter a enter a enter a enter")
-      .expect(commentQuestion.nth(2).clientHeight).eql(116)
+      .expect(commentQuestion.nth(2).clientHeight).eql(120)
       .expect(commentQuestion.nth(2).value).eql("aaaa")
 
       .typeText(commentQuestion.nth(2), "a\na\na\na\n", { replace: true })
@@ -87,12 +87,12 @@ frameworks.forEach(framework => {
         }
       ]
     });
-    await t.expect(commentQuestion.clientHeight).eql(32);
+    await t.expect(commentQuestion.clientHeight).eql(48);
 
     await ClientFunction(() =>
       window["survey"].data = { "question1": "<h3>Thank you for your feedback.</h3> <h5> We are glad that you share with us your ideas.We highly value all suggestions from our customers. We do our best to improve the product and reach your expectation.</h5><br/>" }
     )();
-    await t.expect(commentQuestion.clientHeight).eql(60);
+    await t.expect(commentQuestion.clientHeight).eql(120);
   });
 
   test("autoGrow with default value", async (t) => {
@@ -116,7 +116,7 @@ frameworks.forEach(framework => {
 
     await t
       .expect(commentQuestion.value).eql("The comment area has an initial height of two rows and automatically expands or shrinks to accomodate the content.")
-      .expect(commentQuestion.clientHeight).eql(88);
+      .expect(commentQuestion.clientHeight).eql(96);
   });
 
   test("fill textarea", async t => {
@@ -140,7 +140,7 @@ frameworks.forEach(framework => {
 
   test("click on question title state editable", async (t) => {
     const newTitle = "MyText";
-    const outerSelector = ".sv_q_title";
+    const outerSelector = ".sd-question__title";
     const innerSelector = ".sv-string-editor";
 
     await initSurvey(framework, json, undefined, true);
@@ -156,7 +156,7 @@ frameworks.forEach(framework => {
   });
 
   test("Remaining character counter", async (t) => {
-    const characterCounter = Selector(".sv-remaining-character-counter");
+    const characterCounter = Selector(".sd-remaining-character-counter");
 
     await initSurvey(framework, {
       focusFirstQuestionAutomatic: true,

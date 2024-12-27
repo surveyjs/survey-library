@@ -1,5 +1,5 @@
-import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
-import { Selector, ClientFunction, fixture, test } from "testcafe";
+import { frameworks, initSurvey, url } from "../helper";
+import { Selector, fixture, test } from "testcafe";
 const title = "progressButtons";
 
 const json = {
@@ -36,19 +36,16 @@ const json = {
   progressBarType: "buttons"
 };
 
-["default", "modern", "bootstrap"].forEach((theme) => {
-  frameworks.forEach((framework) => {
-    fixture`${framework} ${title} ${theme}`
-      .page`${url_test}${theme}/${framework}`.beforeEach(async (t) => {
-      await applyTheme(theme);
-      await initSurvey(framework, json);
-    });
-    test("check progress buttons", async (t) => {
-      await t.hover(Selector("[data-name='question1']"));
-      await t.click(Selector("[title='page3']"));
-      await t.hover(Selector("[data-name='question3']"));
-      await t.click(Selector("[title='page2']"));
-      await t.hover(Selector("[data-name='question2']"));
-    });
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`.beforeEach(async (t) => {
+    await initSurvey(framework, json);
+  });
+  test("check progress buttons", async (t) => {
+    await t.hover(Selector("[data-name='question1']"));
+    await t.click(Selector("[title='page3']"));
+    await t.hover(Selector("[data-name='question3']"));
+    await t.click(Selector("[title='page2']"));
+    await t.hover(Selector("[data-name='question2']"));
   });
 });

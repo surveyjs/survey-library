@@ -30,10 +30,10 @@ frameworks.forEach(framework => {
   );
 
   function SelectorByNumber(questionNumber) {
-    return Selector(".sv_body .sv_row")
+    return Selector(".sd-body .sd-row")
       .nth(questionNumber)
-      .find(".sv_qstn")
-      .find(".sv_q_image");
+      .find(".sd-question")
+      .find(".sd-image");
   }
 
   test("Check image question layout", async t => {
@@ -41,6 +41,5 @@ frameworks.forEach(framework => {
       .expect(SelectorByNumber(0).child("img").exists).ok()
       .expect(SelectorByNumber(1).child("video").exists).ok()
       .expect(SelectorByNumber(2).child("iframe").exists).ok();
-
   });
 });

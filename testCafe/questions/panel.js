@@ -125,6 +125,7 @@ frameworks.forEach((framework) => {
 
     assert.equal(await contentItem.visible, true);
     await t.click(panelTitle);
+    await t.wait(1000);
     assert.equal(await contentItem.visible, false);
   });
   test("expand collapse title by name", async (t) => {
@@ -141,7 +142,7 @@ frameworks.forEach((framework) => {
       window["survey"].getAllPanels()[0].description = "desc1";
     })();
     await t
-      .expect(Selector(".sv_p_description").withText("desc1").visible).ok();
+      .expect(Selector(".sd-panel__description").withText("desc1").visible).ok();
   });
 });
 
@@ -157,7 +158,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var outerSelector = ".sv_p_title";
+    var outerSelector = ".sd-panel__title";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -216,7 +217,7 @@ frameworks.forEach((framework) => {
     const setTitle = ClientFunction((title) => {
       window.survey.getAllPanels()[0].title = title;
     });
-    const titleSelector = Selector(".sv_p_title");
+    const titleSelector = Selector(".sd-panel__title");
     await t.expect(titleSelector.exists).notOk();
     await setTitle("panel title");
     await t.expect(titleSelector.exists).ok().expect(titleSelector.find(".sv-string-viewer").innerText).eql("panel title");

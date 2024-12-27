@@ -46,10 +46,10 @@ frameworks.forEach(framework => {
 
   test("check integrity", async t => {
     await t
-      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-of-type(1)")
-      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-of-type(2)")
-      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-of-type(3)")
-      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-of-type(4)");
+      .hover("fieldset.sd-imagepicker .sd-imagepicker__item:nth-of-type(1)")
+      .hover("fieldset.sd-imagepicker .sd-imagepicker__item:nth-of-type(2)")
+      .hover("fieldset.sd-imagepicker .sd-imagepicker__item:nth-of-type(3)")
+      .hover("fieldset.sd-imagepicker .sd-imagepicker__item:nth-of-type(4)");
   });
 
   test("choose empty", async t => {
@@ -60,21 +60,21 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .click("fieldset.sv_imgsel .sv_q_imgsel:nth-of-type(2)")
+      .click("fieldset.sd-imagepicker .sd-imagepicker__item:nth-of-type(2)")
       .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.choosepicture, "giraffe");
   });
   test("imagelink reactiveness", async t => {
-    await t.expect(Selector(".sv_q_imgsel").nth(0).find("img").exists).ok();
-    await t.expect(Selector(".sv_q_imgsel__no-image").exists).notOk();
+    await t.expect(Selector(".sd-imagepicker__item").nth(0).find("img").exists).ok();
+    await t.expect(Selector(".sd-imagepicker__no-image").exists).notOk();
 
     await ClientFunction(()=>{
       window.survey.getAllQuestions()[0].choices[0].imageLink = "custom_link";
     })();
-    await t.expect(Selector(".sv_q_imgsel").nth(0).find("img").exists).notOk();
-    await t.expect(Selector(".sv_q_imgsel__no-image").exists).ok();
+    await t.expect(Selector(".sd-imagepicker__item").nth(0).find("img").exists).notOk();
+    await t.expect(Selector(".sd-imagepicker__no-image").exists).ok();
   });
 });
 
@@ -91,7 +91,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var outerSelector = ".sv_q_title";
+    var outerSelector = ".sd-question__title";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)

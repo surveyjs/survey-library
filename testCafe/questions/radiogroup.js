@@ -49,7 +49,7 @@ frameworks.forEach(framework => {
 
   test("change column count", async t => {
     const getClassName = ClientFunction(
-      () => document.querySelector("div[id*=sq_1] fieldset > div > div").className
+      () => document.querySelector("div[id*=sq_1] fieldset .sd-selectbase__column").className
     );
     let className = await getClassName();
     assert.notEqual(className.indexOf("sv-q-column-4"), -1);
@@ -57,7 +57,7 @@ frameworks.forEach(framework => {
     await setOptions("car", { colCount: 1 });
 
     const getClassNameOneCol = ClientFunction(
-      () => document.querySelector("div[id*=sq_1] fieldset > div").className
+      () => document.querySelector("div[id*=sq_1] fieldset > .sd-radio").className
     );
     className = await getClassNameOneCol();
     assert.notEqual(className.indexOf("sv-q-col-1"), -1);
@@ -206,23 +206,23 @@ frameworks.forEach(framework => {
     const isCheckedClassExistsByIndex = ClientFunction(index =>
       document
         .querySelector(
-          `fieldset .sv_q_select_column:nth-child(3) div:nth-of-type(${index})`
+          `fieldset .sd-selectbase__column:nth-child(3) div:nth-of-type(${index})`
         )
-        .classList.contains("checked")
+        .classList.contains("sd-radio--checked")
     );
 
     assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), false);
 
     await t.click(
-      "fieldset .sv_q_select_column:nth-child(3) div:nth-of-type(2) label input"
+      "fieldset .sd-selectbase__column:nth-child(3) div:nth-of-type(2) label input"
     );
 
     assert.equal(await isCheckedClassExistsByIndex(2), true);
     assert.equal(await isCheckedClassExistsByIndex(3), false);
 
     await t.click(
-      "fieldset .sv_q_select_column:nth-child(3) div:nth-of-type(3) label input"
+      "fieldset .sd-selectbase__column:nth-child(3) div:nth-of-type(3) label input"
     );
 
     assert.equal(await isCheckedClassExistsByIndex(2), false);
@@ -242,7 +242,7 @@ frameworks.forEach((framework) => {
     let questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    const outerSelector = ".sv_q_title";
+    const outerSelector = ".sd-question__title";
     const innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -260,7 +260,7 @@ frameworks.forEach((framework) => {
     let questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    const selector = ".sv_q_radiogroup_label .sv-string-editor";
+    const selector = ".sd-selectbase__label .sv-string-editor";
     await t
       .click(selector)
       .typeText(selector, newTitle, { replace: true })
@@ -521,7 +521,7 @@ frameworks.forEach(framework => {
     assert.deepEqual(surveyResult, { q1: "item2", "q1-Comment": "ABCDEF" });
   });
   test("Do not clear comment area on clicking Clear button #8287", async t => {
-    const clearButton = Selector("input[value=Clear]");
+    const clearButton = Selector("button[title=Clear]");
     const currentJson = {
       elements: [
         {

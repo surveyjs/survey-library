@@ -92,7 +92,7 @@ frameworks.forEach((framework) => {
     const isCheckedClassExistsByIndex = ClientFunction((index) =>
       document
         .querySelector(`fieldset tbody tr td:nth-child(${index + 1}) label`)
-        .classList.contains("checked")
+        .classList.contains("sd-radio--checked")
     );
 
     assert.equal(await isCheckedClassExistsByIndex(2), false);
@@ -142,7 +142,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var outerSelector = ".sv_q_title";
+    var outerSelector = ".sd-question__title";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -161,7 +161,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var outerSelector = ".sv_q_matrix th";
+    var outerSelector = ".sd-matrix__table th";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -180,7 +180,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var selector = ".sv_q_matrix tbody tr td .sv-string-editor";
+    var selector = ".sd-matrix__table tbody tr td .sv-string-editor";
     await t
       .click(selector)
       .typeText(selector, newTitle, { replace: true })

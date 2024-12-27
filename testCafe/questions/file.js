@@ -91,7 +91,7 @@ frameworks.forEach(framework => {
     await t.click("input[type=file] + div label");
     const cleanButtonSelector = Selector("button").withText("Clear");
     await t.click(cleanButtonSelector);
-    await t.expect(cleanButtonSelector.exists).notOk();
+    await t.expect(cleanButtonSelector.visible).notOk();
   });
 
   test("choose image", async t => {
@@ -160,13 +160,13 @@ frameworks.forEach(framework => {
 
     await t
       .click("input[type=file] + div label")
-      .click(".sv_q_file_remove_button")
+      .click(".sd-context-btn--negative")
       .click(".sv-popup--confirm .sd-btn");
 
     let data = await getData();
     await t.expect(data["image"][0].name).eql("small_Dashka.jpg")
-
-      .click(".sv_q_file_remove_button")
+      .wait(100)
+      .click(".sd-context-btn--negative")
       .click(".sv-popup--confirm .sd-btn--danger");
 
     data = await getData();

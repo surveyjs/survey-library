@@ -58,20 +58,20 @@ frameworks.forEach((framework) => {
   test("checked class", async (t) => {
     const label = Selector("div label");
     await t
-      .expect(label.classNames).notContains("checked")
+      .expect(label.classNames).notContains("sd-boolean--checked")
 
-      .click("div label", { offsetX: 1 })
-      .expect(label.classNames).notContains("checked")
+      .click("div label", { offsetX: 4 })
+      .expect(label.classNames).notContains("sd-boolean--checked")
 
       .click("div label")
-      .expect(label.classNames).contains("checked");
+      .expect(label.classNames).contains("sd-boolean--checked");
   });
 
   test("click on true label in intermediate state", async (t) => {
     let questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
 
-    await t.click(Selector(".sv-boolean__thumb-ghost").nth(1));
+    await t.click(Selector(".sd-boolean__thumb-ghost").nth(1));
 
     questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(true);
@@ -81,7 +81,7 @@ frameworks.forEach((framework) => {
     let questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
 
-    await t.click(".sv-boolean__label:first-of-type");
+    await t.click(".sd-boolean__label:first-of-type");
 
     questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(false);
@@ -90,9 +90,7 @@ frameworks.forEach((framework) => {
   test("click on right side of switch in intermediate state", async (t) => {
     let questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
-
-    await t.click(".sv-boolean__switch", { offsetX: -1 });
-
+    await t.click(Selector(".sd-boolean"), { offsetX: -4 });
     questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(true);
   });
@@ -100,15 +98,13 @@ frameworks.forEach((framework) => {
   test("click on left side of switch in intermediate state", async (t) => {
     let questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
-
-    await t.click(".sv-boolean__switch", { offsetX: 1 });
-
+    await t.click(Selector(".sd-boolean"), { offsetX: 4 });
     questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(false);
   });
 
   test("check arrow keydowns", async (t) => {
-    await ClientFunction(() => { document.querySelector(".sv-boolean input").focus(); })();
+    await ClientFunction(() => { document.querySelector(".sd-boolean input").focus(); })();
     await t
       .expect(getQuestionValue()).eql(undefined)
       .pressKey("right")
@@ -131,7 +127,7 @@ frameworks.forEach((framework) => {
     let questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
 
-    var outerSelector = ".sv_q_title";
+    var outerSelector = ".sd-question__title";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -153,7 +149,7 @@ frameworks.forEach((framework) => {
     let questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
 
-    var outerSelector = Selector(".sv-boolean__label").nth(1);
+    var outerSelector = Selector(".sd-boolean__label").nth(1);
     await t
       .click(outerSelector)
       .typeText(outerSelector.find(".sv-string-editor"), newLabelTrue, { replace: true })
@@ -175,7 +171,7 @@ frameworks.forEach((framework) => {
     let questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
 
-    var outerSelector = ".sv-boolean__label:nth-of-type(1)";
+    var outerSelector = ".sd-boolean__label:nth-of-type(1)";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -196,7 +192,7 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
   test("check first clink on boolean-checkbox input", async (t) => {
     await initSurvey(framework, jsonCheckbox);
-    const selector = Selector(".sv_qbln input");
+    const selector = Selector(".sd-selectbase input");
     await t
       .click(selector)
       .expect(selector.checked).ok();

@@ -1,7 +1,7 @@
 import { frameworks, url, initSurvey, getListItemByText, completeButton, getSurveyResult } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const title = "component_single_question";
-const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+const questionDropdownSelect = Selector(".sd-dropdown");
 const json_question = {
   elements: [
     {

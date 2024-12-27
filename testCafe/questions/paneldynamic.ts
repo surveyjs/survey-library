@@ -1,3 +1,4 @@
+import { settings } from "../../packages/survey-core/src/settings";
 import { applyTheme, frameworks, url, url_test, initSurvey, getSurveyResult, getQuestionJson,
   getDynamicPanelRemoveButton, getListItemByText, completeButton, setData } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
@@ -151,10 +152,13 @@ frameworks.forEach((framework) => {
   );
 
   test("fill panel dynamic and add new panel", async (t) => {
-    const relativeTypeDropdown = Selector("div[data-name='relativeType'] .sv_q_dropdown_control");
-    const ageDropdown = Selector("div[data-name='liveage'] .sv_q_dropdown_control");
-    const deceasedAgeDropdown = Selector("div[data-name='deceasedage'] .sv_q_dropdown_control");
-    const relativeillnessDropdown = Selector("div[data-name='relativeillness'] .sv_q_dropdown_control");
+    const relativeTypeDropdown = Selector("div[data-name='relativeType'] .sd-dropdown");
+    const ageDropdown = Selector("div[data-name='liveage'] .sd-dropdown");
+    const deceasedAgeDropdown = Selector("div[data-name='deceasedage'] .sd-dropdown");
+    const relativeillnessDropdown = Selector("div[data-name='relativeillness'] .sd-dropdown");
+
+    const nextButtonSelector = Selector("button").withAttribute("title", "Next");
+    const prevButtonSelector = Selector("button").withAttribute("title", "Previous");
 
     const addRowSelector = Selector("button").find("span").withText("Add Row");
     await
@@ -166,7 +170,7 @@ frameworks.forEach((framework) => {
       .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .expect(ageDropdown.find(".sv-string-viewer").textContent).eql("72")
 
-      .click(".sv-paneldynamic__next-btn")
+      .click(nextButtonSelector)
       .click("input[value=\"Yes\"]")
 
       .click(ageDropdown)
@@ -174,7 +178,7 @@ frameworks.forEach((framework) => {
       .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .expect(ageDropdown.find(".sv-string-viewer").textContent).eql("65")
 
-      .click(Selector(".sv-paneldynamic__add-btn").withText("Add a blood relative"))
+      .click(Selector(".sd-paneldynamic__add-btn").withText("Add a blood relative"))
 
       .click(relativeTypeDropdown)
       .click(getListItemByText("sister"))
@@ -187,8 +191,8 @@ frameworks.forEach((framework) => {
       .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .expect(deceasedAgeDropdown.find(".sv-string-viewer").textContent).eql("42")
       .click("div[data-name='causeofdeathknown'] input[value=\"No\"]")
-      .click(".sv-paneldynamic__prev-btn")
-      .click(".sv-paneldynamic__prev-btn")
+      .click(prevButtonSelector)
+      .click(prevButtonSelector)
 
       .click(addRowSelector)
 
@@ -199,7 +203,7 @@ frameworks.forEach((framework) => {
       .typeText("td[title=\"Describe\"] input[type=\"text\"]", "Type 2")
       .click(Selector("body"), { offsetX: 1, offsetY: 1 })
 
-      .click(".sv-paneldynamic__next-btn")
+      .click(nextButtonSelector)
       .click(getDynamicPanelRemoveButton("Please enter all blood relatives you know", "Remove the relative"))
 
       .click(completeButton);
@@ -237,7 +241,7 @@ frameworks.forEach((framework) => {
 
   test("click on panel title state editable", async (t) => {
     const newTitle = "MyText";
-    const outerSelector = ".sv_p_title";
+    const outerSelector = ".sd-question__title";
     const innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -329,6 +333,7 @@ frameworks.forEach((framework) => {
     await t
       .expect(addNewSelector.count).eql(1)
       .expect(Selector("span").withText("#1-2").visible).notOk()
+      .wait(500)
       .pressKey("b")
       .pressKey("tab")
       .expect(addNewSelector.count).eql(1)

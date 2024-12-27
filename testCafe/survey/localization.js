@@ -125,7 +125,7 @@ frameworks.forEach(framework => {
   });
 
   test("check dropdown localization", async t => {
-    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+    const questionDropdownSelect = Selector(".sd-dropdown");
     await t
       .click(questionDropdownSelect)
       .expect(getListItemByText("en1").visible).ok()

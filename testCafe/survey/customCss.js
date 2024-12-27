@@ -2,13 +2,6 @@ import { frameworks, url } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "customCss";
 const initSurvey = ClientFunction((framework, json) => {
-  if (typeof window["Survey"].defaultBootstrapCss !== "undefined") {
-    window["Survey"].defaultBootstrapCss.navigationButton = "btn btn-primary";
-  } else if (!!window["SurveyBootstrap"] && typeof window["SurveyBootstrap"].defaultBootstrapCss !== "undefined") {
-    window["SurveyBootstrap"].defaultCss.navigationButton = "btn btn-primary";
-  }
-  window["Survey"].StylesManager.applyTheme("bootstrap");
-
   var model = new window["Survey"].Model(json);
 
   model.onComplete.add(function (model) {

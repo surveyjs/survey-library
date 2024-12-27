@@ -63,7 +63,7 @@ frameworks.forEach((framework) => {
     await t
       .expect(cityElement.exists).ok()
       .expect(stateElement.exists).ok()
-      .expect(Selector(".sv_q").count).eql(6);
+      .expect(Selector(".sd-question").count).eql(6);
     // await t.expect(await isOneLine()).ok();
   });
 

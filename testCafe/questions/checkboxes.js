@@ -4,6 +4,9 @@ import { Selector, ClientFunction, fixture, test } from "testcafe";
 const assert = require("assert");
 const title = "checkboxes";
 
+const columnClassName = ".sd-selectbase__column";
+const checkboxControlClassName = ".sd-checkbox__control";
+
 const json = {
   elements: [
     {
@@ -30,7 +33,7 @@ const json = {
     },
   ],
 };
-
+const controlLabelSelector = Selector(".sd-item__control-label");
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (ctx) => {
@@ -41,15 +44,14 @@ frameworks.forEach((framework) => {
   test("choose empty", async (t) => {
     await checkSurveyWithEmptyQuestion(t);
   });
-
   test("choose none", async (t) => {
     let surveyResult;
 
     await t
-      .click(Selector(".sv_q_checkbox_control_label").withText("Nissan"))
-      .click(Selector(".sv_q_checkbox_control_label").withText("Audi"))
-      .click(Selector(".sv_q_checkbox_control_label").withText("Vauxhall"))
-      .click(Selector(".sv_q_checkbox_control_label").withText("None"))
+      .click(controlLabelSelector.withText("Nissan"))
+      .click(controlLabelSelector.withText("Audi"))
+      .click(controlLabelSelector.withText("Vauxhall"))
+      .click(controlLabelSelector.withText("None"))
       .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
@@ -60,7 +62,7 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click(Selector(".sv_q_checkbox_control_label").withText("Nissan"))
+      .click(controlLabelSelector.withText("Nissan"))
       .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
@@ -71,8 +73,8 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click(Selector(".sv_q_checkbox_control_label").withText("BMW"))
-      .click(Selector(".sv_q_checkbox_control_label").withText("Nissan"))
+      .click(controlLabelSelector.withText("BMW"))
+      .click(controlLabelSelector.withText("Nissan"))
       .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
@@ -102,16 +104,18 @@ frameworks.forEach((framework) => {
 
   test("change choices order", async (t) => {
     const getChoicesCount = ClientFunction(
-      () =>
-        document.querySelectorAll(
-          "div[id*=sq_1] fieldset .sv_q_checkbox_control_item"
-        ).length
+      () => {
+        const checkboxControlClassName = ".sd-checkbox__control";
+        return document.querySelectorAll(
+          `div[id*=sq_1] fieldset ${checkboxControlClassName}`
+        ).length;
+      }
     );
     const getFirst = Selector(
-      "div[id*=sq_1] .sv_q_select_column:nth-child(1) .sv-string-viewer"
+      `div[id*=sq_1] ${columnClassName}:nth-child(1) .sv-string-viewer`
     ).nth(0);
     const getSecond = Selector(
-      "div[id*=sq_1] .sv_q_select_column:nth-child(2) .sv-string-viewer"
+      `div[id*=sq_1] ${columnClassName}:nth-child(2) .sv-string-viewer`
     ).nth(0);
 
     let rnd_count = 0;
@@ -159,10 +163,13 @@ frameworks.forEach((framework) => {
   test("check integrity", async (t) => {
     let i;
     const getChoicesCount = ClientFunction(
-      () =>
-        document.querySelectorAll(
-          "div[id*=sq_1] fieldset .sv_q_checkbox_control_item"
-        ).length
+      () => {
+        const columnClassName = ".sd-selectbase__column";
+        const checkboxControlClassName = ".sd-checkbox__control";
+        return document.querySelectorAll(
+          `div[id*=sq_1] fieldset ${checkboxControlClassName}`
+        ).length;
+      }
     );
     const getChoicesExistence = ClientFunction(() => {
       var choices = [
@@ -211,10 +218,12 @@ frameworks.forEach((framework) => {
 
   test("check \"other\" choice doesn't change order", async (t) => {
     const getOtherChoice = Selector(
-      () =>
-        document.querySelectorAll(
-          "div[id*=sq_1] fieldset .sv_q_select_column:nth-child(1) div:nth-of-type(4)"
-        )[0]
+      () => {
+        const columnClassName = ".sd-selectbase__column";
+        return document.querySelectorAll(
+          `div[id*=sq_1] fieldset ${columnClassName}:nth-child(1) div:nth-of-type(4)`
+        )[0];
+      }
     );
     let otherChoice;
 
@@ -306,24 +315,24 @@ frameworks.forEach((framework) => {
 
   test("checked class", async (t) => {
     const isCheckedClassExistsByIndex = ClientFunction((index) =>
-      document
+    {
+      const columnClassName = ".sd-selectbase__column";
+      return document
         .querySelector(
-          `fieldset .sv_q_select_column:nth-child(3) div:nth-of-type(${index})`
+          `fieldset ${columnClassName}:nth-child(3) div:nth-of-type(${index})`
         )
-        .classList.contains("checked")
-    );
+        .classList.contains("sd-checkbox--checked");
+    });
 
     assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), false);
-
     await t
       .click(
-        "fieldset .sv_q_select_column:nth-child(3) div:nth-of-type(2) label input"
+        `fieldset ${columnClassName}:nth-child(3) div:nth-of-type(2) label input`
       )
       .click(
-        "fieldset .sv_q_select_column:nth-child(3) div:nth-of-type(3) label input"
+        `fieldset ${columnClassName}:nth-child(3) div:nth-of-type(3) label input`
       );
-
     assert.equal(await isCheckedClassExistsByIndex(2), true);
     assert.equal(await isCheckedClassExistsByIndex(3), true);
   });
@@ -333,8 +342,9 @@ frameworks.forEach((framework) => {
       window["survey"].getAllQuestions()[0].hasSelectAll = true;
     });
     const isSelectAllChecked = ClientFunction(() => {
+      const columnClassName = ".sd-selectbase__column";
       return document.querySelector(
-        "fieldset .sv_q_select_column:nth-of-type(1) div:nth-of-type(1) input"
+        `fieldset ${columnClassName}:nth-of-type(1) div:nth-of-type(1) input`
       ).checked;
     });
     const surveyData = {
@@ -418,7 +428,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     assert.equal(questionValue.length, 0);
 
-    var outerSelector = ".sv_q_title";
+    var outerSelector = ".sd-question__title";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -437,7 +447,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     assert.equal(questionValue.length, 0);
 
-    var outerSelector = ".sv_q_checkbox_control_label";
+    var outerSelector = ".sd-item__control-label";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)

@@ -48,6 +48,7 @@ frameworks.forEach((framework) => {
   );
 
   test("check validation", async (t) => {
+    await t.resizeWindow(1920, 1080);
     const getError = Selector((text, index) => {
       var nodes = [];
       document.querySelectorAll("*").forEach(function (node) {
@@ -58,7 +59,7 @@ frameworks.forEach((framework) => {
     });
 
     const getTextInputByIndex = Selector(
-      (index) => document.querySelectorAll(".sv_q_text_root")[index]
+      (index) => document.querySelectorAll(".sd-text")[index]
     );
     const getTextarea = Selector(() => document.querySelector("textarea"));
     let surveyResult;

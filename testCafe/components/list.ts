@@ -59,7 +59,7 @@ const popupSelector = Selector(".sv-popup .sv-popup__container").filterVisible()
 const visibleItems = Selector(".sv-list__item").filterVisible();
 const listInput = popupSelector.find(".sv-list__input");
 function getActionByText(text: string) {
-  return Selector(".sv-action-bar-item__title").withText(text);
+  return Selector(".sd-action__title").withText(text);
 }
 
 frameworks.forEach(async framework => {

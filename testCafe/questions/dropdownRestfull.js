@@ -54,13 +54,13 @@ frameworks.forEach(framework => {
   test("change \"value\" in the returned json", async t => {
     await t
       .wait(1000)
-      .expect(Selector(".sv_row select option[value=\"Cuba\"]").exists).ok()
-      .expect(Selector(".sv_row select option[value=\"CU\"]").exists).notOk();
+      .expect(Selector(".sd-row select option[value=\"Cuba\"]").exists).ok()
+      .expect(Selector(".sd-row select option[value=\"CU\"]").exists).notOk();
     await changeValue();
 
     await t
-      .expect(Selector(".sv_row select option[value=\"Cuba\"]").exists).notOk()
-      .expect(Selector(".sv_row select option[value=\"CU\"]").exists).ok()
+      .expect(Selector(".sd-row select option[value=\"Cuba\"]").exists).notOk()
+      .expect(Selector(".sd-row select option[value=\"CU\"]").exists).ok()
       .click("select")
       .click(Selector("option").withText("Cuba"))
       .click("input[value=Complete]");
@@ -92,7 +92,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+  const questionDropdownSelect = Selector(".sd-dropdown");
 
   test("choose empty", async t => {
     await checkSurveyWithEmptyQuestion(t);
@@ -157,7 +157,7 @@ frameworks.forEach(framework => {
     }
   );
   test("Carry forward for choicesByUrl", async t => {
-    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+    const questionDropdownSelect = Selector(".sd-dropdown");
     const popupContainer = Selector(".sv-popup__container").filterVisible();
 
     await setData({ q1: ["United States", "Romania"], q2: "Romania" });

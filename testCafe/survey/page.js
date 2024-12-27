@@ -12,7 +12,7 @@ frameworks.forEach(framework => {
   });
 
   const addPageDescriptionClass = ClientFunction(
-    () => (window["Survey"].defaultStandardCss.page.description = "sv_page_description")
+    () => (Survey.defaultV2Css.page.description = "sv_page_description")
   );
 
   test("page title", async t => {
@@ -32,10 +32,10 @@ frameworks.forEach(framework => {
     };
 
     await initSurvey(framework, json);
-    await t.expect(Selector(".sv_page_title").exists).ok();
+    await t.expect(Selector(".sd-page__title").exists).ok();
 
     await setSurveyInDesignMode();
-    await t.expect(Selector(".sv_page_title").exists).ok();
+    await t.expect(Selector(".sd-page__title").exists).ok();
   });
 
   test("page description", async t => {
@@ -80,9 +80,9 @@ frameworks.forEach(framework => {
 
     await initSurvey(framework, json);
 
-    await t.expect(Selector(".sv_page_title").exists).notOk();
+    await t.expect(Selector(".sd-page__title").exists).notOk();
     await setSurveyInDesignMode();
-    await t.expect(Selector(".sv_page_title").exists).ok();
+    await t.expect(Selector(".sd-page__title").exists).ok();
   });
 
   test("page description empty", async t => {

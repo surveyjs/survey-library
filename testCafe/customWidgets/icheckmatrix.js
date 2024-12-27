@@ -33,6 +33,7 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`
     .page`${url_test}customWidget/${framework}`.beforeEach(async ctx => {
+    await ctx.debug();
     await initSurvey(framework, json);
   });
 

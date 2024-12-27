@@ -172,7 +172,7 @@ frameworks.forEach((framework) => {
     var questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
 
-    var outerSelector = ".sv_q_title";
+    var outerSelector = ".sd-question__title";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -190,7 +190,7 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Remaining character counter", async (t) => {
-    const characterCounter = Selector(".sv-remaining-character-counter");
+    const characterCounter = Selector(".sd-remaining-character-counter");
 
     await initSurvey(framework, {
       focusFirstQuestionAutomatic: true,

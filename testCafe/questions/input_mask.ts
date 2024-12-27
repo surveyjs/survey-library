@@ -60,10 +60,10 @@ frameworks.forEach((framework) => {
 
     await t
       .expect(getCursor()).eql(0)
-      .click(Selector(".sv_q_text_root").nth(0))
+      .click(Selector(".sd-text").nth(0))
       .expect(getCursor()).eql(0);
     await t
-      .click(Selector(".sv_q_text_root").nth(1))
+      .click(Selector(".sd-text").nth(1))
       .expect(getCursor()).eql(6);
   });
 

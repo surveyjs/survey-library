@@ -55,7 +55,7 @@ frameworks.forEach((framework) => {
     var json = JSON.parse(await getQuestionJson());
     assert.equal(await getQuestionValue(), null);
 
-    var outerSelector = ".sv_q_title";
+    var outerSelector = ".sd-question__title";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -73,7 +73,7 @@ frameworks.forEach((framework) => {
     var maxText = json.maxRateDescription;
     assert.equal(await getQuestionValue(), null);
 
-    var outerSelector = ".sv_q_rating .sv_q_rating_min_text";
+    var outerSelector = ".sd-rating .sd-rating__min-text";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -93,7 +93,7 @@ frameworks.forEach((framework) => {
     var minText = json.minRateDescription;
     assert.equal(await getQuestionValue(), null);
 
-    var outerSelector = ".sv_q_rating .sv_q_rating_max_text";
+    var outerSelector = ".sd-rating .sd-rating__max-text";
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -150,12 +150,12 @@ frameworks.forEach((framework) => {
     );
   });
   test("check fixed width observability", async (t) => {
-    await t.expect(Selector(".sv_q_rating_item").withText("1").visible).ok();
-    await t.expect(Selector(".sv_q_rating_item").withText("1").classNames).contains("sv_q_rating_item_fixed");
+    await t.expect(Selector(".sd-rating__item").withText("1").visible).ok();
+    await t.expect(Selector(".sd-rating__item").withText("1").classNames).contains("sd-rating__item--fixed-size");
     await ClientFunction(() => { window["survey"].getQuestionByName("q1").renderedRateItems[1].locText.text = "a"; })();
-    await t.expect(Selector(".sv_q_rating_item").withText("a").classNames).notContains("sv_q_rating_item_fixed");
+    await t.expect(Selector(".sd-rating__item").withText("a").classNames).notContains("sd-rating__item--fixed-size");
     await ClientFunction(() => { window["survey"].getQuestionByName("q1").renderedRateItems[2].locText.text = "b"; })();
-    await t.expect(Selector(".sv_q_rating_item").withText("b").classNames).notContains("sv_q_rating_item_fixed");
+    await t.expect(Selector(".sd-rating__item").withText("b").classNames).notContains("sd-rating__item--fixed-size");
   });
 
   const jsonStars = {

@@ -125,7 +125,7 @@ frameworks.forEach(framework => {
   );
 
   test("change question required text", async t => {
-    const requiredElement = Selector(".sv_q_required_text");
+    const requiredElement = Selector(".sd-question__required-text");
 
     await t.expect(requiredElement.textContent).eql("*");
     await change_question_required_text();
@@ -133,7 +133,7 @@ frameworks.forEach(framework => {
   });
 
   test("set question numbers on page", async t => {
-    const questionNumber = Selector(".sv_q_num");
+    const questionNumber = Selector(".sd-element__num");
 
     await t
       .click("input[type=checkbox]")
@@ -145,7 +145,7 @@ frameworks.forEach(framework => {
   });
 
   test("set question numbers off", async t => {
-    const questionNumber = Selector(".sv_q_num");
+    const questionNumber = Selector(".sd-element__num");
     await t.expect(questionNumber.textContent).eql("1.");
 
     await set_question_numbers_off();
@@ -167,7 +167,7 @@ frameworks.forEach(framework => {
   });
 
   test("show page numbers", async t => {
-    const pageTitle = Selector(".sv_page_title");
+    const pageTitle = Selector(".sd-page__title");
     const pageTitleText = "What operating system do you use?";
 
     await t.expect(pageTitle.textContent).contains(pageTitleText);
@@ -182,14 +182,14 @@ frameworks.forEach(framework => {
       .expect(pageTitle.textContent).contains("What language(s) are you currently using?");
   });
 
-  const progressbar = Selector(".sv_progress").filterVisible();
+  const progressbar = Selector(".sd-progress").filterVisible();
 
   test("no progress bar", async t => {
     await t.expect(progressbar.exists).notOk();
   });
 
   test("show top progress bar", async t => {
-    let progressSelector = ".sv_container .sv-components-column--expandable > .sv-components-column > div";
+    let progressSelector = ".sd-container-modern .sv-components-column--expandable > .sv-components-column > div";
     // if(framework === "vue3") {
     //   progressSelector = ".sv_container .sv-components-column--expandable > div";
     // }
@@ -200,11 +200,11 @@ frameworks.forEach(framework => {
     await t
       .expect(progressbar.visible).ok()
       .expect(progressbar.textContent).contains("Page 1 of 3")
-      .expect(progressElement.classNames).contains("sv_progress");
+      .expect(progressElement.classNames).contains("sd-progress");
   });
 
   test("show bottom progress bar", async t => {
-    const progressRootElement = Selector(".sv_main > div > form > .sv_container .sv-components-row ~ div");
+    const progressRootElement = Selector(".sd-root-modern > div > form > .sd-container-modern .sv-components-row ~ div");
     await t.expect(progressbar.exists).notOk();
 
     await show_bottom_progress_bar();
@@ -212,9 +212,9 @@ frameworks.forEach(framework => {
       .expect(progressbar.visible).ok()
       .expect(progressbar.textContent).contains("Page 1 of 3");
     if(framework === "vue") {
-      await t.expect(progressRootElement.find(".sv_progress").visible).ok();
+      await t.expect(progressRootElement.find(".sd-progress").visible).ok();
     } else {
-      await t.expect(progressRootElement.classNames).contains("sv_progress");
+      await t.expect(progressRootElement.classNames).contains("sd-progress");
     }
   });
 
@@ -237,11 +237,11 @@ frameworks.forEach(framework => {
       .click("input[type=checkbox]")
       .click("input[value=\"Next\"]")
       .click("input[value=\"Complete\"]")
-      .expect(Selector(".sv_completed_page h1").withText("Wombat").visible).ok();
+      .expect(Selector(".sd-completedpage h1").withText("Wombat").visible).ok();
   });
 
   test("check previous", async t => {
-    const pageTitle = Selector(".sv_page_title .sv-string-viewer");
+    const pageTitle = Selector(".sd-page__title .sv-string-viewer");
 
     await t
       .click("input[type=checkbox]")

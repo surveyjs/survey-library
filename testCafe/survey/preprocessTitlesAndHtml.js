@@ -66,10 +66,10 @@ frameworks.forEach(framework => {
     const getcompletedHtml = "Thank you for sharing this information with us.Your name is: wombatYour email is: wombat@mail.mailThis is what is on your mind:fresh grasses";
 
     const getFirstInput = Selector(
-      () => document.querySelectorAll(".sv_q_text_root")[0]
+      () => document.querySelectorAll(".sd-text")[0]
     );
     const getSecondInput = Selector(
-      () => document.querySelectorAll(".sv_q_text_root")[1]
+      () => document.querySelectorAll(".sd-text")[1]
     );
 
     await t.hover(getFirstTitle).hover(getSecondTitle);
@@ -83,6 +83,6 @@ frameworks.forEach(framework => {
       .hover(getThirdTitle)
       .typeText("textarea", "fresh grasses")
       .click("input[value=\"Complete\"]")
-      .expect(Selector(".sv_completed_page").textContent).eql(getcompletedHtml);
+      .expect(Selector(".sd-completedpage").textContent).eql(getcompletedHtml);
   });
 });

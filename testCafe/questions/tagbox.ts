@@ -90,10 +90,10 @@ const jsonCloseOnSelectIsDefault = {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
 
-  const questionTagbox = Selector(".sv_q_input.sv_q_tagbox");
-  const questionValueInput = Selector(".sv_q_tagbox__value input");
-  const questionHint = Selector(".sv_q_tagbox__hint");
-  const deleteItemButton = Selector(".sv_q_tagbox-item_clean-button");
+  const questionTagbox = Selector(".sd-tagbox");
+  const questionValueInput = Selector(".sd-tagbox__value input");
+  const questionHint = Selector(".sd-tagbox__hint");
+  const deleteItemButton = Selector(".sd-tagbox-item_clean-button");
   const selectedItems = Selector(".sv-tagbox__item");
   const popupContainer = Selector(".sv-popup__container").filterVisible();
 
@@ -228,7 +228,7 @@ frameworks.forEach((framework) => {
       .expect(selectedItems.count).eql(0)
 
       .click(questionTagbox)
-      .expect(popupContainer.offsetTop).within(70, 100);
+      .expect(popupContainer.offsetTop).within(170, 200);
 
     for (let i = 1; i < 27; i++) {
       await t.click(getListItemByText("item" + i.toString()));
@@ -236,7 +236,7 @@ frameworks.forEach((framework) => {
 
     await t
       .expect(selectedItems.count).eql(26)
-      .expect(popupContainer.offsetTop).within(120, 240)
+      .expect(popupContainer.offsetTop).within(240, 360)
       .resizeWindow(1920, 1080);
   });
 
@@ -317,6 +317,7 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
 
+      .wait(100)
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
@@ -463,8 +464,8 @@ frameworks.forEach((framework) => {
       .pressKey("esc")
       .expect(popupContainer.exists).notOk()
 
-      .click(".sv_next_btn")
-      .click(".sv_prev_btn")
+      .click(".sd-navigation__next-btn")
+      .click(".sd-navigation__prev-btn")
       .expect(popupContainer.exists).notOk()
 
       .click(questionTagbox)
@@ -472,7 +473,7 @@ frameworks.forEach((framework) => {
       .pressKey("esc")
       .expect(selectedItems.count).eql(1)
 
-      .click(".sv_q_dropdown_clean-button")
+      .click(".sd-tagbox_clean-button")
       .expect(selectedItems.count).eql(0);
   });
 

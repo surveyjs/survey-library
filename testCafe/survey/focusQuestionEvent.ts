@@ -34,7 +34,7 @@ frameworks.forEach(async framework => {
         window["raisedFocusEvent"] = true;
       });
     })();
-    await t.click(Selector(".sv_qstn input").nth(1));
+    await t.click(Selector(".sd-question input").nth(1));
     await t.expect(ClientFunction(() => window["raisedFocusEvent"])()).ok();
   });
 

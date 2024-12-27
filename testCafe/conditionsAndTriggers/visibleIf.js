@@ -75,7 +75,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+  const questionDropdownSelect = Selector(".sd-dropdown");
 
   test("check visibility", async t => {
     await t

@@ -2,14 +2,14 @@ import { frameworks, url, url_test, applyTheme, setOptions, getListItemByText, c
 import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "dropdown";
 
-const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+const questionDropdownSelect = Selector(".sd-dropdown");
 const listItems = Selector(".sv-list__item span");
-const questionValue = Selector(".sv_q_dropdown__value");
-const questionValueInput = Selector(".sv_q_dropdown__value input");
-const questionValueText = Selector(".sv_q_dropdown__value .sv-string-viewer");
-const questionValueHint = Selector(".sv_q_dropdown__hint-suffix");
+const questionValue = Selector(".sd-dropdown__value");
+const questionValueInput = Selector(".sd-dropdown__value input");
+const questionValueText = Selector(".sd-dropdown__value .sv-string-viewer");
+const questionValueHint = Selector(".sd-dropdown__hint-suffix");
 
-const clearButton = Selector(".sv_q_dropdown_clean-button");
+const clearButton = Selector(".sd-dropdown_clean-button");
 
 const questionOffsetTopConst = 176;
 
@@ -306,7 +306,7 @@ frameworks.forEach((framework) => {
     let questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
 
-    const outerSelector = ".sv_q_title";
+    const outerSelector = ".sd-question__title";
     const innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
@@ -370,7 +370,6 @@ frameworks.forEach((framework) => {
     };
     const oldOtherText = "Other (describe)";
     const newOtherText = "New Other";
-    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
     await initSurvey(framework, currentJson);
 
     await t.expect(Selector("select option").nth(10).textContent).eql(oldOtherText);
@@ -449,14 +448,14 @@ frameworks.forEach((framework) => {
 
       .click(questionDropdownSelect)
       .expect(popupContainer.visible).ok()
-      .expect(popupContainer.offsetWidth).gte(900)
+      .expect(popupContainer.offsetWidth).gte(550)
 
       .click(Selector(".sv-list__item span").withText("Ford").filterVisible())
       .expect(popupContainer.visible).notOk()
 
       .click(questionValueText)
       .expect(popupContainer.visible).ok()
-      .expect(popupContainer.offsetWidth).gte(900);
+      .expect(popupContainer.offsetWidth).gte(550);
   });
 
   test("Check dropdown disabled items", async (t) => {
@@ -543,10 +542,10 @@ frameworks.forEach((framework) => {
       .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).ok()
       .click("select");
 
-    const questionDropdownSelect = Selector(".sv_q_dropdown_control").nth(1);
+    const questionDropdownSelect2 = questionDropdownSelect.nth(1);
     const popupContainer = Selector(".sv-popup__container").filterVisible();
     await t
-      .click(questionDropdownSelect)
+      .click(questionDropdownSelect2)
       .expect(Selector(".sv-list__item").count).eql(28)
       .expect(Selector(".sv-list__item.sv-list__item--disabled").count).eql(13)
       .click(Selector(".sv-list__item span").withText("item2").filterVisible())
@@ -631,7 +630,7 @@ frameworks.forEach((framework) => {
 
       .click(myListItems.nth(3))
 
-      .expect(Selector(".sv_q_dropdown__value").find(".sv-svg-icon").count).eql(1);
+      .expect(questionValue.find(".sv-svg-icon").count).eql(1);
   });
 
   test("Check dropdown key press with searchEnabled", async (t) => {
@@ -703,6 +702,7 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(questionValueInput.value).eql("Nissan")
 
+      .wait(100)
       .pressKey("down")
       .expect(popupContainer.visible).ok()
       .pressKey("up")
@@ -717,6 +717,7 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(questionValueInput.nth(1).value).eql("item20")
 
+      .wait(100)
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
@@ -842,6 +843,7 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(questionValueText.textContent).eql("Nissan")
 
+      .wait(100)
       .pressKey("space")
       .expect(popupContainer.visible).ok()
       .pressKey("up")
@@ -1170,7 +1172,7 @@ frameworks.forEach((framework) => {
         }
       ]
     };
-    const oldDropdown = Selector(".sv_q_dropdown_control").nth(1);
+    const oldDropdown = questionDropdownSelect.nth(1);
     await initSurvey(framework, jsonWithDropDown);
 
     await t
@@ -1277,7 +1279,6 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, jsonWithDropDown);
     const popupContainer = Selector(".sv-popup__container");
     const focusedItem = Selector(".sv-list__item--focused span");
-
     await t
       .resizeWindow(1280, 600)
 
@@ -1287,7 +1288,6 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.nth(0).visible).ok()
       .expect(popupContainer.nth(0).find(".sv-list__item").count).eql(27)
       .expect(popupContainer.nth(0).find(".sv-list").scrollTop).eql(0)
-
       .pressKey("up")
       .expect(focusedItem.textContent).eql("item27")
       .expect(popupContainer.nth(0).find(".sv-list").scrollTop).gt(400)
@@ -1691,8 +1691,8 @@ frameworks.forEach((framework) => {
     };
     await initSurvey(framework, jsonWithDropDown);
     const popupContainer = Selector(".sv-popup__container").filterVisible();
-    const input = Selector(".sv_q_dropdown_control input").filterVisible();
-    const str = Selector(".sv_q_dropdown_control .sv-string-viewer");
+    const input =questionDropdownSelect.find("input").filterVisible();
+    const str = questionValue.find(".sv-string-viewer");
 
     await t
       .expect(popupContainer.visible).notOk()
@@ -1809,24 +1809,24 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk()
       .click(questionDropdownSelect.nth(1))
       .expect(popupContainer.visible).ok()
-      .expect(popupContainer.offsetTop).within(85, 95)
-      .expect(popupContainer.offsetLeft).within(460, 470)
-      .expect(popupContainer.offsetHeight).within(490, 500)
-      .expect(popupContainer.offsetWidth).within(395, 400)
+      .expect(popupContainer.offsetTop).within(160, 170)
+      .expect(popupContainer.offsetLeft).within(490, 500)
+      .expect(popupContainer.offsetHeight).within(410, 420)
+      .expect(popupContainer.offsetWidth).within(310, 320)
 
       .resizeWindow(1280, 1100)
       .expect(popupContainer.visible).ok()
-      .expect(popupContainer.offsetTop).within(85, 95)
-      .expect(popupContainer.offsetLeft).within(650, 660)
-      .expect(popupContainer.offsetHeight).within(985, 990)
-      .expect(popupContainer.offsetWidth).within(585, 595)
+      .expect(popupContainer.offsetTop).within(160, 170)
+      .expect(popupContainer.offsetLeft).within(680, 690)
+      .expect(popupContainer.offsetHeight).within(910, 920)
+      .expect(popupContainer.offsetWidth).within(500, 510)
 
       .resizeWindow(900, 600)
       .expect(popupContainer.visible).ok()
-      .expect(popupContainer.offsetTop).within(85, 95)
-      .expect(popupContainer.offsetLeft).within(460, 470)
-      .expect(popupContainer.offsetHeight).within(490, 540)
-      .expect(popupContainer.offsetWidth).within(395, 440);
+      .expect(popupContainer.offsetTop).within(160, 170)
+      .expect(popupContainer.offsetLeft).within(490, 500)
+      .expect(popupContainer.offsetHeight).within(410, 460)
+      .expect(popupContainer.offsetWidth).within(310, 320);
   });
 
   test("check dropdown after navigating between pages", async t => {
@@ -1881,8 +1881,8 @@ frameworks.forEach((framework) => {
       .click(getListItemByText("3"))
       .expect(popupContainer.exists).notOk()
 
-      .click(".sv_next_btn")
-      .click(".sv_prev_btn")
+      .click(".sd-navigation__next-btn")
+      .click(".sd-navigation__prev-btn")
       .expect(popupContainer.exists).notOk()
 
       .click(questionDropdownSelect)
@@ -1891,7 +1891,7 @@ frameworks.forEach((framework) => {
       .expect(questionValueText.textContent).eql("3")
       .expect(questionValueInput.getAttribute("placeholder")).eql("")
 
-      .click(".sv_q_dropdown_clean-button")
+      .click(clearButton)
       .expect(questionValueText.exists).notEql()
       .expect(questionValueInput.getAttribute("placeholder")).eql("Select...");
   });
@@ -2298,21 +2298,21 @@ frameworks.forEach((framework) => {
       window.survey.locale = locale;
     });
     await t
-      .expect(Selector(".sv_q_dropdown__value span").withExactText("notenglish").exists).ok()
+      .expect(questionValue.find("span").withExactText("notenglish").exists).ok()
       .click("input")
       .expect(Selector("li div").withAttribute("title", "notenglish").exists).ok()
       .expect(Selector("li div span").withExactText("notenglish").exists).ok()
       .click("body", { offsetX: 0 });
     await changeLocale("en");
     await t
-      .expect(Selector(".sv_q_dropdown__value span").withExactText("english").exists).ok()
+      .expect(questionValue.find("span").withExactText("english").exists).ok()
       .click("input")
       .expect(Selector("li div").withAttribute("title", "english").exists).ok()
       .expect(Selector("li div span").withExactText("english").exists).ok()
       .click("body", { offsetX: 0 });
     await changeLocale("de");
     await t
-      .expect(Selector(".sv_q_dropdown__value span").withExactText("notenglish").exists).ok()
+      .expect(questionValue.find("span").withExactText("notenglish").exists).ok()
       .click("input")
       .expect(Selector("li div").withAttribute("title", "notenglish").exists).ok()
       .expect(Selector("li div span").withExactText("notenglish").exists).ok()

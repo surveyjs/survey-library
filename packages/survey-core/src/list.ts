@@ -3,7 +3,7 @@ import { ActionContainer } from "./actions/container";
 import { Action, BaseAction, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
-import { getFirstVisibleChild } from "./utils/utils";
+import { classesToSelector, getFirstVisibleChild } from "./utils/utils";
 import { settings } from "./settings";
 import { ILocalizableOwner } from "./localizablestring";
 
@@ -125,11 +125,11 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   private updateIsEmpty(): void {
     this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
   }
-  private scrollToItem(selector: string, ms = 0): void {
+  private scrollToItem(classes: string, ms = 0): void {
     setTimeout(() => {
       if (!this.listContainerHtmlElement) return;
 
-      const item = this.listContainerHtmlElement.querySelector("." + selector);
+      const item = this.listContainerHtmlElement.querySelector(classesToSelector(classes));
       if (item) {
         setTimeout(() => {
           item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });

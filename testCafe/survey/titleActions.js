@@ -83,8 +83,8 @@ frameworks.forEach((framework) => {
     });
     await t
       .expect(Selector("h5 use").nth(1).getAttribute("xlink:href")).eql("#icon-action")
-      .expect(Selector("h5 button span.sv-action-bar-item__title").hasClass("sv-action-bar-item__title--with-icon")).ok()
-      .expect(Selector("h5 button .sv-action-bar-item__icon").getStyleProperty("width")).eql("20px");
+      .expect(Selector("h5 button span.sd-action__title").hasClass("sv-action-bar-item__title--with-icon")).ok()
+      .expect(Selector("h5 button .sd-action__icon").getStyleProperty("width")).eql("20px");
   });
 
   test("check item with showTitle false", async (t) => {
@@ -117,7 +117,7 @@ frameworks.forEach((framework) => {
       },
     });
 
-    await t.expect(Selector("h5 .sv-action span.sv-action-bar-item__title").exists).ok();
+    await t.expect(Selector("h5 .sv-action span.sd-action__title").exists).ok();
   });
 
   test("check action with separator", async (t) => {
@@ -151,31 +151,34 @@ frameworks.forEach((framework) => {
   });
 
   test("check expand/collapse action", async (t) => {
-    const elementTitle = Selector(".sv_q_title");
+    const elementTitle = Selector(".sd-question__title");
     const getQuestionState = ClientFunction(() => { return window["survey"].getAllQuestions()[0].state; });
+    const expandableClass = "sd-element__title--expandable";
+    const expandedClass = "sd-element__title--expanded";
+    const collapsedClass = "sd-element__title--collapsed";
 
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: (_, opt) => { },
     });
 
     await t
-      .expect(elementTitle.hasClass("sv_q_title_expandable")).ok()
-      .expect(elementTitle.hasClass("sv_q_title_expanded")).notOk()
-      .expect(elementTitle.hasClass("sv_q_title_collapsed")).ok();
+      .expect(elementTitle.hasClass(expandableClass)).ok()
+      .expect(elementTitle.hasClass(expandedClass)).notOk()
+      .expect(elementTitle.hasClass(collapsedClass)).ok();
     await t.expect(await getQuestionState()).eql("collapsed");
 
     await t
       .click(elementTitle)
-      .expect(elementTitle.hasClass("sv_q_title_expandable")).ok()
-      .expect(elementTitle.hasClass("sv_q_title_expanded")).ok()
-      .expect(elementTitle.hasClass("sv_q_title_collapsed")).notOk();
+      .expect(elementTitle.hasClass(expandableClass)).ok()
+      .expect(elementTitle.hasClass(expandedClass)).ok()
+      .expect(elementTitle.hasClass(collapsedClass)).notOk();
     await t.expect(await getQuestionState()).eql("expanded");
 
     await t
       .click(elementTitle)
-      .expect(elementTitle.hasClass("sv_q_title_expandable")).ok()
-      .expect(elementTitle.hasClass("sv_q_title_collapsed")).ok()
-      .expect(elementTitle.hasClass("sv_q_title_expanded")).notOk();
+      .expect(elementTitle.hasClass(expandableClass)).ok()
+      .expect(elementTitle.hasClass(collapsedClass)).ok()
+      .expect(elementTitle.hasClass(expandedClass)).notOk();
     await t.expect(await getQuestionState()).eql("collapsed");
   });
 
@@ -294,6 +297,7 @@ frameworks.forEach((framework) => {
 
   test("check adaptivity with one action", async (t) => {
     const json = {
+      widthMode: "responsive",
       questions: [
         {
           name: "name",
@@ -361,19 +365,19 @@ frameworks.forEach((framework) => {
     const myAction = Selector(".sv-action").nth(0);
     const myAction2 = Selector(".sv-action").nth(1);
     const dotsItem = Selector(".sv-action.sv-dots");
-
+    const titleClassName = ".sd-action__title";
     await t
       .resizeWindow(600, 600)
-      .expect(myAction.find(".sv-action-bar-item__title").exists).ok()
-      .expect(myAction2.find(".sv-action-bar-item__title").exists).notOk()
+      .expect(myAction.find(titleClassName).exists).ok()
+      .expect(myAction2.find(titleClassName).exists).notOk()
       .expect(dotsItem.visible).notOk();
 
     await ClientFunction(() => {
       window["survey"].getQuestionByName("name").getTitleToolbar().actions[0].title = "Act1.1 long title for adaptivity testing";
     })();
     await t
-      .expect(myAction.find(".sv-action-bar-item__title").exists).ok()
-      .expect(myAction2.find(".sv-action-bar-item__title").exists).notOk();
+      .expect(myAction.find(titleClassName).exists).ok()
+      .expect(myAction2.find(titleClassName).exists).notOk();
   });
 });
 

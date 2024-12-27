@@ -95,8 +95,8 @@ frameworks.forEach(framework => {
     await t
       .expect(expandCollapseButton.visible).ok()
       .click(expandCollapseButton)
-      .click(Selector(".sv_q_checkbox_control_label").withText("Nissan"))
-      .click(Selector(".sv_q_checkbox_control_label").withText("Audi"))
+      .click(Selector(".sd-item__control-label").withText("Nissan"))
+      .click(Selector(".sd-item__control-label").withText("Audi"))
       .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
@@ -157,7 +157,7 @@ frameworks.forEach(framework => {
     });
     const expandCollapseButton = Selector(".sv_window_button_collapse");
     await t.click(expandCollapseButton)
-      .click(Selector(".sv_q_dropdown__filter-string-input"))
+      .click(Selector(".sd-dropdown__filter-string-input"))
       .expect(Selector(".sv-popup__container").filterVisible().exists).ok()
       .scroll(Selector(".sv_window").filterVisible(), "bottom")
       .expect(Selector(".sv-popup__container").filterVisible().exists).notOk();

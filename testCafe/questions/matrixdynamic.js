@@ -2,6 +2,8 @@ import { frameworks, url, initSurvey, getSurveyResult, getListItemByText, comple
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "matrixdynamic";
 
+const matrixRowSelector = Selector(".sd-table__row");
+const matrixButton = Selector(".sd-matrixdynamic__btn");
 const json = {
   questions: [
     {
@@ -105,15 +107,14 @@ frameworks.forEach((framework) => {
     }
   );
 
-  const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+  const questionDropdownSelect = Selector(".sd-dropdown");
 
   test("choose empty", async (t) => {
-    const matrixRow = Selector(".sv_matrix_row");
     const getRequiredElement = (rowIndex) => {
-      return matrixRow.nth(rowIndex).find(".sv-string-viewer").withText("Response required.");
+      return matrixRowSelector.nth(rowIndex).find(".sv-string-viewer").withText("Response required.");
     };
     const getRowsCount = () => {
-      return matrixRow.count;
+      return matrixRowSelector.count;
     };
 
     await t
@@ -144,13 +145,13 @@ frameworks.forEach((framework) => {
 
       for (let i = 0; i < 11; i++) {
         // answer radios
-        await t.click(Selector(".sv_matrix_row").nth(rowNumber).find(".sv_matrix_cell .sv_q_radiogroup_control_item[value='1']").nth(i));
+        await t.click(matrixRowSelector.nth(rowNumber).find(".sd-table__cell .sd-radio__control[value='1']").nth(i));
       }
 
       await t // answer comments
-        .typeText(Selector(".sv_matrix_row").nth(rowNumber).find("textarea").nth(0), "Wombats")
-        .typeText(Selector(".sv_matrix_row").nth(rowNumber).find("textarea").nth(1), "Wombats")
-        .typeText(Selector(".sv_matrix_row").nth(rowNumber).find("textarea").nth(2), "Wombats");
+        .typeText(matrixRowSelector.nth(rowNumber).find("textarea").nth(0), "Wombats")
+        .typeText(matrixRowSelector.nth(rowNumber).find("textarea").nth(1), "Wombats")
+        .typeText(matrixRowSelector.nth(rowNumber).find("textarea").nth(2), "Wombats");
     };
 
     await fillTheRow(0);
@@ -201,16 +202,17 @@ frameworks.forEach((framework) => {
 
   test("remove row", async (t) => {
     await t
-      .expect(Selector(".sv_matrix_row").count).eql(2)
-
+      .expect(matrixRowSelector.count).eql(2)
       .click(questionDropdownSelect.nth(0))
+      .wait(500)
       .click(getListItemByText("Science: Physical Science"))
 
       .click(questionDropdownSelect.nth(1))
+      .wait(500)
       .click(getListItemByText("Science: Chemistry"))
-
-      .click(Selector(".sv_matrix_dynamic_button .sv-string-viewer").nth(1).withText("Remove"))
-      .expect(Selector(".sv_matrix_row").count).eql(1);
+      .click(matrixButton.nth(1).withAttribute("title", "Remove"))
+      .wait(500)
+      .expect(matrixRowSelector.count).eql(1);
 
     await t.click(completeButton);
 
@@ -221,9 +223,9 @@ frameworks.forEach((framework) => {
   test("add row", async (t) => {
     await t.resizeWindow(1920, 1080);
     await t
-      .expect(Selector(".sv_matrix_row").count).eql(2)
+      .expect(matrixRowSelector.count).eql(2)
       .click(Selector("button[type=button]").withText("Add Subject"))
-      .expect(Selector(".sv_matrix_row").count).eql(3)
+      .expect(matrixRowSelector.count).eql(3)
 
       .click(questionDropdownSelect.nth(0))
       .click(getListItemByText("Science: Physical Science"))
@@ -275,20 +277,19 @@ frameworks.forEach((framework) => {
     }
   );
   test("bindings rowCount", async (t) => {
-    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
-    const clearButton = Selector(".sv_q_dropdown_clean-button");
-
+    const questionDropdownSelect = Selector(".sd-dropdown");
+    const clearButton = Selector(".sd-dropdown_clean-button");
     await t.resizeWindow(1920, 1080);
     await t
-      .expect(Selector(".sv_matrix_row").count).eql(0)
+      .expect(matrixRowSelector.count).eql(0)
       .click(questionDropdownSelect)
       .click(Selector(".sv-list__item span").withText("3").filterVisible())
-      .expect(Selector(".sv_matrix_row").count).eql(3)
+      .expect(matrixRowSelector.count).eql(3)
       .click(clearButton)
-      .expect(Selector(".sv_matrix_row").count).eql(0)
+      .expect(matrixRowSelector.count).eql(0)
       .click(questionDropdownSelect)
       .click(Selector(".sv-list__item span").withText("5").filterVisible())
-      .expect(Selector(".sv_matrix_row").count).eql(5);
+      .expect(matrixRowSelector.count).eql(5);
   });
 });
 const json3 = {
@@ -315,7 +316,7 @@ frameworks.forEach((framework) => {
     }
   );
   test("bindings rowCount", async (t) => {
-    const removeButton = Selector(".sv_matrix_dynamic_button .sv-string-viewer").nth(1).withText("Remove");
+    const removeButton = matrixButton.nth(1).withAttribute("title", "Remove");
     await t.resizeWindow(1920, 1080);
     await t
       .click(removeButton)
@@ -394,13 +395,14 @@ frameworks.forEach((framework) => {
   );
   test("remove row vs confirmDelete and differerent locale", async (t) => {
     await t
-      .expect(Selector(".sv_matrix_row").count).eql(3)
-      .click(Selector(".sv_matrix_dynamic_button .sv-string-viewer").nth(1).withText("Entfernen"))
+      .expect(matrixRowSelector.count).eql(3)
+      .click(matrixButton.nth(1).withAttribute("title", "Entfernen"))
       .click(Selector("span").withExactText("Abbrechen"))
-      .expect(Selector(".sv_matrix_row").count).eql(3)
-      .click(Selector(".sv_matrix_dynamic_button .sv-string-viewer").nth(1).withText("Entfernen"))
+      .expect(matrixRowSelector.count).eql(3)
+      .wait(100)
+      .click(matrixButton.nth(1).withAttribute("title", "Entfernen"))
       .click(Selector("span").withExactText("OK"))
-      .expect(Selector(".sv_matrix_row").count).eql(2);
+      .expect(matrixRowSelector.count).eql(2);
   });
 });
 
@@ -448,6 +450,7 @@ frameworks.forEach((framework) => {
   test("visibleIf columns mobile", async (t) => {
     const textSelector = Selector("input").withAttribute("type", "text").filterVisible();
     await ClientFunction(() => window.survey.setIsMobile(true))();
+    await t.resizeWindow(600, 1080);
     await t
       .expect(Selector("tbody tr").nth(0).find("td").count).eql(2)
       .expect(Selector("tbody tr").nth(1).find("td").count).eql(2)

@@ -88,7 +88,7 @@ frameworks.forEach(framework => {
     await add_value_changed_listener();
     await t
       .expect(resultElement.exists).notOk()
-      .typeText(".sv_row input", "John Doe")
+      .typeText(".sd-row input", "John Doe")
       .pressKey("tab")
       .expect(resultElement.textContent).eql("John Doe")
 

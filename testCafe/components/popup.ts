@@ -104,7 +104,7 @@ function addDropdownActionWithSubItems(_, opt) {
 
 const popupSelector = Selector(".sv-popup .sv-popup__container");
 const popupModalSelector = Selector(".sv-popup.sv-popup--modal");
-const clickButton = Selector(".sv-action-bar-item");
+const clickButton = Selector(".sd-action");
 const popupButtonSelector = Selector(".sv-popup__button");
 
 frameworks.forEach(async framework => {
@@ -123,7 +123,7 @@ frameworks.forEach(async framework => {
       .expect(Selector(".sv-popup span").withText("Item 1").visible).ok();
 
     const popupClientRect = await getElementClientRect(".sv-popup__container");
-    const itemClientRect = await getElementClientRect(".sv-action-bar-item");
+    const itemClientRect = await getElementClientRect(".sd-action");
 
     await t
       .expect(Math.round(itemClientRect.left) - 8 - Math.round(popupClientRect.width)).eql(Math.round(popupClientRect.left))
@@ -133,11 +133,11 @@ frameworks.forEach(async framework => {
       .expect(popupSelector.visible).notOk()
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).ok()
+      .expect(Selector(".sd-action").hasClass("sd-action--pressed")).ok()
       .pressKey("esc")
       .expect(popupSelector.exists).ok()
       .expect(popupSelector.visible).notOk()
-      .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).notOk()
+      .expect(Selector(".sd-action").hasClass("sd-action--pressed")).notOk()
       .click(clickButton)
       .expect(popupSelector.visible).ok()
       .click(Selector("body"), {
@@ -163,7 +163,7 @@ frameworks.forEach(async framework => {
     })();
 
     let popupClientRect = await getElementClientRect(".sv-popup__container");
-    let itemClientRect = await getElementClientRect(".sv-action-bar-item");
+    let itemClientRect = await getElementClientRect(".sd-action");
     await t
       .expect(Math.round(itemClientRect.left) - 8 - Math.round(popupClientRect.width)).eql(Math.round(popupClientRect.left))
       .expect(Math.round(itemClientRect.top)).eql(Math.round(popupClientRect.top));
@@ -185,7 +185,7 @@ frameworks.forEach(async framework => {
       .expect(Selector(".sv-popup span").withText("Item 1").visible).ok();
 
     const popupClientRect = await getElementClientRect(".sv-popup__container");
-    const itemClientRect = await getElementClientRect(".sv-action-bar-item");
+    const itemClientRect = await getElementClientRect(".sd-action");
     const popupPointerClientRect = await getElementClientRect(".sv-popup__pointer");
 
     await t
@@ -200,10 +200,11 @@ frameworks.forEach(async framework => {
       .expect(popupModalSelector.exists).notOk()
       .click(clickButton)
       .expect(popupModalSelector.visible).ok()
-      .expect(Selector(".sv-popup span").withText("modal_question").visible).ok();
-
+      .expect(Selector(".sv-popup span").withText("modal_question").visible).ok()
+      .wait(500);
     const popupClientRect = await getElementClientRect(".sv-popup--modal .sv-popup__container");
-    const calcTop = Math.round((600 / 2 - popupClientRect.height / 2) * 10) / 10;
+    const paddingDiff = 32; //padding top and bottom diff of sv-popup container
+    const calcTop = Math.round((600/ 2 - paddingDiff / 2 - popupClientRect.height / 2) * 10) / 10;
     const calcLeft = Math.round((800 / 2 - popupClientRect.width / 2) * 10) / 10;
     await t
       .expect(Math.abs(popupClientRect.left - calcLeft)).lte(0.1)
@@ -226,13 +227,13 @@ frameworks.forEach(async framework => {
   test("check focus trap", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addModalPopupTitleAction });
 
-    const inputInPopup = Selector(".sv-popup .sv_q_text_root");
+    const inputInPopup = Selector(".sv-popup .sd-text");
 
     await t
-      .click(Selector(".sv-action-bar-item"))
+      .click(Selector(".sd-action"))
       .expect(inputInPopup.focused).ok({ timeout: 100 })
       .pressKey("tab")
-      .expect(Selector(".sv-popup .sv_complete_btn").focused).ok()
+      .expect(Selector(".sv-popup .sd-navigation__complete-btn").focused).ok()
       .pressKey("tab")
       .expect(popupButtonSelector.withText("Cancel").focused).ok()
       .pressKey("tab")
@@ -246,7 +247,7 @@ frameworks.forEach(async framework => {
   test("check focus safekeeping", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addModalPopupTitleAction });
 
-    const inputInPopup = Selector(".sv-popup .sv_q_text_root");
+    const inputInPopup = Selector(".sv-popup .sd-text");
 
     await t
       .expect(clickButton.focused).notOk()
@@ -314,8 +315,9 @@ frameworks.forEach(async framework => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: currentAddDropdownTitleAction });
 
     await t
-      .pressKey("shift+tab shift+tab")
+      .pressKey("shift+tab")
       .pressKey("enter")
+      .wait(500)
       .expect(popupSelector.visible).ok()
 
       .expect(listItems.count).eql(10)
@@ -357,14 +359,15 @@ frameworks.forEach(async framework => {
     await t
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(popupSelector.offsetHeight).eql(346)
+      .expect(popupSelector.offsetHeight).eql(304)
       .click(clickButton)
       .expect(popupSelector.visible).notOk()
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(popupSelector.offsetHeight).eql(346);
+      .expect(popupSelector.offsetHeight).eql(304);
   });
   test("check popup with filter", async t => {
+    await t.resizeWindow(800, 800);
     const currentAddDropdownTitleAction = (_, opt) => {
       if (opt.question.name !== "actions_question") return;
 
@@ -403,7 +406,7 @@ frameworks.forEach(async framework => {
       ]
     }, { onGetQuestionTitleActions: currentAddDropdownTitleAction });
 
-    const popupHeight = 455;
+    const popupHeight = 672;
     await t
       .click(clickButton)
       .expect(popupSelector.visible).ok()
@@ -411,6 +414,7 @@ frameworks.forEach(async framework => {
       .typeText(Selector(".sv-list__input"), "2")
       .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1)
       .click(clickButton)
+      .wait(500)
       .expect(popupSelector.visible).notOk()
       .click(clickButton)
       .expect(popupSelector.visible).ok()
@@ -438,7 +442,8 @@ frameworks.forEach(async framework => {
     const listItems = Selector(".sv-list__item").filterVisible();
 
     await t
-      .click(Selector(".sv-action-bar-item"))
+      .click(Selector(".sd-action"))
+      .wait(500)
       .expect(listItems.count).eql(40)
 
       .pressKey("1")
@@ -465,7 +470,7 @@ frameworks.forEach(async framework => {
       .expect(item5Subitems.visible).notOk()
       .expect(item6Subitems.visible).notOk()
 
-      .click(Selector(".sv-action-bar-item")) // show action popup
+      .click(Selector(".sd-action")) // show action popup
       .expect(titlePopup.visible).ok()
       .expect(item5Subitems.visible).notOk()
       .expect(item6Subitems.visible).notOk()

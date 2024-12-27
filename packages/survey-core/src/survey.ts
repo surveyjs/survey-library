@@ -1484,25 +1484,51 @@ export class SurveyModel extends SurveyElementCore
    *
    * Possible values:
    *
-   * - `"bottom"` (default) - Displays the navigation buttons below survey content.
-   * - `"top"` - Displays the navigation buttons above survey content.
-   * - `"both"` - Displays the navigation buttons above and below survey content.
-   * - `"none"` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
+   * - `true` (default) - Displays the navigation buttons.
+   * - `false` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
    * @see goNextPageAutomatic
    * @see showPrevButton
    * @see showCompleteButton
    */
-  public get showNavigationButtons(): string | any {
+  public get showNavigationButtons(): boolean | any {
     return this.getPropertyValue("showNavigationButtons");
   }
-  public set showNavigationButtons(val: string | any) {
-    if (val === true || val === undefined) {
-      val = "bottom";
+  public set showNavigationButtons(val: boolean | any) {
+    // if (val === true || val === undefined) {
+    //   val = "bottom";
+    // }
+    // if (val === false) {
+    //   val = "none";
+    // }
+    if (val === "both") {
+      val === "topBottom";
     }
-    if (val === false) {
-      val = "none";
+    if (val === true || val === false) {
+      this.setPropertyValue("showNavigationButtons", val);
+    } else if (val === "none") {
+      this.setPropertyValue("showNavigationButtons", false);
+    } else if (["top", "bottom", "both", "topBottom"].indexOf(val) > -1) {
+      this.setPropertyValue("showNavigationButtons", true);
+      this.navigationButtonsLocation = val;
     }
-    this.setPropertyValue("showNavigationButtons", val);
+  }
+  /**
+   * Gets or sets the position of the Start, Next, Previous, and Complete navigation buttons and controls their visibility.
+   *
+   * Possible values:
+   *
+   * - `"bottom"` (default) - Displays the navigation buttons below survey content.
+   * - `"top"` - Displays the navigation buttons above survey content.
+   * - `"topBottom"` or `"both"` - Displays the navigation buttons above and below survey content.
+   * @see goNextPageAutomatic
+   * @see showPrevButton
+   * @see showCompleteButton
+   */
+  public get navigationButtonsLocation(): string | any {
+    return this.getPropertyValue("navigationButtonsLocation");
+  }
+  public set navigationButtonsLocation(val: string | any) {
+    this.setPropertyValue("navigationButtonsLocation", val);
   }
   /**
    * Specifies whether to display the Previous button. Set this property to `false` if respondents should not move backward along the survey.
@@ -3742,13 +3768,13 @@ export class SurveyModel extends SurveyElementCore
     if (this.isDesignMode) return "none";
     var page = this.currentPage;
     if (!page) return "none";
-    if (page.navigationButtonsVisibility === "show") {
-      return this.showNavigationButtons === "none" ? "bottom" : this.showNavigationButtons;
-    }
     if (page.navigationButtonsVisibility === "hide") {
       return "none";
     }
-    return this.showNavigationButtons;
+    if (page.navigationButtonsVisibility === "show") {
+      return !this.showNavigationButtons ? "bottom" : this.navigationButtonsLocation;
+    }
+    return !this.showNavigationButtons ? "none" : this.navigationButtonsLocation;
   }
   public get isNavigationButtonsShowingOnTop(): boolean {
     return this.getIsNavigationButtonsShowingOn("top");
@@ -3758,7 +3784,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private getIsNavigationButtonsShowingOn(buttonPosition: string): boolean {
     var res = this.isNavigationButtonsShowing;
-    return res == "both" || res == buttonPosition;
+    return res == "both" || res == "topBottom" || res == buttonPosition;
   }
   public get isEditMode(): boolean {
     return this.mode == "edit";
@@ -8131,9 +8157,13 @@ Serializer.addClass("survey", [
   "cookieName",
   "sendResultOnPageNext:boolean",
   {
-    name: "showNavigationButtons",
+    name: "showNavigationButtons:boolean",
+    default: true,
+  },
+  {
+    name: "navigationButtonsLocation",
     default: "bottom",
-    choices: ["none", "top", "bottom", "both"],
+    choices: ["top", "bottom", "topBottom"],
   },
   {
     name: "showPrevButton:boolean",

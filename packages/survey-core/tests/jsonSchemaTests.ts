@@ -31,13 +31,23 @@ QUnit.test("generate survey schema", function (assert) {
   );
   assert.equal(
     schema.properties.showNavigationButtons.type,
-    "string",
-    "showNavigationButtons is showNavigationButtons"
+    "boolean",
+    "showNavigationButtons is boolean"
   );
   assert.deepEqual(
     schema.properties.showNavigationButtons.enum,
-    ["none", "top", "bottom", "both"],
-    "showNavigationButtons has enum"
+    undefined,
+    "showNavigationButtons doen't have enum"
+  );
+  assert.equal(
+    schema.properties.navigationButtonsLocation.type,
+    "string",
+    "navigationButtonsLocation is navigationButtonsLocation"
+  );
+  assert.deepEqual(
+    schema.properties.navigationButtonsLocation.enum,
+    ["top", "bottom", "topBottom"],
+    "navigationButtonsLocation has enum"
   );
   assert.deepEqual(
     schema.properties.completedHtmlOnCondition.type,

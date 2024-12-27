@@ -1,8 +1,6 @@
-import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
+import { frameworks, initSurvey, url } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const title = "RequiredIf property";
-
-const themeName = "defaultV2";
 
 const json = {
   elements: [
@@ -19,9 +17,8 @@ const json = {
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}`
+    .page`${url}${framework}`
     .beforeEach(async (t) => {
-      await applyTheme(themeName);
       await initSurvey(framework, json);
       await t.resizeWindow(1000, 1000);
     });

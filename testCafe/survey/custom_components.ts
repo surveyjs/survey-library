@@ -1,7 +1,6 @@
-import { url_test, initSurvey, getSurveyResult, frameworks } from "../helper";
+import { initSurvey, getSurveyResult, frameworks, url } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const title = "Custom Components";
-const themeName = "defaultV2";
 const json = {
   "elements": [
     {
@@ -27,7 +26,7 @@ const registerNPSComponet = ClientFunction(() => {
 });
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url_test}${themeName}/${framework}`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
     }
   );

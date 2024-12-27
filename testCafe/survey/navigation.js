@@ -1,4 +1,4 @@
-import { frameworks, url, url_test, initSurvey, applyTheme } from "../helper";
+import { frameworks, url, initSurvey } from "../helper";
 import { ClientFunction, fixture, Selector, test } from "testcafe";
 const title = "navigation";
 
@@ -146,12 +146,10 @@ frameworks.forEach((framework) => {
 
 });
 frameworks.forEach((framework) => {
-  const theme = "defaultV2";
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`;
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`;
 
   test("Page should be scrolled to top of survey", async (t) => {
-    await applyTheme(theme);
     await initSurvey(framework, scrollJson);
 
     await t.scrollIntoView(Selector("input[value=Next]"));
@@ -160,7 +158,6 @@ frameworks.forEach((framework) => {
   });
 
   test("Page should be scrolled to top of survey fit to container", async (t) => {
-    await applyTheme(theme);
     await initSurvey(framework, scrollJson);
 
     await ClientFunction(() => {

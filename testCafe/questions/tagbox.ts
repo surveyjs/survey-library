@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getListItemByText, applyTheme, url_test } from "../helper";
+import { frameworks, url, initSurvey, getListItemByText } from "../helper";
 import { Selector } from "testcafe";
 const title = "tagbox";
 
@@ -507,8 +507,6 @@ frameworks.forEach((framework) => {
       .expect(selectedItems.nth(2).textContent).contains("United States");
   });
 
-  const theme = "defaultV2";
-
   function choicesLazyLoad(_, opt) {
     var getNumberArray = (skip = 1, count = 25) => {
       const result: Array<any> = [];
@@ -528,8 +526,7 @@ frameworks.forEach((framework) => {
     }, 500);
   }
 
-  test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading", async (t) => {
-    await applyTheme(theme);
+  test.page(`${url}${framework}`)("Check popup height with lazy loading", async (t) => {
     const json = {
       focusFirstQuestionAutomatic: true,
       questions: [
@@ -626,8 +623,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching", async (t) => {
-    await applyTheme(theme);
+  test.page(`${url}${framework}`)("Check popup height and position while searching", async (t) => {
     const json = {
       focusFirstQuestionAutomatic: true,
       questions: [
@@ -758,8 +754,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading, if closeOnSelect is false", async (t) => {
-    await applyTheme(theme);
+  test.page(`${url}${framework}`)("Check popup height with lazy loading, if closeOnSelect is false", async (t) => {
     const json = {
       focusFirstQuestionAutomatic: true,
       questions: [
@@ -856,8 +851,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching, if closeOnSelect is false", async (t) => {
-    await applyTheme(theme);
+  test.page(`${url}${framework}`)("Check popup height and position while searching, if closeOnSelect is false", async (t) => {
     const json = {
       focusFirstQuestionAutomatic: true,
       questions: [
@@ -989,7 +983,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("Check tagbox popup opens after beak click", async (t) => {
+  test.page(`${url}${framework}`)("Check tagbox popup opens after beak click", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
       questions: [
@@ -1035,7 +1029,7 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk();
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("Check tagbox popup opens after beak click - search enabled", async (t) => {
+  test.page(`${url}${framework}`)("Check tagbox popup opens after beak click - search enabled", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
       questions: [

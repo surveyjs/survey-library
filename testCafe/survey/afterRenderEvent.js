@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, url_test } from "../helper";
+import { frameworks, url, initSurvey } from "../helper";
 import { ClientFunction, fixture, test, Selector } from "testcafe";
 const title = "afterRenderQuestionEvent";
 
@@ -103,7 +103,7 @@ frameworks.forEach((framework) => {
   const checkResizeObserverExists = ClientFunction((modelName) => {
     return !!window[modelName].resizeObserver;
   });
-  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}`.beforeEach(async () => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(async () => {
     await prepare(framework);
   });
   (framework === "angular" || framework === "react" ? test : test.skip)("Check that survey calls afterRender if model changed", async (t) => {

@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, applyTheme, urlV2 } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, urlV2 } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -576,7 +576,6 @@ frameworks.forEach((framework) => {
           },
         ],
       };
-      await applyTheme("defaultV2");
       await initSurvey(framework, json);
     }
   );

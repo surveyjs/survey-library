@@ -1,5 +1,5 @@
 import { ClientFunction, Selector } from "testcafe";
-import { frameworks, url_test, initSurvey } from "../helper";
+import { frameworks, url, initSurvey } from "../helper";
 
 const title = "afterRenderQuestionEvent";
 
@@ -34,7 +34,7 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}`.beforeEach(async (t) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(async (t) => {
     await t.resizeWindow(1920, 1080);
   });
   test("afterRender is not fired when questions are lazy rendered", async (t) => {

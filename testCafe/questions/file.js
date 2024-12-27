@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, url_test, getQuestionValue, getQuestionJson, getData } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, getData } from "../helper";
 import { ClientFunction, fixture, Selector, test } from "testcafe";
 const title = "file";
 
@@ -222,7 +222,7 @@ frameworks.forEach(framework => {
 });
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
       await initSurvey(framework, {
         elements: [

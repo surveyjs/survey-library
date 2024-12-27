@@ -1,4 +1,4 @@
-import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
+import { frameworks, initSurvey, url } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 const title = "Survey";
 
@@ -28,12 +28,9 @@ var json = {
   ]
 };
 
-const themeName = "defaultV2";
-
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}`.beforeEach(async (t) => {
-    await applyTheme(themeName);
+    .page`${url}${framework}`.beforeEach(async (t) => {
     await initSurvey(framework, json);
     await t.resizeWindow(1600, 900);
   });
@@ -88,7 +85,7 @@ frameworks.forEach((framework) => {
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}`.beforeEach(async (t) => {
+    .page`${url}${framework}`.beforeEach(async (t) => {
     await t.resizeWindow(1600, 900);
   });
   test("Check matrix fail when showing preview", async (t) => {
@@ -186,31 +183,31 @@ frameworks.forEach((framework) => {
         },
       ],
     });
-    await applyTheme({
-      backgroundImage:
-        "https://api.surveyjs.io/private/Surveys/files?name=4ffde38f-2bb3-4f57-aa0d-d5c7003e8ab1",
-      backgroundImageFit: "cover",
-      backgroundImageAttachment: "scroll",
-      header: {
-        height: 256,
-        inheritWidthFrom: "container",
-        textAreaWidth: 512,
-        overlapEnabled: false,
-        backgroundImageOpacity: 1,
-        backgroundImageFit: "cover",
-        logoPositionX: "right",
-        logoPositionY: "top",
-        titlePositionX: "left",
-        titlePositionY: "bottom",
-        descriptionPositionX: "left",
-        descriptionPositionY: "bottom",
-      },
-      themeName: "molisana",
-      isPanelless: false,
-      colorPalette: "light",
-      cssVariables: {
-      },
-    });
+    // await applyTheme({
+    //   backgroundImage:
+    //     "https://api.surveyjs.io/private/Surveys/files?name=4ffde38f-2bb3-4f57-aa0d-d5c7003e8ab1",
+    //   backgroundImageFit: "cover",
+    //   backgroundImageAttachment: "scroll",
+    //   header: {
+    //     height: 256,
+    //     inheritWidthFrom: "container",
+    //     textAreaWidth: 512,
+    //     overlapEnabled: false,
+    //     backgroundImageOpacity: 1,
+    //     backgroundImageFit: "cover",
+    //     logoPositionX: "right",
+    //     logoPositionY: "top",
+    //     titlePositionX: "left",
+    //     titlePositionY: "bottom",
+    //     descriptionPositionX: "left",
+    //     descriptionPositionY: "bottom",
+    //   },
+    //   themeName: "molisana",
+    //   isPanelless: false,
+    //   colorPalette: "light",
+    //   cssVariables: {
+    //   },
+    // });
     await t.expect(Selector(".sd-title").visible).ok();
     await t.expect(Selector(".sv-header").visible).notOk();
   });

@@ -1,4 +1,4 @@
-import { frameworks, url, url_test, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, applyTheme, getData } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, getData } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -465,11 +465,9 @@ frameworks.forEach((framework) => {
   });
 });
 frameworks.forEach((framework) => {
-  const themeName = "defaultV2";
   fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}`
+    .page`${url}${framework}`
     .beforeEach(async (t) => {
-      await applyTheme(themeName);
       await initSurvey(framework, json);
     });
   test("maxSelectedChoices", async (t) => {

@@ -1,5 +1,4 @@
-import { settings } from "../../packages/survey-core/src/settings";
-import { applyTheme, frameworks, url, url_test, initSurvey, getSurveyResult, getQuestionJson,
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionJson,
   getDynamicPanelRemoveButton, getListItemByText, completeButton, setData } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const title = "paneldynamic";
@@ -267,9 +266,8 @@ const json2 = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
-      await applyTheme("defaultV2");
       await initSurvey(framework, json2);
     }
   );
@@ -321,9 +319,8 @@ const json3 = {
   ],
 };
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
-      await applyTheme("defaultV2");
       await initSurvey(framework, json3);
     }
   );
@@ -380,7 +377,7 @@ const jsonCheckboxRestFul = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
     }
   );

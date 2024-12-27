@@ -1,4 +1,4 @@
-import { frameworks, url, url_test, applyTheme, setOptions, getListItemByText, completeButton, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, registerCustomItemComponent } from "../helper";
+import { frameworks, url, setOptions, getListItemByText, completeButton, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, registerCustomItemComponent } from "../helper";
 import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "dropdown";
 
@@ -1307,9 +1307,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  const theme = "defaultV2";
-  test.page(`${url_test}${theme}/${framework}`)("Check rating as dropdown", async (t) => {
-    await applyTheme(theme);
+  test.page(`${url}${framework}`)("Check rating as dropdown", async (t) => {
 
     const jsonWithDropDown = {
       questions: [
@@ -1337,8 +1335,7 @@ frameworks.forEach((framework) => {
       .pressKey("delete")
       .expect(ratingAsDropdownPlaceholder.getAttribute("placeholder")).eql(ratingAsDropdownPlaceHolder);
   });
-  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup width - long", async (t) => {
-    await applyTheme(theme);
+  test.page(`${url}${framework}`)("Check dropdown popup width - long", async (t) => {
     const json = {
       "elements": [
         {
@@ -1394,8 +1391,7 @@ frameworks.forEach((framework) => {
     }, 500);
   }
 
-  test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading", async (t) => {
-    await applyTheme(theme);
+  test.page(`${url}${framework}`)("Check popup height with lazy loading", async (t) => {
     const json = {
       focusFirstQuestionAutomatic: true,
       questions: [
@@ -1488,8 +1484,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching", async (t) => {
-    await applyTheme(theme);
+  test.page(`${url}${framework}`)("Check popup height and position while searching", async (t) => {
     const json = {
       focusFirstQuestionAutomatic: true,
       questions: [
@@ -1896,8 +1891,7 @@ frameworks.forEach((framework) => {
       .expect(questionValueInput.getAttribute("placeholder")).eql("Select...");
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("choicesFromQuestion, bug#5818", async (t) => {
-    await applyTheme(theme);
+  test.page(`${url}${framework}`)("choicesFromQuestion, bug#5818", async (t) => {
 
     const json = {
       "elements": [
@@ -1942,7 +1936,7 @@ frameworks.forEach((framework) => {
       .click(getListItemByText("Audi"));
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup opens after beak click", async (t) => {
+  test.page(`${url}${framework}`)("Check dropdown popup opens after beak click", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
       questions: [
@@ -1988,7 +1982,7 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk();
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup tab navigation", async (t) => {
+  test.page(`${url}${framework}`)("Check dropdown popup tab navigation", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
       questions: [
@@ -2027,7 +2021,7 @@ frameworks.forEach((framework) => {
       .expect(questionTextSelect.filterVisible().focused).ok();
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup opens after beak click - search enabled", async (t) => {
+  test.page(`${url}${framework}`)("Check dropdown popup opens after beak click - search enabled", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
       questions: [
@@ -2072,7 +2066,7 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk();
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("Dropdown shold not be open when disabled", async (t) => {
+  test.page(`${url}${framework}`)("Dropdown shold not be open when disabled", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
       pages: [
@@ -2108,7 +2102,7 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk();
   });
 
-  test.page(`${url_test}${theme}/${framework}`)("focusOnFirstError bricks dropdown popup if any errors are on the same page", async (t) => {
+  test.page(`${url}${framework}`)("focusOnFirstError bricks dropdown popup if any errors are on the same page", async (t) => {
     await t.resizeWindow(800, 600);
     const json = {
       pages: [

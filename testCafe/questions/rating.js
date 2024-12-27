@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, urlV2, applyTheme } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, urlV2 } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -283,11 +283,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
-    async (ctx) => {
-      await applyTheme("defaultV2");
-    }
-  );
+  fixture`${framework} ${title}`.page`${urlV2}${framework}`;
 
   test("readonly", async (t) => {
     const json = {

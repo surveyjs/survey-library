@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getData, setData, urlV2, applyTheme } from "../helper";
+import { frameworks, url, initSurvey, getData, setData, urlV2 } from "../helper";
 import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "ranking";
 
@@ -354,7 +354,6 @@ frameworks.forEach((framework) => {
           },
         ]
       };
-      await applyTheme("defaultV2");
       await initSurvey(framework, json);
     }
   );
@@ -387,7 +386,6 @@ frameworks.forEach((framework) => {
           },
         ],
       };
-      await applyTheme("defaultV2");
       await initSurvey(framework, json);
     }
   );

@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, url_test, applyTheme } from "../helper";
+import { frameworks, url, initSurvey } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 const title = "titleActions";
 
@@ -381,12 +381,9 @@ frameworks.forEach((framework) => {
   });
 });
 
-const themeName = "defaultV2";
-
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}`.beforeEach(async (t) => {
-    await applyTheme(themeName);
+    .page`${url}${framework}`.beforeEach(async (t) => {
   });
   test("check hidden action content has non-zero width", async (t) => {
     await initSurvey(framework, json, {
@@ -424,8 +421,7 @@ function addTitleActionForFocus(_, opt) {
 
 frameworks.forEach(async framework => {
   fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}`.beforeEach(async (t) => {
-    await applyTheme(themeName);
+    .page`${url}${framework}`.beforeEach(async (t) => {
   });
 
   test("Check Action focus", async t => {

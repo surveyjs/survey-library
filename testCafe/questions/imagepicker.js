@@ -1,5 +1,5 @@
 import { ClientFunction, fixture, Selector, test } from "testcafe";
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, urlV2, applyTheme } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, urlV2 } from "../helper";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
 const title = "imagepicker";
@@ -131,7 +131,6 @@ frameworks.forEach((framework) => {
           }
         ]
       };
-      await applyTheme("defaultV2");
       await initSurvey(framework, json);
     }
   );

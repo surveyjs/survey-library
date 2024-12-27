@@ -1,4 +1,4 @@
-import { frameworks, url, url_test, initSurvey, getQuestionValue, getQuestionJson, applyTheme } from "../helper";
+import { frameworks, url, initSurvey, getQuestionValue, getQuestionJson } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "boolean";
 
@@ -212,12 +212,10 @@ frameworks.forEach((framework) => {
   });
 });
 frameworks.forEach((framework) => {
-  const theme = "defaultV2";
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`;
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`;
 
   test("Check actions", async (t) => {
-    await applyTheme(theme);
     await initSurvey(framework, jsonCheckbox2, { onGetQuestionTitleActions: (_, options) => {
       options.titleActions = [
         {
@@ -250,7 +248,6 @@ frameworks.forEach((framework) => {
         return window["survey"].getQuestionByName("q").value == val;
       }
     );
-    await applyTheme(theme);
     await initSurvey(framework, {
       "elements": [{
         "type": "boolean",

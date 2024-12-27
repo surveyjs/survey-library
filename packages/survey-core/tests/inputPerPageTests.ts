@@ -123,6 +123,33 @@ QUnit.test("singleInput and navigation buttons visibilty", assert => {
   assert.equal(survey.isShowNextButton, true, "next buttton, #5");
   assert.equal(survey.isCompleteButtonVisible, false, "complete buttton, #5");
 });
+QUnit.test("singleInput and navigation buttons visibilty & visibleIf", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2", visibleIf: "{panel.q1} notempty" },
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage",
+  });
+  const panel1 = survey.getQuestionByName("panel1");
+  assert.equal(survey.isShowPrevButton, false, "prev buttton, #1");
+  assert.equal(survey.isShowNextButton, false, "next buttton, #1");
+  assert.equal(survey.isCompleteButtonVisible, true, "complete buttton, #1");
+  panel1.singleInputQuestion.value = "a";
+  assert.equal(survey.isShowPrevButton, false, "prev buttton, #2");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #2");
+  assert.equal(survey.isCompleteButtonVisible, false, "complete buttton, #2");
+  survey.performNext();
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #3");
+  assert.equal(survey.isShowNextButton, false, "next buttton, #3");
+  assert.equal(survey.isCompleteButtonVisible, true, "complete buttton, #3");
+});
 QUnit.test("singleInput and panel dynamic with templateTitle", assert => {
   const survey = new SurveyModel({
     elements: [

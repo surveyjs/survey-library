@@ -670,7 +670,7 @@ export class Question extends SurveyElement<Question>
   }
   protected onParentChanged(): void { }
   private calculateSingleInputQuestion(): Question {
-    if(this.survey?.currentSingleQuestion !== this) {
+    if(!this.isSingleInputActive) {
       return undefined;
     }
     const questions = this.getSingleInputQuestions();
@@ -703,13 +703,16 @@ export class Question extends SurveyElement<Question>
     const questions = this.getSingleInputQuestions();
     return questions.indexOf(q) === questions.length - 1;
   }
+  protected get isSingleInputActive(): boolean {
+    return this.survey?.currentSingleQuestion === this;
+  }
   protected singleInputOnAddItem(): void {
-    if(this.survey?.currentSingleQuestion === this) {
+    if(this.isSingleInputActive) {
       this.setSingleQuestionOnChange(Number.MAX_VALUE);
     }
   }
   protected singleInputOnRemoveItem(index: number): void {
-    if(this.survey?.currentSingleQuestion === this) {
+    if(this.isSingleInputActive) {
       this.setSingleQuestionOnChange(index);
     }
   }
@@ -721,7 +724,7 @@ export class Question extends SurveyElement<Question>
     } else {
       this.resetSingleInput();
     }
-    this.survey.singleInputUpdateRows();
+    this.survey.singleInputUpdateElements(true);
   }
   private resetSingleTitleProps(): void {
     this.resetPropertyValue("showSingleInputTitle");
@@ -2490,6 +2493,9 @@ export class Question extends SurveyElement<Question>
     this.isOldAnswered = undefined;
     if (this.parent) {
       this.parent.onQuestionValueChanged(this);
+    }
+    if(this.isSingleInputActive) {
+      this.survey.singleInputUpdateElements(false);
     }
   }
   private checkIsValueCorrect(val: any): boolean {

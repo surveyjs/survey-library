@@ -4558,8 +4558,10 @@ export class SurveyModel extends SurveyElementCore
   public get isLastPage(): boolean {
     return this.getPropertyValue("isLastPage");
   }
-  public singleInputUpdateRows(): void {
-    this.currentPage?.updateRows();
+  public singleInputUpdateElements(updateRows: boolean): void {
+    if(updateRows) {
+      this.currentPage?.updateRows();
+    }
     this.updateButtonsVisibility();
   }
   private updateButtonsVisibility(): void {

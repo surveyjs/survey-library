@@ -69,6 +69,8 @@
     "testcafe": "testcafe ../../testCafe/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=angular --config-file .testcaferc.dev.js",
     "testcafe:ci": "testcafe  ../../testCafe/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=angular",
     "vrt": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=angular --config-file .testcaferc.dev.js",
-    "vrt:ci": "testcafe  ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=angular"
+    "vrt:ci": "testcafe  ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=angular",
+    "accessibility-tests:": "testcafe  ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --env=angular --config-file .testcaferc.dev.js",
+    "accessibility-tests:ci": "testcafe  ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=angular"
   }
 }

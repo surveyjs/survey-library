@@ -2,11 +2,7 @@
   "scripts": {
     "lint": "eslint ./testCafe --quiet && eslint ./tests --quiet && eslint ./visualRegressionTests --quiet && eslint ./accessibilityTests --quiet",
     "pre-push-check": "npm run lint",
-    "prepare": "husky install",
-    "accessibility-tests:ci:angular": "testcafe  ./accessibilityTests/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=angular",
-    "accessibility-tests:ci:react": "testcafe  ./accessibilityTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react",
-    "accessibility-tests:ci:vue": "testcafe  ./accessibilityTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue",
-    "accessibility-tests:ci:vue3": "testcafe  ./accessibilityTests/ --app \"npm run preview --prefix ./packages/survey-vue3-ui/example\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue3"
+    "prepare": "husky install"
   },
   "version": "1.12.15",
   "name": "survey-library",
@@ -21,9 +17,13 @@
     "eslint-plugin-surveyjs": "file:eslint-surveyjs",
     "eslint-plugin-react": "^7.25.1",
     "husky": "^7.0.4",
+    "node-uuid": "1.4.7",
     "testcafe": "3.3.0",
     "get-func-name": "2.0.0",
-    "@types/lodash": "4.14.186"
+    "@types/lodash": "4.14.186",
+    "puppeteer": "22.13.1",
+    "axe-core": "^3.5.6",
+    "axe-testcafe": "latest"
   },
   "husky": {
     "hooks": {

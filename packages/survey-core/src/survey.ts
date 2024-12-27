@@ -424,7 +424,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetQuestionNumber: EventBase<SurveyModel, GetQuestionNumberEvent> = this.addEvent<SurveyModel, GetQuestionNumberEvent>();
   /**
-   * This event is obsolete. Use the [`onGetQuestionNumber`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNumber) event instead.
+   * Obsolete. Use the [`onGetQuestionNumber`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNumber) event instead.
+   * @deprecated
    */
   public onGetQuestionNo: EventBase<SurveyModel, GetQuestionNumberEvent> = this.onGetQuestionNumber;
   /**
@@ -664,7 +665,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixRowAdding: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.addEvent<SurveyModel, MatrixBeforeRowAddedEvent>();
   /**
-   * This event is obsolete. Use the [`onMatrixRowAdding`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRowAdding) event instead.
+   * Obsolete. Use the [`onMatrixRowAdding`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRowAdding) event instead.
+   * @deprecated
    */
   public onMatrixBeforeRowAdded: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.onMatrixRowAdding;
 
@@ -687,7 +689,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixRenderRemoveButton: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.addEvent<SurveyModel, MatrixAllowRemoveRowEvent>();
   /**
-   * This event is obsolete. Use the [`onMatrixRenderRemoveButton`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
+   * Obsolete. Use the [`onMatrixRenderRemoveButton`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
+   * @deprecated
    */
   public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.onMatrixRenderRemoveButton;
   /**
@@ -712,7 +715,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onAfterRenderMatrixCell: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
   /**
-   * This event is obsolete. Use the [`onAfterRenderMatrixCell`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onAfterRenderMatrixCell) event instead.
+   * Obsolete. Use the [`onAfterRenderMatrixCell`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onAfterRenderMatrixCell) event instead.
+   * @deprecated
    */
   public onMatrixAfterCellRender: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.onAfterRenderMatrixCell;
 
@@ -1252,7 +1256,8 @@ export class SurveyModel extends SurveyElementCore
   @property() containerCss: string;
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
   /**
-   * This property is obsolete. Use the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property within a theme instead.
+   * Obsolete. Use the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property within a theme instead.
+   * @deprecated
    */
   @property({
     onSet: (newValue, target: SurveyModel) => {
@@ -3854,7 +3859,8 @@ export class SurveyModel extends SurveyElementCore
     DomDocumentHelper.setCookie(this.cookieName + "=;");
   }
   /**
-   * This property is obsolete. Use the [`validationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationEnabled) property instead.
+   * Obsolete. Use the [`validationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationEnabled) property instead.
+   * @deprecated
    */
   public get ignoreValidation(): boolean { return !this.validationEnabled; }
   public set ignoreValidation(val: boolean) { this.validationEnabled = !val; }
@@ -4241,6 +4247,10 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
+  /**
+   * Obsolete. Use the [`tryComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#tryComplete) method instead.
+   * @deprecated
+   */
   public completeLastPage(): boolean {
     return this.tryComplete();
   }

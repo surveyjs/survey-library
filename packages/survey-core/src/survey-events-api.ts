@@ -918,15 +918,16 @@ export interface CheckAnswerCorrectEvent extends QuestionEventMixin {
    */
   result: boolean;
 }
-export interface IsAnswerCorrectEvent extends CheckAnswerCorrectEvent {
+export interface IsAnswerCorrectEvent extends Partial<CheckAnswerCorrectEvent> {
+  result: boolean;
   /**
    * Obsolete. Use `options.correctAnswerCount` instead.
    */
-  correctAnswers: number;
+  correctAnswers?: number;
   /**
    * Obsolete. Use `options.incorrectAnswerCount` instead.
    */
-  incorrectAnswers: number;
+  incorrectAnswers?: number;
 }
 export interface DragDropAllowEvent {
   /**
@@ -981,11 +982,11 @@ export interface ScrollToTopEvent {
    */
   allow: boolean;
 }
-export interface ScrollingElementToTopEvent extends ScrollToTopEvent {
+export interface ScrollingElementToTopEvent extends Partial<ScrollToTopEvent> {
   /**
    * Obsolete. Use `options.allow` instead.
    */
-  cancel: boolean;
+  cancel?: boolean;
   /**
    * Obsolete. Use `options.element` instead.
    */

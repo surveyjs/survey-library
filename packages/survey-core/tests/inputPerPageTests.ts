@@ -399,3 +399,29 @@ QUnit.test("singleInput and matrix dynamic & add/remove rows in navigation bar",
   assert.equal(addBtn.visible, true, "addBtn visible #4");
   assert.equal(removeBtn.visible, true, "removeBtn visible #4");
 });
+QUnit.test("singleInput and single matrix", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix", name: "matrix1",
+        columns: ["col1", "col2", "col3", "col4"],
+        rows: [{ value: "row1", text: "Row 1" }, "row2"]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const matrix1 = survey.getQuestionByName("matrix1");
+  assert.equal(matrix1.singleInputQuestion.name, "row1", "singleInputQuestion.name, #1");
+  assert.equal(matrix1.singleInputQuestion.locTitle.textOrHtml, "Row 1", "singleInputQuestion.title, #1");
+  assert.equal(matrix1.singleInputQuestion.choices.length, 4, "singleInputQuestion.choices.length, #1");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #1");
+  matrix1.singleInputQuestion.value = "col2";
+  survey.performNext();
+  assert.equal(matrix1.singleInputQuestion.name, "row2", "singleInputQuestion.name, #2");
+  assert.equal(matrix1.singleInputQuestion.choices.length, 4, "singleInputQuestion.choices.length, #2");
+  assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible #2");
+  matrix1.singleInputQuestion.value = "col3";
+  assert.deepEqual(matrix1.value, { row1: "col2", row2: "col3" }, "matrix1.value");
+  assert.deepEqual(survey.data, { matrix1: { row1: "col2", row2: "col3" } }, "survey.data");
+});
+

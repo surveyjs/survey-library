@@ -174,20 +174,20 @@ module.exports = function (options) {
     config.devtool = "source-map";
     config.plugins = config.plugins.concat([
       new webpack.LoaderOptionsPlugin({ debug: true }),
-      // new HtmlWebpackPlugin({
-      //   filename: "index.html",
-      //   inject: "body",
-      //   template: "index.html"
-      // }),
+      new HtmlWebpackPlugin({
+        filename: "index.html",
+        inject: "body",
+        template: "index.html"
+      }),
     ]);
-    // config.devServer = {
-    //   static: {
-    //     directory: path.join(__dirname, '.'),
-    //   },
-    //   //host: "0.0.0.0",
-    //   compress: false,
-    //   port: 8082
-    // };
+    config.devServer = {
+      static: {
+        directory: path.join(__dirname, '.'),
+      },
+      //host: "0.0.0.0",
+      compress: false,
+      port: 7777
+    };
   }
 
   return config;

@@ -436,7 +436,7 @@ export interface GetProgressTextEvent {
    */
   text: string;
 }
-export interface ProgressTextEvent extends GetProgressTextEvent { }
+export interface ProgressTextEvent extends Partial<GetProgressTextEvent> { }
 
 export interface TextProcessingEvent {
   /**

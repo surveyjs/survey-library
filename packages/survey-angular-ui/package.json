@@ -55,15 +55,20 @@
     "rxjs": "~6.6.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4",
-    "copyfiles": "~2.4.1",
-    "survey-core": "../survey-core/build"
+    "survey-core": "../survey-core/build",
+    "http-server": "^14.1.1"
   },
   "scripts": {
-    "build": "ng build && npx copyfiles -u 1 \"build/**/*\" ../../build/survey-angular-ui && node ./update-version.js",
-    "serve:example": "ng serve",
-    "build:example": "ng build --aot --output-hashing=none angular-ui",
-    "test": "ng test survey-angular-ui",
-    "test:single": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui",
-    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
+    "build": "ng build && node ./update-version.js",
+    "serve:example:dev": "ng serve",
+    "serve:example:prod": "http-server ./example/dist --proxy http://localhost:8080? -p 8080",
+    "build:example:prod": "ng build --aot --output-hashing=none angular-ui",
+    "test": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui",
+    "test:watch": "ng test survey-angular-ui",
+    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
+    "testcafe": "testcafe ../../testCafe/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=angular --config-file .testcaferc.dev.js",
+    "testcafe:ci": "testcafe  ../../testCafe/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=angular",
+    "visual-regression-tests": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=angular --config-file .testcaferc.dev.js",
+    "visual-regression-tests:ci": "testcafe  ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=angular"
   }
 }

@@ -3,6 +3,7 @@ import { PageModel } from "../src/page";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
 import { IElement } from "../src/base-interfaces";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
 export default QUnit.module("Input Per Page Tests");
 
@@ -286,4 +287,115 @@ QUnit.test("singleInput and panel dynamic & validation", assert => {
   getSingleQuestion(page).value = "d";
   assert.equal(survey.completeLastPage(), true, "compete");
   assert.deepEqual(survey.data, { panel1: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] }, "survey.data");
+});
+QUnit.test("singleInput and matrix dropdown", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown", name: "matrix1",
+        columns: [
+          { cellType: "text", name: "col1", title: "Column 1" },
+          { cellType: "text", name: "col2", title: "Column 2" }
+        ],
+        rows: ["Row 1", "Row 2"]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const matrix1 = survey.getQuestionByName("matrix1");
+  assert.equal(matrix1.singleInputQuestion.name, "col1", "singleInputQuestion.name, #1");
+  assert.equal(matrix1.singleInputQuestion.title, "Column 1", "singleInputQuestion.title, #1");
+  assert.equal(matrix1.singleInputLocTitle.textOrHtml, "Row 1", "singleInputLocTitle, #1");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #1");
+  survey.performNext();
+  assert.equal(matrix1.singleInputQuestion.name, "col2", "singleInputQuestion.name, #2");
+  assert.equal(matrix1.singleInputQuestion.title, "Column 2", "singleInputQuestion.title, #2");
+  assert.equal(matrix1.singleInputLocTitle.textOrHtml, "Row 1", "singleInputLocTitle, #2");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #2");
+  survey.performNext();
+  assert.equal(matrix1.singleInputQuestion.name, "col1", "singleInputQuestion.name, #3");
+  assert.equal(matrix1.singleInputQuestion.title, "Column 1", "singleInputQuestion.title, #3");
+  assert.equal(matrix1.singleInputLocTitle.textOrHtml, "Row 2", "singleInputLocTitle, #3");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #3");
+  survey.performNext();
+  assert.equal(matrix1.singleInputQuestion.name, "col2", "singleInputQuestion.name, #4");
+  assert.equal(matrix1.singleInputQuestion.title, "Column 2", "singleInputQuestion.title, #4");
+  assert.equal(matrix1.singleInputLocTitle.textOrHtml, "Row 2", "singleInputLocTitle, #4");
+  assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible #4");
+});
+QUnit.test("singleInput and matrix dynamic", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic", name: "matrix1",
+        columns: [
+          { cellType: "text", name: "col1", title: "Column 1" },
+          { cellType: "text", name: "col2", title: "Column 2" }
+        ],
+        rowCount: 1
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  assert.equal(matrix1.singleInputQuestion.name, "col1", "singleInputQuestion.name, #1");
+  assert.equal(matrix1.singleInputQuestion.title, "Column 1", "singleInputQuestion.title, #1");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #1");
+  survey.performNext();
+  assert.equal(matrix1.singleInputQuestion.name, "col2", "singleInputQuestion.name, #2");
+  assert.equal(matrix1.singleInputQuestion.title, "Column 2", "singleInputQuestion.title, #2");
+  assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible #2");
+  matrix1.removeRow(0);
+  assert.equal(matrix1.singleInputQuestion?.name, undefined, "singleInputQuestion.name, #3");
+  assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible #3");
+  matrix1.addRow();
+  assert.equal(matrix1.singleInputQuestion.name, "col1", "singleInputQuestion.name, #4");
+  assert.equal(matrix1.singleInputQuestion.title, "Column 1", "singleInputQuestion.title, #4");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #4");
+});
+QUnit.test("singleInput and matrix dynamic & add/remove rows in navigation bar", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic", name: "matrix1",
+        rowCount: 2,
+        columns: [
+          { cellType: "text", name: "col1" }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const matrix1 = survey.getQuestionByName("matrix1");
+  const bar = survey.navigationBar;
+  assert.ok(bar.getActionById("sv-singleinput-add"), "addBtn exists, #1");
+  assert.ok(bar.getActionById("sv-singleinput-remove"), "removeBtn exists, #1");
+  assert.equal(matrix1.singleInputQuestion.name, "col1", "singleInputQuestion, #1");
+  survey.questionsOnPageMode = "standard";
+  assert.notOk(bar.getActionById("sv-singleinput-add"), "addBtn exists, #2");
+  assert.notOk(bar.getActionById("sv-singleinput-remove"), "removeBtn exists, #2");
+  assert.equal(survey.currentSingleQuestion?.name, undefined, "currentSingleQuestion #2");
+  assert.equal(matrix1.singleInputQuestion?.name, undefined, "singleInputQuestion, #2");
+  survey.questionsOnPageMode = "inputPerPage";
+  assert.equal(matrix1.singleInputQuestion.name, "col1", "singleInputQuestion, #3");
+  const addBtn = bar.getActionById("sv-singleinput-add");
+  const removeBtn = bar.getActionById("sv-singleinput-remove");
+  assert.ok(addBtn, "addBtn exists, #3");
+  assert.ok(removeBtn, "removeBtn exists, #3");
+  assert.equal(addBtn.visible, false, "addBtn visible #1");
+  assert.equal(removeBtn.visible, true, "removeBtn visible #1");
+  assert.equal(removeBtn.title, "Remove", "removeBtn text #1");
+  survey.performNext();
+  assert.equal(addBtn.visible, true, "addBtn visible #2");
+  assert.equal(addBtn.title, "Add Row", "addBtn text #2");
+  assert.equal(removeBtn.visible, true, "removeBtn visible #2");
+  assert.equal(removeBtn.title, "Remove", "removeBtn text #2");
+  addBtn.action();
+  assert.equal(matrix1.rowCount, 3, "New row is added");
+  assert.equal(addBtn.visible, true, "addBtn visible #3");
+  assert.equal(removeBtn.visible, true, "removeBtn visible #3");
+  removeBtn.action();
+  assert.equal(matrix1.rowCount, 2, "Last row is removed");
+  assert.equal(addBtn.visible, true, "addBtn visible #4");
+  assert.equal(removeBtn.visible, true, "removeBtn visible #4");
 });

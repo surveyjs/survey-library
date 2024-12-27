@@ -9,6 +9,7 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
 import { Helpers } from "./helpers";
+import { Question } from "./question";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -92,6 +93,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   public set hideIfRowsEmpty(val: boolean) {
     this.setPropertyValue("hideIfRowsEmpty", val);
+  }
+  protected getSingleQuestionLocTitle(question: Question): LocalizableString {
+    const row = this.getRowByQuestion(question);
+    return !!row ? row.locText : null;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value) return value;

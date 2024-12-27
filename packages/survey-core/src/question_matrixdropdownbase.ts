@@ -1247,6 +1247,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDropdownRenderedTable(this);
   }
+  protected getRowByQuestion(question: Question): MatrixDropdownRowModelBase {
+    return <MatrixDropdownRowModelBase>question.data;
+  }
   protected onMatrixRowCreated(row: MatrixDropdownRowModelBase) {
     if (!this.survey) return;
     var options = {

@@ -4558,6 +4558,10 @@ export class SurveyModel extends SurveyElementCore
   public get isLastPage(): boolean {
     return this.getPropertyValue("isLastPage");
   }
+  public singleInputUpdateRows(): void {
+    this.currentPage?.updateRows();
+    this.updateButtonsVisibility();
+  }
   private updateButtonsVisibility(): void {
     this.updateIsFirstLastPageState();
     this.setPropertyValue("isShowPrevButton", this.calcIsShowPrevButton());
@@ -6826,19 +6830,6 @@ export class SurveyModel extends SurveyElementCore
     }
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
-    }
-    this.updatePageWithSingleQuestion(name, newValue, oldValue);
-  }
-  private updatePageWithSingleQuestion(name: string, newValue: any, oldValue: any): void {
-    const q = this.currentSingleQuestion;
-    if(!q || !this.currentPage || q.getValueName() !== name) return;
-    const newLen = Array.isArray(newValue) ? newValue.length : 0;
-    const oldLen = Array.isArray(oldValue) ? oldValue.length : 0;
-    if(newLen > 0 || oldLen > 0) {
-      if(newLen === 0 || oldLen === 0) {
-        this.currentPage.updateRows();
-      }
-      this.updateButtonsVisibility();
     }
   }
   private isValueEqual(name: string, newValue: any): boolean {

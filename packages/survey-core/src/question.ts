@@ -697,6 +697,32 @@ export class Question extends SurveyElement<Question>
     let index = questions.indexOf(q);
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
+  protected getSingleInputIsLastQuestion(): boolean {
+    const q = this.singleInputQuestion;
+    if(!q) return true;
+    const questions = this.getSingleInputQuestions();
+    return questions.indexOf(q) === questions.length - 1;
+  }
+  protected singleInputOnAddItem(): void {
+    if(this.survey?.currentSingleQuestion === this) {
+      this.setSingleQuestionOnChange(Number.MAX_VALUE);
+    }
+  }
+  protected singleInputOnRemoveItem(index: number): void {
+    if(this.survey?.currentSingleQuestion === this) {
+      this.setSingleQuestionOnChange(index);
+    }
+  }
+  protected getSingleQuestionOnChange(index: number): Question { return null; }
+  private setSingleQuestionOnChange(index: number): void {
+    const q = this.getSingleQuestionOnChange(index);
+    if(!!q) {
+      this.setSingleInputQuestion(q);
+    } else {
+      this.resetSingleInput();
+    }
+    this.survey.singleInputUpdateRows();
+  }
   private resetSingleTitleProps(): void {
     this.resetPropertyValue("showSingleInputTitle");
     this.resetPropertyValue("singleInputLocTitle");
@@ -727,7 +753,10 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("showSingleInputTitle", undefined, (): boolean => !!this.singleInputLocTitle);
   }
   public get singleInputLocTitle(): LocalizableString {
-    return this.getPropertyValue("singleInputLocTitle", undefined, () => this.getSingleQuestionLocTitle(this.singleInputQuestion));
+    return this.getPropertyValue("singleInputLocTitle", undefined, () => {
+      const q = this.singleInputQuestion;
+      return !!q ? this.getSingleQuestionLocTitle(q) : undefined;
+    });
   }
   protected getSingleQuestionLocTitle(question: Question): LocalizableString {
     return undefined;

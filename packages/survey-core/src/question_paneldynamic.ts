@@ -959,7 +959,7 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     if(isAddingOnePanel) {
-      this.singleInputOnAddPanel();
+      this.singleInputOnAddItem();
     }
     if (val < this.panelCount) {
       this.panelsCore.splice(val, this.panelCount - val);
@@ -1162,10 +1162,9 @@ export class QuestionPanelDynamicModel extends Question
     this.onFirstRendering();
     return super.getSingleInputQuestions();
   }
-  private templateSingleInputPanel: PanelModel;
   protected getSingleQuestionLocTitle(question: Question): LocalizableString {
     if(!this.templateTitle) return undefined;
-    return this.getPanelByQuestion(question).locTitle;
+    return this.getPanelByQuestion(question)?.locTitle;
   }
   private getPanelByQuestion(question: Question): PanelModel {
     let parent = question.parent;
@@ -1176,10 +1175,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected getSingleInputAddTextCore(question: Question): string {
     if(!this.canAddPanel) return undefined;
-    if(!question) return this.panelAddText;
-    const qtns = this.getNestedQuestions(true);
-    const lastQ = qtns.length > 0 ? qtns[qtns.length - 1] : undefined;
-    return lastQ === question ? this.panelAddText : undefined;
+    return this.getSingleInputIsLastQuestion() ? this.panelAddText : undefined;
   }
   protected getSingleInputRemoveTextCore(question: Question): string {
     return this.canRemovePanel ? this.panelRemoveText : undefined;
@@ -1187,36 +1183,24 @@ export class QuestionPanelDynamicModel extends Question
   protected singleInputAddItemCore(question: Question): void {
     this.addPanelUI();
   }
-  private singleInputOnAddPanel(): void {
-    if(this.survey?.currentSingleQuestion === this && this.visiblePanelCount > 0) {
-      const vsPanels = this.visiblePanelsCore;
-      const panel = vsPanels[vsPanels.length - 1];
-      const vQs = panel.visibleQuestions;
-      if(vQs.length > 0) {
-        this.setSingleInputQuestion(vQs[0]);
-      }
-    }
-  }
-  private singleInputOnRemovePanel(index: number): void {
-    if(this.survey?.currentSingleQuestion === this) {
-      const vsPanels = this.visiblePanelsCore;
-      if(index >= vsPanels.length) { index --; }
-      if(index >= 0) {
-        const panel = vsPanels[vsPanels.length - 1];
-        const vQs = panel.visibleQuestions;
-        if(vQs.length > 0) {
-          this.setSingleInputQuestion(vQs[vQs.length - 1]);
-        }
-      } else {
-        this.setSingleInputQuestion(undefined);
-      }
-    }
-  }
   protected singleInputRemoveItemCore(question: Question): void {
     const panel = this.getPanelByQuestion(question);
     const index = this.visiblePanelsCore.indexOf(panel);
     this.removePanelUI(index);
   }
+  protected getSingleQuestionOnChange(index: number): Question {
+    const panels = this.visiblePanelsCore;
+    if(panels.length > 0) {
+      if(index < 0 || index >= panels.length) index = panels.length - 1;
+      const row = panels[index];
+      const vQs = row.visibleQuestions;
+      if(vQs.length > 0) {
+        return vQs[0];
+      }
+    }
+    return null;
+  }
+
   /**
    * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
    * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.
@@ -1686,7 +1670,7 @@ export class QuestionPanelDynamicModel extends Question
     if (this.survey && !this.survey.dynamicPanelRemoving(this, index, panel)) return;
     this.panelsCore.splice(index, 1);
     this.updateBindings("panelCount", this.panelCount);
-    this.singleInputOnRemovePanel(visIndex);
+    this.singleInputOnRemoveItem(visIndex);
     var value = this.value;
     if (!value || !Array.isArray(value) || index >= value.length) return;
     this.isValueChangingInternally = true;
@@ -2250,7 +2234,6 @@ export class QuestionPanelDynamicModel extends Question
       this.panelUpdateValueFromSurvey(this.panelsCore[i]);
     }
     this.updateIsAnswered();
-    this.templateSingleInputPanel?.locTitle.strChanged();
   }
   public onSurveyValueChanged(newValue: any): void {
     if (newValue === undefined && this.isAllPanelsEmpty()) return;

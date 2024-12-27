@@ -1,6 +1,6 @@
 var doc = require("surveyjs-doc-generator");
 var ts = require("typescript");
-var Survey = require("../build/survey-core/survey.core");
+var Survey = require("../build/survey.core");
 
 doc.setJsonObj(Survey.Serializer);
 

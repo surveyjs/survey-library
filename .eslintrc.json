@@ -197,30 +197,6 @@
 		},
 		{
 			"files": [
-				"*.vue"
-			],
-			"parserOptions": {
-				"ecmaFeatures": {
-					"jsx": false
-				}
-			},
-			"plugins": [
-				"@typescript-eslint",
-				"vue"
-			],
-			"extends": [
-				"plugin:vue/essential",
-				"eslint:recommended",
-				"@vue/eslint-config-typescript"
-			],
-			"rules": {
-				"no-extra-boolean-cast": "off",
-				"vue/no-use-v-if-with-v-for": "off",
-				"vue/multi-word-component-names": "off"
-			}
-		},
-		{
-			"files": [
 				"*.js"
 			],
 			"rules": {

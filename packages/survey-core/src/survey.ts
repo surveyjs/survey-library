@@ -7163,7 +7163,7 @@ export class SurveyModel extends SurveyElementCore
    * For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
    * @returns The number of correct answers in a quiz.
    * @see getQuizQuestionCount
-   * @see getInCorrectAnswerCount
+   * @see getIncorrectAnswerCount
    */
   public getCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(true);
@@ -7186,7 +7186,10 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   public getInCorrectedAnswerCount(): number {
-    return this.getInCorrectAnswerCount();
+    return this.getIncorrectAnswerCount();
+  }
+  public getInCorrectAnswerCount(): number {
+    return this.getIncorrectAnswerCount();
   }
   /**
    * Returns the number of incorrect answers in a quiz.
@@ -7195,7 +7198,7 @@ export class SurveyModel extends SurveyElementCore
    * @returns The number of incorrect answers in a quiz.
    * @see getCorrectAnswerCount
    */
-  public getInCorrectAnswerCount(): number {
+  public getIncorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(false);
   }
   onCorrectQuestionAnswer(question: IQuestion, options: any): void {

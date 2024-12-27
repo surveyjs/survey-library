@@ -1925,7 +1925,7 @@ export class Question extends SurveyElement<Question>
   /**
    * A correct answer to this question. Specify this property if you want to [create a quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see SurveyModel.getCorrectAnswerCount
-   * @see SurveyModel.getInCorrectAnswerCount
+   * @see SurveyModel.getIncorrectAnswerCount
    */
   public get correctAnswer(): any {
     return this.getPropertyValue("correctAnswer");

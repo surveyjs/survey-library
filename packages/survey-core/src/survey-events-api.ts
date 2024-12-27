@@ -66,7 +66,7 @@ export interface GetTitleActionsEventMixin {
   /**
    * Obsolete. Use `options.actions` instead.
    */
-  titleActions: Array<IAction>;
+  titleActions?: Array<IAction>;
 }
 export interface GetActionsEventMixin {
   /**
@@ -436,7 +436,7 @@ export interface GetProgressTextEvent {
    */
   text: string;
 }
-export interface ProgressTextEvent extends Partial<GetProgressTextEvent> { }
+export interface ProgressTextEvent extends GetProgressTextEvent { }
 
 export interface TextProcessingEvent {
   /**

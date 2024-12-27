@@ -20,8 +20,8 @@
     "lint": "eslint ./src ./tests --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "testcafe": "testcafe ../../testCafe/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --env=vue3 --config-file .testcaferc.dev.js",
     "testcafe:ci": "testcafe  ../../testCafe/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=vue3",
-    "visual-regression-tests": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --env=vue3 --config-file .testcaferc.dev.js",
-    "visual-regression-tests:ci": "testcafe  ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=vue3"
+    "vrt": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --env=vue3 --config-file .testcaferc.dev.js",
+    "vrt:ci": "testcafe  ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=vue3"
   },
   "devDependencies": {
     "@babel/types": "^7.20.2",

@@ -11,7 +11,12 @@
   },
   "typings": "survey-js-ui.d.ts",
   "scripts": {
-    "build": "webpack --env buildType=dev && webpack --env buildType=prod"
+    "build": "webpack --env buildType=dev && webpack --env buildType=prod",
+    "watch:dev": "webpack --env buildType=dev --watch",
+    "vrt": "testcafe ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file .testcaferc.dev.js",
+    "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=survey-js-ui",
+    "testcafe": "testcafe ../../testCafe/ --app \"http-server --silent\" --env=survey-js-ui --config-file .testcaferc.dev.js",
+    "testcafe:ci": "testcafe  ../../testCafe/ --app \"http-server --silent\" --reporter minimal --env=survey-js-ui"
   },
   "devDependencies": {
     "@types/babel__traverse": "7.18.2",

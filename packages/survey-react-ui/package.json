@@ -21,10 +21,11 @@
     },
     "scripts": {
         "build": "webpack --env buildType=dev && webpack --env buildType=prod",
+        "watch:dev": "webpack --env buildType=dev --watch",
         "testcafe": "testcafe ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --env=react --config-file .testcaferc.dev.js",
         "testcafe:ci": "testcafe ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --env=react --reporter minimal",
-        "visual-regression-tests": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --env=react --config-file .testcaferc.dev.js",
-        "visual-regression-tests:ci": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --env=react --reporter minimal"
+        "vrt": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --env=react --config-file .testcaferc.dev.js",
+        "vrt:ci": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server\" --screenshots ../../ --selector-timeout 1500 --env=react --reporter minimal"
     },
     "typings": "./typings/src/entries/react-ui.d.ts",
     "devDependencies": {

@@ -23,12 +23,12 @@
         "build": "webpack --env buildType=dev && webpack --env buildType=prod",
         "watch:dev": "webpack --env buildType=dev --watch",
         "start": "webpack-dev-server --env buildType=dev --open",
-        "testcafe": "testcafe ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --env=react --config-file .testcaferc.dev.js",
-        "testcafe:ci": "testcafe ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --env=react --reporter minimal",
-        "vrt": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --env=react --config-file .testcaferc.dev.js",
-        "vrt:ci": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --env=react --reporter minimal",
-        "accessibility-tests": "testcafe  ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --env=react --config-file .testcaferc.dev.js",
-        "accessibility-tests:ci": "testcafe  ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react"
+        "testcafe": "testcafe ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --env=react --config-file ../../.testcaferc.dev.js",
+        "testcafe:ci": "testcafe ../../testCafe/ --selector-timeout 1500 --app \"http-server --silent\" --reporter minimal --env=react --config-file ../../.testcaferc.js",
+        "vrt": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --env=react --config-file ../../.testcaferc.dev.js",
+        "vrt:ci": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=react --config-file ../../.testcaferc.js",
+        "accessibility-tests": "testcafe  ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --env=react --config-file ../../.testcaferc.dev.js",
+        "accessibility-tests:ci": "testcafe  ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react --config-file ../../.testcaferc.js"
     },
     "typings": "./typings/src/entries/react-ui.d.ts",
     "devDependencies": {

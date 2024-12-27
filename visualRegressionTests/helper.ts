@@ -41,8 +41,8 @@ export async function resetHoverToBody(t: TestController): Promise<void> {
 //devextreme-screenshot-comparer options
 export const screenshotComparerOptions = {
   path: "./tests",
-  screenshotsRelativePath: "../visualRegressionTests/screenshots",
-  destinationRelativePath: "../visualRegressionTests/artifacts",
+  screenshotsRelativePath: "../../../visualRegressionTests/screenshots",
+  destinationRelativePath: "../../../visualRegressionTests/artifacts",
   enableTextMask: true,
   textMaskRadius: 2,
   textDiffTreshold: 0.5,

@@ -1,6 +1,6 @@
 /* eslint-disable indent */
 import { Selector, ClientFunction } from "testcafe";
-import { frameworks, initSurvey, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
+import { frameworks, initSurvey, wrapVisualTest, takeElementScreenshot, resetFocusToBody, url } from "../../helper";
 
 const title = "File Screenshot";
 

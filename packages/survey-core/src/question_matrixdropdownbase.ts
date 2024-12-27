@@ -248,6 +248,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public cells: Array<MatrixDropdownCell> = [];
   public showHideDetailPanelClick: any;
   public onDetailPanelShowingChanged: () => void;
+  public visibleIndex: number = -1;
 
   constructor(data: IMatrixDropdownData, value: any) {
     this.data = data;
@@ -1181,6 +1182,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.clearVisibleRows();
     this.resetRenderedTable();
     super.onRowsChanged();
+    const rows = this.visibleRows;
+    for(let i = 0; i < rows.length; i ++) {
+      rows[i].visibleIndex = i;
+    }
   }
   private lockResetRenderedTable: boolean = false;
   protected onStartRowAddingRemoving() {
@@ -1742,11 +1747,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.visibleRowsArray;
   }
   private generateVisibleRowsIfNeeded(): void {
-    if (!this.isUpdateLocked && !this.generatedVisibleRows && !this.generatedVisibleRows) {
+    if (!this.isUpdateLocked && !this.generatedVisibleRows) {
       this.isGenereatingRows = true;
       this.generatedVisibleRows = this.generateRows();
       this.isGenereatingRows = false;
-      this.generatedVisibleRows.forEach((row) => this.onMatrixRowCreated(row));
+      for(var i = 0; i < this.generatedVisibleRows.length; i++) {
+        const row = this.generatedVisibleRows[i];
+        row.visibleIndex = i;
+        this.onMatrixRowCreated(row);
+      }
       if (this.data) {
         this.runCellsCondition(
           this.data.getFilteredValues(),

@@ -143,8 +143,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       : null;
 
     let rootStyle = question.getRootStyle();
-    const sEl = question.singleInputElement;
-    let singleInput = sEl ? this.createSingleInputElement(question, sEl, cssClasses) : undefined;
+    let singleInput = question.singleInputQuestion ? this.createSingleInputQuestion(question, cssClasses) : undefined;
     let questionContent = singleInput || this.wrapQuestionContent(this.renderQuestionContent());
 
     return (
@@ -170,19 +169,26 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       </>
     );
   }
-  private createSingleInputElement(question: Question, el: any, cssClasses: any): React.JSX.Element {
-    let elementType = (el as any).getTemplate();
+  private createSingleInputQuestion(question: Question, cssClasses: any): React.JSX.Element {
+    const singleQuestion = question.singleInputQuestion;
+    const locTitle = question.singleInputLocTitle;
+    let elementType = singleQuestion.getTemplate();
     if (!ReactElementFactory.Instance.isElementRegistered(elementType)) {
       elementType = "question";
     }
+    const key = singleQuestion.id + "_single";
     const rEl = ReactElementFactory.Instance.createElement(elementType, {
-      key: question.name + "_" + el.name + "_singleElement",
-      element: el,
+      key: key,
+      element: singleQuestion,
       creator: this.creator,
-      survey: el.survey,
-      css: el.css
+      survey: singleQuestion.survey,
+      css: (singleQuestion as any).css
     });
-    return <div className={cssClasses.singleInputWrapper}>{rEl}</div>;
+    const title = locTitle ? this.renderLocString(locTitle, cssClasses, key + "_title") : undefined;
+    return <>
+      {title}
+      <div className={cssClasses.singleInputWrapper}>{rEl}</div>
+    </>;
   }
   protected wrapElement(element: React.JSX.Element): React.JSX.Element {
     const survey: SurveyModel = this.question.survey as SurveyModel;

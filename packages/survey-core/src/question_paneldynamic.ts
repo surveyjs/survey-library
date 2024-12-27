@@ -1163,17 +1163,9 @@ export class QuestionPanelDynamicModel extends Question
     return super.getSingleInputQuestions();
   }
   private templateSingleInputPanel: PanelModel;
-  protected getSingleQuestionRowElement(question: Question): IElement {
-    if(!this.templateTitle) return question;
-    const panel = this.getPanelByQuestion(question);
-    (<any>panel).onGetElementsForRowsCallback = () => {
-      return [question];
-    };
-    return panel;
-  }
-  public resetSingleInput(): void {
-    super.resetSingleInput();
-    this.panelsCore.forEach(panel => (<any>panel).onGetElementsForRowsCallback = undefined);
+  protected getSingleQuestionLocTitle(question: Question): LocalizableString {
+    if(!this.templateTitle) return undefined;
+    return this.getPanelByQuestion(question).locTitle;
   }
   private getPanelByQuestion(question: Question): PanelModel {
     let parent = question.parent;

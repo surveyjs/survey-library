@@ -669,52 +669,37 @@ export class Question extends SurveyElement<Question>
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
-  public get singleInputElement(): IElement {
-    return this.getPropertyValue("singleInputElement", undefined, () => {
-      const q = this.calculateSingleInputQuestion();
-      return !!q ? this.getSingleQuestionRowElement(q): q;
-    });
+  private calculateSingleInputQuestion(): Question {
+    if(this.survey?.currentSingleQuestion !== this) {
+      return undefined;
+    }
+    const questions = this.getSingleInputQuestions();
+    if(Array.isArray(questions) && questions.length > 0) return questions[0];
+    return undefined;
+  }
+  public get singleInputQuestion(): Question {
+    return this.getPropertyValue("singleInputQuestion", undefined, () => this.calculateSingleInputQuestion());
   }
   public resetSingleInput(): void {
-    this.setSingleInputQuestion(undefined);
-  }
-  private resetSingleInputElement(): void {
-    this.resetPropertyValue("singleInputElement");
+    this.resetPropertyValue("singleInputQuestion");
+    this.resetSingleTitleProps();
   }
   public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
-    const q = this.singleInputQuestionValue;
+    const q = this.singleInputQuestion;
     if(!q) return true;
     return q.validate(fireCallback, rec);
   }
   public getSingleInputElementPos(): number {
-    const q = this.singleInputQuestionValue;
+    const q = this.singleInputQuestion;
     if(!q) return 0;
     const questions = this.getSingleInputQuestions();
     if(questions.length < 2) return 0;
     let index = questions.indexOf(q);
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
-  protected getSingleQuestionRowElement(question: Question): IElement {
-    return question;
-  }
-  private singleInputQuestionValue: Question;
-  protected get singleInputQuestion(): Question { return this.singleInputQuestionValue; }
-  private calculateSingleInputQuestion(): Question {
-    if(this.survey?.currentSingleQuestion !== this) {
-      this.singleInputQuestionValue = undefined;
-      return undefined;
-    }
-    if(this.singleInputQuestion) return this.singleInputQuestion;
-    const questions = this.getSingleInputQuestions();
-    if(Array.isArray(questions) && questions.length > 0) {
-      this.singleInputQuestionValue = questions[0];
-    } else {
-      this.singleInputQuestionValue = undefined;
-    }
-    return this.singleInputQuestion;
-  }
-  protected getSingleInputQuestions(): Array<Question> {
-    return this.getNestedQuestions(true);
+  private resetSingleTitleProps(): void {
+    this.resetPropertyValue("showSingleInputTitle");
+    this.resetPropertyValue("singleInputLocTitle");
   }
   public nextSingleInput(): boolean {
     return this.nextPrevSingleInput(1);
@@ -723,10 +708,10 @@ export class Question extends SurveyElement<Question>
     return this.nextPrevSingleInput(-1);
   }
   public getSingleInputAddText(): string {
-    return this.getSingleInputAddTextCore(this.calculateSingleInputQuestion());
+    return this.getSingleInputAddTextCore(this.singleInputQuestion);
   }
   public getSingleInputRemoveText(): string {
-    const q = this.calculateSingleInputQuestion();
+    const q = this.singleInputQuestion;
     return !!q ? this.getSingleInputRemoveTextCore(q) : undefined;
   }
   public singleInputAddItem(): void {
@@ -738,14 +723,26 @@ export class Question extends SurveyElement<Question>
       this.singleInputRemoveItemCore(q);
     }
   }
+  public get showSingleInputTitle(): boolean {
+    return this.getPropertyValue("showSingleInputTitle", undefined, (): boolean => !!this.singleInputLocTitle);
+  }
+  public get singleInputLocTitle(): LocalizableString {
+    return this.getPropertyValue("singleInputLocTitle", undefined, () => this.getSingleQuestionLocTitle(this.singleInputQuestion));
+  }
+  protected getSingleQuestionLocTitle(question: Question): LocalizableString {
+    return undefined;
+  }
+  protected getSingleInputQuestions(): Array<Question> {
+    return this.getNestedQuestions(true);
+  }
   protected getSingleInputAddTextCore(question: Question): string { return undefined; }
   protected getSingleInputRemoveTextCore(question: Question): string { return undefined; }
   protected singleInputAddItemCore(question: Question): void {}
   protected singleInputRemoveItemCore(question: Question): void {}
   protected setSingleInputQuestion(question: Question): void {
-    if(this.singleInputQuestionValue !== question) {
-      this.singleInputQuestionValue = question;
-      this.resetSingleInputElement();
+    if(this.singleInputQuestion !== question) {
+      this.setPropertyValue("singleInputQuestion", question);
+      this.resetSingleTitleProps();
     }
   }
   private nextPrevSingleInput(skip: number): boolean {

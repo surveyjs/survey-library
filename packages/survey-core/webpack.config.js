@@ -36,7 +36,7 @@ var buildPlatformJson = {
   files: [
     "**/*"
   ],
-  "main": "survey-core.js",
+  "main": "survey.core.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"

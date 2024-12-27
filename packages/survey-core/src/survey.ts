@@ -5396,7 +5396,7 @@ export class SurveyModel extends SurveyElementCore
       cancel: false,
       allow: true,
     };
-    this.onScrollingElementToTop.fire(this, options);
+    this.onScrollToTop.fire(this, options);
     if (!options.cancel && options.allow) {
       const elementPage = this.getPageByElement(element as IElement);
       if (this.isLazyRendering && !!elementPage) {

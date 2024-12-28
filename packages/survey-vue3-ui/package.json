@@ -19,11 +19,11 @@
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
     "lint": "eslint ./src ./tests --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "testcafe": "testcafe ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --env=vue3 --config-file ../../.testcaferc.dev.js",
-    "testcafe:ci": "testcafe  ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.js",
+    "testcafe:ci": "testcafe ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.js",
     "vrt": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --env=vue3 --config-file ../../.testcaferc.dev.js",
-    "vrt:ci": "testcafe  ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.js",
-    "accessibility-tests": "testcafe  ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.dev.js",
-    "accessibility-tests:ci": "testcafe  ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.js"
+    "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.js",
+    "accessibility-tests": "testcafe ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.dev.js",
+    "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.js"
   },
   "devDependencies": {
     "@babel/types": "^7.20.2",

@@ -27,10 +27,10 @@
         "test:watch": "karma start ./karma.conf.js",
         "testcafe": "testcafe ../../functionalTests/ --selector-timeout 1500 --app \"http-server --silent\" --env=react --config-file ../../.testcaferc.dev.js",
         "testcafe:ci": "testcafe ../../functionalTests/ --selector-timeout 1500 --app \"http-server --silent\" --reporter minimal --env=react --config-file ../../.testcaferc.js",
-        "vrt": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --env=react --config-file ../../.testcaferc.dev.js",
-        "vrt:ci": "testcafe --disable-font-subpixel-positioning ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=react --config-file ../../.testcaferc.js",
-        "accessibility-tests": "testcafe  ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --env=react --config-file ../../.testcaferc.dev.js",
-        "accessibility-tests:ci": "testcafe  ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react --config-file ../../.testcaferc.js"
+        "vrt": "testcafe ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --env=react --config-file ../../.testcaferc.dev.js",
+        "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=react --config-file ../../.testcaferc.js",
+        "accessibility-tests": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --env=react --config-file ../../.testcaferc.dev.js",
+        "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react --config-file ../../.testcaferc.js"
     },
     "typings": "./typings/src/entries/react-ui.d.ts",
     "devDependencies": {

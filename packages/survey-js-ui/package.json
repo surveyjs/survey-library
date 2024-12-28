@@ -19,9 +19,9 @@
     "vrt": "testcafe ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.dev.js",
     "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js",
     "testcafe": "testcafe ../../functionalTests/ --app \"http-server --silent\" --env=survey-js-ui --config-file ../../.testcaferc.dev.js",
-    "testcafe:ci": "testcafe  ../../functionalTests/ --app \"http-server --silent\" --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js",
-    "accessibility-tests": "testcafe  ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --env=survey-js-ui --config-file ../../.testcaferc.dev.js",
-    "accessibility-tests:ci": "testcafe  ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js"
+    "testcafe:ci": "testcafe ../../functionalTests/ --app \"http-server --silent\" --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js",
+    "accessibility-tests": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --env=survey-js-ui --config-file ../../.testcaferc.dev.js",
+    "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js"
   },
   "devDependencies": {
     "@types/jquery": "3.3.29",

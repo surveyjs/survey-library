@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "lint": "eslint ./testCafe --quiet && eslint ./tests --quiet && eslint ./visualRegressionTests --quiet && eslint ./accessibilityTests --quiet",
+    "lint": "eslint ./functionalTests --quiet && eslint ./tests --quiet && eslint ./visualRegressionTests --quiet && eslint ./accessibilityTests --quiet",
     "pre-push-check": "npm run lint",
     "prepare": "husky install"
   },

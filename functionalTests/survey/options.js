@@ -189,6 +189,7 @@ frameworks.forEach(framework => {
   });
 
   test("show top progress bar", async t => {
+    await ClientFunction(() => window.Survey.surveyCss.currentType = "")();
     let progressSelector = ".sd-container-modern .sv-components-column--expandable > .sv-components-column > div";
     // if(framework === "vue3") {
     //   progressSelector = ".sv_container .sv-components-column--expandable > div";
@@ -204,6 +205,7 @@ frameworks.forEach(framework => {
   });
 
   test("show bottom progress bar", async t => {
+    await ClientFunction(() => window.Survey.surveyCss.currentType = "")();
     const progressRootElement = Selector(".sd-root-modern > div > form > .sd-container-modern .sv-components-row ~ div");
     await t.expect(progressbar.exists).notOk();
 
@@ -219,6 +221,7 @@ frameworks.forEach(framework => {
   });
 
   test("check progress bar page 2", async t => {
+    await ClientFunction(() => window.Survey.surveyCss.currentType = "")();
     await t.expect(progressbar.exists).notOk();
     await show_top_progress_bar();
     await t

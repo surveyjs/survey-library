@@ -287,7 +287,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return this.isAllDataLoaded ? this.getLocalizationString("emptyMessage") : this.loadingText;
   }
   public get scrollableContainer(): HTMLElement {
-    return this.listContainerHtmlElement.querySelector("." + this.cssClasses.itemsContainer);
+    return this.listContainerHtmlElement.querySelector(classesToSelector(this.cssClasses.itemsContainer));
   }
   public get loadingText(): string {
     return this.getLocalizationString("loadingFile");

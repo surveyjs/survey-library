@@ -238,7 +238,7 @@ if (!navigatedBack) {
     alert("Navigation failed!")
 }
 
-const completedSuccessfully = survey.completeLastPage();
+const completedSuccessfully = survey.tryComplete();
 if (!completedSuccessfully) {
     alert("Check the answers for validation errors")
 }

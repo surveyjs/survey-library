@@ -127,7 +127,7 @@ registerMarkupTests(
         ]
       },
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
       snapshot: "multipletext-error-top-v2",
     },
@@ -153,7 +153,7 @@ registerMarkupTests(
         ]
       },
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
       snapshot: "multipletext-error-bottom-v2",
     },

@@ -6996,7 +6996,7 @@ QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
   const q2 = survey.getQuestionByName("q2");
   q1.value = "yes";
   assert.equal(q2.isRequired, true, "q2 is required");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(q2.errors.length, 1, "One error is shown");
   q1.value = "no";
   assert.equal(q2.isRequired, false, "q2 is not required");

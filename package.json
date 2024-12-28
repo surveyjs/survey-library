@@ -4,7 +4,7 @@
     "pre-push-check": "npm run lint",
     "prepare": "husky install"
   },
-  "version": "1.12.15",
+  "version": "1.12.16",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

@@ -183,7 +183,7 @@ registerMarkupTests(
         ],
       },
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
       snapshot: "matrixdropdown-cell-errors-top"
     },
@@ -208,7 +208,7 @@ registerMarkupTests(
         ],
       },
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
       snapshot: "matrixdropdown-cell-errors-bottom"
     },

@@ -26,6 +26,7 @@
     "@types/node": "7.0.4",
     "@types/papaparse": "^5.0.4",
     "@types/qunit": "2.0.31",
+    "@types/signature_pad": "^2.3.0",
     "ace-builds": "1.2.2",
     "ajv": "8.17.1",
     "async": "3.2.5",
@@ -68,7 +69,9 @@
     "webpack-dev-server": "^5.0.4",
     "webpack-fix-style-only-entries": "^0.6.1",
     "webpack-merge": "^5.8.0",
-    "webpack-remove-empty-scripts": "^1.0.4"
+    "webpack-remove-empty-scripts": "^1.0.4",
+    "tsconfig-paths-webpack-plugin": "^3.3.0",
+    "signature_pad": "^4.1.5"
   },
   "standard-version": {
     "skip": {

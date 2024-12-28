@@ -1,8 +1,9 @@
 
-import { testQuestionMarkup } from "./helper";
-import { markupTests } from "./etalon";
+import { testQuestionMarkup } from "../../../tests/markup/helper";
+import { markupTests } from "../../../tests/markup/etalon";
 // eslint-disable-next-line surveyjs/no-imports-from-entries
-import { Model as ReactModel, Survey as SurveyReact } from "../../src/entries/react";
+import { Survey as SurveyReact } from "../entries/index";
+import { Model } from "survey-core";
 import { act } from "react-dom/test-utils";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -10,7 +11,7 @@ import ReactDOM from "react-dom";
 var platformDescriptor = {
   name: "React",
   survey: null,
-  surveyFactory: (json) => new ReactModel(json),
+  surveyFactory: (json) => new Model(json),
   render: (survey, element) => {
     var component = React.createElement(SurveyReact, { model: survey }, null);
     act(() => {
@@ -21,7 +22,7 @@ var platformDescriptor = {
     });
   },
   getStrFromHtml: (snapshot) => {
-    return require("./snapshots/" + snapshot + ".snap.html");
+    return require("../../../tests/markup/snapshots/" + snapshot + ".snap.html");
   },
   finish: (element) => {
     ReactDOM.unmountComponentAtNode(element);

@@ -13,6 +13,8 @@
   "scripts": {
     "build": "webpack --env buildType=dev && webpack --env buildType=prod",
     "watch:dev": "webpack --env buildType=dev --watch",
+    "test": "karma start ./karma.conf.js --single-run",
+    "test:watch": "karma start ./karma.conf.js",
     "start": "webpack-dev-server --env buildType=dev --open",
     "vrt": "testcafe ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.dev.js",
     "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js",
@@ -27,6 +29,7 @@
     "@types/node": "7.0.4",
     "@types/react": "^17.0.83",
     "@types/react-dom": "^17.0.0",
+    "@types/qunit": "2.0.31",
     "ajv": "8.17.1",
     "chalk": "^3.0.0",
     "colors": "1.4.0",
@@ -36,7 +39,7 @@
     "eslint": "^7.32.0",
     "get-func-name": "2.0.0",
     "github-api": "^3.4.0",
-    "html-loader": "^5.0.0",
+    "html-loader": "0.4.4",
     "html-webpack-plugin": "^5.6.0",
     "http-server": "^14.1.1",
     "live-server": "^1.2.1",
@@ -57,8 +60,15 @@
     "webpack": "^5.93.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4",
+    "jquery": "^3.5.1",
     "puppeteer": "22.13.1",
-    "preact": "^10.21.0"
+    "preact": "^10.21.0",
+    "karma": "^6.1.1",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-junit-reporter": "2.0.1",
+    "karma-qunit": "4.1.2",
+    "karma-sourcemap-loader": "0.3.8",
+    "karma-webpack": "5.0.0"
   },
   "dependencies": {
     "survey-core": "../survey-core/build"

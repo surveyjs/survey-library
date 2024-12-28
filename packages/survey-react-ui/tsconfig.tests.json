@@ -1,0 +1,16 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "survey-core": [
+                "./node_modules/survey-core"
+            ],
+        },
+        "declaration": false,
+        "declarationDir": null,
+    },
+    "include": [
+        "./tests/markup.ts",
+    ]
+}

@@ -19,7 +19,7 @@
     "declarationDir": "./build/typings",
     "paths": {
       "survey-core": [
-        "../survey-core/build"
+        "./node_modules/survey-core"
       ],
       "react": [
         "./node_modules/@types/react"
@@ -29,17 +29,7 @@
       ]
     }
   },
-  "exclude": [
-    "node_modules",
-    "build",
-    "stories",
-    "examples",
-    ".storybook",
-    "**/node_modules",
-    "**/tests",
-    "**/*.spec.ts",
-    "**/*.test.ts"
-  ],
+  "exclude": [],
   "include": [
     "./entries/index.ts",
   ],

@@ -78,10 +78,10 @@ module.exports = function (options) {
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
       alias: {
-        "react": "preact/compat",
-        "react-dom/test-utils": "preact/test-utils",
-        "react-dom": "preact/compat",
-        "react/jsx-runtime": "preact/jsx-runtime"
+        "react": path.resolve(__dirname, "./node_modules/preact/compat"),
+        "react-dom/test-utils": path.resolve(__dirname, "./node_modules/preact/test-utils"),
+        "react-dom": path.resolve(__dirname, "./node_modules/preact/compat"),
+        "react/jsx-runtime": path.resolve(__dirname, "./node_modules/preact/jsx-runtime")
       }
     },
     optimization: {
@@ -130,7 +130,6 @@ module.exports = function (options) {
       new DashedNamePlugin(),
       new webpack.ProgressPlugin(percentage_handler),
       new webpack.DefinePlugin({
-        "process.env.ENVIRONMENT": JSON.stringify(options.buildType),
         "process.env.VERSION": JSON.stringify(packageJson.version)
       }),
       new MiniCssExtractPlugin({

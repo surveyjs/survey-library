@@ -106,11 +106,6 @@ module.exports = function (options) {
             }
           ]
         },
-        // {
-        //   test: /\.html$/,
-        //   exclude: [/node_modules/, require.resolve('./index.html')],
-        //   loader: "html-loader"
-        // },
         {
           test: /\.(svg|png)$/,
           use: {
@@ -156,7 +151,6 @@ module.exports = function (options) {
       new DashedNamePlugin(),
       new webpack.ProgressPlugin(percentage_handler),
       new webpack.DefinePlugin({
-        "process.env.ENVIRONMENT": JSON.stringify(options.buildType),
         "process.env.VERSION": JSON.stringify(packageJson.version)
       }),
       new MiniCssExtractPlugin({

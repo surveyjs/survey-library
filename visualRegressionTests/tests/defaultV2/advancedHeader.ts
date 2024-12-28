@@ -6,7 +6,7 @@ const title = "Advanced header screenshot";
 fixture`${title}`.page`${url}`;
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}/${framework}`;
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Check survey advanced header inherit width from survey", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {

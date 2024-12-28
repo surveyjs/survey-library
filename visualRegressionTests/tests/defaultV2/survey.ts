@@ -15,7 +15,7 @@ const insertDiv = ClientFunction(() => {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`
-    .page`${url}/${framework}`
+    .page`${url}${framework}`
     .beforeEach(async t => {
     });
 

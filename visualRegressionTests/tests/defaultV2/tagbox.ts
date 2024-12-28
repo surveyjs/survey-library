@@ -8,7 +8,7 @@ fixture`${title}`.page`${url}`;
 
 frameworks.forEach(async framework => {
   fixture`${framework} ${title}`
-    .page`${url}/${framework}`
+    .page`${url}${framework}`
     .beforeEach(async t => {
     });
 

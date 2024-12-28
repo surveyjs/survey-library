@@ -1,5 +1,5 @@
 import { Selector, ClientFunction, t } from "testcafe";
-import { getListItemByText, setOptions } from "../../../testCafe/helper";
+import { getListItemByText, setOptions } from "../../../functionalTests/helper";
 import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Tagbox Screenshot";

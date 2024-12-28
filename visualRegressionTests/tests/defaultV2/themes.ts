@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest } from "../../helper";
-import { getListItemByText } from "../../../testCafe/helper";
+import { getListItemByText } from "../../../functionalTests/helper";
 
 const title = "Survey themes Screenshot";
 

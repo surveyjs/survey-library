@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest } from "../../helper";
-import { registerCustomItemContentComponent } from "../../../testCafe/helper";
+import { registerCustomItemContentComponent } from "../../../functionalTests/helper";
 
 const title = "Ranking Screenshot";
 

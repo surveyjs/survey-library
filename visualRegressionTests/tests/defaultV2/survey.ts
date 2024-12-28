@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { setData } from "../../../testCafe/helper";
+import { setData } from "../../../functionalTests/helper";
 import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody } from "../../helper";
 import { backgroundImage } from "../../constants";
 

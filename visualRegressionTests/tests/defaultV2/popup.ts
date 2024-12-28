@@ -1,6 +1,6 @@
 import { Selector } from "testcafe";
 import { frameworks, initSurvey, url, takeElementScreenshot, wrapVisualTest, resetHoverToBody } from "../../helper";
-import { getListItemByText } from "../../../testCafe/helper";
+import { getListItemByText } from "../../../functionalTests/helper";
 
 const title = "Popup Screenshot";
 fixture`${title}`.page`${url}`;

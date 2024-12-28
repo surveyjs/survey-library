@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { getListItemByText, registerCustomItemComponent } from "../../../testCafe/helper";
+import { getListItemByText, registerCustomItemComponent } from "../../../functionalTests/helper";
 import { url, frameworks, initSurvey, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "Dropdown Screenshot";

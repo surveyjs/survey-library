@@ -65,4 +65,4 @@ export const screenshotComparerOptions = {
   highlightColor: { r: 0xff, g: 0, b: 0xff },
 };
 
-export { initSurvey, initSurveyPopup, frameworks, url, setOptions } from "../testCafe/helper";
+export { initSurvey, initSurveyPopup, frameworks, url, setOptions } from "../functionalTests/helper";

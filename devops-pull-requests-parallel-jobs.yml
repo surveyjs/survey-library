@@ -155,6 +155,7 @@ jobs:
       displayName: "run functional tests"
 
 - job: Angular
+  dependsOn: Core
   steps:
     - checkout: self
       persistCredentials: true
@@ -234,6 +235,7 @@ jobs:
       displayName: "run functional tests"
 
 - job: Vue3
+  dependsOn: Core
   steps:
     - checkout: self
       persistCredentials: true
@@ -313,6 +315,7 @@ jobs:
       displayName: "run functional tests"
 
 - job: SurveyUI_and_CSSFrameworks
+  dependsOn: Core
   steps:
     - checkout: self
       persistCredentials: true

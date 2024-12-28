@@ -146,6 +146,7 @@ const json = {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
+      await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
     }
   );
@@ -234,6 +235,7 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
+      await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json, undefined, true);
     }
   );
@@ -268,6 +270,7 @@ const json2 = {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
+      await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json2);
     }
   );
@@ -321,6 +324,7 @@ const json3 = {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
+      await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json3);
     }
   );
@@ -379,6 +383,7 @@ const jsonCheckboxRestFul = {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
+      await t.resizeWindow(1920, 1080);
     }
   );
 

@@ -128,6 +128,7 @@ frameworks.forEach(async framework => {
     const page2 = Selector(".sv-list__item-body").withText("page2");
     await t.expect(page1.exists).ok();
     await t.expect(page2.exists).ok();
+    await t.wait(500);
     await t.click(page2);
     await t.expect(Selector("h5.sd-question__title").withText("q3").exists).ok();
   });

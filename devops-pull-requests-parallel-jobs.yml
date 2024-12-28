@@ -233,7 +233,8 @@ jobs:
       displayName: "run unit and markup tests"
 
     - bash: |
-        npm run testcafe:ci:angular
+        cd packages/survey-angular-ui
+        npm run testcafe:ci
       displayName: "run functional tests"
 
 - job: Vue3
@@ -313,7 +314,8 @@ jobs:
       displayName: "run unit and markup tests"
 
     - bash: |
-        npm run testcafe:ci:vue3
+        cd packages/survey-vue3-ui
+        npm run testcafe:ci
       displayName: "run functional tests"
 
 - job: SurveyUI_and_CSSFrameworks
@@ -383,5 +385,6 @@ jobs:
     #   displayName: "run markup tests"
 
     - bash: |
+        cd packages/survey-js-ui
         npm run testcafe:ci
       displayName: "run functional tests"

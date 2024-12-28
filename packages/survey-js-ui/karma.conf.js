@@ -47,7 +47,9 @@ module.exports = function (config) {
           "react-dom": path.resolve(__dirname, "./node_modules/preact/compat"),
           "react/jsx-runtime": path.resolve(__dirname, "./node_modules/preact/jsx-runtime"),
           "survey-core": path.resolve(__dirname, "./node_modules/survey-core"),
-          "jquery": path.resolve(__dirname, "./node_modules/jquery")
+          "survey-core/icons/iconsV1": path.resolve(__dirname, "./node_modules/survey-core/icons/iconsV1"),
+          "survey-core/icons/iconsV2": path.resolve(__dirname, "./node_modules/survey-core/icons/iconsV2"),
+          "jquery": path.resolve(__dirname, "./node_modules/jquery"),
         }
       },
       plugins: [

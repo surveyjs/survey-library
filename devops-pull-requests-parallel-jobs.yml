@@ -147,10 +147,12 @@ jobs:
       displayName: "Build React"
 
     - script: |
+        cd packages/survey-react-ui
         npm run test
       displayName: "run markup tests"
 
     - bash: |
+        cd packages/survey-react-ui
         npm run testcafe:ci
       displayName: "run functional tests"
 
@@ -222,7 +224,7 @@ jobs:
 
     - script: |
         cd packages/survey-angular-ui
-        npm run build:example
+        npm run build:example:prod
       displayName: "Build Angular Example"
 
     - script: |

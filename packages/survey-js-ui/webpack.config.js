@@ -81,7 +81,9 @@ module.exports = function (options) {
         "react": path.resolve(__dirname, "./node_modules/preact/compat"),
         "react-dom/test-utils": path.resolve(__dirname, "./node_modules/preact/test-utils"),
         "react-dom": path.resolve(__dirname, "./node_modules/preact/compat"),
-        "react/jsx-runtime": path.resolve(__dirname, "./node_modules/preact/jsx-runtime")
+        "react/jsx-runtime": path.resolve(__dirname, "./node_modules/preact/jsx-runtime"),
+        "survey-core/icons/iconsV1": path.resolve(__dirname, "./node_modules/survey-core/icons/iconsV1"),
+        "survey-core/icons/iconsV2": path.resolve(__dirname, "./node_modules/survey-core/icons/iconsV2"),
       }
     },
     optimization: {

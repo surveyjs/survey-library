@@ -21,6 +21,12 @@
       "survey-core": [
         "./node_modules/survey-core"
       ],
+      "survey-core/icons/iconsV1": [
+        "./node_modules/survey-core/icons/iconsV1"
+      ],
+      "survey-core/icons/iconsV2": [
+        "./node_modules/survey-core/icons/iconsV2"
+      ],
       "react": [
         "./node_modules/@types/react"
       ],

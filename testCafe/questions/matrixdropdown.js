@@ -55,6 +55,7 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
+      await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
     }
   );

@@ -28,13 +28,13 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
+      await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
     }
   );
 
   test("fill text fields", async t => {
     let surveyResult;
-
     await t
       .typeText("tr > td:nth-child(1) input", "All my money")
       .typeText("tr > td:nth-child(2) input", "Zero")

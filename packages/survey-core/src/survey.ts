@@ -172,7 +172,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For an example of how to use the methods described above, refer to the following help topic: [Store Survey Results in Your Own Database](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-your-own-database).
    *
-   * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showSave...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
+   * > Do not disable the [`showCompletePage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletePage) property if you call one of the `options.showSave...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
    * @see onPartialSend
    * @see doComplete
    * @see allowCompleteSurveyAutomatic
@@ -1588,12 +1588,14 @@ export class SurveyModel extends SurveyElementCore
    * @see onComplete
    * @see navigateToUrl
    */
-  public get showCompletedPage(): boolean {
-    return this.getPropertyValue("showCompletedPage");
+  public get showCompletePage(): boolean {
+    return this.getPropertyValue("showCompletePage");
   }
-  public set showCompletedPage(val: boolean) {
-    this.setPropertyValue("showCompletedPage", val);
+  public set showCompletePage(val: boolean) {
+    this.setPropertyValue("showCompletePage", val);
   }
+  public get showCompletedPage(): boolean { return this.showCompletePage; }
+  public set showCompletedPage(val: boolean) { this.showCompletePage = val; }
   /**
    * A URL to which respondents should be navigated after survey completion.
    * @see onNavigateToUrl
@@ -2346,7 +2348,7 @@ export class SurveyModel extends SurveyElementCore
    * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    *
    * [View Demo](https://surveyjs.io/form-library/examples/modify-survey-navigation-settings/ (linkStyle))
-   * @see showCompletedPage
+   * @see showCompletePage
    * @see completedHtmlOnCondition
    */
   public get completedHtml(): string {
@@ -3612,7 +3614,7 @@ export class SurveyModel extends SurveyElementCore
       if (value == "success") text = this.getLocalizationString("savingDataSuccess");
     }
     this.setPropertyValue("completedStateText", text);
-    if (this.state === "completed" && this.showCompletedPage && !!this.completedState) {
+    if (this.state === "completed" && this.showCompletePage && !!this.completedState) {
       this.notify(this.completedStateText, this.completedState, value === "error");
     }
   }
@@ -8165,7 +8167,7 @@ Serializer.addClass("survey", [
   },
   { name: "showTitle:boolean", default: true },
   { name: "showPageTitles:boolean", default: true },
-  { name: "showCompletedPage:boolean", default: true },
+  { name: "showCompletePage:boolean", default: true, alternativeName: "showCompletedPage" },
   "navigateToUrl",
   {
     name: "navigateToUrlOnCondition:urlconditions",

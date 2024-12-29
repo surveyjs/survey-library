@@ -30,7 +30,8 @@
         "vrt": "testcafe ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --env=react --config-file ../../.testcaferc.dev.js",
         "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=react --config-file ../../.testcaferc.js",
         "accessibility-tests": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --env=react --config-file ../../.testcaferc.dev.js",
-        "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react --config-file ../../.testcaferc.js"
+        "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react --config-file ../../.testcaferc.js",
+        "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
     },
     "typings": "./typings/src/entries/react-ui.d.ts",
     "devDependencies": {
@@ -57,7 +58,7 @@
         "sass": "^1.62.1",
         "sass-loader": "^8.0.2",
         "shelljs": "^0.8.3",
-        "standard-version": "^9.5.0",
+        "commit-and-tag-version": "^11.0.0",
         "style-loader": "^1.2.1",
         "survey-core": "../survey-core/build",
         "ts-loader": "^8.0.15",

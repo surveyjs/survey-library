@@ -1,6 +1,6 @@
 {
   "name": "survey-js-ui",
-  "version": "1.12.15",
+  "version": "2.0.0",
   "description": "",
   "homepage": "https://surveyjs.io/Overview/Survey-Creator",
   "author": "Devsoft Baltic OU",
@@ -21,7 +21,8 @@
     "testcafe": "testcafe ../../functionalTests/ --app \"http-server --silent\" --env=survey-js-ui --config-file ../../.testcaferc.dev.js",
     "testcafe:ci": "testcafe ../../functionalTests/ --app \"http-server --silent\" --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js",
     "accessibility-tests": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --env=survey-js-ui --config-file ../../.testcaferc.dev.js",
-    "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js"
+    "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js",
+    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "devDependencies": {
     "@types/jquery": "3.3.29",
@@ -50,7 +51,7 @@
     "sass": "^1.62.1",
     "sass-loader": "^8.0.2",
     "shelljs": "^0.8.3",
-    "standard-version": "^8.0.2",
+    "commit-and-tag-version": "^11.0.0",
     "style-loader": "^1.2.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
     "ts-loader": "^8.0.15",

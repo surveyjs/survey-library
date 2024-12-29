@@ -35,7 +35,7 @@ const buildPlatformJson = {
   typings: "./typings/entries/index.d.ts",
 
   "peerDependencies": {
-    "survey-core": "*",
+    "survey-core": packageJson.version,
     "react": "^16.5.0 || ^17.0.1 || ^18.2.0",
     "react-dom": "^16.5.0 || ^17.0.1 || ^18.2.0"
   }

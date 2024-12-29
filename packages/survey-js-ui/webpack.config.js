@@ -37,10 +37,10 @@ const buildPlatformJson = {
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
-  "typings": "./typings/src/entries/js-ui.d.ts",
+  "typings": "./typings/survey-js-ui/entries/index.d.ts",
   "dependencies": {},
   "peerDependencies": {
-    "survey-core": "*",
+    "survey-core": packageJson.version,
     "@types/react-dom": "*",
     "@types/react": "*"
   }

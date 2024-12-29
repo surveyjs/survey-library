@@ -1,6 +1,6 @@
 {
   "name": "survey-core",
-  "version": "1.8.33",
+  "version": "2.0.0",
   "scripts": {
     "build": "webpack --env buildType=dev && webpack --env buildType=prod",
     "build:esm": "webpack --config ./webpack.esm.config.mjs --env buildType=dev",
@@ -14,7 +14,7 @@
     "test:postcss": "postcss build/defaultV2.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -o defaultV2.postcss.css && rimraf defaultV2.postcss.css",
     "doc_gen": "node doc_generator/lib_docgenerator.js ./entries/chunks/model.ts",
     "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
-    "release": "standard-version --message \"Release: %s [azurepipelines skip]\""
+    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "main": "survey.core.js",
   "repository": {
@@ -54,7 +54,7 @@
     "rimraf": "2.5.4",
     "sass": "^1.62.1",
     "sass-loader": "^8.0.2",
-    "standard-version": "^9.5.0",
+    "commit-and-tag-version": "^11.0.0",
     "style-loader": "^1.2.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
     "svg-inline-loader": "^0.8.2",
@@ -73,7 +73,7 @@
     "tsconfig-paths-webpack-plugin": "^3.3.0",
     "signature_pad": "^4.1.5"
   },
-  "standard-version": {
+  "commit-and-tag-version": {
     "skip": {
       "tag": true
     }

@@ -193,7 +193,7 @@ export class SurveyModel extends SurveyElementCore
   public onNavigateToUrl: EventBase<SurveyModel, NavigateToUrlEvent> = this.addEvent<SurveyModel, NavigateToUrlEvent>();
   /**
    * An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes to `"running"`.
-   * @see firstPageIsStarted
+   * @see firstPageIsStartPage
    */
   public onStarted: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
   /**
@@ -939,7 +939,7 @@ export class SurveyModel extends SurveyElementCore
     this.registerPropertyChangedHandlers(["locale"], () => {
       this.onSurveyLocaleChanged();
     });
-    this.registerPropertyChangedHandlers(["firstPageIsStarted"], () => {
+    this.registerPropertyChangedHandlers(["firstPageIsStartPage"], () => {
       this.onFirstPageIsStartedChanged();
     });
     this.registerPropertyChangedHandlers(["mode"], () => {
@@ -2020,7 +2020,7 @@ export class SurveyModel extends SurveyElementCore
         visPages[i].navigationLocStrChanged();
       }
     }
-    if (!this.isShowStartingPage) {
+    if (!this.isStartPageActive) {
       this.updateProgressText();
     }
     this.navigationBar.locStrsChanged();
@@ -2485,7 +2485,7 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Gets or sets a caption for the Start button.
-   * @see firstPageIsStarted
+   * @see firstPageIsStartPage
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get startSurveyText(): string {
@@ -2895,8 +2895,8 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public updateElementCss(reNew?: boolean): void {
-    if (!!this.startedPage) {
-      this.startedPage.updateElementCss(reNew);
+    if (!!this.startPage) {
+      this.startPage.updateElementCss(reNew);
     }
     var pages = this.visiblePages;
     for (var i = 0; i < pages.length; i++) {
@@ -3335,21 +3335,22 @@ export class SurveyModel extends SurveyElementCore
     return this.visiblePages.length;
   }
   /**
-   * Returns the start page. Applies only if the [`firstPageIsStarted`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#firstPageIsStarted) property is set to `true`.
+   * Returns the start page. Applies only if the [`firstPageIsStartPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#firstPageIsStartPage) property is set to `true`.
    *
    * Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
-   * @see firstPageIsStarted
+   * @see firstPageIsStartPage
    * @see activePage
    */
-  public get startedPage(): PageModel {
+  public get startPage(): PageModel {
     var page =
-      this.firstPageIsStarted && this.pages.length > 1 ? this.pages[0] : null;
+      this.firstPageIsStartPage && this.pages.length > 1 ? this.pages[0] : null;
     if (!!page) {
       page.onFirstRendering();
       page.setWasShown(true);
     }
     return page;
   }
+  public get startedPage(): PageModel { return this.startPage; }
   /**
    * Gets or sets the current page.
    *
@@ -3418,10 +3419,10 @@ export class SurveyModel extends SurveyElementCore
     return !!this.onContainsPageCallback && this.onContainsPageCallback(page);
   }
   /**
-   * Returns [`startedPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startedPage) if the survey currently displays a start page; otherwise, returns [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage).
-   * @see startedPage
+   * Returns [`startPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startPage) if the survey currently displays a start page; otherwise, returns [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage).
+   * @see startPage
    * @see currentPage
-   * @see firstPageIsStarted
+   * @see firstPageIsStartPage
    */
   public get activePage(): any {
     return this.getPropertyValue("activePage");
@@ -3429,8 +3430,11 @@ export class SurveyModel extends SurveyElementCore
   /**
    * A Boolean value that indicates whether the [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page) is currently displayed.
    */
-  public get isShowStartingPage(): boolean {
+  public get isStartPageActive(): boolean {
     return this.state === "starting";
+  }
+  public get isShowStartingPage(): boolean {
+    return this.isStartPageActive;
   }
   /**
    * Specifies which part of a matrix row responds to a drag gesture in [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) questions.
@@ -3447,10 +3451,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("matrixDragHandleArea", val);
   }
   public get isShowingPage(): boolean {
-    return this.state == "running" || this.state == "preview" || this.isShowStartingPage;
+    return this.state == "running" || this.state == "preview" || this.isStartPageActive;
   }
   private updateActivePage(): void {
-    const newPage = this.isShowStartingPage ? this.startedPage : this.currentPage;
+    const newPage = this.isStartPageActive ? this.startPage : this.currentPage;
     if (newPage !== this.activePage) {
       this.setPropertyValue("activePage", newPage);
     }
@@ -3555,7 +3559,7 @@ export class SurveyModel extends SurveyElementCore
       !this.isDesignMode &&
       this.isEditMode &&
       this.isStartedState &&
-      this.startedPage
+      this.startPage
     )
       return "starting";
     if (this.isShowingPreview) return this.currentPage ? "preview" : "empty";
@@ -4355,18 +4359,24 @@ export class SurveyModel extends SurveyElementCore
    * Gets or sets a Boolean value that specifies whether the first page is a start page.
    *
    * Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
-   * @see startedPage
+   * @see startPage
    * @see activePage
    */
+  public get firstPageIsStartPage(): boolean {
+    return this.getPropertyValue("firstPageIsStartPage");
+  }
+  public set firstPageIsStartPage(val: boolean) {
+    this.setPropertyValue("firstPageIsStartPage", val);
+  }
   public get firstPageIsStarted(): boolean {
-    return this.getPropertyValue("firstPageIsStarted");
+    return this.firstPageIsStartPage;
   }
   public set firstPageIsStarted(val: boolean) {
-    this.setPropertyValue("firstPageIsStarted", val);
+    this.firstPageIsStartPage = val;
   }
   isPageStarted(page: IPage): boolean {
     return (
-      this.firstPageIsStarted && this.pages.length > 1 && this.pages[0] === page
+      this.firstPageIsStartPage && this.pages.length > 1 && this.pages[0] === page
     );
   }
   /**
@@ -4392,8 +4402,8 @@ export class SurveyModel extends SurveyElementCore
     var preview = this.showPreviewBeforeComplete;
     return preview == "showAllQuestions" || preview == "showAnsweredQuestions";
   }
-  protected onFirstPageIsStartedChanged() {
-    this.isStartedState = this.firstPageIsStarted && this.pages.length > 1;
+  protected onFirstPageIsStartedChanged(): void {
+    this.isStartedState = this.firstPageIsStartPage && this.pages.length > 1;
     this.pageVisibilityChanged(this.pages[0], !this.isStartedState);
   }
   private runningPages: any;
@@ -4505,12 +4515,12 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private getPageStartIndex(): number {
-    return this.firstPageIsStarted && this.pages.length > 0 ? 1 : 0;
+    return this.firstPageIsStartPage && this.pages.length > 0 ? 1 : 0;
   }
   /**
    * Indicates whether the [current page](#currentPage) is the first page.
    *
-   * > If the survey displays the [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page), this property contains `false`. Use the [`isShowStartingPage`](#isShowStartingPage) property to find out whether the start page is currently displayed.
+   * > If the survey displays the [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page), this property contains `false`. Use the [`isStartPageActive`](#isStartPageActive) property to find out whether the start page is currently displayed.
    */
   public get isFirstPage(): boolean {
     return this.getPropertyValue("isFirstPage");
@@ -4702,13 +4712,13 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Starts the survey. Applies only if the survey has a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
-   * @see firstPageIsStarted
+   * @see firstPageIsStartPage
    * @see completeLastPage
    */
   public start(): boolean {
-    if (!this.firstPageIsStarted) return false;
+    if (!this.firstPageIsStartPage) return false;
     this.isCurrentPageRendering = true;
-    if (this.checkIsPageHasErrors(this.startedPage, true)) return false;
+    if (this.checkIsPageHasErrors(this.startPage, true)) return false;
     this.isStartedState = false;
     this.notifyQuestionsOnHidingContent(this.pages[0]);
     this.startTimerFromUI();
@@ -6411,7 +6421,7 @@ export class SurveyModel extends SurveyElementCore
     const defaultComponent = "sv-nav-btn";
     const navStart = new Action({
       id: "sv-nav-start",
-      visible: <any>new ComputedUpdater<boolean>(() => this.isShowStartingPage),
+      visible: <any>new ComputedUpdater<boolean>(() => this.isStartPageActive),
       visibleIndex: 10,
       locTitle: this.locStartSurveyText,
       action: () => this.start(),
@@ -7865,12 +7875,12 @@ export class SurveyModel extends SurveyElementCore
     for (let layoutElement of this.layoutElements) {
       if (this.mode !== "display" && isStrCiEqual(layoutElement.id, "timerpanel")) {
         if (container === "header") {
-          if (this.isTimerPanelShowingOnTop && !this.isShowStartingPage) {
+          if (this.isTimerPanelShowingOnTop && !this.isStartPageActive) {
             containerLayoutElements.push(layoutElement);
           }
         }
         if (container === "footer") {
-          if (this.isTimerPanelShowingOnBottom && !this.isShowStartingPage) {
+          if (this.isTimerPanelShowingOnBottom && !this.isStartPageActive) {
             containerLayoutElements.push(layoutElement);
           }
         }
@@ -7887,7 +7897,7 @@ export class SurveyModel extends SurveyElementCore
           }
           if (container === "header" && !isBelowHeader) {
             layoutElement.index = -150;
-            if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
+            if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
               containerLayoutElements.push(layoutElement);
             }
           }
@@ -7895,12 +7905,12 @@ export class SurveyModel extends SurveyElementCore
             if (!!layoutElement.index) {
               delete layoutElement.index;
             }
-            if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
+            if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
               containerLayoutElements.push(layoutElement);
             }
           }
           if (container === "footer") {
-            if (this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
+            if (this.isShowProgressBarOnBottom && !this.isStartPageActive) {
               containerLayoutElements.push(layoutElement);
             }
           }
@@ -8271,7 +8281,7 @@ Serializer.addClass("survey", [
   {
     name: "startSurveyText",
     serializationProperty: "locStartSurveyText",
-    visibleIf: (obj: any) => { return obj.firstPageIsStarted; }
+    visibleIf: (obj: any) => { return obj.firstPageIsStartPage; }
   },
   {
     name: "pagePrevText",
@@ -8319,7 +8329,7 @@ Serializer.addClass("survey", [
     isSerializable: false,
     serializationProperty: "locQuestionTitleTemplate",
   },
-  { name: "firstPageIsStarted:boolean", default: false },
+  { name: "firstPageIsStartPage:boolean", default: false, alternativeName: "firstPageIsStarted" },
   {
     name: "isSinglePage:boolean",
     default: false,

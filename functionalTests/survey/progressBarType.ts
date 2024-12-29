@@ -106,6 +106,7 @@ const json_toc = {
 frameworks.forEach(async framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
+      await t.resizeWindow(1920, 1080);
     }
   );
   test("progressBarType:questions", async t => {

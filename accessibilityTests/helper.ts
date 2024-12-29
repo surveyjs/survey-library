@@ -68,6 +68,9 @@ export const initSurvey = ClientFunction(
         el: "#surveyElement",
         data: { survey: model },
       });
+    } else if (framework === "survey-js-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      (window as any).SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
     } else if (framework === "angular" || framework == "vue3") {
       (window as any).setSurvey(model);
     }

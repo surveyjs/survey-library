@@ -16057,7 +16057,8 @@ QUnit.test("firstPageIsStarted = true and clear&state='starting'", function (ass
   assert.equal(survey.state, "starting", "starting state #1");
   assert.equal(survey.getPropertyValue("isStartedState"), true, "isStartedState #1");
   assert.equal(startButton.isVisible, true, "startButton is visible, #1");
-  assert.equal(survey.showNavigationButtons, "bottom", "Show navigation on bottom");
+  assert.equal(survey.showNavigationButtons, true, "Show navigation on bottom - true");
+  assert.equal(survey.navigationButtonsLocation, "bottom", "Show navigation on bottom");
   survey.start();
   assert.equal(survey.state, "running", "run survey");
   assert.equal(survey.getPropertyValue("isStartedState"), false, "isStartedState #2");
@@ -17594,7 +17595,8 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   let survey = new SurveyModel(json);
   const getContainerContent = getContainerContentFunction(survey);
 
-  assert.equal(survey.showNavigationButtons, "bottom");
+  assert.equal(survey.showNavigationButtons, true);
+  assert.equal(survey.navigationButtonsLocation, "bottom");
   assert.equal(survey.progressBarType, "pages");
   assert.equal(survey.showProgressBar, "off");
 
@@ -17717,7 +17719,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
     let survey = new SurveyModel(json);
     const getContainerContent = getContainerContentFunction(survey);
 
-    assert.equal(survey.showNavigationButtons, "none");
+    assert.equal(survey.showNavigationButtons, false);
     assert.equal(survey.progressBarType, "pages");
     assert.equal(survey.showProgressBar, "off");
 
@@ -17873,7 +17875,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   let survey = new SurveyModel(json);
   const getContainerContent = getContainerContentFunction(survey);
 
-  assert.equal(survey.showNavigationButtons, "none");
+  assert.equal(survey.showNavigationButtons, false);
   assert.equal(survey.progressBarType, "pages");
   assert.equal(survey.showProgressBar, "off");
 
@@ -18563,7 +18565,8 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
     return result;
   }
 
-  assert.equal(survey.showNavigationButtons, "bottom");
+  assert.equal(survey.showNavigationButtons, true);
+  assert.equal(survey.navigationButtonsLocation, "bottom");
 
   assert.deepEqual(getContainerContent("header"), [], "nav none header");
   assert.deepEqual(getContainerContent("footer"), [], "nav none footer");
@@ -19708,7 +19711,7 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
     survey.headerView = "advanced";
     const getContainerContent = getContainerContentFunction(survey);
 
-    assert.equal(survey.showNavigationButtons, "none");
+    assert.equal(survey.showNavigationButtons, false);
     assert.equal(survey.progressBarType, "pages");
     assert.equal(survey.showProgressBar, "off");
 
@@ -19826,7 +19829,7 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
   survey.headerView = "advanced";
   const getContainerContent = getContainerContentFunction(survey);
 
-  assert.equal(survey.showNavigationButtons, "none");
+  assert.equal(survey.showNavigationButtons, false);
   assert.equal(survey.progressBarType, "pages");
   assert.equal(survey.showProgressBar, "off");
 

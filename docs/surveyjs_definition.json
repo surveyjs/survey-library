@@ -76,16 +76,16 @@
             "type": "boolean"
         },
         "showNavigationButtons": {
+            "type": "boolean"
+        },
+        "navigationButtonsLocation": {
             "type": [
-                "string",
-                "numeric",
-                "boolean"
+                "string"
             ],
             "enum": [
-                "none",
                 "top",
                 "bottom",
-                "both"
+                "topBottom"
             ]
         },
         "showPrevButton": {

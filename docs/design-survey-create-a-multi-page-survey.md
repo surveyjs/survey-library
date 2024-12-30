@@ -262,11 +262,11 @@ const surveyJson = {
 };
 ```
 
-If you want to hide the buttons, set the [`showNavigationButtons`](https://surveyjs.io/Documentation/Library?id=surveymodel#showNavigationButtons) property to `"none"`. In this case, you can use the API described in the [Switch Between Pages](#switch-between-pages) article to implement custom page navigation. Alternatively, you can enable the [`goNextPageAutomatic`](https://surveyjs.io/Documentation/Library?id=surveymodel#goNextPageAutomatic) and [`allowCompleteSurveyAutomatic`](https://surveyjs.io/Documentation/Library?id=surveymodel#allowCompleteSurveyAutomatic) properties to proceed to the next page or complete the survey automatically when all questions are answered.
+If you want to hide the buttons, set the [`showNavigationButtons`](https://surveyjs.io/Documentation/Library?id=surveymodel#showNavigationButtons) property to `false`. In this case, you can use the API described in the [Switch Between Pages](#switch-between-pages) article to implement custom page navigation. Alternatively, you can enable the [`goNextPageAutomatic`](https://surveyjs.io/Documentation/Library?id=surveymodel#goNextPageAutomatic) and [`allowCompleteSurveyAutomatic`](https://surveyjs.io/Documentation/Library?id=surveymodel#allowCompleteSurveyAutomatic) properties to proceed to the next page or complete the survey automatically when all questions are answered.
 
 ```js
 const surveyJson = {
-    showNavigationButtons: "none",
+    showNavigationButtons: false,
     goNextPageAutomatic: true,
     allowCompleteSurveyAutomatic: true
 };

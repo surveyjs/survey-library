@@ -5437,7 +5437,7 @@ QUnit.test("text question inputSize and inputWidth", function (assert) {
   assert.equal(q2.inputStyle.width, "", "q2 inputStyle width is undefined");
   assert.equal(q3.inputStyle.width, "", "q3 inputStyle width is undefined");
 });
-QUnit.test("Multiple Text Question: itemSize", function (assert) {
+QUnit.test("Multiple Text Question: inputSize", function (assert) {
   var mText = new QuestionMultipleTextModel("mText");
   mText.items.push(new MultipleTextItemModel("q1"));
   mText.items.push(new MultipleTextItemModel("q2"));

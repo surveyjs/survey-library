@@ -430,7 +430,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised before the survey calculates a panel number. Handle this event to modify panel numbers.
    *
-   * This event is raised only for the panels with the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#showNumber) property enabled.
+   * This event is raised only for the panels with a [specified title](https://surveyjs.io/form-library/documentation/api-reference/panel-model#title) and [visible number](https://surveyjs.io/form-library/documentation/api-reference/panel-model#showNumber).
    */
   public onGetPanelNumber: EventBase<SurveyModel, GetPanelNumberEvent> = this.addEvent<SurveyModel, GetPanelNumberEvent>();
   /**

@@ -313,7 +313,8 @@ The following built-in functions are available:
 - [`day`](#day)
 - [`weekday`](#weekday)
 - [`getDate`](#getdate)
-- [`diffDays`](#diffdays)
+- [`dateAdd`](#dateadd)
+- [`dateDiff`](#datediff)
 - [`sum`](#sum)
 - [`max`](#max)
 - [`min`](#min)
@@ -469,7 +470,7 @@ Returns a Date value converted from a given question's value.
 
 *Definition*: `dateAdd(date: any, numberToAdd: number, interval: "days" | "months" | "years"): Date`
 
-Adds a specified number of full days (default), months, or years to a date value.
+Adds or subtracts a specified number of full days (default), months, or years to or from a date value.
 
 *Example*: `"expression": "dateAdd({startDate}, 14, "days")"`
 
@@ -486,20 +487,6 @@ Returns a difference between two given dates in full days (default), months, or 
 *Example*: `"expression": "dateDiff({birthdate}, today(), "months")"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/1b94692b94bd219a5620e9da647ce0953bf2fba4/src/functionsfactory.ts#L263-L267 (linkStyle))
-
----
-
-#### `diffDays`
-
-> This function is obsolete. Use the [`dateDiff`](#datediff) function instead.
-
-*Definition*: `diffDays(fromDate: any, toDate: any): number`
- 
-Returns the number of days between two given dates.
-
-*Example*: `"expression": "diffDays({startDate}, {endDate}) < 7"`
-
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L266-L274 (linkStyle))
 
 ---
 

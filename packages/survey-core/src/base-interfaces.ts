@@ -158,7 +158,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   storeOthersAsComment: boolean;
 
   maxTextLength: number;
+  /**
+   * @deprecated The property should not be used
+   */
   maxOthersLength: number;
+  maxCommentLength: number;
   clearValueOnDisableItems: boolean;
 
   timeLimitPerPage: number;

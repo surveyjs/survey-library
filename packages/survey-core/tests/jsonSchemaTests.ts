@@ -13,9 +13,9 @@ QUnit.test("generate survey schema", function (assert) {
   assert.equal(schema.title, "SurveyJS Library json schema");
   assert.equal(schema.properties.surveyId.type, "string", "surveyId is string");
   assert.equal(
-    schema.properties.sendResultOnPageNext.type,
+    schema.properties.partialSendEnabled.type,
     "boolean",
-    "sendResultOnPageNext is boolean"
+    "partialSendEnabled is boolean"
   );
   assert.deepEqual(schema.properties.title,
     { "oneOf": [

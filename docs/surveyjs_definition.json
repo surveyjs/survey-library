@@ -66,6 +66,9 @@
         "sendResultOnPageNext": {
             "type": "boolean"
         },
+        "partialSendEnabled": {
+            "type": "boolean"
+        },
         "surveyShowDataSaving": {
             "type": "boolean"
         },
@@ -135,6 +138,9 @@
             "type": "number"
         },
         "maxOthersLength": {
+            "type": "number"
+        },
+        "maxCommentLength": {
             "type": "number"
         },
         "goNextPageAutomatic": {

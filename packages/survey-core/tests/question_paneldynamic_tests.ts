@@ -5077,7 +5077,7 @@ QUnit.test("Bindings to panelCount performance issue #2 reduce recalc visibleInd
     ],
   });
   var counter = 0;
-  survey.onProgressText.add((sender, options) => {
+  survey.onGetProgressText.add((sender, options) => {
     counter ++;
   });
   counter = 0;

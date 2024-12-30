@@ -3398,3 +3398,55 @@ QUnit.test("Nested pages", function (assert) {
   assert.equal(page1.survey.state, "running", "survey state #3");
   assert.equal(page1.isDisposed, false, "The page is not disposed");
 });
+QUnit.test("survey.onGetPanelNumber", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel", name: "panel1", title: "Panel 1",
+        showNumber: true, showQuestionNumbers: "onpanel",
+        elements: [
+          { type: "panel", name: "panel2",
+            showNumber: true, showQuestionNumbers: "onpanel", title: "Panel 2",
+            elements: [
+              { type: "text", name: "q1" },
+              { type: "text", name: "q2" }
+            ]
+          },
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" }
+        ]
+      },
+      {
+        type: "panel", name: "panel3",
+        showNumber: true, showQuestionNumbers: "onpanel", title: "Panel 3",
+        elements: [
+          { type: "text", name: "q5" },
+          { type: "text", name: "q6" }
+        ]
+      },
+      { type: "text", name: "q7" }
+    ]
+  });
+  survey.onGetQuestionNumber.add((sender, options) => {
+    const parent: any = options.question.parent;
+    if(!!parent && parent.no) {
+      options.number = parent.no + options.number;
+    }
+  });
+  survey.onGetPanelNumber.add((sender, options) => {
+    const parent: any = options.panel.parent;
+    if(!!parent && parent.no) {
+      options.number = parent.no + options.number;
+    }
+  });
+  assert.equal(survey.getPanelByName("panel1").no, "1.", "panel1.no");
+  assert.equal(survey.getPanelByName("panel2").no, "1.1.", "panel2.no");
+  assert.equal(survey.getPanelByName("panel3").no, "2.", "panel3.no");
+  assert.equal(survey.getQuestionByName("q1").no, "1.1.1.", "q1.no");
+  assert.equal(survey.getQuestionByName("q2").no, "1.1.2.", "q2.no");
+  assert.equal(survey.getQuestionByName("q3").no, "1.2.", "q3.no");
+  assert.equal(survey.getQuestionByName("q4").no, "1.3.", "q4.no");
+  assert.equal(survey.getQuestionByName("q5").no, "2.1.", "q5.no");
+  assert.equal(survey.getQuestionByName("q6").no, "2.2.", "q6.no");
+  assert.equal(survey.getQuestionByName("q7").no, "3.", "q7.no");
+});

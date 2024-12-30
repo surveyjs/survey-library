@@ -2959,7 +2959,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Test defaultValueFromLastRow property", function (assert) {
+QUnit.test("Test copyDefaultValueFromLastEntry property", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page");
   var question = <QuestionMatrixDynamicModel>(
@@ -2970,7 +2970,7 @@ QUnit.test("Test defaultValueFromLastRow property", function (assert) {
   question.addColumn("col1");
   question.addColumn("col2");
   question.addColumn("col3");
-  question.defaultValueFromLastRow = true;
+  question.copyDefaultValueFromLastEntry = true;
   question.addRow();
   question.visibleRows;
   assert.equal(question.isEmpty(), true, "It is empty");
@@ -2982,7 +2982,7 @@ QUnit.test("Test defaultValueFromLastRow property", function (assert) {
       { col1: 1, col2: 2 },
       { col1: 1, col2: 2 },
     ],
-    "defaultValueFromLastRow is working"
+    "copyDefaultValueFromLastEntry is working"
   );
   question.defaultRowValue = { col1: 11, col3: 3 };
   question.addRow();
@@ -2993,7 +2993,7 @@ QUnit.test("Test defaultValueFromLastRow property", function (assert) {
       { col1: 1, col2: 2 },
       { col1: 1, col2: 2, col3: 3 },
     ],
-    "defaultValueFromLastRow is merging with defaultRowValue"
+    "copyDefaultValueFromLastEntry is merging with defaultRowValue"
   );
 });
 
@@ -6719,14 +6719,14 @@ QUnit.test("Detail panel, run conditions & matrix before elements, bug#9137", fu
   assert.equal(panel.getQuestionByName("q1").isVisible, true, "first question is visible, #3");
   assert.equal(panel.getQuestionByName("q2").isVisible, true, "second question is visible, #3");
 });
-QUnit.test("Detail panel and defaultValueFromLastRow", function (assert) {
+QUnit.test("Detail panel and copyDefaultValueFromLastEntry", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
         type: "matrixdynamic",
         name: "matrix",
         detailPanelMode: "underRow",
-        defaultValueFromLastRow: true,
+        copyDefaultValueFromLastEntry: true,
         detailElements: [{ type: "text", name: "q1" }],
         rowCount: 1,
         columns: [

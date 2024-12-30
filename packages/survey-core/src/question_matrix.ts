@@ -309,15 +309,21 @@ export class QuestionMatrixModel
    * @see eachRowUnique
    * @see validators
    */
+  public get eachRowRequired(): boolean {
+    return this.getPropertyValue("eachRowRequired");
+  }
+  public set eachRowRequired(val: boolean) {
+    this.setPropertyValue("eachRowRequired", val);
+  }
   public get isAllRowRequired(): boolean {
-    return this.getPropertyValue("isAllRowRequired");
+    return this.eachRowRequired;
   }
   public set isAllRowRequired(val: boolean) {
-    this.setPropertyValue("isAllRowRequired", val);
+    this.eachRowRequired = val;
   }
   /**
    * Specifies whether answers in all rows should be unique. If any answers duplicate, the question displays a validation error.
-   * @see isAllRowRequired
+   * @see eachRowRequired
    * @see validators
    */
   public get eachRowUnique(): boolean {
@@ -386,7 +392,7 @@ export class QuestionMatrixModel
     return new CssClassBuilder()
       .append(css.cell, hasCellText)
       .append(hasCellText ? css.cellText : css.label)
-      .append(css.itemOnError, !hasCellText && (this.isAllRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()))
+      .append(css.itemOnError, !hasCellText && (this.eachRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()))
       .append(hasCellText ? css.cellTextSelected : css.itemChecked, isChecked)
       .append(hasCellText ? css.cellTextDisabled : css.itemDisabled, this.isDisabledStyle)
       .append(hasCellText ? css.cellTextReadOnly : css.itemReadOnly, this.isReadOnlyStyle)
@@ -538,7 +544,7 @@ export class QuestionMatrixModel
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (!rows) return;
-    const rowsRequired = this.isAllRowRequired || allRowsRequired;
+    const rowsRequired = this.eachRowRequired || allRowsRequired;
     const rowsUnique = this.eachRowUnique;
     res.noValue = false;
     res.isNotUnique = false;
@@ -818,7 +824,7 @@ Serializer.addClass(
       default: "initial",
       choices: ["initial", "random"],
     },
-    "isAllRowRequired:boolean",
+    { name: "eachRowRequired:boolean", alternativeName: "isAllRowRequired" },
     { name: "eachRowUnique:boolean", category: "validation" },
     "hideIfRowsEmpty:boolean",
     { name: "cellComponent", visible: false, default: "survey-matrix-cell" }

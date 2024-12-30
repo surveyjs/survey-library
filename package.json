@@ -23,8 +23,13 @@
     "get-func-name": "2.0.0",
     "@types/lodash": "4.14.186",
     "puppeteer": "22.13.1",
-    "axe-core": "^3.5.6",
-    "axe-testcafe": "latest"
+    "axe-core": "^4.8.2",
+    "axe-testcafe": "^3.0.0"
+  },
+  "overrides": {
+    "axe-testcafe": {
+      "axe-core": "^4.8.2"
+    }
   },
   "husky": {
     "hooks": {

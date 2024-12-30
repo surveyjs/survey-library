@@ -1827,7 +1827,7 @@ QUnit.test("Expand panel on error in multiple text question", function(assert) {
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
   assert.equal(panel.state, "collapsed", "the panel is collapsed by default");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(panel.state, "expanded", "the panel is expanded");
 });
 
@@ -2836,7 +2836,7 @@ QUnit.test("Check if errors disappered in the closest questions on changing the 
   q2.value = 6;
   assert.equal(q1.errors.length, 0, "q1.errors #1");
   assert.equal(q2.errors.length, 0, "q2.errors #1");
-  assert.equal(survey.completeLastPage(), false, "Could not complete");
+  assert.equal(survey.tryComplete(), false, "Could not complete");
   assert.equal(q1.errors.length, 1, "q1.errors #2");
   assert.equal(q2.errors.length, 1, "q2.errors #2");
   q1.value = 1;

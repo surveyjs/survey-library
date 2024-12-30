@@ -427,6 +427,11 @@ export class SurveyModel extends SurveyElementCore
    * This event is obsolete. Use the [`onGetQuestionNumber`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNumber) event instead.
    */
   public onGetQuestionNo: EventBase<SurveyModel, GetQuestionNumberEvent> = this.onGetQuestionNumber;
+  /**
+   * An event that is raised before the survey calculates a panel number. Handle this event to modify panel numbers.
+   *
+   * This event is raised only for the panels with the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#showNumber) property enabled.
+   */
   public onGetPanelNumber: EventBase<SurveyModel, GetPanelNumberEvent> = this.addEvent<SurveyModel, GetPanelNumberEvent>();
   /**
    * An event that is raised before the survey calculates a page number. Handle this event to modify page numbers.

@@ -221,3 +221,21 @@ QUnit.test("Survey width scaling", function (assert) {
   assert.equal(survey.isScaled, true);
   assert.equal(survey.renderedWidth, "900px");
 });
+
+QUnit.test("Question min width scaling", function (assert) {
+  var survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1",
+      },
+    ]
+  });
+  const q = survey.getAllQuestions()[0];
+  assert.equal(survey.widthScale, 100);
+  assert.equal(q.rootStyle["minWidth"], "min(100%, 300px)");
+
+  survey.widthScale = 50;
+  assert.equal(survey.widthScale, 50);
+  assert.equal(q.rootStyle["minWidth"], "min(100%, 150px)");
+});

@@ -58,17 +58,18 @@ import {
   TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent,
   ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent,
   QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
-  ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent, ProgressTextEvent,
+  ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent, GetPanelNumberEvent, GetProgressTextEvent,
   TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, LoadChoicesFromServerEvent,
   ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
   AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
   MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
   MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent,
-  DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent,
-  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
+  DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, CheckAnswerCorrectEvent, DragDropAllowEvent, ScrollToTopEvent, GetQuestionTitleActionsEvent,
+  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
-  OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent
+  OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent,
+  GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent, IsAnswerCorrectEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -424,9 +425,16 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetQuestionNumber: EventBase<SurveyModel, GetQuestionNumberEvent> = this.addEvent<SurveyModel, GetQuestionNumberEvent>();
   /**
-   * This event is obsolete. Use the [`onGetQuestionNumber`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNumber) event instead.
+   * Obsolete. Use the [`onGetQuestionNumber`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNumber) event instead.
+   * @deprecated
    */
   public onGetQuestionNo: EventBase<SurveyModel, GetQuestionNumberEvent> = this.onGetQuestionNumber;
+  /**
+   * An event that is raised before the survey calculates a panel number. Handle this event to modify panel numbers.
+   *
+   * This event is raised only for the panels with a [specified title](https://surveyjs.io/form-library/documentation/api-reference/panel-model#title) and [visible number](https://surveyjs.io/form-library/documentation/api-reference/panel-model#showNumber).
+   */
+  public onGetPanelNumber: EventBase<SurveyModel, GetPanelNumberEvent> = this.addEvent<SurveyModel, GetPanelNumberEvent>();
   /**
    * An event that is raised before the survey calculates a page number. Handle this event to modify page numbers.
    *
@@ -442,7 +450,12 @@ export class SurveyModel extends SurveyElementCore
    * @see showProgressBar
    * @see progressBarType
    */
-  public onProgressText: EventBase<SurveyModel, ProgressTextEvent> = this.addEvent<SurveyModel, ProgressTextEvent>();
+  public onGetProgressText: EventBase<SurveyModel, GetProgressTextEvent> = this.addEvent<SurveyModel, GetProgressTextEvent>();
+  /**
+   * Obsolete. Use the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event instead.
+   * @deprecated
+   */
+  public onProgressText: EventBase<SurveyModel, ProgressTextEvent> = this.onGetProgressText;
   /**
    * An event that is raised to convert Markdown content to HTML.
    *
@@ -664,7 +677,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixRowAdding: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.addEvent<SurveyModel, MatrixBeforeRowAddedEvent>();
   /**
-   * This event is obsolete. Use the [`onMatrixRowAdding`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRowAdding) event instead.
+   * Obsolete. Use the [`onMatrixRowAdding`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRowAdding) event instead.
+   * @deprecated
    */
   public onMatrixBeforeRowAdded: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.onMatrixRowAdding;
 
@@ -687,7 +701,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixRenderRemoveButton: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.addEvent<SurveyModel, MatrixAllowRemoveRowEvent>();
   /**
-   * This event is obsolete. Use the [`onMatrixRenderRemoveButton`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
+   * Obsolete. Use the [`onMatrixRenderRemoveButton`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
+   * @deprecated
    */
   public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.onMatrixRenderRemoveButton;
   /**
@@ -712,7 +727,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onAfterRenderMatrixCell: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
   /**
-   * This event is obsolete. Use the [`onAfterRenderMatrixCell`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onAfterRenderMatrixCell) event instead.
+   * Obsolete. Use the [`onAfterRenderMatrixCell`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onAfterRenderMatrixCell) event instead.
+   * @deprecated
    */
   public onMatrixAfterCellRender: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.onAfterRenderMatrixCell;
 
@@ -796,7 +812,12 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised to define whether a question answer is correct. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
    */
-  public onIsAnswerCorrect: EventBase<SurveyModel, IsAnswerCorrectEvent> = this.addEvent<SurveyModel, IsAnswerCorrectEvent>();
+  public onCheckAnswerCorrect: EventBase<SurveyModel, CheckAnswerCorrectEvent> = this.addEvent<SurveyModel, CheckAnswerCorrectEvent>();
+  /**
+   * Obsolete. Use the [`onCheckAnswerCorrect`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCheckAnswerCorrect) event instead.
+   * @deprecated
+   */
+  public onIsAnswerCorrect: EventBase<SurveyModel, IsAnswerCorrectEvent> = this.onCheckAnswerCorrect;
 
   /**
    * An event that is raised when users drag and drop survey elements while designing the survey in [Survey Creator](https://surveyjs.io/survey-creator/documentation/overview). Use this event to control drag and drop operations.
@@ -806,7 +827,12 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event this is raised before a survey element (usually page) is scrolled to the top. Use this event to cancel the scroll operation.
    */
-  public onScrollingElementToTop: EventBase<SurveyModel, ScrollingElementToTopEvent> = this.addEvent<SurveyModel, ScrollingElementToTopEvent>();
+  public onScrollToTop: EventBase<SurveyModel, ScrollToTopEvent> = this.addEvent<SurveyModel, ScrollToTopEvent>();
+  /**
+   * Obsolete. Use the [`onScrollToTop`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onScrollToTop) event instead.
+   * @deprecated
+   */
+  public onScrollingElementToTop: EventBase<SurveyModel, ScrollingElementToTopEvent> = this.onScrollToTop;
 
   public onLocaleChangedEvent: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
 
@@ -851,10 +877,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 
-  /**
-   * An event that is raised after a survey element is [expanded or collapsed](https://surveyjs.io/form-library/documentation/api-reference/question#state).
-   */
-  public onElementContentVisibilityChanged: EventBase<SurveyModel, ElementContentVisibilityChangedEvent> = this.addEvent<SurveyModel, ElementContentVisibilityChangedEvent>();
+  public onElementContentVisibilityChanged: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
 
   /**
    * An event that is raised before an [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) question displays a value. Use this event to override the display value.
@@ -970,7 +993,10 @@ export class SurveyModel extends SurveyElementCore
     this.onGetQuestionNumber.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
     };
-    this.onProgressText.onCallbacksChanged = () => {
+    this.onGetPanelNumber.onCallbacksChanged = () => {
+      this.resetVisibleIndexes();
+    };
+    this.onGetProgressText.onCallbacksChanged = () => {
       this.updateProgressText();
     };
     this.onTextMarkdown.onCallbacksChanged = () => {
@@ -1255,7 +1281,8 @@ export class SurveyModel extends SurveyElementCore
   @property() containerCss: string;
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
   /**
-   * This property is obsolete. Use the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property within a theme instead.
+   * Obsolete. Use the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property within a theme instead.
+   * @deprecated
    */
   @property({
     onSet: (newValue, target: SurveyModel) => {
@@ -2701,6 +2728,12 @@ export class SurveyModel extends SurveyElementCore
     this.onGetQuestionNumber.fire(this, options);
     return options.no === no ? options.number : options.no;
   }
+  getUpdatedPanelNo(panel: PanelModel, no: string): string {
+    if (this.onGetPanelNumber.isEmpty) return no;
+    const options: GetPanelNumberEvent = { panel: panel, number: no };
+    this.onGetPanelNumber.fire(this, options);
+    return options.number;
+  }
   getUpdatedPageNo(page: PageModel, no: string): string {
     if (this.onGetPageNumber.isEmpty) return no;
     const options: GetPageNumberEvent = { page: page, number: no };
@@ -3857,7 +3890,8 @@ export class SurveyModel extends SurveyElementCore
     DomDocumentHelper.setCookie(this.cookieName + "=;");
   }
   /**
-   * This property is obsolete. Use the [`validationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationEnabled) property instead.
+   * Obsolete. Use the [`validationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationEnabled) property instead.
+   * @deprecated
    */
   public get ignoreValidation(): boolean { return !this.validationEnabled; }
   public set ignoreValidation(val: boolean) { this.validationEnabled = !val; }
@@ -4234,7 +4268,7 @@ export class SurveyModel extends SurveyElementCore
    * @see isCurrentPageValid
    * @see nextPage
    */
-  public completeLastPage(): boolean {
+  public tryComplete(): boolean {
     if (this.isValidateOnComplete) {
       this.cancelPreview();
     }
@@ -4243,6 +4277,13 @@ export class SurveyModel extends SurveyElementCore
       this.cancelPreview();
     }
     return res;
+  }
+  /**
+   * Obsolete. Use the [`tryComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#tryComplete) method instead.
+   * @deprecated
+   */
+  public completeLastPage(): boolean {
+    return this.tryComplete();
   }
   private isNavigationButtonPressed: boolean = false;
   public navigationMouseDown(): boolean {
@@ -4882,7 +4923,7 @@ export class SurveyModel extends SurveyElementCore
     return SurveyElement.getProgressInfoByElements(pages, false);
   }
   /**
-   * Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onProgressText`](#onProgressText) event to change this text.
+   * Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event to change this text.
    * @see progressValue
    * @see showProgressBar
    * @see progressBarType
@@ -4901,7 +4942,7 @@ export class SurveyModel extends SurveyElementCore
     if (
       onValueChanged &&
       this.progressBarType == "pages" &&
-      this.onProgressText.isEmpty
+      this.onGetProgressText.isEmpty
     )
       return;
     this.isCalculatingProgressText = true;
@@ -4911,7 +4952,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public getProgressText(): string {
     if (!this.isDesignMode && this.currentPage == null) return "";
-    const options: ProgressTextEvent = {
+    const options: GetProgressTextEvent = {
       questionCount: 0,
       answeredQuestionCount: 0,
       requiredQuestionCount: 0,
@@ -4923,7 +4964,7 @@ export class SurveyModel extends SurveyElementCore
       type === "questions" ||
       type === "requiredquestions" ||
       type === "correctquestions" ||
-      !this.onProgressText.isEmpty
+      !this.onGetProgressText.isEmpty
     ) {
       var info = this.getProgressInfo();
       options.questionCount = info.questionCount;
@@ -4934,7 +4975,7 @@ export class SurveyModel extends SurveyElementCore
     }
 
     options.text = this.getProgressTextCore(options);
-    this.onProgressText.fire(this, options);
+    this.onGetProgressText.fire(this, options);
     return options.text;
   }
   private getProgressTextCore(info: IProgressInfo): string {
@@ -5322,16 +5363,24 @@ export class SurveyModel extends SurveyElementCore
       return this.getUpdatedPanelTitleActions(<PanelModel>element, titleActions);
     return this.getUpdatedQuestionTitleActions(<Question>element, titleActions);
   }
+
+  private getTitleActionsResult(titleActions: Array<IAction>, options: GetTitleActionsEventMixin) {
+    if (titleActions != options.actions) return options.actions;
+    if (titleActions != options.titleActions) return options.titleActions;
+    return titleActions;
+  }
+
   private getUpdatedQuestionTitleActions(
     question: Question,
     titleActions: Array<IAction>
   ) {
     const options: GetQuestionTitleActionsEvent = {
       question: question,
+      actions: titleActions,
       titleActions: titleActions,
     };
     this.onGetQuestionTitleActions.fire(this, options);
-    return options.titleActions;
+    return this.getTitleActionsResult(titleActions, options);
   }
 
   private getUpdatedPanelTitleActions(
@@ -5340,10 +5389,11 @@ export class SurveyModel extends SurveyElementCore
   ) {
     const options: GetPanelTitleActionsEvent = {
       panel: panel,
+      actions: titleActions,
       titleActions: titleActions,
     };
     this.onGetPanelTitleActions.fire(this, options);
-    return options.titleActions;
+    return this.getTitleActionsResult(titleActions, options);
   }
   private getUpdatedPageTitleActions(
     page: PageModel,
@@ -5351,10 +5401,11 @@ export class SurveyModel extends SurveyElementCore
   ) {
     var options: GetPageTitleActionsEvent = {
       page: page,
+      actions: titleActions,
       titleActions: titleActions,
     };
     this.onGetPageTitleActions.fire(this, options);
-    return options.titleActions;
+    return this.getTitleActionsResult(titleActions, options);
   }
 
   getUpdatedMatrixRowActions(
@@ -5379,15 +5430,16 @@ export class SurveyModel extends SurveyElementCore
     passedRootElement?: HTMLElement,
     onScolledCallback?: () => void
   ): any {
-    const options: ScrollingElementToTopEvent = {
+    const options: ScrollToTopEvent = {
       element: element,
       question: question,
       page: page,
       elementId: id,
       cancel: false,
+      allow: true,
     };
-    this.onScrollingElementToTop.fire(this, options);
-    if (!options.cancel) {
+    this.onScrollToTop.fire(this, options);
+    if (!options.cancel && options.allow) {
       const elementPage = this.getPageByElement(element as IElement);
       if (this.isLazyRendering && !!elementPage) {
         let elementsToRenderBefore = 1;
@@ -5692,13 +5744,6 @@ export class SurveyModel extends SurveyElementCore
     }
     return null;
   }
-  /**
-   * Returns an array of questions with specified [names](https://surveyjs.io/form-library/documentation/api-reference/question#name).
-   * @param names An array of question names.
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
-   * @returns An array of questions with specified names
-   * @see getAllQuestions
-   */
   public getQuestionsByNames(
     names: string[],
     caseInsensitive: boolean = false
@@ -5740,10 +5785,6 @@ export class SurveyModel extends SurveyElementCore
     }
     return null;
   }
-  /**
-   * Returns an array of pages with specified names.
-   * @param names An array of page names.
-   */
   public getPagesByNames(names: string[]): PageModel[] {
     var result: PageModel[] = [];
     if (!names) return result;
@@ -6459,7 +6500,7 @@ export class SurveyModel extends SurveyElementCore
         mouseDown: () => this.navigationMouseDown(),
       },
       locTitle: this.locCompleteText,
-      action: () => this.taskManager.waitAndExecute(() => this.completeLastPage()),
+      action: () => this.taskManager.waitAndExecute(() => this.tryComplete()),
       component: defaultComponent
     });
     this.updateNavigationItemCssCallback = () => {
@@ -6824,7 +6865,7 @@ export class SurveyModel extends SurveyElementCore
         if (this.isShowPreviewBeforeComplete) {
           this.showPreview();
         } else {
-          this.completeLastPage();
+          this.tryComplete();
         }
       }
     };
@@ -7170,7 +7211,7 @@ export class SurveyModel extends SurveyElementCore
    * For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
    * @returns The number of correct answers in a quiz.
    * @see getQuizQuestionCount
-   * @see getInCorrectAnswerCount
+   * @see getIncorrectAnswerCount
    */
   public getCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(true);
@@ -7193,7 +7234,10 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   public getInCorrectedAnswerCount(): number {
-    return this.getInCorrectAnswerCount();
+    return this.getIncorrectAnswerCount();
+  }
+  public getInCorrectAnswerCount(): number {
+    return this.getIncorrectAnswerCount();
   }
   /**
    * Returns the number of incorrect answers in a quiz.
@@ -7202,7 +7246,7 @@ export class SurveyModel extends SurveyElementCore
    * @returns The number of incorrect answers in a quiz.
    * @see getCorrectAnswerCount
    */
-  public getInCorrectAnswerCount(): number {
+  public getIncorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(false);
   }
   onCorrectQuestionAnswer(question: IQuestion, options: any): void {
@@ -7318,7 +7362,14 @@ export class SurveyModel extends SurveyElementCore
   public set showTimerPanelMode(val: string) {
     this.timerInfoMode = this.getTimerInfoVal(val);
   }
-  @property() gridLayoutEnabled: boolean;
+  @property({
+    onSet: (newValue: boolean, target: SurveyModel) => {
+      target.updateGridColumns();
+    }
+  }) gridLayoutEnabled: boolean;
+  public updateGridColumns(): void {
+    this.pages.forEach(page => page.updateGridColumns());
+  }
   /**
     * Specifies how to calculate the survey width.
     *
@@ -7380,7 +7431,11 @@ export class SurveyModel extends SurveyElementCore
     if (width && !isNaN(width)) width = width + "px";
     return isStaticWidth && width || undefined;
   }
-  @property({ defaultValue: 100 }) widthScale: number;
+  @property({
+    defaultValue: 100, onSet(val: number, target: SurveyModel, prevVal: number) {
+      target.pages.forEach(p => p.updateRootStyle());
+    },
+  }) widthScale: number;
   @property() staticStartWidth: number;
   public setStaticStartWidth(width: number): void {
     this.staticStartWidth = width;
@@ -7618,13 +7673,13 @@ export class SurveyModel extends SurveyElementCore
     this.onTimerTick.fire(this, {});
     if (this.timeLimit > 0 && this.timeLimit <= this.timeSpent) {
       this.timeSpent = this.timeLimit;
-      this.completeLastPage();
+      this.tryComplete();
     }
     if (page) {
       var pageLimit = page.getMaxTimeToFinish();
       if (pageLimit > 0 && pageLimit == page.timeSpent) {
         if (this.isLastPage) {
-          this.completeLastPage();
+          this.tryComplete();
         } else {
           this.nextPage();
         }

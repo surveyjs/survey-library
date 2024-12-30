@@ -70,6 +70,9 @@ export class MultipleTextItemModel extends Base
     if (title) {
       this.title = title;
     }
+    this.editor.onPropertyChanged.add((sender, options) => {
+      this.onPropertyChanged.fire(this, options);
+    });
   }
   public getType(): string {
     return "multipletextitem";

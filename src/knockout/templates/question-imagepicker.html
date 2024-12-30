@@ -27,7 +27,7 @@
             <div data-bind="css: question.cssClasses.itemDecorator">
                 <div data-bind="css: question.cssClasses.imageContainer">
                   <!-- ko if: question.cssClasses.checkedItemDecorator -->
-                  <span data-bind="css: question.cssClasses.checkedItemDecorator">
+                  <span data-bind="css: question.cssClasses.checkedItemDecorator" aria-hidden="true">
                     <!-- ko if: question.cssClasses.checkedItemSvgIconId -->
                     <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.checkedItemSvgIcon, iconName: question.cssClasses.checkedItemSvgIconId, size: 'auto' } } -->
                     <!-- /ko -->

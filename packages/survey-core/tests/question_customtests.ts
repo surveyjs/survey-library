@@ -849,7 +849,7 @@ QUnit.test("Composite: remove invisible values", function (assert) {
   lastName.value = "last";
   assert.equal(lastName.value, "last", "value set correctly");
   firstName.value = "Jon";
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.deepEqual(
     survey.data,
     { q1: { firstName: "Jon" } },
@@ -3079,7 +3079,7 @@ QUnit.test("Single: showPreviewBeforeComplete Bug#8005", function (assert) {
   survey.getQuestionByName("question1").value = 1;
   survey.showPreview();
   assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
   ComponentCollection.Instance.clear();
 });
@@ -3437,6 +3437,30 @@ QUnit.test("Dynamic serializable properties, bug#8852", function (assert) {
     ]
   });
   assert.notOk(survey.jsonErrors, "There is not errors");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: clearIfInvisible='onHidden'", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3] },
+      { type: "text", name: "q3", clearIfInvisible: "onHidden", visibleIf: "{composite.q2}=2" }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  q1.contentPanel.getQuestionByName("q1").value = "test1";
+  q1.contentPanel.getQuestionByName("q2").value = 2;
+  q1.contentPanel.getQuestionByName("q3").value = "abc";
+  assert.deepEqual(q1.value, { q1: "test1", q2: 2, q3: "abc" }, "test #1");
+  q1.contentPanel.getQuestionByName("q2").value = 3;
+  assert.deepEqual(q1.value, { q1: "test1", q2: 3 }, "test #1");
 
   ComponentCollection.Instance.clear();
 });

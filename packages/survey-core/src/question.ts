@@ -1032,13 +1032,16 @@ export class Question extends SurveyElement<Question>
     this.copyCssClasses(classes, css.question);
     this.copyCssClasses(classes.error, css.error);
     this.updateCssClasses(classes, css);
+    return classes;
+  }
+  protected onCalcCssClasses(classes: any): void {
+    super.onCalcCssClasses(classes);
     if (this.survey) {
       this.survey.updateQuestionCssClasses(this, classes);
     }
     if (this.onUpdateCssClassesCallback) {
       this.onUpdateCssClassesCallback(classes);
     }
-    return classes;
   }
   public get cssRoot(): string {
     this.ensureElementCss();
@@ -1182,21 +1185,32 @@ export class Question extends SurveyElement<Question>
       .append(this.cssClasses.rootMobile, this.isMobile)
       .toString();
   }
+  private isRequireUpdateElements: boolean;
   public updateElementCss(reNew?: boolean): void {
-    super.updateElementCss(reNew);
-    if (reNew) {
-      this.updateQuestionCss(true);
+    if(this.wasRendered) {
+      super.updateElementCss(reNew);
+      if (reNew) {
+        this.updateQuestionCss(true);
+      }
+    } else {
+      this.isRequireUpdateElements = true;
     }
     this.resetIndents();
   }
+  protected onFirstRenderingCore(): void {
+    if(this.isRequireUpdateElements) {
+      this.isRequireUpdateElements = false;
+      this.updateElementCss(true);
+    }
+    super.onFirstRenderingCore();
+  }
   protected updateQuestionCss(reNew?: boolean): void {
-    if (
-      this.isLoadingFromJson ||
-      !this.survey ||
-      (reNew !== true && !this.cssClassesValue)
-    )
-      return;
-    this.updateElementCssCore(this.cssClasses);
+    if (this.isLoadingFromJson || !this.survey) return;
+    if(this.wasRendered) {
+      this.updateElementCssCore(this.cssClasses);
+    } else {
+      this.isRequireUpdateElements = true;
+    }
   }
   private ensureElementCss() {
     if (!this.cssClassesValue) {
@@ -1911,7 +1925,7 @@ export class Question extends SurveyElement<Question>
   /**
    * A correct answer to this question. Specify this property if you want to [create a quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see SurveyModel.getCorrectAnswerCount
-   * @see SurveyModel.getInCorrectAnswerCount
+   * @see SurveyModel.getIncorrectAnswerCount
    */
   public get correctAnswer(): any {
     return this.getPropertyValue("correctAnswer");
@@ -1951,7 +1965,14 @@ export class Question extends SurveyElement<Question>
   protected checkIfAnswerCorrect(): boolean {
     const isEqual = Helpers.isTwoValueEquals(this.value, this.correctAnswer, this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
     const correct = isEqual ? 1 : 0;
-    const options = { result: isEqual, correctAnswer: correct, correctAnswers: correct, incorrectAnswers: this.quizQuestionCount - correct };
+    const incorrect = this.quizQuestionCount - correct;
+    const options = {
+      result: isEqual,
+      correctAnswers: correct,
+      correctAnswerCount: correct,
+      incorrectAnswers: incorrect,
+      incorrectAnswerCount: incorrect,
+    };
     if (!!this.survey) {
       this.survey.onCorrectQuestionAnswer(this, options);
     }

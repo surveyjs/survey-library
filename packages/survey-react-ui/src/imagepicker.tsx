@@ -210,7 +210,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
           <div className={this.question.cssClasses.itemDecorator}>
             <div className={this.question.cssClasses.imageContainer}>
               {!!this.question.cssClasses.checkedItemDecorator ?
-                <span className={this.question.cssClasses.checkedItemDecorator}>
+                <span className={this.question.cssClasses.checkedItemDecorator} aria-hidden="true">
                   {!!this.question.cssClasses.checkedItemSvgIconId ? <SvgIcon size={"auto"} className={this.question.cssClasses.checkedItemSvgIcon} iconName={this.question.cssClasses.checkedItemSvgIconId}></SvgIcon> : null}
                 </span> : null}
               {control}

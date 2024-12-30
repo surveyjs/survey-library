@@ -14560,7 +14560,7 @@ QUnit.test("Check onGetQuestionTitleActions event", (assert) => {
   });
   var testActions = [{ title: "simple" }, { title: "simple2" }];
   survey.onGetQuestionTitleActions.add((sender, options) => {
-    options.titleActions = testActions;
+    options.actions = testActions;
   });
   var question = <Question>survey.getQuestionByName("text1");
   assert.deepEqual(question.getTitleActions(), testActions);

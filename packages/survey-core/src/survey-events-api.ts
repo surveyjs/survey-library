@@ -62,7 +62,11 @@ export interface GetTitleActionsEventMixin {
   /**
    * An array of [actions](https://surveyjs.io/form-library/documentation/iaction) associated with the processed element.
    */
-  titleActions: Array<IAction>;
+  actions: Array<IAction>;
+  /**
+   * Obsolete. Use `options.actions` instead.
+   */
+  titleActions?: Array<IAction>;
 }
 export interface GetActionsEventMixin {
   /**
@@ -410,7 +414,7 @@ export interface GetPageNumberEvent extends PageEventMixin {
    */
   number: string;
 }
-export interface ProgressTextEvent {
+export interface GetProgressTextEvent {
   /**
    * The number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are not counted.
    */
@@ -432,6 +436,7 @@ export interface ProgressTextEvent {
    */
   text: string;
 }
+export interface ProgressTextEvent extends GetProgressTextEvent { }
 
 export interface TextProcessingEvent {
   /**

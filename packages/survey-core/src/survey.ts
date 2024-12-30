@@ -58,7 +58,7 @@ import {
   TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent,
   ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent,
   QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
-  ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent, ProgressTextEvent,
+  ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent, GetProgressTextEvent,
   TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, LoadChoicesFromServerEvent,
   ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
   AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
@@ -69,8 +69,7 @@ import {
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
   OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent,
-  ScrollingElementToTopEvent,
-  IsAnswerCorrectEvent
+  GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent, IsAnswerCorrectEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -445,7 +444,12 @@ export class SurveyModel extends SurveyElementCore
    * @see showProgressBar
    * @see progressBarType
    */
-  public onProgressText: EventBase<SurveyModel, ProgressTextEvent> = this.addEvent<SurveyModel, ProgressTextEvent>();
+  public onGetProgressText: EventBase<SurveyModel, GetProgressTextEvent> = this.addEvent<SurveyModel, GetProgressTextEvent>();
+  /**
+   * Obsolete. Use the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event instead.
+   * @deprecated
+   */
+  public onProgressText: EventBase<SurveyModel, ProgressTextEvent> = this.onGetProgressText;
   /**
    * An event that is raised to convert Markdown content to HTML.
    *
@@ -983,7 +987,7 @@ export class SurveyModel extends SurveyElementCore
     this.onGetQuestionNumber.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
     };
-    this.onProgressText.onCallbacksChanged = () => {
+    this.onGetProgressText.onCallbacksChanged = () => {
       this.updateProgressText();
     };
     this.onTextMarkdown.onCallbacksChanged = () => {
@@ -4904,7 +4908,7 @@ export class SurveyModel extends SurveyElementCore
     return SurveyElement.getProgressInfoByElements(pages, false);
   }
   /**
-   * Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onProgressText`](#onProgressText) event to change this text.
+   * Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event to change this text.
    * @see progressValue
    * @see showProgressBar
    * @see progressBarType
@@ -4923,7 +4927,7 @@ export class SurveyModel extends SurveyElementCore
     if (
       onValueChanged &&
       this.progressBarType == "pages" &&
-      this.onProgressText.isEmpty
+      this.onGetProgressText.isEmpty
     )
       return;
     this.isCalculatingProgressText = true;
@@ -4933,7 +4937,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public getProgressText(): string {
     if (!this.isDesignMode && this.currentPage == null) return "";
-    const options: ProgressTextEvent = {
+    const options: GetProgressTextEvent = {
       questionCount: 0,
       answeredQuestionCount: 0,
       requiredQuestionCount: 0,
@@ -4945,7 +4949,7 @@ export class SurveyModel extends SurveyElementCore
       type === "questions" ||
       type === "requiredquestions" ||
       type === "correctquestions" ||
-      !this.onProgressText.isEmpty
+      !this.onGetProgressText.isEmpty
     ) {
       var info = this.getProgressInfo();
       options.questionCount = info.questionCount;
@@ -4956,7 +4960,7 @@ export class SurveyModel extends SurveyElementCore
     }
 
     options.text = this.getProgressTextCore(options);
-    this.onProgressText.fire(this, options);
+    this.onGetProgressText.fire(this, options);
     return options.text;
   }
   private getProgressTextCore(info: IProgressInfo): string {
@@ -5344,16 +5348,24 @@ export class SurveyModel extends SurveyElementCore
       return this.getUpdatedPanelTitleActions(<PanelModel>element, titleActions);
     return this.getUpdatedQuestionTitleActions(<Question>element, titleActions);
   }
+
+  private getTitleActionsResult(titleActions: Array<IAction>, options: GetTitleActionsEventMixin) {
+    if (titleActions != options.actions) return options.actions;
+    if (titleActions != options.titleActions) return options.titleActions;
+    return titleActions;
+  }
+
   private getUpdatedQuestionTitleActions(
     question: Question,
     titleActions: Array<IAction>
   ) {
     const options: GetQuestionTitleActionsEvent = {
       question: question,
+      actions: titleActions,
       titleActions: titleActions,
     };
     this.onGetQuestionTitleActions.fire(this, options);
-    return options.titleActions;
+    return this.getTitleActionsResult(titleActions, options);
   }
 
   private getUpdatedPanelTitleActions(
@@ -5362,10 +5374,11 @@ export class SurveyModel extends SurveyElementCore
   ) {
     const options: GetPanelTitleActionsEvent = {
       panel: panel,
+      actions: titleActions,
       titleActions: titleActions,
     };
     this.onGetPanelTitleActions.fire(this, options);
-    return options.titleActions;
+    return this.getTitleActionsResult(titleActions, options);
   }
   private getUpdatedPageTitleActions(
     page: PageModel,
@@ -5373,10 +5386,11 @@ export class SurveyModel extends SurveyElementCore
   ) {
     var options: GetPageTitleActionsEvent = {
       page: page,
+      actions: titleActions,
       titleActions: titleActions,
     };
     this.onGetPageTitleActions.fire(this, options);
-    return options.titleActions;
+    return this.getTitleActionsResult(titleActions, options);
   }
 
   getUpdatedMatrixRowActions(

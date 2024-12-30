@@ -72,6 +72,11 @@ jobs:
           npm test
         displayName: "run unit test"
 
+      - script: |
+          cd packages/survey-core
+          npm run test:postcss
+        displayName: "check postcss compatibility"
+
       - task: CopyFiles@2
         inputs:
           SourceFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"

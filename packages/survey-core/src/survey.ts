@@ -58,7 +58,7 @@ import {
   TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent,
   ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent,
   QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
-  ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent, GetProgressTextEvent,
+  ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent, GetPanelNumberEvent, GetProgressTextEvent,
   TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, LoadChoicesFromServerEvent,
   ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
   AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
@@ -429,6 +429,12 @@ export class SurveyModel extends SurveyElementCore
    * @deprecated
    */
   public onGetQuestionNo: EventBase<SurveyModel, GetQuestionNumberEvent> = this.onGetQuestionNumber;
+  /**
+   * An event that is raised before the survey calculates a panel number. Handle this event to modify panel numbers.
+   *
+   * This event is raised only for the panels with a [specified title](https://surveyjs.io/form-library/documentation/api-reference/panel-model#title) and [visible number](https://surveyjs.io/form-library/documentation/api-reference/panel-model#showNumber).
+   */
+  public onGetPanelNumber: EventBase<SurveyModel, GetPanelNumberEvent> = this.addEvent<SurveyModel, GetPanelNumberEvent>();
   /**
    * An event that is raised before the survey calculates a page number. Handle this event to modify page numbers.
    *
@@ -985,6 +991,9 @@ export class SurveyModel extends SurveyElementCore
       () => { this.updateButtonsVisibility(); });
 
     this.onGetQuestionNumber.onCallbacksChanged = () => {
+      this.resetVisibleIndexes();
+    };
+    this.onGetPanelNumber.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
     };
     this.onGetProgressText.onCallbacksChanged = () => {
@@ -2718,6 +2727,12 @@ export class SurveyModel extends SurveyElementCore
     const options: GetQuestionNumberEvent = { question: question, number: no, no: no };
     this.onGetQuestionNumber.fire(this, options);
     return options.no === no ? options.number : options.no;
+  }
+  getUpdatedPanelNo(panel: PanelModel, no: string): string {
+    if (this.onGetPanelNumber.isEmpty) return no;
+    const options: GetPanelNumberEvent = { panel: panel, number: no };
+    this.onGetPanelNumber.fire(this, options);
+    return options.number;
   }
   getUpdatedPageNo(page: PageModel, no: string): string {
     if (this.onGetPageNumber.isEmpty) return no;

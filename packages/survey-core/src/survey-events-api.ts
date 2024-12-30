@@ -414,6 +414,12 @@ export interface GetPageNumberEvent extends PageEventMixin {
    */
   number: string;
 }
+export interface GetPanelNumberEvent extends PanelEventMixin {
+  /**
+   * A panel number. Note that this is a string value that contains not only the number itself but also the characters that separate the number from the panel title: `"1. "`, `"2. "`, etc. You can change this parameter's value.
+   */
+  number: string;
+}
 export interface GetProgressTextEvent {
   /**
    * The number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are not counted.

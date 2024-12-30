@@ -445,6 +445,10 @@ export class SurveyModel extends SurveyElementCore
    * @see progressBarType
    */
   public onGetProgressText: EventBase<SurveyModel, GetProgressTextEvent> = this.addEvent<SurveyModel, GetProgressTextEvent>();
+  /**
+   * Obsolete. Use the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event instead.
+   * @deprecated
+   */
   public onProgressText: EventBase<SurveyModel, ProgressTextEvent> = this.onGetProgressText;
   /**
    * An event that is raised to convert Markdown content to HTML.
@@ -4882,7 +4886,7 @@ export class SurveyModel extends SurveyElementCore
     return SurveyElement.getProgressInfoByElements(pages, false);
   }
   /**
-   * Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onProgressText`](#onProgressText) event to change this text.
+   * Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event to change this text.
    * @see progressValue
    * @see showProgressBar
    * @see progressBarType

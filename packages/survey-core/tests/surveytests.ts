@@ -14568,7 +14568,7 @@ QUnit.test("Check onGetQuestionTitleActions event", (assert) => {
   });
   var testActions = [{ title: "simple" }, { title: "simple2" }];
   survey.onGetQuestionTitleActions.add((sender, options) => {
-    options.titleActions = testActions;
+    options.actions = testActions;
   });
   var question = <Question>survey.getQuestionByName("text1");
   assert.deepEqual(question.getTitleActions(), testActions);
@@ -17396,7 +17396,7 @@ QUnit.test("no scrolling to page top after focus a question on another page - ht
 
   let log = "";
   const qName = "question66";
-  survey.onScrollingElementToTop.add((s, o) => {
+  survey.onScrollToTop.add((s, o) => {
     log += "->" + o.element.name;
   });
   survey.onCurrentPageChanged.add((s, o) => {

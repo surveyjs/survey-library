@@ -215,7 +215,7 @@ Navigates the respondent to the next page. Returns `false` if the navigation did
 - [`prevPage()`](https://surveyjs.io/Documentation/Library?id=surveymodel#prevPage)      
 Navigates the respondent to the previous page. Returns `false` if the navigation did not happen, for instance, because the current page is the first page. Unlike with `nextPage()`, validation errors are ignored.
 
-- [`completeLastPage()`](https://surveyjs.io/Documentation/Library?id=surveymodel#completeLastPage)      
+- [`tryComplete()`](https://surveyjs.io/Documentation/Library?id=surveymodel#tryComplete)      
 Completes the survey. Fails and returns `false` if the current page has validation errors.
 
 - [`doComplete()`](https://surveyjs.io/Documentation/Library?id=surveymodel#doComplete)       

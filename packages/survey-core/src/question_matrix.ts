@@ -338,14 +338,23 @@ export class QuestionMatrixModel
    * - `"random"` - Arranges matrix rows in random order each time the question is displayed.
    * @see rows
    */
+  public get rowOrder(): string {
+    return this.getPropertyValue("rowOrder");
+  }
+  public set rowOrder(val: string) {
+    val = val.toLowerCase();
+    if (val == this.rowOrder) return;
+    this.setPropertyValue("rowOrder", val);
+    this.onRowsChanged();
+  }
+  /**
+   * @deprecated Use the [`rowOrder`](#rowOrder) property instead.
+   */
   public get rowsOrder(): string {
-    return this.getPropertyValue("rowsOrder");
+    return this.rowOrder;
   }
   public set rowsOrder(val: string) {
-    val = val.toLowerCase();
-    if (val == this.rowsOrder) return;
-    this.setPropertyValue("rowsOrder", val);
-    this.onRowsChanged();
+    this.rowOrder = val;
   }
   /**
    * Specifies whether to hide the question when the matrix has no visible rows.
@@ -446,7 +455,7 @@ export class QuestionMatrixModel
   ): Array<MatrixRowModel> {
     if (!!this.survey && this.survey.isDesignMode)
       return array;
-    var order = this.rowsOrder.toLowerCase();
+    var order = this.rowOrder.toLowerCase();
     if (order === "random")
       return Helpers.randomizeArray<MatrixRowModel>(array);
     return array;
@@ -805,7 +814,7 @@ Serializer.addClass(
     },
     { name: "cells:cells", serializationProperty: "cells" },
     {
-      name: "rowsOrder",
+      name: "rowOrder", alternativeName: "rowsOrder",
       default: "initial",
       choices: ["initial", "random"],
     },

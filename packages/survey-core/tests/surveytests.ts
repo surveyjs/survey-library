@@ -489,7 +489,7 @@ QUnit.test("Do not show errors if ignoreValidation = true", function (
   survey.nextPage();
   assert.equal(q1.errors.length, 0, "There is a required error");
   assert.equal(survey.currentPageNo, 1, "Can move into another page");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.state, "completed", "Can complete survey with erros");
 });
 QUnit.test("Show error, but allow to navigate if validationAllowSwitchPages = true and validationAllowComplete=true", function (assert) {
@@ -507,7 +507,7 @@ QUnit.test("Show error, but allow to navigate if validationAllowSwitchPages = tr
   assert.equal(q1.errors.length, 1, "There is an error");
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Can move into another page");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.state, "completed", "Can complete survey with erros");
 });
 QUnit.test("Show error, but allow to navigate if survey.validationAllowSwitchPages = true", function (assert) {
@@ -524,7 +524,7 @@ QUnit.test("Show error, but allow to navigate if survey.validationAllowSwitchPag
   assert.equal(q1.errors.length, 1, "There is an error");
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Can move into another page");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.currentPageNo, 0, "Move to the first page");
 });
 QUnit.test("Check pages state on onValueChanged event", function (assert) {
@@ -1116,7 +1116,7 @@ QUnit.test("Survey state", function (assert) {
   assert.equal(survey.state, "running", "Survey is in run mode");
   survey.nextPage();
   assert.equal(survey.state, "running", "Survey is in run mode");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.state, "completed", "Survey is completed");
 });
 QUnit.test("Question Creator", function (assert) {
@@ -1603,13 +1603,13 @@ QUnit.test("survey.checkErrorsMode = 'onComplete'", function (assert) {
   var survey = new SurveyModel(json);
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Ignore error on the first page");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.currentPageNo, 0, "Move to first page with the error");
   survey.afterRenderPage(<HTMLElement>{});
 
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Ignore error on the first page, #2");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(
     survey.currentPageNo,
     0,
@@ -1619,11 +1619,11 @@ QUnit.test("survey.checkErrorsMode = 'onComplete'", function (assert) {
 
   survey.setValue("q1", "john.snow@nightwatch.org");
   survey.nextPage();
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.currentPageNo, 1, "Stay on second page");
   assert.equal(survey.state, "running", "There is an error on the second page");
   survey.setValue("q2", "a");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.state, "completed", "No errors, completed");
 });
 
@@ -2040,7 +2040,7 @@ QUnit.test("onComplete event", function (assert) {
   });
   survey.nextPage();
   survey.nextPage();
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.state, "completed", "The survey is completed");
   assert.equal(counter, 1, "onComplete calls one time");
 });
@@ -2493,8 +2493,8 @@ QUnit.test(
       1,
       "Validation on next page is completed"
     );
-    survey.completeLastPage();
-    survey.completeLastPage();
+    survey.tryComplete();
+    survey.tryComplete();
     assert.equal(
       survey.currentPage.visibleIndex,
       1,
@@ -2742,7 +2742,7 @@ QUnit.test(
     assert.equal(survey.state, "running");
     assert.equal(survey.isCompleteButtonVisible, true, "complete button is visible");
     assert.equal(survey.isShowNextButton, false, "next button is invisible");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "completed");
     assert.equal(
       isCompleteOnTrigger_Completing,
@@ -2756,7 +2756,7 @@ QUnit.test(
     );
     survey.clear();
     survey.nextPage();
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(
       isCompleteOnTrigger_Completing,
       false,
@@ -7646,7 +7646,7 @@ QUnit.test(
     );
     survey.data = {};
     q1.isRequired = true;
-    assert.equal(survey.completeLastPage(), false, "You can't complete the last page");
+    assert.equal(survey.tryComplete(), false, "You can't complete the last page");
   }
 );
 
@@ -11321,7 +11321,7 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function (assert) {
   survey.clearValue("q3");
   assert.equal(counter, 5, "Do not call errors validation on clearing value");
   assert.equal(errors.length, 0, "there is no errors on clearing value");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(counter, 6, "called six times");
   assert.equal(errors.length, 2, "there are two errors onComplete, #5");
   assert.equal(questions.length, 2, "there are two question onComplete, #6");
@@ -11333,12 +11333,12 @@ QUnit.test("Server validation - do no fire onValidatedErrorsOnCurrentPage  on ch
     survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
       counter++;
     });
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "running");
     assert.equal(counter, 1, "On complete");
     survey.setValue("name", "Jon");
     assert.equal(counter, 1, "We do not make complete");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(counter, 2, "Do complete again");
   }
 );
@@ -12329,7 +12329,7 @@ QUnit.test(
     panelDynamic.value = [{}];
     assert.equal(question.isEmpty(), true, "Question is empty");
     assert.equal(panelDynamic.containsErrors, false, "We do not show error on value change in panel itself");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(panelDynamic.containsErrors, true,
       "The panel has errors after value changed to empty. Show it on next page event"
     );
@@ -13039,7 +13039,7 @@ QUnit.test(
     var question1 = survey.getQuestionByName("question1");
     question1.value = { "Row 1": "Column 2" };
     assert.equal(question1.errors.length, 0, "There is no errors yet");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(
       question1.errors.length,
       1,
@@ -13082,7 +13082,7 @@ QUnit.test(
       0,
       "There is no errors in item2"
     );
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(
       question1.items[1].editor.errors.length,
       1,
@@ -13125,7 +13125,7 @@ QUnit.test("Remove errors on settings correct values, multipletext", function (
   var question1 = <QuestionMultipleTextModel>(
     survey.getQuestionByName("question1")
   );
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(
     question1.items[0].editor.errors.length,
     1,
@@ -13174,7 +13174,7 @@ QUnit.test("Remove errors on settings correct values, paneldynamic", function (
     ],
   });
   var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(
     panel.panels[0].questions[0].errors.length,
     1,
@@ -13202,7 +13202,7 @@ QUnit.test("Remove errors on settings correct values, matrtixdynamic", function 
   });
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   var question = matrix.visibleRows[0].cells[0].question;
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(
     question.errors.length,
     1,
@@ -13256,7 +13256,7 @@ QUnit.test(
     });
     var q1 = survey.getQuestionByName("q1");
     var q2 = survey.getQuestionByName("q2");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(q1.errors.length, 1, "q1 is required");
     assert.equal(q2.errors.length, 1, "q2 is required");
     assert.equal(
@@ -13325,7 +13325,7 @@ QUnit.test(
     });
     var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
     q1.value = q1.otherItem.value;
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(q1.errors.length, 1, "There is an error right now");
     q1.comment = "some value";
     assert.equal(q1.errors.length, 0, "There is no error now");
@@ -14061,7 +14061,7 @@ QUnit.test(
       options.errors["q2"] = "error";
       options.complete();
     });
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(
       survey.getQuestionByName("q1").inputId,
       focusedQuestionId,
@@ -14069,7 +14069,7 @@ QUnit.test(
     );
     survey.setValue("q1", "val1");
     focusedQuestionId = "";
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(
       survey.getQuestionByName("q2").inputId,
       focusedQuestionId,
@@ -14108,7 +14108,7 @@ QUnit.test(
         },
       ],
     });
-    survey.completeLastPage();
+    survey.tryComplete();
     returnResult(0);
     assert.equal(
       survey.getQuestionByName("q1").inputId,
@@ -14117,7 +14117,7 @@ QUnit.test(
     );
     survey.setValue("q1", "val1");
     focusedQuestionId = "";
-    survey.completeLastPage();
+    survey.tryComplete();
     returnResult(0);
     assert.equal(
       survey.getQuestionByName("q2").inputId,
@@ -14185,7 +14185,7 @@ QUnit.test(
     });
     survey.nextPage();
     survey.nextPage();
-    survey.completeLastPage();
+    survey.tryComplete();
     survey.afterRenderPage(<HTMLElement>{});
     assert.equal(survey.currentPageNo, 0, "The first page is active");
     assert.equal(
@@ -14235,7 +14235,7 @@ QUnit.test(
     assert.equal(survey.currentPageNo, 1, "Allow to go the second page");
     survey.nextPage();
     assert.equal(survey.currentPageNo, 2, "Allow to go the third page");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.currentPageNo, 0, "The first page is active");
     assert.equal(q1Value, "val1", "options.data set correctly");
     assert.equal(
@@ -14274,7 +14274,7 @@ QUnit.test("Focus errored question when checkErrorsMode: `onComplete` & panel re
   });
   survey.nextPage();
   survey.nextPage();
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.currentPageNo, 0, "comeback to the first page");
   assert.equal(survey.getQuestionByName("q1").inputId, focusedQuestionId, "panel is required");
   SurveyElement.FocusElement = oldFunc;
@@ -14308,7 +14308,7 @@ QUnit.test("Do not focus errored question when checkErrorsMode: `onComplete` + f
   survey.nextPage();
   survey.nextPage();
   focusedQuestionId = "";
-  survey.completeLastPage();
+  survey.tryComplete();
   survey.afterRenderPage(<HTMLElement>{});
   assert.equal(survey.currentPageNo, 0, "The first page is active");
   assert.notOk(focusedQuestionId, "do not focus any question");
@@ -14387,7 +14387,7 @@ QUnit.test("Several onServerValidateQuestions event, bug#4531",
       options.errors["q2"] = "error";
       options.complete();
     });
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "running", "Survey is not completed");
     assert.equal(survey.getQuestionByName("q2").errors.length, 1, "There is an error in the question");
   }
@@ -14406,7 +14406,7 @@ QUnit.test("Several onServerValidateQuestions event without errors, bug#4531 par
     survey.onServerValidateQuestions.add((sender, options) => {
       options.complete();
     });
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "completed", "Survey is completed");
   }
 );
@@ -16974,7 +16974,7 @@ QUnit.test("Survey Localization - check errors update after locale changed", fun
   q5.value = 9;
   q6.value = "other";
 
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(q1.errors.length, 1);
   assert.equal(q1.errors[0].locText.renderedHtml, "Response required.");
 
@@ -17385,7 +17385,7 @@ QUnit.test("no scrolling to page top after focus a question on another page - ht
 
   let log = "";
   const qName = "question66";
-  survey.onScrollingElementToTop.add((s, o) => {
+  survey.onScrollToTop.add((s, o) => {
     log += "->" + o.element.name;
   });
   survey.onCurrentPageChanged.add((s, o) => {
@@ -18681,7 +18681,7 @@ QUnit.test("check title classes when readOnly changed", function (assert) {
   question.readOnly = false;
   assert.notOk(question.cssTitle.includes(customDisabledClass));
 });
-QUnit.test("Do not run onComplete twice if complete trigger and completeLastPage() is called", function (assert) {
+QUnit.test("Do not run onComplete twice if complete trigger and tryComplete() is called", function (assert) {
   const survey = new SurveyModel({
     "elements": [
       {
@@ -18705,7 +18705,7 @@ QUnit.test("Do not run onComplete twice if complete trigger and completeLastPage
     counter++;
   });
   survey.setValue("question1", 1);
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(counter, 1, "onComplete called one time");
 });
 QUnit.test("Expression with dates & defaultValueExpression & expression question", function (assert) {
@@ -20393,7 +20393,7 @@ QUnit.test("PageModel passed property", function (assert) {
   assert.equal(survey.pages[2].passed, true, "4) Page 3 is passed");
 
   survey.nextPage();
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.pages[0].passed, true, "5) Page 1 is passed");
   assert.equal(survey.pages[1].passed, true, "5) Page 2 is passed");
   assert.equal(survey.pages[2].passed, true, "5) Page 3 is passed");

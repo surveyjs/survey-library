@@ -3484,7 +3484,7 @@ QUnit.test(
     assert.equal(q2.errors.length, 0, "and there is no error in the second question");
     q1.value = "";
     assert.equal(q1.errors.length, 1, "We have the error in q1 now");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(q1.errors.length, 1, "There is error in the first question");
     assert.equal(q2.errors.length, 1, "There is error in the second question");
   }
@@ -5421,7 +5421,7 @@ QUnit.test("Two nested invisible dynamic panels do not clear itself correctly, B
   });
   const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
   rootPanel.panels[0].getQuestionByName("q1").value = 2;
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.deepEqual(survey.data, { "rootPanel": [{ "q1": 2 }] }, "There is no empty data for any nested panels");
 });
 
@@ -5499,7 +5499,7 @@ QUnit.test("Error in nested dynamic collapsed panel", (assert) => {
   const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
   const childPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("childPanel");
   assert.equal(childPanel.state, "collapsed", "child panel State is collapsed by default");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
 });
 QUnit.test("Error in nested dynamic collapsed panel && renderMode - progressTop", (assert) => {
@@ -7641,7 +7641,7 @@ QUnit.test("Validation doesn't work if a user doensn't visit the page, Bug#8937"
     checkErrorsMode: "onComplete"
   });
   survey.currentPageNo = 2;
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.state, "running", "Still running");
   assert.equal(survey.currentPageNo, 1, "move to page with panel");
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");

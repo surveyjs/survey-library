@@ -493,7 +493,7 @@ QUnit.test("inputType='date' invalid value, #8617", function(assert) {
   q1.onKeyUp(event);
   q1.value = undefined;
   assert.equal(q1.errors.length, 0, "errors #2");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(q1.errors.length, 1, "errors #3");
   assert.equal(q1.errors[0].text, "Invalid date", "errors #4");
   assert.equal(survey.state, "running", "survey.state #1");

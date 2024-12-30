@@ -32,7 +32,7 @@
           :class="question.cssClasses.itemControl"
         /><div :class="question.cssClasses.itemDecorator">
           <div :class="question.cssClasses.imageContainer">
-            <span v-if="question.cssClasses.checkedItemDecorator" :class="this.question.cssClasses.checkedItemDecorator">
+            <span v-if="question.cssClasses.checkedItemDecorator" :class="this.question.cssClasses.checkedItemDecorator" aria-hidden="true">
               <sv-svg-icon v-if="question.cssClasses.checkedItemSvgIconId" v-bind:class="question.cssClasses.checkedItemSvgIcon" size="auto" :iconName="question.cssClasses.checkedItemSvgIconId"></sv-svg-icon>
             </span>
             <img

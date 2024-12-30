@@ -19,6 +19,9 @@ export const FLOAT_PRECISION = 0.01;
 export const applyTheme = ClientFunction((theme) => {
   window["Survey"].StylesManager.applyTheme(theme);
 });
+export const setRowItemFlowDirection = ClientFunction(() => {
+  window["Survey"].settings.rowItemFlow = "row";
+});
 
 export const initSurvey = ClientFunction(
   (framework, json, events, isDesignMode, props) => {

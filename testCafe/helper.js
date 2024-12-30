@@ -20,7 +20,7 @@ export const applyTheme = ClientFunction((theme) => {
   window["Survey"].StylesManager.applyTheme(theme);
 });
 export const setRowItemFlowDirection = ClientFunction(() => {
-  window["Survey"].settings.rowItemFlow = "row";
+  window["Survey"].settings.itemFlowDirection = "row";
 });
 
 export const initSurvey = ClientFunction(

@@ -19,7 +19,7 @@ export const applyTheme = ClientFunction(theme => {
 });
 
 export const setRowItemFlowDirection = ClientFunction(() => {
-  window["Survey"].settings.rowItemFlow = "row";
+  window["Survey"].settings.itemFlowDirection = "row";
 });
 
 export const resetFocusToBody = ClientFunction(() => { document.body.focus(); });

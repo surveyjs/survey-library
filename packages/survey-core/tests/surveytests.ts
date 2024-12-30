@@ -902,7 +902,7 @@ QUnit.test("onProgressText event and questionOrder in page, Bug#3383", function 
             "type": "text",
           }
         ],
-        "questionsOrder": "random"
+        "questionOrder": "random"
       }
     ],
   });
@@ -7680,29 +7680,29 @@ QUnit.test("Questions are randomized", function (assert) {
     false,
     "By default questions are not randomized"
   );
-  page.questionsOrder = "random";
+  page.questionOrder = "random";
   assert.equal(
     page.areQuestionsRandomized,
     true,
-    "page.questionsOrder = 'random'"
+    "page.questionOrder = 'random'"
   );
-  page.questionsOrder = "default";
+  page.questionOrder = "default";
   assert.equal(
     page.areQuestionsRandomized,
     false,
-    "page.questionsOrder = 'default'"
+    "page.questionOrder = 'default'"
   );
-  survey.questionsOrder = "random";
+  survey.questionOrder = "random";
   assert.equal(
     page.areQuestionsRandomized,
     true,
-    "survey.questionsOrder = 'random' && page.questionsOrder = 'default'"
+    "survey.questionOrder = 'random' && page.questionOrder = 'default'"
   );
-  page.questionsOrder = "initial";
+  page.questionOrder = "initial";
   assert.equal(
     page.areQuestionsRandomized,
     false,
-    "page.questionsOrder = 'initial'"
+    "page.questionOrder = 'initial'"
   );
 });
 
@@ -7719,15 +7719,15 @@ class HelpTest {
 QUnit.test("Randomize questions in page and panels", function (assert) {
   const oldFunc = Helpers.randomizeArray;
   Helpers.randomizeArray = HelpTest.randomizeArray;
-  const json = {
+  const json: any = {
     pages: [
       {
-        questionsOrder: "random",
+        questionOrder: "random",
         elements: [
           { type: "text", name: "q1" },
           { type: "panel", name: "p1", elements: [{ type: "text", name: "p1q1" }, { type: "text", name: "p1q2" }] },
-          { type: "panel", questionsOrder: "initial", name: "p2", elements: [{ type: "text", name: "p2q1" }, { type: "text", name: "p2q2" }] },
-          { type: "panel", questionsOrder: "random", name: "p3", elements: [{ type: "text", name: "p3q1" }, { type: "text", name: "p3q2" }] },
+          { type: "panel", questionOrder: "initial", name: "p2", elements: [{ type: "text", name: "p2q1" }, { type: "text", name: "p2q2" }] },
+          { type: "panel", questionOrder: "random", name: "p3", elements: [{ type: "text", name: "p3q1" }, { type: "text", name: "p3q2" }] },
         ]
       }
     ]
@@ -7748,7 +7748,7 @@ QUnit.test("Randomize questions in page and panels", function (assert) {
   assert.equal(p3.elements[0].name, "p3q2");
   assert.equal(p3.elements[1].name, "p3q1");
 
-  delete json.pages[0].questionsOrder;
+  delete json.pages[0].questionOrder;
   survey = new SurveyModel(json);
   page = survey.pages[0];
   p1 = survey.getPanelByName("p1");

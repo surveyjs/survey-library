@@ -532,18 +532,27 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * - `"initial"` - Preserves the original order of questions.
    * - `"random"` - Displays questions in random order.
-   * - `"default"` (default) - Inherits the setting from the Survey's `questionsOrder` property.
-   * @see SurveyModel.questionsOrder
+   * - `"default"` (default) - Inherits the setting from the Survey's `questionOrder` property.
+   * @see SurveyModel.questionOrder
    * @see areQuestionsRandomized
    */
+  public get questionOrder(): string {
+    return this.getPropertyValue("questionOrder");
+  }
+  public set questionOrder(val: string) {
+    this.setPropertyValue("questionOrder", val);
+  }
+  /**
+   * @deprecated Use the [`questionOrder`](#questionOrder) property instead.
+   */
   public get questionsOrder(): string {
-    return this.getPropertyValue("questionsOrder");
+    return this.questionOrder;
   }
   public set questionsOrder(val: string) {
-    this.setPropertyValue("questionsOrder", val);
+    this.questionOrder = val;
   }
   private canRandomize(isRandom: boolean): boolean {
-    return isRandom && (this.questionsOrder !== "initial") || this.questionsOrder === "random";
+    return isRandom && (this.questionOrder !== "initial") || this.questionOrder === "random";
   }
   protected isRandomizing = false;
   randomizeElements(isRandom: boolean): void {
@@ -562,13 +571,13 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   /**
    * Returns `true` if elements in this panel/page are arranged in random order.
-   * @see questionsOrder
+   * @see questionOrder
    */
   public get areQuestionsRandomized(): boolean {
     var order =
-      this.questionsOrder == "default" && this.survey
-        ? this.survey.questionsOrder
-        : this.questionsOrder;
+      this.questionOrder == "default" && this.survey
+        ? this.survey.questionOrder
+        : this.questionOrder;
     return order == "random";
   }
   /**
@@ -2465,7 +2474,7 @@ Serializer.addClass(
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
     {
-      name: "questionsOrder",
+      name: "questionOrder", alternativeName: "questionsOrder",
       default: "default",
       choices: ["default", "initial", "random"],
     },

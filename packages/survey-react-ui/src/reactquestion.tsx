@@ -175,7 +175,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     const key = singleQuestion.id;
     const rEl = <SurveyQuestion key={key} element={singleQuestion} creator={this.creator} css={cssClasses} />;
 
-    const title = locTitle ? this.renderLocString(locTitle, cssClasses, key + "_title") : undefined;
+    const title = locTitle ? <div className={cssClasses.singleInputTitle}>{this.renderLocString(locTitle, cssClasses, key + "_title")}</div> : undefined;
     return <>
       {title}
       {rEl}

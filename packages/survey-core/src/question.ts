@@ -1287,9 +1287,20 @@ export class Question extends SurveyElement<Question>
   protected hasCssError(): boolean {
     return this.errors.length > 0 || this.hasCssErrorCallback();
   }
+  private get isSingleInputQuestion(): boolean {
+    return !!this.parentQuestion && this.parentQuestion.singleInputQuestion === this;
+  }
+  protected getIsNested(): boolean {
+    if(!!this.isSingleInputQuestion) return false;
+    return super.getIsNested();
+  }
+  protected getHasFrameV2(): boolean {
+    if(this.isSingleInputQuestion) return true;
+    return super.getHasFrameV2();
+  }
   public getRootCss(): string {
     return new CssClassBuilder()
-      .append(this.cssRoot)
+      .append(this.cssRoot, !this.singleInputQuestion)
       .append(this.cssClasses.mobile, this.isMobile)
       .append(this.cssClasses.readOnly, this.isReadOnlyStyle)
       .append(this.cssClasses.disabled, this.isDisabledStyle)

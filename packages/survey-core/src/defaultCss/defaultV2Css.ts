@@ -250,6 +250,7 @@ export var defaultV2Css = {
     errorsContainerTop: "sd-element__erbox--above-element sd-question__erbox--above-question",
     errorsContainerBottom: "sd-question__erbox--below-question",
     confirmDialog: "sd-popup--confirm sv-popup--confirm",
+    singleInputTitle: "sd-title sd-singleinput__title",
     singleInputWrapper: "sd-question__singleinput-wrapper"
   },
   image: {

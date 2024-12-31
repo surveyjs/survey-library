@@ -3526,16 +3526,20 @@ export class SurveyModel extends SurveyElementCore
    * - `"random"` - Displays questions in random order.
    *
    * You can override this property for individual pages and panels.
-   * @see PageModel.questionsOrder
-   * @see PanelModel.questionsOrder
+   * @see PageModel.questionOrder
+   * @see PanelModel.questionOrder
    */
-  public get questionsOrder() {
-    return this.getPropertyValue("questionsOrder");
+  public get questionOrder(): string {
+    return this.getPropertyValue("questionOrder");
   }
-  public set questionsOrder(val: string) {
-    this.setPropertyValue("questionsOrder", val);
+  public set questionOrder(val: string) {
+    this.setPropertyValue("questionOrder", val);
   }
-
+  /**
+   * @deprecated Use the [`questionOrder`](#questionOrder) property instead.
+   */
+  public get questionsOrder(): string { return this.questionOrder; }
+  public set questionsOrder(val: string) { this.questionOrder = val; }
   /**
    * Focuses the first question on the current page.
    * @see focusQuestion
@@ -8207,7 +8211,7 @@ Serializer.addClass("survey", [
     className: "urlconditionitem", isArray: true
   },
   {
-    name: "questionsOrder",
+    name: "questionOrder", alternativeName: "questionsOrder",
     default: "initial",
     choices: ["initial", "random"],
   },

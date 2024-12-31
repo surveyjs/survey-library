@@ -182,6 +182,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised before the survey displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Use this event to cancel the preview.
    * @see showPreviewBeforeComplete
+   * @see previewMode
    * @see showPreview
    * @see cancelPreview
    */
@@ -2903,10 +2904,10 @@ export class SurveyModel extends SurveyElementCore
   private canShowProresBar(): boolean {
     return (
       !this.isShowingPreview ||
-      this.showPreviewBeforeComplete != "showAllQuestions"
+      !this.showPreviewBeforeComplete || this.previewMode != "showAllQuestions"
     );
   }
-  public get processedTitle() {
+  public get processedTitle(): string {
     return this.locTitle.renderedHtml;
   }
   /**
@@ -3851,7 +3852,7 @@ export class SurveyModel extends SurveyElementCore
   public get areEmptyElementsHidden(): boolean {
     return (
       this.isShowingPreview &&
-      this.showPreviewBeforeComplete == "showAnsweredQuestions" && this.isAnyQuestionAnswered
+      this.showPreviewBeforeComplete && this.previewMode == "showAnsweredQuestions" && this.isAnyQuestionAnswered
     );
   }
   private get isAnyQuestionAnswered(): boolean {
@@ -4413,15 +4414,24 @@ export class SurveyModel extends SurveyElementCore
    * @see showPreview
    * @see cancelPreview
    */
-  public get showPreviewBeforeComplete(): string {
+  public get showPreviewBeforeComplete(): boolean | any {
     return this.getPropertyValue("showPreviewBeforeComplete");
   }
-  public set showPreviewBeforeComplete(val: string) {
-    this.setPropertyValue("showPreviewBeforeComplete", val);
+  public set showPreviewBeforeComplete(val: boolean | any) {
+    if (val === undefined || val === "noPreview" || val === false) {
+      this.setPropertyValue("showPreviewBeforeComplete", false);
+    } else {
+      this.setPropertyValue("showPreviewBeforeComplete", true);
+      if (val === "showAllQuestions" || val === "showAnsweredQuestions") {
+        this.previewMode = val;
+      }
+    }
   }
-  public get isShowPreviewBeforeComplete(): boolean {
-    var preview = this.showPreviewBeforeComplete;
-    return preview == "showAllQuestions" || preview == "showAnsweredQuestions";
+  public get previewMode(): string {
+    return this.getPropertyValue("previewMode");
+  }
+  public set previewMode(val: string) {
+    this.setPropertyValue("previewMode", val);
   }
   protected onFirstPageIsStartedChanged() {
     this.isStartedState = this.firstPageIsStarted && this.pages.length > 1;
@@ -4617,20 +4627,20 @@ export class SurveyModel extends SurveyElementCore
   public calcIsCompleteButtonVisible(): boolean {
     const state = this.state;
     return this.isEditMode && (this.state === "running" &&
-      (this.isLastPageOrElement && !this.isShowPreviewBeforeComplete || this.canBeCompletedByTrigger)
+      (this.isLastPageOrElement && !this.showPreviewBeforeComplete || this.canBeCompletedByTrigger)
       || state === "preview") && this.showCompleteButton;
   }
   private calcIsPreviewButtonVisible(): boolean {
     return (
       this.isEditMode &&
-      this.isShowPreviewBeforeComplete &&
+      this.showPreviewBeforeComplete &&
       this.state == "running" && this.isLastPageOrElement
     );
   }
   private calcIsCancelPreviewButtonVisible(): boolean {
     return (
       this.isEditMode &&
-      this.isShowPreviewBeforeComplete &&
+      this.showPreviewBeforeComplete &&
       this.state == "preview"
     );
   }
@@ -6862,7 +6872,7 @@ export class SurveyModel extends SurveyElementCore
       if (!this.isLastPage) {
         this.nextPage();
       } else {
-        if (this.isShowPreviewBeforeComplete) {
+        if (this.showPreviewBeforeComplete) {
           this.showPreview();
         } else {
           this.tryComplete();
@@ -8336,12 +8346,12 @@ Serializer.addClass("survey", [
   {
     name: "previewText",
     serializationProperty: "locPreviewText",
-    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete !== "noPreview"; }
+    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete; }
   },
   {
     name: "editText",
     serializationProperty: "locEditText",
-    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete !== "noPreview"; }
+    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete; }
   },
   { name: "requiredText", default: "*" },
   {
@@ -8377,9 +8387,14 @@ Serializer.addClass("survey", [
     choices: ["standard", "singlePage", "questionPerPage"],
   },
   {
-    name: "showPreviewBeforeComplete",
-    default: "noPreview",
-    choices: ["noPreview", "showAllQuestions", "showAnsweredQuestions"],
+    name: "showPreviewBeforeComplete: boolean",
+    default: false
+  },
+  {
+    name: "previewMode",
+    default: "showAllQuestions",
+    choices: ["showAllQuestions", "showAnsweredQuestions"],
+    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete; }
   },
   { name: "showTimer:boolean" },
   { name: "timeLimit:number", alternativeName: "maxTimeToFinish", default: 0, minValue: 0, enableIf: (obj) => obj.showTimer },

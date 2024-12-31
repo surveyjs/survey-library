@@ -81,7 +81,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.createLocalizableString("removeRowText", this, false, "removeRow");
     this.createLocalizableString("emptyRowsText", this, false, true);
     this.registerPropertyChangedHandlers(["hideColumnsIfEmpty", "allowAddRows"], () => { this.updateShowTableAndAddRow(); });
-    this.registerPropertyChangedHandlers(["allowRowsDragAndDrop", "isReadOnly", "lockedRowCount"], () => { this.resetRenderedTable(); });
+    this.registerPropertyChangedHandlers(["allowRowReorder", "isReadOnly", "lockedRowCount"], () => { this.resetRenderedTable(); });
     this.registerPropertyChangedHandlers(["minRowCount"], () => { this.onMinRowCountChanged(); });
     this.registerPropertyChangedHandlers(["maxRowCount"], () => { this.onMaxRowCountChanged(); });
     this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
@@ -291,14 +291,23 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    *
    * Default value: `false`
    */
+  public get allowRowReorder(): boolean {
+    return this.getPropertyValue("allowRowReorder");
+  }
+  public set allowRowReorder(val: boolean) {
+    this.setPropertyValue("allowRowReorder", val);
+  }
+  /**
+   * @deprecated Use the [`allowRowReorder`](#allowRowReorder) property instead.
+   */
   public get allowRowsDragAndDrop(): boolean {
-    return this.getPropertyValue("allowRowsDragAndDrop");
+    return this.allowRowReorder;
   }
   public set allowRowsDragAndDrop(val: boolean) {
-    this.setPropertyValue("allowRowsDragAndDrop", val);
+    this.allowRowReorder = val;
   }
   public get isRowsDragAndDrop(): boolean {
-    return this.allowRowsDragAndDrop && !this.isReadOnly;
+    return this.allowRowReorder && !this.isReadOnly;
   }
   public get lockedRowCount(): number {
     return this.getPropertyValue("lockedRowCount", 0);
@@ -1047,7 +1056,7 @@ Serializer.addClass(
         return obj.detailPanelMode !== "none";
       },
     },
-    "allowRowsDragAndDrop:switch"
+    { name: "allowRowReorder:switch", alternativeName: "allowRowsDragAndDrop" },
   ],
   function() {
     return new QuestionMatrixDynamicModel("");

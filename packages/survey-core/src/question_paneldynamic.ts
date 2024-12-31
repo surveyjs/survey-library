@@ -1396,7 +1396,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * If it is not empty, then this value is set to every new panel, including panels created initially, unless the defaultValue is not empty
    * @see defaultValue
-   * @see defaultValueFromLastPanel
+   * @see copyDefaultValueFromLastEntry
    */
   public get defaultPanelValue(): any {
     return this.getPropertyValue("defaultPanelValue");
@@ -1410,11 +1410,20 @@ export class QuestionPanelDynamicModel extends Question
    * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
    */
+  public get copyDefaultValueFromLastEntry(): boolean {
+    return this.getPropertyValue("copyDefaultValueFromLastEntry");
+  }
+  public set copyDefaultValueFromLastEntry(val: boolean) {
+    this.setPropertyValue("copyDefaultValueFromLastEntry", val);
+  }
+  /**
+   * @deprecated Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#copyDefaultValueFromLastEntry) property instead..
+   */
   public get defaultValueFromLastPanel(): boolean {
-    return this.getPropertyValue("defaultValueFromLastPanel");
+    return this.copyDefaultValueFromLastEntry;
   }
   public set defaultValueFromLastPanel(val: boolean) {
-    this.setPropertyValue("defaultValueFromLastPanel", val);
+    this.copyDefaultValueFromLastEntry = val;
   }
   protected isDefaultValueEmpty(): boolean {
     return (
@@ -1527,7 +1536,7 @@ export class QuestionPanelDynamicModel extends Question
       hasModified = true;
       this.copyValue(newValue[index], this.defaultPanelValue);
     }
-    if (this.defaultValueFromLastPanel && newValue.length > 1) {
+    if (this.copyDefaultValueFromLastEntry && newValue.length > 1) {
       const fromIndex = prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex;
       hasModified = true;
       this.copyValue(newValue[index], newValue[fromIndex]);
@@ -2654,7 +2663,7 @@ Serializer.addClass(
       defaultFunc: () => settings.panel.maxPanelCount,
     },
     "defaultPanelValue:panelvalue",
-    "defaultValueFromLastPanel:boolean",
+    { name: "copyDefaultValueFromLastEntry:boolean", alternativeName: "defaultValueFromLastPanel" },
     {
       name: "panelsState",
       default: "default",

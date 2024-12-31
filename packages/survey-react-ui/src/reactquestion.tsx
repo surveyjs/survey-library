@@ -172,22 +172,13 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   private createSingleInputQuestion(question: Question, cssClasses: any): React.JSX.Element {
     const singleQuestion = question.singleInputQuestion;
     const locTitle = question.singleInputLocTitle;
-    let elementType = singleQuestion.getTemplate();
-    if (!ReactElementFactory.Instance.isElementRegistered(elementType)) {
-      elementType = "question";
-    }
-    const key = singleQuestion.id + "_single";
-    const rEl = ReactElementFactory.Instance.createElement(elementType, {
-      key: key,
-      element: singleQuestion,
-      creator: this.creator,
-      survey: singleQuestion.survey,
-      css: (singleQuestion as any).css
-    });
+    const key = singleQuestion.id;
+    const rEl = <SurveyQuestion key={key} element={singleQuestion} creator={this.creator} css={cssClasses} />;
+
     const title = locTitle ? this.renderLocString(locTitle, cssClasses, key + "_title") : undefined;
     return <>
       {title}
-      <div className={cssClasses.singleInputWrapper}>{rEl}</div>
+      {rEl}
     </>;
   }
   protected wrapElement(element: React.JSX.Element): React.JSX.Element {

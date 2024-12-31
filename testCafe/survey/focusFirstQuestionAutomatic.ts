@@ -1,4 +1,4 @@
-import { url, initSurvey, frameworks, getSurveyResult, filterIsInViewport } from "../helper";
+import { url, initSurvey, frameworks, getSurveyResult, filterIsInViewport, setRowItemFlowDirection } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 
 const title = "focusFirstQuestionAutomatic";
@@ -70,6 +70,9 @@ frameworks.forEach(async framework => {
     await t.expect(surveyResult).eql({ });
   });
   test("Focus and scroll into view question", async t => {
+
+    await setRowItemFlowDirection();
+
     const focusQuestion = ClientFunction((name, doScroll) => {
       const q = window["survey"].getQuestionByName(name);
       q.focus(false, doScroll);

@@ -523,10 +523,12 @@ export var settings = {
    *
    * Possible values:
    *
-   * - `"row"` (default) - Items fill the current row, then move on to the next row.
-   * - `"column"` - Items fill the current column, then move on to the next column.
+   * - `"column"` (default) - Items fill the current column, then move on to the next column.
+   * - `"row"` - Items fill the current row, then move on to the next row.
    */
-  showItemsInOrder: "default",
+  itemFlowDirection: "column",
+  get showItemsInOrder(): string { return settings.itemFlowDirection; },
+  set showItemsInOrder(val: string) { settings.itemFlowDirection = val; },
   /**
    * A value to save in survey results when respondents select the "None" choice item.
    *

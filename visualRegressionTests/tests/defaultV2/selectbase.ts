@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, resetFocusToBody, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, resetFocusToBody, wrapVisualTest, takeElementScreenshot, setRowItemFlowDirection } from "../../helper";
 
 const title = "Selectbase Screenshot";
 
@@ -20,6 +20,7 @@ frameworks.forEach(framework => {
   });
   test("Check checkbox question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await setRowItemFlowDirection();
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
@@ -68,6 +69,7 @@ frameworks.forEach(framework => {
   });
 
   test("Check radiogroup question", async (t) => {
+    await setRowItemFlowDirection();
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {

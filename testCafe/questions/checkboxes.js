@@ -1,4 +1,4 @@
-import { frameworks, url, url_test, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, applyTheme, getData } from "../helper";
+import { frameworks, url, url_test, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, applyTheme, getData, setRowItemFlowDirection } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -102,6 +102,9 @@ frameworks.forEach((framework) => {
   });
 
   test("change choices order", async (t) => {
+
+    await setRowItemFlowDirection();
+
     const getChoicesCount = ClientFunction(
       () =>
         document.querySelectorAll(
@@ -211,6 +214,9 @@ frameworks.forEach((framework) => {
   });
 
   test("check \"other\" choice doesn't change order", async (t) => {
+
+    await setRowItemFlowDirection();
+
     const getOtherChoice = Selector(
       () =>
         document.querySelectorAll(

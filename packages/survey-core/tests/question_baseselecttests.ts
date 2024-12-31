@@ -19,7 +19,7 @@ function getValuesInColumns(question: QuestionSelectBase) {
 }
 
 QUnit.test("Check QuestionSelectBase columns property", function (assert) {
-  var json = {
+  const json = {
     questions: [
       {
         type: "checkbox",
@@ -29,16 +29,17 @@ QUnit.test("Check QuestionSelectBase columns property", function (assert) {
       },
     ],
   };
-  var survey = new SurveyModel(json);
+  const survey = new SurveyModel(json);
 
-  var question = <QuestionSelectBase>survey.getAllQuestions()[0];
-  var columns = getValuesInColumns(question);
+  settings.itemFlowDirection = "row";
+  const question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  let columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
     [["Item1", "Item4"], ["Item2", "Item5"], ["Item3"]],
     "check showItemsBy row"
   );
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
@@ -100,7 +101,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
   assert.notOk(question.hasHeadItems);
   assert.notOk(question.hasFootItems);
 
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   let columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
@@ -132,7 +133,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
     ["newitem", "none", "other"],
     "check foot items"
   );
-  settings.showItemsInOrder = "row";
+  settings.itemFlowDirection = "row";
   settings.supportCreatorV2 = false;
 });
 
@@ -157,7 +158,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
   assert.notOk(question.hasHeadItems);
   assert.notOk(question.hasFootItems);
 
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   let columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
@@ -189,7 +190,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
     ["newitem", "none", "refused", "dontknow", "other"],
     "check foot items"
   );
-  settings.showItemsInOrder = "row";
+  settings.itemFlowDirection = "row";
   settings.supportCreatorV2 = false;
   refuseProp.visible = false;
   dontKnowProp.visible = false;
@@ -217,7 +218,7 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
   assert.notOk(question.hasFootItems);
 
   let columns = getValuesInColumns(question);
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   assert.deepEqual(
     columns,
     [["selectall", "Item2", "other"], ["Item1", "none"]],
@@ -247,7 +248,7 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
     ["none", "other"],
     "check foot items"
   );
-  settings.showItemsInOrder = "row";
+  settings.itemFlowDirection = "row";
   settings.supportCreatorV2 = false;
 });
 QUnit.test("settings.noneItemValue", function (assert) {

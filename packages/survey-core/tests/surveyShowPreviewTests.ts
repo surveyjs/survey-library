@@ -11,7 +11,7 @@ settings.autoAdvanceDelay = 0;
 QUnit.test("Complete and Preview button visibility", function(assert) {
   var survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
   assert.equal(survey.currentPageNo, 0, "Init current page");
-  assert.equal(survey.isShowPreviewBeforeComplete, false, "no preview");
+  assert.equal(survey.showPreviewBeforeComplete, false, "no preview");
   assert.equal(
     survey.isCompleteButtonVisible,
     true,
@@ -28,7 +28,7 @@ QUnit.test("Complete and Preview button visibility", function(assert) {
     "cancel preview button: running survey, no preview"
   );
   survey.showPreviewBeforeComplete = "showAllQuestions";
-  assert.equal(survey.isShowPreviewBeforeComplete, true, "has preview");
+  assert.equal(survey.showPreviewBeforeComplete, true, "has preview");
   assert.equal(
     survey.isCompleteButtonVisible,
     false,

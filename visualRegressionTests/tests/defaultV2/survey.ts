@@ -290,7 +290,7 @@ frameworks.forEach(framework => {
         "showTimerPanelMode": "survey",
         "maxTimeToFinish": 60,
         "widthMode": "responsive",
-        "firstPageIsStarted": true,
+        "firstPageIsStartPage": true,
         "pages": [
           {
             "elements": [
@@ -363,7 +363,7 @@ frameworks.forEach(framework => {
         "showTimerPanelMode": "survey",
         "maxTimeToFinish": 60,
         "widthMode": "static",
-        "firstPageIsStarted": true,
+        "firstPageIsStartPage": true,
         "pages": [
           {
             "elements": [

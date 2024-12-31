@@ -393,7 +393,7 @@ QUnit.test("Check page num when first page is started", function (assert) {
       { name: "p2", elements: [{ type: "text", name: "q1" }] },
       { name: "p3", elements: [{ type: "text", name: "q2" }] },
     ],
-    firstPageIsStarted: true
+    firstPageIsStartPage: true
   });
   assert.equal(survey.pages[0].num, -1);
   assert.equal(survey.pages[0].visibleIndex, -1);
@@ -3528,7 +3528,7 @@ QUnit.test("survey.onGetPageNumber event", function (assert) {
     }
   });
   survey.fromJSON({
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     pages: [
       { elements: [{ type: "text", name: "q" }] },
       { title: "Page 1", elements: [{ type: "text", name: "q1" }] },
@@ -6348,7 +6348,7 @@ QUnit.test("check setCss method without merge", function (assert) {
 
 QUnit.test("Apply css for questions on start page", function (assert) {
   const survey = new SurveyModel({
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     pages: [
       { elements: [{ type: "text", name: "q1" }] },
       { elements: [{ type: "text", name: "q2" }] }
@@ -7070,7 +7070,7 @@ QUnit.test("Question property.page getChoices", function (assert) {
   assert.equal(property.getChoices(q).length, 3, "There are 3 pages");
 });
 
-QUnit.test("firstPageIsStarted = true", function (assert) {
+QUnit.test("firstPageIsStartPage = true", function (assert) {
   var survey = new SurveyModel();
   for (var i = 0; i < 3; i++) {
     let page = survey.addNewPage("p" + i + 1);
@@ -7079,19 +7079,19 @@ QUnit.test("firstPageIsStarted = true", function (assert) {
   assert.equal(survey.visiblePages.length, 3, "There are 3 visible pages");
   assert.equal(survey.pages[0].isVisible, true, "The first page is visible");
   assert.equal(survey.state, "running", "Survey is running");
-  survey.firstPageIsStarted = true;
+  survey.firstPageIsStartPage = true;
   assert.equal(survey.pages[0].isVisible, true, "The first page is visible");
   assert.equal(survey.pages[0].isStarted, true, "The first page is started");
   assert.equal(survey.visiblePages.length, 2, "There are 2 visible pages");
   assert.equal(survey.state, "starting", "Survey is showing the start page");
-  survey.firstPageIsStarted = false;
+  survey.firstPageIsStartPage = false;
   assert.equal(survey.visiblePages.length, 3, "There are 3 visible pages");
   assert.equal(survey.pages[0].isVisible, true, "The first page is visible");
   assert.equal(survey.state, "running", "Survey is running");
-  survey.firstPageIsStarted = true;
+  survey.firstPageIsStartPage = true;
 });
 
-QUnit.test("firstPageIsStarted = true, load from JSON, the flow", function (
+QUnit.test("firstPageIsStartPage = true, load from JSON, the flow", function (
   assert
 ) {
   var json = {
@@ -7207,7 +7207,7 @@ QUnit.test("Survey show several pages as one, set and reset", function (assert) 
   assert.equal(survey.visiblePages.length, 2, "We have still two pages again");
 });
 
-QUnit.test("Survey show several pages as one + firstPageIsStarted", function (
+QUnit.test("Survey show several pages as one + firstPageIsStartPage", function (
   assert
 ) {
   var survey = twoPageSimplestSurvey();
@@ -7215,7 +7215,7 @@ QUnit.test("Survey show several pages as one + firstPageIsStarted", function (
   thirdPage.addNewQuestion("text", "q1");
   thirdPage.addNewQuestion("text", "q2");
   survey.pages.push(thirdPage);
-  survey.firstPageIsStarted = true;
+  survey.firstPageIsStartPage = true;
   survey.isSinglePage = true;
   assert.equal(survey.pages.length, 3, "We have two pages here");
   assert.equal(survey.visiblePages.length, 1, "You have one page");
@@ -7796,7 +7796,7 @@ QUnit.test("Quiz, correct, incorrect answers", function (assert) {
   page.addNewQuestion("text", "name");
   page.addNewQuestion("text", "email");
   survey.pages.unshift(page);
-  survey.firstPageIsStarted = true;
+  survey.firstPageIsStartPage = true;
   survey.completedHtml =
     "{correctedAnswers}, {inCorrectedAnswers}, {questionCount}";
   survey.start();
@@ -7930,7 +7930,7 @@ QUnit.test("Quiz, correct, incorrect answers, questionCount in expressions", fun
   assert.equal(survey.calculatedValues[2].value, 3, "questionCount #2");
 });
 QUnit.test(
-  "Store data on the first page, firstPageIsStarted = true, Bug #1580",
+  "Store data on the first page, firstPageIsStartPage = true, Bug #1580",
   function (assert) {
     var survey = twoPageSimplestSurvey();
     var questionCount = survey.getAllQuestions().length;
@@ -7943,7 +7943,7 @@ QUnit.test(
       survey.getAllQuestions().length,
       "Two questions have been added"
     );
-    survey.firstPageIsStarted = true;
+    survey.firstPageIsStartPage = true;
     assert.equal(
       questionCount + 2,
       survey.getAllQuestions().length,
@@ -7972,10 +7972,10 @@ QUnit.test(
 );
 
 QUnit.test(
-  "Validate questions on the first page, firstPageIsStarted = true, Bug #1976",
+  "Validate questions on the first page, firstPageIsStartPage = true, Bug #1976",
   function (assert) {
     var survey = new SurveyModel({
-      firstPageIsStarted: true,
+      firstPageIsStartPage: true,
       pages: [
         {
           name: "Start Page",
@@ -15051,7 +15051,7 @@ QUnit.test(
   "onAfterRenderPage calls incorrect for the first page when there is the started page, Bug #",
   function (assert) {
     var survey = new SurveyModel({
-      firstPageIsStarted: true,
+      firstPageIsStartPage: true,
       pages: [
         {
           name: "Start Page",
@@ -15986,19 +15986,19 @@ QUnit.test("start page is invisible", assert => {
         ],
       },
     ],
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
   });
-  const startedPage = survey.startedPage;
-  assert.ok(startedPage);
-  assert.equal(startedPage.isVisible, true, "started page is visible");
+  const startPage = survey.startPage;
+  assert.ok(startPage);
+  assert.equal(startPage.isVisible, true, "started page is visible");
 });
-QUnit.test("firstPageIsStarted = true and prevPage()", function (assert) {
+QUnit.test("firstPageIsStartPage = true and prevPage()", function (assert) {
   var survey = new SurveyModel();
   for (var i = 0; i < 3; i++) {
     let page = survey.addNewPage("p" + i + 1);
     page.addNewQuestion("text");
   }
-  survey.firstPageIsStarted = true;
+  survey.firstPageIsStartPage = true;
   assert.equal(survey.prevPage(), false);
   survey.start();
   assert.equal(survey.prevPage(), false);
@@ -16006,9 +16006,9 @@ QUnit.test("firstPageIsStarted = true and prevPage()", function (assert) {
   assert.equal(survey.prevPage(), true);
   assert.equal(survey.currentPageNo, 0);
 });
-QUnit.test("firstPageIsStarted = true and invisible questions and clear", function (assert) {
+QUnit.test("firstPageIsStartPage = true and invisible questions and clear", function (assert) {
   var survey = new SurveyModel({
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     pages: [
       {
         elements: [
@@ -16032,9 +16032,9 @@ QUnit.test("firstPageIsStarted = true and invisible questions and clear", functi
   survey.clear(true, true);
   assert.equal(q2.isVisible, false, "invisible again");
 });
-QUnit.test("firstPageIsStarted = true and clear&state='starting'", function (assert) {
+QUnit.test("firstPageIsStartPage = true and clear&state='starting'", function (assert) {
   const survey = new SurveyModel({
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     goNextPageAutomatic: true,
     showProgressBar: "bottom",
     showTimerPanel: "top",
@@ -17045,7 +17045,7 @@ QUnit.test("First page with conditions. Make the second only page visible/invisi
     firstPageIsStarted: true
   });
   assert.equal(survey.getPropertyValue("isStartedState"), true, "the state is started");
-  assert.equal(survey.startedPage.name, "page1", "The started page");
+  assert.equal(survey.startPage.name, "page1", "The started page");
   assert.equal(survey.isShowingPage, true, "show the first page");
   assert.equal(survey.state, "starting", "The state is starting");
 });
@@ -18044,7 +18044,7 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
 QUnit.test("getContainerContent - do not show TOC on start page", function (assert) {
   const json = {
     showTOC: true,
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     pages: [
       {
         "elements": [
@@ -20150,7 +20150,7 @@ QUnit.test("getContainerContent - show advinced hader on start page", function (
   surveyCss.currentType = "defaultV2";
   const json = {
     showNavigationButtons: "none",
-    "firstPageIsStarted": true,
+    "firstPageIsStartPage": true,
     title: "My title",
     pages: [
       {
@@ -20702,7 +20702,7 @@ QUnit.test("Question is not in the hash with it is on the first page & questions
         "type": "text",
         "name": "q2"
       }] }],
-    "firstPageIsStarted": true,
+    "firstPageIsStartPage": true,
     "questionsOnPageMode": "questionPerPage",
   });
 
@@ -20723,7 +20723,7 @@ QUnit.test("Question is not in the hash with it is on the first page & questions
         "type": "text",
         "name": "q2"
       }] }],
-    "firstPageIsStarted": true,
+    "firstPageIsStartPage": true,
     "questionsOnPageMode": "singlePage",
   });
 
@@ -20878,11 +20878,11 @@ QUnit.test("The Start Page has -1 index when enabling auto-numeration for survey
         "name": "q2"
       }] }],
     "showPageNumbers": true,
-    "firstPageIsStarted": true,
+    "firstPageIsStartPage": true,
   });
   assert.equal(survey.pages[0].no, "", "start page should be empty, #1");
   assert.equal(survey.pages[1].no, "1. ", "pages[1], #1");
-  survey.firstPageIsStarted = false;
+  survey.firstPageIsStartPage = false;
   assert.equal(survey.pages[0].no, "1. ", "pages[0], #2");
   assert.equal(survey.pages[1].no, "2. ", "pages[1], #2");
 });

@@ -395,7 +395,7 @@ QUnit.test("Start timer automatically if there is the start page", function(
   survey.addNewPage("p2");
   survey.pages[0].addNewQuestion("text");
   survey.pages[1].addNewQuestion("text");
-  survey.firstPageIsStarted = true;
+  survey.firstPageIsStartPage = true;
   survey.showTimerPanel = "top";
   survey.start();
   doTimer(3);

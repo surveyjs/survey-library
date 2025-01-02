@@ -163,7 +163,7 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised before the survey is completed. Use this event to prevent survey completion.
    * @see onComplete
    * @see doComplete
-   * @see allowCompleteSurveyAutomatic
+   * @see autoAdvanceAllowComplete
    */
   public onCompleting: EventBase<SurveyModel, CompletingEvent> = this.addEvent<SurveyModel, CompletingEvent>();
   /**
@@ -176,7 +176,7 @@ export class SurveyModel extends SurveyElementCore
    * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showSave...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
    * @see onPartialSend
    * @see doComplete
-   * @see allowCompleteSurveyAutomatic
+   * @see autoAdvanceAllowComplete
    */
   public onComplete: EventBase<SurveyModel, CompleteEvent> = this.addEvent<SurveyModel, CompleteEvent>();
   /**
@@ -1761,7 +1761,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Default value: `false`
    *
-   * If you enable this property, the survey is also completed automatically. Set the [`allowCompleteSurveyAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#allowCompleteSurveyAutomatic) property to `false` if you want to disable this behavior.
+   * If you enable this property, the survey is also completed automatically. Set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false` if you want to disable this behavior.
    *
    * > If any of the following questions is answered last, the survey does not switch to the next page: Checkboxes, Yes/No (Boolean) (rendered as Checkbox), Long Text, Signature, Image Picker (with Multi Select), File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
    *
@@ -1780,11 +1780,17 @@ export class SurveyModel extends SurveyElementCore
    * Default value: `true`
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
+  public get autoAdvanceAllowComplete(): boolean {
+    return this.getPropertyValue("autoAdvanceAllowComplete");
+  }
+  public set autoAdvanceAllowComplete(val: boolean) {
+    this.setPropertyValue("autoAdvanceAllowComplete", val);
+  }
   public get allowCompleteSurveyAutomatic(): boolean {
-    return this.getPropertyValue("allowCompleteSurveyAutomatic");
+    return this.autoAdvanceAllowComplete;
   }
   public set allowCompleteSurveyAutomatic(val: boolean) {
-    this.setPropertyValue("allowCompleteSurveyAutomatic", val);
+    this.autoAdvanceAllowComplete = val;
   }
   /**
    * Specifies when the survey validates answers.
@@ -6854,7 +6860,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].hasInput && questions[i].isEmpty()) return;
     }
-    if (this.isLastPage && (this.goNextPageAutomatic !== true || !this.allowCompleteSurveyAutomatic)) return;
+    if (this.isLastPage && (this.goNextPageAutomatic !== true || !this.autoAdvanceAllowComplete)) return;
     if (this.checkIsCurrentPageHasErrors(false)) return;
     const curPage = this.currentPage;
     const goNextPage = () => {
@@ -8291,7 +8297,7 @@ Serializer.addClass("survey", [
     }
   },
   {
-    name: "allowCompleteSurveyAutomatic:boolean", default: true,
+    name: "autoAdvanceAllowComplete:boolean", default: true, alternativeName: "allowCompleteSurveyAutomatic",
     visibleIf: (obj: any): boolean => obj.goNextPageAutomatic === true
   },
   {

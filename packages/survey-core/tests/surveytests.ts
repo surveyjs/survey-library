@@ -4268,9 +4268,9 @@ QUnit.test(
     assert.equal(survey.state, "completed");
   }
 );
-QUnit.test("goNextPageAutomatic and allowCompleteSurveyAutomatic=false", function (assert) {
+QUnit.test("goNextPageAutomatic and autoAdvanceAllowComplete=false", function (assert) {
   const emptySurvey = new SurveyModel();
-  assert.equal(emptySurvey.allowCompleteSurveyAutomatic, true, "allowCompleteSurveyAutomatic value # 1");
+  assert.equal(emptySurvey.autoAdvanceAllowComplete, true, "autoAdvanceAllowComplete value # 1");
   const survey = new SurveyModel({
     pages: [
       { elements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3] }] },
@@ -4279,7 +4279,7 @@ QUnit.test("goNextPageAutomatic and allowCompleteSurveyAutomatic=false", functio
     goNextPageAutomatic: true,
     allowCompleteSurveyAutomatic: false
   });
-  assert.equal(survey.allowCompleteSurveyAutomatic, false, "allowCompleteSurveyAutomatic value # 2");
+  assert.equal(survey.autoAdvanceAllowComplete, false, "autoAdvanceAllowComplete value # 2");
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
   assert.equal(survey.currentPageNo, 0, "curPage #1");

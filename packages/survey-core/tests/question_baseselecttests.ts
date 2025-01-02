@@ -859,7 +859,7 @@ QUnit.test("check radiogroup title actions", (assert) => {
         type: "radiogroup",
         name: "q1",
         choices: ["Item 1"],
-        showClearButton: true
+        allowClear: true
       }]
   });
   let question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
@@ -882,7 +882,7 @@ QUnit.test("check radiogroup title actions", (assert) => {
   assert.equal(action.title, "Clear");
   assert.ok(action.visible);
 
-  question.showClearButton = false;
+  question.allowClear = false;
   assert.notOk(action.visible);
 });
 
@@ -2180,7 +2180,7 @@ QUnit.test("maxSelectedChoices & getItemClass, bug#8159", (assert) => {
 QUnit.test("radiogroup.getConditionJson, bug#8226", (assert) => {
   var json = {
     questions: [
-      { type: "radiogroup", name: "q1", showClearButton: true, choices: ["Item1"] },
+      { type: "radiogroup", name: "q1", allowClear: true, choices: ["Item1"] },
       { type: "radiogroup", name: "q2", choices: ["Item1"] }
     ],
   };

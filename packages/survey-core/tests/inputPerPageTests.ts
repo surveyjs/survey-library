@@ -523,7 +523,7 @@ QUnit.test("singleInput for panel dynamic & singleInputLocTitle", assert => {
   assert.equal(panel.panels[0].locTitle.isEmpty, true, "panels[0] locTitle is empty, #4");
   assert.equal(panel.panels[1].locTitle.isEmpty, true, "panels[1] locTitle is empty, #4");
 });
-QUnit.test("singleInput for matrix dynamic & singleInputLocTitle", assert => {
+QUnit.test("singleInput for matrix dynamic & singleInputLocTitle, cell question title", assert => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -543,4 +543,29 @@ QUnit.test("singleInput for matrix dynamic & singleInputLocTitle", assert => {
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 3", "singleInputLocTitle, #3");
   survey.performPrevious();
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 2", "singleInputLocTitle, #4");
+});
+QUnit.test("singleInput for matrix dynamic & cell question & css", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic", name: "matrix1",
+        rowCount: 2,
+        columns: [
+          { cellType: "text", name: "col1" },
+          { cellType: "text", name: "col2" }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  survey.css = { question: { nested: "q-nested", withFrame: "q-frame" } };
+  const matrix = survey.getQuestionByName("matrix1");
+  matrix.visibleRows.forEach(row => {
+    row.cells.forEach(cell => {
+      const q = cell.question;
+      const rootCss = q.getRootCss();
+      assert.equal(rootCss.indexOf("q-frame") > -1, true, "rootCss has frame: name: " + q.name);
+      assert.equal(rootCss.indexOf("q-nested") > -1, false, "rootCss no nested: name: " + q.name);
+    });
+  });
 });

@@ -770,6 +770,7 @@ export class Question extends SurveyElement<Question>
   protected setSingleInputQuestion(question: Question): void {
     if(this.singleInputQuestion !== question) {
       this.setPropertyValue("singleInputQuestion", question);
+      if(!!question) question.updateQuestionCss(true);
     }
   }
   private nextPrevSingleInput(skip: number): boolean {
@@ -1282,15 +1283,15 @@ export class Question extends SurveyElement<Question>
   protected hasCssError(): boolean {
     return this.errors.length > 0 || this.hasCssErrorCallback();
   }
-  private get isSingleInputQuestion(): boolean {
-    return !!this.parentQuestion && this.parentQuestion.singleInputQuestion === this;
+  private get isSingleInputQuestionMode(): boolean {
+    return !!this.parentQuestion && this.survey?.isSingleVisibleInput;
   }
   protected getIsNested(): boolean {
-    if(!!this.isSingleInputQuestion) return false;
+    if(!!this.isSingleInputQuestionMode) return false;
     return super.getIsNested();
   }
   protected getHasFrameV2(): boolean {
-    if(this.isSingleInputQuestion) return true;
+    if(this.isSingleInputQuestionMode) return true;
     return super.getHasFrameV2();
   }
   public getRootCss(): string {

@@ -1518,7 +1518,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"top"` - Displays the navigation buttons above survey content.
    * - `"both"` - Displays the navigation buttons above and below survey content.
    * - `"none"` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
-   * @see goNextPageAutomatic
+   * @see autoAdvanceEnabled
    * @see showPrevButton
    * @see showCompleteButton
    */
@@ -1768,14 +1768,20 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
-  public get goNextPageAutomatic(): boolean | "autogonext" {
-    return this.getPropertyValue("goNextPageAutomatic");
+  public get autoAdvanceEnabled(): boolean {
+    return this.getPropertyValue("autoAdvanceEnabled");
   }
-  public set goNextPageAutomatic(val: boolean | "autogonext") {
-    this.setPropertyValue("goNextPageAutomatic", val);
+  public set autoAdvanceEnabled(val: boolean) {
+    this.setPropertyValue("autoAdvanceEnabled", val);
+  }
+  public get goNextPageAutomatic(): boolean {
+    return this.autoAdvanceEnabled;
+  }
+  public set goNextPageAutomatic(val: boolean) {
+    this.autoAdvanceEnabled = val;
   }
   /**
-   * Specifies whether to complete the survey automatically after a user answers all questions on the last page. Applies only if the [`goNextPageAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) property is `true`.
+   * Specifies whether to complete the survey automatically after a user answers all questions on the last page. Applies only if the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property is `true`.
    *
    * Default value: `true`
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
@@ -6733,7 +6739,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Sets a question value (answer).
    *
-   * > This method executes all triggers and reevaluates conditions (`visibleIf`, `requiredId`, and others). It also switches the survey to the next page if the [`goNextPageAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) property is enabled and all questions on the current page have correct answers.
+   * > This method executes all triggers and reevaluates conditions (`visibleIf`, `requiredId`, and others). It also switches the survey to the next page if the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property is enabled and all questions on the current page have correct answers.
    * @param name A question name.
    * @param newValue A new question value.
    * @param locNotification For internal use.
@@ -6843,7 +6849,7 @@ export class SurveyModel extends SurveyElementCore
   protected tryGoNextPageAutomatic(name: string) {
     if (
       !!this.isEndLoadingFromJson ||
-      !this.goNextPageAutomatic ||
+      !this.autoAdvanceEnabled ||
       !this.currentPage
     )
       return;
@@ -6851,7 +6857,7 @@ export class SurveyModel extends SurveyElementCore
     if (
       !question ||
       (!!question &&
-        (!question.visible || !question.supportGoNextPageAutomatic()))
+        (!question.visible || !question.supportAutoAdvanced()))
     )
       return;
     if (!question.validate(false) && !question.supportGoNextPageError()) return;
@@ -6860,7 +6866,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].hasInput && questions[i].isEmpty()) return;
     }
-    if (this.isLastPage && (this.goNextPageAutomatic !== true || !this.autoAdvanceAllowComplete)) return;
+    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return;
     if (this.checkIsCurrentPageHasErrors(false)) return;
     const curPage = this.currentPage;
     const goNextPage = () => {
@@ -8288,17 +8294,20 @@ Serializer.addClass("survey", [
   { name: "maxTextLength:number", default: 0, minValue: 0 },
   { name: "maxOthersLength:number", default: 0, minValue: 0 },
   {
-    name: "goNextPageAutomatic:boolean",
+    name: "autoAdvanceEnabled:boolean", alternativeName: "goNextPageAutomatic",
     onSetValue: function (obj: any, value: any) {
       if (value !== "autogonext") {
         value = Helpers.isTwoValueEquals(value, true);
       }
-      obj.setPropertyValue("goNextPageAutomatic", value);
+      if(value === "autogonext") {
+        value = true;
+      }
+      obj.setPropertyValue("autoAdvanceEnabled", value);
     }
   },
   {
     name: "autoAdvanceAllowComplete:boolean", default: true, alternativeName: "allowCompleteSurveyAutomatic",
-    visibleIf: (obj: any): boolean => obj.goNextPageAutomatic === true
+    visibleIf: (obj: any): boolean => obj.autoAdvanceEnabled === true
   },
   {
     name: "clearInvisibleValues",

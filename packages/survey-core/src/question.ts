@@ -2530,7 +2530,9 @@ export class Question extends SurveyElement<Question>
   public removeElement(element: IElement): boolean {
     return false;
   }
-  public supportGoNextPageAutomatic(): boolean {
+  // Obsolete
+  supportGoNextPageAutomatic(): boolean { return this.supportAutoAdvanced(); }
+  public supportAutoAdvanced(): boolean {
     return false;
   }
   public supportGoNextPageError(): boolean {

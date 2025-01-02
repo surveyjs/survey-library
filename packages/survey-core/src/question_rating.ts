@@ -431,7 +431,7 @@ export class QuestionRatingModel extends Question {
   public get questionName() {
     return this.name + "_" + this.id;
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvanced(): boolean {
     return this.isMouseDown === true || this.renderAs === "dropdown";
   }
   public supportOther(): boolean {

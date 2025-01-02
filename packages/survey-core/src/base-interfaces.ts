@@ -325,7 +325,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   onSurveyValueChanged(newValue: any): any;
   updateValueFromSurvey(newValue: any, clearData: boolean): void;
   updateCommentFromSurvey(newValue: any): any;
-  supportGoNextPageAutomatic(): boolean;
+  supportAutoAdvanced(): boolean;
   clearUnusedValues(): any;
   getDisplayValue(keysAsText: boolean, value: any): any;
   getValueName(): string;

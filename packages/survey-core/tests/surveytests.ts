@@ -4059,7 +4059,7 @@ QUnit.test(
     );
     dropDownQ.choices = [1, 2, 3];
     dropDownQ.hasOther = true;
-    survey.goNextPageAutomatic = "autogonext";
+    survey.goNextPageAutomatic = true;
     assert.equal(
       survey.currentPage.name,
       survey.pages[0].name,
@@ -4092,7 +4092,7 @@ QUnit.test("test goNextPageAutomatic property - 'autogonext' - load from survey"
       { type: "text", name: "q1" }
     ]
   });
-  assert.equal(survey.goNextPageAutomatic, "autogonext", "goNextPageAutomatic set to autogonext on loading correctly");
+  assert.equal(survey.goNextPageAutomatic, true, "goNextPageAutomatic set to autogonext on loading correctly");
 });
 QUnit.test("test goNextPageAutomatic after errors", function (assert) {
   var survey = twoPageSimplestSurvey();
@@ -4118,120 +4118,117 @@ QUnit.test("test goNextPageAutomatic after errors", function (assert) {
     "go to the second page automatically"
   );
 });
-QUnit.test(
-  "goNextPageAutomatic: should not work for complex questions like matrix, checkbox, multiple text",
-  function (assert) {
-    var questions = [];
-    questions.push({
-      question: new QuestionCheckboxModel("check"),
-      auto: false,
-      value: [1],
-    });
-    questions.push({
-      question: new QuestionRadiogroupModel("radio"),
-      auto: true,
-      value: 1,
-    });
-    questions.push({
-      question: new QuestionDropdownModel("dropdown"),
-      auto: true,
-      value: 1,
-    });
-    questions.push({
-      question: new QuestionCommentModel("comment"),
-      auto: false,
-      value: "1",
-    });
-    questions.push({
-      question: new QuestionFileModel("file"),
-      auto: false,
-      value: "1",
-    });
-    questions.push({
-      question: new QuestionFileModel("html"),
-      auto: false,
-      value: null,
-    });
+QUnit.test("goNextPageAutomatic: should not work for complex questions like matrix, checkbox, multiple text", function (assert) {
+  var questions = new Array<any>();
+  questions.push({
+    question: new QuestionCheckboxModel("check"),
+    auto: false,
+    value: [1],
+  });
+  questions.push({
+    question: new QuestionRadiogroupModel("radio"),
+    auto: true,
+    value: 1,
+  });
+  questions.push({
+    question: new QuestionDropdownModel("dropdown"),
+    auto: true,
+    value: 1,
+  });
+  questions.push({
+    question: new QuestionCommentModel("comment"),
+    auto: false,
+    value: "1",
+  });
+  questions.push({
+    question: new QuestionFileModel("file"),
+    auto: false,
+    value: "1",
+  });
+  questions.push({
+    question: new QuestionFileModel("html"),
+    auto: false,
+    value: null,
+  });
 
-    var matrix = new QuestionMatrixModel("matrix");
-    matrix.rows = ["row1", "row2"];
-    matrix.columns = ["col1", "col2"];
-    questions.push({ question: matrix, auto: false, value: { row1: "col1" } });
-    questions.push({
-      question: matrix,
-      auto: true,
-      value: { row1: "col1", row2: "col1" },
-    });
+  var matrix = new QuestionMatrixModel("matrix");
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  questions.push({ question: matrix, auto: false, value: { row1: "col1" } });
+  questions.push({
+    question: matrix,
+    auto: true,
+    value: { row1: "col1", row2: "col1" },
+  });
 
-    var dropDownMatrix = new QuestionMatrixDropdownModel("matrixdropdown");
-    dropDownMatrix.addColumn("col1");
-    dropDownMatrix.rows = ["row1", "row2"];
-    questions.push({
-      question: dropDownMatrix,
-      auto: false,
-      value: { row1: { col1: 1 } },
-    });
-    questions.push({
-      question: dropDownMatrix,
-      auto: true,
-      value: { row1: { col1: 1 }, row2: { col1: 2 } },
-    });
+  var dropDownMatrix = new QuestionMatrixDropdownModel("matrixdropdown");
+  dropDownMatrix.addColumn("col1");
+  dropDownMatrix.rows = ["row1", "row2"];
+  questions.push({
+    question: dropDownMatrix,
+    auto: false,
+    value: { row1: { col1: 1 } },
+  });
+  questions.push({
+    question: dropDownMatrix,
+    auto: true,
+    value: { row1: { col1: 1 }, row2: { col1: 2 } },
+  });
 
-    var dynamicMatrix = new QuestionMatrixDynamicModel("matrixdynamic");
-    dynamicMatrix.addColumn("col1");
-    dynamicMatrix.rowCount = 2;
-    questions.push({
-      question: dynamicMatrix,
-      auto: false,
-      value: [{ col1: 1 }],
-    });
-    questions.push({
-      question: dynamicMatrix,
-      auto: false,
-      value: [{ col1: 1 }, { col1: 1 }],
-    });
+  var dynamicMatrix = new QuestionMatrixDynamicModel("matrixdynamic");
+  dynamicMatrix.addColumn("col1");
+  dynamicMatrix.rowCount = 2;
+  questions.push({
+    question: dynamicMatrix,
+    auto: false,
+    value: [{ col1: 1 }],
+  });
+  questions.push({
+    question: dynamicMatrix,
+    auto: false,
+    value: [{ col1: 1 }, { col1: 1 }],
+  });
 
-    var multipleText = new QuestionMultipleTextModel("multitext");
-    multipleText.addItem("t1");
-    multipleText.addItem("t2");
-    questions.push({ question: multipleText, auto: false, value: { t1: "1" } });
-    questions.push({
-      question: multipleText,
-      auto: true,
-      value: { t1: "1", t2: "2" },
-    });
+  var multipleText = new QuestionMultipleTextModel("multitext");
+  multipleText.addItem("t1");
+  multipleText.addItem("t2");
+  questions.push({ question: multipleText, auto: false, value: { t1: "1" } });
+  questions.push({
+    question: multipleText,
+    auto: true,
+    value: { t1: "1", t2: "2" },
+  });
 
-    questions.push({
-      question: new QuestionRatingModel("rating"),
-      auto: true,
-      value: 1,
-    });
-    questions.push({
-      question: new QuestionTextModel("text"),
-      auto: true,
-      value: "1",
-    });
+  questions.push({
+    question: new QuestionRatingModel("rating"),
+    auto: true,
+    value: 1,
+  });
+  questions.push({
+    question: new QuestionTextModel("text"),
+    auto: true,
+    value: "1",
+  });
 
-    var pageIndex = 0;
-    for (var i = 0; i < questions.length; i++) {
-      var q = questions[i];
-      var survey = new SurveyModel();
-      var page = survey.addNewPage("firstpage");
-      page.addQuestion(q.question);
-      survey.goNextPageAutomatic = true;
-      if (q.value) {
-        q.question.onMouseDown();
-        q.question.value = q.value;
-      }
-      var state = q.auto ? "completed" : "running";
-      assert.equal(
-        survey.state,
-        state,
-        "goNextPageAutomatic is incorrect for question: " + q.question.name
-      );
+  var pageIndex = 0;
+  for (var i = 0; i < questions.length; i++) {
+    var q = questions[i];
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("firstpage");
+    page.addQuestion(q.question);
+    survey.goNextPageAutomatic = true;
+    if (q.value) {
+      q.question.onMouseDown();
+      q.question.value = q.value;
     }
+    var state = q.auto ? "completed" : "running";
+    assert.equal(
+      survey.state,
+      state,
+      "goNextPageAutomatic is incorrect for question: " + q.question.name
+    );
   }
-);
+});
 QUnit.test(
   "goNextPageAutomatic bug #200: https://github.com/surveyjs/surveyjs/issues/200",
   function (assert) {

@@ -536,6 +536,7 @@ QUnit.test("singleInput for matrix dynamic & singleInputLocTitle", assert => {
   });
   const matrix = survey.getQuestionByName("matrix1");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 1", "singleInputLocTitle, #1");
+  assert.equal(matrix.singleInputQuestion.locTitle.textOrHtml, "col1", "singleInputQuestion.title, #1");
   survey.performNext();
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 2", "singleInputLocTitle, #2");
   survey.performNext();

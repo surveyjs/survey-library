@@ -87,7 +87,8 @@ export class MatrixDropdownCell {
   }
   private updateCellQuestionTitleDueToAccessebility(row: MatrixDropdownRowModelBase): void {
     this.questionValue.locTitle.onGetTextCallback = (str: string): string => {
-      if (!row || !row.getSurvey()) return this.questionValue.title;
+      const survey = row?.getSurvey();
+      if (!survey || survey.isSingleVisibleInput) return this.questionValue.title;
       const rowTitle = row.getAccessbilityText();
       if (!rowTitle) return this.questionValue.title;
       return this.column.colOwner.getCellAriaLabel(rowTitle, this.questionValue.title);
@@ -248,6 +249,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public cells: Array<MatrixDropdownCell> = [];
   public showHideDetailPanelClick: any;
   public onDetailPanelShowingChanged: () => void;
+  public visibleIndex: number = -1;
 
   constructor(data: IMatrixDropdownData, value: any) {
     this.data = data;
@@ -632,6 +634,15 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     return res;
   }
+  public get visibleQuestions(): Array<Question> {
+    const res: Array<Question> = [];
+    this.questions.forEach(q => {
+      if (q.isVisible) {
+        res.push(q);
+      }
+    });
+    return res;
+  }
   public getQuestionByName(name: string): Question {
     var res = this.getQuestionByColumnName(name);
     if (!!res) return res;
@@ -959,6 +970,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.createItemValues("choices");
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("keyDuplicationError", this, false, true);
+    this.createLocalizableString("singleInputRowTitle", this, true, this.getSingleInputRowLocalizationTitle()).onGetTextCallback = (text: string) => {
+      return !!this.singleInputQuestion ? this.processSingleInputTitle(text): text;
+    };
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
@@ -1181,6 +1195,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.clearVisibleRows();
     this.resetRenderedTable();
     super.onRowsChanged();
+    const rows = this.visibleRows;
+    for(let i = 0; i < rows.length; i ++) {
+      rows[i].visibleIndex = i;
+    }
   }
   private lockResetRenderedTable: boolean = false;
   protected onStartRowAddingRemoving() {
@@ -1247,7 +1265,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDropdownRenderedTable(this);
   }
-  protected onMatrixRowCreated(row: MatrixDropdownRowModelBase) {
+  protected getRowByQuestion(question: Question): MatrixDropdownRowModelBase {
+    return <MatrixDropdownRowModelBase>question.data;
+  }
+  protected onMatrixRowCreated(row: MatrixDropdownRowModelBase): void {
     if (!this.survey) return;
     var options = {
       rowValue: row.value,
@@ -1714,6 +1735,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   get locKeyDuplicationError(): LocalizableString {
     return this.getLocalizableString("keyDuplicationError");
   }
+  public get singleInputRowTitle(): string {
+    return this.getLocalizableStringText("singleInputRowTitle");
+  }
+  public set singleInputRowTitle(val: string) {
+    this.setLocalizableStringText("singleInputRowTitle", val);
+  }
+  get locSingleInputRowTitle(): LocalizableString {
+    return this.getLocalizableString("singleInputRowTitle");
+  }
+  protected getSingleQuestionLocTitle(): LocalizableString {
+    return this.locSingleInputRowTitle;
+  }
+  protected getSingleInputRowLocalizationTitle(): string { return ""; }
+  protected processSingleInputTitle(text: string): string {
+    const row = this.getRowByQuestion(this.singleInputQuestion);
+    if(row) {
+      return row.getTextProcessor().processText(text, true);
+    }
+    return "";
+  }
   public get storeOthersAsComment(): boolean {
     return !!this.survey ? this.survey.storeOthersAsComment : false;
   }
@@ -1739,11 +1780,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.visibleRowsArray;
   }
   private generateVisibleRowsIfNeeded(): void {
-    if (!this.isUpdateLocked && !this.generatedVisibleRows && !this.generatedVisibleRows) {
+    if (!this.isUpdateLocked && !this.generatedVisibleRows) {
       this.isGenereatingRows = true;
       this.generatedVisibleRows = this.generateRows();
       this.isGenereatingRows = false;
-      this.generatedVisibleRows.forEach((row) => this.onMatrixRowCreated(row));
+      for(var i = 0; i < this.generatedVisibleRows.length; i++) {
+        const row = this.generatedVisibleRows[i];
+        row.visibleIndex = i;
+        this.onMatrixRowCreated(row);
+      }
       if (this.data) {
         this.runCellsCondition(
           this.data.getFilteredValues(),
@@ -2731,9 +2776,10 @@ Serializer.addClass(
       name: "choices:itemvalue[]", uniqueProperty: "value", visibleIf: (obj): boolean => obj.isSelectCellType()
     },
     { name: "placeholder", alternativeName: "optionsCaption", serializationProperty: "locPlaceholder" },
+    { name: "keyDuplicationError", serializationProperty: "locKeyDuplicationError", },
     {
-      name: "keyDuplicationError",
-      serializationProperty: "locKeyDuplicationError",
+      name: "singleInputRowTitle", serializationProperty: "locSingleInputRowTitle",
+      visibleIf(obj) { return obj.survey?.isSingleVisibleInput; }
     },
     {
       name: "cellType",

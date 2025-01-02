@@ -143,7 +143,8 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       : null;
 
     let rootStyle = question.getRootStyle();
-    let questionContent = this.wrapQuestionContent(this.renderQuestionContent());
+    let singleInput = question.singleInputQuestion ? this.createSingleInputQuestion(question, cssClasses) : undefined;
+    let questionContent = singleInput || this.wrapQuestionContent(this.renderQuestionContent());
 
     return (
       <>
@@ -167,6 +168,18 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         </div>
       </>
     );
+  }
+  private createSingleInputQuestion(question: Question, cssClasses: any): React.JSX.Element {
+    const singleQuestion = question.singleInputQuestion;
+    const locTitle = question.singleInputLocTitle;
+    const key = singleQuestion.id;
+    const rEl = <SurveyQuestion key={key} element={singleQuestion} creator={this.creator} css={cssClasses} />;
+
+    const title = locTitle ? <div className={cssClasses.singleInputTitle}>{this.renderLocString(locTitle, cssClasses, key + "_title")}</div> : undefined;
+    return <>
+      {title}
+      {rEl}
+    </>;
   }
   protected wrapElement(element: React.JSX.Element): React.JSX.Element {
     const survey: SurveyModel = this.question.survey as SurveyModel;

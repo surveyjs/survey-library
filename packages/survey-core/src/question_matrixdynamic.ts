@@ -36,10 +36,10 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
     return "row" + (this.index + 1);
   }
   public get text(): any {
-    return "row " + (this.index + 1);
+    return "row " + (this.visibleIndex + 1);
   }
   public getAccessbilityText(): string {
-    return (this.index + 1).toString();
+    return (this.visibleIndex + 1).toString();
   }
   public get shortcutText(): string {
     const matrix = <QuestionMatrixDynamicModel>this.data;
@@ -472,6 +472,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.onStartRowAddingRemoving();
     this.addRowCore();
     this.onEndRowAdding();
+    this.singleInputOnAddItem();
     if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
       this.visibleRows[this.visibleRows.length - 1].showDetailPanel();
     }
@@ -650,6 +651,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
+    this.singleInputOnRemoveItem(index);
     this.onEndRowRemoving(row);
   }
   private removeRowCore(index: number) {
@@ -677,6 +679,36 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.survey) {
       this.survey.matrixRowRemoved(this, index, row);
     }
+  }
+  protected getSingleInputAddTextCore(question: Question): string {
+    if(!this.canAddRow) return undefined;
+    if(!this.getSingleInputIsLastQuestion()) return undefined;
+    if(!question) return this.addRowText;
+    const row = this.getRowByQuestion(question);
+    return !!row && !row.isEmpty ? this.addRowText : undefined;
+  }
+  protected getSingleInputRemoveTextCore(question: Question): string {
+    if(!this.canRemoveRows) return undefined;
+    const row = this.getRowByQuestion(question);
+    return this.canRemoveRow(row) ? this.removeRowText : undefined;
+  }
+  protected singleInputAddItemCore(question: Question): void {
+    this.addRowUI();
+  }
+  protected singleInputRemoveItemCore(question: Question): void {
+    this.removeRowUI(this.getRowByQuestion(question));
+  }
+  protected getSingleQuestionOnChange(index: number): Question {
+    const rows = this.visibleRows;
+    if(rows.length > 0) {
+      if(index < 0 || index >= rows.length) index = rows.length - 1;
+      const row = rows[index];
+      const vQs = row.visibleQuestions;
+      if(vQs.length > 0) {
+        return vQs[0];
+      }
+    }
+    return null;
   }
   /**
    * A message displayed in a confirmation dialog that appears when a respondent wants to delete a row.
@@ -709,6 +741,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.isColumnLayoutHorizontal ? "addRow" : "addColumn"
     );
   }
+  protected getSingleInputRowLocalizationTitle(): string { return "rowIndexTemplateTitle"; }
   /**
    * Specifies the location of the Add Row button.
    *

@@ -4,6 +4,7 @@ import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
 import { IElement } from "../src/base-interfaces";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { template } from "lodash";
 
 export default QUnit.module("Input Per Page Tests");
 
@@ -585,3 +586,36 @@ QUnit.test("singleInput for matrix dynamic & cell question & css", assert => {
     });
   });
 });
+/*
+QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "name" },
+          {
+            type: "matrixdynamic", name: "matrix1",
+            rowCount: 2,
+            columns: [
+              { cellType: "text", name: "col1" },
+              { cellType: "text", name: "col2" }
+            ]
+          }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const panel = survey.getQuestionByName("panel1");
+  let matrix = panel.panels[0].getQuestionByName("matrix1");
+  assert.equal(panel.singleInputQuestion.name, "name", "singleInputQuestion.name, #1");
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "col1", "singleInputQuestion.name, #2.1");
+  assert.equal(matrix.singleInputQuestion.name, "col1", "singleInputQuestion.name, #2.2");
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "col1", "singleInputQuestion.name, #3.1");
+  assert.equal(matrix.singleInputQuestion.name, "col2", "singleInputQuestion.name, #3.2");
+});
+*/

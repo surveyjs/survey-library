@@ -770,7 +770,6 @@ export class Question extends SurveyElement<Question>
   protected setSingleInputQuestion(question: Question): void {
     if(this.singleInputQuestion !== question) {
       this.setPropertyValue("singleInputQuestion", question);
-      if(!!question) question.updateQuestionCss(true);
     }
   }
   private nextPrevSingleInput(skip: number): boolean {

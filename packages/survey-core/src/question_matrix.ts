@@ -461,6 +461,7 @@ export class QuestionMatrixModel
       question.choices = this.visibleColumns;
       question.value = row.value;
       question.setSurveyImpl(this);
+      question.setParentQuestion(this);
       res.push(question);
     });
     this.nestedQuestionsValue = res;

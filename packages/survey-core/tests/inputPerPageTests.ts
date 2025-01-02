@@ -72,6 +72,9 @@ QUnit.test("singleInput for panel dynamic", assert => {
   let el = page.visibleRows[0].elements[0];
   assert.equal(el.name, "panel1", "page visible row is panel1, #1");
   assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion, #1");
+  const rootCss = panel.singleInputQuestion.getRootCss();
+  assert.equal(rootCss.indexOf("sd-element--with-frame") > -1, true, "rootCss has frame, #1");
+  assert.equal(rootCss.indexOf("sd-element--nested") > -1, false, "rootCss has frame, #1");
 
   survey.performNext();
   el = <PanelModel>page.visibleRows[0].elements[0];
@@ -446,6 +449,9 @@ QUnit.test("singleInput and single matrix", assert => {
   assert.equal(matrix1.singleInputQuestion.locTitle.textOrHtml, "Row 1", "singleInputQuestion.title, #1");
   assert.equal(matrix1.singleInputQuestion.choices.length, 4, "singleInputQuestion.choices.length, #1");
   assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #1");
+  const rootCss = matrix1.singleInputQuestion.getRootCss();
+  assert.equal(rootCss.indexOf("sd-element--with-frame") > -1, true, "rootCss has frame, #1");
+  assert.equal(rootCss.indexOf("sd-element--nested") > -1, false, "rootCss has frame, #1");
   matrix1.singleInputQuestion.value = "col2";
   survey.performNext();
   assert.equal(matrix1.singleInputQuestion.name, "row2", "singleInputQuestion.name, #2");

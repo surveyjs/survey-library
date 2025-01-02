@@ -8134,8 +8134,8 @@ Serializer.addClass("survey", [
     dependsOn: "locale",
   },
   { name: "logo:file", serializationProperty: "locLogo" },
-  { name: "logoWidth", default: "300px", minValue: 0 },
-  { name: "logoHeight", default: "200px", minValue: 0 },
+  { name: "logoWidth", default: "auto", minValue: 0 },
+  { name: "logoHeight", default: "40px", minValue: 0 },
   {
     name: "logoFit",
     default: "contain",

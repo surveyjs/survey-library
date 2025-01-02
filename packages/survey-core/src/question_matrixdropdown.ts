@@ -94,12 +94,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public set hideIfRowsEmpty(val: boolean) {
     this.setPropertyValue("hideIfRowsEmpty", val);
   }
-  /*
-  protected getSingleQuestionLocTitle(question: Question): LocalizableString {
-    const row = this.getRowByQuestion(question);
-    return !!row ? row.locText : null;
-  }
-  */
+  protected getSingleInputRowLocalizationTitle(): string { return "rowNameTemplateTitle"; }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value) return value;
     var rows = this.visibleRows;

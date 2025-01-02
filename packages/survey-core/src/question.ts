@@ -682,7 +682,8 @@ export class Question extends SurveyElement<Question>
   }
   public resetSingleInput(): void {
     this.resetPropertyValue("singleInputQuestion");
-    this.resetSingleTitleProps();
+    this.resetPropertyValue("showSingleInputTitle");
+    this.resetPropertyValue("singleInputLocTitle");
   }
   public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
     const q = this.singleInputQuestion;
@@ -726,10 +727,6 @@ export class Question extends SurveyElement<Question>
     }
     this.survey.singleInputUpdateElements(true);
   }
-  private resetSingleTitleProps(): void {
-    this.resetPropertyValue("showSingleInputTitle");
-    this.resetPropertyValue("singleInputLocTitle");
-  }
   public nextSingleInput(): boolean {
     return this.nextPrevSingleInput(1);
   }
@@ -757,11 +754,10 @@ export class Question extends SurveyElement<Question>
   }
   public get singleInputLocTitle(): LocalizableString {
     return this.getPropertyValue("singleInputLocTitle", undefined, () => {
-      const q = this.singleInputQuestion;
-      return !!q ? this.getSingleQuestionLocTitle(q) : undefined;
+      return this.getSingleQuestionLocTitle();
     });
   }
-  protected getSingleQuestionLocTitle(question: Question): LocalizableString {
+  protected getSingleQuestionLocTitle(): LocalizableString {
     return undefined;
   }
   protected getSingleInputQuestions(): Array<Question> {
@@ -774,7 +770,6 @@ export class Question extends SurveyElement<Question>
   protected setSingleInputQuestion(question: Question): void {
     if(this.singleInputQuestion !== question) {
       this.setPropertyValue("singleInputQuestion", question);
-      this.resetSingleTitleProps();
     }
   }
   private nextPrevSingleInput(skip: number): boolean {

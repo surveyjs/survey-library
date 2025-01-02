@@ -969,6 +969,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.createItemValues("choices");
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("keyDuplicationError", this, false, true);
+    this.createLocalizableString("singleInputRowTitle", this, true, this.getSingleInputRowLocalizationTitle()).onGetTextCallback = (text: string) => {
+      return !!this.singleInputQuestion ? this.processSingleInputTitle(text): text;
+    };
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
@@ -1730,6 +1733,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   get locKeyDuplicationError(): LocalizableString {
     return this.getLocalizableString("keyDuplicationError");
+  }
+  public get singleInputRowTitle(): string {
+    return this.getLocalizableStringText("singleInputRowTitle");
+  }
+  public set singleInputRowTitle(val: string) {
+    this.setLocalizableStringText("singleInputRowTitle", val);
+  }
+  get locSingleInputRowTitle(): LocalizableString {
+    return this.getLocalizableString("singleInputRowTitle");
+  }
+  protected getSingleQuestionLocTitle(): LocalizableString {
+    return this.locSingleInputRowTitle;
+  }
+  protected getSingleInputRowLocalizationTitle(): string { return ""; }
+  protected processSingleInputTitle(text: string): string {
+    const row = this.getRowByQuestion(this.singleInputQuestion);
+    if(row) {
+      return row.getTextProcessor().processText(text, true);
+    }
+    return "";
   }
   public get storeOthersAsComment(): boolean {
     return !!this.survey ? this.survey.storeOthersAsComment : false;
@@ -2752,9 +2775,10 @@ Serializer.addClass(
       name: "choices:itemvalue[]", uniqueProperty: "value", visibleIf: (obj): boolean => obj.isSelectCellType()
     },
     { name: "placeholder", alternativeName: "optionsCaption", serializationProperty: "locPlaceholder" },
+    { name: "keyDuplicationError", serializationProperty: "locKeyDuplicationError", },
     {
-      name: "keyDuplicationError",
-      serializationProperty: "locKeyDuplicationError",
+      name: "singleInputRowTitle", serializationProperty: "locSingleInputRowTitle",
+      visibleIf(obj) { return obj.survey?.isSingleVisibleInput; }
     },
     {
       name: "cellType",

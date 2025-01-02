@@ -1158,13 +1158,26 @@ export class QuestionPanelDynamicModel extends Question
   public set templateErrorLocation(value: string) {
     this.setPropertyValue("templateErrorLocation", value.toLowerCase());
   }
+  public resetSingleInput(): void {
+    super.resetSingleInput();
+    this.locTemplateTitle.onGetTextCallback = null;
+  }
   protected getSingleInputQuestions(): Array<Question> {
     this.onFirstRendering();
     return super.getSingleInputQuestions();
   }
-  protected getSingleQuestionLocTitle(question: Question): LocalizableString {
-    if(!this.templateTitle) return undefined;
-    return this.getPanelByQuestion(question)?.locTitle;
+  protected getSingleQuestionLocTitle(): LocalizableString {
+    const res = this.locTemplateTitle;
+    res.onGetTextCallback = (text: string): string => {
+      const q = this.singleInputQuestion;
+      if(!q) return text;
+      if(!text) text = this.getSingleInputTitleTemplate();
+      return this.getPanelByQuestion(q).getProcessedText(text);
+    };
+    return res;
+  }
+  private getSingleInputTitleTemplate(): string {
+    return this.getLocalizationString("panelDynamicTabTextFormat");
   }
   private getPanelByQuestion(question: Question): PanelModel {
     let parent = question.parent;

@@ -741,6 +741,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.isColumnLayoutHorizontal ? "addRow" : "addColumn"
     );
   }
+  protected getSingleInputRowLocalizationTitle(): string { return "rowIndexTemplateTitle"; }
   /**
    * Specifies the location of the Add Row button.
    *

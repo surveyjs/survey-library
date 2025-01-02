@@ -442,17 +442,17 @@ QUnit.test("column.isUnique, support settings.comparator.caseSensitive", functio
     "There is ann error, abc!=Abc case-sensitive"
   );
   settings.comparator.caseSensitive = false;
-  question.isUniqueCaseSensitive = false;
+  question.useCaseSensitiveComparison = false;
   assert.equal(
     question.hasErrors(),
     true,
-    "There is an error, abc=Abc case-in-sensitive, isUniqueCaseSensitive = false"
+    "There is an error, abc=Abc case-in-sensitive, useCaseSensitiveComparison = false"
   );
-  question.isUniqueCaseSensitive = true;
+  question.useCaseSensitiveComparison = true;
   assert.equal(
     question.hasErrors(),
     false,
-    "There is ann error, abc!=Abc case-sensitive, isUniqueCaseSensitive = false"
+    "There is ann error, abc!=Abc case-sensitive, useCaseSensitiveComparison = false"
   );
 });
 QUnit.test("Matrixdynamic duplicationError in detailPanel", function (assert) {

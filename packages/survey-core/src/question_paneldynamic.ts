@@ -1133,11 +1133,17 @@ export class QuestionPanelDynamicModel extends Question
    * - `"hidden"` - Hides question titles.
    * @see titleLocation
    */
-  public get templateTitleLocation(): string {
-    return this.getPropertyValue("templateTitleLocation");
+  public get templateQuestionTitleLocation(): string {
+    return this.getPropertyValue("templateQuestionTitleLocation");
   }
-  public set templateTitleLocation(value: string) {
-    this.setPropertyValue("templateTitleLocation", value.toLowerCase());
+  public set templateQuestionTitleLocation(val: string) {
+    this.setPropertyValue("templateQuestionTitleLocation", val);
+  }
+  public get templateTitleLocation(): string {
+    return this.templateQuestionTitleLocation;
+  }
+  public set templateTitleLocation(val: string) {
+    this.templateQuestionTitleLocation = val;
   }
   /**
    * Specifies the error message position.
@@ -2152,8 +2158,8 @@ export class QuestionPanelDynamicModel extends Question
     return panel;
   }
   private getTemplateQuestionTitleLocation(): string {
-    return this.templateTitleLocation != "default"
-      ? this.templateTitleLocation
+    return this.templateQuestionTitleLocation != "default"
+      ? this.templateQuestionTitleLocation
       : this.getTitleLocationCore();
   }
   public getChildErrorLocation(child: Question): string {
@@ -2726,7 +2732,7 @@ Serializer.addClass(
       visibleIf: (obj: any) => { return obj.displayMode === "tab"; }
     },
     {
-      name: "templateTitleLocation",
+      name: "templateQuestionTitleLocation", alternativeName: "questionTitleLocation",
       default: "default",
       choices: ["default", "top", "bottom", "left"],
     },

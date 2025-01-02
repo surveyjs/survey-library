@@ -454,6 +454,7 @@ QUnit.test("singleInput and single matrix", assert => {
   assert.equal(matrix1.singleInputQuestion.locTitle.textOrHtml, "Row 1", "singleInputQuestion.title, #1");
   assert.equal(matrix1.singleInputQuestion.choices.length, 4, "singleInputQuestion.choices.length, #1");
   assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible #1");
+  assert.equal(matrix1.singleInputQuestion.isRequired, false, "The question is not required");
   const rootCss = matrix1.singleInputQuestion.getRootCss();
   assert.equal(rootCss.indexOf("q-frame") > -1, true, "rootCss has frame, #1");
   assert.equal(rootCss.indexOf("q-nested") > -1, false, "rootCss has frame, #1");
@@ -466,6 +467,21 @@ QUnit.test("singleInput and single matrix", assert => {
   assert.deepEqual(matrix1.value, { row1: "col2", row2: "col3" }, "matrix1.value");
   assert.deepEqual(survey.data, { matrix1: { row1: "col2", row2: "col3" } }, "survey.data");
 });
+QUnit.test("singleInput and single matrix", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix", name: "matrix1", isAllRowRequired: true,
+        columns: ["col1", "col2", "col3", "col4"],
+        rows: [{ value: "row1", text: "Row 1" }, "row2"]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const matrix1 = survey.getQuestionByName("matrix1");
+  assert.equal(matrix1.singleInputQuestion.isRequired, true, "The question is required");
+});
+
 QUnit.test("singleInput and matrix dynamic & navigation buttons visibilty & visibleIf", assert => {
   const survey = new SurveyModel({
     elements: [

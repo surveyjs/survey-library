@@ -59,7 +59,7 @@ export var germanSurveyStrings = {
   addColumn: "Spalte hinzufügen",
   addRow: "Zeile hinzufügen",
   removeRow: "Entfernen",
-  emptyRowsText: "Es gibt keine Reihen.",
+  noRowsText: "Es gibt keine Reihen.",
   addPanel: "Neu hinzufügen",
   removePanel: "Entfernen",
   showDetails: "Details anzeigen",

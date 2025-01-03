@@ -54,7 +54,7 @@ export var tajikSurveyStrings = {
   addColumn: "Иловаи сутун",
   addRow: "Иловаи сатр",
   removeRow: "Нест кардан",
-  // emptyRowsText: "There are no rows.",
+  // noRowsText: "There are no rows.",
   addPanel: "Илова кардан",
   removePanel: "Нест кардан",
   choices_Item: "Вариант",

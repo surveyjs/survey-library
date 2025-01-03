@@ -54,8 +54,8 @@ export class QuestionMatrixDropdownRenderedCell {
   public get hasPanel(): boolean {
     return !!this.panel;
   }
-  public get id(): number {
-    return this.idValue;
+  public get id(): string {
+    return this.question?.id || this.idValue.toString();
   }
   public get item(): ItemValue {
     return this.itemValue;
@@ -173,8 +173,8 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     super();
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
-  public get id(): number {
-    return this.idValue;
+  public get id(): string {
+    return this.row?.id || this.idValue.toString();
   }
   public get attributes() {
     if (!this.row) return {};

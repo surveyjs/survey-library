@@ -1085,7 +1085,7 @@ QUnit.test("Matrixdropdown minRowCount", function (assert) {
   rows[1].cells[0].question.value = "val2";
   assert.equal(question.hasErrors(), false, "No errors, all rows have values");
 });
-QUnit.test("Matrixdropdown supportGoNextPageAutomatic property", function (
+QUnit.test("Matrixdropdown supportAutoAdvanced property", function (
   assert
 ) {
   var question = new QuestionMatrixDropdownModel("matrix");
@@ -1094,13 +1094,13 @@ QUnit.test("Matrixdropdown supportGoNextPageAutomatic property", function (
   question.columns.push(new MatrixDropdownColumn("col2"));
   var rows = question.visibleRows;
   assert.equal(
-    question.supportGoNextPageAutomatic(),
+    question.supportAutoAdvanced(),
     false,
     "There is no value in rows"
   );
   question.value = { row1: { col1: 1, col2: 11 } };
   assert.equal(
-    question.supportGoNextPageAutomatic(),
+    question.supportAutoAdvanced(),
     false,
     "There is no value in the second row"
   );
@@ -1109,20 +1109,20 @@ QUnit.test("Matrixdropdown supportGoNextPageAutomatic property", function (
     row2: { col1: 2, col2: 22 },
   };
   assert.equal(
-    question.supportGoNextPageAutomatic(),
+    question.supportAutoAdvanced(),
     true,
     "All row values are set"
   );
   question.value = { row1: { col1: 1 }, row2: { col1: 2, col2: 22 } };
   assert.equal(
-    question.supportGoNextPageAutomatic(),
+    question.supportAutoAdvanced(),
     false,
     "The first row is not set completely"
   );
 });
 
 QUnit.test(
-  "Matrixdropdown supportGoNextPageAutomatic always false for checkbox",
+  "Matrixdropdown supportAutoAdvanced always false for checkbox",
   function (assert) {
     var question = new QuestionMatrixDropdownModel("matrix");
     question.rows = ["row1", "row2"];
@@ -1139,12 +1139,12 @@ QUnit.test(
   }
 );
 
-QUnit.test("Text date supportGoNextPageAutomatic false", function (assert) {
+QUnit.test("Text date supportAutoAdvanced false", function (assert) {
   var question = new QuestionTextModel("text");
-  assert.equal(question.supportGoNextPageAutomatic(), true, "Suppored");
+  assert.equal(question.supportAutoAdvanced(), true, "Suppored");
   question.inputType = "date";
   assert.equal(
-    question.supportGoNextPageAutomatic(),
+    question.supportAutoAdvanced(),
     false,
     "Not suppored for date"
   );
@@ -1157,13 +1157,13 @@ QUnit.test("Matrixdropdown set columns", function (assert) {
   question.columns.push(new MatrixDropdownColumn("col2"));
 
   assert.equal(
-    question.supportGoNextPageAutomatic(),
+    question.supportAutoAdvanced(),
     false,
     "There is no value in rows"
   );
   question.value = { row1: { col1: 1, col2: 11 } };
   assert.equal(
-    question.supportGoNextPageAutomatic(),
+    question.supportAutoAdvanced(),
     false,
     "Checkbox doesn't support gotNextPageAutomatic"
   );

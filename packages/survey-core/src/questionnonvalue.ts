@@ -32,7 +32,7 @@ export class QuestionNonValue extends Question {
   public getAllErrors(): Array<SurveyError> {
     return [];
   }
-  public supportGoNextPageAutomatic(): boolean {
+  public supportAutoAdvanced(): boolean {
     return false;
   }
   public addConditionObjectsByContext(

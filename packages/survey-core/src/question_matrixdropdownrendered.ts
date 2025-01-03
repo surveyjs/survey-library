@@ -55,7 +55,7 @@ export class QuestionMatrixDropdownRenderedCell {
     return !!this.panel;
   }
   public get id(): string {
-    return this.question?.id || this.idValue.toString();
+    return !this.isChoice && this.question ? this.question.id : this.idValue.toString();
   }
   public get item(): ItemValue {
     return this.itemValue;

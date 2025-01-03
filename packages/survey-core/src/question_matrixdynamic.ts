@@ -732,10 +732,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.addRowLocation;
   }
   /**
-   * Specifies whether to hide columns when the matrix does not contain any rows. If you enable this property, the matrix displays the `emptyRowsText` message and the Add Row button.
+   * Specifies whether to hide columns when the matrix does not contain any rows. If you enable this property, the matrix displays the `noRowsText` message and the Add Row button.
    *
    * Default value: `false`
-   * @see emptyRowsText
+   * @see noRowsText
    */
   public get hideColumnsIfEmpty(): boolean {
     return this.getPropertyValue("hideColumnsIfEmpty");

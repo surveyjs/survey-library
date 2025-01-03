@@ -25,7 +25,7 @@
       v-if="!question.renderedTable.showTable"
       :class="question.cssClasses.emptyRowsSection"
     >
-      <div :class="question.cssClasses.emptyRowsText">
+      <div :class="question.cssClasses.noRowsText">
         <SvComponent
           :is="'survey-string'"
           :locString="question.locEmptyRowsText"

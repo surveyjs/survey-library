@@ -974,7 +974,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.registerPropertyChangedHandlers(
       [
         "transposeData",
-        "addRowLocation",
+        "addRowButtonLocation",
         "hideColumnsIfEmpty",
         "showHeader",
         "minRowCount",

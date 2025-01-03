@@ -473,7 +473,7 @@ frameworks.forEach(framework => {
                   amount: 1,
                   totalPerRow: 2,
                 },
-                addRowLocation: "topBottom",
+                addRowButtonLocation: "topBottom",
                 addRowText: "Add Coffee",
               },
             ],

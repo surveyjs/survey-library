@@ -916,7 +916,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
   }
   private detailPanelValue: PanelModel;
-  private isUniqueCaseSensitiveValue: boolean;
+  private useCaseSensitiveComparisonValue: boolean;
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
   onRenderedTableResetCallback: () => void;
@@ -1110,11 +1110,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * Default value: `false`
    * @see keyDuplicationError
    */
+  public get useCaseSensitiveComparison(): boolean {
+    return this.useCaseSensitiveComparisonValue !== undefined ? this.useCaseSensitiveComparisonValue : settings.comparator.caseSensitive;
+  }
+  public set useCaseSensitiveComparison(val: boolean) {
+    this.useCaseSensitiveComparisonValue = val;
+  }
   public get isUniqueCaseSensitive(): boolean {
-    return this.isUniqueCaseSensitiveValue !== undefined ? this.isUniqueCaseSensitiveValue : settings.comparator.caseSensitive;
+    return this.useCaseSensitiveComparison;
   }
   public set isUniqueCaseSensitive(val: boolean) {
-    this.isUniqueCaseSensitiveValue = val;
+    this.useCaseSensitiveComparison = val;
   }
   /**
    * Specifies the location of detail sections.
@@ -1703,7 +1709,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
    *
    * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
-   * @see isUniqueCaseSensitive
+   * @see useCaseSensitiveComparison
    */
   public get keyDuplicationError(): string {
     return this.getLocalizableStringText("keyDuplicationError");
@@ -2210,7 +2216,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         val = !!rowVal ? rowVal[columnName] : undefined;
       }
       if(!this.isValueEmpty(val)) {
-        if(!this.isUniqueCaseSensitive && typeof val === "string") {
+        if(!this.useCaseSensitiveComparison && typeof val === "string") {
           val = val.toLocaleLowerCase();
         }
         if(!keyValues[val]) {

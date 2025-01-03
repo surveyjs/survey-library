@@ -28,7 +28,7 @@
       <div :class="question.cssClasses.noRowsText">
         <SvComponent
           :is="'survey-string'"
-          :locString="question.locEmptyRowsText"
+          :locString="question.locNoRowsText"
         />
       </div>
       <button

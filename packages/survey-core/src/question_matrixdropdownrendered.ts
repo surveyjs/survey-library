@@ -174,7 +174,14 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
   public get id(): string {
-    return this.row?.id || this.idValue.toString();
+    let id = this.row?.id || this.idValue.toString();
+    if(this.isDetailRow) {
+      id += "-detail";
+    }
+    if(this.isErrorsRow) {
+      id += "-error";
+    }
+    return id;
   }
   public get attributes() {
     if (!this.row) return {};

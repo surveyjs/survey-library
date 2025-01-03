@@ -43,7 +43,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     const textDiv: React.JSX.Element = <div className={cssClasses.noRowsText}>{text}</div>;
     const btn: React.JSX.Element | undefined = this.matrix.renderedTable.showAddRow ? this.renderAddRowButton(cssClasses, true) : undefined;
     return (
-      <div className={cssClasses.emptyRowsSection}>
+      <div className={cssClasses.noRowsSection}>
         {textDiv}
         {btn}
       </div>

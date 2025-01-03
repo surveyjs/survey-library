@@ -23,7 +23,7 @@
     />
     <div
       v-if="!question.renderedTable.showTable"
-      :class="question.cssClasses.emptyRowsSection"
+      :class="question.cssClasses.noRowsSection"
     >
       <div :class="question.cssClasses.noRowsText">
         <SvComponent

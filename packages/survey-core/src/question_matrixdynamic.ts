@@ -693,7 +693,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * A caption for the Add Row button.
-   * @see addRowLocation
+   * @see addRowButtonLocation
    */
   public get addRowText() {
     return this.getLocalizableStringText("addRowText", this.defaultAddRowText);
@@ -721,14 +721,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Default value: `"top"` if [`transposeData`](#transposeData) is `true`; `"bottom"` if `transposeData` is `false` or the matrix is in compact mode.
    * @see addRowText
    */
+  public get addRowButtonLocation(): string {
+    return this.getPropertyValue("addRowButtonLocation");
+  }
+  public set addRowButtonLocation(val: string) {
+    this.setPropertyValue("addRowButtonLocation", val);
+  }
   public get addRowLocation(): string {
-    return this.getPropertyValue("addRowLocation");
+    return this.addRowButtonLocation;
   }
   public set addRowLocation(val: string) {
-    this.setPropertyValue("addRowLocation", val);
+    this.addRowButtonLocation = val;
   }
   public getAddRowLocation(): string {
-    return this.addRowLocation;
+    return this.addRowButtonLocation;
   }
   /**
    * Specifies whether to hide columns when the matrix does not contain any rows. If you enable this property, the matrix displays the `emptyRowsText` message and the Add Row button.
@@ -1025,7 +1031,7 @@ Serializer.addClass(
       serializationProperty: "locConfirmDeleteText",
     },
     {
-      name: "addRowLocation",
+      name: "addRowButtonLocation", alternativeName: "addRowLocation",
       default: "default",
       choices: ["default", "top", "bottom", "topBottom"],
     },

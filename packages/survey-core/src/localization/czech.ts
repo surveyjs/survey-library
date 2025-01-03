@@ -59,7 +59,7 @@ export var czechSurveyStrings = {
   addColumn: "Přidat sloupec",
   addRow: "Přidat řádek",
   removeRow: "Odstranit",
-  emptyRowsText: "Neexistují žádné řádky.",
+  noRowsText: "Neexistují žádné řádky.",
   addPanel: "Přidat nový",
   removePanel: "Odstranit",
   showDetails: "Zobrazit podrobnosti",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "češt
 // minError: "The value should not be less than {0}" => "Hodnota by neměla být menší než {0}"
 // maxError: "The value should not be greater than {0}" => "Hodnota by neměla být větší než {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Přetáhněte sem soubor nebo klikněte na tlačítko níže a vyberte soubor, který chcete nahrát."
-// emptyRowsText: "There are no rows." => "Neexistují žádné řádky."
+// noRowsText: "There are no rows." => "Neexistují žádné řádky."
 // multipletext_itemname: "text" => "Text"
 // signaturePlaceHolder: "Sign here" => "Podepište se zde"
 // modalCancelButtonText: "Cancel" => "Zrušit"

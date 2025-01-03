@@ -59,7 +59,7 @@ export var japaneseSurveyStrings = {
   addColumn: "列の追加",
   addRow: "追加行",
   removeRow: "削除",
-  emptyRowsText: "行がありません。",
+  noRowsText: "行がありません。",
   addPanel: "新規追加",
   removePanel: "削除",
   showDetails: "詳細を表示",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "ja", strings: japaneseSurveyStrings, nativeName: "日
 // minError: "The value should not be less than {0}" => "値は {0} 値より小さくすることはできません"
 // maxError: "The value should not be greater than {0}" => "値は {0} を超えてはなりません。"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "ここにファイルをドラッグ&ドロップするか、下のボタンをクリックしてアップロードするファイルを選択してください。"
-// emptyRowsText: "There are no rows." => "行はありません。"
+// noRowsText: "There are no rows." => "行はありません。"
 // multipletext_itemname: "text" => "テキスト"
 // signaturePlaceHolder: "Sign here" => "ここに署名"
 // modalCancelButtonText: "Cancel" => "キャンセル"

@@ -59,7 +59,7 @@ export var turkishSurveyStrings = {
   addColumn: "Sütun Ekle",
   addRow: "Satır Ekle",
   removeRow: "Kaldır",
-  emptyRowsText: "Satır yok.",
+  noRowsText: "Satır yok.",
   addPanel: "Yeni ekle",
   removePanel: "Kaldır",
   showDetails: "Detayları göster",

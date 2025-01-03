@@ -59,7 +59,7 @@ export var greekSurveyStrings = {
   addColumn: "Προσθήκη στήλης",
   addRow: "Προσθήκη γραμμής",
   removeRow: "Αφαίρεση",
-  emptyRowsText: "Δεν υπάρχουν εγγραφές.",
+  noRowsText: "Δεν υπάρχουν εγγραφές.",
   addPanel: "Προσθέστε νέο",
   removePanel: "Αφαίρεση",
   showDetails: "Εμφάνιση λεπτομερειών",

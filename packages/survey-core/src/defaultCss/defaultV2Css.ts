@@ -601,7 +601,7 @@ export var defaultV2Css = {
     iconDragElement: "#icon-drag-24x24",
     footer: "sd-matrixdynamic__footer",
     footerTotalCell: "sd-table__cell sd-table__cell--footer-total",
-    emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
+    noRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
     iconDrag: "sv-matrixdynamic__drag-icon",
     ghostRow: "sv-matrix-row--drag-drop-ghost-mod",
     draggedRow: "sv-matrixdynamic-dragged-row",

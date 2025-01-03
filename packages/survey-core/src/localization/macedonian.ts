@@ -59,7 +59,7 @@ export var macedonianSurveyStrings = {
   addColumn: "Додај колона",
   addRow: "Додади ред",
   removeRow: "Отстрани",
-  emptyRowsText: "Нема редови.",
+  noRowsText: "Нема редови.",
   addPanel: "Додади ново",
   removePanel: "Отстрани",
   showDetails: "Прикажување на деталите",

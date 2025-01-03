@@ -59,7 +59,7 @@ export var thaiStrings = {
   addColumn: "เพิ่มคอลัมน์",
   addRow: "เพิ่มแถว",
   removeRow: "ลบ",
-  emptyRowsText: "ไม่มีแถว",
+  noRowsText: "ไม่มีแถว",
   addPanel: "เพิ่ม",
   removePanel: "ลบ",
   showDetails: "แสดงรายละเอียด",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "th", strings: thaiStrings, nativeName: "ไทย", e
 // minError: "The value should not be less than {0}" => "ค่าไม่ควรน้อยกว่า {0}"
 // maxError: "The value should not be greater than {0}" => "ค่าไม่ควรเกิน{0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "ลากและวางไฟล์ที่นี่หรือคลิกปุ่มด้านล่างและเลือกไฟล์ที่จะอัปโหลด"
-// emptyRowsText: "There are no rows." => "ไม่มีแถว"
+// noRowsText: "There are no rows." => "ไม่มีแถว"
 // multipletext_itemname: "text" => "ข้อความ"
 // signaturePlaceHolder: "Sign here" => "ลงชื่อที่นี่"
 // modalCancelButtonText: "Cancel" => "ยกเลิก"

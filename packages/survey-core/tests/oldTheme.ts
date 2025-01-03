@@ -245,8 +245,8 @@ export const oldDefaultTheme = {
     detailIconExpanded: "sv_detail_expanded",
     detailPanelCell: "sv_matrix_cell_detail_panel",
     actionsCell: "sv_matrix_cell sv_matrix_cell_actions",
-    emptyRowsSection: "sv_matrix_empty_rows_section",
-    emptyRowsText: "sv_matrix_empty_rows_text",
+    noRowsSection: "sv_matrix_empty_rows_section",
+    noRowsText: "sv_matrix_empty_rows_text",
     emptyRowsButton: "",
     ghostRow: "sv-matrix-row--drag-drop-ghost-mod",
     draggedRow: "sv-matrixdynamic-dragged-row"

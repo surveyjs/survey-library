@@ -59,7 +59,7 @@ export var icelandicSurveyStrings = {
   addColumn: "Bæta við dálki",
   addRow: "Bæta við röð",
   removeRow: "Fjarlægja",
-  emptyRowsText: "Það eru engar raðir.",
+  noRowsText: "Það eru engar raðir.",
   addPanel: "Bæta við nýju",
   removePanel: "Fjarlægðu",
   showDetails: "Sýna upplýsingar",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "is", strings: icelandicSurveyStrings, nativeName: "í
 // minError: "The value should not be less than {0}" => "Gildið má ekki vera lægra en {0}"
 // maxError: "The value should not be greater than {0}" => "Gildið má ekki vera hærra en {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dragðu og slepptu skrá hér eða smelltu á hnappinn hér að neðan og veldu skrá til að hlaða upp."
-// emptyRowsText: "There are no rows." => "Það eru engar raðir."
+// noRowsText: "There are no rows." => "Það eru engar raðir."
 // multipletext_itemname: "text" => "Texti"
 // signaturePlaceHolder: "Sign here" => "Kvittađu hér"
 // modalCancelButtonText: "Cancel" => "Afturkalla"

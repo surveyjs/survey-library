@@ -59,7 +59,7 @@ export var malaySurveyStrings = {
   addColumn: "Tambahkan lajur",
   addRow: "Tambahkan baris",
   removeRow: "Alih keluar",
-  emptyRowsText: "Tiada baris.",
+  noRowsText: "Tiada baris.",
   addPanel: "Tambah baharu",
   removePanel: "Alih keluar",
   showDetails: "Tunjukkan Butiran",

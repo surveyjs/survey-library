@@ -59,7 +59,7 @@ export var teluguStrings = {
   addColumn: "కాలం చేర్పించండి",
   addRow: "వరుసలు చేర్పించండి",
   removeRow: "తీసేయండి",
-  emptyRowsText: "వరుసలు లేవు.",
+  noRowsText: "వరుసలు లేవు.",
   addPanel: "కొత్త దాన్ని చేర్పించండి",
   removePanel: "తీసేయండి",
   showDetails: "వివరాలు చూపించు",
@@ -121,7 +121,7 @@ setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "telugu", e
 // minError: "The value should not be less than {0}" => "విలువ {0} కంటే తక్కువగా ఉండకూడదు."
 // maxError: "The value should not be greater than {0}" => "విలువ {0} కంటే ఎక్కువ ఉండకూడదు."
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "ఇక్కడ ఒక ఫైల్ ను డ్రాగ్ చేసి డ్రాప్ చేయండి లేదా దిగువ బటన్ క్లిక్ చేయండి మరియు అప్ లోడ్ చేయడానికి ఫైల్ ఎంచుకోండి."
-// emptyRowsText: "There are no rows." => "వరుసలు లేవు."
+// noRowsText: "There are no rows." => "వరుసలు లేవు."
 // multipletext_itemname: "text" => "వచనం"
 // signaturePlaceHolder: "Sign here" => "ఇక్కడ సంతకం చేయండి"
 // modalCancelButtonText: "Cancel" => "రద్దు"

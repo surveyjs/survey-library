@@ -59,7 +59,7 @@ export var traditionalChineseSurveyStrings = {
   addColumn: "添加列",
   addRow: "添加答案",
   removeRow: "刪除答案",
-  emptyRowsText: "沒有行。",
+  noRowsText: "沒有行。",
   addPanel: "新增",
   removePanel: "刪除",
   showDetails: "顯示詳細資訊",
@@ -137,7 +137,7 @@ setupLocale({ localeCode: "zh-tw", strings: traditionalChineseSurveyStrings, nat
 // confirmDelete: "Do you want to delete the record?" => "是否要刪除記錄？"
 // keyDuplicationError: "This value should be unique." => "此值應該是唯一的。"
 // addColumn: "Add Column" => "添加列"
-// emptyRowsText: "There are no rows." => "沒有行。"
+// noRowsText: "There are no rows." => "沒有行。"
 // addPanel: "Add new" => "新增"
 // removePanel: "Remove" => "刪除"
 // multipletext_itemname: "text" => "發簡訊"

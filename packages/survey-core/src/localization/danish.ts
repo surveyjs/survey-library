@@ -59,7 +59,7 @@ export var danishSurveyStrings = {
   addColumn: "Tilføj kolonne",
   addRow: "Tilføj række",
   removeRow: "Fjern",
-  emptyRowsText: "Der er ingen rækker.",
+  noRowsText: "Der er ingen rækker.",
   addPanel: "Tilføj ny",
   removePanel: "Fjern",
   showDetails: "Vis detaljer",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk
 // minError: "The value should not be less than {0}" => "Værdien bør ikke være mindre end {0}"
 // maxError: "The value should not be greater than {0}" => "Værdien bør ikke være større end {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Træk og slip en fil her, eller klik på knappen nedenfor, og vælg en fil, der skal uploades."
-// emptyRowsText: "There are no rows." => "Der er ingen rækker."
+// noRowsText: "There are no rows." => "Der er ingen rækker."
 // multipletext_itemname: "text" => "Tekst"
 // signaturePlaceHolder: "Sign here" => "Tilmeld dig her"
 // modalCancelButtonText: "Cancel" => "Aflyse"

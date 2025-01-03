@@ -59,7 +59,7 @@ export var serbianStrings = {
   addColumn: "Dodaj kolonu",
   addRow: "Dodaj red",
   removeRow: "Ukloni",
-  emptyRowsText: "Nema redova.",
+  noRowsText: "Nema redova.",
   addPanel: "Dodaj novo",
   removePanel: "Ukloni",
   showDetails: "Prikaži detalje",

@@ -59,7 +59,7 @@ export var polishSurveyStrings = {
   addColumn: "Dodaj kolumnę",
   addRow: "Dodaj wiersz",
   removeRow: "Usuń",
-  emptyRowsText: "Nie ma rzędów.",
+  noRowsText: "Nie ma rzędów.",
   addPanel: "Dodaj panel",
   removePanel: "Usuń",
   showDetails: "Pokaż szczegóły",

@@ -59,7 +59,7 @@ export var vietnameseSurveyStrings = {
   addColumn: "Thêm cột",
   addRow: "Thêm dòng",
   removeRow: "Xóa",
-  emptyRowsText: "Không có hàng.",
+  noRowsText: "Không có hàng.",
   addPanel: "Thêm mới",
   removePanel: "Xóa",
   showDetails: "Hiển thị chi tiết",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "v
 // minError: "The value should not be less than {0}" => "Giá trị không được nhỏ hơn {0}"
 // maxError: "The value should not be greater than {0}" => "Giá trị không được lớn hơn {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Kéo và thả tệp vào đây hoặc nhấp vào nút bên dưới và chọn tệp để tải lên."
-// emptyRowsText: "There are no rows." => "Không có hàng."
+// noRowsText: "There are no rows." => "Không có hàng."
 // multipletext_itemname: "text" => "Nhắn tin"
 // signaturePlaceHolder: "Sign here" => "Ký tên tại đây"
 // modalCancelButtonText: "Cancel" => "Hủy"

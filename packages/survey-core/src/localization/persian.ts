@@ -59,7 +59,7 @@ export var persianSurveyStrings = {
   addColumn: "ستون جدید",
   addRow: "سطر جدید",
   removeRow: "حذف",
-  emptyRowsText: "هیچ ردیفی وجود ندارد.",
+  noRowsText: "هیچ ردیفی وجود ندارد.",
   addPanel: "جدید",
   removePanel: "حذف",
   showDetails: "نمایش جزئیات",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "fa", strings: persianSurveyStrings, nativeName: "فا
 // minError: "The value should not be less than {0}" => "ارزش نباید کمتر از {0}"
 // maxError: "The value should not be greater than {0}" => "ارزش نباید بیشتر از {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "کشیدن و رها کردن یک فایل در اینجا و یا کلیک بر روی دکمه زیر و یک فایل برای اپلود را انتخاب کنید."
-// emptyRowsText: "There are no rows." => "هیچ ردیفی وجود ندارد."
+// noRowsText: "There are no rows." => "هیچ ردیفی وجود ندارد."
 // multipletext_itemname: "text" => "پیامک"
 // signaturePlaceHolder: "Sign here" => "اینجا را امضا کنید"
 // modalCancelButtonText: "Cancel" => "لغو"

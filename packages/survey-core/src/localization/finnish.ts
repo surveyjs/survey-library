@@ -59,7 +59,7 @@ export var finnishSurveyStrings = {
   addColumn: "Lisää sarake",
   addRow: "Lisää rivi",
   removeRow: "Poista",
-  emptyRowsText: "Ei rivejä",
+  noRowsText: "Ei rivejä",
   addPanel: "Lisää uusi",
   removePanel: "Poista",
   showDetails: "Näytä tiedot",

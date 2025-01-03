@@ -18594,6 +18594,29 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
 });
+QUnit.test("survey.showNavigationButtons = 'none', page.navigationButtonsVisibility = 'show' & firstPageIsStarted is true, Bug#9248", function (assert) {
+  const survey = new SurveyModel({
+    showNavigationButtons: "none",
+    firstPageIsStarted: true,
+    pages: [
+      {
+        "navigationButtonsVisibility": "show",
+        "elements": [{ type: "text", name: "q1" }]
+      },
+      {
+        "elements": [{ type: "text", name: "q2" }]
+      },
+      {
+        "elements": [{ type: "text", name: "q2" }]
+      }
+    ]
+  });
+  assert.equal(survey.state, "starting", "The first page is started");
+  assert.equal(survey.isNavigationButtonsShowing, "bottom", "The first page is started");
+  survey.start();
+  assert.equal(survey.state, "running", "The start button is cliced");
+  assert.equal(survey.isNavigationButtonsShowing, "none", "Hide navigation buttons");
+});
 
 QUnit.test("getContainerContent - header elements order", function (assert) {
   function getContainerContent(container: LayoutElementContainer) {

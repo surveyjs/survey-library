@@ -3427,7 +3427,8 @@ export class SurveyModel extends SurveyElementCore
       this.currentPageNo = index;
       return true;
     }
-    for (let i = this.currentPageNo; i < index; i++) {
+    if(!this.validateCurrentPage()) return false;
+    for (let i = this.currentPageNo + 1; i < index; i++) {
       const page = this.visiblePages[i];
       if (!page.validate(true, true)) return false;
       page.passed = true;
@@ -3776,7 +3777,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public get isNavigationButtonsShowing(): string {
     if (this.isDesignMode) return "none";
-    var page = this.currentPage;
+    var page = this.activePage;
     if (!page) return "none";
     if (page.navigationButtonsVisibility === "show") {
       return this.showNavigationButtons === "none" ? "bottom" : this.showNavigationButtons;

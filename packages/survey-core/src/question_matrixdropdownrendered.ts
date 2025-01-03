@@ -59,7 +59,14 @@ export class QuestionMatrixDropdownRenderedCell {
     return !!this.panel;
   }
   public get id(): string {
-    return getId(this.question ? this.question.id : this.idValue.toString(), this.isErrorsCell, this.isDetailRowCell);
+    let id = this.question ? this.question.id : this.idValue.toString();
+    if(this.isItemChoice) {
+      id += "-index" + this.choiceIndex.toString();
+    }
+    if(this.isOtherChoice) {
+      id += "-other";
+    }
+    return getId(id, this.isErrorsCell, this.isDetailRowCell);
   }
   public get item(): ItemValue {
     return this.itemValue;

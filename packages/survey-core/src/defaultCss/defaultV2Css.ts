@@ -1,5 +1,5 @@
 export var surveyCss: any = {
-  currentType: "",
+  currentType: "defaultV2",
   getCss: function () {
     var loc = this.currentType ? this[this.currentType] : defaultV2Css;
     if (!loc) loc = defaultV2Css;

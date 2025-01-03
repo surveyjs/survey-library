@@ -1,9 +1,0 @@
-<label data-bind="css: question.getItemClass(item.itemValue, item.highlight), event: { mouseover: function () { question.onItemMouseIn(item); }, mouseleave: function () { question.onItemMouseOut(item);}, mousedown: question.koMouseDown }">
-  <input
-  type="radio"
-  class="sv-visuallyhidden"
-  data-bind="attr: { name: question.questionName, id: question.getInputId(index), value: item.value, readonly: question.isReadOnlyAttr, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-errormessage': question.ariaErrormessage }, checkedValue: item.value, enable: !question.isDisabledAttr, event: { click: function(data, event) { question.setValueFromClick(event.target.value); return true; } }"
-  />
-  <!-- ko component: { name: 'sv-svg-icon', params: { css: 'sv-star', iconName: question.itemStarIcon, size: 'auto', title: item.text } } --><!-- /ko -->
-  <!-- ko component: { name: 'sv-svg-icon', params: { css: 'sv-star-2', iconName: question.itemStarIconAlt, size: 'auto', title: item.text } } --><!-- /ko -->
-</label>

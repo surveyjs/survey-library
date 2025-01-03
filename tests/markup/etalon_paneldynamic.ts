@@ -1,4 +1,4 @@
-import { StylesManager, AdaptiveActionContainer } from "survey-core";
+import { AdaptiveActionContainer } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -32,8 +32,7 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-progress-top",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   },
   {
     name: "Test paneldynamic with old navigation (progressBottom) markup",
@@ -65,8 +64,7 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-progress-bottom",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   },
   {
     name: "Test paneldynamic with old navigation (list) markup",
@@ -98,8 +96,7 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-list",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   },
   {
     name: "Test paneldynamic (list) #2 markup",
@@ -123,11 +120,10 @@ registerMarkupTests(
     },
     event: "onAfterRenderPage",
     snapshot: "paneldynamic-remove-btn-action-bar",
-    before: () => { StylesManager.applyTheme("defaultV2"); },
+    before: () => { },
     initSurvey: survey => {
       survey.getAllQuestions()[0]["panels"][0].allowAdaptiveActions = false;
     },
-    after: () => StylesManager.applyTheme("default"),
   },
   {
     name: "Test paneldynamic (list) #3 markup",
@@ -152,8 +148,7 @@ registerMarkupTests(
     },
     event: "onAfterRenderPage",
     snapshot: "paneldynamic-remove-btn-right",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   },
   {
     name: "Test paneldynamic do not render empty footer (do not allow add) markup",
@@ -179,8 +174,7 @@ registerMarkupTests(
     snapshot: "paneldynamic-no-footer-1",
     removeIds: true,
     excludePlatform: "Vue",
-    before: () => { StylesManager.applyTheme("defaultV2"); },
-    after: () => StylesManager.applyTheme("default"),
+    before: () => { },
   },
   {
     name: "Test paneldynamic do not render empty footer (max panels reached) markup",
@@ -207,8 +201,7 @@ registerMarkupTests(
     snapshot: "paneldynamic-no-footer-2",
     removeIds: true,
     excludePlatform: "Vue",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   }, {
     name: "Test paneldynamic (tab) markup",
     json: {
@@ -227,9 +220,8 @@ registerMarkupTests(
     excludePlatform: "Vue",
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
-      StylesManager.applyTheme("defaultV2");
+
     },
-    after: () => StylesManager.applyTheme("default"),
   }, {
     name: "Test paneldynamic (tab) tabAlign right markup",
     json: {
@@ -249,9 +241,8 @@ registerMarkupTests(
     excludePlatform: "Vue",
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
-      StylesManager.applyTheme("defaultV2");
+
     },
-    after: () => StylesManager.applyTheme("default"),
   }, {
     name: "Test paneldynamic (tab) tabAlign left markup",
     json: {
@@ -271,9 +262,8 @@ registerMarkupTests(
     excludePlatform: "Vue",
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
-      StylesManager.applyTheme("defaultV2");
+
     },
-    after: () => StylesManager.applyTheme("default"),
   }
   ]
 );

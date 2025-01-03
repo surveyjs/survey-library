@@ -60,11 +60,8 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   public get id(): string {
     let id = this.question ? this.question.id : this.idValue.toString();
-    if(this.isItemChoice) {
-      id += "-index" + this.choiceIndex.toString();
-    }
-    if(this.isOtherChoice) {
-      id += "-other";
+    if(this.isChoice) {
+      id += "-" + (Number.isInteger(this.choiceIndex) ? "index" + this.choiceIndex.toString() : this.item.id);
     }
     return getId(id, this.isErrorsCell, this.isDetailRowCell);
   }

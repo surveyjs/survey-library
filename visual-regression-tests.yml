@@ -6,7 +6,7 @@
 trigger:
   batch: true
   branches:
-    exclude:
+    include:
       - master
   tags:
     exclude:

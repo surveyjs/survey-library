@@ -463,7 +463,7 @@ jobs:
 
   - job: Vue3
     dependsOn:
-      - NPMCache
+      - Core
 
     steps:
       - checkout: self
@@ -590,7 +590,7 @@ jobs:
 
   - job: SurveyUI_and_CSSFrameworks
     dependsOn:
-      - NPMCache
+      - Core
 
     steps:
       - checkout: self

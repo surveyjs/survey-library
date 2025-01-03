@@ -10372,6 +10372,7 @@ QUnit.test("Use matrix rows id & cells questions id in rendered table, Bug#9233"
   assert.equal(table.rows[0].isErrorsRow, true, "It is an error row, #1");
   assert.equal(table.rows[0].id.endsWith("-error"), true, "There is -error postfix, #1");
   assert.equal(table.rows[1].id, rowId, "Use row id, #1");
+  assert.equal(table.rows[0].cells[0].id, colId + "-error", "There is -error postfix in error cell, #1");
   assert.equal(table.rows[1].cells[0].id, colId, "Use question id, #1.2");
   cellQuestion.value = "abc";
   table = matrix.renderedTable;

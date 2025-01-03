@@ -17,6 +17,7 @@ import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
+import { LocalizableString } from "./localizablestring";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   private dragOrClickHelper: DragOrClickHelper;
@@ -79,7 +80,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return !!text ? text : this.defaultAddRowText;
     };
     this.createLocalizableString("removeRowText", this, false, "removeRow");
-    this.createLocalizableString("emptyRowsText", this, false, true);
+    this.createLocalizableString("noRowsText", this, false, true);
     this.registerPropertyChangedHandlers(["hideColumnsIfEmpty", "allowAddRows"], () => { this.updateShowTableAndAddRow(); });
     this.registerPropertyChangedHandlers(["allowRowsDragAndDrop", "isReadOnly", "lockedRowCount"], () => { this.resetRenderedTable(); });
     this.registerPropertyChangedHandlers(["minRowCount"], () => { this.onMinRowCountChanged(); });
@@ -737,10 +738,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.addRowButtonLocation;
   }
   /**
-   * Specifies whether to hide columns when the matrix does not contain any rows. If you enable this property, the matrix displays the `emptyRowsText` message and the Add Row button.
+   * Specifies whether to hide columns when the matrix does not contain any rows. If you enable this property, the matrix displays the `noRowsText` message and the Add Row button.
    *
    * Default value: `false`
-   * @see emptyRowsText
+   * @see noRowsText
    */
   public get hideColumnsIfEmpty(): boolean {
     return this.getPropertyValue("hideColumnsIfEmpty");
@@ -767,14 +768,23 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * A message displayed when the matrix does not contain any rows. Applies only if `hideColumnsIfEmpty` is enabled.
    * @see hideColumnsIfEmpty
    */
-  public get emptyRowsText() {
-    return this.getLocalizableStringText("emptyRowsText");
+  public get noRowsText(): string {
+    return this.getLocalizableStringText("noRowsText");
+  }
+  public set noRowsText(val: string) {
+    this.setLocalizableStringText("noRowsText", val);
+  }
+  get locNoRowsText(): LocalizableString {
+    return this.getLocalizableString("noRowsText");
+  }
+  public get emptyRowsText(): string {
+    return this.noRowsText;
   }
   public set emptyRowsText(val: string) {
-    this.setLocalizableStringText("emptyRowsText", val);
+    this.noRowsText = val;
   }
-  get locEmptyRowsText() {
-    return this.getLocalizableString("emptyRowsText");
+  get locEmptyRowsText(): LocalizableString {
+    return this.locNoRowsText;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value || !Array.isArray(value)) return value;
@@ -1039,8 +1049,8 @@ Serializer.addClass(
     { name: "removeRowText", serializationProperty: "locRemoveRowText" },
     "hideColumnsIfEmpty:boolean",
     {
-      name: "emptyRowsText:text",
-      serializationProperty: "locEmptyRowsText",
+      name: "noRowsText:text", alternativeName: "emptyRowsText",
+      serializationProperty: "locNoRowsText",
       dependsOn: "hideColumnsIfEmpty",
       visibleIf: function(obj: any): boolean {
         return !obj || obj.hideColumnsIfEmpty;

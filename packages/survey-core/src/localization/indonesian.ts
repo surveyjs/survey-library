@@ -59,7 +59,7 @@ export var indonesianStrings = {
   addColumn: "Tambah kolom",
   addRow: "Tambah baris",
   removeRow: "Hapus",
-  emptyRowsText: "Tidak ada baris.",
+  noRowsText: "Tidak ada baris.",
   addPanel: "Tambah baru",
   removePanel: "Hapus",
   showDetails: "Tampilkan Detail",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa 
 // minError: "The value should not be less than {0}" => "Nilainya tidak boleh kurang dari {0}"
 // maxError: "The value should not be greater than {0}" => "Nilai tidak boleh lebih besar dari {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Seret dan jatuhkan file di sini atau klik tombol di bawah ini dan pilih file yang akan diunggah."
-// emptyRowsText: "There are no rows." => "Tidak ada baris."
+// noRowsText: "There are no rows." => "Tidak ada baris."
 // multipletext_itemname: "text" => "Teks"
 // signaturePlaceHolder: "Sign here" => "Tanda tangan di sini"
 // modalCancelButtonText: "Cancel" => "Membatalkan"

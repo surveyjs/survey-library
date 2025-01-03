@@ -10,8 +10,8 @@
       :is="'survey-matrixdropdown-cell'"
       :cell="cell"
       :question="question"
-      v-for="(cell, cellIndex) in row.cells"
-      :key="row.id + '_' + cellIndex"
+      v-for="cell in row.cells"
+      :key="row.id + '_' + cell.id"
     />
   </tr>
 </template>

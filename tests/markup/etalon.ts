@@ -39,6 +39,6 @@ registerMarkupTests([
         }
       ]
     },
-    etalon: "<div>HTML content here</div>"
+    etalon: "<div class=\"sd-html\">HTML content here</div>"
   },
 ]);

@@ -812,8 +812,8 @@ export function cleanHtmlElementAfterAnimation(el: HTMLElement): void {
     delete (el as any)["__sv_created_properties"];
   }
 }
-export function roundTo2Decimals(number: number): number {
-  return Math.round(number * 100) / 100;
+export function floorTo2Decimals(number: number): number {
+  return Math.floor(number * 100) / 100;
 }
 
 export {

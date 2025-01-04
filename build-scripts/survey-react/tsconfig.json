@@ -1,9 +1,0 @@
-{
- "extends": "../tsconfig.json",
- "compilerOptions:": {
-    "baseUrl": ".",
-    "paths": {
-      "survey-core": ["../../src/entries/core.ts"],
-    }    
- }
-}

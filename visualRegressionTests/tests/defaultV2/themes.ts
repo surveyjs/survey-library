@@ -1,22 +1,15 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest } from "../../helper";
-import { getListItemByText } from "../../../testCafe/helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { getListItemByText } from "../../../functionalTests/helper";
 
 const title = "Survey themes Screenshot";
 
 fixture`${title}`.page`${url}`;
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`
     .beforeEach(async t => {
-      await applyTheme(theme);
     });
 
   test("Check question title font size", async (t) => {

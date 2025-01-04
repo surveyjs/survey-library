@@ -40,7 +40,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
   private resizeWindowCallback = () => {
     if(!this.isOverlay) {
-      this.updatePosition(true, SurveyModel.platform === "vue" || SurveyModel.platform === "vue3" || SurveyModel.platform == "react");
+      this.updatePosition(true, SurveyModel.platform === "vue" || SurveyModel.platform === "vue3" || SurveyModel.platform == "react" || SurveyModel.platform == "js-ui");
     }
   };
   private clientY: number = 0;

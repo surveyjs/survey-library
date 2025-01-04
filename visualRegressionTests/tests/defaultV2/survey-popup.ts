@@ -1,15 +1,9 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurveyPopup, url_test, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurveyPopup, takeElementScreenshot, wrapVisualTest } from "../../helper";
 
 const title = "Survey Popup Screenshot";
 
 fixture`${title}`.page`${url}`;
-
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
 
 const json = {
   "title": "Send Feedback to the SurveyJS team",
@@ -31,11 +25,8 @@ const json = {
 };
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`
-    .beforeEach(async t => {
-      await applyTheme(theme);
-    });
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`;
 
   test("Check Survey-Popup", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {

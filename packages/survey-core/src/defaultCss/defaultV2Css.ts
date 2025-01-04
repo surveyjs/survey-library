@@ -1,5 +1,5 @@
 export var surveyCss: any = {
-  currentType: "",
+  currentType: "defaultV2",
   getCss: function () {
     var loc = this.currentType ? this[this.currentType] : defaultV2Css;
     if (!loc) loc = defaultV2Css;
@@ -831,6 +831,7 @@ export var defaultV2Css = {
     itemBody: "sv-list__item-body sd-list__item-body",
     itemSelected: "sv-list__item--selected sd-list__item--selected",
     itemFocused: "sv-list__item--focused sd-list__item--focused",
+    itemHovered: "sv-list__item--hovered sd-list__item--hovered",
   },
   actionBar: {
     root: "sd-action-bar",

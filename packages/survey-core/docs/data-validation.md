@@ -31,7 +31,7 @@ Alternatively, you can [postpone data validation](#postpone-validation-until-sur
 
 ## Built-In Client-Side Validators
 
-SurveyJS Form Library supports multiple built-in client-side validators. The Required validator ensures that a question value is not empty. Enable a question's [`isRequired`](https://surveyjs.io/Documentation/Library?id=Question#isRequired) property to add the Required validator to this question. In addition, you can specify the [`requiredErrorText`](https://surveyjs.io/Documentation/Library?id=Question#requiredText) property to override the default error message:
+SurveyJS Form Library supports multiple built-in client-side validators. The Required validator ensures that a question value is not empty. Enable a question's [`isRequired`](https://surveyjs.io/Documentation/Library?id=Question#isRequired) property to add the Required validator to this question. In addition, you can specify the [`requiredErrorText`](https://surveyjs.io/Documentation/Library?id=Question#requiredMark) property to override the default error message:
 
 ```js
 const surveyJson = {

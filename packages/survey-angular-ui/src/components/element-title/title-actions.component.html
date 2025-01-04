@@ -17,7 +17,7 @@
         *ngIf="element.isRequireTextOnStart"
         [class]="element.cssRequiredText"
         [attr.aria-hidden]="true"
-        >{{ element.requiredText }}</span>
+        >{{ element.requiredMark }}</span>
       <span
         *ngIf="element.no"
         style="position: static"
@@ -29,7 +29,7 @@
         *ngIf="element.isRequireTextBeforeTitle"
         [class]="element.cssRequiredText"
         [attr.aria-hidden]="true"
-        >{{ element.requiredText }}</span>
+        >{{ element.requiredMark }}</span>
       <span *ngIf="element.isRequireTextBeforeTitle">&nbsp;</span>
       <sv-ng-string [model]="element.locTitle"></sv-ng-string>
       <span *ngIf="element.isRequireTextAfterTitle">&nbsp;</span>
@@ -37,7 +37,7 @@
         *ngIf=" element.isRequireTextAfterTitle"
         [class]="element.cssRequiredText"
         [attr.aria-hidden]="true"
-        >{{ element.requiredText }}</span> 
+        >{{ element.requiredMark }}</span> 
   </ng-container>
   </ng-template>
 </ng-template>

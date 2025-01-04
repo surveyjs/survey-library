@@ -70,7 +70,7 @@ export class TitleContent extends React.Component<any, any> {
         className={element.cssRequiredText}
         aria-hidden={true}
       >
-        {element.requiredText}
+        {element.requiredMark}
       </span>
     );
   }

@@ -4,7 +4,7 @@
     <span
       v-if="column.isRenderedRequired"
       :class="question.cssClasses.cellRequiredText"
-      >{{ column.requiredText }}</span
+      >{{ column.requiredMark }}</span
     >
   </template>
 </template>

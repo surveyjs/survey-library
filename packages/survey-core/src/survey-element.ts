@@ -681,7 +681,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public get cssRequiredText(): any {
     const css = this.cssClasses;
-    return css.requiredText || (css.panel && css.panel.requiredText);
+    return css.requiredMark || (css.panel && css.panel.requiredMark);
   }
   public getCssTitleExpandableSvg(): string {
     if (this.state === "default") return null;

@@ -335,7 +335,7 @@ class SurveyQuestionMatrixHeaderRequired extends ReactSurveyElement {
     return (
       <>
         <span>&nbsp;</span>
-        <span className={this.question.cssClasses.cellRequiredText}>{this.column.requiredText}</span>
+        <span className={this.question.cssClasses.cellRequiredText}>{this.column.requiredMark}</span>
       </>
     );
   }

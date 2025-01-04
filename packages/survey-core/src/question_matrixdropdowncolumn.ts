@@ -316,7 +316,7 @@ export class MatrixDropdownColumn extends Base
   public updateIsRenderedRequired(val: boolean): void {
     this.isRenderedRequired = val || this.isRequired;
   }
-  public get requiredText(): string {
+  public get requiredMark(): string {
     return this.isRenderedRequired && this.getSurvey() ? this.getSurvey().requiredMark : this.templateQuestion.requiredMark;
   }
   /**

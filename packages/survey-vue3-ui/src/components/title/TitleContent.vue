@@ -6,7 +6,7 @@
   />
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextOnStart"
-    :class="element.cssRequiredText"
+    :class="element.cssRequiredMark"
     :aria-hidden="true"
     >{{ element.requiredMark }}</span
   >
@@ -20,7 +20,7 @@
   <span v-if="!element.isTitleRenderedAsString && element.no">&nbsp;</span>
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextBeforeTitle"
-    :class="element.cssRequiredText"
+    :class="element.cssRequiredMark"
     :aria-hidden="true"
     >{{ element.requiredMark }}</span
   >
@@ -39,7 +39,7 @@
   >
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextAfterTitle"
-    :class="element.cssRequiredText"
+    :class="element.cssRequiredMark"
     :aria-hidden="true"
     >{{ element.requiredMark }}</span
   >

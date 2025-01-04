@@ -367,7 +367,7 @@ export interface ITitleOwner {
   no: string;
   requiredMark: string;
   cssTitleNumber: string;
-  cssRequiredText?: string;
+  cssRequiredMark?: string;
   isRequireTextOnStart: boolean;
   isRequireTextBeforeTitle: boolean;
   isRequireTextAfterTitle: boolean;

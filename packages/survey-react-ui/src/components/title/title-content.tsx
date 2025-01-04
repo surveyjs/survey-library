@@ -67,7 +67,7 @@ export class TitleContent extends React.Component<any, any> {
       <span
         data-key={"req-text"}
         key={"req-text"}
-        className={element.cssRequiredText}
+        className={element.cssRequiredMark}
         aria-hidden={true}
       >
         {element.requiredMark}

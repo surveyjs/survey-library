@@ -2020,7 +2020,7 @@ export class PanelModelBase extends SurveyElement<Question>
   public get cssTitleNumber(): string {
     return this.cssClasses.panel.number;
   }
-  public get cssRequiredText(): string {
+  public get cssRequiredMark(): string {
     return this.cssClasses.panel.requiredMark;
   }
 

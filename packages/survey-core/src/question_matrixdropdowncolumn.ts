@@ -11,7 +11,6 @@ import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
-  getRequiredText(): string;
   hasChoices(): boolean;
   onColumnPropertyChanged(
     column: MatrixDropdownColumn,

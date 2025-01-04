@@ -1336,9 +1336,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.detailPanel.allowAdaptiveActions = val;
     }
   }
-  public getRequiredText(): string {
-    return this.survey ? this.survey.requiredMark : "";
-  }
   public hasChoices(): boolean {
     return this.choices.length > 0;
   }

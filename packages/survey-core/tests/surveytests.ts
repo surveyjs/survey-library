@@ -3484,14 +3484,14 @@ QUnit.test("question fullTitle", function (assert) {
   question.title = "My Title";
   assert.equal(question.fullTitle, "My Title");
   question.isRequired = true;
-  assert.equal(question.requiredText, "*");
+  assert.equal(question.requiredMark, "*");
   survey.questionStartIndex = "100";
   assert.equal(question.no, "101.");
   survey.questionStartIndex = "A";
   assert.equal(question.no, "B.");
   survey.questionTitleTemplate = "{no}) {title} ({require})";
   assert.equal(question.no, "B)");
-  assert.equal(question.requiredText, "(*)");
+  assert.equal(question.requiredMark, "(*)");
 });
 QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   var survey = twoPageSimplestSurvey();
@@ -5744,9 +5744,9 @@ QUnit.test("Survey Markdown - question title", function (assert) {
   );
   q1.isRequired = true;
   assert.equal(
-    q1.requiredText,
+    q1.requiredMark,
     "*",
-    "question.title requiredText is not empty"
+    "question.title requiredMark is not empty"
   );
 });
 
@@ -5856,7 +5856,7 @@ QUnit.test("required question title test", function (assert) {
   assert.equal(q1.locTitle.renderedHtml, "title1", "Just title");
   q1.isRequired = true;
   assert.equal(q1.locTitle.renderedHtml, "title1", "title + required");
-  assert.equal(q1.requiredText, "*", "title + required");
+  assert.equal(q1.requiredMark, "*", "title + required");
   assert.equal(q1.title, "title1", "We do no have required");
 });
 
@@ -14856,7 +14856,7 @@ QUnit.test("base.survey property", function (assert) {
 
 QUnit.test("base.getSurvey(live) on removing/adding", function (assert) {
   var survey = new SurveyModel({
-    requiredText: "ok",
+    requiredMark: "ok",
     pages: [
       {
         name: "page1",

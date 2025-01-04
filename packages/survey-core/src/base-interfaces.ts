@@ -365,7 +365,7 @@ export interface IPage extends IPanel, IConditionRunner {
 export interface ITitleOwner {
   name: string;
   no: string;
-  requiredText: string;
+  requiredMark: string;
   cssTitleNumber: string;
   cssRequiredText?: string;
   isRequireTextOnStart: boolean;

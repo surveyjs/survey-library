@@ -317,7 +317,7 @@ export class MatrixDropdownColumn extends Base
     this.isRenderedRequired = val || this.isRequired;
   }
   public get requiredText(): string {
-    return this.isRenderedRequired && this.getSurvey() ? this.getSurvey().requiredMark : this.templateQuestion.requiredText;
+    return this.isRenderedRequired && this.getSurvey() ? this.getSurvey().requiredMark : this.templateQuestion.requiredMark;
   }
   /**
    * Specifies a custom error message for a required column.

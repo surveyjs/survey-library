@@ -59,7 +59,7 @@ export class Question extends SurveyElement<Question>
   [index: string]: any;
   private static TextPreprocessorValuesMap = {
     title: "processedTitle",
-    require: "requiredText",
+    require: "requiredMark",
   };
   private static questionCounter = 100;
   private static getQuestionId(): string {
@@ -1012,10 +1012,10 @@ export class Question extends SurveyElement<Question>
     return this.isRequired && this.titlePattern == "requireNumTitle";
   }
   public get isRequireTextBeforeTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredText !== "";
+    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredMark !== "";
   }
   public get isRequireTextAfterTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredText !== "";
+    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredMark !== "";
   }
   /**
    * Disable this property if you want to render the current question on the same line or row with the previous question or panel.
@@ -2253,7 +2253,7 @@ export class Question extends SurveyElement<Question>
    * @see SurveyModel.requiredMark
    * @see isRequired
    */
-  public get requiredText(): string {
+  public get requiredMark(): string {
     return this.survey != null && this.isRequired
       ? this.survey.requiredMark
       : "";

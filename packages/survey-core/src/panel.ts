@@ -494,7 +494,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see SurveyModel.requiredMark
    * @see isRequired
    */
-  public get requiredText(): string {
+  public get requiredMark(): string {
     return !!this.survey && this.isRequired
       ? this.survey.requiredMark
       : "";

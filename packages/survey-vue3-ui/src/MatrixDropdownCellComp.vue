@@ -92,7 +92,7 @@
         />
         <span
           v-if="!!cell.requiredMark"
-          :class="question.cssClasses.cellRequiredText"
+          :class="question.cssClasses.cellRequiredMark"
           >{{ cell.requiredMark }}</span
         >
       </SvComponent>

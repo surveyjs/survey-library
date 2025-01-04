@@ -3,7 +3,7 @@
     <span>&nbsp;</span>
     <span
       v-if="column.isRenderedRequired"
-      :class="question.cssClasses.cellRequiredText"
+      :class="question.cssClasses.cellRequiredMark"
       >{{ column.requiredMark }}</span
     >
   </template>

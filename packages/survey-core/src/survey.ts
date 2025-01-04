@@ -1486,7 +1486,7 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether to focus the first question on the page on survey startup or when users switch between pages.
    *
    * Default value: `false` in v1.9.114 and later, `true` in earlier versions
-   * @see focusOnFirstError
+   * @see autoFocusFirstError
    * @see focusFirstQuestion
    * @see focusQuestion
    */
@@ -1509,11 +1509,17 @@ export class SurveyModel extends SurveyElementCore
    * @see validate
    * @see autoFocusFirstQuestion
    */
+  public get autoFocusFirstError(): boolean {
+    return this.getPropertyValue("autoFocusFirstError");
+  }
+  public set autoFocusFirstError(val: boolean) {
+    this.setPropertyValue("autoFocusFirstError", val);
+  }
   public get focusOnFirstError(): boolean {
-    return this.getPropertyValue("focusOnFirstError");
+    return this.autoFocusFirstError;
   }
   public set focusOnFirstError(val: boolean) {
-    this.setPropertyValue("focusOnFirstError", val);
+    this.autoFocusFirstError = val;
   }
   /**
    * Gets or sets the position of the Start, Next, Previous, and Complete navigation buttons and controls their visibility.
@@ -3966,7 +3972,7 @@ export class SurveyModel extends SurveyElementCore
     };
     if (this.isValidateOnComplete) {
       if (!this.isLastPage) return false;
-      return this.validate(true, this.focusOnFirstError, func, true) !== true && !skipValidation;
+      return this.validate(true, this.autoFocusFirstError, func, true) !== true && !skipValidation;
     }
     return this.validateCurrentPage(func) !== true && !skipValidation;
   }
@@ -4004,7 +4010,7 @@ export class SurveyModel extends SurveyElementCore
     if (hasErrors) {
       this.clearAsyncValidationQuesitons();
       func(true);
-      if (this.focusOnFirstError && !!question && !!question.page && question.page === this.currentPage) {
+      if (this.autoFocusFirstError && !!question && !!question.page && question.page === this.currentPage) {
         const questions: Array<Question> = this.currentPage.questions;
         for (let i = 0; i < questions.length; i++) {
           if (questions[i] !== question && questions[i].errors.length > 0) return;
@@ -4217,7 +4223,7 @@ export class SurveyModel extends SurveyElementCore
     isFocuseOnFirstError: boolean = undefined
   ): boolean {
     if (isFocuseOnFirstError === undefined) {
-      isFocuseOnFirstError = this.focusOnFirstError;
+      isFocuseOnFirstError = this.autoFocusFirstError;
     }
     if (!page) return true;
     var res = !page.validate(true, isFocuseOnFirstError);
@@ -4825,7 +4831,7 @@ export class SurveyModel extends SurveyElementCore
     var self = options.survey;
     var hasErrors = false;
     if (options.errors) {
-      var hasToFocus = this.focusOnFirstError;
+      var hasToFocus = this.autoFocusFirstError;
       for (var name in options.errors) {
         var question = self.getQuestionByName(name);
         if (question && question["errors"]) {
@@ -8154,7 +8160,7 @@ Serializer.addClass("survey", [
     choices: ["none", "left", "right", "top", "bottom"],
   },
   { name: "autoFocusFirstQuestion:boolean", alternativeName: "focusFirstQuestionAutomatic:boolean" },
-  { name: "focusOnFirstError:boolean", default: true },
+  { name: "autoFocusFirstError:boolean", default: true, alternativeName: "focusOnFirstError" },
   { name: "completedHtml:html", serializationProperty: "locCompletedHtml" },
   {
     name: "completedBeforeHtml:html",

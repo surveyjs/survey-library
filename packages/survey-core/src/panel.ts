@@ -491,12 +491,12 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   /**
    * Returns a character or text string that indicates a required panel/page.
-   * @see SurveyModel.requiredText
+   * @see SurveyModel.requiredMark
    * @see isRequired
    */
   public get requiredText(): string {
     return !!this.survey && this.isRequired
-      ? this.survey.requiredText
+      ? this.survey.requiredMark
       : "";
   }
   protected get titlePattern(): string {

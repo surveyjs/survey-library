@@ -3636,7 +3636,7 @@ QUnit.test(
 );
 
 QUnit.test(
-  "update survey.questionStartIndex and survey.requiredText based on survey.questionTitleTemplate",
+  "update survey.questionStartIndex and survey.requiredMark based on survey.questionTitleTemplate",
   function (assert) {
     var survey = new SurveyModel();
     survey.questionTitleTemplate = "{no}) {title} {require}";
@@ -3645,10 +3645,10 @@ QUnit.test(
     survey.questionTitleTemplate = "{no}) {title} {require}";
     assert.equal(survey.questionStartIndex, "a)", "{no}) + startIndex = 'a'");
     survey.questionTitleTemplate = "{title} ({require})";
-    assert.equal(survey.requiredText, "(*)", "({require})");
-    survey.requiredText = "!!";
+    assert.equal(survey.requiredMark, "(*)", "({require})");
+    survey.requiredMark = "!!";
     survey.questionTitleTemplate = "{no}) {title} ({require})";
-    assert.equal(survey.requiredText, "(!!)", "({require}) + !!");
+    assert.equal(survey.requiredMark, "(!!)", "({require}) + !!");
   }
 );
 QUnit.test("clearInvisibleValues", function (assert) {
@@ -6922,11 +6922,11 @@ QUnit.test("clearInvisibleValues=onHidden and invisiblePages, #964", function (
 });
 QUnit.test("required text can be empty: Bug #693", function (assert) {
   var survey = new SurveyModel();
-  assert.equal(survey.requiredText, "*", "The default value is '*'");
-  survey.requiredText = "";
-  assert.equal(survey.requiredText, "", "The value is empty string");
-  survey.requiredText = null;
-  assert.equal(survey.requiredText, "*", "The value is again default");
+  assert.equal(survey.requiredMark, "*", "The default value is '*'");
+  survey.requiredMark = "";
+  assert.equal(survey.requiredMark, "", "The value is empty string");
+  survey.requiredMark = null;
+  assert.equal(survey.requiredMark, "*", "The value is again default");
 });
 QUnit.test("Set 0 value into survey.data", function (assert) {
   var survey = new SurveyModel();
@@ -12860,7 +12860,7 @@ QUnit.test("Survey questionTitleTemplate -> questionTitlePattern", function (
 QUnit.test("Survey.getQuestionTitlePatternOptions()", function (assert) {
   var survey = new SurveyModel();
   survey.questionStartIndex = "# 1.";
-  survey.requiredText = "(*)";
+  survey.requiredMark = "(*)";
   var options = survey.getQuestionTitlePatternOptions();
   assert.deepEqual(options, [
     {
@@ -14532,7 +14532,7 @@ QUnit.test("Do not show empty required text", function (assert) {
   survey.questionTitlePattern = "numRequireTitle";
   assert.equal(q1.isRequireTextBeforeTitle, true, "numRequireTitle - Required text before");
   assert.equal(q1.isRequireTextAfterTitle, false, "numRequireTitle - No required text after");
-  survey.requiredText = "";
+  survey.requiredMark = "";
   assert.equal(q1.isRequireTextBeforeTitle, false, "numRequireTitle - No required text before ''");
   assert.equal(q1.isRequireTextAfterTitle, false, "numRequireTitle - No required text after ''");
   survey.questionTitlePattern = "numTitleRequire";

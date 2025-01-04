@@ -124,7 +124,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   cssNavigationEdit: string;
   rootElement?: HTMLElement;
 
-  requiredText: string;
+  requiredMark: string;
   beforeSettingQuestionErrors(
     question: IQuestion,
     errors: Array<SurveyError>

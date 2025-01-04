@@ -815,7 +815,7 @@ export class QuestionMultipleTextModel extends Question
     return this.data ? this.data.getAllValues() : null;
   }
   getIsRequiredText(): string {
-    return this.survey ? this.survey.requiredText : "";
+    return this.survey ? this.survey.requiredMark : "";
   }
   //IPanel
   addElement(element: IElement, index: number) { }

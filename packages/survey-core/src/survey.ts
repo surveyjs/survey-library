@@ -399,7 +399,7 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * If you want to modify question numbers, handle the [`onGetQuestionNumber`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNumber) event.
-   * @see requiredText
+   * @see requiredMark
    */
   public onGetQuestionTitle: EventBase<SurveyModel, GetQuestionTitleEvent> = this.addEvent<SurveyModel, GetQuestionTitleEvent>();
   /**
@@ -971,7 +971,7 @@ export class SurveyModel extends SurveyElementCore
       this.updateProgressText();
     });
     this.registerPropertyChangedHandlers(
-      ["questionStartIndex", "requiredText", "questionTitlePattern"],
+      ["questionStartIndex", "requiredMark", "questionTitlePattern"],
       () => {
         this.resetVisibleIndexes();
       }
@@ -1668,11 +1668,11 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/modify-question-title/ (linkStyle))
    */
-  public get requiredText(): string {
-    return this.getPropertyValue("requiredText", "*");
+  public get requiredMark(): string {
+    return this.getPropertyValue("requiredMark");
   }
-  public set requiredText(val: string) {
-    this.setPropertyValue("requiredText", val);
+  public set requiredMark(val: string) {
+    this.setPropertyValue("requiredMark", val);
   }
   /**
    * Specifies whether to hide validation errors thrown by the Required validation in the UI.
@@ -2621,15 +2621,15 @@ export class SurveyModel extends SurveyElementCore
     const num = !!this.questionStartIndex ? this.questionStartIndex : "1.";
     res.push({
       value: "numTitleRequire",
-      text: num + " " + title + " " + this.requiredText
+      text: num + " " + title + " " + this.requiredMark
     });
     res.push({
       value: "numRequireTitle",
-      text: num + " " + this.requiredText + " " + title
+      text: num + " " + this.requiredMark + " " + title
     });
     // res.push({
     //   value: "requireNumTitle",
-    //   text: this.requiredText + " " + num + " " + title
+    //   text: this.requiredMark + " " + num + " " + title
     // });
     res.push({
       value: "numTitle",
@@ -2649,10 +2649,10 @@ export class SurveyModel extends SurveyElementCore
       this.questionStartIndex,
       "1"
     );
-    this.requiredText = this.getNewQuestionTitleElement(
+    this.requiredMark = this.getNewQuestionTitleElement(
       value,
       "require",
-      this.requiredText,
+      this.requiredMark,
       "*"
     );
   }
@@ -8344,7 +8344,7 @@ Serializer.addClass("survey", [
     serializationProperty: "locEditText",
     visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete !== "noPreview"; }
   },
-  { name: "requiredText", default: "*" },
+  { name: "requiredMark", default: "*", alternativeName: "requiredText" },
   {
     name: "questionStartIndex",
     dependsOn: ["showQuestionNumbers"],
@@ -8353,7 +8353,7 @@ Serializer.addClass("survey", [
   {
     name: "questionTitlePattern",
     default: "numTitleRequire",
-    dependsOn: ["questionStartIndex", "requiredText"],
+    dependsOn: ["questionStartIndex", "requiredMark"],
     choices: (obj: any) => {
       if (!obj) return [];
       return obj.getQuestionTitlePatternOptions();

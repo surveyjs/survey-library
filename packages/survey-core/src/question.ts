@@ -2250,12 +2250,12 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Returns a character or text string that indicates a required question.
-   * @see SurveyModel.requiredText
+   * @see SurveyModel.requiredMark
    * @see isRequired
    */
   public get requiredText(): string {
     return this.survey != null && this.isRequired
-      ? this.survey.requiredText
+      ? this.survey.requiredMark
       : "";
   }
   public addError(error: SurveyError | string): void {

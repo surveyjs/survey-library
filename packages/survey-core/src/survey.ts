@@ -621,14 +621,14 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised when an element (input field, checkbox, radio button) within a question gets focus.
    * @see onFocusInPanel
-   * @see focusFirstQuestionAutomatic
+   * @see autoFocusFirstQuestion
    * @see focusQuestion
    */
   public onFocusInQuestion: EventBase<SurveyModel, FocusInQuestionEvent> = this.addEvent<SurveyModel, FocusInQuestionEvent>();
   /**
    * An event that is raised when an element within a panel gets focus.
    * @see onFocusInQuestion
-   * @see focusFirstQuestionAutomatic
+   * @see autoFocusFirstQuestion
    * @see focusQuestion
    */
   public onFocusInPanel: EventBase<SurveyModel, FocusInPanelEvent> = this.addEvent<SurveyModel, FocusInPanelEvent>();
@@ -1490,18 +1490,24 @@ export class SurveyModel extends SurveyElementCore
    * @see focusFirstQuestion
    * @see focusQuestion
    */
+  public get autoFocusFirstQuestion(): boolean {
+    return this.getPropertyValue("autoFocusFirstQuestion");
+  }
+  public set autoFocusFirstQuestion(val: boolean) {
+    this.setPropertyValue("autoFocusFirstQuestion", val);
+  }
   public get focusFirstQuestionAutomatic(): boolean {
-    return this.getPropertyValue("focusFirstQuestionAutomatic");
+    return this.autoFocusFirstQuestion;
   }
   public set focusFirstQuestionAutomatic(val: boolean) {
-    this.setPropertyValue("focusFirstQuestionAutomatic", val);
+    this.autoFocusFirstQuestion = val;
   }
   /**
    * Specifies whether to focus the first question with a validation error on the current page.
    *
    * Default value: `true`
    * @see validate
-   * @see focusFirstQuestionAutomatic
+   * @see autoFocusFirstQuestion
    */
   public get focusOnFirstError(): boolean {
     return this.getPropertyValue("focusOnFirstError");
@@ -3540,7 +3546,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Focuses the first question on the current page.
    * @see focusQuestion
-   * @see focusFirstQuestionAutomatic
+   * @see autoFocusFirstQuestion
    */
   public focusFirstQuestion() {
     if (this.focusingQuestionInfo) return;
@@ -3556,7 +3562,7 @@ export class SurveyModel extends SurveyElementCore
     if (doScroll) {
       page.scrollToTop();
     }
-    if (this.isCurrentPageRendering && this.focusFirstQuestionAutomatic && !this.focusingQuestionInfo) {
+    if (this.isCurrentPageRendering && this.autoFocusFirstQuestion && !this.focusingQuestionInfo) {
       page.focusFirstQuestion();
       this.isCurrentPageRendering = false;
     }
@@ -7771,7 +7777,7 @@ export class SurveyModel extends SurveyElementCore
    * @param name A question name.
    * @returns `false` if the survey does not contain a question with a specified name or this question is hidden; otherwise, `true`.
    * @see focusFirstQuestion
-   * @see focusFirstQuestionAutomatic
+   * @see autoFocusFirstQuestion
    */
   public focusQuestion(name: string): boolean {
     return this.focusQuestionByInstance(this.getQuestionByName(name, true));
@@ -8147,7 +8153,7 @@ Serializer.addClass("survey", [
     default: "left",
     choices: ["none", "left", "right", "top", "bottom"],
   },
-  { name: "focusFirstQuestionAutomatic:boolean" },
+  { name: "autoFocusFirstQuestion:boolean", alternativeName: "focusFirstQuestionAutomatic:boolean" },
   { name: "focusOnFirstError:boolean", default: true },
   { name: "completedHtml:html", serializationProperty: "locCompletedHtml" },
   {

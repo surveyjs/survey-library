@@ -1674,6 +1674,12 @@ export class SurveyModel extends SurveyElementCore
   public set requiredMark(val: string) {
     this.setPropertyValue("requiredMark", val);
   }
+  public get requiredText(): string {
+    return this.requiredMark;
+  }
+  public set requiredText(val: string) {
+    this.requiredMark = val;
+  }
   /**
    * Specifies whether to hide validation errors thrown by the Required validation in the UI.
    *

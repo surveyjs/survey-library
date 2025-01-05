@@ -31,7 +31,6 @@ export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getMultipleTextValue(name: string): any;
   setMultipleTextValue(name: string, value: any): any;
   getItemDefaultValue(name: string): any;
-  getIsRequiredText(): string;
 }
 
 export class MultipleTextEditorModel extends QuestionTextModel {
@@ -813,9 +812,6 @@ export class QuestionMultipleTextModel extends Question
   }
   getAllValues() {
     return this.data ? this.data.getAllValues() : null;
-  }
-  getIsRequiredText(): string {
-    return this.survey ? this.survey.requiredMark : "";
   }
   //IPanel
   addElement(element: IElement, index: number) { }

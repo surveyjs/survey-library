@@ -2258,6 +2258,13 @@ export class Question extends SurveyElement<Question>
       ? this.survey.requiredMark
       : "";
   }
+  /**
+   * Obsolete. Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
+   * @deprecated
+   */
+  public get requiredText(): string {
+    return this.requiredMark;
+  }
   public addError(error: SurveyError | string): void {
     if (!error) return;
     let newError: SurveyError = null;

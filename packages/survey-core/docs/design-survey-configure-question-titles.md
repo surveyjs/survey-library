@@ -43,12 +43,12 @@ const surveyJson = {
 
 ## Required Mark
 
-Questions that require an answer are marked with an asterisk `*`. You can use the Survey's [`requiredMark`](https://surveyjs.io/Documentation/Library?id=surveymodel#requiredMark) property to set another symbol or specify an explanatory text string:
+Questions that require an answer are marked with an asterisk `*`. You can use the Survey's [`requiredText`](https://surveyjs.io/Documentation/Library?id=surveymodel#requiredText) property to set another symbol or specify an explanatory text string:
 
 ```js
 const surveyJson = {
   // ...
-  "requiredMark": "!"
+  "requiredText": "!"
 }
 ```
 

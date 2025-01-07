@@ -1712,6 +1712,10 @@ export class SurveyModel extends SurveyElementCore
   public set requiredMark(val: string) {
     this.setPropertyValue("requiredMark", val);
   }
+  /**
+   * Obsolete. Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#requiredMark) property instead.
+   * @deprecated
+   */
   public get requiredText(): string {
     return this.requiredMark;
   }

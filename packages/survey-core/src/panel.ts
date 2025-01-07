@@ -499,6 +499,13 @@ export class PanelModelBase extends SurveyElement<Question>
       ? this.survey.requiredMark
       : "";
   }
+  /**
+   * Obsolete. Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#requiredMark) property instead.
+   * @deprecated
+   */
+  public get requiredText(): string {
+    return this.requiredMark;
+  }
   protected get titlePattern(): string {
     return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";
   }

@@ -532,8 +532,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * - `"initial"` - Preserves the original order of questions.
    * - `"random"` - Displays questions in random order.
-   * - `"default"` (default) - Inherits the setting from the Survey's `questionOrder` property.
-   * @see SurveyModel.questionOrder
+   * - `"default"` (default) - Inherits the setting from the `SurveyModel`'s [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionOrder) property.
    * @see areQuestionsRandomized
    */
   public get questionOrder(): string {
@@ -543,7 +542,8 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("questionOrder", val);
   }
   /**
-   * @deprecated Use the [`questionOrder`](#questionOrder) property instead.
+   * Obsolete. Use the [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#questionOrder) property instead.
+   * @deprecated
    */
   public get questionsOrder(): string {
     return this.questionOrder;

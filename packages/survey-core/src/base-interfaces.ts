@@ -67,7 +67,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;
   isEditingSurveyElement: boolean;
   getQuestionClearIfInvisible(questionClearIf: string): string;
-  questionsOrder: string;
+  questionOrder: string;
   matrixDragHandleArea: string;
   keepIncorrectValues: boolean;
   questionCreated(question: IQuestion): any;
@@ -159,8 +159,16 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   storeOthersAsComment: boolean;
 
   maxTextLength: number;
+  /**
+   * @deprecated Use `maxCommentLength` instead.
+   */
   maxOthersLength: number;
+  maxCommentLength: number;
+  /**
+   * @deprecated Use `clearDisabledChoices` instead.
+   */
   clearValueOnDisableItems: boolean;
+  clearDisabledChoices: boolean;
 
   timeLimitPerPage: number;
 

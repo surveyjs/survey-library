@@ -1,6 +1,6 @@
 /* eslint-disable indent */
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, setOptions, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, setOptions, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Boolean Screenshot";
 
@@ -8,17 +8,8 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-      await applyTheme(theme);
-    });
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Check boolean question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {

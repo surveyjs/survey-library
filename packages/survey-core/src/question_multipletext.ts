@@ -626,6 +626,10 @@ export class QuestionMultipleTextModel extends Question
   public set inputSize(val: number) {
     this.setPropertyValue("inputSize", val);
   }
+  /**
+   * Obsolete. Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#inputSize) property instead.
+   * @deprecated
+   */
   public get itemSize(): number { return this.inputSize; }
   public set itemSize(val: number) { this.inputSize = val; }
   /**

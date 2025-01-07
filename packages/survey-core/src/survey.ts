@@ -6966,11 +6966,21 @@ export class SurveyModel extends SurveyElementCore
    *
    * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
    */
+  public get clearDisabledChoices(): boolean {
+    return this.getPropertyValue("clearDisabledChoices", false);
+  }
+  public set clearDisabledChoices(val: boolean) {
+    this.setPropertyValue("clearDisabledChoices", val);
+  }
+  /**
+   * Obsolete. Use the [`clearDisabledChoices`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#clearDisabledChoices) property instead.
+   * @deprecated
+   */
   public get clearValueOnDisableItems(): boolean {
-    return this.getPropertyValue("clearValueOnDisableItems", false);
+    return this.clearDisabledChoices;
   }
   public set clearValueOnDisableItems(val: boolean) {
-    this.setPropertyValue("clearValueOnDisableItems", val);
+    this.clearDisabledChoices = val;
   }
   getQuestionClearIfInvisible(questionClearIf: string): string {
     if (this.isShowingPreview || this.runningPages) return "none";

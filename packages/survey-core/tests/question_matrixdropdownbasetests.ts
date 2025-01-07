@@ -10,6 +10,7 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
+import { setOldTheme } from "./oldTheme";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -84,6 +85,7 @@ QUnit.test("table vertical align and alternate rows", function (assert) {
       },
     ],
   });
+  setOldTheme(survey);
 
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
 
@@ -229,7 +231,7 @@ QUnit.test("column cell css classes by column cellType test", function (assert) 
       }
     ]
   });
-
+  setOldTheme(survey);
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   assert.equal(matrix.renderedTable.headerRow.cells.length, 6);
   assert.equal(matrix.renderedTable.headerRow.cells[0].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "empty column");
@@ -350,7 +352,7 @@ QUnit.test("column cell css classes by matrix cellType test", function (assert) 
       }
     ]
   });
-
+  setOldTheme(survey);
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   assert.equal(matrix.renderedTable.headerRow.cells.length, 6);
   assert.equal(matrix.renderedTable.headerRow.cells[0].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "empty column");
@@ -452,6 +454,7 @@ QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", f
       },
     ],
   });
+  setOldTheme(survey);
   survey.css = {
     matrixdropdown: {
       headerCell: "custom-header-cell",

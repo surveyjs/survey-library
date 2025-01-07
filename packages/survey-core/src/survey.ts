@@ -1639,6 +1639,10 @@ export class SurveyModel extends SurveyElementCore
   public set showCompletePage(val: boolean) {
     this.setPropertyValue("showCompletePage", val);
   }
+  /**
+   * Obsolete. Use the [`showCompletePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showCompletePage) property instead.
+   * @deprecated
+   */
   public get showCompletedPage(): boolean { return this.showCompletePage; }
   public set showCompletedPage(val: boolean) { this.showCompletePage = val; }
   /**
@@ -3413,6 +3417,10 @@ export class SurveyModel extends SurveyElementCore
     }
     return page;
   }
+  /**
+   * Obsolete. Use the [`startPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startPage) property instead.
+   * @deprecated
+   */
   public get startedPage(): PageModel { return this.startPage; }
   /**
    * Gets or sets the current page.
@@ -3497,6 +3505,10 @@ export class SurveyModel extends SurveyElementCore
   public get isStartPageActive(): boolean {
     return this.state === "starting";
   }
+  /**
+   * Obsolete. Use the [`isStartPageActive`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#isStartPageActive) property instead.
+   * @deprecated
+   */
   public get isShowStartingPage(): boolean {
     return this.isStartPageActive;
   }
@@ -4432,6 +4444,10 @@ export class SurveyModel extends SurveyElementCore
   public set firstPageIsStartPage(val: boolean) {
     this.setPropertyValue("firstPageIsStartPage", val);
   }
+  /**
+   * Obsolete. Use the [`firstPageIsStartPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#firstPageIsStartPage) property instead.
+   * @deprecated
+   */
   public get firstPageIsStarted(): boolean {
     return this.firstPageIsStartPage;
   }

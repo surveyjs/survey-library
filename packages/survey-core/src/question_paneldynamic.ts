@@ -1139,6 +1139,10 @@ export class QuestionPanelDynamicModel extends Question
   public set templateQuestionTitleLocation(val: string) {
     this.setPropertyValue("templateQuestionTitleLocation", val);
   }
+  /**
+   * Obsolete. Use the [`templateQuestionTitleLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateQuestionTitleLocation) property instead.
+   * @deprecated
+   */
   public get templateTitleLocation(): string {
     return this.templateQuestionTitleLocation;
   }

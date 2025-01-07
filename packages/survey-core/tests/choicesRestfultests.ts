@@ -463,7 +463,7 @@ QUnit.test("encode parameters", function(assert) {
 
 QUnit.test("Process text in event", function(assert) {
   var survey = new SurveyModel();
-  survey.onProcessTextValue.add(function(sender, options) {
+  survey.onProcessDynamicText.add(function (sender, options) {
     if (options.name == "q1") {
       options.value = "R&D";
       //options.isExists = true;
@@ -675,7 +675,7 @@ QUnit.test("onLoadItemsFromServer event", function(assert) {
   var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
   question.choicesByUrl.url = "{state}";
 
-  survey.onLoadChoicesFromServer.add(function(survey, options) {
+  survey.onChoicesLoaded.add(function (survey, options) {
     if (options.question.name != "q1") return;
     options.question.visible = options.choices.length > 0;
     if (options.choices.length > 1) {
@@ -712,7 +712,7 @@ QUnit.test(
     var question = new QuestionDropdownModelTester("q1");
     var isReadOnly = question.isReadOnly;
     assert.equal(isReadOnly, false, "It is not readOnly by default");
-    survey.onLoadChoicesFromServer.add(function(survey, options) {
+    survey.onChoicesLoaded.add(function (survey, options) {
       isReadOnly = question.isReadOnly;
     });
     question.choicesByUrl.url = "allcountries";
@@ -1656,7 +1656,7 @@ QUnit.test("Load localized itemvalue text, bug#2735", function(assert) {
   survey.addNewPage("1");
   var question = new QuestionDropdownModelTester("q1");
   question.choicesByUrl.url = "{state}";
-  survey.onLoadChoicesFromServer.add(function(survey, options) {
+  survey.onChoicesLoaded.add(function (survey, options) {
     if (options.question.name != "q1") return;
     var item = new ItemValue(1);
     item.locText.setJson({ default: "item en", de: "item de" });
@@ -1780,7 +1780,7 @@ QUnit.test("Single: execute choicesByUrl in design time", function (
   ComponentCollection.Instance.add(json);
   settings.supportCreatorV2 = true;
   const survey = new SurveyModel();
-  survey.onLoadChoicesFromServer.add((sender, options) => {
+  survey.onChoicesLoaded.add((sender, options) => {
     options.choices = [new ItemValue(1), new ItemValue(2)];
   });
   survey.setDesignMode(true);
@@ -1807,7 +1807,7 @@ QUnit.test("Composite: execute choicesByUrl in design time", function (
   ComponentCollection.Instance.add(json);
   settings.supportCreatorV2 = true;
   const survey = new SurveyModel();
-  survey.onLoadChoicesFromServer.add((sender, options) => {
+  survey.onChoicesLoaded.add((sender, options) => {
     options.choices = [new ItemValue(1), new ItemValue(2)];
   });
   survey.setDesignMode(true);

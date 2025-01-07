@@ -11,7 +11,6 @@ import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
-  getRequiredText(): string;
   hasChoices(): boolean;
   onColumnPropertyChanged(
     column: MatrixDropdownColumn,
@@ -316,8 +315,8 @@ export class MatrixDropdownColumn extends Base
   public updateIsRenderedRequired(val: boolean): void {
     this.isRenderedRequired = val || this.isRequired;
   }
-  public get requiredText(): string {
-    return this.isRenderedRequired && this.getSurvey() ? this.getSurvey().requiredText : this.templateQuestion.requiredText;
+  public get requiredMark(): string {
+    return this.isRenderedRequired && this.getSurvey() ? this.getSurvey().requiredMark : this.templateQuestion.requiredMark;
   }
   /**
    * Specifies a custom error message for a required column.

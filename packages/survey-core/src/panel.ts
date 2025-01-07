@@ -491,13 +491,20 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   /**
    * Returns a character or text string that indicates a required panel/page.
-   * @see SurveyModel.requiredText
+   * @see SurveyModel.requiredMark
    * @see isRequired
    */
-  public get requiredText(): string {
+  public get requiredMark(): string {
     return !!this.survey && this.isRequired
-      ? this.survey.requiredText
+      ? this.survey.requiredMark
       : "";
+  }
+  /**
+   * Obsolete. Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#requiredMark) property instead.
+   * @deprecated
+   */
+  public get requiredText(): string {
+    return this.requiredMark;
   }
   protected get titlePattern(): string {
     return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";
@@ -532,18 +539,27 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * - `"initial"` - Preserves the original order of questions.
    * - `"random"` - Displays questions in random order.
-   * - `"default"` (default) - Inherits the setting from the Survey's `questionsOrder` property.
-   * @see SurveyModel.questionsOrder
+   * - `"default"` (default) - Inherits the setting from the `SurveyModel`'s [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionOrder) property.
    * @see areQuestionsRandomized
    */
+  public get questionOrder(): string {
+    return this.getPropertyValue("questionOrder");
+  }
+  public set questionOrder(val: string) {
+    this.setPropertyValue("questionOrder", val);
+  }
+  /**
+   * Obsolete. Use the [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#questionOrder) property instead.
+   * @deprecated
+   */
   public get questionsOrder(): string {
-    return this.getPropertyValue("questionsOrder");
+    return this.questionOrder;
   }
   public set questionsOrder(val: string) {
-    this.setPropertyValue("questionsOrder", val);
+    this.questionOrder = val;
   }
   private canRandomize(isRandom: boolean): boolean {
-    return isRandom && (this.questionsOrder !== "initial") || this.questionsOrder === "random";
+    return isRandom && (this.questionOrder !== "initial") || this.questionOrder === "random";
   }
   protected isRandomizing = false;
   randomizeElements(isRandom: boolean): void {
@@ -562,13 +578,13 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   /**
    * Returns `true` if elements in this panel/page are arranged in random order.
-   * @see questionsOrder
+   * @see questionOrder
    */
   public get areQuestionsRandomized(): boolean {
     var order =
-      this.questionsOrder == "default" && this.survey
-        ? this.survey.questionsOrder
-        : this.questionsOrder;
+      this.questionOrder == "default" && this.survey
+        ? this.survey.questionOrder
+        : this.questionOrder;
     return order == "random";
   }
   /**
@@ -898,15 +914,15 @@ export class PanelModelBase extends SurveyElement<Question>
   /**
    * Validates questions within this panel or page and returns `false` if the validation fails.
    * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
-   * @param focusOnFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error.
+   * @param focusFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, focusOnFirstError: boolean = false, rec: any = null): boolean {
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, rec: any = null): boolean {
     rec = !!rec
       ? rec
       : {
         fireCallback: fireCallback,
-        focusOnFirstError: focusOnFirstError,
+        focusOnFirstError: focusFirstError,
         firstErrorQuestion: <any>null,
         result: false,
       };
@@ -2020,8 +2036,8 @@ export class PanelModelBase extends SurveyElement<Question>
   public get cssTitleNumber(): string {
     return this.cssClasses.panel.number;
   }
-  public get cssRequiredText(): string {
-    return this.cssClasses.panel.requiredText;
+  public get cssRequiredMark(): string {
+    return this.cssClasses.panel.requiredMark;
   }
 
   public get cssError(): string {
@@ -2465,7 +2481,7 @@ Serializer.addClass(
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
     {
-      name: "questionsOrder",
+      name: "questionOrder", alternativeName: "questionsOrder",
       default: "default",
       choices: ["default", "initial", "random"],
     },

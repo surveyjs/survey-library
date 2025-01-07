@@ -513,7 +513,7 @@ export var settings = {
     lifetime: 2000
   },
   /**
-   * Specifies how many milliseconds a survey should wait before it automatically switches to the next page. Applies only when [auto-advance](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) is enabled.
+   * Specifies how many milliseconds a survey should wait before it automatically switches to the next page. Applies only when [auto-advance](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) is enabled.
    *
    * Default value: 300
    */

@@ -1,7 +1,7 @@
 // tsconfig.build-types.json
 {
     "compilerOptions": {
-        "outDir": "../../build/survey-vue3-ui/types",
+        "outDir": "./build/types",
         "declaration": true,
         "skipLibCheck": true,
         "types": [

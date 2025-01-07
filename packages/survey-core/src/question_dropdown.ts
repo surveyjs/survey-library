@@ -100,7 +100,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.lastSelectedItemValue = selectedItemByValue;
     }
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     return !this.isOtherSelected;
   }
   private minMaxChoices = <Array<ItemValue>>[];

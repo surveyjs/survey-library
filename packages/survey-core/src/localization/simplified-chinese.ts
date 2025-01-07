@@ -59,7 +59,7 @@ export var simplifiedChineseSurveyStrings = {
   addColumn: "添加列",
   addRow: "添加行",
   removeRow: "删除答案",
-  emptyRowsText: "无内容",
+  noRowsText: "无内容",
   addPanel: "新添",
   removePanel: "删除",
   showDetails: "显示详细信息",

@@ -11,6 +11,7 @@ import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { setOldTheme } from "./oldTheme";
 
 export default QUnit.module("baseselect");
 
@@ -860,9 +861,10 @@ QUnit.test("check radiogroup title actions", (assert) => {
         type: "radiogroup",
         name: "q1",
         choices: ["Item 1"],
-        showClearButton: true
+        allowClear: true
       }]
   });
+  setOldTheme(survey);
   let question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
   assert.deepEqual(question.getTitleActions(), []);
   assert.ok(question.showClearButtonInContent);
@@ -883,7 +885,7 @@ QUnit.test("check radiogroup title actions", (assert) => {
   assert.equal(action.title, "Clear");
   assert.ok(action.visible);
 
-  question.showClearButton = false;
+  question.allowClear = false;
   assert.notOk(action.visible);
 });
 
@@ -2181,7 +2183,7 @@ QUnit.test("maxSelectedChoices & getItemClass, bug#8159", (assert) => {
 QUnit.test("radiogroup.getConditionJson, bug#8226", (assert) => {
   var json = {
     questions: [
-      { type: "radiogroup", name: "q1", showClearButton: true, choices: ["Item1"] },
+      { type: "radiogroup", name: "q1", allowClear: true, choices: ["Item1"] },
       { type: "radiogroup", name: "q2", choices: ["Item1"] }
     ],
   };

@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, resetFocusToBody, wrapVisualTest, takeElementScreenshot, setRowItemFlowDirection } from "../../helper";
+import { url, frameworks, initSurvey, resetFocusToBody, wrapVisualTest, takeElementScreenshot, setRowItemFlowDirection } from "../../helper";
 
 const title = "Selectbase Screenshot";
 
@@ -7,17 +7,9 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-  });
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+
   test("Check checkbox question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await setRowItemFlowDirection();

@@ -1,28 +1,22 @@
 import { Selector, ClientFunction } from "testcafe";
-import { setData } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody } from "../../helper";
+import { setData } from "../../../functionalTests/helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody } from "../../helper";
 import { backgroundImage } from "../../constants";
 
 const title = "Survey Screenshot";
 
 fixture`${title}`.page`${url}`;
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
 const insertDiv = ClientFunction(() => {
   const el = document.createElement("div");
   el.style.height = "1000px";
   document.body.insertBefore(el, document.body.firstChild);
 });
 
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`
     .beforeEach(async t => {
-      await applyTheme(theme);
     });
 
   test("Check survey title", async (t) => {
@@ -290,7 +284,7 @@ frameworks.forEach(framework => {
         "showTimerPanelMode": "survey",
         "maxTimeToFinish": 60,
         "widthMode": "responsive",
-        "firstPageIsStarted": true,
+        "firstPageIsStartPage": true,
         "pages": [
           {
             "elements": [
@@ -363,7 +357,7 @@ frameworks.forEach(framework => {
         "showTimerPanelMode": "survey",
         "maxTimeToFinish": 60,
         "widthMode": "static",
-        "firstPageIsStarted": true,
+        "firstPageIsStartPage": true,
         "pages": [
           {
             "elements": [

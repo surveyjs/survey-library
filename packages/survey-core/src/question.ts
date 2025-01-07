@@ -59,7 +59,7 @@ export class Question extends SurveyElement<Question>
   [index: string]: any;
   private static TextPreprocessorValuesMap = {
     title: "processedTitle",
-    require: "requiredText",
+    require: "requiredMark",
   };
   private static questionCounter = 100;
   private static getQuestionId(): string {
@@ -1012,10 +1012,10 @@ export class Question extends SurveyElement<Question>
     return this.isRequired && this.titlePattern == "requireNumTitle";
   }
   public get isRequireTextBeforeTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredText !== "";
+    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredMark !== "";
   }
   public get isRequireTextAfterTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredText !== "";
+    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredMark !== "";
   }
   /**
    * Disable this property if you want to render the current question on the same line or row with the previous question or panel.
@@ -1331,7 +1331,7 @@ export class Question extends SurveyElement<Question>
   }
   public getOthersMaxLength(): any {
     if (!this.survey) return null;
-    return this.survey.maxOthersLength > 0 ? this.survey.maxOthersLength : null;
+    return this.survey.maxCommentLength > 0 ? this.survey.maxCommentLength : null;
   }
   protected onCreating(): void { }
   public getFirstQuestionToFocus(withError: boolean): Question {
@@ -2250,13 +2250,20 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Returns a character or text string that indicates a required question.
-   * @see SurveyModel.requiredText
+   * @see SurveyModel.requiredMark
    * @see isRequired
    */
-  public get requiredText(): string {
+  public get requiredMark(): string {
     return this.survey != null && this.isRequired
-      ? this.survey.requiredText
+      ? this.survey.requiredMark
       : "";
+  }
+  /**
+   * Obsolete. Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
+   * @deprecated
+   */
+  public get requiredText(): string {
+    return this.requiredMark;
   }
   public addError(error: SurveyError | string): void {
     if (!error) return;
@@ -2530,7 +2537,9 @@ export class Question extends SurveyElement<Question>
   public removeElement(element: IElement): boolean {
     return false;
   }
-  public supportGoNextPageAutomatic(): boolean {
+  // Obsolete
+  supportGoNextPageAutomatic(): boolean { return this.supportAutoAdvance(); }
+  public supportAutoAdvance(): boolean {
     return false;
   }
   public supportGoNextPageError(): boolean {

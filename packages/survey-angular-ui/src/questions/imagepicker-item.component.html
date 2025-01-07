@@ -6,7 +6,7 @@
         />
         <div [class]="question.cssClasses.itemDecorator">
             <div [class]="question.cssClasses.imageContainer">
-              <span *ngIf="question.cssClasses.checkedItemDecorator" [class]="question.cssClasses.checkedItemDecorator">
+              <span *ngIf="question.cssClasses.checkedItemDecorator" [class]="question.cssClasses.checkedItemDecorator" aria-hidden="true">
                 <svg *ngIf="question.cssClasses.checkedItemSvgIconId" [class]="question.cssClasses.checkedItemSvgIcon" [iconName]="question.cssClasses.checkedItemSvgIconId" [size]="'auto'" sv-ng-svg-icon></svg>
               </span>
               <img *ngIf="model.locImageLink.renderedHtml && !model.contentNotLoaded && question.contentMode === 'image'" [class]="question.cssClasses.image" [attr.src]="model.locImageLink.renderedHtml" [attr.width]="question.renderedImageWidth" [attr.height]="question.renderedImageHeight" [attr.alt]="model.locText.renderedHtml"  [style.objectFit]="question.imageFit" (load)="question.onContentLoaded(model, $event)" (error)="model.onErrorHandler()"/>

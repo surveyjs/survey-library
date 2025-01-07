@@ -1822,6 +1822,10 @@ export class SurveyModel extends SurveyElementCore
   public set autoAdvanceEnabled(val: boolean) {
     this.setPropertyValue("autoAdvanceEnabled", val);
   }
+  /**
+   * Obsolete. Use the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property instead.
+   * @deprecated
+   */
   public get goNextPageAutomatic(): boolean {
     return this.autoAdvanceEnabled;
   }
@@ -1840,6 +1844,10 @@ export class SurveyModel extends SurveyElementCore
   public set autoAdvanceAllowComplete(val: boolean) {
     this.setPropertyValue("autoAdvanceAllowComplete", val);
   }
+  /**
+   * Obsolete. Use the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property instead.
+   * @deprecated
+   */
   public get allowCompleteSurveyAutomatic(): boolean {
     return this.autoAdvanceAllowComplete;
   }
@@ -6932,7 +6940,7 @@ export class SurveyModel extends SurveyElementCore
     if (
       !question ||
       (!!question &&
-        (!question.visible || !question.supportAutoAdvanced()))
+        (!question.visible || !question.supportAutoAdvance()))
     )
       return;
     if (!question.validate(false) && !question.supportGoNextPageError()) return;

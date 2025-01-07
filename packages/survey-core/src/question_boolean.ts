@@ -24,7 +24,7 @@ export class QuestionBooleanModel extends Question {
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
-  supportAutoAdvanced(): boolean {
+  supportAutoAdvance(): boolean {
     return this.renderAs !== "checkbox";
   }
   public get isIndeterminate(): boolean {

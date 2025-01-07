@@ -2531,8 +2531,8 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   // Obsolete
-  supportGoNextPageAutomatic(): boolean { return this.supportAutoAdvanced(); }
-  public supportAutoAdvanced(): boolean {
+  supportGoNextPageAutomatic(): boolean { return this.supportAutoAdvance(); }
+  public supportAutoAdvance(): boolean {
     return false;
   }
   public supportGoNextPageError(): boolean {

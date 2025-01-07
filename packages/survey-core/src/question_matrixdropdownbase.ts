@@ -2067,7 +2067,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.onSetQuestionValue();
     this.updateIsAnswered();
   }
-  supportAutoAdvanced(): boolean {
+  supportAutoAdvance(): boolean {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;
@@ -2078,7 +2078,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         var question = cells[colIndex].question;
         if (
           question &&
-          (!question.supportAutoAdvanced() || !question.value)
+          (!question.supportAutoAdvance() || !question.value)
         )
           return false;
       }

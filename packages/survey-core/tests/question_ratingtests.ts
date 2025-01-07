@@ -1708,16 +1708,16 @@ QUnit.test("Generate empty rating in column", (assert) => {
   assert.equal(col1.itemComponent, "sv-rating-item");
   assert.equal(col2.itemComponent, "sv-rating-item-star");
 });
-QUnit.test("supportAutoAdvanced", (assert) => {
+QUnit.test("supportAutoAdvance", (assert) => {
   const q1 = new QuestionRatingModel("q1");
   q1.value = 1;
-  assert.equal(q1.supportAutoAdvanced(), false, "#1");
+  assert.equal(q1.supportAutoAdvance(), false, "#1");
   q1.onMouseDown();
-  assert.equal(q1.supportAutoAdvanced(), true, "#2");
+  assert.equal(q1.supportAutoAdvance(), true, "#2");
   q1.value = 2;
-  assert.equal(q1.supportAutoAdvanced(), false, "#3");
+  assert.equal(q1.supportAutoAdvance(), false, "#3");
   q1.displayMode = "dropdown";
-  assert.equal(q1.supportAutoAdvanced(), true, "#4");
+  assert.equal(q1.supportAutoAdvance(), true, "#4");
 });
 QUnit.test("Check hasMin/MaxRateDescription properties on loading", (assert) => {
   const survey = new SurveyModel({

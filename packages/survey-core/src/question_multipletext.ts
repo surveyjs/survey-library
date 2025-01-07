@@ -599,7 +599,7 @@ export class QuestionMultipleTextModel extends Question
   protected isNewValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  supportAutoAdvanced(): boolean {
+  supportAutoAdvance(): boolean {
     for (var i = 0; i < this.items.length; i++) {
       if (this.items[i].isEmpty()) return false;
     }

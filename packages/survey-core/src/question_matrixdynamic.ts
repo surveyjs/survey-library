@@ -170,7 +170,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("copyDefaultValueFromLastEntry", val);
   }
   /**
-   * @deprecated Use the [`copyDefaultValueFromLastEntry`](#copyDefaultValueFromLastEntry) property instead.
+   * Obsolete. Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#copyDefaultValueFromLastEntry) property instead.
+   * @deprecated
    */
   public get defaultValueFromLastRow(): boolean {
     return this.copyDefaultValueFromLastEntry;

@@ -1169,10 +1169,10 @@ export class QuestionPanelDynamicModel extends Question
   protected getSingleQuestionLocTitle(): LocalizableString {
     const res = this.locTemplateTitle;
     res.onGetTextCallback = (text: string): string => {
-      const q = this.singleInputQuestion;
+      const q = this.getRootSingleInputQuestion();
       if(!q) return text;
       if(!text) text = this.getSingleInputTitleTemplate();
-      return this.getPanelByQuestion(q).getProcessedText(text);
+      return this.getPanelByQuestion(q)?.getProcessedText(text);
     };
     return res;
   }
@@ -1181,7 +1181,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private getPanelByQuestion(question: Question): PanelModel {
     let parent = question.parent;
-    while(!!parent.parent) {
+    while(!!parent && !!parent.parent) {
       parent = parent.parent;
     }
     return <PanelModel>parent;

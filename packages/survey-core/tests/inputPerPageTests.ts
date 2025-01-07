@@ -586,8 +586,8 @@ QUnit.test("singleInput for matrix dynamic & cell question & css", assert => {
     });
   });
 });
-/*
-QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert => {
+
+QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -609,13 +609,21 @@ QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     questionsOnPageMode: "inputPerPage"
   });
   const panel = survey.getQuestionByName("panel1");
-  let matrix = panel.panels[0].getQuestionByName("matrix1");
+  //let matrix = panel.panels[0].getQuestionByName("matrix1");
   assert.equal(panel.singleInputQuestion.name, "name", "singleInputQuestion.name, #1");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #1");
   survey.performNext();
-  assert.equal(panel.singleInputQuestion.name, "col1", "singleInputQuestion.name, #2.1");
-  assert.equal(matrix.singleInputQuestion.name, "col1", "singleInputQuestion.name, #2.2");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Row 1", "input loc title #2");
+  assert.equal(panel.singleInputQuestion.name, "col1", "singleInputQuestion.name, #2");
   survey.performNext();
-  assert.equal(panel.singleInputQuestion.name, "col1", "singleInputQuestion.name, #3.1");
-  assert.equal(matrix.singleInputQuestion.name, "col2", "singleInputQuestion.name, #3.2");
+  assert.equal(panel.singleInputQuestion.name, "col2", "singleInputQuestion.name, #3");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Row 1", "input loc title #3");
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "col1", "singleInputQuestion.name, #4");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Row 2", "input loc title #4");
+  survey.performPrevious();
+  survey.performPrevious();
+  survey.performPrevious();
+  assert.equal(panel.singleInputQuestion.name, "name", "singleInputQuestion.name, #5");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #5");
 });
-*/

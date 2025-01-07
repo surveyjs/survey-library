@@ -971,7 +971,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("keyDuplicationError", this, false, true);
     this.createLocalizableString("singleInputRowTitle", this, true, this.getSingleInputRowLocalizationTitle()).onGetTextCallback = (text: string) => {
-      return !!this.singleInputQuestion ? this.processSingleInputTitle(text): text;
+      return this.processSingleInputTitle(text);
     };
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
@@ -1266,6 +1266,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return new QuestionMatrixDropdownRenderedTable(this);
   }
   protected getRowByQuestion(question: Question): MatrixDropdownRowModelBase {
+    if(!question) return undefined;
     return <MatrixDropdownRowModelBase>question.data;
   }
   protected onMatrixRowCreated(row: MatrixDropdownRowModelBase): void {
@@ -1749,7 +1750,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   protected getSingleInputRowLocalizationTitle(): string { return ""; }
   protected processSingleInputTitle(text: string): string {
-    const row = this.getRowByQuestion(this.singleInputQuestion);
+    const row = this.getRowByQuestion(this.getRootSingleInputQuestion());
     if(row) {
       return row.getTextProcessor().processText(text, true);
     }

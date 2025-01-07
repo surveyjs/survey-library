@@ -8176,7 +8176,7 @@ QUnit.test("Drag handler cell in rendered table", function (assert) {
   );
 });
 
-QUnit.test("allowRowsDragAndDrop with readOnly", function (assert) {
+QUnit.test("allowRowReorder with readOnly", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -8194,14 +8194,14 @@ QUnit.test("allowRowsDragAndDrop with readOnly", function (assert) {
   assert.equal(matrix.renderedTable.isRowsDragAndDrop, true, "#2");
 });
 
-QUnit.test("allowRowsDragAndDrop &mode=display", function (assert) {
+QUnit.test("allowRowReorder &mode=display", function (assert) {
   const survey = new SurveyModel({
     mode: "display",
     elements: [
       {
         type: "matrixdynamic",
         name: "matrix",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         columns: ["col1"]
       },
     ],
@@ -8773,13 +8773,13 @@ QUnit.test("Load old JSON where columns without cellType set correctly", functio
   assert.deepEqual(cellQuestion.choices.length, 4, "load 4 choices");
   assert.equal(cellQuestion.choices[2].value, "c", "load choices correctly");
 });
-QUnit.test("Vertical column layout & allowRowsDragAndDrop, rendered table", function (assert) {
+QUnit.test("Vertical column layout & allowRowReorder, rendered table", function (assert) {
   var survey = new SurveyModel({
     "elements": [
       {
         "type": "matrixdynamic",
         "name": "matrix",
-        "allowRowsDragAndDrop": true,
+        "allowRowReorder": true,
         "columnLayout": "vertical",
         columns: [
           { cellType: "text", name: "col1" },

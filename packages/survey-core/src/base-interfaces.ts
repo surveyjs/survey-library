@@ -136,6 +136,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
   getUpdatedQuestionNo(question: IQuestion, no: string): string;
+  getUpdatedPanelNo(question: IPanel, no: string): string;
   getUpdatedPageNo(question: IPage, no: string): string;
   getUpdatedElementTitleActions(
     element: ISurveyElement,
@@ -158,8 +159,16 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   storeOthersAsComment: boolean;
 
   maxTextLength: number;
+  /**
+   * @deprecated Use `maxCommentLength` instead.
+   */
   maxOthersLength: number;
+  maxCommentLength: number;
+  /**
+   * @deprecated Use `clearDisabledChoices` instead.
+   */
   clearValueOnDisableItems: boolean;
+  clearDisabledChoices: boolean;
 
   timeLimitPerPage: number;
 

@@ -20,7 +20,7 @@ import { Action } from "../src/actions/action";
 import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedErrorRow, QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
 import { AnimationGroup } from "../src/utils/animation";
-
+import { setOldTheme } from "./oldTheme";
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
 QUnit.test("Matrixdropdown cells tests", function (assert) {
@@ -7244,6 +7244,7 @@ QUnit.test("Detail panel, rendered table and className", function (assert) {
       },
     ],
   });
+  setOldTheme(survey);
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   matrix.visibleRows[0].showDetailPanel();
   assert.equal(matrix.renderedTable.headerRow.cells[1].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "Set header cell");
@@ -7573,6 +7574,7 @@ QUnit.test("Row actions, rendered table and className", function (assert) {
       },
     ],
   });
+  setOldTheme(survey);
   survey.onGetMatrixRowActions.add((_, opt) => {
     opt.actions = [
       { title: "Action 1" },

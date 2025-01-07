@@ -62,7 +62,11 @@ export interface GetTitleActionsEventMixin {
   /**
    * An array of [actions](https://surveyjs.io/form-library/documentation/iaction) associated with the processed element.
    */
-  titleActions: Array<IAction>;
+  actions: Array<IAction>;
+  /**
+   * Obsolete. Use `options.actions` instead.
+   */
+  titleActions?: Array<IAction>;
 }
 export interface GetActionsEventMixin {
   /**
@@ -410,7 +414,13 @@ export interface GetPageNumberEvent extends PageEventMixin {
    */
   number: string;
 }
-export interface ProgressTextEvent {
+export interface GetPanelNumberEvent extends PanelEventMixin {
+  /**
+   * A panel number. Note that this is a string value that contains not only the number itself but also the characters that separate the number from the panel title: `"1. "`, `"2. "`, etc. You can change this parameter's value.
+   */
+  number: string;
+}
+export interface GetProgressTextEvent {
   /**
    * The number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are not counted.
    */
@@ -432,6 +442,7 @@ export interface ProgressTextEvent {
    */
   text: string;
 }
+export interface ProgressTextEvent extends GetProgressTextEvent { }
 
 export interface TextProcessingEvent {
   /**
@@ -906,17 +917,27 @@ export interface DynamicPanelGetTabTitleEvent extends DynamicPanelCurrentIndexCh
 }
 export interface IsAnswerCorrectEvent extends QuestionEventMixin {
   /**
-   * The number of correct answers in a matrix where each row is considered as one quiz question.
-   */
-  correctAnswers: number;
-  /**
-   * The number of incorrect answers in a matrix where each row is considered as one quiz question.
-   */
-  incorrectAnswers: number;
-  /**
    * A Boolean property that specifies whether the answer is correct (`true`) or incorrect (`false`). Use the `options.question.value` and `options.question.correctAnswer` properties to check the answer.
    */
   result: boolean;
+  /**
+   * Obsolete. Use `options.correctAnswerCount` instead.
+   */
+  correctAnswers?: number;
+  /**
+   * Obsolete. Use `options.incorrectAnswerCount` instead.
+   */
+  incorrectAnswers?: number;
+}
+export interface CheckAnswerCorrectEvent extends IsAnswerCorrectEvent {
+  /**
+   * The number of correct answers in a matrix where each row is considered as one quiz question.
+   */
+  correctAnswerCount: number;
+  /**
+   * The number of incorrect answers in a matrix where each row is considered as one quiz question.
+   */
+  incorrectAnswerCount: number;
 }
 export interface DragDropAllowEvent {
   /**
@@ -967,9 +988,9 @@ export interface ScrollingElementToTopEvent {
    */
   elementId: string;
   /**
-   * A Boolean property that you can set to `true` if you want to cancel the scroll operation.
+   * Obsolete. Use `options.allow` instead.
    */
-  cancel: boolean;
+  cancel?: boolean;
   /**
    * Obsolete. Use `options.element` instead.
    */
@@ -978,6 +999,12 @@ export interface ScrollingElementToTopEvent {
    * Obsolete. Use `options.element` instead.
    */
   page?: PageModel;
+}
+export interface ScrollToTopEvent extends ScrollingElementToTopEvent {
+  /**
+   * A Boolean property that you can set to `false` if you want to cancel the scroll operation.
+   */
+  allow: boolean;
 }
 export interface GetQuestionTitleActionsEvent extends QuestionEventMixin, GetTitleActionsEventMixin { }
 export interface GetPanelTitleActionsEvent extends PanelEventMixin, GetTitleActionsEventMixin { }

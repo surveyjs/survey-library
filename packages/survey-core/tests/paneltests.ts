@@ -11,9 +11,8 @@ import { settings } from "../src/settings";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
 import { IElement } from "../src/base-interfaces";
-import { StylesManager } from "@legacy/stylesmanager";
 import { SurveyElement } from "../src/survey-element";
-
+import { setOldTheme } from "./oldTheme";
 export default QUnit.module("Panel");
 
 QUnit.test("questions-elements synhronization", function (assert) {
@@ -689,8 +688,8 @@ QUnit.test("Do not generate rows and do not set renderWidth", function (assert) 
   assert.equal(q.renderWidth, "", "render width is empty");
 });
 QUnit.test("question.cssRoot class", function (assert) {
-  StylesManager.applyTheme("default");
   const survey = new SurveyModel();
+  setOldTheme(survey);
   const page = survey.addNewPage("p");
   const flowPanel = new FlowPanelModel("flowPanel");
   page.addElement(flowPanel);
@@ -908,7 +907,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
   try {
     settings.lazyRowsRenderingStartRow = 0;
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderingEnabled = true;
     const panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
     const page = survey.currentPage;
     assert.equal(panel.rows.length, 2);
@@ -1029,7 +1028,7 @@ QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function (
   settings.lazyRowsRenderingStartRow = 2;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderingEnabled = true;
     const page: PageModel = survey.currentPage;
     assert.equal(page.rows.length, 3, "There are 3 rows");
     assert.equal(page.rows[0].isNeedRender, true, "isNeedRender rows[0]");
@@ -1079,7 +1078,7 @@ QUnit.test(
     settings.lazyRowsRenderingStartRow = 2;
     try {
       const survey = new SurveyModel(json);
-      survey.lazyRendering = true;
+      survey.lazyRenderingEnabled = true;
       survey.setDesignMode(true);
       const page1: PageModel = survey.pages[0];
       assert.equal(page1.rows.length, 3, "There are 3 rows");
@@ -1675,7 +1674,7 @@ QUnit.test(
     settings.lazyRowsRenderingStartRow = 2;
     try {
       const survey = new SurveyModel(json);
-      survey.lazyRendering = true;
+      survey.lazyRenderingEnabled = true;
       const page1: PageModel = survey.pages[0];
       assert.equal(page1.rows.length, 3, "There are 3 rows");
       assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender rows[0]");
@@ -2902,7 +2901,7 @@ QUnit.test("row.isNeedRender for panels", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderingEnabled = true;
     const page1: PageModel = survey.pages[0];
     assert.equal(page1.rows.length, 2, "There are 2 rows");
     assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender page1 rows[0]");
@@ -2950,7 +2949,7 @@ QUnit.test("getAllRows for page", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderingEnabled = true;
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();
 
@@ -2998,7 +2997,7 @@ QUnit.test("forceRenderRows for page", async function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderingEnabled = true;
     survey.getAllQuestions().forEach(q => {
       q.supportOnElementRerenderedEvent = true;
       q.onElementRerenderedEventEnabled = true;
@@ -3059,7 +3058,7 @@ QUnit.test("forceRenderElement for page the exact element, gap = 0", async funct
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderingEnabled = true;
     survey.getAllQuestions().forEach(q => {
       q.supportOnElementRerenderedEvent = true;
       q.onElementRerenderedEventEnabled = true;
@@ -3119,7 +3118,7 @@ QUnit.test("forceRenderElement for page with one prev element, gap = 1", async f
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderingEnabled = true;
     survey.getAllQuestions().forEach(q => {
       q.supportOnElementRerenderedEvent = true;
       q.onElementRerenderedEventEnabled = true;
@@ -3195,7 +3194,7 @@ QUnit.test("row.isNeedRender for nested panels", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderingEnabled = true;
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();
     assert.equal(allPageRows.length, 7, "7 rows with panels");
@@ -3279,7 +3278,7 @@ QUnit.test("row.isNeedRender for nested panels - complex", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderingEnabled = true;
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();
     assert.equal(allPageRows.length, 7, "7 rows with panels");
@@ -3343,7 +3342,7 @@ QUnit.test("row.isNeedRender panel dynamic different modes - ordinary and design
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderingEnabled = true;
     const page1: PageModel = survey.pages[0];
 
     let allPageRows = page1.getAllRows();
@@ -3397,4 +3396,56 @@ QUnit.test("Nested pages", function (assert) {
   assert.equal(page1.getTemplate(), "page", "template #3");
   assert.equal(page1.survey.state, "running", "survey state #3");
   assert.equal(page1.isDisposed, false, "The page is not disposed");
+});
+QUnit.test("survey.onGetPanelNumber", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel", name: "panel1", title: "Panel 1",
+        showNumber: true, showQuestionNumbers: "onpanel",
+        elements: [
+          { type: "panel", name: "panel2",
+            showNumber: true, showQuestionNumbers: "onpanel", title: "Panel 2",
+            elements: [
+              { type: "text", name: "q1" },
+              { type: "text", name: "q2" }
+            ]
+          },
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" }
+        ]
+      },
+      {
+        type: "panel", name: "panel3",
+        showNumber: true, showQuestionNumbers: "onpanel", title: "Panel 3",
+        elements: [
+          { type: "text", name: "q5" },
+          { type: "text", name: "q6" }
+        ]
+      },
+      { type: "text", name: "q7" }
+    ]
+  });
+  survey.onGetQuestionNumber.add((sender, options) => {
+    const parent: any = options.question.parent;
+    if(!!parent && parent.no) {
+      options.number = parent.no + options.number;
+    }
+  });
+  survey.onGetPanelNumber.add((sender, options) => {
+    const parent: any = options.panel.parent;
+    if(!!parent && parent.no) {
+      options.number = parent.no + options.number;
+    }
+  });
+  assert.equal(survey.getPanelByName("panel1").no, "1.", "panel1.no");
+  assert.equal(survey.getPanelByName("panel2").no, "1.1.", "panel2.no");
+  assert.equal(survey.getPanelByName("panel3").no, "2.", "panel3.no");
+  assert.equal(survey.getQuestionByName("q1").no, "1.1.1.", "q1.no");
+  assert.equal(survey.getQuestionByName("q2").no, "1.1.2.", "q2.no");
+  assert.equal(survey.getQuestionByName("q3").no, "1.2.", "q3.no");
+  assert.equal(survey.getQuestionByName("q4").no, "1.3.", "q4.no");
+  assert.equal(survey.getQuestionByName("q5").no, "2.1.", "q5.no");
+  assert.equal(survey.getQuestionByName("q6").no, "2.2.", "q6.no");
+  assert.equal(survey.getQuestionByName("q7").no, "3.", "q7.no");
 });

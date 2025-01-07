@@ -335,7 +335,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       getElement: el => {
-        return <HTMLElement>el?.querySelector(".sv_q.sv_qstn > div") as HTMLElement;
+        return <HTMLElement>el?.querySelector(".sd-question > div") as HTMLElement;
       },
       timeout: 300,
       removeIds: true,
@@ -368,7 +368,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       getElement: el => {
-        return <HTMLElement>el?.querySelector(".sv_q.sv_qstn > div") as HTMLElement;
+        return <HTMLElement>el?.querySelector(".sd-question > div") as HTMLElement;
       },
       timeout: 300,
       removeIds: true,

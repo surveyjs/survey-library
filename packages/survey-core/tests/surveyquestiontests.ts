@@ -37,12 +37,10 @@ import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { ConsoleWarnings } from "../src/console-warnings";
-import { StylesManager } from "@legacy/stylesmanager";
 import { surveyTimerFunctions } from "../src/surveytimer";
-import { defaultStandardCss } from "@legacy/defaultCss/cssstandard";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-
+import { setOldTheme } from "./oldTheme";
 export default QUnit.module("Survey_Questions");
 
 settings.autoAdvanceDelay = 0;
@@ -490,7 +488,7 @@ QUnit.test("Matrix Question set values after visible row generated", function (
 });
 QUnit.test("Matrix Question sortVisibleRows", function (assert) {
   var matrix = new QuestionMatrixRandomModel("q1");
-  matrix.rowsOrder = "random";
+  matrix.rowOrder = "random";
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   var rows = matrix.visibleRows;
@@ -3303,13 +3301,11 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   assert.deepEqual(question.getRootStyle(), { });
 });
 QUnit.test("question.paddingLeft from json and defaultV2", function (assert) {
-  StylesManager.applyTheme("defaultV2");
   const survey = new SurveyModel({
     questions: [{ type: "text", name: "q1", indent: 1 }],
   });
   const question = <Question>survey.getQuestionByName("q1");
   assert.equal(question.paddingLeft, "20px");
-  StylesManager.applyTheme("default");
 });
 
 QUnit.test(
@@ -4554,7 +4550,7 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
       },
     ],
   });
-  survey.css = defaultStandardCss;
+  setOldTheme(survey);
   var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q1.value = [1];
   const checkCss = (actual: string, expected: string, message: string): void => {
@@ -5437,7 +5433,7 @@ QUnit.test("text question inputSize and inputWidth", function (assert) {
   assert.equal(q2.inputStyle.width, "", "q2 inputStyle width is undefined");
   assert.equal(q3.inputStyle.width, "", "q3 inputStyle width is undefined");
 });
-QUnit.test("Multiple Text Question: itemSize", function (assert) {
+QUnit.test("Multiple Text Question: inputSize", function (assert) {
   var mText = new QuestionMultipleTextModel("mText");
   mText.items.push(new MultipleTextItemModel("q1"));
   mText.items.push(new MultipleTextItemModel("q2"));
@@ -7760,7 +7756,6 @@ QUnit.test("defaultValueExpression copy the array/object, Bug#8799", function (a
   });
 });
 QUnit.test("TextAreaOptions", function (assert) {
-  StylesManager.applyTheme("defaultV2");
   Question["questionCounter"] = 101;
 
   const survey = new SurveyModel({
@@ -7824,8 +7819,6 @@ QUnit.test("TextAreaOptions", function (assert) {
   assert.equal(textAreaOptions.maxLength, undefined, "textAreaOptions maxLength");
   assert.equal(textAreaOptions.cols, 50, "textAreaOptions cols");
   assert.equal(textAreaOptions.rows, 4, "textAreaOptions rows");
-
-  StylesManager.applyTheme("default");
 });
 QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
   const survey = new SurveyModel({

@@ -16,7 +16,7 @@ export default defineConfig({
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
       "survey-core": fileURLToPath(
-        new URL("../../build/survey-core", import.meta.url)
+        new URL("./node_modules/survey-core", import.meta.url)
       ),
     },
   },

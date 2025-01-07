@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "es2015",
+    "lib": [
+      "DOM",
+      "ES5",
+      "ES6",
+      "ES2015.Promise"
+    ],
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "importHelpers": false,
+    "moduleResolution": "node",
+    "jsx": "react",
+    "baseUrl": ".",
+    "declaration": true,
+    "declarationDir": "./build/typings",
+    "paths": {
+      "survey-core": [
+        "./node_modules/survey-core"
+      ],
+      "survey-core/icons/iconsV1": [
+        "./node_modules/survey-core/icons/iconsV1"
+      ],
+      "survey-core/icons/iconsV2": [
+        "./node_modules/survey-core/icons/iconsV2"
+      ],
+      "react": [
+        "./node_modules/@types/react"
+      ],
+      "react-dom": [
+        "./node_modules/@types/react-dom"
+      ]
+    }
+  },
+  "exclude": [],
+  "include": [
+    "./entries/index.ts",
+  ],
+}

@@ -20,7 +20,7 @@ import { Action } from "../src/actions/action";
 import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedErrorRow, QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
 import { AnimationGroup } from "../src/utils/animation";
-
+import { setOldTheme } from "./oldTheme";
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
 QUnit.test("Matrixdropdown cells tests", function (assert) {
@@ -442,17 +442,17 @@ QUnit.test("column.isUnique, support settings.comparator.caseSensitive", functio
     "There is ann error, abc!=Abc case-sensitive"
   );
   settings.comparator.caseSensitive = false;
-  question.isUniqueCaseSensitive = false;
+  question.useCaseSensitiveComparison = false;
   assert.equal(
     question.hasErrors(),
     true,
-    "There is an error, abc=Abc case-in-sensitive, isUniqueCaseSensitive = false"
+    "There is an error, abc=Abc case-in-sensitive, useCaseSensitiveComparison = false"
   );
-  question.isUniqueCaseSensitive = true;
+  question.useCaseSensitiveComparison = true;
   assert.equal(
     question.hasErrors(),
     false,
-    "There is ann error, abc!=Abc case-sensitive, isUniqueCaseSensitive = false"
+    "There is ann error, abc!=Abc case-sensitive, useCaseSensitiveComparison = false"
   );
 });
 QUnit.test("Matrixdynamic duplicationError in detailPanel", function (assert) {
@@ -2959,7 +2959,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Test defaultValueFromLastRow property", function (assert) {
+QUnit.test("Test copyDefaultValueFromLastEntry property", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page");
   var question = <QuestionMatrixDynamicModel>(
@@ -2970,7 +2970,7 @@ QUnit.test("Test defaultValueFromLastRow property", function (assert) {
   question.addColumn("col1");
   question.addColumn("col2");
   question.addColumn("col3");
-  question.defaultValueFromLastRow = true;
+  question.copyDefaultValueFromLastEntry = true;
   question.addRow();
   question.visibleRows;
   assert.equal(question.isEmpty(), true, "It is empty");
@@ -2982,7 +2982,7 @@ QUnit.test("Test defaultValueFromLastRow property", function (assert) {
       { col1: 1, col2: 2 },
       { col1: 1, col2: 2 },
     ],
-    "defaultValueFromLastRow is working"
+    "copyDefaultValueFromLastEntry is working"
   );
   question.defaultRowValue = { col1: 11, col3: 3 };
   question.addRow();
@@ -2993,7 +2993,7 @@ QUnit.test("Test defaultValueFromLastRow property", function (assert) {
       { col1: 1, col2: 2 },
       { col1: 1, col2: 2, col3: 3 },
     ],
-    "defaultValueFromLastRow is merging with defaultRowValue"
+    "copyDefaultValueFromLastEntry is merging with defaultRowValue"
   );
 });
 
@@ -6719,14 +6719,14 @@ QUnit.test("Detail panel, run conditions & matrix before elements, bug#9137", fu
   assert.equal(panel.getQuestionByName("q1").isVisible, true, "first question is visible, #3");
   assert.equal(panel.getQuestionByName("q2").isVisible, true, "second question is visible, #3");
 });
-QUnit.test("Detail panel and defaultValueFromLastRow", function (assert) {
+QUnit.test("Detail panel and copyDefaultValueFromLastEntry", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
         type: "matrixdynamic",
         name: "matrix",
         detailPanelMode: "underRow",
-        defaultValueFromLastRow: true,
+        copyDefaultValueFromLastEntry: true,
         detailElements: [{ type: "text", name: "q1" }],
         rowCount: 1,
         columns: [
@@ -7244,6 +7244,7 @@ QUnit.test("Detail panel, rendered table and className", function (assert) {
       },
     ],
   });
+  setOldTheme(survey);
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   matrix.visibleRows[0].showDetailPanel();
   assert.equal(matrix.renderedTable.headerRow.cells[1].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "Set header cell");
@@ -7573,6 +7574,7 @@ QUnit.test("Row actions, rendered table and className", function (assert) {
       },
     ],
   });
+  setOldTheme(survey);
   survey.onGetMatrixRowActions.add((_, opt) => {
     opt.actions = [
       { title: "Action 1" },
@@ -8174,7 +8176,7 @@ QUnit.test("Drag handler cell in rendered table", function (assert) {
   );
 });
 
-QUnit.test("allowRowsDragAndDrop with readOnly", function (assert) {
+QUnit.test("allowRowReorder with readOnly", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -8192,14 +8194,14 @@ QUnit.test("allowRowsDragAndDrop with readOnly", function (assert) {
   assert.equal(matrix.renderedTable.isRowsDragAndDrop, true, "#2");
 });
 
-QUnit.test("allowRowsDragAndDrop &mode=display", function (assert) {
+QUnit.test("allowRowReorder &mode=display", function (assert) {
   const survey = new SurveyModel({
     mode: "display",
     elements: [
       {
         type: "matrixdynamic",
         name: "matrix",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         columns: ["col1"]
       },
     ],
@@ -8771,13 +8773,13 @@ QUnit.test("Load old JSON where columns without cellType set correctly", functio
   assert.deepEqual(cellQuestion.choices.length, 4, "load 4 choices");
   assert.equal(cellQuestion.choices[2].value, "c", "load choices correctly");
 });
-QUnit.test("Vertical column layout & allowRowsDragAndDrop, rendered table", function (assert) {
+QUnit.test("Vertical column layout & allowRowReorder, rendered table", function (assert) {
   var survey = new SurveyModel({
     "elements": [
       {
         "type": "matrixdynamic",
         "name": "matrix",
-        "allowRowsDragAndDrop": true,
+        "allowRowReorder": true,
         "columnLayout": "vertical",
         columns: [
           { cellType: "text", name: "col1" },

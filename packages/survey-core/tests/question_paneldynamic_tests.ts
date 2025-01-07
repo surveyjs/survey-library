@@ -2830,7 +2830,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
+QUnit.test("Test copyDefaultValueFromLastEntry property", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page");
   var question = <QuestionPanelDynamicModel>(
@@ -2840,7 +2840,7 @@ QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
   question.template.addNewQuestion("text", "q1");
   question.template.addNewQuestion("text", "q2");
   question.template.addNewQuestion("text", "q3");
-  question.defaultValueFromLastPanel = true;
+  question.copyDefaultValueFromLastEntry = true;
   question.addPanel();
   assert.equal(question.isEmpty(), true, "It is empty");
   question.value = [{ q1: 1, q2: 2 }];
@@ -2851,7 +2851,7 @@ QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
       { q1: 1, q2: 2 },
       { q1: 1, q2: 2 },
     ],
-    "defaultValueFromLastPanel is working"
+    "copyDefaultValueFromLastEntry is working"
   );
   question.defaultPanelValue = { q1: 11, q3: 3 };
   question.addPanel();
@@ -2865,7 +2865,7 @@ QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
     "defaultValueFromLastRow is merging with defaultPanelValue"
   );
 });
-QUnit.test("defaultValueFromLastPanel property && hasOther", function(assert) {
+QUnit.test("copyDefaultValueFromLastEntry property && hasOther", function(assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic", name: "root",

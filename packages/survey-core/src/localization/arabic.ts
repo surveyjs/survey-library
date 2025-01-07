@@ -59,7 +59,7 @@ export var arabicSurveyStrings = {
   addColumn: "أضف العمود",
   addRow: "اضافة صف",
   removeRow: "إزالة صف",
-  emptyRowsText: "لا توجد صفوف.",
+  noRowsText: "لا توجد صفوف.",
   addPanel: "اضف جديد",
   removePanel: "إزالة",
   showDetails: "اظهر التفاصيل",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "ar", strings: arabicSurveyStrings, nativeName: "ال�
 // minError: "The value should not be less than {0}" => "يجب ألا تقل القيمة عن {0}"
 // maxError: "The value should not be greater than {0}" => "يجب ألا تزيد القيمة عن {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "اسحب ملفا وأفلته هنا أو انقر فوق الزر أدناه واختر ملفا لتحميله."
-// emptyRowsText: "There are no rows." => "لا توجد صفوف."
+// noRowsText: "There are no rows." => "لا توجد صفوف."
 // multipletext_itemname: "text" => "نص"
 // signaturePlaceHolder: "Sign here" => "وقع هنا"
 // modalCancelButtonText: "Cancel" => "إلغاء الأمر"

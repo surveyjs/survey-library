@@ -59,7 +59,7 @@ export var philippinesStrings = {
   addColumn: "Magdagdag ng Column",
   addRow: "Magdagdag ng hilera",
   removeRow: "Alisin",
-  emptyRowsText: "Walang mga hilera.",
+  noRowsText: "Walang mga hilera.",
   addPanel: "Magdagdag ng bago",
   removePanel: "Alisin",
   showDetails: "Ipakita ang mga detalye",

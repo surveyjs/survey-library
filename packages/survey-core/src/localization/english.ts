@@ -60,7 +60,7 @@ export var englishStrings = {
   addColumn: "Add Column",
   addRow: "Add Row",
   removeRow: "Remove",
-  emptyRowsText: "There are no rows.",
+  noRowsText: "There are no rows.",
   rowIndexTemplateTitle: "Row {rowIndex}",
   rowNameTemplateTitle: "{rowName}",
   addPanel: "Add new",

@@ -59,7 +59,7 @@ export var spanishSurveyStrings = {
   addColumn: "Añadir columna",
   addRow: "Agregue una hilera",
   removeRow: "Eliminar una hilera",
-  emptyRowsText: "No hay hileras.",
+  noRowsText: "No hay hileras.",
   addPanel: "Añadir nuevo",
   removePanel: "Retire",
   showDetails: "Mostrar detalles",

@@ -311,15 +311,25 @@ export class QuestionMatrixModel
    * @see eachRowUnique
    * @see validators
    */
+  public get eachRowRequired(): boolean {
+    return this.getPropertyValue("eachRowRequired");
+  }
+  public set eachRowRequired(val: boolean) {
+    this.setPropertyValue("eachRowRequired", val);
+  }
+  /**
+   * Obsolete. Use the [`eachRowRequired`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#eachRowRequired) property instead.
+   * @deprecated
+   */
   public get isAllRowRequired(): boolean {
-    return this.getPropertyValue("isAllRowRequired");
+    return this.eachRowRequired;
   }
   public set isAllRowRequired(val: boolean) {
-    this.setPropertyValue("isAllRowRequired", val);
+    this.eachRowRequired = val;
   }
   /**
    * Specifies whether answers in all rows should be unique. If any answers duplicate, the question displays a validation error.
-   * @see isAllRowRequired
+   * @see eachRowRequired
    * @see validators
    */
   public get eachRowUnique(): boolean {
@@ -340,14 +350,24 @@ export class QuestionMatrixModel
    * - `"random"` - Arranges matrix rows in random order each time the question is displayed.
    * @see rows
    */
+  public get rowOrder(): string {
+    return this.getPropertyValue("rowOrder");
+  }
+  public set rowOrder(val: string) {
+    val = val.toLowerCase();
+    if (val == this.rowOrder) return;
+    this.setPropertyValue("rowOrder", val);
+    this.onRowsChanged();
+  }
+  /**
+   * Obsolete. Use the [`rowOrder`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#rowOrder) property instead.
+   * @deprecated
+   */
   public get rowsOrder(): string {
-    return this.getPropertyValue("rowsOrder");
+    return this.rowOrder;
   }
   public set rowsOrder(val: string) {
-    val = val.toLowerCase();
-    if (val == this.rowsOrder) return;
-    this.setPropertyValue("rowsOrder", val);
-    this.onRowsChanged();
+    this.rowOrder = val;
   }
   /**
    * Specifies whether to hide the question when the matrix has no visible rows.
@@ -379,7 +399,7 @@ export class QuestionMatrixModel
     return new CssClassBuilder()
       .append(css.cell, hasCellText)
       .append(hasCellText ? css.cellText : css.label)
-      .append(css.itemOnError, !hasCellText && (this.isAllRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()))
+      .append(css.itemOnError, !hasCellText && (this.eachRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()))
       .append(hasCellText ? css.cellTextSelected : css.itemChecked, isChecked)
       .append(hasCellText ? css.cellTextDisabled : css.itemDisabled, this.isDisabledStyle)
       .append(hasCellText ? css.cellTextReadOnly : css.itemReadOnly, this.isReadOnlyStyle)
@@ -498,7 +518,7 @@ export class QuestionMatrixModel
   protected sortVisibleRows(array: Array<MatrixRowModel>): Array<MatrixRowModel> {
     if (!!this.survey && this.survey.isDesignMode)
       return array;
-    var order = this.rowsOrder.toLowerCase();
+    var order = this.rowOrder.toLowerCase();
     if (order === "random")
       return Helpers.randomizeArray<MatrixRowModel>(array);
     return array;
@@ -555,7 +575,7 @@ export class QuestionMatrixModel
     var loc = this.cells.getCellDisplayLocText(row, column);
     return loc ? loc : this.emptyLocalizableString;
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     return this.isMouseDown === true && this.hasValuesInAllRows();
   }
   private errorsInRow: HashTable<boolean>;
@@ -581,7 +601,7 @@ export class QuestionMatrixModel
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (!rows) return;
-    const rowsRequired = this.isAllRowRequired || allRowsRequired;
+    const rowsRequired = this.eachRowRequired || allRowsRequired;
     const rowsUnique = this.eachRowUnique;
     res.noValue = false;
     res.isNotUnique = false;
@@ -857,11 +877,11 @@ Serializer.addClass(
     },
     { name: "cells:cells", serializationProperty: "cells" },
     {
-      name: "rowsOrder",
+      name: "rowOrder", alternativeName: "rowsOrder",
       default: "initial",
       choices: ["initial", "random"],
     },
-    "isAllRowRequired:boolean",
+    { name: "eachRowRequired:boolean", alternativeName: "isAllRowRequired" },
     { name: "eachRowUnique:boolean", category: "validation" },
     "hideIfRowsEmpty:boolean",
     { name: "cellComponent", visible: false, default: "survey-matrix-cell" }

@@ -212,9 +212,9 @@ export class QuestionTextModel extends QuestionTextBase {
       this.isTextInput &&
       size < 1 &&
       this.parent &&
-      !!(<any>this.parent)["itemSize"]
+      !!(<any>this.parent)["inputSize"]
     ) {
-      size = (<any>this.parent)["itemSize"];
+      size = (<any>this.parent)["inputSize"];
     }
     this.setPropertyValue("inputSize", size);
     this.setPropertyValue("inputWidth", size > 0 ? "auto" : "");

@@ -1,5 +1,4 @@
-import {  ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
-import {  StylesManager } from "survey-core";
+import { ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
 import * as SurveyCore from "survey-core";
 import { TestComponent } from "./test.component";
 import * as widgets from "surveyjs-widgets";
@@ -13,7 +12,6 @@ import "icheck";
 export class TestCustomWidgetComponent extends TestComponent {
   constructor(changeDetectorRef: ChangeDetectorRef) {
     super(changeDetectorRef);
-    StylesManager.applyTheme("default");
     widgets.sortablejs(SurveyCore);
     widgets.icheck(SurveyCore, (<any>window).jQuery);
   }

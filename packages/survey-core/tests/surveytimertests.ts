@@ -1,6 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { SurveyTimer, surveyTimerFunctions, SurveyTimerEvent } from "../src/surveytimer";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { setOldTheme } from "./oldTheme";
 
 export default QUnit.module("SurveyTimer");
 
@@ -486,6 +487,7 @@ QUnit.test("Test SurveyTimerModel with clock", function(assert) {
 QUnit.test("Test showTimerAsClock flag", function(assert) {
   const createSurvey = (timeLimit: number, timeLimitPerPage: number): SurveyModel => {
     var survey = new SurveyModel();
+    setOldTheme(survey);
     survey.timeLimit = timeLimit;
     survey.timeLimitPerPage = timeLimitPerPage;
     survey.addNewPage("p1");

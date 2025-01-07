@@ -62,13 +62,12 @@ import { LocalizableString } from "../src/localizablestring";
 import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent, wrapUrlForBackgroundImage } from "../src/utils/utils";
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
-import { StylesManager } from "@legacy/stylesmanager";
 import { ITheme } from "../src/themes";
 import { Cover } from "../src/header";
 import { DomWindowHelper } from "../src/global_variables_utils";
 import { ListModel } from "../src/list";
 import { _setIsTouch } from "../src/utils/devices";
-
+import { oldDefaultTheme, setOldTheme } from "./oldTheme";
 export default QUnit.module("Survey");
 
 settings.autoAdvanceDelay = 0;
@@ -902,7 +901,7 @@ QUnit.test("onProgressText event and questionOrder in page, Bug#3383", function 
             "type": "text",
           }
         ],
-        "questionsOrder": "random"
+        "questionOrder": "random"
       }
     ],
   });
@@ -3828,7 +3827,6 @@ QUnit.test("Several questions in one row - defaultV2", function (assert) {
 });
 
 QUnit.test("Several questions in complex questions row - defaultV2", function (assert) {
-  StylesManager.applyTheme("defaultV2");
   let survey = new SurveyModel({});
   survey.fromJSON({
     "pages": [
@@ -3856,7 +3854,7 @@ QUnit.test("Several questions in complex questions row - defaultV2", function (a
     ]
   });
   assert.equal(survey.getAllQuestions()[0].templateElements[0].rightIndent, 0, "the first indent is 0");
-  StylesManager.applyTheme("default");
+
 });
 
 QUnit.test(
@@ -6157,7 +6155,7 @@ QUnit.test("onMatrixRowAdded", function (assert) {
   assert.equal(q1.rowCount, 3, "there are 3 rows");
   assert.equal(q1.value[2]["col1"], 2, "get value from previous");
 });
-QUnit.test("onMatrixRowAdded + defaultValueFromLastRow", function (assert) {
+QUnit.test("onMatrixRowAdded + copyDefaultValueFromLastEntry", function (assert) {
   var survey = new SurveyModel();
   var visibleRowsCount = -1;
   survey.onMatrixRowAdded.add(function (sender, options) {
@@ -6166,7 +6164,7 @@ QUnit.test("onMatrixRowAdded + defaultValueFromLastRow", function (assert) {
   });
   var page = survey.addNewPage("Page 1");
   var q1 = new QuestionMatrixDynamicModel("matrixdynamic");
-  q1.defaultValueFromLastRow = true;
+  q1.copyDefaultValueFromLastEntry = true;
   page.addElement(q1);
   q1.addColumn("col1");
   q1.addColumn("col2");
@@ -6301,9 +6299,10 @@ QUnit.test("onMatrixRowRemoved. Added a case for Bug#2557", function (assert) {
 QUnit.test(
   "onUpdatePanelCssClasses keeps original css - https://github.com/surveyjs/surveyjs/issues/1333",
   function (assert) {
-    StylesManager.applyTheme("default");
-    var css = surveyCss.getCss();
+
+    var css = oldDefaultTheme;
     var survey = new SurveyModel();
+    survey.setCss(css, false);
     survey.onUpdatePanelCssClasses.add(function (survey, options) {
       if (options.panel.name == "panel1")
         options.cssClasses.panel["container"] = "hereIam";
@@ -6354,6 +6353,7 @@ QUnit.test("Apply css for questions on start page", function (assert) {
       { elements: [{ type: "text", name: "q2" }] }
     ]
   });
+  setOldTheme(survey);
   survey.css = { text: { mainRoot: "custom_class" } };
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
@@ -6374,9 +6374,10 @@ QUnit.test("onUpdatePageCssClasses is raised", function (assert) {
 });
 
 QUnit.test("Survey Elements css", function (assert) {
-  const css = surveyCss.getCss();
+  const css = oldDefaultTheme;
   css.question.titleRequired = "required";
   const survey = new SurveyModel();
+  setOldTheme(survey);
   survey.onUpdateQuestionCssClasses.add(function (survey, options) {
     if (options.question.name === "q2")
       options.cssClasses["newItem"] = "hereIam";
@@ -6419,6 +6420,7 @@ QUnit.test("Question cssRoot", function (assert) {
     ],
   };
   var survey = new SurveyModel(json);
+  setOldTheme(survey);
   assert.equal(
     survey.getQuestionByName("q1").cssRoot,
     "sv_q sv_qstn",
@@ -6431,6 +6433,7 @@ QUnit.test("Question cssRoot", function (assert) {
   );
 
   survey = new SurveyModel(json);
+  setOldTheme(survey);
   survey.onUpdateQuestionCssClasses.add(function (survey, options) {
     if (options.question.getType() == "checkbox") {
       options.cssClasses.mainRoot = "testMainRoot";
@@ -7680,29 +7683,29 @@ QUnit.test("Questions are randomized", function (assert) {
     false,
     "By default questions are not randomized"
   );
-  page.questionsOrder = "random";
+  page.questionOrder = "random";
   assert.equal(
     page.areQuestionsRandomized,
     true,
-    "page.questionsOrder = 'random'"
+    "page.questionOrder = 'random'"
   );
-  page.questionsOrder = "default";
+  page.questionOrder = "default";
   assert.equal(
     page.areQuestionsRandomized,
     false,
-    "page.questionsOrder = 'default'"
+    "page.questionOrder = 'default'"
   );
-  survey.questionsOrder = "random";
+  survey.questionOrder = "random";
   assert.equal(
     page.areQuestionsRandomized,
     true,
-    "survey.questionsOrder = 'random' && page.questionsOrder = 'default'"
+    "survey.questionOrder = 'random' && page.questionOrder = 'default'"
   );
-  page.questionsOrder = "initial";
+  page.questionOrder = "initial";
   assert.equal(
     page.areQuestionsRandomized,
     false,
-    "page.questionsOrder = 'initial'"
+    "page.questionOrder = 'initial'"
   );
 });
 
@@ -7719,15 +7722,15 @@ class HelpTest {
 QUnit.test("Randomize questions in page and panels", function (assert) {
   const oldFunc = Helpers.randomizeArray;
   Helpers.randomizeArray = HelpTest.randomizeArray;
-  const json = {
+  const json: any = {
     pages: [
       {
-        questionsOrder: "random",
+        questionOrder: "random",
         elements: [
           { type: "text", name: "q1" },
           { type: "panel", name: "p1", elements: [{ type: "text", name: "p1q1" }, { type: "text", name: "p1q2" }] },
-          { type: "panel", questionsOrder: "initial", name: "p2", elements: [{ type: "text", name: "p2q1" }, { type: "text", name: "p2q2" }] },
-          { type: "panel", questionsOrder: "random", name: "p3", elements: [{ type: "text", name: "p3q1" }, { type: "text", name: "p3q2" }] },
+          { type: "panel", questionOrder: "initial", name: "p2", elements: [{ type: "text", name: "p2q1" }, { type: "text", name: "p2q2" }] },
+          { type: "panel", questionOrder: "random", name: "p3", elements: [{ type: "text", name: "p3q1" }, { type: "text", name: "p3q2" }] },
         ]
       }
     ]
@@ -7748,7 +7751,7 @@ QUnit.test("Randomize questions in page and panels", function (assert) {
   assert.equal(p3.elements[0].name, "p3q2");
   assert.equal(p3.elements[1].name, "p3q1");
 
-  delete json.pages[0].questionsOrder;
+  delete json.pages[0].questionOrder;
   survey = new SurveyModel(json);
   page = survey.pages[0];
   p1 = survey.getPanelByName("p1");
@@ -12649,7 +12652,9 @@ QUnit.test(
 QUnit.test("Different css for different surveys", function (assert) {
   var json = { questions: [{ type: "text", name: "q" }] };
   var survey1 = new SurveyModel();
+  setOldTheme(survey1);
   var survey2 = new SurveyModel();
+  setOldTheme(survey2);
   var defaultQuestionRoot = survey1.css.question.mainRoot;
   survey1.css.question.mainRoot += " class1";
   survey2.css.question.mainRoot += " class2";
@@ -12681,6 +12686,7 @@ QUnit.test("Different css for different surveys", function (assert) {
 
 QUnit.test("Question css classes", function (assert) {
   var survey = new SurveyModel();
+  setOldTheme(survey);
   survey.css.question.hasError = "error";
   survey.css.question.small = "small";
   survey.css.question.title = "title";
@@ -12940,8 +12946,9 @@ QUnit.test("Survey isLogoBefore/isLogoAfter", function (assert) {
 });
 
 QUnit.test("Survey logoClassNames", function (assert) {
-  StylesManager.applyTheme("default");
+
   var survey = new SurveyModel({});
+  setOldTheme(survey);
   assert.equal(survey.logoPosition, "left");
 
   assert.equal(survey.logoClassNames, "sv_logo sv-logo--left");
@@ -13031,7 +13038,7 @@ QUnit.test(
           name: "question1",
           columns: ["Column 1", "Column 2", "Column 3"],
           rows: ["Row 1", "Row 2"],
-          isAllRowRequired: true,
+          eachRowRequired: true,
         },
       ],
       checkErrorsMode: "onValueChanged",
@@ -13458,6 +13465,7 @@ QUnit.test(
         },
       ],
     });
+    setOldTheme(survey);
     var q1 = survey.getQuestionByName("q1");
     survey.pages[0].questionTitleLocation = "left";
     assert.equal(q1.getPropertyValue("cssHeader", "").trim(), "title-left");
@@ -14933,7 +14941,7 @@ QUnit.test("survey.isLazyRendering", function (assert) {
   assert.equal(survey.isLazyRendering, true, "set in settings");
   settings.lazyRowsRendering = false;
   assert.equal(survey.isLazyRendering, false, "Not set 2");
-  survey.lazyRendering = true;
+  survey.lazyRenderingEnabled = true;
   assert.equal(survey.isLazyRendering, true, "set in survey");
 });
 QUnit.test("getSize", function (assert) {
@@ -15767,7 +15775,6 @@ QUnit.test("utils.increaseHeightByContent", assert => {
   assert.equal(element.style.height, "95px");
 });
 QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", assert => {
-  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [
       {
@@ -15776,6 +15783,7 @@ QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", as
       }
     ]
   });
+  setOldTheme(survey);
   assert.equal(survey.getQuestionByName("q1").titleTagName, "h5");
   assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "h4");
   assert.equal(survey.pages[0].titleTagName, "h4");
@@ -16473,7 +16481,7 @@ QUnit.test("Check isMobile set via processResponsiveness method", function (asse
   assert.notOk(isProcessed);
 });
 QUnit.test("Check addNavigationItem", function (assert) {
-  StylesManager.applyTheme("default");
+
   const survey = new SurveyModel({
     "elements": [
       {
@@ -16482,6 +16490,7 @@ QUnit.test("Check addNavigationItem", function (assert) {
       }
     ]
   });
+  setOldTheme(survey);
   const action1 = survey.addNavigationItem({ id: "custom-btn", visibleIndex: 3 });
   assert.ok(action1 === survey.navigationBar.actions[0]);
   assert.equal(action1.id, "custom-btn");
@@ -16509,6 +16518,7 @@ QUnit.test("Check default navigation items relevance", function (assert) {
       }
     ]
   });
+  setOldTheme(survey);
   survey.css = { actionBar: { item: "custom-action" }, navigationButton: "custom-css", navigation: { start: "custom-start" } };
   const action = survey.navigationBar.actions[0];
   assert.equal(action.getActionBarItemCss(), "custom-action custom-css custom-start");
@@ -16528,6 +16538,7 @@ QUnit.test("Check rootCss property", function (assert) {
       }
     ]
   });
+  setOldTheme(survey);
   survey.css = { root: "test-root-class" };
   assert.equal(survey.rootCss, "test-root-class sv_progress--pages");
 });
@@ -18593,6 +18604,29 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
+});
+QUnit.test("survey.showNavigationButtons = 'none', page.navigationButtonsVisibility = 'show' & firstPageIsStarted is true, Bug#9248", function (assert) {
+  const survey = new SurveyModel({
+    showNavigationButtons: "none",
+    firstPageIsStarted: true,
+    pages: [
+      {
+        "navigationButtonsVisibility": "show",
+        "elements": [{ type: "text", name: "q1" }]
+      },
+      {
+        "elements": [{ type: "text", name: "q2" }]
+      },
+      {
+        "elements": [{ type: "text", name: "q2" }]
+      }
+    ]
+  });
+  assert.equal(survey.state, "starting", "The first page is started");
+  assert.equal(survey.isNavigationButtonsShowing, "bottom", "The first page is started");
+  survey.start();
+  assert.equal(survey.state, "running", "The start button is cliced");
+  assert.equal(survey.isNavigationButtonsShowing, "none", "Hide navigation buttons");
 });
 
 QUnit.test("getContainerContent - header elements order", function (assert) {

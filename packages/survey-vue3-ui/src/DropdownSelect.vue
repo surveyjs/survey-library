@@ -35,6 +35,7 @@
       </div>
       <div
         :class="question.cssClasses.chevronButton"
+        aria-hidden="true"
         v-if="question.cssClasses.chevronButtonIconId"
       >
         <SvComponent

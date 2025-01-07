@@ -3,7 +3,6 @@ import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
 import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
 import { settings } from "../src/settings";
-import { StylesManager } from "@legacy/stylesmanager";
 import { InputMaskPattern } from "../src/mask/mask_pattern";
 import { FunctionFactory } from "../src/functionsfactory";
 export * from "../src/localization/german";
@@ -380,7 +379,6 @@ QUnit.test("CharacterCounter + settings.showMaxLengthIndicator", function(assert
   assert.equal(ch.remainingCharacterCounter, "4/7", "#4");
 });
 QUnit.test("getControlClass with characterCounter", function(assert) {
-  StylesManager.applyTheme("defaultV2");
   const inputClasses = "sd-input sd-text";
   const constrolWithCharacterCounter = "sd-text__character-counter";
   const characterCounterBig = "sd-text__character-counter--big";
@@ -394,7 +392,6 @@ QUnit.test("getControlClass with characterCounter", function(assert) {
 
   q.maxLength = 100;
   assert.equal(q.getControlClass(), inputClasses + " " + constrolWithCharacterCounter + " " + characterCounterBig, "#3");
-  StylesManager.applyTheme("default");
 });
 
 QUnit.test("Set empty text", function(assert) {

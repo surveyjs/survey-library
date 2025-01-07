@@ -1,30 +1,71 @@
-<div class="sv_q_file">
-	<input class="form-control sv-visuallyhidden" disabled="" id="testid0i" placeholder="Question title" style="color:transparent;" type="file">
-	<div>
-		<div class="sv-file__decorator">
-			<span class="sv-hidden">
+<div class="sd-file sd-file--answered sd-file--single">
+	<input class="form-control sd-visuallyhidden" disabled="" id="testid0i" placeholder="Question title" style="color:transparent;" type="file">
+	<div class="sd-file__drag-area">
+		<div class="sd-file__decorator">
+			<span class="sd-file__drag-area-placeholder">
 				<span class="sv-string-editor" contenteditable="true">Drag and drop a file here or click the button below to select a file to upload.</span>
 			</span>
-			<div>
-				<label aria-label="Replace file" class="sv_q_file_choose_button" for="testid0i" tabindex="0">
-					<span>Replace file</span>
-				</label>
-			</div>
-		</div>
-		<button class="sv_q_file_remove_button" type="button">
-			<span>Clear</span>
-		</button>
-		<div>
-			<span class="sv_q_file_preview">
-				<div class="sv_q_file_sign">
-					<a download="item1.zip" href="#item1.zip" title="item1.zip">item1.zip</a>
-				</div>
-				<div>
-					<div>
-						<span class="sv_q_file_remove">Remove this file</span>
+			<div class="sd-file__wrapper">
+				<div class="sd-action-bar sd-file__actions-container">
+					<div class="sv-action" id="sv-file-choose-file">
+						<div class="sv-action__content">
+							<label aria-label="Replace file" class="sd-context-btn sd-file__choose-btn sd-file__choose-btn--icon" for="testid0i" tabindex="0">
+								<svg class="sv-svg-icon" role="img">
+									<use xlink:href="#icon-folder-24x24" class="">
+									</use>
+									<title class="">Replace file</title>
+								</svg>
+								<span>Replace file</span>
+							</label>
+						</div>
+					</div>
+					<div class="sv-action sv-action--hidden" id="sv-file-start-camera">
+						<div class="sv-action__content">
+							<button class="sd-context-btn" disabled="" role="button" tabindex="0" title="Take Photo" type="button">
+								<svg class="sd-action__icon sv-svg-icon" role="img">
+									<use xlink:href="#icon-camera-24x24" class="">
+									</use>
+									<title class="">Take Photo</title>
+								</svg>
+							</button>
+						</div>
+					</div>
+					<div class="sv-action" id="sv-file-clean">
+						<div class="sv-action__content">
+							<button class="sd-context-btn sd-context-btn--negative" disabled="" role="button" tabindex="0" title="Clear" type="button">
+								<svg class="sd-action__icon sv-svg-icon" role="img">
+									<use xlink:href="#icon-clear-24x24" class="">
+									</use>
+									<title class="">Clear</title>
+								</svg>
+							</button>
+						</div>
 					</div>
 				</div>
-			</span>
+			</div>
+		</div>
+		<div class="sd-file__list">
+			<div class="sd-file__page" id="testid0page0">
+				<span class="sd-file__preview-item">
+					<div class="sd-file__image-wrapper sd-file__image-wrapper--default-image">
+						<svg class="sd-file__default-image sv-svg-icon" role="img">
+							<use xlink:href="#icon-file-72x72" class="">
+							</use>
+						</svg>
+						<div class="sd-context-btn sd-context-btn--colorful sd-context-btn--negative sd-context-btn--small sd-context-btn--with-border sd-file__remove-file-button">
+							<span class="sd-hidden">Remove this file</span>
+							<svg class="sv-svg-icon" role="img">
+								<use xlink:href="#icon-close-16x16" class="">
+								</use>
+								<title class="">Remove this file</title>
+							</svg>
+						</div>
+					</div>
+					<div class="sd-file__sign">
+						<a download="item1.zip" href="#item1.zip" title="item1.zip">item1.zip</a>
+					</div>
+				</span>
+			</div>
 		</div>
 	</div>
 </div>

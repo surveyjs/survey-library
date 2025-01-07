@@ -801,6 +801,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get locNoRowsText(): LocalizableString {
     return this.getLocalizableString("noRowsText");
   }
+  /**
+   * Obsolete. Use the [`noRowsText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#noRowsText) property instead.
+   * @deprecated
+   */
   public get emptyRowsText(): string {
     return this.noRowsText;
   }

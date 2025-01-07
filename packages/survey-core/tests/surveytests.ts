@@ -6155,7 +6155,7 @@ QUnit.test("onMatrixRowAdded", function (assert) {
   assert.equal(q1.rowCount, 3, "there are 3 rows");
   assert.equal(q1.value[2]["col1"], 2, "get value from previous");
 });
-QUnit.test("onMatrixRowAdded + defaultValueFromLastRow", function (assert) {
+QUnit.test("onMatrixRowAdded + copyDefaultValueFromLastEntry", function (assert) {
   var survey = new SurveyModel();
   var visibleRowsCount = -1;
   survey.onMatrixRowAdded.add(function (sender, options) {
@@ -6164,7 +6164,7 @@ QUnit.test("onMatrixRowAdded + defaultValueFromLastRow", function (assert) {
   });
   var page = survey.addNewPage("Page 1");
   var q1 = new QuestionMatrixDynamicModel("matrixdynamic");
-  q1.defaultValueFromLastRow = true;
+  q1.copyDefaultValueFromLastEntry = true;
   page.addElement(q1);
   q1.addColumn("col1");
   q1.addColumn("col2");

@@ -1417,7 +1417,8 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("copyDefaultValueFromLastEntry", val);
   }
   /**
-   * @deprecated Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#copyDefaultValueFromLastEntry) property instead..
+   * Obsolete. Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#copyDefaultValueFromLastEntry) property instead.
+   * @deprecated
    */
   public get defaultValueFromLastPanel(): boolean {
     return this.copyDefaultValueFromLastEntry;

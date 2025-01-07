@@ -1,4 +1,3 @@
-import { StylesManager } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -59,8 +58,7 @@ registerMarkupTests(
         let q1 = survey.getQuestionByName("q1");
         q1["stateChanged"]("loading");
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
+
       snapshot: "signaturepad-loading"
     },
     {

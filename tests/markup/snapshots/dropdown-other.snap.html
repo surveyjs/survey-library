@@ -1,15 +1,21 @@
-<div>
-	<div class="sv_select_wrapper">
-		<select aria-invalid="false" aria-label="Question title" aria-required="false" autocomplete="" class="sv_q_dropdown_control" id="testid0i">
+<div class="sd-selectbase">
+	<div class="sv-dropdown_select-wrapper">
+		<select aria-invalid="false" aria-label="Question title" aria-required="false" autocomplete="" class="sd-dropdown sd-input" id="testid0i">
 			<option value="">Select...</option>
 			<option value="item1">item1</option>
 			<option value="item2">item2</option>
 			<option value="item3">item3</option>
 			<option value="other">Other (describe)</option>
 		</select>
+		<div aria-hidden="true" class="sd-dropdown_chevron-button">
+			<svg class="sd-dropdown_chevron-button-svg sv-svg-icon" role="img">
+				<use xlink:href="#icon-chevrondown-24x24" class="">
+				</use>
+			</svg>
+		</div>
 	</div>
-	<div class="form-group">
-		<textarea aria-label="Question title" aria-required="false" class="sv_q_dd_other" id="testid0_other" placeholder="" style="resize: both;">
+	<div class="form-group sd-question__comment-area">
+		<textarea aria-label="Question title" aria-required="false" class="sd-comment sd-input sd-selectbase__other" id="testid0_other" placeholder="" style="resize:both;">
 		</textarea>
 	</div>
 </div>

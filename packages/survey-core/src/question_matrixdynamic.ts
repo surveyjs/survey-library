@@ -149,7 +149,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * If it is not empty, then this value is set to every new row, including rows created initially, unless the defaultValue is not empty
    * @see defaultValue
-   * @see defaultValueFromLastRow
+   * @see copyDefaultValueFromLastEntry
    */
   public get defaultRowValue(): any {
     return this.getPropertyValue("defaultRowValue");
@@ -163,11 +163,21 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
    */
+  public get copyDefaultValueFromLastEntry(): boolean {
+    return this.getPropertyValue("copyDefaultValueFromLastEntry");
+  }
+  public set copyDefaultValueFromLastEntry(val: boolean) {
+    this.setPropertyValue("copyDefaultValueFromLastEntry", val);
+  }
+  /**
+   * Obsolete. Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#copyDefaultValueFromLastEntry) property instead.
+   * @deprecated
+   */
   public get defaultValueFromLastRow(): boolean {
-    return this.getPropertyValue("defaultValueFromLastRow");
+    return this.copyDefaultValueFromLastEntry;
   }
   public set defaultValueFromLastRow(val: boolean) {
-    this.setPropertyValue("defaultValueFromLastRow", val);
+    this.copyDefaultValueFromLastEntry = val;
   }
   protected isDefaultValueEmpty(): boolean {
     return (
@@ -571,7 +581,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         (<any>res)[key] = this.defaultRowValue[key];
       }
     }
-    if (isRowAdded && this.defaultValueFromLastRow) {
+    if (isRowAdded && this.copyDefaultValueFromLastEntry) {
       var val = this.value;
       if (!!val && Array.isArray(val) && val.length >= this.rowCount - 1) {
         var rowValue = val[this.rowCount - 2];
@@ -1023,7 +1033,7 @@ Serializer.addClass(
     },
     { name: "keyName" },
     "defaultRowValue:rowvalue",
-    "defaultValueFromLastRow:boolean",
+    { name: "copyDefaultValueFromLastEntry:boolean", alternativeName: "defaultValueFromLastRow" },
     { name: "confirmDelete:boolean" },
     {
       name: "confirmDeleteText",

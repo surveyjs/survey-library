@@ -146,7 +146,6 @@ export class QuestionTextModel extends QuestionTextBase {
   public onSurveyLoad(): void {
     super.onSurveyLoad();
     this.setRenderedMinMax();
-    this.updateInputSize();
   }
   /**
    * A value passed on to the [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) attribute of the underlying `<input>` element.
@@ -201,23 +200,28 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.getPropertyValue("inputSize", 0);
   }
   public get renderedInputSize(): number {
-    return this.getPropertyValue("inputSize") || null;
+    return this.getPropertyValue("renderedInputSize", undefined, () => {
+      const size = this.calInputSize();
+      return size > 0 ? size : null;
+    });
   }
   public get inputWidth(): string {
-    return this.getPropertyValue("inputWidth");
+    return this.getPropertyValue("inputWidth", undefined, () => {
+      const size = this.calInputSize();
+      return size > 0 ? "auto" : "";
+    });
   }
-  public updateInputSize() {
-    var size = this.isTextInput && this.size > 0 ? this.size : 0;
-    if (
-      this.isTextInput &&
-      size < 1 &&
-      this.parent &&
-      !!(<any>this.parent)["inputSize"]
-    ) {
+  private calInputSize(): number {
+    if(!this.isTextInput) return 0;
+    let size = this.size > 0 ? this.size : 0;
+    if (size < 1 && this.parent && !!(<any>this.parent)["inputSize"]) {
       size = (<any>this.parent)["inputSize"];
     }
-    this.setPropertyValue("inputSize", size);
-    this.setPropertyValue("inputWidth", size > 0 ? "auto" : "");
+    return size;
+  }
+  public updateInputSize(): void {
+    this.resetPropertyValue("renderedInputSize");
+    this.resetPropertyValue("inputWidth");
   }
   /**
    * A value passed on to the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute of the underlying `<input>` element.

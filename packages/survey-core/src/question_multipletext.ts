@@ -217,7 +217,7 @@ export class MultipleTextItemModel extends Base
   /**
    * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
    *
-   * If you want to set a uniform `size` for all text box items, use the [`itemSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#itemSize) within the Multiple Textboxes configuration.
+   * If you want to set a uniform `size` for all text box items, use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#inputSize) within the Multiple Textboxes configuration.
    */
   public get size(): number {
     return this.editor.size;
@@ -433,7 +433,7 @@ export class QuestionMultipleTextModel extends Question
     this.registerPropertyChangedHandlers(["items", "colCount", "itemErrorLocation"], () => {
       this.calcVisibleRows();
     });
-    this.registerPropertyChangedHandlers(["itemSize"], () => { this.updateItemsSize(); });
+    this.registerPropertyChangedHandlers(["inputSize"], () => { this.updateItemsSize(); });
   }
   public getType(): string {
     return "multipletext";
@@ -620,12 +620,18 @@ export class QuestionMultipleTextModel extends Question
   /**
    * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` elements.
    */
-  public get itemSize(): number {
-    return this.getPropertyValue("itemSize");
+  public get inputSize(): number {
+    return this.getPropertyValue("inputSize");
   }
-  public set itemSize(val: number) {
-    this.setPropertyValue("itemSize", val);
+  public set inputSize(val: number) {
+    this.setPropertyValue("inputSize", val);
   }
+  /**
+   * Obsolete. Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#inputSize) property instead.
+   * @deprecated
+   */
+  public get itemSize(): number { return this.inputSize; }
+  public set itemSize(val: number) { this.inputSize = val; }
   /**
    * Specifies a uniform width for all text box titles. Accepts CSS values.
    *
@@ -993,7 +999,7 @@ Serializer.addClass(
   "multipletext",
   [
     { name: "!items:textitems", className: "multipletextitem", isArray: true },
-    { name: "itemSize:number", minValue: 0, visible: false },
+    { name: "inputSize:number", minValue: 0, visible: false, alternativeName: "itemSize" },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
     { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false },
     { name: "itemTitleWidth", category: "layout" }

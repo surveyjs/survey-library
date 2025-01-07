@@ -4445,15 +4445,15 @@ QUnit.test("column is requriedText, Bug #2297", function (assert) {
   var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
   var table = matrix.renderedTable;
   assert.equal(
-    table.headerRow.cells[0].requiredText,
+    table.headerRow.cells[0].requiredMark,
     "*",
     "required Text is here"
   );
-  assert.notOk(table.headerRow.cells[1].requiredText, "required Text is empty");
+  assert.notOk(table.headerRow.cells[1].requiredMark, "required Text is empty");
   matrix.columnsLocation = "vertical";
   table = matrix.renderedTable;
   assert.equal(
-    table.rows[1].cells[0].requiredText,
+    table.rows[1].cells[0].requiredMark,
     "*",
     "The first cell in the row is a column header now"
   );

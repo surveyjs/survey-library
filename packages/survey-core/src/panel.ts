@@ -491,13 +491,20 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   /**
    * Returns a character or text string that indicates a required panel/page.
-   * @see SurveyModel.requiredText
+   * @see SurveyModel.requiredMark
    * @see isRequired
    */
-  public get requiredText(): string {
+  public get requiredMark(): string {
     return !!this.survey && this.isRequired
-      ? this.survey.requiredText
+      ? this.survey.requiredMark
       : "";
+  }
+  /**
+   * Obsolete. Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#requiredMark) property instead.
+   * @deprecated
+   */
+  public get requiredText(): string {
+    return this.requiredMark;
   }
   protected get titlePattern(): string {
     return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";
@@ -2029,8 +2036,8 @@ export class PanelModelBase extends SurveyElement<Question>
   public get cssTitleNumber(): string {
     return this.cssClasses.panel.number;
   }
-  public get cssRequiredText(): string {
-    return this.cssClasses.panel.requiredText;
+  public get cssRequiredMark(): string {
+    return this.cssClasses.panel.requiredMark;
   }
 
   public get cssError(): string {

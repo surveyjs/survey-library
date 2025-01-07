@@ -124,7 +124,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   cssNavigationEdit: string;
   rootElement?: HTMLElement;
 
-  requiredText: string;
+  requiredMark: string;
   beforeSettingQuestionErrors(
     question: IQuestion,
     errors: Array<SurveyError>
@@ -373,9 +373,9 @@ export interface IPage extends IPanel, IConditionRunner {
 export interface ITitleOwner {
   name: string;
   no: string;
-  requiredText: string;
+  requiredMark: string;
   cssTitleNumber: string;
-  cssRequiredText?: string;
+  cssRequiredMark?: string;
   isRequireTextOnStart: boolean;
   isRequireTextBeforeTitle: boolean;
   isRequireTextAfterTitle: boolean;

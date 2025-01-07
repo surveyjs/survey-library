@@ -488,7 +488,7 @@ QUnit.test("Matrix Question set values after visible row generated", function (
 });
 QUnit.test("Matrix Question sortVisibleRows", function (assert) {
   var matrix = new QuestionMatrixRandomModel("q1");
-  matrix.rowsOrder = "random";
+  matrix.rowOrder = "random";
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   var rows = matrix.visibleRows;

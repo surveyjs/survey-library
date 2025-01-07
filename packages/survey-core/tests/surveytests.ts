@@ -13038,7 +13038,7 @@ QUnit.test(
           name: "question1",
           columns: ["Column 1", "Column 2", "Column 3"],
           rows: ["Row 1", "Row 2"],
-          isAllRowRequired: true,
+          eachRowRequired: true,
         },
       ],
       checkErrorsMode: "onValueChanged",

@@ -11,6 +11,7 @@ import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { setOldTheme } from "./oldTheme";
 
 export default QUnit.module("baseselect");
 
@@ -862,6 +863,7 @@ QUnit.test("check radiogroup title actions", (assert) => {
         showClearButton: true
       }]
   });
+  setOldTheme(survey);
   let question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
   assert.deepEqual(question.getTitleActions(), []);
   assert.ok(question.showClearButtonInContent);
@@ -1206,7 +1208,7 @@ QUnit.test("selectbase, showOtherItem & checkErrorsMode: 'onValueChanged'", (ass
   const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
   q1.renderedValue = "other";
   assert.equal(q1.errors.length, 0, "We do not have errors yet");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(q1.errors.length, 1, "There is an error");
   assert.equal(survey.state, "running", "Still running");
 });

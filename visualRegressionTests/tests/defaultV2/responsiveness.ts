@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { imageSource } from "../../constants";
-import { url, takeElementScreenshot, frameworks, initSurvey, url_test, resetFocusToBody, wrapVisualTest, resetHoverToBody } from "../../helper";
+import { url, takeElementScreenshot, frameworks, initSurvey, resetFocusToBody, wrapVisualTest, resetHoverToBody } from "../../helper";
 
 const title = "Responsiveness Screenshot";
 
@@ -8,17 +8,9 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-  });
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+
   test("Check simple question in small screen", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);

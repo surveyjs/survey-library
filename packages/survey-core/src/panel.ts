@@ -2187,13 +2187,14 @@ export class PanelModel extends PanelModelBase implements IElement {
    * @see visibleIf
    */
   public get no(): string {
-    return this.getPropertyValue("no", "");
+    return this.getPropertyValue("no", undefined, () => this.calcNo());
   }
-  protected setNo(visibleIndex: number): void {
-    this.setPropertyValue(
-      "no",
-      Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex())
-    );
+  private calcNo(): string {
+    let no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
+    if(this.survey) {
+      no = this.survey.getUpdatedPanelNo(this, no);
+    }
+    return no || "";
   }
   protected notifyStateChanged(prevState: string): void {
     if(!this.isLoadingFromJson) {
@@ -2218,7 +2219,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       visibleIndex = index;
     }
     this.setPropertyValue("visibleIndex", visibleIndex);
-    this.setNo(visibleIndex);
+    this.resetPropertyValue("no");
     return visibleIndex < 0 ? 0 : 1;
   }
   protected getPanelStartIndex(index: number): number {

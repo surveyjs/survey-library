@@ -37,12 +37,10 @@ import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { ConsoleWarnings } from "../src/console-warnings";
-import { StylesManager } from "@legacy/stylesmanager";
 import { surveyTimerFunctions } from "../src/surveytimer";
-import { defaultStandardCss } from "@legacy/defaultCss/cssstandard";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-
+import { setOldTheme } from "./oldTheme";
 export default QUnit.module("Survey_Questions");
 
 settings.autoAdvanceDelay = 0;
@@ -3303,13 +3301,11 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   assert.deepEqual(question.getRootStyle(), { });
 });
 QUnit.test("question.paddingLeft from json and defaultV2", function (assert) {
-  StylesManager.applyTheme("defaultV2");
   const survey = new SurveyModel({
     questions: [{ type: "text", name: "q1", indent: 1 }],
   });
   const question = <Question>survey.getQuestionByName("q1");
   assert.equal(question.paddingLeft, "20px");
-  StylesManager.applyTheme("default");
 });
 
 QUnit.test(
@@ -4554,7 +4550,7 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
       },
     ],
   });
-  survey.css = defaultStandardCss;
+  setOldTheme(survey);
   var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q1.value = [1];
   const checkCss = (actual: string, expected: string, message: string): void => {
@@ -7000,7 +6996,7 @@ QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
   const q2 = survey.getQuestionByName("q2");
   q1.value = "yes";
   assert.equal(q2.isRequired, true, "q2 is required");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(q2.errors.length, 1, "One error is shown");
   q1.value = "no";
   assert.equal(q2.isRequired, false, "q2 is not required");
@@ -7760,7 +7756,6 @@ QUnit.test("defaultValueExpression copy the array/object, Bug#8799", function (a
   });
 });
 QUnit.test("TextAreaOptions", function (assert) {
-  StylesManager.applyTheme("defaultV2");
   Question["questionCounter"] = 101;
 
   const survey = new SurveyModel({
@@ -7824,8 +7819,6 @@ QUnit.test("TextAreaOptions", function (assert) {
   assert.equal(textAreaOptions.maxLength, undefined, "textAreaOptions maxLength");
   assert.equal(textAreaOptions.cols, 50, "textAreaOptions cols");
   assert.equal(textAreaOptions.rows, 4, "textAreaOptions rows");
-
-  StylesManager.applyTheme("default");
 });
 QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
   const survey = new SurveyModel({

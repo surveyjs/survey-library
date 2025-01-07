@@ -34,7 +34,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   componentDidUpdate(prevProps: any, prevState: any) {
     this.makeBaseElementsReact();
     const stateElements = this.getStateElements();
-    this.disableStateElementsRerenderEvent((this.prevStateElements ?? []).filter(el => !stateElements.includes(el)));
+    this.disableStateElementsRerenderEvent((this.prevStateElements ?? []).filter(el => !stateElements.find(stateElement => stateElement == el)));
     this.prevStateElements = [];
     this.getStateElements().forEach((el) => {
       el.afterRerender();

@@ -90,7 +90,7 @@ const props = defineProps<{
   allowClose: boolean;
   allowFullScreen: boolean;
   onClose?: () => void;
-  closeOnCompleteTimeout: number;
+  closeOnCompleteTimeout?: number;
 }>();
 const surveyWindow =
   shallowRef<PopupSurveyModel>() as ShallowRef<PopupSurveyModel>;

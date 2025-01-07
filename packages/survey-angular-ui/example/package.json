@@ -4,8 +4,7 @@
   "peerDependencies": {},
   "devDependencies": {},
   "dependencies": {
-    "bootstrap": "^3.3.7",
-    "survey-core": "../../../build/survey-core",
+    "survey-core": "../../survey-core/build",
     "surveyjs-widgets": "^1.9.40",
     "tslib": "^2.3.0"
   }

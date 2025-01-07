@@ -121,7 +121,7 @@ registerMarkupTests(
       event: "onAfterRenderHeader",
       snapshot: "survey-logo-attribute-sizes",
       getElement: (el) => {
-        return <HTMLElement>el?.querySelector(".sv_logo");
+        return <HTMLElement>el?.querySelector(".sd-logo");
       }
     },
     {
@@ -147,7 +147,7 @@ registerMarkupTests(
       event: "onAfterRenderHeader",
       snapshot: "survey-logo-style-sizes",
       getElement: (el) => {
-        return <HTMLElement>el?.querySelector(".sv_logo");
+        return <HTMLElement>el?.querySelector(".sd-logo");
       }
     },
     {

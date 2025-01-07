@@ -35,7 +35,7 @@ const buildPlatformJson = {
   typings: "./typings/entries/index.d.ts",
 
   "peerDependencies": {
-    "survey-core": "*",
+    "survey-core": packageJson.version,
     "react": "^16.5.0 || ^17.0.1 || ^18.2.0",
     "react-dom": "^16.5.0 || ^17.0.1 || ^18.2.0"
   }
@@ -106,11 +106,6 @@ module.exports = function (options) {
             }
           ]
         },
-        // {
-        //   test: /\.html$/,
-        //   exclude: [/node_modules/, require.resolve('./index.html')],
-        //   loader: "html-loader"
-        // },
         {
           test: /\.(svg|png)$/,
           use: {
@@ -156,7 +151,6 @@ module.exports = function (options) {
       new DashedNamePlugin(),
       new webpack.ProgressPlugin(percentage_handler),
       new webpack.DefinePlugin({
-        "process.env.ENVIRONMENT": JSON.stringify(options.buildType),
         "process.env.VERSION": JSON.stringify(packageJson.version)
       }),
       new MiniCssExtractPlugin({
@@ -174,20 +168,20 @@ module.exports = function (options) {
     config.devtool = "source-map";
     config.plugins = config.plugins.concat([
       new webpack.LoaderOptionsPlugin({ debug: true }),
-      // new HtmlWebpackPlugin({
-      //   filename: "index.html",
-      //   inject: "body",
-      //   template: "index.html"
-      // }),
+      new HtmlWebpackPlugin({
+        filename: "index.html",
+        inject: "body",
+        template: "index.html"
+      }),
     ]);
-    // config.devServer = {
-    //   static: {
-    //     directory: path.join(__dirname, '.'),
-    //   },
-    //   //host: "0.0.0.0",
-    //   compress: false,
-    //   port: 8082
-    // };
+    config.devServer = {
+      static: {
+        directory: path.join(__dirname, '.'),
+      },
+      //host: "0.0.0.0",
+      compress: false,
+      port: 7777
+    };
   }
 
   return config;

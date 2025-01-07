@@ -1,5 +1,4 @@
 import { registerMarkupTests } from "./helper";
-import { StylesManager } from "survey-core";
 
 registerMarkupTests(
   [
@@ -32,8 +31,6 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("default"),
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdynamic-default"
     },
     {
@@ -65,8 +62,7 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
+
       snapshot: "matrixdynamic-defaultV2"
     },
     {

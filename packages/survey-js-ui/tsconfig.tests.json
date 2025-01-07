@@ -1,0 +1,11 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "declaration": false,
+        "declarationDir": null,
+    },
+    "include": [
+        "./tests/markup.ts",
+    ]
+}

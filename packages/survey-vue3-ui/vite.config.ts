@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: mode == "development",
       // Output compiled files to /dist.
-      outDir: "../../build/survey-vue3-ui",
+      outDir: "./build",
       lib: {
         // Set the entry point (file that contains our components exported).
         entry: resolve(__dirname, "src/index.ts"),
@@ -34,13 +34,11 @@ export default defineConfig(({ mode }) => {
 
         plugins: [
           copy({
-            targets: [
-              { src: "./README.md", dest: "../../build/survey-vue3-ui" },
-            ],
+            targets: [{ src: "./README.md", dest: "./build" }],
           }),
           generatePackageJson({
             inputFolder: "publish",
-            outputFolder: "../../build/survey-vue3-ui",
+            outputFolder: "./build",
             baseContents: json,
           }),
         ],

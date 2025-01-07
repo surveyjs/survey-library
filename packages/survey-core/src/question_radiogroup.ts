@@ -33,14 +33,24 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
    *
    * Default value: `false`
    */
+  public get allowClear(): boolean {
+    return this.getPropertyValue("allowClear");
+  }
+  public set allowClear(val: boolean) {
+    this.setPropertyValue("allowClear", val);
+  }
+  /**
+   * Obsolete. Use the [`allowClear`](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model#allowClear) property instead.
+   * @deprecated
+   */
   public get showClearButton(): boolean {
-    return this.getPropertyValue("showClearButton");
+    return this.allowClear;
   }
   public set showClearButton(val: boolean) {
-    this.setPropertyValue("showClearButton", val);
+    this.allowClear = val;
   }
   public get canShowClearButton(): boolean {
-    return this.showClearButton && !this.isReadOnly;
+    return this.allowClear && !this.isReadOnly;
   }
   public get clearButtonCaption() {
     return this.getLocalizationString("clearCaption");
@@ -50,6 +60,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = super.getConditionJson(operator, path);
+    delete json["allowClear"];
     delete json["showClearButton"];
     return json;
   }
@@ -95,7 +106,8 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
 
 Serializer.addClass(
   "radiogroup",
-  [{ name: "showClearButton:boolean", default: false },
+  [
+    { name: "allowClear:boolean", alternativeName: "showClearButton" },
     { name: "separateSpecialChoices", visible: true },
     { name: "itemComponent", visible: false, default: "survey-radiogroup-item" }
   ],

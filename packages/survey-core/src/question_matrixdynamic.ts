@@ -747,6 +747,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public set addRowButtonLocation(val: string) {
     this.setPropertyValue("addRowButtonLocation", val);
   }
+  /**
+   * Obsolete. Use the [`addRowButtonLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#addRowButtonLocation) property instead.
+   * @deprecated
+   */
   public get addRowLocation(): string {
     return this.addRowButtonLocation;
   }

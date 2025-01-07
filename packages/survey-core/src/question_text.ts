@@ -132,7 +132,7 @@ export class QuestionTextModel extends QuestionTextBase {
         this.setRenderedMinMax();
       }
     );
-    this.registerPropertyChangedHandlers(["inputType", "size"], () => {
+    this.registerPropertyChangedHandlers(["inputType", "inputSize"], () => {
       this.updateInputSize();
       this.resetRenderedPlaceholder();
     });
@@ -181,23 +181,26 @@ export class QuestionTextModel extends QuestionTextBase {
     return true;
   }
   /**
-   * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
+   * A value passed on to the [`inputSize`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
    */
+  public get inputSize(): number {
+    return this.getPropertyValue("inputSize");
+  }
+  public set inputSize(val: number) {
+    this.setPropertyValue("inputSize", val);
+  }
   public get size(): number {
-    return this.getPropertyValue("size");
+    return this.inputSize;
   }
   public set size(val: number) {
-    this.setPropertyValue("size", val);
+    this.inputSize = val;
   }
-  public get isTextInput() {
+  public get isTextInput(): boolean {
     return (
       ["text", "search", "tel", "url", "email", "password"].indexOf(
         this.inputType
       ) > -1
     );
-  }
-  public get inputSize(): number {
-    return this.getPropertyValue("inputSize", 0);
   }
   public get renderedInputSize(): number {
     return this.getPropertyValue("renderedInputSize", undefined, () => {
@@ -207,13 +210,12 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public get inputWidth(): string {
     return this.getPropertyValue("inputWidth", undefined, () => {
-      const size = this.calInputSize();
-      return size > 0 ? "auto" : "";
+      return this.renderedInputSize !== null ? "auto" : "";
     });
   }
   private calInputSize(): number {
     if(!this.isTextInput) return 0;
-    let size = this.size > 0 ? this.size : 0;
+    let size = this.inputSize > 0 ? this.inputSize : 0;
     if (size < 1 && this.parent && !!(<any>this.parent)["inputSize"]) {
       size = (<any>this.parent)["inputSize"];
     }
@@ -740,13 +742,11 @@ Serializer.addClass(
       choices: settings.questions.inputTypes,
     },
     {
-      name: "size:number",
-      minValue: 0,
-      dependsOn: "inputType",
+      name: "inputSize:number", alternativeName: "size", minValue: 0, dependsOn: "inputType",
       visibleIf: function(obj: any) {
         if (!obj) return false;
         return obj.isTextInput;
-      },
+      }
     },
     {
       name: "textUpdateMode",

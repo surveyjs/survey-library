@@ -55,7 +55,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public get clearButtonCaption() {
     return this.getLocalizationString("clearCaption");
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     return this.isMouseDown === true && !this.isOtherSelected;
   }
   public getConditionJson(operator: string = null, path: string = null): any {

@@ -494,24 +494,24 @@ QUnit.test("Matrix Question sortVisibleRows", function (assert) {
   var rows = matrix.visibleRows;
   assert.equal(rows[0].name, "row2", "rows has been reordered");
 });
-QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (
+QUnit.test("Matrix Question supportAutoAdvance property", function (
   assert
 ) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
-  assert.equal(matrix.supportGoNextPageAutomatic(), false, "Rows are not set");
+  assert.equal(matrix.supportAutoAdvance(), false, "Rows are not set");
   matrix.onMouseDown();
   matrix.value = { row1: "col1" };
   assert.equal(
-    matrix.supportGoNextPageAutomatic(),
+    matrix.supportAutoAdvance(),
     false,
     "The second row is not set"
   );
   matrix.onMouseDown();
   matrix.value = { row1: "col1", row2: "col1" };
   matrix.onMouseDown();
-  assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
+  assert.equal(matrix.supportAutoAdvance(), true, "Both rows are set");
 });
 
 QUnit.test("Matrix Question clearIncorrectValues", function (assert) {
@@ -594,16 +594,16 @@ QUnit.test("Multiple Text Question: support goNextPageAutomatic", function (
   mText.items.push(new MultipleTextItemModel("text1"));
   mText.items.push(new MultipleTextItemModel("text2"));
 
-  assert.equal(mText.supportGoNextPageAutomatic(), false, "all text are empty");
+  assert.equal(mText.supportAutoAdvance(), false, "all text are empty");
   mText.value = { tex1: "val1" };
   assert.equal(
-    mText.supportGoNextPageAutomatic(),
+    mText.supportAutoAdvance(),
     false,
     "The second text is empty"
   );
   mText.value = { text1: "val1", text2: "val2" };
   assert.equal(
-    mText.supportGoNextPageAutomatic(),
+    mText.supportAutoAdvance(),
     true,
     "Both text inputs are set"
   );
@@ -643,7 +643,7 @@ QUnit.test("Use timer to go next page", function (assert) {
   assert.equal(survey.goNextPageAutomatic, true, "The property set correctly");
   const question = survey.getQuestionByName("q1");
   question.onMouseDown();
-  assert.equal(question.supportGoNextPageAutomatic(), true, "questio support go next page automatic");
+  assert.equal(question.supportAutoAdvance(), true, "questio support go next page automatic");
   question.value = 1;
   assert.equal(survey.currentPageNo, 1, "Go to the second page");
   assert.equal(checkDelay, 250, "setTimeout function is called");
@@ -4022,25 +4022,25 @@ QUnit.test("question.getSupportedValidators", function (assert) {
     "answercount",
   ]);
 });
-QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (assert) {
+QUnit.test("QuestionImagePickerModel.supportAutoAdvance", function (assert) {
   const q = new QuestionImagePickerModel("q");
-  assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
+  assert.equal(q.supportAutoAdvance(), true, "It supports by default");
   q.multiSelect = true;
-  assert.equal(q.supportGoNextPageAutomatic(), false, "It doesn't support it for multiselect");
+  assert.equal(q.supportAutoAdvance(), false, "It doesn't support it for multiselect");
   q.multiSelect = false;
-  assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
+  assert.equal(q.supportAutoAdvance(), true, "multiselect is false");
 });
-QUnit.test("QuestionTextModel.supportGoNextPageAutomatic", function (assert) {
+QUnit.test("QuestionTextModel.supportAutoAdvance", function (assert) {
   const q = new QuestionTextModel("q");
-  assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
+  assert.equal(q.supportAutoAdvance(), true, "It supports by default");
   q.inputType = "date";
-  assert.equal(q.supportGoNextPageAutomatic(), false, "Do not support for date");
+  assert.equal(q.supportAutoAdvance(), false, "Do not support for date");
   q.inputType = "text";
-  assert.equal(q.supportGoNextPageAutomatic(), true, "Default inputType again");
+  assert.equal(q.supportAutoAdvance(), true, "Default inputType again");
   q.textUpdateMode = "onTyping";
-  assert.equal(q.supportGoNextPageAutomatic(), false, "textUpdateMode = 'onTyping'");
+  assert.equal(q.supportAutoAdvance(), false, "textUpdateMode = 'onTyping'");
   q.textUpdateMode = "onBlur";
-  assert.equal(q.supportGoNextPageAutomatic(), true, "textUpdateMode = 'onBlur'");
+  assert.equal(q.supportAutoAdvance(), true, "textUpdateMode = 'onBlur'");
 });
 
 QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {

@@ -523,7 +523,7 @@ export class QuestionMatrixModel
     var loc = this.cells.getCellDisplayLocText(row, column);
     return loc ? loc : this.emptyLocalizableString;
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     return this.isMouseDown === true && this.hasValuesInAllRows();
   }
   private errorsInRow: HashTable<boolean>;

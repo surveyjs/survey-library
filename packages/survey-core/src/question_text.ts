@@ -523,7 +523,7 @@ export class QuestionTextModel extends QuestionTextBase {
   protected getIsInputTextUpdate(): boolean {
     return this.maskTypeIsEmpty ? super.getIsInputTextUpdate() : false;
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     return !this.getIsInputTextUpdate() && !this.isDateInputType;
   }
   public supportGoNextPageError(): boolean {

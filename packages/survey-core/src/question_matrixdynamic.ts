@@ -308,7 +308,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("allowRowReorder", val);
   }
   /**
-   * @deprecated Use the [`allowRowReorder`](#allowRowReorder) property instead.
+   * Obsolete. Use the [`allowRowReorder`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#allowRowReorder) property instead.
+   * @deprecated
    */
   public get allowRowsDragAndDrop(): boolean {
     return this.allowRowReorder;

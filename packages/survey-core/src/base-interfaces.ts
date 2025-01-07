@@ -136,7 +136,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
   getUpdatedQuestionNo(question: IQuestion, no: string): string;
-  getUpdatedPanelNo(question: IPanel, no: string): string;
   getUpdatedPageNo(question: IPage, no: string): string;
   getUpdatedElementTitleActions(
     element: ISurveyElement,
@@ -160,7 +159,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
 
   maxTextLength: number;
   /**
-   * @deprecated The property should not be used
+   * @deprecated Use `maxCommentLength` instead.
    */
   maxOthersLength: number;
   maxCommentLength: number;

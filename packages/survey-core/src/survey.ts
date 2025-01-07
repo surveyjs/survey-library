@@ -6407,8 +6407,9 @@ export class SurveyModel extends SurveyElementCore
     this.updateState();
     if(!!this.sjsVersion && !!settings.version) {
       if(Helpers.compareVerions(this.sjsVersion, settings.version) > 0) {
-        ConsoleWarnings.warn("The JSON was created using Creator version "
-          + this.sjsVersion + ", which is newer than your current runner version " + settings.version + ".");
+        ConsoleWarnings.warn("The version of the survey JSON schema (v"
+          + this.sjsVersion + ") is newer than your current Form Library version ("
+          + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");
       }
     }
   }

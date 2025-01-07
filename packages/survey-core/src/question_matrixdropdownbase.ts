@@ -1116,6 +1116,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public set useCaseSensitiveComparison(val: boolean) {
     this.useCaseSensitiveComparisonValue = val;
   }
+  /**
+   * Obsolete. Use the [`useCaseSensitiveComparison`](#useCaseSensitiveComparison) property instead.
+   * @deprecated
+   */
   public get isUniqueCaseSensitive(): boolean {
     return this.useCaseSensitiveComparison;
   }

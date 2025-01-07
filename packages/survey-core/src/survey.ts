@@ -198,7 +198,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onStarted: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
   /**
-   * An event that is raised to save incomplete survey results. Enable the [`sendResultOnPageNext`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#sendResultOnPageNext) property for this event to occur.
+   * An event that is raised to save incomplete survey results. Enable the [`partialSendEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#partialSendEnabled) property for this event to occur.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -1333,7 +1333,7 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(main)
       .append(btn).toString();
   }
-  private lazyRenderingValue: boolean;
+  private lazyRenderingEnabledValue: boolean;
   @property() showBrandInfo: boolean;
   @property() enterKeyAction: "moveToNextEditor" | "loseFocus" | "default";
   /**
@@ -1346,19 +1346,29 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
    * @see [settings.lazyRender](https://surveyjs.io/form-library/documentation/api-reference/settings#lazyRender)
    */
-  public get lazyRendering(): boolean {
-    return this.lazyRenderingValue === true;
+  public get lazyRenderingEnabled(): boolean {
+    return this.lazyRenderingEnabledValue === true;
   }
-  public set lazyRendering(val: boolean) {
-    if (this.lazyRendering === val) return;
-    this.lazyRenderingValue = val;
+  public set lazyRenderingEnabled(val: boolean) {
+    if (this.lazyRenderingEnabled === val) return;
+    this.lazyRenderingEnabledValue = val;
     const page: PageModel = this.currentPage;
     if (!!page) {
       page.updateRows();
     }
   }
+  /**
+   * Obsolete. Use the [`lazyRenderingEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#lazyRenderingEnabled) property instead.
+   * @deprecated
+   */
+  public get lazyRendering(): boolean {
+    return this.lazyRenderingEnabled;
+  }
+  public set lazyRendering(val: boolean) {
+    this.lazyRenderingEnabled = val;
+  }
   public get isLazyRendering(): boolean {
-    return this.lazyRendering || settings.lazyRender.enabled;
+    return this.lazyRenderingEnabled || settings.lazyRender.enabled;
   }
   @property() lazyRenderingFirstBatchSizeValue: number;
   public get lazyRenderingFirstBatchSize(): number {
@@ -1464,11 +1474,21 @@ export class SurveyModel extends SurveyElementCore
    *
    * Alternatively, you can handle the [`onCurrentPageChanged`](#onCurrentPageChanged) and [`onValueChanged`](#onValueChanged) events, as shown in the following demo: [Continue an Incomplete Survey](https://surveyjs.io/form-library/examples/survey-editprevious/).
    */
+  public get partialSendEnabled(): boolean {
+    return this.getPropertyValue("partialSendEnabled");
+  }
+  public set partialSendEnabled(val: boolean) {
+    this.setPropertyValue("partialSendEnabled", val);
+  }
+  /**
+   * Obsolete. Use the [`partialSend`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#partialSend) property instead.
+   * @deprecated
+   */
   public get sendResultOnPageNext(): boolean {
-    return this.getPropertyValue("sendResultOnPageNext");
+    return this.partialSendEnabled;
   }
   public set sendResultOnPageNext(val: boolean) {
-    this.setPropertyValue("sendResultOnPageNext", val);
+    this.partialSendEnabled = val;
   }
   /**
    * Specifies whether to show progress when the survey sends data to [SurveyJS Service](https://api.surveyjs.io).
@@ -1721,7 +1741,7 @@ export class SurveyModel extends SurveyElementCore
    * Default value: `true`
    *
    * Respondents can leave comments when they select "Other" in choice-based questions, such as Dropdown or Checkboxes. Comment values are saved in a separate property. The property name is composed of the question `name` and [`commentSuffix`](#commentSuffix). However, you can use the question `name` as a key to store the comment value instead. Disable the `storeOthersAsComment` property in this case.
-   * @see maxOthersLength
+   * @see maxCommentLength
    */
   public get storeOthersAsComment(): boolean {
     return this.getPropertyValue("storeOthersAsComment");
@@ -1735,7 +1755,7 @@ export class SurveyModel extends SurveyElementCore
    * Default value: 0 (unlimited)
    *
    * You can override this setting for individual questions if you specify their [`maxLength`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maxLength) property.
-   * @see maxOthersLength
+   * @see maxCommentLength
    */
   public get maxTextLength(): number {
     return this.getPropertyValue("maxTextLength");
@@ -1749,11 +1769,21 @@ export class SurveyModel extends SurveyElementCore
    * Default value: 0 (unlimited)
    * @see maxTextLength
    */
+  public get maxCommentLength(): number {
+    return this.getPropertyValue("maxCommentLength");
+  }
+  public set maxCommentLength(val: number) {
+    this.setPropertyValue("maxCommentLength", val);
+  }
+  /**
+   * Obsolete. Use the [`maxCommentLength`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#maxCommentLength) property instead.
+   * @deprecated
+   */
   public get maxOthersLength(): number {
-    return this.getPropertyValue("maxOthersLength");
+    return this.maxCommentLength;
   }
   public set maxOthersLength(val: number) {
-    this.setPropertyValue("maxOthersLength", val);
+    this.maxCommentLength = val;
   }
 
   /**
@@ -3427,7 +3457,8 @@ export class SurveyModel extends SurveyElementCore
       this.currentPageNo = index;
       return true;
     }
-    for (let i = this.currentPageNo; i < index; i++) {
+    if(!this.validateCurrentPage()) return false;
+    for (let i = this.currentPageNo + 1; i < index; i++) {
       const page = this.visiblePages[i];
       if (!page.validate(true, true)) return false;
       page.passed = true;
@@ -3780,7 +3811,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public get isNavigationButtonsShowing(): string {
     if (this.isDesignMode) return "none";
-    var page = this.currentPage;
+    var page = this.activePage;
     if (!page) return "none";
     if (page.navigationButtonsVisibility === "show") {
       return this.showNavigationButtons === "none" ? "bottom" : this.showNavigationButtons;
@@ -4852,7 +4883,7 @@ export class SurveyModel extends SurveyElementCore
     var curPage = this.currentPage;
     this.checkOnPageTriggers(false);
     if (!this.isCompleted) {
-      if (this.sendResultOnPageNext) {
+      if (this.partialSendEnabled) {
         this.sendResult(this.surveyPostId, this.clientId, true);
       }
       if (curPage === this.currentPage) {
@@ -6939,11 +6970,21 @@ export class SurveyModel extends SurveyElementCore
    *
    * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
    */
+  public get clearDisabledChoices(): boolean {
+    return this.getPropertyValue("clearDisabledChoices", false);
+  }
+  public set clearDisabledChoices(val: boolean) {
+    this.setPropertyValue("clearDisabledChoices", val);
+  }
+  /**
+   * Obsolete. Use the [`clearDisabledChoices`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#clearDisabledChoices) property instead.
+   * @deprecated
+   */
   public get clearValueOnDisableItems(): boolean {
-    return this.getPropertyValue("clearValueOnDisableItems", false);
+    return this.clearDisabledChoices;
   }
   public set clearValueOnDisableItems(val: boolean) {
-    this.setPropertyValue("clearValueOnDisableItems", val);
+    this.clearDisabledChoices = val;
   }
   getQuestionClearIfInvisible(questionClearIf: string): string {
     if (this.isShowingPreview || this.runningPages) return "none";
@@ -8191,7 +8232,7 @@ Serializer.addClass("survey", [
   { name: "surveyPostId", visible: false },
   { name: "surveyShowDataSaving:boolean", visible: false },
   "cookieName",
-  "sendResultOnPageNext:boolean",
+  { name: "partialSendEnabled:boolean", alternativeName: "sendResultOnPageNext" },
   {
     name: "showNavigationButtons",
     default: "bottom",
@@ -8284,7 +8325,7 @@ Serializer.addClass("survey", [
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },
   { name: "maxTextLength:number", default: 0, minValue: 0 },
-  { name: "maxOthersLength:number", default: 0, minValue: 0 },
+  { name: "maxCommentLength:number", default: 0, minValue: 0, alternativeName: "maxOthersLength" },
   {
     name: "goNextPageAutomatic:boolean",
     onSetValue: function (obj: any, value: any) {

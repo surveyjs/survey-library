@@ -5,9 +5,8 @@ import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Serializer } from "../src/jsonobject";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
-import { StylesManager } from "@legacy/stylesmanager";
 import { RenderingCompletedAwaiter } from "../src/survey-element";
-
+import { setOldTheme } from "./oldTheme";
 export default QUnit.module("SurveyElement");
 
 QUnit.test("panel isExpanded and isCollapsed", function (assert) {
@@ -55,7 +54,6 @@ QUnit.test("question isExpanded and isCollapsed", function (assert) {
 });
 
 QUnit.test("element check that title classes are updated after element state updated", function (assert) {
-  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     questions: [
       {
@@ -75,6 +73,7 @@ QUnit.test("element check that title classes are updated after element state upd
       }
     ]
   });
+  setOldTheme(survey);
   const panel = <PanelModel>survey.getAllPanels()[0];
   const question = <Question>survey.getQuestionByName("q1");
   assert.equal(panel.cssTitle, "sv_p_title");
@@ -129,7 +128,6 @@ QUnit.test("creator v1: https://github.com/surveyjs/survey-creator/issues/1744",
 });
 
 QUnit.test("Check errors location", function (assert) {
-  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [{
       type: "text",
@@ -149,6 +147,7 @@ QUnit.test("Check errors location", function (assert) {
     }
     ]
   });
+  setOldTheme(survey);
   const q1 = survey.getQuestionByName("q1");
   const questionInMatrix = survey.getAllQuestions()[1].renderedTable.rows[0].cells[0].question;
   assert.notOk(q1.showErrorsAboveQuestion);
@@ -177,7 +176,6 @@ QUnit.test("Check errors location", function (assert) {
   assert.ok(questionInMatrix.showErrorsAboveQuestion);
 });
 QUnit.test("Check error location for questions in panel", function (assert) {
-  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [
       {
@@ -192,6 +190,7 @@ QUnit.test("Check error location for questions in panel", function (assert) {
       }
     ]
   });
+  setOldTheme(survey);
   const q1 = survey.getQuestionByName("q1");
   assert.notOk(q1.showErrorOnBottom);
   assert.notOk(q1.showErrorsBelowQuestion);
@@ -218,7 +217,6 @@ QUnit.test("Check error location for questions in panel", function (assert) {
   assert.ok(q1.showErrorsBelowQuestion);
 });
 QUnit.test("allowRootStyle", function (assert) {
-  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [{
       type: "text",
@@ -239,7 +237,6 @@ QUnit.test("allowRootStyle", function (assert) {
   assert.deepEqual(q1.rootStyle, {});
 });
 QUnit.test("rootStyle on mobile", function (assert) {
-  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [{
       type: "text",

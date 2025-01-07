@@ -36,6 +36,7 @@
           <span
             v-if="question.cssClasses.checkedItemDecorator"
             :class="question.cssClasses.checkedItemDecorator"
+            aria-hidden="true"
           >
             <SvComponent
               :is="'sv-svg-icon'"

@@ -1,6 +1,6 @@
 import { Selector } from "testcafe";
-import { frameworks, initSurvey, url, url_test, takeElementScreenshot, applyTheme, wrapVisualTest, resetHoverToBody } from "../../helper";
-import { getListItemByText } from "../../../testCafe/helper";
+import { frameworks, initSurvey, url, takeElementScreenshot, wrapVisualTest, resetHoverToBody } from "../../helper";
+import { getListItemByText } from "../../../functionalTests/helper";
 
 const title = "Popup Screenshot";
 fixture`${title}`.page`${url}`;
@@ -16,8 +16,6 @@ const json = {
     }
   ]
 };
-
-const theme = "defaultV2";
 
 const clickButton = Selector(".sv-action").filterVisible();
 const popupSelector = Selector(".sv-popup .sv-popup__container").filterVisible();
@@ -253,11 +251,8 @@ function addDropdownActionWithSubItemsAndSelectedItems(_, opt) {
 }
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`
-    .beforeEach(async t => {
-      await applyTheme(theme);
-    });
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`;
 
   test("Dropdown popup styles", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {

@@ -61,7 +61,7 @@ export var portugueseBrSurveyStrings = {
   addColumn: "Adicionar coluna",
   addRow: "Adicionar linha",
   removeRow: "Retirar",
-  emptyRowsText: "Não há filas.",
+  noRowsText: "Não há filas.",
   addPanel: "Adicionar novo",
   removePanel: "Retirar",
   showDetails: "Mostrar detalhes",
@@ -151,7 +151,7 @@ setupLocale({ localeCode: "pt-br", strings: portugueseBrSurveyStrings, nativeNam
 // addColumn: "Add Column" => "Adicionar coluna"
 // addRow: "Add Row" => "Adicionar linha"
 // removeRow: "Remove" => "Retirar"
-// emptyRowsText: "There are no rows." => "Não há filas."
+// noRowsText: "There are no rows." => "Não há filas."
 // addPanel: "Add new" => "Adicionar novo"
 // removePanel: "Remove" => "Retirar"
 // choices_Item: "item" => "item"

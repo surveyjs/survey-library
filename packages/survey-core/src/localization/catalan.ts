@@ -59,7 +59,7 @@ export var catalanSurveyStrings = {
   addColumn: "Afegeix una columna",
   addRow: "Afegiu una filera",
   removeRow: "Eliminar una filera",
-  emptyRowsText: "No hi ha files.",
+  noRowsText: "No hi ha files.",
   addPanel: "Afegeix un nou",
   removePanel: "Treure",
   showDetails: "Mostra els detalls",
@@ -137,7 +137,7 @@ setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "cata
 // confirmDelete: "Do you want to delete the record?" => "Vols eliminar el registre?"
 // keyDuplicationError: "This value should be unique." => "Aquest valor ha de ser únic."
 // addColumn: "Add Column" => "Afegeix una columna"
-// emptyRowsText: "There are no rows." => "No hi ha files."
+// noRowsText: "There are no rows." => "No hi ha files."
 // addPanel: "Add new" => "Afegeix un nou"
 // removePanel: "Remove" => "Treure"
 // choices_Item: "item" => "ítem"

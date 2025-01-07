@@ -59,7 +59,7 @@ export var georgianSurveyStrings = {
   addColumn: "სვეტის დამატება",
   addRow: "რიგის დამატება",
   removeRow: "წაშლა",
-  emptyRowsText: "რიგები არ არის.",
+  noRowsText: "რიგები არ არის.",
   addPanel: "ახალი დამატება",
   removePanel: "წაშლა",
   showDetails: "დეტალების ჩვენება",
@@ -148,7 +148,7 @@ setupLocale({ localeCode: "ka", strings: georgianSurveyStrings, nativeName: "ქ
 // addColumn: "Add Column" => "სვეტის დამატება"
 // addRow: "Add Row" => "რიგის დამატება"
 // removeRow: "Remove" => "წაშლა"
-// emptyRowsText: "There are no rows." => "რიგები არ არის."
+// noRowsText: "There are no rows." => "რიგები არ არის."
 // addPanel: "Add new" => "ახალი დამატება"
 // removePanel: "Remove" => "წაშლა"
 // choices_Item: "item" => "ნივთი"

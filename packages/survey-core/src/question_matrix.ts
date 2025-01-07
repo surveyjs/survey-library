@@ -315,6 +315,10 @@ export class QuestionMatrixModel
   public set eachRowRequired(val: boolean) {
     this.setPropertyValue("eachRowRequired", val);
   }
+  /**
+   * Obsolete. Use the [`eachRowRequired`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#eachRowRequired) property instead.
+   * @deprecated
+   */
   public get isAllRowRequired(): boolean {
     return this.eachRowRequired;
   }
@@ -354,7 +358,8 @@ export class QuestionMatrixModel
     this.onRowsChanged();
   }
   /**
-   * @deprecated Use the [`rowOrder`](#rowOrder) property instead.
+   * Obsolete. Use the [`rowOrder`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#rowOrder) property instead.
+   * @deprecated
    */
   public get rowsOrder(): string {
     return this.rowOrder;

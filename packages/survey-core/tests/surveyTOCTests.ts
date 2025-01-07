@@ -148,14 +148,14 @@ QUnit.test("pages visibility, do not include start page into TOC, bug #6192", fu
 
   assert.equal(tocListModel.visibleItems.length, 2, "First page is not visible");
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[1].name, "Page 1 is invisible, page 2 is the first");
-  survey.firstPageIsStarted = false;
+  survey.firstPageIsStartPage = false;
   assert.equal(tocListModel.visibleItems.length, 3, "First page is visible");
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible, page 1 is the first");
 });
 
 QUnit.test("pages navigation with start page, bug #6327", function (assert) {
   let json: any = {
-    "firstPageIsStarted": true,
+    "firstPageIsStartPage": true,
     "pages": [
       {
         "name": "page1",

@@ -83,7 +83,7 @@ const initSurvey = ClientFunction(framework => {
         "surveyElement"
       );
       survey.clientId = document.getElementById("clientId").value;
-      survey.sendResultOnPageNext = document.getElementById(
+      survey.partialSendEnabled = document.getElementById(
         "sendResultOnPageNext"
       ).checked;
       survey.onComplete.add(function(s) {
@@ -111,7 +111,7 @@ const initSurvey = ClientFunction(framework => {
         clientId: document.getElementById("clientId").value
       });
       document.getElementById("clientIdContainer").style.display = "none";
-      survey.sendResultOnPageNext = document.getElementById(
+      survey.partialSendEnabled = document.getElementById(
         "sendResultOnPageNext"
       ).checked;
       window["ReactDOMClient"].createRoot(document.getElementById("surveyElement")).render(
@@ -132,7 +132,7 @@ const initSurvey = ClientFunction(framework => {
         "surveyContainer"
       );
       survey.clientId = document.getElementById("clientId").value;
-      survey.sendResultOnPageNext = document.getElementById(
+      survey.partialSendEnabled = document.getElementById(
         "sendResultOnPageNext"
       ).checked;
       survey.onComplete.add(surveyComplete);

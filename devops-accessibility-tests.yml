@@ -3,396 +3,343 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-
 trigger:
   batch: true
   branches:
     exclude:
-    - master
+      - master
   tags:
     exclude:
       - v*.*.*
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: "windows-latest"
 
 jobs:
-- job: Knockout
-  steps:
-  - checkout: self
+  - job: Core
+    steps:
+      - checkout: self
 
-  - task: PowerShell@2
-    displayName: 'update Google Chrome to latest'
-    inputs:
-      targetType: 'inline'
-      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
 
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '16.x'
-    displayName: 'Install Node.js'
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
 
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: "$(Build.SourcesDirectory)/"
-      Contents: "package.json"
-      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
-      OverWrite: true
-    displayName: "Copy package.json for cache key"
-  - task: Cache@2
-    inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-      path: $(Build.SourcesDirectory)/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
-    displayName: Cache NPM
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
 
-  - task: Npm@1
-    displayName: 'NPM install'
-    inputs:
-      command: install
-      verbose: false
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-  
-  - script: |
-      npx puppeteer browsers install chrome
-    displayName: "install chrome"
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
-  - script: |
-      npm run build_knockout_prod
-    displayName: 'build prod'
+      - script: |
+          npm run lint
+        displayName: "run lint command"
 
-  - script: |
-      npm run accessibility-tests:ci:knockout 
-    displayName: 'Accessibility Tests'
-  
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
-      Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Knockout_AXE'
-      OverWrite: true
-    condition: always()
-    displayName: 'copy accessibility artifacts'
-  
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Knockout_AXE/'
-      ArtifactName: 'Library_Knockout_AXE'
-      publishLocation: 'Container'
-    condition: always()
-    displayName: 'publish accessibility artifacts'
+      - script: |
+          cd packages/survey-core
+          npm install
+        displayName: "NPM install packages/survey-core"
 
-- job: React
-  steps:
-  - checkout: self
+      - script: |
+          cd packages/survey-core
+          npm run build:all
+        displayName: "Build core"
 
-  - task: PowerShell@2
-    displayName: 'update Google Chrome to latest'
-    inputs:
-      targetType: 'inline'
-      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+          targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core
 
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '16.x'
-    displayName: 'Install Node.js'
-  
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: "$(Build.SourcesDirectory)/"
-      Contents: "package.json"
-      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
-      OverWrite: true
-    displayName: "Copy package.json for cache key"
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core"
+          ArtifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
+          publishLocation: "Container"
 
-  - task: Cache@2
-    inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-      path: $(Build.SourcesDirectory)/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
-    displayName: Cache NPM
+  - job: React
+    dependsOn: Core
+    steps:
+      - checkout: self
 
-  - task: Npm@1
-    displayName: 'NPM install'
-    inputs:
-      command: install
-      verbose: false
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-  
-  - script: |
-      npx puppeteer browsers install chrome
-    displayName: "install chrome"
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
 
-  - powershell: |
-      npm run build_react_prod
-      npm run build_core
-      npm run build_i18n
-      npm run build-plugins
-      npm run build_react_ui
-    displayName: 'build prod'
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
 
-  - script: |
-      npm run accessibility-tests:ci:react 
-    displayName: 'Accessibility Tests'
-  
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
-      Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_React_AXE'
-      OverWrite: true
-    condition: always()
-    displayName: 'copy accessibility artifacts'
-  
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_React_AXE/'
-      ArtifactName: 'Library_React_AXE'
-      publishLocation: 'Container'
-    condition: always()
-    displayName: 'publish accessibility artifacts'
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
 
-- job: Vue
-  steps:
-  - checkout: self
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
-  - task: PowerShell@2
-    displayName: 'update Google Chrome to latest'
-    inputs:
-      targetType: 'inline'
-      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
 
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '16.x'
-    displayName: 'Install Node.js'
-  
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: "$(Build.SourcesDirectory)/"
-      Contents: "package.json"
-      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
-      OverWrite: true
-    displayName: "Copy package.json for cache key"
-  - task: Cache@2
-    inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-      path: $(Build.SourcesDirectory)/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
-    displayName: Cache NPM
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
 
-  - task: Npm@1
-    displayName: 'NPM install'
-    inputs:
-      command: install
-      verbose: false
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-AT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
 
-  - script: |
-      npx puppeteer browsers install chrome
-    displayName: "install chrome"
-  
-  - script: |
-      npm run build_vue_prod
-    displayName: 'build prod'
+      - script: |
+          cd packages/survey-react-ui
+          npm install
+        displayName: "NPM install packages/survey-react-ui"
 
-  - script: |
-      npm run accessibility-tests:ci:vue 
-    displayName: 'Accessibility Tests'
-  
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
-      Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Vue_AXE'
-      OverWrite: true
-    condition: always()
-    displayName: 'copy accessibility artifacts'
-  
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Vue_AXE/'
-      ArtifactName: 'Library_Vue_AXE'
-      publishLocation: 'Container'
-    condition: always()
-    displayName: 'publish accessibility artifacts'
+      - script: |
+          cd packages/survey-react-ui
+          npm run build
+        displayName: "Build React"
 
-- job: Angular
-  steps:
-  - checkout: self
-    persistCredentials: true
-    clean: true
+      - script: |
+          cd packages/survey-react-ui
+          npm run accessibility-tests:ci
+        displayName: "run accessibility tests"
 
-  - task: PowerShell@2
-    displayName: 'update Google Chrome to latest'
-    inputs:
-      targetType: 'inline'
-      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+  - job: Angular
+    dependsOn: Core
+    steps:
+      - checkout: self
 
-  - task: NodeTool@0
-    inputs:
-      versionSpec: "16.x"
-    displayName: "Install Node.js"
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
 
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: "$(Build.SourcesDirectory)/"
-      Contents: "package.json"
-      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
-      OverWrite: true
-    displayName: "Copy package.json for cache key"
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
 
-  - task: Cache@2
-    inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-      path: $(Build.SourcesDirectory)/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
-    displayName: Cache NPMs
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
 
-  - task: Npm@1
-    displayName: 'NPM install root'
-    inputs:
-      command: install
-      verbose: false
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
-  - script: |
-      npx puppeteer browsers install chrome
-    displayName: "install chrome"
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
 
-  - powershell: |
-      npm run build_core
-      npm run build_i18n_dev
-      npm run build-plugins
-    displayName: "Build Core"
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
 
-  - script: |
-      cd packages/survey-angular-ui
-      npm install
-    displayName: "NPM install packages/survey-angular-ui"
-  
-  - script: |
-      cd packages/survey-angular-ui
-      npm run build
-    displayName: "Build Angular"
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-AT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
 
-  - script: |
-      cd packages/survey-angular-ui/example
-      npm install
-    displayName: "NPM install examples/angular-ui"
+      - script: |
+          cd packages/survey-angular-ui
+          npm install
+        displayName: "NPM install packages/survey-angular-ui"
 
-  - script: |
-      cd packages/survey-angular-ui
-      npm run build:example
-    displayName: "Build Angular Example"
+      - script: |
+          cd packages/survey-angular-ui
+          npm run build
+        displayName: "Build Angular"
 
-  - script: |
-      npm run accessibility-tests:ci:angular
-    displayName: "run accessibility tests"
+      - script: |
+          cd packages/survey-angular-ui/example
+          npm install
+        displayName: "NPM install examples/angular-ui"
 
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
-      Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Angular_AXE'
-      OverWrite: true
-    condition: always()
-    displayName: 'copy accessibility artifacts'
-  
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Angular_AXE/'
-      ArtifactName: 'Library_Angular_AXE'
-      publishLocation: 'Container'
-    condition: always()
-    displayName: 'publish accessibility artifacts'
+      - script: |
+          cd packages/survey-angular-ui
+          npm run build:example:prod
+        displayName: "Build Angular Example"
 
-- job: Vue3
-  steps:
-  - checkout: self
-    persistCredentials: true
-    clean: true
+      - script: |
+          cd packages/survey-angular-ui
+          npm run accessibility-tests:ci
+        displayName: "run accessibility tests"
 
-  - task: PowerShell@2
-    displayName: 'update Google Chrome to latest'
-    inputs:
-      targetType: 'inline'
-      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+  - job: Vue3
+    dependsOn: Core
+    steps:
+      - checkout: self
 
-  - task: NodeTool@0
-    inputs:
-      versionSpec: "16.x"
-    displayName: "Install Node.js"
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
 
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: "$(Build.SourcesDirectory)/"
-      Contents: "package.json"
-      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
-      OverWrite: true
-    displayName: "Copy package.json for cache key"
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
 
-  - task: Cache@2
-    inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-      path: $(Build.SourcesDirectory)/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
-    displayName: Cache NPMs
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
 
-  - task: Npm@1
-    displayName: 'NPM install root'
-    inputs:
-      command: install
-      verbose: false
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
-  - script: |
-      npx puppeteer browsers install chrome
-    displayName: "install chrome"
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
 
-  - powershell: |
-      npm run build_core
-      npm run build_i18n_dev
-      npm run build-plugins
-    displayName: "Build Core"
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
 
-  - script: |
-      cd packages/survey-vue3-ui
-      npm install
-    displayName: "NPM install packages/survey-vue3-ui"
-  
-  - script: |
-      cd packages/survey-vue3-ui
-      npm run build
-    displayName: "Build Vue3"
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-AT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
 
-  - script: |
-      cd packages/survey-vue3-ui/example
-      npm install
-    displayName: "NPM install Vue3 example"
+      - script: |
+          cd packages/survey-vue3-ui
+          npm install
+        displayName: "NPM install packages/survey-vue3-ui"
 
-  - script: |
-      cd packages/survey-vue3-ui/example
-      npm run build
-    displayName: "Build Vue3 Example"
+      - script: |
+          cd packages/survey-vue3-ui
+          npm run build
+        displayName: "Build Vue3"
 
-  - script: |
-      npm run accessibility-tests:ci:vue3
-    displayName: "run accessibility tests"
+      - script: |
+          cd packages/survey-vue3-ui/example
+          npm install
+        displayName: "NPM install examples/angular-ui"
 
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
-      Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Vue3_AXE'
-      OverWrite: true
-    condition: always()
-    displayName: 'copy accessibility artifacts'
-  
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Vue3_AXE/'
-      ArtifactName: 'Library_Vue3_AXE'
-      publishLocation: 'Container'
-    condition: always()
-    displayName: 'publish accessibility artifacts'
+      - script: |
+          cd packages/survey-vue3-ui/example
+          npm run build
+        displayName: "Build Vue3 Example"
+
+      - script: |
+          cd packages/survey-vue3-ui
+          npm run accessibility-tests:ci
+        displayName: "run accessibility tests"
+
+  - job: SurveyUI_and_CSSFrameworks
+    dependsOn: Core
+    steps:
+      - checkout: self
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPM
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+          workingDir: $(Build.SourcesDirectory)
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-AT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+
+      - script: |
+          cd packages/survey-js-ui
+          npm install
+        displayName: "NPM install packages/survey-js-ui"
+
+      - script: |
+          cd packages/survey-js-ui
+          npm run build
+        displayName: "Build UI"
+
+      - script: |
+          cd packages/survey-js-ui
+          npm run accessibility-tests:ci
+        displayName: "run accessibility tests"

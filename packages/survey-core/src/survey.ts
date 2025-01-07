@@ -633,14 +633,14 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised when an element (input field, checkbox, radio button) within a question gets focus.
    * @see onFocusInPanel
-   * @see focusFirstQuestionAutomatic
+   * @see autoFocusFirstQuestion
    * @see focusQuestion
    */
   public onFocusInQuestion: EventBase<SurveyModel, FocusInQuestionEvent> = this.addEvent<SurveyModel, FocusInQuestionEvent>();
   /**
    * An event that is raised when an element within a panel gets focus.
    * @see onFocusInQuestion
-   * @see focusFirstQuestionAutomatic
+   * @see autoFocusFirstQuestion
    * @see focusQuestion
    */
   public onFocusInPanel: EventBase<SurveyModel, FocusInPanelEvent> = this.addEvent<SurveyModel, FocusInPanelEvent>();
@@ -1518,28 +1518,48 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether to focus the first question on the page on survey startup or when users switch between pages.
    *
    * Default value: `false` in v1.9.114 and later, `true` in earlier versions
-   * @see focusOnFirstError
+   * @see autoFocusFirstError
    * @see focusFirstQuestion
    * @see focusQuestion
    */
+  public get autoFocusFirstQuestion(): boolean {
+    return this.getPropertyValue("autoFocusFirstQuestion");
+  }
+  public set autoFocusFirstQuestion(val: boolean) {
+    this.setPropertyValue("autoFocusFirstQuestion", val);
+  }
+  /**
+   * Obsolete. Use the [`autoFocusFirstQuestion`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoFocusFirstQuestion) property instead.
+   * @deprecated
+   */
   public get focusFirstQuestionAutomatic(): boolean {
-    return this.getPropertyValue("focusFirstQuestionAutomatic");
+    return this.autoFocusFirstQuestion;
   }
   public set focusFirstQuestionAutomatic(val: boolean) {
-    this.setPropertyValue("focusFirstQuestionAutomatic", val);
+    this.autoFocusFirstQuestion = val;
   }
   /**
    * Specifies whether to focus the first question with a validation error on the current page.
    *
    * Default value: `true`
    * @see validate
-   * @see focusFirstQuestionAutomatic
+   * @see autoFocusFirstQuestion
+   */
+  public get autoFocusFirstError(): boolean {
+    return this.getPropertyValue("autoFocusFirstError");
+  }
+  public set autoFocusFirstError(val: boolean) {
+    this.setPropertyValue("autoFocusFirstError", val);
+  }
+  /**
+   * Obsolete. Use the [`autoFocusFirstError`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoFocusFirstError) property instead.
+   * @deprecated
    */
   public get focusOnFirstError(): boolean {
-    return this.getPropertyValue("focusOnFirstError");
+    return this.autoFocusFirstError;
   }
   public set focusOnFirstError(val: boolean) {
-    this.setPropertyValue("focusOnFirstError", val);
+    this.autoFocusFirstError = val;
   }
   /**
    * Gets or sets the position of the Start, Next, Previous, and Complete navigation buttons and controls their visibility.
@@ -3624,7 +3644,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Focuses the first question on the current page.
    * @see focusQuestion
-   * @see focusFirstQuestionAutomatic
+   * @see autoFocusFirstQuestion
    */
   public focusFirstQuestion() {
     if (this.focusingQuestionInfo) return;
@@ -3640,7 +3660,7 @@ export class SurveyModel extends SurveyElementCore
     if (doScroll) {
       page.scrollToTop();
     }
-    if (this.isCurrentPageRendering && this.focusFirstQuestionAutomatic && !this.focusingQuestionInfo) {
+    if (this.isCurrentPageRendering && this.autoFocusFirstQuestion && !this.focusingQuestionInfo) {
       page.focusFirstQuestion();
       this.isCurrentPageRendering = false;
     }
@@ -4044,7 +4064,7 @@ export class SurveyModel extends SurveyElementCore
     };
     if (this.isValidateOnComplete) {
       if (!this.isLastPage) return false;
-      return this.validate(true, this.focusOnFirstError, func, true) !== true && !skipValidation;
+      return this.validate(true, this.autoFocusFirstError, func, true) !== true && !skipValidation;
     }
     return this.validateCurrentPage(func) !== true && !skipValidation;
   }
@@ -4082,7 +4102,7 @@ export class SurveyModel extends SurveyElementCore
     if (hasErrors) {
       this.clearAsyncValidationQuesitons();
       func(true);
-      if (this.focusOnFirstError && !!question && !!question.page && question.page === this.currentPage) {
+      if (this.autoFocusFirstError && !!question && !!question.page && question.page === this.currentPage) {
         const questions: Array<Question> = this.currentPage.questions;
         for (let i = 0; i < questions.length; i++) {
           if (questions[i] !== question && questions[i].errors.length > 0) return;
@@ -4174,14 +4194,14 @@ export class SurveyModel extends SurveyElementCore
    *
    * If you use validation expressions and at least one of them calls an async function, the `validate` method returns `undefined`. In this case, you should pass a callback function as the `onAsyncValidation` parameter. The function's `hasErrors` Boolean parameter will contain the validation result.
    * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
-   * @param focusOnFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error. The survey will be switched to the page that contains this question if required.
+   * @param focusFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error. The survey will be switched to the page that contains this question if required.
    * @param onAsyncValidation *(Optional)* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise.
    * @see validateCurrentPage
    * @see validatePage
    */
   public validate(
     fireCallback: boolean = true,
-    focusOnFirstError: boolean = false,
+    focusFirstError: boolean = false,
     onAsyncValidation?: (hasErrors: boolean) => void,
     changeCurrentPage?: boolean
   ): boolean {
@@ -4190,14 +4210,14 @@ export class SurveyModel extends SurveyElementCore
     }
     var visPages = this.visiblePages;
     var res = true;
-    const rec = { fireCallback: fireCallback, focusOnFirstError: focusOnFirstError, firstErrorQuestion: <any>null, result: false };
+    const rec = { fireCallback: fireCallback, focusOnFirstError: focusFirstError, firstErrorQuestion: <any>null, result: false };
     for (var i = 0; i < visPages.length; i++) {
-      if (!visPages[i].validate(fireCallback, focusOnFirstError, rec)) {
+      if (!visPages[i].validate(fireCallback, focusFirstError, rec)) {
         res = false;
       }
     }
-    if (!!rec.firstErrorQuestion && (focusOnFirstError || changeCurrentPage)) {
-      if (focusOnFirstError) {
+    if (!!rec.firstErrorQuestion && (focusFirstError || changeCurrentPage)) {
+      if (focusFirstError) {
         rec.firstErrorQuestion.focus(true);
       } else {
         this.currentPage = rec.firstErrorQuestion.page;
@@ -4295,7 +4315,7 @@ export class SurveyModel extends SurveyElementCore
     isFocuseOnFirstError: boolean = undefined
   ): boolean {
     if (isFocuseOnFirstError === undefined) {
-      isFocuseOnFirstError = this.focusOnFirstError;
+      isFocuseOnFirstError = this.autoFocusFirstError;
     }
     if (!page) return true;
     var res = !page.validate(true, isFocuseOnFirstError);
@@ -4913,7 +4933,7 @@ export class SurveyModel extends SurveyElementCore
     var self = options.survey;
     var hasErrors = false;
     if (options.errors) {
-      var hasToFocus = this.focusOnFirstError;
+      var hasToFocus = this.autoFocusFirstError;
       for (var name in options.errors) {
         var question = self.getQuestionByName(name);
         if (question && question["errors"]) {
@@ -7875,7 +7895,7 @@ export class SurveyModel extends SurveyElementCore
    * @param name A question name.
    * @returns `false` if the survey does not contain a question with a specified name or this question is hidden; otherwise, `true`.
    * @see focusFirstQuestion
-   * @see focusFirstQuestionAutomatic
+   * @see autoFocusFirstQuestion
    */
   public focusQuestion(name: string): boolean {
     return this.focusQuestionByInstance(this.getQuestionByName(name, true));
@@ -8251,8 +8271,8 @@ Serializer.addClass("survey", [
     default: "left",
     choices: ["none", "left", "right", "top", "bottom"],
   },
-  { name: "focusFirstQuestionAutomatic:boolean" },
-  { name: "focusOnFirstError:boolean", default: true },
+  { name: "autoFocusFirstQuestion:boolean", alternativeName: "focusFirstQuestionAutomatic" },
+  { name: "autoFocusFirstError:boolean", default: true, alternativeName: "focusOnFirstError" },
   { name: "completedHtml:html", serializationProperty: "locCompletedHtml" },
   {
     name: "completedBeforeHtml:html",

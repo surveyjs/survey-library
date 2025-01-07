@@ -1718,7 +1718,7 @@ export class QuestionSelectBase extends Question {
     return item.value === this.value;
   }
   private clearDisabledValues() {
-    if (!this.survey || !this.survey.clearValueOnDisableItems) return;
+    if (!this.survey || !this.survey.clearDisabledChoices) return;
     this.clearDisabledValuesCore();
   }
   protected clearIncorrectValuesCore() {

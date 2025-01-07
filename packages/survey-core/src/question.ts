@@ -1331,7 +1331,7 @@ export class Question extends SurveyElement<Question>
   }
   public getOthersMaxLength(): any {
     if (!this.survey) return null;
-    return this.survey.maxOthersLength > 0 ? this.survey.maxOthersLength : null;
+    return this.survey.maxCommentLength > 0 ? this.survey.maxCommentLength : null;
   }
   protected onCreating(): void { }
   public getFirstQuestionToFocus(withError: boolean): Question {
@@ -2530,7 +2530,9 @@ export class Question extends SurveyElement<Question>
   public removeElement(element: IElement): boolean {
     return false;
   }
-  public supportGoNextPageAutomatic(): boolean {
+  // Obsolete
+  supportGoNextPageAutomatic(): boolean { return this.supportAutoAdvance(); }
+  public supportAutoAdvance(): boolean {
     return false;
   }
   public supportGoNextPageError(): boolean {

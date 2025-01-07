@@ -11,6 +11,7 @@ import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { setOldTheme } from "./oldTheme";
 
 export default QUnit.module("baseselect");
 
@@ -862,6 +863,7 @@ QUnit.test("check radiogroup title actions", (assert) => {
         allowClear: true
       }]
   });
+  setOldTheme(survey);
   let question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
   assert.deepEqual(question.getTitleActions(), []);
   assert.ok(question.showClearButtonInContent);

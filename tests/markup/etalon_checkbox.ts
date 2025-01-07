@@ -1,4 +1,4 @@
-import { StylesManager, settings } from "survey-core";
+import { settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -45,7 +45,7 @@ registerMarkupTests(
       snapshot: "checkbox-other",
     },
     {
-      name: "Test checkbox question markup Other option with maxOthersLength",
+      name: "Test checkbox question markup Other option with maxCommentLength",
       json: {
         "maxOthersLength": 15,
         questions: [
@@ -79,10 +79,10 @@ registerMarkupTests(
         ]
       },
       before() {
-        StylesManager.applyTheme("defaultV2");
+
       },
       after() {
-        StylesManager.applyTheme("default");
+
       },
       snapshot: "checkbox-other-V2",
     },
@@ -103,10 +103,10 @@ registerMarkupTests(
         ]
       },
       before() {
-        StylesManager.applyTheme("defaultV2");
+
       },
       after() {
-        StylesManager.applyTheme("default");
+
       },
       snapshot: "checkbox-comment-V2",
     },
@@ -189,8 +189,7 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
+
       snapshot: "checkbox-v2",
     },
     {
@@ -209,8 +208,6 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("modern"),
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "checkbox-modern",
     },
     {

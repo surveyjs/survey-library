@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
-import { SurveyModel, StylesManager } from "survey-core";
+import { SurveyModel } from "survey-core";
 import Survey from "./Survey.vue";
 
 const json = {
@@ -22,8 +22,6 @@ const json = {
   }
  ]
 };
-
-StylesManager.applyTheme("defaultV2");
 
 //window.survey = new SurveyModel(json);
 

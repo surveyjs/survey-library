@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declaration": true,
+    "declarationDir": "./build/icons"
+  },
+  "include": [
+    "./src/iconsV1.ts",
+    "./src/iconsV2.ts",
+  ],
+  "exclude": [],
+}

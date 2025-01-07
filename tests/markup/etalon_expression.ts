@@ -1,4 +1,3 @@
-import { StylesManager } from "survey-core";
 import { registerMarkupTest } from "./helper";
 
 registerMarkupTest(
@@ -16,6 +15,5 @@ registerMarkupTest(
     },
     snapshot: "expression",
     removeIds: true,
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   });

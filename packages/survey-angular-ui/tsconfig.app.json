@@ -10,7 +10,7 @@
     ],
     "paths": {
       "survey-core": [
-        "../../build/survey-core"
+        "./node_modules/survey-core"
       ],
       "survey-angular-ui": [
         "./build"

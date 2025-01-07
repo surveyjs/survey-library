@@ -6,7 +6,7 @@ const path = require("path");
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 var DashedNamePlugin = require("../../build-scripts/webpack-dashed-name");
-var RemoveCoreFromName = require("../../build-scripts/webpack-remove-core-from-name");
+var RemoveCoreFromName = require("./webpack-remove-core-from-name");
 const mergeFiles = require("merge-files");
 const packageJson = require("./package.json");
 
@@ -36,7 +36,7 @@ var buildPlatformJson = {
   files: [
     "**/*"
   ],
-  "main": "survey-core.js",
+  "main": "survey.core.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"
@@ -103,7 +103,7 @@ module.exports = function (options) {
   var config = {
     mode: isProductionBuild ? "production" : "development",
     entry: {
-      [packageJson.name]: path.resolve(__dirname, "./entries/index.ts"),
+      "survey.core": path.resolve(__dirname, "./entries/index.ts"),
       defaultV2: path.resolve(__dirname, "./src/defaultV2-theme/defaultV2.scss"),
       "defaultV2.fontless": path.resolve(__dirname, "./src/defaultV2-theme/defaultV2.fontless.scss")
     },
@@ -172,7 +172,7 @@ module.exports = function (options) {
       new webpack.ProgressPlugin(percentage_handler),
       new DashedNamePlugin(),
       new webpack.DefinePlugin({
-        "process.env.ENVIRONMENT": JSON.stringify(options.buildType),
+        "process.env.RELEASE_DATE": JSON.stringify(new Date().toISOString().slice(0, 10)),
         "process.env.VERSION": JSON.stringify(packageJson.version),
       }),
       new RemoveCoreFromName(),

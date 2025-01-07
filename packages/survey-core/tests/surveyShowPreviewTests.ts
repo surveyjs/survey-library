@@ -1,8 +1,8 @@
 import { SurveyModel } from "../src/survey";
 import { surveyLocalization } from "../src/surveyStrings";
 import { PanelModel } from "../src/panel";
-import { StylesManager } from "@legacy/stylesmanager";
 import { settings } from "../src/settings";
+import { setOldTheme } from "./oldTheme";
 
 export default QUnit.module("SurveyShowPreviewTests");
 
@@ -173,7 +173,7 @@ QUnit.test(
     survey.showPreviewBeforeComplete = "showAllQuestions";
     survey.currentPageNo = 1;
     survey.showPreview();
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.visiblePages.length, 2, "We have two pages again");
     assert.equal(survey.currentPageNo, 1, "Current page is the last one");
   }
@@ -195,10 +195,10 @@ QUnit.test(
     survey.currentPageNo = 1;
     survey.showPreview();
     assert.equal(survey.state, "preview");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "preview", "Keep showing preview");
     allowComplete = true;
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "completed");
   }
 );
@@ -303,7 +303,6 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' set property", f
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', edit page, #2",
   function(assert) {
-    StylesManager.applyTheme("default");
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -319,6 +318,7 @@ QUnit.test(
         { elements: [{ type: "text", name: "q3" }] },
       ],
     });
+    setOldTheme(survey);
     survey.showPreviewBeforeComplete = "showAllQuestions";
     survey.currentPageNo = 2;
     assert.equal(survey.getAllPanels().length, 1, "There is one panel");
@@ -365,7 +365,6 @@ QUnit.test(
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', edit page",
   function (assert) {
-    StylesManager.applyTheme("default");
     var survey = new SurveyModel({
       "pages": [
         {
@@ -756,10 +755,10 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' and all question
     assert.equal(survey.state, "preview", "We do not check for errors");
     survey.cancelPreview();
     assert.equal(survey.state, "running", "running again");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "running", "We have errors, we can't fix errors");
     survey.setValue("q1", "a");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "completed", "No errors");
   }
 );
@@ -775,10 +774,10 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' & checkErrorsMod
     });
     survey.nextPage();
     survey.showPreview();
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "running", "We have errors, we can't fix errors");
     survey.setValue("q1", "a");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(survey.state, "completed", "No errors");
   }
 );

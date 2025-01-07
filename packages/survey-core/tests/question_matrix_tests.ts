@@ -369,7 +369,7 @@ QUnit.test("matrix isAllRowRequired  & getItemClass", function (assert) {
   let row = question.visibleRows[1];
   assert.equal(question.getItemClass(row, column1).indexOf(itemError) > -1, false, "itemError doesn't exist in column 1, #1");
   assert.equal(question.getItemClass(row, column2).indexOf(itemError) > -1, false, "itemError doesn't exist in column 2, #1");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.state, "running", "There is an error");
   row = question.visibleRows[1];
   assert.equal(question.getItemClass(row, column1).indexOf(itemError) > -1, true, "itemError exists in column 1, #2");

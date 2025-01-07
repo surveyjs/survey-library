@@ -1,4 +1,4 @@
-import { StylesManager, settings } from "survey-core";
+import { settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -62,8 +62,6 @@ registerMarkupTests(
       ]
     },
     snapshot: "boolean-v2",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
   },
   {
     name: "Test Boolean question markup with value Default V2",
@@ -78,8 +76,6 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
     snapshot: "boolean-value-v2",
   },
   {
@@ -96,8 +92,7 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     snapshot: "boolean-checkbox-defaultV2",
   },
   {
@@ -115,8 +110,7 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     snapshot: "boolean-checkbox-readonly-defaultV2",
   },
   {
@@ -203,8 +197,7 @@ registerMarkupTests(
       ]
     },
     snapshot: "boolean-radio-v2",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   },
   {
     name: "Test Boolean Radio with true/false values question markup",

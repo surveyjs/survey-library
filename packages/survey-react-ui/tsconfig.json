@@ -14,7 +14,7 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "moduleResolution": "node",
-    "jsx": "react-jsx",
+    "jsx": "react",
     "baseUrl": ".",
     "declaration": true,
     "declarationDir": "build/typings/"

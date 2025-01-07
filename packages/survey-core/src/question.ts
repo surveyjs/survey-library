@@ -1331,7 +1331,7 @@ export class Question extends SurveyElement<Question>
   }
   public getOthersMaxLength(): any {
     if (!this.survey) return null;
-    return this.survey.maxOthersLength > 0 ? this.survey.maxOthersLength : null;
+    return this.survey.maxCommentLength > 0 ? this.survey.maxCommentLength : null;
   }
   protected onCreating(): void { }
   public getFirstQuestionToFocus(withError: boolean): Question {
@@ -1925,7 +1925,7 @@ export class Question extends SurveyElement<Question>
   /**
    * A correct answer to this question. Specify this property if you want to [create a quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see SurveyModel.getCorrectAnswerCount
-   * @see SurveyModel.getInCorrectAnswerCount
+   * @see SurveyModel.getIncorrectAnswerCount
    */
   public get correctAnswer(): any {
     return this.getPropertyValue("correctAnswer");
@@ -1965,7 +1965,14 @@ export class Question extends SurveyElement<Question>
   protected checkIfAnswerCorrect(): boolean {
     const isEqual = Helpers.isTwoValueEquals(this.value, this.correctAnswer, this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
     const correct = isEqual ? 1 : 0;
-    const options = { result: isEqual, correctAnswer: correct, correctAnswers: correct, incorrectAnswers: this.quizQuestionCount - correct };
+    const incorrect = this.quizQuestionCount - correct;
+    const options = {
+      result: isEqual,
+      correctAnswers: correct,
+      correctAnswerCount: correct,
+      incorrectAnswers: incorrect,
+      incorrectAnswerCount: incorrect,
+    };
     if (!!this.survey) {
       this.survey.onCorrectQuestionAnswer(this, options);
     }

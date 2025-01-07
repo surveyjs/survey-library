@@ -166,7 +166,7 @@ QUnit.test("Check error row visibility", (assert) => {
   });
   const question = <QuestionMultipleTextModel>survey.getAllQuestions()[0];
   assert.notOk(question.getRows()[0].isVisible);
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.ok(question.getRows()[0].isVisible);
   question.items[0].editor.value = "test";
   assert.ok(question.getRows()[0].isVisible);

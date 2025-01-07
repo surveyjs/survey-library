@@ -59,7 +59,7 @@ export var frenchSurveyStrings = {
   addColumn: "Ajouter une colonne",
   addRow: "Ajouter une ligne",
   removeRow: "Supprimer",
-  emptyRowsText: "Il n'y a pas de lignes.",
+  noRowsText: "Il n'y a pas de lignes.",
   addPanel: "Ajouter",
   removePanel: "Supprimer",
   showDetails: "Afficher les détails",

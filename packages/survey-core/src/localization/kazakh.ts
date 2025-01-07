@@ -59,7 +59,7 @@ export var kazakhStrings = {
   addColumn: "Бағана қосу",
   addRow: "Жолды қосу",
   removeRow: "Өшіру",
-  emptyRowsText: "Қатарлар жоқ.",
+  noRowsText: "Қатарлар жоқ.",
   addPanel: "Жаңа қосу",
   removePanel: "Өшіру",
   showDetails: "Егжей-тегжейін көрсету",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", en
 // minError: "The value should not be less than {0}" => "Мәні {0} кем болмауы тиіс"
 // maxError: "The value should not be greater than {0}" => "Мән {0} артық болмауы тиіс"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Файлды осы жерге апарып тастаңыз немесе төмендегі түймені басыңыз және кері жүктеу үшін файлды таңдаңыз."
-// emptyRowsText: "There are no rows." => "Қатарлар жоқ."
+// noRowsText: "There are no rows." => "Қатарлар жоқ."
 // multipletext_itemname: "text" => "мәтін"
 // signaturePlaceHolder: "Sign here" => "Осында кіру"
 // modalCancelButtonText: "Cancel" => "Болдырмау"

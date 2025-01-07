@@ -59,7 +59,7 @@ export var lithuaniaSurveyStrings = {
   addColumn: "Pridėti stulpelį",
   addRow: "Pridėti eilutę",
   removeRow: "Ištrinti",
-  emptyRowsText: "Eilių nėra.",
+  noRowsText: "Eilių nėra.",
   addPanel: "Pridėti naują",
   removePanel: "Ištrinti",
   showDetails: "Rodyti išsamią informaciją",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "lt", strings: lithuaniaSurveyStrings, nativeName: "li
 // minError: "The value should not be less than {0}" => "Vertė neturėtų būti mažesnė nei {0}"
 // maxError: "The value should not be greater than {0}" => "Vertė neturėtų būti didesnė nei {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Nuvilkite failą čia arba spustelėkite žemiau esantį mygtuką ir pasirinkite failą, kurį norite įkelti."
-// emptyRowsText: "There are no rows." => "Eilių nėra."
+// noRowsText: "There are no rows." => "Eilių nėra."
 // multipletext_itemname: "text" => "SMS žinutė"
 // signaturePlaceHolder: "Sign here" => "Pasirašykite čia"
 // modalCancelButtonText: "Cancel" => "Atšaukti"

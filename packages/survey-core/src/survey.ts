@@ -1528,6 +1528,10 @@ export class SurveyModel extends SurveyElementCore
   public set autoFocusFirstQuestion(val: boolean) {
     this.setPropertyValue("autoFocusFirstQuestion", val);
   }
+  /**
+   * Obsolete. Use the [`autoFocusFirstQuestion`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoFocusFirstQuestion) property instead.
+   * @deprecated
+   */
   public get focusFirstQuestionAutomatic(): boolean {
     return this.autoFocusFirstQuestion;
   }
@@ -1547,6 +1551,10 @@ export class SurveyModel extends SurveyElementCore
   public set autoFocusFirstError(val: boolean) {
     this.setPropertyValue("autoFocusFirstError", val);
   }
+  /**
+   * Obsolete. Use the [`autoFocusFirstError`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoFocusFirstError) property instead.
+   * @deprecated
+   */
   public get focusOnFirstError(): boolean {
     return this.autoFocusFirstError;
   }
@@ -4186,14 +4194,14 @@ export class SurveyModel extends SurveyElementCore
    *
    * If you use validation expressions and at least one of them calls an async function, the `validate` method returns `undefined`. In this case, you should pass a callback function as the `onAsyncValidation` parameter. The function's `hasErrors` Boolean parameter will contain the validation result.
    * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
-   * @param focusOnFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error. The survey will be switched to the page that contains this question if required.
+   * @param focusFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error. The survey will be switched to the page that contains this question if required.
    * @param onAsyncValidation *(Optional)* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise.
    * @see validateCurrentPage
    * @see validatePage
    */
   public validate(
     fireCallback: boolean = true,
-    focusOnFirstError: boolean = false,
+    focusFirstError: boolean = false,
     onAsyncValidation?: (hasErrors: boolean) => void,
     changeCurrentPage?: boolean
   ): boolean {
@@ -4202,14 +4210,14 @@ export class SurveyModel extends SurveyElementCore
     }
     var visPages = this.visiblePages;
     var res = true;
-    const rec = { fireCallback: fireCallback, focusOnFirstError: focusOnFirstError, firstErrorQuestion: <any>null, result: false };
+    const rec = { fireCallback: fireCallback, focusOnFirstError: focusFirstError, firstErrorQuestion: <any>null, result: false };
     for (var i = 0; i < visPages.length; i++) {
-      if (!visPages[i].validate(fireCallback, focusOnFirstError, rec)) {
+      if (!visPages[i].validate(fireCallback, focusFirstError, rec)) {
         res = false;
       }
     }
-    if (!!rec.firstErrorQuestion && (focusOnFirstError || changeCurrentPage)) {
-      if (focusOnFirstError) {
+    if (!!rec.firstErrorQuestion && (focusFirstError || changeCurrentPage)) {
+      if (focusFirstError) {
         rec.firstErrorQuestion.focus(true);
       } else {
         this.currentPage = rec.firstErrorQuestion.page;

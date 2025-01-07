@@ -907,15 +907,15 @@ export class PanelModelBase extends SurveyElement<Question>
   /**
    * Validates questions within this panel or page and returns `false` if the validation fails.
    * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
-   * @param focusOnFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error.
+   * @param focusFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, focusOnFirstError: boolean = false, rec: any = null): boolean {
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, rec: any = null): boolean {
     rec = !!rec
       ? rec
       : {
         fireCallback: fireCallback,
-        focusOnFirstError: focusOnFirstError,
+        focusOnFirstError: focusFirstError,
         firstErrorQuestion: <any>null,
         result: false,
       };

@@ -59,8 +59,8 @@ import {
   ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent,
   QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
   ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent, GetPanelNumberEvent, GetProgressTextEvent,
-  TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, LoadChoicesFromServerEvent,
-  ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
+  TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, ChoicesLoadedEvent,
+  ProcessDynamicTextEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
   AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
   MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
@@ -69,7 +69,9 @@ import {
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
   OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent,
-  GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent, IsAnswerCorrectEvent
+  GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent, IsAnswerCorrectEvent,
+  LoadChoicesFromServerEvent,
+  ProcessTextValueEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -516,7 +518,12 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised after choices are loaded from a server but before they are assigned to a choice-based question, such as [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model) or [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model). Handle this event if you need to modify the loaded choices.
    */
-  public onLoadChoicesFromServer: EventBase<SurveyModel, LoadChoicesFromServerEvent> = this.addEvent<SurveyModel, LoadChoicesFromServerEvent>();
+  public onChoicesLoaded: EventBase<SurveyModel, ChoicesLoadedEvent> = this.addEvent<SurveyModel, ChoicesLoadedEvent>();
+  /**
+   * Obsolete. Use the [`onChoicesLoaded`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesLoaded) event instead.
+   * @deprecated
+   */
+  public onLoadChoicesFromServer: EventBase<SurveyModel, LoadChoicesFromServerEvent> = this.onChoicesLoaded;
 
   /**
    * An event that is raised after a survey JSON schema is loaded from the [SurveyJS Service](https://api.surveyjs.io). Use this event to modify the loaded schema.
@@ -529,7 +536,12 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised when the survey processes [dynamic texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts) and any text in curly brackets. Use this event, for instance, to substitute parameters in a RESTful URL with real values when you [load choices by URL](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#choicesByUrl).
    */
-  public onProcessTextValue: EventBase<SurveyModel, ProcessTextValueEvent> = this.addEvent<SurveyModel, ProcessTextValueEvent>();
+  public onProcessDynamicText: EventBase<SurveyModel, ProcessDynamicTextEvent> = this.addEvent<SurveyModel, ProcessDynamicTextEvent>();
+  /**
+   * Obsolete. Use the [`onProcessDynamicText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onProcessDynamicText) event instead.
+   * @deprecated
+   */
+  public onProcessTextValue: EventBase<SurveyModel, ProcessTextValueEvent> = this.onProcessDynamicText;
 
   /**
    * An event that is raised before rendering a question. Use it to override default question CSS classes.
@@ -5621,7 +5633,7 @@ export class SurveyModel extends SurveyElementCore
       choices: choices,
       serverResult: serverResult,
     };
-    this.onLoadChoicesFromServer.fire(this, options);
+    this.onChoicesLoaded.fire(this, options);
     return options.choices;
   }
   loadedChoicesFromServer(question: IQuestion): void {
@@ -6552,9 +6564,9 @@ export class SurveyModel extends SurveyElementCore
   protected onCreating() { }
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {
     this.getProcessedTextValueCore(textValue);
-    if (!this.onProcessTextValue.isEmpty) {
+    if (!this.onProcessDynamicText.isEmpty) {
       var wasEmpty = this.isValueEmpty(textValue.value);
-      this.onProcessTextValue.fire(this, textValue);
+      this.onProcessDynamicText.fire(this, textValue);
       textValue.isExists =
         textValue.isExists || (wasEmpty && !this.isValueEmpty(textValue.value));
     }

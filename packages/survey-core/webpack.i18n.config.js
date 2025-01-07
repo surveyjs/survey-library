@@ -8,7 +8,7 @@ var packageJson = require("./package.json");
 
 const config = {
   entry: {
-    "survey-core.i18n": path.resolve(__dirname, "./entries/i18n.ts"),
+    "survey.i18n": path.resolve(__dirname, "./entries/i18n.ts"),
   },
   externals: {
     "survey-core": {
@@ -34,7 +34,7 @@ function patchFilename(options) {
   config.output = {};
   const isProductionBuild = options.buildType === "prod";
   config.output.filename = (pathData) => {
-    return (pathData.chunk.name == "survey-core.i18n" ? "[name]" : "i18n/[name]") + (isProductionBuild ? ".min" : "") + ".js";
+    return (pathData.chunk.name == "survey.i18n" ? "[name]" : "i18n/[name]") + (isProductionBuild ? ".min" : "") + ".js";
   };
 }
 
@@ -45,7 +45,7 @@ module.exports = function (options) {
   patchEntries();
   patchFilename(options);
   const mainConfig = webpackCommonConfig(options);
-  delete mainConfig.entry[packageJson.name];
+  mainConfig.entry = {};
   mainConfig.plugins.shift();
   return merge(mainConfig, config);
 };

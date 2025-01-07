@@ -519,7 +519,7 @@ export var settings = {
    */
   autoAdvanceDelay: 300,
   /**
-   * Specifies the direction in which to lay out Checkbox and Radiogroup items. This setting affects the resulting UI when items are arranged in [more than one column](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#colCount).
+   * Specifies the direction in which to lay out Checkbox and Radio Button Group items. This setting affects the resulting UI when items are arranged in [more than one column](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#colCount).
    *
    * Possible values:
    *
@@ -527,6 +527,10 @@ export var settings = {
    * - `"row"` - Items fill the current row, then move on to the next row.
    */
   itemFlowDirection: "column",
+  /**
+   * Obsolete. Use the [`itemFlowDirection`](https://surveyjs.io/form-library/documentation/api-reference/settings#itemFlowDirection) property instead.
+   * @deprecated
+   */
   get showItemsInOrder(): string { return settings.itemFlowDirection; },
   set showItemsInOrder(val: string) { settings.itemFlowDirection = val; },
   /**

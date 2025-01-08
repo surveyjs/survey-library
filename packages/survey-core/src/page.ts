@@ -229,14 +229,26 @@ export class PageModel extends PanelModel implements IPage {
   }
   @property({ defaultValue: -1, onSet: (val: number, target: PageModel) => target.onNumChanged(val) }) num: number;
   /**
-   * Set this property to "hide" to make "Prev", "Next" and "Complete" buttons are invisible for this page. Set this property to "show" to make these buttons visible, even if survey showNavigationButtons property is false.
-   * @see SurveyMode.showNavigationButtons
+   * Obsolete. Use the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/page-model#showNavigationButtons) property instead.
+   * @deprecated
    */
   public get navigationButtonsVisibility(): string {
     return this.getPropertyValue("navigationButtonsVisibility");
   }
   public set navigationButtonsVisibility(val: string) {
     this.setPropertyValue("navigationButtonsVisibility", val.toLowerCase());
+  }
+  /**
+   * Gets or sets the visibility of the Start, Next, Previous, and Complete navigation buttons on this page. Overrides the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showNavigationButtons) property specified on the survey-level.
+   *
+   * Default value: `undefined` (the visibility depends on the survey-level setting)
+   */
+  public get showNavigationButtons(): boolean {
+    // TODO: Implement the functionality
+    return undefined;
+  }
+  public set showNavigationButtons(val: boolean) {
+    // TODO: Implement the functionality
   }
   /**
    * Returns `true` if this is the current page.

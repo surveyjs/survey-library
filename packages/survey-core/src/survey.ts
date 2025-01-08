@@ -1359,7 +1359,7 @@ export class SurveyModel extends SurveyElementCore
    * @see [settings.lazyRender](https://surveyjs.io/form-library/documentation/api-reference/settings#lazyRender)
    */
   public get lazyRenderEnabled(): boolean {
-    return this.lazyRenderingEnabledValue === true;
+    return this.lazyRenderEnabledValue === true;
   }
   public set lazyRenderEnabled(val: boolean) {
     if (this.lazyRenderEnabled === val) return;

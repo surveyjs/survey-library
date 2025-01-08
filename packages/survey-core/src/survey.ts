@@ -405,11 +405,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetQuestionTitle: EventBase<SurveyModel, GetQuestionTitleEvent> = this.addEvent<SurveyModel, GetQuestionTitleEvent>();
   /**
-   * An event that is raised when the survey calculates heading levels (`<h1>`, `<h2>`, etc.) for a survey, page, panel, and question title. Handle this event to change the heading level of individual titles.
+   * An event that is raised when the survey applies HTML tags to a survey, page, panel, and question title. Handle this event to change the HTML tag of individual titles.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * If you want to specify heading levels for all titles, use the [`titleTags`](https://surveyjs.io/form-library/documentation/api-reference/settings#titleTags) object in [global settings](https://surveyjs.io/form-library/documentation/api-reference/settings).
+   * If you want to specify HTML tags for all titles, use the [`titleTags`](https://surveyjs.io/form-library/documentation/api-reference/settings#titleTags) object in [global settings](https://surveyjs.io/form-library/documentation/api-reference/settings).
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-titletagnames/ (linkStyle))
    * @see onGetQuestionTitle
@@ -1562,12 +1562,13 @@ export class SurveyModel extends SurveyElementCore
     this.autoFocusFirstError = val;
   }
   /**
-   * Gets or sets the position of the Start, Next, Previous, and Complete navigation buttons and controls their visibility.
+   * Gets or sets the visibility of the Start, Next, Previous, and Complete navigation buttons.
    *
    * Possible values:
    *
    * - `true` (default) - Displays the navigation buttons.
    * - `false` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
+   * @see navigationButtonsLocation
    * @see autoAdvanceEnabled
    * @see showPrevButton
    * @see showCompleteButton
@@ -1595,14 +1596,14 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Gets or sets the position of the Start, Next, Previous, and Complete navigation buttons and controls their visibility.
+   * Gets or sets the position of the Start, Next, Previous, and Complete navigation buttons. Applies only if the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showNavigationButtons) property is `true`.
    *
    * Possible values:
    *
    * - `"bottom"` (default) - Displays the navigation buttons below survey content.
    * - `"top"` - Displays the navigation buttons above survey content.
-   * - `"topBottom"` or `"both"` - Displays the navigation buttons above and below survey content.
-   * @see goNextPageAutomatic
+   * - `"topBottom"` - Displays the navigation buttons above and below survey content.
+   * @see autoAdvanceEnabled
    * @see showPrevButton
    * @see showCompleteButton
    */

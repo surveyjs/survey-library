@@ -1,5 +1,5 @@
 import { registerMarkupTests } from "./helper";
-import { StylesManager, settings } from "survey-core";
+import { settings } from "survey-core";
 
 registerMarkupTests(
   [{

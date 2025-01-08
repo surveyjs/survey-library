@@ -59,7 +59,7 @@ export var latvianSurveyStrings = {
   addColumn: "Pievienot kolonnu",
   addRow: "Pievienot rindu",
   removeRow: "Noņemt",
-  emptyRowsText: "Nav rindu.",
+  noRowsText: "Nav rindu.",
   addPanel: "Pievieno jaunu",
   removePanel: "Noņemt",
   showDetails: "Rādīt detalizētu informāciju",

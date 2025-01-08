@@ -9,14 +9,10 @@ const environment = args.env;
 export const frameworks = environment
   ? [environment]
   : ["knockout", "react", "vue"];
-export const url = "http://127.0.0.1:8080/examples_test/default/";
+export const url = "http://127.0.0.1:8080/examples_test/defaultV2/";
 export const urlV2 = "http://127.0.0.1:8080/examples_test/defaultV2/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
-
-export const applyTheme = ClientFunction((theme) => {
-  window["Survey"].StylesManager.applyTheme(theme);
-});
 
 export const initSurvey = ClientFunction(
   (framework, json, events?, isDesignMode?, props?) => {
@@ -72,6 +68,9 @@ export const initSurvey = ClientFunction(
         el: "#surveyElement",
         data: { survey: model },
       });
+    } else if (framework === "survey-js-ui") {
+      document.getElementById("surveyElement").innerHTML = "";
+      (window as any).SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
     } else if (framework === "angular" || framework == "vue3") {
       (window as any).setSurvey(model);
     }
@@ -82,7 +81,7 @@ export const initSurvey = ClientFunction(
 // https://www.deque.com/axe/core-documentation/api-documentation/#overview
 export const axeTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice", "section508", "wcag412"];
 
-export const axeContext = { include: [[".sv_p_root"]] };
+export const axeContext = { include: [[".sd-page"]] };
 export const axeOptions = {
   runOnly: {
     type: "tag",

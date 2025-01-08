@@ -67,7 +67,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;
   isEditingSurveyElement: boolean;
   getQuestionClearIfInvisible(questionClearIf: string): string;
-  questionsOrder: string;
+  questionOrder: string;
   matrixDragHandleArea: string;
   keepIncorrectValues: boolean;
   questionCreated(question: IQuestion): any;
@@ -124,7 +124,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   cssNavigationEdit: string;
   rootElement?: HTMLElement;
 
-  requiredText: string;
+  requiredMark: string;
   beforeSettingQuestionErrors(
     question: IQuestion,
     errors: Array<SurveyError>
@@ -136,6 +136,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
   getUpdatedQuestionNo(question: IQuestion, no: string): string;
+  getUpdatedPanelNo(question: IPanel, no: string): string;
   getUpdatedPageNo(question: IPage, no: string): string;
   getUpdatedElementTitleActions(
     element: ISurveyElement,
@@ -158,8 +159,16 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   storeOthersAsComment: boolean;
 
   maxTextLength: number;
+  /**
+   * @deprecated Use `maxCommentLength` instead.
+   */
   maxOthersLength: number;
+  maxCommentLength: number;
+  /**
+   * @deprecated Use `clearDisabledChoices` instead.
+   */
   clearValueOnDisableItems: boolean;
+  clearDisabledChoices: boolean;
 
   timeLimitPerPage: number;
 
@@ -324,7 +333,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   onSurveyValueChanged(newValue: any): any;
   updateValueFromSurvey(newValue: any, clearData: boolean): void;
   updateCommentFromSurvey(newValue: any): any;
-  supportGoNextPageAutomatic(): boolean;
+  supportAutoAdvance(): boolean;
   clearUnusedValues(): any;
   getDisplayValue(keysAsText: boolean, value: any): any;
   getValueName(): string;
@@ -364,9 +373,9 @@ export interface IPage extends IPanel, IConditionRunner {
 export interface ITitleOwner {
   name: string;
   no: string;
-  requiredText: string;
+  requiredMark: string;
   cssTitleNumber: string;
-  cssRequiredText?: string;
+  cssRequiredMark?: string;
   isRequireTextOnStart: boolean;
   isRequireTextBeforeTitle: boolean;
   isRequireTextAfterTitle: boolean;

@@ -59,7 +59,7 @@ export var hungarianSurveyStrings = {
   addColumn: "Oszlop hozzáadása",
   addRow: "Sor hozzáadása",
   removeRow: "Eltávolítás",
-  emptyRowsText: "Nincsenek sorok.",
+  noRowsText: "Nincsenek sorok.",
   addPanel: "Új hozzáadása",
   removePanel: "Eltávolítás",
   showDetails: "Mutasd a részleteket",
@@ -119,7 +119,7 @@ setupLocale({ localeCode: "hu", strings: hungarianSurveyStrings, nativeName: "ma
 // ratingOptionsCaption: "Select..." => "Kiválaszt..."
 // minError: "The value should not be less than {0}" => "Az érték nem lehet kisebb, mint {0}"
 // maxError: "The value should not be greater than {0}" => "Az érték nem lehet nagyobb, mint {0}"
-// emptyRowsText: "There are no rows." => "Nincsenek sorok."
+// noRowsText: "There are no rows." => "Nincsenek sorok."
 // multipletext_itemname: "text" => "SMS"
 // signaturePlaceHolder: "Sign here" => "Írja alá itt"
 // modalCancelButtonText: "Cancel" => "Érvénytelenít"

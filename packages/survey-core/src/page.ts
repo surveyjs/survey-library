@@ -82,7 +82,7 @@ export class PageModel extends PanelModel implements IPage {
   public getCssTitleExpandableSvg(): string {
     return null;
   }
-  public get cssRequiredText(): string {
+  public get cssRequiredMark(): string {
     return "";
   }
   protected canShowPageNumber(): boolean {

@@ -37,12 +37,10 @@ import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { ConsoleWarnings } from "../src/console-warnings";
-import { StylesManager } from "@legacy/stylesmanager";
 import { surveyTimerFunctions } from "../src/surveytimer";
-import { defaultStandardCss } from "@legacy/defaultCss/cssstandard";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-
+import { setOldTheme } from "./oldTheme";
 export default QUnit.module("Survey_Questions");
 
 settings.autoAdvanceDelay = 0;
@@ -490,30 +488,30 @@ QUnit.test("Matrix Question set values after visible row generated", function (
 });
 QUnit.test("Matrix Question sortVisibleRows", function (assert) {
   var matrix = new QuestionMatrixRandomModel("q1");
-  matrix.rowsOrder = "random";
+  matrix.rowOrder = "random";
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   var rows = matrix.visibleRows;
   assert.equal(rows[0].name, "row2", "rows has been reordered");
 });
-QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (
+QUnit.test("Matrix Question supportAutoAdvance property", function (
   assert
 ) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
-  assert.equal(matrix.supportGoNextPageAutomatic(), false, "Rows are not set");
+  assert.equal(matrix.supportAutoAdvance(), false, "Rows are not set");
   matrix.onMouseDown();
   matrix.value = { row1: "col1" };
   assert.equal(
-    matrix.supportGoNextPageAutomatic(),
+    matrix.supportAutoAdvance(),
     false,
     "The second row is not set"
   );
   matrix.onMouseDown();
   matrix.value = { row1: "col1", row2: "col1" };
   matrix.onMouseDown();
-  assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
+  assert.equal(matrix.supportAutoAdvance(), true, "Both rows are set");
 });
 
 QUnit.test("Matrix Question clearIncorrectValues", function (assert) {
@@ -596,16 +594,16 @@ QUnit.test("Multiple Text Question: support goNextPageAutomatic", function (
   mText.items.push(new MultipleTextItemModel("text1"));
   mText.items.push(new MultipleTextItemModel("text2"));
 
-  assert.equal(mText.supportGoNextPageAutomatic(), false, "all text are empty");
+  assert.equal(mText.supportAutoAdvance(), false, "all text are empty");
   mText.value = { tex1: "val1" };
   assert.equal(
-    mText.supportGoNextPageAutomatic(),
+    mText.supportAutoAdvance(),
     false,
     "The second text is empty"
   );
   mText.value = { text1: "val1", text2: "val2" };
   assert.equal(
-    mText.supportGoNextPageAutomatic(),
+    mText.supportAutoAdvance(),
     true,
     "Both text inputs are set"
   );
@@ -645,7 +643,7 @@ QUnit.test("Use timer to go next page", function (assert) {
   assert.equal(survey.goNextPageAutomatic, true, "The property set correctly");
   const question = survey.getQuestionByName("q1");
   question.onMouseDown();
-  assert.equal(question.supportGoNextPageAutomatic(), true, "questio support go next page automatic");
+  assert.equal(question.supportAutoAdvance(), true, "questio support go next page automatic");
   question.value = 1;
   assert.equal(survey.currentPageNo, 1, "Go to the second page");
   assert.equal(checkDelay, 250, "setTimeout function is called");
@@ -3303,13 +3301,11 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   assert.deepEqual(question.getRootStyle(), { });
 });
 QUnit.test("question.paddingLeft from json and defaultV2", function (assert) {
-  StylesManager.applyTheme("defaultV2");
   const survey = new SurveyModel({
     questions: [{ type: "text", name: "q1", indent: 1 }],
   });
   const question = <Question>survey.getQuestionByName("q1");
   assert.equal(question.paddingLeft, "20px");
-  StylesManager.applyTheme("default");
 });
 
 QUnit.test(
@@ -4026,25 +4022,25 @@ QUnit.test("question.getSupportedValidators", function (assert) {
     "answercount",
   ]);
 });
-QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (assert) {
+QUnit.test("QuestionImagePickerModel.supportAutoAdvance", function (assert) {
   const q = new QuestionImagePickerModel("q");
-  assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
+  assert.equal(q.supportAutoAdvance(), true, "It supports by default");
   q.multiSelect = true;
-  assert.equal(q.supportGoNextPageAutomatic(), false, "It doesn't support it for multiselect");
+  assert.equal(q.supportAutoAdvance(), false, "It doesn't support it for multiselect");
   q.multiSelect = false;
-  assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
+  assert.equal(q.supportAutoAdvance(), true, "multiselect is false");
 });
-QUnit.test("QuestionTextModel.supportGoNextPageAutomatic", function (assert) {
+QUnit.test("QuestionTextModel.supportAutoAdvance", function (assert) {
   const q = new QuestionTextModel("q");
-  assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
+  assert.equal(q.supportAutoAdvance(), true, "It supports by default");
   q.inputType = "date";
-  assert.equal(q.supportGoNextPageAutomatic(), false, "Do not support for date");
+  assert.equal(q.supportAutoAdvance(), false, "Do not support for date");
   q.inputType = "text";
-  assert.equal(q.supportGoNextPageAutomatic(), true, "Default inputType again");
+  assert.equal(q.supportAutoAdvance(), true, "Default inputType again");
   q.textUpdateMode = "onTyping";
-  assert.equal(q.supportGoNextPageAutomatic(), false, "textUpdateMode = 'onTyping'");
+  assert.equal(q.supportAutoAdvance(), false, "textUpdateMode = 'onTyping'");
   q.textUpdateMode = "onBlur";
-  assert.equal(q.supportGoNextPageAutomatic(), true, "textUpdateMode = 'onBlur'");
+  assert.equal(q.supportAutoAdvance(), true, "textUpdateMode = 'onBlur'");
 });
 
 QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
@@ -4554,7 +4550,7 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
       },
     ],
   });
-  survey.css = defaultStandardCss;
+  setOldTheme(survey);
   var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q1.value = [1];
   const checkCss = (actual: string, expected: string, message: string): void => {
@@ -5437,7 +5433,7 @@ QUnit.test("text question inputSize and inputWidth", function (assert) {
   assert.equal(q2.inputStyle.width, "", "q2 inputStyle width is undefined");
   assert.equal(q3.inputStyle.width, "", "q3 inputStyle width is undefined");
 });
-QUnit.test("Multiple Text Question: itemSize", function (assert) {
+QUnit.test("Multiple Text Question: inputSize", function (assert) {
   var mText = new QuestionMultipleTextModel("mText");
   mText.items.push(new MultipleTextItemModel("q1"));
   mText.items.push(new MultipleTextItemModel("q2"));
@@ -7000,7 +6996,7 @@ QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
   const q2 = survey.getQuestionByName("q2");
   q1.value = "yes";
   assert.equal(q2.isRequired, true, "q2 is required");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(q2.errors.length, 1, "One error is shown");
   q1.value = "no";
   assert.equal(q2.isRequired, false, "q2 is not required");
@@ -7760,7 +7756,6 @@ QUnit.test("defaultValueExpression copy the array/object, Bug#8799", function (a
   });
 });
 QUnit.test("TextAreaOptions", function (assert) {
-  StylesManager.applyTheme("defaultV2");
   Question["questionCounter"] = 101;
 
   const survey = new SurveyModel({
@@ -7824,8 +7819,6 @@ QUnit.test("TextAreaOptions", function (assert) {
   assert.equal(textAreaOptions.maxLength, undefined, "textAreaOptions maxLength");
   assert.equal(textAreaOptions.cols, 50, "textAreaOptions cols");
   assert.equal(textAreaOptions.rows, 4, "textAreaOptions rows");
-
-  StylesManager.applyTheme("default");
 });
 QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
   const survey = new SurveyModel({

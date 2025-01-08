@@ -14,13 +14,11 @@ import { QuestionFileModel } from "../src/question_file";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { ItemValue } from "../src/itemvalue";
-import { StylesManager } from "@legacy/stylesmanager";
 import { settings } from "../src/settings";
 import { QuestionMatrixModel } from "../src/question_matrix";
-import { defaultStandardCss } from "@legacy/defaultCss/cssstandard";
 import { AnimationGroup, AnimationTab } from "../src/utils/animation";
 import { SurveyElement } from "../src/survey-element";
-
+import { setOldTheme } from "./oldTheme";
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
 QUnit.test("Create panels based on template on setting value", function(
@@ -2814,7 +2812,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
+QUnit.test("Test copyDefaultValueFromLastEntry property", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page");
   var question = <QuestionPanelDynamicModel>(
@@ -2824,7 +2822,7 @@ QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
   question.template.addNewQuestion("text", "q1");
   question.template.addNewQuestion("text", "q2");
   question.template.addNewQuestion("text", "q3");
-  question.defaultValueFromLastPanel = true;
+  question.copyDefaultValueFromLastEntry = true;
   question.addPanel();
   assert.equal(question.isEmpty(), true, "It is empty");
   question.value = [{ q1: 1, q2: 2 }];
@@ -2835,7 +2833,7 @@ QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
       { q1: 1, q2: 2 },
       { q1: 1, q2: 2 },
     ],
-    "defaultValueFromLastPanel is working"
+    "copyDefaultValueFromLastEntry is working"
   );
   question.defaultPanelValue = { q1: 11, q3: 3 };
   question.addPanel();
@@ -2849,7 +2847,7 @@ QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
     "defaultValueFromLastRow is merging with defaultPanelValue"
   );
 });
-QUnit.test("defaultValueFromLastPanel property && hasOther", function(assert) {
+QUnit.test("copyDefaultValueFromLastEntry property && hasOther", function(assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic", name: "root",
@@ -3484,7 +3482,7 @@ QUnit.test(
     assert.equal(q2.errors.length, 0, "and there is no error in the second question");
     q1.value = "";
     assert.equal(q1.errors.length, 1, "We have the error in q1 now");
-    survey.completeLastPage();
+    survey.tryComplete();
     assert.equal(q1.errors.length, 1, "There is error in the first question");
     assert.equal(q2.errors.length, 1, "There is error in the second question");
   }
@@ -4111,11 +4109,13 @@ QUnit.test(
       ],
     };
     var survey = new SurveyModel(json);
-
+    setOldTheme(survey);
     var panel = <QuestionPanelDynamicModel>(
       survey.getQuestionByName("dynamic_panel")
     );
+    panel.panels[0].rows[0]["setWidth"](panel.panels[0].rows[0].visibleElements);
     assert.equal((<any>panel.panels[0].elements[0]).paddingRight, "20px");
+    panel.panels[1].rows[0]["setWidth"](panel.panels[0].rows[0].visibleElements);
     assert.equal((<any>panel.panels[1].elements[0]).paddingRight, "20px");
     panel.panelCount++;
     assert.equal((<any>panel.panels[2].elements[0]).paddingRight, "20px");
@@ -4387,7 +4387,6 @@ QUnit.test("Avoid stack-overflow", function(assert) {
 });
 
 QUnit.test("getPanelWrapperCss", function(assert) {
-  StylesManager.applyTheme("default");
   var survey = new SurveyModel({
     elements: [
       {
@@ -4398,7 +4397,7 @@ QUnit.test("getPanelWrapperCss", function(assert) {
       },
     ],
   });
-
+  setOldTheme(survey);
   const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   const panel = question.panels[0];
   assert.equal(
@@ -4414,7 +4413,6 @@ QUnit.test("getPanelWrapperCss", function(assert) {
   );
 });
 QUnit.test("getPanelWrapperCss & templateVisibleIf", function(assert) {
-  StylesManager.applyTheme("default");
   var survey = new SurveyModel({
     elements: [
       {
@@ -4426,7 +4424,7 @@ QUnit.test("getPanelWrapperCss & templateVisibleIf", function(assert) {
       },
     ],
   });
-
+  setOldTheme(survey);
   const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   assert.equal(question.panels[0].isVisible, false, "The firt panel is not visible");
   assert.equal(question.getPanelWrapperCss(question.panels[0]), "", "panel invisible");
@@ -4436,7 +4434,6 @@ QUnit.test("getPanelWrapperCss & templateVisibleIf", function(assert) {
 });
 
 QUnit.test("getPanelRemoveButtonCss", function(assert) {
-  StylesManager.applyTheme("default");
   var survey = new SurveyModel({
     elements: [
       {
@@ -4446,7 +4443,7 @@ QUnit.test("getPanelRemoveButtonCss", function(assert) {
       },
     ],
   });
-
+  setOldTheme(survey);
   var question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   assert.equal(
     question.getPanelRemoveButtonCss(),
@@ -5077,7 +5074,7 @@ QUnit.test("Bindings to panelCount performance issue #2 reduce recalc visibleInd
     ],
   });
   var counter = 0;
-  survey.onProgressText.add((sender, options) => {
+  survey.onGetProgressText.add((sender, options) => {
     counter ++;
   });
   counter = 0;
@@ -5421,7 +5418,7 @@ QUnit.test("Two nested invisible dynamic panels do not clear itself correctly, B
   });
   const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
   rootPanel.panels[0].getQuestionByName("q1").value = 2;
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.deepEqual(survey.data, { "rootPanel": [{ "q1": 2 }] }, "There is no empty data for any nested panels");
 });
 
@@ -5499,7 +5496,7 @@ QUnit.test("Error in nested dynamic collapsed panel", (assert) => {
   const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
   const childPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("childPanel");
   assert.equal(childPanel.state, "collapsed", "child panel State is collapsed by default");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
 });
 QUnit.test("Error in nested dynamic collapsed panel && renderMode - progressTop", (assert) => {
@@ -5887,7 +5884,6 @@ QUnit.test("renderMode: tab check hasAdditionalTitleToolbar property", function 
 });
 
 QUnit.test("question.cssHeader class", function (assert) {
-  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [
       {
@@ -5899,6 +5895,7 @@ QUnit.test("question.cssHeader class", function (assert) {
       }
     ],
   });
+  setOldTheme(survey);
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
   assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
 
@@ -5947,7 +5944,6 @@ QUnit.test("renderMode: tab & silent validation, Bug#8752", function (assert) {
 });
 
 QUnit.test("question.hasTitleOnLeftTop class", function (assert) {
-  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [
       {
@@ -6800,7 +6796,6 @@ QUnit.test("nested panel.panelCount&expression question", function (assert) {
 });
 QUnit.test("Footer css for nested panels", function(assert) {
   const footerCss = "abcd";
-  defaultStandardCss.paneldynamic["panelFooter"] = footerCss;
   const survey = new SurveyModel({
     questions: [
       {
@@ -6819,13 +6814,18 @@ QUnit.test("Footer css for nested panels", function(assert) {
       },
     ],
   });
+  setOldTheme(survey);
+  survey.css = {
+    panel: {
+      footer: footerCss
+    }
+  };
   const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
   assert.equal(question.panels[0].getFooterToolbar().containerCss, footerCss, "root footer container css");
   const nested = <QuestionPanelDynamicModel>question.panels[0].getQuestionByName("qq");
   assert.equal(nested.panels[0].getFooterToolbar().containerCss, footerCss, "nested footer container css on loading");
   nested.addPanel();
   assert.equal(nested.panels[1].getFooterToolbar().containerCss, footerCss, "nested footer container css on creating");
-  delete defaultStandardCss.paneldynamic["panelFooter"];
 });
 QUnit.test("question.resetValueIf, basic functionality", function (assert) {
   const survey = new SurveyModel({
@@ -7641,7 +7641,7 @@ QUnit.test("Validation doesn't work if a user doensn't visit the page, Bug#8937"
     checkErrorsMode: "onComplete"
   });
   survey.currentPageNo = 2;
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.state, "running", "Still running");
   assert.equal(survey.currentPageNo, 1, "move to page with panel");
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");

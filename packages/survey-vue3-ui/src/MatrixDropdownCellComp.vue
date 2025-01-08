@@ -91,9 +91,9 @@
           :locString="cell.locTitle"
         />
         <span
-          v-if="!!cell.requiredText"
-          :class="question.cssClasses.cellRequiredText"
-          >{{ cell.requiredText }}</span
+          v-if="!!cell.requiredMark"
+          :class="question.cssClasses.cellRequiredMark"
+          >{{ cell.requiredMark }}</span
         >
       </SvComponent>
     </template>

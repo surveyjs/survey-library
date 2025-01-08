@@ -4,16 +4,16 @@ import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("Survey_QuestionMatrix");
 
-QUnit.test("Matrix Question isAllRowRequired property", function (assert) {
+QUnit.test("Matrix Question eachRowRequired property", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   assert.equal(matrix.hasErrors(), false, "There is no errors by default");
-  matrix.isAllRowRequired = true;
+  matrix.eachRowRequired = true;
   assert.equal(matrix.hasErrors(), true, "There is no errors by default");
 });
 QUnit.test(
-  "Matrix Question isAllRowRequired property, value is zero, Bug#2332",
+  "Matrix Question eachRowRequired property, value is zero, Bug#2332",
   function (assert) {
     var matrix = new QuestionMatrixModel("q1");
     matrix.fromJSON({
@@ -35,12 +35,12 @@ QUnit.test(
         },
       ],
       rows: ["item1", "item2"],
-      isAllRowRequired: true,
+      eachRowRequired: true,
     });
     var rows = matrix.visibleRows;
     assert.equal(matrix.hasErrors(), true, "is Required error");
     rows[0].value = 0;
-    assert.equal(matrix.hasErrors(), true, "isAllRowRequired error");
+    assert.equal(matrix.hasErrors(), true, "eachRowRequired error");
     rows[1].value = 0;
     assert.deepEqual(
       matrix.value,
@@ -70,7 +70,7 @@ QUnit.test("Matrix Question eachRowUnique property", function (assert) {
   matrix.value = { row1: "col2", row2: "col2" };
   assert.equal(matrix.validate(), false, "validate #7");
 });
-QUnit.test("matrix row, rowClasses property, isAllRowRequired", function (assert) {
+QUnit.test("matrix row, rowClasses property, eachRowRequired", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -78,7 +78,7 @@ QUnit.test("matrix row, rowClasses property, isAllRowRequired", function (assert
         name: "q1",
         columns: ["col1", "col2"],
         rows: ["row1", "row2"],
-        isAllRowRequired: true,
+        eachRowRequired: true,
       },
     ],
   });
@@ -279,7 +279,7 @@ QUnit.test("rows.class, ItemValue.enableIf", (assert) => {
     survey.css.matrix.rowReadOnly = prevCssValue;
   }
 });
-QUnit.test("matrix isAllRowRequired & getItemClass #7963", function (assert) {
+QUnit.test("matrix eachRowRequired & getItemClass #7963", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -287,7 +287,7 @@ QUnit.test("matrix isAllRowRequired & getItemClass #7963", function (assert) {
         name: "q1",
         columns: ["col1", "col2"],
         rows: ["row1", "row2"],
-        isAllRowRequired: true
+        eachRowRequired: true
       },
     ],
   });
@@ -323,7 +323,7 @@ QUnit.test("matrix isRequired & getItemClass #7963", function (assert) {
   question.value = { row2: "col1" };
   assert.equal(question.getItemClass(row, column).indexOf(itemError) > -1, false, "itemError doesn't exist");
 });
-QUnit.test("matrix isAllRowRequired & isRequired & getItemClass #7963", function (assert) {
+QUnit.test("matrix eachRowRequired & isRequired & getItemClass #7963", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -332,7 +332,7 @@ QUnit.test("matrix isAllRowRequired & isRequired & getItemClass #7963", function
         columns: ["col1", "col2"],
         rows: ["row1", "row2"],
         isRequired: true,
-        isAllRowRequired: true
+        eachRowRequired: true
       },
     ],
   });
@@ -348,7 +348,7 @@ QUnit.test("matrix isAllRowRequired & isRequired & getItemClass #7963", function
   question.value = { row1: "col1" };
   assert.equal(question.getItemClass(row, column).indexOf(itemError) > -1, false, "itemError doesn't exist");
 });
-QUnit.test("matrix isAllRowRequired  & getItemClass", function (assert) {
+QUnit.test("matrix eachRowRequired  & getItemClass", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -369,7 +369,7 @@ QUnit.test("matrix isAllRowRequired  & getItemClass", function (assert) {
   let row = question.visibleRows[1];
   assert.equal(question.getItemClass(row, column1).indexOf(itemError) > -1, false, "itemError doesn't exist in column 1, #1");
   assert.equal(question.getItemClass(row, column2).indexOf(itemError) > -1, false, "itemError doesn't exist in column 2, #1");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(survey.state, "running", "There is an error");
   row = question.visibleRows[1];
   assert.equal(question.getItemClass(row, column1).indexOf(itemError) > -1, true, "itemError exists in column 1, #2");
@@ -380,7 +380,7 @@ QUnit.test("matrix isAllRowRequired  & getItemClass", function (assert) {
   assert.equal(question.getItemClass(row, column1).indexOf(itemError) > -1, false, "itemError doesn't exist in column 1, #3");
   assert.equal(question.getItemClass(row, column2).indexOf(itemError) > -1, false, "itemError doesn't exist in column 2, #3");
 });
-QUnit.test("matrix isAllRowRequired  & getItemClass", function (assert) {
+QUnit.test("matrix eachRowRequired  & getItemClass", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -388,7 +388,7 @@ QUnit.test("matrix isAllRowRequired  & getItemClass", function (assert) {
         name: "q1",
         columns: ["col1", "col2"],
         rows: ["row1", "row2"],
-        isAllRowRequired: true
+        eachRowRequired: true
       },
     ],
     triggers: [{ type: "complete", expression: "{q2} = 1" }]

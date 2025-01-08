@@ -1345,7 +1345,7 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(main)
       .append(btn).toString();
   }
-  private lazyRenderingEnabledValue: boolean;
+  private lazyRenderEnabledValue: boolean;
   @property() showBrandInfo: boolean;
   @property() enterKeyAction: "moveToNextEditor" | "loseFocus" | "default";
   /**
@@ -1358,29 +1358,29 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
    * @see [settings.lazyRender](https://surveyjs.io/form-library/documentation/api-reference/settings#lazyRender)
    */
-  public get lazyRenderingEnabled(): boolean {
+  public get lazyRenderEnabled(): boolean {
     return this.lazyRenderingEnabledValue === true;
   }
-  public set lazyRenderingEnabled(val: boolean) {
-    if (this.lazyRenderingEnabled === val) return;
-    this.lazyRenderingEnabledValue = val;
+  public set lazyRenderEnabled(val: boolean) {
+    if (this.lazyRenderEnabled === val) return;
+    this.lazyRenderEnabledValue = val;
     const page: PageModel = this.currentPage;
     if (!!page) {
       page.updateRows();
     }
   }
   /**
-   * Obsolete. Use the [`lazyRenderingEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#lazyRenderingEnabled) property instead.
+   * Obsolete. Use the [`lazyRenderEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#lazyRenderEnabled) property instead.
    * @deprecated
    */
   public get lazyRendering(): boolean {
-    return this.lazyRenderingEnabled;
+    return this.lazyRenderEnabled;
   }
   public set lazyRendering(val: boolean) {
-    this.lazyRenderingEnabled = val;
+    this.lazyRenderEnabled = val;
   }
   public get isLazyRendering(): boolean {
-    return this.lazyRenderingEnabled || settings.lazyRender.enabled;
+    return this.lazyRenderEnabled || settings.lazyRender.enabled;
   }
   @property() lazyRenderingFirstBatchSizeValue: number;
   public get lazyRenderingFirstBatchSize(): number {

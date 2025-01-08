@@ -14938,7 +14938,7 @@ QUnit.test("survey.isLazyRendering", function (assert) {
   assert.equal(survey.isLazyRendering, true, "set in settings");
   settings.lazyRowsRendering = false;
   assert.equal(survey.isLazyRendering, false, "Not set 2");
-  survey.lazyRenderingEnabled = true;
+  survey.lazyRenderEnabled = true;
   assert.equal(survey.isLazyRendering, true, "set in survey");
 });
 QUnit.test("getSize", function (assert) {

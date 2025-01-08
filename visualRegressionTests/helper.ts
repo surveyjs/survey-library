@@ -14,6 +14,14 @@ export const explicitErrorHandler = ClientFunction(() => {
   });
 });
 
+export const applyTheme = ClientFunction(theme => {
+  (<any>window).Survey.StylesManager.applyTheme(theme);
+});
+
+export const setRowItemFlowDirection = ClientFunction(() => {
+  window["Survey"].settings.itemFlowDirection = "row";
+});
+
 export const resetFocusToBody = ClientFunction(() => { document.body.focus(); });
 
 export async function wrapVisualTest(t: TestController, fn: (t: TestController, comparer: ScreenshotsComparer) => Promise<any>): Promise<void> {

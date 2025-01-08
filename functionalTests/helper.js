@@ -16,6 +16,13 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/defaultV2/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
+export const applyTheme = ClientFunction((theme) => {
+  window["Survey"].StylesManager.applyTheme(theme);
+});
+export const setRowItemFlowDirection = ClientFunction(() => {
+  window["Survey"].settings.itemFlowDirection = "row";
+});
+
 export const initSurvey = ClientFunction(
   (framework, json, events, isDesignMode, props) => {
     // eslint-disable-next-line no-console

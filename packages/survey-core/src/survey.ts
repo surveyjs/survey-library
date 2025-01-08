@@ -3002,7 +3002,7 @@ export class SurveyModel extends SurveyElementCore
   private canShowProresBar(): boolean {
     return (
       !this.isShowingPreview ||
-      !this.showPreviewBeforeComplete || this.previewMode != "showAllQuestions"
+      !this.showPreviewBeforeComplete || this.previewMode != "allQuestions"
     );
   }
   public get processedTitle(): string {
@@ -3967,7 +3967,7 @@ export class SurveyModel extends SurveyElementCore
   public get areEmptyElementsHidden(): boolean {
     return (
       this.isShowingPreview &&
-      this.showPreviewBeforeComplete && this.previewMode == "showAnsweredQuestions" && this.isAnyQuestionAnswered
+      this.showPreviewBeforeComplete && this.previewMode == "answeredQuestions" && this.isAnyQuestionAnswered
     );
   }
   private get isAnyQuestionAnswered(): boolean {
@@ -4527,15 +4527,12 @@ export class SurveyModel extends SurveyElementCore
     );
   }
   /**
-   * Allows respondents to preview answers before they are submitted.
+   * Specifies whether to show a preview of given answers before they are submitted.
    *
-   * Possible values:
+   * Default value: `false`
    *
-   * - `"showAllQuestions"` - Displays all questions in the preview.
-   * - `"showAnsweredQuestions"` - Displays only answered questions in the preview.
-   * - `"noPreview"` (default) - Hides the preview.
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-showpreview/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-preview/ (linkStyle))
+   * @see previewMode
    * @see showPreview
    * @see cancelPreview
    */
@@ -4547,11 +4544,20 @@ export class SurveyModel extends SurveyElementCore
       this.setPropertyValue("showPreviewBeforeComplete", false);
     } else {
       this.setPropertyValue("showPreviewBeforeComplete", true);
-      if (val === "showAllQuestions" || val === "showAnsweredQuestions") {
-        this.previewMode = val;
-      }
+      if (val === "showAllQuestions") this.previewMode = "allQuestions";
+      if (val === "showAnsweredQuestions") this.previewMode = "answeredQuestions";
     }
   }
+  /**
+   * Specifies whether the [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page) includes all or only answered questions.
+   *
+   * Possible values:
+   *
+   * - `"allQuestions"` (default)
+   * - `"answeredQuestions"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-preview/ (linkStyle))
+   */
   public get previewMode(): string {
     return this.getPropertyValue("previewMode");
   }
@@ -8530,8 +8536,8 @@ Serializer.addClass("survey", [
   },
   {
     name: "previewMode",
-    default: "showAllQuestions",
-    choices: ["showAllQuestions", "showAnsweredQuestions"],
+    default: "allQuestions",
+    choices: ["allQuestions", "answeredQuestions"],
     visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete; }
   },
   { name: "showTimer:boolean" },

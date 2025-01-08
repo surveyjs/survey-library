@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, getData } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, getData, setRowItemFlowDirection } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -103,6 +103,9 @@ frameworks.forEach((framework) => {
   });
 
   test("change choices order", async (t) => {
+
+    await setRowItemFlowDirection();
+
     const getChoicesCount = ClientFunction(
       () => {
         const checkboxControlClassName = ".sd-checkbox__control";
@@ -217,6 +220,9 @@ frameworks.forEach((framework) => {
   });
 
   test("check \"other\" choice doesn't change order", async (t) => {
+
+    await setRowItemFlowDirection();
+
     const getOtherChoice = Selector(
       () => {
         const columnClassName = ".sd-selectbase__column";

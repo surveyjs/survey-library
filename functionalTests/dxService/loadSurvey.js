@@ -1,5 +1,5 @@
 import { fixture, test } from "testcafe";
-import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, setRowItemFlowDirection } from "../helper";
 const title = "loadSurvey";
 
 const json = {
@@ -16,6 +16,7 @@ frameworks.forEach(framework => {
   test("correct loading", async t => {
     let surveyResult;
 
+    await setRowItemFlowDirection();
     await t
       .click("fieldset div:nth-of-type(1) label input")
       .click("fieldset div:nth-of-type(4) label input")

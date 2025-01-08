@@ -59,7 +59,7 @@ export var norwegianSurveyStrings = {
   addColumn: "Legg til kolonne",
   addRow: "Legg til rad",
   removeRow: "Fjern",
-  emptyRowsText: "Det er ingen rader.",
+  noRowsText: "Det er ingen rader.",
   addPanel: "Legg til ny",
   removePanel: "Fjerne",
   showDetails: "Vis detaljer",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "no", strings: norwegianSurveyStrings, nativeName: "no
 // minError: "The value should not be less than {0}" => "Verdien bør ikke være mindre enn {0}"
 // maxError: "The value should not be greater than {0}" => "Verdien bør ikke være større enn {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dra og slipp en fil her, eller klikk på knappen nedenfor og velg en fil du vil laste opp."
-// emptyRowsText: "There are no rows." => "Det er ingen rader."
+// noRowsText: "There are no rows." => "Det er ingen rader."
 // multipletext_itemname: "text" => "Tekst"
 // signaturePlaceHolder: "Sign here" => "Logg inn her"
 // modalCancelButtonText: "Cancel" => "Annullere"

@@ -42,8 +42,8 @@ export class QuestionMatrixDropdownRenderedCell {
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
   }
-  public get requiredText(): string {
-    return this.column && this.column.isRenderedRequired ? this.column.requiredText : undefined;
+  public get requiredMark(): string {
+    return this.column && this.column.isRenderedRequired ? this.column.requiredMark : undefined;
   }
   public get hasQuestion(): boolean {
     return !!this.question && !this.isErrorsCell;

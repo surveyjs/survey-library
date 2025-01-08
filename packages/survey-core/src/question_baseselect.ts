@@ -1718,7 +1718,7 @@ export class QuestionSelectBase extends Question {
     return item.value === this.value;
   }
   private clearDisabledValues() {
-    if (!this.survey || !this.survey.clearValueOnDisableItems) return;
+    if (!this.survey || !this.survey.clearDisabledChoices) return;
     this.clearDisabledValuesCore();
   }
   protected clearIncorrectValuesCore() {
@@ -1922,7 +1922,7 @@ export class QuestionSelectBase extends Question {
     if (this.hasColumns && this.renderedChoices.length > 0) {
       let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isInDesignMode) ?
         this.renderedChoices : this.dataChoices;
-      if (settings.showItemsInOrder == "column") {
+      if (settings.itemFlowDirection === "column") {
         var prevIndex = 0;
         var leftElementsCount = choicesToBuildColumns.length % colCount;
         for (var i = 0; i < colCount; i++) {

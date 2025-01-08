@@ -59,7 +59,7 @@ export var dutchSurveyStrings = {
   addColumn: "Voeg kolom toe",
   addRow: "Voeg rij toe",
   removeRow: "Verwijder",
-  emptyRowsText: "Er zijn geen rijen.",
+  noRowsText: "Er zijn geen rijen.",
   addPanel: "Nieuwe toevoegen",
   removePanel: "Verwijder",
   showDetails: "Toon details",
@@ -119,7 +119,7 @@ setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederl
 // ratingOptionsCaption: "Select..." => "Selecteren..."
 // minError: "The value should not be less than {0}" => "De waarde mag niet lager zijn dan {0}"
 // maxError: "The value should not be greater than {0}" => "De waarde mag niet groter zijn dan {0}"
-// emptyRowsText: "There are no rows." => "Er zijn geen rijen."
+// noRowsText: "There are no rows." => "Er zijn geen rijen."
 // multipletext_itemname: "text" => "Sms"
 // modalCancelButtonText: "Cancel" => "Annuleren"
 // modalApplyButtonText: "Apply" => "Toepassen"

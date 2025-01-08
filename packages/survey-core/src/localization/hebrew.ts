@@ -59,7 +59,7 @@ export var hebrewSurveyStrings = {
   addColumn: "הוסף עמודה",
   addRow: "להוסיף שורה",
   removeRow: "לְהַסִיר",
-  emptyRowsText: "אין שורות.",
+  noRowsText: "אין שורות.",
   addPanel: "הוסף חדש",
   removePanel: "לְהַסִיר",
   showDetails: "הראה פרטים",
@@ -120,7 +120,7 @@ setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עב�
 // minError: "The value should not be less than {0}" => "הערך לא צריך להיות קטן מ {0}"
 // maxError: "The value should not be greater than {0}" => "הערך לא צריך להיות גדול מ- {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "גרור ושחרר קובץ לכאן או לחץ על הלחצן למטה ובחר קובץ להעלאה."
-// emptyRowsText: "There are no rows." => "אין שורות."
+// noRowsText: "There are no rows." => "אין שורות."
 // multipletext_itemname: "text" => "טקסט"
 // signaturePlaceHolder: "Sign here" => "חתום כאן"
 // modalCancelButtonText: "Cancel" => "ביטל"

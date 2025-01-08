@@ -23,12 +23,12 @@
     />
     <div
       v-if="!question.renderedTable.showTable"
-      :class="question.cssClasses.emptyRowsSection"
+      :class="question.cssClasses.noRowsSection"
     >
-      <div :class="question.cssClasses.emptyRowsText">
+      <div :class="question.cssClasses.noRowsText">
         <SvComponent
           :is="'survey-string'"
-          :locString="question.locEmptyRowsText"
+          :locString="question.locNoRowsText"
         />
       </div>
       <button

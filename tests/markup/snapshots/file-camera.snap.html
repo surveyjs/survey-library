@@ -1,15 +1,49 @@
-<div class="sv_q_file">
-	<input aria-invalid="false" aria-label="Question title" aria-required="false" capture="user" class="sv-visuallyhidden" id="testid0i" tabindex="-1" title="Choose file(s)..." type="file">
-	<div>
-		<div class="sv-file__decorator">
-			<span class="sv-hidden">
+<div class="sd-file sd-file--single">
+	<input aria-invalid="false" aria-label="Question title" aria-required="false" capture="user" class="sd-visuallyhidden" id="testid0i" tabindex="-1" title="Choose file(s)..." type="file">
+	<div class="sd-file__drag-area">
+		<div class="sd-file__decorator">
+			<span class="sd-file__drag-area-placeholder">
 				<span class="sv-string-viewer sv-string-viewer--multiline">Drag and drop a file here or click the button below to select a file to upload.</span>
 			</span>
-			<div>
-				<label aria-label="Select File" class="sv_q_file_choose_button" for="testid0i" tabindex="0">
-					<span>Select File</span>
-				</label>
-				<span class="sv_q_file_placeholder">No file selected</span>
+			<div class="sd-file__wrapper">
+				<div class="sd-action-bar sd-file__actions-container">
+					<div class="sv-action" id="sv-file-choose-file">
+						<div class="sv-action__content">
+							<label aria-label="Select File" class="sd-action sd-file__choose-btn sd-file__choose-btn--text" for="testid0i" tabindex="0">
+								<svg class="sv-svg-icon" role="img">
+									<use xlink:href="#icon-folder-24x24" class="">
+									</use>
+									<title class="">Select File</title>
+								</svg>
+								<span>Select File</span>
+							</label>
+						</div>
+					</div>
+					<div class="sv-action sv-action--hidden" id="sv-file-start-camera">
+						<div class="sv-action__content">
+							<button class="sd-action" role="button" tabindex="0" title="Take Photo" type="button">
+								<svg class="sd-action__icon sv-svg-icon" role="img">
+									<use xlink:href="#icon-camera-24x24" class="">
+									</use>
+									<title class="">Take Photo</title>
+								</svg>
+								<span class="sd-action__title sv-action-bar-item__title--with-icon">Take Photo</span>
+							</button>
+						</div>
+					</div>
+					<div class="sv-action sv-action--hidden" id="sv-file-clean">
+						<div class="sv-action__content">
+							<button class="sd-context-btn sd-context-btn--negative" role="button" tabindex="0" title="Clear" type="button">
+								<svg class="sd-action__icon sv-svg-icon" role="img">
+									<use xlink:href="#icon-clear-24x24" class="">
+									</use>
+									<title class="">Clear</title>
+								</svg>
+							</button>
+						</div>
+					</div>
+				</div>
+				<span class="sd-description sd-file__no-file-chosen">No file selected</span>
 			</div>
 		</div>
 	</div>

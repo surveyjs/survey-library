@@ -705,8 +705,8 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].onValueChanged(itemValue);
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     this.items.forEach(item => item.editor.runCondition(values, properties));
   }
   protected getIsRunningValidators(): boolean {

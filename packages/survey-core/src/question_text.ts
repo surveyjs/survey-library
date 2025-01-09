@@ -171,8 +171,8 @@ export class QuestionTextModel extends QuestionTextBase {
     if(!this.isTextInput) return null;
     return super.getMaxLength();
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     if (!!this.minValueExpression || !!this.maxValueExpression) {
       this.setRenderedMinMax(values, properties);
     }

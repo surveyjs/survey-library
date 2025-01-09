@@ -920,8 +920,8 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.value = this.getContentQuestionValue();
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     if (!!this.contentQuestion) {
       this.contentQuestion.runCondition(values, properties);
     }
@@ -1196,8 +1196,8 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     return res;
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     if (!!this.contentPanel) {
       var oldComposite = values[QuestionCompositeModel.ItemVariableName];
       values[

@@ -386,8 +386,8 @@ export class QuestionSelectBase extends Question {
   public surveyChoiceItemVisibilityChange(): void {
     this.filterItems();
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
     this.choices.forEach(item => {

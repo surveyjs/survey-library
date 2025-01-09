@@ -169,12 +169,7 @@ jobs:
         $env:GIT_REDIRECT_STDERR = '2>&1'
         git config --global user.email "kurmanov.work@gmail.com"
         git config --global user.name "dmitrykurmanov"
-        git pull origin
-        git fetch origin --tags --force
-        git add surveyjs.io/App_Data/DocsLibrary
-        git commit -m "updated survey-library docs [azurepipelines skip]"
-        git pull origin
-        git push -u origin V1  
+        git branch --show-current
       displayName: "git surveyjs/service push updated docs"
 
     - script: |

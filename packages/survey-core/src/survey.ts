@@ -4651,7 +4651,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private changeCurrentPageFromPreview: boolean;
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
-    if (this.isShowingPreview) return;
+    if (this.isShowingPreview || this.isDesignMode) return;
     this.currentSingleQuestion = undefined;
     if(oldValue === "singlePage") {
       this.updatePagesContainer();

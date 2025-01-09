@@ -108,6 +108,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public get isCompositeQuestion(): boolean {
     return true;
   }
+  protected get itemFlowDirection() {
+    return "row";
+  }
   public supportOther(): boolean { return false; }
   public supportNone(): boolean { return false; }
   public supportRefuse(): boolean { return false; }

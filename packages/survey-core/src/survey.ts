@@ -86,6 +86,7 @@ import { SurveyTaskManagerModel } from "./surveyTaskManager";
 import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { ConsoleWarnings } from "./console-warnings";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -1116,7 +1117,12 @@ export class SurveyModel extends SurveyElementCore
 
     this.locTitle.onStringChanged.add(() => this.titleIsEmpty = this.locTitle.isEmpty);
   }
-
+  public get sjsVersion(): string {
+    return this.getPropertyValue("sjsVersion");
+  }
+  public set sjsVersion(val: string) {
+    this.setPropertyValue("sjsVersion", val);
+  }
   processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
     throw new Error("Method not implemented.");
   }
@@ -1345,7 +1351,7 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(main)
       .append(btn).toString();
   }
-  private lazyRenderingEnabledValue: boolean;
+  private lazyRenderEnabledValue: boolean;
   @property() showBrandInfo: boolean;
   @property() enterKeyAction: "moveToNextEditor" | "loseFocus" | "default";
   /**
@@ -1358,36 +1364,36 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
    * @see [settings.lazyRender](https://surveyjs.io/form-library/documentation/api-reference/settings#lazyRender)
    */
-  public get lazyRenderingEnabled(): boolean {
-    return this.lazyRenderingEnabledValue === true;
+  public get lazyRenderEnabled(): boolean {
+    return this.lazyRenderEnabledValue === true;
   }
-  public set lazyRenderingEnabled(val: boolean) {
-    if (this.lazyRenderingEnabled === val) return;
-    this.lazyRenderingEnabledValue = val;
+  public set lazyRenderEnabled(val: boolean) {
+    if (this.lazyRenderEnabled === val) return;
+    this.lazyRenderEnabledValue = val;
     const page: PageModel = this.currentPage;
     if (!!page) {
       page.updateRows();
     }
   }
   /**
-   * Obsolete. Use the [`lazyRenderingEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#lazyRenderingEnabled) property instead.
+   * Obsolete. Use the [`lazyRenderEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#lazyRenderEnabled) property instead.
    * @deprecated
    */
   public get lazyRendering(): boolean {
-    return this.lazyRenderingEnabled;
+    return this.lazyRenderEnabled;
   }
   public set lazyRendering(val: boolean) {
-    this.lazyRenderingEnabled = val;
+    this.lazyRenderEnabled = val;
   }
   public get isLazyRendering(): boolean {
-    return this.lazyRenderingEnabled || settings.lazyRender.enabled;
+    return this.lazyRenderEnabled || settings.lazyRender.enabled;
   }
-  @property() lazyRenderingFirstBatchSizeValue: number;
-  public get lazyRenderingFirstBatchSize(): number {
-    return this.lazyRenderingFirstBatchSizeValue || settings.lazyRender.firstBatchSize;
+  @property() lazyRenderFirstBatchSizeValue: number;
+  public get lazyRenderFirstBatchSize(): number {
+    return this.lazyRenderFirstBatchSizeValue || settings.lazyRender.firstBatchSize;
   }
-  public set lazyRenderingFirstBatchSize(val: number) {
-    this.lazyRenderingFirstBatchSizeValue = val;
+  public set lazyRenderFirstBatchSize(val: number) {
+    this.lazyRenderFirstBatchSizeValue = val;
   }
 
   protected _isLazyRenderingSuspended = false;
@@ -4672,7 +4678,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private changeCurrentPageFromPreview: boolean;
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
-    if (this.isShowingPreview) return;
+    if (this.isShowingPreview || this.isDesignMode) return;
     this.currentSingleQuestion = undefined;
     if(oldValue === "singlePage") {
       this.updatePagesContainer();
@@ -6542,6 +6548,7 @@ export class SurveyModel extends SurveyElementCore
     if (!json) return;
     this.questionHashesClear();
     this.jsonErrors = null;
+    this.sjsVersion = undefined;
     const jsonConverter = new JsonObject();
     jsonConverter.toObject(json, this, options);
     if (jsonConverter.errors.length > 0) {
@@ -6549,6 +6556,13 @@ export class SurveyModel extends SurveyElementCore
     }
     this.onStateAndCurrentPageChanged();
     this.updateState();
+    if(!!this.sjsVersion && !!settings.version) {
+      if(Helpers.compareVerions(this.sjsVersion, settings.version) > 0) {
+        ConsoleWarnings.warn("The version of the survey JSON schema (v"
+          + this.sjsVersion + ") is newer than your current Form Library version ("
+          + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");
+      }
+    }
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
@@ -7946,6 +7960,9 @@ export class SurveyModel extends SurveyElementCore
     const isNeedWaitForPageRendered = this.activePage !== question.page && !question.page.isStartPage;
     if (isNeedWaitForPageRendered) {
       this.currentPage = <PageModel>question.page;
+      if(this.isSingleVisibleQuestion && !this.isDesignMode) {
+        this.currentSingleQuestion = question;
+      }
     }
     if (!isNeedWaitForPageRendered) {
       this.focusQuestionInfo();
@@ -8345,6 +8362,7 @@ Serializer.addClass("survey", [
     name: "calculatedValues:calculatedvalues",
     className: "calculatedvalue", isArray: true
   },
+  { name: "sjsVersion", visible: false },
   { name: "surveyId", visible: false },
   { name: "surveyPostId", visible: false },
   { name: "surveyShowDataSaving:boolean", visible: false },

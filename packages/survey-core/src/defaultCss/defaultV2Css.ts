@@ -1,5 +1,5 @@
 export var surveyCss: any = {
-  currentType: "",
+  currentType: "defaultV2",
   getCss: function () {
     var loc = this.currentType ? this[this.currentType] : defaultV2Css;
     if (!loc) loc = defaultV2Css;
@@ -81,7 +81,7 @@ export var defaultV2Css = {
     icon: "sd-panel__icon",
     iconExpanded: "sd-panel__icon--expanded",
     footer: "sd-panel__footer",
-    requiredText: "sd-panel__required-text",
+    requiredMark: "sd-panel__required-text",
     header: "sd-panel__header sd-element__header sd-element__header--location-top",
     collapsed: "sd-element--collapsed",
     expanded: "sd-element--expanded",
@@ -220,7 +220,7 @@ export var defaultV2Css = {
     titleDisabled: "sd-element__title--disabled",
     titleReadOnly: "sd-element__title--readonly",
     titleBar: "sd-action-title-bar",
-    requiredText: "sd-question__required-text",
+    requiredMark: "sd-question__required-text",
     number: "sd-element__num",
     description: "sd-description sd-question__description",
     descriptionUnderInput: "sd-question__description--under-input",
@@ -537,7 +537,7 @@ export var defaultV2Css = {
     footerCell: "sd-table__cell sd-table__cell--footer",
     footerTotalCell: "sd-table__cell sd-table__cell--footer-total",
     columnTitleCell: "sd-table__cell--column-title",
-    cellRequiredText: "sd-question__required-text",
+    cellRequiredMark: "sd-question__required-text",
     detailButton: "sd-table__cell--detail-button",
     detailButtonExpanded: "sd-table__cell--detail-button--expanded",
     detailIcon: "sd-detail-panel__icon",
@@ -579,7 +579,7 @@ export var defaultV2Css = {
     rowTextCell: "sd-table__cell sd-table__cell--row-text",
     footerCell: "sd-table__cell sd-table__cell--footer",
     columnTitleCell: "sd-table__cell--column-title",
-    cellRequiredText: "sd-question__required-text",
+    cellRequiredMark: "sd-question__required-text",
     button: "sd-action sd-matrixdynamic__btn",
     detailRow: "sd-table__row sd-table__row--detail",
     detailButton: "sd-table__cell--detail-button",
@@ -601,7 +601,7 @@ export var defaultV2Css = {
     iconDragElement: "#icon-drag-24x24",
     footer: "sd-matrixdynamic__footer",
     footerTotalCell: "sd-table__cell sd-table__cell--footer-total",
-    emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
+    noRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
     iconDrag: "sv-matrixdynamic__drag-icon",
     ghostRow: "sv-matrix-row--drag-drop-ghost-mod",
     draggedRow: "sv-matrixdynamic-dragged-row",

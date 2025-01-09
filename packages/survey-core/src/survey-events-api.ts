@@ -587,7 +587,7 @@ export interface ClearFilesEvent extends LoadFilesEvent {
    */
   value: any;
 }
-export interface LoadChoicesFromServerEvent extends QuestionEventMixin {
+export interface ChoicesLoadedEvent extends QuestionEventMixin {
   /**
    * A query result as it came from the server.
    */
@@ -597,7 +597,8 @@ export interface LoadChoicesFromServerEvent extends QuestionEventMixin {
    */
   choices: Array<ItemValue>;
 }
-export interface ProcessTextValueEvent {
+export interface LoadChoicesFromServerEvent extends ChoicesLoadedEvent { }
+export interface ProcessDynamicTextEvent {
   /**
    * The name of the value being processed (the text in curly brackets).
    */
@@ -610,6 +611,7 @@ export interface ProcessTextValueEvent {
   canProcess: boolean;
   returnDisplayValue: boolean;
 }
+export interface ProcessTextValueEvent extends ProcessDynamicTextEvent { }
 export interface UpdateQuestionCssClassesEvent extends QuestionEventMixin, UpdateElementCssClassesEventMixin { }
 export interface UpdatePanelCssClassesEvent extends PanelEventMixin, UpdateElementCssClassesEventMixin { }
 export interface UpdatePageCssClassesEvent extends PageEventMixin, UpdateElementCssClassesEventMixin { }

@@ -59,7 +59,7 @@ export var koreanStrings = {
   addColumn: "열 추가",
   addRow: "행 추가",
   removeRow: "제거",
-  emptyRowsText: "행이 없습니다.",
+  noRowsText: "행이 없습니다.",
   addPanel: "추가",
   removePanel: "제거",
   showDetails: "세부 정보 표시",

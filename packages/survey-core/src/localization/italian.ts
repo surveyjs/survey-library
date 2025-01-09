@@ -59,7 +59,7 @@ export var italianSurveyStrings = {
   addColumn: "Aggiungi colonna",
   addRow: "Aggiungi riga",
   removeRow: "Rimuovi riga",
-  emptyRowsText: "Non ci sono righe.",
+  noRowsText: "Non ci sono righe.",
   addPanel: "Aggiungi riga",
   removePanel: "Elimina",
   showDetails: "Mostra dettagli",

@@ -96,7 +96,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public getType(): string {
     return "imagepicker";
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     return !this.multiSelect;
   }
   public get hasSingleInput(): boolean {

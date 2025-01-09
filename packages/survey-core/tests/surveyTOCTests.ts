@@ -148,14 +148,14 @@ QUnit.test("pages visibility, do not include start page into TOC, bug #6192", fu
 
   assert.equal(tocListModel.visibleItems.length, 2, "First page is not visible");
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[1].name, "Page 1 is invisible, page 2 is the first");
-  survey.firstPageIsStarted = false;
+  survey.firstPageIsStartPage = false;
   assert.equal(tocListModel.visibleItems.length, 3, "First page is visible");
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible, page 1 is the first");
 });
 
 QUnit.test("pages navigation with start page, bug #6327", function (assert) {
   let json: any = {
-    "firstPageIsStarted": true,
+    "firstPageIsStartPage": true,
     "pages": [
       {
         "name": "page1",
@@ -640,4 +640,64 @@ QUnit.test("survey.tryNavigateToPage respects validationAllowSwitchPages and val
   assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
   assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "navigate #9");
   assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
+});
+QUnit.test("survey.tryNavigateToPage & survey.onValidatedErrorsOnCurrentPage, Bug#9241", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1",
+            "isRequired": true
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2",
+            "isRequired": true
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3",
+            "isRequired": true
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const logs = new Array<string>();
+  survey.onValidatedErrorsOnCurrentPage.add((sender, options) => {
+    logs.push(options.page.name);
+  });
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #1");
+  assert.deepEqual(logs, ["page1"], "logs #1");
+  survey.setValue("question1", "val1");
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "try #2");
+  assert.deepEqual(logs, ["page1", "page1"], "logs #2");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "try #3");
+  assert.deepEqual(logs, ["page1", "page1"], "logs #3");
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), false, "try #4");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #4");
+  assert.deepEqual(logs, ["page1", "page1", "page1"], "logs #4");
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #5");
+  assert.deepEqual(logs, ["page1", "page1", "page1"], "logs #5");
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), false, "try #6");
+  assert.deepEqual(logs, ["page1", "page1", "page1", "page2"], "logs #6");
+  survey.setValue("question2", "val2");
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), true, "try #7");
+  assert.deepEqual(logs, ["page1", "page1", "page1", "page2", "page2"], "logs #7");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "try #8");
+  assert.deepEqual(logs, ["page1", "page1", "page1", "page2", "page2"], "logs #8");
 });

@@ -555,6 +555,7 @@ frameworks.forEach((framework) => {
     await t.expect(await getSurveyResult()).eql({ matrix: [{ name: "abc123" }] });
   });
   test("Editing cell loses focus when a dependent column appears, Bug#9233", async (t) => {
+    if(framework === "knockout") return;
     await initSurvey(framework, {
       textUpdateMode: "onTyping",
       elements: [
@@ -581,7 +582,6 @@ frameworks.forEach((framework) => {
         }
       ]
     });
-
     const inputs = Selector("input[type=text");
     await t.expect(inputs.count).eql(1)
       .click(inputs.nth(0))

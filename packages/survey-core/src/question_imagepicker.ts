@@ -310,7 +310,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   /**
    * Specifies a maximum width for image or video containers. Accepts positive numbers and CSS values.
    *
-   * Default value: 400
+   * Default value: 3000
    *
    * The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
    */
@@ -326,7 +326,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   /**
    * Specifies a maximum height for image or video containers. Accepts positive numbers and CSS values.
    *
-   * Default value: 266
+   * Default value: 3000
    *
    * The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
    */

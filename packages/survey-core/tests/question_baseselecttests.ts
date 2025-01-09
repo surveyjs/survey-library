@@ -11,6 +11,7 @@ import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("baseselect");
 
@@ -2345,4 +2346,12 @@ QUnit.test("Clear action in locale & survey.locale change, Bug#9113", (assert) =
   assert.equal(item.locTitle.locale, "", "locale #1");
   survey.locale = "de";
   assert.equal(item.locTitle.locale, "de", "locale #2");
+});
+QUnit.test("ItemValue tooltip, #9269", (assert) => {
+  const item = new ItemValue(1);
+  assert.equal(item.getTooltip(), "1", "#1");
+  item.text = "abc";
+  assert.equal(item.getTooltip(), "abc", "#2");
+  item.tooltip = "edf";
+  assert.equal(item.getTooltip(), "edf", "#3");
 });

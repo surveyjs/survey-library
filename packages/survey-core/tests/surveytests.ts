@@ -68,6 +68,8 @@ import { DomWindowHelper } from "../src/global_variables_utils";
 import { ListModel } from "../src/list";
 import { _setIsTouch } from "../src/utils/devices";
 import { oldDefaultTheme, setOldTheme } from "./oldTheme";
+import { ConsoleWarnings } from "../src/console-warnings";
+
 export default QUnit.module("Survey");
 
 settings.autoAdvanceDelay = 0;
@@ -21142,4 +21144,26 @@ QUnit.test("#9110 check focus question inside paneldynamic works correctly", fun
   assert.equal(log, "->text_question_id->focused text question");
   SurveyElement.ScrollElementToViewCore = oldScrollElementToViewCore;
   SurveyElement.ScrollElementToTop = oldScrollElementToTop;
+});
+QUnit.test("Show warning on loadig JSON created in higher version of Creator", function (assert) {
+  const oldVersion = settings.version;
+  const prevWarn = ConsoleWarnings.warn;
+  let reportText: string = "";
+  ConsoleWarnings.warn = (text: string) => {
+    reportText = text;
+  };
+  const checkFunc = (jsonVer: string, sjsVer: string, showWarn: boolean): void => {
+    reportText = "";
+    settings.version = sjsVer;
+    new SurveyModel({
+      sjsVersion: jsonVer
+    });
+    assert.equal(!!reportText, showWarn, "jsonVersion: " + jsonVer + ", sjsVer: " + sjsVer);
+  };
+  checkFunc("1.12.19", "2.0.2", false);
+  checkFunc("2.0.2", "1.12.19", true);
+  checkFunc("2.0.2", "2.0.2", false);
+  checkFunc("2.0.3", "2.0.2", true);
+  ConsoleWarnings.warn = prevWarn;
+  settings.version = oldVersion;
 });

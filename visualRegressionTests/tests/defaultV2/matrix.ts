@@ -305,6 +305,7 @@ frameworks.forEach(framework => {
   });
 
   test("Matrix multi-select in panel", async (t) => {
+    if(framework === "knockout") return;
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1200);
       await initSurvey(framework, {

@@ -10336,3 +10336,69 @@ QUnit.test("column width settings passed to all rows", function (assert) {
   assert.equal(table.rows[3].cells[0].width, "15%", "The second row cell width 15%");
   assert.equal(table.rows[3].cells[0].minWidth, "10%", "The second row cell min width 10%");
 });
+QUnit.test("Use matrix rows id & cells questions id in rendered table, Bug#9233", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "question1",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            visibleIf: "{row.col2} notempty",
+            cellType: "text"
+          },
+          {
+            name: "col2",
+            cellType: "text"
+          },
+          {
+            name: "col3",
+            visibleIf: "{row.col2} notempty",
+            cellType: "text"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const rowId = matrix.visibleRows[0].id;
+  const cellQuestion = matrix.visibleRows[0].cells[1].question;
+  const colId = cellQuestion.id;
+  let table = matrix.renderedTable;
+  assert.equal(table.rows[0].isErrorsRow, true, "It is an error row, #1");
+  assert.equal(table.rows[0].id.endsWith("-error"), true, "There is -error postfix, #1");
+  assert.equal(table.rows[1].id, rowId, "Use row id, #1");
+  assert.equal(table.rows[0].cells[0].id, colId + "-error", "There is -error postfix in error cell, #1");
+  assert.equal(table.rows[1].cells[0].id, colId, "Use question id, #1.2");
+  cellQuestion.value = "abc";
+  table = matrix.renderedTable;
+  assert.equal(table.rows[1].id, rowId, "Use row id, #2");
+  assert.equal(table.rows[1].cells[1].id, colId, "Use question id, #2");
+});
+QUnit.test("Use matrix rows id & cells questions id in rendered table & showInMultipleColumns, Bug#9233", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "question1",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            choices: [1, 2],
+            showInMultipleColumns: true
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const col1Id = matrix.visibleRows[0].cells[0].question.id;
+  let table = matrix.renderedTable;
+  assert.equal(table.rows[0].cells[0].id, col1Id + "-error", "There is -error postfix in error cell, #1");
+  assert.equal(table.rows[1].cells[0].id, col1Id + "-index0", "Use question id, #1");
+  assert.equal(table.rows[1].cells[1].id, col1Id + "-index1", "Use question id, #2");
+});

@@ -554,4 +554,42 @@ frameworks.forEach((framework) => {
 
     await t.expect(await getSurveyResult()).eql({ matrix: [{ name: "abc123" }] });
   });
+  test("Editing cell loses focus when a dependent column appears, Bug#9233", async (t) => {
+    await initSurvey(framework, {
+      textUpdateMode: "onTyping",
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 1,
+          columns: [
+            {
+              name: "col1",
+              visibleIf: "{row.col2} notempty",
+              cellType: "text"
+            },
+            {
+              name: "col2",
+              cellType: "text"
+            },
+            {
+              name: "col3",
+              visibleIf: "{row.col2} notempty",
+              cellType: "text"
+            }
+          ]
+        }
+      ]
+    });
+
+    const inputs = Selector("input[type=text");
+    await t.expect(inputs.count).eql(1)
+      .click(inputs.nth(0))
+      .pressKey("a")
+      .expect(inputs.count).eql(3)
+      .pressKey("b c")
+      .click(completeButton);
+
+    await t.expect(await getSurveyResult()).eql({ matrix: [{ col2: "abc" }] });
+  });
 });

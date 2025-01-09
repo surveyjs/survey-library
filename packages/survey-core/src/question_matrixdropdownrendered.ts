@@ -15,6 +15,10 @@ import { settings } from "./settings";
 import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/utils";
 
+function getId(id: string, isError: boolean, isDetail: boolean) {
+  return id + (isError ? "-error" : "") + (isDetail ? "-detail" : "");
+}
+
 export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
   private idValue: number;
@@ -54,8 +58,12 @@ export class QuestionMatrixDropdownRenderedCell {
   public get hasPanel(): boolean {
     return !!this.panel;
   }
-  public get id(): number {
-    return this.idValue;
+  public get id(): string {
+    let id = this.question ? this.question.id : this.idValue.toString();
+    if(this.isChoice) {
+      id += "-" + (Number.isInteger(this.choiceIndex) ? "index" + this.choiceIndex.toString() : this.item.id);
+    }
+    return getId(id, this.isErrorsCell, this.isDetailRowCell);
   }
   public get item(): ItemValue {
     return this.itemValue;
@@ -173,8 +181,8 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     super();
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
-  public get id(): number {
-    return this.idValue;
+  public get id(): string {
+    return getId(this.row?.id || this.idValue.toString(), this.isErrorsRow, this.isDetailRow);
   }
   public get attributes() {
     if (!this.row) return {};

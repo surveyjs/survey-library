@@ -3,7 +3,7 @@
     <ng-container *ngIf="model.needSeparator">
     <div [class]="listModel.cssClasses.itemSeparator"></div>
     </ng-container>
-    <div [class]="listModel.cssClasses.itemBody" [style]="itemStyle" [attr.title]="model.locTitle.calculatedText"
+    <div [class]="listModel.cssClasses.itemBody" [style]="itemStyle" [attr.title]="model.getTooltip()"
     (mouseover)="listModel.onItemHover(model)"
     (mouseleave)="listModel.onItemLeave(model)">
     <ng-template [component]="{ name: itemComponent, data: { model: model, listModel: listModel } }"></ng-template>

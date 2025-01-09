@@ -2111,10 +2111,9 @@ export class SurveyModel extends SurveyElementCore
   /**
    * A logo width in CSS-accepted values.
    *
-   * Default value: `300px`
+   * Default value: `auto` (the width is calculated automatically based on the [`logoHeight`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logoHeight) value to keep the original aspect ratio)
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
-   * @see logoHeight
    * @see logo
    * @see logoPosition
    * @see logoFit
@@ -2136,10 +2135,10 @@ export class SurveyModel extends SurveyElementCore
   /**
    * A logo height in CSS-accepted values.
    *
-   * Default value: `200px`
+   * Default value: `40px`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
-   * @see logoHeight
+   * @see logoWidth
    * @see logo
    * @see logoPosition
    * @see logoFit

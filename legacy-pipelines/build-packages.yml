@@ -166,7 +166,6 @@ jobs:
     # https://stackoverflow.com/questions/58485585/azure-pipeline-powershell-and-git-on-windows-server-2019-gives-error-in-output
     - powershell: |
         cd $(Build.SourcesDirectory)/service
-        $env:GIT_REDIRECT_STDERR = '2>&1'
         git config --global user.email "kurmanov.work@gmail.com"
         git config --global user.name "dmitrykurmanov"
         git branch --show-current

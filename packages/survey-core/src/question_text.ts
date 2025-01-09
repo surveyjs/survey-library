@@ -133,7 +133,7 @@ export class QuestionTextModel extends QuestionTextBase {
       }
     );
     this.registerPropertyChangedHandlers(["inputType", "inputSize"], () => {
-      this.updateInputSize();
+      this.resetInputSize();
       this.resetRenderedPlaceholder();
     });
   }
@@ -205,12 +205,12 @@ export class QuestionTextModel extends QuestionTextBase {
   public get renderedInputSize(): number {
     return this.getPropertyValue("renderedInputSize", undefined, () => {
       const size = this.calInputSize();
-      return size > 0 ? size : null;
+      return size > 0 ? size : undefined;
     });
   }
   public get inputWidth(): string {
     return this.getPropertyValue("inputWidth", undefined, () => {
-      return this.renderedInputSize !== null ? "auto" : "";
+      return this.calInputSize() > 0 ? "auto" : "";
     });
   }
   private calInputSize(): number {
@@ -221,7 +221,7 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return size;
   }
-  public updateInputSize(): void {
+  public resetInputSize(): void {
     this.resetPropertyValue("renderedInputSize");
     this.resetPropertyValue("inputWidth");
   }

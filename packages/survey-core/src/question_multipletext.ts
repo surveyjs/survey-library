@@ -430,7 +430,7 @@ export class QuestionMultipleTextModel extends Question
     this.registerPropertyChangedHandlers(["items", "colCount", "itemErrorLocation"], () => {
       this.calcVisibleRows();
     });
-    this.registerPropertyChangedHandlers(["inputSize"], () => { this.updateItemsSize(); });
+    this.registerPropertyChangedHandlers(["inputSize"], () => { this.resetItemsSize(); });
   }
   public getType(): string {
     return "multipletext";
@@ -470,9 +470,9 @@ export class QuestionMultipleTextModel extends Question
       item.editor.onSurveyValueChanged(item.value);
     });
   }
-  private updateItemsSize() {
+  private resetItemsSize() {
     this.performForEveryEditor((item: MultipleTextItemModel): void => {
-      item.editor.updateInputSize();
+      item.editor.resetInputSize();
     });
   }
   private editorsOnSurveyLoad() {

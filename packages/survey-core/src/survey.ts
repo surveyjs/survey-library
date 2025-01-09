@@ -7799,6 +7799,9 @@ export class SurveyModel extends SurveyElementCore
     const isNeedWaitForPageRendered = this.activePage !== question.page && !question.page.isStartPage;
     if (isNeedWaitForPageRendered) {
       this.currentPage = <PageModel>question.page;
+      if(this.isSingleVisibleQuestion && !this.isDesignMode) {
+        this.currentSingleQuestion = question;
+      }
     }
     if (!isNeedWaitForPageRendered) {
       this.focusQuestionInfo();

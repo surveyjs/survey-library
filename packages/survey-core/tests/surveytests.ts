@@ -17600,6 +17600,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.showNavigationButtons, "bottom");
@@ -17723,6 +17724,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
     settings.legacyProgressBarView = true;
 
     let survey = new SurveyModel(json);
+    survey.headerView = "basic";
     const getContainerContent = getContainerContentFunction(survey);
 
     assert.equal(survey.showNavigationButtons, "none");
@@ -17879,6 +17881,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.showNavigationButtons, "none");
@@ -18020,6 +18023,7 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [], "");
@@ -18082,6 +18086,7 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [], "");
@@ -18141,6 +18146,7 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [], "");
@@ -18184,7 +18190,6 @@ QUnit.test("getContainerContent - do not show advanced header on completed page"
   };
 
   let survey = new SurveyModel(json);
-  survey.headerView = "advanced";
   function getContainerContent(container: LayoutElementContainer) {
     let result = survey.getContainerContent(container);
     result.forEach(item => {
@@ -18236,7 +18241,6 @@ QUnit.test("getContainerContent - do show advanced header on completed page if s
   };
 
   let survey = new SurveyModel(json);
-  survey.headerView = "advanced";
   function getContainerContent(container: LayoutElementContainer) {
     let result = survey.getContainerContent(container);
     result.forEach(item => {
@@ -18565,6 +18569,7 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   function getContainerContent(container: LayoutElementContainer) {
     let result = survey.getContainerContent(container);
     result.forEach(item => delete item["data"]);
@@ -19022,7 +19027,7 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundImageAttachment, "scroll", "before applyTheme");
   assert.equal(survey.backgroundOpacity, 1, "before applyTheme");
   assert.equal(survey["isCompact"], false, "before applyTheme");
-  assert.equal(survey.headerView, "basic", "before applyTheme");
+  assert.equal(survey.headerView, "advanced", "before applyTheme");
 
   survey.applyTheme({
     "cssVariables": {
@@ -19045,7 +19050,7 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundImageAttachment, "fixed");
   assert.equal(survey.backgroundOpacity, 0.6);
   assert.equal(survey["isCompact"], true);
-  assert.equal(survey.headerView, "basic", "before applyTheme");
+  assert.equal(survey.headerView, "advanced", "after applyTheme");
 });
 QUnit.test("survey.applyTheme respects headerView", function (assert) {
   const survey = new SurveyModel({
@@ -19055,17 +19060,19 @@ QUnit.test("survey.applyTheme respects headerView", function (assert) {
     ]
   });
 
-  assert.equal(survey.headerView, "basic", "before applyTheme");
-  survey.applyTheme({
-    "headerView": "advanced"
-  });
-  assert.equal(survey.headerView, "advanced");
+  assert.equal(survey.headerView, "advanced", "before applyTheme");
   survey.applyTheme({
     "headerView": "basic"
   });
-  assert.equal(survey.headerView, "basic");
+  assert.equal(survey.headerView, "basic", "apply basic header");
+
+  survey.applyTheme({
+    "headerView": "advanced"
+  });
+  assert.equal(survey.headerView, "advanced", "apply advanced header");
+
   survey.applyTheme({});
-  assert.equal(survey.headerView, "basic");
+  assert.equal(survey.headerView, "advanced", "apply empty theme");
 });
 QUnit.test("page/panel delete do it recursively", function (assert) {
   const survey = new SurveyModel({
@@ -19664,9 +19671,9 @@ QUnit.test("Do not run defaultValueExpression on survey.data, #7423", function (
 });
 QUnit.test("theme assignment doesn't affect headerView", function (assert) {
   let survey = new SurveyModel({});
-  assert.equal(survey.headerView, "basic", "default value");
+  assert.equal(survey.headerView, "advanced", "default value");
   survey.theme = { header: {} } as any;
-  assert.equal(survey.headerView, "basic", "keep default value");
+  assert.equal(survey.headerView, "advanced", "keep default value");
 });
 QUnit.test("defaultValueExpression expression stops working after survey.clear(), #7448", function (assert) {
   const survey = new SurveyModel({
@@ -19736,7 +19743,6 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
     settings.legacyProgressBarView = true;
 
     let survey = new SurveyModel(json);
-    survey.headerView = "advanced";
     const getContainerContent = getContainerContentFunction(survey);
 
     assert.equal(survey.showNavigationButtons, "none");
@@ -19854,7 +19860,6 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
   };
 
   let survey = new SurveyModel(json);
-  survey.headerView = "advanced";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.showNavigationButtons, "none");
@@ -19942,6 +19947,7 @@ QUnit.test("getContainerContent - do not show timer panel in display mode", func
     "showTimerPanelMode": "survey"
   };
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [{
@@ -20091,6 +20097,7 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(settings.legacyProgressBarView, false, "show buttons progress for pages by default");
@@ -20177,7 +20184,7 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
   }], "topBottom pages center");
 });
 
-QUnit.test("getContainerContent - show advinced hader on start page", function (assert) {
+QUnit.test("getContainerContent - show advanced header on start page", function (assert) {
   surveyCss.currentType = "defaultV2";
   const json = {
     showNavigationButtons: "none",
@@ -20207,15 +20214,6 @@ QUnit.test("getContainerContent - show advinced hader on start page", function (
   let survey = new SurveyModel(json);
   const getContainerContent = getContainerContentFunction(survey);
 
-  assert.deepEqual(getContainerContent("header"), [], "empty header");
-  assert.deepEqual(getContainerContent("footer"), [], "empty footer");
-  assert.deepEqual(getContainerContent("contentTop"), [], "empty contentTop");
-  assert.deepEqual(getContainerContent("contentBottom"), [], "empty contentBottom");
-  assert.deepEqual(getContainerContent("left"), [], "empty left");
-  assert.deepEqual(getContainerContent("right"), [], "empty right");
-  assert.deepEqual(getContainerContent("center"), [], "empty center");
-
-  survey.headerView = "advanced";
   assert.deepEqual(getContainerContent("header"), [{
     "component": "sv-header",
     "container": "header",
@@ -20228,6 +20226,15 @@ QUnit.test("getContainerContent - show advinced hader on start page", function (
   assert.deepEqual(getContainerContent("left"), [], "advanced left");
   assert.deepEqual(getContainerContent("right"), [], "advanced right");
   assert.deepEqual(getContainerContent("center"), [], "advanced center");
+
+  survey.headerView = "basic";
+  assert.deepEqual(getContainerContent("header"), [], "empty header");
+  assert.deepEqual(getContainerContent("footer"), [], "empty footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "empty contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "empty contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "empty left");
+  assert.deepEqual(getContainerContent("right"), [], "empty right");
+  assert.deepEqual(getContainerContent("center"), [], "empty center");
 });
 
 QUnit.test("survey.runExpressions(), #7694", function (assert) {
@@ -20591,6 +20598,7 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.progressBarType, "pages");

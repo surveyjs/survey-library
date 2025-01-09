@@ -1069,6 +1069,9 @@ export class SurveyModel extends SurveyElementCore
 
     this.progressBarValue = new ProgressButtons(this);
 
+    if (this.headerView === "advanced") {
+      this.insertAdvancedHeader(new Cover());
+    }
     this.layoutElements.push({
       id: "timerpanel",
       template: "survey-timerpanel",

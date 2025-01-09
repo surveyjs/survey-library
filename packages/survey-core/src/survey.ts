@@ -84,6 +84,7 @@ import { SurveyTaskManagerModel } from "./surveyTaskManager";
 import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { ConsoleWarnings } from "./console-warnings";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -1104,7 +1105,12 @@ export class SurveyModel extends SurveyElementCore
 
     this.locTitle.onStringChanged.add(() => this.titleIsEmpty = this.locTitle.isEmpty);
   }
-
+  public get sjsVersion(): string {
+    return this.getPropertyValue("sjsVersion");
+  }
+  public set sjsVersion(val: string) {
+    this.setPropertyValue("sjsVersion", val);
+  }
   processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
     throw new Error("Method not implemented.");
   }
@@ -6391,6 +6397,7 @@ export class SurveyModel extends SurveyElementCore
     if (!json) return;
     this.questionHashesClear();
     this.jsonErrors = null;
+    this.sjsVersion = undefined;
     const jsonConverter = new JsonObject();
     jsonConverter.toObject(json, this, options);
     if (jsonConverter.errors.length > 0) {
@@ -6398,6 +6405,13 @@ export class SurveyModel extends SurveyElementCore
     }
     this.onStateAndCurrentPageChanged();
     this.updateState();
+    if(!!this.sjsVersion && !!settings.version) {
+      if(Helpers.compareVerions(this.sjsVersion, settings.version) > 0) {
+        ConsoleWarnings.warn("The version of the survey JSON schema (v"
+          + this.sjsVersion + ") is newer than your current Form Library version ("
+          + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");
+      }
+    }
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
@@ -8184,6 +8198,7 @@ Serializer.addClass("survey", [
     name: "calculatedValues:calculatedvalues",
     className: "calculatedvalue", isArray: true
   },
+  { name: "sjsVersion", visible: false },
   { name: "surveyId", visible: false },
   { name: "surveyPostId", visible: false },
   { name: "surveyShowDataSaving:boolean", visible: false },

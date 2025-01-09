@@ -49,6 +49,7 @@ const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string
  */
 
 export var settings = {
+  version: "",
   /**
    * An object that configures survey appearance when the survey is being designed in Survey Creator.
    *

@@ -51,7 +51,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         aria-labelledby={this.question.a11y_input_ariaLabelledBy}
         aria-describedby={this.question.a11y_input_ariaDescribedBy}
         tabIndex={this.question.isDisabledAttr ? undefined : 0}
-        className={this.question.getControlClass()}>
+        className={this.question.getControlClass()}
+        ref={(div) => (this.setControl(div))}>
         {text}
         {this.renderReadOnlyElement()}
       </div>;
@@ -107,6 +108,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       aria-expanded={this.question.ariaExpanded}
       aria-controls={dropdownListModel.listElementId}
       aria-activedescendant={dropdownListModel.ariaActivedescendant}
+      ref={(div) => (this.setControl(div))}
     >
       {dropdownListModel.showHintPrefix ?
         (<div className={this.question.cssClasses.hintPrefix}>

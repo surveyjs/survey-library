@@ -370,53 +370,6 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
   targetElement.remove();
 });
 
-QUnit.test("PopupModel toggleVisibility", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {});
-  const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
-
-  viewModel.initializePopupContainer();
-  viewModel.container.innerHTML = popupTemplate;
-
-  assert.equal(viewModel.isVisible, false);
-  assert.equal(viewModel.top, "0px");
-  assert.equal(viewModel.left, "0px");
-  assert.equal(viewModel.popupDirection, "left");
-  assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
-
-  let trace: String = "";
-  model.onHide = () => {
-    trace += "->onHide";
-  };
-  model.onShow = () => {
-    trace += "->onShow";
-  };
-
-  model.toggleVisibility();
-  //viewModel.isVisible(!viewModel.isVisible());
-  assert.equal(trace, "->onShow");
-  assert.equal(viewModel.isVisible, true);
-  assert.equal(viewModel.top, "0px");
-  assert.equal(viewModel.left, "0px");
-  assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget.left, "0px");
-  assert.equal(viewModel.pointerTarget.top, "0px");
-  trace = "";
-
-  model.toggleVisibility();
-  //viewModel.isVisible(!viewModel.isVisible());
-  assert.equal(trace, "->onHide");
-  assert.equal(viewModel.isVisible, false);
-  assert.equal(viewModel.top, "0px");
-  assert.equal(viewModel.left, "0px");
-  assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget.left, "0px");
-  assert.equal(viewModel.pointerTarget.top, "0px");
-
-  viewModel.dispose();
-  targetElement.remove();
-});
-
 QUnit.test("PopupModel PopupDropdownViewModel clickOutside", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
@@ -447,7 +400,7 @@ QUnit.test("PopupModel PopupDropdownViewModel clickOutside", (assert) => {
   assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
   trace = "";
 
-  model.toggleVisibility();
+  model.show();
   trace = "";
   viewModel.clickOutside();
   assert.equal(trace, "->onHide");
@@ -481,7 +434,7 @@ QUnit.test("PopupModel PopupModalViewModel clickOutside", (assert) => {
     trace += "->onShow";
   };
 
-  model.toggleVisibility();
+  model.show();
   trace = "";
   viewModel.clickOutside();
   assert.equal(trace, "");
@@ -520,7 +473,7 @@ QUnit.test("PopupModel cancel", (assert) => {
   assert.equal(viewModel.isVisible, false);
   trace = "";
 
-  model.toggleVisibility();
+  model.show();
   trace = "";
   viewModel.cancel();
   assert.equal(trace, "->onCancel->onHide");
@@ -528,7 +481,7 @@ QUnit.test("PopupModel cancel", (assert) => {
   trace = "";
 
   model.isModal = true;
-  model.toggleVisibility();
+  model.show();
   trace = "";
   viewModel.cancel();
   assert.equal(trace, "->onCancel->onHide");
@@ -566,7 +519,7 @@ QUnit.test("PopupModel apply", (assert) => {
   assert.equal(viewModel.isVisible, false);
   trace = "";
 
-  model.toggleVisibility();
+  model.show();
   trace = "";
   viewModel.apply();
   assert.equal(trace, "->onApply->onHide");
@@ -574,7 +527,7 @@ QUnit.test("PopupModel apply", (assert) => {
   trace = "";
 
   model.isModal = true;
-  model.toggleVisibility();
+  model.show();
   trace = "";
   viewModel.apply();
   assert.equal(trace, "->onApply->onHide");
@@ -600,7 +553,7 @@ QUnit.test("PopupModel apply when not allow", (assert) => {
     return canApply;
   };
 
-  model.toggleVisibility();
+  model.show();
   assert.equal(viewModel.isVisible, true);
   viewModel.apply();
   assert.equal(viewModel.isVisible, true);
@@ -1266,7 +1219,7 @@ QUnit.test("Fixed PopupModel width calculate setWidthByTarget = false", (assert)
 
   (<any>window).innerWidth = 1000;
   (<any>window).innerHeight = 800;
-  model.toggleVisibility();
+  model.show();
   viewModel.updateOnShowing();
   assert.equal(viewModel.minWidth, "auto", "minWidth");
   assert.equal(viewModel.width, "auto", "width");
@@ -1301,7 +1254,7 @@ QUnit.test("Fixed PopupModel width calculate if short content setWidthByTarget =
 
   (<any>window).innerWidth = 1000;
   (<any>window).innerHeight = 800;
-  model.toggleVisibility();
+  model.show();
   viewModel.updateOnShowing();
   assert.equal(viewModel.minWidth, "auto", "minWidth");
   assert.equal(viewModel.width, "auto", "width");
@@ -1336,7 +1289,7 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
 
   (<any>window).innerWidth = 1000;
   (<any>window).innerHeight = 800;
-  model.toggleVisibility();
+  model.show();
   viewModel.updateOnShowing();
   assert.equal(viewModel.minWidth, "auto", "minWidth");
   assert.equal(viewModel.width, "800px", "width");
@@ -1371,7 +1324,7 @@ QUnit.test("Fixed PopupModel width calculate", (assert) => {
 
   (<any>window).innerWidth = 1000;
   (<any>window).innerHeight = 800;
-  model.toggleVisibility();
+  model.show();
   viewModel.updateOnShowing();
   assert.equal(viewModel.minWidth, "560px", "minWidth");
   assert.equal(viewModel.width, "560px", "width");
@@ -1406,7 +1359,7 @@ QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
 
   (<any>window).innerWidth = 1000;
   (<any>window).innerHeight = 800;
-  model.toggleVisibility();
+  model.show();
   viewModel.updateOnShowing();
   assert.equal(viewModel.minWidth, "560px", "minWidth");
   assert.equal(viewModel.width, "560px", "width");
@@ -1441,7 +1394,7 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
 
   (<any>window).innerWidth = 1000;
   (<any>window).innerHeight = 800;
-  model.toggleVisibility();
+  model.show();
   viewModel.updateOnShowing();
   assert.equal(viewModel.minWidth, "560px", "minWidth");
   assert.equal(viewModel.width, "560px", "width");
@@ -1487,7 +1440,7 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
     trace += "->onShow";
   };
 
-  model.toggleVisibility();
+  model.show();
   (<any>window).innerWidth = 600;
   (<any>window).innerHeight = 400;
   viewModel.updateOnShowing();
@@ -1500,7 +1453,7 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   assert.notEqual(viewModel.width, "auto", "onShow width");
   trace = "";
 
-  model.toggleVisibility();
+  model.hide();
   assert.equal(trace, "->onHide");
   assert.equal(viewModel.isVisible, false);
   assert.equal(viewModel.top, "0px", "onHide top");
@@ -1568,7 +1521,7 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
     trace += "->onShow";
   };
 
-  model.toggleVisibility();
+  model.show();
   (<any>window).innerWidth = 600;
   (<any>window).innerHeight = 400;
   viewModel.updateOnShowing();
@@ -1581,7 +1534,7 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   assert.equal(viewModel.width, "inherit", "onShow width");
   trace = "";
 
-  model.toggleVisibility();
+  model.hide();
   assert.equal(trace, "->onHide");
   assert.equal(viewModel.isVisible, false);
   assert.equal(viewModel.top, "0px", "onHide top");
@@ -1668,7 +1621,7 @@ QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
   container.children[0].children[0].dispatchEvent(event);
   assert.equal(eventLog, "->prevented", "overscroll inside (prevented)");
 
-  model.toggleVisibility();
+  model.hide();
   assert.equal(subscribeLog, "->subscribed->unsubscribed");
 
   container.remove();

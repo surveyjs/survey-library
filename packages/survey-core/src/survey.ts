@@ -4577,6 +4577,9 @@ export class SurveyModel extends SurveyElementCore
     return this.getPropertyValue("showPreviewBeforeComplete");
   }
   public set showPreviewBeforeComplete(val: boolean | any) {
+    this.setShowPreviewBeforeComplete(val);
+  }
+  public setShowPreviewBeforeComplete(val: boolean | any) {
     if (val === undefined || val === "noPreview" || val === false) {
       this.setPropertyValue("showPreviewBeforeComplete", false);
     } else {
@@ -8585,7 +8588,10 @@ Serializer.addClass("survey", [
   },
   {
     name: "showPreviewBeforeComplete:boolean",
-    default: false
+    default: false,
+    onSetValue: (obj: any, value: any, jsonConv: any) => {
+      obj && obj.setShowPreviewBeforeComplete(value);
+    },
   },
   {
     name: "previewMode",

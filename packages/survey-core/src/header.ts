@@ -30,7 +30,13 @@ export class CoverCell {
     return this.cover.survey;
   }
   get css(): string {
-    const result = `${CoverCell.CLASSNAME} ${CoverCell.CLASSNAME}--${this.positionX} ${CoverCell.CLASSNAME}--${this.positionY}`;
+    const result = new CssClassBuilder()
+      .append(CoverCell.CLASSNAME)
+      .append(`${CoverCell.CLASSNAME}--${this.positionX}`)
+      .append(`${CoverCell.CLASSNAME}--${this.positionY}`)
+      .append(CoverCell.CLASSNAME + "--empty", this.isEmpty)
+      .toString();
+
     return result;
   }
   get style(): any {
@@ -55,6 +61,9 @@ export class CoverCell {
   get showDescription(): boolean {
     return this.survey.renderedHasDescription && this.positionX === this.cover.descriptionPositionX && this.positionY === this.cover.descriptionPositionY;
   }
+  get isEmpty(): boolean {
+    return !this.showLogo && !this.showTitle && !this.showDescription;
+  }
   get textAreaWidth(): string {
     if (!this.cover.textAreaWidth) {
       return "";
@@ -78,9 +87,10 @@ export class Cover extends Base {
   private updateHeaderClasses(): void {
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")
+      .append("sv-header--heigth-auto", !this.renderedHeight)
       .append("sv-header__without-background", (this.backgroundColor === "transparent") && !this.backgroundImage)
       .append("sv-header__background-color--none", this.backgroundColor === "transparent" && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__background-color--accent", !this.backgroundColor && !this.titleColor && !this.descriptionColor)
+      // .append("sv-header__background-color--accent", !this.backgroundColor && !this.titleColor && !this.descriptionColor)
       .append("sv-header__background-color--custom", !!this.backgroundColor && this.backgroundColor !== "transparent" && !this.titleColor && !this.descriptionColor)
       .append("sv-header__overlap", this.overlapEnabled)
       .toString();
@@ -137,7 +147,7 @@ export class Cover extends Base {
   @property() public textAreaWidth: number;
   @property() public textGlowEnabled: boolean;
   @property() public overlapEnabled: boolean;
-  @property() public backgroundColor: string;
+  @property({ defaultValue: "transparent" }) public backgroundColor: string;
   @property() public titleColor: string;
   @property() public descriptionColor: string;
   @property({
@@ -173,6 +183,9 @@ export class Cover extends Base {
   }
   public get renderedtextAreaWidth(): string {
     return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
+  }
+  public get isEmpty(): boolean {
+    return !this.survey.hasLogo && !this.survey.hasTitle && !this.survey.renderedHasDescription;
   }
   public get survey(): SurveyModel {
     return this._survey;

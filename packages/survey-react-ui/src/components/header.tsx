@@ -94,7 +94,7 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
   renderElement(): React.JSX.Element | null {
     this.model.survey = this.props.survey;
 
-    if (!(this.props.survey.headerView === "advanced")) {
+    if (!(this.props.survey.headerView === "advanced") || this.model.isEmpty) {
       return null;
     }
 

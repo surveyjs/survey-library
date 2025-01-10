@@ -2586,23 +2586,12 @@ QUnit.test("itemvalue enableIf property visibility test", function (assert) {
     "We show enableIf for all other properties"
   );
 });
-QUnit.test("Change default value for question.hideNumber", function (assert) {
-  assert.equal(
-    new Question("q1").hideNumber,
-    false,
-    "By default hideNumber returns false"
-  );
-  Serializer.findProperty("question", "hideNumber").defaultValue = true;
-  assert.equal(
-    new Question("q1").hideNumber,
-    true,
-    "We have override hide number"
-  );
-  Serializer.findProperty("question", "hideNumber").defaultValue = undefined;
-  assert.equal(
-    new Question("q1").hideNumber,
-    false,
-    "We made hideNumber false by default again"
+QUnit.test("Change default value for question.showNumber", function (assert) {
+  assert.equal(new Question("q1").showNumber, true, "By default showNumber returns true");
+  Serializer.findProperty("question", "showNumber").defaultValue = false;
+  assert.equal(new Question("q1").showNumber, false, "We have override showNumber");
+  Serializer.findProperty("question", "showNumber").defaultValue = true;
+  assert.equal(new Question("q1").showNumber, true, "We made showNumber true by default again"
   );
 });
 QUnit.test("Serializer.getProperty()", function (assert) {

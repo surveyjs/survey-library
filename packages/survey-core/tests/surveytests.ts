@@ -13415,7 +13415,7 @@ QUnit.test(
     });
     var panel = <PanelModel>survey.getPanelByName("p1");
     var question = survey.getQuestionByName("q1");
-    var property = Serializer.findProperty("question", "hideNumber");
+    var property = Serializer.findProperty("question", "showNumber");
 
     assert.ok(property.visibleIf(question), "Visible by default");
 

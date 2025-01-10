@@ -494,26 +494,36 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Returns the visible index of the question in the survey. It can be from 0 to all visible questions count - 1
-   * The visibleIndex is -1 if the title is 'hidden' or hideNumber is true
+   * The visibleIndex is -1 if the title is 'hidden' or showNumber is false
    * @see titleLocation
-   * @see hideNumber
+   * @see showNumber
    */
   public get visibleIndex(): number {
     return this.getPropertyValue("visibleIndex", -1);
   }
   public onHidingContent(): void { }
   /**
-   * Hides the question number from the title and excludes the question from numbering.
+   * Specifies whether to show a number for this question. Setting this property to `false` hides the question number from the title and excludes the question from numbering.
    *
-   * If you want to disable question numbering in the entire survey, set `SurveyModel`'s `showQuestionNumbers` property to `false`.
-   * @see SurveyModel.showQuestionNumbers
+   * Default value: `false` (inherited from the `SurveyModel`'s [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers) property)
+   * @see no
+   */
+  public get showNumber(): boolean {
+    return this.getPropertyValue("showNumber");
+  }
+  public set showNumber(val: boolean) {
+    this.setPropertyValue("showNumber", val);
+    this.notifySurveyVisibilityChanged();
+  }
+  /**
+   * Obsolete. Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
+   * @deprecated
    */
   public get hideNumber(): boolean {
-    return this.getPropertyValue("hideNumber");
+    return !this.showNumber;
   }
   public set hideNumber(val: boolean) {
-    this.setPropertyValue("hideNumber", val);
-    this.notifySurveyVisibilityChanged();
+    this.showNumber = !val;
   }
   /**
    * Returns `true` if the question can display its title to the left of the input field.
@@ -1526,7 +1536,7 @@ export class Question extends SurveyElement<Question>
    *
    * When the question number, title, or the entire question is invisible, this property returns an empty string.
    * @see SurveyModel.questionStartIndex
-   * @see hideNumber
+   * @see showNumber
    * @see titleLocation
    * @see visibleIf
    */
@@ -1534,7 +1544,7 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("no");
   }
   private calcNo(): string {
-    if (!this.hasTitle || this.hideNumber) return "";
+    if (!this.hasTitle || !this.showNumber) return "";
     const parentIndex: number | undefined = (<any>this.parent)?.visibleIndex;
     var no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex(), parentIndex);
     if (!!this.survey) {
@@ -2526,7 +2536,7 @@ export class Question extends SurveyElement<Question>
     if (
       !this.isVisible ||
       (!this.hasTitle && !settings.numbering.includeQuestionsWithHiddenTitle) ||
-      (this.hideNumber && !settings.numbering.includeQuestionsWithHiddenNumber)
+      (!this.showNumber && !settings.numbering.includeQuestionsWithHiddenNumber)
     ) {
       val = -1;
     }
@@ -2923,8 +2933,9 @@ Serializer.addClass("question", [
     choices: ["default", "underInput", "underTitle"],
   },
   {
-    name: "hideNumber:boolean",
+    name: "showNumber:boolean",
     dependsOn: "titleLocation",
+    default: true,
     visibleIf: function (obj: any) {
       if (!obj) {
         return true;
@@ -2946,6 +2957,7 @@ Serializer.addClass("question", [
       );
     },
   },
+  { name: "hideNumber:boolean", visible: false, isSerializable: false },
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
   "resetValueIf:condition",

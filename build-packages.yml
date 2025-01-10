@@ -142,7 +142,6 @@ jobs:
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
           npm run release -- --release-as $(SurveyJSVersion)
-          git status
         displayName: "npm run release"
 
       - script: |
@@ -305,7 +304,6 @@ jobs:
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
           npm run release -- --release-as $(SurveyJSVersion)
-          git status
         displayName: "npm run release"
 
       - script: |
@@ -422,7 +420,6 @@ jobs:
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
           npm run release -- --release-as $(SurveyJSVersion)
-          git status
         displayName: "npm run release"
 
       - script: |
@@ -549,7 +546,6 @@ jobs:
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
           npm run release -- --release-as $(SurveyJSVersion)
-          git status
         displayName: "npm run release"
 
       - script: |
@@ -675,7 +671,6 @@ jobs:
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
           npm run release -- --release-as $(SurveyJSVersion)
-          git status
         displayName: "npm run release"
 
       - script: |

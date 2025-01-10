@@ -14953,11 +14953,11 @@ QUnit.test("getSize", function (assert) {
 });
 QUnit.test("survey logo size", function (assert) {
   var survey = new SurveyModel();
-  assert.equal(survey.logoWidth, "300px", "300px");
-  assert.equal(survey.logoHeight, "200px", "200px");
-  assert.equal(survey.renderedLogoWidth, 300);
-  assert.equal(survey.renderedLogoHeight, 200);
-  assert.equal(survey.renderedStyleLogoWidth, undefined);
+  assert.equal(survey.logoWidth, "auto", "auto");
+  assert.equal(survey.logoHeight, "40px", "40px");
+  assert.equal(survey.renderedLogoWidth, undefined);
+  assert.equal(survey.renderedLogoHeight, 40);
+  assert.equal(survey.renderedStyleLogoWidth, "auto");
   assert.equal(survey.renderedStyleLogoHeight, undefined);
   survey.logoWidth = "100%";
   survey.logoHeight = "auto";

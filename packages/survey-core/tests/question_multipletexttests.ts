@@ -166,7 +166,7 @@ QUnit.test("Check error row visibility", (assert) => {
   });
   const question = <QuestionMultipleTextModel>survey.getAllQuestions()[0];
   assert.notOk(question.getRows()[0].isVisible);
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.ok(question.getRows()[0].isVisible);
   question.items[0].editor.value = "test";
   assert.ok(question.getRows()[0].isVisible);
@@ -242,7 +242,7 @@ QUnit.test("defaultValueExpression executing", (assert) => {
   q1.items[1].value = 5;
   assert.equal(q1.items[2].editor.value, 15, "Calculated correctly");
 });
-QUnit.test("Make itemSize invisible by default", (assert) => {
-  const prop = Serializer.findProperty("multipletext", "itemSize");
+QUnit.test("Make inputSize invisible by default", (assert) => {
+  const prop = Serializer.findProperty("multipletext", "inputSize");
   assert.strictEqual(prop.visible, false);
 });

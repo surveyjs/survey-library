@@ -266,6 +266,25 @@ function dateDiff(params: any[]): any {
 }
 FunctionFactory.Instance.register("dateDiff", dateDiff);
 
+function dateAdd(params: any[]): any {
+  if(!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
+  const date = createDate("function-dateAdd", params[0]);
+  const valToAdd = params[1];
+  const interval = params[2] || "days";
+  if (interval === "days") {
+    date.setDate(date.getDate() + valToAdd);
+  }
+  if (interval === "months") {
+    date.setMonth(date.getMonth() + valToAdd);
+  }
+  if (interval === "years") {
+    date.setFullYear(date.getFullYear() + valToAdd);
+  }
+  return date;
+}
+
+FunctionFactory.Instance.register("dateAdd", dateAdd);
+
 function isContainerReadyCore(container: any): boolean {
   if (!container) return false;
   var questions = container.questions;

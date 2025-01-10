@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, applyTheme, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody } from "../../helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody } from "../../helper";
 
 const title = "Matrixdynamic Screenshot";
 
@@ -7,12 +7,8 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`.page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-  });
+  fixture`${framework} ${title}`.page`${url}${framework}`;
   test("Matrixdynamic empty placeholder", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
@@ -25,7 +21,7 @@ frameworks.forEach(framework => {
             name: "frameworks",
             title: "Please tells us your opinion about JavaScript MVVM frameworks.",
             hideColumnsIfEmpty: true,
-            emptyRowsText: "There is no records yet.\nClick the button below to add a new record.",
+            noRowsText: "There is no records yet.\nClick the button below to add a new record.",
             addRowText: "Add New Record",
             rowCount: 0,
             maxWidth: "768px",
@@ -477,7 +473,7 @@ frameworks.forEach(framework => {
                   amount: 1,
                   totalPerRow: 2,
                 },
-                addRowLocation: "topBottom",
+                addRowButtonLocation: "topBottom",
                 addRowText: "Add Coffee",
               },
             ],

@@ -653,9 +653,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private createCssClassesValue(): any {
     const res = this.calcCssClasses(this.css);
     this.setPropertyValue("cssClassesValue", res);
+    this.onCalcCssClasses(res);
     this.updateElementCssCore(this.cssClassesValue);
     return res;
   }
+  protected onCalcCssClasses(classes: any): void {}
   /**
    * Returns an object in which keys are UI elements and values are CSS classes applied to them.
    *
@@ -677,9 +679,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (css.number) return css.number;
     return css.panel ? css.panel.number : undefined;
   }
-  public get cssRequiredText(): any {
+  public get cssRequiredMark(): any {
     const css = this.cssClasses;
-    return css.requiredText || (css.panel && css.panel.requiredText);
+    return css.requiredMark || (css.panel && css.panel.requiredMark);
   }
   public getCssTitleExpandableSvg(): string {
     if (this.state === "default") return null;
@@ -1059,16 +1061,26 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       const columns = this.parent.getColumsForElement(this as any);
       _width = columns.reduce((sum, col) => col.effectiveWidth + sum, 0);
       if (!!_width && _width !== 100) {
-        style["flexGrow"] = 0;
+        style["flexGrow"] = 1;
         style["flexShrink"] = 0;
         style["flexBasis"] = _width + "%";
         style["minWidth"] = undefined;
-        style["maxWidth"] = undefined;
+        style["maxWidth"] = this.maxWidth;
       }
     }
     if (Object.keys(style).length == 0) {
-      let minWidth = this.minWidth;
-      if (minWidth != "auto") minWidth = "min(100%, " + minWidth + ")";
+      let minWidth: string | number = "" + this.minWidth;
+      if (!!minWidth && minWidth != "auto") {
+        if (minWidth.indexOf("px") != -1 && this.survey) {
+          minWidth = minWidth.replace("px", "");
+          let minWidthNum = parseFloat(minWidth);
+          if (!isNaN(minWidthNum)) {
+            minWidth = minWidthNum * (this.survey as any).widthScale / 100;
+            minWidth = "" + minWidth + "px";
+          }
+        }
+        minWidth = "min(100%, " + minWidth + ")";
+      }
       if (this.allowRootStyle && this.renderWidth) {
         // style["width"] = this.renderWidth;
         style["flexGrow"] = 1;

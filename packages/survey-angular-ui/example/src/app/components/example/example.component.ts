@@ -1,5 +1,5 @@
 import { Component, ViewEncapsulation } from "@angular/core";
-import { SurveyModel, StylesManager } from "survey-core";
+import { SurveyModel } from "survey-core";
 const json = require("../../../assets/survey.json");
 
 @Component({

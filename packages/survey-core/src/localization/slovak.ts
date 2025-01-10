@@ -59,7 +59,7 @@ export var slovakSurveyStrings = {
   addColumn: "Pridať stĺpec",
   addRow: "Pridať riadok",
   removeRow: "Odstrániť",
-  emptyRowsText: "K dispozícii nie sú žiadne riadky.",
+  noRowsText: "K dispozícii nie sú žiadne riadky.",
   addPanel: "Pridať nové",
   removePanel: "Odstrániť",
   showDetails: "Zobraziť podrobnosti",

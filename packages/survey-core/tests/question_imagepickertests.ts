@@ -19,3 +19,45 @@ QUnit.test("Items number in run-time and design-time", function (assert) {
   assert.equal(q2.visibleChoices.length, 4, "There are 4 items in design-time");
   settings.supportCreatorV2 = false;
 });
+
+QUnit.test("ImagePicker itemFlowDirection should be row by default", (assert) => {
+  const json = {
+    "logoPosition": "right",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "imagepicker",
+            "name": "question1",
+            "colCount": 2,
+            "choices": [
+              {
+                "value": "Image 1",
+                "imageLink": "#1"
+              },
+              {
+                "value": "Image 2",
+                "imageLink": "#2"
+              },
+              {
+                "value": "Image 3",
+                "imageLink": "#3"
+              },
+              {
+                "value": "Image 4",
+                "imageLink": "#4"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  function getValuesInColumns(question: QuestionImagePickerModel) {
+    return question.columns.map((column) => column.map((choice) => choice.id));
+  }
+  const survey1 = new SurveyModel(json);
+  const q = <QuestionImagePickerModel>survey1.getAllQuestions()[0];
+  assert.deepEqual(getValuesInColumns(q), [["Image 1", "Image 3"], ["Image 2", "Image 4"]]);
+});

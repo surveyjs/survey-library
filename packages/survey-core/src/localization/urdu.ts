@@ -59,7 +59,7 @@ export var urduSurveyStrings = {
   addColumn: "کالم شامل کریں۔",
   addRow: "قطار شامل کریں۔",
   removeRow: "مٹائے",
-  emptyRowsText: "کوئی قطار نہیں ہیں۔ ",
+  noRowsText: "کوئی قطار نہیں ہیں۔ ",
   addPanel: "نیا شامل کریں",
   removePanel: "مٹائے",
   showDetails: "تفصیلات دکھائیں",

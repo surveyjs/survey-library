@@ -59,7 +59,7 @@ export class Question extends SurveyElement<Question>
   [index: string]: any;
   private static TextPreprocessorValuesMap = {
     title: "processedTitle",
-    require: "requiredText",
+    require: "requiredMark",
   };
   private static questionCounter = 100;
   private static getQuestionId(): string {
@@ -1012,10 +1012,10 @@ export class Question extends SurveyElement<Question>
     return this.isRequired && this.titlePattern == "requireNumTitle";
   }
   public get isRequireTextBeforeTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredText !== "";
+    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredMark !== "";
   }
   public get isRequireTextAfterTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredText !== "";
+    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredMark !== "";
   }
   /**
    * Disable this property if you want to render the current question on the same line or row with the previous question or panel.
@@ -1032,13 +1032,16 @@ export class Question extends SurveyElement<Question>
     this.copyCssClasses(classes, css.question);
     this.copyCssClasses(classes.error, css.error);
     this.updateCssClasses(classes, css);
+    return classes;
+  }
+  protected onCalcCssClasses(classes: any): void {
+    super.onCalcCssClasses(classes);
     if (this.survey) {
       this.survey.updateQuestionCssClasses(this, classes);
     }
     if (this.onUpdateCssClassesCallback) {
       this.onUpdateCssClassesCallback(classes);
     }
-    return classes;
   }
   public get cssRoot(): string {
     this.ensureElementCss();
@@ -1182,21 +1185,32 @@ export class Question extends SurveyElement<Question>
       .append(this.cssClasses.rootMobile, this.isMobile)
       .toString();
   }
+  private isRequireUpdateElements: boolean;
   public updateElementCss(reNew?: boolean): void {
-    super.updateElementCss(reNew);
-    if (reNew) {
-      this.updateQuestionCss(true);
+    if(this.wasRendered) {
+      super.updateElementCss(reNew);
+      if (reNew) {
+        this.updateQuestionCss(true);
+      }
+    } else {
+      this.isRequireUpdateElements = true;
     }
     this.resetIndents();
   }
+  protected onFirstRenderingCore(): void {
+    if(this.isRequireUpdateElements) {
+      this.isRequireUpdateElements = false;
+      this.updateElementCss(true);
+    }
+    super.onFirstRenderingCore();
+  }
   protected updateQuestionCss(reNew?: boolean): void {
-    if (
-      this.isLoadingFromJson ||
-      !this.survey ||
-      (reNew !== true && !this.cssClassesValue)
-    )
-      return;
-    this.updateElementCssCore(this.cssClasses);
+    if (this.isLoadingFromJson || !this.survey) return;
+    if(this.wasRendered) {
+      this.updateElementCssCore(this.cssClasses);
+    } else {
+      this.isRequireUpdateElements = true;
+    }
   }
   private ensureElementCss() {
     if (!this.cssClassesValue) {
@@ -1317,7 +1331,7 @@ export class Question extends SurveyElement<Question>
   }
   public getOthersMaxLength(): any {
     if (!this.survey) return null;
-    return this.survey.maxOthersLength > 0 ? this.survey.maxOthersLength : null;
+    return this.survey.maxCommentLength > 0 ? this.survey.maxCommentLength : null;
   }
   protected onCreating(): void { }
   public getFirstQuestionToFocus(withError: boolean): Question {
@@ -1911,7 +1925,7 @@ export class Question extends SurveyElement<Question>
   /**
    * A correct answer to this question. Specify this property if you want to [create a quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see SurveyModel.getCorrectAnswerCount
-   * @see SurveyModel.getInCorrectAnswerCount
+   * @see SurveyModel.getIncorrectAnswerCount
    */
   public get correctAnswer(): any {
     return this.getPropertyValue("correctAnswer");
@@ -1951,7 +1965,14 @@ export class Question extends SurveyElement<Question>
   protected checkIfAnswerCorrect(): boolean {
     const isEqual = Helpers.isTwoValueEquals(this.value, this.correctAnswer, this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
     const correct = isEqual ? 1 : 0;
-    const options = { result: isEqual, correctAnswer: correct, correctAnswers: correct, incorrectAnswers: this.quizQuestionCount - correct };
+    const incorrect = this.quizQuestionCount - correct;
+    const options = {
+      result: isEqual,
+      correctAnswers: correct,
+      correctAnswerCount: correct,
+      incorrectAnswers: incorrect,
+      incorrectAnswerCount: incorrect,
+    };
     if (!!this.survey) {
       this.survey.onCorrectQuestionAnswer(this, options);
     }
@@ -2229,13 +2250,20 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Returns a character or text string that indicates a required question.
-   * @see SurveyModel.requiredText
+   * @see SurveyModel.requiredMark
    * @see isRequired
    */
-  public get requiredText(): string {
+  public get requiredMark(): string {
     return this.survey != null && this.isRequired
-      ? this.survey.requiredText
+      ? this.survey.requiredMark
       : "";
+  }
+  /**
+   * Obsolete. Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
+   * @deprecated
+   */
+  public get requiredText(): string {
+    return this.requiredMark;
   }
   public addError(error: SurveyError | string): void {
     if (!error) return;
@@ -2509,7 +2537,9 @@ export class Question extends SurveyElement<Question>
   public removeElement(element: IElement): boolean {
     return false;
   }
-  public supportGoNextPageAutomatic(): boolean {
+  // Obsolete
+  supportGoNextPageAutomatic(): boolean { return this.supportAutoAdvance(); }
+  public supportAutoAdvance(): boolean {
     return false;
   }
   public supportGoNextPageError(): boolean {

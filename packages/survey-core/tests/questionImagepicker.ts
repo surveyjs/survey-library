@@ -1,6 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { ImageItemValue, QuestionImagePickerModel } from "../src/question_imagepicker";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { setOldTheme } from "./oldTheme";
 
 export default QUnit.module("imagepicker");
 
@@ -77,6 +78,7 @@ QUnit.test("check dependency getItemClass method on colCount", function (
   assert
 ) {
   let survey = new SurveyModel({});
+  setOldTheme(survey);
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
   question.choices = [{ value: "item1" }, { value: "item2" }];
@@ -380,4 +382,63 @@ QUnit.test("check reCalcGap", function (assert) {
   survey.cssClasses.root = "some-class";
   question.afterRender(container);
   assert.notOk(!!question["reCalcGapBetweenItemsCallback"]);
+});
+
+QUnit.test("supports survey width scale", function (assert) {
+  const survey = new SurveyModel(
+    {
+      "elements": [
+        {
+          "type": "imagepicker",
+          "name": "question1",
+          "choices": [
+            {
+              "value": "lion",
+              "imageLink": "test"
+            },
+          ],
+        }
+      ]
+    }
+  );
+  survey.css = defaultV2Css;
+  const question = <QuestionImagePickerModel>survey.getAllQuestions()[0];
+
+  assert.ok(question.isDefaultV2Theme);
+  assert.ok(question["isResponsiveValue"]);
+  assert.ok(question["isResponsive"]);
+
+  assert.equal(survey.widthScale, 100);
+  assert.equal(question.renderedImageWidth, 200);
+  assert.equal(question.renderedImageHeight, 150);
+
+  survey.widthScale = 75;
+  assert.equal(survey.widthScale, 75);
+  assert.equal(question.renderedImageWidth, 150);
+  assert.equal(question.renderedImageHeight, 112.5);
+
+  survey.widthScale = 100;
+  assert.equal(survey.widthScale, 100);
+  question["processResponsiveness"](0, 600);
+  assert.equal(question.renderedImageWidth, 600);
+  assert.equal(question.renderedImageHeight, 133);
+
+  question["processResponsiveness"](0, 100);
+  assert.equal(question.renderedImageWidth, 3000);
+  assert.equal(question.renderedImageHeight, 133);
+
+  survey.widthScale = 75;
+  question["processResponsiveness"](0, 100);
+  assert.equal(survey.widthScale, 75);
+  assert.equal(question.renderedImageWidth, 2250);
+  assert.equal(question.renderedImageHeight, 99);
+
+  question["processResponsiveness"](0, 600);
+  assert.equal(question.renderedImageWidth, 600);
+  assert.equal(question.renderedImageHeight, 99);
+
+  question.imageWidth = 150;
+  question.imageHeight = 100;
+  assert.equal(question.renderedImageWidth, 112.5);
+  assert.equal(question.renderedImageHeight, 75);
 });

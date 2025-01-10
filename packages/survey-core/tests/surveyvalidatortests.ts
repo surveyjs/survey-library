@@ -554,3 +554,49 @@ QUnit.test("settings.readOnly.enableValidation option", function(assert) {
   assert.equal(q1.errors.length, 1, "There is an error");
   settings.readOnly.enableValidation = false;
 });
+QUnit.test("Async expression validators creates several errors", function(assert) {
+  const asynList = new Array<any>();
+  function asyncFunc(params) {
+    asynList.push(this.returnResult);
+  }
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+  function callAsyncList(): void {
+    while(asynList.length > 0) {
+      let i = asynList.length % 2;
+      if(i >= asynList.length) i = 0;
+      asynList[i](false);
+      asynList.splice(i, 1);
+    }
+  }
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        validators: [{ type: "expression", expression: "asyncFunc({question1})" }]
+      },
+      {
+        type: "text",
+        name: "q2",
+        validators: [{ type: "expression", expression: "asyncFunc({question1})" }]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = "a";
+  q1.valule = "b";
+  survey.validate(true);
+  assert.equal(asynList.length, 2, "#1.0");
+  callAsyncList();
+  assert.equal(q1.errors.length, 1, "#1.1");
+  assert.equal(q2.errors.length, 1, "#1.2");
+  q1.value = "aa";
+  callAsyncList();
+  assert.equal(q1.errors.length, 1, "#2.1");
+  assert.equal(q2.errors.length, 1, "#2.2");
+  q2.value = "bb";
+  callAsyncList();
+  assert.equal(q1.errors.length, 1, "#3.1");
+  assert.equal(q2.errors.length, 1, "#3.2");
+});

@@ -11,6 +11,8 @@ import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { setOldTheme } from "./oldTheme";
+import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("baseselect");
 
@@ -19,7 +21,7 @@ function getValuesInColumns(question: QuestionSelectBase) {
 }
 
 QUnit.test("Check QuestionSelectBase columns property", function (assert) {
-  var json = {
+  const json = {
     questions: [
       {
         type: "checkbox",
@@ -29,16 +31,17 @@ QUnit.test("Check QuestionSelectBase columns property", function (assert) {
       },
     ],
   };
-  var survey = new SurveyModel(json);
+  const survey = new SurveyModel(json);
 
-  var question = <QuestionSelectBase>survey.getAllQuestions()[0];
-  var columns = getValuesInColumns(question);
+  settings.itemFlowDirection = "row";
+  const question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  let columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
     [["Item1", "Item4"], ["Item2", "Item5"], ["Item3"]],
     "check showItemsBy row"
   );
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
@@ -100,7 +103,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
   assert.notOk(question.hasHeadItems);
   assert.notOk(question.hasFootItems);
 
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   let columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
@@ -132,7 +135,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
     ["newitem", "none", "other"],
     "check foot items"
   );
-  settings.showItemsInOrder = "row";
+  settings.itemFlowDirection = "row";
   settings.supportCreatorV2 = false;
 });
 
@@ -157,7 +160,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
   assert.notOk(question.hasHeadItems);
   assert.notOk(question.hasFootItems);
 
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   let columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
@@ -189,7 +192,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
     ["newitem", "none", "refused", "dontknow", "other"],
     "check foot items"
   );
-  settings.showItemsInOrder = "row";
+  settings.itemFlowDirection = "row";
   settings.supportCreatorV2 = false;
   refuseProp.visible = false;
   dontKnowProp.visible = false;
@@ -217,7 +220,7 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
   assert.notOk(question.hasFootItems);
 
   let columns = getValuesInColumns(question);
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   assert.deepEqual(
     columns,
     [["selectall", "Item2", "other"], ["Item1", "none"]],
@@ -247,7 +250,7 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
     ["none", "other"],
     "check foot items"
   );
-  settings.showItemsInOrder = "row";
+  settings.itemFlowDirection = "row";
   settings.supportCreatorV2 = false;
 });
 QUnit.test("settings.noneItemValue", function (assert) {
@@ -859,9 +862,10 @@ QUnit.test("check radiogroup title actions", (assert) => {
         type: "radiogroup",
         name: "q1",
         choices: ["Item 1"],
-        showClearButton: true
+        allowClear: true
       }]
   });
+  setOldTheme(survey);
   let question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
   assert.deepEqual(question.getTitleActions(), []);
   assert.ok(question.showClearButtonInContent);
@@ -882,7 +886,7 @@ QUnit.test("check radiogroup title actions", (assert) => {
   assert.equal(action.title, "Clear");
   assert.ok(action.visible);
 
-  question.showClearButton = false;
+  question.allowClear = false;
   assert.notOk(action.visible);
 });
 
@@ -1206,7 +1210,7 @@ QUnit.test("selectbase, showOtherItem & checkErrorsMode: 'onValueChanged'", (ass
   const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
   q1.renderedValue = "other";
   assert.equal(q1.errors.length, 0, "We do not have errors yet");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(q1.errors.length, 1, "There is an error");
   assert.equal(survey.state, "running", "Still running");
 });
@@ -2180,7 +2184,7 @@ QUnit.test("maxSelectedChoices & getItemClass, bug#8159", (assert) => {
 QUnit.test("radiogroup.getConditionJson, bug#8226", (assert) => {
   var json = {
     questions: [
-      { type: "radiogroup", name: "q1", showClearButton: true, choices: ["Item1"] },
+      { type: "radiogroup", name: "q1", allowClear: true, choices: ["Item1"] },
       { type: "radiogroup", name: "q2", choices: ["Item1"] }
     ],
   };
@@ -2345,4 +2349,12 @@ QUnit.test("Clear action in locale & survey.locale change, Bug#9113", (assert) =
   assert.equal(item.locTitle.locale, "", "locale #1");
   survey.locale = "de";
   assert.equal(item.locTitle.locale, "de", "locale #2");
+});
+QUnit.test("ItemValue tooltip, #9269", (assert) => {
+  const item = new ItemValue(1);
+  assert.equal(item.getTooltip(), "1", "#1");
+  item.text = "abc";
+  assert.equal(item.getTooltip(), "abc", "#2");
+  item.tooltip = "edf";
+  assert.equal(item.getTooltip(), "edf", "#3");
 });

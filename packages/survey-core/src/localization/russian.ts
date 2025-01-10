@@ -59,7 +59,7 @@ export var russianSurveyStrings = {
   addColumn: "Добавить колонку",
   addRow: "Добавить строку",
   removeRow: "Удалить",
-  emptyRowsText: "Рядов нет.",
+  noRowsText: "Рядов нет.",
   addPanel: "Добавить новую",
   removePanel: "Удалить",
   showDetails: "Показать подробности",

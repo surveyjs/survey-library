@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.12.18](https://github.com/surveyjs/surveyjs/compare/v1.12.17...v1.12.18) (2025-01-10)
+
+
+### Features
+
+* **localization:** implement burmese translations ([#9265](https://github.com/surveyjs/surveyjs/issues/9265)) ([2d956a1](https://github.com/surveyjs/surveyjs/commit/2d956a18a25c0957bd2eedc987bc18eced14c4bb))
+
+## [1.12.16-patch.1](https://github.com/surveyjs/surveyjs/compare/v1.12.16...v1.12.16-patch.1) (2024-12-26)
+
 ## [1.12.17](https://github.com/surveyjs/surveyjs/compare/v1.12.16...v1.12.17) (2024-12-30)
 
 ## [1.12.16-patch.1](https://github.com/surveyjs/surveyjs/compare/v1.12.15...v1.12.16-patch.1) (2024-12-26)

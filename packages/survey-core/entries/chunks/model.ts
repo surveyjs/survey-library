@@ -3,10 +3,12 @@
 //import "../../src/modern.scss";
 
 import { DomWindowHelper } from "../../src/global_variables_utils";
+import { settings } from "../../src/settings";
 
 export var Version: string;
 export var ReleaseDate: string;
 Version = `${process.env.VERSION}`;
+settings.version = Version;
 ReleaseDate = `${process.env.RELEASE_DATE}`;
 
 export function checkLibraryVersion(ver: string, libraryName: string): void {

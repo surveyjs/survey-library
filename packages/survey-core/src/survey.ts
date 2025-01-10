@@ -2869,7 +2869,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
    *
-   * If you want to hide the number of an individual question, enable its [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property.
+   * If you want to hide the number of an individual question, disable its [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property.
    * @see onGetQuestionNumber
    */
   public get showQuestionNumbers(): string | boolean {

@@ -353,7 +353,7 @@ export var settings = {
    * Nested properties:
    *
    * - `includeQuestionsWithHiddenNumber`: `boolean`\
-   * Specifies whether to number questions whose [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property is enabled. Default value: `false`.
+   * Specifies whether to number questions whose [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property is disabled. Default value: `false`.
    *
    * - `includeQuestionsWithHiddenTitle`: `boolean`\
    * Specifies whether to number questions whose [`titleLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#titleLocation) property is set to `"hidden"`. Default value: `false`.

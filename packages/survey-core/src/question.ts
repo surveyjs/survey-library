@@ -503,10 +503,10 @@ export class Question extends SurveyElement<Question>
   }
   public onHidingContent(): void { }
   /**
-   * Set this proprty to false to hide the question number from the title and excludes the question from numbering.
+   * Specifies whether to show a number for this question. Setting this property to `false` hides the question number from the title and excludes the question from numbering.
    *
-   * If you want to disable question numbering in the entire survey, set `SurveyModel`'s `showQuestionNumbers` property to `false`.
-   * @see SurveyModel.showQuestionNumbers
+   * Default value: `false` (inherited from the `SurveyModel`'s [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers) property)
+   * @see no
    */
   public get showNumber(): boolean {
     return this.getPropertyValue("showNumber");
@@ -515,6 +515,10 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("showNumber", val);
     this.notifySurveyVisibilityChanged();
   }
+  /**
+   * Obsolete. Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
+   * @deprecated
+   */
   public get hideNumber(): boolean {
     return !this.showNumber;
   }

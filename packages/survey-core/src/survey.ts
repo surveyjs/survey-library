@@ -8584,7 +8584,7 @@ Serializer.addClass("survey", [
     choices: ["standard", "singlePage", "questionPerPage"],
   },
   {
-    name: "showPreviewBeforeComplete: boolean",
+    name: "showPreviewBeforeComplete:boolean",
     default: false
   },
   {

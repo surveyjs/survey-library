@@ -68,6 +68,8 @@ import { DomWindowHelper } from "../src/global_variables_utils";
 import { ListModel } from "../src/list";
 import { _setIsTouch } from "../src/utils/devices";
 import { oldDefaultTheme, setOldTheme } from "./oldTheme";
+import { ConsoleWarnings } from "../src/console-warnings";
+
 export default QUnit.module("Survey");
 
 settings.autoAdvanceDelay = 0;
@@ -13413,7 +13415,7 @@ QUnit.test(
     });
     var panel = <PanelModel>survey.getPanelByName("p1");
     var question = survey.getQuestionByName("q1");
-    var property = Serializer.findProperty("question", "hideNumber");
+    var property = Serializer.findProperty("question", "showNumber");
 
     assert.ok(property.visibleIf(question), "Visible by default");
 
@@ -14938,7 +14940,7 @@ QUnit.test("survey.isLazyRendering", function (assert) {
   assert.equal(survey.isLazyRendering, true, "set in settings");
   settings.lazyRowsRendering = false;
   assert.equal(survey.isLazyRendering, false, "Not set 2");
-  survey.lazyRenderingEnabled = true;
+  survey.lazyRenderEnabled = true;
   assert.equal(survey.isLazyRendering, true, "set in survey");
 });
 QUnit.test("getSize", function (assert) {
@@ -14951,11 +14953,11 @@ QUnit.test("getSize", function (assert) {
 });
 QUnit.test("survey logo size", function (assert) {
   var survey = new SurveyModel();
-  assert.equal(survey.logoWidth, "300px", "300px");
-  assert.equal(survey.logoHeight, "200px", "200px");
-  assert.equal(survey.renderedLogoWidth, 300);
-  assert.equal(survey.renderedLogoHeight, 200);
-  assert.equal(survey.renderedStyleLogoWidth, undefined);
+  assert.equal(survey.logoWidth, "auto", "auto");
+  assert.equal(survey.logoHeight, "40px", "40px");
+  assert.equal(survey.renderedLogoWidth, undefined);
+  assert.equal(survey.renderedLogoHeight, 40);
+  assert.equal(survey.renderedStyleLogoWidth, "auto");
   assert.equal(survey.renderedStyleLogoHeight, undefined);
   survey.logoWidth = "100%";
   survey.logoHeight = "auto";
@@ -16062,7 +16064,8 @@ QUnit.test("firstPageIsStartPage = true and clear&state='starting'", function (a
   assert.equal(survey.state, "starting", "starting state #1");
   assert.equal(survey.getPropertyValue("isStartedState"), true, "isStartedState #1");
   assert.equal(startButton.isVisible, true, "startButton is visible, #1");
-  assert.equal(survey.showNavigationButtons, "bottom", "Show navigation on bottom");
+  assert.equal(survey.showNavigationButtons, true, "Show navigation on bottom - true");
+  assert.equal(survey.navigationButtonsLocation, "bottom", "Show navigation on bottom");
   survey.start();
   assert.equal(survey.state, "running", "run survey");
   assert.equal(survey.getPropertyValue("isStartedState"), false, "isStartedState #2");
@@ -17602,7 +17605,8 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   let survey = new SurveyModel(json);
   const getContainerContent = getContainerContentFunction(survey);
 
-  assert.equal(survey.showNavigationButtons, "bottom");
+  assert.equal(survey.showNavigationButtons, true);
+  assert.equal(survey.navigationButtonsLocation, "bottom");
   assert.equal(survey.progressBarType, "pages");
   assert.equal(survey.showProgressBar, "off");
 
@@ -17725,7 +17729,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
     let survey = new SurveyModel(json);
     const getContainerContent = getContainerContentFunction(survey);
 
-    assert.equal(survey.showNavigationButtons, "none");
+    assert.equal(survey.showNavigationButtons, false);
     assert.equal(survey.progressBarType, "pages");
     assert.equal(survey.showProgressBar, "off");
 
@@ -17881,7 +17885,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   let survey = new SurveyModel(json);
   const getContainerContent = getContainerContentFunction(survey);
 
-  assert.equal(survey.showNavigationButtons, "none");
+  assert.equal(survey.showNavigationButtons, false);
   assert.equal(survey.progressBarType, "pages");
   assert.equal(survey.showProgressBar, "off");
 
@@ -18571,7 +18575,8 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
     return result;
   }
 
-  assert.equal(survey.showNavigationButtons, "bottom");
+  assert.equal(survey.showNavigationButtons, true);
+  assert.equal(survey.navigationButtonsLocation, "bottom");
 
   assert.deepEqual(getContainerContent("header"), [], "nav none header");
   assert.deepEqual(getContainerContent("footer"), [], "nav none footer");
@@ -19496,6 +19501,36 @@ QUnit.test("survey.toJSON() doesn't work correctly if questionsOnPageMode=questi
 
   assert.deepEqual(surveyJson, prepareJSON);
 });
+QUnit.test("questionsOnPageMode=questionPerPage & skip doesn't work correctly, Bug #9276", function (assert) {
+  const surveyJson = {
+    "questionsOnPageMode": "questionPerPage",
+    "pages": [
+      {
+        "elements": [
+          { "type": "text", "name": "q1" },
+          { "type": "text", "name": "q2" }
+        ]
+      },
+      {
+        "elements": [
+          { "type": "text", "name": "q3" },
+          { "type": "text", "name": "q4" }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "skip",
+        "expression": "{q1} = 'a'",
+        "gotoName": "q4"
+      }]
+  };
+
+  const survey = new SurveyModel(surveyJson);
+  assert.equal(survey.currentSingleQuestion.name, "q1", "#1");
+  survey.currentSingleQuestion.value = "a";
+  assert.equal(survey.currentSingleQuestion.name, "q4", "#2");
+});
 QUnit.test("defaultValue & visibleIf issues if questionsOnPageMode=questionPerPage is used #7932", function (assert) {
   const surveyJson = {
     elements: [
@@ -19739,7 +19774,7 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
     survey.headerView = "advanced";
     const getContainerContent = getContainerContentFunction(survey);
 
-    assert.equal(survey.showNavigationButtons, "none");
+    assert.equal(survey.showNavigationButtons, false);
     assert.equal(survey.progressBarType, "pages");
     assert.equal(survey.showProgressBar, "off");
 
@@ -19857,7 +19892,7 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
   survey.headerView = "advanced";
   const getContainerContent = getContainerContentFunction(survey);
 
-  assert.equal(survey.showNavigationButtons, "none");
+  assert.equal(survey.showNavigationButtons, false);
   assert.equal(survey.progressBarType, "pages");
   assert.equal(survey.showProgressBar, "off");
 
@@ -20740,6 +20775,52 @@ QUnit.test("Question is not in the hash with it is on the first page & questions
   const q = survey.getQuestionByName("q1");
   assert.equal(q.name, "q1", "q1 name is here");
 });
+QUnit.test("questionsOnPageMode: `questionPerPage` & complete trigger & required questions on the same page, Bug#9289", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      { "type": "text", "name": "q1", "isRequired": true },
+      { "type": "text", "name": "q2", "isRequired": true }
+    ],
+    "questionsOnPageMode": "questionPerPage",
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{q1} = 'a'"
+      }
+    ]
+  });
+  const btnComplete = survey.navigationBar.getActionById("sv-nav-complete");
+  assert.equal(btnComplete.visible, false, "Complete button is visible, #1");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion");
+  survey.currentSingleQuestion.value = "a";
+  assert.equal(btnComplete.visible, true, "Complete button is visible, #2");
+  assert.equal(survey.state, "running", "Survey is running");
+  btnComplete.action();
+  assert.equal(survey.state, "completed", "Survey is completed");
+});
+QUnit.test("Do not use questionsOnPageMode in design-mode, Bug#9274", function (assert) {
+  const json = {
+    "pages": [{
+      "elements": [
+        { "type": "text", "name": "q1" },
+        { "type": "text", "name": "q2" }
+      ]
+    },
+    {
+      "elements": [
+        { "type": "text", "name": "q3" },
+        { "type": "text", "name": "q4" }
+      ]
+    }],
+    "questionsOnPageMode": "questionPerPage",
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  assert.equal(survey.questionsOnPageMode, "questionPerPage", "the property set correctly");
+  assert.equal(survey.currentSingleQuestion?.name, undefined, "It is the design mode");
+});
+
 QUnit.test("Question is not in the hash with it is on the first page & questionsOnPageMode is 'singlePage', Bug#8583", function (assert) {
   const survey = new SurveyModel({
     "pages": [{
@@ -21142,4 +21223,26 @@ QUnit.test("#9110 check focus question inside paneldynamic works correctly", fun
   assert.equal(log, "->text_question_id->focused text question");
   SurveyElement.ScrollElementToViewCore = oldScrollElementToViewCore;
   SurveyElement.ScrollElementToTop = oldScrollElementToTop;
+});
+QUnit.test("Show warning on loadig JSON created in higher version of Creator", function (assert) {
+  const oldVersion = settings.version;
+  const prevWarn = ConsoleWarnings.warn;
+  let reportText: string = "";
+  ConsoleWarnings.warn = (text: string) => {
+    reportText = text;
+  };
+  const checkFunc = (jsonVer: string, sjsVer: string, showWarn: boolean): void => {
+    reportText = "";
+    settings.version = sjsVer;
+    new SurveyModel({
+      sjsVersion: jsonVer
+    });
+    assert.equal(!!reportText, showWarn, "jsonVersion: " + jsonVer + ", sjsVer: " + sjsVer);
+  };
+  checkFunc("1.12.19", "2.0.2", false);
+  checkFunc("2.0.2", "1.12.19", true);
+  checkFunc("2.0.2", "2.0.2", false);
+  checkFunc("2.0.3", "2.0.2", true);
+  ConsoleWarnings.warn = prevWarn;
+  settings.version = oldVersion;
 });

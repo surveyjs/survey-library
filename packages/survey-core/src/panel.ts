@@ -1368,7 +1368,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private isLazyRenderInRow(rowIndex: number): boolean {
     if (!this.survey || !this.survey.isLazyRendering) return false;
     return (
-      rowIndex >= this.survey.lazyRenderingFirstBatchSize ||
+      rowIndex >= this.survey.lazyRenderFirstBatchSize ||
       !this.canRenderFirstRows()
     );
   }

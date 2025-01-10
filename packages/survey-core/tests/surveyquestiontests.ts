@@ -5408,7 +5408,7 @@ QUnit.test("text question renderedStep", function (assert) {
   assert.equal(q3.renderedStep, undefined, "time: step is empty if not set");
   assert.equal(q4.renderedStep, 1, "time: step is set");
 });
-QUnit.test("text question inputSize and inputWidth", function (assert) {
+QUnit.test("text question renderedInputSize and inputWidth", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", inputType: "text", name: "q1", size: 10 },
@@ -5419,11 +5419,11 @@ QUnit.test("text question inputSize and inputWidth", function (assert) {
   var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
   var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
   var q3 = <QuestionTextModel>survey.getQuestionByName("q2");
-  assert.equal(q1.inputSize, 10, "q1 rendered size is 10");
-  assert.equal(q2.inputSize, 0, "q2 rendered size is empty");
-  assert.equal(q3.inputSize, 0, "q3 rendered size is empty");
+  assert.equal(q1.renderedInputSize, 10, "q1 rendered size is 10");
+  assert.equal(q2.renderedInputSize, null, "q2 rendered size is empty");
+  assert.equal(q3.renderedInputSize, null, "q3 rendered size is empty");
   q1.size = 12;
-  assert.equal(q1.inputSize, "12", "q1 rendered size is 12");
+  assert.equal(q1.renderedInputSize, "12", "q1 rendered size is 12");
 
   assert.equal(q1.inputWidth, "auto", "q1 inputWidth is auto");
   assert.equal(q2.inputWidth, "", "q2 inputWidth is empty");
@@ -5433,7 +5433,7 @@ QUnit.test("text question inputSize and inputWidth", function (assert) {
   assert.equal(q2.inputStyle.width, "", "q2 inputStyle width is undefined");
   assert.equal(q3.inputStyle.width, "", "q3 inputStyle width is undefined");
 });
-QUnit.test("Multiple Text Question: inputSize", function (assert) {
+QUnit.test("Multiple Text Question: renderedInputSize", function (assert) {
   var mText = new QuestionMultipleTextModel("mText");
   mText.items.push(new MultipleTextItemModel("q1"));
   mText.items.push(new MultipleTextItemModel("q2"));
@@ -5443,13 +5443,13 @@ QUnit.test("Multiple Text Question: inputSize", function (assert) {
   var q3 = mText.items[2].editor;
   q2.inputType = "number";
   q1.size = 10;
-  assert.equal(q1.inputSize, 10, "q1 rendered size is 10");
-  assert.equal(q2.inputSize, 0, "q2 rendered size is empty");
-  assert.equal(q3.inputSize, 0, "q3 rendered size is empty");
+  assert.equal(q1.renderedInputSize, 10, "q1 rendered size is 10");
+  assert.equal(q2.renderedInputSize, null, "q2 rendered size is empty");
+  assert.equal(q3.renderedInputSize, null, "q3 rendered size is empty");
   mText.itemSize = 15;
-  assert.equal(q1.inputSize, 10, "q1 rendered size is 10");
-  assert.equal(q2.inputSize, 0, "q2 rendered size is still empty");
-  assert.equal(q3.inputSize, 15, "q3 rendered size is 15, from parent");
+  assert.equal(q1.renderedInputSize, 10, "q1 rendered size is 10");
+  assert.equal(q2.renderedInputSize, null, "q2 rendered size is still empty");
+  assert.equal(q3.renderedInputSize, 15, "q3 rendered size is 15, from parent");
 });
 QUnit.test("Multiple Text Question: errorLocation", function (assert) {
   const survey = new SurveyModel({
@@ -6621,7 +6621,7 @@ QUnit.test("QuestionTextModel range min/max property editor type", function (ass
 });
 QUnit.test("QuestionTextModel inputStyle for empty inputWidth - https://github.com/surveyjs/survey-creator/issues/3755", function (assert) {
   const q1 = new QuestionTextModel("q1");
-  assert.deepEqual(q1.inputStyle, { width: undefined });
+  assert.deepEqual(q1.inputStyle, { width: "" });
   q1.size = 5;
   assert.deepEqual(q1.inputStyle, { width: "auto" });
   q1.size = 0;
@@ -7636,7 +7636,7 @@ QUnit.test("Test", function (assert) {
 
 QUnit.test("QuestionHtmlModel hide some properties", function (assert) {
   let html = new QuestionHtmlModel("q1");
-  ["hideNumber", "state", "titleLocation", "descriptionLocation", "errorLocation", "indent", "width"].forEach(property => {
+  ["showNumber", "state", "titleLocation", "descriptionLocation", "errorLocation", "indent", "width"].forEach(property => {
     assert.equal(Serializer.findProperty("html", property).visible, false, property + " should be hidden");
   });
 });

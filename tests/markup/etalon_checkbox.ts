@@ -300,6 +300,8 @@ registerMarkupTests(
         ]
       },
       snapshot: "checkbox-columns-no-head-foot",
+      before: () => { settings.itemFlowDirection = "row"; },
+      after: () => { settings.itemFlowDirection = "column"; }
     },
     {
       name: "Test checkbox row layout with no header and footer",

@@ -251,6 +251,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "radiogroup-columns-no-head-foot",
+    before: () => { settings.itemFlowDirection = "row"; },
+    after: () => { settings.itemFlowDirection = "column"; }
   },
   {
     name: "Test radiogroup row with header and footer",

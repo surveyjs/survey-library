@@ -61,7 +61,7 @@ Serializer.addClass(
   "html",
   [
     { name: "html:html", serializationProperty: "locHtml" },
-    { name: "hideNumber", visible: false },
+    { name: "showNumber", visible: false },
     { name: "state", visible: false },
     { name: "titleLocation", visible: false },
     { name: "descriptionLocation", visible: false },

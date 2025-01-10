@@ -20763,6 +20763,29 @@ QUnit.test("Question is not in the hash with it is on the first page & questions
   const q = survey.getQuestionByName("q1");
   assert.equal(q.name, "q1", "q1 name is here");
 });
+QUnit.test("questionsOnPageMode: `questionPerPage` & complete trigger & required questions on the same page, Bug#9289", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      { "type": "text", "name": "q1", "isRequired": true },
+      { "type": "text", "name": "q2", "isRequired": true }
+    ],
+    "questionsOnPageMode": "questionPerPage",
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{q1} = 'a'"
+      }
+    ]
+  });
+  const btnComplete = survey.navigationBar.getActionById("sv-nav-complete");
+  assert.equal(btnComplete.visible, false, "Complete button is visible, #1");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion");
+  survey.currentSingleQuestion.value = "a";
+  assert.equal(btnComplete.visible, true, "Complete button is visible, #2");
+  assert.equal(survey.state, "running", "Survey is running");
+  btnComplete.action();
+  assert.equal(survey.state, "completed", "Survey is completed");
+});
 QUnit.test("Do not use questionsOnPageMode in design-mode, Bug#9274", function (assert) {
   const json = {
     "pages": [{

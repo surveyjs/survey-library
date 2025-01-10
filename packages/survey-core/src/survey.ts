@@ -4220,7 +4220,12 @@ export class SurveyModel extends SurveyElementCore
       isFocuseOnFirstError = this.focusOnFirstError;
     }
     if (!page) return true;
-    var res = !page.validate(true, isFocuseOnFirstError);
+    let res: boolean = false;
+    if(this.currentSingleQuestion) {
+      res = !this.currentSingleQuestion.validate(true);
+    } else {
+      res = !page.validate(true, isFocuseOnFirstError);
+    }
     this.fireValidatedErrorsOnPage(page);
     return res;
   }

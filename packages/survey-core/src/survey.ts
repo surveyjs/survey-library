@@ -407,11 +407,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetQuestionTitle: EventBase<SurveyModel, GetQuestionTitleEvent> = this.addEvent<SurveyModel, GetQuestionTitleEvent>();
   /**
-   * An event that is raised when the survey calculates heading levels (`<h1>`, `<h2>`, etc.) for a survey, page, panel, and question title. Handle this event to change the heading level of individual titles.
+   * An event that is raised when the survey applies HTML tags to a survey, page, panel, and question title. Handle this event to change the HTML tag of individual titles.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * If you want to specify heading levels for all titles, use the [`titleTags`](https://surveyjs.io/form-library/documentation/api-reference/settings#titleTags) object in [global settings](https://surveyjs.io/form-library/documentation/api-reference/settings).
+   * If you want to specify HTML tags for all titles, use the [`titleTags`](https://surveyjs.io/form-library/documentation/api-reference/settings#titleTags) object in [global settings](https://surveyjs.io/form-library/documentation/api-reference/settings).
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-titletagnames/ (linkStyle))
    * @see onGetQuestionTitle
@@ -1569,29 +1569,56 @@ export class SurveyModel extends SurveyElementCore
     this.autoFocusFirstError = val;
   }
   /**
-   * Gets or sets the position of the Start, Next, Previous, and Complete navigation buttons and controls their visibility.
+   * Gets or sets the visibility of the Start, Next, Previous, and Complete navigation buttons.
+   *
+   * Possible values:
+   *
+   * - `true` (default) - Displays the navigation buttons.
+   * - `false` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
+   * @see navigationButtonsLocation
+   * @see autoAdvanceEnabled
+   * @see showPrevButton
+   * @see showCompleteButton
+   */
+  public get showNavigationButtons(): boolean | any {
+    return this.getPropertyValue("showNavigationButtons");
+  }
+  public set showNavigationButtons(val: boolean | any) {
+    // if (val === true || val === undefined) {
+    //   val = "bottom";
+    // }
+    // if (val === false) {
+    //   val = "none";
+    // }
+    if (val === "both") {
+      val === "topBottom";
+    }
+    if (val === true || val === false) {
+      this.setPropertyValue("showNavigationButtons", val);
+    } else if (val === "none") {
+      this.setPropertyValue("showNavigationButtons", false);
+    } else if (["top", "bottom", "both", "topBottom"].indexOf(val) > -1) {
+      this.setPropertyValue("showNavigationButtons", true);
+      this.navigationButtonsLocation = val;
+    }
+  }
+  /**
+   * Gets or sets the position of the Start, Next, Previous, and Complete navigation buttons. Applies only if the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showNavigationButtons) property is `true`.
    *
    * Possible values:
    *
    * - `"bottom"` (default) - Displays the navigation buttons below survey content.
    * - `"top"` - Displays the navigation buttons above survey content.
-   * - `"both"` - Displays the navigation buttons above and below survey content.
-   * - `"none"` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
+   * - `"topBottom"` - Displays the navigation buttons above and below survey content.
    * @see autoAdvanceEnabled
    * @see showPrevButton
    * @see showCompleteButton
    */
-  public get showNavigationButtons(): string | any {
-    return this.getPropertyValue("showNavigationButtons");
+  public get navigationButtonsLocation(): string | any {
+    return this.getPropertyValue("navigationButtonsLocation");
   }
-  public set showNavigationButtons(val: string | any) {
-    if (val === true || val === undefined) {
-      val = "bottom";
-    }
-    if (val === false) {
-      val = "none";
-    }
-    this.setPropertyValue("showNavigationButtons", val);
+  public set navigationButtonsLocation(val: string | any) {
+    this.setPropertyValue("navigationButtonsLocation", val);
   }
   /**
    * Specifies whether to display the Previous button. Set this property to `false` if respondents should not move backward along the survey.
@@ -3899,13 +3926,13 @@ export class SurveyModel extends SurveyElementCore
     if (this.isDesignMode) return "none";
     var page = this.activePage;
     if (!page) return "none";
-    if (page.navigationButtonsVisibility === "show") {
-      return this.showNavigationButtons === "none" ? "bottom" : this.showNavigationButtons;
-    }
     if (page.navigationButtonsVisibility === "hide") {
       return "none";
     }
-    return this.showNavigationButtons;
+    if (page.navigationButtonsVisibility === "show") {
+      return !this.showNavigationButtons ? "bottom" : this.navigationButtonsLocation;
+    }
+    return !this.showNavigationButtons ? "none" : this.navigationButtonsLocation;
   }
   public get isNavigationButtonsShowingOnTop(): boolean {
     return this.getIsNavigationButtonsShowingOn("top");
@@ -3915,7 +3942,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private getIsNavigationButtonsShowingOn(buttonPosition: string): boolean {
     var res = this.isNavigationButtonsShowing;
-    return res == "both" || res == buttonPosition;
+    return res == "both" || res == "topBottom" || res == buttonPosition;
   }
   public get isEditMode(): boolean {
     return this.mode == "edit";
@@ -8362,9 +8389,13 @@ Serializer.addClass("survey", [
   "cookieName",
   { name: "partialSendEnabled:boolean", alternativeName: "sendResultOnPageNext" },
   {
-    name: "showNavigationButtons",
+    name: "showNavigationButtons:boolean",
+    default: true,
+  },
+  {
+    name: "navigationButtonsLocation",
     default: "bottom",
-    choices: ["none", "top", "bottom", "both"],
+    choices: ["top", "bottom", "topBottom"],
   },
   {
     name: "showPrevButton:boolean",

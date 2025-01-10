@@ -1,3 +1,6 @@
+@use "../variables.scss" as *;
+@use "mixins.scss" as mixins;
+
 .sd-panel {
   position: relative;
 }
@@ -12,7 +15,7 @@
     }
 
     .sd-panel__title {
-      @include page_title();
+      @include mixins.page_title();
 
       span {
         font-family: inherit;
@@ -24,7 +27,7 @@
     }
 
     .sd-panel__description {
-      @include page_description();
+      @include mixins.page_description();
     }
 
     .sd-panel__required-text {

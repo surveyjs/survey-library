@@ -1,3 +1,5 @@
+@use "../variables.scss" as *;
+
 .sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
   position: sticky;
   left: calcSize(-3);

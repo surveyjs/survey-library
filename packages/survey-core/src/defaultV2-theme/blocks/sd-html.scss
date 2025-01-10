@@ -1,10 +1,12 @@
-@import "../defaultV2-theme/mixins.scss";
+@use "../variables.scss" as *;
+@use "../mixins.scss" as mixins;
+
 .sd-html {
   white-space: initial;
 }
 
 .sd-html {
-  @include articleHtml;
+  @include mixins.articleHtml;
 }
 
 .sd-html--nested {

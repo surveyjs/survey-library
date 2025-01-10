@@ -1,3 +1,5 @@
+@use "../variables.scss" as *;
+
 .sd-progress {
   height: 2px;
   background-color: $border-light;

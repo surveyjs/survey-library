@@ -233,22 +233,39 @@ export class PageModel extends PanelModel implements IPage {
    * @deprecated
    */
   public get navigationButtonsVisibility(): string {
-    return this.getPropertyValue("navigationButtonsVisibility");
+    const result = this.showNavigationButtons;
+    if (result === undefined || result === null) {
+      return "inherit";
+    }
+    return result ? "show" : "hide";
   }
   public set navigationButtonsVisibility(val: string) {
-    this.setPropertyValue("navigationButtonsVisibility", val.toLowerCase());
+    if (typeof val == "string") {
+      val = val.toLowerCase();
+    }
+    this.showNavigationButtons = val;
   }
   /**
    * Gets or sets the visibility of the Start, Next, Previous, and Complete navigation buttons on this page. Overrides the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showNavigationButtons) property specified on the survey-level.
    *
    * Default value: `undefined` (the visibility depends on the survey-level setting)
    */
-  public get showNavigationButtons(): boolean {
-    // TODO: Implement the functionality
-    return undefined;
+  public get showNavigationButtons(): boolean | string {
+    return this.getPropertyValue("showNavigationButtons", undefined);
   }
-  public set showNavigationButtons(val: boolean) {
-    // TODO: Implement the functionality
+  public set showNavigationButtons(val: boolean | string) {
+    this.setShowNavigationButtonsProperty(val);
+  }
+  public setShowNavigationButtonsProperty(val: boolean | string) {
+    if (val === true || val === false) {
+      this.setPropertyValue("showNavigationButtons", val);
+    } else if (val === "show") {
+      this.setPropertyValue("showNavigationButtons", true);
+    } else if (val === "hide") {
+      this.setPropertyValue("showNavigationButtons", false);
+    } else {
+      this.setPropertyValue("showNavigationButtons", undefined);
+    }
   }
   /**
    * Returns `true` if this is the current page.
@@ -394,9 +411,12 @@ Serializer.addClass(
   "page",
   [
     {
-      name: "navigationButtonsVisibility",
-      default: "inherit",
-      choices: ["inherit", "show", "hide"],
+      name: "showNavigationButtons:boolean",
+      defaultFunc: () => undefined,
+      onSetValue: function (obj: any, value: any) {
+        obj && obj.setShowNavigationButtonsProperty(value);
+      },
+      alternativeName: "navigationButtonsVisibility"
     },
     { name: "timeLimit:number", alternativeName: "maxTimeToFinish", default: 0, minValue: 0 },
     {

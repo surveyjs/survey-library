@@ -30,8 +30,11 @@ QUnit.test("navigationButtonsVisibility value is always lower-case", function (
   assert
 ) {
   var question = new PageModel("base");
+  assert.strictEqual(question.navigationButtonsVisibility, "inherit");
+  assert.strictEqual(question.showNavigationButtons, undefined);
   question.navigationButtonsVisibility = "HIDE";
   assert.strictEqual(question.navigationButtonsVisibility, "hide");
+  assert.strictEqual(question.showNavigationButtons, false);
 });
 
 QUnit.test(

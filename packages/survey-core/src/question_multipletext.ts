@@ -214,12 +214,16 @@ export class MultipleTextItemModel extends Base
     return this.editor.locRequiredErrorText;
   }
   /**
-   * A value passed on to the [`inputSize`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
+   * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
    *
-   * If you want to set a uniform `inputSize` for all text box items, use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#inputSize) within the Multiple Textboxes configuration.
+   * If you want to set a uniform `inputSize` for all text box items, use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#inputSize) property within the Multiple Textboxes configuration.
    */
   public get inputSize(): number { return this.editor.inputSize; }
   public set inputSize(val: number) { this.editor.inputSize = val; }
+  /**
+   * Obsolete. Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel#inputSize) property instead.
+   * @deprecated
+   */
   public get size(): number { return this.inputSize; }
   public set size(val: number) { this.inputSize = val; }
   /**

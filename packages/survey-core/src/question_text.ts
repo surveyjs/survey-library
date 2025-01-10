@@ -181,7 +181,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return true;
   }
   /**
-   * A value passed on to the [`inputSize`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
+   * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
    */
   public get inputSize(): number {
     return this.getPropertyValue("inputSize");
@@ -189,6 +189,10 @@ export class QuestionTextModel extends QuestionTextBase {
   public set inputSize(val: number) {
     this.setPropertyValue("inputSize", val);
   }
+  /**
+   * Obsolete. Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputSize) property instead.
+   * @deprecated
+   */
   public get size(): number {
     return this.inputSize;
   }

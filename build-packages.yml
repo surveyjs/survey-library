@@ -139,6 +139,12 @@ jobs:
           npm install
         displayName: "NPM install packages/survey-core"
 
+      - powershell: |
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "kurmanov.work@gmail.com"
+          git config --global user.name "dmitrykurmanov"
+        displayName: "Set up git config"
+
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
           npm run release -- --release-as $(SurveyJSVersion)
@@ -301,6 +307,12 @@ jobs:
           npm install
         displayName: "NPM install packages/survey-react-ui"
 
+      - powershell: |
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "kurmanov.work@gmail.com"
+          git config --global user.name "dmitrykurmanov"
+        displayName: "Set up git config"
+
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
           npm run release -- --release-as $(SurveyJSVersion)
@@ -416,6 +428,12 @@ jobs:
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
           npm install
         displayName: "NPM install packages/survey-angular-ui"
+
+      - powershell: |
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "kurmanov.work@gmail.com"
+          git config --global user.name "dmitrykurmanov"
+        displayName: "Set up git config"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
@@ -543,6 +561,12 @@ jobs:
           npm install
         displayName: "NPM install packages/survey-vue3-ui"
 
+      - powershell: |
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "kurmanov.work@gmail.com"
+          git config --global user.name "dmitrykurmanov"
+        displayName: "Set up git config"
+
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
           npm run release -- --release-as $(SurveyJSVersion)
@@ -667,6 +691,12 @@ jobs:
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
           npm install
         displayName: "NPM install packages/survey-js-ui"
+
+      - powershell: |
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "kurmanov.work@gmail.com"
+          git config --global user.name "dmitrykurmanov"
+        displayName: "Set up git config"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui

@@ -185,6 +185,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised before the survey displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Use this event to cancel the preview.
    * @see showPreviewBeforeComplete
+   * @see previewMode
    * @see showPreview
    * @see cancelPreview
    */
@@ -3007,10 +3008,10 @@ export class SurveyModel extends SurveyElementCore
   private canShowProresBar(): boolean {
     return (
       !this.isShowingPreview ||
-      this.showPreviewBeforeComplete != "showAllQuestions"
+      !this.showPreviewBeforeComplete || this.previewMode != "allQuestions"
     );
   }
-  public get processedTitle() {
+  public get processedTitle(): string {
     return this.locTitle.renderedHtml;
   }
   /**
@@ -3972,7 +3973,7 @@ export class SurveyModel extends SurveyElementCore
   public get areEmptyElementsHidden(): boolean {
     return (
       this.isShowingPreview &&
-      this.showPreviewBeforeComplete == "showAnsweredQuestions" && this.isAnyQuestionAnswered
+      this.showPreviewBeforeComplete && this.previewMode == "answeredQuestions" && this.isAnyQuestionAnswered
     );
   }
   private get isAnyQuestionAnswered(): boolean {
@@ -4532,27 +4533,42 @@ export class SurveyModel extends SurveyElementCore
     );
   }
   /**
-   * Allows respondents to preview answers before they are submitted.
+   * Specifies whether to show a preview of given answers before they are submitted.
    *
-   * Possible values:
+   * Default value: `false`
    *
-   * - `"showAllQuestions"` - Displays all questions in the preview.
-   * - `"showAnsweredQuestions"` - Displays only answered questions in the preview.
-   * - `"noPreview"` (default) - Hides the preview.
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-showpreview/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-preview/ (linkStyle))
+   * @see previewMode
    * @see showPreview
    * @see cancelPreview
    */
-  public get showPreviewBeforeComplete(): string {
+  public get showPreviewBeforeComplete(): boolean | any {
     return this.getPropertyValue("showPreviewBeforeComplete");
   }
-  public set showPreviewBeforeComplete(val: string) {
-    this.setPropertyValue("showPreviewBeforeComplete", val);
+  public set showPreviewBeforeComplete(val: boolean | any) {
+    if (val === undefined || val === "noPreview" || val === false) {
+      this.setPropertyValue("showPreviewBeforeComplete", false);
+    } else {
+      this.setPropertyValue("showPreviewBeforeComplete", true);
+      if (val === "showAllQuestions") this.previewMode = "allQuestions";
+      if (val === "showAnsweredQuestions") this.previewMode = "answeredQuestions";
+    }
   }
-  public get isShowPreviewBeforeComplete(): boolean {
-    var preview = this.showPreviewBeforeComplete;
-    return preview == "showAllQuestions" || preview == "showAnsweredQuestions";
+  /**
+   * Specifies whether the [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page) includes all or only answered questions.
+   *
+   * Possible values:
+   *
+   * - `"allQuestions"` (default)
+   * - `"answeredQuestions"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-preview/ (linkStyle))
+   */
+  public get previewMode(): string {
+    return this.getPropertyValue("previewMode");
+  }
+  public set previewMode(val: string) {
+    this.setPropertyValue("previewMode", val);
   }
   protected onFirstPageIsStartedChanged(): void {
     this.isStartedState = this.firstPageIsStartPage && this.pages.length > 1;
@@ -4748,20 +4764,20 @@ export class SurveyModel extends SurveyElementCore
   public calcIsCompleteButtonVisible(): boolean {
     const state = this.state;
     return this.isEditMode && (this.state === "running" &&
-      (this.isLastPageOrElement && !this.isShowPreviewBeforeComplete || this.canBeCompletedByTrigger)
+      (this.isLastPageOrElement && !this.showPreviewBeforeComplete || this.canBeCompletedByTrigger)
       || state === "preview") && this.showCompleteButton;
   }
   private calcIsPreviewButtonVisible(): boolean {
     return (
       this.isEditMode &&
-      this.isShowPreviewBeforeComplete &&
+      this.showPreviewBeforeComplete &&
       this.state == "running" && this.isLastPageOrElement
     );
   }
   private calcIsCancelPreviewButtonVisible(): boolean {
     return (
       this.isEditMode &&
-      this.isShowPreviewBeforeComplete &&
+      this.showPreviewBeforeComplete &&
       this.state == "preview"
     );
   }
@@ -7001,7 +7017,7 @@ export class SurveyModel extends SurveyElementCore
       if (!this.isLastPage) {
         this.nextPage();
       } else {
-        if (this.isShowPreviewBeforeComplete) {
+        if (this.showPreviewBeforeComplete) {
           this.showPreview();
         } else {
           this.tryComplete();
@@ -8492,12 +8508,12 @@ Serializer.addClass("survey", [
   {
     name: "previewText",
     serializationProperty: "locPreviewText",
-    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete !== "noPreview"; }
+    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete; }
   },
   {
     name: "editText",
     serializationProperty: "locEditText",
-    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete !== "noPreview"; }
+    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete; }
   },
   { name: "requiredMark", default: "*", alternativeName: "requiredText" },
   {
@@ -8533,9 +8549,14 @@ Serializer.addClass("survey", [
     choices: ["standard", "singlePage", "questionPerPage"],
   },
   {
-    name: "showPreviewBeforeComplete",
-    default: "noPreview",
-    choices: ["noPreview", "showAllQuestions", "showAnsweredQuestions"],
+    name: "showPreviewBeforeComplete: boolean",
+    default: false
+  },
+  {
+    name: "previewMode",
+    default: "allQuestions",
+    choices: ["allQuestions", "answeredQuestions"],
+    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete; }
   },
   { name: "showTimer:boolean" },
   { name: "timeLimit:number", alternativeName: "maxTimeToFinish", default: 0, minValue: 0, enableIf: (obj) => obj.showTimer },

@@ -849,7 +849,7 @@ QUnit.test("An infinitive loop occurs at e.removePosFromObj Bug#8224", function 
   Serializer.removeClass("exampleOptions");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("property showMode -> displayMOde", function (assert) {
+QUnit.test("property showMode -> displayMode, #9291", function (assert) {
   Serializer.addProperty("question", { name: "prop1", showMode: "form" });
   Serializer.addProperty("question", { name: "prop2", displayMode: "form" });
 

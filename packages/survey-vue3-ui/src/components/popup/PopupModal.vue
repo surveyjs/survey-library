@@ -8,35 +8,13 @@ import SvComponent from "@/SvComponent.vue";
 import { onUnmounted, shallowRef } from "vue";
 import {
   PopupBaseViewModel,
-  createDialogOptions,
   createPopupModalViewModel,
   settings,
   type IDialogOptions,
 } from "survey-core";
 
 const popup = shallowRef<PopupBaseViewModel>();
-function showModal(
-  componentName: string,
-  data: any,
-  onApply: () => boolean,
-  onCancel?: () => void,
-  cssClass?: string,
-  title?: string,
-  displayMode: "popup" | "overlay" = "popup"
-): PopupBaseViewModel {
-  const options = createDialogOptions(
-    componentName,
-    data,
-    onApply,
-    onCancel,
-    undefined,
-    undefined,
-    cssClass,
-    title,
-    displayMode
-  );
-  return showDialog(options);
-}
+
 function showDialog(
   dialogOptions: IDialogOptions,
   rootElement?: HTMLElement
@@ -59,12 +37,6 @@ function showDialog(
   popupViewModel.model.isVisible = true;
   popup.value = popupViewModel;
   return popupViewModel;
-}
-if (!settings.showModal) {
-  settings.showModal = showModal;
-  onUnmounted(() => {
-    settings.showModal = undefined as any;
-  });
 }
 if (!settings.showDialog) {
   settings.showDialog = showDialog;

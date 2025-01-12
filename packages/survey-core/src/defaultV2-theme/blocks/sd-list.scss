@@ -1,3 +1,5 @@
+@use "../variables.scss" as *;
+
 .sd-list {
   padding-right: calcSize(0.5);
   padding-left: calcSize(0.5);

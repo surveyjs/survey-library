@@ -1,3 +1,5 @@
+@use "../variables.scss" as *;
+
 :root {
   --sd-rating-bad-color: #{$red};
   --sd-rating-normal-color: #{$yellow};

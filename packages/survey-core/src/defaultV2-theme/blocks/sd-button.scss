@@ -1,4 +1,4 @@
-@import "../variables.scss";
+@use "../variables.scss" as *;
 
 .sd-btn {
   appearance: none;

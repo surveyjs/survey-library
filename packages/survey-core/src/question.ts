@@ -685,7 +685,6 @@ export class Question extends SurveyElement<Question>
     }
     const questions = this.getSingleInputQuestions();
     if(Array.isArray(questions) && questions.length > 0) {
-      if(!questions[questions.length - 1]) return undefined;
       return questions[0];
     }
     return undefined;
@@ -774,7 +773,8 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get showSingleInputTitle(): boolean {
-    return this.getPropertyValue("showSingleInputTitle", undefined, (): boolean => !!this.singleInputLocTitle);
+    return this.getPropertyValue("showSingleInputTitle", undefined,
+      (): boolean => !!this.singleInputLocTitle && this.singleInputQuestion !== this);
   }
   public get singleInputLocTitle(): LocalizableString {
     return this.getPropertyValue("singleInputLocTitle", undefined, () => {
@@ -800,6 +800,8 @@ export class Question extends SurveyElement<Question>
       this.setPropertyValue("singleInputQuestion", question);
       if(prevParent !== this.singleInputParentQuestion) {
         this.resetSingleInputTitle();
+      } else {
+        this.resetPropertyValue("showSingleInputTitle");
       }
     }
   }

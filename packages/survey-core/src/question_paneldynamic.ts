@@ -1174,7 +1174,9 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected getSingleInputQuestions(): Array<Question> {
     this.onFirstRendering();
-    return super.getSingleInputQuestions();
+    const res = super.getSingleInputQuestions();
+    res.push(this);
+    return res;
   }
   protected getSingleQuestionLocTitle(): LocalizableString {
     const res = this.locTemplateTitle;

@@ -65,7 +65,9 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
         } else {
           this.item.mode = mode;
         }
-        callback(mode, this.ref.current);
+        queueMicrotask(() => {
+          callback(mode, this.ref.current);
+        });
       });
     };
     this.item.afterRender();

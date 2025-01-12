@@ -701,6 +701,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.survey.matrixRowRemoved(this, index, row);
     }
   }
+  private isSingleInputQuestionsRequested: boolean;
+  protected getSingleInputQuestions(): Array<Question> {
+    if(!this.isSingleInputQuestionsRequested && this.rowCount > 0 && this.isEmpty()) {
+      this.isSingleInputQuestionsRequested = true;
+      this.rowCount = 0;
+    }
+    const res = super.getSingleInputQuestions();
+    if(res.length > 0) {
+      res.push(undefined);
+    }
+    return res;
+  }
   protected getSingleInputAddTextCore(question: Question): string {
     if(!this.canAddRow) return undefined;
     if(!this.getSingleInputIsLastQuestion()) return undefined;

@@ -684,7 +684,10 @@ export class Question extends SurveyElement<Question>
       return undefined;
     }
     const questions = this.getSingleInputQuestions();
-    if(Array.isArray(questions) && questions.length > 0) return questions[0];
+    if(Array.isArray(questions) && questions.length > 0) {
+      if(!questions[questions.length - 1]) return undefined;
+      return questions[0];
+    }
     return undefined;
   }
   public get singleInputQuestion(): Question {
@@ -714,7 +717,6 @@ export class Question extends SurveyElement<Question>
   }
   public getSingleInputElementPos(): number {
     const q = this.singleInputQuestion;
-    if(!q) return 0;
     const questions = this.getSingleInputQuestions();
     if(questions.length < 2) return 0;
     let index = questions.indexOf(q);
@@ -776,7 +778,7 @@ export class Question extends SurveyElement<Question>
   }
   public get singleInputLocTitle(): LocalizableString {
     return this.getPropertyValue("singleInputLocTitle", undefined, () => {
-      return this.singleInputParentQuestion.getSingleQuestionLocTitle(this.singleInputQuestion);
+      return this.singleInputParentQuestion.getSingleQuestionLocTitle();
     });
   }
   private get singleInputParentQuestion(): Question {

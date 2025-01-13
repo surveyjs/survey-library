@@ -82,6 +82,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     };
     this.createLocalizableString("removeRowText", this, false, "removeRow");
     this.createLocalizableString("noRowsText", this, false, true);
+    this.createLocalizableString("editRowText", this, false, "editText");
     this.registerPropertyChangedHandlers(["hideColumnsIfEmpty", "allowAddRows"], () => { this.updateShowTableAndAddRow(); });
     this.registerPropertyChangedHandlers(["allowRowReorder", "isReadOnly", "lockedRowCount"], () => { this.resetRenderedTable(); });
     this.registerPropertyChangedHandlers(["minRowCount"], () => { this.onMinRowCountChanged(); });
@@ -752,13 +753,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       locText.onGetTextCallback = (text: string): string => {
         return row.getTextProcessor().processText(text, true);
       };
-      const bntEdit = new Action({ locTitle: this.locAddRowText, action: () => { this.addRowUI(); } });
+      const bntEdit = new Action({ locTitle: this.getLocalizableString("editRowText"), action: () => { this.singInputEditRow(row); } });
       const btnRemove = new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } });
-      locText.text = row.text;
       items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
     });
     res.items = items;
     return res;
+  }
+  private singInputEditRow(row: MatrixDropdownRowModelBase): void {
+    const qs = row.questions;
+    if(qs.length > 0) {
+      this.setSingleInputQuestion(qs[0]);
+    }
   }
   /**
    * A message displayed in a confirmation dialog that appears when a respondent wants to delete a row.

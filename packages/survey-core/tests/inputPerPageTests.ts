@@ -761,7 +761,10 @@ QUnit.test("singleInput & singleInputSummary", assert => {
   survey.performNext();
   assert.ok(matrix.singleInputSummary, "singleInputSummary exists, #5");
   assert.equal(matrix.singleInputSummary.items.length, 2, "singleInputSummary.items.length, #5");
-  //assert.equal(matrix.singleInputSummary.items[0].locText.textOrHtml, "Row 1", "singleInputSummary.items[0].locText, #5");
-  //assert.equal(matrix.singleInputSummary.items[1].locText.textOrHtml, "Row 2", "singleInputSummary.items[1].locText, #5");
-  //assert.equal(matrix.singleInputSummary.items[0].btnEdit.locTitle.textOrHtml, "Edit", "singleInputSummary.items[0].btnEdit.locTitle, #5");
+  assert.equal(matrix.singleInputSummary.items[0].locText.textOrHtml, "Row 1", "singleInputSummary.items[0].locText, #5");
+  assert.equal(matrix.singleInputSummary.items[1].locText.textOrHtml, "Row 2", "singleInputSummary.items[1].locText, #5");
+  assert.equal(matrix.singleInputSummary.items[0].btnEdit.locTitle.textOrHtml, "Edit", "singleInputSummary.items[0].btnEdit.locTitle, #5");
+  matrix.singleInputSummary.items[0].btnEdit.action();
+  assert.equal(matrix.singleInputQuestion.name, "col1", "singleInputQuestion.name, #6");
+  assert.equal(matrix.locSingleInputRowTitle.textOrHtml, "Row 1", "locSingleInputRowTitle, #6");
 });

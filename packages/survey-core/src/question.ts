@@ -806,6 +806,13 @@ export class Question extends SurveyElement<Question>
   private get singleInputParentQuestion(): Question {
     return this.singleInputQuestion?.parentQuestion || this;
   }
+  protected getSingleInputRootQuestion(): Question {
+    let res = <Question>this;
+    while(res.parentQuestion) {
+      res = res.parentQuestion;
+    }
+    return res;
+  }
   protected getSingleQuestionLocTitle(): LocalizableString {
     return undefined;
   }
@@ -817,10 +824,15 @@ export class Question extends SurveyElement<Question>
   protected singleInputAddItemCore(question: Question): void {}
   protected singleInputRemoveItemCore(question: Question): void {}
   protected setSingleInputQuestion(question: Question): void {
-    if(this.singleInputQuestion !== question) {
-      const prevParent = this.singleInputParentQuestion;
-      this.setPropertyValue("singleInputQuestion", question);
-      this.onSingleInputChanged(prevParent);
+    const root = this.getSingleInputRootQuestion();
+    if(root !== this) {
+      root.setSingleInputQuestion(question);
+    } else {
+      if(this.singleInputQuestion !== question) {
+        const prevParent = this.singleInputParentQuestion;
+        this.setPropertyValue("singleInputQuestion", question);
+        this.onSingleInputChanged(prevParent);
+      }
     }
   }
   private nextPrevSingleInput(skip: number): boolean {

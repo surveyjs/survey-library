@@ -1,8 +1,8 @@
 <template>
   <div :class="page.css" :id="page.id">
     <sv-file-item
-      v-for="item of page.items"
-      :key="item"
+      v-for="(item, index) of page.items"
+      :key="index"
       :item="item"
       :question="question"
     ></sv-file-item>

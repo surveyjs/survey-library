@@ -1034,7 +1034,6 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("startWithNewLine");
   }
   public set startWithNewLine(val: boolean) {
-    if (this.startWithNewLine == val) return;
     this.setPropertyValue("startWithNewLine", val);
   }
   protected calcCssClasses(css: any): any {

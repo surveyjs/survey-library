@@ -1272,7 +1272,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   public onAfterRenderElement: EventBase<SurveyElement<E>, any> = this.addEvent<SurveyElement<E>, any>();
+  private isRenderedValue: boolean;
+  public get isRendered(): boolean {
+    return this.isRenderedValue === true;
+  }
   public afterRenderCore(element: HTMLElement): void {
+    this.isRenderedValue = true;
     this.onAfterRenderElement.fire(this, { htmlElement: element });
   }
 

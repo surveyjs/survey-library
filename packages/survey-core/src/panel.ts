@@ -185,6 +185,13 @@ export class QuestionRowModel extends Base {
     return this.getPropertyValue("isneedrender", true);
   }
   public set isNeedRender(val: boolean) {
+    if(!val && this.elements.length > 0) {
+      let isNonRendered = false;
+      this.elements.forEach(el => {
+        isNonRendered = isNonRendered || !(<any>el).isRendered;
+      });
+      val = !isNonRendered;
+    }
     this.setPropertyValue("isneedrender", val);
   }
 
@@ -1043,6 +1050,12 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     super.updateElementVisibility();
   }
+  private getFirstVisibleElement(): IElement {
+    for (var i = 0; i < this.elements.length; i++) {
+      if (this.elements[i].isVisible) return this.elements[i];
+    }
+    return null;
+  }
   getFirstQuestionToFocus(withError: boolean = false, ignoreCollapseState: boolean = false): Question {
     if (!withError && !ignoreCollapseState && this.isCollapsed) return null;
     var elements = this.elements;
@@ -1546,8 +1559,10 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   private onElementStartWithNewLineChanged(element: any) {
     if(this.locCountRowUpdates > 0) return;
-    this.updateRowsBeforeElementRemoved(element);
-    this.updateRowsOnElementAdded(element);
+    if(this.getFirstVisibleElement() !== element) {
+      this.updateRowsBeforeElementRemoved(element);
+      this.updateRowsOnElementAdded(element);
+    }
   }
   private updateRowsVisibility(element: any) {
     var rows = this.rows;

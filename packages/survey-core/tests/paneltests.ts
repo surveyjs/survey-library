@@ -137,6 +137,29 @@ QUnit.test("panel rows generation - startNewLine false", function (assert) {
   q2.visible = false;
   assert.equal(page.rows[0].visible, false, "The first row is invisible now");
 });
+QUnit.test("Do not re-create rows if the question is the first in the row/panel, Bug#9304", function (assert) {
+  const page = new PageModel();
+  const q1 = page.addNewQuestion("text", "q1");
+  const id = page.visibleRows[0].id;
+  q1.startWithNewLine = false;
+  assert.equal(page.visibleRows[0].id, id, "The row is not changed");
+});
+
+QUnit.test("Do not set isNeedRenadered false if question was rendered already, Bug#9304", function (assert) {
+  const page = new PageModel();
+  const q1 = page.addNewQuestion("text", "q1");
+  const q2 = page.addNewQuestion("text", "q2");
+  const rows = page.visibleRows;
+  assert.equal(rows[0].isNeedRender, true, "isNeedRender rows[0] is true, #1");
+  assert.equal(rows[1].isNeedRender, true, "isNeedRender rows[1] is true, #1");
+  rows[0].isNeedRender = false;
+  assert.equal(rows[0].isNeedRender, false, "isNeedRender rows[0] is false, #2");
+  page.elements.forEach((el) => {
+    (<any>el).afterRenderCore(null);
+  });
+  rows[1].isNeedRender = false;
+  assert.equal(rows[1].isNeedRender, true, "isNeedRender rows[1] is true, #3");
+});
 
 QUnit.test("panel rows generation - nested panel", function (assert) {
   const page = new PageModel();

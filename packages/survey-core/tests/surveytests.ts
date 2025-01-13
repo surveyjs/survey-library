@@ -20356,7 +20356,10 @@ QUnit.test("Advanced header title/description color", function (assert) {
   survey.applyTheme(accHeaderBackTheme);
   let headerLayoutElement = survey.findLayoutElement("advanced-header");
   let headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header__background-color--accent");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+
+  headerModel.height = 256;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
   // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
   // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
   // assert.equal(survey.themeVariables["--sjs-font-headerdescription-color"], undefined);
@@ -20367,31 +20370,31 @@ QUnit.test("Advanced header title/description color", function (assert) {
   survey.applyTheme(noneHeaderBackTheme);
   headerLayoutElement = survey.findLayoutElement("advanced-header");
   headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
   const customNotSetHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
   survey.applyTheme(customNotSetHeaderBackTheme);
   headerLayoutElement = survey.findLayoutElement("advanced-header");
   headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
   const customHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
   survey.applyTheme(customHeaderBackTheme);
   headerLayoutElement = survey.findLayoutElement("advanced-header");
   headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header__background-color--custom");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__background-color--custom");
 
   const customNotSetHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
   survey.applyTheme(customNotSetHeaderBackAndTitleTheme);
   headerLayoutElement = survey.findLayoutElement("advanced-header");
   headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background");
 
   const customHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
   survey.applyTheme(customHeaderBackAndTitleTheme);
   headerLayoutElement = survey.findLayoutElement("advanced-header");
   headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto");
 });
 QUnit.test("Display mode in design time", function (assert) {
   const survey = new SurveyModel();

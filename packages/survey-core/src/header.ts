@@ -87,7 +87,7 @@ export class Cover extends Base {
   private updateHeaderClasses(): void {
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")
-      .append("sv-header--heigth-auto", !this.renderedHeight)
+      .append("sv-header--height-auto", !this.renderedHeight)
       .append("sv-header__without-background", (this.backgroundColor === "transparent") && !this.backgroundImage)
       .append("sv-header__background-color--none", this.backgroundColor === "transparent" && !this.titleColor && !this.descriptionColor)
       // .append("sv-header__background-color--accent", !this.backgroundColor && !this.titleColor && !this.descriptionColor)
@@ -214,7 +214,7 @@ export class Cover extends Base {
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     super.propertyValueChanged(name, oldValue, newValue);
-    if (name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
+    if (name === "height" || name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
       this.updateHeaderClasses();
     }
     if (name === "inheritWidthFrom") {

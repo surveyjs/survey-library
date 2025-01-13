@@ -18699,7 +18699,7 @@ QUnit.test("restore header css variable if header is default", function (assert)
   survey.applyTheme({ "headerView": "advanced", cssVariables: { "--sjs-header-backcolor": "transparent" } } as any);
 
   const cover = survey.findLayoutElement("advanced-header").data as Cover;
-  assert.equal(cover.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
+  assert.equal(cover.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 });
 
 QUnit.test("check title classes when readOnly changed", function (assert) {
@@ -19780,6 +19780,13 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
     let survey = new SurveyModel(json);
     const getContainerContent = getContainerContentFunction(survey);
 
+    survey.applyTheme({
+      header: {},
+      cssVariables: {
+        "--sjs-header-backcolor": "var(--sjs-primary-backcolor)"
+      }
+    } as any);
+
     assert.equal(survey.showNavigationButtons, false);
     assert.equal(survey.progressBarType, "pages");
     assert.equal(survey.showProgressBar, "off");
@@ -19896,6 +19903,12 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
 
   let survey = new SurveyModel(json);
   const getContainerContent = getContainerContentFunction(survey);
+  survey.applyTheme({
+    header: {},
+    cssVariables: {
+      "--sjs-header-backcolor": "var(--sjs-primary-backcolor)"
+    }
+  } as any);
 
   assert.equal(survey.showNavigationButtons, false);
   assert.equal(survey.progressBarType, "pages");

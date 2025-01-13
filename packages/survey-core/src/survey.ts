@@ -3100,14 +3100,8 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("questionDescriptionLocation", value);
   }
   /**
-   * Specifies whether users can take the survey or only view it.
-   *
-   * Possible values:
-   *
-   * - `"edit"` (default) - Allows users to take the survey.
-   * - `"display"` - Makes the survey read-only.
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-displaymode/ (linkStyle))
+   * Obsolete. Use the [`readOnly`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#readOnly) property.
+   * @deprecated
    */
   public get mode(): string {
     return this.readOnly ? "display" : "edit";
@@ -3118,6 +3112,13 @@ export class SurveyModel extends SurveyElementCore
     if (value != "edit" && value != "display") return;
     this.readOnly = value == "display";
   }
+  /**
+   * Enables the read-only mode. If you set this property to `true`, users cannot take the survey.
+   *
+   * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
+   */
   public get readOnly(): boolean {
     return this.getPropertyValue("readOnly");
   }

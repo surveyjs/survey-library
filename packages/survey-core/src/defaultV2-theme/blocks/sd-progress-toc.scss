@@ -1,4 +1,4 @@
-$font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));
+@use "../variables.scss" as *;
 
 .sv_progress-toc {
   padding: calcSize(1);

@@ -199,6 +199,16 @@ Serializer.addClass(
 
 [View Demo](https://surveyjs.io/survey-creator/examples/custom-descriptive-text-element/ (linkStyle))
 
+## Override Default Property Values
+
+You can specify a different default value for a property. To do this, call `Serializer`'s `getProperty(className, propertyName)` method and change the property's `defaultValue` setting:
+
+```js
+// Override the default value of the `isAllRowRequired` property for Single-Select Matrix questions
+import { Serializer } from "survey-core";
+Serializer.getProperty("matrix", "isAllRowRequired").defaultValue = true;
+```
+
 ## Survey Element Property Settings
 
 This section describes settings that you can specify within a `propMeta` object when calling the `addProperty(className, propMeta)` or `addClass(name, propMeta[], constructor, baseClassName)` method on the `Serializer` object.

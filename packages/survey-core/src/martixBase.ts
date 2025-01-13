@@ -137,8 +137,8 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     this.runItemsCondition(values, properties);
   }
   protected onColumnsChanged(): void { }

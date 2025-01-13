@@ -1,4 +1,4 @@
-@import "../defaultV2-theme/variables.scss";
+@use "../defaultV2-theme/variables.scss" as *;
 
 .sv_progress-buttons__container-center {
   text-align: center;

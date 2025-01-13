@@ -1,3 +1,5 @@
+@use "../variables.scss" as *;
+
 @mixin page_title {
   --page-title-font-size: var(--sjs-font-pagetitle-size, calc(1.5 * (var(--sjs-font-size, 16px))));
   font-family: $font-pagetitle-family;

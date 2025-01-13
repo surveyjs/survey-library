@@ -1,5 +1,5 @@
-@import "../defaultV2-theme/variables.scss";
-@import "../defaultV2-theme/mixins.scss";
+@use "../defaultV2-theme/variables.scss" as *;
+@use "../defaultV2-theme/mixins.scss" as mixins;
 
 .sv-ranking {
   outline: none;
@@ -413,7 +413,7 @@
 
 .sv-ranking__container-placeholder {
   color: var(--sjs-font-questiondescription-color, #{$foreground-dim-light});
-  @include defaultFont;
+  @include mixins.defaultFont;
   white-space: normal;
   display: flex;
   justify-content: center;

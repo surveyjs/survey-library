@@ -124,7 +124,6 @@ module.exports = function (options) {
           loader: "ts-loader",
           options: {
             configFile: options.tsConfigFile || "tsconfig.json",
-            transpileOnly: isProductionBuild
           }
         },
         {
@@ -161,11 +160,11 @@ module.exports = function (options) {
       filename: "[name]" + (isProductionBuild ? ".min" : "") + ".js",
       library: {
         root: options.libraryName || "Survey",
-        amd: '[dashedname]',
-        commonjs: '[dashedname]',
+        amd: "[dashedname]",
+        commonjs: "[dashedname]",
       },
       libraryTarget: "umd",
-      globalObject: 'this',
+      globalObject: "this",
       umdNamedDefine: true
     },
     plugins: [

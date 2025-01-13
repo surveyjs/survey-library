@@ -1877,8 +1877,8 @@ export class QuestionPanelDynamicModel extends Question
       this.panelsCore[i].localeChanged();
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     this.runPanelsCondition(this.panelsCore, values, properties);
   }
   public runTriggers(name: string, value: any, keys?: any): void {

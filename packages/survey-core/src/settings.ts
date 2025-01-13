@@ -49,6 +49,7 @@ const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string
  */
 
 export var settings = {
+  version: "",
   /**
    * An object that configures survey appearance when the survey is being designed in Survey Creator.
    *
@@ -352,7 +353,7 @@ export var settings = {
    * Nested properties:
    *
    * - `includeQuestionsWithHiddenNumber`: `boolean`\
-   * Specifies whether to number questions whose [`hideNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#hideNumber) property is enabled. Default value: `false`.
+   * Specifies whether to number questions whose [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property is disabled. Default value: `false`.
    *
    * - `includeQuestionsWithHiddenTitle`: `boolean`\
    * Specifies whether to number questions whose [`titleLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#titleLocation) property is set to `"hidden"`. Default value: `false`.
@@ -659,11 +660,11 @@ export var settings = {
   animationEnabled: true,
 
   /**
-   * An object that specifies heading levels (`<h1>`, `<h2>`, etc.) to use when rendering survey, page, panel, and question titles.
+   * An object that specifies HTML tags to use when rendering survey, page, panel, and question titles.
    *
    * Default value: `{ survey: "h3", page: "h4", panel: "h4", question: "h5" }`
    *
-   * If you want to modify heading levels for individual titles, handle `SurveyModel`'s [`onGetTitleTagName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetTitleTagName) event.
+   * If you want to modify HTML tags for individual titles, handle `SurveyModel`'s [`onGetTitleTagName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetTitleTagName) event.
    */
   titleTags: {
     survey: "h3",

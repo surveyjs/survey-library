@@ -1,6 +1,6 @@
-@import "../defaultV2-theme/variables.scss";
-@import "../defaultV2-theme/mixins.scss";
-@import "../defaultV2-theme/blocks/mixins.scss";
+@use "../defaultV2-theme/variables.scss" as *;
+@use "../defaultV2-theme/mixins.scss" as mixins;
+@use "../defaultV2-theme/blocks/mixins.scss" as blocksMixins;
 
 .sv_window {
     position: fixed;
@@ -17,7 +17,7 @@
     background: $background-dim;
     width: calc(100% - calcSize(4)) !important;
 
-    @include scrollRules;
+    @include blocksMixins.scrollRules;
 }
 
 .sv_window_root-content {
@@ -67,7 +67,7 @@
 
 .sv_window_header_title_collapsed {
     color: $foreground-dim;
-    @include defaultBold;
+    @include mixins.defaultBold;
     flex: 1;
     display: flex;
     justify-content: flex-start;
@@ -77,7 +77,7 @@
 .sv_window_header_description {
     color: $font-questiondescription-color;
     font-feature-settings: 'salt' on;
-    @include defaultFont;
+    @include mixins.defaultFont;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;

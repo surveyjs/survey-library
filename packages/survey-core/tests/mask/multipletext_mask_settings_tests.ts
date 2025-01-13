@@ -112,11 +112,11 @@ QUnit.test("Currency mask: text aligment", function (assert) {
   multipletext.addItem("item1");
   const item = multipletext.items[0];
   const itemEditor = item.editor;
-  assert.deepEqual(itemEditor.inputStyle, { width: undefined });
+  assert.deepEqual(itemEditor.inputStyle, { width: "" });
 
   item.maskType = "currency";
-  assert.deepEqual(itemEditor.inputStyle, { width: undefined, textAlign: "right" });
+  assert.deepEqual(itemEditor.inputStyle, { width: "", textAlign: "right" });
 
   item.inputTextAlignment = "left";
-  assert.deepEqual(itemEditor.inputStyle, { width: undefined, textAlign: "left" });
+  assert.deepEqual(itemEditor.inputStyle, { width: "", textAlign: "left" });
 });

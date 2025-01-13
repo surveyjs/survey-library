@@ -2443,6 +2443,28 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total && add ne
   matrix.visibleRows[1].cells[1].value = 40;
   assert.equal(matrix.visibleTotalRow.cells[1].value, 50, "total sum #3");
 });
+QUnit.test("matrix dropdown rowsVisibleIf, defaultValue & designMode, Bug#9279", function (assert) {
+  const json = {
+    elements: [
+      {
+        type: "matrixdropdown", name: "matrix",
+        rowsVisibleIf: "{row.col1} != 'a'", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2" }],
+        defaultValue: { row1: { col1: "a", col2: 5 }, row2: { col1: "b", col2: 10 }, row3: { col1: "a", col2: 15 } },
+        rows: ["row1", "row2", "row3"]
+      }
+    ]
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  let matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 3, "show all rows");
+  survey.setDesignMode(false);
+  survey.fromJSON(json);
+  matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 1, "row1, row3 are hidden");
+});
 QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context & set data correctly", function (assert) {
   var survey = new SurveyModel({
     elements: [
@@ -10337,4 +10359,70 @@ QUnit.test("column width settings passed to all rows", function (assert) {
   assert.equal(table.rows[1].cells[0].minWidth, "10%", "The first row cell min width 10%");
   assert.equal(table.rows[3].cells[0].width, "15%", "The second row cell width 15%");
   assert.equal(table.rows[3].cells[0].minWidth, "10%", "The second row cell min width 10%");
+});
+QUnit.test("Use matrix rows id & cells questions id in rendered table, Bug#9233", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "question1",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            visibleIf: "{row.col2} notempty",
+            cellType: "text"
+          },
+          {
+            name: "col2",
+            cellType: "text"
+          },
+          {
+            name: "col3",
+            visibleIf: "{row.col2} notempty",
+            cellType: "text"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const rowId = matrix.visibleRows[0].id;
+  const cellQuestion = matrix.visibleRows[0].cells[1].question;
+  const colId = cellQuestion.id;
+  let table = matrix.renderedTable;
+  assert.equal(table.rows[0].isErrorsRow, true, "It is an error row, #1");
+  assert.equal(table.rows[0].id.endsWith("-error"), true, "There is -error postfix, #1");
+  assert.equal(table.rows[1].id, rowId, "Use row id, #1");
+  assert.equal(table.rows[0].cells[0].id, colId + "-error", "There is -error postfix in error cell, #1");
+  assert.equal(table.rows[1].cells[0].id, colId, "Use question id, #1.2");
+  cellQuestion.value = "abc";
+  table = matrix.renderedTable;
+  assert.equal(table.rows[1].id, rowId, "Use row id, #2");
+  assert.equal(table.rows[1].cells[1].id, colId, "Use question id, #2");
+});
+QUnit.test("Use matrix rows id & cells questions id in rendered table & showInMultipleColumns, Bug#9233", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "question1",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            choices: [1, 2],
+            showInMultipleColumns: true
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const col1Id = matrix.visibleRows[0].cells[0].question.id;
+  let table = matrix.renderedTable;
+  assert.equal(table.rows[0].cells[0].id, col1Id + "-error", "There is -error postfix in error cell, #1");
+  assert.equal(table.rows[1].cells[0].id, col1Id + "-index0", "Use question id, #1");
+  assert.equal(table.rows[1].cells[1].id, col1Id + "-index1", "Use question id, #2");
 });

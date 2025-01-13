@@ -1,3 +1,5 @@
+@use "../variables.scss" as *;
+
 .sd-checkbox__decorator {
   border-radius: calcCornerRadius(0.5);
 }

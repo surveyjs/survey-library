@@ -420,21 +420,21 @@ QUnit.test("supports survey width scale", function (assert) {
   survey.widthScale = 100;
   assert.equal(survey.widthScale, 100);
   question["processResponsiveness"](0, 600);
-  assert.equal(question.renderedImageWidth, 400);
+  assert.equal(question.renderedImageWidth, 600);
   assert.equal(question.renderedImageHeight, 133);
 
   question["processResponsiveness"](0, 100);
-  assert.equal(question.renderedImageWidth, 400);
+  assert.equal(question.renderedImageWidth, 3000);
   assert.equal(question.renderedImageHeight, 133);
 
   survey.widthScale = 75;
   question["processResponsiveness"](0, 100);
   assert.equal(survey.widthScale, 75);
-  assert.equal(question.renderedImageWidth, 300);
+  assert.equal(question.renderedImageWidth, 2250);
   assert.equal(question.renderedImageHeight, 99);
 
   question["processResponsiveness"](0, 600);
-  assert.equal(question.renderedImageWidth, 300);
+  assert.equal(question.renderedImageWidth, 600);
   assert.equal(question.renderedImageHeight, 99);
 
   question.imageWidth = 150;

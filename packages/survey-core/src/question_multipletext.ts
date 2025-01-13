@@ -216,14 +216,16 @@ export class MultipleTextItemModel extends Base
   /**
    * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
    *
-   * If you want to set a uniform `size` for all text box items, use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#inputSize) within the Multiple Textboxes configuration.
+   * If you want to set a uniform `inputSize` for all text box items, use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#inputSize) property within the Multiple Textboxes configuration.
    */
-  public get size(): number {
-    return this.editor.size;
-  }
-  public set size(val: number) {
-    this.editor.size = val;
-  }
+  public get inputSize(): number { return this.editor.inputSize; }
+  public set inputSize(val: number) { this.editor.inputSize = val; }
+  /**
+   * Obsolete. Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel#inputSize) property instead.
+   * @deprecated
+   */
+  public get size(): number { return this.inputSize; }
+  public set size(val: number) { this.inputSize = val; }
   /**
    * An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the default item value.
    * @see minValueExpression
@@ -432,7 +434,7 @@ export class QuestionMultipleTextModel extends Question
     this.registerPropertyChangedHandlers(["items", "colCount", "itemErrorLocation"], () => {
       this.calcVisibleRows();
     });
-    this.registerPropertyChangedHandlers(["inputSize"], () => { this.updateItemsSize(); });
+    this.registerPropertyChangedHandlers(["inputSize"], () => { this.resetItemsSize(); });
   }
   public getType(): string {
     return "multipletext";
@@ -472,9 +474,9 @@ export class QuestionMultipleTextModel extends Question
       item.editor.onSurveyValueChanged(item.value);
     });
   }
-  private updateItemsSize() {
+  private resetItemsSize() {
     this.performForEveryEditor((item: MultipleTextItemModel): void => {
-      item.editor.updateInputSize();
+      item.editor.resetInputSize();
     });
   }
   private editorsOnSurveyLoad() {
@@ -617,7 +619,7 @@ export class QuestionMultipleTextModel extends Question
     this.setPropertyValue("colCount", val);
   }
   /**
-   * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` elements.
+   * A value passed on to the [`inputSize`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` elements.
    */
   public get inputSize(): number {
     return this.getPropertyValue("inputSize");
@@ -705,8 +707,8 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].onValueChanged(itemValue);
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     this.items.forEach(item => item.editor.runCondition(values, properties));
   }
   protected getIsRunningValidators(): boolean {
@@ -958,7 +960,7 @@ Serializer.addClass(
     { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"] },
     { name: "title", serializationProperty: "locTitle" },
     { name: "maxLength:number", default: -1 },
-    { name: "size:number", minValue: 0 },
+    { name: "inputSize:number", alternativeName: "size", minValue: 0 },
     {
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",

@@ -63,20 +63,20 @@ survey.locale = "fr";
 If you want to change individual translation strings, get an object with all translation strings for a specific locale and override the required properties in this object. Refer to the [English dictionary](https://github.com/surveyjs/survey-library/blob/master/packages/survey-core/src/localization/english.ts) for a full list of available properties.
 
 ```js
-import { surveyLocalization } from 'survey-core';
+import { getLocaleStrings } from 'survey-core';
 
 // Get the English locale. To get the default locale, pass an empty string.
-const engLocale = surveyLocalization.locales["en"];
+const engLocale = getLocaleStrings("en");
 // Override individual translations
 engLocale.pagePrevText = "Back";
 engLocale.pageNextText = "Forward";
 ```
 
-You can also create a custom locale to apply multiple translations in a batch. Declare an object with your translations and assign it to the `locales["localeName"]` property. The following code shows how to do it in a separate TypeScript translation file (dictionary):
+You can also create a custom locale to apply multiple translations in a batch. The following code shows how to do it in a separate TypeScript translation file (dictionary):
 
 ```js
 // custom-locale.ts
-import { surveyLocalization } from 'survey-core';
+import { setupLocale } from 'survey-core';
 
 const customLocaleStrings = {
   pagePrevText: "Back",
@@ -84,7 +84,13 @@ const customLocaleStrings = {
   completeText: "Send"
 };
 
-surveyLocalization.locales["customlocale"] = customLocaleStrings;
+setupLocale({
+  localeCode: "customlocale",   // A short code used as a locale identifier (for example, "en", "de", "fr")
+  strings: customLocaleStrings, // An array with custom translations
+  nativeName: "Custom Locale",  // The locale name in native language
+  englishName: "Custom Locale", // The locale name in English 
+  rtl: false                    // A flag that indicates whether the language is right-to-left
+});
 ```
 
 ```js
@@ -94,7 +100,7 @@ import './localization/custom-locale.ts'
 survey.locale = "customlocale";
 ```
 
-If any translation strings are missing in your custom locale, they will be taken from the default English locale. You can specify the `defaultLocale` property to use another locale as default:
+If any translation strings or other settings are missing in your custom locale, they will be taken from the English locale. You can specify the `defaultLocale` property to use another fallback locale:
 
 ```js
 import { Model, surveyLocalization } from "survey-core";

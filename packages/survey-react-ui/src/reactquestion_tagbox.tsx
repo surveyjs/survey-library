@@ -43,6 +43,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
         aria-expanded={this.question.ariaExpanded}
         aria-controls={dropdownListModel.listElementId}
         aria-activedescendant={dropdownListModel.ariaActivedescendant}
+        ref={(div) => (this.setControl(div))}
       >
         <div className={this.question.cssClasses.controlValue}>
           {items}

@@ -7,7 +7,7 @@
     "build:i18n": "webpack --config ./webpack.i18n.config.js --env buildType=dev && webpack --config ./webpack.i18n.config.js --env buildType=prod",
     "build:themes": "webpack --config ./webpack.themes.config.js --env buildType=dev && webpack --config ./webpack.themes.config.js --env buildType=prod",
     "build:icons": "webpack --config ./webpack.icons.config.js --env buildType=dev && webpack --config ./webpack.icons.config.js --env buildType=prod",
-    "watch:dev": "webpack --env.buildType dev --watch",
+    "watch:dev": "webpack --env buildType=dev --watch",
     "build:all": "npm run build && npm run build:i18n && npm run build:themes && npm run build:icons",
     "test": "karma start ./karma.conf.js --single-run",
     "test:watch": "karma start ./karma.conf.js",
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@types/lodash": "4.14.186",
-    "@types/node": "7.0.4",
+    "@types/node": "18.11.12",
     "@types/papaparse": "^5.0.4",
     "@types/qunit": "2.0.31",
     "@types/signature_pad": "^2.3.0",
@@ -74,8 +74,8 @@
     "signature_pad": "^4.1.5"
   },
   "commit-and-tag-version": {
-    "skip": {
-      "tag": true
-    }
+    "bumpFiles": [
+      "package.json"
+    ]
   }
 }

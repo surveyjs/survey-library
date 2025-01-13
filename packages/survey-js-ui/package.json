@@ -73,5 +73,10 @@
   },
   "dependencies": {
     "survey-core": "../survey-core/build"
+  },
+  "commit-and-tag-version": {
+    "bumpFiles": [
+      "package.json"
+    ]
   }
 }

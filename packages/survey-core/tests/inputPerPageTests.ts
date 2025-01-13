@@ -729,8 +729,8 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   assert.equal(panel.singleInputQuestion.name, "name", "singleInputQuestion.name, #5");
   assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #5");
 });
-/*
-QUnit.test("singleInput & matrix dynamic rendered table", assert => {
+
+QUnit.test("singleInput & singleInputSummary", assert => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -745,11 +745,23 @@ QUnit.test("singleInput & matrix dynamic rendered table", assert => {
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
   assert.equal(survey.currentSingleQuestion.name, "matrix1", "currentSingleQuestion is matrix1, #1");
-  assert.notOk(matrix.singleInputQuestion?.name, "singleInputQuestion.name, #1");
-  const table = matrix.renderedTable;
-  assert.equal(table.showHeader, false, "no header, #1");
-  assert.equal(table.rows.length, 0, "no rows, #1");
+  assert.equal(matrix.singleInputQuestion.name, "matrix1", "singleInputQuestion.name, #1");
+  assert.ok(matrix.singleInputSummary, "singleInputSummary exists, #1");
+  assert.equal(matrix.singleInputSummary.items.length, 0, "singleInputSummary.items.length, #1");
+  matrix.singleInputSummary.bntAdd.action();
+  assert.equal(matrix.rowCount, 1, "row count, #2");
+  assert.notOk(matrix.singleInputSummary, "singleInputSummary exists, #2");
+  survey.performNext();
+  assert.notOk(matrix.singleInputSummary, "singleInputSummary exists, #3");
+  survey.performNext();
+  assert.ok(matrix.singleInputSummary, "singleInputSummary exists, #4");
+  assert.equal(matrix.singleInputSummary.items.length, 1, "singleInputSummary.items.length, #4");
   matrix.addRow();
-  assert.equal(matrix.singleInputQuestion.name, "col1", "singleInputQuestion.name, #2");
+  survey.performNext();
+  survey.performNext();
+  assert.ok(matrix.singleInputSummary, "singleInputSummary exists, #5");
+  assert.equal(matrix.singleInputSummary.items.length, 2, "singleInputSummary.items.length, #5");
+  //assert.equal(matrix.singleInputSummary.items[0].locText.textOrHtml, "Row 1", "singleInputSummary.items[0].locText, #5");
+  //assert.equal(matrix.singleInputSummary.items[1].locText.textOrHtml, "Row 2", "singleInputSummary.items[1].locText, #5");
+  //assert.equal(matrix.singleInputSummary.items[0].btnEdit.locTitle.textOrHtml, "Edit", "singleInputSummary.items[0].btnEdit.locTitle, #5");
 });
-*/

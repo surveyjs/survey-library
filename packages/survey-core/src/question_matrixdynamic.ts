@@ -9,7 +9,7 @@ import {
 } from "./question_matrixdropdownbase";
 import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
-import { IAction } from "./actions/action";
+import { Action, IAction } from "./actions/action";
 import { settings } from "./settings";
 import { confirmActionAsync } from "./utils/utils";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
@@ -18,6 +18,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
+import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   private dragOrClickHelper: DragOrClickHelper;
@@ -740,6 +741,24 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     }
     return null;
+  }
+  protected createSingleInputSummary(): QuestionSingleInputSummary {
+    const bntAdd = new Action({ locTitle: this.locAddRowText, action: () => { this.addRowUI(); } });
+    const res = new QuestionSingleInputSummary(this.locNoRowsText, bntAdd);
+    const items = new Array<QuestionSingleInputSummaryItem>();
+    this.visibleRows.forEach((row) => {
+      const locText = new LocalizableString(this, true, undefined, this.getSingleInputRowLocalizationTitle());
+      locText.setJson(this.locSingleInputRowTitle.getJson());
+      locText.onGetTextCallback = (text: string): string => {
+        return row.getTextProcessor().processText(text, true);
+      };
+      const bntEdit = new Action({ locTitle: this.locAddRowText, action: () => { this.addRowUI(); } });
+      const btnRemove = new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } });
+      locText.text = row.text;
+      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
+    });
+    res.items = items;
+    return res;
   }
   /**
    * A message displayed in a confirmation dialog that appears when a respondent wants to delete a row.

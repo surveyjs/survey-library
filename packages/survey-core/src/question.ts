@@ -23,6 +23,7 @@ import { ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
+import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 
 export interface IConditionObject {
   name: string;
@@ -692,6 +693,16 @@ export class Question extends SurveyElement<Question>
   public get singleInputQuestion(): Question {
     return this.getPropertyValue("singleInputQuestion", undefined, () => this.calculateSingleInputQuestion());
   }
+  public get singleInputSummary(): QuestionSingleInputSummary {
+    return this.getPropertyValue("singleInputSummary", undefined, () => {
+      const q = this.singleInputQuestion;
+      if(!q || q !== this) return undefined;
+      return this.createSingleInputSummary();
+    });
+  }
+  protected createSingleInputSummary(): QuestionSingleInputSummary {
+    return undefined;
+  }
   protected getRootSingleInputQuestion(): Question {
     let q = this.singleInputQuestion;
     let pQ = this.parentQuestion;
@@ -702,12 +713,23 @@ export class Question extends SurveyElement<Question>
     return q;
   }
   public resetSingleInput(): void {
-    this.resetPropertyValue("singleInputQuestion");
-    this.resetSingleInputTitle();
+    this.resetSingleInputCore();
   }
-  private resetSingleInputTitle(): void {
+  private resetSingleInputCore(): void {
+    const prev = this.singleInputQuestion;
+    const prevParent = this.singleInputParentQuestion;
+    this.resetPropertyValue("singleInputQuestion");
+    if(!!prev) {
+      this.onSingleInputChanged(prevParent);
+    }
+  }
+  private onSingleInputChanged(prevParent: Question): void {
+    if(prevParent !== this.singleInputParentQuestion) {
+      this.resetPropertyValue("singleInputLocTitle");
+    }
     this.resetPropertyValue("showSingleInputTitle");
-    this.resetPropertyValue("singleInputLocTitle");
+    this.singleInputSummary?.dispose();
+    this.resetPropertyValue("singleInputSummary");
   }
   public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
     const q = this.singleInputQuestion;
@@ -798,11 +820,7 @@ export class Question extends SurveyElement<Question>
     if(this.singleInputQuestion !== question) {
       const prevParent = this.singleInputParentQuestion;
       this.setPropertyValue("singleInputQuestion", question);
-      if(prevParent !== this.singleInputParentQuestion) {
-        this.resetSingleInputTitle();
-      } else {
-        this.resetPropertyValue("showSingleInputTitle");
-      }
+      this.onSingleInputChanged(prevParent);
     }
   }
   private nextPrevSingleInput(skip: number): boolean {

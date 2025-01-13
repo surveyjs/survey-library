@@ -13,6 +13,7 @@ import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyCustomWidget } from "./custom-widget";
 import { SurveyElementHeader } from "./element-header";
+import { SurveyQuestionSigleInputSummary } from "./reactquestion_singleinputsummary";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): React.JSX.Element | null;
@@ -142,9 +143,10 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       ? this.renderErrors(cssClasses, "")
       : null;
 
-    let rootStyle = question.getRootStyle();
-    let singleInput = question.singleInputQuestion ? this.createSingleInputQuestion(question, cssClasses) : undefined;
-    let questionContent = singleInput || this.wrapQuestionContent(this.renderQuestionContent());
+    const rootStyle = question.getRootStyle();
+    const singleSummary = question.singleInputSummary ? this.renderSingleInputSummary(question, cssClasses) : undefined;
+    const singleInput = singleSummary || (question.singleInputQuestion ? this.createSingleInputQuestion(question, cssClasses) : undefined);
+    const questionContent = singleInput || this.wrapQuestionContent(this.renderQuestionContent());
 
     return (
       <>
@@ -180,6 +182,9 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       {title}
       {rEl}
     </>;
+  }
+  protected renderSingleInputSummary(question: Question, cssClasses: any): React.JSX.Element {
+    return <SurveyQuestionSigleInputSummary summary={question.singleInputSummary} creator={this.creator} css={cssClasses} />;
   }
   protected wrapElement(element: React.JSX.Element): React.JSX.Element {
     const survey: SurveyModel = this.question.survey as SurveyModel;

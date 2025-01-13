@@ -1,5 +1,6 @@
 import { Selector } from "testcafe";
-import { frameworks, initSurvey, url, url_test, takeElementScreenshot, applyTheme, explicitErrorHandler, wrapVisualTest } from "../../helper";
+import { frameworks, initSurvey, url, takeElementScreenshot, wrapVisualTest, resetHoverToBody } from "../../helper";
+import { getListItemByText } from "../../../functionalTests/helper";
 
 const title = "Popup Screenshot";
 fixture`${title}`.page`${url}`;
@@ -15,8 +16,6 @@ const json = {
     }
   ]
 };
-
-const theme = "defaultV2";
 
 const clickButton = Selector(".sv-action").filterVisible();
 const popupSelector = Selector(".sv-popup .sv-popup__container").filterVisible();
@@ -160,11 +159,11 @@ function addActionsWithOverlayPopupShortList(_, opt) {
     { title: "Overlay", showTitle: true },
     { items: items, isModal: true, displayMode: "overlay" }
   );
-
   const overlayWithTypePopupAction = window["Survey"].createDropdownActionModel(
     { title: "Overlay with title", showTitle: true },
     { items: items, displayMode: "overlay", title: "Title" }
   );
+  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "plain";
   opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
 }
 
@@ -186,17 +185,74 @@ function addActionsWithOverlayPopupLongList(_, opt) {
     { title: "Overlay with title", showTitle: true, },
     { items: items, displayMode: "overlay", title: "Title" }
   );
-
+  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "plain";
   opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
 }
 
+function addDropdownActionWithSubItems(_, opt) {
+  let subitems: Array<any> = [];
+  for (let index = 0; index < 7; index++) {
+    subitems[index] = { id: index, title: "inner item" + index };
+  }
+
+  let items: Array<any> = [];
+  for (let index = 0; index < 10; index++) {
+    items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
+  }
+  items[5].setSubItems({ items: [...subitems] });
+  items[5].title += " has items";
+  items[6].setSubItems({ items: [...subitems] });
+  items[6].title += " has items";
+
+  const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+    { title: "Subitems", showTitle: true },
+    {
+      items: items,
+      showPointer: true,
+      verticalPosition: "bottom",
+      horizontalPosition: "center",
+      onSelectionChanged: (item, ...params) => {
+        let value = item.id;
+      }
+    }
+  );
+  opt.titleActions = [dropdownWithSearchAction];
+}
+
+function addDropdownActionWithSubItemsAndSelectedItems(_, opt) {
+  let subitems: Array<any> = [];
+  for (let index = 0; index < 7; index++) {
+    subitems[index] = { id: index, title: "inner item" + index };
+  }
+
+  let items: Array<any> = [];
+  for (let index = 0; index < 10; index++) {
+    items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
+  }
+  items[5].setSubItems({ items: [...subitems], selectedItem: subitems[3] });
+  items[5].title += " has items";
+  items[6].setSubItems({ items: [...subitems] });
+  items[6].title += " has items";
+
+  const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+    { title: "Subitems", showTitle: true },
+    {
+      items: items,
+      showPointer: true,
+      verticalPosition: "bottom",
+      horizontalPosition: "center",
+      selectedItem: items[5],
+      onSelectionChanged: (item, ...params) => {
+        let value = item.id;
+      }
+    }
+  );
+  opt.titleActions = [dropdownWithSearchAction];
+}
+
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`
-    .beforeEach(async t => {
-      await explicitErrorHandler();
-      await applyTheme(theme);
-    });
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`;
 
   test("Dropdown popup styles", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
@@ -241,21 +297,23 @@ frameworks.forEach(framework => {
 
   test("Dropdown popup with scroll to selected items", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await initSurvey(framework, json, { onGetQuestionTitleActions: (_, opt) => {
-        const getItems = (count: number, startIndex = 0) => {
-          const list: Array<any> = [];
-          for (let index = startIndex; index < count; index++) {
-            list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
-          }
-          return list;
-        };
-        const items = getItems(40);
-        const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
-          { title: "Long List", showTitle: true },
-          { items: items, showPointer: true, selectedItem: items[39] }
-        );
-        opt.titleActions = [dropdownWithSearchAction];
-      } });
+      await initSurvey(framework, json, {
+        onGetQuestionTitleActions: (_, opt) => {
+          const getItems = (count: number, startIndex = 0) => {
+            const list: Array<any> = [];
+            for (let index = startIndex; index < count; index++) {
+              list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
+            }
+            return list;
+          };
+          const items = getItems(40);
+          const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+            { title: "Long List", showTitle: true },
+            { items: items, showPointer: true, selectedItem: items[39] }
+          );
+          opt.titleActions = [dropdownWithSearchAction];
+        }
+      });
       await t
         .wait(1000)
         .resizeWindow(1000, 600)
@@ -310,11 +368,13 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupShortList });
       await t.click(clickButton.withText("Overlay"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("popup-overlay-short-list.png", null, t, comparer);
 
       await t
         .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
         .click(clickButton.withText("Overlay with title"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("popup-overlay-short-list-with-title.png", null, t, comparer);
     });
   });
@@ -324,12 +384,163 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupLongList });
       await t.click(clickButton.withText("Overlay"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("popup-overlay-long-list.png", null, t, comparer);
 
       await t
         .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
         .click(clickButton.withText("Overlay with title"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("popup-overlay-long-list-with-title.png", null, t, comparer);
+    });
+  });
+
+  test("Popup inner modal window", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 600);
+      await initSurvey(framework, json, {
+        onGetQuestionTitleActions: (_, opt) => {
+          const json = {
+            elements: [
+              {
+                type: "dropdown",
+                name: "modal_question",
+                choices: [
+                  "item1",
+                  "item2",
+                  "item3",
+                  "item4",
+                  "item5",
+                  "item6",
+                  "item7",
+                  "item8",
+                  "item9",
+                  "item10",
+                  "item11",
+                  "item12",
+                  "item13",
+                  "item14",
+                  "item15",
+                  "item16",
+                  "item17",
+                  "item18",
+                  "item19",
+                  "item20",
+                  "item21",
+                  "item22",
+                  "item23",
+                  "item24",
+                  "item25",
+                  "item26",
+                  "item27"
+                ]
+              }
+            ]
+          };
+          const item = new window["Survey"].Action({
+            component: "sv-action-bar-item",
+            title: "Click",
+            showTitle: true,
+            action: () => {
+              const model = new window["Survey"].Model(json);
+              model.focusFirstQuestionAutomatic = false;
+              window["Survey"].settings.showDialog({
+                componentName: "survey",
+                data: {
+                  model: model,
+                  survey: model
+                }
+              });
+            }
+          });
+          opt.titleActions = [item];
+        }
+      });
+      await t
+        .click(clickButton.withText("Click"))
+        .click(Selector(".sd-dropdown"));
+
+      await resetHoverToBody(t);
+      await takeElementScreenshot("popup-into-modal-popup.png", Selector(".sv-popup.sv-single-select-list .sv-popup__container"), t, comparer);
+    });
+  });
+  test("Popup search width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 600);
+      await initSurvey(framework, {
+
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "paneldynamic",
+                "name": "question1",
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  }
+                ],
+                "panelCount": 20,
+                "renderMode": "tab"
+              }
+            ]
+          }
+        ]
+      });
+      await t
+        .click(".sv-dots__item");
+
+      await takeElementScreenshot("popup-search-width.png", Selector(".sv-popup .sv-popup__container"), t, comparer);
+    });
+  });
+  test("Popup with subitems", async t => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1300, 650);
+
+      await initSurvey(framework, json, {
+        onGetQuestionTitleActions: addDropdownActionWithSubItems
+      });
+
+      const titlePopup = Selector(".sv-popup.sv-popup--show-pointer");
+      const item5 = getListItemByText("item5 has items").find(".sv-list__item-body");
+
+      await t
+        .click(Selector(".sv-action")) // show action popup
+        .hover(item5) // show item5Subitems
+        .wait(300);
+      await takeElementScreenshot("popup-with-subitems-right.png", titlePopup, t, comparer);
+
+      await t
+        .hover(getListItemByText("inner item0").nth(1)) // show item6Subitems
+        .wait(300);
+      await takeElementScreenshot("popup-with-subitems-right-hover-sub-item.png", titlePopup, t, comparer);
+
+      await t
+        .resizeWindow(1000, 650)
+        .wait(300)
+        .hover(item5) // show item5Subitems;
+        .wait(300);
+      await takeElementScreenshot("popup-with-subitems-left.png", titlePopup, t, comparer);
+    });
+  });
+  test("Popup with subitems and selected elements", async t => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1300, 650);
+
+      await initSurvey(framework, json, {
+        onGetQuestionTitleActions: addDropdownActionWithSubItemsAndSelectedItems
+      });
+
+      const titlePopup = Selector(".sv-popup.sv-popup--show-pointer");
+      const item5 = getListItemByText("item5 has items").find(".sv-list__item-body");
+
+      await t
+        .click(Selector(".sv-action")) // show action popup
+        .hover(item5) // show item5Subitems
+        .wait(300);
+      await takeElementScreenshot("popup-with-subitems-with-selected-elements.png", titlePopup, t, comparer);
     });
   });
 });

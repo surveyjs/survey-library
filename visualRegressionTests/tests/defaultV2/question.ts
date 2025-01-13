@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, resetFocusToBody, wrapVisualTest, takeElementScreenshot, setRowItemFlowDirection } from "../../helper";
 
 const title = "Question Screenshot";
 
@@ -7,28 +7,22 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
-    await applyTheme(theme);
-  });
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`;
 
   test("Check question without title", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "text",
             titleLocation: "hidden",
             name: "question",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
           },
         ]
@@ -39,14 +33,39 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check question with empty title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        width: "900px",
+        questions: [
+          {
+            type: "text",
+            title: " ",
+            name: "question",
+            minWidth: "708px",
+            maxWidth: "708px",
+            width: "708px",
+          },
+        ]
+      });
+      const questionRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("question-empty-title.png", questionRoot, t, comparer);
+    });
+  });
   test("Check question num", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        width: "900px",
         questions: [
           {
             type: "text",
             name: "question_with_num",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             title: "What can we improve or add to our Xamarin.Forms UI product line to better address your business needs in the future (control features, learning materials, etc.)?"
           },
@@ -57,14 +76,40 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check question color", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        width: "900px",
+        questions: [
+          {
+            type: "text",
+            inputType: "color",
+            name: "question_color",
+            minWidth: "708px",
+            maxWidth: "708px",
+            width: "708px",
+            title: "Color question"
+          },
+        ]
+      });
+      const questionRoot = Selector(".sd-question");
+      await takeElementScreenshot("question-color.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Check question num + expand/collapse", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "text",
             name: "question_with_num",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             state: "collapsed",
             title: "What can we improve or add to our Xamarin.Forms UI product line to better address your business needs in the future (control features, learning materials, etc.)?"
@@ -88,11 +133,14 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "text",
             name: "q1",
             title: "Rate the importance of this scenario for your enterprise (assuming you've encountered it in the past).",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             choices: ["High", "Medium", "Low"],
             visible: false,
@@ -100,7 +148,7 @@ frameworks.forEach(framework => {
         ]
       });
       const questionRoot = Selector(".sd-question");
-      await ClientFunction(()=>{ (<any>window).survey.showInvisibleElements = true; })();
+      await ClientFunction(() => { (<any>window).survey.showInvisibleElements = true; })();
       await resetFocusToBody();
       await takeElementScreenshot("question-invisible.png", questionRoot, t, comparer);
     });
@@ -110,24 +158,29 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         showQuestionNumbers: "off",
         questions: [
           {
             type: "text",
             name: "question_with_num",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             state: "collapsed",
             title: "Personal information"
           },
         ]
-      }, { onGetQuestionTitleActions: (_, opt) => {
-        opt.titleActions.push(
-          {
-            title: "Reset to Default",
-            action: () => {}
-          }
-        );
-      } });
+      }, {
+        onGetQuestionTitleActions: (_, opt) => {
+          opt.titleActions.push(
+            {
+              title: "Reset to Default",
+              action: () => { }
+            }
+          );
+        }
+      });
       const questionRoot = Selector(".sd-question");
       await takeElementScreenshot("question-title-actions.png", questionRoot, t, comparer);
     });
@@ -138,12 +191,15 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         showQuestionNumbers: "off",
         questions: [
           {
             type: "text",
             name: "required_question",
             isRequired: true,
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             title: "What can we improve or add to our Xamarin.Forms UI product line to better address your business needs in the future (control features, learning materials, etc.)?"
           },
@@ -181,10 +237,106 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check questions in one row", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "text",
+            name: "question_with_num",
+            title: "Personal information"
+          },
+          {
+            type: "text",
+            name: "question_with_num",
+            startWithNewLine: false,
+            title: "Contact information"
+          },
+        ]
+      },);
+      const rowSelector = Selector(".sd-row");
+      await resetFocusToBody();
+      await takeElementScreenshot("multiple-row.png", rowSelector, t, comparer);
+
+      await ClientFunction(() => {
+        window["survey"].questionTitleLocation = "bottom";
+        window["survey"].render();
+      })();
+      await takeElementScreenshot("multiple-row-title-bottom.png", rowSelector, t, comparer);
+
+      await ClientFunction(() => {
+        window["survey"].questionTitleLocation = "left";
+        window["survey"].render();
+      })();
+      await takeElementScreenshot("multiple-row-title-left.png", rowSelector, t, comparer);
+    });
+  });
+
+  test("Check questions in one row with different default heights", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question3"
+              },
+              {
+                "type": "checkbox",
+                "name": "question4",
+                "startWithNewLine": false,
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ]
+              },
+              {
+                "type": "panel",
+                "name": "panel1",
+                "elements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  }
+                ],
+                "title": "Panel"
+              },
+              {
+                "type": "checkbox",
+                "name": "question1",
+                "startWithNewLine": false,
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3",
+                  "Item 4",
+                  "Item 5",
+                  "Item 6"
+                ]
+              }
+            ]
+          }
+        ],
+        "widthMode": "static",
+        "width": "1000px"
+      },);
+      const rowSelector = Selector(".sd-page");
+      await resetFocusToBody();
+      await takeElementScreenshot("multiple-row-heights.png", rowSelector, t, comparer);
+    });
+  });
+
   test("Check questions in one row (overflow content)", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
-      await t.resizeWindow(1000, 1080);
+      await t.resizeWindow(900, 1080);
       await initSurvey(framework, {
         questions: [
           {
@@ -212,7 +364,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check question error", async(t)=> {
+  test("Check question error", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
       await t.resizeWindow(1920, 1080);
@@ -243,7 +395,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check question error with title location left", async(t)=> {
+  test("Check question error with title location left", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
       await t.resizeWindow(1920, 1080);
@@ -265,7 +417,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check question errors bottom", async(t) => {
+  test("Check question errors bottom", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
       await t.resizeWindow(1920, 1080);
@@ -289,11 +441,58 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check title location Left", async(t)=> {
+  test("Check question errors bottom one-row", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(800, 800);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              },
+              {
+                "type": "text",
+                "name": "question2",
+                "startWithNewLine": false,
+                "isRequired": true
+              },
+              {
+                "type": "checkbox",
+                "name": "question3",
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ]
+              },
+              {
+                "type": "text",
+                "name": "question4",
+                "startWithNewLine": false,
+                "isRequired": true
+              }
+            ]
+          }
+        ],
+        "questionErrorLocation": "bottom"
+      });
+      const pRoot = Selector(".sd-body");
+      await t.click(".sd-navigation__complete-btn");
+      await resetFocusToBody();
+      await takeElementScreenshot("question-with-error-below-one-line.png", pRoot, t, comparer);
+    });
+  });
+
+  test("Check title location Left", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             type: "text",
@@ -305,6 +504,29 @@ frameworks.forEach(framework => {
       },);
       const qRoot = Selector(".sd-question");
       await takeElementScreenshot("question-title-location-left.png", qRoot, t, comparer);
+    });
+  });
+
+  test("Check title location Left - small question - !!!Need to be improved!!!", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: false,
+        "showQuestionNumbers": "off",
+        questions: [
+          {
+            type: "text",
+            name: "q1",
+            title: "State",
+            titleLocation: "left",
+            maxWidth: "120px",
+            minWidth: "120px"
+          }
+        ]
+      },);
+      const qRoot = Selector(".sd-question");
+      await takeElementScreenshot("question-title-location-left-small.png", qRoot, t, comparer);
     });
   });
 
@@ -326,7 +548,7 @@ frameworks.forEach(framework => {
               }
             ],
             onCreated(question) {
-            // Hide the title for component/root location
+              // Hide the title for component/root location
               question.titleLocation = "hidden";
             }
           });
@@ -356,11 +578,12 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       const json = {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             name: "name",
             type: "text",
-            title: "Text long  long long long long long long long long long long long long long long",
+            title: "Text long long long long long long long long long long long long long long long",
             placeHolder: "Jon Snow",
             isRequired: true
           }
@@ -389,6 +612,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       const json = {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             name: "Range",
@@ -408,6 +632,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             name: "name",
@@ -452,10 +677,120 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Update comment height", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1500, 900);
+      await initSurvey(framework, {
+        logoPosition: "right",
+        pages: [
+          {
+            name: "puslapis1",
+            validationType: "none",
+            elements: [
+              {
+                type: "comment",
+                name: "klausimas1",
+                state: "collapsed",
+                defaultValueExpression:
+                  "'To enhance experience of designers working with large forms in SurveyJS Creator, with v2.0, we plan to introduce the expand/collapse feature for form pages, panels and elements.To enhance experience of designers working with large forms in SurveyJS Creator, with v2.0, we plan to introduce the expand/collapse feature for form pages, panels and elements.'",
+                readOnly: true,
+                autoGrow: true,
+              },
+            ],
+          },
+        ],
+        widthMode: "static",
+        width: "500px",
+        autosaveMode: "ON_BLUR",
+      });
+
+      await ClientFunction(() => {
+        (window as any).survey.allowResizeComment = false;
+        (window as any).survey.autoGrowComment = true;
+      })();
+      const questionRoot = Selector(".sd-question");
+      await t.click(questionRoot);
+      await t.wait(500);
+      await takeElementScreenshot("question-comment-ajust-height.png", questionRoot, t, comparer);
+    });
+  });
+
+  test("Remaining character counter - mobile view", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(350, 900);
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        questions: [
+          {
+            name: "name",
+            type: "text",
+            maxLength: 25,
+            defaultValue: "Tewwwwwwwwwwwwwwwwwwwwst"
+          }, {
+            name: "text",
+            type: "text",
+            maxLength: 100,
+            defaultValue: "Tewwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwst"
+          }, {
+            "type": "multipletext",
+            "name": "question1",
+            "defaultValue": {
+              "text1": "Tewwwwwwwwwwwwwwwwwwwwst1",
+              "text2": "Tewwwwwwwwwwwwwwwwwwwwst2"
+            },
+            "items": [
+              {
+                "name": "text1",
+                "maxLength": 25
+              },
+              {
+                "name": "text2",
+                "maxLength": 25
+              }
+            ]
+          }]
+      });
+
+      await takeElementScreenshot("question-text-remaining-character-counter-mobile-view-with-focus.png", Selector(".sd-text__content"), t, comparer);
+      await takeElementScreenshot("question-multipletext-remaining-character-counter-mobile-view-without-focus.png", Selector(".sd-multipletext__content"), t, comparer);
+      await takeElementScreenshot("question-text-remaining-character-counter-maxLength-100-without-focus.png", Selector(".sd-text__content").nth(1), t, comparer);
+
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-text-remaining-character-counter-maxLength-100-with-focus.png", Selector(".sd-text__content").nth(1), t, comparer);
+
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-text-remaining-character-counter-mobile-view-without-focus.png", Selector(".sd-text__content"), t, comparer);
+      await takeElementScreenshot("question-multipletext-remaining-character-counter-mobile-view-with-focus.png", Selector(".sd-multipletext__content"), t, comparer);
+    });
+  });
+
+  test("Remaining character counter inputType is email - mobile view", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        questions: [
+          {
+            name: "name",
+            type: "text",
+            inputType: "email",
+            maxLength: 25,
+            defaultValue: "Tewwwwwwwwwwwwwwwwwwwwst"
+          }]
+      });
+      await takeElementScreenshot("question-text-email-character-counter-with-focus.png", Selector(".sd-question"), t, comparer);
+
+      await t.resizeWindow(350, 900);
+      await takeElementScreenshot("question-text-email-character-counter-mobile-view-with-focus.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+
   test("Remaining character counter matrixdynamic", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             "type": "matrixdynamic",
@@ -566,7 +901,9 @@ frameworks.forEach(framework => {
 
   test("Check question with indent", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             name: "name",
@@ -580,7 +917,9 @@ frameworks.forEach(framework => {
   });
   test("Check question with big number", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questionStartIndex: "1.1.1",
         questions: [
           {
@@ -617,4 +956,203 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-baseunit.png", questionRoot, t, comparer);
     });
   });
+
+  test("Check question - multiline description", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => {
+        document.body.focus();
+        document.body.style.setProperty("--base-unit", "4px");
+      });
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            name: "q1",
+            type: "text",
+            title: "Question",
+            description: "First Line\nSecond Line"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-multiline-description.png", questionRoot, t, comparer);
+    });
+  });
+
+  test("Question descriptionLocation property", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "focusFirstQuestionAutomatic": false,
+        showQuestionNumbers: "off",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                name: "q1",
+                type: "text",
+                title: "description underTitle",
+                description: "question-description",
+              },
+              {
+                name: "q2",
+                type: "text",
+                title: "description underTitle",
+                description: "question-description",
+                descriptionLocation: "underTitle",
+              },
+              {
+                name: "q3",
+                type: "text",
+                title: "description empty",
+                descriptionLocation: "underTitle",
+              },
+              {
+                name: "q4",
+                type: "text",
+                title: "description underInput",
+                description: "question-description",
+                descriptionLocation: "underInput",
+              },
+              {
+                name: "q5",
+                type: "text",
+                title: "description empty",
+                descriptionLocation: "underInput",
+              }
+            ]
+          }
+        ]
+      });
+      const questionRows = Selector(".sd-row");
+      await takeElementScreenshot("question-descriptionLocation-underTitle.png", questionRows.nth(0), t, comparer);
+      await takeElementScreenshot("question-descriptionLocation-underTitle.png", questionRows.nth(1), t, comparer);
+      await takeElementScreenshot("question-description-empty.png", questionRows.nth(2), t, comparer);
+      await takeElementScreenshot("question-description-empty.png", questionRows.nth(4), t, comparer);
+      await takeElementScreenshot("question-descriptionLocation-underInput.png", questionRows.nth(3), t, comparer);
+    });
+  });
+
+  test("Question empty title height", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              },
+              {
+                "type": "text",
+                "name": "question2",
+                "startWithNewLine": false,
+                "title": " "
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "800"
+      });
+      await ClientFunction(() => {
+        document.documentElement.style.setProperty("--sjs-font-size", "8px");
+      })();
+      const questionRows = Selector(".sd-row");
+      await takeElementScreenshot("question-empty-title-height.png", questionRows.nth(0), t, comparer);
+    });
+  });
+
+  test("Question content scroll", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await setRowItemFlowDirection();
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "radiogroup",
+                "name": "question2",
+                "choices": [
+                  {
+                    "value": "Item 1",
+                    "text": "11111111111111111111111"
+                  },
+                  {
+                    "value": "Item 2",
+                    "text": "2222222222222222222222222222"
+                  },
+                  {
+                    "value": "Item 3",
+                    "text": "333333333333333"
+                  },
+                  {
+                    "value": "Item 4",
+                    "text": "44444444444444444444444444444"
+                  },
+                  {
+                    "value": "Item 5",
+                    "text": "555555555555555555555555"
+                  },
+                  {
+                    "value": "Item 6",
+                    "text": "6666666666666"
+                  },
+                  {
+                    "value": "Item 7",
+                    "text": "7777777777777777777777777"
+                  },
+                  {
+                    "value": "Item 8",
+                    "text": "88888888888888888888888888888888888888"
+                  }
+                ],
+                "colCount": 3
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "650"
+      });
+      const question = Selector(".sd-question");
+      await takeElementScreenshot("question-multicolumn-overflow.png", question, t, comparer);
+    });
+  });
+  test("Question title linebreak", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question2",
+                "title": "Line\nbreak",
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "650"
+      });
+      const question = Selector(".sd-question");
+      await takeElementScreenshot("question-title-linebreak.png", question, t, comparer);
+    });
+  });
+
 });

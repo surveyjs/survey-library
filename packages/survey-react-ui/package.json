@@ -1,0 +1,84 @@
+{
+    "name": "survey-react-ui",
+    "version": "2.0.0",
+    "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
+    "keywords": [
+        "Survey",
+        "JavaScript",
+        "Bootstrap",
+        "Library",
+        "knockout"
+    ],
+    "homepage": "https://surveyjs.io/",
+    "license": "MIT",
+    "files": [
+        "**/*"
+    ],
+    "main": "survey-react-ui.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/surveyjs/surveyjs.git"
+    },
+    "scripts": {
+        "build": "webpack --env buildType=dev && webpack --env buildType=prod",
+        "watch:dev": "webpack --env buildType=dev --watch",
+        "start": "webpack-dev-server --env buildType=dev --open",
+        "test": "karma start ./karma.conf.js --single-run",
+        "test:watch": "karma start ./karma.conf.js",
+        "testcafe": "testcafe ../../functionalTests/ --selector-timeout 1500 --app \"http-server --silent\" --env=react --config-file ../../.testcaferc.dev.js",
+        "testcafe:ci": "testcafe ../../functionalTests/ --selector-timeout 1500 --app \"http-server --silent\" --reporter minimal --env=react --config-file ../../.testcaferc.js",
+        "vrt": "testcafe ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --env=react --config-file ../../.testcaferc.dev.js",
+        "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=react --config-file ../../.testcaferc.js",
+        "accessibility-tests": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --env=react --config-file ../../.testcaferc.dev.js",
+        "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react --config-file ../../.testcaferc.js",
+        "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
+    },
+    "typings": "./typings/src/entries/react-ui.d.ts",
+    "devDependencies": {
+        "@types/qunit": "2.0.31",
+        "@types/lodash": "4.14.186",
+        "@types/node": "7.0.4",
+        "@types/react": "^17.0.83",
+        "@types/react-dom": "^17.0.1",
+        "@types/react-test-renderer": "^17.0.1",
+        "ajv": "8.17.1",
+        "chalk": "^3.0.0",
+        "colors": "1.4.0",
+        "concurrently": "^5.3.0",
+        "css-loader": "^7.1.2",
+        "dotenv": "4.0.0",
+        "eslint": "^7.32.0",
+        "html-webpack-plugin": "^5.6.0",
+        "http-server": "^14.1.1",
+        "mini-css-extract-plugin": "^2.9.0",
+        "react": "^17.0.1",
+        "react-dom": "^17.0.1",
+        "react-test-renderer": "^17.0.1",
+        "rimraf": "2.5.4",
+        "sass": "^1.62.1",
+        "sass-loader": "^8.0.2",
+        "shelljs": "^0.8.3",
+        "commit-and-tag-version": "^11.0.0",
+        "style-loader": "^1.2.1",
+        "survey-core": "../survey-core/build",
+        "ts-loader": "^8.0.15",
+        "tsconfig-paths-webpack-plugin": "^3.3.0",
+        "typescript": "^4.8.0",
+        "url-loader": "^4.1.1",
+        "webpack": "^5.93.0",
+        "webpack-cli": "^5.1.4",
+        "webpack-dev-server": "^5.0.4",
+        "karma": "^6.1.1",
+        "karma-chrome-launcher": "^3.1.0",
+        "karma-junit-reporter": "2.0.1",
+        "karma-qunit": "4.1.2",
+        "karma-sourcemap-loader": "0.3.8",
+        "karma-webpack": "5.0.0",
+        "html-loader": "0.4.4"
+    },
+    "commit-and-tag-version": {
+        "bumpFiles": [
+            "package.json"
+        ]
+    }
+}

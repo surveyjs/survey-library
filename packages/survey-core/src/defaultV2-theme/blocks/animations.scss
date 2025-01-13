@@ -1,0 +1,73 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+@keyframes changeHeight {
+  from {
+    height: var(--animation-height-from);
+  }
+  to {
+    height: var(--animation-height-to);
+  }
+}
+@keyframes moveInWithOverflow {
+  from {
+    overflow: hidden;
+    height: var(--animation-height-from);
+    min-height: var(--animation-height-from);
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+  }
+  99% {
+    overflow: hidden;
+    margin-top: var(--animation-margin-top);
+    margin-bottom: var(--animation-margin-bottom);
+    padding-top: var(--animation-padding-top);
+    padding-bottom: var(--animation-padding-bottom);
+    border-top-width: var(--animation-border-top-width);
+    border-bottom-width: var(--animation-border-bottom-width);
+    height: var(--animation-height-to);
+    min-height: var(--animation-height-to);
+  }
+  to {
+    overflow: visible;
+    margin-top: var(--animation-margin-top);
+    margin-bottom: var(--animation-margin-bottom);
+    padding-top: var(--animation-padding-top);
+    padding-bottom: var(--animation-padding-bottom);
+    border-top-width: var(--animation-border-top-width);
+    border-bottom-width: var(--animation-border-bottom-width);
+    height: var(--animation-height-to);
+    min-height: var(--animation-height-to);
+  }
+}
+@keyframes moveIn {
+  from {
+    height: 0;
+  }
+
+  to {
+    height: var(--animation-height);
+  }
+}
+
+@keyframes paddingFadeIn {
+  from {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  to {
+    padding-bottom: var(--animation-padding-bottom);
+    padding-top: var(--animation-padding-top);
+  }
+}

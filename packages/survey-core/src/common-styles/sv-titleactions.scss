@@ -1,0 +1,31 @@
+.sv-title-actions {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.sv-title-actions__title {
+  flex-wrap: wrap;
+  max-width: 90%;
+  min-width: 50%;
+  white-space: initial;
+}
+
+.sv-action-title-bar {
+  min-width: 56px;
+}
+
+.sv-title-actions {
+  .sv-title-actions__title {
+    flex-wrap: wrap;
+    flex: 0 1 auto;
+    max-width: unset;
+    min-width: unset;
+  }
+
+  .sv-action-title-bar {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    min-width: unset;
+  }
+}

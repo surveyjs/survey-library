@@ -215,7 +215,7 @@ Navigates the respondent to the next page. Returns `false` if the navigation did
 - [`prevPage()`](https://surveyjs.io/Documentation/Library?id=surveymodel#prevPage)      
 Navigates the respondent to the previous page. Returns `false` if the navigation did not happen, for instance, because the current page is the first page. Unlike with `nextPage()`, validation errors are ignored.
 
-- [`completeLastPage()`](https://surveyjs.io/Documentation/Library?id=surveymodel#completeLastPage)      
+- [`tryComplete()`](https://surveyjs.io/Documentation/Library?id=surveymodel#tryComplete)      
 Completes the survey. Fails and returns `false` if the current page has validation errors.
 
 - [`doComplete()`](https://surveyjs.io/Documentation/Library?id=surveymodel#doComplete)       
@@ -238,7 +238,7 @@ if (!navigatedBack) {
     alert("Navigation failed!")
 }
 
-const completedSuccessfully = survey.completeLastPage();
+const completedSuccessfully = survey.tryComplete();
 if (!completedSuccessfully) {
     alert("Check the answers for validation errors")
 }
@@ -664,8 +664,7 @@ Refer to the following platform-specific articles for information on how to rend
 - [Render the Survey - Angular](https://surveyjs.io/form-library/documentation/get-started-angular#render-the-survey)
 - [Render the Survey - Vue](https://surveyjs.io/form-library/documentation/get-started-vue#render-the-survey)
 - [Render the Survey - React](https://surveyjs.io/form-library/documentation/get-started-react#render-the-survey)
-- [Render the Survey - Knockout](https://surveyjs.io/form-library/documentation/get-started-knockout#render-the-survey)
-- [Render the Survey - jQuery](https://surveyjs.io/form-library/documentation/get-started-jquery#render-the-survey)
+- [Render the Survey - HTML/CSS/JavaScript](/form-library/documentation/get-started-html-css-javascript#render-the-survey)
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/multi-page-survey (linkStyle))
 

@@ -1,0 +1,345 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+  batch: true
+  branches:
+    exclude:
+      - master
+  tags:
+    exclude:
+      - v*.*.*
+
+pool:
+  vmImage: "windows-latest"
+
+jobs:
+  - job: Core
+    steps:
+      - checkout: self
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npm run lint
+        displayName: "run lint command"
+
+      - script: |
+          cd packages/survey-core
+          npm install
+        displayName: "NPM install packages/survey-core"
+
+      - script: |
+          cd packages/survey-core
+          npm run build:all
+        displayName: "Build core"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+          targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core"
+          ArtifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
+          publishLocation: "Container"
+
+  - job: React
+    dependsOn: Core
+    steps:
+      - checkout: self
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-AT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+
+      - script: |
+          cd packages/survey-react-ui
+          npm install
+        displayName: "NPM install packages/survey-react-ui"
+
+      - script: |
+          cd packages/survey-react-ui
+          npm run build
+        displayName: "Build React"
+
+      - script: |
+          cd packages/survey-react-ui
+          npm run accessibility-tests:ci
+        displayName: "run accessibility tests"
+
+  - job: Angular
+    dependsOn: Core
+    steps:
+      - checkout: self
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-AT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+
+      - script: |
+          cd packages/survey-angular-ui
+          npm install
+        displayName: "NPM install packages/survey-angular-ui"
+
+      - script: |
+          cd packages/survey-angular-ui
+          npm run build
+        displayName: "Build Angular"
+
+      - script: |
+          cd packages/survey-angular-ui/example
+          npm install
+        displayName: "NPM install examples/angular-ui"
+
+      - script: |
+          cd packages/survey-angular-ui
+          npm run build:example:prod
+        displayName: "Build Angular Example"
+
+      - script: |
+          cd packages/survey-angular-ui
+          npm run accessibility-tests:ci
+        displayName: "run accessibility tests"
+
+  - job: Vue3
+    dependsOn: Core
+    steps:
+      - checkout: self
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-AT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+
+      - script: |
+          cd packages/survey-vue3-ui
+          npm install
+        displayName: "NPM install packages/survey-vue3-ui"
+
+      - script: |
+          cd packages/survey-vue3-ui
+          npm run build
+        displayName: "Build Vue3"
+
+      - script: |
+          cd packages/survey-vue3-ui/example
+          npm install
+        displayName: "NPM install examples/angular-ui"
+
+      - script: |
+          cd packages/survey-vue3-ui/example
+          npm run build
+        displayName: "Build Vue3 Example"
+
+      - script: |
+          cd packages/survey-vue3-ui
+          npm run accessibility-tests:ci
+        displayName: "run accessibility tests"
+
+  - job: SurveyUI_and_CSSFrameworks
+    dependsOn: Core
+    steps:
+      - checkout: self
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPM
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+          workingDir: $(Build.SourcesDirectory)
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-AT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+
+      - script: |
+          cd packages/survey-js-ui
+          npm install
+        displayName: "NPM install packages/survey-js-ui"
+
+      - script: |
+          cd packages/survey-js-ui
+          npm run build
+        displayName: "Build UI"
+
+      - script: |
+          cd packages/survey-js-ui
+          npm run accessibility-tests:ci
+        displayName: "run accessibility tests"

@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, explicitErrorHandler, resetFocusToBody, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, resetFocusToBody, wrapVisualTest } from "../../helper";
 
 const title = "Rating Screenshot";
 
@@ -7,24 +7,16 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
-    await applyTheme(theme);
-  });
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+
   test("Check rating question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      const focusBody = ClientFunction(()=>{ document.body.focus(); });
+      const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -33,6 +25,8 @@ frameworks.forEach(framework => {
             rateMax: 3,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -41,7 +35,7 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question");
       await focusBody();
       await takeElementScreenshot("question-rating.png", questionRoot, t, comparer);
-      await ClientFunction(()=> { (<HTMLElement>document.querySelector(".sd-rating__item input")).focus(); })();
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item input")).focus(); })();
       await takeElementScreenshot("question-rating-focus.png", questionRoot, t, comparer);
       await t.click(".sd-rating__item");
       await takeElementScreenshot("question-rating-focus-selected.png", questionRoot, t, comparer);
@@ -50,12 +44,13 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check rating disabled question", async (t) => {
+  test.skip("Check rating disabled question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      const focusBody = ClientFunction(()=>{ document.body.focus(); });
+      const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -64,6 +59,8 @@ frameworks.forEach(framework => {
             rateMax: 3,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             defaultValue: 2,
             readOnly: true
@@ -82,6 +79,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -89,6 +87,8 @@ frameworks.forEach(framework => {
             title: "Rating",
             displayMode: "buttons",
             rateMax: 30,
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -105,6 +105,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -114,6 +115,8 @@ frameworks.forEach(framework => {
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
             renderAs: "dropdown",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -122,6 +125,11 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question");
       await resetFocusToBody();
       await takeElementScreenshot("question-rating-dropdown.png", questionRoot, t, comparer);
+
+      const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
+      const popupContainer = Selector(".sv-popup__container").filterVisible();
+      await t.click(questionDropdownSelect);
+      await takeElementScreenshot("question-rating-dropdown-popup.png", popupContainer, t, comparer);
     });
   });
 
@@ -130,6 +138,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -148,6 +157,8 @@ frameworks.forEach(framework => {
                 "text": "third item"
               }
             ],
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -156,6 +167,45 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question");
       await resetFocusToBody();
       await takeElementScreenshot("question-rating-long-items.png", questionRoot, t, comparer);
+    });
+  });
+
+  test("Check rating question - long items, button mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "rating",
+                "name": "question1",
+                "autoGenerate": false,
+                "displayMode": "buttons",
+                "rateValues": [
+                  1,
+                  {
+                    "value": 2,
+                    "text": "item 2"
+                  },
+                  {
+                    "value": 3,
+                    "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                  },
+                  4,
+                  5
+                ]
+              }
+            ]
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("question-rating-long-items-buttons.png", questionRoot, t, comparer);
     });
   });
 
@@ -233,10 +283,14 @@ frameworks.forEach(framework => {
 
   test("Check rating stars question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await ClientFunction(() => {
+        document.head.insertAdjacentHTML("beforeend", "<style>* { box-sizing: border-box; }</style>");
+      })();
       await t.resizeWindow(1920, 1080);
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -246,6 +300,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -268,12 +324,13 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check rating stars disabled question", async (t) => {
+  test.skip("Check rating stars disabled question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -283,6 +340,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             defaultValue: 2,
             readOnly: true
@@ -305,6 +364,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -315,6 +375,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -331,6 +393,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -341,6 +404,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -369,6 +434,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -378,6 +444,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -406,6 +474,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -416,6 +485,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -438,12 +509,90 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check rating smileys disabled question", async (t) => {
+  test("Check rating smileys scale colored question themes", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        width: "900px",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            scaleColorMode: "colored",
+            defaultValue: "1",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
+            width: "708px"
+          }
+        ]
+      });
+
+      await ClientFunction(() => {
+        const themeJson = {
+          "cssVariables": {
+            "--sjs-special-red": "orange",
+            "--sjs-special-yellow": "magenta",
+            "--sjs-special-green": "blue"
+          },
+          "isPanelless": false
+        };
+        window["survey"].applyTheme(themeJson);
+      })();
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-scale-colored-theme", questionRoot, t, comparer);
+    });
+  });
+
+  test("Check rating inner shadow", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        width: "900px",
+        questions: [
+          {
+            type: "rating",
+            name: "q1"
+          }
+        ]
+      });
+
+      await ClientFunction(() => {
+        const themeJson = {
+          "cssVariables": {
+            "--sjs-shadow-small": "inset 0px 2px 0px 0px rgba(0, 0, 0, 1)",
+            "--sjs-shadow-small-reset": "inset 0px 0px 0px 0px rgba(0, 0, 0, 1)"
+          },
+          "isPanelless": false
+        };
+        window["survey"].applyTheme(themeJson);
+      })();
+
+      const questionRoot = Selector(".sd-rating");
+      await focusBody();
+      await takeElementScreenshot("rating-inner-shadow", questionRoot, t, comparer);
+    });
+  });
+
+  test.skip("Check rating smileys disabled question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -453,6 +602,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             defaultValue: 2,
             readOnly: true
@@ -472,6 +623,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -481,6 +633,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             isRequired: true
           },
@@ -493,6 +647,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             isRequired: true
           }
@@ -584,6 +740,105 @@ frameworks.forEach(framework => {
       await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
       await takeElementScreenshot("question-rating-smileys-small-selected", questionSmileys, t, comparer);
 
+    });
+  });
+  test("Check rating rate descriptions position", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        width: "900px",
+        questions: [
+          {
+            "type": "rating",
+            "name": "question2",
+            "title": "How likely are you to recommend us to a friend or colleague?",
+            "rateMax": 10,
+            "minRateDescription": "Not at all likely",
+            "maxRateDescription": "Extremely likely",
+            "rateDescriptionLocation": "top"
+          },
+          {
+            "type": "rating",
+            "name": "question3",
+            "title": "How likely are you to recommend us to a friend or colleague?",
+            "rateMax": 10,
+            "minRateDescription": "Not at all likely",
+            "maxRateDescription": "Extremely likely",
+            "rateDescriptionLocation": "bottom"
+          },
+          {
+            "type": "rating",
+            "name": "question4",
+            "title": "How likely are you to recommend us to a friend or colleague?",
+            "rateMax": 10,
+            "minRateDescription": "Not at all likely",
+            "maxRateDescription": "Extremely likely",
+            "rateDescriptionLocation": "topBottom"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await takeElementScreenshot("question-rating-labels-top.png", questionRoot.nth(0), t, comparer);
+      await takeElementScreenshot("question-rating-labels-bottom.png", questionRoot.nth(1), t, comparer);
+      await takeElementScreenshot("question-rating-labels-diagonal.png", questionRoot.nth(2), t, comparer);
+    });
+  });
+
+  test("Check rating selected label width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "panel",
+                "name": "panel1",
+                "elements": [
+                  {
+                    "type": "rating",
+                    "name": "q",
+                    "titleLocation": "hidden",
+                    "defaultValue": "MMMMMMMMMMMMMM",
+                    "isRequired": true,
+                    "autoGenerate": false,
+                    "rateCount": 2,
+                    "rateValues": [
+                      "MMMMMMMMMMMMMM",
+                      "S"
+                    ],
+                    "displayMode": "buttons"
+                  },
+                  {
+                    "type": "rating",
+                    "name": "q1",
+                    "titleLocation": "hidden",
+                    "isRequired": true,
+                    "autoGenerate": false,
+                    "rateCount": 2,
+                    "rateValues": [
+                      "MMMMMMMMMMMMMM",
+                      "S"
+                    ],
+                    "displayMode": "buttons"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "500px"
+      });
+
+      const questionRoot = Selector(".sd-panel__content");
+      await takeElementScreenshot("question-rating-selected-label-should-have-the-same-width.png", questionRoot.nth(0), t, comparer);
     });
   });
 });

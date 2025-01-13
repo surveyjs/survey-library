@@ -1,5 +1,5 @@
 {
-  "Categories": [
+  "Items": [
     {
       "Name": "overview",
       "Title": "Overview"
@@ -21,12 +21,12 @@
           "Title": "React"
         },
         {
-          "Name": "get-started-knockout",
-          "Title": "Knockout"
+          "Name": "get-started-html-css-javascript",
+          "Title": "HTML/CSS/JavaScript"
         },
         {
-          "Name": "get-started-jquery",
-          "Title": "jQuery"
+          "Name": "supported-browsers",
+          "Title": "Supported Browsers"
         }
       ]
     },
@@ -69,15 +69,15 @@
       "Title": "Handle Survey Results",
       "Items": [
         {
-          "Name": "handle-survey-results-access",
+          "Name": "access-and-modify-survey-results",
           "Title": "Access Survey Results"
         },
         {
-          "Name": "handle-survey-results-store",
+          "Name": "how-to-store-survey-results",
           "Title": "Store Survey Results"
         },
         {
-          "Name": "handle-survey-results-continue-incomplete",
+          "Name": "how-to-save-and-restore-incomplete-survey",
           "Title": "Continue an Incomplete Survey"
         }
       ]
@@ -100,8 +100,12 @@
     },
     {
       "Name": "customize-question-types",
-      "Title": "Customize Question Types",
+      "Title": "Customize Questions",
       "Items": [
+        {
+          "Name": "customize-question-types-add-custom-properties-to-a-form",
+          "Title": "Add Custom Properties"
+        },
         {
           "Name": "customize-question-types-create-specialized-question-types",
           "Title": "Create Specialized Question Types"
@@ -111,16 +115,16 @@
           "Title": "Create Composite Question Types"
         },
         {
-          "Name": "customize-question-types-create-custom-widgets",
-          "Title": "Create Custom Widgets"
-        },
-        {
           "Name": "customize-question-types-third-party-component-integration-angular",
           "Title": "Integrate Third-Party Angular Components"
         },
         {
           "Name": "customize-question-types-third-party-component-integration-react",
           "Title": "Integrate Third-Party React Components"
+        },
+        {
+          "Name": "customize-question-types-third-party-component-integration-vue",
+          "Title": "Integrate Third-Party Vue 3 Components"
         }
       ]
     },
@@ -130,121 +134,191 @@
     },
     {
       "Name": "api",
-      "Title": "API",
+      "Title": "Form Library API",
       "Items": [
         {
-          "Name": "surveymodel",
-          "Title": "Survey"
+          "Name": "classes",
+          "Title": "Classes",
+          "Items": [
+            {
+              "Name": "surveymodel",
+              "Title": "SurveyModel"
+            },
+            {
+              "Name": "pagemodel",
+              "Title": "PageModel"
+            },
+            {
+              "Name": "panelmodel",
+              "Title": "PanelModel"
+            },
+            {
+              "Name": "popupsurveymodel",
+              "Title": "PopupSurveyModel"
+            },
+            {
+              "Name": "question",
+              "Title": "Question"
+            },
+            {
+              "Name": "questiontextmodel",
+              "Title": "QuestionTextModel"
+            },
+            {
+              "Name": "questioncheckboxmodel",
+              "Title": "QuestionCheckboxModel"
+            },
+            {
+              "Name": "questionrankingmodel",
+              "Title": "QuestionRankingModel"
+            },
+            {
+              "Name": "questionradiogroupmodel",
+              "Title": "QuestionRadiogroupModel"
+            },
+            {
+              "Name": "questiondropdownmodel",
+              "Title": "QuestionDropdownModel"
+            },
+            {
+              "Name": "questiontagboxmodel",
+              "Title": "QuestionTagBoxModel"
+            },
+            {
+              "Name": "questioncommentmodel",
+              "Title": "QuestionCommentModel"
+            },
+            {
+              "Name": "questionratingmodel",
+              "Title": "QuestionRatingModel"
+            },
+            {
+              "Name": "questionimagepickermodel",
+              "Title": "QuestionImagePickerModel"
+            },
+            {
+              "Name": "questionbooleanmodel",
+              "Title": "QuestionBooleanModel"
+            },
+            {
+              "Name": "questionimagemodel",
+              "Title": "QuestionImageModel"
+            },
+            {
+              "Name": "questionhtmlmodel",
+              "Title": "QuestionHtmlModel"
+            },
+            {
+              "Name": "questionsignaturepadmodel",
+              "Title": "QuestionSignaturePadModel"
+            },
+            {
+              "Name": "questionexpressionmodel",
+              "Title": "QuestionExpressionModel"
+            },
+            {
+              "Name": "questionfilemodel",
+              "Title": "QuestionFileModel"
+            },
+            {
+              "Name": "questionmatrixmodel",
+              "Title": "QuestionMatrixModel"
+            },
+            {
+              "Name": "questionmatrixdropdownmodel",
+              "Title": "QuestionMatrixDropdownModel"
+            },
+            {
+              "Name": "questionmatrixdynamicmodel",
+              "Title": "QuestionMatrixDynamicModel"
+            },
+            {
+              "Name": "matrixdropdowncolumn",
+              "title": "MatrixDropdownColumn"
+            },
+            {
+              "Name": "questionmultipletextmodel",
+              "Title": "QuestionMultipleTextModel"
+            },
+            {
+              "Name": "multipletextitemmodel",
+              "title": "MultipleTextItemModel"
+            },
+            {
+              "Name": "questionpaneldynamicmodel",
+              "Title": "QuestionPanelDynamicModel"
+            },
+            {
+              "Name": "choicesrestful",
+              "Title": "ChoicesRestful"
+            },
+            {
+              "Name": "numericvalidator",
+              "Title": "NumericValidator"
+            },
+            {
+              "Name": "textvalidator",
+              "Title": "TextValidator"
+            },
+            {
+              "Name": "emailvalidator",
+              "Title": "EmailValidator"
+            },
+            {
+              "Name": "expressionvalidator",
+              "Title": "ExpressionValidator"
+            },
+            {
+              "Name": "answercountvalidator",
+              "Title": "AnswerCountValidator"
+            },
+            {
+              "Name": "regexvalidator",
+              "Title": "RegexValidator"
+            },
+            {
+              "Name": "inputmasknumeric",
+              "Title": "InputMaskNumeric"
+            },
+            {
+              "Name": "inputmaskcurrency",
+              "Title": "InputMaskCurrency"
+            },
+            {
+              "Name": "inputmaskdatetime",
+              "Title": "InputMaskDateTime"
+            },
+            {
+              "Name": "inputmaskpattern",
+              "Title": "InputMaskPattern"
+            }
+          ]
         },
         {
-          "Name": "pagemodel",
-          "Title": "Page"
-        },
-        {
-          "Name": "popupsurveymodel",
-          "Title": "Popup Survey"
-        },
-        {
-          "Name": "question",
-          "Title": "Question"
-        },
-        {
-          "Name": "questiontextmodel",
-          "Title": "Text"
-        },
-        {
-          "Name": "questioncheckboxmodel",
-          "Title": "Checkbox"
-        },
-        {
-          "Name": "questionrankingmodel",
-          "Title": "Ranking"
-        },
-        {
-          "Name": "questionradiogroupmodel",
-          "Title": "Radiogroup"
-        },
-        {
-          "Name": "questiondropdownmodel",
-          "Title": "Dropdown"
-        },
-        {
-          "Name": "questiontagboxmodel",
-          "Title": "Tag Box"
-        },
-        {
-          "Name": "questioncommentmodel",
-          "Title": "Comment"
-        },
-        {
-          "Name": "questionratingmodel",
-          "Title": "Rating"
-        },
-        {
-          "Name": "questionimagepickermodel",
-          "Title": "Image Picker"
-        },
-        {
-          "Name": "questionbooleanmodel",
-          "Title": "Boolean"
-        },
-        {
-          "Name": "questionimagemodel",
-          "Title": "Image"
-        },
-        {
-          "Name": "questionhtmlmodel",
-          "Title": "Html"
-        },
-        {
-          "Name": "questionsignaturepadmodel",
-          "Title": "Signature Pad"
-        },
-        {
-          "Name": "questionexpressionmodel",
-          "Title": "Expression"
-        },
-        {
-          "Name": "questionfilemodel",
-          "Title": "File"
-        },
-        {
-          "Name": "questionmatrixmodel",
-          "Title": "Matrix"
-        },
-        {
-          "Name": "questionmatrixdropdownmodel",
-          "Title": "Matrix Dropdown"
-        },
-        {
-          "Name": "questionmatrixdynamicmodel",
-          "Title": "Matrix Dynamic"
-        },
-        {
-          "Name": "questionmultipletextmodel",
-          "Title": "Multiple Text"
-        },
-        {
-          "Name": "panelmodel",
-          "Title": "Panel"
-        },
-        {
-          "Name": "questionpaneldynamicmodel",
-          "Title": "Panel Dynamic"
+          "Name": "interfaces",
+          "Title": "Interfaces",
+          "Items": [
+            {
+              "Name": "IAction",
+              "Title": "IAction"
+            },
+            {
+              "Name": "ITheme",
+              "Title": "ITheme"
+            },
+            {
+              "Name": "IHeader",
+              "Title": "IHeader"
+            },
+            {
+              "Name": "ICustomQuestionTypeConfiguration",
+              "Title": "ICustomQuestionTypeConfiguration"
+            }
+          ]
         },
         {
           "Name": "settings",
           "Title": "Global Settings"
-        },
-        {
-          "Name": "IAction",
-          "Title": "IAction",
-          "IsHidden": true
-        },
-        {
-          "Name": "ICustomQuestionTypeConfiguration",
-          "Title": "ICustomQuestionTypeConfiguration",
-          "IsHidden": true
         }
       ]
     }

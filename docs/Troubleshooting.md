@@ -6,9 +6,9 @@ description: Common errors that occur when you add Form Library component to you
 
 This help topic describes how to troubleshoot problems that may occur when you use the SurveyJS Form Library in your application.
 
-## The survey doesn't contain visible pages or questions
+## The survey doesn't contain any visible elements.
 
-**Issue**: The survey appears empty, and the following message is displayed: "The survey doesn't contain visible pages or questions".
+**Issue**: The survey appears empty, and the following message is displayed: "The survey doesn't contain any visible elements.".
 
 **Solution**: You may encounter this issue in one of the following cases described below. The solution depends on the case.
 

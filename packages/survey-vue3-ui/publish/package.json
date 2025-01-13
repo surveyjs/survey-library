@@ -1,0 +1,25 @@
+{
+  "name": "survey-vue3-ui",
+  "version": "1.9.53",
+  "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
+  "keywords": [
+    "Survey",
+    "JavaScript",
+    "Bootstrap",
+    "Library",
+    "knockout"
+  ],
+  "homepage": "https://surveyjs.io/",
+  "license": "MIT",
+  "main": "survey-vue3-ui.umd.js",
+  "module": "survey-vue3-ui.es.js",
+  "types": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/surveyjs/surveyjs.git"
+  },
+  "peerDependencies": {
+    "vue": "^3.2.41",
+    "survey-core": "*"
+  }
+}

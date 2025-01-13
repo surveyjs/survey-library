@@ -1,0 +1,42 @@
+.sjs_sp_container {
+    position: relative;
+    max-width: 100%;
+}
+.sjs_sp_controls {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+.sjs_sp_controls > button {
+    user-select: none;
+}
+.sjs_sp_container > div > canvas:focus {
+    outline: none;
+}
+
+.sjs_sp_placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: absolute;
+    z-index: 1;
+    user-select: none;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+}
+.sjs_sp_canvas {
+    position: relative;
+    max-width: 100%;
+    display: block;
+}
+.sjs_sp__background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+}

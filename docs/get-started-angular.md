@@ -1,26 +1,28 @@
 ---
 title: Angular Form Library | Getting Started Guide
-description: A step-by-step tutorial on how to add the SurveyJS Form Library to an Angular application.
+description: SurveyJS Form Library for Angular is an open-source UI component that renders forms built from JSON schema in Angular applications. It offers a rich collection of reusable input fields and other form components and simplifies form handling by managing form state, validation, and submission.
 ---
-# Add a Survey to an Angular Application
+# Angular Form Library
 
-This step-by-step tutorial will help you get started with the SurveyJS Form Library in an Angular application. To add a survey to your Angular application, follow the steps below:
+SurveyJS Form Library for Angular is a client-side component that uses JSON objects to render dynamic forms in Angular applications and send submission data to a database for storage. These JSON objects contain key-value pairs representing various aspects of a form, including descriptions of each form field, instructions on how to organize form fields on the page, and how the form should behave in response to user interactions, such as submitting data, validating input, and displaying error messages. By loading the JSON schemas that define form layout and content, the rendering Form Library dynamically generates the corresponding HTML elements and displays them on a web page.
+
+This step-by-step tutorial will help you get started with the SurveyJS Form Library in an Angular application. To add a form to your Angular application, follow the steps below:
 
 - [Install the `survey-angular-ui` npm Package](#install-the-survey-angular-ui-npm-package)
 - [Configure Styles](#configure-styles)
 - [Create a Model](#create-a-model)
-- [Render the Survey](#render-the-survey)
-- [Handle Survey Completion](#handle-survey-completion)
+- [Render the Form](#render-the-form)
+- [Handle Form Completion](#handle-form-completion)
 
-As a result, you will create a survey displayed below:
+As a result, you will create a form displayed below:
 
-<iframe src="https://codesandbox.io/embed/unruffled-breeze-3e1rx?fontsize=14&hidenavigation=1&module=%2Fsrc%2Fapp%2Fapp.component.ts&theme=dark"
-    style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-    title="SurveyJS - Add a Survey to an Angular Application"
-    sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+<iframe src="/proxy/github/code-examples/get-started-library/html-css-js/index.html"
+    style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular (linkStyle))
+
+If you are looking for a quick-start application that includes all SurveyJS components, refer to the following GitHub repository: <a href="https://github.com/surveyjs/surveyjs_angular_cli" target="_blank">SurveyJS + Angular CLI Quickstart Template</a>.
 
 ## Install the `survey-angular-ui` npm Package
 
@@ -43,13 +45,14 @@ npm install survey-angular-ui --save
 
 ## Configure Styles
 
-SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
+SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-Open the `angular.json` file and reference a style sheet that implements the required theme:
+To add SurveyJS themes to your Angular application, open the `angular.json` file and reference the Form Library style sheet:
 
 ```js
+// angular.json
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   // ...
@@ -64,10 +67,7 @@ Open the `angular.json` file and reference a style sheet that implements the req
             // ...
             "styles": [
               "src/styles.css",
-              // Default V2 theme
               "node_modules/survey-core/defaultV2.min.css",
-              // Modern theme
-              // "node_modules/survey-core/modern.min.css"
             ],
             // ...
           }
@@ -78,11 +78,20 @@ Open the `angular.json` file and reference a style sheet that implements the req
 }
 ```
 
-For more information about SurveyJS themes, refer to the following help topic: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+When [using standalone components](https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular-standalone-components), import the style sheet directly in the component file:
+
+```js
+// survey.component.ts
+import "survey-core/defaultV2.css";
+```
+
+This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+
+> Previous to v1.9.100, SurveyJS also supplied the Modern theme, which is now obsolete. Please migrate to one of the predefined themes or create a custom theme.
 
 ## Create a Model
 
-A model describes the layout and contents of your survey. The simplest survey model contains one or several questions without layout modifications.
+A model describes the layout and contents of your survey. The simplest form model contains one or several questions without layout modifications.
 
 Models are specified by model schemas (JSON objects). For example, the following model schema declares two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel), each with a [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and a [name](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name). Titles are displayed on screen. Names are used to identify the questions in code.
 
@@ -153,9 +162,11 @@ export class AppComponent implements OnInit {
 ```
 </details>
 
-## Render the Survey
+<a id="render-the-survey"></a>
 
-Before you render the survey, you need to import the module that integrates the SurveyJS Form Library with Angular. Open your NgModule class (usually resides in the `app.module.ts` file), import the `SurveyModule` from `survey-angular-ui`, and list it in the `imports` array.
+## Render the Form
+
+Before you render the survey, you need to import the module that integrates the SurveyJS Form Library with Angular. Open your `NgModule` class (usually resides in the `app.module.ts` file), import the `SurveyModule` from `survey-angular-ui`, and list it in the `imports` array.
 
 ```js
 // app.module.ts
@@ -172,7 +183,24 @@ import { SurveyModule } from "survey-angular-ui";
   bootstrap: [ ... ]
 })
 export class AppModule { }
+```
 
+When [using standalone components](https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular-standalone-components), import the `SurveyModule` and add it to the `imports` array directly in the component file:
+
+```js
+// survey.component.ts
+// ...
+import { SurveyModule } from 'survey-angular-ui';
+
+@Component({
+  // ...
+  standalone: true,
+  imports: [ SurveyModule ],
+  // ...
+})
+export class SurveyComponent implements OnInit {
+  // ...
+}
 ```
 
 To render a survey, add a `<survey>` element to your component template and bind the element's `model` attribute to the model instance you created in the previous step:
@@ -248,9 +276,11 @@ export class AppModule { }
 ```
 </details>
 
-## Handle Survey Completion
+<a id="handle-survey-completion"></a>
 
-After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
+## Handle Form Completion
+
+After a respondent completes a survey, the results are available within the [`onComplete`](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed. If your application has a user identification system, you can add the user ID to the survey results before sending them to the server:
 
 ```js
 import { Component, OnInit } from '@angular/core';
@@ -262,10 +292,13 @@ const SURVEY_ID = 1;
   // ...
 })
 export class AppComponent implements OnInit {
-  surveyComplete (sender) {
+  surveyComplete (survey) {
+    const userId = /* ... Getting the user ID ... */
+    survey.setValue("userId", userId);
+
     saveSurveyResults(
       "https://your-web-service.com/" + SURVEY_ID,
-      sender.data
+      survey.data
     )
   }
   ngOnInit() {    
@@ -276,16 +309,23 @@ export class AppComponent implements OnInit {
 }
 
 function saveSurveyResults(url, json) {
-  const request = new XMLHttpRequest();
-  request.open('POST', url);
-  request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  request.addEventListener('load', () => {
-    // Handle "load"
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    },
+    body: JSON.stringify(json)
+  })
+  .then(response => {
+    if (response.ok) {
+      // Handle success
+    } else {
+      // Handle error
+    }
+  })
+  .catch(error => {
+    // Handle error
   });
-  request.addEventListener('error', () => {
-    // Handle "error"
-  });
-  request.send(JSON.stringify(json));
 }
 ```
 
@@ -313,7 +353,7 @@ export class AppComponent implements OnInit {
 ```
 ![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
 
-As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
+As you can see, form results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 
 To view the application, run `ng serve` in a command line and open [http://localhost:4200/](http://localhost:4200/) in your browser.
 

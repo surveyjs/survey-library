@@ -1,0 +1,25 @@
+sv-components-container,
+.sd-components-container {
+  display: flex;
+}
+
+.sv-components-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.sv-components-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.sv-components-column--expandable {
+  flex-grow: 1;
+}
+
+.sv-components-row {
+  &>.sv-components-column--expandable {
+    width: 1px;
+  }
+}

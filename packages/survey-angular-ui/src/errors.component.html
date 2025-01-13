@@ -1,8 +1,3 @@
-<div *ngFor="let error of element.errors;">
-  <span
-    [class]="element.cssClasses ? element.cssClasses.error.icon : 'panel-error-icon'"
-    aria-hidden="true"
-  ></span>
-  <span [class]="element.cssClasses ? element.cssClasses.error.item : 'panel-error-item'" [model]="error.locText" sv-ng-string>
-  </span>
-</div>
+<ng-container *ngFor="let error of element.errors;">
+  <ng-template [component]="{ name: element.survey.questionErrorComponent, data: { element: element, cssClasses: element.cssClasses, error: error } }"></ng-template>
+</ng-container>

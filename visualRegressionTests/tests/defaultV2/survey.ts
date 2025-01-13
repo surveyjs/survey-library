@@ -1,88 +1,29 @@
 import { Selector, ClientFunction } from "testcafe";
-import { setData } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, explicitErrorHandler, resetFocusToBody } from "../../helper";
+import { setData } from "../../../functionalTests/helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody } from "../../helper";
 import { backgroundImage } from "../../constants";
 
 const title = "Survey Screenshot";
 
 fixture`${title}`.page`${url}`;
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
+const insertDiv = ClientFunction(() => {
+  const el = document.createElement("div");
+  el.style.height = "1000px";
+  document.body.insertBefore(el, document.body.firstChild);
 });
 
-const theme = "defaultV2";
-
-const json = {
-  "title": "Minimum data reporting form – for suspected and probable cases of COVID-19",
-  "pages": [{
-    "name": "page1",
-    "navigationTitle": "Sign In",
-    "navigationDescription": "... to continue purchasing.",
-    "elements": [
-      {
-        "name": "q1",
-        type: "text"
-      }
-    ]
-  }, {
-    "name": "page2",
-    "navigationTitle": "Shipping",
-    "title": "Shipping",
-    "navigationDescription": "Enter shipping information.",
-    "elements": [
-      {
-        "type": "radiogroup",
-        "name": "q1",
-        "title": "Select a shipping method.",
-        "choices": ["FedEx", "DHL", "USP", "In-Store Pickup"]
-      },
-    ]
-  }, {
-    "name": "page3",
-    "navigationTitle": "Payment",
-    "navigationDescription": "Select a payment method.",
-    "elements": [
-      {
-        "name": "q1",
-        type: "text"
-      }
-    ]
-  }, {
-    "name": "page4",
-    "navigationTitle": "Gift Options",
-    "navigationDescription": "Choose your gift.",
-    "elements": [
-      {
-        "name": "q1",
-        type: "text"
-      }
-    ]
-  }, {
-    "name": "page5",
-    "navigationTitle": "Place Order",
-    "navigationDescription": "Finish your purchasing.",
-    "elements": [{
-      "name": "q1",
-      type: "text"
-    }]
-  }],
-  "showProgressBar": "top",
-  "progressBarType": "buttons"
-};
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`
     .beforeEach(async t => {
-      await explicitErrorHandler();
-      await applyTheme(theme);
     });
 
   test("Check survey title", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         widthMode: "responsive",
         questions: [
@@ -101,38 +42,80 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-body.png", Selector(".sd-body"), t, comparer);
     });
   });
-  test("Check survey with progress top", async (t) => {
+  test("Check survey default advanced header view", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, json);
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        title: "Survey Title",
+        description: "Survey description",
+        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        widthMode: "responsive",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
       await ClientFunction(() => {
-        (<any>window).survey.progressBarType = "pages";
-        (<any>window).survey.currentPageNo = 1;
+        (<any>window).survey.headerView = "advanced";
       })();
-      await takeElementScreenshot("survey-progress-bar-top.png", Selector(".sd-container-modern"), t, comparer); // title + progress
+      await takeElementScreenshot("survey-advanced-header-default.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
-  test("Check survey with progress top buttons", async (t) => {
+  test("Check survey default advanced header mobile view", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, json);
-      await t.click(Selector("li").nth(1));
-      await takeElementScreenshot("survey-progress-bar-top-buttons.png", Selector(".sd-container-modern"), t, comparer);
-    });
-  });
-  test("Check survey with custom navigation", async (t) => {
-    await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, json);
+      await t.resizeWindow(500, 600);
+      await initSurvey(framework, {
+        title: "Survey Title",
+        description: "Survey description",
+        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        widthMode: "responsive",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
       await ClientFunction(() => {
-        (<any>window).survey.progressBarType = "pages";
-        (<any>window).survey.currentPageNo = 1;
-        (<any>window).survey.addNavigationItem({
-          title: "Save",
-          action: () => { }
+        (<any>window).survey.headerView = "advanced";
+        (<any>window).survey.setIsMobile(true);
+      })();
+      await takeElementScreenshot("survey-advanced-header-mobile-default.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Check survey advanced header mobile view with background", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 600);
+      await initSurvey(framework, {
+        title: "Survey Title",
+        description: "Survey description",
+        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        widthMode: "responsive",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.headerView = "advanced";
+        (<any>window).survey.applyTheme({
+          cssVariables: {
+            "--sjs-header-backcolor": "green"
+          },
+          header: {
+          }
         });
+        (<any>window).survey.setIsMobile(true);
       })();
-      await takeElementScreenshot("survey-custom-navigation.png", Selector(".sd-container-modern"), t, comparer);
+      await takeElementScreenshot("survey-advanced-header-mobile-background.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
 
@@ -147,39 +130,11 @@ frameworks.forEach(framework => {
     ]
   }];
 
-  test("Check survey without title and with progress", async (t) => {
-    await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, {
-        pages: testedPages,
-        showProgressBar: "top"
-      });
-      await takeElementScreenshot("survey-without-tilte-and-with-progress.png", Selector(".sd-container-modern"), t, comparer); // progress
-    });
-  });
-  test("Check survey without title and progress", async (t) => {
-    await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, {
-        pages: testedPages
-      });
-      await takeElementScreenshot("survey-without-tilte-and-progress.png", Selector(".sd-container-modern"), t, comparer); // without title and progress
-    });
-  });
-  test("Check survey with title and without progress", async (t) => {
-    await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, {
-        title: "Test",
-        pages: testedPages
-      });
-      await takeElementScreenshot("survey-with-tilte-and-without-progress.png", Selector(".sd-container-modern"), t, comparer); // title
-    });
-  });
   test("Check survey with width", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         title: "Test",
         widthMode: "static",
         width: "900px",
@@ -192,6 +147,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(700, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         title: "Test",
         widthMode: "static",
         width: "900px",
@@ -227,6 +183,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         "backgroundImage": backgroundImage,
         "backgroundOpacity": 0.7,
         "pages": [
@@ -321,12 +278,13 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const json = {
+        focusFirstQuestionAutomatic: true,
         "title": "American History",
         "showTimerPanel": "bottom",
         "showTimerPanelMode": "survey",
         "maxTimeToFinish": 60,
         "widthMode": "responsive",
-        "firstPageIsStarted": true,
+        "firstPageIsStartPage": true,
         "pages": [
           {
             "elements": [
@@ -382,7 +340,7 @@ frameworks.forEach(framework => {
         const style = document.createElement("style");
         style.innerHTML = ".sd-timer__progress--animation { transition: none !important; }";
         document.body.appendChild(style);
-        (<any>window).Survey.SurveyTimer.instance.start = () => {};
+        (<any>window).Survey.SurveyTimer.instance.start = () => { };
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
@@ -393,12 +351,13 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const json = {
+        focusFirstQuestionAutomatic: true,
         "title": "American History",
         "showTimerPanel": "bottom",
         "showTimerPanelMode": "survey",
         "maxTimeToFinish": 60,
         "widthMode": "static",
-        "firstPageIsStarted": true,
+        "firstPageIsStartPage": true,
         "pages": [
           {
             "elements": [
@@ -454,10 +413,11 @@ frameworks.forEach(framework => {
         const style = document.createElement("style");
         style.innerHTML = ".sd-timer__progress--animation { transition: none !important; }";
         document.body.appendChild(style);
-        (<any>window).Survey.SurveyTimer.instance.start = () => {};
+        (<any>window).Survey.SurveyTimer.instance.start = () => { };
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("survey-timer.png", Selector("body"), t, comparer);
     });
   });
@@ -465,6 +425,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const json = {
+        focusFirstQuestionAutomatic: true,
         "title": "American History",
         "showTimerPanel": "bottom",
         "showTimerPanelMode": "survey",
@@ -522,76 +483,51 @@ frameworks.forEach(framework => {
         ]
       };
       await ClientFunction(() => {
-        (<any>window).Survey.SurveyTimer.instance.start = () => {};
+        (<any>window).Survey.SurveyTimer.instance.start = () => { };
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("survey-timer-without-progress.png", Selector("body"), t, comparer);
     });
   });
-  test("Check survey progress bar freezes on top", async (t) => {
-    if(framework in ["knockout", "react", "angular"]) { // TODO: reanimate Vue after Vue3 supported
-      await wrapVisualTest(t, async (t, comparer) => {
-        await t.resizeWindow(1500, 720);
-        const json = {
-          "title": "American History",
-          "showProgressBar": "top",
-          "pages": [
-            {
-              "elements": [
-                {
-                  "type": "radiogroup",
-                  "name": "civilwar",
-                  "title": "When was the American Civil War?",
-                  "choices": [
-                    "1796-1803",
-                    "1810-1814",
-                    "1861-1865",
-                    "1939-1945"
-                  ],
-                  "correctAnswer": "1861-1865"
-                },
-                {
-                  "type": "radiogroup",
-                  "name": "libertyordeath",
-                  "title": "Whose quote is this: \"Give me liberty, or give me death\"?",
-                  "choices": [
-                    "John Hancock",
-                    "James Madison",
-                    "Patrick Henry",
-                    "Samuel Adams"
-                  ],
-                  "correctAnswer": "Patrick Henry"
-                },
-                {
-                  "type": "radiogroup",
-                  "name": "magnacarta",
-                  "title": "What is Magna Carta?",
-                  "choices": [
-                    "The foundation of the British parliamentary system",
-                    "The Great Seal of the monarchs of England",
-                    "The French Declaration of the Rights of Man",
-                    "The charter signed by the Pilgrims on the Mayflower"
-                  ],
-                  "correctAnswer": "The foundation of the British parliamentary system"
-                }
-              ]
-            }
-          ]
-        };
-        await initSurvey(framework, json);
-        await ClientFunction(() => {
-          const surveyElement = document.getElementById("surveyElement");
-          if(surveyElement) {
-            surveyElement.style.height = "90vh";
-            surveyElement.style.overflowY = "auto";
-            document.querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);
+  test("Check survey timer both values - page and total", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1400, 800);
+      const json = {
+        "showTimer": true,
+        "timeLimit": 227,
+        "timeLimitPerPage": 107,
+        "widthMode": "static",
+        "pages": [
+          {
+            "elements": [
+              {
+                "type": "radiogroup",
+                "name": "civilwar",
+                "title": "When was the American Civil War?",
+                "choices": [
+                  "1796-1803",
+                  "1810-1814",
+                  "1861-1865",
+                  "1939-1945"
+                ],
+                "correctAnswer": "1861-1865"
+              },
+            ]
           }
-        })();
-        //t.debug();
-        await takeElementScreenshot("survey-progress-top-freeze.png", Selector("body"), t, comparer);
-      });
-    }
+        ]
+      };
+      await ClientFunction(() => {
+        const style = document.createElement("style");
+        style.innerHTML = ".sd-timer__progress--animation { transition: none !important; }";
+        document.body.appendChild(style);
+        (<any>window).Survey.SurveyTimer.instance.start = () => { };
+      })();
+      await initSurvey(framework, json);
+      await resetHoverToBody(t);
+      await takeElementScreenshot("survey-timer-both.png", Selector("body"), t, comparer);
+    });
   });
 
   const notifierJson = {
@@ -665,17 +601,20 @@ frameworks.forEach(framework => {
   };
   test("Check survey notifier info type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 5000; })();
-      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
-        options.isCompleteOnTrigger = false;
-        options.showDataSaving();
-        let fail = true;
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
+      await t.resizeWindow(1920, 900);
+      await initSurvey(framework, notifierJson, {
+        onComplete: (_sender, options) => {
+          options.isCompleteOnTrigger = false;
+          options.showDataSaving();
+          let fail = true;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 5000); }).then(
-          () => { options.showDataSavingSuccess(); },
-          () => { options.showDataSavingError(); }
-        );
-      } });
+          new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 10000); }).then(
+            () => { options.showDataSavingSuccess(); },
+            () => { options.showDataSavingError(); }
+          );
+        }
+      });
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-saving.png", Selector(".sv-save-data_root"), t, comparer);
@@ -685,43 +624,56 @@ frameworks.forEach(framework => {
 
   test("Check survey notifier error type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
-        options.isCompleteOnTrigger = false;
-        options.showDataSaving();
-        let fail = true;
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
+      await t.resizeWindow(1920, 900);
+      await initSurvey(framework, notifierJson, {
+        onComplete: (_sender, options) => {
+          options.isCompleteOnTrigger = false;
+          options.showDataSaving();
+          let fail = true;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 5000); }).then(
-          () => { options.showDataSavingSuccess(); },
-          () => { options.showDataSavingError(); }
-        );
-      } });
+          new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
+            () => { options.showDataSavingSuccess(); },
+            () => { options.showDataSavingError(); }
+          );
+        }
+      });
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-error.png", Selector(".sv-save-data_root.sv-save-data_error"), t, comparer);
+      await ClientFunction(() => { (window as any).survey.notify("An error occurred and we could not save the results.", "error", false); })();
+      await takeElementScreenshot("save-data-error-without-button.png", Selector(".sv-save-data_root.sv-save-data_error"), t, comparer);
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 2000; })();
     });
   });
 
   test("Check survey notifier success type", async (t) => {
+    await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
+    await t.resizeWindow(1920, 900);
     await wrapVisualTest(t, async (t, comparer) => {
-      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
-        options.isCompleteOnTrigger = false;
-        options.showDataSaving();
-        let fail = false;
+      await initSurvey(framework, notifierJson, {
+        onComplete: (_sender, options) => {
+          options.isCompleteOnTrigger = false;
+          options.showDataSaving();
+          let fail = false;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 5000); }).then(
-          () => { options.showDataSavingSuccess(); },
-          () => { options.showDataSavingError(); }
-        );
-      } });
+          new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
+            () => { options.showDataSavingSuccess(); },
+            () => { options.showDataSavingError(); }
+          );
+        }
+      });
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-success.png", Selector(".sv-save-data_root.sv-save-data_success"), t, comparer);
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 2000; })();
     });
   });
   test("TOC survey navigation", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1600, 900);
       const json = {
+        focusFirstQuestionAutomatic: true,
         title: "Software developer survey.",
         showTOC: true,
         pages: [
@@ -778,11 +730,6 @@ frameworks.forEach(framework => {
       await initSurvey(framework, json);
       await takeElementScreenshot("survey-navigation-toc-left.png", Selector(".sv-components-row"), t, comparer);
 
-      await ClientFunction(() => {
-        window["survey"].tocLocation = "right";
-      })();
-      await takeElementScreenshot("survey-navigation-toc-right.png", Selector(".sv-components-row"), t, comparer);
-
       await t.click(".sd-item__control-label");
       await t.click(".sd-navigation__next-btn");
       await t.click(".sd-item__control-label");
@@ -791,6 +738,148 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-completed-no-toc.png", Selector(".sd-root-modern"), t, comparer);
 
       await t.resizeWindow(1920, 1080);
+    });
+  });
+  test("TOC survey navigation right", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 900);
+      const json = {
+        focusFirstQuestionAutomatic: true,
+        title: "Software developer survey.",
+        showTOC: true,
+        tocLocation: "right",
+        pages: [
+          {
+            "title": "What operating system do you use?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "opSystem",
+                "title": "OS",
+                "hasOther": true,
+                "isRequired": true,
+                "choices": ["Windows", "Linux", "Macintosh OSX"]
+              }
+            ]
+          }, {
+            "title": "What language(s) are you currently using?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "langs",
+                "title": "Please select from the list",
+                "isRequired": true,
+                "choices": [
+                  "Javascript",
+                  "Java",
+                  "Python",
+                  "CSS",
+                  "PHP",
+                  "Ruby",
+                  "C++",
+                  "C",
+                  "Shell",
+                  "C#",
+                ]
+              }
+            ]
+          }, {
+            "title": "Please enter your name and e-mail",
+            "elements": [
+              {
+                "type": "text",
+                "name": "name",
+                "title": "Name:"
+              }, {
+                "type": "text",
+                "name": "email",
+                "title": "Your e-mail"
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-navigation-toc-right.png", Selector(".sv-components-row"), t, comparer);
+
+      await t.resizeWindow(1920, 1080);
+    });
+  });
+
+  test("Survey complete pages", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 900);
+      const json = {
+        "cookieName": "survey-id",
+        "completedHtml": "<h3>Completed</h3><button style='display: inline-block;'>OK</button>",
+        "completedBeforeHtml": "<h3>Already completed</h3><button style='display: inline-block;'>OK</button>",
+        pages: [
+          {
+            "elements": [
+              {
+                "type": "text",
+                "name": "name",
+                "title": "Name"
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      await t.click(".sd-navigation__complete-btn");
+      await takeElementScreenshot("survey-completed.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => {
+        document.body.style.setProperty("--sjs-corner-radius", "0px");
+        (<any>window).survey.clear();
+        (<any>window).survey.isCompletedBefore = true;
+      })();
+      await takeElementScreenshot("survey-completed-before.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+
+  test("Check survey in compact mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        title: "Lightweight",
+        widthMode: "static",
+        showQuestionNumbers: "off",
+        width: "1000px",
+        pages: [{
+          elements: [
+            {
+              name: "q1",
+              title: "First Name",
+              type: "text"
+            },
+            {
+              name: "q2",
+              title: "Last Name",
+              startWithNewLine: false,
+              type: "text"
+            },
+            {
+              name: "q3",
+              title: "Middle Name",
+              startWithNewLine: false,
+              type: "text"
+            },
+            {
+              name: "q4",
+              title: "Address",
+              type: "comment"
+            }
+          ]
+        }
+        ]
+      };
+      await initSurvey(framework, json);
+      await resetFocusToBody();
+      await ClientFunction(() => {
+        document.body.style.setProperty("--background-dim", "#fff");
+        (<any>window).survey.isCompact = true;
+      })();
+      await takeElementScreenshot("survey-page-without-title-compact.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
   test("Check survey in compact mode", async (t) => {
@@ -840,5 +929,512 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-compact.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
-});
 
+  test("Check survey with panels in compact mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "panel",
+            name: "delivery_details",
+            title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
+            width: "708px",
+            elements: [
+              {
+                type: "radiogroup",
+                name: "delivery_agent",
+                title: "Delivery agent",
+                choices: ["DHL", "Pony Express", "FedEx"]
+              },
+              {
+                type: "boolean",
+                name: "delivery_speed",
+                title: "Do you like to get the order as fast as it possible?"
+              }
+            ]
+          },
+        ]
+      });
+      await resetFocusToBody();
+      await ClientFunction(() => {
+        document.body.style.setProperty("--background-dim", "#f3f3f3");
+        (<any>window).survey.isCompact = true;
+      })();
+      await takeElementScreenshot("survey-with-panel-compact.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("TOC survey navigation mobile", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await ClientFunction(() => {
+        window["Survey"]._setIsTouch(true);
+      })();
+
+      const json = {
+        focusFirstQuestionAutomatic: true,
+        title: "Software developer survey.",
+        showTOC: true,
+        pages: [
+          {
+            "title": "What operating system do you use?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "opSystem",
+                "title": "OS",
+                "hasOther": true,
+                "isRequired": true,
+                "choices": ["Windows", "Linux", "Macintosh OSX"]
+              }
+            ]
+          }, {
+            "title": "What language(s) are you currently using?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "langs",
+                "title": "Please select from the list",
+                "isRequired": true,
+                "choices": [
+                  "Javascript",
+                  "Java",
+                  "Python",
+                  "CSS",
+                  "PHP",
+                  "Ruby",
+                  "C++",
+                  "C",
+                  "Shell",
+                  "C#",
+                ]
+              }
+            ]
+          }, {
+            "title": "Please enter your name and e-mail",
+            "elements": [
+              {
+                "type": "text",
+                "name": "name",
+                "title": "Name:"
+              }, {
+                "type": "text",
+                "name": "email",
+                "title": "Your e-mail"
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+
+      await takeElementScreenshot("survey-navigation-toc-mobile.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.click(".sv_progress-toc--mobile > div");
+      await takeElementScreenshot("survey-navigation-toc-mobile-popup.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.resizeWindow(1920, 1080);
+    });
+  });
+  test("TOC survey navigation responsive", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 900);
+
+      const json = {
+        focusFirstQuestionAutomatic: true,
+        title: "Software developer survey.",
+        showTOC: true,
+        pages: [
+          {
+            "title": "What operating system do you use?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "opSystem",
+                "title": "OS",
+                "hasOther": true,
+                "isRequired": true,
+                "choices": ["Windows", "Linux", "Macintosh OSX"]
+              }
+            ]
+          }, {
+            "title": "What language(s) are you currently using?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "langs",
+                "title": "Please select from the list",
+                "isRequired": true,
+                "choices": [
+                  "Javascript",
+                  "Java",
+                  "Python",
+                  "CSS",
+                  "PHP",
+                  "Ruby",
+                  "C++",
+                  "C",
+                  "Shell",
+                  "C#",
+                ]
+              }
+            ]
+          }, {
+            "title": "Please enter your name and e-mail",
+            "elements": [
+              {
+                "type": "text",
+                "name": "name",
+                "title": "Name:"
+              }, {
+                "type": "text",
+                "name": "email",
+                "title": "Your e-mail"
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-navigation-toc-left.png", Selector(".sv-components-row"), t, comparer);
+
+      await t.resizeWindow(600, 900);
+      await takeElementScreenshot("survey-navigation-toc-mobile.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.resizeWindow(1920, 1080);
+    });
+  });
+  test("TOC survey navigation wide questions fit total width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 900);
+
+      const json = {
+        focusFirstQuestionAutomatic: true,
+        title: "Software developer survey.",
+        showTOC: true,
+        pages: [
+          {
+            "title": "What operating system do you use?",
+            "elements": [
+              {
+                type: "matrixdynamic",
+                name: "teachersRate",
+                title: "Matrix Dynamic",
+                addRowText: "Add Subject",
+                horizontalScroll: true,
+                columnMinWidth: "130px",
+                columnColCount: 1,
+                cellType: "radiogroup",
+                choices: [
+                  {
+                    value: 1,
+                    text: "Yes"
+                  },
+                  {
+                    value: 0,
+                    text: "Sometimes"
+                  },
+                  {
+                    value: -1,
+                    text: "No"
+                  }
+                ],
+                columns: [
+                  {
+                    name: "subject",
+                    cellType: "dropdown",
+                    title: "Select a subject",
+                    isRequired: true,
+                    minWidth: "300px",
+                    choices: [
+                      "English: American Literature",
+                      "English: British and World Literature",
+                      "Math: Consumer Math",
+                      "Math: Practical Math",
+                      "Math: Developmental Algebra",
+                      "Math: Continuing Algebra",
+                      "Math: Pre-Algebra",
+                      "Math: Algebra",
+                      "Math: Geometry",
+                      "Math: Integrated Mathematics",
+                      "Science: Physical Science",
+                      "Science: Earth Science",
+                      "Science: Biology",
+                      "Science: Chemistry",
+                      "History: World History",
+                      "History: Modern World Studies",
+                      "History: U.S. History",
+                      "History: Modern U.S. History",
+                      "Social Sciences: U.S. Government and Politics",
+                      "Social Sciences: U.S. and Global Economics",
+                      "World Languages: Spanish",
+                      "World Languages: French",
+                      "World Languages: German",
+                      "World Languages: Latin",
+                      "World Languages: Chinese",
+                      "World Languages: Japanese"
+                    ]
+                  },
+                  {
+                    name: "explains",
+                    title: "Clearly explains the objectives"
+                  },
+                  {
+                    name: "interesting",
+                    title: "Makes class interesting"
+                  },
+                  {
+                    name: "effective",
+                    title: "Uses class time effectively"
+                  },
+                  {
+                    name: "knowledge",
+                    title: "Knows the subject matter"
+                  },
+                  {
+                    name: "recognition",
+                    title: "Recognizes and acknowledges effort"
+                  },
+                  {
+                    name: "inform",
+                    title: "Keeps me informed of my progress"
+                  },
+                  {
+                    name: "opinion",
+                    title: "Encourages and accepts different opinions"
+                  },
+                  {
+                    name: "respect",
+                    title: "Has the respect of the student"
+                  },
+                  {
+                    name: "cooperation",
+                    title: "Encourages cooperation and participation"
+                  },
+                  {
+                    name: "parents",
+                    title: "Communicates with my parents"
+                  },
+                  {
+                    name: "selfthinking",
+                    title: "Encourages me to think for myself"
+                  },
+                  {
+                    name: "frusturation",
+                    cellType: "comment",
+                    title: "Is there anything about this class that frustrates you?",
+                    minWidth: "250px"
+                  },
+                  {
+                    name: "likeTheBest",
+                    cellType: "comment",
+                    title: "What do you like best about this class and/or teacher?",
+                    minWidth: "250px"
+                  },
+                  {
+                    name: "improvements",
+                    cellType: "comment",
+                    title:
+                      "What do you wish this teacher would do differently that would improve this class?",
+                    minWidth: "250px"
+                  }
+                ],
+                rowCount: 2
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-navigation-toc-matrix-fit-width.png", Selector(".sv-components-row"), t, comparer);
+
+      await t.resizeWindow(1920, 1080);
+    });
+  });
+
+  test("Check page with errors and title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        pages: [
+          {
+            name: "p1",
+            title: "Page",
+            requiredIf: "{q1} empty",
+            isRequired: true,
+            elements: [
+              {
+                type: "text",
+                name: "q1",
+                title: "Question"
+              },
+            ]
+          },
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await t.click("input[title='Complete']");
+      await takeElementScreenshot("survey-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => (window as any).survey.isCompact = true)();
+      await takeElementScreenshot("survey-compact-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => { (window as any).survey.questionsOnPageMode = "singlePage"; })();
+      await t.click("input[title='Complete']");
+      if(framework !== "vue" && framework !== "knockout") {
+        await takeElementScreenshot("survey-compact-spm-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
+      }
+      await ClientFunction(() => (window as any).survey.isCompact = false)();
+      await takeElementScreenshot("survey-spm-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Check page with errors and without title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        pages: [
+          {
+            name: "p1",
+            requiredIf: "{q1} empty",
+            isRequired: true,
+            elements: [
+              {
+                type: "text",
+                name: "q1",
+                title: "Question"
+              },
+            ]
+          },
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await t.click("input[title='Complete']");
+      await takeElementScreenshot("survey-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => (window as any).survey.isCompact = true)();
+      await takeElementScreenshot("survey-compact-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => { (window as any).survey.questionsOnPageMode = "singlePage"; })();
+      await t.click("input[title='Complete']");
+      await takeElementScreenshot("survey-compact-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => (window as any).survey.isCompact = false)();
+      await takeElementScreenshot("survey-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+
+  test("Check multiple row in compact mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(700, 1080);
+      const json = {
+        pages: [
+          {
+            name: "p1",
+            elements: [
+              {
+                type: "text",
+                name: "q1",
+                title: "Question",
+                startWithNewLine: false
+              },
+              {
+                type: "text",
+                name: "q2",
+                title: "Question",
+                startWithNewLine: false
+              },
+              {
+                type: "text",
+                name: "q3",
+                title: "Question",
+                startWithNewLine: false
+              },
+              {
+                type: "text",
+                name: "q4",
+                title: "Question",
+                startWithNewLine: false
+              },
+            ]
+          },
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await ClientFunction(() => (window as any).survey.isCompact = true)();
+      await takeElementScreenshot("row-multiple-compact-mode.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+
+  test("Check survey logo right with empty title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        "logo": "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg",
+        "logoPosition": "right",
+        "elements": [
+          {
+            "type": "text",
+            "name": "FirstName",
+            "title": "Enter your first name:"
+          },
+        ],
+        "widthMode": "responsive"
+      };
+
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-logo-right-without-title.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Do not scroll to survey by default", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 300);
+      await insertDiv();
+      const json = {
+        "pages": [
+          {
+            "elements": [
+              {
+                "type": "text",
+                "name": "q1"
+              },
+            ]
+          },
+          {
+            "elements": [
+              {
+                "type": "text",
+                "name": "q2"
+              },
+            ]
+          }
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await t.wait(100);
+      await takeElementScreenshot("survey-no-scrolling.png", undefined, t, comparer);
+      await t.click(Selector(".sd-btn.sd-navigation__next-btn"));
+      await t.wait(100);
+      await takeElementScreenshot("survey-scrolling-second-page.png", undefined, t, comparer);
+    });
+  });
+  test("Scroll to survey", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 300);
+      await insertDiv();
+      const json = {
+        "focusFirstQuestionAutomatic": true,
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1"
+          },
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await t.wait(100);
+      await takeElementScreenshot("survey-scrolling.png", undefined, t, comparer);
+    });
+  });
+});

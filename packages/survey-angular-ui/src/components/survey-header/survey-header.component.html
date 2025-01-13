@@ -1,16 +1,12 @@
-<div *ngIf="survey.isLogoBefore" [class]="survey.logoClassNames">
-  <ng-template [component]="{ name: survey.getElementWrapperComponentName(survey, 'logo-image'), data: { data: survey.getElementWrapperComponentData(survey, 'logo-image') } }"></ng-template>
-</div>
+<ng-template *ngIf="survey.isLogoBefore" [component]="{ name: survey.getElementWrapperComponentName(survey, 'logo-image'), data: { data: survey.getElementWrapperComponentData(survey, 'logo-image') } }"></ng-template>
 <div
   *ngIf="survey.renderedHasTitle"
   [class]="survey.css.headerText"
   [style.maxWidth]="survey.titleMaxWidth"
 >
   <sv-ng-element-title [element]="survey"></sv-ng-element-title>
-  <h5 *ngIf="survey.renderedHasDescription" [class]="survey.css.description" [model]="survey.locDescription" sv-ng-string></h5>
+  <div *ngIf="survey.renderedHasDescription" [class]="survey.css.description" [model]="survey.locDescription" sv-ng-string></div>
 </div>
 
-<div *ngIf="survey.isLogoAfter" [class]="survey.logoClassNames">
-  <ng-template [component]="{ name: survey.getElementWrapperComponentName(survey, 'logo-image'), data: { data: survey.getElementWrapperComponentData(survey, 'logo-image') } }"></ng-template>
-</div>
+<ng-template *ngIf="survey.isLogoAfter" [component]="{ name: survey.getElementWrapperComponentName(survey, 'logo-image'), data: { data: survey.getElementWrapperComponentData(survey, 'logo-image') } }"></ng-template>
 <div [class]="survey.css.headerClose"></div>

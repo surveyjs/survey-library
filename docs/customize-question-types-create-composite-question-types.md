@@ -19,11 +19,15 @@ Composite questions are containers for other questions. They are useful when a g
 The following code configures a Full Name composite question that contains the First Name and Last Name [Text](/Documentation/Library?id=questiontextmodel) questions:
 
 ```js
-Survey.ComponentCollection.Instance.add({
+import { ComponentCollection } from "survey-core";
+
+ComponentCollection.Instance.add({
   // A unique name; must use lowercase
   name: "fullname", 
   // A display name used in the Toolbox
-  title: "Full Name", 
+  title: "Full Name",
+  // A default title for questions created with this question type
+  defaultQuestionTitle: "Enter your full name:",
   // An array of JSON schemas that configure the nested questions
   elementsJSON: [
     { type: "text", name: "firstName", title: "First Name", isRequired: true },
@@ -61,9 +65,12 @@ If you need to control nested questions, add a custom property to their composit
 For example, the Full Name composite question from the previous topic may include an optional Middle Name question. The following code adds a custom `showMiddleName` property that controls the Middle Name question visibility:
 
 ```js
-Survey.ComponentCollection.Instance.add({
+import { ComponentCollection, Serializer } from "survey-core";
+
+ComponentCollection.Instance.add({
   name: "fullname", 
   title: "Full Name", 
+  defaultQuestionTitle: "Enter your full name:",
   elementsJSON: [
     { type: "text", name: "firstName", title: "First Name", isRequired: true },
     // Optional question, hidden by default
@@ -73,7 +80,7 @@ Survey.ComponentCollection.Instance.add({
 
   onInit() {
     // Add a `showMiddleName` Boolean property to the `fullname` question type
-    Survey.Serializer.addProperty("fullname", {
+    Serializer.addProperty("fullname", {
       name: "showMiddleName",
       type: "boolean",
       default: false,
@@ -173,7 +180,9 @@ The following code shows how you can use expressions and triggers to implement t
 Survey Creator users can implement the same UI and logic, but this requires time and basic understanding of expressions and triggers. To help the users with this task, you can create a custom composite question type that already implements this UI and logic. The code below demonstrates this composite question type configuration. Note that the [`enableIf`](/Documentation/Library?id=questioncommentmodel#enableIf) expression uses the `composite` prefix to access a nested question. Instead of triggers, composite questions use the [`onValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/icustomquestiontypeconfiguration#onValueChanged) function to implement the trigger logic.
 
 ```js
-Survey.ComponentCollection.Instance.add({
+import { ComponentCollection } from "survey-core";
+
+ComponentCollection.Instance.add({
   name: "shippingaddress",
   title: "Shipping Address",
   elementsJSON: [{
@@ -228,25 +237,27 @@ Users can add a custom question to their survey like they add a built-in questio
 
 ## Override Base Question Properties
 
-Composite questions inherit properties from their base question type ([`Question`](/Documentation/Library?id=Question)). To override a base property, add it to your composite question and specify a new configuration for it. Call the `addProperty(questionType, propertySettings)` method on the `Survey.Serializer` object. You can call it in the [`onInit`](https://surveyjs.io/Documentation/Library?id=ICustomQuestionTypeConfiguration#onInit) function within the composite question configuration object.
+Composite questions inherit properties from their base question type ([`Question`](/Documentation/Library?id=Question)). To override a base property, add it to your composite question and specify a new configuration for it. Call the `addProperty(questionType, propertySettings)` method on the `Serializer` object. You can call it in the [`onInit`](https://surveyjs.io/Documentation/Library?id=ICustomQuestionTypeConfiguration#onInit) function within the composite question configuration object.
 
 The following code shows how to override base question properties. This code hides the properties from the Property Grid (`visible: false`) and excludes them from serialization to JSON. The [`titleLocation`](/Documentation/Library?id=Question#titleLocation) property also gets a new default value.
 
 ```js
-Survey.ComponentCollection.Instance.add({
+import { ComponentCollection, Serializer } from "survey-core";
+
+ComponentCollection.Instance.add({
   name: "shippingaddress",
   // ...
   onInit() {
-    Survey.Serializer.addProperty("shippingaddress", {
+    Serializer.addProperty("shippingaddress", {
       name: "titleLocation",
       visible: false,
       default: "hidden",
     });
-    Survey.Serializer.addProperty("shippingaddress", {
+    Serializer.addProperty("shippingaddress", {
       name: "title",
       visible: false,
     });
-    Survey.Serializer.addProperty("shippingaddress", {
+    Serializer.addProperty("shippingaddress", {
       name: "description",
       visible: false,
     });
@@ -257,7 +268,7 @@ Survey.ComponentCollection.Instance.add({
 You can also override the properties of the objects nested in a composite question. For example, the following code overrides the [`showQuestionNumbers`](/Documentation/Library?id=panelmodel#showQuestionNumbers) property of the [Panel](/Documentation/Library?id=panelmodel) that contains all the other nested questions:
 
 ```js
-Survey.ComponentCollection.Instance.add({
+ComponentCollection.Instance.add({
   name: "shippingaddress",
   // ...
   onCreated(question) {
@@ -270,7 +281,7 @@ Survey.ComponentCollection.Instance.add({
 If you want to override a nested question property, call the Panel's [`getQuestionByName`](/Documentation/Library?id=panelmodel#getQuestionByName) method to access the question:
 
 ```js
-Survey.ComponentCollection.Instance.add({
+ComponentCollection.Instance.add({
   name: "shippingaddress",
   // ...
   onCreated(question) {
@@ -280,8 +291,54 @@ Survey.ComponentCollection.Instance.add({
 });
 ```
 
+## Localize Composite Questions
+
+You can localize composite questions by following the same technique used to [localize survey contents](https://surveyjs.io/form-library/documentation/survey-localization#localize-survey-contents). The following code shows how to translate texts within a composite question to French and German while using English as the default language:
+
+```js
+import { ComponentCollection } from "survey-core";
+
+ComponentCollection.Instance.add({
+  name: "fullname", 
+  title: {
+    "default": "Full Name",
+    "fr": "Nom et prénom",
+    "de": "Vollständiger Name"
+  },
+  defaultQuestionTitle: {
+    "default": "Enter your full name:",
+    "fr": "Entrez votre nom complet:",
+    "de": "Geben Sie Ihren vollständigen Namen ein:"
+  },
+  elementsJSON: [
+    {
+      type: "text",
+      name: "firstName",
+      title: {
+        "default": "First Name",
+        "fr": "Prénom",
+        "de": "Vorname"
+      },
+      isRequired: true
+    },
+    {
+      type: "text",
+      name: "lastName",
+      title: {
+        "default": "Last Name",
+        "fr": "Nom de famille",
+        "de": "Nachname"
+      },
+      isRequired: true,
+      startWithNewLine: false
+    }
+  ]
+});
+```
+
 ## Further Reading
 
 - [Create Specialized Question Types](/form-library/documentation/customize-question-types/create-specialized-question-types)
 - [Integrate Third-Party React Components](/form-library/documentation/customize-question-types/third-party-component-integration-react)
 - [Integrate Third-Party Angular Components](/form-library/documentation/customize-question-types/third-party-component-integration-angular)
+- [Integrate Third-Party Vue 3 Components](/form-library/documentation/customize-question-types/third-party-component-integration-vue)

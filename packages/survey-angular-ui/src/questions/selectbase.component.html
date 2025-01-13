@@ -1,5 +1,13 @@
-<fieldset [class]="model.getSelectBaseRootCss()" role="presentation" #contentElement>
-  <legend *ngIf="showLegend" role="presentation" class="sv-hidden"></legend>
+<fieldset [class]="model.getSelectBaseRootCss()" #contentElement 
+  [attr.role]="model.a11y_input_ariaRole"
+  [attr.aria-required]="model.a11y_input_ariaRequired"
+  [attr.aria-label]="model.a11y_input_ariaLabel"
+  [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
+  [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
+  [attr.aria-invalid]="model.a11y_input_ariaInvalid"
+  [attr.aria-errormessage]="model.a11y_input_ariaErrormessage"
+>
+  <legend *ngIf="showLegend" class="sv-hidden">{{model.locTitle.renderedHtml}}</legend>
   <ng-container *ngIf="model.hasHeadItems">
     <ng-container *ngFor="let item of model.headItems; trackBy: trackItemBy">
       <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
@@ -33,7 +41,7 @@
   <div *ngIf="model.showClearButtonInContent">
     <input
       type="button"
-      (click)="model.clearValue()"
+      (click)="model.clearValue(true)"
       [value]="model.clearButtonCaption"
       [class]="model.cssClasses.clearButton"
     />

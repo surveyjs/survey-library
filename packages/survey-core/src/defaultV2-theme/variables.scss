@@ -1,0 +1,262 @@
+$primary: var(--sjs-primary-backcolor, var(--primary, #19b394));
+$primary-light: var(--sjs-primary-backcolor-light, var(--primary-light, rgba(25, 179, 148, 0.1)));
+$primary-background-dark: var(--sjs-primary-backcolor-dark, rgb(20, 164, 139));
+$primary-foreground: var(--sjs-primary-forecolor, var(--primary-foreground, #fff));
+$primary-foreground-disabled: var(--sjs-primary-forecolor-light, var(--primary-foreground-disabled, rgba(#fff, 0.25)));
+
+$secondary: var(--sjs-secondary-backcolor, var(--secondary, #ff9814));
+$secondary-light: var(--sjs-secondary-backcolor-light, var(--secondary-light, rgba(255, 152, 20, 0.25)));
+$secondary-backcolor-semi-light: var(--sjs-secondary-backcolor-semi-light, rgba(255, 152, 20, 0.1));
+$secondary-forecolor: var(--sjs-secondary-forecolor, #fff);
+$secondary-forecolor-light: var(--sjs-secondary-forecolor-light, rgba(#fff, 0.25));
+
+$editor-background: var(
+  --sjs-editorpanel-backcolor,
+  var(--sjs-editor-background, var(--sjs-general-backcolor-dim-light, var(--background-dim-light, #f9f9f9)))
+);
+$question-background: var(
+  --sjs-questionpanel-backcolor,
+  var(--sjs-question-background, var(--sjs-general-backcolor, var(--background, #fff)))
+);
+
+$background: var(--sjs-general-backcolor, var(--background, #fff));
+$background-dim: var(--sjs-general-backcolor-dim, var(--background-dim, #f3f3f3));
+$background-dim-light: var(--sjs-general-backcolor-dim-light, var(--background-dim-light, #f9f9f9));
+$background-semitransparent: var(--background-semitransparent, rgba(144, 144, 144, 0.5));
+$background-dark: var(--sjs-questionpanel-hovercolor, var(--sjs-general-backcolor-dark, rgb(248, 248, 248)));
+$background-dim-dark: var(--sjs-editorpanel-hovercolor, var(--sjs-general-backcolor-dim-dark, rgb(243, 243, 243)));
+
+$corner-radius: var(--sjs-corner-radius, 4px);
+$editor-corner-radius: var(--sjs-editorpanel-cornerRadius, var(--sjs-corner-radius, 4px));
+$panel-corner-radius: var(--sjs-questionpanel-cornerRadius, var(--sjs-corner-radius, 4px));
+
+$foreground: var(--sjs-general-forecolor, var(--foreground, #161616));
+$foreground-light: var(--sjs-general-forecolor-light, var(--foreground-light, #909090));
+$foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
+$foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
+
+$header-backcolor: var(--sjs-header-backcolor, #{$primary});
+
+$border: var(--sjs-border-default, var(--border, #d6d6d6));
+$border-light: var(--sjs-border-light, var(--border-light, #eaeaea));
+$border-inside: var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
+
+$shadow-small: var(--sjs-shadow-small, 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
+$shadow-small-reset: var(--sjs-shadow-small-reset, 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
+$shadow-medium: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
+$shadow-large: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
+$shadow-inner: var(--sjs-shadow-inner, inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
+$shadow-inner-reset: var(--sjs-shadow-inner-reset, inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
+
+$red: var(--sjs-special-red, var(--red, #e60a3e));
+$red-light: var(--sjs-special-red-light, var(--red-light, rgba(230, 10, 62, 0.1)));
+$red-forecolor: var(--sjs-special-red-forecolor, #ffffff);
+$yellow: var(--sjs-special-yellow, var(--yellow, #ff9814));
+$yellow-light: var(--sjs-special-yellow-light, var(--yellow-light, rgba(255, 152, 20, 0.1)));
+$yellow-forecolor: var(--sjs-special-yellow-forecolor, #ffffff);
+$green: var(--sjs-special-green, var(--green, #19b394));
+$green-light: var(--sjs-special-green-light, var(--green-light, rgba(25, 179, 148, 0.1)));
+$green-forecolor: var(--sjs-special-green-forecolor, #ffffff);
+$blue: var(--sjs-special-blue, #437fd9);
+$blue-light: var(--sjs-special-blue-light, var(--blue-light, rgba(67, 127, 217, 0.1)));
+$blue-forecolor: var(--sjs-special-blue-forecolor, #ffffff);
+
+$font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));
+$font-size: var(--sjs-font-size, 16px);
+
+$font-surveytitle-family: var(--sjs-font-surveytitle-family, #{$font-family});
+$font-surveytitle-weight: var(--sjs-font-surveytitle-weight, 700);
+$font-surveytitle-color: var(--sjs-font-surveytitle-color, #{$primary});
+
+$font-surveydescription-family: var(--sjs-font-surveydescription-family, #{$font-family});
+$font-surveydescription-weight: var(--sjs-font-surveydescription-weight, 400);
+$font-surveydescription-color: var(--sjs-font-surveydescription-color, #{$foreground-light});
+
+$font-headertitle-family: var(--sjs-font-headertitle-family, #{$font-family});
+$font-headertitle-weight: var(--sjs-font-headertitle-weight, 700);
+$font-headertitle-color: var(--sjs-font-headertitle-color, #{$primary-foreground});
+
+$font-headerdescription-family: var(--sjs-font-headerdescription-family, #{$font-family});
+$font-headerdescription-weight: var(--sjs-font-headerdescription-weight, 600);
+$font-headerdescription-color: var(--sjs-font-headerdescription-color, #{$primary-foreground});
+
+$font-pagetitle-family: var(--sjs-font-pagetitle-family, #{$font-family});
+$font-pagetitle-weight: var(--sjs-font-pagetitle-weight, 700);
+$font-pagetitle-color: var(--sjs-font-pagetitle-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
+
+$font-pagedescription-family: var(--sjs-font-pagedescription-family, #{$font-family});
+$font-pagedescription-weight: var(--sjs-font-pagedescription-weight, 400);
+$font-pagedescription-color: var(
+  --sjs-font-pagedescription-color,
+  var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45))
+);
+$font-pagedescription-size: var(--sjs-font-pagedescription-size, $font-size);
+
+$font-questiontitle-family: var(--sjs-font-questiontitle-family, #{$font-family});
+$font-questiontitle-weight: var(--sjs-font-questiontitle-weight, 600);
+$font-questiontitle-color: var(
+  --sjs-font-questiontitle-color,
+  var(--sjs-general-forecolor, var(--foreground, #161616))
+);
+$font-questiontitle-size: var(--sjs-font-questiontitle-size, $font-size);
+
+$font-questiondescription-family: var(--sjs-font-questiondescription-family, #{$font-family});
+$font-questiondescription-weight: var(--sjs-font-questiondescription-weight, 400);
+$font-questiondescription-color: var(
+  --sjs-font-questiondescription-color,
+  var(--sjs-general-forecolor-light, rgba(0, 0, 0, 0.45))
+);
+$font-questiondescription-size: var(--sjs-font-questiondescription-size, $font-size);
+$font-questionplaceholder-color: var(
+  --sjs-font-questiondescription-color,
+  var(--sjs-general-forecolor-light, rgba(0, 0, 0, 0.45))
+);
+
+$font-editorfont-family: var(--sjs-font-editorfont-family, #{$font-family});
+$font-editorfont-weight: var(--sjs-font-editorfont-weight, 400);
+$font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-forecolor, rgba(0, 0, 0, 0.91)));
+$font-editorfont-placeholdercolor: var(
+  --sjs-font-editorfont-placeholdercolor,
+  var(--sjs-general-forecolor-light, var(--foreground-light, #909090))
+);
+$font-default-editorfont-size: var(--sjs-font-editorfont-size, $font-size);
+$base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
+
+//call  @include useEditorFontSize before using this variable;
+$font-editorfont-size: var(--sjs-internal-font-editorfont-size);
+
+$sd-panel-normal-min-width: 496px;
+$sd-panel-medium-min-width: 176px;
+
+:root {
+  --sjs-transition-duration: 150ms;
+}
+
+$row-fade-in-duration: var(--sjs-row-fade-in-duration, 500ms);
+$row-move-in-duration: var(--sjs-row-move-in-duration, 150ms);
+$row-fade-in-delay: var(--sjs-row-fade-in-delay, 150ms);
+$row-fade-out-duration: var(--sjs-row-fade-out-duration, 150ms);
+$row-move-out-duration: var(--sjs-row-move-out-duration, 250ms);
+$row-move-out-delay: var(--sjs-row-move-out-delay, 100ms);
+$row-fade-in-animation-delay: var(--sjs-row-fade-in-animation-delay, 400ms);
+
+$expand-fade-in-duration: var(--sjs-expand-fade-in-duration, 500ms);
+$expand-move-in-duration: var(--sjs-expand-move-in-duration, 150ms);
+$expand-fade-in-delay: var(--sjs-expand-fade-in-delay, 150ms);
+$collapse-fade-out-duration: var(--sjs-collapse-fade-out-duration, 150ms);
+$collapse-move-out-duration: var(--sjs-collapse-move-out-duration, 250ms);
+$collapse-move-out-delay: var(--sjs-collapse-move-out-delay, 100ms);
+
+$ranking-fade-in-duration: var(--sjs-ranking-fade-in-duration, 100ms);
+$ranking-move-in-duration: var(--sjs-ranking-move-in-duration, 150ms);
+$ranking-fade-in-delay: var(--sjs-ranking-fade-in-delay, 150ms);
+$ranking-fade-out-duration: var(--sjs-ranking-fade-out-duration, 100ms);
+$ranking-move-out-duration: var(--sjs-ranking-move-out-duration, 150ms);
+$ranking-move-out-delay: var(--sjs-ranking-move-out-delay, 0ms);
+
+$element-fade-in-duration: var(--sjs-element-fade-in-duration, 500ms);
+$element-move-in-duration: var(--sjs-element-move-in-duration, 250ms);
+$element-fade-in-delay: var(--sjs-element-fade-in-delay, 100ms);
+$element-fade-out-duration: var(--sjs-element-fade-out-duration, 150ms);
+$element-move-out-duration: var(--sjs-element-move-out-duration, 250ms);
+$element-move-out-delay: var(--sjs-element-move-out-delay, 0ms);
+
+$matrix-row-fade-in-duration: var(--sjs-matrix-row-fade-in-duration, 250ms);
+$matrix-row-move-in-duration: var(--sjs-matrix-row-move-in-duration, 150ms);
+$matrix-row-fade-in-delay: var(--sjs-matrix-row-fade-in-delay, 150ms);
+$matrix-row-fade-out-duration: var(--sjs-matrix-row-fade-out-duration, 100ms);
+$matrix-row-move-out-duration: var(--sjs-matrix-row-move-out-duration, 250ms);
+$matrix-row-move-out-delay: var(--sjs-matrix-row-move-out-delay, 100ms);
+
+$matrix-detail-row-fade-in-duration: var(--sjs-matrix-detail-row-fade-in-duration, 500ms);
+$matrix-detail-row-move-in-duration: var(--sjs-matrix-detail-row-move-in-duration, 150ms);
+$matrix-detail-row-fade-in-delay: var(--sjs-matrix-detail-row-fade-in-delay, 150ms);
+$matrix-detail-row-fade-out-duration: var(--sjs-matrix-detail-row-fade-out-duration, 150ms);
+$matrix-detail-row-move-out-duration: var(--sjs-matrix-detail-row-move-out-duration, 250ms);
+$matrix-detail-row-move-out-delay: var(--sjs-matrix-detail-row-move-out-delay, 100ms);
+
+$pd-tab-height-change-duration: var(--sjs-pd-tab-height-change-duration, 250ms);
+$pd-tab-height-change-delay: var(--sjs-pd-tab-height-change-delay, 0ms);
+$pd-tab-move-in-duration: var(--sjs-pd-tab-move-in-duration, 250ms);
+$pd-tab-move-in-delay: var(--sjs-pd-tab-move-in-delay, 100ms);
+$pd-tab-fade-in-duration: var(--sjs-pd-tab-fade-in-duration, 250ms);
+$pd-tab-fade-in-delay: var(--sjs-pd-tab-fade-in-delay, 100ms);
+$pd-tab-fade-out-duration: var(--sjs-pd-tab-fade-out-duration, 250ms);
+$pd-tab-fade-out-delay: var(--sjs-pd-tab-fade-out-delay, 0ms);
+$pd-tab-move-out-duration: var(--sjs-pd-tab-move-out-duration, 250ms);
+$pd-tab-move-out-delay: var(--sjs-pd-tab-move-out-delay, 0ms);
+$pd-tab-move-in-margin: var(--sjs-pd-tab-move-in-margin, 50%);
+$pd-tab-move-out-margin: var(--sjs-pd-tab-move-out-margin, 50%);
+$pd-tab-move-margin: var(--sjs-pd-tab-move-margin);
+
+$pd-tab-add-fade-in-duration: var(--sjs-pd-tab-add-fade-in-duration, 500ms);
+$pd-tab-add-fade-in-delay: var(--sjs-pd-tab-add-fade-in-delay, 250ms);
+$pd-tab-remove-fade-out-duration: var(--sjs-pd-tab-remove-fade-out-duration, 150ms);
+$pd-tab-remove-fade-out-delay: var(--sjs-pd-tab-remove-fade-out-delay, 0ms);
+$pd-tab-remove-fade-in-delay: var(--sjs-pd-tab-remove-fade-in-delay, 150ms);
+
+$pd-list-fade-in-duration: var(--sjs-pd-list-fade-in-duration, 500ms);
+$pd-list-move-in-duration: var(--sjs-pd-list-move-in-duration, 250ms);
+$pd-list-fade-in-delay: var(--sjs-pd-list-fade-in-delay, 250ms);
+$pd-list-fade-out-duration: var(--sjs-pd-list-fade-out-duration, 150ms);
+$pd-list-move-out-duration: var(--sjs-pd-list-move-out-duration, 250ms);
+$pd-list-move-out-delay: var(--sjs-pd-list-move-out-delay, 100ms);
+
+$transition-duration: var(--sjs-transition-duration, 150ms);
+
+$ease-out: cubic-bezier(0, 0, 0.58, 1);
+$reverse-ease-out: cubic-bezier(0.42, 0, 1, 1);
+
+@mixin useEditorFontSize {
+  --sjs-internal-font-editorfont-size: var(--sjs-mobile-font-editorfont-size, #{$font-default-editorfont-size});
+}
+
+@function multiply($a, $b) {
+  @if $a ==1 {
+    $result: #{$b};
+    @return $result;
+  } @else {
+    $result: calc(#{$a} * (#{$b}));
+    @return $result;
+  }
+}
+
+@function calcSize($multiplier) {
+  @if $multiplier ==1 {
+    $result: #{$base-unit};
+    @return $result;
+  } @else {
+    $result: calc(#{$multiplier} * (#{$base-unit}));
+    @return $result;
+  }
+}
+
+@function calcFontSize($multiplier) {
+  @if $multiplier ==1 {
+    $result: #{$font-size};
+    @return $result;
+  } @else {
+    $result: calc(#{$multiplier} * (#{$font-size}));
+    @return $result;
+  }
+}
+
+@function calcLineHeight($multiplier) {
+  @if $multiplier ==1 {
+    $result: #{$font-size};
+    @return $result;
+  } @else {
+    $result: calc(#{$multiplier} * (#{$font-size}));
+    @return $result;
+  }
+}
+
+@function calcCornerRadius($multiplier) {
+  @if $multiplier ==1 {
+    $result: #{$corner-radius};
+    @return $result;
+  } @else {
+    $result: calc(#{$multiplier} * (#{$corner-radius}));
+    @return $result;
+  }
+}

@@ -1,0 +1,13 @@
+<ng-template #template>
+  <div *ngIf="(survey.headerView === 'advanced')" [class]="model.headerClasses" [style]="{ height: model.renderedHeight }">
+    <div *ngIf="!!model.backgroundImage" [style]="model.backgroundImageStyle" [class]="model.backgroundImageClasses"></div>
+    <div *ngIf="!survey.isMobile" [class]="model.contentClasses" [style.width]="model.maxWidth">
+      <ng-container *ngFor="let cell of model.cells">
+        <sv-ng-header-cell [model]="cell"></sv-ng-header-cell>
+      </ng-container>
+    </div>
+    <div *ngIf="survey.isMobile">
+      <sv-ng-header-mobile [model]="model"></sv-ng-header-mobile>
+    </div>
+  </div>
+</ng-template>

@@ -60,8 +60,7 @@ You can arrange the question title, number, and required mark in different seque
 const surveyJson = {
   // ...
   "questionTitlePattern": "numTitleRequire", // 1. Question Title *
-  "questionTitlePattern": "numRequireTitle", // 1. * Question Title
-  "questionTitlePattern": "requireNumTitle", // * 1. Question Title
+  "questionTitlePattern": "numRequireTitle", // 1. * Question Title  
   "questionTitlePattern": "numTitle",        // 1. Question Title
 }
 ```

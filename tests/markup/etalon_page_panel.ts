@@ -1,4 +1,3 @@
-import { StylesManager } from "survey-core";
 import { registerMarkupTest } from "./helper";
 
 registerMarkupTest(
@@ -52,7 +51,7 @@ registerMarkupTest(
 
 registerMarkupTest(
   {
-    name: "Test Panel - start with new line",
+    name: "Test Panel - panel start with new line",
     json: {
       "elements": [
         {
@@ -79,8 +78,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPanel",
     snapshot: "panel-swnl-v2",
   });
@@ -89,6 +87,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line with panel",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "html",
@@ -114,8 +113,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "panel-page-swnl-v2",
   });
@@ -124,6 +122,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "html",
@@ -142,8 +141,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "page-swnl-v2",
   });
@@ -152,6 +150,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line with panel and titles",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "text",
@@ -173,8 +172,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "panel-page-swnl-title-v2",
   });
@@ -190,8 +188,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "page-title-v2",
   });
@@ -200,6 +197,7 @@ registerMarkupTest(
   {
     name: "Test Page - start with new line Title",
     json: {
+      gridLayoutEnabled: false,
       "elements": [
         {
           type: "text",
@@ -214,11 +212,32 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "page-swnl-title-v2",
   });
+
+registerMarkupTest({
+  name: "Test Page - questionTitleWidth",
+  json: {
+    "pages": [
+      {
+        "name": "page1",
+        "questionTitleLocation": "left",
+        "questionTitleWidth": "500px",
+        "elements": [
+          {
+            "type": "text",
+            "name": "name",
+            "title": "Employee name:",
+          }
+        ]
+      }]
+  },
+
+  event: "onAfterRenderPage",
+  snapshot: "page-questionTitleWidth",
+});
 
 registerMarkupTest(
   {
@@ -243,11 +262,38 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "panel-question-headers",
-  });
+  }
+);
+registerMarkupTest(
+  {
+    name: "Test Panel - Required panel's title",
+    json: {
+      "elements": [
+        {
+          type: "panel",
+          name: "name",
+          isRequired: true,
+          title: "panel_title",
+          showQuestionNumbers: "off",
+          startWithNewLine: false,
+          elements: [
+            {
+              type: "text",
+              name: "question1",
+              titleLocation: "hidden",
+            }
+          ]
+        }
+      ]
+    },
+
+    event: "onAfterRenderPage",
+    snapshot: "panel-required-header",
+  }
+);
 registerMarkupTest(
   {
     name: "Test Panel - Panel title with number",
@@ -269,8 +315,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPanel",
     snapshot: "panel-number",
   });

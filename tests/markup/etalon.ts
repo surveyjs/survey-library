@@ -20,6 +20,9 @@ export * from "./etalon_matrixdropdown";
 export * from "./etalon_matrixdynamic";
 export * from "./etalon_question";
 export * from "./etalon_survey";
+export * from "./etalon_signaturepad";
+export * from "./etalon_expression";
+export * from "./etalon_layout";
 export { markupTests } from "./helper";
 
 registerMarkupTests([
@@ -36,6 +39,6 @@ registerMarkupTests([
         }
       ]
     },
-    etalon: "<div>HTML content here</div>"
+    etalon: "<div class=\"sd-html\">HTML content here</div>"
   },
 ]);

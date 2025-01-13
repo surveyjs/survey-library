@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+import { TextAreaComponent } from "./components/text-area/text-area.component";
 import { SurveyComponent } from "./survey.component";
 import { PopupSurveyComponent } from "./popup.survey.component";
 import { PageComponent } from "./page.component";
@@ -46,10 +47,13 @@ import { SurveyHeaderComponent } from "./components/survey-header/survey-header.
 import { DynamicHeadComponent } from "./components/element-title/dynamic-head.component";
 import { ListComponent } from "./components/list/list.component";
 import { ListItemComponent } from "./components/list/list-item.component";
+import { ListItemContentComponent } from "./components/list/list-item-content.component";
+import { ListItemGroupComponent } from "./components/list/list-item-group.component";
 import { RatingItemComponent } from "./components/rating/rating-item.component";
 import { RatingItemStarComponent } from "./components/rating/rating-item-star.component";
 import { RatingItemSmileyComponent } from "./components/rating/rating-item-smiley.component";
 import { RowComponent } from "./row.component";
+import { RatingDropdownItemComponent } from "./components/renderAs/rating-dropdown/rating-dropdown-item.component";
 import { RatingDropdownComponent } from "./components/renderAs/rating-dropdown/rating-dropdown.component";
 import { BooleanCheckboxComponent } from "./components/renderAs/boolean-checkbox/boolean-checkbox.component";
 import { BooleanRadioComponent } from "./components/renderAs/boolean-radio/boolean-radio.component";
@@ -75,10 +79,11 @@ import { MultipleTextItemComponent } from "./questions/multipletextitem.componen
 import { DynamicComponentDirective } from "./utils/dynamic.directive";
 import { RankingQuestionComponent } from "./questions/ranking.component";
 import { RankingItemComponent } from "./questions/ranking-item.component";
+import { RankingItemContentComponent } from "./questions/ranking-item-content.component";
 import { SurveyStringComponent } from "./survey-string.component";
 import { StringEditorComponent } from "./string-editor.component";
 import { PanelDynamicAddBtn } from "./components/paneldynamic-actions/paneldynamic-add-btn.component";
-import { PanelDynamicNextBtn }from "./components/paneldynamic-actions/paneldynamic-next-btn.component";
+import { PanelDynamicNextBtn } from "./components/paneldynamic-actions/paneldynamic-next-btn.component";
 import { PanelDynamicPrevBtn } from "./components/paneldynamic-actions/paneldynamic-prev-btn.component";
 import { PanelDynamicProgressText } from "./components/paneldynamic-actions/paneldynamic-progress-text.component";
 import { PanelDynamicQuestionComponent } from "./questions/paneldynamic.component";
@@ -86,6 +91,7 @@ import { EmbeddedViewContentComponent } from "./embedded-view-content.component"
 import { ElementComponent } from "./element.component";
 import { CustomWidgetComponent } from "./questions/customwidget.component";
 import { MatrixCellComponent } from "./questions/matrixcell.component";
+import { MatrixDropdownCellComponent } from "./questions/matrixdropdowncell.component";
 import { MatrixTableComponent } from "./questions/matrixtable.component";
 import { MatrixDropdownComponent } from "./questions/matrixdropdown.component";
 import { MatrixDynamicComponent } from "./questions/matrixdynamic.component";
@@ -96,6 +102,7 @@ import { MatrixRequiredHeader } from "./questions/matrixrequiredheader.component
 import { ExpressionComponent } from "./questions/expression.component";
 import { ImageQuestionComponent } from "./questions/image.component";
 import { BrandInfoComponent } from "./components/brand-info/brand-info.component";
+import { QuestionErrorComponent } from "./components/question-error/question-error.component";
 import { CustomQuestionComponent } from "./questions/custom.component";
 import { CompositeQuestionComponent } from "./questions/composite.component";
 import { SurveyContentComponent } from "./survey-content.component";
@@ -110,23 +117,36 @@ import { PaneldynamicRemoveButtonComponent } from "./components/paneldynamic-act
 import { TimerPanelComponent } from "./components/timer-panel/timer-panel.component";
 import { NotifierComponent } from "./components/notifier/notifier.component";
 import { ComponentsContainerComponent } from "./components-container.component";
+import { MultipleTextRowComponent } from "./questions/multipletextrow.component";
+import { LoadingIndicatorComponent } from "./angular-ui";
+import { HeaderComponent } from "./components/header/header.component";
+import { HeaderCellComponent } from "./components/header/header-cell.component";
+import { HeaderMobileComponent } from "./components/header/header-mobile.component";
+import { ChooseFileBtn } from "./components/file/choose-file.component";
+import { FilePreviewComponent } from "./components/file/file-preview.component";
+import { FileItemComponent } from "./components/file/file-item.component";
+import { FilePageComponent } from "./components/file/file-page.component";
+import { SvgBundleComponent } from "./svgbundle.component";
+
 @NgModule({
   declarations: [
     VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
     SurveyComponent, SurveyContentComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
+    TextAreaComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
-    CharacterCounterComponent, ListComponent, ListItemComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
+    CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentOtherComponent, ElementHeaderComponent, ElementTitleActionsComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
-    RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
+    RatingQuestionComponent, RatingDropdownItemComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, ProgressTocComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
-    MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent, MatrixCellComponent, MatrixTableComponent, MatrixDropdownComponent,
-    MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent,
+    MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, RankingItemContentComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent,
+    MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
+    MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent, QuestionErrorComponent,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
-    NotifierComponent, ComponentsContainerComponent
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, ChooseFileBtn, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent
   ],
   imports: [
     CommonModule, FormsModule
@@ -134,20 +154,22 @@ import { ComponentsContainerComponent } from "./components-container.component";
   exports: [
     VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
     SurveyComponent, SurveyContentComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
+    TextAreaComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     CharacterCounterComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
-    CharacterCounterComponent, ListComponent, ListItemComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
+    CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentOtherComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
-    RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
+    RatingQuestionComponent, RatingDropdownItemComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
-    MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent, MatrixCellComponent, MatrixTableComponent, MatrixDropdownComponent,
+    MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, RankingItemContentComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent,
+    MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupQuestionComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
-    NotifierComponent, ComponentsContainerComponent
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent
   ],
   providers: [PopupService],
 })

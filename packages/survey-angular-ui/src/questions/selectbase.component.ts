@@ -30,10 +30,10 @@ export class SelectBaseComponent<T extends QuestionSelectBase> extends QuestionA
   public getItemValueComponentData(item: ItemValue): any {
     const itemComponentProperty = this.model.getPropertyByName("itemComponent");
     const isDefaultItemComponent = itemComponentProperty.isDefaultValue(this.model.itemComponent);
-    const itemComponentName = isDefaultItemComponent ? this.getDefaultComponentName() : this.model.itemComponent;
+    const itemComponent = isDefaultItemComponent ? this.getDefaultComponentName() : this.model.itemComponent;
 
     return {
-      componentName: itemComponentName,
+      componentName: itemComponent,
       componentData: {
         question: this.model,
         model: item,

@@ -1,4 +1,4 @@
-import { StylesManager } from "survey-core";
+import { settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -45,6 +45,23 @@ registerMarkupTests(
       snapshot: "checkbox-other",
     },
     {
+      name: "Test checkbox question markup Other option with maxCommentLength",
+      json: {
+        "maxOthersLength": 15,
+        questions: [
+          {
+            "type": "checkbox",
+            "name": "name",
+            "hasOther": true,
+            "defaultValue": "other",
+            "otherText": "Other (describe)",
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "checkbox-other-maxlength",
+    },
+    {
       name: "Test checkbox question markup Other option (defaultV2)",
       json: {
         questions: [
@@ -62,10 +79,10 @@ registerMarkupTests(
         ]
       },
       before() {
-        StylesManager.applyTheme("defaultV2");
+
       },
       after() {
-        StylesManager.applyTheme("default");
+
       },
       snapshot: "checkbox-other-V2",
     },
@@ -86,10 +103,10 @@ registerMarkupTests(
         ]
       },
       before() {
-        StylesManager.applyTheme("defaultV2");
+
       },
       after() {
-        StylesManager.applyTheme("default");
+
       },
       snapshot: "checkbox-comment-V2",
     },
@@ -112,6 +129,28 @@ registerMarkupTests(
         ]
       },
       snapshot: "checkbox-readonly",
+    },
+    {
+      name: "Test radiogroup question markup Disabled",
+      json: {
+        questions: [
+          {
+            "type": "checkbox",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      initSurvey: (survey) => survey.setDesignMode(true),
+      before: () => { settings.supportCreatorV2 = true; },
+      after: () => { settings.supportCreatorV2 = false; },
+      snapshot: "checkbox-disabled",
     },
     {
       name: "Test checkbox question Readonly selected",
@@ -150,8 +189,7 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
+
       snapshot: "checkbox-v2",
     },
     {
@@ -170,8 +208,6 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("modern"),
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "checkbox-modern",
     },
     {
@@ -264,6 +300,8 @@ registerMarkupTests(
         ]
       },
       snapshot: "checkbox-columns-no-head-foot",
+      before: () => { settings.itemFlowDirection = "row"; },
+      after: () => { settings.itemFlowDirection = "column"; }
     },
     {
       name: "Test checkbox row layout with no header and footer",

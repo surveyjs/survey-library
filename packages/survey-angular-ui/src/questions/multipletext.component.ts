@@ -11,9 +11,6 @@ export class MultipleTextComponent extends QuestionAngular<QuestionMultipleTextM
   trackRowBy = (index: number): string => {
     return this.model.inputId + "rowkey" + index;
   }
-  trackItemBy (_: number, item: MultipleTextItemModel): string {
-    return "item" + item.editor.id;
-  }
 }
 
 AngularComponentFactory.Instance.registerComponent("multipletext-question", MultipleTextComponent);

@@ -25,6 +25,9 @@ export class TagboxComponent implements OnInit {
     click(event: any) {
       this.dropdownModel?.onClick(event);
     }
+    chevronPointerDown(event: any) {
+      this.dropdownModel?.chevronPointerDown(event);
+    }
     clear(event: any) {
       this.dropdownModel?.onClear(event);
     }
@@ -32,6 +35,9 @@ export class TagboxComponent implements OnInit {
       this.dropdownModel?.keyHandler(event);
     }
     blur(event: any) {
-      this.dropdownModel?.onBlur(event);
+      this.model?.onBlur(event);
+    }
+    focus(event: any) {
+      this.model?.onFocus(event);
     }
 }

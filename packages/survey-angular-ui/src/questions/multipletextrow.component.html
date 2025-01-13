@@ -1,0 +1,7 @@
+<ng-template #template>
+    <tr [class]="question.cssClasses.row" *ngIf="model.isVisible">
+        <ng-container *ngFor="let cell of model.cells; trackBy: trackItemBy">
+            <td [class]="cell.className" [question]="question" [model]="cell" sv-ng-multipletext-item></td>
+        </ng-container>
+    </tr>
+</ng-template>

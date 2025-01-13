@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { PanelModel, Question, SurveyModel } from "survey-core";
 import { BaseAngular } from "./base-angular";
 
@@ -7,14 +7,26 @@ import { BaseAngular } from "./base-angular";
   templateUrl: "./element.component.html",
   styleUrls: ["./hide-host.scss"]
 })
-export class ElementComponent extends BaseAngular<PanelModel | Question> {
+export class ElementComponent extends BaseAngular<PanelModel | Question> implements AfterViewInit {
   @Input() model!: PanelModel | Question;
+  @ViewChild("container", { static: false, read: ElementRef }) container!: ElementRef<HTMLDivElement>;
   protected getModel(): PanelModel | Question {
     return this.model;
   }
   protected get elementComponentName(): string {
     return this.model.isPanel ? "panel": "question";
   }
+
+  protected override onModelChanged(): void {
+    super.onModelChanged();
+    if(this.previousModel) {
+      this.previousModel.setWrapperElement(undefined)
+    }
+    if(this.model && this.container?.nativeElement) {
+      this.model.setWrapperElement(this.container.nativeElement);
+    }
+  }
+
   public get componentName(): string {
     const survey = this.surveyModel as SurveyModel;
     if(!!survey) {
@@ -46,5 +58,14 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> {
         data: data
       }
     };
+  }
+  public ngAfterViewInit(): void {
+    if(this.model && this.container?.nativeElement) {
+      this.model.setWrapperElement(this.container.nativeElement)
+    }
+  }
+  public override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.model.setWrapperElement(undefined);
   }
 }

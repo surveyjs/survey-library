@@ -17,19 +17,21 @@ export class ModalComponent {
 
   constructor(private popupService: PopupService) {
   }
-  showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
-    this.model = createPopupModalViewModel(dialogOptions);
-    this.model.initializePopupContainer();
-    this.model.model.onHide = () => {
-      this.portalHost.detach();
-      this.model.unmountPopupContainer();
+  showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
+    const popupViewModel = this.model = createPopupModalViewModel(dialogOptions, rootElement);
+    const onVisibilityChangedCallback = (_: PopupBaseViewModel, options: { isVisible: boolean }) => {
+      if(!options.isVisible) {
+        this.portalHost.detach();
+        this.model.dispose();
+      }
     };
+    popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);
     this.portalHost = this.popupService.createComponent(this.model);
     this.model.model.isVisible = true;
     return this.model;
   }
   ngOnInit(): void {
-    if(!!settings.showModal) return;
+    if (!!settings.showModal) return;
     this.functionDefined = true;
     settings.showModal = (
       componentName: string,
@@ -53,10 +55,17 @@ export class ModalComponent {
       );
       return this.showDialog(options);
     };
+
+    settings.showDialog = (dialogOptions: IDialogOptions, rootElement?: HTMLElement) => {
+      return this.showDialog(dialogOptions, rootElement);
+    };
   }
   ngOnDestroy() {
-    if(this.functionDefined) {
+    this.portalHost?.detach();
+    this.model?.dispose();
+    if (this.functionDefined) {
       settings.showModal = <any>undefined;
+      settings.showDialog = <any>undefined;
     }
   }
 }

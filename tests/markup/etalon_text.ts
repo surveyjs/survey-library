@@ -49,6 +49,23 @@ registerMarkupTest({
   snapshot: "text-readonly",
 });
 registerMarkupTest({
+  name: "Test Text disabled question markup",
+  json: {
+    questions: [
+      {
+        name: "name",
+        type: "text",
+        title: "Question title",
+        titleLocation: "hidden"
+      }
+    ],
+  },
+  initSurvey: (survey) => survey.setDesignMode(true),
+  before: () => { settings.supportCreatorV2 = true; },
+  after: () => { settings.supportCreatorV2 = false; },
+  snapshot: "text-disabled",
+});
+registerMarkupTest({
   name: "Test Text readonly DIV question markup",
   json: {
     questions: [
@@ -120,4 +137,19 @@ registerMarkupTest({
     ],
   },
   snapshot: "text-datalist",
+});
+registerMarkupTest({
+  name: "Test Text numeric mask type markup",
+  json: {
+
+    questions: [
+      {
+        type: "text",
+        name: "q1",
+        maskType: "numeric",
+        titleLocation: "hidden"
+      }
+    ],
+  },
+  snapshot: "text-masktype-numeric",
 });

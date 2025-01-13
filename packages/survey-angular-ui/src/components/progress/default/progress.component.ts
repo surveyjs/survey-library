@@ -8,6 +8,7 @@ import { EmbeddedViewContentComponent } from "../../../embedded-view-content.com
   templateUrl: "./progress.component.html"
 })
 export class ProgressDefaultComponent extends EmbeddedViewContentComponent {
+  @Input() container?: string;
   @Input() model: any;
   getProgressTextInBarCss(css: any): string {
     return SurveyProgressModel.getProgressTextInBarCss(css);

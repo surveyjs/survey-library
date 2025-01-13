@@ -16,6 +16,9 @@ export class ActionComponent extends BaseAngular {
   protected override getPropertiesToUpdateSync(): string[] {
     return ["mode"];
   }
+  public get id() {
+    return this.model.id || '';
+  }
 }
 
 AngularComponentFactory.Instance.registerComponent("sv-action", ActionComponent);

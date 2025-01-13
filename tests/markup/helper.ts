@@ -1,4 +1,4 @@
-import { StylesManager, Model, SurveyModel, PanelModel } from "survey-core";
+import { Model, SurveyModel, PanelModel, settings } from "survey-core";
 export interface MarkupTestDescriptor {
   name: string;
   json: any;
@@ -12,6 +12,7 @@ export interface MarkupTestDescriptor {
   removeIds?: boolean;
   initSurvey?: (survey: Model) => void;
   getElement?: (element?: HTMLElement) => HTMLElement | undefined | null;
+  getSnapshot?: (element: HTMLElement) => string;
   timeout?: number;
 }
 
@@ -100,41 +101,15 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
     reportElement.id = id+"_report";
     document.body.appendChild(reportElement);
   }
-  StylesManager.applyTheme("default");
   var done = assert.async();
+  settings.animationEnabled = false;
   if (test.before)
     test.before();
   platform.survey = platform.surveyFactory(test.json);
-  platform.survey.getAllQuestions().map((q, i) => {
-    q.id = "testid" + i;
-    if(q.getType() === "paneldynamic") {
-      q.panels.forEach((p, j) => {
-        p.id = q.id + "panel" + j;
-        p.questions.forEach((pq, k)=> {
-          pq.id = p.id + "question" + k;
-        });
-      });
-    }
-    if(q.getType() === "matrixdynamic" || q.getType() === "matrixdropdown") {
-      q.renderedTable.rows.forEach((row: any, rowIndex: number) => {
-        row.row.idValue = `${q.id}row${rowIndex}`;
-        row.cells.forEach((cell: any, cellIndex: number) => {
-          if(cell.hasQuestion) {
-            cell.question.id = `${q.id}row${rowIndex}cell${cellIndex}`;
-          }
-        });
-      });
-    }
-  });
-  platform.survey.getAllPanels().map((p: PanelModel, i: number) => {
-    p.id = "testidp" + i;
-  });
-  platform.survey.pages.map((p: PanelModel, i: number) => {
-    p.id = "testidpage" + i;
-  });
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey: SurveyModel, options: any) {
     setTimeout(() => {
+
       let htmlElement = options.htmlElement;
       if(!!test.getElement) {
         htmlElement = test.getElement(options.htmlElement);
@@ -145,9 +120,18 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         clearClasses(all[i]);
       }
       sortAttributes(all);
-      const newEl = document.createElement("div");
-      newEl.innerHTML = crearExtraElements(htmlElement.innerHTML);
-      let str = newEl.children[0].innerHTML;
+      let newEl = document.createElement("div");
+      newEl.innerHTML = clearExtraElements(htmlElement.innerHTML);
+      if (!test.getElement) {
+        newEl = newEl.children[0] as any;
+      }
+      let str = newEl.innerHTML;
+      if(newEl.getElementsByTagName("form").length) {
+        str = newEl.getElementsByTagName("form")[0].innerHTML;
+      }
+      if(!!test.getSnapshot) {
+        str = test.getSnapshot(options.htmlElement);
+      }
 
       var re = /(<!--[\s\S]*?-->)/g;
       var newstr = str.replace(re, "");
@@ -166,6 +150,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         newstr == oldStr ?
           platform.name + " " + test.name + " rendered correctly" :
           platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#" + test.snapshot);
+      settings.animationEnabled = true;
       if (test.after) { test.after(); }
       if (platform.finish)
         platform.finish(surveyElement);
@@ -228,6 +213,44 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   platform.survey.focusFirstQuestionAutomatic = false;
   if (test.initSurvey)
     test.initSurvey(platform.survey);
+  platform.survey.getAllQuestions().map((q, i) => {
+    q.id = "testid" + i;
+    if(q.getType() === "paneldynamic") {
+      q.panels.forEach((p, j) => {
+        p.id = q.id + "panel" + j;
+        p.questions.forEach((pq, k)=> {
+          pq.id = p.id + "question" + k;
+        });
+      });
+    }
+    if(q.getType() == "matrix" && platform.name == "Knockout") {
+      //need to update rows full names
+      q.onRowsChanged();
+    }
+    if(q.getType() === "matrixdynamic" || q.getType() === "matrixdropdown") {
+      q.renderedTable.rows.forEach((row: any, rowIndex: number) => {
+        if(row.row) {
+          row.row.idValue = `${q.id}row${rowIndex}`;
+        }
+        row.cells.forEach((cell: any, cellIndex: number) => {
+          if(cell.hasQuestion) {
+            cell.question.id = `${q.id}row${rowIndex}cell${cellIndex}`;
+          }
+        });
+      });
+    }
+    if(q.getType() === "file") {
+      q.pages.forEach((p, j) => {
+        p.id = q.id + "page" + j;
+      });
+    }
+  });
+  platform.survey.getAllPanels().map((p: PanelModel, i: number) => {
+    p.id = "testidp" + i;
+  });
+  platform.survey.pages.map((p: PanelModel, i: number) => {
+    p.id = "testidpage" + i;
+  });
   platform.render(platform.survey, surveyElement);
 }
 
@@ -236,7 +259,7 @@ const removeExtraElementsConditions: Array<(htmlElement: HTMLElement) => boolean
   (HTMLElement: HTMLElement) => HTMLElement.tagName.toLowerCase().search(/^sv-/) > -1
 ];
 
-function crearExtraElements(innerHTML: string): string {
+function clearExtraElements(innerHTML: string): string {
   const container = document.createElement("div");
   container.innerHTML = innerHTML;
   container.querySelectorAll("*").forEach((el)=>{
@@ -265,6 +288,9 @@ function clearClasses(el: Element) {
       if(className.search(/^ng-/) > -1) {
         classesToRemove.push(className);
       }
+      if(["top", "bottom"].filter(direction => className == `sv-popup--${direction}`).length > 0) {
+        classesToRemove.push(className);
+      }
     });
     el.classList.remove(...classesToRemove);
   }
@@ -282,26 +308,36 @@ function clearAttributes(el: Element, removeIds = false) {
   if(!!removeIds) {
     el.removeAttribute("id");
   }
-  //el.removeAttribute("aria-describedby");
-  el.removeAttribute("for");
+  //el.removeAttribute("aria-errormessage");
   //if(el.getAttribute("list")) el.removeAttribute("list");
   el.removeAttribute("fragment");
   if(el.getAttribute("style") === "") {
     el.removeAttribute("style");
   }
+  if((el.classList.contains("sv-popup__container") || el.classList.contains("sv-popup__pointer")) && el.hasAttribute("style")) {
+    el.removeAttribute("style");
+  }
   if(el.getAttribute("src") === "") {
     el.removeAttribute("src");
   }
-  if(el.getAttribute("name") !== "name")
-    el.removeAttribute("name");
+  if(el.classList.contains("sv-list__input") && el.getAttribute("value") === "") {
+    el.removeAttribute("value");
+  }
   if((<any>el).checked) {
     el.setAttribute("checked", "");
+  }
+  if((<any>el).autoplay) {
+    el.setAttribute("autoplay", "");
   }
   if((<any>el).multiple) {
     el.setAttribute("multiple", "");
   }
   if(el.hasAttribute("readonly"))
     el.setAttribute("readonly", "");
+  if(el.hasAttribute("required"))
+    el.setAttribute("required", "");
+  if (el.hasAttribute("disabled"))
+    el.setAttribute("disabled", "");
   if(el.hasAttribute("ng-reflect-value")) {
     el.setAttribute("value", <string>el.getAttribute("ng-reflect-value"));
   }
@@ -335,8 +371,32 @@ function sortInlineStyles(str: string) {
   div.innerHTML = str;
   div.querySelectorAll("*").forEach(el => {
     if(!!el.getAttribute("style")) {
-      const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(";");
-      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).map((style => style.replace(/\s*(:)\s*/, "$1"))).join("; ") + ";");
+      const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(/;(?![^(]*\))/);
+      if(el.tagName === "CANVAS") {
+        const excludeStyles = ["touch-action: none", "touch-action: auto"];
+        excludeStyles.forEach(excludeStyle => {
+          if (inlineStyle.indexOf(excludeStyle) !== -1) {
+            inlineStyle.splice(inlineStyle.indexOf(excludeStyle), 1);
+          }
+        });
+      }
+      const flexRules = ["flex-grow", "flex-shrink", "flex-basis"];
+      const flexStyles: Array<string> = [];
+      flexRules.forEach(rule => {
+        const flexStyle = inlineStyle.filter(style => style.includes(rule))[0];
+        if(flexStyle) {
+          flexStyles.push(flexStyle);
+        }
+      }
+      );
+      if(flexStyles.length == 3) {
+        inlineStyle.push(`flex:${flexStyles.map((style => {
+          inlineStyle.splice(inlineStyle.indexOf(style), 1);
+          const match = style.replace(/\s*(:)\s*/, "$1").match(/:(.*)/);
+          return match ? match[1] : "";
+        })).join(" ")}`);
+      }
+      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).map((style => style.replace(/\s*(:)\s*/, "$1").replace(/url\(([^"].*[^"])\)/, "url(\"$1\")"))).join("; ") + ";");
     }
   });
   return div.innerHTML;

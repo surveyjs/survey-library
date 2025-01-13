@@ -8,24 +8,19 @@ import { AngularComponentFactory } from "../component-factory";
   templateUrl: "./paneldynamic.component.html"
 })
 export class PanelDynamicQuestionComponent extends QuestionAngular<QuestionPanelDynamicModel | any> implements OnInit {
-  get renderedPanels(): PanelModel[] {
-    if (this.model.isRenderModeList) return this.model.visiblePanels;
-    const panels = [];
-    if (this.model.currentPanel) {
-      panels.push(this.model.currentPanel);
-    }
-    return panels;
+  public trackPanelBy(_: number, panel: PanelModel) {
+    return panel.id;
   }
   protected override onModelChanged(): void {
     super.onModelChanged();
     this.model.panelCountChangedCallback = () => {
-      this.detectChanges();
+      this.update();
     };
     this.model.currentIndexChangedCallback = () => {
-      this.detectChanges();
+      this.update()
     };
     this.model.renderModeChangedCallback = () => {
-      this.detectChanges();
+      this.update();
     };
   }
   get progressCssClass() {

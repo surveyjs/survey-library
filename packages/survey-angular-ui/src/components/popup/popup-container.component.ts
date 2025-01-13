@@ -8,7 +8,6 @@ import { PopupBaseViewModel, PopupModalViewModel } from "survey-core";
   })
 
 export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBaseViewModel> extends BaseAngular<T> {
-  private prevIsVisible: boolean = false;
   @Input() model!: T;
 
   constructor(changeDetectorRef: ChangeDetectorRef) {
@@ -33,6 +32,10 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
     popupModalModel.apply();
   }
 
+  protected override getPropertiesToUpdateSync(): string[] {
+    return ["height"];
+  }
+
   protected override getShouldReattachChangeDetector(): boolean {
     return false;
   }
@@ -41,13 +44,12 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
     this.changeDetectorRef.detectChanges();
   }
 
-  protected override afterUpdate(): void {
-    super.afterUpdate();
-    if (!this.prevIsVisible && this.model.isVisible) {
-      this.model.updateOnShowing();
-    }
-    if (this.prevIsVisible !== this.model.isVisible) {
-      this.prevIsVisible = this.model.isVisible;
+  protected override afterUpdate(isSync: boolean = false): void {
+    super.afterUpdate(isSync);
+    if(!isSync) {
+      if (!this.model.isPositionSet && this.model.isVisible) {
+        this.model.updateOnShowing();
+      }
     }
   }
   public clickInside(event: any) {

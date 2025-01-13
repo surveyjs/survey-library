@@ -1,17 +1,11 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
-const title = "Dropdown Screenshot";
+const title = "ButtonGroup Screenshot";
 
 fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
-
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
 
 const registerButtongroup = ClientFunction((framework) => {
   const Survey = (<any>window).Survey;
@@ -19,8 +13,22 @@ const registerButtongroup = ClientFunction((framework) => {
     return new Survey.QuestionButtonGroupModel(name);
   });
   if (framework === "react") {
-    Survey.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
-      return (<any>window).React.createElement(Survey.SurveyQuestionButtonGroup, props);
+    (<any>window).SurveyReact.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
+      return (<any>window).React.createElement((<any>window).SurveyReact.SurveyQuestionButtonGroup, props);
+    });
+  }
+  if (framework === "jquery-ui") {
+    const SurveyJquery = (<any>window).SurveyJquery;
+    const preact = SurveyJquery["preact"];
+    SurveyJquery.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
+      return preact.createElement(SurveyJquery.SurveyQuestionButtonGroup, props);
+    });
+  }
+  if (framework === "survey-js-ui") {
+    const SurveyUI = (<any>window).SurveyUI;
+    const preact = SurveyUI["preact"];
+    SurveyUI.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
+      return preact.createElement(SurveyUI.SurveyQuestionButtonGroup, props);
     });
   }
   if (framework === "knockout") {
@@ -38,12 +46,8 @@ const registerButtongroup = ClientFunction((framework) => {
 });
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
-    await applyTheme(theme);
-  });
-  test("Check dropdown question", async (t) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+  test("Check buttongroup question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await registerButtongroup(framework);

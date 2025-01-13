@@ -1,4 +1,4 @@
-import { _setIsTouch, Question } from "survey-core";
+import { _setIsTouch, Question, settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -152,6 +152,29 @@ registerMarkupTests(
       snapshot: "dropdown-readonly-with-value"
     },
     {
+      name: "Test Dropdown question markup disabled with value",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            defaultValue: "item1",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      initSurvey: (survey) => survey.setDesignMode(true),
+      before: () => { settings.supportCreatorV2 = true; },
+      after: () => { settings.supportCreatorV2 = false; },
+      snapshot: "dropdown-disabled-with-value"
+    },
+    {
       name: "Test Dropdown Select question markup",
       json: {
         questions: [
@@ -171,7 +194,7 @@ registerMarkupTests(
       },
       snapshot: "dropdown-select",
     }, {
-      name: "Test Dropdown Select question markup",
+      name: "Test Dropdown Select question markup - touch",
       json: {
         questions: [
           {
@@ -305,11 +328,78 @@ registerMarkupTests(
       },
       initSurvey: (survey) => {
         survey.focusFirstQuestionAutomatic = false;
-        survey.getQuestionByName("name")["popupModel"];
-        survey.getQuestionByName("name")["dropdownListModel"].inputStringRendered = "o";
+        survey.onAfterRenderQuestion.add((target, options) => {
+          options.question["popupModel"];
+          options.question["dropdownListModel"].inputStringRendered = "o";
+        });
+      },
+      event: "onAfterRenderSurvey",
+      getElement: el => {
+        return <HTMLElement>el?.querySelector(".sd-question > div") as HTMLElement;
       },
       timeout: 300,
+      removeIds: true,
       snapshot: "dropdown-input-string",
+    },
+    {
+      name: "Test Dropdown question without textWrapEnabled",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "textWrapEnabled": false,
+            "choices": [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+            ],
+            titleLocation: "hidden",
+          }
+        ]
+      },
+      initSurvey: (survey) => {
+        survey.focusFirstQuestionAutomatic = false;
+        survey.onAfterRenderQuestion.add((target, options) => {
+          options.question["popupModel"];
+          options.question["dropdownListModel"].inputStringRendered = "o";
+        });
+      },
+      event: "onAfterRenderSurvey",
+      getElement: el => {
+        return <HTMLElement>el?.querySelector(".sd-question > div") as HTMLElement;
+      },
+      timeout: 300,
+      removeIds: true,
+      snapshot: "dropdown-without-textWrapEnabled",
+    },
+    {
+      name: "Test Dropdown question input focused",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "searchEnabled": true,
+            "choices": [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+            ],
+            titleLocation: "hidden",
+          }
+        ]
+      },
+      initSurvey: (survey) => {
+        survey.focusFirstQuestionAutomatic = false;
+        survey.getQuestionByName("name")["popupModel"];
+        survey.getQuestionByName("name")["dropdownListModel"].focused = true;
+      },
+      timeout: 300,
+      removeIds: true,
+      snapshot: "dropdown-input-focused",
     },
     {
       name: "Test dropdown aria-expanded",
@@ -328,7 +418,8 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => { Question["questionCounter"] = 100; },
+      before: () => {
+        Question["questionCounter"] = 100; },
       initSurvey: (survey) => {
         const dropdown = survey.getQuestionByName("name");
         dropdown["popupModel"].isVisible = true;

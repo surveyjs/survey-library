@@ -1,0 +1,9 @@
+<ng-template #template>
+    <label tabindex="0" [class]="question.getChooseFileCss()"
+        [attr.for]="question.inputId" [attr.aria-label]="question.chooseButtonText" [key2click]
+        (click)="question.chooseFile($event)">
+        <svg *ngIf="question.cssClasses.chooseFileIconId" [title]="question.chooseButtonText"
+            [iconName]="question.cssClasses.chooseFileIconId" [size]="'auto'" sv-ng-svg-icon></svg>
+        <span>{{ question.chooseButtonText }}</span>
+</label>
+</ng-template>

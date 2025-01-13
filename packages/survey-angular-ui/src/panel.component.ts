@@ -13,12 +13,15 @@ export class PanelComponent extends BaseAngular<PanelModel> implements AfterView
     return this.model;
   }
   ngAfterViewInit(): void {
-    if(!!this.panelContainerRef?.nativeElement) {
-      this.model.survey?.afterRenderPanel(this.model, this.panelContainerRef.nativeElement);
+    if (!!this.panelContainerRef?.nativeElement) {
+      this.model.afterRender(this.panelContainerRef.nativeElement);
     }
   }
   trackRowBy = (_: any, row: any) => {
     return row.id;
+  }
+  public get canRender() {
+    return this.model && this.model.survey && this.model.getIsContentVisible();
   }
 }
 AngularComponentFactory.Instance.registerComponent("panel", PanelComponent);

@@ -1,4 +1,4 @@
 <div id="surveyElement">
-  <popup-survey *ngIf="!!model && isPopup" [model]="$any(model)"></popup-survey>
+  <popup-survey *ngIf="!!model && isPopup" [model]="$any(model)" [isExpanded]="isExpanded" [allowClose]="true" [allowFullScreen]="true"></popup-survey>
   <survey *ngIf="!!model && !isPopup" [model]="$any(model)"></survey></div>
 <div id="surveyResultElement"></div>

@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, applyTheme, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody } from "../../helper";
 
 const title = "Matrixdynamic Screenshot";
 
@@ -7,29 +7,25 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`
-    .beforeEach(async t => {
-      await explicitErrorHandler();
-      await applyTheme(theme);
-    });
+  fixture`${framework} ${title}`.page`${url}${framework}`;
   test("Matrixdynamic empty placeholder", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         elements: [
           {
             type: "matrixdynamic",
             name: "frameworks",
             title: "Please tells us your opinion about JavaScript MVVM frameworks.",
             hideColumnsIfEmpty: true,
-            emptyRowsText: "There is no records yet.\nClick the button below to add a new record.",
+            noRowsText: "There is no records yet.\nClick the button below to add a new record.",
             addRowText: "Add New Record",
             rowCount: 0,
+            maxWidth: "768px",
+            minWidth: "768px",
             width: "768px"
           }
         ]
@@ -44,6 +40,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         elements: [
           {
             type: "matrixdynamic",
@@ -65,6 +62,8 @@ frameworks.forEach(framework => {
             ],
             addRowText: "Add a New Record",
             rowCount: 3,
+            maxWidth: "768px",
+            minWidth: "768px",
             width: "768px"
           },
         ]
@@ -116,6 +115,8 @@ frameworks.forEach(framework => {
             cellType: "comment",
             addRowText: "Add Date +",
             removeRowText: "Remove",
+            maxWidth: "800px",
+            minWidth: "800px",
             width: "800px"
           }
         ]
@@ -132,6 +133,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         elements: [
           {
             type: "matrixdynamic",
@@ -149,28 +151,75 @@ frameworks.forEach(framework => {
               },
               {
                 "name": "Column 3",
+                "isRequired": true,
                 "title": "What is main strength?"
               },
             ],
             addRowText: "Add a New Record",
             rowCount: 3,
-            width: "704px"
+            maxWidth: "724px",
+            minWidth: "724px",
+            width: "724px"
           },
         ]
       });
       const matrixdynamicRoot = Selector(".sd-question");
       await t.click(".sd-navigation__complete-btn");
       await resetFocusToBody();
+      await resetHoverToBody(t);
 
-      await t.hover(".sd-table__question-wrapper", { offsetX: 50, offsetY: 20 });
       await takeElementScreenshot("matrixdynamic-errors-in-cell.png", matrixdynamicRoot, t, comparer);
+    });
+  });
+  test("Check Matrixdynamic errors inside cells bottom", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questionErrorLocation: "bottom",
+        showQuestionNumbers: "off",
+        width: "900px",
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "frameworks",
+            title: "Please tells us your opinion about JavaScript MVVM frameworks.",
+            columns: [
+              {
+                "name": "Column 1",
+                "isRequired": true,
+                "title": "Framework"
+              },
+              {
+                "name": "Column 2",
+                "title": "How long do you use it?"
+              },
+              {
+                "name": "Column 3",
+                "isRequired": true,
+                "title": "What is main strength?"
+              },
+            ],
+            addRowText: "Add a New Record",
+            rowCount: 3,
+            maxWidth: "724px",
+            minWidth: "724px",
+            width: "724px"
+          },
+        ]
+      });
+      const matrixdynamicRoot = Selector(".sd-question");
+      await t.click(".sd-navigation__complete-btn");
+      await resetFocusToBody();
+      await resetHoverToBody(t);
+
+      await takeElementScreenshot("matrixdynamic-errors-in-cell-bottom.png", matrixdynamicRoot, t, comparer);
     });
   });
 
   test("Check Matrixdynamic with allowRowsDragAndDrop", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-    //todo
-      if (framework === "vue" || framework === "angular") {
+      //todo
+      if (framework === "vue") {
         return;
       }
       await t.resizeWindow(1280, 1100);
@@ -178,11 +227,70 @@ frameworks.forEach(framework => {
 
       const matrixdynamicRoot = Selector(".sd-question");
       await resetFocusToBody();
+      await t.hover(matrixdynamicRoot.find(".sd-table__row"));
       await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop.png", matrixdynamicRoot, t, comparer);
     });
   });
+  test("Check Matrixdynamic with allowRowsDragAndDrop & lockedRowCount=1", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      //todo
+      if (framework === "vue") {
+        return;
+      }
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, { elements: [{ type: "matrixdynamic", name: "question1", allowRowsDragAndDrop: true, defaultValue: [{ col1: "Row1 value" }, { col1: "Row2 value" }, { col1: "Row3 value" }], columns: [{ "name": "col1", "title": "Column 1", "cellType": "text" }] }] });
+      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].lockedRowCount = 1; })();
 
-  test("Check Matrixdynamic with showInMultipleColumns", async (t) => {
+      const matrixdynamicRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await t.hover(matrixdynamicRoot.find(".sd-table__row").nth(0));
+      await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop-lockedRowCount.png", matrixdynamicRoot, t, comparer);
+      await t.hover(matrixdynamicRoot.find(".sd-table__row").nth(1));
+      await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop-lockedRowCount-2.png", matrixdynamicRoot, t, comparer);
+
+      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].allowRowsDragAndDrop = false; })();
+      await takeElementScreenshot("matrixdynamic-lockedRowCount.png", matrixdynamicRoot, t, comparer);
+    });
+  });
+
+  test("Check Matrixdynamic delete confirm dialog", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrixdynamic",
+                "name": "question1",
+                "defaultValue": [
+                  { "Column 1": 1, "Column 2": 2, "Column 3": 3 },
+                  { "Column 1": 4, "Column 2": 5, "Column 3": 5 }
+                ],
+                "columns": [{ "name": "Column 1" }, { "name": "Column 2" }, { "name": "Column 3" }],
+                "choices": [1, 2, 3, 4, 5],
+                "confirmDelete": true
+              }
+            ]
+          }
+        ]
+      });
+
+      const confirmDelete = Selector(".sv-popup--confirm .sv-popup__container");
+      await t.click(".sd-matrixdynamic__remove-btn");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdynamic-delete-confirm-dialog.png", confirmDelete, t, comparer);
+      await t.click(Selector("span").withText("Cancel"));
+
+      await t.resizeWindow(375, 667);
+      await t.click(".sd-matrixdynamic__remove-btn");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdynamic-delete-confirm-dialog-mobile.png", confirmDelete, t, comparer);
+    });
+  });
+
+  test("Check matrixdropdown with showInMultipleColumns", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
@@ -220,6 +328,162 @@ frameworks.forEach(framework => {
       const matrixdynamicRoot = Selector(".sd-question");
       await resetFocusToBody();
       await takeElementScreenshot("matrixdynamic-show-in-multiple-columns.png", matrixdynamicRoot, t, comparer);
+    });
+  });
+  test("Check Matrixdynamic with totals", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "orderList",
+            addRowText: "Add new item",
+            columns: [
+              {
+                name: "phone_model",
+                title: "Phone model",
+                totalType: "count",
+                totalFormat: "Items count: {0}",
+              }
+            ]
+          }
+        ]
+      });
+
+      const matrixdynamicRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdynamic-with-totals.png", matrixdynamicRoot, t, comparer);
+    });
+  });
+  test("Check Matrixdropdown with totals", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        elements: [
+          {
+            "type": "matrixdropdown",
+            "name": "question1",
+            "columns": [
+              {
+                "name": "col1",
+                "cellType": "text",
+                "inputType": "number",
+                "defaultValueExpression": "{rowIndex}",
+                "totalType": "sum"
+              },
+              {
+                "name": "col2",
+                "cellType": "text",
+                "inputType": "number",
+                "defaultValueExpression": "{rowIndex} + 5",
+                "totalType": "sum"
+              },
+              {
+                "name": "col3",
+                "cellType": "text",
+                "inputType": "number",
+                "defaultValueExpression": "{rowIndex} + 10",
+                "totalType": "sum"
+              }
+            ],
+            "rows": [
+              "Row 1",
+              "Row 2",
+              "Row 3"
+            ],
+            "totalText": "Total:"
+          }
+        ]
+      });
+
+      const matrixdynamicRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdropdown-with-totals.png", matrixdynamicRoot, t, comparer);
+    });
+  });
+  test("Check MatrixDynamic totals alignment", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        pages: [
+          {
+            name: "page1",
+            elements: [
+              {
+                type: "matrixdynamic",
+                name: "question1",
+                title: "Select Your Coffee",
+                columns: [
+                  {
+                    name: "coffee",
+                    title: "Coffee",
+                    cellType: "dropdown",
+                    isRequired: true,
+                    isUnique: true,
+                    choices: [
+                      {
+                        value: "espresso",
+                        text: "Espresso",
+                      },
+                      {
+                        value: "ristretto",
+                        text: "Ristretto",
+                      },
+                      {
+                        value: "macchiato",
+                        text: "Macchiato",
+                      },
+                    ],
+                    storeOthersAsComment: true,
+                  },
+                  {
+                    name: "price",
+                    title: "Price",
+                    cellType: "expression",
+                    expression:
+                      "iif({row.coffee} = 'ristretto' or {row.coffee} = 'macchiato' or {row.coffee} = 'cappuchino', '2.5', iif({row.coffee} = 'flatWhite' or {row.coffee} = 'latte', 3, 2))\n",
+                  },
+                  {
+                    name: "amount",
+                    title: "Num of Items",
+                    cellType: "dropdown",
+                    totalType: "sum",
+                    choicesMin: 1,
+                    choicesMax: 10,
+                  },
+                  {
+                    name: "totalPerRow",
+                    title: "Total",
+                    cellType: "expression",
+                    totalType: "sum",
+                    totalDisplayStyle: "currency",
+                    totalAlignment: "center",
+                    expression: "{row.price} * {row.amount}",
+                  },
+                ],
+                rowCount: 1,
+                maxRowCount: 6,
+                defaultRowValue: {
+                  coffeeItem: "2",
+                  coffee: "espresso",
+                  price: 2,
+                  amount: 1,
+                  totalPerRow: 2,
+                },
+                addRowButtonLocation: "topBottom",
+                addRowText: "Add Coffee",
+              },
+            ],
+          },
+        ],
+      });
+
+      const matrixdynamicRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdropdown-with-totals-alignment.png", matrixdynamicRoot, t, comparer);
     });
   });
 });

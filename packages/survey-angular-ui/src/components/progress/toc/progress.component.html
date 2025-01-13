@@ -1,5 +1,9 @@
 <ng-template #template>
-  <div [class]="containerCss">
-    <sv-ng-list [model]="listModel"></sv-ng-list>
-  </div>
+  <div [class]="model.containerCss">
+    <sv-ng-list *ngIf="!model.isMobile" [model]="model.listModel"></sv-ng-list>
+    <div *ngIf="model.isMobile" (click)="model.togglePopup()" data-bind="key2click">
+        <svg [iconName]="model.icon" [size]="24" sv-ng-svg-icon></svg>
+        <sv-ng-popup [popupModel]="model.popupModel"></sv-ng-popup>
+    </div>
+  </div>  
 </ng-template>

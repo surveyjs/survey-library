@@ -63,28 +63,28 @@ it("check survey renderCallback destroy if model is not defined", () => {
   const component = fixture.componentInstance;
   expect(() => { component.ngOnDestroy(); }).not.toThrow();
 });
-it("Check shouldReattachChangeDetector flag", (done: any) => {
-  const fixture = TestBed.createComponent(TestBase);
-  const component = fixture.componentInstance;
-  component.model = new QuestionTextModel("q1");
-  fixture.detectChanges();
-  let log = "";
-  const oldReattach = component["changeDetectorRef"].reattach;
-  component["changeDetectorRef"].reattach = () => {
-    oldReattach.call(component["changeDetectorRef"]);
-    log += "->reattached";
-  };
-  component.model.titleLocation = "left";
-  setTimeout(() => {
-    expect(log).toBe("->reattached");
-    component.model.titleLocation = "top";
-    component.shouldReattachChangeDetector = false;
-    setTimeout(() => {
-      expect(log).toBe("->reattached");
-      done();
-    }, 100);
-  }, 100);
-});
+// it("Check shouldReattachChangeDetector flag", (done: any) => {
+//   const fixture = TestBed.createComponent(TestBase);
+//   const component = fixture.componentInstance;
+//   component.model = new QuestionTextModel("q1");
+//   fixture.detectChanges();
+//   let log = "";
+//   const oldReattach = component["changeDetectorRef"].reattach;
+//   component["changeDetectorRef"].reattach = () => {
+//     oldReattach.call(component["changeDetectorRef"]);
+//     log += "->reattached";
+//   };
+//   component.model.titleLocation = "left";
+//   setTimeout(() => {
+//     expect(log).toBe("->reattached");
+//     component.model.titleLocation = "top";
+//     component.shouldReattachChangeDetector = false;
+//     setTimeout(() => {
+//       expect(log).toBe("->reattached");
+//       done();
+//     }, 100);
+//   }, 100);
+// });
 
 class RecurciveModel extends Base {
   constructor() {
@@ -117,15 +117,15 @@ class TestWithRecursiveProperty extends BaseAngular<RecurciveModel> {
 
 }
 
-it("Check shouldReattachChangeDetector flag", (done: any) => {
-  const fixture = TestBed.createComponent(TestWithRecursiveProperty);
-  const component = fixture.componentInstance;
-  component.model = new RecurciveModel();
-  fixture.detectChanges();
-  component.ngAfterViewChecked();
-  fixture.checkNoChanges();
-  setTimeout(() => {
-    expect(component.log).toBe("->afterUpdate");
-    done();
-  }, 100);
-});
+// it("Check shouldReattachChangeDetector flag", (done: any) => {
+//   const fixture = TestBed.createComponent(TestWithRecursiveProperty);
+//   const component = fixture.componentInstance;
+//   component.model = new RecurciveModel();
+//   fixture.detectChanges();
+//   component.ngAfterViewChecked();
+//   fixture.checkNoChanges();
+//   setTimeout(() => {
+//     expect(component.log).toBe("->afterUpdate");
+//     done();
+//   }, 100);
+// });

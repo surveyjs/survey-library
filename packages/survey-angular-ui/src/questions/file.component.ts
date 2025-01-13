@@ -7,10 +7,6 @@ import { AngularComponentFactory } from "../component-factory";
   templateUrl: "./file.component.html",
   styleUrls: []
 })
-export class FileQuestionComponent extends QuestionAngular<QuestionFileModel> {
-  trackFilesFn: (index: number) => string = (index: number): string => {
-    return this.model.inputId + "_" + index;
-  }
-}
+export class FileQuestionComponent extends QuestionAngular<QuestionFileModel> {}
 
 AngularComponentFactory.Instance.registerComponent("file-question", FileQuestionComponent);

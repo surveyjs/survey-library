@@ -13,7 +13,7 @@ export class PopupService {
     const portalHost = new DomPortalOutlet(popupViewModel.container, this.componentFactoryResolver, this.applicationRef, this.injector);
     const portal = new ComponentPortal(PopupBaseContainerComponent);
     const componentRef = portalHost.attach(portal);
-    popupViewModel.container = <HTMLElement>popupViewModel.container.children[0];
+    popupViewModel.setComponentElement(<HTMLElement>popupViewModel.container.children[0]);
     componentRef.instance.model = popupViewModel;
     componentRef.changeDetectorRef.detectChanges();
     return portalHost;

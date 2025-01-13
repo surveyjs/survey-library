@@ -3,7 +3,7 @@
 node_modules
 build
 src/**/*.js
-!src/localization/update_translations.js
+!src/localization/translation*.js
 doc_generator/**/*.json
 docs/classes.json
 docs/pmes.json
@@ -43,3 +43,10 @@ visualRegressionTests/screenshots
 visualRegressionTests/artifacts
 packages/survey-angular-ui/src/**/*.js
 dist
+junit.xml
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+playwright-report/*
+test-results/*

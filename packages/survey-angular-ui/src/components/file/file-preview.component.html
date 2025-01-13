@@ -1,0 +1,12 @@
+<ng-template #template>
+    <ng-container *ngIf="question.showPreviewContainer">
+        <div [class]="question.cssClasses.fileList || undefined">
+            <ng-container *ngIf="question.supportFileNavigator">
+                <sv-ng-file-page *ngFor="let page of question.renderedPages; trackBy: trackPagesFn" [page]="page" [question]="question"></sv-ng-file-page>
+            </ng-container>
+            <ng-container *ngIf="!question.supportFileNavigator">
+                <sv-ng-file-item *ngFor="let item of question.previewValue" [item]="item" [question]="question"></sv-ng-file-item>
+            </ng-container>
+        </div>
+    </ng-container>
+</ng-template>

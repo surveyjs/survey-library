@@ -1,9 +1,9 @@
-<div [class]="model.cssClasses.selectWrapper">
-    <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.inputReadOnly ? null : 0" [class]="model.getControlClass()"
-        [attr.disabled]="model.isInputReadOnly ? true : null" (click)="click($event)" (blur)="blur($event)"
+<div [class]="model.cssClasses.selectWrapper" (click)="click($event)">
+    <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.noTabIndex ? null : 0" [class]="model.getControlClass()"
+        [attr.disabled]="model.isDisabledAttr ? true : null" (blur)="blur($event)"
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
-        [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole"
+        [attr.aria-errormessage]="model.ariaErrormessage" [attr.role]="model.ariaRole"
         [attr.aria-controls]="dropdownModel.listElementId"
         [attr.aria-expanded]="model.ariaExpanded"
         [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant">
@@ -15,7 +15,7 @@
             <ng-template [component]="{ name: 'sv-tagbox-filter', data: { model: dropdownModel, question: model } }"></ng-template>
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" [class]="model.cssClasses.cleanButton"
-            (click)="clear($event)" [visible]="!model.isEmpty()">
+            (click)="clear($event)" [visible]="model.showClearButton" aria-hidden="true">
             <!-- ko component: { name: 'sv-svg-icon', params: { css: model.cssClasses.cleanButtonSvg, iconName: model.cssClasses.cleanButtonIconId, size: 'auto' } } -->
             <!-- /ko -->
             <svg [iconName]="model.cssClasses.cleanButtonIconId" [partCss]="model.cssClasses.cleanButtonSvg" [title]="model.clearCaption"
@@ -23,7 +23,15 @@
         </div>
     </div>
     <sv-ng-popup *ngIf="!model.isReadOnly" [popupModel]="model.popupModel"></sv-ng-popup>
-    <div disabled *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId">
-        <div>{{ model.readOnlyText }}</div>
+    <div *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId"
+    [attr.tabindex]="model.isDisabledAttr ? null : 0"
+    [attr.disabled]="model.isDisabledAttr ? true : null"
+    [attr.aria-label]="model.a11y_input_ariaLabel"
+    [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
+    [attr.aria-describedby]="model.a11y_input_ariaDescribedBy">
+        <sv-ng-string *ngIf="model.locReadOnlyText" [model]="model.locReadOnlyText"></sv-ng-string>
+    </div>
+    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton" (pointerdown)="chevronPointerDown($event)" aria-hidden="true">
+        <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="'auto'" sv-ng-svg-icon></svg>
     </div>
 </div>

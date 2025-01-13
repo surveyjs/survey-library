@@ -1,12 +1,4 @@
-# Create Custom Widget: Add into SurveyJS your own question
-
-- [When do you need a custom widget?](#needs)
-- [Create simple custom widget](#simplewidget)
-  - [Add functionality into existing question](#addfunctionality)
-  - [Add a new property into existing question](#addnewproperty)
-  - [Add new question using custom widget](#newquestion)
-  - [Totally replace the existing question input by custom widget](#replacequestion)
-- [Custom widget API](#api)
+# Create Custom Widgets in jQuery and Knockout
 
 <div id="needs"></div>
 
@@ -101,7 +93,7 @@ The second and main function is _afterRender()_. It has two parameters: a questi
 
 ### Add a new property in existing question.
 
-In the previous example we added the search functionality into Comment question. It applies to all comment question. Now, let us add a boolean property “hasSearch” that will turn this functionality on and off.
+In the previous example we added the search functionality into Comment question. It applies to all comment questions. Now, let us add a boolean property “hasSearch” that will turn this functionality on and off.
 
 ```javascript
 //SurveyJS calls it right after adding a new widget into custom widget collection.
@@ -119,14 +111,14 @@ init() {
 },
 //Add a check for hasSearch property in the beginning.
 afterRender: function (question, el) {
-    //property hasSearch is false. SurveyJS Cretor user doesn't want search functionality for this question.
+    //property hasSearch is false. SurveyJS Creator user doesn't want search functionality for this question.
     if (!question.hasSearch) return;
     ...
 }
 ```
 You have to use _init()_ function for adding new classes and properties. Additionally you have to modify _afterRender()_ function and do nothing if hasSearch property is not true.
 
-The following code works perfect in general. The only problem, if this property is changed in run-time or in designer, the end-user will not see changes in UI. To make the better users experience in SurveyJS Creator, we must render our search panel all the time but hide/show it on changing the property. 
+The following code works perfectly in general. The only problem, if this property is changed in run-time or in designer, the end-user will not see changes in UI. To make the better user experience in SurveyJS Creator, we must render our search panel all the time but hide/show it on changing the property. 
 
 We must change _afterRender()_ function only. Remove the check on hasSearch property in the beginning and add the following code at the end:
 ```javascript
@@ -304,7 +296,7 @@ afterRender: function (question, el) {
   };
 },
 ```
-The code looks a litle overcomplicated. If we do not use document _execCommand_ function, then we could use div onBlur event. Commonly the code is simpler. 
+The code looks a little overcomplicated. If we do not use document _execCommand_ function, then we could use div onBlur event. Commonly the code is simpler. 
 
 Here is the example for CK_Editor custom widget.
 
@@ -460,11 +452,11 @@ var richCommentWidget = {
 };
 
 //Register our widget in singleton custom widget collection
-//We have to remove the second paramter that used for registration in SurveyJS Creator Toolbox
+//We have to remove the second parameter that used for registration in SurveyJS Creator Toolbox
 Survey.CustomWidgetCollection.Instance.add(richCommentWidget);
 ```
 
-Now, on droping the comment question, end-user will see our custom widget.
+Now, on dropping the comment question, end-user will see our custom widget.
 
 <div id="api"></div>
 
@@ -510,7 +502,7 @@ var customWidgetJSON = {
      return question.getType() == "richedit";
   },
   /**
-   * SurveyJS calls this function one time on registing the custom widget.
+   * SurveyJS calls this function one time on registering the custom widget.
    * This function is optional
    */ 
   init: function() {

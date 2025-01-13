@@ -1,5 +1,3 @@
-<input *ngIf="model == question.selectAllItem" role="option" type="checkbox" [name]="question.name" [id]="question.getItemId(model)" [attr.aria-describedby]="question.ariaDescribedBy" [class]="question.cssClasses.itemControl"
-  [disabled]="!question.getItemEnabled(model)" [checked]="question.isAllSelected" [value]="''" (change)="onSelectAllChange($event)"/>
-<input *ngIf="model != question.selectAllItem" role="option" type="checkbox" [name]="question.name" [id]="question.getItemId(model)" [attr.aria-describedby]="question.ariaDescribedBy" [class]="question.cssClasses.itemControl"
-  [disabled]="!question.getItemEnabled(model)" [checked]="question.isItemSelected(model)" [value]="model.value" (change)="onChange($event)"/>
+<input type="checkbox" [name]="question.name+model.id" [id]="question.getItemId(model)" [class]="question.cssClasses.itemControl" [required]="question.hasRequiredError()"
+  [disabled]="!question.getItemEnabled(model)" [readonly]="question.isReadOnlyAttr" [checked]="question.isItemSelected(model)" [value]="model.value" (change)="onChange($event)"/>
 <ng-content></ng-content>

@@ -1,4 +1,4 @@
-import { StylesManager, AdaptiveActionContainer } from "survey-core";
+import { AdaptiveActionContainer } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -15,6 +15,7 @@ registerMarkupTests(
         },
       ]
     },
+    removeIds: true,
     snapshot: "paneldynamic-progress-top-legacy-navigation",
   },
   {
@@ -31,8 +32,7 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-progress-top",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   },
   {
     name: "Test paneldynamic with old navigation (progressBottom) markup",
@@ -47,6 +47,7 @@ registerMarkupTests(
         },
       ]
     },
+    removeIds: true,
     snapshot: "paneldynamic-progress-bottom-legacy-navigation",
   },
   {
@@ -63,8 +64,7 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-progress-bottom",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   },
   {
     name: "Test paneldynamic with old navigation (list) markup",
@@ -79,10 +79,11 @@ registerMarkupTests(
         },
       ]
     },
+    removeIds: true,
     snapshot: "paneldynamic-list-legacy-navigation",
   },
   {
-    name: "Test paneldynamic (list) markup",
+    name: "Test paneldynamic (list) #1 markup",
     json: {
       questions: [
         {
@@ -95,11 +96,10 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-list",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   },
   {
-    name: "Test paneldynamic (list) markup",
+    name: "Test paneldynamic (list) #2 markup",
     json: {
       questions: [
         {
@@ -120,14 +120,13 @@ registerMarkupTests(
     },
     event: "onAfterRenderPage",
     snapshot: "paneldynamic-remove-btn-action-bar",
-    before: () => { StylesManager.applyTheme("defaultV2"); },
+    before: () => { },
     initSurvey: survey => {
       survey.getAllQuestions()[0]["panels"][0].allowAdaptiveActions = false;
     },
-    after: () => StylesManager.applyTheme("default"),
   },
   {
-    name: "Test paneldynamic (list) markup",
+    name: "Test paneldynamic (list) #3 markup",
     json: {
       questions: [
         {
@@ -149,8 +148,7 @@ registerMarkupTests(
     },
     event: "onAfterRenderPage",
     snapshot: "paneldynamic-remove-btn-right",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   },
   {
     name: "Test paneldynamic do not render empty footer (do not allow add) markup",
@@ -175,8 +173,8 @@ registerMarkupTests(
     event: "onAfterRenderPage",
     snapshot: "paneldynamic-no-footer-1",
     removeIds: true,
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    excludePlatform: "Vue",
+    before: () => { },
   },
   {
     name: "Test paneldynamic do not render empty footer (max panels reached) markup",
@@ -202,8 +200,8 @@ registerMarkupTests(
     event: "onAfterRenderPage",
     snapshot: "paneldynamic-no-footer-2",
     removeIds: true,
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    excludePlatform: "Vue",
+
   }, {
     name: "Test paneldynamic (tab) markup",
     json: {
@@ -219,11 +217,11 @@ registerMarkupTests(
     },
     snapshot: "paneldynamic-progress-tab-center",
     removeIds: true,
+    excludePlatform: "Vue",
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
-      StylesManager.applyTheme("defaultV2");
+
     },
-    after: () => StylesManager.applyTheme("default"),
   }, {
     name: "Test paneldynamic (tab) tabAlign right markup",
     json: {
@@ -240,11 +238,11 @@ registerMarkupTests(
     },
     snapshot: "paneldynamic-progress-tab-right",
     removeIds: true,
+    excludePlatform: "Vue",
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
-      StylesManager.applyTheme("defaultV2");
+
     },
-    after: () => StylesManager.applyTheme("default"),
   }, {
     name: "Test paneldynamic (tab) tabAlign left markup",
     json: {
@@ -261,11 +259,11 @@ registerMarkupTests(
     },
     snapshot: "paneldynamic-progress-tab-left",
     removeIds: true,
+    excludePlatform: "Vue",
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
-      StylesManager.applyTheme("defaultV2");
+
     },
-    after: () => StylesManager.applyTheme("default"),
   }
   ]
 );

@@ -758,7 +758,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   private singInputEditRow(row: MatrixDropdownRowModelBase): void {
-    const qs = row.questions;
+    const qs = row.visibleQuestions;
     if(qs.length > 0) {
       this.setSingleInputQuestion(qs[0]);
     }

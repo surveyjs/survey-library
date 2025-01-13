@@ -110,7 +110,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   areInvisibleElementsShowing: boolean;
   currentSingleQuestion: IQuestion;
   isSingleVisibleInput: boolean;
-  singleInputUpdateElements(updateRows: boolean): void;
+  updateNavigationElements(): void;
   areEmptyElementsHidden: boolean;
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;

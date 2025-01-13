@@ -730,6 +730,7 @@ export class Question extends SurveyElement<Question>
     this.resetPropertyValue("showSingleInputTitle");
     this.singleInputSummary?.dispose();
     this.resetPropertyValue("singleInputSummary");
+    this.survey?.updateNavigationElements();
   }
   public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
     const q = this.singleInputQuestion;
@@ -764,7 +765,6 @@ export class Question extends SurveyElement<Question>
     } else {
       this.resetSingleInput();
     }
-    this.survey.singleInputUpdateElements(true);
   }
   public nextSingleInput(): boolean {
     return this.nextPrevSingleInput(1);
@@ -2573,9 +2573,6 @@ export class Question extends SurveyElement<Question>
     this.isOldAnswered = undefined;
     if (this.parent) {
       this.parent.onQuestionValueChanged(this);
-    }
-    if(this.isSingleInputActive) {
-      this.survey.singleInputUpdateElements(false);
     }
   }
   private checkIsValueCorrect(val: any): boolean {

@@ -711,7 +711,6 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     questionsOnPageMode: "inputPerPage"
   });
   const panel = survey.getQuestionByName("panel1");
-  //let matrix = panel.panels[0].getQuestionByName("matrix1");
   assert.equal(panel.singleInputQuestion.name, "name", "singleInputQuestion.name, #1");
   assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #1");
   survey.performNext();
@@ -730,7 +729,7 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #5");
 });
 
-QUnit.test("singleInput & singleInputSummary", assert => {
+QUnit.test("singleInput & singleInputSummary for dynamic matrix", assert => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -743,7 +742,7 @@ QUnit.test("singleInput & singleInputSummary", assert => {
     ],
     questionsOnPageMode: "inputPerPage"
   });
-  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  const matrix = survey.getQuestionByName("matrix1");
   assert.equal(survey.currentSingleQuestion.name, "matrix1", "currentSingleQuestion is matrix1, #1");
   assert.equal(matrix.singleInputQuestion.name, "matrix1", "singleInputQuestion.name, #1");
   assert.ok(matrix.singleInputSummary, "singleInputSummary exists, #1");
@@ -766,5 +765,93 @@ QUnit.test("singleInput & singleInputSummary", assert => {
   assert.equal(matrix.singleInputSummary.items[0].btnEdit.locTitle.textOrHtml, "Edit", "singleInputSummary.items[0].btnEdit.locTitle, #5");
   matrix.singleInputSummary.items[0].btnEdit.action();
   assert.equal(matrix.singleInputQuestion.name, "col1", "singleInputQuestion.name, #6");
-  assert.equal(matrix.locSingleInputRowTitle.textOrHtml, "Row 1", "locSingleInputRowTitle, #6");
+  assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 1", "singleInputLocTitle, #6");
+  assert.equal(survey.isShowPrevButton, false, "prev buttton, #6");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #6");
 });
+QUnit.test("singleInput & singleInputSummary for dynamic panel", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const panel = survey.getQuestionByName("panel1");
+  assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is matrix1, #1");
+  assert.equal(panel.singleInputQuestion.name, "panel1", "singleInputQuestion.name, #1");
+  assert.ok(panel.singleInputSummary, "singleInputSummary exists, #1");
+  assert.equal(panel.singleInputSummary.items.length, 0, "singleInputSummary.items.length, #1");
+  panel.singleInputSummary.bntAdd.action();
+  assert.equal(panel.panelCount, 1, "row count, #2");
+  assert.notOk(panel.singleInputSummary, "singleInputSummary exists, #2");
+  survey.performNext();
+  assert.notOk(panel.singleInputSummary, "singleInputSummary exists, #3");
+  survey.performNext();
+  assert.ok(panel.singleInputSummary, "singleInputSummary exists, #4");
+  assert.equal(panel.singleInputSummary.items.length, 1, "singleInputSummary.items.length, #4");
+  panel.addPanel();
+  survey.performNext();
+  survey.performNext();
+  assert.ok(panel.singleInputSummary, "singleInputSummary exists, #5");
+  assert.equal(panel.singleInputSummary.items.length, 2, "singleInputSummary.items.length, #5");
+  assert.equal(panel.singleInputSummary.items[0].locText.textOrHtml, "Panel 1", "singleInputSummary.items[0].locText, #5");
+  assert.equal(panel.singleInputSummary.items[1].locText.textOrHtml, "Panel 2", "singleInputSummary.items[1].locText, #5");
+  assert.equal(panel.singleInputSummary.items[0].btnEdit.locTitle.textOrHtml, "Edit", "singleInputSummary.items[0].btnEdit.locTitle, #5");
+  panel.singleInputSummary.items[0].btnEdit.action();
+  assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion.name, #6");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "singleInputLocTitle, #6");
+  assert.equal(survey.isShowPrevButton, false, "prev buttton, #6");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #6");
+});
+/*
+QUnit.only("singleInput & nested matrix dynamic in the panel dynamic & summary", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        templateElements: [
+          {
+            type: "matrixdynamic", name: "matrix1",
+            columns: [
+              { cellType: "text", name: "col1" },
+              { cellType: "text", name: "col2" }
+            ]
+          }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const panel = survey.getQuestionByName("panel1");
+  assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is matrix1, #1");
+  assert.equal(panel.singleInputQuestion.name, "panel1", "singleInputQuestion.name, #1");
+  assert.ok(panel.singleInputSummary, "singleInputSummary exists, #1");
+  panel.addPanel();
+  assert.equal(panel.singleInputQuestion.name, "matrix1", "singleInputQuestion.name, #2");
+  assert.ok(panel.singleInputSummary, "singleInputSummary exists, #2");
+  panel.panels[0].getQuestion("matrix1").addRow();
+  assert.equal(panel.singleInputQuestion.name, "col1", "singleInputQuestion.name, #3");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Row 1", "input loc title #3");
+  assert.notOk(panel.singleInputSummary, "singleInputSummary exists, #3");
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "col2", "singleInputQuestion.name, #4");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Row 1", "input loc title #4");
+  assert.notOk(panel.singleInputSummary, "singleInputSummary exists, #4");
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "matrix1", "singleInputQuestion.name, #5");
+  assert.ok(panel.singleInputSummary, "singleInputSummary exists, #5");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #5");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #5");
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "panel1", "singleInputQuestion.name, #6");
+  assert.ok(panel.singleInputSummary, "singleInputSummary exists, #6");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #6");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #6");
+});
+*/

@@ -32,6 +32,7 @@ import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
+import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -285,6 +286,7 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
     this.createLocalizableString("panelNextText", this, false, "pageNextText");
     this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
+    this.createLocalizableString("editPanelText", this, false, "editText");
     this.createLocalizableString("templateTabTitle", this, true, "panelDynamicTabTextFormat");
     this.createLocalizableString("tabTitlePlaceholder", this, true, "tabTitlePlaceholder");
     this.registerPropertyChangedHandlers(["panelsState"], () => {
@@ -1183,10 +1185,14 @@ export class QuestionPanelDynamicModel extends Question
     res.onGetTextCallback = (text: string): string => {
       const q = this.getRootSingleInputQuestion();
       if(!q) return text;
-      if(!text) text = this.getSingleInputTitleTemplate();
-      return this.getPanelByQuestion(q)?.getProcessedText(text);
+      return this.processSingleInputTitle(text, this.getPanelByQuestion(q));
     };
     return res;
+  }
+  private processSingleInputTitle(text: string, panel: PanelModel): string {
+    if(!text) text = this.getSingleInputTitleTemplate();
+    if(!panel) return text;
+    return panel.getProcessedText(text);
   }
   private getSingleInputTitleTemplate(): string {
     return this.getLocalizationString("panelDynamicTabTextFormat");
@@ -1225,7 +1231,29 @@ export class QuestionPanelDynamicModel extends Question
     }
     return null;
   }
-
+  protected createSingleInputSummary(): QuestionSingleInputSummary {
+    const bntAdd = new Action({ locTitle: this.locPanelAddText, action: () => { this.addPanelUI(); } });
+    const res = new QuestionSingleInputSummary(this.locNoEntriesText, bntAdd);
+    const items = new Array<QuestionSingleInputSummaryItem>();
+    this.visiblePanels.forEach((panel) => {
+      const locText = new LocalizableString(this, true, undefined, this.locTemplateTitle.localizationName);
+      locText.setJson(this.locTemplateTitle.getJson());
+      locText.onGetTextCallback = (text: string): string => {
+        return this.processSingleInputTitle(text, panel);
+      };
+      const bntEdit = new Action({ locTitle: this.getLocalizableString("editPanelText"), action: () => { this.singInputEditPanel(panel); } });
+      const btnRemove = new Action({ locTitle: this.locPanelRemoveText, action: () => { this.removePanelUI(panel); } });
+      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
+    });
+    res.items = items;
+    return res;
+  }
+  private singInputEditPanel(panel: PanelModel): void {
+    const qs = panel.visibleQuestions;
+    if(qs.length > 0) {
+      this.setSingleInputQuestion(qs[0]);
+    }
+  }
   /**
    * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
    * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.

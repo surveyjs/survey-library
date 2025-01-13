@@ -18755,7 +18755,7 @@ QUnit.test("Check readOnly flag", function (assert) {
       },
     ],
   });
-  assert.equal(survey.mode, "edit");
+  assert.equal(survey.mode, "display");
   assert.ok(survey.readOnly);
   survey.readOnly = false;
   assert.notOk(survey.readOnly);

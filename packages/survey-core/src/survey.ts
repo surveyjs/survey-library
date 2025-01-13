@@ -978,8 +978,8 @@ export class SurveyModel extends SurveyElementCore
     this.registerPropertyChangedHandlers(["firstPageIsStartPage"], () => {
       this.onFirstPageIsStartedChanged();
     });
-    this.registerPropertyChangedHandlers(["mode"], () => {
-      this.onModeChanged();
+    this.registerPropertyChangedHandlers(["readOnly"], () => {
+      this.onReadOnlyChanged();
     });
     this.registerPropertyChangedHandlers(["progressBarType"], () => {
       this.updateProgressText();
@@ -991,7 +991,7 @@ export class SurveyModel extends SurveyElementCore
       }
     );
     this.registerPropertyChangedHandlers(
-      ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage", "isShowingPreview"],
+      ["isLoading", "isCompleted", "isCompletedBefore", "readOnly", "isStartedState", "currentPage", "isShowingPreview"],
       () => { this.updateState(); });
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
@@ -3110,26 +3110,22 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-displaymode/ (linkStyle))
    */
   public get mode(): string {
-    return this.getPropertyValue("mode");
+    return this.readOnly ? "display" : "edit";
   }
   public set mode(value: string) {
     value = value.toLowerCase();
     if (value == this.mode) return;
     if (value != "edit" && value != "display") return;
-    this.setPropertyValue("mode", value);
+    this.readOnly = value == "display";
   }
-
   public get readOnly(): boolean {
-    const mode = this.mode;
-    const readOnly = this.getPropertyValue("readOnly");
-    return mode === "display" || readOnly;
+    return this.getPropertyValue("readOnly");
   }
-
   public set readOnly(val: boolean) {
     this.setPropertyValue("readOnly", val);
   }
 
-  private onModeChanged() {
+  private onReadOnlyChanged() {
     for (var i = 0; i < this.pages.length; i++) {
       var page = this.pages[i];
       page.setPropertyValue("isReadOnly", page.isReadOnly);
@@ -3959,7 +3955,7 @@ export class SurveyModel extends SurveyElementCore
     return !this.readOnly;
   }
   public get isDisplayMode(): boolean { //
-    return this.mode == "display" && !this.isDesignMode || this.state == "preview";
+    return this.readOnly && !this.isDesignMode || this.state == "preview";
   }
   public get isUpdateValueTextOnTyping(): boolean {
     return this.textUpdateMode == "onTyping";
@@ -5202,7 +5198,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.rootProgress + "--" + this.progressBarType)
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
-      .append(this.css.rootReadOnly, this.mode === "display" && !this.isDesignMode)
+      .append(this.css.rootReadOnly, this.readOnly && !this.isDesignMode)
       .append(this.css.rootCompact, this.isCompact)
       .append(this.css.rootFitToContainer, this.fitToContainer)
       .toString();
@@ -8496,7 +8492,7 @@ Serializer.addClass("survey", [
     visibleIf: (survey: any) => { return !!survey && survey.showTOC; }
   },
   { name: "readOnly:boolean", default: false },
-  { name: "mode", default: "edit", choices: ["edit", "display"] },
+  { name: "mode", default: "edit", choices: ["edit", "display"], visible: false },
   { name: "storeOthersAsComment:boolean", default: true },
   { name: "maxTextLength:number", default: 0, minValue: 0 },
   { name: "maxCommentLength:number", default: 0, minValue: 0, alternativeName: "maxOthersLength" },

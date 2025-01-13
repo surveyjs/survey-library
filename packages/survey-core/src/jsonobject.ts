@@ -316,7 +316,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public visibleIndex: number = -1;
   public nextToProperty: string;
   public overridingProperty: string;
-  public displayMode: string;
+  public displayMode: string = "column";
   public get showMode(): string {
     return this.displayMode;
   }

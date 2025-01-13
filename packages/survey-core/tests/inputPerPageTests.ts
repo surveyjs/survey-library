@@ -260,7 +260,7 @@ QUnit.test("singleInput and panel dynamic & add/remove panels in navigation bar"
   assert.equal(removeBtn.visible, true, "removeBtn visible #4");
   survey.performNext();
   assert.equal(addBtn.visible, true, "addBtn visible #5");
-  assert.equal(removeBtn.visible, true, "removeBtn visible #5");
+  assert.equal(removeBtn.visible, false, "removeBtn visible #5");
 });
 QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel", assert => {
   const survey = new SurveyModel({
@@ -281,7 +281,7 @@ QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel",
   const addBtn = bar.getActionById("sv-singleinput-add");
   const removeBtn = bar.getActionById("sv-singleinput-remove");
   const page: PageModel = survey.currentPage;
-  assert.equal(addBtn.visible, false, "addBtn visible #1");
+  assert.equal(addBtn.visible, true, "addBtn visible #1");
   assert.equal(removeBtn.visible, false, "removeBtn visible #1");
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #1");
   assert.equal(page.visibleRows.length, 1, "Just one visible row, #1");
@@ -299,7 +299,7 @@ QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel",
   assert.equal(survey.isShowNextButton, true, "next buttton, #2");
   removeBtn.action();
   assert.equal(panel1.panelCount, 0, "panelCount #3");
-  assert.equal(addBtn.visible, false, "addBtn visible #3");
+  assert.equal(addBtn.visible, true, "addBtn visible #3");
   assert.equal(removeBtn.visible, false, "removeBtn visible #3");
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #3");
   assert.equal(page.visibleRows.length, 1, "Just one visible row, #3");
@@ -463,7 +463,7 @@ QUnit.test("singleInput and matrix dynamic & add/remove rows in navigation bar",
   survey.performNext();
   assert.equal(addBtn.visible, true, "addBtn visible #2");
   assert.equal(addBtn.title, "Add Row", "addBtn text #2");
-  assert.equal(removeBtn.visible, true, "removeBtn visible #2");
+  assert.equal(removeBtn.visible, false, "removeBtn visible #2");
   addBtn.action();
   assert.equal(matrix1.rowCount, 2, "New row is added");
   assert.equal(addBtn.visible, false, "addBtn visible #3");

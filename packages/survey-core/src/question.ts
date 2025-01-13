@@ -743,12 +743,6 @@ export class Question extends SurveyElement<Question>
     let index = questions.indexOf(q);
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
-  protected getSingleInputIsLastQuestion(): boolean {
-    const q = this.singleInputQuestion;
-    if(!q) return true;
-    const questions = this.getSingleInputQuestions();
-    return questions.indexOf(q) === questions.length - 1;
-  }
   protected get isSingleInputActive(): boolean {
     return this.survey?.currentSingleQuestion === this;
   }
@@ -779,18 +773,21 @@ export class Question extends SurveyElement<Question>
     return this.nextPrevSingleInput(-1);
   }
   public getSingleInputAddText(): string {
-    return this.singleInputParentQuestion.getSingleInputAddTextCore(this.singleInputQuestion);
+    const q = this.singleInputQuestion;
+    const parent = this.singleInputParentQuestion;
+    return !!q && q === parent ? this.singleInputParentQuestion.getSingleInputAddTextCore() : undefined;
   }
   public getSingleInputRemoveText(): string {
     const q = this.singleInputQuestion;
-    return !!q ? this.singleInputParentQuestion.getSingleInputRemoveTextCore(q) : undefined;
+    const parent = this.singleInputParentQuestion;
+    return !!q && q !== parent ? this.singleInputParentQuestion.getSingleInputRemoveTextCore(q) : undefined;
   }
   public singleInputAddItem(): void {
     this.singleInputParentQuestion.singleInputAddItemCore(this.singleInputQuestion);
   }
   public singleInputRemoveItem(): void {
     const q = this.singleInputQuestion;
-    if(q) {
+    if(q && q !== this.singleInputParentQuestion) {
       this.singleInputRemoveItemCore(q);
     }
   }
@@ -819,7 +816,7 @@ export class Question extends SurveyElement<Question>
   protected getSingleInputQuestions(): Array<Question> {
     return this.getNestedQuestions(true);
   }
-  protected getSingleInputAddTextCore(question: Question): string { return undefined; }
+  protected getSingleInputAddTextCore(): string { return undefined; }
   protected getSingleInputRemoveTextCore(question: Question): string { return undefined; }
   protected singleInputAddItemCore(question: Question): void {}
   protected singleInputRemoveItemCore(question: Question): void {}

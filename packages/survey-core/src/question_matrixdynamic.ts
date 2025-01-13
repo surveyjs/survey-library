@@ -713,12 +713,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     res.push(this);
     return res;
   }
-  protected getSingleInputAddTextCore(question: Question): string {
+  protected getSingleInputAddTextCore(): string {
     if(!this.canAddRow) return undefined;
-    if(!this.getSingleInputIsLastQuestion()) return undefined;
-    if(!question) return this.addRowText;
-    const row = this.getRowByQuestion(question);
-    return !!row && !row.isEmpty ? this.addRowText : undefined;
+    return this.addRowText;
   }
   protected getSingleInputRemoveTextCore(question: Question): string {
     if(!this.canRemoveRows) return undefined;

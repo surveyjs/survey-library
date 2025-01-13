@@ -12,8 +12,8 @@
       ></sv-file-page>
       <sv-file-item
         v-if="!question.supportFileNavigator"
-        v-for="item in question.previewValue"
-        :key="item"
+        v-for="(item, index) in question.previewValue"
+        :key="index"
         :item="item"
         :question="question"
       ></sv-file-item>

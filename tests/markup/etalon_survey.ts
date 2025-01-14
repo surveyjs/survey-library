@@ -16,6 +16,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       initSurvey: (survey) => {
+        survey.headerView = "basic";
         survey.navigationBar.setItems([]);
         survey.addNavigationItem({
           id: "custom-action",

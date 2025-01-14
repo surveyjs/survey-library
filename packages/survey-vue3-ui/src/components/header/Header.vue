@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="survey.headerView === 'advanced'"
+    v-if="survey.headerView === 'advanced' && !model.isEmpty"
     :class="model.headerClasses"
     :style="{ height: model.renderedHeight }"
   >

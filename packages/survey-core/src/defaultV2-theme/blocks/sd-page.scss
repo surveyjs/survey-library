@@ -1,3 +1,6 @@
+@use "../variables.scss" as *;
+@use "mixins.scss" as mixins;
+
 .sd-page {
   position: relative;
   display: flex;
@@ -13,11 +16,11 @@
 }
 
 .sd-page .sd-page__title {
-  @include page_title();
+  @include mixins.page_title();
 }
 
 .sd-page .sd-page__description {
-  @include page_description();
+  @include mixins.page_description();
 }
 
 

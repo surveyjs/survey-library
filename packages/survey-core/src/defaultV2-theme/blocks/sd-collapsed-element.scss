@@ -1,3 +1,5 @@
+@use "../variables.scss" as *;
+
 .sd-element--expanded,
 .sd-element--collapsed {
   &>.sd-element__header {

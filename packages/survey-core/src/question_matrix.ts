@@ -437,9 +437,9 @@ export class QuestionMatrixModel
     }
     return res;
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
     ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
-    super.runCondition(values, properties);
+    super.runConditionCore(values, properties);
   }
   protected createRowsVisibleIfRunner(): ConditionRunner {
     return !!this.rowsVisibleIf ? new ConditionRunner(this.rowsVisibleIf) : null;

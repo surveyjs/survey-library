@@ -1505,9 +1505,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
     const oldRowVariables = values[MatrixDropdownRowModelBase.RowVariableName];
-    super.runCondition(values, properties);
+    super.runConditionCore(values, properties);
     var counter = 0;
     var prevTotalValue;
     do {
@@ -1537,6 +1537,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return false;
   }
   protected runCellsCondition(values: HashTable<any>, properties: HashTable<any>): void {
+    if(this.isDesignMode) return;
     const rows = this.generatedVisibleRows;
     if (!!rows) {
       const newValues = this.getRowConditionValues(values);

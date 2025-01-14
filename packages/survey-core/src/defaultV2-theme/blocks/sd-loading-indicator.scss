@@ -1,3 +1,5 @@
+@use "../variables.scss" as *;
+
 @keyframes rotationAnimation {
   from {
     rotate: 0deg;

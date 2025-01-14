@@ -1,3 +1,6 @@
+@use "../variables.scss" as *;
+@use "mixins.scss" as mixins;
+
 .sd-title {
   display: block;
   font-family: $font-family;
@@ -32,7 +35,7 @@
   flex-grow: 1;
 
   .sd-title {
-    @include survey_title;
+    @include mixins.survey_title;
     color: $font-surveytitle-color;
     font-family: $font-surveytitle-family;
     font-weight: $font-surveytitle-weight;
@@ -49,7 +52,7 @@
   }
 
   .sd-description {
-    @include survey_description;
+    @include mixins.survey_description;
     color: $font-surveydescription-color;
     font-family: $font-surveydescription-family;
     font-weight: $font-surveydescription-weight;

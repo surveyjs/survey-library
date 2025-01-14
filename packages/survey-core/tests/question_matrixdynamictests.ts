@@ -2443,6 +2443,28 @@ QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context && total && add ne
   matrix.visibleRows[1].cells[1].value = 40;
   assert.equal(matrix.visibleTotalRow.cells[1].value, 50, "total sum #3");
 });
+QUnit.test("matrix dropdown rowsVisibleIf, defaultValue & designMode, Bug#9279", function (assert) {
+  const json = {
+    elements: [
+      {
+        type: "matrixdropdown", name: "matrix",
+        rowsVisibleIf: "{row.col1} != 'a'", cellType: "text",
+        columns: [{ name: "col1" }, { name: "col2" }],
+        defaultValue: { row1: { col1: "a", col2: 5 }, row2: { col1: "b", col2: 10 }, row3: { col1: "a", col2: 15 } },
+        rows: ["row1", "row2", "row3"]
+      }
+    ]
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  let matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 3, "show all rows");
+  survey.setDesignMode(false);
+  survey.fromJSON(json);
+  matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 1, "row1, row3 are hidden");
+});
 QUnit.test("matrix dropdown rowsVisibleIf, use 'row.' context & set data correctly", function (assert) {
   var survey = new SurveyModel({
     elements: [

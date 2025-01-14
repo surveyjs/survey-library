@@ -1795,9 +1795,6 @@ export class SurveyModel extends SurveyElementCore
       errors: errors,
     });
   }
-  beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void {
-    this.makeRequiredErrorsInvisible(errors);
-  }
   private makeRequiredErrorsInvisible(errors: Array<SurveyError>) {
     if (!this.hideRequiredErrors) return;
     for (var i = 0; i < errors.length; i++) {
@@ -7360,15 +7357,22 @@ export class SurveyModel extends SurveyElementCore
       this.beforeSettingQuestionErrors(question, errors);
     }
   }
-  validatePanel(panel: PanelModel): SurveyError {
-    if (this.onValidatePanel.isEmpty) return null;
-    var options = {
-      name: panel.name,
-      panel: panel,
-      error: <any>null,
-    };
-    this.onValidatePanel.fire(this, options);
-    return options.error ? new CustomError(options.error, this) : null;
+  validatePanel(panel: PanelModel, errors: Array<SurveyError>, fireCallback: boolean): void {
+    if (panel.isPanel && !this.onValidatePanel.isEmpty) {
+      const options = {
+        name: panel.name,
+        panel: panel,
+        error: <any>null,
+        errors: errors
+      };
+      this.onValidatePanel.fire(this, options);
+      if(options.error) {
+        errors.push(new CustomError(options.error, this));
+      }
+    }
+    if(fireCallback) {
+      this.makeRequiredErrorsInvisible(errors);
+    }
   }
   processHtml(html: string, reason?: string): string {
     if (!reason) reason = "";

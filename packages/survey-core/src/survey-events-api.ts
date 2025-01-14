@@ -345,6 +345,10 @@ export interface ValidatePanelEvent extends PanelEventMixin {
    * The panel's name.
    */
   name: string;
+  /**
+   * An array of validation errors.
+   */
+  errors: Array<SurveyError>;
 }
 export interface ErrorCustomTextEvent {
   /**

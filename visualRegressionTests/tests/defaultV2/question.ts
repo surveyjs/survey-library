@@ -379,7 +379,9 @@ frameworks.forEach(framework => {
         ]
       }, {
         onValidateQuestion: (s, options) => {
-          options.error = "Very very very very very very very very very very very very very very very Very very very very very very very very very very very very very very very long error";
+          if(options.errors.length === 0) {
+            options.error = "Very very very very very very very very very very very very very very very Very very very very very very very very very very very very very very very long error";
+          }
         }
       });
       const qRoot = Selector(".sd-question");

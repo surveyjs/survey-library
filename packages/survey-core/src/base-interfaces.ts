@@ -91,7 +91,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     oldValueName: string
   ): any;
   focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
-  validateQuestion(question: IQuestion): SurveyError;
+  validateQuestion(question: IQuestion, errors: Array<SurveyError>, fireCallback: boolean): void;
   validatePanel(panel: IPanel): SurveyError;
   hasVisibleQuestionByValueName(valueName: string): boolean;
   questionsByValueName(valueName: string): Array<IQuestion>;
@@ -125,10 +125,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   rootElement?: HTMLElement;
 
   requiredMark: string;
-  beforeSettingQuestionErrors(
-    question: IQuestion,
-    errors: Array<SurveyError>
-  ): void;
   beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void;
   getQuestionDisplayValue(question: IElement, displayValue: any): any;
   getSurveyErrorCustomText(obj: Base, text: string, error: SurveyError): string;

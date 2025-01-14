@@ -311,6 +311,10 @@ export interface ValidateQuestionEvent extends QuestionEventMixin {
    * The question's name.
    */
   name: string;
+  /**
+   * An array of errors. The array is empty if the validated question satisfies all validation rules.
+   */
+  errors: Array<SurveyError>;
 }
 export interface SettingQuestionErrorsEvent extends QuestionEventMixin {
   /**

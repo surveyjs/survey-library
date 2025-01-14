@@ -12174,6 +12174,24 @@ QUnit.test("survey.onSettingQuestionErrors", function (assert) {
   assert.equal(q1.errors[0].visible, false, "It is invisible");
   assert.equal(q2.errors.length, 1, "Add one error into second question");
 });
+QUnit.test("survey.onValidateQuestion wors as survey.onSettingQuestionErrors", function (assert) {
+  var survey = twoPageSimplestSurvey();
+  var q1 = survey.getQuestionByName("question1");
+  var q2 = survey.getQuestionByName("question2");
+  q1.isRequired = true;
+  survey.onValidateQuestion.add(function (sender, options) {
+    if (options.question.name == "question1") {
+      options.errors[0].visible = false;
+    }
+    if (options.question.name == "question2") {
+      options.errors.push(new AnswerRequiredError());
+    }
+  });
+  survey.nextPage();
+  assert.equal(q1.errors.length, 1, "There is one error");
+  assert.equal(q1.errors[0].visible, false, "It is invisible");
+  assert.equal(q2.errors.length, 1, "Add one error into second question");
+});
 
 QUnit.test("Check containsError property", function (assert) {
   var survey = new SurveyModel({

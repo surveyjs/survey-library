@@ -1784,10 +1784,7 @@ export class SurveyModel extends SurveyElementCore
    * @see validationAllowSwitchPages
    */
   public hideRequiredErrors: boolean = false;
-  beforeSettingQuestionErrors(
-    question: Question,
-    errors: Array<SurveyError>
-  ): void {
+  private beforeSettingQuestionErrors(question: Question, errors: Array<SurveyError>): void {
     this.makeRequiredErrorsInvisible(errors);
     this.onSettingQuestionErrors.fire(this, {
       question: question,
@@ -7341,16 +7338,23 @@ export class SurveyModel extends SurveyElementCore
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
     this.updateLazyRenderingRowsOnRemovingElements();
   }
-  validateQuestion(question: Question): SurveyError {
-    if (this.onValidateQuestion.isEmpty) return null;
-    var options = {
-      name: question.name,
-      question: question,
-      value: question.value,
-      error: <any>null,
-    };
-    this.onValidateQuestion.fire(this, options);
-    return options.error ? new CustomError(options.error, this) : null;
+  validateQuestion(question: Question, errors: Array<SurveyError>, fireCallback: boolean): void {
+    if (!this.onValidateQuestion.isEmpty) {
+      var options = {
+        name: question.name,
+        question: question,
+        value: question.value,
+        errors: errors,
+        error: <any>null,
+      };
+      this.onValidateQuestion.fire(this, options);
+      if(options.error) {
+        errors.push(new CustomError(options.error, this));
+      }
+    }
+    if(fireCallback) {
+      this.beforeSettingQuestionErrors(question, errors);
+    }
   }
   validatePanel(panel: PanelModel): SurveyError {
     if (this.onValidatePanel.isEmpty) return null;

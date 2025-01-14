@@ -103,6 +103,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     return autoGrow === undefined && this.survey ? this.survey.autoGrowComment : !!autoGrow;
   }
   /**
+   * Specifies whether to display a resize handle for the comment area.
    *
    * Default value: `true` (inherited from `SurveyModel`'s [`allowResizeComment`](https://surveyjs.io/form-library/documentation/surveymodel#allowResizeComment) property)
    * @see autoGrow

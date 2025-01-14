@@ -6876,7 +6876,7 @@ export class SurveyModel extends SurveyElementCore
         if(!this.isLastElement) {
           this.performNext();
         } else {
-          if(this.autoAdvanceAllowComplete) {
+          if(this.allowCompleteSurveyAutomatic) {
             this.tryCompleteOrShowPreview();
           }
         }
@@ -6902,7 +6902,7 @@ export class SurveyModel extends SurveyElementCore
     surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
   }
   private tryCompleteOrShowPreview(): void {
-    if (this.showPreviewBeforeComplete) {
+    if (this.isShowPreviewBeforeComplete) {
       this.showPreview();
     } else {
       this.tryComplete();

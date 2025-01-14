@@ -1036,6 +1036,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var res = new QuestionMatrixDropdownRenderedCell();
     res.cell = cell;
     res.row = cell.row;
+    res.column = cell.column;
     res.question = cell.question;
     res.matrix = this.matrix;
     res.item = choiceItem;

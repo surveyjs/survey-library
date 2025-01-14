@@ -400,7 +400,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   }
   protected renderCellContent() {
     const content = super.renderCellContent();
-    const responsiveTitle = this.cell.showResponsiveTitle ? (<span className={this.cell.responsiveTitleCss}>{this.renderLocString(this.cell.responsiveLocTitle)}</span>) : null;
+    const responsiveTitle = this.cell.showResponsiveTitle ? (<span className={this.cell.responsiveTitleCss}>{this.renderLocString(this.cell.responsiveLocTitle)}<SurveyQuestionMatrixHeaderRequired column={this.cell.column} question={this.cell.matrix} /></span>) : null;
     return <>
       {responsiveTitle}
       {content}

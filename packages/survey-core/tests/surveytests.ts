@@ -11332,9 +11332,11 @@ QUnit.test("Server validation - do no fire onValidatedErrorsOnCurrentPage  on ch
   function (assert) {
     const survey = new SurveyModel({ "elements": [{ name: "name", type: "text", isRequired: true }] });
     let counter = 0;
+    assert.equal(survey.onValidatePage.length, 0, "onValidate page is emtpy");
     survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
       counter++;
     });
+    assert.equal(survey.onValidatePage.length, 1, "onValidate page is set");
     survey.tryComplete();
     assert.equal(survey.state, "running");
     assert.equal(counter, 1, "On complete");

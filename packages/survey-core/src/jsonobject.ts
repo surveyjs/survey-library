@@ -222,6 +222,7 @@ export interface IJsonPropertyInfo {
   visibleIndex?: number;
   nextToProperty?: string;
   overridingProperty?: string;
+  displayMode?: string;
   showMode?: string;
   maxLength?: number;
   maxValue?: any;
@@ -272,6 +273,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     "nextToProperty",
     "overridingProperty",
     "showMode",
+    "displayMode",
     "dependedProperties",
     "visibleIf",
     "enableIf",
@@ -314,7 +316,13 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public visibleIndex: number = -1;
   public nextToProperty: string;
   public overridingProperty: string;
-  public showMode: string;
+  public displayMode: string = "column";
+  public get showMode(): string {
+    return this.displayMode;
+  }
+  public set showMode(val: string) {
+    this.displayMode = val;
+  }
   public availableInMatrixColumn: boolean;
   public maxLength: number = -1;
   public maxValue: any;
@@ -920,6 +928,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.showMode)) {
         prop.showMode = propInfo.showMode;
+      }
+      if (!Helpers.isValueEmpty(propInfo.displayMode)) {
+        prop.displayMode = propInfo.displayMode;
       }
       if (!Helpers.isValueEmpty(propInfo.maxValue)) {
         prop.maxValue = propInfo.maxValue;

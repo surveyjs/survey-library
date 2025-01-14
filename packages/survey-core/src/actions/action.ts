@@ -242,7 +242,6 @@ export abstract class BaseAction extends Base implements IAction {
   @property() ariaExpanded: boolean;
   @property({ defaultValue: "button" }) ariaRole: string;
   public id: string;
-  public removePriority: number;
   @property() iconName: string;
   @property({ defaultValue: 24 }) iconSize: number | string;
   @property() markerIconName: string;
@@ -321,10 +320,11 @@ export abstract class BaseAction extends Base implements IAction {
       .toString();
   }
   public getActionBarItemCss(): string {
+    const hasTitle = this.hasTitle;
     return new CssClassBuilder()
       .append(this.cssClasses.item)
-      .append(this.cssClasses.itemWithTitle, this.hasTitle)
-      .append(this.cssClasses.itemAsIcon, !this.hasTitle)
+      .append(this.cssClasses.itemWithTitle, hasTitle)
+      .append(this.cssClasses.itemAsIcon, !hasTitle)
       .append(this.cssClasses.itemActive, !!this.active)
       .append(this.cssClasses.itemPressed, !!this.pressed)
       .append(this.innerCss)
@@ -430,7 +430,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       this.locTitleChanged();
     }
     this.registerFunctionOnPropertyValueChanged("_title", () => {
-      this.raiseUpdate(true);
+      this.needUpdateMaxDimension = true;
+      this.raiseUpdate();
     });
     this.locStrChangedInPopupModel();
   }
@@ -585,6 +586,51 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     if (this.popupModel) {
       this.popupModel.dispose();
     }
+  }
+  public updateDimension(mode: actionModeType, htmlElement: HTMLElement, calcDimension: (el: HTMLElement) => number): void {
+    const property = mode == "small" ? "minDimension" : "maxDimension";
+    if(htmlElement) {
+      const actionContainer = htmlElement;
+      if(actionContainer.classList.contains("sv-action--hidden")) {
+        actionContainer.classList.remove("sv-action--hidden");
+        this[property] = calcDimension(htmlElement);
+        actionContainer.classList.add("sv-action--hidden");
+      } else {
+        this[property] = calcDimension(htmlElement);
+      }
+    }
+  }
+
+  public needUpdateMaxDimension: boolean = false;
+  public needUpdateMinDimension: boolean = false;
+  public updateModeCallback: (mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void) => void;
+  public afterRenderCallback: () => void;
+  public afterRender(): void {
+    this.afterRenderCallback && this.afterRenderCallback();
+  }
+  public updateMode(mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void): void {
+    if(this.updateModeCallback) {
+      this.updateModeCallback(mode, callback);
+    } else {
+      this.afterRenderCallback = () => {
+        this.updateModeCallback(mode, callback);
+        this.afterRenderCallback = undefined;
+      };
+    }
+  }
+  public updateDimensions(calcDimension: (htmlElement: HTMLElement) => number, callback: () => void, modeToCalculate?: actionModeType): void {
+    const mode = !modeToCalculate || (modeToCalculate == "large" && this.mode !== "small") ? this.mode : modeToCalculate;
+    this.updateMode(mode, (mode, htmlElement) => {
+      this.updateDimension(mode, htmlElement, calcDimension);
+      if(!modeToCalculate) {
+        this.updateMode(mode !== "small" ? "small" : "large", (mode, htmlElement) => {
+          this.updateDimension(mode, htmlElement, calcDimension);
+          callback();
+        });
+      } else {
+        callback();
+      }
+    });
   }
 }
 

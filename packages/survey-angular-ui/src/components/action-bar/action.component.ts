@@ -14,9 +14,6 @@ export class ActionComponent extends BaseAngular implements AfterViewInit {
   getModel() {
     return this.model;
   }
-  protected override getPropertiesToUpdateSync(): string[] {
-    return ["mode"];
-  }
   public get id() {
     return this.model.id || '';
   }
@@ -27,7 +24,9 @@ export class ActionComponent extends BaseAngular implements AfterViewInit {
   public ngAfterViewInit(): void {
     this.model.updateModeCallback = (mode, callback) => {
       this.model.mode = mode;
-      callback(mode, this.containerRef?.nativeElement)
+      queueMicrotask(() => {
+        callback(mode, this.containerRef?.nativeElement)
+      });
     }
     this.model.afterRender();
   }

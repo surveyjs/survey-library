@@ -29,15 +29,19 @@ export class ResponsivityManager {
       this.debouncedProcess.run();
     };
     if (typeof ResizeObserver !== "undefined") {
-      let isFirst = true;
+      let skipCallbackInResizeObserver = true;
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-        if(isFirst) { isFirst = false; return; }
+        if(skipCallbackInResizeObserver) { skipCallbackInResizeObserver = false; return; }
         DomWindowHelper.requestAnimationFrame((): void | undefined => {
           this.process();
         });
       });
       this.resizeObserver.observe(this.container.parentElement);
-      this.process();
+      if(this.shouldProcessResponsiveness()) {
+        this.process();
+      } else {
+        skipCallbackInResizeObserver = false;
+      }
     }
   }
 
@@ -97,12 +101,13 @@ export class ResponsivityManager {
   private get isContainerVisible(): boolean {
     return !!this.container && isContainerVisible(this.container);
   }
-
+  private shouldProcessResponsiveness () {
+    return this.isContainerVisible && !this.model.isResponsivenessDisabled && !this.isDisposed;
+  }
   private process(): void {
-    const shouldProcessResponsiveness = () => this.isContainerVisible && !this.model.isResponsivenessDisabled && !this.isDisposed;
-    if (shouldProcessResponsiveness()) {
+    if (this.shouldProcessResponsiveness()) {
       this.updateItemsDimensions(() => {
-        if(shouldProcessResponsiveness()) {
+        if(this.shouldProcessResponsiveness()) {
           this.model.fit({ availableSpace: this.getAvailableSpace(), gap: this.getGap() });
         }
         this.isInitialized = true;

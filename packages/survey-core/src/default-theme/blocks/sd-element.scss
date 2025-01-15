@@ -1,5 +1,5 @@
 @use "../variables.scss" as *;
-@use "mixins.scss" as mixins;
+@use "../mixins.scss" as mixins;
 
 .sd-element {
   padding-left: var(--sv-element-add-padding-left, 0px);

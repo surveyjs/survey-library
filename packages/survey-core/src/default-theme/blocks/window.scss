@@ -1,6 +1,5 @@
 @use "../variables.scss" as *;
 @use "../mixins.scss" as mixins;
-@use "../blocks/mixins.scss" as blocksMixins;
 
 .sv_window {
     position: fixed;
@@ -17,7 +16,7 @@
     background: $background-dim;
     width: calc(100% - calcSize(4)) !important;
 
-    @include blocksMixins.scrollRules;
+    @include mixins.scrollRules;
 }
 
 .sv_window_root-content {

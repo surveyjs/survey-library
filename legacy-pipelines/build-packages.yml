@@ -314,6 +314,7 @@ jobs:
       displayName: "run unit tests"
 
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run test:knockout:single
       displayName: "run markup tests"
 
@@ -432,6 +433,7 @@ jobs:
       displayName: "Build React UI"
     
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run test:react:single
       displayName: "run markup tests"
 
@@ -543,6 +545,7 @@ jobs:
       displayName: "Build Vue UI"
     
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run test:vue:single
       displayName: "run markup tests"
 

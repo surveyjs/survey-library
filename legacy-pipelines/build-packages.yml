@@ -314,6 +314,10 @@ jobs:
       displayName: "run unit tests"
 
     - script: |
+        npm run test:knockout:single
+      displayName: "run markup tests"
+
+    - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run testcafe:ko
       displayName: "run functional tests"
@@ -426,6 +430,10 @@ jobs:
         npm run build-plugins
         npm run build_react_ui
       displayName: "Build React UI"
+    
+    - script: |
+        npm run test:react:single
+      displayName: "run markup tests"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -533,6 +541,10 @@ jobs:
         npm run build-plugins
         npm run build_vue_ui
       displayName: "Build Vue UI"
+    
+    - script: |
+        npm run test:vue:single
+      displayName: "run markup tests"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library

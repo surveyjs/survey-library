@@ -104,8 +104,8 @@ module.exports = function (options) {
     mode: isProductionBuild ? "production" : "development",
     entry: {
       "survey.core": path.resolve(__dirname, "./entries/index.ts"),
-      defaultV2: path.resolve(__dirname, "./src/defaultV2-theme/defaultV2.scss"),
-      "defaultV2.fontless": path.resolve(__dirname, "./src/defaultV2-theme/defaultV2.fontless.scss")
+      default: path.resolve(__dirname, "./src/default-theme/default.scss"),
+      "default.fontless": path.resolve(__dirname, "./src/default-theme/default.fontless.scss")
     },
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],

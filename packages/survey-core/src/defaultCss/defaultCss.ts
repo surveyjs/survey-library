@@ -890,5 +890,5 @@ export var defaultCss = {
   },
 };
 
-export const defaultV2ThemeName = "defaultV2";
-surveyCss[defaultV2ThemeName] = defaultCss;
+export const defaultThemeName = "default";
+surveyCss[defaultThemeName] = defaultCss;

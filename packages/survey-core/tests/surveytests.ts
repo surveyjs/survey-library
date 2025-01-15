@@ -40,7 +40,7 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionRatingModel } from "../src/question_rating";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
-import { surveyCss } from "../src/defaultCss/defaultV2Css";
+import { surveyCss } from "../src/defaultCss/defaultCss";
 import { dxSurveyService } from "../src/dxSurveyService";
 import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionExpressionModel } from "../src/question_expression";
@@ -61,7 +61,7 @@ import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
 import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent, wrapUrlForBackgroundImage } from "../src/utils/utils";
 import { Helpers } from "../src/helpers";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { ITheme } from "../src/themes";
 import { Cover } from "../src/header";
 import { DomWindowHelper } from "../src/global_variables_utils";
@@ -3816,7 +3816,7 @@ QUnit.test("Several questions in one row", function (assert) {
 
 QUnit.test("Several questions in one row - defaultV2", function (assert) {
   let survey = new SurveyModel({});
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   let page = survey.addNewPage();
   page.addNewQuestion("text", "q1");
   const q2 = page.addNewQuestion("text", "q2");
@@ -16555,7 +16555,7 @@ QUnit.test("Check navigation bar css update", function (assert) {
   survey.css = { actionBar: { root: "custom-navigation", defaultSizeMode: "" }, footer: "custom-footer" };
   assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
 });
-QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) {
+QUnit.test("Check survey getRootCss function - defaultCss", function (assert) {
   settings.animationEnabled = true;
   const survey = new SurveyModel({
     "elements": [
@@ -16565,7 +16565,7 @@ QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) 
       }
     ]
   });
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--full-container");
 
   survey.fitToContainer = false;
@@ -16618,7 +16618,7 @@ QUnit.test("Check survey isMobile in design mode", function (assert) {
       }
     ]
   });
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   survey.setDesignMode(true);
   const textQuestion = survey.getQuestionByName("q1");
   const multipleTextQuestion = survey.getQuestionByName("q2");
@@ -16639,7 +16639,7 @@ QUnit.test("Check survey isMobile is set correctly on adding new question", func
       },
     ]
   });
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   survey.setIsMobile(true);
   survey.pages[0].addNewQuestion("text", "q2", 0);
   const question = survey.getQuestionByName("q2");
@@ -16672,7 +16672,7 @@ QUnit.test("Check survey isMobile is set correctly on question in nested dynamic
       }
     ]
   });
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   survey.data = {
     "question1": [
       {}
@@ -17849,7 +17849,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
 });
 
 QUnit.test("getContainerContent - progress", function (assert) {
-  surveyCss.currentType = "defaultV2";
+  surveyCss.currentType = "default";
   const json = {
     showNavigationButtons: "none",
     pages: [
@@ -19854,7 +19854,7 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
 });
 
 QUnit.test("getContainerContent - progress + advanced header", function (assert) {
-  surveyCss.currentType = "defaultV2";
+  surveyCss.currentType = "default";
   const json = {
     title: "My Survey",
     showNavigationButtons: "none",
@@ -20092,7 +20092,7 @@ QUnit.test("element.wasREndered", function (assert) {
 });
 
 QUnit.test("getContainerContent - progress settings", function (assert) {
-  surveyCss.currentType = "defaultV2";
+  surveyCss.currentType = "default";
   const json = {
     showNavigationButtons: "none",
     pages: [
@@ -20213,7 +20213,7 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
 });
 
 QUnit.test("getContainerContent - show advinced hader on start page", function (assert) {
-  surveyCss.currentType = "defaultV2";
+  surveyCss.currentType = "default";
   const json = {
     showNavigationButtons: "none",
     "firstPageIsStartPage": true,

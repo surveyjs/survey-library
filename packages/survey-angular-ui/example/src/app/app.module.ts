@@ -9,14 +9,14 @@ import { ExampleComponent } from "./components/example/example.component";
 import { AppRoutingModule } from "./router.module";
 import { AngularItemTemplateComponent } from "./components/itemTemplateComponent";
 import { AngularItemContentTemplateComponent } from "./components/itemContentTemplateComponent";
-import { TestDefaultV2Component } from "./components/test/testdefaultV2.component";
+import { TestDefaultComponent } from "./components/test/testdefault.component";
 import { TestCustomWidgetComponent } from "./components/test/customwidget.component";
 import { CustomActionComponent } from "./components/test-custom-components/action-custom.component";
 import { EmptyComponent } from "./components/test/empty.component";
 
 @NgModule({
   declarations: [
-    AppComponent, ExampleComponent, TestComponent, TestDefaultV2Component,
+    AppComponent, ExampleComponent, TestComponent, TestDefaultComponent,
     TestCustomWidgetComponent,
     AngularItemTemplateComponent,
     AngularItemContentTemplateComponent,

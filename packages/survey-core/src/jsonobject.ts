@@ -223,6 +223,7 @@ export interface IJsonPropertyInfo {
   nextToProperty?: string;
   overridingProperty?: string;
   showMode?: string;
+  locationInTable?: string;
   maxLength?: number;
   maxValue?: any;
   minValue?: any;
@@ -271,7 +272,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     "visibleIndex",
     "nextToProperty",
     "overridingProperty",
-    "showMode",
+    "locationInTable",
     "dependedProperties",
     "visibleIf",
     "enableIf",
@@ -314,12 +315,12 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public visibleIndex: number = -1;
   public nextToProperty: string;
   public overridingProperty: string;
-  public showMode: string;
   public availableInMatrixColumn: boolean;
   public maxLength: number = -1;
   public maxValue: any;
   public minValue: any;
   private dataListValue: Array<string>;
+  private locationInTableValue: string;
   public layout: string;
   public version: string;
   public onSerializeValue: (obj: any) => any;
@@ -362,8 +363,23 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       this.className = this.typeValue.substring(0, this.typeValue.length - 2);
     }
   }
+  public get locationInTable(): string {
+    const res = this.locationInTableValue;
+    return !!res ? res : "both";
+  }
+  public set locationInTable(val: string) {
+    if(val === "both") val = undefined;
+    this.locationInTableValue = val;
+  }
+  public get showMode(): string {
+    const res = this.locationInTable;
+    return res === "detail" ? "form" : (res === "column" ? "list" : "");
+  }
+  public set showMode(val: string) {
+    this.locationInTable = val === "form" ? "detail" : (val === "list" ? "column" : undefined);
+  }
   public isArray = false;
-  public get isRequired() {
+  public get isRequired(): boolean {
     return this.isRequiredValue;
   }
   public set isRequired(val: boolean) {
@@ -920,6 +936,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.showMode)) {
         prop.showMode = propInfo.showMode;
+      }
+      if (!Helpers.isValueEmpty(propInfo.locationInTable)) {
+        prop.locationInTable = propInfo.locationInTable;
       }
       if (!Helpers.isValueEmpty(propInfo.maxValue)) {
         prop.maxValue = propInfo.maxValue;

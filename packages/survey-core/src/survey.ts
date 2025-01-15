@@ -24,7 +24,7 @@ import {
   ITextProcessorResult
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
-import { surveyCss } from "./defaultCss/defaultV2Css";
+import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
@@ -2973,7 +2973,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private get progressBarComponentName(): string {
     let actualProgressBarType = this.progressBarType;
-    if (!settings.legacyProgressBarView && surveyCss.currentType === "defaultV2") {
+    if (!settings.legacyProgressBarView && surveyCss.currentType === "default") {
       if (isStrCiEqual(actualProgressBarType, "pages")) {
         actualProgressBarType = "buttons";
       }

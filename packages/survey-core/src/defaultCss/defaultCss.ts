@@ -1,8 +1,8 @@
 export var surveyCss: any = {
-  currentType: "defaultV2",
+  currentType: "default",
   getCss: function () {
-    var loc = this.currentType ? this[this.currentType] : defaultV2Css;
-    if (!loc) loc = defaultV2Css;
+    var loc = this.currentType ? this[this.currentType] : defaultCss;
+    if (!loc) loc = defaultCss;
     return loc;
   },
   getAvailableThemes: function () {
@@ -10,7 +10,7 @@ export var surveyCss: any = {
   }
 };
 
-export var defaultV2Css = {
+export var defaultCss = {
   root: "sd-root-modern",
   rootProgress: "sd-progress",
   rootMobile: "sd-root-modern--mobile",
@@ -891,4 +891,4 @@ export var defaultV2Css = {
 };
 
 export const defaultV2ThemeName = "defaultV2";
-surveyCss[defaultV2ThemeName] = defaultV2Css;
+surveyCss[defaultV2ThemeName] = defaultCss;

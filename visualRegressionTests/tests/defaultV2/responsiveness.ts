@@ -294,6 +294,7 @@ frameworks.forEach(framework => {
             columns: [
               {
                 "name": "Column 1",
+                "isRequired": true,
                 "title": "Framework"
               },
               {
@@ -302,6 +303,7 @@ frameworks.forEach(framework => {
               },
               {
                 "name": "Column 3",
+                "isRequired": true,
                 "title": "What is main strength?"
               }
             ],

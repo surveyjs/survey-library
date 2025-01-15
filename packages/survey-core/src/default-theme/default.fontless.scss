@@ -1,6 +1,8 @@
 @use "variables.scss" as *;
 @use "mixins.scss" as mixins;
 
+@use "animations.scss";
+
 @use "blocks/sv-actionbar.scss";
 @use "blocks/sv-drag-drop.scss";
 @use "blocks/sv-popup.scss";
@@ -15,7 +17,6 @@
 @use "blocks/sv-save-data.scss";
 @use "blocks/sv-string-viewer.scss";
 
-@use "blocks/animations.scss";
 @use "blocks/sd-element.scss";
 @use "blocks/sd-question.scss";
 @use "blocks/sd-error.scss";

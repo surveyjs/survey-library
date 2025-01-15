@@ -1530,8 +1530,10 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   private onElementStartWithNewLineChanged(element: any) {
     if(this.locCountRowUpdates > 0) return;
+    this.blockAnimations();
     this.updateRowsBeforeElementRemoved(element);
     this.updateRowsOnElementAdded(element);
+    this.releaseAnimations();
   }
   private updateRowsVisibility(element: any) {
     var rows = this.rows;

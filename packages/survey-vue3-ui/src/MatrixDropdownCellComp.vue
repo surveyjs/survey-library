@@ -31,6 +31,11 @@
     ></SvComponent>
     <span v-if="cell.showResponsiveTitle" :class="cell.responsiveTitleCss">
       <SvComponent :is="'survey-string'" :locString="cell.responsiveLocTitle" />
+      <SvComponent
+        :is="'survey-matrixheaderrequired'"
+        :column="cell.column"
+        :question="cell.matrix"
+      ></SvComponent>
     </span>
     <div
       v-if="cell.hasQuestion"

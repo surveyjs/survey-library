@@ -136,6 +136,7 @@ registerMarkupTests(
             "columns": [
               {
                 "value": "col_1",
+                "isRequired": true,
               }, {
                 "value": "col_2",
               },

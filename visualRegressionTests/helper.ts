@@ -1,13 +1,6 @@
 import { ClientFunction, Selector } from "testcafe";
 import { createScreenshotsComparer, ScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { initSurvey as initSurveyBase } from "../functionalTests/helper";
 
-export const initSurvey = ClientFunction(
-  (framework, json, events, isDesignMode, props) => {
-    json["showQuestionNumbers"] = "on";
-    initSurveyBase(framework, json, events, isDesignMode, props);
-  }
-);
 export const getSurveyJSFramework = ClientFunction(() => {
   return window["surveyJSFramework"];
 });
@@ -80,4 +73,4 @@ export const screenshotComparerOptions = {
   highlightColor: { r: 0xff, g: 0, b: 0xff },
 };
 
-export { initSurveyPopup, frameworks, url, setOptions } from "../functionalTests/helper";
+export { initSurvey, initSurveyPopup, frameworks, url, setOptions } from "../functionalTests/helper";

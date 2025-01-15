@@ -41,10 +41,10 @@
     position: absolute;
     left: 0;
     bottom: 0;
-    button {
+    & > button {
         user-select: none;
     }
-    .sd-signaturepad__controls {
+    &.sd-signaturepad__controls {
         right: calcSize(1);
         top: calcSize(1);
         left: auto;

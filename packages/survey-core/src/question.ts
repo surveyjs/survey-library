@@ -23,6 +23,7 @@ import { ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
+import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 
 export interface IConditionObject {
   name: string;
@@ -679,6 +680,169 @@ export class Question extends SurveyElement<Question>
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
+  private calculateSingleInputQuestion(): Question {
+    if(!this.isSingleInputActive) {
+      return undefined;
+    }
+    const questions = this.getSingleInputQuestions();
+    if(Array.isArray(questions) && questions.length > 0) {
+      return questions[0];
+    }
+    return undefined;
+  }
+  public get singleInputQuestion(): Question {
+    return this.getPropertyValue("singleInputQuestion", undefined, () => this.calculateSingleInputQuestion());
+  }
+  public get singleInputSummary(): QuestionSingleInputSummary {
+    return this.getPropertyValue("singleInputSummary", undefined, () => {
+      const q = this.singleInputQuestion;
+      if(!q || q !== this) return undefined;
+      return this.createSingleInputSummary();
+    });
+  }
+  protected createSingleInputSummary(): QuestionSingleInputSummary {
+    return undefined;
+  }
+  protected getRootSingleInputQuestion(): Question {
+    let q = this.singleInputQuestion;
+    let pQ = this.parentQuestion;
+    while(!q && !!pQ) {
+      q = pQ.singleInputQuestion;
+      pQ = pQ.parentQuestion;
+    }
+    return q;
+  }
+  public resetSingleInput(): void {
+    this.resetSingleInputCore();
+  }
+  private resetSingleInputCore(): void {
+    const prev = this.singleInputQuestion;
+    const prevParent = this.singleInputParentQuestion;
+    this.resetPropertyValue("singleInputQuestion");
+    if(!!prev) {
+      this.onSingleInputChanged(prevParent);
+    }
+  }
+  private onSingleInputChanged(prevParent: Question): void {
+    if(prevParent !== this.singleInputParentQuestion) {
+      this.resetPropertyValue("singleInputLocTitle");
+    }
+    this.resetPropertyValue("showSingleInputTitle");
+    this.singleInputSummary?.dispose();
+    this.resetPropertyValue("singleInputSummary");
+    this.survey?.updateNavigationElements();
+  }
+  public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
+    const q = this.singleInputQuestion;
+    if(!q) return true;
+    return q.validate(fireCallback, rec);
+  }
+  public getSingleInputElementPos(): number {
+    const q = this.singleInputQuestion;
+    const questions = this.getSingleInputQuestions();
+    if(questions.length < 2) return 0;
+    let index = questions.indexOf(q);
+    return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
+  }
+  protected get isSingleInputActive(): boolean {
+    return this.survey?.currentSingleQuestion === this;
+  }
+  protected singleInputOnAddItem(): void {
+    if(this.isSingleInputActive) {
+      this.setSingleQuestionOnChange(Number.MAX_VALUE);
+    }
+  }
+  protected singleInputOnRemoveItem(index: number): void {
+    if(this.isSingleInputActive) {
+      this.setSingleQuestionOnChange(index);
+    }
+  }
+  protected getSingleQuestionOnChange(index: number): Question { return null; }
+  private setSingleQuestionOnChange(index: number): void {
+    const q = this.getSingleQuestionOnChange(index);
+    if(!!q) {
+      this.setSingleInputQuestion(q);
+    } else {
+      this.resetSingleInput();
+    }
+  }
+  public nextSingleInput(): boolean {
+    return this.nextPrevSingleInput(1);
+  }
+  public prevSingleInput(): boolean {
+    return this.nextPrevSingleInput(-1);
+  }
+  public getSingleInputAddText(): string {
+    const q = this.singleInputQuestion;
+    const parent = this.singleInputParentQuestion;
+    return !!q && q === parent ? this.singleInputParentQuestion.getSingleInputAddTextCore() : undefined;
+  }
+  public getSingleInputRemoveText(): string {
+    const q = this.singleInputQuestion;
+    const parent = this.singleInputParentQuestion;
+    return !!q && q !== parent ? this.singleInputParentQuestion.getSingleInputRemoveTextCore(q) : undefined;
+  }
+  public singleInputAddItem(): void {
+    this.singleInputParentQuestion.singleInputAddItemCore(this.singleInputQuestion);
+  }
+  public singleInputRemoveItem(): void {
+    const q = this.singleInputQuestion;
+    if(q && q !== this.singleInputParentQuestion) {
+      this.singleInputRemoveItemCore(q);
+    }
+  }
+  public get showSingleInputTitle(): boolean {
+    return this.getPropertyValue("showSingleInputTitle", undefined,
+      (): boolean => !!this.singleInputLocTitle && this.singleInputQuestion !== this);
+  }
+  public get singleInputLocTitle(): LocalizableString {
+    return this.getPropertyValue("singleInputLocTitle", undefined, () => {
+      return this.singleInputParentQuestion.getSingleQuestionLocTitle();
+    });
+  }
+  private get singleInputParentQuestion(): Question {
+    return this.singleInputQuestion?.parentQuestion || this;
+  }
+  protected getSingleInputRootQuestion(): Question {
+    let res = <Question>this;
+    while(res.parentQuestion) {
+      res = res.parentQuestion;
+    }
+    return res;
+  }
+  protected getSingleQuestionLocTitle(): LocalizableString {
+    return undefined;
+  }
+  protected getSingleInputQuestions(): Array<Question> {
+    return this.getNestedQuestions(true);
+  }
+  protected getSingleInputAddTextCore(): string { return undefined; }
+  protected getSingleInputRemoveTextCore(question: Question): string { return undefined; }
+  protected singleInputAddItemCore(question: Question): void {}
+  protected singleInputRemoveItemCore(question: Question): void {}
+  protected setSingleInputQuestion(question: Question): void {
+    const root = this.getSingleInputRootQuestion();
+    if(root !== this) {
+      root.setSingleInputQuestion(question);
+    } else {
+      if(this.singleInputQuestion !== question) {
+        const prevParent = this.singleInputParentQuestion;
+        this.setPropertyValue("singleInputQuestion", question);
+        this.onSingleInputChanged(prevParent);
+      }
+    }
+  }
+  private nextPrevSingleInput(skip: number): boolean {
+    const q = this.singleInputQuestion;
+    if(!q) return false;
+    const questions = this.getSingleInputQuestions();
+    let index = questions.indexOf(q);
+    if(index < 0) return false;
+    index += skip;
+    if(index < 0 || index >= questions.length) return false;
+    this.setSingleInputQuestion(questions[index]);
+    return true;
+  }
   /**
    * Returns `false` if the `titleLocation` property is set to `"hidden"` or if the question cannot have a title (for example, an [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question).
    *
@@ -1178,9 +1342,20 @@ export class Question extends SurveyElement<Question>
   protected hasCssError(): boolean {
     return this.errors.length > 0 || this.hasCssErrorCallback();
   }
+  private get isSingleInputQuestionMode(): boolean {
+    return !!this.parentQuestion && this.survey?.isSingleVisibleInput;
+  }
+  protected getIsNested(): boolean {
+    if(!!this.isSingleInputQuestionMode) return false;
+    return super.getIsNested();
+  }
+  protected getHasFrameV2(): boolean {
+    if(this.isSingleInputQuestionMode) return true;
+    return super.getHasFrameV2();
+  }
   public getRootCss(): string {
     return new CssClassBuilder()
-      .append(this.cssRoot)
+      .append(this.cssRoot, !this.singleInputQuestion)
       .append(this.cssClasses.mobile, this.isMobile)
       .append(this.cssClasses.readOnly, this.isReadOnlyStyle)
       .append(this.cssClasses.disabled, this.isDisabledStyle)

@@ -69,6 +69,7 @@ import { ListModel } from "../src/list";
 import { _setIsTouch } from "../src/utils/devices";
 import { oldDefaultTheme, setOldTheme } from "./oldTheme";
 import { ConsoleWarnings } from "../src/console-warnings";
+import { CustomError } from "../src/error";
 
 export default QUnit.module("Survey");
 
@@ -2594,6 +2595,35 @@ QUnit.test("onValidatePanel test", function (assert) {
     "failed: 55 + 50, 10 < q1.value + q2.value < 100"
   );
   assert.equal(counter, 3, "onValidatePanel calls three time");
+});
+QUnit.test("survey.onValidatePanel & options.errors", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page");
+  const panel = page.addNewPanel("panel");
+  const q1 = <QuestionTextModel>panel.addNewQuestion("text", "q1");
+  const q2 = <QuestionTextModel>panel.addNewQuestion("text", "q2");
+  survey.onValidatePanel.add(function (sender, options) {
+    const panel = <PanelModel>options.panel;
+    const pq1 = <QuestionTextModel>panel.getQuestionByName("q1");
+    const pq2 = <QuestionTextModel>panel.getQuestionByName("q2");
+    const sum = pq1.value + pq1.value;
+    if (sum < 10 || pq1.isEmpty() || pq2.isEmpty()) {
+      options.errors.push(new CustomError("q1+q2 should be more than 9"));
+    }
+    if (sum >= 100) {
+      options.errors.push(new CustomError("q1+q2 should be less than 100"));
+    }
+  });
+
+  assert.equal(survey.isCurrentPageHasErrors, true, "failed, values are undefined : 10 < q1.value + q2.value < 100");
+  assert.equal(panel.errors.length, 1, "panel.errors, #1");
+  q1.value = 5;
+  q2.value = 50;
+  assert.equal(survey.isCurrentPageHasErrors, false, "passed: 5 + 50, 10 < q1.value + q2.value < 100");
+  assert.equal(panel.errors.length, 0, "panel.errors, #2");
+  q1.value = 55;
+  assert.equal(survey.isCurrentPageHasErrors, true, "failed: 55 + 50, 10 < q1.value + q2.value < 100");
+  assert.equal(panel.errors.length, 1, "panel.errors, #3");
 });
 QUnit.test(
   "isCurrentPageHasErrors, required question in the invisible panel, #325",
@@ -11332,9 +11362,11 @@ QUnit.test("Server validation - do no fire onValidatedErrorsOnCurrentPage  on ch
   function (assert) {
     const survey = new SurveyModel({ "elements": [{ name: "name", type: "text", isRequired: true }] });
     let counter = 0;
+    assert.equal(survey.onValidatePage.length, 0, "onValidate page is emtpy");
     survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
       counter++;
     });
+    assert.equal(survey.onValidatePage.length, 1, "onValidate page is set");
     survey.tryComplete();
     assert.equal(survey.state, "running");
     assert.equal(counter, 1, "On complete");
@@ -12162,6 +12194,24 @@ QUnit.test("survey.onSettingQuestionErrors", function (assert) {
   var q2 = survey.getQuestionByName("question2");
   q1.isRequired = true;
   survey.onSettingQuestionErrors.add(function (sender, options) {
+    if (options.question.name == "question1") {
+      options.errors[0].visible = false;
+    }
+    if (options.question.name == "question2") {
+      options.errors.push(new AnswerRequiredError());
+    }
+  });
+  survey.nextPage();
+  assert.equal(q1.errors.length, 1, "There is one error");
+  assert.equal(q1.errors[0].visible, false, "It is invisible");
+  assert.equal(q2.errors.length, 1, "Add one error into second question");
+});
+QUnit.test("survey.onValidateQuestion wors as survey.onSettingQuestionErrors", function (assert) {
+  var survey = twoPageSimplestSurvey();
+  var q1 = survey.getQuestionByName("question1");
+  var q2 = survey.getQuestionByName("question2");
+  q1.isRequired = true;
+  survey.onValidateQuestion.add(function (sender, options) {
     if (options.question.name == "question1") {
       options.errors[0].visible = false;
     }

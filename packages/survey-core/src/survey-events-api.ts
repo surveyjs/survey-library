@@ -311,6 +311,10 @@ export interface ValidateQuestionEvent extends QuestionEventMixin {
    * The question's name.
    */
   name: string;
+  /**
+   * An array of errors. The array is empty if the validated question satisfies all validation rules.
+   */
+  errors: Array<SurveyError>;
 }
 export interface SettingQuestionErrorsEvent extends QuestionEventMixin {
   /**
@@ -341,6 +345,10 @@ export interface ValidatePanelEvent extends PanelEventMixin {
    * The panel's name.
    */
   name: string;
+  /**
+   * An array of validation errors.
+   */
+  errors: Array<SurveyError>;
 }
 export interface ErrorCustomTextEvent {
   /**
@@ -360,7 +368,7 @@ export interface ErrorCustomTextEvent {
    */
   text: string;
 }
-export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
+export interface ValidatePageEvent extends PageEventMixin {
   /**
    * An array of questions with validation errors.
    */
@@ -369,6 +377,8 @@ export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
    * An array of validation errors.
    */
   errors: Array<SurveyError>;
+}
+export interface ValidatedErrorsOnCurrentPageEvent extends ValidatePageEvent {
 }
 export interface ProcessHtmlEvent {
   /**

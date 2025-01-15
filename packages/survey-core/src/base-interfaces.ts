@@ -91,8 +91,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     oldValueName: string
   ): any;
   focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
-  validateQuestion(question: IQuestion): SurveyError;
-  validatePanel(panel: IPanel): SurveyError;
+  validateQuestion(question: IQuestion, errors: Array<SurveyError>, fireCallback: boolean): void;
+  validatePanel(panel: IPanel, errors: Array<SurveyError>, fireCallback: boolean): void;
   hasVisibleQuestionByValueName(valueName: string): boolean;
   questionsByValueName(valueName: string): Array<IQuestion>;
   processHtml(html: string, reason: string): string;
@@ -125,11 +125,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   rootElement?: HTMLElement;
 
   requiredMark: string;
-  beforeSettingQuestionErrors(
-    question: IQuestion,
-    errors: Array<SurveyError>
-  ): void;
-  beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void;
   getQuestionDisplayValue(question: IElement, displayValue: any): any;
   getSurveyErrorCustomText(obj: Base, text: string, error: SurveyError): string;
   getElementTitleTagName(element: Base, tagName: string): string;

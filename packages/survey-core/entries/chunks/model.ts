@@ -262,7 +262,7 @@ export {
 
 export { ListModel } from "../../src/list";
 export { MultiSelectListModel } from "../../src/multiSelectListModel";
-export { PopupModel, createDialogOptions, IDialogOptions } from "../../src/popup";
+export { PopupModel, IDialogOptions } from "../../src/popup";
 export { PopupBaseViewModel } from "../../src/popup-view-model";
 export { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 export { PopupModalViewModel } from "../../src/popup-modal-view-model";

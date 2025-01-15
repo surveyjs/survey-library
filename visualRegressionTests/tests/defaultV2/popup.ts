@@ -64,8 +64,8 @@ function addDropdownActionsWithIcons(_, opt) {
   const getItemWithIconList = () => {
     return [new window["Survey"].Action({ title: "item1", iconName: "icon-search" }), new window["Survey"].Action({ title: "item2", iconName: "icon-search" })];
   };
-  const itemPopupModel1 = new window["Survey"].PopupModel("sv-list",
-    { model: new window["Survey"].ListModel(getItemWithIconList()) }, "bottom", "left", true);
+  const listModel = new window["Survey"].ListModel(getItemWithIconList());
+  const itemPopupModel1 = new window["Survey"].PopupModel("sv-list", { model: listModel });
   const dropDownWithIcons = new window["Survey"].Action({
     component: "sv-action-bar-item-dropdown",
     title: "List Icons",

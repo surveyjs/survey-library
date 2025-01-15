@@ -17608,7 +17608,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.equal(survey.showNavigationButtons, true);
   assert.equal(survey.navigationButtonsLocation, "bottom");
   assert.equal(survey.progressBarType, "pages");
-  assert.equal(survey.showProgressBar, "off");
+  assert.equal(survey.showProgressBar, false);
 
   assert.deepEqual(getContainerContent("header"), [], "default header");
   assert.deepEqual(getContainerContent("footer"), [], "default footer");
@@ -17731,7 +17731,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
 
     assert.equal(survey.showNavigationButtons, false);
     assert.equal(survey.progressBarType, "pages");
-    assert.equal(survey.showProgressBar, "off");
+    assert.equal(survey.showProgressBar, false);
 
     assert.deepEqual(getContainerContent("header"), [], "default header");
     assert.deepEqual(getContainerContent("footer"), [], "default footer");
@@ -17887,7 +17887,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
 
   assert.equal(survey.showNavigationButtons, false);
   assert.equal(survey.progressBarType, "pages");
-  assert.equal(survey.showProgressBar, "off");
+  assert.equal(survey.showProgressBar, false);
 
   assert.deepEqual(getContainerContent("header"), [], "default header");
   assert.deepEqual(getContainerContent("footer"), [], "default footer");
@@ -19795,7 +19795,7 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
 
     assert.equal(survey.showNavigationButtons, false);
     assert.equal(survey.progressBarType, "pages");
-    assert.equal(survey.showProgressBar, "off");
+    assert.equal(survey.showProgressBar, false);
 
     assert.deepEqual(getContainerContent("header"), [{
       "component": "sv-header",
@@ -19913,7 +19913,7 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
 
   assert.equal(survey.showNavigationButtons, false);
   assert.equal(survey.progressBarType, "pages");
-  assert.equal(survey.showProgressBar, "off");
+  assert.equal(survey.showProgressBar, false);
 
   assert.deepEqual(getContainerContent("header"), [{
     "component": "sv-header",
@@ -20148,7 +20148,7 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(settings.legacyProgressBarView, false, "show buttons progress for pages by default");
-  assert.equal(survey.showProgressBar, "off", "default show progress bar");
+  assert.equal(survey.showProgressBar, false, "default show progress bar");
   assert.equal(survey.progressBarType, "pages", "default progress bar type");
   assert.equal(survey.progressBarShowPageNumbers, false, "don't show page numbers in progress by default");
   assert.equal(survey.progressBarShowPageTitles, false, "don't show page titles in progress by default");
@@ -20649,6 +20649,8 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
 
   assert.equal(survey.progressBarType, "pages");
   assert.equal(survey.questionsOnPageMode, "standard");
+  assert.equal(survey.showProgressBar, true);
+  assert.equal(survey.progressBarLocation, "auto");
   assert.deepEqual(getContainerContent("header"), [], "");
   assert.deepEqual(getContainerContent("center"), [{
     "component": "sv-progress-buttons",

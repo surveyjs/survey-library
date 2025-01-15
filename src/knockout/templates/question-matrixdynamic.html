@@ -54,6 +54,10 @@
     <!-- ko if: $data.showResponsiveTitle -->
     <span data-bind="css: $data.responsiveTitleCss">
         <!-- ko template: { name: 'survey-string', data: $data.responsiveLocTitle } --><!-- /ko -->
+        <!-- ko if: $data.column && $data.column.isRenderedRequired -->
+        <span>&nbsp</span>
+        <span data-bind="css: $data.matrix.cssClasses.cellRequiredText, text: $data.column.requiredText"></span>
+        <!-- /ko -->
     </span>
     <!-- /ko -->
     <!-- ko if: $data.matrix -->

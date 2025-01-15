@@ -24,6 +24,7 @@
     ></component>
     <span v-if="cell.showResponsiveTitle" :class="cell.responsiveTitleCss">
       <survey-string :locString="cell.responsiveLocTitle" />
+      <survey-matrixheaderrequired :column="cell.column" :question="cell.matrix"></survey-matrixheaderrequired>
     </span>
     <div v-if="cell.hasQuestion" :class="cell.cellQuestionWrapperClassName">
       <component

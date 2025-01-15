@@ -59,6 +59,7 @@
       />
     </div>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
+    <span v-if="!!getRequiredText() && cell.hasTitle" :class="question.cssClasses.cellRequiredText">{{ getRequiredText() }}</span>
   </td>
 </template>
 

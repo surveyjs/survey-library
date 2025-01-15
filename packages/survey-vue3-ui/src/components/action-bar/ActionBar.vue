@@ -8,7 +8,7 @@
     <SvComponent
       :is="'sv-action'"
       v-for="item in renderedActions"
-      v-bind:key="item.id"
+      :key="item.renderedId"
       :item="item"
     ></SvComponent>
   </div>

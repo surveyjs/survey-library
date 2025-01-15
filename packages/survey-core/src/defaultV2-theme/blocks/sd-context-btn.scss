@@ -1,3 +1,5 @@
+@use "../variables.scss" as *;
+
 .sd-context-btn {
   background-color: $background;
   padding: calcSize(1.5);

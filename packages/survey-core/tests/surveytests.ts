@@ -19604,6 +19604,25 @@ QUnit.test("defaultValue & visibleIf issues if questionsOnPageMode=questionPerPa
   assert.equal(q2_2.visible, true, "q2_2.visible");
 });
 
+QUnit.test("goNextPageAutomatic & questionsOnPageMode=questionPerPage is used #9315", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "dropdown", name: "q1", choices: ["A", "B"] },
+      { type: "dropdown", name: "q2", choices: ["A", "B"] },
+      { type: "dropdown", name: "q3", choices: ["A", "B"] }
+    ],
+    questionsOnPageMode: "questionPerPage",
+    goNextPageAutomatic: true,
+  });
+  assert.equal(survey.currentSingleQuestion.name, "q1", "survey.currentSingleQuestion.name #1");
+  survey.setValue("q1", "A");
+  assert.equal(survey.currentSingleQuestion.name, "q2", "survey.currentSingleQuestion.name #2");
+  survey.setValue("q2", "A");
+  assert.equal(survey.currentSingleQuestion.name, "q3", "survey.currentSingleQuestion.name #3");
+  survey.setValue("q3", "A");
+  assert.equal(survey.state, "completed", "survey.state #4");
+});
+
 QUnit.test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, #7355", function (assert) {
   const survey = new SurveyModel({
     elements: [

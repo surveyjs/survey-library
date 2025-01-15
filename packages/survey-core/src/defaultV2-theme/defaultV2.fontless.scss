@@ -1,59 +1,59 @@
-@import "./blocks/mixins.scss";
-@import "../common-styles/common-styles.scss";
+@use "variables.scss" as *;
+@use "blocks/mixins.scss" as mixins;
+@use "../common-styles/common-styles.scss" as *;
 
-@import "blocks/animations.scss";
-@import "blocks/sd-element.scss";
-@import "blocks/sd-question.scss";
-@import "blocks/sd-error.scss";
-@import "blocks/sd-collapsed-element.scss";
-@import "blocks/sd-complex-element.scss";
-@import "blocks/sd-input.scss";
-@import "blocks/sd-comment.scss";
-@import "blocks/sd-panel.scss";
-@import "blocks/sd-signaturepad.scss";
-@import "blocks/sd-checkbox.scss";
-@import "blocks/sd-matrixdynamic.scss";
-@import "blocks/sd-table.scss";
-@import "blocks/sd-page.scss";
-@import "blocks/sd-row.scss";
-@import "blocks/sd-title.scss";
-@import "blocks/sd-description.scss";
-@import "blocks/sd-item.scss";
-@import "blocks/sd-selectbase.scss";
-@import "blocks/sd-checkbox.scss";
-@import "blocks/sd-radio.scss";
-@import "blocks/sd-visuallyhidden.scss";
-@import "blocks/sd-matrix.scss";
-@import "blocks/sd-rating.scss";
-@import "blocks/sd-ranking.scss";
-@import "blocks/sd-dropdown.scss";
-@import "blocks/sd-tagbox.scss";
-@import "blocks/sd-imagepicker.scss";
-@import "blocks/sd-image.scss";
-@import "blocks/sd-html.scss";
-@import "blocks/sd-expression.scss";
-@import "blocks/sd-progress.scss";
-@import "blocks/sd-boolean.scss";
-@import "blocks/sd-paneldynamic.scss";
-@import "blocks/sd-file.scss";
-@import "blocks/sd-hidden.scss";
-@import "blocks/sd-navigation.scss";
-@import "blocks/sd-button.scss";
-@import "blocks/sd-body.scss";
-@import "blocks/sd-multipletext.scss";
-@import "blocks/sd-action.scss";
-@import "blocks/sd-action-bar.scss";
-@import "blocks/sd-context-btn.scss";
-@import "blocks/sd-completedpage.scss";
-@import "blocks/sd-progress-buttons.scss";
-@import "blocks/sd-progress-toc.scss";
-@import "blocks/sd-list.scss";
-@import "blocks/sd-timer.scss";
-@import "blocks/header.scss";
-@import "blocks/sd-loading-indicator.scss";
-@import "../components-container.scss";
-@import "../signaturepad.scss";
-@import "./defaultV2.m600.scss";
+@use "blocks/animations.scss";
+@use "blocks/sd-element.scss";
+@use "blocks/sd-question.scss";
+@use "blocks/sd-error.scss";
+@use "blocks/sd-collapsed-element.scss";
+@use "blocks/sd-complex-element.scss";
+@use "blocks/sd-input.scss";
+@use "blocks/sd-comment.scss";
+@use "blocks/sd-panel.scss";
+@use "blocks/sd-signaturepad.scss";
+@use "blocks/sd-checkbox.scss";
+@use "blocks/sd-matrixdynamic.scss";
+@use "blocks/sd-table.scss";
+@use "blocks/sd-page.scss";
+@use "blocks/sd-row.scss";
+@use "blocks/sd-title.scss";
+@use "blocks/sd-description.scss";
+@use "blocks/sd-item.scss";
+@use "blocks/sd-selectbase.scss";
+@use "blocks/sd-radio.scss";
+@use "blocks/sd-visuallyhidden.scss";
+@use "blocks/sd-matrix.scss";
+@use "blocks/sd-rating.scss";
+@use "blocks/sd-ranking.scss";
+@use "blocks/sd-dropdown.scss";
+@use "blocks/sd-tagbox.scss";
+@use "blocks/sd-imagepicker.scss";
+@use "blocks/sd-image.scss";
+@use "blocks/sd-html.scss";
+@use "blocks/sd-expression.scss";
+@use "blocks/sd-progress.scss";
+@use "blocks/sd-boolean.scss";
+@use "blocks/sd-paneldynamic.scss";
+@use "blocks/sd-file.scss";
+@use "blocks/sd-hidden.scss";
+@use "blocks/sd-navigation.scss";
+@use "blocks/sd-button.scss";
+@use "blocks/sd-body.scss";
+@use "blocks/sd-multipletext.scss";
+@use "blocks/sd-action.scss";
+@use "blocks/sd-action-bar.scss";
+@use "blocks/sd-context-btn.scss";
+@use "blocks/sd-completedpage.scss";
+@use "blocks/sd-progress-buttons.scss";
+@use "blocks/sd-progress-toc.scss";
+@use "blocks/sd-list.scss";
+@use "blocks/sd-timer.scss";
+@use "blocks/header.scss";
+@use "blocks/sd-loading-indicator.scss";
+@use "../components-container.scss";
+@use "../signaturepad.scss";
+@use "./defaultV2.m600.scss";
 
 body {
   --sv-defaultV2-mark: true;
@@ -68,7 +68,7 @@ body {
   background-color: $background-dim;
   position: relative;
 
-  @include scrollRules;
+  @include mixins.scrollRules;
 
   form {
     // z-index: 1;
@@ -116,7 +116,7 @@ body {
 
 .sv-popup .sv-popup__scrolling-content {
   box-sizing: content-box;
-  @include scrollRules;
+  @include mixins.scrollRules;
 }
 
 @mixin stickyHeader {

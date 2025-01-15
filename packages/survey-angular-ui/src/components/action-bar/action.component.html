@@ -1,5 +1,5 @@
 <ng-template #template>
-  <div [class]="model.getActionRootCss()" [id]="id">
+  <div [class]="model.getActionRootCss()" [id]="id" #container>
     <div class="sv-action__content">
       <ng-container *ngIf="model.needSeparator">
         <div class="sv-action-bar-separator"></div>

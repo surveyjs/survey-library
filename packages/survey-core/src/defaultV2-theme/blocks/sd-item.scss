@@ -1,3 +1,5 @@
+@use "../variables.scss" as *;
+
 .sd-item {
   display: flex;
   padding: calcSize(1.5) 0;

@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { Base, Action } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
@@ -11,11 +12,20 @@ interface IActionBarItemProps {
 }
 
 export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
+  private ref: React.RefObject<any>;
+  constructor(props: any) {
+    super(props);
+    this.ref = React.createRef();
+  }
   get item() {
     return this.props.item;
   }
   protected getStateElement(): Base {
     return this.item;
+  }
+
+  shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    return super.shouldComponentUpdate(nextProps, nextState);
   }
 
   renderElement() {
@@ -32,13 +42,35 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
       }
     );
     return (
-      <div className={itemClass} id={this.item.id}>
+      <div className={itemClass} id={this.item.id} ref={this.ref}>
         <div className="sv-action__content">
           {separator}
           {itemComponent}
         </div>
       </div>
     );
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    this.item.updateModeCallback = undefined;
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.item.updateModeCallback = (mode, callback) => {
+      queueMicrotask(() => {
+        if((ReactDOM as any)["flushSync"]) {
+          (ReactDOM as any)["flushSync"](() => {
+            this.item.mode = mode;
+          });
+        } else {
+          this.item.mode = mode;
+        }
+        queueMicrotask(() => {
+          callback(mode, this.ref.current);
+        });
+      });
+    };
+    this.item.afterRender();
   }
 }
 

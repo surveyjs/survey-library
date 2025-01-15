@@ -1,4 +1,5 @@
-@import "../defaultV2-theme/mixins.scss";
+@use "../defaultV2-theme/variables.scss" as *;
+@use "../defaultV2-theme/mixins.scss" as mixins;
 
 .sd-body {
   width: 100%;
@@ -114,7 +115,7 @@
 
 .sd-body--empty,
 .sd-body--loading {
-  @include articleHtml;
+  @include mixins.articleHtml;
 }
 
 .sd-root_background-image {

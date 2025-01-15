@@ -1,3 +1,6 @@
+@use "../variables.scss" as *;
+@use "../mixins.scss" as mixins;
+
 .sv-dropdown_select-wrapper {
   position: relative;
 }
@@ -192,7 +195,7 @@
 
   .sv-list__item.sv-list__item--focused:not(.sv-list__item--selected) {
     .sv-list__item-body {
-      @include borderLight;
+      @include mixins.borderLight;
       padding-inline-end: calcSize(1.75);
       padding-block: calcSize(1.25);
       padding-inline-start: calcSize(1.75);

@@ -1,3 +1,6 @@
+@use "../variables.scss" as *;
+@use "mixins.scss" as mixins;
+
 .sv-header {
   position: relative;
   background-color: $header-backcolor;
@@ -126,7 +129,7 @@
 }
 
 .sv-header__title .sd-title {
-  @include header_title;
+  @include mixins.header_title;
   color: $font-headertitle-color;
   font-family: $font-headertitle-family;
   font-weight: $font-headertitle-weight;
@@ -150,7 +153,7 @@
 }
 
 .sv-header__description .sd-description {
-  @include header_description;
+  @include mixins.header_description;
   color: $font-headerdescription-color;
   font-family: $font-headerdescription-family;
   font-weight: $font-headerdescription-weight;
@@ -178,7 +181,7 @@
   }
 
   .sv-header__description .sd-description {
-    @include header_description;
+    @include mixins.header_description;
     color: $font-pagedescription-color;
   }
 }

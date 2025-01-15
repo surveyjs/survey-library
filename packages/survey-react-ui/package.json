@@ -75,5 +75,10 @@
         "karma-sourcemap-loader": "0.3.8",
         "karma-webpack": "5.0.0",
         "html-loader": "0.4.4"
+    },
+    "commit-and-tag-version": {
+        "bumpFiles": [
+            "package.json"
+        ]
     }
 }

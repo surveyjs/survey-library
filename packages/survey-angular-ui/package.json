@@ -73,5 +73,10 @@
     "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=angular --config-file ../../.testcaferc.js",
     "accessibility-tests:": "testcafe ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --env=angular --config-file ../../.testcaferc.dev.js",
     "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=angular --config-file ../../.testcaferc.js"
+  },
+  "commit-and-tag-version": {
+    "bumpFiles": [
+      "package.json"
+    ]
   }
 }

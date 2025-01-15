@@ -1,7 +1,7 @@
 import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { AngularComponentFactory } from "../../component-factory";
 import { BaseAngular } from "../../base-angular";
-import { ActionContainer } from "survey-core";
+import { Action, ActionContainer } from "survey-core";
 
 @Component({
   selector: "sv-action-bar, sv-ng-action-bar",
@@ -15,7 +15,9 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
   getModel(): ActionContainer {
     return this.model;
   }
-
+  trackActionBy(_: number, action: Action)  {
+    return action.renderedId;
+  }  
   get allowOnClick(): boolean {
     return this.handleClick !== undefined ? this.handleClick : true;
   }

@@ -3450,7 +3450,7 @@ QUnit.test("survey.onGetPanelNumber", function (assert) {
   assert.equal(survey.getQuestionByName("q7").no, "3.", "q7.no");
 });
 
-QUnit.only("Check that startWithNewLine doesn't trigger animation", (assert) => {
+QUnit.test("Check that startWithNewLine doesn't trigger animation", (assert) => {
   settings.animationEnabled = true;
   const survey = new SurveyModel({
     "logoPosition": "right",

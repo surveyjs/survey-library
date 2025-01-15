@@ -2921,7 +2921,9 @@ export class SurveyModel extends SurveyElementCore
     return this.progressBarValue;
   }
   /**
-   * Controls the visibility of the progress bar and specifies its position.
+   * Specifies the visibility of the progress bar.
+   *
+   * Default value: `false`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
    * @see progressBarLocation
@@ -2946,18 +2948,15 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Controls the location of the progress bar.
+   * Specifies the alignment of the progress bar. Applies only if the [`showProgressBar`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) property is `true`.
    *
    * Possible values:
    *
-   * - `"off"` (default) - Hides the progress bar.
    * - `"aboveHeader"` - Displays the progress bar above the survey header.
    * - `"belowHeader"` - Displays the progress bar below the survey header.
    * - `"bottom"` - Displays the progress bar below survey content.
    * - `"topBottom"` - Displays the progress bar above and below survey content.
-   * - `"auto"` - Displays the progress bar below the survey header if the header has a [background image](https://surveyjs.io/form-library/documentation/api-reference/iheader#backgroundImage) or color. Otherwise, the progress bar is displayed above the header.
-   * - `"top"` - *(Obsolete)* Use the `"aboveHeader"` or `"belowHeader"` property value instead.
-   * - `"both"` - *(Obsolete)* Use the `"topBottom"` property value instead.
+   * - `"auto"` (default) - Displays the progress bar below the survey header if the header has a [background image](https://surveyjs.io/form-library/documentation/api-reference/iheader#backgroundImage) or color. Otherwise, the progress bar is displayed above the header.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
    * @see showProgressBar
@@ -2971,7 +2970,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("progressBarLocation", newValue.toLowerCase());
   }
   /**
-   * Specifies the type of information displayed by the progress bar. Applies only when [`showProgressBar`](#showProgressBar) is not `"off"`.
+   * Specifies the type of information displayed by the progress bar. Applies only when [`showProgressBar`](#showProgressBar) is `true`.
    *
    * Possible values:
    *

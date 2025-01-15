@@ -12,7 +12,7 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { ExpressionValidator } from "../src/validator";
 import { QuestionFileModel } from "../src/question_file";
 import { QuestionDropdownModel } from "../src/question_dropdown";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
 import { QuestionMatrixModel } from "../src/question_matrix";
@@ -5146,7 +5146,7 @@ QUnit.test("Check paneldynamic navigation", function (assert) {
     ],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   panel.currentIndex = 0;
   assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible when currentIndex is 0/4");
   assert.equal(panel.footerToolbar.actions[1].visible, true, "next (text) btn is visible when currentIndex is 0/4");
@@ -5794,7 +5794,7 @@ QUnit.test("renderMode: tab, check panelTabToolbar containerCss issue#5829", fun
     ],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   panel.cssClasses;
   const panelTabToolbar = panel.additionalTitleToolbar;
   assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--left", "tabAlign value is left");

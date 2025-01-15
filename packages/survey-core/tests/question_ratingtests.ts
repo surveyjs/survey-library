@@ -1,6 +1,6 @@
 import { QuestionRatingModel } from "../src/question_rating";
 import { SurveyModel } from "../src/survey";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { CustomResizeObserver } from "./questionImagepicker";
 import { RendererFactory } from "../src/rendererFactory";
 import { DropdownListModel } from "../src/dropdownListModel";
@@ -76,7 +76,7 @@ QUnit.test("check rating initResponsiveness", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.afterRender(rootElement);
   assert.ok(q1["resizeObserver"]);
@@ -123,7 +123,7 @@ QUnit.test("check rating resize observer behavior", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.afterRender(rootElement);
   assert.ok(q1["resizeObserver"]);
@@ -170,7 +170,7 @@ QUnit.test("check rating in case of state 'collapsed'", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.state = "collapsed";
   q1.afterRender(rootElement);
@@ -1483,7 +1483,7 @@ QUnit.test("check rating triggerResponsiveness method", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
 

@@ -6,7 +6,7 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
@@ -879,7 +879,7 @@ QUnit.test("check radiogroup title actions", (assert) => {
         showClearButton: true
       }]
   });
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
   const action = <IAction>question.getTitleActions()[0];
   assert.notOk(question.showClearButtonInContent);

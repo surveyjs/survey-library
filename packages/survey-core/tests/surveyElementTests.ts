@@ -1,6 +1,6 @@
 import { PageModel } from "../src/page";
 import { SurveyModel } from "../src/survey";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Serializer } from "../src/jsonobject";
 import { PanelModel } from "../src/panel";
@@ -165,7 +165,7 @@ QUnit.test("Check errors location", function (assert) {
   assert.notOk(questionInMatrix.showErrorOnTop);
   assert.ok(questionInMatrix.showErrorOnBottom);
 
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   survey.questionErrorLocation = "top";
   assert.notOk(q1.showErrorOnTop);
   assert.notOk(q1.showErrorOnBottom);
@@ -203,7 +203,7 @@ QUnit.test("Check error location for questions in panel", function (assert) {
   assert.notOk(q1.showErrorsAboveQuestion);
   assert.ok(q1.showErrorOnBottom);
 
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   survey.questionErrorLocation = "top";
   assert.notOk(q1.showErrorOnBottom);
   assert.notOk(q1.showErrorOnTop);
@@ -233,7 +233,7 @@ QUnit.test("allowRootStyle", function (assert) {
     "minWidth": "min(100%, 300px)",
   });
   q1.allowRootStyle = false;
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   assert.deepEqual(q1.rootStyle, {});
 });
 QUnit.test("rootStyle on mobile", function (assert) {

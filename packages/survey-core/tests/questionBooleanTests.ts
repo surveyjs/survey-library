@@ -2,7 +2,7 @@ import { SurveyModel } from "../src/survey";
 
 import { QuestionBooleanModel } from "../src/question_boolean";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
 export default QUnit.module("boolean");
@@ -254,7 +254,7 @@ QUnit.test("Boolean shouldn't set booleanValue in design time", function (assert
 QUnit.test("Boolean swapOrder", function (assert) {
   const survey = new SurveyModel({});
   const question = new QuestionBooleanModel("q1");
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   question.setSurveyImpl(survey);
   assert.equal(question.swapOrder, false);
   assert.equal(question.getItemCss(), "sd-boolean sd-boolean--allowhover sd-boolean--indeterminate");

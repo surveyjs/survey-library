@@ -1,6 +1,6 @@
 import { PopupSurveyModel } from "../src/popup-survey";
 import { QuestionDropdownModel } from "../src/question_dropdown";
-import { surveyCss } from "../src/defaultCss/defaultV2Css";
+import { surveyCss } from "../src/defaultCss/defaultCss";
 
 export default QUnit.module("PopupSurvey");
 

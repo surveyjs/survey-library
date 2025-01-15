@@ -452,6 +452,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised before the survey displays progress text. Handle this event to change the progress text in code.
    * @see showProgressBar
+   * @see progressBarLocation
    * @see progressBarType
    */
   public onGetProgressText: EventBase<SurveyModel, GetProgressTextEvent> = this.addEvent<SurveyModel, GetProgressTextEvent>();
@@ -2922,6 +2923,31 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Controls the visibility of the progress bar and specifies its position.
    *
+   * [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
+   * @see progressBarLocation
+   * @see progressBarType
+   * @see progressValue
+   */
+  public get showProgressBar(): boolean {
+    return this.getPropertyValue("showProgressBar");
+  }
+  public set showProgressBar(newValue: boolean | string) {
+    this.setShowProgressBar(newValue);
+  }
+  protected setShowProgressBar(newValue: boolean | string) {
+    if (newValue === "off") {
+      newValue = false;
+    }
+    if (newValue === true || newValue === false) {
+      this.setPropertyValue("showProgressBar", newValue);
+    } else {
+      this.setPropertyValue("showProgressBar", true);
+      this.progressBarLocation = newValue;
+    }
+  }
+  /**
+   * Controls the location of the progress bar.
+   *
    * Possible values:
    *
    * - `"off"` (default) - Hides the progress bar.
@@ -2934,14 +2960,15 @@ export class SurveyModel extends SurveyElementCore
    * - `"both"` - *(Obsolete)* Use the `"topBottom"` property value instead.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
+   * @see showProgressBar
    * @see progressBarType
    * @see progressValue
    */
-  public get showProgressBar(): string {
-    return this.getPropertyValue("showProgressBar");
+  public get progressBarLocation(): string {
+    return this.getPropertyValue("progressBarLocation");
   }
-  public set showProgressBar(newValue: string) {
-    this.setPropertyValue("showProgressBar", newValue.toLowerCase());
+  public set progressBarLocation(newValue: string) {
+    this.setPropertyValue("progressBarLocation", newValue.toLowerCase());
   }
   /**
    * Specifies the type of information displayed by the progress bar. Applies only when [`showProgressBar`](#showProgressBar) is not `"off"`.
@@ -3014,12 +3041,14 @@ export class SurveyModel extends SurveyElementCore
    */
   @property() progressBarInheritWidthFrom: "survey" | "container";
   public get isShowProgressBarOnTop(): boolean {
-    if (!this.canShowProresBar()) return false;
-    return ["auto", "aboveheader", "belowheader", "topbottom", "top", "both"].indexOf(this.showProgressBar) !== -1;
+    if (!this.canShowProgressBar()) return false;
+    if (!this.showProgressBar) return false;
+    return ["auto", "aboveheader", "belowheader", "topbottom", "top", "both"].indexOf(this.progressBarLocation) !== -1;
   }
   public get isShowProgressBarOnBottom(): boolean {
-    if (!this.canShowProresBar()) return false;
-    return this.showProgressBar === "bottom" || this.showProgressBar === "both" || this.showProgressBar === "topbottom";
+    if (!this.canShowProgressBar()) return false;
+    if (!this.showProgressBar) return false;
+    return this.progressBarLocation === "bottom" || this.progressBarLocation === "both" || this.progressBarLocation === "topbottom";
   }
   public getProgressTypeComponent(): string {
     return "sv-progress-" + this.progressBarType.toLowerCase();
@@ -3031,7 +3060,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.progressBottom, this.isShowProgressBarOnBottom && (!container || container == "footer"))
       .toString();
   }
-  private canShowProresBar(): boolean {
+  private canShowProgressBar(): boolean {
     return (
       !this.isShowingPreview ||
       !this.showPreviewBeforeComplete || this.previewMode != "allQuestions"
@@ -8133,10 +8162,10 @@ export class SurveyModel extends SurveyElementCore
           const headerLayoutElement = this.findLayoutElement("advanced-header");
           const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
           let isBelowHeader = !advHeader || advHeader.hasBackground;
-          if (isStrCiEqual(this.showProgressBar, "aboveHeader")) {
+          if (isStrCiEqual(this.progressBarLocation, "aboveHeader")) {
             isBelowHeader = false;
           }
-          if (isStrCiEqual(this.showProgressBar, "belowHeader")) {
+          if (isStrCiEqual(this.progressBarLocation, "belowHeader")) {
             isBelowHeader = true;
           }
           if (container === "header" && !isBelowHeader) {
@@ -8449,9 +8478,17 @@ Serializer.addClass("survey", [
   },
   { name: "questionErrorLocation", default: "top", choices: ["top", "bottom"] },
   {
-    name: "showProgressBar",
-    default: "off",
-    choices: ["off", "auto", "aboveheader", "belowheader", "bottom", "topbottom"],
+    name: "showProgressBar:boolean",
+    default: false,
+    onSetValue: (obj: any, value: any, jsonConv: any) => {
+      obj && obj.setShowProgressBar(value);
+    },
+
+  },
+  {
+    name: "progressBarLocation",
+    default: "auto",
+    choices: ["auto", "aboveheader", "belowheader", "bottom", "topbottom"],
   },
   {
     name: "progressBarType",
@@ -8462,25 +8499,25 @@ Serializer.addClass("survey", [
       "requiredQuestions",
       "correctQuestions",
     ],
-    visibleIf: (obj: any) => { return obj.showProgressBar !== "off"; }
+    visibleIf: (obj: any) => { return obj.showProgressBar; }
   },
   {
     name: "progressBarShowPageTitles:switch",
     category: "navigation",
-    visibleIf: (obj: any) => { return obj.showProgressBar !== "off" && obj.progressBarType === "pages"; }
+    visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
   {
     name: "progressBarShowPageNumbers:switch",
     default: false,
     category: "navigation",
-    visibleIf: (obj: any) => { return obj.showProgressBar !== "off" && obj.progressBarType === "pages"; }
+    visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
   {
     name: "progressBarInheritWidthFrom",
     default: "container",
     choices: ["container", "survey"],
     category: "navigation",
-    visibleIf: (obj: any) => { return obj.showProgressBar !== "off" && obj.progressBarType === "pages"; }
+    visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
   {
     name: "showTOC:switch",

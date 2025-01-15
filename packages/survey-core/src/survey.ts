@@ -7023,21 +7023,25 @@ export class SurveyModel extends SurveyElementCore
     while (keys[baseName + index]) index++;
     return baseName + index;
   }
-  protected tryGoNextPageAutomatic(name: string) {
-    if (
-      !!this.isEndLoadingFromJson ||
-      !this.autoAdvanceEnabled ||
-      !this.currentPage
-    )
-      return;
-    var question = <Question>this.getQuestionByValueName(name);
-    if (
-      !question ||
-      (!!question &&
-        (!question.visible || !question.supportAutoAdvance()))
-    )
-      return;
+  protected tryGoNextPageAutomatic(name: string): void {
+    if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return;
+    const question = <Question>this.getQuestionByValueName(name);
+    if (!question || (!!question &&(!question.visible || !question.supportAutoAdvance()))) return;
     if (!question.validate(false) && !question.supportGoNextPageError()) return;
+    if(!!this.currentSingleQuestion) {
+      const curQuestion = this.currentSingleQuestion;
+      const goNextQuestion = () => {
+        if (curQuestion !== this.currentSingleQuestion) return;
+        if(!this.isLastElement) {
+          this.performNext();
+        } else {
+          if(this.autoAdvanceAllowComplete) {
+            this.tryCompleteOrShowPreview();
+          }
+        }
+      };
+      surveyTimerFunctions.safeTimeOut(goNextQuestion, settings.autoAdvanceDelay);
+    }
     var questions = this.getCurrentPageQuestions();
     if (questions.indexOf(question) < 0) return;
     for (var i = 0; i < questions.length; i++) {
@@ -7051,14 +7055,17 @@ export class SurveyModel extends SurveyElementCore
       if (!this.isLastPage) {
         this.nextPage();
       } else {
-        if (this.showPreviewBeforeComplete) {
-          this.showPreview();
-        } else {
-          this.tryComplete();
-        }
+        this.tryCompleteOrShowPreview();
       }
     };
     surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
+  }
+  private tryCompleteOrShowPreview(): void {
+    if (this.showPreviewBeforeComplete) {
+      this.showPreview();
+    } else {
+      this.tryComplete();
+    }
   }
   /**
    * Returns a comment value from a question with a specified `name`.

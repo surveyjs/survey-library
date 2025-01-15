@@ -1,4 +1,4 @@
-@use "../defaultV2-theme/variables.scss" as *;
+@use "../variables.scss" as *;
 
 $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
 $ease-out: cubic-bezier(0, 0, 0.58, 1);

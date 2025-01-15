@@ -1,6 +1,6 @@
-@use "../defaultV2-theme/variables.scss" as *;
-@use "../defaultV2-theme/mixins.scss" as mixins;
-@use "../defaultV2-theme/blocks/mixins.scss" as blocksMixins;
+@use "../variables.scss" as *;
+@use "../mixins.scss" as mixins;
+@use "../blocks/mixins.scss" as blocksMixins;
 
 .sv_window {
     position: fixed;

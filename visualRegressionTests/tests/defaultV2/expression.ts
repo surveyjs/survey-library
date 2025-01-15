@@ -9,13 +9,13 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`
-    .page`${url}${framework}`.beforeEach(async t => {
-  });
+    .page`${url}${framework}`;
 
   test("Check expression question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             "type": "expression",
@@ -49,6 +49,7 @@ frameworks.forEach(framework => {
       })();
 
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "pages": [
           {

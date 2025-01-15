@@ -151,6 +151,7 @@ registerMarkupTest(
     name: "Test Page - start with new line with panel and titles",
     json: {
       gridLayoutEnabled: false,
+      showQuestionNumbers: "on",
       "elements": [
         {
           type: "text",
@@ -180,6 +181,7 @@ registerMarkupTest(
   {
     name: "Test Page - Text and Title",
     json: {
+      showQuestionNumbers: "on",
       "elements": [
         {
           type: "text",
@@ -198,6 +200,7 @@ registerMarkupTest(
     name: "Test Page - start with new line Title",
     json: {
       gridLayoutEnabled: false,
+      showQuestionNumbers: "on",
       "elements": [
         {
           type: "text",
@@ -220,6 +223,7 @@ registerMarkupTest(
 registerMarkupTest({
   name: "Test Page - questionTitleWidth",
   json: {
+    showQuestionNumbers: "on",
     "pages": [
       {
         "name": "page1",
@@ -298,6 +302,7 @@ registerMarkupTest(
   {
     name: "Test Panel - Panel title with number",
     json: {
+      showQuestionNumbers: "on",
       "elements": [
         {
           type: "panel",

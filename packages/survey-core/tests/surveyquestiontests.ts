@@ -314,6 +314,7 @@ QUnit.test("Question Title property", function (assert) {
 });
 QUnit.test("Question titleLocation", function (assert) {
   var survey = new SurveyModel();
+  survey.showQuestionNumbers = "on";
   var page = survey.addNewPage("Page 1");
   var question1 = new QuestionTextModel("q1");
   var question2 = new QuestionTextModel("q1");
@@ -7841,6 +7842,7 @@ QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
 });
 QUnit.test("Show parent number in the question #8813, #1", function (assert) {
   const survey = new SurveyModel({
+    showQuestionNumbers: "on",
     elements: [
       {
         type: "panel", name: "panel1", title: "Panel 1",
@@ -7869,6 +7871,7 @@ QUnit.test("Show parent number in the question #8813, #1", function (assert) {
 });
 QUnit.test("Show parent number in the question #8813, #2", function (assert) {
   const survey = new SurveyModel({
+    showQuestionNumbers: "on",
     elements: [
       { type: "text", name: "q1" },
       {
@@ -7901,6 +7904,7 @@ QUnit.test("Show parent number in the question #8813, #2", function (assert) {
 });
 QUnit.test("Show parent number in the question #8813, #3", function (assert) {
   const survey = new SurveyModel({
+    showQuestionNumbers: "on",
     elements: [
       { type: "text", name: "q1" },
       {

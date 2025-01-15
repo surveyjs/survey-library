@@ -3399,6 +3399,7 @@ QUnit.test("Nested pages", function (assert) {
 });
 QUnit.test("survey.onGetPanelNumber", function (assert) {
   const survey = new SurveyModel({
+    showQuestionNumbers: "on",
     elements: [
       {
         type: "panel", name: "panel1", title: "Panel 1",

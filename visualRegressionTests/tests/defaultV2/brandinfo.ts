@@ -8,6 +8,7 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 });
 
 const json = {
+  showQuestionNumbers: "on",
   showBrandInfo: true,
   questions: [{
     type: "text",

@@ -27,6 +27,7 @@ export const initSurvey = ClientFunction(
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
 
+    json["showQuestionNumbers"] = "on";
     const model = new window["Survey"].Model(json);
     model.setDesignMode(isDesignMode);
     const surveyComplete = function (model) {

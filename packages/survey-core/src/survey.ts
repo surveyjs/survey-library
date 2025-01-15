@@ -8434,7 +8434,7 @@ Serializer.addClass("survey", [
   "showPageNumbers:boolean",
   {
     name: "showQuestionNumbers",
-    default: "on",
+    default: "off",
     choices: ["on", "onPage", "off"],
   },
   {

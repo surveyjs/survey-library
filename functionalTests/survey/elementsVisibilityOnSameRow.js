@@ -3,6 +3,7 @@ import { Selector, ClientFunction, fixture, test } from "testcafe";
 const title = "Elements Visibility on Same row";
 
 const json = {
+  showQuestionNumbers: "on",
   pages: [
     {
       elements: [

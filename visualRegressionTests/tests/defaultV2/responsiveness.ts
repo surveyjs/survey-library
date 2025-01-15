@@ -15,6 +15,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -70,7 +71,6 @@ frameworks.forEach(framework => {
             "text": "Your answer must match the URL pattern."
           }]
         }],
-        "showQuestionNumbers": false
       });
       await t.resizeWindow(391, 712);
       await takeElementScreenshot("responsiveness-simple-question-mobile.png", Selector("body"), t, comparer);
@@ -84,6 +84,7 @@ frameworks.forEach(framework => {
         document.body.setAttribute("dir", "rtl");
       })();
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -100,6 +101,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "text",
@@ -535,6 +537,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "image",
@@ -575,6 +578,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(600, 1080);
       await initSurvey(framework,
         {
+          showQuestionNumbers: "on",
           focusFirstQuestionAutomatic: true,
           description: "Survey Description",
           title: "Title",
@@ -777,6 +781,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(600, 1920);
       await initSurvey(framework,
         {
+          showQuestionNumbers: "on",
           "pages": [
             {
               "name": "page1",

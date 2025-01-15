@@ -833,6 +833,7 @@ QUnit.test("PanelDynamic in design time + panelCount", function(assert) {
 });
 QUnit.test("PanelDynamic, question no", function(assert) {
   var survey = new SurveyModel();
+  survey.showQuestionNumbers = "on";
   var page = survey.addNewPage("p");
   var question1 = <Question>page.addNewQuestion("text", "q1");
   var panel = <QuestionPanelDynamicModel>(
@@ -915,6 +916,7 @@ QUnit.test("PanelDynamic, question no", function(assert) {
 });
 QUnit.test("PanelDynamic, showQuestionNumbers onSurvey & design time ", function(assert) {
   const survey = new SurveyModel();
+  survey.showQuestionNumbers = "on";
   survey.setDesignMode(true);
   survey.fromJSON({
     "pages": [

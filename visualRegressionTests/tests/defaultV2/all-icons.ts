@@ -13,6 +13,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
 
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         pages: [{
           name: "page1",
           elements: [{

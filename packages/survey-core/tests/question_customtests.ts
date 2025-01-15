@@ -400,7 +400,7 @@ QUnit.test("Composite: create from code", function (assert) {
   assert.equal(firstName.isRequired, true, "first name is required");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: onPropertyChanged", function (assert) {
+QUnit.test("Composite: content questions numbering", function (assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -417,6 +417,7 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
   };
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
+    showQuestionNumbers: "on",
     elements: [
       { type: "text", name: "q1" },
       { type: "customerinfo", name: "q2" },

@@ -53,7 +53,7 @@
     "replace-in-file": "^3.4.3",
     "rimraf": "2.5.4",
     "sass": "^1.62.1",
-    "sass-loader": "^8.0.2",
+    "sass-loader": "^16.0.4",
     "commit-and-tag-version": "^11.0.0",
     "style-loader": "^1.2.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",

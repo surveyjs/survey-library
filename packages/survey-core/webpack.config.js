@@ -144,6 +144,7 @@ module.exports = function (options) {
             {
               loader: "sass-loader",
               options: {
+                api: "modern",
                 sourceMap: options.buildType !== "prod",
               },
             },

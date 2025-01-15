@@ -1,6 +1,19 @@
 @use "variables.scss" as *;
 @use "blocks/mixins.scss" as mixins;
-@use "../common-styles/common-styles.scss" as *;
+
+@use "./blocks/sv-actionbar.scss";
+@use "./blocks/sv-drag-drop.scss";
+@use "./blocks/sv-popup.scss";
+@use "./blocks/sv-buttongroup.scss";
+@use "./blocks/sv-visuallyhidden.scss";
+@use "./blocks/sv-hidden.scss";
+@use "./blocks/sv-titleactions.scss";
+@use "./blocks/window.scss";
+@use "./blocks/sv-brand-info.scss";
+@use "./blocks/sv-ranking.scss";
+@use "./blocks/sv-list.scss";
+@use "./blocks/sv-save-data.scss";
+@use "./blocks/sv-string-viewer.scss";
 
 @use "blocks/animations.scss";
 @use "blocks/sd-element.scss";

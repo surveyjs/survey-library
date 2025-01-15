@@ -89,31 +89,30 @@ button.sv-action-bar-item {
   }
 }
 
-//hovered state
-.sv-action-bar-item:not(.sv-action-bar-item--pressed):hover:enabled,
-.sv-action-bar-item:not(.sv-action-bar-item--pressed):focus:enabled {
-  outline: none;
-  background-color: $background-dim;
-}
-
-.sv-action-bar-item--active.sv-action-bar-item--pressed {
-
-  &:focus,
-  &:focus-visible {
+.sv-action-bar-item {
+  //hovered and focused state
+  &:hover,
+  &:focus {
     outline: none;
-    // background-color: $background-dim;
+    background-color: $background-dim;
   }
-}
 
-//pressed state
-.sv-action-bar-item:not(.sv-action-bar-item--pressed):active:enabled {
-  opacity: 0.5;
-}
+  //pressed state
+  &:active,
+  &.svc-toolbar__item--pressed {
+    opacity: 0.5;
+  }
 
-//disabled state
-.sv-action-bar-item:disabled {
-  opacity: 0.25;
-  cursor: default;
+  //checked state
+  &.svc-toolbar__item--active {
+    outline: none;
+  }
+
+  //disabled state
+  &:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
 }
 
 .sv-action-bar-item__title {

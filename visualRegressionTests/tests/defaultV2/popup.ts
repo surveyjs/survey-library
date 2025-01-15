@@ -401,6 +401,7 @@ frameworks.forEach(framework => {
       await initSurvey(framework, json, {
         onGetQuestionTitleActions: (_, opt) => {
           const json = {
+            showQuestionNumbers: "on",
             elements: [
               {
                 type: "dropdown",
@@ -468,7 +469,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, {
-
+        showQuestionNumbers: "on",
         "pages": [
           {
             "name": "page1",

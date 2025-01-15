@@ -15,6 +15,7 @@ const testedPages = [{
 }];
 
 const json = {
+  showQuestionNumbers: "on",
   focusFirstQuestionAutomatic: true,
   "title": "Minimum data reporting form – for suspected and probable cases of COVID-19",
   "pages": [{
@@ -180,6 +181,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         pages: testedPages,
         showProgressBar: "top"
@@ -191,6 +193,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         pages: testedPages
       });
@@ -201,6 +204,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         title: "Test",
         pages: testedPages
@@ -215,6 +219,7 @@ frameworks.forEach(framework => {
         const json = {
           "title": "American History",
           "showProgressBar": "top",
+          showQuestionNumbers: "on",
           "pages": [
             {
               "elements": [
@@ -376,6 +381,7 @@ frameworks.forEach(framework => {
   test("Check survey with progress top pages - sticky", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         title: "Survey Title",
         showProgressBar: "top",
         progressBarType: "pages",
@@ -409,6 +415,7 @@ frameworks.forEach(framework => {
   test("Check survey with progress top questions - sticky", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         title: "Survey Title",
         showProgressBar: "top",
         progressBarType: "questions",
@@ -443,6 +450,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1400, 800);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "title": "Sample Survey",
         "logoPosition": "right",
         "pages": [

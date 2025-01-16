@@ -605,17 +605,6 @@ export var settings = {
    * Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   maxDate: "",
-  showModal: <
-    (
-      componentName: string,
-      data: any,
-      onApply: () => boolean,
-      onCancel?: () => void,
-      cssClass?: string,
-      title?: string,
-      displayMode?: "popup" | "overlay"
-    ) => any
-    >undefined,
   showDialog: <(options: IDialogOptions, rootElement?: HTMLElement) => any>undefined,
   supportCreatorV2: false,
   showDefaultItemsInCreatorV2: true,

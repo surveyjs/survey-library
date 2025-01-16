@@ -498,10 +498,9 @@ Serializer.addClass(
       name: "text",
       serializationProperty: "locText",
     },
-    { name: "visibleIf:condition", showMode: "form" },
+    { name: "visibleIf:condition", locationInTable: "detail" },
     {
-      name: "enableIf:condition",
-      showMode: "form",
+      name: "enableIf:condition", locationInTable: "detail",
       visibleIf: (obj: ItemValue): boolean => {
         return !obj || obj.ownerPropertyName !== "rateValues";
       },

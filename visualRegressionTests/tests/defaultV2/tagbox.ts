@@ -380,6 +380,7 @@ frameworks.forEach(async framework => {
       })();
       await initSurvey(framework,
         {
+          showQuestionNumbers: "on",
           "elements": [{
             "type": "tagbox",
             "name": "q1",

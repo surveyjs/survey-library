@@ -1479,25 +1479,23 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   /**
-   * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
-   *
-   * Unlike the [`addPanel()`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanel) method, `addPanelUI()` performs additional actions: checks whether a new panel [can be added](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canAddPanel), expands and focuses the new panel, and runs animated effects.
-   * @see panelCount
-   * @see panels
+   * Obsolete. Call the [`addPanel(undefined, true)`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanel) method instead.
+   * @deprecated
    */
   public addPanelUI(): PanelModel {
-    return this.addPanel(undefined, false);
+    return this.addPanel(undefined, true);
   }
   /**
    * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
    * @param index *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `displayMode` value.
+   * @param runAdditionalActions *(Optional)* Pass `true` if you want to perform additional actions: check whether a new panel [can be added](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canAddPanel), expand and focus the new panel, and run animated effects. Default value: `false` (the listed actions are skipped).
    * @see panelCount
    * @see panels
    * @see allowAddPanel
    * @see newPanelPosition
    */
-  public addPanel(index?: number, skipAdditionalActions?: boolean): PanelModel {
-    const isUI = skipAdditionalActions === false;
+  public addPanel(index?: number, runAdditionalActions?: boolean): PanelModel {
+    const isUI = runAdditionalActions === true;
     if(isUI) {
       if (!this.canAddPanel) return null;
       if (!this.canLeaveCurrentPanel()) return null;
@@ -1600,11 +1598,8 @@ export class QuestionPanelDynamicModel extends Question
     this.currentIndex--;
   }
   /**
-   * Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
-   *
-   * Unlike the [`removePanel()`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanel) method, `removePanelUI()` performs additional actions: checks whether the panel [can be removed](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canRemovePanel) and displays a confirmation dialog (if the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#confirmDelete) property is enabled).
-   * @param value A `PanelModel` instance or zero-based panel index.
-   * @see addPanelUI
+   * Obsolete. Call the [`removePanel(value, true)`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanel) method instead.
+   * @deprecated
    */
   public removePanelUI(value: any): void {
     this.removePanel(value, this.isRequireConfirmOnDelete(value));
@@ -1612,6 +1607,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
    * @param value A `PanelModel` instance or zero-based panel index.
+   * @param confirmDelete *(Optional)* Pass `true` if you want to perform additional actions: check whether the panel [can be removed](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canRemovePanel) and display a confirmation dialog.
    * @see addPanel
    */
   public removePanel(value: any, confirmDelete?: boolean): void {

@@ -58,9 +58,9 @@ import {
   TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent,
   ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent,
   QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
-  ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent, GetPanelNumberEvent, GetProgressTextEvent,
-  TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, ChoicesLoadedEvent,
-  ProcessDynamicTextEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
+  ErrorCustomTextEvent, ValidatePageEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent,
+  GetPanelNumberEvent, GetProgressTextEvent, TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent,
+  ChoicesLoadedEvent, ProcessDynamicTextEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
   AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
   MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
@@ -341,7 +341,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onPageAdded: EventBase<SurveyModel, PageAddedEvent> = this.addEvent<SurveyModel, PageAddedEvent>();
   /**
-   * An event that is raised when a question value is being validated. Use this event to specify a custom error message.
+   * An event that is raised when a question value is being validated. Use this event to add/remove/modify errors or specify a custom error message.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -353,8 +353,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValidateQuestion: EventBase<SurveyModel, ValidateQuestionEvent> = this.addEvent<SurveyModel, ValidateQuestionEvent>();
   /**
-   * An event that is raised before errors are assigned to a question. Use this event to add/remove/modify errors.
-   * @see onValidateQuestion
+   * Obsolete. Use the [`onValidateQuestion`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onValidateQuestion) property instead.
+   * @deprecated
    */
   public onSettingQuestionErrors: EventBase<SurveyModel, SettingQuestionErrorsEvent> = this.addEvent<SurveyModel, SettingQuestionErrorsEvent>();
   /**
@@ -369,7 +369,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onServerValidateQuestions: EventBase<SurveyModel, ServerValidateQuestionsEvent> = this.addEvent<SurveyModel, ServerValidateQuestionsEvent>();
   /**
-   * An event that is raised when a panel is being validated. Use this event to specify a custom error message.
+   * An event that is raised when a panel is being validated. Use this event to add/remove/modify errors or specify a custom error message.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -379,13 +379,19 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValidatePanel: EventBase<SurveyModel, ValidatePanelEvent> = this.addEvent<SurveyModel, ValidatePanelEvent>();
   /**
-   * An event that is raised to change default error messages.
+   * Obsolete. Use the [`onValidateQuestion`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onValidateQuestion), [`onValidatePanel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onValidatePanel), and [`onValidatePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onValidatePage) events instead.
+   * @deprecated
    */
   public onErrorCustomText: EventBase<SurveyModel, ErrorCustomTextEvent> = this.addEvent<SurveyModel, ErrorCustomTextEvent>();
   /**
-   * An event that is raised when the [current page](#currentPage) is being validated. Handle this event to be notified of current page validation.
+   * An event that is raised when a survey page is being validated. Use this event to add/remove/modify errors.
    */
-  public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, ValidatedErrorsOnCurrentPageEvent> = this.addEvent<SurveyModel, ValidatedErrorsOnCurrentPageEvent>();
+  public onValidatePage: EventBase<SurveyModel, ValidatePageEvent> = this.addEvent<SurveyModel, ValidatePageEvent>();
+  /**
+   * Obsolete. Use the [`onValidatePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onValidatePage) event instead.
+   * @deprecated
+   */
+  public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, ValidatedErrorsOnCurrentPageEvent> = this.onValidatePage;
   /**
    * An event that is raised when the survey processes HTML content. Handle this event to modify HTML content before displaying.
    * @see completedHtml
@@ -1785,18 +1791,12 @@ export class SurveyModel extends SurveyElementCore
    * @see validationAllowSwitchPages
    */
   public hideRequiredErrors: boolean = false;
-  beforeSettingQuestionErrors(
-    question: Question,
-    errors: Array<SurveyError>
-  ): void {
+  private beforeSettingQuestionErrors(question: Question, errors: Array<SurveyError>): void {
     this.makeRequiredErrorsInvisible(errors);
     this.onSettingQuestionErrors.fire(this, {
       question: question,
       errors: errors,
     });
-  }
-  beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void {
-    this.makeRequiredErrorsInvisible(errors);
   }
   private makeRequiredErrorsInvisible(errors: Array<SurveyError>) {
     if (!this.hideRequiredErrors) return;
@@ -4399,7 +4399,7 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   private fireValidatedErrorsOnPage(page: PageModel) {
-    if (this.onValidatedErrorsOnCurrentPage.isEmpty || !page) return;
+    if (this.onValidatePage.isEmpty || !page) return;
     var questionsOnPage = page.questions;
     var questions = new Array<Question>();
     var errors = new Array<SurveyError>();
@@ -4412,7 +4412,7 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     }
-    this.onValidatedErrorsOnCurrentPage.fire(this, {
+    this.onValidatePage.fire(this, {
       questions: questions,
       errors: errors,
       page: page,
@@ -7376,26 +7376,40 @@ export class SurveyModel extends SurveyElementCore
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
     this.updateLazyRenderingRowsOnRemovingElements();
   }
-  validateQuestion(question: Question): SurveyError {
-    if (this.onValidateQuestion.isEmpty) return null;
-    var options = {
-      name: question.name,
-      question: question,
-      value: question.value,
-      error: <any>null,
-    };
-    this.onValidateQuestion.fire(this, options);
-    return options.error ? new CustomError(options.error, this) : null;
+  validateQuestion(question: Question, errors: Array<SurveyError>, fireCallback: boolean): void {
+    if (!this.onValidateQuestion.isEmpty) {
+      var options = {
+        name: question.name,
+        question: question,
+        value: question.value,
+        errors: errors,
+        error: <any>null,
+      };
+      this.onValidateQuestion.fire(this, options);
+      if(options.error) {
+        errors.push(new CustomError(options.error, this));
+      }
+    }
+    if(fireCallback) {
+      this.beforeSettingQuestionErrors(question, errors);
+    }
   }
-  validatePanel(panel: PanelModel): SurveyError {
-    if (this.onValidatePanel.isEmpty) return null;
-    var options = {
-      name: panel.name,
-      panel: panel,
-      error: <any>null,
-    };
-    this.onValidatePanel.fire(this, options);
-    return options.error ? new CustomError(options.error, this) : null;
+  validatePanel(panel: PanelModel, errors: Array<SurveyError>, fireCallback: boolean): void {
+    if (panel.isPanel && !this.onValidatePanel.isEmpty) {
+      const options = {
+        name: panel.name,
+        panel: panel,
+        error: <any>null,
+        errors: errors
+      };
+      this.onValidatePanel.fire(this, options);
+      if(options.error) {
+        errors.push(new CustomError(options.error, this));
+      }
+    }
+    if(fireCallback) {
+      this.makeRequiredErrorsInvisible(errors);
+    }
   }
   processHtml(html: string, reason?: string): string {
     if (!reason) reason = "";

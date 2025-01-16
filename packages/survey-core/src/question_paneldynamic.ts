@@ -2739,7 +2739,7 @@ Serializer.addClass(
       name: "progressBarLocation",
       default: "top",
       choices: ["top", "bottom", "topBottom"],
-      visibleIf: (obj: any) => { return obj.showProgressBar; }
+      visibleIf: (obj: any) => { return obj.showProgressBar && obj.displayMode === "carousel"; }
     },
     {
       name: "tabAlign", default: "center", choices: ["left", "center", "right"],

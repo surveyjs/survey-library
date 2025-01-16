@@ -716,7 +716,7 @@ export class Question extends SurveyElement<Question>
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     return undefined;
   }
-  private get rootQuestionQuestion(): Question {
+  private get rootParentQuestion(): Question {
     let res: Question = this;
     while(!!res.parentQuestion) {
       res = res.parentQuestion;
@@ -757,7 +757,7 @@ export class Question extends SurveyElement<Question>
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
   protected get isSingleInputActive(): boolean {
-    return this.survey?.currentSingleQuestion === this.rootQuestionQuestion;
+    return this.survey?.currentSingleQuestion === this.rootParentQuestion;
   }
   protected singleInputOnAddItem(): void {
     if(this.isSingleInputActive) {

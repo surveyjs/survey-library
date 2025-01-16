@@ -1177,13 +1177,15 @@ export class QuestionPanelDynamicModel extends Question
   protected getSingleInputQuestions(): Array<Question> {
     this.onFirstRendering();
     const res = super.getSingleInputQuestions();
-    res.push(this);
+    if(res.length > 0) {
+      res.push(this);
+    }
     return res;
   }
   protected getSingleQuestionLocTitle(): LocalizableString {
     const res = this.locTemplateTitle;
     res.onGetTextCallback = (text: string): string => {
-      const q = this.getRootSingleInputQuestion();
+      const q = this.singleInputQuestion;
       if(!q) return text;
       return this.processSingleInputTitle(text, this.getPanelByQuestion(q));
     };
@@ -1874,11 +1876,11 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
     const panels = visibleOnly ? this.visiblePanelsCore : this.panelsCore;
     if (!Array.isArray(panels)) return;
     panels.forEach(panel => {
-      panel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
+      panel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested));
     });
   }
   public getConditionJson(operator: string = null, path: string = null): any {

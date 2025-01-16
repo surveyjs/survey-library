@@ -693,6 +693,17 @@ export class Question extends SurveyElement<Question>
   public get singleInputQuestion(): Question {
     return this.getPropertyValue("singleInputQuestion", undefined, () => this.calculateSingleInputQuestion());
   }
+  private get currentSingleInputQuestion(): Question {
+    let res = this.singleInputQuestion;
+    while(!!res && !!res.singleInputQuestion) {
+      res = res.singleInputQuestion;
+    }
+    return res;
+  }
+  private get currentSingleInputParentQuestion(): Question {
+    const q = this.currentSingleInputQuestion;
+    return q?.parentQuestion || this;
+  }
   public get singleInputSummary(): QuestionSingleInputSummary {
     return this.getPropertyValue("singleInputSummary", undefined, () => {
       const q = this.singleInputQuestion;
@@ -703,49 +714,48 @@ export class Question extends SurveyElement<Question>
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     return undefined;
   }
-  protected getRootSingleInputQuestion(): Question {
-    let q = this.singleInputQuestion;
-    let pQ = this.parentQuestion;
-    while(!q && !!pQ) {
-      q = pQ.singleInputQuestion;
-      pQ = pQ.parentQuestion;
+  private getRootQuestion(): Question {
+    let res: Question = this;
+    while(!!res.parentQuestion) {
+      res = res.parentQuestion;
     }
-    return q;
+    return res;
   }
   public resetSingleInput(): void {
     this.resetSingleInputCore();
   }
   private resetSingleInputCore(): void {
     const prev = this.singleInputQuestion;
-    const prevParent = this.singleInputParentQuestion;
     this.resetPropertyValue("singleInputQuestion");
     if(!!prev) {
-      this.onSingleInputChanged(prevParent);
+      this.onSingleInputChanged();
     }
   }
-  private onSingleInputChanged(prevParent: Question): void {
-    if(prevParent !== this.singleInputParentQuestion) {
-      this.resetPropertyValue("singleInputLocTitle");
-    }
+  private onSingleInputChanged(): void {
     this.resetPropertyValue("showSingleInputTitle");
     this.singleInputSummary?.dispose();
     this.resetPropertyValue("singleInputSummary");
     this.survey?.updateNavigationElements();
   }
   public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
-    const q = this.singleInputQuestion;
+    const q = this.currentSingleInputQuestion;
     if(!q) return true;
     return q.validate(fireCallback, rec);
   }
   public getSingleInputElementPos(): number {
     const q = this.singleInputQuestion;
+    if(!!q.singleInputQuestion) {
+      let res = q.getSingleInputElementPos();
+      if(res === 2) return 2;
+    }
     const questions = this.getSingleInputQuestions();
     if(questions.length < 2) return 0;
     let index = questions.indexOf(q);
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
   protected get isSingleInputActive(): boolean {
-    return this.survey?.currentSingleQuestion === this;
+    return !!this.singleInputQuestion;
+    //return this.survey?.currentSingleQuestion === this.getRootQuestion();
   }
   protected singleInputOnAddItem(): void {
     if(this.isSingleInputActive) {
@@ -803,33 +813,20 @@ export class Question extends SurveyElement<Question>
   private get singleInputParentQuestion(): Question {
     return this.singleInputQuestion?.parentQuestion || this;
   }
-  protected getSingleInputRootQuestion(): Question {
-    let res = <Question>this;
-    while(res.parentQuestion) {
-      res = res.parentQuestion;
-    }
-    return res;
-  }
   protected getSingleQuestionLocTitle(): LocalizableString {
     return undefined;
   }
   protected getSingleInputQuestions(): Array<Question> {
-    return this.getNestedQuestions(true);
+    return this.getNestedQuestions(true, false);
   }
   protected getSingleInputAddTextCore(): string { return undefined; }
   protected getSingleInputRemoveTextCore(question: Question): string { return undefined; }
   protected singleInputAddItemCore(question: Question): void {}
   protected singleInputRemoveItemCore(question: Question): void {}
   protected setSingleInputQuestion(question: Question): void {
-    const root = this.getSingleInputRootQuestion();
-    if(root !== this) {
-      root.setSingleInputQuestion(question);
-    } else {
-      if(this.singleInputQuestion !== question) {
-        const prevParent = this.singleInputParentQuestion;
-        this.setPropertyValue("singleInputQuestion", question);
-        this.onSingleInputChanged(prevParent);
-      }
+    if(this.singleInputQuestion !== question) {
+      this.setPropertyValue("singleInputQuestion", question);
+      this.onSingleInputChanged();
     }
   }
   private nextPrevSingleInput(skip: number): boolean {
@@ -2382,18 +2379,27 @@ export class Question extends SurveyElement<Question>
    * @param visibleOnly A Boolean value that specifies whether to include only visible nested questions.
    * @returns An array of nested questions.
    */
-  public getNestedQuestions(visibleOnly: boolean = false): Array<Question> {
+  public getNestedQuestions(visibleOnly: boolean = false, includeNested: boolean = true): Array<Question> {
     const res: Array<Question> = [];
-    this.collectNestedQuestions(res, visibleOnly);
+    this.collectNestedQuestions(res, visibleOnly, includeNested);
     if (res.length === 1 && res[0] === this) return [];
     return res;
   }
-  public collectNestedQuestions(questions: Array<Question>, visibleOnly: boolean = false): void {
+  public collectNestedQuestions(questions: Array<Question>, visibleOnly: boolean = false, includeNested: boolean = true): void {
     if (visibleOnly && !this.isVisible) return;
-    this.collectNestedQuestionsCore(questions, visibleOnly);
+    this.collectNestedQuestionsCore(questions, visibleOnly, includeNested);
   }
-  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean): void {
+  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean): void {
     questions.push(this);
+  }
+  addNestedQuestion(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean): void {
+    if(includeNested) {
+      this.collectNestedQuestions(questions, visibleOnly);
+    } else {
+      if(!visibleOnly || this.isVisible) {
+        questions.push(this);
+      }
+    }
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = new JsonObject().toJsonObject(this);

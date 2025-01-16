@@ -689,46 +689,6 @@ QUnit.test("singleInput for matrix dynamic & cell question & css", assert => {
   });
 });
 
-QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic", name: "panel1",
-        panelCount: 1,
-        templateElements: [
-          { type: "text", name: "name" },
-          {
-            type: "matrixdynamic", name: "matrix1",
-            rowCount: 2,
-            columns: [
-              { cellType: "text", name: "col1" },
-              { cellType: "text", name: "col2" }
-            ]
-          }
-        ]
-      }
-    ],
-    questionsOnPageMode: "inputPerPage"
-  });
-  const panel = survey.getQuestionByName("panel1");
-  assert.equal(panel.singleInputQuestion.name, "name", "singleInputQuestion.name, #1");
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #1");
-  survey.performNext();
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Row 1", "input loc title #2");
-  assert.equal(panel.singleInputQuestion.name, "col1", "singleInputQuestion.name, #2");
-  survey.performNext();
-  assert.equal(panel.singleInputQuestion.name, "col2", "singleInputQuestion.name, #3");
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Row 1", "input loc title #3");
-  survey.performNext();
-  assert.equal(panel.singleInputQuestion.name, "col1", "singleInputQuestion.name, #4");
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Row 2", "input loc title #4");
-  survey.performPrevious();
-  survey.performPrevious();
-  survey.performPrevious();
-  assert.equal(panel.singleInputQuestion.name, "name", "singleInputQuestion.name, #5");
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #5");
-});
-
 QUnit.test("singleInput & singleInputSummary for dynamic matrix", assert => {
   const survey = new SurveyModel({
     elements: [
@@ -809,13 +769,14 @@ QUnit.test("singleInput & singleInputSummary for dynamic panel", assert => {
   assert.equal(survey.isShowPrevButton, false, "prev buttton, #6");
   assert.equal(survey.isShowNextButton, true, "next buttton, #6");
 });
-/*
-QUnit.only("singleInput & nested matrix dynamic in the panel dynamic & summary", assert => {
+QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert => {
   const survey = new SurveyModel({
     elements: [
       {
         type: "paneldynamic", name: "panel1",
+        panelCount: 1,
         templateElements: [
+          { type: "text", name: "name" },
           {
             type: "matrixdynamic", name: "matrix1",
             columns: [
@@ -828,30 +789,70 @@ QUnit.only("singleInput & nested matrix dynamic in the panel dynamic & summary",
     ],
     questionsOnPageMode: "inputPerPage"
   });
+  const addBtn = survey.navigationBar.getActionById("sv-singleinput-add");
+  const removeBtn = survey.navigationBar.getActionById("sv-singleinput-remove");
   const panel = survey.getQuestionByName("panel1");
-  assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is matrix1, #1");
-  assert.equal(panel.singleInputQuestion.name, "panel1", "singleInputQuestion.name, #1");
-  assert.ok(panel.singleInputSummary, "singleInputSummary exists, #1");
-  panel.addPanel();
-  assert.equal(panel.singleInputQuestion.name, "matrix1", "singleInputQuestion.name, #2");
-  assert.ok(panel.singleInputSummary, "singleInputSummary exists, #2");
-  panel.panels[0].getQuestion("matrix1").addRow();
-  assert.equal(panel.singleInputQuestion.name, "col1", "singleInputQuestion.name, #3");
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Row 1", "input loc title #3");
-  assert.notOk(panel.singleInputSummary, "singleInputSummary exists, #3");
+  assert.equal(panel.singleInputQuestion.name, "name1", "singleInputQuestion.name, #1");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #1");
+  assert.equal(survey.isShowPrevButton, false, "prev buttton, #1");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #1");
+  assert.equal(addBtn.visible, false, "addBtn visible #1");
+  assert.equal(removeBtn.visible, true, "removeBtn visible #1");
+
   survey.performNext();
-  assert.equal(panel.singleInputQuestion.name, "col2", "singleInputQuestion.name, #4");
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Row 1", "input loc title #4");
-  assert.notOk(panel.singleInputSummary, "singleInputSummary exists, #4");
+  assert.equal(panel.singleInputQuestion.name, "matrix1", "singleInputQuestion.name, #2");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #2");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #2");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #2");
+  let matrix = panel.panels[0].getQuestionByName("matrix1");
+  assert.equal(matrix.singleInputQuestion.name, "matrix1", "matrix.singleInputQuestion.name, #2");
+  assert.notOk(matrix.singleInputLocTitle?.textOrHtml, "matrix.input loc title #2");
+  assert.ok(matrix.singleInputSummary, "matrix.singleInputSummary exists, #2");
+  assert.equal(addBtn.visible, true, "addBtn visible #2");
+  assert.equal(removeBtn.visible, false, "removeBtn visible #2");
+  assert.equal(matrix.visibleRows.length, 0, "matrix.visibleRows.length, #2");
+
+  addBtn.action();
+  assert.equal(matrix.visibleRows.length, 1, "matrix.visibleRows.length, #3");
+  assert.equal(panel.singleInputQuestion.name, "matrix1", "singleInputQuestion.name, #3");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #3");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #3");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #3");
+  assert.equal(matrix.singleInputQuestion.name, "col1", "matrix.singleInputQuestion.name, #3");
+  assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 1", "matrix.input loc title #3");
+  assert.notOk(matrix.singleInputSummary, "matrix.singleInputSummary exists, #3");
+  assert.equal(addBtn.visible, false, "addBtn visible #3");
+  assert.equal(removeBtn.visible, true, "removeBtn visible #3");
+
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "matrix1", "singleInputQuestion.name, #4");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #4");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #4");
+  assert.equal(survey.isShowNextButton, true, "next buttton, #4");
+  assert.equal(matrix.singleInputQuestion.name, "col2", "matrix.singleInputQuestion.name, #4");
+  assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 1", "matrix.input loc title #4");
+  assert.notOk(matrix.singleInputSummary, "matrix.singleInputSummary exists, #4");
+  assert.equal(addBtn.visible, false, "addBtn visible #4");
+  assert.equal(removeBtn.visible, true, "removeBtn visible #4");
+
   survey.performNext();
   assert.equal(panel.singleInputQuestion.name, "matrix1", "singleInputQuestion.name, #5");
-  assert.ok(panel.singleInputSummary, "singleInputSummary exists, #5");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #5");
   assert.equal(survey.isShowPrevButton, true, "prev buttton, #5");
   assert.equal(survey.isShowNextButton, true, "next buttton, #5");
+  assert.equal(matrix.singleInputQuestion.name, "matrix1", "matrix.singleInputQuestion.name, #5");
+  assert.notOk(matrix.singleInputLocTitle?.textOrHtml, "matrix.input loc title #5");
+  assert.ok(matrix.singleInputSummary, "matrix.singleInputSummary exists, #5");
+  assert.equal(addBtn.visible, true, "addBtn visible #5");
+  assert.equal(removeBtn.visible, false, "removeBtn visible #5");
+
   survey.performNext();
   assert.equal(panel.singleInputQuestion.name, "panel1", "singleInputQuestion.name, #6");
-  assert.ok(panel.singleInputSummary, "singleInputSummary exists, #6");
+  assert.notOk(panel.singleInputLocTitle?.textOrHtml, "input loc title #6");
   assert.equal(survey.isShowPrevButton, true, "prev buttton, #6");
-  assert.equal(survey.isShowNextButton, true, "next buttton, #6");
+  assert.equal(survey.isShowNextButton, false, "next buttton, #6");
+  assert.equal(survey.isCompleteButtonVisible, true, "complete buttton, #6");
+  assert.ok(panel.singleInputSummary, "matrix.singleInputSummary exists, #6");
+  assert.equal(addBtn.visible, true, "addBtn visible #6");
+  assert.equal(removeBtn.visible, false, "removeBtn visible #6");
 });
-*/

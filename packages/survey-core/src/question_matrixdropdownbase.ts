@@ -1758,7 +1758,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   protected getSingleInputRowLocalizationTitle(): string { return ""; }
   protected processSingleInputTitle(text: string): string {
-    const row = this.getRowByQuestion(this.getRootSingleInputQuestion());
+    const row = this.getRowByQuestion(this.singleInputQuestion);
     if(row) {
       return row.getTextProcessor().processText(text, true);
     }
@@ -2035,19 +2035,19 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected getIsReadyNestedQuestions(): Array<Question> {
     if (!this.generatedVisibleRows) return [];
     const res = new Array<Question>();
-    this.collectNestedQuestonsInRows(this.generatedVisibleRows, res, false);
+    this.collectNestedQuestonsInRows(this.generatedVisibleRows, res, false, true);
     if (!!this.generatedTotalRow) {
-      this.collectNestedQuestonsInRows([this.generatedTotalRow], res, false);
+      this.collectNestedQuestonsInRows([this.generatedTotalRow], res, false, true);
     }
     return res;
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
-    this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly);
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
+    this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly, includeNested);
   }
-  protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean): void {
+  protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
     if (!Array.isArray(rows)) return;
     rows.forEach(row => {
-      row.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
+      row.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested));
     });
   }
   protected getConditionObjectRowName(index: number): string {

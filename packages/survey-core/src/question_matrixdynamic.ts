@@ -710,7 +710,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.rowCount = 0;
     }
     const res = super.getSingleInputQuestions();
-    res.push(this);
+    if(res.length > 0) {
+      res.push(this);
+    }
     return res;
   }
   protected getSingleInputAddTextCore(): string {

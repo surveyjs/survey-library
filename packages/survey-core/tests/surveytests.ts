@@ -2088,6 +2088,7 @@ QUnit.test("onVisibleChanged event", function (assert) {
 });
 QUnit.test("Question visibleIndex", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   assert.equal(
     (<Question>survey.getQuestionByName("question1")).visibleIndex,
     0,
@@ -2158,6 +2159,7 @@ QUnit.test("Question visibleIndex", function (assert) {
 });
 QUnit.test("Question visibleIndex, add-remove questions", function (assert) {
   var survey = new SurveyModel();
+  survey.showQuestionNumbers = "on";
   var page = survey.addNewPage("p1");
   var q1 = new QuestionTextModel("q1");
   page.elements.push(q1);
@@ -2189,6 +2191,7 @@ QUnit.test(
   "Question visibleIndex in onVisibleChanged event, containers",
   function (assert) {
     var survey = new SurveyModel();
+    survey.showQuestionNumbers = "on";
     var page = survey.addNewPage("page1");
     var panel = page.addNewPanel("panel1");
     var question = panel.addNewQuestion("text", "q1");
@@ -2206,6 +2209,7 @@ QUnit.test(
 
 QUnit.test("Question/Panel visibleIndex", function (assert) {
   var survey = new SurveyModel();
+  survey.showQuestionNumbers = "on";
   var page = survey.addNewPage("page1");
   var q1 = page.addNewQuestion("text", "q1");
   var panel = page.addNewPanel("panel1");
@@ -2263,6 +2267,7 @@ QUnit.test(
   "Question/Panel visibleIndex, the panel is first with showNumber false and showQuestionNumbering onpanel",
   function (assert) {
     var survey = new SurveyModel();
+    survey.showQuestionNumbers = "on";
     var page = survey.addNewPage("page1");
     var panel = page.addNewPanel("panel1");
     var q2 = panel.addNewQuestion("text", "q2");
@@ -2288,6 +2293,7 @@ QUnit.test(
 );
 QUnit.test("Panel.questionStartIndex", function (assert) {
   var survey = new SurveyModel();
+  survey.showQuestionNumbers = "on";
   var page = survey.addNewPage("page1");
   var q1 = page.addNewQuestion("text", "q1");
   var panel = page.addNewPanel("panel1");
@@ -2308,6 +2314,7 @@ QUnit.test("Panel.questionStartIndex", function (assert) {
 
 QUnit.test("Panel.questionStartIndex, nested Panel", function (assert) {
   var survey = new SurveyModel();
+  survey.showQuestionNumbers = "on";
   var page = survey.addNewPage("page1");
   var panel = page.addNewPanel("panel1");
   var nestedPanel = panel.addNewPanel("panel2");
@@ -2321,6 +2328,7 @@ QUnit.test("Panel.questionStartIndex, nested Panel", function (assert) {
 });
 QUnit.test("showQuestionNumbers - accept bool values", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   assert.equal(survey.showQuestionNumbers, "on");
   survey.showQuestionNumbers = false as any;
   assert.equal(survey.showQuestionNumbers, "off");
@@ -2329,6 +2337,7 @@ QUnit.test("showQuestionNumbers - accept bool values", function (assert) {
 });
 QUnit.test("showQuestionNumbers - question fullTitle", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   assert.equal((<Question>survey.getQuestionByName("question1"))["no"], 1);
   assert.equal(
     (<Question>survey.getQuestionByName("question1")).fullTitle,
@@ -2370,6 +2379,7 @@ QUnit.test("showQuestionNumbers - question fullTitle", function (assert) {
 });
 QUnit.test("Question visibleIndex and no title question", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   assert.equal(
     (<Question>survey.getQuestionByName("question1")).visibleIndex,
     0,
@@ -3512,6 +3522,7 @@ QUnit.test(
 
 QUnit.test("question fullTitle", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   var question = <Question>survey.pages[0].questions[1];
   question.title = "My Title";
   assert.equal(question.fullTitle, "My Title");
@@ -3527,6 +3538,7 @@ QUnit.test("question fullTitle", function (assert) {
 });
 QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   var question = <Question>survey.pages[0].questions[1];
   assert.equal(question.no, "2.");
   survey.questionStartIndex = "100";
@@ -3583,6 +3595,7 @@ QUnit.test(
   "question.no/queston.visibleIndex and hideNo/hideTitle options",
   function (assert) {
     var survey = new SurveyModel({
+      showQuestionNumbers: "on",
       questions: [
         { type: "text", name: "q1" },
         { type: "text", name: "q2" },
@@ -7260,6 +7273,7 @@ QUnit.test(
   "Survey.isSinglePage = true, question.visibleIndex set incorrectly, bug#925",
   function (assert) {
     var json = {
+      showQuestionNumbers: "on",
       pages: [
         {
           elements: [
@@ -13455,6 +13469,7 @@ QUnit.test(
   "Question hideNumber visibility depending on parent settings, https://surveyjs.answerdesk.io/ticket/details/t4504/survey-creator-can-we-hide-show-number-property-on-questions-if-numbering-is-off-at-form",
   function (assert) {
     var survey = new SurveyModel({
+      showQuestionNumbers: "on",
       elements: [
         {
           type: "panel",
@@ -18461,6 +18476,7 @@ QUnit.test("setStructuredData function", function (assert) {
 
 QUnit.test("check titleNumInline cssClass", function (assert) {
   const survey = new SurveyModel({
+    showQuestionNumbers: "on",
     questionStartIndex: "1.1.1",
     elements: [{
       type: "panel",

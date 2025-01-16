@@ -240,6 +240,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 1600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         "logoPosition": "right",
         "pages": [
@@ -291,6 +292,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 1600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "elements": [
           {
             "type": "dropdown",
@@ -321,6 +323,7 @@ frameworks.forEach(framework => {
   });
 
   const jsonWithInputs = {
+    showQuestionNumbers: "on",
     "logoPosition": "right",
     "pages": [
       {
@@ -464,6 +467,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 3000);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "pages": [
           {
             "name": "page1",
@@ -507,6 +511,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "focusFirstQuestionAutomatic": false,
         "pages": [

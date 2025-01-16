@@ -174,6 +174,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "pages": [
           {
@@ -239,6 +240,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1000, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         locale: "de",
         pages: [{
           name: "page1", elements: [
@@ -671,39 +673,38 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const focusBody = ClientFunction(() => { document.body.focus(); });
-      await initSurvey(framework,
-
-        {
-          widthMode: "static",
-          questions: [
-            {
-              "type": "matrixdropdown",
-              "name": "question7",
-              "columns": [
-                {
-                  "name": "Column 1",
-                  "cellType": "rating",
-                  "rateType": "stars"
-                },
-                {
-                  "name": "Column 2",
-                  "cellType": "rating",
-                  "rateType": "smileys"
-                }
-              ],
-              "choices": [
-                1,
-                2,
-                3,
-                4,
-                5
-              ],
-              "rows": [
-                "Row 1"
-              ]
-            }
-          ]
-        }
+      await initSurvey(framework, {
+        showQuestionNumbers: "on",
+        widthMode: "static",
+        questions: [
+          {
+            "type": "matrixdropdown",
+            "name": "question7",
+            "columns": [
+              {
+                "name": "Column 1",
+                "cellType": "rating",
+                "rateType": "stars"
+              },
+              {
+                "name": "Column 2",
+                "cellType": "rating",
+                "rateType": "smileys"
+              }
+            ],
+            "choices": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "rows": [
+              "Row 1"
+            ]
+          }
+        ]
+      }
       );
 
       const questionRoot = Selector(".sd-question--table");

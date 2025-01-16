@@ -1486,28 +1486,8 @@ export class QuestionPanelDynamicModel extends Question
    * @see panels
    */
   public addPanelUI(): PanelModel {
-    if (!this.canAddPanel) return null;
-    if (!this.canLeaveCurrentPanel()) return null;
-    const newPanel = this.addPanel();
-    if (this.displayMode === "list" && this.panelsState !== "default") {
-      newPanel.expand();
-    }
-    this.focusNewPanelCallback = () => {
-      newPanel.focusFirstQuestion();
-    };
-    if (!this.isPanelsAnimationRunning) {
-      this.focusNewPanel();
-    }
-    return newPanel;
+    return this.addPanel(undefined, false);
   }
-  private focusNewPanelCallback: () => void;
-  private focusNewPanel() {
-    if (this.focusNewPanelCallback) {
-      this.focusNewPanelCallback();
-      this.focusNewPanelCallback = undefined;
-    }
-  }
-
   /**
    * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
    * @param index *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `displayMode` value.
@@ -1516,7 +1496,27 @@ export class QuestionPanelDynamicModel extends Question
    * @see allowAddPanel
    * @see newPanelPosition
    */
-  public addPanel(index?: number): PanelModel {
+  public addPanel(index?: number, skipAdditionalActions?: boolean): PanelModel {
+    const isUI = skipAdditionalActions === false;
+    if(isUI) {
+      if (!this.canAddPanel) return null;
+      if (!this.canLeaveCurrentPanel()) return null;
+    }
+    const newPanel = this.addPanelCore(index);
+    if(isUI) {
+      if (this.displayMode === "list" && this.panelsState !== "default") {
+        newPanel.expand();
+      }
+      this.focusNewPanelCallback = () => {
+        newPanel.focusFirstQuestion();
+      };
+      if (!this.isPanelsAnimationRunning) {
+        this.focusNewPanel();
+      }
+    }
+    return newPanel;
+  }
+  private addPanelCore(index: number): PanelModel {
     const curIndex = this.currentIndex;
     if (index === undefined) {
       index = curIndex < 0 ? this.panelCount : curIndex + 1;
@@ -1530,6 +1530,13 @@ export class QuestionPanelDynamicModel extends Question
     }
     if (this.survey) this.survey.dynamicPanelAdded(this);
     return this.panelsCore[index];
+  }
+  private focusNewPanelCallback: () => void;
+  private focusNewPanel() {
+    if (this.focusNewPanelCallback) {
+      this.focusNewPanelCallback();
+      this.focusNewPanelCallback = undefined;
+    }
   }
   private updateValueOnAddingPanel(prevIndex: number, index: number): void {
     this.panelCount++;
@@ -1564,38 +1571,6 @@ export class QuestionPanelDynamicModel extends Question
       dest[key] = src[key];
     }
   }
-  /**
-   * Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
-   *
-   * Unlike the [`removePanel()`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanel) method, `removePanelUI()` performs additional actions: checks whether the panel [can be removed](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canRemovePanel) and displays a confirmation dialog (if the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#confirmDelete) property is enabled).
-   * @param value A `PanelModel` instance or zero-based panel index.
-   * @see addPanelUI
-   */
-  public removePanelUI(value: any): void {
-    const visIndex = this.getVisualPanelIndex(value);
-    if(visIndex < 0 || visIndex >= this.visiblePanelCount) return;
-    if (!this.canRemovePanel) return;
-    const removePanel = () => {
-      this.removePanel(visIndex);
-      const pnlCount = this.visiblePanelCount;
-      const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
-      let id = pnlCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getPanelRemoveButtonId(this.visiblePanels[nextIndex]) : "");
-      if(!!id) {
-        SurveyElement.FocusElement(id, true, this.survey?.rootElement);
-      }
-    };
-    if (this.isRequireConfirmOnDelete(value)) {
-      confirmActionAsync({
-        message: this.confirmDeleteText,
-        funcOnYes: () => { removePanel(); },
-        locale: this.getLocale(),
-        rootElement: this.survey.rootElement,
-        cssClass: this.cssClasses.confirmDialog
-      });
-    } else {
-      removePanel();
-    }
-  }
   public getPanelRemoveButtonId(panel: PanelModel): string {
     return panel.id + "_remove_button";
   }
@@ -1624,15 +1599,53 @@ export class QuestionPanelDynamicModel extends Question
     if (this.currentIndex < 0) return;
     this.currentIndex--;
   }
-  private removedPanelIndex: number;
+  /**
+   * Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
+   *
+   * Unlike the [`removePanel()`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanel) method, `removePanelUI()` performs additional actions: checks whether the panel [can be removed](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canRemovePanel) and displays a confirmation dialog (if the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#confirmDelete) property is enabled).
+   * @param value A `PanelModel` instance or zero-based panel index.
+   * @see addPanelUI
+   */
+  public removePanelUI(value: any): void {
+    this.removePanel(value, this.isRequireConfirmOnDelete(value));
+  }
   /**
    * Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
    * @param value A `PanelModel` instance or zero-based panel index.
    * @see addPanel
    */
-  public removePanel(value: any): void {
+  public removePanel(value: any, confirmDelete?: boolean): void {
     const visIndex = this.getVisualPanelIndex(value);
     if (visIndex < 0 || visIndex >= this.visiblePanelCount) return;
+    const isUI = confirmDelete !== undefined;
+    if(isUI) {
+      if(!this.canRemovePanel) return;
+      const removePanel = () => {
+        this.removePanelCore(visIndex);
+        const pnlCount = this.visiblePanelCount;
+        const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
+        let id = pnlCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getPanelRemoveButtonId(this.visiblePanels[nextIndex]) : "");
+        if(!!id) {
+          SurveyElement.FocusElement(id, true, this.survey?.rootElement);
+        }
+      };
+      if (confirmDelete) {
+        confirmActionAsync({
+          message: this.confirmDeleteText,
+          funcOnYes: () => { removePanel(); },
+          locale: this.getLocale(),
+          rootElement: this.survey.rootElement,
+          cssClass: this.cssClasses.confirmDialog
+        });
+      } else {
+        removePanel();
+      }
+    } else {
+      this.removePanelCore(visIndex);
+    }
+  }
+  private removedPanelIndex: number;
+  private removePanelCore(visIndex: number): void {
     this.removedPanelIndex = visIndex;
     const panel = this.visiblePanelsCore[visIndex];
     const index = this.panelsCore.indexOf(panel);

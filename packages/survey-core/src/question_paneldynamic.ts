@@ -282,7 +282,7 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("keyDuplicationError", this, false, true);
     this.createLocalizableString("addPanelText", this, false, "addPanel");
     this.createLocalizableString("removePanelText", this, false, "removePanel");
-    this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
+    this.createLocalizableString("prevPanelText", this, false, "pagePrevText");
     this.createLocalizableString("nextPanelText", this, false, "pageNextText");
     this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
     this.createLocalizableString("templateTabTitle", this, true, "panelDynamicTabTextFormat");
@@ -801,15 +801,12 @@ export class QuestionPanelDynamicModel extends Question
    * @see displayMode
    * @see isPrevButtonVisible
    */
-  public get panelPrevText(): string {
-    return this.getLocalizableStringText("panelPrevText");
-  }
-  public set panelPrevText(val: string) {
-    this.setLocalizableStringText("panelPrevText", val);
-  }
-  get locPanelPrevText(): LocalizableString {
-    return this.getLocalizableString("panelPrevText");
-  }
+  public get prevPanelText(): string { return this.getLocalizableStringText("prevPanelText"); }
+  public set prevPanelText(val: string) { this.setLocalizableStringText("prevPanelText", val); }
+  get locPrevPanelText(): LocalizableString { return this.getLocalizableString("prevPanelText"); }
+  public get panelPrevText(): string { return this.prevPanelText; }
+  public set panelPrevText(val: string) { this.prevPanelText = val; }
+  get locPanelPrevText(): LocalizableString { return this.locPrevPanelText; }
   /**
    * A caption for the Next button. Applies only if `displayMode` is different from `"list"`.
    * @see displayMode
@@ -850,7 +847,7 @@ export class QuestionPanelDynamicModel extends Question
    * Indicates whether the Previous button is visible.
    * @see currentIndex
    * @see currentPanel
-   * @see panelPrevText
+   * @see prevPanelText
    */
   public get isPrevButtonVisible(): boolean { return this.currentIndex > 0; }
   public get isPrevButtonShowing(): boolean { return this.isPrevButtonVisible; }
@@ -2474,7 +2471,7 @@ export class QuestionPanelDynamicModel extends Question
     const items = [];
     const prevTextBtn = new Action({
       id: "sv-pd-prev-btn",
-      title: this.panelPrevText,
+      title: this.prevPanelText,
       action: () => {
         this.goToPrevPanel();
       }
@@ -2704,8 +2701,8 @@ Serializer.addClass(
       visibleIf: (obj: any) => { return obj.allowRemovePanel; }
     },
     {
-      name: "panelPrevText",
-      serializationProperty: "locPanelPrevText",
+      name: "prevPanelText", alternativeName: "panelPrevText",
+      serializationProperty: "locPrevPanelText",
       visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
     },
     {

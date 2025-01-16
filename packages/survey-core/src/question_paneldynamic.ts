@@ -281,7 +281,7 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("confirmDeleteText", this, false, "confirmDelete");
     this.createLocalizableString("keyDuplicationError", this, false, true);
     this.createLocalizableString("panelAddText", this, false, "addPanel");
-    this.createLocalizableString("panelRemoveText", this, false, "removePanel");
+    this.createLocalizableString("removePanelText", this, false, "removePanel");
     this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
     this.createLocalizableString("panelNextText", this, false, "pageNextText");
     this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
@@ -840,15 +840,12 @@ export class QuestionPanelDynamicModel extends Question
    * A caption for the Delete Panel button.
    * @see panelRemoveButtonLocation
    */
-  public get panelRemoveText() {
-    return this.getLocalizableStringText("panelRemoveText");
-  }
-  public set panelRemoveText(val: string) {
-    this.setLocalizableStringText("panelRemoveText", val);
-  }
-  get locPanelRemoveText(): LocalizableString {
-    return this.getLocalizableString("panelRemoveText");
-  }
+  public get removePanelText(): string { return this.getLocalizableStringText("removePanelText"); }
+  public set removePanelText(val: string) { this.setLocalizableStringText("removePanelText", val); }
+  get locRemovePanelText(): LocalizableString { return this.getLocalizableString("removePanelText"); }
+  public get panelRemoveText(): string { return this.removePanelText; }
+  public set panelRemoveText(val: string) { this.removePanelText = val; }
+  get locPanelRemoveText(): LocalizableString { return this.locRemovePanelText; }
   public get isProgressTopShowing(): boolean {
     return this.displayMode == "carousel" && (this.progressBarLocation === "top" || this.progressBarLocation === "topBottom");
   }
@@ -2698,8 +2695,8 @@ Serializer.addClass(
       visibleIf: (obj: any) => { return obj.allowAddPanel; }
     },
     {
-      name: "panelRemoveText",
-      serializationProperty: "locPanelRemoveText",
+      name: "removePanelText", alternativeName: "panelRemoveText",
+      serializationProperty: "locRemovePanelText",
       visibleIf: (obj: any) => { return obj.allowRemovePanel; }
     },
     {

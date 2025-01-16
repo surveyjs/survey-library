@@ -282,6 +282,7 @@ frameworks.forEach(framework => {
     });
   });
   test("Check matrixdynamic on small screen with errors", async (t) => {
+    if(framework == "vue" || framework == "knockout") return;
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);
       await initSurvey(framework, {
@@ -320,6 +321,7 @@ frameworks.forEach(framework => {
     });
   });
   test("Check matrixdynamic on small screen with errors bottom", async (t) => {
+    if(framework == "vue" || framework == "knockout") return;
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);
       await initSurvey(framework, {

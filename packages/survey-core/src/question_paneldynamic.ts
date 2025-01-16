@@ -804,6 +804,10 @@ export class QuestionPanelDynamicModel extends Question
   public get prevPanelText(): string { return this.getLocalizableStringText("prevPanelText"); }
   public set prevPanelText(val: string) { this.setLocalizableStringText("prevPanelText", val); }
   get locPrevPanelText(): LocalizableString { return this.getLocalizableString("prevPanelText"); }
+  /**
+   * Obsolete. Use the [`prevPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#prevPanelText) property instead.
+   * @deprecated
+   */
   public get panelPrevText(): string { return this.prevPanelText; }
   public set panelPrevText(val: string) { this.prevPanelText = val; }
   get locPanelPrevText(): LocalizableString { return this.locPrevPanelText; }
@@ -815,6 +819,10 @@ export class QuestionPanelDynamicModel extends Question
   public get nextPanelText(): string { return this.getLocalizableStringText("nextPanelText"); }
   public set nextPanelText(val: string) { this.setLocalizableStringText("nextPanelText", val); }
   get locNextPanelText(): LocalizableString { return this.getLocalizableString("nextPanelText"); }
+  /**
+   * Obsolete. Use the [`nextPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#nextPanelText) property instead.
+   * @deprecated
+   */
   public get panelNextText(): string { return this.nextPanelText; }
   public set panelNextText(val: string) { this.nextPanelText = val; }
   get locPanelNextText(): LocalizableString { return this.locNextPanelText; }
@@ -824,16 +832,24 @@ export class QuestionPanelDynamicModel extends Question
   public get addPanelText(): string { return this.getLocalizableStringText("addPanelText"); }
   public set addPanelText(value: string) { this.setLocalizableStringText("addPanelText", value); }
   get locAddPanelText(): LocalizableString { return this.getLocalizableString("addPanelText"); }
+  /**
+   * Obsolete. Use the [`addPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanelText) property instead.
+   * @deprecated
+   */
   public get panelAddText(): string { return this.addPanelText; }
   public set panelAddText(value: string) { this.addPanelText = value; }
   get locPanelAddText(): LocalizableString { return this.locAddPanelText; }
   /**
-   * A caption for the Delete Panel button.
+   * A caption for the Remove Panel button.
    * @see removePanelButtonLocation
    */
   public get removePanelText(): string { return this.getLocalizableStringText("removePanelText"); }
   public set removePanelText(val: string) { this.setLocalizableStringText("removePanelText", val); }
   get locRemovePanelText(): LocalizableString { return this.getLocalizableString("removePanelText"); }
+  /**
+   * Obsolete. Use the [`removePanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanelText) property instead.
+   * @deprecated
+   */
   public get panelRemoveText(): string { return this.removePanelText; }
   public set panelRemoveText(val: string) { this.removePanelText = val; }
   get locPanelRemoveText(): LocalizableString { return this.locRemovePanelText; }
@@ -1167,13 +1183,13 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected notifySurveyOnChildrenVisibilityChanged(): boolean { return this.showQuestionNumbers === "onSurvey"; }
   /**
-   * Specifies the location of the Delete Panel button relative to panel content.
+   * Specifies the location of the Remove Panel button relative to panel content.
    *
    * Possible values:
    *
-   * - `"bottom"` (default) - Displays the Delete Panel button below panel content.
-   * - `"right"` - Displays the Delete Panel button to the right of panel content.
-   * @see panelRemoveText
+   * - `"bottom"` (default) - Displays the Remove Panel button below panel content.
+   * - `"right"` - Displays the Remove Panel button to the right of panel content.
+   * @see removePanelText
    */
   public get removePanelButtonLocation(): string {
     return this.getPropertyValue("removePanelButtonLocation");
@@ -1181,6 +1197,10 @@ export class QuestionPanelDynamicModel extends Question
   public set removePanelButtonLocation(val: string) {
     this.setPropertyValue("removePanelButtonLocation", val);
   }
+  /**
+   * Obsolete. Use the [`removePanelButtonLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanelButtonLocation) property instead.
+   * @deprecated
+   */
   public get panelRemoveButtonLocation(): string { return this.removePanelButtonLocation; }
   public set panelRemoveButtonLocation(val: string) { this.removePanelButtonLocation = val; }
   /**

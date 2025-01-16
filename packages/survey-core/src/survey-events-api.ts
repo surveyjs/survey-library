@@ -300,10 +300,6 @@ export interface PanelRemovedEvent extends PanelEventMixin, ElementRemovedEvent 
 export interface PageAddedEvent extends PageEventMixin { }
 export interface ValidateQuestionEvent extends QuestionEventMixin {
   /**
-   * An error message that you should specify if validation fails.
-   */
-  error: string;
-  /**
    * A question value being validated.
    */
   value: any;
@@ -312,7 +308,11 @@ export interface ValidateQuestionEvent extends QuestionEventMixin {
    */
   name: string;
   /**
-   * An array of errors. The array is empty if the validated question satisfies all validation rules.
+   * An error message that you should specify if custom validation fails.
+   */
+  error: string;
+  /**
+   * An array of other validation errors that you can modify. The array is empty if the validated question satisfies all validation rules.
    */
   errors: Array<SurveyError>;
 }
@@ -338,15 +338,15 @@ export interface ServerValidateQuestionsEvent {
 }
 export interface ValidatePanelEvent extends PanelEventMixin {
   /**
-   * An error message that you should specify if validation fails.
-   */
-  error: string;
-  /**
    * The panel's name.
    */
   name: string;
   /**
-   * An array of validation errors.
+   * An error message that you should specify if custom validation fails.
+   */
+  error: string;
+  /**
+   * An array of other validation errors that you can modify.
    */
   errors: Array<SurveyError>;
 }

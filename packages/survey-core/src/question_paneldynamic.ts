@@ -283,7 +283,7 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("addPanelText", this, false, "addPanel");
     this.createLocalizableString("removePanelText", this, false, "removePanel");
     this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
-    this.createLocalizableString("panelNextText", this, false, "pageNextText");
+    this.createLocalizableString("nextPanelText", this, false, "pageNextText");
     this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
     this.createLocalizableString("templateTabTitle", this, true, "panelDynamicTabTextFormat");
     this.createLocalizableString("tabTitlePlaceholder", this, true, "tabTitlePlaceholder");
@@ -815,15 +815,12 @@ export class QuestionPanelDynamicModel extends Question
    * @see displayMode
    * @see isNextButtonVisible
    */
-  public get panelNextText(): string {
-    return this.getLocalizableStringText("panelNextText");
-  }
-  public set panelNextText(val: string) {
-    this.setLocalizableStringText("panelNextText", val);
-  }
-  get locPanelNextText(): LocalizableString {
-    return this.getLocalizableString("panelNextText");
-  }
+  public get nextPanelText(): string { return this.getLocalizableStringText("nextPanelText"); }
+  public set nextPanelText(val: string) { this.setLocalizableStringText("nextPanelText", val); }
+  get locNextPanelText(): LocalizableString { return this.getLocalizableString("nextPanelText"); }
+  public get panelNextText(): string { return this.nextPanelText; }
+  public set panelNextText(val: string) { this.nextPanelText = val; }
+  get locPanelNextText(): LocalizableString { return this.locNextPanelText; }
   /**
    * A caption for the Add Panel button.
    */
@@ -861,7 +858,7 @@ export class QuestionPanelDynamicModel extends Question
    * Indicates whether the Next button is visible.
    * @see currentIndex
    * @see currentPanel
-   * @see panelNextText
+   * @see nextPanelText
    */
   public get isNextButtonVisible(): boolean {
     return this.currentIndex >= 0 && this.currentIndex < this.visiblePanelCount - 1;
@@ -2484,7 +2481,7 @@ export class QuestionPanelDynamicModel extends Question
     });
     const nextTextBtn = new Action({
       id: "sv-pd-next-btn",
-      title: this.panelNextText,
+      title: this.nextPanelText,
       action: () => {
         this.goToNextPanel();
       }
@@ -2712,8 +2709,8 @@ Serializer.addClass(
       visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
     },
     {
-      name: "panelNextText",
-      serializationProperty: "locPanelNextText",
+      name: "nextPanelText", alternativeName: "panelNextText",
+      serializationProperty: "locNextPanelText",
       visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
     },
     {

@@ -14,7 +14,7 @@ export class SurveyActionBarItemDropdown extends SurveyActionBarItem {
     return (
       <>
         {button}
-        <Popup model={this.item.popupModel}></Popup>
+        {<Popup model={this.item.popupModel}></Popup>}
       </>
     );
   }

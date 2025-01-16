@@ -246,6 +246,7 @@ frameworks.forEach(framework => {
   test("Check file question different width", async t => {
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         widthMode: "responsive",
         questions: [
           {

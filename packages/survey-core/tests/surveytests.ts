@@ -69,6 +69,7 @@ import { ListModel } from "../src/list";
 import { _setIsTouch } from "../src/utils/devices";
 import { oldDefaultTheme, setOldTheme } from "./oldTheme";
 import { ConsoleWarnings } from "../src/console-warnings";
+import { CustomError } from "../src/error";
 
 export default QUnit.module("Survey");
 
@@ -2087,6 +2088,7 @@ QUnit.test("onVisibleChanged event", function (assert) {
 });
 QUnit.test("Question visibleIndex", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   assert.equal(
     (<Question>survey.getQuestionByName("question1")).visibleIndex,
     0,
@@ -2157,6 +2159,7 @@ QUnit.test("Question visibleIndex", function (assert) {
 });
 QUnit.test("Question visibleIndex, add-remove questions", function (assert) {
   var survey = new SurveyModel();
+  survey.showQuestionNumbers = "on";
   var page = survey.addNewPage("p1");
   var q1 = new QuestionTextModel("q1");
   page.elements.push(q1);
@@ -2188,6 +2191,7 @@ QUnit.test(
   "Question visibleIndex in onVisibleChanged event, containers",
   function (assert) {
     var survey = new SurveyModel();
+    survey.showQuestionNumbers = "on";
     var page = survey.addNewPage("page1");
     var panel = page.addNewPanel("panel1");
     var question = panel.addNewQuestion("text", "q1");
@@ -2205,6 +2209,7 @@ QUnit.test(
 
 QUnit.test("Question/Panel visibleIndex", function (assert) {
   var survey = new SurveyModel();
+  survey.showQuestionNumbers = "on";
   var page = survey.addNewPage("page1");
   var q1 = page.addNewQuestion("text", "q1");
   var panel = page.addNewPanel("panel1");
@@ -2262,6 +2267,7 @@ QUnit.test(
   "Question/Panel visibleIndex, the panel is first with showNumber false and showQuestionNumbering onpanel",
   function (assert) {
     var survey = new SurveyModel();
+    survey.showQuestionNumbers = "on";
     var page = survey.addNewPage("page1");
     var panel = page.addNewPanel("panel1");
     var q2 = panel.addNewQuestion("text", "q2");
@@ -2287,6 +2293,7 @@ QUnit.test(
 );
 QUnit.test("Panel.questionStartIndex", function (assert) {
   var survey = new SurveyModel();
+  survey.showQuestionNumbers = "on";
   var page = survey.addNewPage("page1");
   var q1 = page.addNewQuestion("text", "q1");
   var panel = page.addNewPanel("panel1");
@@ -2307,6 +2314,7 @@ QUnit.test("Panel.questionStartIndex", function (assert) {
 
 QUnit.test("Panel.questionStartIndex, nested Panel", function (assert) {
   var survey = new SurveyModel();
+  survey.showQuestionNumbers = "on";
   var page = survey.addNewPage("page1");
   var panel = page.addNewPanel("panel1");
   var nestedPanel = panel.addNewPanel("panel2");
@@ -2320,6 +2328,7 @@ QUnit.test("Panel.questionStartIndex, nested Panel", function (assert) {
 });
 QUnit.test("showQuestionNumbers - accept bool values", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   assert.equal(survey.showQuestionNumbers, "on");
   survey.showQuestionNumbers = false as any;
   assert.equal(survey.showQuestionNumbers, "off");
@@ -2328,6 +2337,7 @@ QUnit.test("showQuestionNumbers - accept bool values", function (assert) {
 });
 QUnit.test("showQuestionNumbers - question fullTitle", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   assert.equal((<Question>survey.getQuestionByName("question1"))["no"], 1);
   assert.equal(
     (<Question>survey.getQuestionByName("question1")).fullTitle,
@@ -2369,6 +2379,7 @@ QUnit.test("showQuestionNumbers - question fullTitle", function (assert) {
 });
 QUnit.test("Question visibleIndex and no title question", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   assert.equal(
     (<Question>survey.getQuestionByName("question1")).visibleIndex,
     0,
@@ -2594,6 +2605,35 @@ QUnit.test("onValidatePanel test", function (assert) {
     "failed: 55 + 50, 10 < q1.value + q2.value < 100"
   );
   assert.equal(counter, 3, "onValidatePanel calls three time");
+});
+QUnit.test("survey.onValidatePanel & options.errors", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page");
+  const panel = page.addNewPanel("panel");
+  const q1 = <QuestionTextModel>panel.addNewQuestion("text", "q1");
+  const q2 = <QuestionTextModel>panel.addNewQuestion("text", "q2");
+  survey.onValidatePanel.add(function (sender, options) {
+    const panel = <PanelModel>options.panel;
+    const pq1 = <QuestionTextModel>panel.getQuestionByName("q1");
+    const pq2 = <QuestionTextModel>panel.getQuestionByName("q2");
+    const sum = pq1.value + pq1.value;
+    if (sum < 10 || pq1.isEmpty() || pq2.isEmpty()) {
+      options.errors.push(new CustomError("q1+q2 should be more than 9"));
+    }
+    if (sum >= 100) {
+      options.errors.push(new CustomError("q1+q2 should be less than 100"));
+    }
+  });
+
+  assert.equal(survey.isCurrentPageHasErrors, true, "failed, values are undefined : 10 < q1.value + q2.value < 100");
+  assert.equal(panel.errors.length, 1, "panel.errors, #1");
+  q1.value = 5;
+  q2.value = 50;
+  assert.equal(survey.isCurrentPageHasErrors, false, "passed: 5 + 50, 10 < q1.value + q2.value < 100");
+  assert.equal(panel.errors.length, 0, "panel.errors, #2");
+  q1.value = 55;
+  assert.equal(survey.isCurrentPageHasErrors, true, "failed: 55 + 50, 10 < q1.value + q2.value < 100");
+  assert.equal(panel.errors.length, 1, "panel.errors, #3");
 });
 QUnit.test(
   "isCurrentPageHasErrors, required question in the invisible panel, #325",
@@ -3482,6 +3522,7 @@ QUnit.test(
 
 QUnit.test("question fullTitle", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   var question = <Question>survey.pages[0].questions[1];
   question.title = "My Title";
   assert.equal(question.fullTitle, "My Title");
@@ -3497,6 +3538,7 @@ QUnit.test("question fullTitle", function (assert) {
 });
 QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   var survey = twoPageSimplestSurvey();
+  survey.showQuestionNumbers = "on";
   var question = <Question>survey.pages[0].questions[1];
   assert.equal(question.no, "2.");
   survey.questionStartIndex = "100";
@@ -3553,6 +3595,7 @@ QUnit.test(
   "question.no/queston.visibleIndex and hideNo/hideTitle options",
   function (assert) {
     var survey = new SurveyModel({
+      showQuestionNumbers: "on",
       questions: [
         { type: "text", name: "q1" },
         { type: "text", name: "q2" },
@@ -7230,6 +7273,7 @@ QUnit.test(
   "Survey.isSinglePage = true, question.visibleIndex set incorrectly, bug#925",
   function (assert) {
     var json = {
+      showQuestionNumbers: "on",
       pages: [
         {
           elements: [
@@ -11332,9 +11376,11 @@ QUnit.test("Server validation - do no fire onValidatedErrorsOnCurrentPage  on ch
   function (assert) {
     const survey = new SurveyModel({ "elements": [{ name: "name", type: "text", isRequired: true }] });
     let counter = 0;
+    assert.equal(survey.onValidatePage.length, 0, "onValidate page is emtpy");
     survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
       counter++;
     });
+    assert.equal(survey.onValidatePage.length, 1, "onValidate page is set");
     survey.tryComplete();
     assert.equal(survey.state, "running");
     assert.equal(counter, 1, "On complete");
@@ -12162,6 +12208,24 @@ QUnit.test("survey.onSettingQuestionErrors", function (assert) {
   var q2 = survey.getQuestionByName("question2");
   q1.isRequired = true;
   survey.onSettingQuestionErrors.add(function (sender, options) {
+    if (options.question.name == "question1") {
+      options.errors[0].visible = false;
+    }
+    if (options.question.name == "question2") {
+      options.errors.push(new AnswerRequiredError());
+    }
+  });
+  survey.nextPage();
+  assert.equal(q1.errors.length, 1, "There is one error");
+  assert.equal(q1.errors[0].visible, false, "It is invisible");
+  assert.equal(q2.errors.length, 1, "Add one error into second question");
+});
+QUnit.test("survey.onValidateQuestion wors as survey.onSettingQuestionErrors", function (assert) {
+  var survey = twoPageSimplestSurvey();
+  var q1 = survey.getQuestionByName("question1");
+  var q2 = survey.getQuestionByName("question2");
+  q1.isRequired = true;
+  survey.onValidateQuestion.add(function (sender, options) {
     if (options.question.name == "question1") {
       options.errors[0].visible = false;
     }
@@ -13405,6 +13469,7 @@ QUnit.test(
   "Question hideNumber visibility depending on parent settings, https://surveyjs.answerdesk.io/ticket/details/t4504/survey-creator-can-we-hide-show-number-property-on-questions-if-numbering-is-off-at-form",
   function (assert) {
     var survey = new SurveyModel({
+      showQuestionNumbers: "on",
       elements: [
         {
           type: "panel",
@@ -17609,7 +17674,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.equal(survey.showNavigationButtons, true);
   assert.equal(survey.navigationButtonsLocation, "bottom");
   assert.equal(survey.progressBarType, "pages");
-  assert.equal(survey.showProgressBar, "off");
+  assert.equal(survey.showProgressBar, false);
 
   assert.deepEqual(getContainerContent("header"), [], "default header");
   assert.deepEqual(getContainerContent("footer"), [], "default footer");
@@ -17733,7 +17798,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
 
     assert.equal(survey.showNavigationButtons, false);
     assert.equal(survey.progressBarType, "pages");
-    assert.equal(survey.showProgressBar, "off");
+    assert.equal(survey.showProgressBar, false);
 
     assert.deepEqual(getContainerContent("header"), [], "default header");
     assert.deepEqual(getContainerContent("footer"), [], "default footer");
@@ -17890,7 +17955,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
 
   assert.equal(survey.showNavigationButtons, false);
   assert.equal(survey.progressBarType, "pages");
-  assert.equal(survey.showProgressBar, "off");
+  assert.equal(survey.showProgressBar, false);
 
   assert.deepEqual(getContainerContent("header"), [], "default header");
   assert.deepEqual(getContainerContent("footer"), [], "default footer");
@@ -18415,6 +18480,7 @@ QUnit.test("setStructuredData function", function (assert) {
 
 QUnit.test("check titleNumInline cssClass", function (assert) {
   const survey = new SurveyModel({
+    showQuestionNumbers: "on",
     questionStartIndex: "1.1.1",
     elements: [{
       type: "panel",
@@ -18748,6 +18814,34 @@ QUnit.test("Do not run onComplete twice if complete trigger and tryComplete() is
   survey.setValue("question1", 1);
   survey.tryComplete();
   assert.equal(counter, 1, "onComplete called one time");
+});
+
+QUnit.test("Check readOnly flag", function (assert) {
+  let survey = new SurveyModel({
+    readOnly: true,
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1"
+      },
+    ],
+  });
+  assert.equal(survey.mode, "display");
+  assert.ok(survey.readOnly);
+  survey.readOnly = false;
+  assert.notOk(survey.readOnly);
+  survey = new SurveyModel({
+    mode: "display",
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1"
+      },
+    ],
+  });
+  assert.ok(survey.readOnly);
+  survey.mode = "edit";
+  assert.notOk(survey.readOnly);
 });
 QUnit.test("Expression with dates & defaultValueExpression & expression question", function (assert) {
   const survey = new SurveyModel({
@@ -19595,6 +19689,25 @@ QUnit.test("defaultValue & visibleIf issues if questionsOnPageMode=questionPerPa
   assert.equal(q2_2.visible, true, "q2_2.visible");
 });
 
+QUnit.test("goNextPageAutomatic & questionsOnPageMode=questionPerPage is used #9315", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "dropdown", name: "q1", choices: ["A", "B"] },
+      { type: "dropdown", name: "q2", choices: ["A", "B"] },
+      { type: "dropdown", name: "q3", choices: ["A", "B"] }
+    ],
+    questionsOnPageMode: "questionPerPage",
+    goNextPageAutomatic: true,
+  });
+  assert.equal(survey.currentSingleQuestion.name, "q1", "survey.currentSingleQuestion.name #1");
+  survey.setValue("q1", "A");
+  assert.equal(survey.currentSingleQuestion.name, "q2", "survey.currentSingleQuestion.name #2");
+  survey.setValue("q2", "A");
+  assert.equal(survey.currentSingleQuestion.name, "q3", "survey.currentSingleQuestion.name #3");
+  survey.setValue("q3", "A");
+  assert.equal(survey.state, "completed", "survey.state #4");
+});
+
 QUnit.test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, #7355", function (assert) {
   const survey = new SurveyModel({
     elements: [
@@ -19789,7 +19902,7 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
 
     assert.equal(survey.showNavigationButtons, false);
     assert.equal(survey.progressBarType, "pages");
-    assert.equal(survey.showProgressBar, "off");
+    assert.equal(survey.showProgressBar, false);
 
     assert.deepEqual(getContainerContent("header"), [{
       "component": "sv-header",
@@ -19912,7 +20025,7 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
 
   assert.equal(survey.showNavigationButtons, false);
   assert.equal(survey.progressBarType, "pages");
-  assert.equal(survey.showProgressBar, "off");
+  assert.equal(survey.showProgressBar, false);
 
   assert.deepEqual(getContainerContent("header"), [{
     "component": "sv-header",
@@ -20149,7 +20262,7 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(settings.legacyProgressBarView, false, "show buttons progress for pages by default");
-  assert.equal(survey.showProgressBar, "off", "default show progress bar");
+  assert.equal(survey.showProgressBar, false, "default show progress bar");
   assert.equal(survey.progressBarType, "pages", "default progress bar type");
   assert.equal(survey.progressBarShowPageNumbers, false, "don't show page numbers in progress by default");
   assert.equal(survey.progressBarShowPageTitles, false, "don't show page titles in progress by default");
@@ -20654,6 +20767,8 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
 
   assert.equal(survey.progressBarType, "pages");
   assert.equal(survey.questionsOnPageMode, "standard");
+  assert.equal(survey.showProgressBar, true);
+  assert.equal(survey.progressBarLocation, "auto");
   assert.deepEqual(getContainerContent("header"), [], "");
   assert.deepEqual(getContainerContent("center"), [{
     "component": "sv-progress-buttons",

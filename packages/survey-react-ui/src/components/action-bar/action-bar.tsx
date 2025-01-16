@@ -76,12 +76,11 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
       </div>
     );
   }
-
   renderItems() {
-    return this.model.renderedActions.map(
+    return this.model.renderedActions.concat([]).map(
       (item: Action, itemIndex: number) => {
         return (
-          <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>
+          <SurveyAction item={item} key={item.renderedId}></SurveyAction>
         );
       }
     );

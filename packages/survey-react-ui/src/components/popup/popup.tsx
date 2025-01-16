@@ -1,5 +1,5 @@
 import React from "react";
-import { Base, PopupModel, PopupBaseViewModel, PopupDropdownViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, createPopupViewModel, CssClassBuilder, settings } from "survey-core";
+import { Base, PopupModel, PopupBaseViewModel, PopupDropdownViewModel, createPopupViewModel, CssClassBuilder } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyActionBar } from "../action-bar/action-bar";

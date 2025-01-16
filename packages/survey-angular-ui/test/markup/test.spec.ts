@@ -13,6 +13,7 @@ const platformDescriptor = {
   render: (survey: SurveyModel, element: HTMLElement) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
+    fixture.nativeElement.style.display = "none";
     component.model = survey;
     fixture.detectChanges(true);
   },

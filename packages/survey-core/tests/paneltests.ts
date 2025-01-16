@@ -3399,6 +3399,7 @@ QUnit.test("Nested pages", function (assert) {
 });
 QUnit.test("survey.onGetPanelNumber", function (assert) {
   const survey = new SurveyModel({
+    showQuestionNumbers: "on",
     elements: [
       {
         type: "panel", name: "panel1", title: "Panel 1",
@@ -3448,4 +3449,34 @@ QUnit.test("survey.onGetPanelNumber", function (assert) {
   assert.equal(survey.getQuestionByName("q5").no, "2.1.", "q5.no");
   assert.equal(survey.getQuestionByName("q6").no, "2.2.", "q6.no");
   assert.equal(survey.getQuestionByName("q7").no, "3.", "q7.no");
+});
+
+QUnit.test("Check that startWithNewLine doesn't trigger animation", (assert) => {
+  settings.animationEnabled = true;
+  const survey = new SurveyModel({
+    "logoPosition": "right",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      }
+    ]
+  });
+  const question2 = survey.getQuestionByName("question2");
+  const page = survey.getPageByName("page1");
+  page.enableOnElementRerenderedEvent();
+  assert.ok(page.animationAllowed, "check that animation is enabled");
+  assert.equal(page.visibleRows.length, 2);
+  question2.startWithNewLine = false;
+  assert.equal(page.visibleRows.length, 1);
+  settings.animationEnabled = false;
 });

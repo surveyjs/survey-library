@@ -961,17 +961,13 @@ export class PanelModelBase extends SurveyElement<Question>
   private hasErrorsInPanels(rec: any): void {
     var errors = <Array<any>>[];
     this.hasRequiredError(rec, errors);
-    if (this.isPanel && this.survey) {
-      var customError = this.survey.validatePanel(this);
-      if (customError) {
-        errors.push(customError);
+    if (this.survey) {
+      this.survey.validatePanel(this, errors, rec.fireCallback);
+      if(errors.length > 0) {
         rec.result = true;
       }
     }
     if (!!rec.fireCallback) {
-      if (!!this.survey) {
-        this.survey.beforeSettingPanelErrors(this, errors);
-      }
       this.errors = errors;
     }
   }

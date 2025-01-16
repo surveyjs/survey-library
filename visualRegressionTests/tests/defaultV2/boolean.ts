@@ -15,6 +15,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "boolean",
@@ -49,6 +50,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1600, 800);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "boolean",
@@ -84,6 +86,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         width: "900px",
         questions: [
           {
@@ -115,6 +118,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -136,6 +140,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1400, 800);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "pages": [
           {
@@ -170,6 +175,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1400, 800);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "elements": [
           {
             type: "boolean",
@@ -196,17 +202,18 @@ frameworks.forEach(framework => {
       })();
 
       await initSurvey(framework, {
-          "elements": [
-            {
-              "type": "boolean",
-              "name": "slider",
-              "title": "Are you 21 or older?",
-              "description": "Display mode = Default (Slider)",
-              "valueTrue": "Yes",
-              "valueFalse": "No",
-              "defaultValue": "No"
-            }
-          ]
+        showQuestionNumbers: "on",
+        "elements": [
+          {
+            "type": "boolean",
+            "name": "slider",
+            "title": "Are you 21 or older?",
+            "description": "Display mode = Default (Slider)",
+            "valueTrue": "Yes",
+            "valueFalse": "No",
+            "defaultValue": "No"
+          }
+        ]
       });
 
       const questionRoot = Selector(".sd-question--boolean");

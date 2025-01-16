@@ -3,6 +3,7 @@ import { Selector, ClientFunction, fixture, test } from "testcafe";
 const title = "questionTitlePattern";
 
 const json = {
+  showQuestionNumbers: "on",
   questionStartIndex: "# 1.",
   requiredText: "(*)",
   elements: [

@@ -114,6 +114,7 @@ frameworks.forEach(framework => {
 
 frameworks.forEach(framework => {
   const json = {
+    showQuestionNumbers: "on",
     elements: [
       {
         type: "panel",
@@ -164,6 +165,7 @@ frameworks.forEach(framework => {
 
 frameworks.forEach(framework => {
   const json = {
+    showQuestionNumbers: "on",
     "logoPosition": "right",
     "pages": [
       {
@@ -284,6 +286,7 @@ frameworks.forEach(framework => {
 
 frameworks.forEach(framework => {
   const json = {
+    showQuestionNumbers: "on",
     "logoPosition": "right",
     "pages": [
       {
@@ -390,6 +393,7 @@ frameworks.forEach(framework => {
 
 frameworks.forEach(framework => {
   const json = {
+    showQuestionNumbers: "on",
     "focusFirstQuestionAutomatic": true,
     "pages": [
       {
@@ -438,6 +442,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "pages": [
           {
             "name": "page1",

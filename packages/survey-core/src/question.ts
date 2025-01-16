@@ -2414,9 +2414,6 @@ export class Question extends SurveyElement<Question>
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     const errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true, fireCallback);
     if (fireCallback) {
-      if (!!this.survey) {
-        this.survey.beforeSettingQuestionErrors(this, errors);
-      }
       this.errors = errors;
       if (this.errors !== errors) {
         this.errors.forEach(er => er.locText.strChanged());
@@ -2486,6 +2483,15 @@ export class Question extends SurveyElement<Question>
     if (this.isVisible && this.canCollectErrors()) {
       this.collectErrors(qErrors, isOnValueChanged, fireCallback);
     }
+    if (!!this.survey) {
+      if(this.validateValueCallback && qErrors.length === 0) {
+        const error = this.validateValueCallback();
+        if (error) {
+          qErrors.push(error);
+        }
+      }
+      this.survey.validateQuestion(this, qErrors, fireCallback);
+    }
     return qErrors;
   }
   protected canCollectErrors(): boolean {
@@ -2502,19 +2508,9 @@ export class Question extends SurveyElement<Question>
         qErrors.push(errors[i]);
       }
     }
-    if (this.survey && qErrors.length == 0) {
-      var error = this.fireSurveyValidation();
-      if (error) {
-        qErrors.push(error);
-      }
-    }
   }
   protected canRunValidators(isOnValueChanged: boolean): boolean {
     return true;
-  }
-  private fireSurveyValidation(): SurveyError {
-    if (this.validateValueCallback) return this.validateValueCallback();
-    return this.survey ? this.survey.validateQuestion(this) : null;
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     if ((!isOnValueChanged || this.isOldAnswered) && this.hasRequiredError()) {

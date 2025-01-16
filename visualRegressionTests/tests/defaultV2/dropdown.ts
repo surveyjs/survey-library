@@ -483,6 +483,7 @@ frameworks.forEach(framework => {
       })();
 
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "dropdown",
@@ -566,6 +567,7 @@ frameworks.forEach(framework => {
       await registerCustomItemComponent(framework);
 
       const jsonWithDropDown = {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -642,6 +644,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1000, 700);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "mode": "display",
         "pages": [

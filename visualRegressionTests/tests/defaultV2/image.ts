@@ -15,6 +15,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         widthMode: "responsive",
         questions: [
           {
@@ -37,6 +38,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "image",
@@ -63,6 +65,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             "type": "image",
@@ -79,6 +82,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "questions": [
           {
             "type": "text",

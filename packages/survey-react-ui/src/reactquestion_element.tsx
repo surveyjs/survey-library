@@ -32,10 +32,11 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     this.disableStateElementsRerenderEvent(this.getStateElements());
   }
   componentDidUpdate(prevProps: any, prevState: any) {
-    this.makeBaseElementsReact();
     const stateElements = this.getStateElements();
     this.disableStateElementsRerenderEvent((this.prevStateElements ?? []).filter(el => !stateElements.find(stateElement => stateElement == el)));
+    this.unMakeBaseElementsReactive(this.prevStateElements ?? []);
     this.prevStateElements = [];
+    this.makeBaseElementsReact();
     this.getStateElements().forEach((el) => {
       el.afterRerender();
     });
@@ -51,7 +52,6 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private prevStateElements: Array<Base> = [];
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (this._allowComponentUpdate) {
-      this.unMakeBaseElementsReact();
       this.prevStateElements = this.getStateElements();
     }
     return this._allowComponentUpdate;
@@ -110,6 +110,9 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   private unMakeBaseElementsReact() {
     var els = this.getStateElements();
+    this.unMakeBaseElementsReactive(els);
+  }
+  private unMakeBaseElementsReactive(els: Array<Base>) {
     for (var i = 0; i < els.length; i++) {
       this.unMakeBaseElementReact(els[i]);
     }

@@ -2298,9 +2298,11 @@ export class Question extends SurveyElement<Question>
       this.collectErrors(qErrors, isOnValueChanged, fireCallback);
     }
     if (!!this.survey) {
-      var error = this.fireSurveyValidation();
-      if (error) {
-        qErrors.push(error);
+      if(this.validateValueCallback && qErrors.length === 0) {
+        const error = this.validateValueCallback();
+        if (error) {
+          qErrors.push(error);
+        }
       }
       this.survey.validateQuestion(this, qErrors, fireCallback);
     }
@@ -2323,9 +2325,6 @@ export class Question extends SurveyElement<Question>
   }
   protected canRunValidators(isOnValueChanged: boolean): boolean {
     return true;
-  }
-  private fireSurveyValidation(): SurveyError {
-    if (this.validateValueCallback) return this.validateValueCallback();
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     if ((!isOnValueChanged || this.isOldAnswered) && this.hasRequiredError()) {

@@ -793,7 +793,7 @@ QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   const removeBtn = survey.navigationBar.getActionById("sv-singleinput-remove");
   const panel = survey.getQuestionByName("panel1");
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is matrix1, #1");
-  assert.equal(panel.singleInputQuestion.name, "name1", "singleInputQuestion.name, #1");
+  assert.equal(panel.singleInputQuestion.name, "name", "singleInputQuestion.name, #1");
   assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #1");
   assert.equal(survey.isShowPrevButton, false, "prev buttton, #1");
   assert.equal(survey.isShowNextButton, true, "next buttton, #1");
@@ -808,7 +808,7 @@ QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   let matrix = panel.panels[0].getQuestionByName("matrix1");
   assert.equal(matrix.singleInputQuestion.name, "matrix1", "matrix.singleInputQuestion.name, #2");
   assert.notOk(matrix.singleInputLocTitle?.textOrHtml, "matrix.input loc title #2");
-  assert.ok(matrix.singleInputSummary, "matrix.singleInputSummary exists, #2");
+  assert.equal(matrix.singleInputSummary?.items.length, 0, "matrix.singleInputSummary exists, #2");
   assert.equal(addBtn.visible, true, "addBtn visible #2");
   assert.equal(removeBtn.visible, false, "removeBtn visible #2");
   assert.equal(matrix.visibleRows.length, 0, "matrix.visibleRows.length, #2");
@@ -821,7 +821,7 @@ QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   assert.equal(survey.isShowNextButton, true, "next buttton, #3");
   assert.equal(matrix.singleInputQuestion.name, "col1", "matrix.singleInputQuestion.name, #3");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 1", "matrix.input loc title #3");
-  assert.notOk(matrix.singleInputSummary, "matrix.singleInputSummary exists, #3");
+  assert.equal(matrix.singleInputSummary?.items.length, undefined, "matrix.singleInputSummary exists, #3");
   assert.equal(addBtn.visible, false, "addBtn visible #3");
   assert.equal(removeBtn.visible, true, "removeBtn visible #3");
 
@@ -832,7 +832,7 @@ QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   assert.equal(survey.isShowNextButton, true, "next buttton, #4");
   assert.equal(matrix.singleInputQuestion.name, "col2", "matrix.singleInputQuestion.name, #4");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 1", "matrix.input loc title #4");
-  assert.notOk(matrix.singleInputSummary, "matrix.singleInputSummary exists, #4");
+  assert.equal(matrix.singleInputSummary?.items.length, undefined, "matrix.singleInputSummary exists, #4");
   assert.equal(addBtn.visible, false, "addBtn visible #4");
   assert.equal(removeBtn.visible, true, "removeBtn visible #4");
 
@@ -843,7 +843,7 @@ QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   assert.equal(survey.isShowNextButton, true, "next buttton, #5");
   assert.equal(matrix.singleInputQuestion.name, "matrix1", "matrix.singleInputQuestion.name, #5");
   assert.notOk(matrix.singleInputLocTitle?.textOrHtml, "matrix.input loc title #5");
-  assert.ok(matrix.singleInputSummary, "matrix.singleInputSummary exists, #5");
+  assert.equal(matrix.singleInputSummary?.items.length, 1, "matrix.singleInputSummary exists, #5");
   assert.equal(addBtn.visible, true, "addBtn visible #5");
   assert.equal(removeBtn.visible, false, "removeBtn visible #5");
 
@@ -853,7 +853,7 @@ QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   assert.equal(survey.isShowPrevButton, true, "prev buttton, #6");
   assert.equal(survey.isShowNextButton, false, "next buttton, #6");
   assert.equal(survey.isCompleteButtonVisible, true, "complete buttton, #6");
-  assert.ok(panel.singleInputSummary, "matrix.singleInputSummary exists, #6");
+  assert.equal(panel.singleInputSummary.items.length, 1, "panel.singleInputSummary exists, #6");
   assert.equal(addBtn.visible, true, "addBtn visible #6");
   assert.equal(removeBtn.visible, false, "removeBtn visible #6");
 });

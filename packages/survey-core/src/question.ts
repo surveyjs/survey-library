@@ -695,7 +695,7 @@ export class Question extends SurveyElement<Question>
   }
   private get currentSingleInputQuestion(): Question {
     let res = this.singleInputQuestion;
-    while(!!res && !!res.singleInputQuestion) {
+    while(!!res && !!res.singleInputQuestion && res.singleInputQuestion !== res) {
       res = res.singleInputQuestion;
     }
     return res;
@@ -743,11 +743,12 @@ export class Question extends SurveyElement<Question>
     return q.validate(fireCallback, rec);
   }
   public getSingleInputElementPos(): number {
-    const q = this.singleInputQuestion;
-    if(!!q.singleInputQuestion && q !== this) {
-      let res = q.getSingleInputElementPos();
+    const pQ = this.currentSingleInputParentQuestion;
+    if(pQ !== this) {
+      let res = pQ.getSingleInputElementPos();
       if(res === 2) return 2;
     }
+    const q = this.singleInputQuestion;
     const questions = this.getSingleInputQuestions();
     if(questions.length < 2) return 0;
     let index = questions.indexOf(q);
@@ -829,10 +830,11 @@ export class Question extends SurveyElement<Question>
     }
   }
   private nextPrevSingleInput(skip: number): boolean {
-    const q = this.singleInputQuestion;
+    const q = this.currentSingleInputQuestion;
     if(!q) return false;
-    if(!!q.singleInputQuestion && q !== this) {
-      const res = q.nextPrevSingleInput(skip);
+    const pQ = this.currentSingleInputParentQuestion;
+    if(pQ !== this) {
+      const res = pQ.nextPrevSingleInput(skip);
       if(res) return true;
     }
     const questions = this.getSingleInputQuestions();

@@ -714,7 +714,7 @@ export class Question extends SurveyElement<Question>
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     return undefined;
   }
-  private getRootQuestion(): Question {
+  private get rootQuestionQuestion(): Question {
     let res: Question = this;
     while(!!res.parentQuestion) {
       res = res.parentQuestion;
@@ -755,7 +755,7 @@ export class Question extends SurveyElement<Question>
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
   protected get isSingleInputActive(): boolean {
-    return this.survey?.currentSingleQuestion === this.getRootQuestion();
+    return this.survey?.currentSingleQuestion === this.rootQuestionQuestion;
   }
   protected singleInputOnAddItem(): void {
     if(this.isSingleInputActive) {
@@ -783,17 +783,15 @@ export class Question extends SurveyElement<Question>
     return this.nextPrevSingleInput(-1);
   }
   public getSingleInputAddText(): string {
-    const q = this.singleInputQuestion;
-    const parent = this.singleInputParentQuestion;
-    return !!q && q === parent ? this.singleInputParentQuestion.getSingleInputAddTextCore() : undefined;
+    const q = this.currentSingleInputQuestion;
+    return !!q && !!q.singleInputSummary ? q.getSingleInputAddTextCore() : undefined;
   }
   public getSingleInputRemoveText(): string {
-    const q = this.singleInputQuestion;
-    const parent = this.singleInputParentQuestion;
-    return !!q && q !== parent ? this.singleInputParentQuestion.getSingleInputRemoveTextCore(q) : undefined;
+    const q = this.currentSingleInputQuestion;
+    return !!q && !q.singleInputSummary ? this.currentSingleInputParentQuestion.getSingleInputRemoveTextCore(q) : undefined;
   }
   public singleInputAddItem(): void {
-    this.singleInputParentQuestion.singleInputAddItemCore(this.singleInputQuestion);
+    this.currentSingleInputQuestion.singleInputAddItemCore();
   }
   public singleInputRemoveItem(): void {
     const q = this.singleInputQuestion;
@@ -807,7 +805,7 @@ export class Question extends SurveyElement<Question>
   }
   public get singleInputLocTitle(): LocalizableString {
     return this.getPropertyValue("singleInputLocTitle", undefined, () => {
-      return this.singleInputParentQuestion.getSingleQuestionLocTitle();
+      return this.getSingleQuestionLocTitle();
     });
   }
   private get singleInputParentQuestion(): Question {
@@ -821,7 +819,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getSingleInputAddTextCore(): string { return undefined; }
   protected getSingleInputRemoveTextCore(question: Question): string { return undefined; }
-  protected singleInputAddItemCore(question: Question): void {}
+  protected singleInputAddItemCore(): void {}
   protected singleInputRemoveItemCore(question: Question): void {}
   protected setSingleInputQuestion(question: Question): void {
     if(this.singleInputQuestion !== question) {

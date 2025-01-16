@@ -1211,7 +1211,7 @@ export class QuestionPanelDynamicModel extends Question
   protected getSingleInputRemoveTextCore(question: Question): string {
     return this.canRemovePanel ? this.panelRemoveText : undefined;
   }
-  protected singleInputAddItemCore(question: Question): void {
+  protected singleInputAddItemCore(): void {
     this.addPanelUI();
   }
   protected singleInputRemoveItemCore(question: Question): void {

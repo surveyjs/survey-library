@@ -807,7 +807,7 @@ QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   assert.equal(survey.isShowNextButton, true, "next buttton, #2");
   let matrix = panel.panels[0].getQuestionByName("matrix1");
   assert.equal(matrix.singleInputQuestion.name, "matrix1", "matrix.singleInputQuestion.name, #2");
-  assert.notOk(matrix.singleInputLocTitle?.textOrHtml, "matrix.input loc title #2");
+  assert.equal(matrix.showSingleInputTitle, false, "matrix.input loc title #2");
   assert.equal(matrix.singleInputSummary?.items.length, 0, "matrix.singleInputSummary exists, #2");
   assert.equal(addBtn.visible, true, "addBtn visible #2");
   assert.equal(removeBtn.visible, false, "removeBtn visible #2");
@@ -842,14 +842,14 @@ QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   assert.equal(survey.isShowPrevButton, true, "prev buttton, #5");
   assert.equal(survey.isShowNextButton, true, "next buttton, #5");
   assert.equal(matrix.singleInputQuestion.name, "matrix1", "matrix.singleInputQuestion.name, #5");
-  assert.notOk(matrix.singleInputLocTitle?.textOrHtml, "matrix.input loc title #5");
+  assert.equal(matrix.showSingleInputTitle, false, "matrix.input loc title #5");
   assert.equal(matrix.singleInputSummary?.items.length, 1, "matrix.singleInputSummary exists, #5");
   assert.equal(addBtn.visible, true, "addBtn visible #5");
   assert.equal(removeBtn.visible, false, "removeBtn visible #5");
 
   survey.performNext();
   assert.equal(panel.singleInputQuestion.name, "panel1", "singleInputQuestion.name, #6");
-  assert.notOk(panel.singleInputLocTitle?.textOrHtml, "input loc title #6");
+  assert.equal(panel.showSingleInputTitle, false, "input loc title #6");
   assert.equal(survey.isShowPrevButton, true, "prev buttton, #6");
   assert.equal(survey.isShowNextButton, false, "next buttton, #6");
   assert.equal(survey.isCompleteButtonVisible, true, "complete buttton, #6");

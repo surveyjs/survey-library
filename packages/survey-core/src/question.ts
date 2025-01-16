@@ -702,7 +702,9 @@ export class Question extends SurveyElement<Question>
   }
   private get currentSingleInputParentQuestion(): Question {
     const q = this.currentSingleInputQuestion;
-    return q?.parentQuestion || this;
+    if(!q) return this;
+    if(q.singleInputQuestion === q) return q;
+    return q.parentQuestion || this;
   }
   public get singleInputSummary(): QuestionSingleInputSummary {
     return this.getPropertyValue("singleInputSummary", undefined, () => {
@@ -828,13 +830,13 @@ export class Question extends SurveyElement<Question>
     }
   }
   private nextPrevSingleInput(skip: number): boolean {
-    const q = this.currentSingleInputQuestion;
-    if(!q) return false;
     const pQ = this.currentSingleInputParentQuestion;
-    if(pQ !== this) {
+    if(!!pQ && pQ !== this) {
       const res = pQ.nextPrevSingleInput(skip);
       if(res) return true;
     }
+    const q = this.singleInputQuestion;
+    if(!q) return false;
     const questions = this.getSingleInputQuestions();
     let index = questions.indexOf(q);
     if(index < 0) return false;

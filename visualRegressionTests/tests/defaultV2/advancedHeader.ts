@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody, upArrowImageLink } from "../../helper";
 
 const title = "Advanced header screenshot";
 
@@ -16,7 +16,7 @@ frameworks.forEach(framework => {
         focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
-        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        logo: upArrowImageLink,
         "widthMode": "static",
         "width": "600",
         headerView: "advanced",
@@ -48,7 +48,7 @@ frameworks.forEach(framework => {
         focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
-        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        logo: upArrowImageLink,
         "widthMode": "static",
         "width": "600",
         headerView: "advanced",
@@ -90,7 +90,7 @@ frameworks.forEach(framework => {
         focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
-        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        logo: upArrowImageLink,
         "widthMode": "static",
         "width": "600",
         headerView: "advanced",

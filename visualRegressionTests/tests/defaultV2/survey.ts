@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { setData } from "../../../functionalTests/helper";
-import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody } from "../../helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody, upArrowImageLink } from "../../helper";
 import { backgroundImage } from "../../constants";
 
 const title = "Survey Screenshot";
@@ -51,7 +51,7 @@ frameworks.forEach(framework => {
         focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
-        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        logo: upArrowImageLink,
         widthMode: "responsive",
         questions: [
           {
@@ -74,7 +74,7 @@ frameworks.forEach(framework => {
         showQuestionNumbers: "on",
         title: "Survey Title",
         description: "Survey description",
-        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        logo: upArrowImageLink,
         widthMode: "responsive",
         questions: [
           {
@@ -98,7 +98,7 @@ frameworks.forEach(framework => {
         showQuestionNumbers: "on",
         title: "Survey Title",
         description: "Survey description",
-        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        logo: upArrowImageLink,
         widthMode: "responsive",
         questions: [
           {
@@ -1392,7 +1392,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const json = {
-        "logo": "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg",
+        "logo": upArrowImageLink,
         "logoPosition": "right",
         showQuestionNumbers: "on",
         "elements": [

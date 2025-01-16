@@ -792,6 +792,7 @@ QUnit.only("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   const addBtn = survey.navigationBar.getActionById("sv-singleinput-add");
   const removeBtn = survey.navigationBar.getActionById("sv-singleinput-remove");
   const panel = survey.getQuestionByName("panel1");
+  assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is matrix1, #1");
   assert.equal(panel.singleInputQuestion.name, "name1", "singleInputQuestion.name, #1");
   assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "input loc title #1");
   assert.equal(survey.isShowPrevButton, false, "prev buttton, #1");

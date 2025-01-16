@@ -838,7 +838,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   /**
    * A caption for the Delete Panel button.
-   * @see panelRemoveButtonLocation
+   * @see removePanelButtonLocation
    */
   public get removePanelText(): string { return this.getLocalizableStringText("removePanelText"); }
   public set removePanelText(val: string) { this.setLocalizableStringText("removePanelText", val); }
@@ -1184,12 +1184,14 @@ export class QuestionPanelDynamicModel extends Question
    * - `"right"` - Displays the Delete Panel button to the right of panel content.
    * @see panelRemoveText
    */
-  public get panelRemoveButtonLocation(): string {
-    return this.getPropertyValue("panelRemoveButtonLocation");
+  public get removePanelButtonLocation(): string {
+    return this.getPropertyValue("removePanelButtonLocation");
   }
-  public set panelRemoveButtonLocation(val: string) {
-    this.setPropertyValue("panelRemoveButtonLocation", val);
+  public set removePanelButtonLocation(val: string) {
+    this.setPropertyValue("removePanelButtonLocation", val);
   }
+  public get panelRemoveButtonLocation(): string { return this.removePanelButtonLocation; }
+  public set panelRemoveButtonLocation(val: string) { this.removePanelButtonLocation = val; }
   /**
    * Obsolete. Use the [`showProgressBar`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#showProgressBar) property instead.
    * @deprecated
@@ -2119,11 +2121,11 @@ export class QuestionPanelDynamicModel extends Question
   }
   public getPanelActions(panel: PanelModel): Array<IAction> {
     let actions = panel.footerActions;
-    if (this.panelRemoveButtonLocation !== "right") {
+    if (this.removePanelButtonLocation !== "right") {
       actions.push(new Action({
         id: `remove-panel-${panel.id}`,
         component: "sv-paneldynamic-remove-btn",
-        visible: <any>new ComputedUpdater(() => [this.canRemovePanel, panel.state !== "collapsed", this.panelRemoveButtonLocation !== "right"].every((val: boolean) => val === true)),
+        visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel, "bottom")].every((val: boolean) => val === true)),
         data: { question: this, panel: panel }
       }));
     }
@@ -2131,6 +2133,14 @@ export class QuestionPanelDynamicModel extends Question
       actions = this.survey.getUpdatedPanelFooterActions(panel, actions, this);
     }
     return actions;
+  }
+  public canRenderRemovePanelOnRight(panel: PanelModel): boolean {
+    return this.canRenderRemovePanel(panel, "right");
+  }
+  private canRenderRemovePanel(panel: PanelModel, side: string): boolean {
+    const canRemove = this.canRemovePanel;
+    const notCollpased = panel.state !== "collapsed";
+    return this.removePanelButtonLocation === side && canRemove && notCollpased;
   }
   protected createNewPanel(): PanelModel {
     var panel = this.createAndSetupNewPanelObject();
@@ -2385,14 +2395,14 @@ export class QuestionPanelDynamicModel extends Question
     return new CssClassBuilder()
       .append(this.cssClasses.panelWrapper, !panel || panel.visible)
       .append(this.cssClasses.panelWrapperList, this.isRenderModeList)
-      .append(this.cssClasses.panelWrapperInRow, this.panelRemoveButtonLocation === "right")
+      .append(this.cssClasses.panelWrapperInRow, this.removePanelButtonLocation === "right")
       .toString();
   }
   public getPanelRemoveButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.button)
       .append(this.cssClasses.buttonRemove)
-      .append(this.cssClasses.buttonRemoveRight, this.panelRemoveButtonLocation === "right")
+      .append(this.cssClasses.buttonRemoveRight, this.removePanelButtonLocation === "right")
       .toString();
   }
   public getAddButtonCss(): string {
@@ -2753,7 +2763,7 @@ Serializer.addClass(
       category: "logic"
     },
     {
-      name: "panelRemoveButtonLocation",
+      name: "removePanelButtonLocation", alternativeName: "panelRemoveButtonLocation",
       default: "bottom",
       choices: ["bottom", "right"],
       visibleIf: (obj: any) => { return obj.allowRemovePanel; }

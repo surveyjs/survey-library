@@ -280,7 +280,7 @@ export class QuestionPanelDynamicModel extends Question
 
     this.createLocalizableString("confirmDeleteText", this, false, "confirmDelete");
     this.createLocalizableString("keyDuplicationError", this, false, true);
-    this.createLocalizableString("panelAddText", this, false, "addPanel");
+    this.createLocalizableString("addPanelText", this, false, "addPanel");
     this.createLocalizableString("removePanelText", this, false, "removePanel");
     this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
     this.createLocalizableString("panelNextText", this, false, "pageNextText");
@@ -827,15 +827,12 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * A caption for the Add Panel button.
    */
-  public get panelAddText() {
-    return this.getLocalizableStringText("panelAddText");
-  }
-  public set panelAddText(value: string) {
-    this.setLocalizableStringText("panelAddText", value);
-  }
-  get locPanelAddText(): LocalizableString {
-    return this.getLocalizableString("panelAddText");
-  }
+  public get addPanelText(): string { return this.getLocalizableStringText("addPanelText"); }
+  public set addPanelText(value: string) { this.setLocalizableStringText("addPanelText", value); }
+  get locAddPanelText(): LocalizableString { return this.getLocalizableString("addPanelText"); }
+  public get panelAddText(): string { return this.addPanelText; }
+  public set panelAddText(value: string) { this.addPanelText = value; }
+  get locPanelAddText(): LocalizableString { return this.locAddPanelText; }
   /**
    * A caption for the Delete Panel button.
    * @see removePanelButtonLocation
@@ -2700,8 +2697,8 @@ Serializer.addClass(
       visibleIf: (obj: any) => { return obj.confirmDelete; }
     },
     {
-      name: "panelAddText",
-      serializationProperty: "locPanelAddText",
+      name: "addPanelText", alternativeName: "panelAddText",
+      serializationProperty: "locAddPanelText",
       visibleIf: (obj: any) => { return obj.allowAddPanel; }
     },
     {

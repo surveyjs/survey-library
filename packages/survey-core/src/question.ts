@@ -744,8 +744,8 @@ export class Question extends SurveyElement<Question>
   }
   public getSingleInputElementPos(): number {
     const q = this.singleInputQuestion;
-    if(this.singleInputParentQuestion !== this) {
-      let res = this.singleInputParentQuestion.getSingleInputElementPos();
+    if(!!q.singleInputQuestion && q !== this) {
+      let res = q.getSingleInputElementPos();
       if(res === 2) return 2;
     }
     const questions = this.getSingleInputQuestions();
@@ -831,8 +831,8 @@ export class Question extends SurveyElement<Question>
   private nextPrevSingleInput(skip: number): boolean {
     const q = this.singleInputQuestion;
     if(!q) return false;
-    if(this.singleInputParentQuestion !== this) {
-      const res = this.singleInputParentQuestion.nextPrevSingleInput(skip);
+    if(!!q.singleInputQuestion && q !== this) {
+      const res = q.nextPrevSingleInput(skip);
       if(res) return true;
     }
     const questions = this.getSingleInputQuestions();

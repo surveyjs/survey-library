@@ -1,5 +1,5 @@
 import { surveyLocalization } from "survey-core";
-import { registerMarkupTests, upArrowImageLink } from "./helper";
+import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
   [
@@ -102,7 +102,8 @@ registerMarkupTests(
     {
       name: "Test survey logo (attribute sizes)",
       json: {
-        "logo": upArrowImageLink,
+        headerView: "basic",
+        "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
         "logoPosition": "right",
         "logoWidth": "200px",
         "logoHeight": "300px",
@@ -128,7 +129,8 @@ registerMarkupTests(
     {
       name: "Test survey logo (style sizes)",
       json: {
-        "logo": upArrowImageLink,
+        headerView: "basic",
+        "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
         "logoPosition": "right",
         "logoWidth": "30%",
         "logoHeight": "auto",
@@ -154,6 +156,7 @@ registerMarkupTests(
     {
       name: "Test survey description",
       json: {
+        headerView: "basic",
         "title": "Test",
         "description": "Description",
         "pages": [

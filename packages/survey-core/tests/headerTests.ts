@@ -212,10 +212,8 @@ QUnit.test("cell calculations - test width",
   function (assert) {
     const cover = new Cover();
 
-    // assert.equal(cover.cells[0].textAreaWidth, "512px", "default");
-    // assert.equal(cover.cells[0].textAreaWidth, cover.textAreaWidth + "px", "equal to cover + px");
-    assert.equal(cover.cells[0].textAreaWidth, 0, "default");
-    assert.equal(cover.cells[0].textAreaWidth, "", "equal to cover + px");
+    assert.equal(cover.cells[0].textAreaWidth, undefined, "default");
+    assert.equal(cover.cells[0].textAreaWidth, undefined, "equal to cover + px");
 
     cover.textAreaWidth = 120;
     assert.equal(cover.textAreaWidth, 120, "cover text width");

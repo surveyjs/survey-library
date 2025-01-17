@@ -18,6 +18,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1800, 1000);
       await initSurvey(framework, {
+        headerView: "basic",
         "title": "Static",
         "description": "",
         "showQuestionNumbers": false,
@@ -72,6 +73,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1800, 1000);
       await initSurvey(framework, {
+        headerView: "basic",
         "title": "Static",
         "description": "",
         "showQuestionNumbers": false,
@@ -126,6 +128,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1800, 1000);
       await initSurvey(framework, {
+        headerView: "basic",
         "title": "Responsive",
         "description": "",
         "showQuestionNumbers": false,
@@ -180,6 +183,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1800, 1000);
       await initSurvey(framework, {
+        headerView: "basic",
         "title": "Responsive",
         "description": "",
         "showQuestionNumbers": false,

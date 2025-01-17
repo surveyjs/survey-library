@@ -65,10 +65,7 @@ export class CoverCell {
     return !this.showLogo && !this.showTitle && !this.showDescription;
   }
   get textAreaWidth(): string {
-    if (!this.cover.textAreaWidth) {
-      return "";
-    }
-    return "" + this.cover.textAreaWidth + "px";
+    return this.cover.renderedTextAreaWidth;
   }
 }
 
@@ -85,13 +82,16 @@ export class Cover extends Base {
     return backgroundImageFit;
   }
   private updateHeaderClasses(): void {
+    const backgroundColorNone = !this.backgroundColor || this.backgroundColor === "transparent";
+    const backgroundColorAccent = this.backgroundColor === "var(--sjs-primary-backcolor)";
+    const backgroundColorCustom = !backgroundColorNone && !backgroundColorAccent;
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")
       .append("sv-header--height-auto", !this.renderedHeight)
-      .append("sv-header__without-background", (this.backgroundColor === "transparent") && !this.backgroundImage)
-      .append("sv-header__background-color--none", this.backgroundColor === "transparent" && !this.titleColor && !this.descriptionColor)
-      // .append("sv-header__background-color--accent", !this.backgroundColor && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__background-color--custom", !!this.backgroundColor && this.backgroundColor !== "transparent" && !this.titleColor && !this.descriptionColor)
+      .append("sv-header__without-background", backgroundColorNone && !this.backgroundImage)
+      .append("sv-header__background-color--none", backgroundColorNone && !this.titleColor && !this.descriptionColor)
+      .append("sv-header__background-color--accent", backgroundColorAccent && !this.titleColor && !this.descriptionColor)
+      .append("sv-header__background-color--custom", backgroundColorCustom && !this.titleColor && !this.descriptionColor)
       .append("sv-header__overlap", this.overlapEnabled)
       .toString();
   }
@@ -181,7 +181,7 @@ export class Cover extends Base {
     }
     return undefined;
   }
-  public get renderedtextAreaWidth(): string {
+  public get renderedTextAreaWidth(): string {
     return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
   }
   public get isEmpty(): boolean {

@@ -32,7 +32,9 @@ frameworks.forEach(framework => {
         (<any>window).survey.applyTheme({
           "header": {
             height: "500px",
-            inheritWidthFrom: "survey"
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "top"
           }
         });
       })();
@@ -145,14 +147,14 @@ frameworks.forEach(framework => {
       })();
       await t.wait(500);
       await resetFocusToBody();
-      await takeElementScreenshot("survey-advanced-header-background-accent.png", Selector(".sd-root-modern"), t, comparer);
+      await takeElementScreenshot("survey-advanced-header-background-none.png", Selector(".sd-root-modern"), t, comparer);
 
       await ClientFunction(() => {
-        (<any>window).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" });
+        (<any>window).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "var(--sjs-primary-backcolor)" }, "header": {}, "headerView": "advanced" });
       })();
       await t.wait(500);
       await resetFocusToBody();
-      await takeElementScreenshot("survey-advanced-header-background-none.png", Selector(".sd-root-modern"), t, comparer);
+      await takeElementScreenshot("survey-advanced-header-background-accent.png", Selector(".sd-root-modern"), t, comparer);
 
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" });
@@ -201,7 +203,8 @@ frameworks.forEach(framework => {
             "--sjs-header-backcolor": "transparent"
           },
           "header": {
-            "inheritWidthFrom": "survey"
+            "inheritWidthFrom": "survey",
+            "height": 256
           },
           "headerView": "advanced"
         });

@@ -6,6 +6,10 @@
   background-color: var(--sjs-header-backcolor, transparent);
 }
 
+.sv-header__background-color--accent {
+  background-color: var(--sjs-header-backcolor, #{$primary});
+}
+
 .sv-header__overlap {
   padding-bottom: calcSize(8);
   box-sizing: content-box;
@@ -137,7 +141,7 @@
 
 .sv-header__title .sd-title {
   @include mixins.header_title;
-  color: $font-headertitle-color;
+  color: $font-pagetitle-color;
   font-family: $font-headertitle-family;
   font-weight: $font-headertitle-weight;
   margin: 0;
@@ -161,10 +165,19 @@
 
 .sv-header__description .sd-description {
   @include mixins.header_description;
-  color: $font-headerdescription-color;
+  color: $font-pagedescription-color;
   font-family: $font-headerdescription-family;
   font-weight: $font-headerdescription-weight;
   margin: 0;
+}
+
+.sv-header__background-color--accent {
+  .sv-header__title .sd-title {
+    color: var(--sjs-font-headertitle-color, #{$primary-foreground});
+  }
+  .sv-header__description .sd-description {
+    color: $font-headerdescription-color;
+  }
 }
 
 .sv-header__content .sd-header__text h3 {
@@ -178,17 +191,5 @@
 
   .sv-header__logo img {
     max-width: 100%;
-  }
-}
-
-.sv-header__background-color--none,
-.sv-header__background-color--custom {
-  .sv-header__title .sd-title {
-    color: $font-pagetitle-color;
-  }
-
-  .sv-header__description .sd-description {
-    @include mixins.header_description;
-    color: $font-pagedescription-color;
   }
 }

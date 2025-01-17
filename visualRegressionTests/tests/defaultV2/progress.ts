@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, applyHeaderAccentBackgroundColor } from "../../helper";
 
 const title = "Survey Progress Screenshot";
 
@@ -84,6 +84,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
@@ -95,6 +96,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.showProgressBar = "bottom";
         (<any>window).survey.progressBarType = "pages";
@@ -107,6 +109,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1800, 900);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         const container = (<any>window).document.getElementById("surveyElement");
         container.style.position = "fixed";
@@ -127,6 +130,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await t.click(Selector("li").nth(1));
       await takeElementScreenshot("survey-progress-bar-top-buttons.png", Selector(".sd-container-modern"), t, comparer);
       await t.resizeWindow(500, 1080);
@@ -139,6 +143,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.progressBarShowPageNumbers = true;
       })();
@@ -154,6 +159,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.showProgressBar = "topBottom";
       })();
@@ -169,6 +175,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.showTOC = true;
         (<any>window).survey.progressBarType = "pages";
@@ -186,6 +193,7 @@ frameworks.forEach(framework => {
         pages: testedPages,
         showProgressBar: "top"
       });
+      await applyHeaderAccentBackgroundColor();
       await takeElementScreenshot("survey-without-tilte-and-with-progress.png", Selector(".sd-container-modern"), t, comparer); // progress
     });
   });
@@ -197,6 +205,7 @@ frameworks.forEach(framework => {
         focusFirstQuestionAutomatic: true,
         pages: testedPages
       });
+      await applyHeaderAccentBackgroundColor();
       await takeElementScreenshot("survey-without-tilte-and-progress.png", Selector(".sd-container-modern"), t, comparer); // without title and progress
     });
   });
@@ -209,6 +218,7 @@ frameworks.forEach(framework => {
         title: "Test",
         pages: testedPages
       });
+      await applyHeaderAccentBackgroundColor();
       await takeElementScreenshot("survey-with-tilte-and-without-progress.png", Selector(".sd-container-modern"), t, comparer); // title
     });
   });
@@ -264,6 +274,7 @@ frameworks.forEach(framework => {
           ]
         };
         await initSurvey(framework, json);
+        await applyHeaderAccentBackgroundColor();
         await ClientFunction(() => {
           const surveyElement = document.getElementById("surveyElement");
           if (surveyElement) {
@@ -280,6 +291,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
@@ -295,6 +307,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
@@ -312,6 +325,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.progressBarShowPageNumbers = true;
         (<any>window).survey.currentPageNo = 1;
@@ -329,6 +343,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.progressBarInheritWidthFrom = "survey";
@@ -351,6 +366,7 @@ frameworks.forEach(framework => {
         document.body.setAttribute("dir", "rtl");
       })();
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
@@ -366,6 +382,7 @@ frameworks.forEach(framework => {
       })();
       await t.resizeWindow(800, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
@@ -401,6 +418,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (document.querySelector("#surveyElement") as HTMLElement).style.height = "calc(100vh - 32px)";
         (<any>window).survey.currentPageNo = 1;
@@ -439,6 +457,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.data = { q1: "answer" };
         (<any>window).survey.currentPageNo = 1;
       })();
+      await applyHeaderAccentBackgroundColor();
       await t.resizeWindow(800, 600);
       await t.scroll(".sd-root-modern--full-container", 0, 500);
       await t.wait(1000);
@@ -544,6 +563,7 @@ frameworks.forEach(framework => {
         "widthMode": "static",
         "width": "800px"
       });
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (document.querySelector("#surveyElement") as HTMLElement).style.height = "calc(100vh - 32px)";
       })();
@@ -557,6 +577,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, json);
+      await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         (<any>window).survey.progressBarShowPageNumbers = true;
         (<any>window).survey.applyTheme({

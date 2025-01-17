@@ -573,3 +573,26 @@ QUnit.test("Mask pattern default inputValue", function (assert) {
   const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
   assert.equal(q1.inputValue, "_");
 });
+QUnit.test("Support mask in displayValue, #9268", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        maskType: "numeric",
+        maskSettings: {
+          decimalSeparator: ",",
+          thousandsSeparator: " ",
+        },
+      },
+      { type: "text", name: "q2", title: "Title: {q1}" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.displayValue, "", "displayValue #1");
+  assert.equal(q2.locTitle.textOrHtml, "Title: ", "title #1");
+  q1.value = 1234567.3;
+  assert.equal(q1.displayValue, "1 234 567,3", "displayValue #2");
+  assert.equal(q2.locTitle.textOrHtml, "Title: 1 234 567,3", "title #2");
+});

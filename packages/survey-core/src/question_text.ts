@@ -177,7 +177,10 @@ export class QuestionTextModel extends QuestionTextBase {
       this.setRenderedMinMax(values, properties);
     }
   }
-
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if (!this.maskTypeIsEmpty && !Helpers.isValueEmpty(value)) return this.maskInstance.getMaskedValue(value);
+    return super.getDisplayValueCore(keysAsText, value);
+  }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }

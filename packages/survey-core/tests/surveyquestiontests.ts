@@ -41,6 +41,7 @@ import { surveyTimerFunctions } from "../src/surveytimer";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { setOldTheme } from "./oldTheme";
+import { SurveyError } from "../src/survey-error";
 export default QUnit.module("Survey_Questions");
 
 settings.autoAdvanceDelay = 0;
@@ -7989,4 +7990,27 @@ QUnit.test("Recursive changes setValueExpression #9132", function (assert) {
   assert.equal(q6.value, "Medium Risk", "#4");
   survey.setValue("question3", "Item 3");
   assert.equal(q6.value, "High Risk", "#5");
+});
+QUnit.test("question.validateValueCallback", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", isRequired: true },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  let counter = 0;
+  q1.validateValueCallback = (): SurveyError => {
+    counter ++;
+    if(q1.value === "a") return new SurveyError("Error");
+    return null;
+  };
+  q1.validate(true);
+  assert.equal(q1.errors.length, 1, "There is an error #1");
+  assert.equal(counter, 0, "validateValueCallback is not called #1");
+  q1.value = "a";
+  assert.equal(q1.errors.length, 1, "There is an error #2");
+  assert.equal(counter, 1, "validateValueCallback is called #2");
+  q1.value = "b";
+  assert.equal(q1.errors.length, 0, "There is no errors #3");
+  assert.equal(counter, 2, "validateValueCallback is called #3");
 });

@@ -141,7 +141,7 @@
 
 .sv-header__title .sd-title {
   @include mixins.header_title;
-  color: $font-pagetitle-color;
+  color: var(--sjs-font-headertitle-color, #{$font-pagetitle-color});
   font-family: $font-headertitle-family;
   font-weight: $font-headertitle-weight;
   margin: 0;
@@ -165,7 +165,7 @@
 
 .sv-header__description .sd-description {
   @include mixins.header_description;
-  color: $font-pagedescription-color;
+  color: var(--sjs-font-headerdescription-color, #{$font-pagedescription-color});
   font-family: $font-headerdescription-family;
   font-weight: $font-headerdescription-weight;
   margin: 0;

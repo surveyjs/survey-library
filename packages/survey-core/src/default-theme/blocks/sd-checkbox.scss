@@ -1,0 +1,38 @@
+@use "../variables.scss" as *;
+
+.sd-checkbox__decorator {
+  border-radius: calcCornerRadius(0.5);
+}
+
+.sd-checkbox__svg {
+  display: block;
+  width: calcSize(2);
+  height: calcSize(2);
+
+  use {
+    fill: transparent;
+    transition: fill $transition-duration;
+  }
+}
+
+.sd-checkbox--checked .sd-checkbox__svg {
+  use {
+    fill: $primary-foreground;
+  }
+}
+
+.sd-checkbox--checked.sd-checkbox--disabled .sd-checkbox__svg use {
+  fill: $border;
+}
+.sd-checkbox--checked .sd-checkbox__control:focus + .sd-checkbox__decorator .sd-checkbox__svg use {
+  fill: $primary;
+}
+
+
+.sd-checkbox--checked.sd-checkbox--readonly .sd-checkbox__svg use {
+  fill: $foreground;
+}
+
+.sd-checkbox--checked.sd-checkbox--preview .sd-checkbox__svg use{
+  fill: $foreground;
+}

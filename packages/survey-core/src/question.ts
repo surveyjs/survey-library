@@ -59,7 +59,7 @@ export class Question extends SurveyElement<Question>
   [index: string]: any;
   private static TextPreprocessorValuesMap = {
     title: "processedTitle",
-    require: "requiredText",
+    require: "requiredMark",
   };
   private static questionCounter = 100;
   private static getQuestionId(): string {
@@ -494,26 +494,36 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Returns the visible index of the question in the survey. It can be from 0 to all visible questions count - 1
-   * The visibleIndex is -1 if the title is 'hidden' or hideNumber is true
+   * The visibleIndex is -1 if the title is 'hidden' or showNumber is false
    * @see titleLocation
-   * @see hideNumber
+   * @see showNumber
    */
   public get visibleIndex(): number {
     return this.getPropertyValue("visibleIndex", -1);
   }
   public onHidingContent(): void { }
   /**
-   * Hides the question number from the title and excludes the question from numbering.
+   * Specifies whether to show a number for this question. Setting this property to `false` hides the question number from the title and excludes the question from numbering.
    *
-   * If you want to disable question numbering in the entire survey, set `SurveyModel`'s `showQuestionNumbers` property to `false`.
-   * @see SurveyModel.showQuestionNumbers
+   * Default value: `false` (inherited from the `SurveyModel`'s [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers) property)
+   * @see no
+   */
+  public get showNumber(): boolean {
+    return this.getPropertyValue("showNumber");
+  }
+  public set showNumber(val: boolean) {
+    this.setPropertyValue("showNumber", val);
+    this.notifySurveyVisibilityChanged();
+  }
+  /**
+   * Obsolete. Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
+   * @deprecated
    */
   public get hideNumber(): boolean {
-    return this.getPropertyValue("hideNumber");
+    return !this.showNumber;
   }
   public set hideNumber(val: boolean) {
-    this.setPropertyValue("hideNumber", val);
-    this.notifySurveyVisibilityChanged();
+    this.showNumber = !val;
   }
   /**
    * Returns `true` if the question can display its title to the left of the input field.
@@ -1012,10 +1022,10 @@ export class Question extends SurveyElement<Question>
     return this.isRequired && this.titlePattern == "requireNumTitle";
   }
   public get isRequireTextBeforeTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredText !== "";
+    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredMark !== "";
   }
   public get isRequireTextAfterTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredText !== "";
+    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredMark !== "";
   }
   /**
    * Disable this property if you want to render the current question on the same line or row with the previous question or panel.
@@ -1331,7 +1341,7 @@ export class Question extends SurveyElement<Question>
   }
   public getOthersMaxLength(): any {
     if (!this.survey) return null;
-    return this.survey.maxOthersLength > 0 ? this.survey.maxOthersLength : null;
+    return this.survey.maxCommentLength > 0 ? this.survey.maxCommentLength : null;
   }
   protected onCreating(): void { }
   public getFirstQuestionToFocus(withError: boolean): Question {
@@ -1526,7 +1536,7 @@ export class Question extends SurveyElement<Question>
    *
    * When the question number, title, or the entire question is invisible, this property returns an empty string.
    * @see SurveyModel.questionStartIndex
-   * @see hideNumber
+   * @see showNumber
    * @see titleLocation
    * @see visibleIf
    */
@@ -1534,7 +1544,7 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("no");
   }
   private calcNo(): string {
-    if (!this.hasTitle || this.hideNumber) return "";
+    if (!this.hasTitle || !this.showNumber) return "";
     const parentIndex: number | undefined = (<any>this.parent)?.visibleIndex;
     var no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex(), parentIndex);
     if (!!this.survey) {
@@ -2218,9 +2228,6 @@ export class Question extends SurveyElement<Question>
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     const errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true, fireCallback);
     if (fireCallback) {
-      if (!!this.survey) {
-        this.survey.beforeSettingQuestionErrors(this, errors);
-      }
       this.errors = errors;
       if (this.errors !== errors) {
         this.errors.forEach(er => er.locText.strChanged());
@@ -2250,13 +2257,20 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Returns a character or text string that indicates a required question.
-   * @see SurveyModel.requiredText
+   * @see SurveyModel.requiredMark
    * @see isRequired
    */
-  public get requiredText(): string {
+  public get requiredMark(): string {
     return this.survey != null && this.isRequired
-      ? this.survey.requiredText
+      ? this.survey.requiredMark
       : "";
+  }
+  /**
+   * Obsolete. Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
+   * @deprecated
+   */
+  public get requiredText(): string {
+    return this.requiredMark;
   }
   public addError(error: SurveyError | string): void {
     if (!error) return;
@@ -2283,6 +2297,15 @@ export class Question extends SurveyElement<Question>
     if (this.isVisible && this.canCollectErrors()) {
       this.collectErrors(qErrors, isOnValueChanged, fireCallback);
     }
+    if (!!this.survey) {
+      if(this.validateValueCallback && qErrors.length === 0) {
+        const error = this.validateValueCallback();
+        if (error) {
+          qErrors.push(error);
+        }
+      }
+      this.survey.validateQuestion(this, qErrors, fireCallback);
+    }
     return qErrors;
   }
   protected canCollectErrors(): boolean {
@@ -2299,19 +2322,9 @@ export class Question extends SurveyElement<Question>
         qErrors.push(errors[i]);
       }
     }
-    if (this.survey && qErrors.length == 0) {
-      var error = this.fireSurveyValidation();
-      if (error) {
-        qErrors.push(error);
-      }
-    }
   }
   protected canRunValidators(isOnValueChanged: boolean): boolean {
     return true;
-  }
-  private fireSurveyValidation(): SurveyError {
-    if (this.validateValueCallback) return this.validateValueCallback();
-    return this.survey ? this.survey.validateQuestion(this) : null;
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     if ((!isOnValueChanged || this.isOldAnswered) && this.hasRequiredError()) {
@@ -2519,7 +2532,7 @@ export class Question extends SurveyElement<Question>
     if (
       !this.isVisible ||
       (!this.hasTitle && !settings.numbering.includeQuestionsWithHiddenTitle) ||
-      (this.hideNumber && !settings.numbering.includeQuestionsWithHiddenNumber)
+      (!this.showNumber && !settings.numbering.includeQuestionsWithHiddenNumber)
     ) {
       val = -1;
     }
@@ -2530,7 +2543,9 @@ export class Question extends SurveyElement<Question>
   public removeElement(element: IElement): boolean {
     return false;
   }
-  public supportGoNextPageAutomatic(): boolean {
+  // Obsolete
+  supportGoNextPageAutomatic(): boolean { return this.supportAutoAdvance(); }
+  public supportAutoAdvance(): boolean {
     return false;
   }
   public supportGoNextPageError(): boolean {
@@ -2914,8 +2929,9 @@ Serializer.addClass("question", [
     choices: ["default", "underInput", "underTitle"],
   },
   {
-    name: "hideNumber:boolean",
+    name: "showNumber:boolean",
     dependsOn: "titleLocation",
+    default: true,
     visibleIf: function (obj: any) {
       if (!obj) {
         return true;
@@ -2937,6 +2953,7 @@ Serializer.addClass("question", [
       );
     },
   },
+  { name: "hideNumber:boolean", visible: false, isSerializable: false },
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
   "resetValueIf:condition",

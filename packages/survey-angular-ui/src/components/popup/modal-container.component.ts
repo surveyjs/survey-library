@@ -1,6 +1,6 @@
 import { DomPortalOutlet } from "@angular/cdk/portal";
 import { Component } from "@angular/core";
-import { createDialogOptions, IDialogOptions, PopupBaseViewModel, createPopupModalViewModel, settings } from "survey-core";
+import { IDialogOptions, PopupBaseViewModel, createPopupModalViewModel, settings } from "survey-core";
 import { PopupService } from "./popup.service";
 
 @Component({
@@ -31,30 +31,7 @@ export class ModalComponent {
     return this.model;
   }
   ngOnInit(): void {
-    if (!!settings.showModal) return;
     this.functionDefined = true;
-    settings.showModal = (
-      componentName: string,
-      data: any,
-      onApply: () => boolean,
-      onCancel?: () => void,
-      cssClass?: string,
-      title?: string,
-      displayMode: "popup" | "overlay" = "popup"
-    ): PopupBaseViewModel => {
-      const options = createDialogOptions(
-        componentName,
-        data,
-        onApply,
-        onCancel,
-        undefined,
-        undefined,
-        cssClass,
-        title,
-        displayMode
-      );
-      return this.showDialog(options);
-    };
 
     settings.showDialog = (dialogOptions: IDialogOptions, rootElement?: HTMLElement) => {
       return this.showDialog(dialogOptions, rootElement);
@@ -64,7 +41,6 @@ export class ModalComponent {
     this.portalHost?.detach();
     this.model?.dispose();
     if (this.functionDefined) {
-      settings.showModal = <any>undefined;
       settings.showDialog = <any>undefined;
     }
   }

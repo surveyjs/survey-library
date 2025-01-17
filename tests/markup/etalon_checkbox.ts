@@ -45,7 +45,7 @@ registerMarkupTests(
       snapshot: "checkbox-other",
     },
     {
-      name: "Test checkbox question markup Other option with maxOthersLength",
+      name: "Test checkbox question markup Other option with maxCommentLength",
       json: {
         "maxOthersLength": 15,
         questions: [
@@ -300,6 +300,8 @@ registerMarkupTests(
         ]
       },
       snapshot: "checkbox-columns-no-head-foot",
+      before: () => { settings.itemFlowDirection = "row"; },
+      after: () => { settings.itemFlowDirection = "column"; }
     },
     {
       name: "Test checkbox row layout with no header and footer",

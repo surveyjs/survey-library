@@ -104,8 +104,8 @@ module.exports = function (options) {
     mode: isProductionBuild ? "production" : "development",
     entry: {
       "survey.core": path.resolve(__dirname, "./entries/index.ts"),
-      defaultV2: path.resolve(__dirname, "./src/defaultV2-theme/defaultV2.scss"),
-      "defaultV2.fontless": path.resolve(__dirname, "./src/defaultV2-theme/defaultV2.fontless.scss")
+      default: path.resolve(__dirname, "./src/default-theme/default.scss"),
+      "default.fontless": path.resolve(__dirname, "./src/default-theme/default.fontless.scss")
     },
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
@@ -124,7 +124,6 @@ module.exports = function (options) {
           loader: "ts-loader",
           options: {
             configFile: options.tsConfigFile || "tsconfig.json",
-            transpileOnly: isProductionBuild
           }
         },
         {
@@ -145,6 +144,7 @@ module.exports = function (options) {
             {
               loader: "sass-loader",
               options: {
+                api: "modern",
                 sourceMap: options.buildType !== "prod",
               },
             },
@@ -161,11 +161,11 @@ module.exports = function (options) {
       filename: "[name]" + (isProductionBuild ? ".min" : "") + ".js",
       library: {
         root: options.libraryName || "Survey",
-        amd: '[dashedname]',
-        commonjs: '[dashedname]',
+        amd: "[dashedname]",
+        commonjs: "[dashedname]",
       },
       libraryTarget: "umd",
-      globalObject: 'this',
+      globalObject: "this",
       umdNamedDefine: true
     },
     plugins: [

@@ -57,7 +57,7 @@ export const oldDefaultTheme = {
     content: "",
     contentLeft: "content-left",
     titleLeftRoot: "sv_qstn_left",
-    requiredText: "sv_q_required_text",
+    requiredMark: "sv_q_required_text",
     title: "sv_q_title",
     titleExpandable: "sv_q_title_expandable",
     titleExpandableSvg: "sd-element__title-expandable-svg",
@@ -90,7 +90,7 @@ export const oldDefaultTheme = {
     container: "sv_p_container",
     footer: "sv_p_footer",
     number: "sv_q_num",
-    requiredText: "sv_q_required_text",
+    requiredMark: "sv_q_required_text",
   },
   error: {
     root: "sv_q_erbox",
@@ -245,8 +245,8 @@ export const oldDefaultTheme = {
     detailIconExpanded: "sv_detail_expanded",
     detailPanelCell: "sv_matrix_cell_detail_panel",
     actionsCell: "sv_matrix_cell sv_matrix_cell_actions",
-    emptyRowsSection: "sv_matrix_empty_rows_section",
-    emptyRowsText: "sv_matrix_empty_rows_text",
+    noRowsSection: "sv_matrix_empty_rows_section",
+    noRowsText: "sv_matrix_empty_rows_text",
     emptyRowsButton: "",
     ghostRow: "sv-matrix-row--drag-drop-ghost-mod",
     draggedRow: "sv-matrixdynamic-dragged-row"

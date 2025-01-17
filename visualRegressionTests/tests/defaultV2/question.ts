@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, resetFocusToBody, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, resetFocusToBody, wrapVisualTest, takeElementScreenshot, setRowItemFlowDirection } from "../../helper";
 
 const title = "Question Screenshot";
 
@@ -15,6 +15,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         width: "900px",
         questions: [
           {
@@ -37,6 +38,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         width: "900px",
         questions: [
           {
@@ -58,6 +60,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         width: "900px",
         questions: [
@@ -80,6 +83,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         width: "900px",
         questions: [
@@ -103,6 +107,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         width: "900px",
         questions: [
           {
@@ -133,6 +138,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         width: "900px",
         questions: [
           {
@@ -217,6 +223,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "text",
@@ -242,6 +249,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "text",
@@ -279,6 +287,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "pages": [
           {
             "name": "page1",
@@ -338,6 +347,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(900, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "text",
@@ -369,6 +379,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "text",
@@ -379,7 +390,9 @@ frameworks.forEach(framework => {
         ]
       }, {
         onValidateQuestion: (s, options) => {
-          options.error = "Very very very very very very very very very very very very very very very Very very very very very very very very very very very very very very very long error";
+          if(options.errors.length === 0) {
+            options.error = "Very very very very very very very very very very very very very very very Very very very very very very very very very very very very very very very long error";
+          }
         }
       });
       const qRoot = Selector(".sd-question");
@@ -400,6 +413,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "text",
@@ -422,6 +436,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "text",
@@ -446,6 +461,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(800, 800);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "pages": [
           {
             "name": "page1",
@@ -492,6 +508,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -556,6 +573,7 @@ frameworks.forEach(framework => {
       await setupComposite();
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "elements": [
           {
             "type": "shippingaddress",
@@ -578,6 +596,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       const json = {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -612,6 +631,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       const json = {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -632,6 +652,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -681,6 +702,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1500, 900);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         logoPosition: "right",
         pages: [
           {
@@ -719,6 +741,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(350, 900);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -769,6 +792,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
 
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -790,6 +814,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -903,6 +928,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -919,6 +945,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questionStartIndex: "1.1.1",
         questions: [
@@ -1073,6 +1100,7 @@ frameworks.forEach(framework => {
 
   test("Question content scroll", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await setRowItemFlowDirection();
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         "pages": [

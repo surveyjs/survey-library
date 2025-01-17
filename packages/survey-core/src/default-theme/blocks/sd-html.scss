@@ -1,0 +1,14 @@
+@use "../variables.scss" as *;
+@use "../mixins.scss" as mixins;
+
+.sd-html {
+  white-space: initial;
+}
+
+.sd-html {
+  @include mixins.articleHtml;
+}
+
+.sd-html--nested {
+  color: $font-questiontitle-color;
+}

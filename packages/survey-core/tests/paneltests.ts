@@ -907,7 +907,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
   try {
     settings.lazyRowsRenderingStartRow = 0;
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
     const page = survey.currentPage;
     assert.equal(panel.rows.length, 2);
@@ -1028,7 +1028,7 @@ QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function (
   settings.lazyRowsRenderingStartRow = 2;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page: PageModel = survey.currentPage;
     assert.equal(page.rows.length, 3, "There are 3 rows");
     assert.equal(page.rows[0].isNeedRender, true, "isNeedRender rows[0]");
@@ -1078,7 +1078,7 @@ QUnit.test(
     settings.lazyRowsRenderingStartRow = 2;
     try {
       const survey = new SurveyModel(json);
-      survey.lazyRendering = true;
+      survey.lazyRenderEnabled = true;
       survey.setDesignMode(true);
       const page1: PageModel = survey.pages[0];
       assert.equal(page1.rows.length, 3, "There are 3 rows");
@@ -1674,7 +1674,7 @@ QUnit.test(
     settings.lazyRowsRenderingStartRow = 2;
     try {
       const survey = new SurveyModel(json);
-      survey.lazyRendering = true;
+      survey.lazyRenderEnabled = true;
       const page1: PageModel = survey.pages[0];
       assert.equal(page1.rows.length, 3, "There are 3 rows");
       assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender rows[0]");
@@ -2901,7 +2901,7 @@ QUnit.test("row.isNeedRender for panels", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page1: PageModel = survey.pages[0];
     assert.equal(page1.rows.length, 2, "There are 2 rows");
     assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender page1 rows[0]");
@@ -2949,7 +2949,7 @@ QUnit.test("getAllRows for page", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();
 
@@ -2997,7 +2997,7 @@ QUnit.test("forceRenderRows for page", async function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     survey.getAllQuestions().forEach(q => {
       q.supportOnElementRerenderedEvent = true;
       q.onElementRerenderedEventEnabled = true;
@@ -3058,7 +3058,7 @@ QUnit.test("forceRenderElement for page the exact element, gap = 0", async funct
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     survey.getAllQuestions().forEach(q => {
       q.supportOnElementRerenderedEvent = true;
       q.onElementRerenderedEventEnabled = true;
@@ -3118,7 +3118,7 @@ QUnit.test("forceRenderElement for page with one prev element, gap = 1", async f
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     survey.getAllQuestions().forEach(q => {
       q.supportOnElementRerenderedEvent = true;
       q.onElementRerenderedEventEnabled = true;
@@ -3194,7 +3194,7 @@ QUnit.test("row.isNeedRender for nested panels", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();
     assert.equal(allPageRows.length, 7, "7 rows with panels");
@@ -3278,7 +3278,7 @@ QUnit.test("row.isNeedRender for nested panels - complex", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();
     assert.equal(allPageRows.length, 7, "7 rows with panels");
@@ -3342,7 +3342,7 @@ QUnit.test("row.isNeedRender panel dynamic different modes - ordinary and design
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page1: PageModel = survey.pages[0];
 
     let allPageRows = page1.getAllRows();
@@ -3399,6 +3399,7 @@ QUnit.test("Nested pages", function (assert) {
 });
 QUnit.test("survey.onGetPanelNumber", function (assert) {
   const survey = new SurveyModel({
+    showQuestionNumbers: "on",
     elements: [
       {
         type: "panel", name: "panel1", title: "Panel 1",
@@ -3448,4 +3449,34 @@ QUnit.test("survey.onGetPanelNumber", function (assert) {
   assert.equal(survey.getQuestionByName("q5").no, "2.1.", "q5.no");
   assert.equal(survey.getQuestionByName("q6").no, "2.2.", "q6.no");
   assert.equal(survey.getQuestionByName("q7").no, "3.", "q7.no");
+});
+
+QUnit.test("Check that startWithNewLine doesn't trigger animation", (assert) => {
+  settings.animationEnabled = true;
+  const survey = new SurveyModel({
+    "logoPosition": "right",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      }
+    ]
+  });
+  const question2 = survey.getQuestionByName("question2");
+  const page = survey.getPageByName("page1");
+  page.enableOnElementRerenderedEvent();
+  assert.ok(page.animationAllowed, "check that animation is enabled");
+  assert.equal(page.visibleRows.length, 2);
+  question2.startWithNewLine = false;
+  assert.equal(page.visibleRows.length, 1);
+  settings.animationEnabled = false;
 });

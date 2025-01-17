@@ -1,6 +1,6 @@
 import { QuestionRatingModel } from "../src/question_rating";
 import { SurveyModel } from "../src/survey";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { CustomResizeObserver } from "./questionImagepicker";
 import { RendererFactory } from "../src/rendererFactory";
 import { DropdownListModel } from "../src/dropdownListModel";
@@ -76,7 +76,7 @@ QUnit.test("check rating initResponsiveness", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.afterRender(rootElement);
   assert.ok(q1["resizeObserver"]);
@@ -123,7 +123,7 @@ QUnit.test("check rating resize observer behavior", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.afterRender(rootElement);
   assert.ok(q1["resizeObserver"]);
@@ -170,7 +170,7 @@ QUnit.test("check rating in case of state 'collapsed'", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.state = "collapsed";
   q1.afterRender(rootElement);
@@ -1483,7 +1483,7 @@ QUnit.test("check rating triggerResponsiveness method", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
 
@@ -1708,16 +1708,16 @@ QUnit.test("Generate empty rating in column", (assert) => {
   assert.equal(col1.itemComponent, "sv-rating-item");
   assert.equal(col2.itemComponent, "sv-rating-item-star");
 });
-QUnit.test("supportGoNextPageAutomatic", (assert) => {
+QUnit.test("supportAutoAdvance", (assert) => {
   const q1 = new QuestionRatingModel("q1");
   q1.value = 1;
-  assert.equal(q1.supportGoNextPageAutomatic(), false, "#1");
+  assert.equal(q1.supportAutoAdvance(), false, "#1");
   q1.onMouseDown();
-  assert.equal(q1.supportGoNextPageAutomatic(), true, "#2");
+  assert.equal(q1.supportAutoAdvance(), true, "#2");
   q1.value = 2;
-  assert.equal(q1.supportGoNextPageAutomatic(), false, "#3");
+  assert.equal(q1.supportAutoAdvance(), false, "#3");
   q1.displayMode = "dropdown";
-  assert.equal(q1.supportGoNextPageAutomatic(), true, "#4");
+  assert.equal(q1.supportAutoAdvance(), true, "#4");
 });
 QUnit.test("Check hasMin/MaxRateDescription properties on loading", (assert) => {
   const survey = new SurveyModel({

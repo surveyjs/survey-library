@@ -1,6 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { ImageItemValue, QuestionImagePickerModel } from "../src/question_imagepicker";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { setOldTheme } from "./oldTheme";
 
 export default QUnit.module("imagepicker");
@@ -90,7 +90,7 @@ QUnit.test("check dependency getItemClass method on colCount", function (
 });
 QUnit.test("check process responsiveness for imagepicker, colCount == 0", function (assert) {
   let survey = new SurveyModel({});
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
   question.choices = [{ value: "item1" }, { value: "item2" }, { value: "item3" }, { value: "item4" }];
@@ -117,7 +117,7 @@ QUnit.test("check process responsiveness for imagepicker, colCount == 0", functi
 
 QUnit.test("check process responsiveness for imagepicker, colCount !== 0", function (assert) {
   let survey = new SurveyModel({});
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
   question.choices = [{ value: "item1" }, { value: "item2" }, { value: "item3" }, { value: "item4" }];
@@ -152,7 +152,7 @@ QUnit.test("check process responsiveness for imagepicker, colCount !== 0", funct
 
 QUnit.test("check isResponsive getter", function (assert) {
   let survey = new SurveyModel({});
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
   assert.ok(question["isResponsive"]);
@@ -182,7 +182,7 @@ QUnit.test("check isResponsive getter after end of loading json", function (asse
       ]
     }
   );
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   let q = survey.getAllQuestions()[0];
   assert.notOk(q.isResponsive);
   survey = new SurveyModel(
@@ -201,7 +201,7 @@ QUnit.test("check isResponsive getter after end of loading json", function (asse
       ]
     }
   );
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   q = survey.getAllQuestions()[0];
   assert.ok(q.isResponsive);
 });
@@ -246,7 +246,7 @@ QUnit.test("check resizeObserver behavior", function (assert) {
       ]
     }
   );
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q = survey.getAllQuestions()[0];
   let trace = "";
   q["processResponsiveness"] = () => {
@@ -295,7 +295,7 @@ QUnit.test("check resizeObserver not process if container is not visible", funct
       ]
     }
   );
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q = survey.getAllQuestions()[0];
   let trace = "";
   q["processResponsiveness"] = () => {
@@ -363,7 +363,7 @@ QUnit.test("check reCalcGap", function (assert) {
     }
   );
   const question = <QuestionImagePickerModel>survey.getAllQuestions()[0];
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const container = document.createElement("div");
   const itemsContainer = document.createElement("div");
   itemsContainer.className = survey.css.imagepicker.root;
@@ -401,7 +401,7 @@ QUnit.test("supports survey width scale", function (assert) {
       ]
     }
   );
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const question = <QuestionImagePickerModel>survey.getAllQuestions()[0];
 
   assert.ok(question.isDefaultV2Theme);
@@ -420,21 +420,21 @@ QUnit.test("supports survey width scale", function (assert) {
   survey.widthScale = 100;
   assert.equal(survey.widthScale, 100);
   question["processResponsiveness"](0, 600);
-  assert.equal(question.renderedImageWidth, 400);
+  assert.equal(question.renderedImageWidth, 600);
   assert.equal(question.renderedImageHeight, 133);
 
   question["processResponsiveness"](0, 100);
-  assert.equal(question.renderedImageWidth, 400);
+  assert.equal(question.renderedImageWidth, 3000);
   assert.equal(question.renderedImageHeight, 133);
 
   survey.widthScale = 75;
   question["processResponsiveness"](0, 100);
   assert.equal(survey.widthScale, 75);
-  assert.equal(question.renderedImageWidth, 300);
+  assert.equal(question.renderedImageWidth, 2250);
   assert.equal(question.renderedImageHeight, 99);
 
   question["processResponsiveness"](0, 600);
-  assert.equal(question.renderedImageWidth, 300);
+  assert.equal(question.renderedImageWidth, 600);
   assert.equal(question.renderedImageHeight, 99);
 
   question.imageWidth = 150;

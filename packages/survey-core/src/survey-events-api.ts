@@ -300,10 +300,6 @@ export interface PanelRemovedEvent extends PanelEventMixin, ElementRemovedEvent 
 export interface PageAddedEvent extends PageEventMixin { }
 export interface ValidateQuestionEvent extends QuestionEventMixin {
   /**
-   * An error message that you should specify if validation fails.
-   */
-  error: string;
-  /**
    * A question value being validated.
    */
   value: any;
@@ -311,6 +307,14 @@ export interface ValidateQuestionEvent extends QuestionEventMixin {
    * The question's name.
    */
   name: string;
+  /**
+   * An error message that you should specify if custom validation fails.
+   */
+  error: string;
+  /**
+   * An array of other validation errors that you can modify. The array is empty if the validated question satisfies all validation rules.
+   */
+  errors: Array<SurveyError>;
 }
 export interface SettingQuestionErrorsEvent extends QuestionEventMixin {
   /**
@@ -334,13 +338,17 @@ export interface ServerValidateQuestionsEvent {
 }
 export interface ValidatePanelEvent extends PanelEventMixin {
   /**
-   * An error message that you should specify if validation fails.
-   */
-  error: string;
-  /**
    * The panel's name.
    */
   name: string;
+  /**
+   * An error message that you should specify if custom validation fails.
+   */
+  error: string;
+  /**
+   * An array of other validation errors that you can modify.
+   */
+  errors: Array<SurveyError>;
 }
 export interface ErrorCustomTextEvent {
   /**
@@ -360,7 +368,7 @@ export interface ErrorCustomTextEvent {
    */
   text: string;
 }
-export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
+export interface ValidatePageEvent extends PageEventMixin {
   /**
    * An array of questions with validation errors.
    */
@@ -369,6 +377,8 @@ export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
    * An array of validation errors.
    */
   errors: Array<SurveyError>;
+}
+export interface ValidatedErrorsOnCurrentPageEvent extends ValidatePageEvent {
 }
 export interface ProcessHtmlEvent {
   /**
@@ -587,7 +597,7 @@ export interface ClearFilesEvent extends LoadFilesEvent {
    */
   value: any;
 }
-export interface LoadChoicesFromServerEvent extends QuestionEventMixin {
+export interface ChoicesLoadedEvent extends QuestionEventMixin {
   /**
    * A query result as it came from the server.
    */
@@ -597,7 +607,8 @@ export interface LoadChoicesFromServerEvent extends QuestionEventMixin {
    */
   choices: Array<ItemValue>;
 }
-export interface ProcessTextValueEvent {
+export interface LoadChoicesFromServerEvent extends ChoicesLoadedEvent { }
+export interface ProcessDynamicTextEvent {
   /**
    * The name of the value being processed (the text in curly brackets).
    */
@@ -610,6 +621,7 @@ export interface ProcessTextValueEvent {
   canProcess: boolean;
   returnDisplayValue: boolean;
 }
+export interface ProcessTextValueEvent extends ProcessDynamicTextEvent { }
 export interface UpdateQuestionCssClassesEvent extends QuestionEventMixin, UpdateElementCssClassesEventMixin { }
 export interface UpdatePanelCssClassesEvent extends PanelEventMixin, UpdateElementCssClassesEventMixin { }
 export interface UpdatePageCssClassesEvent extends PageEventMixin, UpdateElementCssClassesEventMixin { }

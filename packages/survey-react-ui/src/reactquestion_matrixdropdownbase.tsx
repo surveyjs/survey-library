@@ -98,7 +98,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     const cells = row.cells;
 
     for (var i = 0; i < cells.length; i++) {
-      matrixrow.push(this.renderCell(cells[i], i, cssClasses, reason));
+      matrixrow.push(this.renderCell(cells[i], cssClasses, reason));
     }
     const key = "row" + keyValue;
 
@@ -109,13 +109,8 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     );
   }
 
-  renderCell(
-    cell: QuestionMatrixDropdownRenderedCell,
-    index: number,
-    cssClasses: any,
-    reason?: string
-  ): React.JSX.Element {
-    const key = "cell" + index;
+  renderCell(cell: QuestionMatrixDropdownRenderedCell, cssClasses: any, reason?: string): React.JSX.Element {
+    const key = "cell" + cell.id;
     if (cell.hasQuestion) {
       return (
         <SurveyQuestionMatrixDropdownCell
@@ -335,7 +330,7 @@ class SurveyQuestionMatrixHeaderRequired extends ReactSurveyElement {
     return (
       <>
         <span>&nbsp;</span>
-        <span className={this.question.cssClasses.cellRequiredText}>{this.column.requiredText}</span>
+        <span className={this.question.cssClasses.cellRequiredMark}>{this.column.requiredMark}</span>
       </>
     );
   }
@@ -405,7 +400,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   }
   protected renderCellContent() {
     const content = super.renderCellContent();
-    const responsiveTitle = this.cell.showResponsiveTitle ? (<span className={this.cell.responsiveTitleCss}>{this.renderLocString(this.cell.responsiveLocTitle)}</span>) : null;
+    const responsiveTitle = this.cell.showResponsiveTitle ? (<span className={this.cell.responsiveTitleCss}>{this.renderLocString(this.cell.responsiveLocTitle)}<SurveyQuestionMatrixHeaderRequired column={this.cell.column} question={this.cell.matrix} /></span>) : null;
     return <>
       {responsiveTitle}
       {content}

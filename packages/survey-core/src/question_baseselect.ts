@@ -386,8 +386,8 @@ export class QuestionSelectBase extends Question {
   public surveyChoiceItemVisibilityChange(): void {
     this.filterItems();
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
     this.choices.forEach(item => {
@@ -1718,7 +1718,7 @@ export class QuestionSelectBase extends Question {
     return item.value === this.value;
   }
   private clearDisabledValues() {
-    if (!this.survey || !this.survey.clearValueOnDisableItems) return;
+    if (!this.survey || !this.survey.clearDisabledChoices) return;
     this.clearDisabledValuesCore();
   }
   protected clearIncorrectValuesCore() {
@@ -1916,13 +1916,16 @@ export class QuestionSelectBase extends Question {
   get hasFootItems(): boolean {
     return this.footItems.length > 0;
   }
+  protected get itemFlowDirection() {
+    return settings.itemFlowDirection;
+  }
   get columns() {
     var columns = [];
     var colCount = this.getCurrentColCount();
     if (this.hasColumns && this.renderedChoices.length > 0) {
       let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isInDesignMode) ?
         this.renderedChoices : this.dataChoices;
-      if (settings.showItemsInOrder == "column") {
+      if (this.itemFlowDirection === "column") {
         var prevIndex = 0;
         var leftElementsCount = choicesToBuildColumns.length % colCount;
         for (var i = 0; i < colCount; i++) {

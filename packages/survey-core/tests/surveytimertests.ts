@@ -1,6 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { SurveyTimer, surveyTimerFunctions, SurveyTimerEvent } from "../src/surveytimer";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { setOldTheme } from "./oldTheme";
 
 export default QUnit.module("SurveyTimer");
@@ -396,7 +396,7 @@ QUnit.test("Start timer automatically if there is the start page", function(
   survey.addNewPage("p2");
   survey.pages[0].addNewQuestion("text");
   survey.pages[1].addNewQuestion("text");
-  survey.firstPageIsStarted = true;
+  survey.firstPageIsStartPage = true;
   survey.showTimerPanel = "top";
   survey.start();
   doTimer(3);
@@ -498,7 +498,7 @@ QUnit.test("Test showTimerAsClock flag", function(assert) {
   survey.startTimer();
   let timerModel = survey.timerModel;
   assert.notOk(timerModel.showTimerAsClock);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   assert.ok(timerModel.showTimerAsClock);
   survey.stopTimer();
 });

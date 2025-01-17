@@ -59,7 +59,7 @@ export var basqueSurveyStrings = {
   addColumn: "Zutabe bat gehitu",
   addRow: "Errenkada bat gehitu",
   removeRow: "Errenkada bat kendu",
-  emptyRowsText: "Ez dago errenkadarik.",
+  noRowsText: "Ez dago errenkadarik.",
   addPanel: "Berria gehitu",
   removePanel: "Kendu",
   showDetails: "Xehetasunak erakutsi",

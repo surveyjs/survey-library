@@ -62,8 +62,8 @@ export class QuestionExpressionModel extends Question {
   public unlocCalculation() {
     this.expressionIsRunning = false;
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>) {
+    super.runConditionCore(values, properties);
     if (
       !this.expression ||
       this.expressionIsRunning ||

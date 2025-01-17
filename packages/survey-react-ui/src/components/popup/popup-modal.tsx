@@ -2,7 +2,7 @@ import { createPortal } from "react-dom";
 import React from "react";
 import { PopupContainer } from "./popup";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { createDialogOptions, createPopupModalViewModel, IDialogOptions, PopupBaseViewModel, settings } from "survey-core";
+import { createPopupModalViewModel, IDialogOptions, PopupBaseViewModel, settings } from "survey-core";
 
 interface IModalDescriptor { init: () => void, clean: () => void }
 
@@ -20,7 +20,7 @@ export class PopupModal extends SurveyElementBase<{}, any> {
   }
   static modalDescriptors: Array<IModalDescriptor> = [];
   static addModalDescriptor(descriptor: IModalDescriptor): void {
-    if (!settings.showModal) {
+    if (!settings.showDialog) {
       descriptor.init();
     }
     this.modalDescriptors.push(descriptor);
@@ -28,7 +28,7 @@ export class PopupModal extends SurveyElementBase<{}, any> {
   static removeModalDescriptor(descriptor: IModalDescriptor): void {
     descriptor.clean();
     this.modalDescriptors.splice(this.modalDescriptors.indexOf(descriptor), 1);
-    if (!settings.showModal && this.modalDescriptors[0]) {
+    if (!settings.showDialog && this.modalDescriptors[0]) {
       this.modalDescriptors[0].init();
     }
   }
@@ -52,29 +52,6 @@ export class PopupModal extends SurveyElementBase<{}, any> {
   }
   init: () => void = () => {
     if (!this.isInitialized) {
-      settings.showModal = (
-        componentName: string,
-        data: any,
-        onApply: () => boolean,
-        onCancel?: () => void,
-        cssClass?: string,
-        title?: string,
-        displayMode: "popup" | "overlay" = "popup"
-      ): PopupBaseViewModel => {
-        const options = createDialogOptions(
-          componentName,
-          data,
-          onApply,
-          onCancel,
-          undefined,
-          undefined,
-          cssClass,
-          title,
-          displayMode
-        );
-        return this.showDialog(options);
-      };
-
       settings.showDialog = (dialogOptions: IDialogOptions, rootElement?: HTMLElement) => {
         return this.showDialog(dialogOptions, rootElement);
       };
@@ -83,7 +60,6 @@ export class PopupModal extends SurveyElementBase<{}, any> {
   }
   clean: () => void = () => {
     if (this.isInitialized) {
-      settings.showModal = undefined as any;
       settings.showDialog = undefined as any;
       this.isInitialized = false;
     }

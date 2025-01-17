@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, applyHeaderAccentBackgroundColor } from "../../helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest } from "../../helper";
 
 const title = "Survey Progress Screenshot";
 
@@ -74,6 +74,13 @@ const json = {
   "progressBarType": "buttons"
 };
 
+export const applyHeaderAccentBackgroundColor = ClientFunction(() => {
+  window["survey"].applyTheme({
+    "header": { "inheritWidthFrom": "container" },
+    "cssVariables": { "--sjs-header-backcolor": "var(--sjs-primary-backcolor)" }
+  });
+});
+
 fixture`${title}`.page`${url}`;
 
 frameworks.forEach(framework => {
@@ -107,7 +114,7 @@ frameworks.forEach(framework => {
   });
   test("Check survey with progress bottom with brand info and fit to container", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1800, 900);
+      await t.resizeWindow(1800, 1000);
       await initSurvey(framework, json);
       await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {

@@ -14,10 +14,6 @@ export const explicitErrorHandler = ClientFunction(() => {
   });
 });
 
-export const applyHeaderAccentBackgroundColor = ClientFunction(() => {
-  window["survey"].applyTheme({ "cssVariables": { "--sjs-header-backcolor": "var(--sjs-primary-backcolor)" } });
-});
-
 export const applyTheme = ClientFunction(theme => {
   (<any>window).Survey.StylesManager.applyTheme(theme);
 });

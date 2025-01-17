@@ -3590,22 +3590,28 @@ export class SurveyModel extends SurveyElementCore
       this.currentPageChanged(newPage, oldValue);
     }
   }
-  public tryNavigateToPage(page: PageModel): boolean {
+  public tryNavigateToPage(page: PageModel/*, serverValidationRes?: (res: boolean)=> void*/): boolean {
+    if(!this.performValidationOnPageChanging(page)) return false;
+    const index = this.visiblePages.indexOf(page);
+    const res = index < this.currentPageNo || !this.doServerValidation(false, false, page);
+    if(res) {
+      this.currentPage = page;
+    }
+    return res;
+  }
+  private performValidationOnPageChanging(page: PageModel): boolean {
     if (this.isDesignMode) return false;
     const index = this.visiblePages.indexOf(page);
     if (index < 0 || index >= this.visiblePageCount) return false;
     if (index === this.currentPageNo) return false;
-    if (index < this.currentPageNo || this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages) {
-      this.currentPageNo = index;
+    if (index < this.currentPageNo || this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages)
       return true;
-    }
     if(!this.validateCurrentPage()) return false;
     for (let i = this.currentPageNo + 1; i < index; i++) {
       const page = this.visiblePages[i];
       if (!page.validate(true, true)) return false;
       page.passed = true;
     }
-    this.currentPage = page;
     return true;
   }
 
@@ -4979,14 +4985,14 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("isValidatingOnServer", val);
     this.onIsValidatingOnServerChanged();
   }
-  private createServerValidationOptions(doComplete: boolean, isPreview: boolean): ServerValidateQuestionsEvent {
+  private createServerValidationOptions(doComplete: boolean, isPreview: boolean, page: PageModel): ServerValidateQuestionsEvent {
     var self = this;
     const options = {
       data: <{ [index: string]: any }>{},
       errors: {},
       survey: this,
       complete: function () {
-        self.completeServerValidation(options, isPreview);
+        self.completeServerValidation(options, isPreview, page);
       },
     };
     if (doComplete && this.isValidateOnComplete) {
@@ -5004,10 +5010,7 @@ export class SurveyModel extends SurveyElementCore
     return options;
   }
   protected onIsValidatingOnServerChanged() { }
-  protected doServerValidation(
-    doComplete: boolean,
-    isPreview: boolean = false
-  ): boolean {
+  protected doServerValidation(doComplete: boolean, isPreview: boolean = false, page?: PageModel): boolean {
     if (
       !this.onServerValidateQuestions ||
       (<EventBase<SurveyModel>>this.onServerValidateQuestions).isEmpty
@@ -5018,13 +5021,13 @@ export class SurveyModel extends SurveyElementCore
     const isFunc = typeof this.onServerValidateQuestions === "function";
     this.serverValidationEventCount = !isFunc ? this.onServerValidateQuestions.length : 1;
     if (isFunc) {
-      (<Function><any>this.onServerValidateQuestions)(this, this.createServerValidationOptions(doComplete, isPreview));
+      (<Function><any>this.onServerValidateQuestions)(this, this.createServerValidationOptions(doComplete, isPreview, page));
     } else {
-      (<EventBase<SurveyModel, ServerValidateQuestionsEvent>>this.onServerValidateQuestions).fireByCreatingOptions(this, () => { return this.createServerValidationOptions(doComplete, isPreview); });
+      (<EventBase<SurveyModel, ServerValidateQuestionsEvent>>this.onServerValidateQuestions).fireByCreatingOptions(this, () => { return this.createServerValidationOptions(doComplete, isPreview, page); });
     }
     return true;
   }
-  private completeServerValidation(options: any, isPreview: boolean) {
+  private completeServerValidation(options: any, isPreview: boolean, page: PageModel) {
     if (this.serverValidationEventCount > 1) {
       this.serverValidationEventCount--;
       if (!!options && !!options.errors && Object.keys(options.errors).length === 0) return;
@@ -5056,8 +5059,12 @@ export class SurveyModel extends SurveyElementCore
       if (isPreview) {
         this.showPreviewCore();
       } else {
-        if (self.isLastPage) self.doComplete();
-        else self.doNextPage();
+        if(page) {
+          this.currentPage = page;
+        } else {
+          if (self.isLastPage) self.doComplete();
+          else self.doNextPage();
+        }
       }
     }
   }

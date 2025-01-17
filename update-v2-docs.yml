@@ -41,6 +41,11 @@ steps:
 
 - script: |
     cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
+    npm run build
+  displayName: "Build Core"
+
+- script: |
+    cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
     npm run doc_gen
   displayName: "generate docs"
 

@@ -11,7 +11,7 @@
     "build:all": "npm run build && npm run build:i18n && npm run build:themes && npm run build:icons",
     "test": "karma start ./karma.conf.js --single-run",
     "test:watch": "karma start ./karma.conf.js",
-    "test:postcss": "postcss build/defaultV2.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -o defaultV2.postcss.css && rimraf defaultV2.postcss.css",
+    "test:postcss": "postcss build/default.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -o default.postcss.css && rimraf default.postcss.css",
     "doc_gen": "node doc_generator/lib_docgenerator.js ./entries/chunks/model.ts",
     "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
@@ -53,7 +53,7 @@
     "replace-in-file": "^3.4.3",
     "rimraf": "2.5.4",
     "sass": "^1.62.1",
-    "sass-loader": "^8.0.2",
+    "sass-loader": "^16.0.4",
     "commit-and-tag-version": "^11.0.0",
     "style-loader": "^1.2.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",

@@ -328,6 +328,7 @@ export class QuestionRatingModel extends Question {
     QuestionRatingModel.goodColorLight = getRGBColor("--sjs-special-green-light", "--sd-rating-good-color-light");
 
     this.colorsCalculated = true;
+    this.resetRenderedItems();
   }
 
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -910,7 +911,6 @@ export class QuestionRatingModel extends Question {
   public themeChanged(theme: ITheme): void {
     this.colorsCalculated = false;
     this.updateColors(theme.cssVariables);
-    this.resetRenderedItems();
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);

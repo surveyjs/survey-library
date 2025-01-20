@@ -1241,7 +1241,7 @@ export class QuestionPanelDynamicModel extends Question
         return this.processSingleInputTitle(text, panel);
       };
       const bntEdit = new Action({ locTitle: this.getLocalizableString("editPanelText"), action: () => { this.singInputEditPanel(panel); } });
-      const btnRemove = new Action({ locTitle: this.locPanelRemoveText, action: () => { this.removePanelUI(panel); } });
+      const btnRemove = this.canRemovePanel ? new Action({ locTitle: this.locPanelRemoveText, action: () => { this.removePanelUI(panel); } }) : undefined;
       items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
     });
     res.items = items;

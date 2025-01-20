@@ -749,7 +749,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         return row.getTextProcessor().processText(text, true);
       };
       const bntEdit = new Action({ locTitle: this.getLocalizableString("editRowText"), action: () => { this.singInputEditRow(row); } });
-      const btnRemove = new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } });
+      const btnRemove = this.canRemoveRow(row) ? new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } }) : undefined;
       items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
     });
     res.items = items;

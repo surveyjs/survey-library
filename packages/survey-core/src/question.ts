@@ -734,9 +734,12 @@ export class Question extends SurveyElement<Question>
   }
   private onSingleInputChanged(): void {
     this.resetPropertyValue("showSingleInputTitle");
+    this.resetSingleInputSummary();
+    this.survey?.updateNavigationElements();
+  }
+  private resetSingleInputSummary(): void {
     this.singleInputSummary?.dispose();
     this.resetPropertyValue("singleInputSummary");
-    this.survey?.updateNavigationElements();
   }
   public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
     const q = this.currentSingleInputQuestion;
@@ -765,7 +768,11 @@ export class Question extends SurveyElement<Question>
   }
   protected singleInputOnRemoveItem(index: number): void {
     if(this.isSingleInputActive) {
-      this.setSingleQuestionOnChange(index);
+      if(!this.singleInputSummary) {
+        this.setSingleQuestionOnChange(index);
+      } else {
+        this.onSingleInputChanged();
+      }
     }
   }
   protected getSingleQuestionOnChange(index: number): Question { return null; }

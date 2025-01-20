@@ -4,6 +4,7 @@ import { LocalizableString } from "./localizablestring";
 export class QuestionSingleInputSummaryItem {
   constructor(public locText: LocalizableString, public btnEdit: Action, public btnRemove: Action) {
   }
+  public get showRemove(): boolean { return !!this.btnRemove; }
 }
 
 export class QuestionSingleInputSummary {

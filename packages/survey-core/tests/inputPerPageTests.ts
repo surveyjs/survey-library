@@ -887,3 +887,51 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   survey.performPrevious();
   checkStep1();
 });
+QUnit.test("singleInput & singleInputSummary, stay on summary on deleting", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q1" },
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const panel = survey.getQuestionByName("panel1");
+  survey.performNext();
+  survey.performNext();
+  assert.ok(panel.singleInputSummary, "singleInputSummary is here, #1");
+  assert.equal(panel.singleInputSummary.items.length, 2, "singleInputSummary.items.length, #1");
+  panel.singleInputSummary.items[0].btnRemove.action();
+  assert.ok(panel.singleInputSummary, "singleInputSummary is here, #2");
+  assert.equal(panel.singleInputSummary.items.length, 1, "singleInputSummary.items.length, #2");
+  panel.singleInputSummary.items[0].btnRemove.action();
+  assert.ok(panel.singleInputSummary, "singleInputSummary is here, #3");
+  assert.equal(panel.singleInputSummary.items.length, 0, "singleInputSummary.items.length, #3");
+});
+QUnit.test("singleInput & singleInputSummary, showRemove", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        panelCount: 2,
+        minPanelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1" },
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const panel = survey.getQuestionByName("panel1");
+  survey.performNext();
+  survey.performNext();
+  assert.equal(panel.singleInputSummary.items.length, 2, "singleInputSummary.items.length, #1");
+  assert.equal(panel.singleInputSummary.items[0].showRemove, true, "singleInputSummary.items[0].showRemove, #1");
+  panel.singleInputSummary.items[0].btnRemove.action();
+  assert.equal(panel.singleInputSummary.items.length, 1, "singleInputSummary.items.length, #2");
+  assert.equal(panel.singleInputSummary.items[0].showRemove, false, "singleInputSummary.items[0].showRemove, #1");
+});

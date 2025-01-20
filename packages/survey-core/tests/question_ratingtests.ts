@@ -306,10 +306,13 @@ QUnit.test("Check rateValues on text change", (assert) => {
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   assert.equal(q1.rateValues.length, 0);
-  var oldRendered = q1.renderedRateValues;
+  let oldRendered = q1.renderedRateItems;
   q1.visibleRateValues[0].text = "abc";
   assert.equal(q1.rateValues.length, 5);
-  assert.equal(q1.renderedRateValues, oldRendered, "renderedRateValues is not cloned");
+  assert.strictEqual(q1.renderedRateItems, oldRendered, "renderedRateItems is cloned");
+  oldRendered = q1.renderedRateItems;
+  q1.visibleRateValues[1].text = "abc";
+  assert.strictEqual(q1.renderedRateItems, oldRendered, "renderedRateItems is not cloned");
 });
 QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => {
   var json = {
@@ -1766,4 +1769,49 @@ QUnit.test("Check dropdown rating text, #8953", function (assert) {
   });
   const question = <QuestionRatingModel>survey.getAllQuestions()[0];
   assert.deepEqual(question.visibleChoices.map(c => c.text), ["Label0", "Label1"]);
+});
+QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2] },
+      {
+        type: "rating",
+        name: "q2",
+        rateValues: [
+          { value: "a", visibleIf: "{q1} contains 1" },
+          { value: "b", visibleIf: "{q1} contains 1" },
+          { value: "c", visibleIf: "{q1} contains 2" },
+          { value: "d", visibleIf: "{q1} contains 2" },
+          { value: "e", visibleIf: "{q1} contains 1" },
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionRatingModel>survey.getQuestionByName("q2");
+  assert.equal(q2.visibleRateValues.length, 0, "visibleRateValues #1");
+  assert.equal(q2.renderedRateItems.length, 0, "renderedRateItems #1");
+  q1.value = [1];
+  assert.equal(q2.visibleRateValues.length, 3, "visibleRateValues #2");
+  assert.equal(q2.renderedRateItems.length, 3, "renderedRateItems #2");
+  q1.value = [2];
+  assert.equal(q2.visibleRateValues.length, 2, "visibleRateValues #3");
+  assert.equal(q2.renderedRateItems.length, 2, "renderedRateItems #3");
+  q1.value = [1, 2];
+  assert.equal(q2.visibleRateValues.length, 5, "visibleRateValues #4");
+  assert.equal(q2.renderedRateItems.length, 5, "renderedRateItems #4");
+  q1.value = [];
+  assert.equal(q2.visibleRateValues.length, 0, "visibleRateValues #5");
+  assert.equal(q2.renderedRateItems.length, 0, "renderedRateItems #5 ");
+  survey.showInvisibleElements = true;
+  assert.equal(q2.renderedRateItems.length, 5, "renderedRateItems #6");
+  survey.showInvisibleElements = false;
+  assert.equal(q2.renderedRateItems.length, 0, "renderedRateItems #7");
+  q1.value = [1];
+  assert.equal(q2.renderedRateItems.length, 3, "renderedRateItems #8");
+  q2.value = "b";
+  assert.deepEqual(q2.value, "b", "value set correctly, #8");
+  q1.value = [2];
+  assert.equal(q2.renderedRateItems.length, 2, "renderedRateItems #9");
+  assert.deepEqual(q2.isEmpty(), true, "value is reset, #9");
 });

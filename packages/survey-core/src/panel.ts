@@ -500,8 +500,7 @@ export class PanelModelBase extends SurveyElement<Question>
       : "";
   }
   /**
-   * Obsolete. Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#requiredMark) property instead.
-   * @deprecated
+   * @deprecated Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#requiredMark) property instead.
    */
   public get requiredText(): string {
     return this.requiredMark;
@@ -549,8 +548,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("questionOrder", val);
   }
   /**
-   * Obsolete. Use the [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#questionOrder) property instead.
-   * @deprecated
+   * @deprecated Use the [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#questionOrder) property instead.
    */
   public get questionsOrder(): string {
     return this.questionOrder;

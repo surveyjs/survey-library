@@ -292,6 +292,6 @@ export class PopupSurveyModel extends Base {
   }
 }
 /**
- * Obsolete. Please use PopupSurvey
+ * @deprecated Use `PopupSurveyModel` instead.
  */
 export class SurveyWindowModel extends PopupSurveyModel { }

@@ -229,8 +229,7 @@ export class PageModel extends PanelModel implements IPage {
   }
   @property({ defaultValue: -1, onSet: (val: number, target: PageModel) => target.onNumChanged(val) }) num: number;
   /**
-   * Obsolete. Use the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/page-model#showNavigationButtons) property instead.
-   * @deprecated
+   * @deprecated Use the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/page-model#showNavigationButtons) property instead.
    */
   public get navigationButtonsVisibility(): string {
     const result = this.showNavigationButtons;
@@ -339,8 +338,7 @@ export class PageModel extends PanelModel implements IPage {
     this.setPropertyValue("timeLimit", val);
   }
   /**
-   * Obsolete. Use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeLimit) property instead.
-   * @deprecated
+   * @deprecated Use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeLimit) property instead.
    */
   public get maxTimeToFinish(): number {
     return this.timeLimit;

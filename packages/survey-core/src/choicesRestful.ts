@@ -584,7 +584,7 @@ export class ChoicesRestful extends Base {
 }
 
 /**
- * Obsolete, please use ChoicesRestful
+ * @deprecated Use `ChoicesRestful` instead.
  */
 export class ChoicesRestfull extends ChoicesRestful {
   public static get EncodeParameters(): boolean {

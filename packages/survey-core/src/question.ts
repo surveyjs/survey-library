@@ -516,8 +516,7 @@ export class Question extends SurveyElement<Question>
     this.notifySurveyVisibilityChanged();
   }
   /**
-   * Obsolete. Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
-   * @deprecated
+   * @deprecated Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
    */
   public get hideNumber(): boolean {
     return !this.showNumber;
@@ -2266,8 +2265,7 @@ export class Question extends SurveyElement<Question>
       : "";
   }
   /**
-   * Obsolete. Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
-   * @deprecated
+   * @deprecated Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
    */
   public get requiredText(): string {
     return this.requiredMark;

@@ -94,8 +94,7 @@ export class QuestionBooleanModel extends Question {
   // Obsolete
   @property() showTitle: boolean;
   /**
-   * Obsolete. Use the [`title`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#title) property instead.
-   * @deprecated
+   * @deprecated Use the [`title`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#title) property instead.
    */
   @property({ localizable: true }) label: string;
   @property({ defaultValue: true }) useTitleAsLabel: boolean;

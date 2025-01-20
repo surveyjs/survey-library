@@ -7,7 +7,7 @@ export class SurveyQuestionPanelDynamicRemoveButton extends SurveyQuestionPanelD
     this.question.removePanelUI(this.data.panel);
   }
   protected renderElement(): React.JSX.Element {
-    const btnText = this.renderLocString(this.question.locPanelRemoveText);
+    const btnText = this.renderLocString(this.question.locRemovePanelText);
     const id = this.question.getPanelRemoveButtonId(this.data.panel);
     return (
       <button id={id}

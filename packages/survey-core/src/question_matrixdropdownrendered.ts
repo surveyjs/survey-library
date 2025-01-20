@@ -285,6 +285,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       },
       getEnterOptions: (_, info) => {
         return { cssClass: this.cssClasses.rowEnter, onBeforeRunAnimation, onAfterRunAnimation };
+      },
+      getKey: (item) => {
+        return item.id;
       }
     };
   }

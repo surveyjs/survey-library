@@ -2732,7 +2732,7 @@ Serializer.addClass(
       choices: ["off", "onPanel", "onSurvey"],
     },
     { name: "renderMode", visible: false, isSerializable: false },
-    { name: "displayMode", alternativeName: "renderMode", default: "list", choices: ["list", "carousel", "tab"] },
+    { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
       name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",
       default: true,

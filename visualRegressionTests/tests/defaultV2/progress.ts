@@ -90,10 +90,12 @@ frameworks.forEach(framework => {
   test("Check survey with progress top", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, json);
+      const newJSON = { ...json };
+      newJSON.progressBarType = "pages";
+
+      await initSurvey(framework, newJSON);
       await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
-        (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
       await takeElementScreenshot("survey-progress-bar-top.png", Selector(".sd-container-modern"), t, comparer); // title + progress
@@ -102,11 +104,13 @@ frameworks.forEach(framework => {
   test("Check survey with progress bottom", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, json);
+      const newJSON = { ...json };
+      newJSON.showProgressBar = "bottom";
+      newJSON.progressBarType = "pages";
+
+      await initSurvey(framework, newJSON);
       await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
-        (<any>window).survey.showProgressBar = "bottom";
-        (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
       await takeElementScreenshot("survey-progress-bar-bottom.png", Selector(".sd-container-modern"), t, comparer); // title + progress
@@ -115,7 +119,13 @@ frameworks.forEach(framework => {
   test("Check survey with progress bottom with brand info and fit to container", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1800, 1000);
-      await initSurvey(framework, json);
+      const newJSON = { ...json };
+      newJSON["showBrandInfo"] = true;
+      newJSON["fitToContainer"] = true;
+      newJSON.showProgressBar = "bottom";
+      newJSON.progressBarType = "pages";
+
+      await initSurvey(framework, newJSON);
       await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
         const container = (<any>window).document.getElementById("surveyElement");
@@ -124,10 +134,6 @@ frameworks.forEach(framework => {
         container.style.bottom = 0;
         container.style.left = 0;
         container.style.right = 0;
-        (<any>window).survey.showBrandInfo = true;
-        (<any>window).survey.fitToContainer = true;
-        (<any>window).survey.showProgressBar = "bottom";
-        (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
       await takeElementScreenshot("survey-progress-bar-bottom-brand.png", Selector("#surveyElement"), t, comparer); // title + progress
@@ -181,11 +187,13 @@ frameworks.forEach(framework => {
   test("Check survey with progress top and TOC", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, json);
+      const newJSON = { ...json };
+      newJSON["showTOC"] = true;
+      newJSON.progressBarType = "pages";
+
+      await initSurvey(framework, newJSON);
       await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
-        (<any>window).survey.showTOC = true;
-        (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
       await takeElementScreenshot("survey-progress-bar-top-and-toc.png", Selector(".sd-container-modern"), t, comparer); // title + progress
@@ -297,10 +305,12 @@ frameworks.forEach(framework => {
   test("Check survey with custom navigation", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, json);
+      const newJSON = { ...json };
+      newJSON.progressBarType = "pages";
+
+      await initSurvey(framework, newJSON);
       await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
-        (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
         (<any>window).survey.addNavigationItem({
           title: "Save",
@@ -313,10 +323,12 @@ frameworks.forEach(framework => {
   test("Check survey with progress top pages - hover", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, json);
+      const newJSON = { ...json };
+      newJSON.progressBarType = "pages";
+
+      await initSurvey(framework, newJSON);
       await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
-        (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
       const progressBarItemsSelector = Selector(".sd-progress-buttons__list li");
@@ -349,12 +361,14 @@ frameworks.forEach(framework => {
   test("Check survey with progress top - progressBarInheritWidthFrom modes", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, json);
+      const newJSON = { ...json };
+      newJSON.progressBarType = "pages";
+      newJSON["progressBarInheritWidthFrom"] = "survey";
+      newJSON["widthMode"] = "static";
+
+      await initSurvey(framework, newJSON);
       await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
-        (<any>window).survey.progressBarType = "pages";
-        (<any>window).survey.progressBarInheritWidthFrom = "survey";
-        (<any>window).survey.widthMode = "static";
         (<any>window).survey.currentPageNo = 1;
       })();
       await takeElementScreenshot("survey-progress-bar-top-survey-width-static.png", Selector(".sd-container-modern"), t, comparer);
@@ -369,13 +383,15 @@ frameworks.forEach(framework => {
   test("Check survey with progress top - RTL", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
+      const newJSON = { ...json };
+      newJSON.progressBarType = "pages";
+
       await ClientFunction(() => {
         document.body.setAttribute("dir", "rtl");
       })();
-      await initSurvey(framework, json);
+      await initSurvey(framework, newJSON);
       await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
-        (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
       await takeElementScreenshot("survey-progress-bar-top-rtl.png", Selector(".sd-container-modern"), t, comparer); // title + progress
@@ -388,10 +404,12 @@ frameworks.forEach(framework => {
         document.head.insertAdjacentHTML("beforeend", "<style>* { box-sizing: border-box; }</style>");
       })();
       await t.resizeWindow(800, 1080);
-      await initSurvey(framework, json);
+      const newJSON = { ...json };
+      newJSON.progressBarType = "pages";
+
+      await initSurvey(framework, newJSON);
       await applyHeaderAccentBackgroundColor();
       await ClientFunction(() => {
-        (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
       await takeElementScreenshot("survey-progress-bar-bootstrap.png", Selector(".sd-progress-buttons__list"), t, comparer); // title + progress

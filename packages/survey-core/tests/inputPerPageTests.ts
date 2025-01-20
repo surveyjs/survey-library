@@ -54,6 +54,7 @@ QUnit.test("singleInput for panel dynamic", assert => {
     elements: [
       {
         type: "paneldynamic", name: "panel1",
+        displayMode: "tab",
         panelCount: 1,
         templateElements: [
           { type: "text", name: "q1" },
@@ -74,6 +75,7 @@ QUnit.test("singleInput for panel dynamic", assert => {
   let el = page.visibleRows[0].elements[0];
   assert.equal(el.name, "panel1", "page visible row is panel1, #1");
   assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion, #1");
+  assert.equal(panel.isRenderModeTab, false, "isRenderModeTab, #1");
   const rootCss = panel.singleInputQuestion.getRootCss();
   assert.equal(rootCss.indexOf("q-frame") > -1, true, "rootCss has frame, #1");
   assert.equal(rootCss.indexOf("q-nested") > -1, false, "rootCss has frame, #1");

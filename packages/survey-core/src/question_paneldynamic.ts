@@ -1391,7 +1391,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.displayMode === "list";
   }
   public get isRenderModeTab(): boolean {
-    return this.displayMode === "tab";
+    return this.displayMode === "tab" && !this.isSingleInputActive;
   }
   get hasTitleOnLeftTop(): boolean {
     if (this.isRenderModeTab && this.visiblePanelCount > 0) return true;

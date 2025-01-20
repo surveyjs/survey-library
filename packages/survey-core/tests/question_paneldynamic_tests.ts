@@ -7656,3 +7656,18 @@ QUnit.test("default value for maxPanelCount, Bug#9000", function (assert) {
   settings.panel.maxPanelCount = 100;
   assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 100, "default value again");
 });
+QUnit.test("Do not serialize renderMode & showRangeInProgress", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "paneldynamic", name: "panel1", renderMode: "progressTop", showRangeInProgress: false }]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.equal(panel.renderMode, "progressTop", "renderMode is set");
+  assert.equal(panel.displayMode, "carousel", "displayMode is set");
+  assert.equal(panel.showRangeInProgress, false, "showRangeInProgress is set");
+  assert.equal(panel.showProgressBar, false, "showProgressBar is set");
+  const json = panel.toJSON();
+  assert.notOk(json.renderMode, "renderMode on json");
+  assert.equal(json.displayMode, "carousel", "displayMode is json");
+  assert.notOk(json.showRangeInProgress, "showRangeInProgress is json");
+  assert.equal(json.showProgressBar, false, "showProgressBar is json");
+});

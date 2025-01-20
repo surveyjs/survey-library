@@ -49,6 +49,7 @@ const set_completed_html = ClientFunction(() => {
 
 const json = {
   title: "Software developer survey.",
+  headerView: "basic",
   showQuestionNumbers: "on",
   pages: [
     {

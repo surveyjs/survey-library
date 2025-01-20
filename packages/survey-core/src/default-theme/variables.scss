@@ -35,8 +35,6 @@ $foreground-light: var(--sjs-general-forecolor-light, var(--foreground-light, #9
 $foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
 $foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
 
-$header-backcolor: var(--sjs-header-backcolor, #{$primary});
-
 $border: var(--sjs-border-default, var(--border, #d6d6d6));
 $border-light: var(--sjs-border-light, var(--border-light, #eaeaea));
 $border-inside: var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
@@ -77,7 +75,7 @@ $font-headertitle-weight: var(--sjs-font-headertitle-weight, 700);
 $font-headertitle-color: var(--sjs-font-headertitle-color, #{$primary-foreground});
 
 $font-headerdescription-family: var(--sjs-font-headerdescription-family, #{$font-family});
-$font-headerdescription-weight: var(--sjs-font-headerdescription-weight, 600);
+$font-headerdescription-weight: var(--sjs-font-headerdescription-weight, 400);
 $font-headerdescription-color: var(--sjs-font-headerdescription-color, #{$primary-foreground});
 
 $font-pagetitle-family: var(--sjs-font-pagetitle-family, #{$font-family});

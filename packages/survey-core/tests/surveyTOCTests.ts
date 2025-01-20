@@ -477,6 +477,7 @@ QUnit.test("should be created for survey with no current page", function (assert
 QUnit.test("updateStickyTOCSize", function (assert) {
   TOCModel.StickyPosition = true;
   const survey: SurveyModel = new SurveyModel({});
+  survey.headerView = "basic";
   const tocModel = new TOCModel(survey);
   const rootElementWithTitle = document.createElement("div");
 

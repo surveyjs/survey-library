@@ -56,7 +56,10 @@ QUnit.test("cover maxWidth",
   function (assert) {
     const cover = new Cover();
     cover.survey = new SurveyModel();
-    assert.equal(cover.inheritWidthFrom, "container", "default inheritWidthFrom");
+    assert.equal(cover.inheritWidthFrom, "survey", "default inheritWidthFrom");
+
+    cover.inheritWidthFrom = "container";
+    assert.equal(cover.inheritWidthFrom, "container", "inheritWidthFrom");
     assert.equal(cover.maxWidth, false, "inheritWidthFrom is container");
 
     cover.inheritWidthFrom = "survey";
@@ -77,7 +80,10 @@ QUnit.test("contentClasses",
     const cover = new Cover();
     cover.survey = new SurveyModel();
 
-    assert.equal(cover.inheritWidthFrom, "container", "default inheritWidthFrom");
+    assert.equal(cover.inheritWidthFrom, "survey", "default inheritWidthFrom");
+
+    cover.inheritWidthFrom = "container";
+    assert.equal(cover.inheritWidthFrom, "container", "inheritWidthFrom");
     assert.equal(cover.contentClasses, "sv-header__content sv-header__content--responsive", "inheritWidthFrom is container");
 
     cover.inheritWidthFrom = "survey";
@@ -124,21 +130,10 @@ QUnit.test("grid cells - defaults", function (assert) {
   cover.survey = getSurveyWithLogoTitleAndDescription();
 
   cover.cells.forEach(cell => {
-    assert.equal(cell.showLogo, cell["positionX"] === "right" && cell["positionY"] === "top", "logo in top right");
+    assert.equal(cell.showLogo, cell["positionX"] === "left" && cell["positionY"] === "bottom", "logo in bottom left");
     assert.equal(cell.showTitle, cell["positionX"] === "left" && cell["positionY"] === "bottom", "title in bottom left");
     assert.equal(cell.showDescription, cell["positionX"] === "left" && cell["positionY"] === "bottom", "description in bottom left");
   });
-
-  assert.equal(cover.cells[2].css, "sv-header__cell sv-header__cell--right sv-header__cell--top", "top right cell css");
-  assert.deepEqual(cover.cells[2].style, {
-    "gridColumn": 3,
-    "gridRow": 1
-  }, "top right cell style");
-  assert.deepEqual(cover.cells[2].contentStyle, {
-    "alignItems": "flex-end",
-    "justifyContent": "flex-start",
-    "textAlign": "end"
-  }, "top right cell content style");
 
   assert.equal(cover.cells[6].css, "sv-header__cell sv-header__cell--left sv-header__cell--bottom", "bottom left cell css");
   assert.deepEqual(cover.cells[6].style, {
@@ -201,15 +196,15 @@ QUnit.test("grid cells - empty survey", function (assert) {
   cover.survey.description = "description";
   cover.cells.forEach((cell, index) => {
     assert.equal(cell.showLogo, false, "no logo");
-    assert.equal(cell.showTitle, index === 6, "title and description");
-    assert.equal(cell.showDescription, index === 6, "title and description");
+    assert.equal(cell.showTitle, index === 6, "title and description: title");
+    assert.equal(cell.showDescription, index === 6, "title and description: description");
   });
 
   cover.survey.logo = "logoURL";
   cover.cells.forEach((cell, index) => {
-    assert.equal(cell.showLogo, index === 2, "logo, title and description");
-    assert.equal(cell.showTitle, index === 6, "logo, title and description");
-    assert.equal(cell.showDescription, index === 6, "logo, title and description");
+    assert.equal(cell.showLogo, index === 6, "logo, title and description: logo");
+    assert.equal(cell.showTitle, index === 6, "logo, title and description: title");
+    assert.equal(cell.showDescription, index === 6, "logo, title and description: description");
   });
 });
 
@@ -217,8 +212,8 @@ QUnit.test("cell calculations - test width",
   function (assert) {
     const cover = new Cover();
 
-    assert.equal(cover.cells[0].textAreaWidth, "512px", "default");
-    assert.equal(cover.cells[0].textAreaWidth, cover.textAreaWidth + "px", "equal to cover + px");
+    assert.equal(cover.cells[0].textAreaWidth, undefined, "default");
+    assert.equal(cover.cells[0].textAreaWidth, undefined, "equal to cover + px");
 
     cover.textAreaWidth = 120;
     assert.equal(cover.textAreaWidth, 120, "cover text width");
@@ -244,18 +239,21 @@ QUnit.test("calculateActualHeight desktop",
     let actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
     assert.equal(actualHeight, titleHeight + descriptionHeight);
     cover.actualHeight = actualHeight;
-    assert.equal(cover.renderedHeight, "365px", "title + description + 40");
+    // assert.equal(cover.renderedHeight, "365px", "title + description + 40");
+    assert.equal(cover.renderedHeight, undefined, "title + description + 40");
 
     actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
     assert.equal(actualHeight, logoHeight);
     cover.actualHeight = actualHeight;
-    assert.equal(cover.renderedHeight, "256px", "default height");
+    // assert.equal(cover.renderedHeight, "256px", "default height");
+    assert.equal(cover.renderedHeight, undefined, "default height");
 
     logoHeight = 271;
     actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
     assert.equal(actualHeight, logoHeight);
     cover.actualHeight = actualHeight;
-    assert.equal(cover.renderedHeight, "311px", "logo + 40");
+    // assert.equal(cover.renderedHeight, "311px", "logo + 40");
+    assert.equal(cover.renderedHeight, undefined, "logo + 40");
   }
 );
 

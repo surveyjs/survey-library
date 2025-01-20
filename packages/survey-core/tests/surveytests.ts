@@ -17668,6 +17668,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.showNavigationButtons, true);
@@ -17792,6 +17793,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
     settings.legacyProgressBarView = true;
 
     let survey = new SurveyModel(json);
+    survey.headerView = "basic";
     const getContainerContent = getContainerContentFunction(survey);
 
     assert.equal(survey.showNavigationButtons, false);
@@ -17948,6 +17950,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.showNavigationButtons, false);
@@ -18089,6 +18092,7 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [], "");
@@ -18151,6 +18155,7 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [], "");
@@ -18210,6 +18215,7 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [], "");
@@ -18253,7 +18259,6 @@ QUnit.test("getContainerContent - do not show advanced header on completed page"
   };
 
   let survey = new SurveyModel(json);
-  survey.headerView = "advanced";
   function getContainerContent(container: LayoutElementContainer) {
     let result = survey.getContainerContent(container);
     result.forEach(item => {
@@ -18305,7 +18310,6 @@ QUnit.test("getContainerContent - do show advanced header on completed page if s
   };
 
   let survey = new SurveyModel(json);
-  survey.headerView = "advanced";
   function getContainerContent(container: LayoutElementContainer) {
     let result = survey.getContainerContent(container);
     result.forEach(item => {
@@ -18635,6 +18639,7 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   function getContainerContent(container: LayoutElementContainer) {
     let result = survey.getContainerContent(container);
     result.forEach(item => delete item["data"]);
@@ -18760,7 +18765,7 @@ QUnit.test("restore header css variable if header is default", function (assert)
   survey.applyTheme({ "headerView": "advanced", cssVariables: { "--sjs-header-backcolor": "transparent" } } as any);
 
   const cover = survey.findLayoutElement("advanced-header").data as Cover;
-  assert.equal(cover.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
+  assert.equal(cover.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 });
 
 QUnit.test("check title classes when readOnly changed", function (assert) {
@@ -19121,7 +19126,7 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundImageAttachment, "scroll", "before applyTheme");
   assert.equal(survey.backgroundOpacity, 1, "before applyTheme");
   assert.equal(survey["isCompact"], false, "before applyTheme");
-  assert.equal(survey.headerView, "basic", "before applyTheme");
+  assert.equal(survey.headerView, "advanced", "before applyTheme");
 
   survey.applyTheme({
     "cssVariables": {
@@ -19144,7 +19149,7 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundImageAttachment, "fixed");
   assert.equal(survey.backgroundOpacity, 0.6);
   assert.equal(survey["isCompact"], true);
-  assert.equal(survey.headerView, "basic", "before applyTheme");
+  assert.equal(survey.headerView, "advanced", "after applyTheme");
 });
 QUnit.test("survey.applyTheme respects headerView", function (assert) {
   const survey = new SurveyModel({
@@ -19154,17 +19159,19 @@ QUnit.test("survey.applyTheme respects headerView", function (assert) {
     ]
   });
 
-  assert.equal(survey.headerView, "basic", "before applyTheme");
-  survey.applyTheme({
-    "headerView": "advanced"
-  });
-  assert.equal(survey.headerView, "advanced");
+  assert.equal(survey.headerView, "advanced", "before applyTheme");
   survey.applyTheme({
     "headerView": "basic"
   });
-  assert.equal(survey.headerView, "basic");
+  assert.equal(survey.headerView, "basic", "apply basic header");
+
+  survey.applyTheme({
+    "headerView": "advanced"
+  });
+  assert.equal(survey.headerView, "advanced", "apply advanced header");
+
   survey.applyTheme({});
-  assert.equal(survey.headerView, "basic");
+  assert.equal(survey.headerView, "advanced", "apply empty theme");
 });
 QUnit.test("page/panel delete do it recursively", function (assert) {
   const survey = new SurveyModel({
@@ -19812,9 +19819,9 @@ QUnit.test("Do not run defaultValueExpression on survey.data, #7423", function (
 });
 QUnit.test("theme assignment doesn't affect headerView", function (assert) {
   let survey = new SurveyModel({});
-  assert.equal(survey.headerView, "basic", "default value");
+  assert.equal(survey.headerView, "advanced", "default value");
   survey.theme = { header: {} } as any;
-  assert.equal(survey.headerView, "basic", "keep default value");
+  assert.equal(survey.headerView, "advanced", "keep default value");
 });
 QUnit.test("defaultValueExpression expression stops working after survey.clear(), #7448", function (assert) {
   const survey = new SurveyModel({
@@ -19884,8 +19891,14 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
     settings.legacyProgressBarView = true;
 
     let survey = new SurveyModel(json);
-    survey.headerView = "advanced";
     const getContainerContent = getContainerContentFunction(survey);
+
+    survey.applyTheme({
+      header: {},
+      cssVariables: {
+        "--sjs-header-backcolor": "var(--sjs-primary-backcolor)"
+      }
+    } as any);
 
     assert.equal(survey.showNavigationButtons, false);
     assert.equal(survey.progressBarType, "pages");
@@ -20002,8 +20015,13 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
   };
 
   let survey = new SurveyModel(json);
-  survey.headerView = "advanced";
   const getContainerContent = getContainerContentFunction(survey);
+  survey.applyTheme({
+    header: {},
+    cssVariables: {
+      "--sjs-header-backcolor": "var(--sjs-primary-backcolor)"
+    }
+  } as any);
 
   assert.equal(survey.showNavigationButtons, false);
   assert.equal(survey.progressBarType, "pages");
@@ -20090,6 +20108,7 @@ QUnit.test("getContainerContent - do not show timer panel in display mode", func
     "showTimerPanelMode": "survey"
   };
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [{
@@ -20239,6 +20258,7 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(settings.legacyProgressBarView, false, "show buttons progress for pages by default");
@@ -20325,7 +20345,7 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
   }], "topBottom pages center");
 });
 
-QUnit.test("getContainerContent - show advinced hader on start page", function (assert) {
+QUnit.test("getContainerContent - show advanced header on start page", function (assert) {
   surveyCss.currentType = "default";
   const json = {
     showNavigationButtons: "none",
@@ -20355,15 +20375,6 @@ QUnit.test("getContainerContent - show advinced hader on start page", function (
   let survey = new SurveyModel(json);
   const getContainerContent = getContainerContentFunction(survey);
 
-  assert.deepEqual(getContainerContent("header"), [], "empty header");
-  assert.deepEqual(getContainerContent("footer"), [], "empty footer");
-  assert.deepEqual(getContainerContent("contentTop"), [], "empty contentTop");
-  assert.deepEqual(getContainerContent("contentBottom"), [], "empty contentBottom");
-  assert.deepEqual(getContainerContent("left"), [], "empty left");
-  assert.deepEqual(getContainerContent("right"), [], "empty right");
-  assert.deepEqual(getContainerContent("center"), [], "empty center");
-
-  survey.headerView = "advanced";
   assert.deepEqual(getContainerContent("header"), [{
     "component": "sv-header",
     "container": "header",
@@ -20376,6 +20387,15 @@ QUnit.test("getContainerContent - show advinced hader on start page", function (
   assert.deepEqual(getContainerContent("left"), [], "advanced left");
   assert.deepEqual(getContainerContent("right"), [], "advanced right");
   assert.deepEqual(getContainerContent("center"), [], "advanced center");
+
+  survey.headerView = "basic";
+  assert.deepEqual(getContainerContent("header"), [], "empty header");
+  assert.deepEqual(getContainerContent("footer"), [], "empty footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "empty contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "empty contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "empty left");
+  assert.deepEqual(getContainerContent("right"), [], "empty right");
+  assert.deepEqual(getContainerContent("center"), [], "empty center");
 });
 
 QUnit.test("survey.runExpressions(), #7694", function (assert) {
@@ -20462,7 +20482,10 @@ QUnit.test("Advanced header title/description color", function (assert) {
   survey.applyTheme(accHeaderBackTheme);
   let headerLayoutElement = survey.findLayoutElement("advanced-header");
   let headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header__background-color--accent");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+
+  headerModel.height = 256;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
   // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
   // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
   // assert.equal(survey.themeVariables["--sjs-font-headerdescription-color"], undefined);
@@ -20473,31 +20496,31 @@ QUnit.test("Advanced header title/description color", function (assert) {
   survey.applyTheme(noneHeaderBackTheme);
   headerLayoutElement = survey.findLayoutElement("advanced-header");
   headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
   const customNotSetHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
   survey.applyTheme(customNotSetHeaderBackTheme);
   headerLayoutElement = survey.findLayoutElement("advanced-header");
   headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
   const customHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
   survey.applyTheme(customHeaderBackTheme);
   headerLayoutElement = survey.findLayoutElement("advanced-header");
   headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header__background-color--custom");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__background-color--custom");
 
   const customNotSetHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
   survey.applyTheme(customNotSetHeaderBackAndTitleTheme);
   headerLayoutElement = survey.findLayoutElement("advanced-header");
   headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background");
 
   const customHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
   survey.applyTheme(customHeaderBackAndTitleTheme);
   headerLayoutElement = survey.findLayoutElement("advanced-header");
   headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header");
+  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto");
 });
 QUnit.test("Display mode in design time", function (assert) {
   const survey = new SurveyModel();
@@ -20739,6 +20762,7 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
   };
 
   let survey = new SurveyModel(json);
+  survey.headerView = "basic";
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.progressBarType, "pages");

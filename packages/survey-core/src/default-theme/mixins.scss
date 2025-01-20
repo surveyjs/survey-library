@@ -200,7 +200,7 @@
 }
 
 @mixin header_description {
-  --header-description-font-size: var(--sjs-font-headerdescription-size, var(--sjs-font-size, 16px));
+  --header-description-font-size: var(--sjs-font-headerdescription-size, 20px);
   font-size: var(--header-description-font-size);
   line-height: multiply(1.5, var(--header-description-font-size));
 }

@@ -10106,6 +10106,11 @@ QUnit.test("table: check animation options", function (assert) {
   document.body.appendChild(tableHtmlElement);
   questionHtmlElement.style.height = "20px";
 
+  assert.equal(renderedTable.rows[0].id, options.getKey(renderedTable.rows[0]));
+  assert.equal(renderedTable.rows[1].id, options.getKey(renderedTable.rows[1]));
+  assert.equal(renderedTable.rows[2].id, options.getKey(renderedTable.rows[2]));
+  assert.equal(renderedTable.rows[3].id, options.getKey(renderedTable.rows[3]));
+
   const enterOptions = options.getEnterOptions(renderedTable.rows[1]);
   enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(rowHtmlElement);
   assert.equal(enterOptions.cssClass, "enter");

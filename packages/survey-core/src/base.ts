@@ -504,8 +504,14 @@ export class Base {
       if(!!calcFunc) {
         const newVal = calcFunc();
         if(newVal !== undefined) {
-          this.setPropertyValueDirectly(name, newVal);
-          return newVal;
+          if(Array.isArray(newVal)) {
+            const array = this.createNewArray(name);
+            array.splice(0, 0, ...newVal);
+            return array;
+          } else {
+            this.setPropertyValueDirectly(name, newVal);
+            return newVal;
+          }
         }
       }
       const propDefaultValue = this.getDefaultPropertyValue(name);

@@ -14,6 +14,7 @@ import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
 import { ITheme } from "./themes";
 import { DomDocumentHelper } from "./global_variables_utils";
+import { HashTable } from "./helpers";
 
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
@@ -121,7 +122,6 @@ export class QuestionRatingModel extends Question {
     this.updateRateCount();
     this.setIconsToRateValues();
   }
-
   private _syncPropertiesChanging: boolean = false;
   private registerSychProperties(names: Array<string>, func: any) {
     this.registerFunctionOnPropertiesValueChanged(names,
@@ -344,8 +344,40 @@ export class QuestionRatingModel extends Question {
     if (!this.useRateValues() && newValue !== undefined) this.autoGenerate = false;
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
+    this.runRateItesmCondition(values, properties);
+  }
+  protected runRateItesmCondition(values: HashTable<any>, properties: HashTable<any>): void {
+    if(!this.useRateValues()) return;
+    let isChanged = false;
+    if(this.survey?.areInvisibleElementsShowing) {
+      this.rateValues.forEach(item => {
+        isChanged = isChanged || !item.isVisible;
+        item.setIsVisible(item, true);
+      });
+    } else {
+      isChanged = ItemValue.runConditionsForItems(this.rateValues, undefined, undefined, values, properties, true);
+    }
+    if(isChanged) {
+      this.resetRenderedItems();
+      if(!this.isEmpty() && !this.isReadOnly) {
+        const item = ItemValue.getItemByValue(this.rateValues, this.value);
+        if(item && !item.isVisible) {
+          this.clearValue();
+        }
+      }
+    }
+  }
   private getRateValuesCore(): Array<ItemValue> {
-    return this.useRateValues() ? this.rateValues : this.createRateValues();
+    if(!this.useRateValues()) return this.createRateValues();
+    const items = new Array<ItemValue>();
+    this.rateValues.forEach(item => {
+      if(item.isVisible) {
+        items.push(item);
+      }
+    });
+    return items;
   }
   private calculateRateValues(): Array<ItemValue> {
     let rateValues = this.getRateValuesCore();
@@ -355,7 +387,7 @@ export class QuestionRatingModel extends Question {
   private calculateRenderedRateItems() : Array<RenderedRatingItem> {
     const rateValues = this.calculateRateValues();
     return rateValues.map((v, i) => {
-      let renderedItem = null;
+      let renderedItem: RenderedRatingItem = null;
       if (this.displayRateDescriptionsAsExtremeItems) {
         if (i == 0) renderedItem = new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);
         if (i == rateValues.length - 1) renderedItem = new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
@@ -368,13 +400,18 @@ export class QuestionRatingModel extends Question {
     const rateValues = this.calculateRateValues();
     return rateValues.map((i, idx) => this.getRatingItemValue(i, idx));
   }
+  private iCounter = 0;
   private resetRenderedItems() {
     if (this.autoGenerate) {
       const rateValues = this.getRateValuesCore();
       this.rateMax = rateValues[rateValues.length - 1].value;
     }
-    this.resetPropertyValue("renderedRateItems");
-    this.resetPropertyValue("visibleChoices");
+    if(Array.isArray(this.getPropertyValueWithoutDefault("renderedRateItems"))) {
+      this.setArrayPropertyDirectly("renderedRateItems", this.calculateRenderedRateItems());
+    }
+    if(Array.isArray(this.getPropertyValueWithoutDefault("visibleChoices"))) {
+      this.setArrayPropertyDirectly("visibleChoices", this.calculateVisibleChoices);
+    }
   }
   public get renderedRateItems(): Array<RenderedRatingItem> {
     return this.getPropertyValue("renderedRateItems", undefined, () => this.calculateRenderedRateItems());

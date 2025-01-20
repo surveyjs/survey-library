@@ -1,0 +1,79 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+resources:
+  repositories:
+    - repository: Service # The name used to reference this repository in the checkout step
+      type: github
+      endpoint: dmitrykurmanov:admin
+      name: surveyjs/service
+    - repository: EmptyRepo
+      type: github
+      endpoint: dmitrykurmanov:admin
+      name: surveyjs/azure-pipelines-repo-dont-remove-please
+
+
+#trigger only "by hand"
+trigger: none
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+- checkout: Service
+  persistCredentials: true
+  clean: true
+  fetchDepth: 1
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: "14.x"
+  displayName: "Install Node.js"
+
+- script: |
+    cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
+    npm install
+  displayName: "NPM install packages/survey-core"
+
+- script: |
+    cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
+    npm run build
+  displayName: "Build Core"
+
+- script: |
+    cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
+    npm run doc_gen
+  displayName: "generate docs"
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
+    Contents: |
+      classes.json
+      pmes.json
+      surveyjs_definition.json
+    TargetFolder: "$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/DocsLibrary"
+    OverWrite: true
+    CleanTargetFolder: false
+  displayName: "copy generated docs to the local surveyjs/service repo"
+
+# read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
+# https://github.com/microsoft/azure-pipelines-yaml/issues/248
+# https://stackoverflow.com/questions/58485585/azure-pipeline-powershell-and-git-on-windows-server-2019-gives-error-in-output
+- powershell: |
+    cd $(Build.SourcesDirectory)/service
+    $env:GIT_REDIRECT_STDERR = '2>&1'
+    git config --global user.email "kurmanov.work@gmail.com"
+    git config --global user.name "dmitrykurmanov"
+    git pull origin V2
+    git fetch origin V2 --tags --force
+    git checkout V2
+    git add surveyjs.io/App_Data/DocsLibrary
+    git commit -m "updated survey-library V2 docs [azurepipelines skip]"
+    git pull origin V2
+    git push origin V2
+  displayName: "git surveyjs/service push updated V2 docs"

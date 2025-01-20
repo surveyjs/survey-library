@@ -7,7 +7,7 @@
     @click="addPanelClick"
   >
     <span :class="question.cssClasses.buttonAddText"
-      ><SvComponent :is="'survey-string'" :locString="question.locPanelAddText"
+      ><SvComponent :is="'survey-string'" :locString="question.locAddPanelText"
     /></span>
   </button>
 </template>

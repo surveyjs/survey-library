@@ -12,7 +12,7 @@ frameworks.forEach(framework => {
   });
 
   const addPageDescriptionClass = ClientFunction(
-    () => (Survey.defaultV2Css.page.description = "sv_page_description")
+    () => (Survey.defaultCss.page.description = "sv_page_description")
   );
 
   test("page title", async t => {

@@ -1,0 +1,160 @@
+@use "variables.scss" as *;
+@use "mixins.scss" as mixins;
+
+@use "animations.scss";
+
+@use "blocks/sv-actionbar.scss";
+@use "blocks/sv-drag-drop.scss";
+@use "blocks/sv-popup.scss";
+@use "blocks/sv-buttongroup.scss";
+@use "blocks/sv-visuallyhidden.scss";
+@use "blocks/sv-hidden.scss";
+@use "blocks/sv-titleactions.scss";
+@use "blocks/window.scss";
+@use "blocks/sv-brand-info.scss";
+@use "blocks/sv-ranking.scss";
+@use "blocks/sv-list.scss";
+@use "blocks/sv-save-data.scss";
+@use "blocks/sv-string-viewer.scss";
+
+@use "blocks/sd-element.scss";
+@use "blocks/sd-question.scss";
+@use "blocks/sd-error.scss";
+@use "blocks/sd-collapsed-element.scss";
+@use "blocks/sd-complex-element.scss";
+@use "blocks/sd-input.scss";
+@use "blocks/sd-comment.scss";
+@use "blocks/sd-panel.scss";
+@use "blocks/sd-signaturepad.scss";
+@use "blocks/sd-checkbox.scss";
+@use "blocks/sd-matrixdynamic.scss";
+@use "blocks/sd-table.scss";
+@use "blocks/sd-page.scss";
+@use "blocks/sd-row.scss";
+@use "blocks/sd-title.scss";
+@use "blocks/sd-description.scss";
+@use "blocks/sd-item.scss";
+@use "blocks/sd-selectbase.scss";
+@use "blocks/sd-radio.scss";
+@use "blocks/sd-visuallyhidden.scss";
+@use "blocks/sd-matrix.scss";
+@use "blocks/sd-rating.scss";
+@use "blocks/sd-ranking.scss";
+@use "blocks/sd-dropdown.scss";
+@use "blocks/sd-tagbox.scss";
+@use "blocks/sd-imagepicker.scss";
+@use "blocks/sd-image.scss";
+@use "blocks/sd-html.scss";
+@use "blocks/sd-expression.scss";
+@use "blocks/sd-progress.scss";
+@use "blocks/sd-boolean.scss";
+@use "blocks/sd-paneldynamic.scss";
+@use "blocks/sd-file.scss";
+@use "blocks/sd-hidden.scss";
+@use "blocks/sd-navigation.scss";
+@use "blocks/sd-button.scss";
+@use "blocks/sd-body.scss";
+@use "blocks/sd-multipletext.scss";
+@use "blocks/sd-action.scss";
+@use "blocks/sd-action-bar.scss";
+@use "blocks/sd-context-btn.scss";
+@use "blocks/sd-completedpage.scss";
+@use "blocks/sd-progress-buttons.scss";
+@use "blocks/sd-progress-toc.scss";
+@use "blocks/sd-list.scss";
+@use "blocks/sd-timer.scss";
+@use "blocks/header.scss";
+@use "blocks/sd-loading-indicator.scss";
+@use "blocks/sd-components-container.scss";
+@use "./default.m600.scss";
+
+body {
+  --sv-defaultV2-mark: true;
+}
+
+.sd-root-modern {
+  -webkit-font-smoothing: antialiased;
+  --sd-mobile-width: 600px;
+  --sd-timer-size: calc(18 * #{$base-unit});
+  width: 100%;
+  font-family: $font-family;
+  background-color: $background-dim;
+  position: relative;
+
+  @include mixins.scrollRules;
+
+  form {
+    // z-index: 1;
+    position: relative;
+  }
+}
+
+.sd-root-modern--animation-disabled * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
+
+.sd-root-modern.sd-root-modern--full-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+}
+
+.sd-root-modern--mobile {
+  --sd-timer-size: calc(9 * #{$base-unit});
+}
+
+.sd-root-modern__wrapper {
+  position: relative;
+}
+
+.sd-root-modern__wrapper--has-image {
+  min-height: 100%;
+}
+
+.sd-root-modern--full-container .sd-root-modern__wrapper--fixed {
+  position: static;
+  width: 100%;
+  height: 100%;
+
+  form {
+    overflow: auto;
+    width: 100%;
+    max-height: 100%;
+  }
+}
+
+.sv-popup .sv-popup__scrolling-content {
+  box-sizing: content-box;
+  @include mixins.scrollRules;
+}
+
+@mixin stickyHeader {
+  position: sticky;
+  top: 0;
+}
+
+.sv-components-container-center {
+  @include stickyHeader;
+}
+
+.sv-root--sticky-top {
+  .sv-components-container-center {
+    z-index: 15;
+  }
+}
+
+.sv-root--sticky-top.sd-progress--pages,
+.sv-root--sticky-top.sd-progress--buttons {
+  .sv-components-container-center {
+    background-color: $background-dim;
+    box-shadow: $shadow-medium, $shadow-small;
+  }
+}
+.sv-components-container-right,
+.sv-components-container-left {
+  width: fit-content;
+}

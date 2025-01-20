@@ -8,7 +8,7 @@
     <span :class="question.cssClasses.buttonRemoveText"
       ><SvComponent
         :is="'survey-string'"
-        :locString="question.locPanelRemoveText"
+        :locString="question.locRemovePanelText"
     /></span>
     <span :class="question.cssClasses.iconRemove"></span>
   </button>

@@ -1056,7 +1056,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.setPropertyValue("transposeData", val);
   }
   /**
-   * This property is obsolete. Use the [`transposeData`](#transposeData) property instead.
+   * @deprecated Use the [`transposeData`](#transposeData) property instead.
    */
   public get columnLayout(): string {
     return this.transposeData ? "vertical" : "horizontal";
@@ -1131,8 +1131,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.useCaseSensitiveComparisonValue = val;
   }
   /**
-   * Obsolete. Use the [`useCaseSensitiveComparison`](#useCaseSensitiveComparison) property instead.
-   * @deprecated
+   * @deprecated Use the [`useCaseSensitiveComparison`](#useCaseSensitiveComparison) property instead.
    */
   public get isUniqueCaseSensitive(): boolean {
     return this.useCaseSensitiveComparison;

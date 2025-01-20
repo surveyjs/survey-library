@@ -302,7 +302,7 @@ export { InputMaskCurrency } from "../../src/mask/mask_currency";
 export * from "../../src/utils/cssClassBuilder";
 export * from "../../src/utils/text-area";
 
-export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../src/defaultCss/defaultV2Css";
+export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../src/plugins/question_date";

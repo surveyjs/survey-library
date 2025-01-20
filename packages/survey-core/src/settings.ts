@@ -529,8 +529,7 @@ export var settings = {
    */
   itemFlowDirection: "column",
   /**
-   * Obsolete. Use the [`itemFlowDirection`](https://surveyjs.io/form-library/documentation/api-reference/settings#itemFlowDirection) property instead.
-   * @deprecated
+   * @deprecated Use the [`itemFlowDirection`](https://surveyjs.io/form-library/documentation/api-reference/settings#itemFlowDirection) property instead.
    */
   get showItemsInOrder(): string { return settings.itemFlowDirection; },
   set showItemsInOrder(val: string) { settings.itemFlowDirection = val; },

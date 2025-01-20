@@ -32,11 +32,6 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
   var items: Action[] = getTOCItems(survey, onAction);
   const listOptions: IListModel = {
     items: items,
-    onSelectionChanged: item => {
-      if (!!<any>item.action()) {
-        listModel.selectedItem = item;
-      }
-    },
     searchEnabled: false,
     locOwner: survey,
   };
@@ -70,7 +65,6 @@ function getTOCItems(survey: SurveyModel, onAction: () => void) {
         if (page.isPage) {
           return survey.tryNavigateToPage(page as PageModel);
         }
-        return tryFocusPage(survey, page);
       },
       visible: <any>new ComputedUpdater(() => {
         return page.isVisible && !((<any>page)["isStartPage"]);

@@ -7,11 +7,11 @@ resources:
   repositories:
     - repository: Service # The name used to reference this repository in the checkout step
       type: github
-      endpoint: dmitrykurmanov:admin
+      endpoint: github.com_surveyjsdeveloper
       name: surveyjs/service
     - repository: EmptyRepo
       type: github
-      endpoint: dmitrykurmanov:admin
+      endpoint: github.com_surveyjsdeveloper
       name: surveyjs/azure-pipelines-repo-dont-remove-please
 
 
@@ -67,8 +67,8 @@ steps:
 - powershell: |
     cd $(Build.SourcesDirectory)/service
     $env:GIT_REDIRECT_STDERR = '2>&1'
-    git config --global user.email "kurmanov.work@gmail.com"
-    git config --global user.name "dmitrykurmanov"
+    git config --global user.email "surveyjs.org@gmail.com"
+    git config --global user.name "surveyjsdeveloper"
     git pull origin V2
     git fetch origin V2 --tags --force
     git checkout V2

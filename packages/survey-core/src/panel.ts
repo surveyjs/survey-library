@@ -417,7 +417,6 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
-    this.updateDescriptionVisibility(this.description);
     this.markQuestionListDirty();
     this.onRowsChanged();
     this.gridLayoutColumns.forEach(col => {

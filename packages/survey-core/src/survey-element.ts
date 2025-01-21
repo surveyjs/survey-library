@@ -90,25 +90,33 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
    * Returns `true` if the survey element has a description.
    * @see description
   */
-  @property({}) hasDescription: boolean;
+  public get hasDescription(): boolean {
+    return this.getPropertyValue("hasDescription", undefined, () => this.calcDescriptionVisibility());
+  }
+  public set hasDescription(val: boolean) {
+    this.setPropertyValue("hasDescription", val);
+  }
+  protected calcDescriptionVisibility(): boolean {
+    const newDescription = this.description;
+    let showPlaceholder = false;
+    if (this.isDesignMode) {
+      const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
+      showPlaceholder = !!(property?.placeholder);
+    }
+    return !!newDescription || (showPlaceholder && this.isDesignMode);
+  }
+  protected resetDescriptionVisibility(): void {
+    this.resetPropertyValue("hasDescription");
+  }
   /**
    * Explanatory text displayed under the title.
    * @see hasDescription
    */
   @property({
     localizable: true, onSet: (newDescription, self) => {
-      self.updateDescriptionVisibility(newDescription);
+      self.resetDescriptionVisibility();
     }
   }) description: string;
-  public updateDescriptionVisibility(newDescription: any) {
-    let showPlaceholder = false;
-    if (this.isDesignMode) {
-      const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
-      showPlaceholder = !!(property?.placeholder);
-    }
-    this.hasDescription = !!newDescription || (showPlaceholder && this.isDesignMode);
-  }
-
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
   }
@@ -532,8 +540,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.textProcessorValue = this.surveyImplValue.getTextProcessor();
       this.onSetData();
     }
-    if (!!this.survey/* && !this.isLoadingFromJson*/) {
-      this.updateDescriptionVisibility(this.description);
+    if (!!this.survey) {
+      this.resetDescriptionVisibility();
       this.clearCssClasses();
     }
   }
@@ -785,7 +793,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!this.survey) {
       this.onSurveyLoad();
     }
-    this.updateDescriptionVisibility(this.description);
   }
   public setVisibleIndex(index: number): number {
     return 0;
@@ -1167,9 +1174,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get isPreviewStyle(): boolean {
     return !!this.survey && this.survey.state === "preview";
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
-    this.updateDescriptionVisibility(this.description);
+    this.resetDescriptionVisibility();
     if (this.errors.length > 0) {
       this.errors.forEach(err => {
         err.updateText();

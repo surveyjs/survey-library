@@ -9,6 +9,7 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/service
+      ref: V2
     - repository: EmptyRepo
       type: github
       endpoint: github.com_surveyjsdeveloper

@@ -7407,6 +7407,37 @@ QUnit.test("question.resetValueIf and invisibleQuestions", function (assert) {
   q1.value = 1;
   assert.equal(q2.isEmpty(), true, "value is cleared");
 });
+QUnit.test("question.resetValueIf with one function, no question expression, Bug#9338", function (assert) {
+  let returnValue = false;
+  FunctionFactory.Instance.register("func1", (params: any) => {
+    return returnValue;
+  });
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "resetValueIf": "func1()"
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q2.value = "abc";
+  assert.equal(q2.value, "abc", "q2.value #1");
+  q1.value = 1;
+  assert.equal(q2.value, "abc", "q2.value #2");
+  returnValue = true;
+  q1.value = 2;
+  assert.equal(q2.isEmpty(), true, "q2.value #3");
+  q2.value = "abc";
+  assert.equal(q2.isEmpty(), false, "q2.value #4");
+  q1.value = 3;
+  assert.equal(q2.isEmpty(), true, "q2.value #5");
+  FunctionFactory.Instance.unregister("func1");
+});
 QUnit.test("question.setValueIf, basic functionality", function (assert) {
   const survey = new SurveyModel({
     elements: [

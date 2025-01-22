@@ -991,8 +991,8 @@ export class SurveyModel extends SurveyElementCore
       () => { this.onStateAndCurrentPageChanged(); });
     this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.resetHasLogo(); });
     this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.resetPropertyValue("renderBackgroundImage"); });
-    this.registerPropertyChangedHandlers(["renderBackgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
-      this.updateBackgroundImageStyle();
+    this.registerPropertyChangedHandlers(["backgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
+      this.resetPropertyValue("backgroundImageStyle");
     });
     this.registerPropertyChangedHandlers(
       ["showPrevButton", "showCompleteButton"],
@@ -2461,9 +2461,11 @@ export class SurveyModel extends SurveyElementCore
   public set backgroundOpacity(val: number) {
     this.setPropertyValue("backgroundOpacity", val);
   }
-  @property() backgroundImageStyle: any;
-  public updateBackgroundImageStyle() {
-    this.backgroundImageStyle = {
+  public get backgroundImageStyle(): any {
+    return this.getPropertyValue("backgroundImageStyle", undefined, () => this.calcBackgroundImageStyle());
+  }
+  private calcBackgroundImageStyle() {
+    return {
       opacity: this.backgroundOpacity,
       backgroundImage: this.renderBackgroundImage,
       backgroundSize: this.backgroundImageFit,

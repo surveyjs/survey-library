@@ -989,7 +989,7 @@ export class SurveyModel extends SurveyElementCore
       () => { this.updateState(); });
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
-    this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.updateHasLogo(); });
+    this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.resetHasLogo(); });
     this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.updateRenderBackgroundImage(); });
     this.registerPropertyChangedHandlers(["renderBackgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
       this.updateBackgroundImageStyle();
@@ -2318,10 +2318,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("logoPosition", value);
   }
   public get hasLogo(): boolean {
-    return this.getPropertyValue("hasLogo", false);
+    return this.getPropertyValue("hasLogo", undefined, () => !!this.logo && this.logoPosition !== "none");
   }
-  private updateHasLogo(): void {
-    this.setPropertyValue("hasLogo", !!this.logo && this.logoPosition !== "none");
+  private resetHasLogo(): void {
+    this.resetPropertyValue("hasLogo");
   }
   public get isLogoBefore(): boolean {
     if (this.isDesignMode) return false;
@@ -6628,7 +6628,6 @@ export class SurveyModel extends SurveyElementCore
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
-    this.updateHasLogo();
     this.updateRenderBackgroundImage();
     this.updateCurrentPage();
     this.hasDescription = !!this.description;

@@ -5117,7 +5117,7 @@ export class SurveyModel extends SurveyElementCore
    * @see progressBarType
    */
   public get progressText(): string {
-    return this.getPropertyValue("progressText", undefined, () => this.getProgressText());
+    return this.progressBar.progressText;
   }
   /**
    * Returns a percentage value that indicates user progress in the survey.
@@ -5131,7 +5131,9 @@ export class SurveyModel extends SurveyElementCore
   public updateProgressText(onValueChanged: boolean = false): void {
     if (this.isShowingPreview) return;
     if (onValueChanged && this.progressBarType == "pages" && this.onGetProgressText.isEmpty) return;
-    this.resetPropertyValue("progressText");
+    if(this.progressBarValue) {
+      this.progressBarValue.resetProgressText();
+    }
     this.resetPropertyValue("progressValue");
   }
   public getProgressText(): string {

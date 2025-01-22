@@ -2,7 +2,7 @@ import {
   doKey2ClickBlur,
   doKey2ClickDown,
   doKey2ClickUp,
-  IAttachKey2clickOptions,
+  type IAttachKey2clickOptions,
 } from "survey-core";
 import type { ObjectDirective } from "vue";
 

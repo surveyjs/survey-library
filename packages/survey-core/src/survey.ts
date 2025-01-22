@@ -990,7 +990,7 @@ export class SurveyModel extends SurveyElementCore
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
     this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.resetHasLogo(); });
-    this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.updateRenderBackgroundImage(); });
+    this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.resetPropertyValue("renderBackgroundImage"); });
     this.registerPropertyChangedHandlers(["renderBackgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
       this.updateBackgroundImageStyle();
     });
@@ -1113,7 +1113,7 @@ export class SurveyModel extends SurveyElementCore
       data: this.navigationBar
     });
 
-    this.locTitle.onStringChanged.add(() => this.titleIsEmpty = this.locTitle.isEmpty);
+    this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
   }
   public get sjsVersion(): string {
     return this.getPropertyValue("sjsVersion");
@@ -2347,7 +2347,9 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(this.css.logo)
       .append(logoClasses[this.logoPosition]).toString();
   }
-  @property({ defaultValue: true }) private titleIsEmpty: boolean;
+  public get titleIsEmpty(): boolean {
+    return this.getPropertyValue("titleIsEmpty", undefined, () => this.locTitle.isEmpty);
+  }
   public get renderedHasTitle(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("title");
     return !this.titleIsEmpty && this.showTitle;
@@ -2442,10 +2444,8 @@ export class SurveyModel extends SurveyElementCore
       target.updateCss();
     }
   }) backgroundImage: string;
-  @property() renderBackgroundImage: string;
-  private updateRenderBackgroundImage(): void {
-    const path = this.backgroundImage;
-    this.renderBackgroundImage = wrapUrlForBackgroundImage(path);
+  public get renderBackgroundImage(): string {
+    return this.getPropertyValue("renderBackgroundImage", undefined, () => wrapUrlForBackgroundImage(this.backgroundImage));
   }
   @property() backgroundImageFit: ImageFit;
   @property({
@@ -6601,7 +6601,7 @@ export class SurveyModel extends SurveyElementCore
     this.fromJSON(jsonObj);
   }
   private isEndLoadingFromJson: string = null;
-  endLoadingFromJson() {
+  endLoadingFromJson(): void {
     this.isEndLoadingFromJson = "processing";
     this.onFirstPageIsStartedChanged();
     super.endLoadingFromJson();
@@ -6615,10 +6615,7 @@ export class SurveyModel extends SurveyElementCore
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
-    this.updateRenderBackgroundImage();
     this.updateCurrentPage();
-    this.hasDescription = !!this.description;
-    this.titleIsEmpty = this.locTitle.isEmpty;
     this.setCalculatedWidthModeUpdater();
   }
 

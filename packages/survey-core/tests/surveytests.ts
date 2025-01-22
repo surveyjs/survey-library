@@ -20677,6 +20677,7 @@ QUnit.test("showPreview & updateProgress & updateVisibleIndexes", function (
     visibleChangedCounter++;
   });
   survey.showPreview();
+  assert.equal(survey.progressText, "Page 1 of 1", "progressText");
   assert.equal(progressCounter, 1, "progressCounter");
   assert.equal(visibleChangedCounter, 0, "visibleChangedCounter");
 });
@@ -21265,9 +21266,10 @@ QUnit.test("Reduce the number of calls of setVisibleIndexes function", function 
       ]
     }]
   });
-  assert.equal(counter, 3, "On loading");
+  assert.equal(survey.progressText, "Page 1 of 2", "progressText");
+  assert.equal(counter, 1, "On loading");
   survey.pages[1].onFirstRendering();
-  assert.equal(counter, 3, "page[1].onFirstRendering(), do nothing");
+  assert.equal(counter, 1, "page[1].onFirstRendering(), do nothing");
 });
 QUnit.test("Do not include questions.values into survey.getFilteredValue in design time", function (assert) {
   const survey = new SurveyModel({

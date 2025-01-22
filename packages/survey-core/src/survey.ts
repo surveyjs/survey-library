@@ -3932,15 +3932,6 @@ export class SurveyModel extends SurveyElementCore
     var index = visPages.indexOf(this.currentPage);
     return Math.ceil((index * 100) / visPages.length);
   }
-  /**
-   * Returns a percentage value that indicates user progress in the survey.
-   * @see showProgressBar
-   * @see progressBarType
-   * @see progressText
-   */
-  public get progressValue(): number {
-    return this.getPropertyValue("progressValue", 0);
-  }
   public get isNavigationButtonsShowing(): string {
     if (this.isDesignMode) return "none";
     var page = this.activePage;
@@ -5127,26 +5118,22 @@ export class SurveyModel extends SurveyElementCore
    * @see progressBarType
    */
   public get progressText(): string {
-    var res = this.getPropertyValue("progressText", "");
-    if (!res) {
-      this.updateProgressText();
-      res = this.getPropertyValue("progressText", "");
-    }
-    return res;
+    return this.getPropertyValue("progressText", undefined, () => this.getProgressText());
   }
-  private isCalculatingProgressText = false;
+  /**
+   * Returns a percentage value that indicates user progress in the survey.
+   * @see showProgressBar
+   * @see progressBarType
+   * @see progressText
+   */
+  public get progressValue(): number {
+    return this.getPropertyValue("progressValue", undefined, () => this.getProgress());
+  }
   public updateProgressText(onValueChanged: boolean = false): void {
-    if (this.isCalculatingProgressText || this.isShowingPreview) return;
-    if (
-      onValueChanged &&
-      this.progressBarType == "pages" &&
-      this.onGetProgressText.isEmpty
-    )
-      return;
-    this.isCalculatingProgressText = true;
-    this.setPropertyValue("progressText", this.getProgressText());
-    this.setPropertyValue("progressValue", this.getProgress());
-    this.isCalculatingProgressText = false;
+    if (this.isShowingPreview) return;
+    if (onValueChanged && this.progressBarType == "pages" && this.onGetProgressText.isEmpty) return;
+    this.resetPropertyValue("progressText");
+    this.resetPropertyValue("progressValue");
   }
   public getProgressText(): string {
     if (!this.isDesignMode && this.currentPage == null) return "";

@@ -21,7 +21,7 @@ To use a theme, you need to reference a SurveyJS style sheet. Refer to the follo
 
 ## Apply a Predefined Theme
 
-Predefined themes are distributed as JSON objects that specify CSS variables and other theme settings. You can find a full list of predefined themes and their variations on GitHub: [survey-core/themes](https://github.com/surveyjs/survey-library/tree/master/src/themes).
+Predefined themes are distributed as JSON objects that specify CSS variables and other theme settings. You can find a full list of predefined themes and their variations on GitHub: [survey-core/themes](https://github.com/surveyjs/survey-library/tree/master/packages/survey-core/src/themes).
 
 To apply a predefined theme in modular applications, import the theme object from its module and pass the object to `SurveyModel`'s [`applyTheme(theme)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#applyTheme) method. The following code shows how to apply the Layered Dark Panelless theme:
 

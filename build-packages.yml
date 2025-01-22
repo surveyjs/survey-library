@@ -7,11 +7,11 @@ resources:
   repositories:
     - repository: Service # The name used to reference this repository in the checkout step
       type: github
-      endpoint: dmitrykurmanov:admin
+      endpoint: github.com_surveyjsdeveloper
       name: surveyjs/service
     - repository: EmptyRepo
       type: github
-      endpoint: dmitrykurmanov:admin
+      endpoint: github.com_surveyjsdeveloper
       name: surveyjs/azure-pipelines-repo-dont-remove-please
 
 variables:
@@ -141,8 +141,8 @@ jobs:
 
       - powershell: |
           $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "kurmanov.work@gmail.com"
-          git config --global user.name "dmitrykurmanov"
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
 
       - script: |
@@ -188,8 +188,8 @@ jobs:
       # - powershell: |
       #     cd $(Build.SourcesDirectory)/service
       #     $env:GIT_REDIRECT_STDERR = '2>&1'
-      #     git config --global user.email "kurmanov.work@gmail.com"
-      #     git config --global user.name "dmitrykurmanov"
+      #     git config --global user.email "surveyjs.org@gmail.com"
+      #     git config --global user.name "surveyjsdeveloper"
       #     git pull origin master
       #     git fetch origin master --tags --force
       #     git checkout master
@@ -309,8 +309,8 @@ jobs:
 
       - powershell: |
           $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "kurmanov.work@gmail.com"
-          git config --global user.name "dmitrykurmanov"
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
 
       - script: |
@@ -431,8 +431,8 @@ jobs:
 
       - powershell: |
           $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "kurmanov.work@gmail.com"
-          git config --global user.name "dmitrykurmanov"
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
 
       - script: |
@@ -563,8 +563,8 @@ jobs:
 
       - powershell: |
           $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "kurmanov.work@gmail.com"
-          git config --global user.name "dmitrykurmanov"
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
 
       - script: |
@@ -694,8 +694,8 @@ jobs:
 
       - powershell: |
           $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "kurmanov.work@gmail.com"
-          git config --global user.name "dmitrykurmanov"
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
 
       - script: |

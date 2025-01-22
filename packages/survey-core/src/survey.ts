@@ -1029,7 +1029,7 @@ export class SurveyModel extends SurveyElementCore
       this.rebuildQuestionChoices();
     };
     this.navigationBarValue = this.createNavigationBar();
-    this.navigationBar.locOwner = this;
+    this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -1113,7 +1113,6 @@ export class SurveyModel extends SurveyElementCore
       data: this.navigationBar
     });
 
-    this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
   }
   public get sjsVersion(): string {
     return this.getPropertyValue("sjsVersion");
@@ -6620,22 +6619,20 @@ export class SurveyModel extends SurveyElementCore
   }
 
   private updateNavigationCss() {
-    if (!!this.navigationBar) {
-      this.updateNavigationBarCss();
+    const val = this.navigationBarValue;
+    if (!!val) {
+      val.cssClasses = this.css.actionBar;
+      val.containerCss = this.css.footer;
       !!this.updateNavigationItemCssCallback && this.updateNavigationItemCssCallback();
     }
   }
 
   private updateNavigationItemCssCallback: (strName?: string) => void;
 
-  private updateNavigationBarCss() {
-    const val = this.navigationBar;
-    val.cssClasses = this.css.actionBar;
-    val.containerCss = this.css.footer;
-  }
   protected createNavigationBar(): ActionContainer {
     const res = new ActionContainer();
     res.setItems(this.createNavigationActions());
+    res.locOwner = this;
     return res;
   }
   protected createNavigationActions(): Array<IAction> {

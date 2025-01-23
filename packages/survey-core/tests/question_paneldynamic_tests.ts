@@ -4388,6 +4388,35 @@ QUnit.test("Avoid stack-overflow", function(assert) {
   );
 });
 
+QUnit.test("survey.onDynamicPanelValueChanging event", function(assert) {
+  const survey = new SurveyModel({ elements: [{
+    type: "paneldynamic",
+    name: "panel",
+    templateElements: [
+      { type: "text", name: "q1", isRequired: true },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" },
+    ]
+  }] });
+  const opt = new Array<any>();
+  survey.onDynamicPanelValueChanging.add((sender, options) => {
+    opt.push({ name: options.name, value: options.value, oldValue: options.oldValue, panelIndex: options.panelIndex });
+  });
+
+  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  question.panelCount = 2;
+  question.panels[0].getQuestionByName("q1").value = "1";
+  question.panels[1].getQuestionByName("q2").value = "2";
+  question.panels[0].getQuestionByName("q1").value = "3";
+  question.panels[1].getQuestionByName("q2").value = "4";
+  assert.deepEqual(opt,
+    [{ name: "q1", panelIndex: 0, value: "1", oldValue: undefined },
+      { name: "q2", panelIndex: 1, value: "2", oldValue: undefined },
+      { name: "q1", panelIndex: 0, value: "3", oldValue: "1" },
+      { name: "q2", panelIndex: 1, value: "4", oldValue: "2" }],
+    "Check event calls");
+});
+
 QUnit.test("getPanelWrapperCss", function(assert) {
   var survey = new SurveyModel({
     elements: [

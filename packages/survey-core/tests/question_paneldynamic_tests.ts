@@ -19,6 +19,7 @@ import { QuestionMatrixModel } from "../src/question_matrix";
 import { AnimationGroup, AnimationTab } from "../src/utils/animation";
 import { SurveyElement } from "../src/survey-element";
 import { setOldTheme } from "./oldTheme";
+import { DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
 QUnit.test("Create panels based on template on setting value", function(
@@ -4399,7 +4400,7 @@ QUnit.test("survey.onDynamicPanelValueChanging event", function(assert) {
     ]
   }] });
   const opt = new Array<any>();
-  survey.onDynamicPanelValueChanging.add((sender, options) => {
+  survey.onDynamicPanelValueChanging.add((sender, options: DynamicPanelValueChangingEvent) => {
     opt.push({ name: options.name, value: options.value, oldValue: options.oldValue, panelIndex: options.panelIndex });
   });
 

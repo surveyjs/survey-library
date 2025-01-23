@@ -1028,7 +1028,6 @@ export class SurveyModel extends SurveyElementCore
     this.onShowingChoiceItem.onCallbacksChanged = () => {
       this.rebuildQuestionChoices();
     };
-    this.navigationBarValue = this.createNavigationBar();
     this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
     this.onBeforeCreating();
     if (jsonObj) {
@@ -1062,8 +1061,6 @@ export class SurveyModel extends SurveyElementCore
         this.onScrollCallback = undefined;
       }
     });
-
-    this.progressBarValue = new ProgressButtons(this);
 
     if (this.headerView === "advanced") {
       this.insertAdvancedHeader(new Cover());
@@ -1100,12 +1097,11 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-progress-requiredquestions",
       data: this
     });
-    const tocModel = new TOCModel(this);
     this.addLayoutElement({
       id: "toc-navigation",
       component: "sv-navigation-toc",
-      getData: () => tocModel,
-      processResponsiveness: width => tocModel.updateStickyTOCSize(this.rootElement)
+      getData: () => this.tocModel,
+      processResponsiveness: width => this.tocModel.updateStickyTOCSize(this.rootElement)
     });
     this.layoutElements.push({
       id: "buttons-navigation",
@@ -1113,6 +1109,13 @@ export class SurveyModel extends SurveyElementCore
       getData: () => this.navigationBar
     });
 
+  }
+  private tocModelValue: TOCModel;
+  private get tocModel(): TOCModel {
+    if (!this.tocModelValue) {
+      this.tocModelValue = new TOCModel(this);
+    }
+    return this.tocModelValue;
   }
   public get sjsVersion(): string {
     return this.getPropertyValue("sjsVersion");
@@ -2160,7 +2163,9 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isStartPageActive) {
       this.updateProgressText();
     }
-    this.navigationBar.locStrsChanged();
+    if(!!this.navigationBarValue) {
+      this.navigationBar.locStrsChanged();
+    }
   }
   public getMarkdownHtml(text: string, name: string): string {
     return this.getSurveyMarkdownHtml(this, text, name);
@@ -2604,6 +2609,10 @@ export class SurveyModel extends SurveyElementCore
     return "<h3>" + this.getLocalizationString("loadingSurvey") + "</h3>";
   }
   public get navigationBar(): ActionContainer {
+    if(!this.navigationBarValue) {
+      this.navigationBarValue = this.createNavigationBar();
+      this.updateNavigationCss();
+    }
     return this.navigationBarValue;
   }
   /**
@@ -2899,6 +2908,9 @@ export class SurveyModel extends SurveyElementCore
   }
   private progressBarValue: any;
   public get progressBar(): any {
+    if(!this.progressBarValue) {
+      this.progressBarValue = new ProgressButtons(this);
+    }
     return this.progressBarValue;
   }
   /**

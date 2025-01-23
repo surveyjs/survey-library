@@ -82,7 +82,7 @@ function getContainerContentFunction(survey: SurveyModel) {
     content.forEach(item => {
       const resItem: any = {};
       Object.keys(item).forEach(key => {
-        if (["data", "processResponsiveness"].indexOf(key) === -1) {
+        if (["data", "getData", "processResponsiveness"].indexOf(key) === -1) {
           resItem[key] = item[key];
         }
       });
@@ -18263,6 +18263,7 @@ QUnit.test("getContainerContent - do not show advanced header on completed page"
     let result = survey.getContainerContent(container);
     result.forEach(item => {
       delete item["data"];
+      delete item["getData"];
       delete item["processResponsiveness"];
     });
     return result;
@@ -18314,6 +18315,7 @@ QUnit.test("getContainerContent - do show advanced header on completed page if s
     let result = survey.getContainerContent(container);
     result.forEach(item => {
       delete item["data"];
+      delete item["getData"];
       delete item["processResponsiveness"];
     });
     return result;
@@ -18642,7 +18644,10 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   survey.headerView = "basic";
   function getContainerContent(container: LayoutElementContainer) {
     let result = survey.getContainerContent(container);
-    result.forEach(item => delete item["data"]);
+    result.forEach(item => {
+      delete item["data"];
+      delete item["getData"];
+    });
     return result;
   }
 
@@ -18755,7 +18760,7 @@ QUnit.test("getContainerContent - header elements order", function (assert) {
     }
   ], "advanved header first, progress next");
 });
-QUnit.only("Do not set data in LayoutElement by default", function (assert) {
+QUnit.test("Do not set data in LayoutElement by default", function (assert) {
   const survey = new SurveyModel({
     pages: [
       {

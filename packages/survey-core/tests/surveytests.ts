@@ -18755,6 +18755,36 @@ QUnit.test("getContainerContent - header elements order", function (assert) {
     }
   ], "advanved header first, progress next");
 });
+QUnit.only("Do not set data in LayoutElement by default", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "rating",
+            "name": "satisfaction",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+        ]
+      },
+    ]
+  });
+  const el = survey.findLayoutElement("toc-navigation");
+  assert.ok(el, "toc-navigation is found");
+  assert.notOk(el.data, "data is not set");
+  survey.showTOC = true;
+  const els: Array<any> = survey.getContainerContent("left");
+  assert.equal(els.length, 1, "There is one element");
+  assert.equal(els[0].id, "toc-navigation", "This element is toc");
+  assert.ok(els[0].data, "data is set");
+});
 
 QUnit.test("restore header css variable if header is default", function (assert) {
   const json = {

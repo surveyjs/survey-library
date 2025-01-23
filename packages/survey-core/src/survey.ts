@@ -1077,7 +1077,7 @@ export class SurveyModel extends SurveyElementCore
     this.layoutElements.push({
       id: "progress-buttons",
       component: "sv-progress-buttons",
-      data: this.progressBar,
+      getData: () => this.progressBar,
       processResponsiveness: width => this.progressBar.processResponsiveness && this.progressBar.processResponsiveness(width)
     });
     this.layoutElements.push({
@@ -1104,13 +1104,13 @@ export class SurveyModel extends SurveyElementCore
     this.addLayoutElement({
       id: "toc-navigation",
       component: "sv-navigation-toc",
-      data: tocModel,
+      getData: () => tocModel,
       processResponsiveness: width => tocModel.updateStickyTOCSize(this.rootElement)
     });
     this.layoutElements.push({
       id: "buttons-navigation",
       component: "sv-action-bar",
-      data: this.navigationBar
+      getData: () => this.navigationBar
     });
 
   }
@@ -8124,8 +8124,8 @@ export class SurveyModel extends SurveyElementCore
     return layoutElement;
   }
 
-  public getContainerContent(container: LayoutElementContainer) {
-    const containerLayoutElements = [];
+  public getContainerContent(container: LayoutElementContainer): Array<ISurveyLayoutElement> {
+    const containerLayoutElements = new Array<ISurveyLayoutElement>();
     for (let layoutElement of this.layoutElements) {
       if (this.mode !== "display" && isStrCiEqual(layoutElement.id, "timerpanel")) {
         if (container === "header") {
@@ -8202,6 +8202,11 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     containerLayoutElements.sort((a, b) => (a.index || 0) - (b.index || 0));
+    containerLayoutElements.forEach(el => {
+      if(!!el.getData) {
+        el.data = el.getData();
+      }
+    });
     return containerLayoutElements;
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {

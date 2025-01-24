@@ -416,7 +416,15 @@ Serializer.addClass(
       },
       alternativeName: "navigationButtonsVisibility"
     },
-    { name: "timeLimit:number", alternativeName: "maxTimeToFinish", default: 0, minValue: 0 },
+    {
+      name: "timeLimit:number",
+      alternativeName: "maxTimeToFinish",
+      default: 0,
+      minValue: 0,
+      visibleIf: (obj: any) => {
+        return !!obj.survey && obj.survey.showTimer;
+      }
+    },
     {
       name: "navigationTitle",
       visibleIf: function (obj: any) {

@@ -252,7 +252,7 @@ export var defaultCss = {
     confirmDialog: "sd-popup--confirm sv-popup--confirm"
   },
   image: {
-    mainRoot: "sd-question sd-question--image",
+    mainRoot: "sd-element sd-question sd-question--image",
     root: "sd-image",
     image: "sd-image__image",
     adaptive: "sd-image__image--adaptive",
@@ -261,7 +261,7 @@ export var defaultCss = {
     withFrame: ""
   },
   html: {
-    mainRoot: "sd-question sd-row__question sd-question--html",
+    mainRoot: "sd-element sd-question sd-row__question sd-question--html",
     root: "sd-html",
     withFrame: "",
     nested: "sd-element--nested sd-html--nested"

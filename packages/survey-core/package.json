@@ -61,7 +61,7 @@
     "testcafe": "^3.6.2",
     "ts-loader": "^8.0.15",
     "ts-node": "3.3.0",
-    "typescript": "^4.8.0",
+    "typescript": "^5.7.0",
     "url-loader": "^4.1.1",
     "val-loader": "^0.5.1",
     "webpack": "^5.93.0",

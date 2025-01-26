@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "es2015",
+    "target": "ES6",
+    "module": "ES6",
     "lib": [
       "DOM",
       "ES5",
@@ -12,7 +12,7 @@
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
-    "importHelpers": true,
+    "importHelpers": false,
     "moduleResolution": "node",
     "jsx": "react",
     "baseUrl": ".",

@@ -36,7 +36,7 @@ var buildPlatformJson = {
   files: [
     "**/*"
   ],
-  "module": "fesm/survey-core.mjs",
+  "module": "fesm/survey-core.js",
   "main": "survey.core.js",
   "repository": {
     "type": "git",

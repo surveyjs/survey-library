@@ -10,7 +10,7 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "importHelpers": false,
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node",
     "baseUrl": ".",
     "declaration": true,
     "declarationDir": "build/typings/"

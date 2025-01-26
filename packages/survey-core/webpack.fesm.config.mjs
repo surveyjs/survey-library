@@ -2,6 +2,7 @@ import webpackCommonConfigCreator from "./webpack.config.js";
 import path from "path";
 export default function (options) {
   const config = webpackCommonConfigCreator(options);
+  config.mode = "production";
   config.experiments = {
     outputModule: true,
   };
@@ -9,7 +10,7 @@ export default function (options) {
     filename: "[name]" + ".js",
     path: config.output.path += "/fesm",
     library: {
-      type: "module"
+      type: "modern-module"
     }
   };
   const surveyCore = config.entry["survey.core"];

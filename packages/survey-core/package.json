@@ -2,7 +2,7 @@
   "name": "survey-core",
   "version": "2.0.0",
   "scripts": {
-    "build": "webpack --env buildType=dev && webpack --env buildType=prod",
+    "build": "webpack --env buildType=dev && npm run build:fesm && webpack --env buildType=prod",
     "build:fesm": "webpack --config ./webpack.fesm.config.mjs --env buildType=dev",
     "build:i18n": "webpack --config ./webpack.i18n.config.js --env buildType=dev && webpack --config ./webpack.i18n.config.js --env buildType=prod",
     "build:themes": "webpack --config ./webpack.themes.config.js --env buildType=dev && webpack --config ./webpack.themes.config.js --env buildType=prod",

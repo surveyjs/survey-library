@@ -6,14 +6,12 @@ export default function (options) {
     outputModule: true,
   };
   config.output = {
+    filename: "[name]" + ".js",
     path: config.output.path += "/fesm",
-    module: true,
     library: {
       type: "module"
     }
   };
-  config.optimization.concatenateModules = false;
-  config.target = "web";
   const surveyCore = config.entry["survey.core"];
   config.entry = {
     "survey-core": surveyCore,

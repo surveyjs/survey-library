@@ -5333,7 +5333,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.onAfterRenderQuestionInput.isEmpty) return;
     let id = (<Question>question).inputId;
     const { root } = settings.environment;
-    if (!!id && htmlElement.id !== id && typeof root !== "undefined") {
+    if (!!id && (!htmlElement || htmlElement.id !== id) && typeof root !== "undefined") {
       let el = root.getElementById(id);
       if (!!el) {
         htmlElement = el;

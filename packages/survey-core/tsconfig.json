@@ -3,7 +3,8 @@
     "target": "ES5",
     "module": "ES6",
     "lib": [
-      "DOM"
+      "DOM",
+      "ES6"
     ],
     "sourceMap": true,
     "noImplicitAny": false,
@@ -13,7 +14,8 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "declaration": true,
-    "declarationDir": "build/typings/"
+    "declarationDir": "build/typings/",
+    "types": []
   },
   "include": [
     "./entries/index.ts"

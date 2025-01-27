@@ -49,7 +49,7 @@
     "style-loader": "^1.2.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
     "svg-inline-loader": "^0.8.2",
-    "ts-loader": "^8.0.15",
+    "ts-loader": "^9.5.2",
     "ts-node": "3.3.0",
     "typescript": "^5.7.0",
     "webpack": "^5.93.0",

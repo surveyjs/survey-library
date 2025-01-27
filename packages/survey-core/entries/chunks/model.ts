@@ -7,8 +7,12 @@ import { settings } from "../../src/settings";
 
 export var Version: string;
 export var ReleaseDate: string;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
 Version = `${process.env.VERSION}`;
 settings.version = Version;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
 ReleaseDate = `${process.env.RELEASE_DATE}`;
 
 export function checkLibraryVersion(ver: string, libraryName: string): void {

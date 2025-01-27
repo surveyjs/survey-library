@@ -872,6 +872,11 @@ export class Base {
     locStr.disableLocalization = prop && prop.isLocalizable === false;
     return locStr;
   }
+  protected removeLocalizableString(name: string): void {
+    if(this.localizableStrings) {
+      delete this.localizableStrings[name];
+    }
+  }
   public getLocalizableString(name: string): LocalizableString {
     return !!this.localizableStrings ? this.localizableStrings[name] : null;
   }

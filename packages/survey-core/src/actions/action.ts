@@ -419,16 +419,16 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     super();
     const innerItem: IAction = (innerItemData instanceof Action) ? innerItemData.innerItem : innerItemData;
     this.innerItem = innerItem;
+    const compTitle = <any>innerItem["title"];
+    if(typeof compTitle === "object" && compTitle.type === ComputedUpdater.ComputedUpdaterType) {
+      this.compTitle = compTitle;
+    }
     this.locTitle = !!innerItem ? innerItem["locTitle"] : null;
     if (!!innerItem) {
       for (var key in innerItem) {
-        if (key === "locTitle" || key === "title" && !!this.locTitle && !!this.title) continue;
-        (<any>this)[key] = (<any>innerItem)[key];
-      }
-      const compTitle = <any>innerItem["title"];
-      if(typeof compTitle === "object" && compTitle.type === ComputedUpdater.ComputedUpdaterType) {
-        this.compTitle = compTitle;
-        this.locTitleValue.onGetTextCallback = () => this.compTitle.updater();
+        if (key !== "locTitle" && (key !== "title" || !this.compTitle)) {
+          (<any>this)[key] = (<any>innerItem)[key];
+        }
       }
     }
   }
@@ -472,28 +472,47 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleChanged = () => {
     this.needUpdateMaxDimension = true;
     this.raiseUpdate();
+    this.resetTitle();
   }
-  private isInternalLocTitle: boolean;
+  private get isInternalLocTitle() : boolean {
+    return this.locTitleValue?.owner === this;
+  }
   protected setLocTitle(val: LocalizableString): void {
+    if(!val && this.compTitle) return;
     if (!val && !this.locTitleValue) {
-      this.isInternalLocTitle = true;
       val = this.createLocTitle();
     } else {
-      this.isInternalLocTitle = false;
+      this.removeLocalizableString("title");
     }
     if (!!this.locTitleValue) {
       this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
     }
     this.locTitleValue = val;
     this.locTitleValue.onStringChanged.add(this.locTitleChanged);
+    this.resetTitle();
   }
   protected getTitle(): string {
-    const res = this.locTitleValue.renderedHtml;
-    if(!res && this.isInternalLocTitle) return undefined;
-    return res;
+    if(this.compTitle) return this.compTitle.updater();
+    if(this.isInternalLocTitle) return this.getTitleValue();
+    return this.getPropertyValue("title", undefined, () => {
+      return this.getTitleValue();
+    });
+  }
+  private getTitleValue(): string {
+    const res = this.locTitleValue?.renderedHtml;
+    return res === "" ? undefined : res;
   }
   protected setTitle(val: string): void {
+    if(this.compTitle) {
+      this.compTitle = undefined;
+      this.setLocTitle(null);
+    }
     this.locTitleValue.text = val;
+  }
+  private resetTitle(): void {
+    if(this.locTitleValue && !this.isInternalLocTitle && this.getPropertyValueWithoutDefault("title") !== undefined) {
+      this.setPropertyValueDirectly("title", this.locTitleValue.renderedHtml);
+    }
   }
   public get locTitleName(): string {
     return this.locTitle.localizationName;

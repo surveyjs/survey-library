@@ -25,7 +25,6 @@ trigger:
   tags:
     exclude:
       - v*.*.*
-      - V1
 
 pool:
   vmImage: ubuntu-latest

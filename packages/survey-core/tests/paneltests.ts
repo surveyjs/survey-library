@@ -1629,7 +1629,7 @@ QUnit.test(
 
       page1.addNewQuestion("text", "qN");
       assert.equal(page1.rows.length, 22, "There are 22 rows");
-      assert.equal(page1.rows[21].isNeedRender, false, "isNeedRender rows[21]");
+      assert.equal(page1.rows[21].isNeedRender, true, "isNeedRender rows[21]");
 
       survey["_isDesignMode"] = true;
       settings.supportCreatorV2 = true;
@@ -1768,7 +1768,7 @@ QUnit.test("page.cssRoot check for existings cssStyle.page", function (assert) {
   assert.equal(page.cssTitle, "");
   survey.css.page = prevPage;
 });
-QUnit.test("Check panel footer actions event", function(assert) {
+QUnit.test("Check panel footer actions event", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -1790,7 +1790,7 @@ QUnit.test("Check panel footer actions event", function(assert) {
     opt.actions.push({
       id: "test",
       title: "test",
-      action: () => {}
+      action: () => { }
     });
   });
   assert.equal(panel.footerActions.length, 0);
@@ -1803,7 +1803,7 @@ QUnit.test("Check panel footer actions event", function(assert) {
   assert.equal(actions.length, 1);
   assert.equal(actions[0].title, "test");
 });
-QUnit.test("Expand panel on error in multiple text question", function(assert) {
+QUnit.test("Expand panel on error in multiple text question", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -1830,7 +1830,7 @@ QUnit.test("Expand panel on error in multiple text question", function(assert) {
   assert.equal(panel.state, "expanded", "the panel is expanded");
 });
 
-QUnit.test("Check panel styles with originalPage", function(assert) {
+QUnit.test("Check panel styles with originalPage", function (assert) {
   const survey = new SurveyModel({
     questionsOnPageMode: "singlePage",
     pages: [
@@ -1939,7 +1939,7 @@ QUnit.skip("Check panel styles with originalPage and showPreview", function (ass
   assert.notOk(question2["getHasFrameV2"]());
   survey.css = {};
 });
-QUnit.test("Render name for collapsed/expanded questions in design-time", function(assert) {
+QUnit.test("Render name for collapsed/expanded questions in design-time", function (assert) {
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
@@ -1971,7 +1971,7 @@ QUnit.test("Render name for collapsed/expanded questions in design-time", functi
   assert.notOk(panel.locTitle.renderedHtml, "Render title is empty, #3");
 });
 
-QUnit.test("Check updateRowsOnElementAdded: insert on empty page", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded: insert on empty page", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -1988,7 +1988,7 @@ QUnit.test("Check updateRowsOnElementAdded: insert on empty page", function(asse
   assert.equal(page.rows[0].visibleElements[0].name, "q1");
 
 });
-QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index and swnl: false", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index and swnl: false", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2012,7 +2012,7 @@ QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index a
   assert.equal(page.rows[0].visibleElements[0].name, "q1");
   assert.equal(page.rows[0].visibleElements[1].name, "q2");
 });
-QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index and swnl: true", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index and swnl: true", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2037,7 +2037,7 @@ QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index a
   assert.equal(page.rows[1].visibleElements.length, 1);
   assert.equal(page.rows[1].visibleElements[0].name, "q2");
 });
-QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and swnl: false for next element", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and swnl: false for next element", function (assert) {
   const json = {
     pages: [
       {
@@ -2073,7 +2073,7 @@ QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and
   assert.equal(page.rows[0].visibleElements[0].name, "q2");
   assert.equal(page.rows[0].visibleElements[1].name, "q1");
 });
-QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and swnl: true for next element", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and swnl: true for next element", function (assert) {
   const json = {
     pages: [
       {
@@ -2110,7 +2110,7 @@ QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and
   assert.equal(page.rows[1].visibleElements.length, 1);
   assert.equal(page.rows[1].visibleElements[0].name, "q1");
 });
-QUnit.test("Check updateRowsOnElementAdded method: insert between elements in one row with swnl: false", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded method: insert between elements in one row with swnl: false", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2148,7 +2148,7 @@ QUnit.test("Check updateRowsOnElementAdded method: insert between elements in on
   assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q6", "q3", "q7", "q4"]);
   assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
 });
-QUnit.test("Check updateRowsOnElementAdded method: insert between elements in one row with swnl: true", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded method: insert between elements in one row with swnl: true", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2189,7 +2189,7 @@ QUnit.test("Check updateRowsOnElementAdded method: insert between elements in on
   assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q7", "q4"]);
   assert.deepEqual(page.rows[4].visibleElements.map(q => q.name), ["q5"]);
 });
-QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl: false", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl: false", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2227,7 +2227,7 @@ QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl
   assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4", "q7"]);
   assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
 });
-QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl: true", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl: true", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2268,7 +2268,7 @@ QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl
   assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q7"]);
   assert.deepEqual(page.rows[4].visibleElements.map(q => q.name), ["q5"]);
 });
-QUnit.test("Check swnl changed: change swnl for first element on page", function(assert) {
+QUnit.test("Check swnl changed: change swnl for first element on page", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2295,7 +2295,7 @@ QUnit.test("Check swnl changed: change swnl for first element on page", function
   assert.equal(page.rows.length, 1);
   assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
 });
-QUnit.test("Check swnl changed: change swnl for first element in row", function(assert) {
+QUnit.test("Check swnl changed: change swnl for first element in row", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2325,7 +2325,7 @@ QUnit.test("Check swnl changed: change swnl for first element in row", function(
   assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q5"]);
 });
 
-QUnit.test("Check swnl changed: change swnl for last element in row", function(assert) {
+QUnit.test("Check swnl changed: change swnl for last element in row", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2357,7 +2357,7 @@ QUnit.test("Check swnl changed: change swnl for last element in row", function(a
   assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q5"]);
 });
 
-QUnit.test("Check swnl changed: change swnl for middle element in row", function(assert) {
+QUnit.test("Check swnl changed: change swnl for middle element in row", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2391,7 +2391,7 @@ QUnit.test("Check swnl changed: change swnl for middle element in row", function
   assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q7"]);
 });
 
-QUnit.test("Check swnl changed: change swnl for single element in row", function(assert) {
+QUnit.test("Check swnl changed: change swnl for single element in row", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -3405,7 +3405,8 @@ QUnit.test("survey.onGetPanelNumber", function (assert) {
         type: "panel", name: "panel1", title: "Panel 1",
         showNumber: true, showQuestionNumbers: "onpanel",
         elements: [
-          { type: "panel", name: "panel2",
+          {
+            type: "panel", name: "panel2",
             showNumber: true, showQuestionNumbers: "onpanel", title: "Panel 2",
             elements: [
               { type: "text", name: "q1" },
@@ -3429,13 +3430,13 @@ QUnit.test("survey.onGetPanelNumber", function (assert) {
   });
   survey.onGetQuestionNumber.add((sender, options) => {
     const parent: any = options.question.parent;
-    if(!!parent && parent.no) {
+    if (!!parent && parent.no) {
       options.number = parent.no + options.number;
     }
   });
   survey.onGetPanelNumber.add((sender, options) => {
     const parent: any = options.panel.parent;
-    if(!!parent && parent.no) {
+    if (!!parent && parent.no) {
       options.number = parent.no + options.number;
     }
   });

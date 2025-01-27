@@ -59,7 +59,7 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
 
-  test.only("check validation", async t => {
+  test("check validation", async t => {
     await setupSurvey();
     await initSurvey(framework, json);
 

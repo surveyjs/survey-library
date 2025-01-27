@@ -2421,16 +2421,6 @@ export class SurveyModel extends SurveyElementCore
     return this.locLogo.renderedHtml;
   }
   public get titleMaxWidth(): string {
-    if (
-      !(isMobile() || this.isMobile) &&
-      !this.isValueEmpty(this.isLogoImageChoosen()) &&
-      !settings.supportCreatorV2
-    ) {
-      var logoWidth = this.logoWidth;
-      if (this.logoPosition === "left" || this.logoPosition === "right") {
-        return "calc(100% - 5px - 2em - " + logoWidth + ")";
-      }
-    }
     return "";
   }
   /**
@@ -7226,7 +7216,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private canFireAddElement(): boolean {
-    return !this.isMovingQuestion || this.isDesignMode && !settings.supportCreatorV2;
+    return !this.isMovingQuestion;
   }
   questionRemoved(question: Question): void {
     this.questionHashesRemoved(

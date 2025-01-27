@@ -106,7 +106,7 @@ export class DragDropPageHelperV1 {
     if (!isCancel && !!row) {
       var isSamePanel = false;
 
-      if (this.page.isDesignModeV2) {
+      if (this.page.isDesignMode) {
         var srcRow = src && src.parent && (src.parent as PanelModelBase).dragDropFindRow(src);
         if (row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine && row.elements.length > 1 && row.panel.elements[targetIndex] === dest) {
           elementsToSetSWNL.push(target);
@@ -170,7 +170,7 @@ export class DragDropPageHelperV1 {
     if (!source) return true;
     var destination = <IElement>this.dragDropInfo.destination;
     if (!this.dragDropCanDropCore(source, destination)) return false;
-    if (this.page.isDesignModeV2) {
+    if (this.page.isDesignMode) {
       const rowSource = this.page.dragDropFindRow(source);
       const rowDestination = this.page.dragDropFindRow(destination);
 

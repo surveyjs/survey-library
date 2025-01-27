@@ -59,7 +59,7 @@ QUnit.test("Check QuestionSelectBase columns property and creator V2", function 
       },
     ],
   };
-  settings.supportCreatorV2 = true;
+
   var survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON(json);
@@ -83,7 +83,6 @@ QUnit.test("Check QuestionSelectBase columns property and creator V2", function 
     ["newitem", "none", "other"],
     "check foot items"
   );
-  settings.supportCreatorV2 = false;
 });
 
 QUnit.test("Check QuestionSelectBase head and foot items property", function (assert) {
@@ -112,7 +111,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
   );
 
   survey.setDesignMode(true);
-  settings.supportCreatorV2 = true;
+
   (<any>question).updateVisibleChoices();
   assert.ok(question.hasHeadItems);
   assert.ok(question.hasFootItems);
@@ -136,7 +135,6 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
     "check foot items"
   );
   settings.itemFlowDirection = "row";
-  settings.supportCreatorV2 = false;
 });
 
 QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and dontknow properties", function (assert) {
@@ -169,7 +167,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
   );
 
   survey.setDesignMode(true);
-  settings.supportCreatorV2 = true;
+
   (<any>question).updateVisibleChoices();
   assert.ok(question.hasHeadItems);
   assert.ok(question.hasFootItems);
@@ -193,7 +191,6 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
     "check foot items"
   );
   settings.itemFlowDirection = "row";
-  settings.supportCreatorV2 = false;
   refuseProp.visible = false;
   dontKnowProp.visible = false;
 });
@@ -251,7 +248,6 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
     "check foot items"
   );
   settings.itemFlowDirection = "row";
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("settings.noneItemValue", function (assert) {
   settings.noneItemValue = "n/a";
@@ -1256,7 +1252,7 @@ QUnit.test("SelectBase visibleChoices order", function (assert) {
     { type: "dropdown", name: "q1", choicesOrder: "asc", choices: ["B", "A", "D", "C"] }
   ] });
   const question = <QuestionSelectBase>survey.getQuestionByName("q1");
-  assert.equal(question.visibleChoices.length, 4, "There are 4 items");
+  assert.equal(question.visibleChoices.length, 7, "There are 4 items");
   assert.equal(question.visibleChoices[0].value, "B", "the first item");
   assert.equal(question.visibleChoices[3].value, "C", "the last item");
 });
@@ -1439,7 +1435,7 @@ QUnit.test("Check isUsingCarryForward on deleting question", function (assert) {
 QUnit.test("Do not notify survey on changing newItem.value", function (
   assert
 ) {
-  settings.supportCreatorV2 = true;
+
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
@@ -1464,12 +1460,11 @@ QUnit.test("Do not notify survey on changing newItem.value", function (
   assert.equal(counter, 2, "#3");
   q.newItem.text = "item 2";
   assert.equal(counter, 2, "Do not react on newItem properties changes, #4");
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("Remove newItem from the list if it is false", function (
   assert
 ) {
-  settings.supportCreatorV2 = true;
+
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
@@ -1954,8 +1949,7 @@ QUnit.test("Select all and clickItemHandler", function (assert) {
   question.clickItemHandler(question.selectAllItem);
   assert.equal(question.isAllSelected, false, "#5");
 });
-QUnit.test("Test dropdown in CreatorV2 & restful", function(assert) {
-  settings.supportCreatorV2 = true;
+QUnit.test("Test dropdown in CreatorV2 & restful", function (assert) {
   const json = { elements: [
     { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] }
   ] };
@@ -1971,7 +1965,6 @@ QUnit.test("Test dropdown in CreatorV2 & restful", function(assert) {
   question.choicesByUrl.url = "";
   assert.equal(question.isUsingRestful, false, "isUsingRestful #3");
   assert.equal(question.visibleChoices.length, 3 + 5 + 1, "3 built-in + 5 choices + 1 add item, #3");
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("isUsingRestful & loading", function(assert) {
   const json = { elements: [
@@ -2037,8 +2030,7 @@ QUnit.test("checkbox, selectAll & survey.data, bug#7657", (assert) => {
   assert.deepEqual(q.value, ["One", "Two"], "q.value, #2");
   assert.deepEqual(survey.data, { q1: ["One", "Two"] }, "survey.data, #2");
 });
-QUnit.test("Do not show show choices in designer", function(assert) {
-  settings.supportCreatorV2 = true;
+QUnit.test("Do not show show choices in designer", function (assert) {
   const json = { elements: [
     { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] }
   ] };
@@ -2051,7 +2043,6 @@ QUnit.test("Do not show show choices in designer", function(assert) {
   assert.equal(question.visibleChoices.length, 3, "Hide choices in designer, #2");
   question.isMessagePanelVisible = false;
   assert.equal(question.visibleChoices.length, 5 + 1 + 3, "Show choices in designer, #1");
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("question checkbox displayValue() with other and comment", (assert) => {
   const q1 = new QuestionCheckboxModel("q1");

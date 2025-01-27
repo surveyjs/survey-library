@@ -14781,7 +14781,6 @@ QUnit.test("onElementWrapperComponentData event vs getRendererContextForString",
 });
 
 QUnit.test("Make inputs read-only in design-mode for V2", function (assert) {
-  settings.supportCreatorV2 = true;
   var survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
@@ -14796,19 +14795,9 @@ QUnit.test("Make inputs read-only in design-mode for V2", function (assert) {
   });
   assert.equal(survey.getQuestionByName("q1").isInputReadOnly, true, "q1");
   assert.equal(survey.getQuestionByName("q2").isInputReadOnly, true, "q2");
-  settings.supportCreatorV2 = false;
-  survey = new SurveyModel();
-  survey.setDesignMode(true);
-  survey.fromJSON({ elements: [{ type: "text", name: "q1" }] });
-  assert.equal(
-    survey.getAllQuestions()[0].isInputReadOnly,
-    false,
-    "supportCreatorV2 is false"
-  );
 });
 
 QUnit.test("forceIsInputReadOnly", function (assert) {
-  settings.supportCreatorV2 = true;
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
@@ -14827,7 +14816,6 @@ QUnit.test("forceIsInputReadOnly", function (assert) {
   survey.getQuestionByName("q2").forceIsInputReadOnly = false;
   assert.equal(survey.getQuestionByName("q1").isInputReadOnly, true, "q1");
   assert.equal(survey.getQuestionByName("q2").isInputReadOnly, false, "q2 with forceIsInputReadOnly");
-  settings.supportCreatorV2 = false;
 });
 
 QUnit.test("onElementContentVisibilityChanged event", function (assert) {
@@ -15902,7 +15890,7 @@ QUnit.test("hasTitle + designTime", assert => {
 
   survey.setDesignMode(true);
   assert.ok(survey.getQuestionByName("q1").hasTitle, "question - running");
-  assert.ok((<PanelModel>survey.getPanelByName("p1")).hasTitle, "panel - running");
+  assert.notOk((<PanelModel>survey.getPanelByName("p1")).hasTitle, "panel - running");
   assert.ok(survey.pages[0].hasTitle, "page - running");
   assert.ok(survey.hasTitle, "survey - running");
 });
@@ -16875,7 +16863,6 @@ QUnit.test("Check survey calculated width mode observability",
 
 QUnit.test("Check survey calculated width mode observability with survey changing",
   function (assert) {
-    settings.supportCreatorV2 = true;
     const json = {
       "pages": [
         {
@@ -16898,19 +16885,16 @@ QUnit.test("Check survey calculated width mode observability with survey changin
     assert.equal(model.calculatedWidthMode, "static");
     model.getAllQuestions()[1].startWithNewLine = false;
     assert.equal(model.calculatedWidthMode, "responsive");
-    settings.supportCreatorV2 = false;
   }
 );
 
 QUnit.test("Check survey calculated width mode observability on question added",
   function (assert) {
-    settings.supportCreatorV2 = true;
     const model = new SurveyModel({});
     assert.equal(model.calculatedWidthMode, "static");
     model.addNewPage();
     model.pages[0].addNewQuestion("matrix", "q1");
     assert.equal(model.calculatedWidthMode, "responsive");
-    settings.supportCreatorV2 = false;
   }
 );
 
@@ -17158,7 +17142,6 @@ QUnit.test("hasDescription is isDesignMode", function (assert) {
 
   const survey = new SurveyModel({});
   survey["_isDesignMode"] = true;
-  settings.supportCreatorV2 = true;
   survey.fromJSON({
     pages: [{
       name: "page1",
@@ -17182,7 +17165,6 @@ QUnit.test("hasDescription is isDesignMode", function (assert) {
   assert.ok(q4.hasDescription, "comment description is shown, on adding question");
 
   commentDescriptionProperty.placeholder = oldValue;
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("Test survey with custom type", function (assert) {
   JsonObject.metaData.addClass(

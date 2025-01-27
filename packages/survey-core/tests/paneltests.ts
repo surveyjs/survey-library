@@ -1632,7 +1632,7 @@ QUnit.test(
       assert.equal(page1.rows[21].isNeedRender, false, "isNeedRender rows[21]");
 
       survey["_isDesignMode"] = true;
-      settings.supportCreatorV2 = true;
+
       page1.addNewQuestion("text", "qN2");
       assert.equal(page1.rows.length, 23, "There are 23 rows");
       assert.equal(page1.rows[22].isNeedRender, true, "isNeedRender rows[22] for creator v2");

@@ -605,8 +605,7 @@ export var settings = {
    */
   maxDate: "",
   showDialog: <(options: IDialogOptions, rootElement?: HTMLElement) => any>undefined,
-  supportCreatorV2: false,
-  showDefaultItemsInCreatorV2: true,
+  showDefaultItemsInCreator: true,
   /**
    * An object that specifies icon replacements. Object keys are built-in icon names. To use a custom icon, assign its name to the key of the icon you want to replace:
    *

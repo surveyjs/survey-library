@@ -988,7 +988,6 @@ QUnit.test("Move flow panel up", function (assert) {
 });
 
 QUnit.test("Check onQuestionAdded event is not fired", function (assert) {
-  settings.supportCreatorV2 = false;
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var question = page.addNewQuestion("question1");
@@ -1008,17 +1007,8 @@ QUnit.test("Check onQuestionAdded event is not fired", function (assert) {
 
   survey.setDesignMode(true);
   page.dragDropStart(question, target);
-  page.dragDropMoveTo(q2, true);
-  page.dragDropFinish();
-
-  assert.ok(eventIsFired, "onQuestionAdded event is fired while dragging, Creator V1");
-
-  eventIsFired = false;
-  settings.supportCreatorV2 = true;
-  page.dragDropStart(question, target);
   page.dragDropMoveTo(q3, true);
   page.dragDropFinish();
-  settings.supportCreatorV2 = false;
 
   assert.notOk(eventIsFired, "onQuestionAdded event is not fired while dragging, Creator V2");
 
@@ -1026,7 +1016,6 @@ QUnit.test("Check onQuestionAdded event is not fired", function (assert) {
   assert.ok(eventIsFired, "onQuestionAdded event is fired on adding new question");
 });
 QUnit.test("Check onPanelAdded event is not fired", function (assert) {
-  settings.supportCreatorV2 = false;
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var panel1 = page.addNewPanel("panel1");
@@ -1046,17 +1035,9 @@ QUnit.test("Check onPanelAdded event is not fired", function (assert) {
 
   survey.setDesignMode(true);
   page.dragDropStart(panel1, target);
-  page.dragDropMoveTo(q2, true);
-  page.dragDropFinish();
-  assert.ok(eventIsFired, "onPanelAdded event is fired while dragging, Creator V1");
-
-  eventIsFired = false;
-  settings.supportCreatorV2 = true;
-  page.dragDropStart(panel1, target);
   page.dragDropMoveTo(q3, true);
   page.dragDropFinish();
   assert.notOk(eventIsFired, "onPanelAdded event is not fired while dragging, Creator V2");
-  settings.supportCreatorV2 = false;
 
   page.addNewPanel("panel2");
   assert.ok(eventIsFired, "onPanelAdded event is fired on adding new panel");

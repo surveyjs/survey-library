@@ -9,9 +9,12 @@ import type { ObjectDirective } from "vue";
 export const key2ClickDirective: ObjectDirective<any, IAttachKey2clickOptions> =
   {
     mounted: function (el: HTMLElement, binding) {
-      const options: IAttachKey2clickOptions = { ...binding.value } || {
-        processEsc: true,
-      };
+      const options: IAttachKey2clickOptions = Object.assign(
+        {
+          processEsc: true,
+        },
+        { ...binding.value }
+      );
       if (options.disableTabStop) {
         el.tabIndex = -1;
         return;

@@ -86,6 +86,7 @@ module.exports = function (options) {
           test: /\.(ts|tsx)$/,
           loader: "ts-loader",
           options: {
+            configFile: options.tsConfigFile || "tsconfig.json",
             transpileOnly: isProductionBuild
           }
         },

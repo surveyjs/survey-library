@@ -137,7 +137,7 @@ export class Question extends SurveyElement<Question>
 
   constructor(name: string) {
     super(name);
-    this.id = Question.getQuestionId();
+    this.setPropertyValueDirectly("id", Question.getQuestionId());
     this.onCreating();
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;

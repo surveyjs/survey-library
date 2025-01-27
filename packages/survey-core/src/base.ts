@@ -338,7 +338,7 @@ export class Base {
     this.eventList.push(res);
     return res;
   }
-  protected onBaseCreating() { }
+  protected onBaseCreating(): void { }
   /**
    * Returns the object type as it is used in the JSON schema.
    */

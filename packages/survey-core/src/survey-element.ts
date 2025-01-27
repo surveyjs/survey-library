@@ -320,7 +320,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   constructor(name: string) {
     super();
-    this.name = name;
+    this.setPropertyValueDirectly("name", this.getValidName(name));
     this.createNewArray("errors");
     this.createNewArray("titleActions");
     this.registerPropertyChangedHandlers(["isReadOnly"], () => { this.onReadOnlyChanged(); });

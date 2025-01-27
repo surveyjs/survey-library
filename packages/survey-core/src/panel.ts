@@ -374,7 +374,7 @@ export class PanelModelBase extends SurveyElement<Question>
       this.onAddElement.bind(this),
       this.onRemoveElement.bind(this)
     );
-    this.id = PanelModelBase.getPanelId();
+    this.setPropertyValueDirectly("id", PanelModelBase.getPanelId());
 
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },

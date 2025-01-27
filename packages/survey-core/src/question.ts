@@ -2989,6 +2989,7 @@ Serializer.addClass("question", [
   {
     name: "bindings:bindings",
     serializationProperty: "bindings",
+    isSerializableFunc: (obj: any) => !obj.isBindingEmpty(),
     visibleIf: function (obj: any) {
       return obj.bindings.getNames().length > 0;
     },

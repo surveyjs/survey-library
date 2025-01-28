@@ -43,7 +43,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.allowClear = val;
   }
   public get showClearButton(): boolean {
-    return this.allowClear && !this.isEmpty() && (!this.isDesignMode || settings.supportCreatorV2);
+    return this.allowClear && !this.isEmpty();
   }
   public get optionsCaption(): string {
     return this.placeholder;

@@ -274,7 +274,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.dropdownListModelValue?.clear();
   }
   public get showClearButton(): boolean {
-    return this.allowClear && !this.isEmpty() && (!this.isDesignMode || settings.supportCreatorV2);
+    return this.allowClear && !this.isEmpty();
   }
   //a11y
   public get isNewA11yStructure(): boolean {

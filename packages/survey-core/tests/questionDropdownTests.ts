@@ -307,7 +307,6 @@ QUnit.test("deserialize showOptionsCaption & optionsCaption to placeholder & all
 });
 
 QUnit.test("question.showClearButton", assert => {
-  settings.supportCreatorV2 = false;
   const json = {
     questions: [
       {
@@ -330,10 +329,8 @@ QUnit.test("question.showClearButton", assert => {
   assert.equal(q.showClearButton, false, "allowClear is false");
   q.allowClear = true;
   survey.setDesignMode(true);
-  assert.equal(q.showClearButton, false, "design mode");
-  settings.supportCreatorV2 = true;
+
   assert.equal(q.showClearButton, true, "Creator V2");
-  settings.supportCreatorV2 = false;
 });
 
 QUnit.test("ListModel localization", assert => {

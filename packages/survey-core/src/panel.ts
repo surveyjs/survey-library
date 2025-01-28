@@ -27,8 +27,6 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
-import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
-import { DragDropInfo } from "./drag-drop-helper-v1";
 import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PageModel } from "./page";
@@ -317,8 +315,6 @@ export class PanelModelBase extends SurveyElement<Question>
   removeElementCallback: (element: IElement) => void;
   onGetQuestionTitleLocation: () => string;
 
-  private dragDropPanelHelper: DragDropPanelHelperV1;
-
   public onAddRow(row: QuestionRowModel): void {
     this.onRowVisibleChanged();
     row.onVisibleChangedCallback = () => this.onRowVisibleChanged();
@@ -399,8 +395,6 @@ export class PanelModelBase extends SurveyElement<Question>
     this.registerPropertyChangedHandlers(["title"], () => {
       this.resetHasTextInTitle();
     });
-
-    this.dragDropPanelHelper = new DragDropPanelHelperV1(this);
   }
   public getType(): string {
     return "panelbase";
@@ -435,7 +429,7 @@ export class PanelModelBase extends SurveyElement<Question>
   get hasTitle(): boolean {
     return (
       (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
-      (this.isDesignMode && !(settings.supportCreatorV2 && this.isPanel) && this.showTitle && settings.designMode.showEmptyTitles)
+      (this.isDesignMode && !this.isPanel && this.showTitle && settings.designMode.showEmptyTitles)
     );
   }
   public delete(doDispose: boolean = true): void {
@@ -1358,13 +1352,12 @@ export class PanelModelBase extends SurveyElement<Question>
       !this.canRenderFirstRows()
     );
   }
-  public createRowAndSetLazy(index: number): QuestionRowModel {
+  private createRowAndSetLazy(index: number): QuestionRowModel {
     const row = this.createRow();
     row.setIsLazyRendering(this.isLazyRenderInRow(index));
     return row;
   }
-  // TODO V2: make all createRow API private (at least protected) after removing DragDropPanelHelperV1
-  public createRow(): QuestionRowModel {
+  protected createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
   public onSurveyLoad(): void {
@@ -1435,7 +1428,7 @@ export class PanelModelBase extends SurveyElement<Question>
     const targetElement = this.elements[index + 1];
     const createRowAtIndex = (index: number) => {
       const row = this.createRowAndSetLazy(index);
-      if(this.isDesignModeV2) {
+      if (this.isDesignMode) {
         row.setIsLazyRendering(false);
       }
       this.rows.splice(index, 0, row);
@@ -1586,7 +1579,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.updateRowsRemoveElementFromRow(element, this.findRowByElement(element));
     this.updateColumns();
   }
-  public updateRowsRemoveElementFromRow(element: IElement, row: QuestionRowModel): void {
+  private updateRowsRemoveElementFromRow(element: IElement, row: QuestionRowModel): void {
     if (!row || !row.panel) return;
     var elIndex = row.elements.indexOf(element);
     if (elIndex < 0) return;
@@ -1970,14 +1963,22 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
 
-  public dragDropAddTarget(dragDropInfo: DragDropInfo) {
-    this.dragDropPanelHelper.dragDropAddTarget(dragDropInfo);
-  }
+  // TODO: remove it or not?
   public dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
-    return this.dragDropPanelHelper.dragDropFindRow(findElement);
-  }
-  public dragDropMoveElement(src: IElement, target: IElement, targetIndex: number) {
-    this.dragDropPanelHelper.dragDropMoveElement(src, target, targetIndex);
+    if (!findElement || findElement.isPage) return null;
+    var element = <IElement>findElement;
+    var rows = this.rows;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].elements.indexOf(element) > -1) return rows[i];
+    }
+    for (var i = 0; i < this.elements.length; i++) {
+      var pnl = this.elements[i].getPanel();
+      if (!pnl) continue;
+      var row = (<PanelModelBase>pnl).dragDropFindRow(element);
+      if (!!row) return row;
+    }
+    return null;
+
   }
 
   public needResponsiveWidth() {

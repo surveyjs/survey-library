@@ -561,9 +561,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   /* You shouldn't use this method ever */
   __setData(data: ISurveyData) {
-    if (settings.supportCreatorV2) {
-      this.surveyDataValue = data;
-    }
+    this.surveyDataValue = data;
   }
   public get data(): ISurveyData {
     return this.surveyDataValue;

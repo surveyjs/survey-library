@@ -761,7 +761,7 @@ QUnit.test("check file d&d readonly", (assert) => {
   };
   q.readOnly = true;
   checkDD();
-  settings.supportCreatorV2 = true;
+
   survey.setDesignMode(true);
   checkDD();
 });

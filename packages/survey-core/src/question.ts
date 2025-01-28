@@ -1478,7 +1478,7 @@ export class Question extends SurveyElement<Question>
     if (this.forceIsInputReadOnly !== undefined) {
       return this.forceIsInputReadOnly;
     }
-    return this.isReadOnly || this.isDesignModeV2;
+    return this.isReadOnly || this.isDesignMode;
   }
   public get renderedInputReadOnly(): string {
     return this.isInputReadOnly ? "" : undefined;
@@ -1490,7 +1490,7 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly;
   }
   public get isDisabledAttr(): boolean {
-    return this.isDesignModeV2 || (!!this.readOnlyCallback && this.readOnlyCallback());
+    return this.isDesignMode || (!!this.readOnlyCallback && this.readOnlyCallback());
   }
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
@@ -1531,9 +1531,6 @@ export class Question extends SurveyElement<Question>
   }
   public get isInDesignMode(): boolean {
     return !this.isContentElement && this.isDesignMode;
-  }
-  public get isInDesignModeV2(): boolean {
-    return !this.isContentElement && this.isDesignModeV2;
   }
   /**
    * A question number or letter (depends on the `questionStartIndex` property of the question container (panel, page, or survey)).

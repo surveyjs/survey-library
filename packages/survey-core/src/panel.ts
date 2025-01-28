@@ -430,7 +430,7 @@ export class PanelModelBase extends SurveyElement<Question>
   get hasTitle(): boolean {
     return (
       (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
-      (this.isDesignMode && !(settings.supportCreatorV2 && this.isPanel) && this.showTitle && settings.designMode.showEmptyTitles)
+      (this.isDesignMode && !this.isPanel && this.showTitle && settings.designMode.showEmptyTitles)
     );
   }
   public delete(doDispose: boolean = true): void {
@@ -1429,7 +1429,9 @@ export class PanelModelBase extends SurveyElement<Question>
     const targetElement = this.elements[index + 1];
     const createRowAtIndex = (index: number) => {
       const row = this.createRowAndSetLazy(index);
+      if (this.isDesignMode) {
         row.setIsLazyRendering(false);
+      }
       this.rows.splice(index, 0, row);
       return row;
     };

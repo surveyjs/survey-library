@@ -81,8 +81,6 @@ registerMarkupTests(
       ]
     },
     initSurvey: (survey) => survey.setDesignMode(true),
-    before: () => { settings.supportCreatorV2 = true; },
-    after: () => { settings.supportCreatorV2 = false; },
     snapshot: "radiogroup-disabled",
   },
   {

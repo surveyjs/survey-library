@@ -2311,6 +2311,7 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     if (!qValue[index]) qValue[index] = {};
+    const oldVal = qValue[index][name];
     if (!this.isValueEmpty(val)) {
       qValue[index][name] = val;
     } else {
@@ -2321,17 +2322,20 @@ export class QuestionPanelDynamicModel extends Question
         name
       );
     }
+    const options = {
+      panel: (<QuestionPanelDynamicItem>item).panel,
+      name: name,
+      panelIndex: index,
+      panelData: qValue[index],
+      value: val,
+      oldValue: oldVal
+    };
+    if (this.survey) {
+      this.survey.dynamicPanelItemValueChanging(this, options);
+    }
     this.value = qValue;
     this.changingValueQuestion = null;
     if (this.survey) {
-      var options = {
-        question: this,
-        panel: (<QuestionPanelDynamicItem>item).panel,
-        name: name,
-        itemIndex: index,
-        itemValue: qValue[index],
-        value: val,
-      };
       this.survey.dynamicPanelItemValueChanged(this, options);
     }
     this.isSetPanelItemData[name]--;

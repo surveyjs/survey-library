@@ -11,7 +11,6 @@ import {
 import { PanelModelBase, PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { DragDropPageHelperV1 } from "./drag-drop-page-helper-v1";
 
 /**
  * The `PageModel` object describes a survey page and contains properties and methods that allow you to control the page and access its elements (panels and questions).
@@ -20,13 +19,11 @@ import { DragDropPageHelperV1 } from "./drag-drop-page-helper-v1";
  */
 export class PageModel extends PanelModel implements IPage {
   private hasShownValue: boolean = false;
-  private dragDropPageHelper: DragDropPageHelperV1;
   public isPageContainer: boolean;
 
   constructor(name: string = "") {
     super(name);
     this.createLocalizableString("navigationDescription", this, true);
-    this.dragDropPageHelper = new DragDropPageHelperV1(this);
   }
   public getType(): string {
     return "page";
@@ -358,24 +355,6 @@ export class PageModel extends PanelModel implements IPage {
     if (this.survey != null) {
       this.survey.pageVisibilityChanged(this, this.isVisible);
     }
-  }
-  public getDragDropInfo(): any { return this.dragDropPageHelper.getDragDropInfo(); }
-  public dragDropStart(
-    src: IElement,
-    target: IElement,
-    nestedPanelDepth: number = -1
-  ): void {
-    this.dragDropPageHelper.dragDropStart(src, target, nestedPanelDepth);
-  }
-  public dragDropMoveTo(
-    destination: ISurveyElement,
-    isBottom: boolean = false,
-    isEdge: boolean = false
-  ): boolean {
-    return this.dragDropPageHelper.dragDropMoveTo(destination, isBottom, isEdge);
-  }
-  public dragDropFinish(isCancel: boolean = false): IElement {
-    return this.dragDropPageHelper.dragDropFinish(isCancel);
   }
 
   public ensureRowsVisibility() {

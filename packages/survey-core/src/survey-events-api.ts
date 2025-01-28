@@ -889,7 +889,7 @@ export interface TimerPanelInfoTextEvent {
    */
   text: string;
 }
-export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionEventMixin {
+export interface DynamicPanelValueChangedEvent extends PanelDynamicQuestionEventMixin {
   /**
    * The panel's data object that includes all item values.
    */
@@ -910,6 +910,15 @@ export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionE
    * A panel that nests the item with a changed value.
    */
   panel: PanelModel;
+}
+export interface DynamicPanelValueChangingEvent extends DynamicPanelValueChangedEvent {
+  /**
+   * The item's old value.
+   */
+  oldValue: any;
+}
+
+export interface DynamicPanelItemValueChangedEvent extends DynamicPanelValueChangedEvent {
 }
 export interface DynamicPanelCurrentIndexChangedEvent extends PanelDynamicQuestionEventMixin {
   /**

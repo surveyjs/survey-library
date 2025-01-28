@@ -489,6 +489,9 @@ frameworks.forEach((framework) => {
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.car).eql(["Nissan", "BMW"]);
   });
+  test("check other comment is focused after other item is selected ", async (t) => {
+    await t.click("input[value='other']").expect(Selector("textarea").focused).ok();
+  });
 });
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(async t => {

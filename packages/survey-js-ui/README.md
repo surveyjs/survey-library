@@ -44,7 +44,33 @@ To get started with SurveyJS Form Library UI for HTML/CSS/JavaScript application
 
 ## Build SurveyJS Form Library UI from Sources
 
-Refer to instructions in the root README file: [Build the SurveyJS Form Library from Sources](https://github.com/surveyjs/survey-library#build-the-surveyjs-form-library-from-sources).
+1. [**Build the platform-independent part**](../survey-core/README.md#survey-model-platform-independent-part)
+
+1. **Install SurveyJS Form Library UI dependencies and build this library**
+
+    ```
+    cd ../survey-js-ui 
+    npm i
+    npm run build
+    ```
+
+    You can find the built scripts in folders under the `build` directory.
+
+2. **Run a test application**
+
+    ```
+    npm run start
+    ```
+
+    This command runs a local HTTP server at http://localhost:7777/.
+
+3. **Run unit tests**
+
+    ```
+    npm run test
+    ```
+
+    The unit tests use [Karma](https://karma-runner.github.io/6.3/index.html).
 
 ## Licensing
 

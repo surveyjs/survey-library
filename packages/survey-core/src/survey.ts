@@ -2822,6 +2822,8 @@ export class SurveyModel extends SurveyElementCore
     return this.getPropertyValue("showProgressBar");
   }
   public set showProgressBar(newValue: string) {
+    if((<any>newValue) === true) newValue = "auto";
+    if((<any>newValue) === false) newValue = "off";
     this.setPropertyValue("showProgressBar", newValue.toLowerCase());
   }
   /**

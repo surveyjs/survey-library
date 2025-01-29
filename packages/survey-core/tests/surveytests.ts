@@ -20684,6 +20684,25 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
+QUnit.test("getContainerContent - do not show buttons progress in the single page mode", function (assert) {
+  const survey = new SurveyModel({
+    showProgressBar: true,
+    progressBarLocation: "bottom",
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+          },
+        ]
+      },
+    ]
+  });
+  assert.equal(survey.showProgressBar, "auto");
+  (<any>survey).showProgressBar = false;
+  assert.equal(survey.showProgressBar, "off");
+});
 QUnit.test("Display mode in design time 2", function (assert) {
   const survey = new SurveyModel();
   assert.equal(survey.wrapperFormCss, "sd-root-modern__wrapper");

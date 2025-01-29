@@ -43,7 +43,6 @@ A platform-independent survey model for SurveyJS Form Library. This package shou
 Make sure that you have Node.js v16 or later and a compatible npm version installed.
 
     ```
-    npm install -g karma-cli
     npm install
     ```
 

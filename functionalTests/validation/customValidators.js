@@ -3,9 +3,22 @@ import { Selector, ClientFunction, fixture, test } from "testcafe";
 const title = "customValidators";
 
 const setupSurvey = ClientFunction(() => {
+  function __extends(thisClass, baseClass) {
+    for (var p in baseClass)
+      if (baseClass.hasOwnProperty(p)) thisClass[p] = baseClass[p];
+    function __() {
+      this.constructor = thisClass;
+    }
+    thisClass.prototype =
+      baseClass === null
+        ? Object.create(baseClass)
+        : ((__.prototype = baseClass.prototype), new __());
+  }
+
   var MyTextValidator = (function(_super) {
+    __extends(MyTextValidator, _super);
     function MyTextValidator() {
-      return Reflect.construct(_super, arguments, MyTextValidator);
+      _super.call(this);
     }
     MyTextValidator.prototype.getType = function() {
       return "mytextvalidator";
@@ -28,8 +41,6 @@ const setupSurvey = ClientFunction(() => {
     MyTextValidator.prototype.getDefaultErrorText = function(name) {
       return "You text should contains 'survey' word.";
     };
-    Reflect.setPrototypeOf(MyTextValidator.prototype, _super.prototype);
-    Reflect.setPrototypeOf(MyTextValidator, _super);
     return MyTextValidator;
   })(window["Survey"].SurveyValidator);
   // window["Survey"].MyTextValidator = MyTextValidator;

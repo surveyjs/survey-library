@@ -12,10 +12,7 @@
       "@legacy/*": [
         "../../src/*"
       ]
-    },
-    "types": [
-      "qunit"
-    ]
+    }
   },
   "include": [
     "./tests/entries/test.ts",

@@ -13,9 +13,11 @@ export default defineConfig({
     },
   },
   resolve: {
-    dedupe: ["survey-core"],
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "survey-core": fileURLToPath(
+        new URL("./node_modules/survey-core", import.meta.url)
+      ),
     },
   },
 });

@@ -99,7 +99,7 @@ export class ProcessValue {
       if (
         Helpers.isNumber(ind_name) &&
         Array.isArray(values) &&
-        (ind_name as number) >= values.length
+        ind_name >= values.length
       )
         return null;
       values = values[ind_name];

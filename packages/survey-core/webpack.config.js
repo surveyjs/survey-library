@@ -36,13 +36,19 @@ var buildPlatformJson = {
   files: [
     "**/*"
   ],
-  "module": "fesm/survey-core.js",
   "main": "survey.core.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
-  typings: "./typings/entries/index.d.ts"
+  typings: "./typings/entries/index.d.ts",
+  "typesVersions": {
+    "<4.2": {
+      "*": [
+        "ts3.4/*"
+      ]
+    }
+  }
 };
 
 module.exports = function (options) {

@@ -1,22 +1,25 @@
 import webpackCommonConfigCreator from "./webpack.config.js";
 import path from "path";
+
+// const { merge } = require("webpack-merge");
+
 export default function (options) {
-  options.tsConfigFile = "tsconfig.fesm.json";
   const config = webpackCommonConfigCreator(options);
-  config.mode = "production";
   config.experiments = {
     outputModule: true,
   };
   config.output = {
-    filename: "[name]" + ".js",
-    path: config.output.path += "/fesm",
+    path: config.output.path += "/esm",
+    module: true,
     library: {
-      type: "modern-module"
+      type: "module"
     }
   };
-  const surveyCore = config.entry["survey.core"];
+  config.optimization.concatenateModules = false;
+  config.target = "web";
+
   config.entry = {
-    "survey-core": surveyCore,
+    "survey-core": config.entry["survey-core"],
   };
   return config;
-}
+};

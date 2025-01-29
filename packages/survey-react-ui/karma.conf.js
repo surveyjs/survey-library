@@ -35,10 +35,7 @@ module.exports = function (config) {
           },
           {
             test: /\.html$/,
-            loader: "html-loader",
-            options: {
-              esModule: false
-            }
+            loader: "html-loader"
           },
         ]
       },

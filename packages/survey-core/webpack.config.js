@@ -49,9 +49,18 @@ var buildPlatformJson = {
       "import": "./fesm/survey.i18n.js",
       "require": "./survey.i18n.js"
     },
+    "./i18n": {
+      "import": "./fesm/i18n/index.js",
+      "require": "./i18n/index.js"
+    },
     "./i18n/*": {
       "import": "./fesm/i18n/*.js",
       "require": "./i18n/*.js"
+    },
+    "./themes": {
+      "types": "./themes/index.d.ts",
+      "import": "./fesm/themes/index.js",
+      "require": "./themes/index.js"
     },
     "./themes/*": {
       "types": "./themes/*.d.ts",

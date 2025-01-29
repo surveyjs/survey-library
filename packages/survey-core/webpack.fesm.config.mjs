@@ -3,7 +3,8 @@ import path from "path";
 export default function (options) {
   options.tsConfigFile = "tsconfig.fesm.json";
   const config = webpackCommonConfigCreator(options);
-  config.mode = "production";
+  config.optimization.minimize = false;
+  config.devtool = "source-map",
   config.experiments = {
     outputModule: true,
   };
@@ -11,7 +12,7 @@ export default function (options) {
     filename: "[name]" + ".js",
     path: config.output.path += "/fesm",
     library: {
-      type: "modern-module"
+      type: "module"
     }
   };
   const surveyCore = config.entry["survey.core"];

@@ -49,29 +49,6 @@ module.exports = function (options) {
   var buildPath = __dirname + "/build/";
   var isProductionBuild = options.buildType === "prod";
 
-  // function createStylesBundleWithFonts() {
-  //   const getdir = (filename) => {
-  //     return buildPath + filename;
-  //   };
-
-  //   if (isProductionBuild) {
-  //     let outputPath = getdir("survey-creator-core.min.css");
-  //     let inputPathList = [
-  //       getdir("fonts.fontless.min.css"),
-  //       getdir("survey-creator-core.fontless.min.css")
-  //     ];
-  //     return mergeFiles(inputPathList, outputPath);
-  //   } else {
-  //     let outputPath = getdir("survey-creator-core.css");
-  //     let inputPathList = [
-  //       getdir("fonts.fontless.css"),
-  //       getdir("survey-creator-core.fontless.css")
-  //     ];
-  //     return mergeFiles(inputPathList, outputPath);
-  //   }
-
-  // }
-
   var percentage_handler = function handler(percentage, msg) {
     if (0 == percentage) {
       console.log("Build started... good luck!");
@@ -103,10 +80,6 @@ module.exports = function (options) {
     },
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
-      //plugins: [new TsconfigPathsPlugin(/*{ configFile: "./tsconfig.json" }*/)],
-      // alias: {
-      //   tslib: path.join(__dirname, "./src/entries/helpers.ts"),
-      // },
     },
     optimization: {
       minimize: isProductionBuild,

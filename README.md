@@ -98,53 +98,14 @@ https://github.com/surveyjs/survey-library/assets/102306951/844563b2-c7c3-400c-9
 
 ## Build the SurveyJS Form Library from Sources
 
-> The instructions below apply to SurveyJS Form Library for React, Knockout, jQuery, and Vue 2. If you are looking for instructions on how to build the library for Angular or Vue 3, refer to README files within the [`survey-angular-ui`](packages/survey-angular-ui/README.md#build-surveyjs-angular-form-library-from-sources) or [`survey-vue3-ui`](packages/survey-vue3-ui/README.md#build-surveyjs-vue-form-library-from-sources) packages.
+1. [**Build the platform-independent part**](./packages/survey-core/README.md#survey-model-platform-independent-part)
 
-1. **Clone the repo**
+2. **Build one of the UI packages**
 
-    ```cmd
-    git clone https://github.com/surveyjs/survey-library.git
-    cd survey-library
-    ```
-
-1. **Install dependencies**          
-Make sure that you have Node.js v14 or later and a compatible npm version installed.
-
-    ```cmd
-    npm install -g karma-cli
-    npm install
-    ```
-
-1. **Build the [platform-independent part](https://github.com/surveyjs/survey-library/blob/master/build-scripts/survey-core/README.md#survey-model-platform-independent-part) and plugins**
-
-    ```
-    npm run build_core
-    npm run build-plugins
-    ```
-
-1. **Build the library**
-
-    ```
-    npm run build
-    ```
-
-    You can find the built scripts and style sheets in folders under the `build` directory.
-
-1. **Run test examples**
-
-    ```
-    npm run serve
-    ```
-
-    This command runs a local HTTP server at http://localhost:7777/.
-
-1. **Run unit tests**
-
-    ```
-    npm run test
-    ```
-
-    The unit tests use [Karma](https://karma-runner.github.io/6.3/index.html).
+   - [Angular Form Library](./packages/survey-angular-ui/README.md#build-surveyjs-angular-form-library-from-sources)
+   - [React Form Library](./packages/survey-react-ui/README.md#build-surveyjs-react-form-library-from-sources)
+   - [Vue Form Library](./packages/survey-vue3-ui/README.md#build-surveyjs-vue-form-library-from-sources)
+   - [HTML/CSS/JS Form Library](./packages/survey-js-ui/README.md#build-surveyjs-form-library-ui-from-sources)
 
 ## Licensing
 

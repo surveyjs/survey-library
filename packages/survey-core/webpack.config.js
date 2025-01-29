@@ -57,6 +57,11 @@ var buildPlatformJson = {
       "types": "./themes/*.d.ts",
       "import": "./fesm/themes/*.js",
       "require": "./themes/*.js"
+    },
+    "./icons/*": {
+      "types": "./icons/*.d.ts",
+      "import": "./fesm/icons/*.js",
+      "require": "./icons/*.js"
     }
   },
   "repository": {

@@ -15,13 +15,7 @@ const libraryName = "survey-vue3-ui";
 export default defineConfig(({ mode }) => {
   return {
     plugins: [vue()],
-    optimizeDeps: {
-      include: ["survey-core/icons/iconsV1", "survey-core/icons/iconsV2"],
-    },
     build: {
-      commonjsOptions: {
-        include: [/icons\/iconsV./, /node_modules/],
-      },
       emptyOutDir: false,
       sourcemap: mode == "development",
       // Output compiled files to /dist.

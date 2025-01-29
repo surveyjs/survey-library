@@ -38,6 +38,27 @@ var buildPlatformJson = {
   ],
   "module": "fesm/survey-core.js",
   "main": "survey.core.js",
+  "exports": {
+    ".": {
+      "types": "./typings/entries/index.d.ts",
+      "import": "./fesm/survey-core.js",
+      "require": "./survey.core.js"
+    },
+    "./*.css": "./*.css",
+    "./survey.i18n": {
+      "import": "./fesm/survey.i18n.js",
+      "require": "./survey.i18n.js"
+    },
+    "./i18n/*": {
+      "import": "./fesm/i18n/*.js",
+      "require": "./i18n/*.js"
+    },
+    "./themes/*": {
+      "types": "./themes/*.d.ts",
+      "import": "./fesm/themes/*.js",
+      "require": "./themes/*.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"

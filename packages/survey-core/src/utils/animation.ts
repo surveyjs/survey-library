@@ -134,12 +134,11 @@ export class AnimationUtils {
 
   protected onNextRender(callback: (isCancel?: boolean) => void, isCancel: boolean = false): void {
     if(!isCancel && DomWindowHelper.isAvailable()) {
-      let latestRAF: number;
       const cancelCallback = () => {
         callback(true);
         cancelAnimationFrame(latestRAF);
       };
-      latestRAF = DomWindowHelper.requestAnimationFrame(() => {
+      let latestRAF = DomWindowHelper.requestAnimationFrame(() => {
         latestRAF = DomWindowHelper.requestAnimationFrame(() => {
           callback(false);
           this.removeCancelCallback(cancelCallback);

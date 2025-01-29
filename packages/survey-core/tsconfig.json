@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ES5",
-    "module": "ES6",
+    "target": "es5",
+    "module": "es2015",
     "lib": [
       "DOM",
-      "ES6"
+      "ES5",
+      "ES6",
+      "ES2015.Promise"
     ],
     "sourceMap": true,
     "noImplicitAny": false,
@@ -14,8 +16,7 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "declaration": true,
-    "declarationDir": "build/typings/",
-    "types": []
+    "declarationDir": "build/typings/"
   },
   "include": [
     "./entries/index.ts"

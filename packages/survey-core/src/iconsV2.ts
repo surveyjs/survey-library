@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
 const path = (require as any).context("./images-v2/", true, /\.svg$/);
 
 const icons: { [index: string]: string } = {};

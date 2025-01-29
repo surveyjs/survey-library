@@ -6,6 +6,7 @@ import { Serializer } from "../src/jsonobject";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
 import { RenderingCompletedAwaiter } from "../src/survey-element";
+import { QuestionBooleanModel } from "../src/question_boolean";
 import { setOldTheme } from "./oldTheme";
 export default QUnit.module("SurveyElement");
 
@@ -477,4 +478,10 @@ QUnit.test("description css under input", function (assert) {
   };
   const q = survey.getQuestionByName("q1");
   assert.equal(q.cssDescription, "sd-desc sd-desc--ui");
+});
+
+QUnit.test("boolean question with no survey returns valid skeletonComponentName", function (assert) {
+  var q1 = new QuestionBooleanModel("q1");
+  assert.equal(q1.survey, undefined, "Question is not lined to a survey");
+  assert.equal(q1.skeletonComponentName, "sv-skeleton", "Question returns valid skeletonComponentName");
 });

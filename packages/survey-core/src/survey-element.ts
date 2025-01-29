@@ -332,7 +332,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.survey) {
       return this.survey.getSkeletonComponentName(this);
     }
-    return "";
+    return "sv-skeleton";
   }
 
   private parentQuestionValue: E = null;

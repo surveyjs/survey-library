@@ -312,27 +312,15 @@ export class PanelModelBase extends SurveyElement<Question>
   /**
    * An array of columns used to arrange survey elements within this page or panel. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true`.
    *
-   * Each object in this array should have the following structure:
+   * Each object in this array configures a single layout column and has the following properties:
    *
-   * ```js
-   * {
-   *   width: number, // Column width, in percentage
-   *   questionTitleWidth?: string // The width of question titles, in pixels
-   * }
-   * ```
+   * - `width`: `number`\
+   * Column width, in percentage.
    *
-   * For example, the following code creates four columns, each column occupies 25 percent of the available width. In addition, the first column specifies the width of 60 pixels for all question titles in it.
+   * - `questionTitleWidth`: `string`\
+   * The width of question titles, in pixels.
    *
-   * ```js
-   * "gridLayoutColumns": [
-   *   { "width": 25, "questionTitleWidth": "60px" },
-   *   { "width": 25 },
-   *   { "width": 25 },
-   *   { "width": 25 }
-   * ]
-   * ```
-   *
-   * To fill the columns with survey elements, arrange the elements in one or several rows. Disable the [`startWithNewLine`](https://surveyjs.io/form-library/documentation/api-reference/question#startWithNewLine) property for those questons and panels that should occupy the same row as the previous question or panel. After that, set the [`colSpan`](https://surveyjs.io/form-library/documentation/api-reference/question#colSpan) property for individual questions and panels to specify how many layout columns these survey elements span.
+   * The `gridLayoutColumns` array is generated automatically based on the maximum number of questions and panels in the same row. To arrange the survey elements in one or several rows, disable the [`startWithNewLine`](https://surveyjs.io/form-library/documentation/api-reference/question#startWithNewLine) property for those elements that should occupy the same row as the previous question or panel. You can also set the [`colSpan`](https://surveyjs.io/form-library/documentation/api-reference/question#colSpan) property for individual questions and panels to specify how many layout columns they span.
    */
   @propertyArray() gridLayoutColumns: Array<PanelLayoutColumnModel>;
 

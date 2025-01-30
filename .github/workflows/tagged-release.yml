@@ -26,7 +26,7 @@ jobs:
         run: |
           cd ./packages/survey-core
           npm install
-          npm run build
+          npm run build:all
 
       - name: Zip Build
         uses: montudor/action-zip@v1

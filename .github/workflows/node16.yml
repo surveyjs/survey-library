@@ -28,6 +28,24 @@ jobs:
 
     - name: Build React UI
       run: |
-        cd ./packages/survey-core
+        cd ./packages/survey-react-ui
+        npm install
+        npm run build
+
+    - name: Build Angular UI
+      run: |
+        cd ./packages/survey-angular-ui
+        npm install
+        npm run build
+
+    - name: Build Vue3 UI
+      run: |
+        cd ./packages/survey-vue3-ui
+        npm install
+        npm run build
+
+    - name: Build JS UI
+      run: |
+        cd ./packages/survey-js-ui
         npm install
         npm run build

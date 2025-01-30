@@ -22,15 +22,27 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           
-      - name: Build
+      - name: Build Core
         run: |
+          cd ./packages/survey-core
+          npm install
+          npm run build
+
+      - name: Zip Build
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r build.zip ./packages/survey-core/build
+        
+      - name: Build React UI
+        run: |
+          cd ./packages/survey-react-ui
           npm install
           npm run build
           
       - name: Zip Build
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r build.zip build
+          args: zip -qq -r build.zip ./packages/survey-react-ui/build
         
       - name: Create Release
         uses: "marvinpinto/action-automatic-releases@v1.2.0"

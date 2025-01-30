@@ -3578,6 +3578,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private performValidationOnPageChanging(page: PageModel): boolean {
     if (this.isDesignMode) return false;
+    if(this.canGoTroughValidation()) return true;
     const index = this.visiblePages.indexOf(page);
     if (index < 0 || index >= this.visiblePageCount) return false;
     if (index === this.currentPageNo) return false;
@@ -4115,7 +4116,7 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
-    if (!this.isEditMode || this.ignoreValidation) return false;
+    if (this.canGoTroughValidation()) return false;
     const skipValidation = doComplete && this.validationAllowComplete || !doComplete && this.validationAllowSwitchPages;
     const func = (hasErrors: boolean) => {
       if (!hasErrors || skipValidation) {
@@ -4128,6 +4129,7 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.validateCurrentPage(func) !== true && !skipValidation;
   }
+  private canGoTroughValidation(): boolean { return !this.isEditMode || !this.validationEnabled; }
   private asyncValidationQuesitons: Array<Question>;
   private checkForAsyncQuestionValidation(
     questions: Array<Question>,

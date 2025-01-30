@@ -24,7 +24,7 @@ jobs:
       run: |
         cd ./packages/survey-core
         npm install
-        npm run build
+        npm run build:all
 
     - name: Build React UI
       run: |

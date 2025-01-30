@@ -20,7 +20,14 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Build
+    - name: Build Core
       run: |
+        cd ./packages/survey-core
+        npm install
+        npm run build
+
+    - name: Build React UI
+      run: |
+        cd ./packages/survey-core
         npm install
         npm run build

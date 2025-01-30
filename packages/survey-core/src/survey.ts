@@ -7599,6 +7599,13 @@ export class SurveyModel extends SurveyElementCore
   public set showTimerPanelMode(val: string) {
     this.timerInfoMode = this.getTimerInfoVal(val);
   }
+  /**
+   * Enables the grid layout, which structures form elements using a column-based system.
+   *
+   * Default value: `false`
+   *
+   * Specify the [`gridLayoutColumns`](https://surveyjs.io/form-library/documentation/api-reference/page-model#gridLayoutColumns) property for pages and panels to configure layout columns. Set the [`colSpan`](https://surveyjs.io/form-library/documentation/api-reference/question#colSpan) property for an individual question or panel to adjust how many columns this survey element spans.
+   */
   @property({
     onSet: (newValue: boolean, target: SurveyModel) => {
       target.updateGridColumns();

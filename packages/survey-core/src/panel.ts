@@ -294,7 +294,7 @@ export class QuestionRowModel extends Base {
 }
 
 /**
- * A base class for the [PanelModel](https://surveyjs.io/form-library/documentation/panelmodel) and [PageModel](https://surveyjs.io/form-library/documentation/pagemodel) classes.
+ * A base class for the [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) and [`PageModel`](https://surveyjs.io/form-library/documentation/pagemodel) classes.
  */
 export class PanelModelBase extends SurveyElement<Question>
   implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner {
@@ -309,6 +309,31 @@ export class PanelModelBase extends SurveyElement<Question>
   private _columns: Array<PanelLayoutColumnModel> = undefined;
   private _columnsReady = false;
 
+  /**
+   * An array of columns used to arrange survey elements within this page or panel. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true`.
+   *
+   * Each object in this array should have the following structure:
+   *
+   * ```js
+   * {
+   *   width: number, // Column width, in percentage
+   *   questionTitleWidth?: string // The width of question titles, in pixels
+   * }
+   * ```
+   *
+   * For example, the following code creates four columns, each column occupies 25 percent of the available width. In addition, the first column specifies the width of 60 pixels for all question titles in it.
+   *
+   * ```js
+   * "gridLayoutColumns": [
+   *   { "width": 25, "questionTitleWidth": "60px" },
+   *   { "width": 25 },
+   *   { "width": 25 },
+   *   { "width": 25 }
+   * ]
+   * ```
+   *
+   * To fill the columns with survey elements, arrange the elements in one or several rows. Disable the [`startWithNewLine`](https://surveyjs.io/form-library/documentation/api-reference/question#startWithNewLine) property for those questons and panels that should occupy the same row as the previous question or panel. After that, set the [`colSpan`](https://surveyjs.io/form-library/documentation/api-reference/question#colSpan) property for individual questions and panels to specify how many layout columns these survey elements span.
+   */
   @propertyArray() gridLayoutColumns: Array<PanelLayoutColumnModel>;
 
   addElementCallback: (element: IElement) => void;

@@ -41,7 +41,6 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionRatingModel } from "../src/question_rating";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { surveyCss } from "../src/defaultCss/defaultCss";
-import { dxSurveyService } from "../src/dxSurveyService";
 import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";

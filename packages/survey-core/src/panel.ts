@@ -567,8 +567,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return isRandom && (this.questionOrder !== "initial") || this.questionOrder === "random";
   }
   protected isRandomizing = false;
-  randomizeElements(isRandom: boolean): void {
-    if (!this.canRandomize(isRandom) || this.isRandomizing) return;
+  randomizeElements(isRandom: boolean): boolean {
+    if (!this.canRandomize(isRandom) || this.isRandomizing) return false;
     this.isRandomizing = true;
     var oldElements = [];
     var elements = this.elements;
@@ -580,6 +580,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.updateRows();
     this.updateVisibleIndexes();
     this.isRandomizing = false;
+    return true;
   }
   /**
    * Returns `true` if elements in this panel/page are arranged in random order.
@@ -1057,6 +1058,13 @@ export class PanelModelBase extends SurveyElement<Question>
         const q = (<Question>el).getFirstQuestionToFocus(withError);
         if (!!q) return q;
       }
+    }
+    return null;
+  }
+  getFirstVisibleQuestion(): Question {
+    const qs = this.questions;
+    for (let i = 0; i < qs.length; i++) {
+      if (qs[i].isVisible) return qs[i];
     }
     return null;
   }

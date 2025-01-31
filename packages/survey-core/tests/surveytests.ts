@@ -7812,6 +7812,29 @@ QUnit.test("Randomize questions in page and panels", function (assert) {
 
   Helpers.randomizeArray = oldFunc;
 });
+QUnit.test("Randomize questions in page and panels & single question per page", function (assert) {
+  const oldFunc = Helpers.randomizeArray;
+  Helpers.randomizeArray = HelpTest.randomizeArray;
+
+  const survey = new SurveyModel({
+    questionsOnPageMode: "questionPerPage",
+    questionOrder: "random",
+    pages: [
+      { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }, { type: "text", name: "q3" }] },
+      { elements: [{ type: "text", name: "q4" }, { type: "text", name: "q5" }, { type: "text", name: "q6" }] },
+    ]
+  });
+  const page = survey.pages[0];
+  assert.equal(page.elements[0].name, "q3");
+  assert.equal(page.elements[2].name, "q1");
+  assert.equal(survey.currentSingleQuestion.name, "q3", "The first question is q3");
+  survey.performNext();
+  survey.performNext();
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "q6", "The current question is q6");
+
+  Helpers.randomizeArray = oldFunc;
+});
 
 QUnit.test("Quiz, correct, incorrect answers", function (assert) {
   var survey = new SurveyModel({

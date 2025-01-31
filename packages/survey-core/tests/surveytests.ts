@@ -21405,3 +21405,15 @@ QUnit.test("Show warning on loadig JSON created in higher version of Creator", f
   ConsoleWarnings.warn = prevWarn;
   settings.version = oldVersion;
 });
+QUnit.test("survey.beginLoading()/survey.endLoading()", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.state, "empty", "state #1");
+  survey.beginLoading();
+  assert.equal(survey.state, "loading", "state #2");
+  survey.endLoading();
+  assert.equal(survey.state, "empty", "state #3");
+  survey.beginLoading();
+  assert.equal(survey.state, "loading", "state #4");
+  survey.fromJSON({ elements: [{ type: "text", name: "q1" }] });
+  assert.equal(survey.state, "running", "state #5");
+});

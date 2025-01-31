@@ -3791,7 +3791,12 @@ export class SurveyModel extends SurveyElementCore
   private set isLoading(val: boolean) {
     this.setPropertyValue("isLoading", val);
   }
-
+  public beginLoading(): void {
+    this.isLoading = true;
+  }
+  public endLoading(): void {
+    this.isLoading = false;
+  }
   public get completedState(): string {
     return this.getPropertyValue("completedState", "");
   }
@@ -6598,6 +6603,7 @@ export class SurveyModel extends SurveyElementCore
       this.jsonErrors = jsonConverter.errors;
     }
     this.onStateAndCurrentPageChanged();
+    this.endLoading();
     this.updateState();
     if(!!this.sjsVersion && !!settings.version) {
       if(Helpers.compareVerions(this.sjsVersion, settings.version) > 0) {

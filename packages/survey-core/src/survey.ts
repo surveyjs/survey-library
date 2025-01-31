@@ -30,7 +30,6 @@ import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
-import { dxSurveyService } from "./dxSurveyService";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -5722,12 +5721,8 @@ export class SurveyModel extends SurveyElementCore
    * @see onUploadFiles
    * @see downloadFile
    */
-  public uploadFiles(
-    question: QuestionFileModel | QuestionSignaturePadModel,
-    name: string,
-    files: File[],
-    callback: (data: any | Array<any>, errors?: any | Array<any>) => any
-  ) {
+  public uploadFiles(question: QuestionFileModel | QuestionSignaturePadModel, name: string, files: File[],
+    callback: (data: any | Array<any>, errors?: any | Array<any>) => any): void {
     if (this.onUploadFiles.isEmpty) {
       callback("error", this.getLocString("noUploadFilesHandler"));
     } else {
@@ -5798,33 +5793,9 @@ export class SurveyModel extends SurveyElementCore
   loadedChoicesFromServer(question: IQuestion): void {
     this.locStrsChanged();
   }
-  protected createSurveyService(): dxSurveyService {
-    return new dxSurveyService();
-  }
   protected uploadFilesCore(name: string, files: File[],
     uploadingCallback: (data: any | Array<any>, errors?: any | Array<any>,) => any): void {
-    var responses: Array<any> = [];
-    files.forEach((file) => {
-      if (uploadingCallback) uploadingCallback("uploading", file);
-      this.createSurveyService().sendFile(
-        this.surveyPostId,
-        file,
-        (success: boolean, response: any) => {
-          if (success) {
-            responses.push({ content: response, file: file });
-            if (responses.length === files.length) {
-              if (uploadingCallback) uploadingCallback("success", responses);
-            }
-          } else {
-            if (uploadingCallback)
-              uploadingCallback("error", {
-                response: response,
-                file: file,
-              });
-          }
-        }
-      );
-    });
+    this.reportWarningOnUsingService();
   }
   getPage(index: number): PageModel {
     return this.pages[index];
@@ -6440,96 +6411,32 @@ export class SurveyModel extends SurveyElementCore
       this.clientId = clientId;
     }
     if (isPartial && !this.clientId) return;
-    const service = this.createSurveyService();
-    service.locale = this.getLocale();
-    const showSaving = this.surveyShowDataSaving || (!isPartial && service.isSurveJSIOService);
-    if (showSaving) {
-      this.setCompletedState("saving", "");
-    }
-    service.sendResult(postId, this.data,
-      (success: boolean, response: any, request: any) => {
-        if (showSaving || service.isSurveJSIOService) {
-          if (success) {
-            this.setCompletedState("success", "");
-          } else {
-            this.setCompletedState("error", response);
-          }
-        }
-        const options = { success: success, response: response, request: request };
-        this.onSendResult.fire(this, options);
-      },
-      this.clientId,
-      isPartial
-    );
+    this.reportWarningOnUsingService();
   }
   /**
    * Requests [SurveyJS Service](https://api.surveyjs.io/) to retrieve all answers to a specified question. Handle the [`onGetResult`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetResult) event to access the answers.
    * @param resultId A result ID that identifies the required survey. You can find it on the [My Surveys](https://surveyjs.io/service/mysurveys) page.
    * @param questionName A question name.
    */
-  public getResult(resultId: string, questionName: string) {
-    var self = this;
-    this.createSurveyService().getResult(resultId, questionName, function (
-      success: boolean,
-      data: any,
-      dataList: any[],
-      response: any
-    ) {
-      self.onGetResult.fire(self, {
-        success: success,
-        data: data,
-        dataList: dataList,
-        response: response,
-      });
-    });
+  public getResult(resultId: string, questionName: string): void {
+    this.reportWarningOnUsingService();
   }
   /**
    * Loads a survey JSON schema from the [SurveyJS Service](https://api.surveyjs.io). You can handle the [`onLoadedSurveyFromService`](#onLoadedSurveyFromService) event to modify the schema after loading if required.
    * @param surveyId The identifier of a survey JSON schema to load. Refer to the following help topic for more information: [Store Survey Results in the SurveyJS Service](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-the-surveyjs-service).
    * @param clientId A user identifier (e-mail or other unique ID) used to determine whether the user has already taken the survey.
    */
-  public loadSurveyFromService(
-    surveyId: string = null,
-    clientId: string = null
-  ) {
+  public loadSurveyFromService(surveyId: string = null, clientId: string = null): void {
     if (surveyId) {
       this.surveyId = surveyId;
     }
     if (clientId) {
       this.clientId = clientId;
     }
-    var self = this;
-    this.isLoading = true;
-    this.onLoadingSurveyFromService();
-    if (clientId) {
-      this.createSurveyService().getSurveyJsonAndIsCompleted(
-        this.surveyId,
-        this.clientId,
-        function (
-          success: boolean,
-          json: string,
-          isCompleted: string,
-          response: any
-        ) {
-          if (success) {
-            self.isCompletedBefore = isCompleted == "completed";
-            self.loadSurveyFromServiceJson(json);
-          }
-          self.isLoading = false;
-        }
-      );
-    } else {
-      this.createSurveyService().loadSurvey(this.surveyId, function (
-        success: boolean,
-        result: string,
-        response: any
-      ) {
-        if (success) {
-          self.loadSurveyFromServiceJson(result);
-        }
-        self.isLoading = false;
-      });
-    }
+    this.reportWarningOnUsingService();
+  }
+  private reportWarningOnUsingService(): void {
+    ConsoleWarnings.warn("We removed the surveyjs service integration from V2. Please find more here.");
   }
   private loadSurveyFromServiceJson(json: any) {
     if (!json) return;

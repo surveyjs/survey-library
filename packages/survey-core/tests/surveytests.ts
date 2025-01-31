@@ -6661,90 +6661,6 @@ QUnit.test("Clear value if empty array is set, Bug #608", function (assert) {
   assert.deepEqual(survey.data, {}, "The value with empty array is removed");
 });
 
-QUnit.test("surveyId + clientId", function (assert) {
-  var json = { questions: [{ type: "text", name: "q1" }] };
-  class dxSurveyServiceTester extends dxSurveyService {
-    public getSurveyJsonAndIsCompleted(
-      surveyId: string,
-      clientId: string,
-      onLoad: (
-        success: boolean,
-        surveyJson: any,
-        result: string,
-        response: any
-      ) => void
-    ) {
-      if (onLoad) {
-        onLoad(true, json, clientId, "");
-      }
-    }
-  }
-  class SurveyTester extends SurveyModel {
-    protected createSurveyService(): dxSurveyService {
-      return new dxSurveyServiceTester();
-    }
-  }
-  var survey = new SurveyTester({ surveyId: "surveyDummyId", clientId: "no" });
-  assert.equal(survey.state, "running", "The survey is running");
-  var q1 = survey.getQuestionByName("q1");
-  assert.equal(q1.name, "q1", "The survey created from the string");
-
-  survey = new SurveyTester({
-    surveyId: "surveyDummyId",
-    clientId: "completed",
-  });
-  assert.equal(
-    survey.state,
-    "completedbefore",
-    "The survey was completed before"
-  );
-  var q1 = survey.getQuestionByName("q1");
-  assert.equal(q1.name, "q1", "The survey created from the string");
-});
-
-QUnit.test("surveyId + clientId several page render", function (assert) {
-  let log = "";
-  let curState = "";
-  const json = { questions: [{ type: "text", name: "q1" }] };
-  class dxSurveyServiceTester extends dxSurveyService {
-    public getSurveyJsonAndIsCompleted(surveyId: string, clientId: string, onLoad: (success: boolean, surveyJson: any, result: string, response: any) => void) {
-      if (onLoad) {
-        onLoad(true, json, clientId, "");
-      }
-    }
-  }
-  class SurveyTester extends SurveyModel {
-    protected createSurveyService(): dxSurveyService {
-      return new dxSurveyServiceTester();
-    }
-    protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
-      super.propertyValueChanged(name, oldValue, newValue, arrayChanges);
-      if (name === "isLoading" || name === "state" || name === "activePage") {
-        log += ("-> " + name + ":" + newValue);
-      }
-    }
-    protected onLoadSurveyFromService(): void {
-      super.onLoadSurveyFromService();
-      curState = this.state;
-      assert.equal(curState, "loading");
-    }
-    protected setPropertyValueDirectly(name: string, val: any): void {
-      if (name === "activePage" && !!val) {
-        assert.ok(this.activePage === undefined, "this.activePage undefined");
-        assert.ok(!!val, "new activePage");
-      }
-      super.setPropertyValueDirectly(name, val);
-    }
-  }
-
-  let survey = new SurveyTester({ surveyId: "surveyDummyId", clientId: "completed" });
-  assert.equal(survey.state, "completedbefore", "The survey is running");
-  assert.equal(log, "-> state:empty-> state:loading-> isLoading:true-> activePage:page1-> state:completedbefore-> isLoading:false");
-
-  let q1 = survey.getQuestionByName("q1");
-  assert.equal(q1.name, "q1", "The survey created from the string");
-});
-
 QUnit.test(
   "Question description and text processing, variable, Bug #632",
   function (assert) {
@@ -21404,16 +21320,4 @@ QUnit.test("Show warning on loadig JSON created in higher version of Creator", f
   checkFunc("2.0.3", "2.0.2", true);
   ConsoleWarnings.warn = prevWarn;
   settings.version = oldVersion;
-});
-QUnit.test("survey.beginLoading()/survey.endLoading()", function (assert) {
-  const survey = new SurveyModel();
-  assert.equal(survey.state, "empty", "state #1");
-  survey.beginLoading();
-  assert.equal(survey.state, "loading", "state #2");
-  survey.endLoading();
-  assert.equal(survey.state, "empty", "state #3");
-  survey.beginLoading();
-  assert.equal(survey.state, "loading", "state #4");
-  survey.fromJSON({ elements: [{ type: "text", name: "q1" }] });
-  assert.equal(survey.state, "running", "state #5");
 });

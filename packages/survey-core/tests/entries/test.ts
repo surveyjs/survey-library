@@ -78,6 +78,7 @@ export * from "../mask/mask_settings_tests";
 export * from "../mask/multipletext_mask_settings_tests";
 export * from "../headerTests";
 export * from "../layout_tests";
+export * from "../surveyServiceRemovingTests";
 
 // localization
 import "../../src/localization/russian";

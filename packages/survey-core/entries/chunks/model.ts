@@ -243,7 +243,6 @@ export { TextPreProcessor } from "../../src/textPreProcessor";
 export { Notifier } from "../../src/notifier";
 export { Cover, CoverCell } from "../../src/header";
 
-export { dxSurveyService } from "../../src/dxSurveyService";
 export { englishStrings } from "../../src/localization/english";
 export { surveyLocalization, surveyStrings, getLocaleString, getLocaleStrings, setupLocale } from "../../src/surveyStrings";
 // export { cultureInfo } from "../../src/cultureInfo";

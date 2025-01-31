@@ -116,9 +116,6 @@ export var settings = {
    * - `disableQuestionWhileLoadingChoices`: `boolean`\
    * Disables a question while its choices are being loaded from a web service. Default value: `false`.
    *
-   * - `surveyServiceUrl`: `string`\
-   * The URL of the SurveyJS Service API endpoint.
-   *
    * - `onBeforeRequestChoices`: `(sender: ChoicesRestful, options: { request: XMLHttpRequest })`\
    * An event that is raised before a request for choices is send. Applies to questions with a specified [`choiceByUrl`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl) property. Use the `options.request` parameter to access and modify the `XMLHttpRequest` object. For instance, you can add authentication headers to it:
    *
@@ -134,8 +131,7 @@ export var settings = {
     onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => { },
     encodeUrlParams: true,
     cacheLoadedChoices: true,
-    disableQuestionWhileLoadingChoices: false,
-    surveyServiceUrl: "https://api.surveyjs.io/public/v1/Survey"
+    disableQuestionWhileLoadingChoices: false
   },
 
   //#region web section, obsolete properties
@@ -147,8 +143,6 @@ export var settings = {
   set useCachingForChoicesRestfull(val: boolean) { this.web.cacheLoadedChoices = val; },
   get disableOnGettingChoicesFromWeb(): boolean { return this.web.disableQuestionWhileLoadingChoices; },
   set disableOnGettingChoicesFromWeb(val: boolean) { this.web.disableQuestionWhileLoadingChoices = val; },
-  get surveyServiceUrl(): string { return this.web.surveyServiceUrl; },
-  set surveyServiceUrl(val: string) { this.web.surveyServiceUrl = val; },
   //#endregion
 
   /**

@@ -17235,7 +17235,7 @@ QUnit.test("Set question choices for disposed survey", function (assert) {
   const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
   survey.dispose();
   question.choices = [1, 2, 3];
-  assert.equal(question.choices.length, 3, "There is not errors");
+  assert.equal(question.choices.length, 2, "There is not errors, choices still the same");
   assert.notOk(question.survey, "Survey is not set");
   assert.notOk(question.data, "data is not set");
 });

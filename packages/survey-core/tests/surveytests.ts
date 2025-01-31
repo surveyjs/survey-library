@@ -20919,6 +20919,44 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & complete trigger & required
   btnComplete.action();
   assert.equal(survey.state, "completed", "Survey is completed");
 });
+QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #9376", function (assert) {
+  class ScreenoutTrigger extends SurveyTriggerComplete {
+    getType() { return "screenouttrigger"; }
+
+    onSuccess(values: any, properties: any) {
+      if (this.isRealExecution()) {
+        this.owner.setTriggerValue("result", "screenout", false);
+      }
+      // Parent call
+      super.onSuccess(values, properties);
+    }
+  }
+  Serializer.addClass("screenouttrigger", [], () => { return new ScreenoutTrigger(); }, "completetrigger");
+
+  const survey = new SurveyModel({
+    "elements": [
+      { "type": "text", "name": "q1", "isRequired": true },
+      { "type": "text", "name": "q2", "isRequired": true }
+    ],
+    "questionsOnPageMode": "questionPerPage",
+    "triggers": [
+      {
+        "type": "screenout",
+        "expression": "{q1} = 'a'"
+      }
+    ]
+  });
+  const btnComplete = survey.navigationBar.getActionById("sv-nav-complete");
+  assert.equal(btnComplete.visible, false, "Complete button is visible, #1");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion");
+  survey.currentSingleQuestion.value = "a";
+  assert.equal(btnComplete.visible, true, "Complete button is visible, #2");
+  assert.equal(survey.state, "running", "Survey is running");
+  btnComplete.action();
+  assert.equal(survey.state, "completed", "Survey is completed");
+
+  Serializer.removeClass("screenouttrigger");
+});
 QUnit.test("Do not use questionsOnPageMode in design-mode, Bug#9274", function (assert) {
   const json = {
     "pages": [{

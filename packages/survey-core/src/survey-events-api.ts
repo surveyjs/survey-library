@@ -899,10 +899,6 @@ export interface DynamicPanelValueChangedEvent extends PanelDynamicQuestionEvent
    */
   panelIndex: number;
   /**
-   * The item's new value.
-   */
-  value: any;
-  /**
    * The item's name.
    */
   name: string;
@@ -910,6 +906,10 @@ export interface DynamicPanelValueChangedEvent extends PanelDynamicQuestionEvent
    * A panel that nests the item with a changed value.
    */
   panel: PanelModel;
+  /**
+   * The item's new value.
+   */
+  value: any;
 }
 export interface DynamicPanelValueChangingEvent extends DynamicPanelValueChangedEvent {
   /**

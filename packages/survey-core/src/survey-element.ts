@@ -311,6 +311,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }) effectiveColSpan: number;
 
+  /**
+   * Specifies how many columns this survey element spans in the grid layout. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true` and define the [`gridLayoutColumns`](https://surveyjs.io/form-library/documentation/api-reference/page-model#gridLayoutColumns) array for the parent page or panel.
+   *
+   * Default value: 1
+   */
   public get colSpan(): number {
     return this.getPropertyValue("colSpan", 1);
   }
@@ -340,7 +345,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.survey) {
       return this.survey.getSkeletonComponentName(this);
     }
-    return "";
+    return "sv-skeleton";
   }
 
   private parentQuestionValue: E = null;

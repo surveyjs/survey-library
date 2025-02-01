@@ -595,6 +595,7 @@ export class Base {
    * @param val A new value for the property.
    */
   public setPropertyValue(name: string, val: any): void {
+    if (this.isDisposedValue) return;
     if (!this.isLoadingFromJson) {
       const prop = this.getPropertyByName(name);
       if (!!prop) {
@@ -612,9 +613,11 @@ export class Base {
         this.setArrayPropertyDirectly(name, val);
       }
     } else {
-      this.setPropertyValueDirectly(name, val);
-      if (!this.isDisposedValue && !this.isTwoValueEquals(oldValue, val)) {
-        this.propertyValueChanged(name, oldValue, val);
+      if (val !== oldValue) {
+        this.setPropertyValueDirectly(name, val);
+        if (!this.isTwoValueEquals(oldValue, val)) {
+          this.propertyValueChanged(name, oldValue, val);
+        }
       }
     }
   }

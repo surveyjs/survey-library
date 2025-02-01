@@ -433,7 +433,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     }
   }
   private createLocTitle(): LocalizableString {
-    return this.createLocalizableString("title", this, true);
+    const res = this.createLocalizableString("title", this, true);
+    if(this.compTitle) {
+      res.onGetTextCallback = (str: string): string => {
+        return str || this.compTitle?.updater() || "";
+      };
+    }
+    return res;
   }
   public setSubItems(options: IListModel): void {
     this.markerIconName = "icon-next_16x16";
@@ -478,7 +484,6 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return this.locTitleValue?.owner === this;
   }
   protected setLocTitle(val: LocalizableString): void {
-    if(!val && this.compTitle) return;
     if (!val && !this.locTitleValue) {
       val = this.createLocTitle();
     } else {

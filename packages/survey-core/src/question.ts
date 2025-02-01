@@ -137,7 +137,7 @@ export class Question extends SurveyElement<Question>
 
   constructor(name: string) {
     super(name);
-    this.id = Question.getQuestionId();
+    this.setPropertyValueDirectly("id", Question.getQuestionId());
     this.onCreating();
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
@@ -2986,6 +2986,7 @@ Serializer.addClass("question", [
   {
     name: "bindings:bindings",
     serializationProperty: "bindings",
+    isSerializableFunc: (obj: any) => !obj.isBindingEmpty(),
     visibleIf: function (obj: any) {
       return obj.bindings.getNames().length > 0;
     },

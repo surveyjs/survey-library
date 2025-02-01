@@ -234,6 +234,20 @@ QUnit.test("ItemValue.getItemByValue()", function (assert) {
   assert.equal(item.text, "empty", "returns empty value");
 });
 
+QUnit.test("ItemValue.locText property on demand", function (assert) {
+  const hasLocText = (item: ItemValue): boolean => {
+    return !!item["locTextValue"];
+  };
+  const item = new ItemValue(1);
+  assert.notOk(hasLocText(item), "locText is not created #1");
+  assert.equal(item.textOrHtml, "1", "textOrHtml is 1");
+  assert.equal(item.hasText, false, "has text is false");
+  assert.deepEqual(item.toJSON(), { value: 1 }, "toJSON is correct");
+  assert.notOk(hasLocText(item), "locText is not created #2");
+  item.text = "abc";
+  assert.ok(hasLocText(item), "locText is not created #3");
+});
+
 class BaseTester extends Base implements ILocalizableOwner {
   constructor() {
     super();

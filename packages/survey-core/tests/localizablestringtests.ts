@@ -866,6 +866,7 @@ QUnit.test("Fire onStringChanged when localizationName is set", function (assert
     callCount++;
   });
   assert.equal(callCount, 0, "no calls");
+  assert.equal(locString.text, "", "default value");
   locString.localizationName = "completeText";
   assert.equal(callCount, 1, "onStringChanged is called");
 });

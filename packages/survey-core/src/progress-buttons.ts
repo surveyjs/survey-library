@@ -125,7 +125,13 @@ export class ProgressButtons extends Base {
     return this.survey.currentPage ? this.survey.currentPage.renderedNavigationTitle : "";
   }
   public get footerText(): string {
-    return this.survey.progressText;
+    return this.progressText;
+  }
+  public get progressText(): string {
+    return this.getPropertyValue("progressText", undefined, () => this.survey.getProgressText());
+  }
+  public resetProgressText(): void {
+    this.resetPropertyValue("progressText");
   }
   public onResize: EventBase<ProgressButtons, any> = this.addEvent<ProgressButtons, any>();
   public processResponsiveness(width: number): void {

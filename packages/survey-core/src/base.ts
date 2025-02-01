@@ -248,7 +248,6 @@ export class Base {
   private arraysInfo: { [index: string]: any };
   private eventList: Array<EventBase<any>> = [];
   private expressionInfo: { [index: string]: IExpressionRunnerInfo };
-  private bindingsValue: Bindings;
   private isDisposedValue: boolean;
   private classMetaData: JsonMetadataClass;
   private onPropChangeFunctions: Array<{
@@ -312,7 +311,6 @@ export class Base {
   private isCreating = true;
 
   public constructor() {
-    this.bindingsValue = new Bindings(this);
     CustomPropertiesCollection.createProperties(this);
     this.onBaseCreating();
     this.isCreating = false;
@@ -340,7 +338,7 @@ export class Base {
     this.eventList.push(res);
     return res;
   }
-  protected onBaseCreating() { }
+  protected onBaseCreating(): void { }
   /**
    * Returns the object type as it is used in the JSON schema.
    */
@@ -375,11 +373,19 @@ export class Base {
   public get inSurvey(): boolean {
     return !!this.getSurvey(true);
   }
+  private bindingsValue: Bindings;
   public get bindings(): Bindings {
+    if(!this.bindingsValue) {
+      this.bindingsValue = new Bindings(this);
+    }
     return this.bindingsValue;
   }
-  checkBindings(valueName: string, value: any) { }
-  protected updateBindings(propertyName: string, value: any) {
+  protected isBindingEmpty(): boolean {
+    return !this.bindingsValue || this.bindingsValue.isEmpty();
+  }
+  checkBindings(valueName: string, value: any): void { }
+  protected updateBindings(propertyName: string, value: any): void {
+    if(!this.bindingsValue) return;
     var valueName = this.bindings.getValueNameByPropertyName(propertyName);
     if (!!valueName) {
       this.updateBindingValue(valueName, value);
@@ -872,6 +878,11 @@ export class Base {
     locStr.disableLocalization = prop && prop.isLocalizable === false;
     return locStr;
   }
+  protected removeLocalizableString(name: string): void {
+    if(this.localizableStrings) {
+      delete this.localizableStrings[name];
+    }
+  }
   public getLocalizableString(name: string): LocalizableString {
     return !!this.localizableStrings ? this.localizableStrings[name] : null;
   }
@@ -904,7 +915,7 @@ export class Base {
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
         const prop = this.getPropertyByName(key);
-        if (!prop || !prop.isSerializable) continue;
+        if (!prop || !prop.isPropertySerializable(this)) continue;
         let items = this.getPropertyValue(key);
         if (!items || !items.length) continue;
         for (let i = 0; i < items.length; i++) {

@@ -19,20 +19,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   dropdownListModelValue: DropdownListModel;
   lastSelectedItemValue: ItemValue = null;
 
-  updateReadOnlyText(): void {
-    let result = !!this.selectedItem ? "" : this.placeholder;
-    if(this.renderAs == "select") {
-      if (this.isOtherSelected) {
-        result = this.otherText;
-      } else if (this.isNoneSelected) {
-        result = this.noneText;
-      } else if (!!this.selectedItem) {
-        result = this.selectedItemText;
-      }
-    }
-    this.readOnlyText = result;
-  }
-
   constructor(name: string) {
     super(name);
     this.ariaExpanded = "false";
@@ -42,13 +28,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.onVisibleChoicesChanged();
     });
     this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
-      this.updateReadOnlyText();
+      this.getSingleSelectedItem();
+      this.resetReadOnlyText();
     });
-    this.updateReadOnlyText();
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
-    this.updateReadOnlyText();
+    this.resetReadOnlyText();
   }
   public get showOptionsCaption(): boolean {
     return this.allowClear;
@@ -59,7 +45,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get showClearButton(): boolean {
     return this.allowClear && !this.isEmpty();
   }
-  public get optionsCaption() {
+  public get optionsCaption(): string {
     return this.placeholder;
   }
   public set optionsCaption(val: string) {
@@ -229,7 +215,20 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property() textWrapEnabled: boolean;
   @property({ defaultValue: false }) inputHasValue: boolean;
-  @property({ defaultValue: "" }) readOnlyText: string;
+  public get readOnlyText(): string {
+    return this.getPropertyValue("readOnlyText", undefined, () => this.calculateReadOnlyText());
+  }
+  protected calculateReadOnlyText(): string {
+    if(this.renderAs == "select") {
+      if (this.isOtherSelected) return this.otherText;
+      if (this.isNoneSelected) return this.noneText;
+      if (!!this.selectedItem) return this.selectedItemText;
+    }
+    return !!this.selectedItem ? "" : this.placeholder;
+  }
+  protected resetReadOnlyText(): void {
+    this.resetPropertyValue("readOnlyText");
+  }
   /**
    * Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
    * @see choicesLazyLoadPageSize

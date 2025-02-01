@@ -94,11 +94,11 @@ export class QuestionRatingModel extends Question {
       });
     this.createLocalizableString("minRateDescription", this, true)
       .onStringChanged.add((sender, options) => {
-        this.hasMinRateDescription = !sender.isEmpty;
+        this.setPropertyValue("hasMinRateDescription", !sender.isEmpty);
       });
     this.createLocalizableString("maxRateDescription", this, true)
       .onStringChanged.add((sender, options) => {
-        this.hasMaxRateDescription = !sender.isEmpty;
+        this.setPropertyValue("hasMaxRateDescription", !sender.isEmpty);
       });
 
     this.initPropertyDependencies();
@@ -517,9 +517,12 @@ export class QuestionRatingModel extends Question {
   get locMaxRateDescription(): LocalizableString {
     return this.getLocalizableString("maxRateDescription");
   }
-  @property({ defaultValue: false }) hasMinRateDescription: boolean;
-  @property({ defaultValue: false }) hasMaxRateDescription: boolean;
-
+  public get hasMinRateDescription(): boolean {
+    return this.getPropertyValue("hasMinRateDescription", undefined, () => !!this.minRateDescription);
+  }
+  public get hasMaxRateDescription(): boolean {
+    return this.getPropertyValue("hasMaxRateDescription", undefined, () => !!this.maxRateDescription);
+  }
   get hasMinLabel(): boolean {
     return !this.displayRateDescriptionsAsExtremeItems && !!this.hasMinRateDescription;
   }

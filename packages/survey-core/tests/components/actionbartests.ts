@@ -151,6 +151,32 @@ QUnit.test("Action title", (assert) => {
   assert.equal(action.title, "page2", "title: get from page name #2");
   assert.equal(action.locTitle.textOrHtml, "page2", "locTitle.textOrHtml: get from page name #2");
 });
+QUnit.test("Action title set title updater later", (assert) => {
+  const page = new PageModel("page1");
+  const actionInner: IAction = {
+    id: page.id,
+  };
+  const action = new Action(actionInner);
+  assert.equal(action.title, undefined, "title: undefined");
+  action.title = <any>new ComputedUpdater<string>(() => page.name);
+  assert.equal(action.title, "page1", "title: get from page name #1");
+  assert.equal(action.locTitle.textOrHtml, "page1", "locTitle.textOrHtml: get from page name #1");
+  page.name = "page2";
+  assert.equal(action.title, "page2", "title: get from page name #2");
+  assert.equal(action.locTitle.textOrHtml, "page2", "locTitle.textOrHtml: get from page name #2");
+});
+QUnit.test("Action title with inner text", (assert) => {
+  const actionInner: IAction = {
+    id: "test",
+    title: "text1"
+  };
+  const action = new Action(actionInner);
+  assert.equal(action.title, "text1", "title #1");
+  action.title = "text2";
+  assert.equal(action.title, "text2", "title #2");
+  (<any>action).locTitle = undefined;
+  assert.equal(action.title, "text2", "title #3");
+});
 QUnit.test("Empty action title", (assert) => {
   const action = new Action({ id: "1" });
   assert.strictEqual(action.title, undefined, "title is undefined");

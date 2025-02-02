@@ -419,14 +419,10 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     super();
     const innerItem: IAction = (innerItemData instanceof Action) ? innerItemData.innerItem : innerItemData;
     this.innerItem = innerItem;
-    const compTitle = <any>innerItem["title"];
-    if(typeof compTitle === "object" && compTitle.type === ComputedUpdater.ComputedUpdaterType) {
-      this.compTitle = compTitle;
-    }
     this.locTitle = !!innerItem ? innerItem["locTitle"] : null;
     if (!!innerItem) {
       for (var key in innerItem) {
-        if (key !== "locTitle" && (key !== "title" || !this.compTitle)) {
+        if (key !== "locTitle") {
           (<any>this)[key] = (<any>innerItem)[key];
         }
       }
@@ -484,6 +480,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return this.locTitleValue?.owner === this;
   }
   protected setLocTitle(val: LocalizableString): void {
+    if(!val && this.isInternalLocTitle) return;
     if (!val && !this.locTitleValue) {
       val = this.createLocTitle();
     } else {
@@ -508,11 +505,23 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return res === "" ? undefined : res;
   }
   protected setTitle(val: string): void {
-    if(this.compTitle) {
-      this.compTitle = undefined;
-      this.setLocTitle(null);
+    const valChecker = <any>val;
+    let compTitle = undefined;
+    if(!!valChecker && typeof valChecker === "object" && valChecker.type === ComputedUpdater.ComputedUpdaterType) {
+      compTitle = valChecker;
     }
-    this.locTitleValue.text = val;
+    if(compTitle) {
+      this.compTitle = compTitle;
+      this.locTitleValue.onGetTextCallback = (str: string): string => {
+        return str || this.compTitle?.updater() || "";
+      };
+    } else {
+      if(this.compTitle) {
+        this.compTitle = undefined;
+        this.setLocTitle(null);
+      }
+      this.locTitleValue.text = val;
+    }
   }
   private resetTitle(): void {
     if(this.locTitleValue && !this.isInternalLocTitle && this.getPropertyValueWithoutDefault("title") !== undefined) {

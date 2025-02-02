@@ -214,7 +214,10 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    */
   allowChanging: boolean;
 }
-
+export interface CurrentSingleQuestionChangedEvent {
+  oldCurrentQuestion: Question;
+  newCurrentQuestion: Question;
+}
 export interface ValueChangeBaseEvent extends QuestionEventMixin {
   /**
    * The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.

@@ -20979,6 +20979,41 @@ QUnit.test("Do not use questionsOnPageMode in design-mode, Bug#9274", function (
   assert.equal(survey.questionsOnPageMode, "questionPerPage", "the property set correctly");
   assert.equal(survey.currentSingleQuestion?.name, undefined, "It is the design mode");
 });
+QUnit.test("survey.currentSingleQuestion onCurrentSingleQuestionChanged event, Bug#9381", function (assert) {
+  const json = {
+    "pages": [{
+      "elements": [
+        { "type": "text", "name": "q1" },
+        { "type": "text", "name": "q2" }
+      ]
+    },
+    {
+      "elements": [
+        { "type": "text", "name": "q3" },
+        { "type": "text", "name": "q4" }
+      ]
+    }],
+    "questionsOnPageMode": "questionPerPage",
+  };
+  const survey = new SurveyModel(json);
+  const pages = new Array<string>();
+  const questions = new Array<string>();
+  survey.onCurrentPageChanged.add((sender, options) => {
+    pages.push(options.newCurrentPage.name);
+  });
+  survey.onCurrentSingleQuestionChanged.add((sender, options) => {
+    questions.push(options.newCurrentQuestion.name);
+  });
+  assert.equal(survey.currentSingleQuestion?.name, "q1", "The first question is q1");
+  survey.performNext();
+  survey.performNext();
+  survey.performNext();
+  survey.performPrevious();
+  survey.performPrevious();
+  survey.performPrevious();
+  assert.deepEqual(pages, ["page2", "page1"], "Pages");
+  assert.deepEqual(questions, ["q2", "q3", "q4", "q3", "q2", "q1"], "Questions");
+});
 
 QUnit.test("Question is not in the hash with it is on the first page & questionsOnPageMode is 'singlePage', Bug#8583", function (assert) {
   const survey = new SurveyModel({

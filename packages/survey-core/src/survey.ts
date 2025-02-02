@@ -55,7 +55,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
 import {
-  TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent,
+  TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent, CurrentSingleQuestionChangedEvent,
   ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent,
   QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
   ErrorCustomTextEvent, ValidatePageEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent,
@@ -226,6 +226,7 @@ export class SurveyModel extends SurveyElementCore
    * @see prevPage
    */
   public onCurrentPageChanged: EventBase<SurveyModel, CurrentPageChangedEvent> = this.addEvent<SurveyModel, CurrentPageChangedEvent>();
+  public onCurrentSingleQuestionChanged: EventBase<SurveyModel, CurrentSingleQuestionChangedEvent> = this.addEvent<SurveyModel, CurrentSingleQuestionChangedEvent>();
   /**
    * An event that is raised before a question value is changed.
    * @see setValue
@@ -4698,7 +4699,8 @@ export class SurveyModel extends SurveyElementCore
   private currentSingleQuestionValue: Question;
   public get currentSingleQuestion(): Question { return this.currentSingleQuestionValue; }
   public set currentSingleQuestion(val: Question) {
-    if(val !== this.currentSingleQuestion) {
+    const oldVal = this.currentSingleQuestion;
+    if(val !== oldVal) {
       this.currentSingleQuestionValue = val;
       if(!!val) {
         const page = <PageModel>val.page;
@@ -4714,6 +4716,7 @@ export class SurveyModel extends SurveyElementCore
       } else {
         this.visiblePages.forEach(page => page.updateRows());
       }
+      this.onCurrentSingleQuestionChanged.fire(this, { newCurrentQuestion: val, oldCurrentQuestion: oldVal });
     }
   }
   private changeCurrentPageFromPreview: boolean;

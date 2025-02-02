@@ -26,6 +26,7 @@ export class Bindings {
   public getType(): string {
     return "bindings";
   }
+  public get isSurveyObj(): boolean { return true; }
   public getNames(): Array<string> {
     var res: Array<string> = [];
     this.fillProperties();
@@ -330,9 +331,10 @@ export class Base {
       }
     });
   }
-  public get isDisposed() {
+  public get isDisposed(): boolean {
     return this.isDisposedValue === true;
   }
+  public get isSurveyObj(): boolean { return true; }
   protected addEvent<T, Options = any>(): EventBase<T, Options> {
     const res = new EventBase<T, Options>();
     this.eventList.push(res);

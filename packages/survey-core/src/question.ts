@@ -1703,7 +1703,7 @@ export class Question extends SurveyElement<Question>
     if (!val) return false;
     if (Array.isArray(val))
       return val.length > 0 ? this.isValueSurveyElement(val[0]) : false;
-    return !!val.getType && !!val.onPropertyChanged;
+    return val.isSurveyObj === true;
   }
   private canClearValueAsInvisible(reason: string): boolean {
     if (reason === "onHiddenContainer" && !this.isParentVisible) return true;

@@ -3464,3 +3464,30 @@ QUnit.test("Composite: clearIfInvisible='onHidden'", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: with dropdown & showOtherItem, Bug#9378", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3], showOtherItem: true }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "question1" }
+    ]
+  });
+  const q = <QuestionCompositeModel>survey.getQuestionByName("question1");
+  const q1 = q.contentPanel.getQuestionByName("q1");
+  const q2 = q.contentPanel.getQuestionByName("q2");
+  q1.value = "test1";
+  q2.value = "other";
+  q2.comment = "abc";
+  assert.deepEqual(q.value, { q1: "test1", q2: "other", "q2-Comment": "abc" }, "q.value #1");
+  survey.data = {};
+  assert.ok(q.isEmpty(), "q.value #2");
+  survey.data = { question1: { q1: "test2", q2: "other", "q2-Comment": "def" } };
+  assert.deepEqual(q.value, { q1: "test2", q2: "other", "q2-Comment": "def" }, "q.value #3");
+
+  ComponentCollection.Instance.clear();
+});

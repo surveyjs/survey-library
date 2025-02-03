@@ -473,12 +473,11 @@ export class SurveyModel extends SurveyElementCore
 
   public onTextRenderAs: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
   /**
-   * An event that is raised after a request to save survey results on [SurveyJS Service](https://api.surveyjs.io/) has been completed. Use this event to find out if the results have been saved successfully.
+   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
    */
   public onSendResult: EventBase<SurveyModel, SendResultEvent> = this.addEvent<SurveyModel, SendResultEvent>();
   /**
-   * An event that is raised when the [`getResult(resultId, questionName)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getResult) method is called. Use this event to obtain answers to an individual question from [SurveyJS Service](https://api.surveyjs.io/).
-   * @see getResult
+   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
    */
   public onGetResult: EventBase<SurveyModel, GetResultEvent> = this.addEvent<SurveyModel, GetResultEvent>();
   /**
@@ -529,10 +528,7 @@ export class SurveyModel extends SurveyElementCore
   public onLoadChoicesFromServer: EventBase<SurveyModel, LoadChoicesFromServerEvent> = this.onChoicesLoaded;
 
   /**
-   * An event that is raised after a survey JSON schema is loaded from the [SurveyJS Service](https://api.surveyjs.io). Use this event to modify the loaded schema.
-   * @see surveyId
-   * @see clientId
-   * @see loadSurveyFromService
+   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
    */
   public onLoadedSurveyFromService: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
 
@@ -1442,11 +1438,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("calculatedValues", val);
   }
   /**
-   * The identifier of a survey JSON schema to load from [SurveyJS Service](https://api.surveyjs.io).
-   *
-   * Refer to the following help topic for more information: [Store Survey Results in the SurveyJS Service](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-the-surveyjs-service).
-   * @see loadSurveyFromService
-   * @see onLoadedSurveyFromService
+   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
    */
   public get surveyId(): string {
     return this.getPropertyValue("surveyId", "");
@@ -1468,10 +1460,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("surveyPostId", val);
   }
   /**
-   * A user identifier (e-mail or other unique ID).
-   *
-   * If your application works with [SurveyJS Service](https://api.surveyjs.io), the ID ensures that users do not pass the same survey twice. On the second run, they will see the [Completed Before page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml).
-   * @see cookieName
+   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
    */
   public get clientId(): string {
     return this.getPropertyValue("clientId", "");
@@ -1512,10 +1501,7 @@ export class SurveyModel extends SurveyElementCore
     this.partialSendEnabled = val;
   }
   /**
-   * Specifies whether to show progress when the survey sends data to [SurveyJS Service](https://api.surveyjs.io).
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/save-survey-results-and-load-surveys-from-surveyjs-service/ (linkStyle))
-   * @see surveyPostId
+   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
    */
   public get surveyShowDataSaving(): boolean {
     return this.getPropertyValue("surveyShowDataSaving");
@@ -2584,8 +2570,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("completedBeforeHtml");
   }
   /**
-   * HTML content displayed while a survey JSON schema is being loaded from [SurveyJS Service](https://api.surveyjs.io).
-   * @see surveyId
+   * HTML content displayed while a survey JSON schema is [being loaded](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#beginLoading).
    * @see processedLoadingHtml
    */
   public get loadingHtml(): string {
@@ -3790,9 +3775,17 @@ export class SurveyModel extends SurveyElementCore
   private set isLoading(val: boolean) {
     this.setPropertyValue("isLoading", val);
   }
+  /**
+   * Displays the [Loading page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml).
+   * @see endLoading
+   */
   public beginLoading(): void {
     this.isLoading = true;
   }
+  /**
+   * Stops displaying the [Loading page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml).
+   * @see beginLoading
+   */
   public endLoading(): void {
     this.isLoading = false;
   }
@@ -4861,7 +4854,6 @@ export class SurveyModel extends SurveyElementCore
    * 1. Switches the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) to `"completed"`.
    * 1. Raises the [`onComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onComplete) event.
    * 1. Navigates the user to a URL specified by the [`navigateToUrl`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#navigateToUrl) or [`navigateToUrlOnCondition`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#navigateToUrlOnCondition) property.
-   * 1. Calls the [`sendResult()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#sendResult) method if Form Library works with [SurveyJS Service](https://api.surveyjs.io/).
    *
    * The `doComplete()` method completes the survey regardless of validation errors and the current page. If you need to ensure that survey results are valid and full, call the [`completeLastPage()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completeLastPage) method instead.
    *
@@ -5114,7 +5106,7 @@ export class SurveyModel extends SurveyElementCore
     return this.locCompletedBeforeHtml.textOrHtml;
   }
   /**
-   * Returns HTML content displayed while a survey JSON schema is being loaded from [SurveyJS Service](https://api.surveyjs.io).
+   * Returns HTML content displayed while a survey JSON schema is [being loaded](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#beginLoading).
    *
    * To specify HTML content, use the [`loadingHtml`](#loadingHtml) property.
    */
@@ -6392,10 +6384,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Posts a survey result to [SurveyJS Service](https://api.surveyjs.io/).
-   * @param postId An identifier used to save survey results. You can find it on the [My Surveys](https://surveyjs.io/service/mysurveys) page. If you do not specify this parameter, the survey uses the [`surveyPostId`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#surveyPostId) property value.
-   * @param clientId A respondent identifier (e-mail or other unique ID). This ID ensures that the respondent does not pass the same survey twice.
-   * @param isPartial Pass `true` to save partial survey results (see [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete)).
+   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
    */
   public sendResult(postId: string = null, clientId: string = null, isPartial: boolean = false): void {
     if (!this.isEditMode) return;
@@ -6414,17 +6403,13 @@ export class SurveyModel extends SurveyElementCore
     this.reportWarningOnUsingService();
   }
   /**
-   * Requests [SurveyJS Service](https://api.surveyjs.io/) to retrieve all answers to a specified question. Handle the [`onGetResult`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetResult) event to access the answers.
-   * @param resultId A result ID that identifies the required survey. You can find it on the [My Surveys](https://surveyjs.io/service/mysurveys) page.
-   * @param questionName A question name.
+   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
    */
   public getResult(resultId: string, questionName: string): void {
     this.reportWarningOnUsingService();
   }
   /**
-   * Loads a survey JSON schema from the [SurveyJS Service](https://api.surveyjs.io). You can handle the [`onLoadedSurveyFromService`](#onLoadedSurveyFromService) event to modify the schema after loading if required.
-   * @param surveyId The identifier of a survey JSON schema to load. Refer to the following help topic for more information: [Store Survey Results in the SurveyJS Service](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-the-surveyjs-service).
-   * @param clientId A user identifier (e-mail or other unique ID) used to determine whether the user has already taken the survey.
+   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
    */
   public loadSurveyFromService(surveyId: string = null, clientId: string = null): void {
     if (surveyId) {
@@ -6436,7 +6421,7 @@ export class SurveyModel extends SurveyElementCore
     this.reportWarningOnUsingService();
   }
   private reportWarningOnUsingService(): void {
-    ConsoleWarnings.warn("We removed the surveyjs service integration from V2. Please find more here.");
+    ConsoleWarnings.warn("Self-hosted Form Library no longer supports integration with SurveyJS Demo Service. Learn more: TODO");
   }
   private loadSurveyFromServiceJson(json: any) {
     if (!json) return;

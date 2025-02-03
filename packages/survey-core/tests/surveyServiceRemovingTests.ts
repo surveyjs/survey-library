@@ -3,7 +3,7 @@ import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("SurveySerialization");
 
-const errorText = "We removed the surveyjs service integration from V2. Please find more here.";
+const errorText = "Self-hosted Form Library no longer supports integration with SurveyJS Demo Service. Learn more: TODO";
 
 QUnit.test("survey.beginLoading()/survey.endLoading()", function (assert) {
   const survey = new SurveyModel();

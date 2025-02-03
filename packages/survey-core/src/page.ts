@@ -254,7 +254,7 @@ export class PageModel extends PanelModel implements IPage {
   get hasShown(): boolean {
     return this.wasShown;
   }
-  public setWasShown(val: boolean) {
+  public setWasShown(val: boolean): void {
     if (val == this.hasShownValue) return;
     this.hasShownValue = val;
     if (this.isDesignMode || val !== true) return;
@@ -264,7 +264,12 @@ export class PageModel extends PanelModel implements IPage {
         (<PanelModelBase><any>els[i]).randomizeElements(this.areQuestionsRandomized);
       }
     }
-    this.randomizeElements(this.areQuestionsRandomized);
+    if(this.randomizeElements(this.areQuestionsRandomized)) {
+      const singleQuestion: any = this.survey?.currentSingleQuestion;
+      if(singleQuestion?.page === this) {
+        this.survey.currentSingleQuestion = this.getFirstVisibleQuestion();
+      }
+    }
   }
   /**
    * Scrolls this page to the top.

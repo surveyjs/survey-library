@@ -4555,7 +4555,7 @@ export class SurveyModel extends SurveyElementCore
    * Possible values:
    *
    * - `"singlePage"` - Combines all survey pages into a single page.
-   * - `"questionPerPage"` - Creates a separate page for every question.
+   * - `"questionPerPage"` - Displays each question on a separate page.
    * - `"standard"` (default) - Retains the original structure specified in the JSON schema.
    */
   public get questionsOnPageMode(): string {

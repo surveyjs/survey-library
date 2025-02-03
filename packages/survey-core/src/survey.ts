@@ -4093,6 +4093,7 @@ export class SurveyModel extends SurveyElementCore
    * @see completeLastPage
    */
   public nextPage(): boolean {
+    if(this.currentSingleQuestion) return this.performNext();
     if (this.isLastPage) return false;
     return this.doCurrentPageComplete(false);
   }
@@ -4418,6 +4419,7 @@ export class SurveyModel extends SurveyElementCore
    * @see nextPage
    */
   public prevPage(): boolean {
+    if(this.currentSingleQuestion) return this.performPrevious();
     if (this.isFirstPage || this.state === "starting") return false;
     this.resetNavigationButton();
 

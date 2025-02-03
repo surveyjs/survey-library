@@ -7773,7 +7773,7 @@ QUnit.test("Randomize questions in page and panels & single question per page", 
 
   const survey = new SurveyModel({
     questionsOnPageMode: "questionPerPage",
-    questionOrder: "random",
+    questionsOrder: "random",
     pages: [
       { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }, { type: "text", name: "q3" }] },
       { elements: [{ type: "text", name: "q4" }, { type: "text", name: "q5" }, { type: "text", name: "q6" }] },

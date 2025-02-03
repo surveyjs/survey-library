@@ -3887,13 +3887,13 @@ export class SurveyModel extends SurveyElementCore
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.notifyQuestionsOnHidingContent(oldValue);
-    if (this.isCurrentPageRendered === true) {
-      this.isCurrentPageRendered = false;
-    }
     if (oldValue && !oldValue.isDisposed && !oldValue.passed) {
       if (oldValue.validate(false)) {
         oldValue.passed = true;
       }
+    }
+    if (this.isCurrentPageRendered === true) {
+      this.isCurrentPageRendered = false;
     }
     if(!this.currentSingleQuestion) {
       const options = this.createPageChangeEventOptions(newValue, oldValue);

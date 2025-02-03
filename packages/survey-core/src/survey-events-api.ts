@@ -203,6 +203,8 @@ export interface CurrentPageChangedEvent {
    * A page that used to be current.
    */
   oldCurrentPage: PageModel;
+  oldCurrentQuestion?: Question;
+  newCurrentQuestion?: Question;
 }
 export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
   /**
@@ -213,10 +215,6 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    * @deprecated Use `options.allow` instead.
    */
   allowChanging: boolean;
-}
-export interface CurrentSingleQuestionChangedEvent {
-  oldCurrentQuestion: Question;
-  newCurrentQuestion: Question;
 }
 export interface ValueChangeBaseEvent extends QuestionEventMixin {
   /**

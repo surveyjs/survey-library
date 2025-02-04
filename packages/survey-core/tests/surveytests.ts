@@ -7790,6 +7790,28 @@ QUnit.test("Randomize questions in page and panels & single question per page", 
 
   Helpers.randomizeArray = oldFunc;
 });
+QUnit.test("questionPerPage vs nextPage&prevPage", function (assert) {
+  const survey = new SurveyModel({
+    questionsOnPageMode: "questionPerPage",
+    pages: [
+      { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+      { elements: [{ type: "text", name: "q3" }, { type: "text", name: "q4" }] },
+    ]
+  });
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #1");
+  survey.nextPage();
+  assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion #2");
+  survey.nextPage();
+  assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion #3");
+  survey.nextPage();
+  assert.equal(survey.currentSingleQuestion.name, "q4", "currentSingleQuestion #4");
+  survey.prevPage();
+  assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion #5");
+  survey.prevPage();
+  assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion #6");
+  survey.prevPage();
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #7");
+});
 
 QUnit.test("Quiz, correct, incorrect answers", function (assert) {
   var survey = new SurveyModel({

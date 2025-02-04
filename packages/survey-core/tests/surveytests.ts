@@ -8628,6 +8628,20 @@ QUnit.test("ProcessTextEx returnedDisplayValue is false, Bug#1243", function (
   res = survey.processTextEx({ text: "{region}" });
   assert.ok(res.hasAllValuesOnLastRun === true, "region exists");
 });
+QUnit.test("ProcessTextEx & nessted obj, Bug#9390", function (assert) {
+  const survey = new SurveyModel();
+  survey.setVariable("a1", { b2: "abc" });
+  assert.equal(survey.processTextEx({ text: "test: {a1.b2}" }).text, "test: abc", "#1");
+  assert.equal(survey.processTextEx({ text: "test: {c: {a1.b2}}" }).text, "test: {c: abc}", "#2");
+  assert.equal(survey.processTextEx({ text: "test: { c: {a1.b2} }" }).text, "test: { c: abc }", "#3");
+  assert.equal(survey.processTextEx({ text: "test: {c: \"{a1.b2}\"}" }).text, "test: {c: \"abc\"}", "#4");
+  assert.equal(survey.processTextEx({ text: "test: { c: \"{a1.b2}\" }" }).text, "test: { c: \"abc\" }", "#5.1");
+  assert.equal(survey.processTextEx({ text: "test: { c: \"{a1.b2}\" }" }).hasAllValuesOnLastRun, true, "#5.2");
+  assert.equal(survey.processTextEx({ text: "inputs={\"car_make\": \"{a1.b2}\"}" }).text, "inputs={\"car_make\": \"abc\"}", "#6.1");
+  assert.equal(survey.processTextEx({ text: "inputs={\"car_make\": \"{a1.b2}\"}" }).hasAllValuesOnLastRun, true, "#6.2");
+  assert.equal(survey.processTextEx({ text: "inputs={\"car_make\": \"abc\"}" }).text, "inputs={\"car_make\": \"abc\"}", "#7.1");
+  assert.equal(survey.processTextEx({ text: "inputs={\"car_make\": \"abc\"}" }).hasAllValuesOnLastRun, true, "#7.2");
+});
 
 QUnit.test("Do not add invisible Panel Dynamic to the data, Bug#1258", function (
   assert

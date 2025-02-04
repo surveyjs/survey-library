@@ -1,11 +1,10 @@
 import { TestBed } from "@angular/core/testing";
 import { SurveyModule } from "src/angular-ui.module";
 import { SurveyComponent } from "src/survey.component";
-import { SurveyModel, StylesManager } from "survey-core";
+import { SurveyModel } from "survey-core";
 
 describe("event tests", () => {
   beforeEach(async () => {
-    StylesManager.applyTheme("default");
     await TestBed.configureTestingModule({
       imports: [SurveyModule],
     }).compileComponents();
@@ -46,9 +45,11 @@ describe("event tests", () => {
   it("Check that that survey after render header is called correctly", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
-    component.model = new SurveyModel({ title: "Some title", elements: [{ type: "text", name: "q1" }] });
+    const survey = new SurveyModel({ headerView: "basic", title: "Some title", elements: [{ type: "text", name: "q1" }] });
+    survey.css = { header: "sv_header" };
+    component.model = survey;
     component.model.onAfterRenderHeader.add((sender: SurveyModel, opt: any) => {
-      expect(opt.htmlElement.className).toBe("sv_header");
+      expect(opt.htmlElement.className.search(/sv_header/) > -1).toBe(true);
       done();
     });
     fixture.detectChanges();
@@ -56,7 +57,9 @@ describe("event tests", () => {
   it("Check that that question after question content is called correctly", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
-    component.model = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.css = { text: { root: "sv_q_text_root" } };
+    component.model =survey;
     component.model.onAfterRenderQuestionInput.add((sender: SurveyModel, opt: any) => {
       expect(opt.htmlElement.className.search(/sv_q_text_root/) > -1).toBe(true);
       done();
@@ -66,10 +69,12 @@ describe("event tests", () => {
   it("Check that after render page is called correctly", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
-    component.model = new SurveyModel({ pages: [{ elements: [{ type: "text", name: "q1" }] }, { elements: [{ type: "text", name: "q2" }] }] });
+    const survey = new SurveyModel({ pages: [{ elements: [{ type: "text", name: "q1" }] }, { elements: [{ type: "text", name: "q2" }] }] });
+    component.model = survey;
     let callCount = 0;
+    survey.css = { page: { root: "sv_p_root" } };
     component.model.onAfterRenderPage.add((sender: SurveyModel, opt: any) => {
-      expect(opt.htmlElement.className).toBe("sv_p_root");
+      expect(opt.htmlElement.className.search(/sv_p_root/) > -1).toBe(true);
       callCount++;
     });
     fixture.autoDetectChanges(true);
@@ -82,7 +87,7 @@ describe("event tests", () => {
   it("Check that after render panel is called correctly", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
-    component.model = new SurveyModel({ elements: [{
+    const survey = new SurveyModel({ elements: [{
       "type": "panel",
       "name": "panel1",
       "elements": [
@@ -92,8 +97,10 @@ describe("event tests", () => {
         }
       ]
     }] });
+    survey.css = { panel: { container: "sv_p_container" } };
+    component.model = survey;
     component.model.onAfterRenderPanel.add((sender: SurveyModel, opt: any) => {
-      expect(opt.htmlElement.className).toBe("sv_p_container");
+      expect(opt.htmlElement.className.search(/sv_p_container/) > -1).toBe(true);
       done();
     });
     fixture.detectChanges();

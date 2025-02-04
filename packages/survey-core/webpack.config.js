@@ -6,7 +6,7 @@ const path = require("path");
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 var DashedNamePlugin = require("../../build-scripts/webpack-dashed-name");
-var RemoveCoreFromName = require("../../build-scripts/webpack-remove-core-from-name");
+var RemoveCoreFromName = require("./webpack-remove-core-from-name");
 const mergeFiles = require("merge-files");
 const packageJson = require("./package.json");
 
@@ -36,7 +36,7 @@ var buildPlatformJson = {
   files: [
     "**/*"
   ],
-  "main": "survey-core.js",
+  "main": "survey.core.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"
@@ -52,7 +52,6 @@ var buildPlatformJson = {
 };
 
 module.exports = function (options) {
-  debugger;
   var buildPath = __dirname + "/build/";
   var isProductionBuild = options.buildType === "prod";
 
@@ -104,9 +103,9 @@ module.exports = function (options) {
   var config = {
     mode: isProductionBuild ? "production" : "development",
     entry: {
-      [packageJson.name]: path.resolve(__dirname, "./entries/index.ts"),
-      defaultV2: path.resolve(__dirname, "./src/defaultV2-theme/defaultV2.scss"),
-      "defaultV2.fontless": path.resolve(__dirname, "./src/defaultV2-theme/defaultV2.fontless.scss")
+      "survey.core": path.resolve(__dirname, "./entries/index.ts"),
+      default: path.resolve(__dirname, "./src/default-theme/default.scss"),
+      "default.fontless": path.resolve(__dirname, "./src/default-theme/default.fontless.scss")
     },
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
@@ -125,7 +124,6 @@ module.exports = function (options) {
           loader: "ts-loader",
           options: {
             configFile: options.tsConfigFile || "tsconfig.json",
-            transpileOnly: isProductionBuild
           }
         },
         {
@@ -146,6 +144,7 @@ module.exports = function (options) {
             {
               loader: "sass-loader",
               options: {
+                api: "modern",
                 sourceMap: options.buildType !== "prod",
               },
             },
@@ -162,18 +161,18 @@ module.exports = function (options) {
       filename: "[name]" + (isProductionBuild ? ".min" : "") + ".js",
       library: {
         root: options.libraryName || "Survey",
-        amd: '[dashedname]',
-        commonjs: '[dashedname]',
+        amd: "[dashedname]",
+        commonjs: "[dashedname]",
       },
       libraryTarget: "umd",
-      globalObject: 'this',
+      globalObject: "this",
       umdNamedDefine: true
     },
     plugins: [
       new webpack.ProgressPlugin(percentage_handler),
       new DashedNamePlugin(),
       new webpack.DefinePlugin({
-        "process.env.ENVIRONMENT": JSON.stringify(options.buildType),
+        "process.env.RELEASE_DATE": JSON.stringify(new Date().toISOString().slice(0, 10)),
         "process.env.VERSION": JSON.stringify(packageJson.version),
       }),
       new RemoveCoreFromName(),

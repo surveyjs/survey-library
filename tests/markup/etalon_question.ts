@@ -1,9 +1,9 @@
-import { StylesManager } from "survey-core";
 import { registerMarkupTest } from "./helper";
 registerMarkupTest(
   {
     name: "Test question title with html markup",
     json: {
+      showQuestionNumbers: "on",
       questions: [
         {
           name: "name",
@@ -14,8 +14,7 @@ registerMarkupTest(
       ]
     },
     snapshot: "question-title-with-html",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     initSurvey: survey => survey.onTextMarkdown.add(function (survey, options) {
       let str = options.text;
       options.html = str;
@@ -26,6 +25,7 @@ registerMarkupTest(
   {
     name: "Test question with errors above v2",
     json: {
+      showQuestionNumbers: "on",
       questions: [
         {
           isRequired: true,
@@ -36,8 +36,7 @@ registerMarkupTest(
       ]
     },
     snapshot: "question-errors-v2-top",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     initSurvey: survey => survey.hasErrors(),
     event: "onAfterRenderPage"
   },
@@ -46,6 +45,7 @@ registerMarkupTest(
   {
     name: "Test question with errors below v2 markup",
     json: {
+      showQuestionNumbers: "on",
       questions: [
         {
           isRequired: true,
@@ -57,8 +57,7 @@ registerMarkupTest(
       questionErrorLocation: "bottom"
     },
     snapshot: "question-errors-v2-bottom",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     initSurvey: survey => survey.hasErrors(),
     event: "onAfterRenderPage"
   },
@@ -79,14 +78,14 @@ registerMarkupTest(
       questionErrorLocation: "bottom"
     },
     snapshot: "question-description-under-input",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   },
 );
 registerMarkupTest(
   {
     name: "Test question with indent",
     json: {
+      showQuestionNumbers: "on",
       questions: [
         {
           name: "name",
@@ -100,7 +99,6 @@ registerMarkupTest(
     initSurvey: (survey) => {
       survey.getAllQuestions()[0].rightIndent = 1;
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
   },
 );

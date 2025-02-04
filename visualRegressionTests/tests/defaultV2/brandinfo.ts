@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest } from "../../helper";
 
 const title = "Brand banner Screenshot";
 
@@ -7,12 +7,8 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
 const json = {
+  showQuestionNumbers: "on",
   showBrandInfo: true,
   questions: [{
     type: "text",
@@ -21,9 +17,8 @@ const json = {
 };
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`.beforeEach(async t => {
     await initSurvey(framework, json);
     await ClientFunction(() => {
       document.body.focus();

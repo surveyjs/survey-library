@@ -1,31 +1,22 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody, upArrowImageLink } from "../../helper";
 
 const title = "Advanced header screenshot";
 
 fixture`${title}`.page`${url}`;
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`
-    .beforeEach(async t => {
-      await applyTheme(theme);
-    });
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Check survey advanced header inherit width from survey", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1000);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
-        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        logo: upArrowImageLink,
         "widthMode": "static",
         "width": "600",
         headerView: "advanced",
@@ -41,7 +32,9 @@ frameworks.forEach(framework => {
         (<any>window).survey.applyTheme({
           "header": {
             height: "500px",
-            inheritWidthFrom: "survey"
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "top"
           }
         });
       })();
@@ -53,10 +46,11 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1000);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
-        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        logo: upArrowImageLink,
         "widthMode": "static",
         "width": "600",
         headerView: "advanced",
@@ -94,10 +88,11 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1000);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
-        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        logo: upArrowImageLink,
         "widthMode": "static",
         "width": "600",
         headerView: "advanced",
@@ -135,6 +130,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
@@ -151,14 +147,14 @@ frameworks.forEach(framework => {
       })();
       await t.wait(500);
       await resetFocusToBody();
-      await takeElementScreenshot("survey-advanced-header-background-accent.png", Selector(".sd-root-modern"), t, comparer);
+      await takeElementScreenshot("survey-advanced-header-background-none.png", Selector(".sd-root-modern"), t, comparer);
 
       await ClientFunction(() => {
-        (<any>window).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" });
+        (<any>window).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "var(--sjs-primary-backcolor)" }, "header": {}, "headerView": "advanced" });
       })();
       await t.wait(500);
       await resetFocusToBody();
-      await takeElementScreenshot("survey-advanced-header-background-none.png", Selector(".sd-root-modern"), t, comparer);
+      await takeElementScreenshot("survey-advanced-header-background-accent.png", Selector(".sd-root-modern"), t, comparer);
 
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" });
@@ -180,6 +176,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "description": "Building your own form management\nsystem has never been easier.",
         "logoPosition": "right",
         "pages": [
@@ -206,7 +203,8 @@ frameworks.forEach(framework => {
             "--sjs-header-backcolor": "transparent"
           },
           "header": {
-            "inheritWidthFrom": "survey"
+            "inheritWidthFrom": "survey",
+            "height": 256
           },
           "headerView": "advanced"
         });

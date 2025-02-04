@@ -69,7 +69,7 @@ Follow the steps below to start using the SurveyJS Service:
 1. [Log in or register](https://surveyjs.io/Account/Login) on the SurveyJS website.
 1. [Create a new survey](https://surveyjs.io/Service/MySurveys).
 1. Copy the Survey ID and Post ID:
-    <img src="images/survey-get-postid.png" alt="Survey ID and Post ID">
+    <img src="images/survey-get-postid.png" alt="Survey ID and Post ID" width="929" height="736">
 1. Assign the IDs to the [`surveyId`](https://surveyjs.io/Documentation/Library?id=surveymodel#surveyId) and [`surveyPostId`](https://surveyjs.io/Documentation/Library?id=surveymodel#surveyPostId) properties:
     ```js
     const surveyJson = {

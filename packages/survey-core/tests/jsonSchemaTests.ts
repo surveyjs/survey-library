@@ -13,9 +13,9 @@ QUnit.test("generate survey schema", function (assert) {
   assert.equal(schema.title, "SurveyJS Library json schema");
   assert.equal(schema.properties.surveyId.type, "string", "surveyId is string");
   assert.equal(
-    schema.properties.sendResultOnPageNext.type,
+    schema.properties.partialSendEnabled.type,
     "boolean",
-    "sendResultOnPageNext is boolean"
+    "partialSendEnabled is boolean"
   );
   assert.deepEqual(schema.properties.title,
     { "oneOf": [
@@ -31,13 +31,23 @@ QUnit.test("generate survey schema", function (assert) {
   );
   assert.equal(
     schema.properties.showNavigationButtons.type,
-    "string",
-    "showNavigationButtons is showNavigationButtons"
+    "boolean",
+    "showNavigationButtons is boolean"
   );
   assert.deepEqual(
     schema.properties.showNavigationButtons.enum,
-    ["none", "top", "bottom", "both"],
-    "showNavigationButtons has enum"
+    undefined,
+    "showNavigationButtons doen't have enum"
+  );
+  assert.equal(
+    schema.properties.navigationButtonsLocation.type,
+    "string",
+    "navigationButtonsLocation is navigationButtonsLocation"
+  );
+  assert.deepEqual(
+    schema.properties.navigationButtonsLocation.enum,
+    ["top", "bottom", "topBottom"],
+    "navigationButtonsLocation has enum"
   );
   assert.deepEqual(
     schema.properties.completedHtmlOnCondition.type,
@@ -75,7 +85,7 @@ QUnit.test("generate survey schema", function (assert) {
   );
   assert.equal(
     schema.definitions.page.allOf[0].$ref,
-    "panelbase",
+    "panel",
     "page parent is here"
   );
   assert.ok(

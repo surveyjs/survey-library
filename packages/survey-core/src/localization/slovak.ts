@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var slovakSurveyStrings = {
   pagePrevText: "Predchádzajúca",
@@ -59,7 +59,7 @@ export var slovakSurveyStrings = {
   addColumn: "Pridať stĺpec",
   addRow: "Pridať riadok",
   removeRow: "Odstrániť",
-  emptyRowsText: "K dispozícii nie sú žiadne riadky.",
+  noRowsText: "K dispozícii nie sú žiadne riadky.",
   addPanel: "Pridať nové",
   removePanel: "Odstrániť",
   showDetails: "Zobraziť podrobnosti",
@@ -110,7 +110,7 @@ export var slovakSurveyStrings = {
   cancel: "Zrušiť"
 };
 
-surveyLocalization.setupLocale("sk", slovakSurveyStrings, "slovak", "Slovak");
+setupLocale({ localeCode: "sk", strings: slovakSurveyStrings, nativeName: "slovak", englishName: "Slovak" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

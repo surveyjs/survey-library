@@ -308,7 +308,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
       getElement(settings.environment.popupMountContainer).appendChild(container);
     }
   }
-  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null, areaElement?: HTMLElement | null): void {
+  public setComponentElement(componentRoot: HTMLElement): void {
     if (!!componentRoot) {
       this.containerElement = componentRoot;
     }

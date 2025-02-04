@@ -2,11 +2,11 @@
   <label [class]="question.getItemLabelCss(item)">
     <span [class]="question.getItemTitleCss()" [style]="{ minWidth: question.itemTitleWidth, width: question.itemTitleWidth }">
       <span *ngIf=" item.editor.isRequireTextBeforeTitle || item.editor.isRequireTextOnStart"
-        [class]="question.cssClasses.requiredText">{{ item.editor.requiredText }}</span>
+        [class]="question.cssClasses.requiredMark">{{ item.editor.requiredMark }}</span>
       <sv-ng-string [model]="item.locTitle"></sv-ng-string>
       <span *ngIf="item.editor.isRequireTextAfterTitle">&nbsp;</span>
-      <span *ngIf="item.editor.isRequireTextAfterTitle" [class]="question.cssClasses.requiredText" aria-hidden="true">{{
-        item.editor.requiredText }}</span>
+      <span *ngIf="item.editor.isRequireTextAfterTitle" [class]="question.cssClasses.requiredMark" aria-hidden="true">{{
+        item.editor.requiredMark }}</span>
     </span>
     <div [class]="question.getItemCss()" (focusin)="item.focusIn()">
       <sv-ng-text-question [model]="item.editor"></sv-ng-text-question>

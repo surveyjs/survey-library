@@ -1,4 +1,4 @@
-import { StylesManager, settings } from "survey-core";
+import { settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -81,8 +81,6 @@ registerMarkupTests(
       ]
     },
     initSurvey: (survey) => survey.setDesignMode(true),
-    before: () => { settings.supportCreatorV2 = true; },
-    after: () => { settings.supportCreatorV2 = false; },
     snapshot: "radiogroup-disabled",
   },
   {
@@ -122,8 +120,7 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     snapshot: "radiogroup-v2",
   },
   {
@@ -142,8 +139,7 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("modern"),
-    after: () => StylesManager.applyTheme("default"),
+
     snapshot: "radiogroup-modern",
   },
   {
@@ -253,6 +249,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "radiogroup-columns-no-head-foot",
+    before: () => { settings.itemFlowDirection = "row"; },
+    after: () => { settings.itemFlowDirection = "column"; }
   },
   {
     name: "Test radiogroup row with header and footer",

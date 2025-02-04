@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var swahiliStrings = {
   pagePrevText: "Iliyotangulia",
@@ -59,7 +59,7 @@ export var swahiliStrings = {
   addColumn: "Ongeza Kolamu",
   addRow: "Ongeza safu",
   removeRow: "Toa",
-  emptyRowsText: "Hakuna safu.",
+  noRowsText: "Hakuna safu.",
   addPanel: "Ongeza mpya",
   removePanel: "Toa",
   showDetails: "Onyesha Maelezo",
@@ -110,7 +110,7 @@ export var swahiliStrings = {
   cancel: "Katisha"
 };
 
-surveyLocalization.setupLocale("sw", swahiliStrings, "swahili", "Swahili");
+setupLocale({ localeCode: "sw", strings: swahiliStrings, nativeName: "swahili", englishName: "Swahili" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -120,7 +120,7 @@ surveyLocalization.setupLocale("sw", swahiliStrings, "swahili", "Swahili");
 // minError: "The value should not be less than {0}" => "Thamani haipaswi kuwa chini ya {0}"
 // maxError: "The value should not be greater than {0}" => "Thamani haipaswi kuwa kubwa kuliko {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Buruta na udondoshe faili hapa au bofya kitufe hapa chini na uchague faili ya kupakia."
-// emptyRowsText: "There are no rows." => "Hakuna safu."
+// noRowsText: "There are no rows." => "Hakuna safu."
 // multipletext_itemname: "text" => "Ujumbe"
 // signaturePlaceHolder: "Sign here" => "Ingia hapa"
 // modalCancelButtonText: "Cancel" => "Katisha"

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 /**
  * You don't need to translate strings that have the same value as Portuguese translation
  */
@@ -61,7 +61,7 @@ export var portugueseBrSurveyStrings = {
   addColumn: "Adicionar coluna",
   addRow: "Adicionar linha",
   removeRow: "Retirar",
-  emptyRowsText: "Não há filas.",
+  noRowsText: "Não há filas.",
   addPanel: "Adicionar novo",
   removePanel: "Retirar",
   showDetails: "Mostrar detalhes",
@@ -112,7 +112,7 @@ export var portugueseBrSurveyStrings = {
   cancel: "Cancelar"
 };
 
-surveyLocalization.setupLocale("pt-br", portugueseBrSurveyStrings, "português brasileiro", "Brazilian Portuguese");
+setupLocale({ localeCode: "pt-br", strings: portugueseBrSurveyStrings, nativeName: "português brasileiro", englishName: "Brazilian Portuguese" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -151,7 +151,7 @@ surveyLocalization.setupLocale("pt-br", portugueseBrSurveyStrings, "português b
 // addColumn: "Add Column" => "Adicionar coluna"
 // addRow: "Add Row" => "Adicionar linha"
 // removeRow: "Remove" => "Retirar"
-// emptyRowsText: "There are no rows." => "Não há filas."
+// noRowsText: "There are no rows." => "Não há filas."
 // addPanel: "Add new" => "Adicionar novo"
 // removePanel: "Remove" => "Retirar"
 // choices_Item: "item" => "item"

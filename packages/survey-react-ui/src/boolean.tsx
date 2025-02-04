@@ -53,7 +53,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.setControl(el);
     super.updateDomElement();
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
     const itemClass: string = this.question.getItemCss();
     return (

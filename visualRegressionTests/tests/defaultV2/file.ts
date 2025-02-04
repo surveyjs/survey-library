@@ -1,14 +1,9 @@
 /* eslint-disable indent */
 import { Selector, ClientFunction } from "testcafe";
-import { frameworks, initSurvey, url_test, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
+import { frameworks, initSurvey, wrapVisualTest, takeElementScreenshot, resetFocusToBody, url } from "../../helper";
 
 const title = "File Screenshot";
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
 const json = {
   showQuestionNumbers: "off",
   width: "900px",
@@ -30,9 +25,8 @@ function onOpenFileChooserHandler(s, o) {
 }
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-      await applyTheme(theme);
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`.beforeEach(async t => {
       await initSurvey(framework, json, { onOpenFileChooser: onOpenFileChooserHandler });
       await ClientFunction(() => {
         document.body.focus();
@@ -229,8 +223,8 @@ frameworks.forEach(framework => {
   });
 });
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`.beforeEach(async t => {
     });
   test("Check file question placeholder mobile", async t => {
     await wrapVisualTest(t, async (t, comparer) => {
@@ -252,6 +246,7 @@ frameworks.forEach(framework => {
   test("Check file question different width", async t => {
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         widthMode: "responsive",
         questions: [
           {
@@ -300,8 +295,8 @@ frameworks.forEach(framework => {
 });
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`.beforeEach(async t => {
     });
   test("Check file question camera", async t => {
     await wrapVisualTest(t, async (t, comparer) => {

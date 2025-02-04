@@ -11,9 +11,8 @@ import { settings } from "../src/settings";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
 import { IElement } from "../src/base-interfaces";
-import { StylesManager } from "@legacy/stylesmanager";
 import { SurveyElement } from "../src/survey-element";
-
+import { setOldTheme } from "./oldTheme";
 export default QUnit.module("Panel");
 
 QUnit.test("questions-elements synhronization", function (assert) {
@@ -689,8 +688,8 @@ QUnit.test("Do not generate rows and do not set renderWidth", function (assert) 
   assert.equal(q.renderWidth, "", "render width is empty");
 });
 QUnit.test("question.cssRoot class", function (assert) {
-  StylesManager.applyTheme("default");
   const survey = new SurveyModel();
+  setOldTheme(survey);
   const page = survey.addNewPage("p");
   const flowPanel = new FlowPanelModel("flowPanel");
   page.addElement(flowPanel);
@@ -908,7 +907,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
   try {
     settings.lazyRowsRenderingStartRow = 0;
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
     const page = survey.currentPage;
     assert.equal(panel.rows.length, 2);
@@ -1029,7 +1028,7 @@ QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function (
   settings.lazyRowsRenderingStartRow = 2;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page: PageModel = survey.currentPage;
     assert.equal(page.rows.length, 3, "There are 3 rows");
     assert.equal(page.rows[0].isNeedRender, true, "isNeedRender rows[0]");
@@ -1079,7 +1078,7 @@ QUnit.test(
     settings.lazyRowsRenderingStartRow = 2;
     try {
       const survey = new SurveyModel(json);
-      survey.lazyRendering = true;
+      survey.lazyRenderEnabled = true;
       survey.setDesignMode(true);
       const page1: PageModel = survey.pages[0];
       assert.equal(page1.rows.length, 3, "There are 3 rows");
@@ -1633,7 +1632,7 @@ QUnit.test(
       assert.equal(page1.rows[21].isNeedRender, false, "isNeedRender rows[21]");
 
       survey["_isDesignMode"] = true;
-      settings.supportCreatorV2 = true;
+
       page1.addNewQuestion("text", "qN2");
       assert.equal(page1.rows.length, 23, "There are 23 rows");
       assert.equal(page1.rows[22].isNeedRender, true, "isNeedRender rows[22] for creator v2");
@@ -1675,7 +1674,7 @@ QUnit.test(
     settings.lazyRowsRenderingStartRow = 2;
     try {
       const survey = new SurveyModel(json);
-      survey.lazyRendering = true;
+      survey.lazyRenderEnabled = true;
       const page1: PageModel = survey.pages[0];
       assert.equal(page1.rows.length, 3, "There are 3 rows");
       assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender rows[0]");
@@ -1769,7 +1768,7 @@ QUnit.test("page.cssRoot check for existings cssStyle.page", function (assert) {
   assert.equal(page.cssTitle, "");
   survey.css.page = prevPage;
 });
-QUnit.test("Check panel footer actions event", function(assert) {
+QUnit.test("Check panel footer actions event", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -1791,7 +1790,7 @@ QUnit.test("Check panel footer actions event", function(assert) {
     opt.actions.push({
       id: "test",
       title: "test",
-      action: () => {}
+      action: () => { }
     });
   });
   assert.equal(panel.footerActions.length, 0);
@@ -1804,7 +1803,7 @@ QUnit.test("Check panel footer actions event", function(assert) {
   assert.equal(actions.length, 1);
   assert.equal(actions[0].title, "test");
 });
-QUnit.test("Expand panel on error in multiple text question", function(assert) {
+QUnit.test("Expand panel on error in multiple text question", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -1827,11 +1826,11 @@ QUnit.test("Expand panel on error in multiple text question", function(assert) {
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
   assert.equal(panel.state, "collapsed", "the panel is collapsed by default");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(panel.state, "expanded", "the panel is expanded");
 });
 
-QUnit.test("Check panel styles with originalPage", function(assert) {
+QUnit.test("Check panel styles with originalPage", function (assert) {
   const survey = new SurveyModel({
     questionsOnPageMode: "singlePage",
     pages: [
@@ -1861,7 +1860,7 @@ QUnit.test("Check panel styles with originalPage", function(assert) {
     root: "sd-root-modern",
     pageRow: "page_row"
   };
-  const panel = <PanelModel>survey.getPanelByName("panel");
+  const panel = <PanelModel>survey.getPageByName("panel");
   const innerPanel = <PanelModel>survey.getPanelByName("innerPanel");
   const question = survey.getQuestionByName("q1");
   const question2 = survey.getQuestionByName("q2");
@@ -1940,7 +1939,7 @@ QUnit.skip("Check panel styles with originalPage and showPreview", function (ass
   assert.notOk(question2["getHasFrameV2"]());
   survey.css = {};
 });
-QUnit.test("Render name for collapsed/expanded questions in design-time", function(assert) {
+QUnit.test("Render name for collapsed/expanded questions in design-time", function (assert) {
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
@@ -1972,7 +1971,7 @@ QUnit.test("Render name for collapsed/expanded questions in design-time", functi
   assert.notOk(panel.locTitle.renderedHtml, "Render title is empty, #3");
 });
 
-QUnit.test("Check updateRowsOnElementAdded: insert on empty page", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded: insert on empty page", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -1989,7 +1988,7 @@ QUnit.test("Check updateRowsOnElementAdded: insert on empty page", function(asse
   assert.equal(page.rows[0].visibleElements[0].name, "q1");
 
 });
-QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index and swnl: false", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index and swnl: false", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2013,7 +2012,7 @@ QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index a
   assert.equal(page.rows[0].visibleElements[0].name, "q1");
   assert.equal(page.rows[0].visibleElements[1].name, "q2");
 });
-QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index and swnl: true", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index and swnl: true", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2038,7 +2037,7 @@ QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index a
   assert.equal(page.rows[1].visibleElements.length, 1);
   assert.equal(page.rows[1].visibleElements[0].name, "q2");
 });
-QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and swnl: false for next element", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and swnl: false for next element", function (assert) {
   const json = {
     pages: [
       {
@@ -2074,7 +2073,7 @@ QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and
   assert.equal(page.rows[0].visibleElements[0].name, "q2");
   assert.equal(page.rows[0].visibleElements[1].name, "q1");
 });
-QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and swnl: true for next element", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and swnl: true for next element", function (assert) {
   const json = {
     pages: [
       {
@@ -2111,7 +2110,7 @@ QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and
   assert.equal(page.rows[1].visibleElements.length, 1);
   assert.equal(page.rows[1].visibleElements[0].name, "q1");
 });
-QUnit.test("Check updateRowsOnElementAdded method: insert between elements in one row with swnl: false", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded method: insert between elements in one row with swnl: false", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2149,7 +2148,7 @@ QUnit.test("Check updateRowsOnElementAdded method: insert between elements in on
   assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q6", "q3", "q7", "q4"]);
   assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
 });
-QUnit.test("Check updateRowsOnElementAdded method: insert between elements in one row with swnl: true", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded method: insert between elements in one row with swnl: true", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2190,7 +2189,7 @@ QUnit.test("Check updateRowsOnElementAdded method: insert between elements in on
   assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q7", "q4"]);
   assert.deepEqual(page.rows[4].visibleElements.map(q => q.name), ["q5"]);
 });
-QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl: false", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl: false", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2228,7 +2227,7 @@ QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl
   assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4", "q7"]);
   assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
 });
-QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl: true", function(assert) {
+QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl: true", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2269,7 +2268,7 @@ QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl
   assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q7"]);
   assert.deepEqual(page.rows[4].visibleElements.map(q => q.name), ["q5"]);
 });
-QUnit.test("Check swnl changed: change swnl for first element on page", function(assert) {
+QUnit.test("Check swnl changed: change swnl for first element on page", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2296,7 +2295,7 @@ QUnit.test("Check swnl changed: change swnl for first element on page", function
   assert.equal(page.rows.length, 1);
   assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
 });
-QUnit.test("Check swnl changed: change swnl for first element in row", function(assert) {
+QUnit.test("Check swnl changed: change swnl for first element in row", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2326,7 +2325,7 @@ QUnit.test("Check swnl changed: change swnl for first element in row", function(
   assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q5"]);
 });
 
-QUnit.test("Check swnl changed: change swnl for last element in row", function(assert) {
+QUnit.test("Check swnl changed: change swnl for last element in row", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2358,7 +2357,7 @@ QUnit.test("Check swnl changed: change swnl for last element in row", function(a
   assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q5"]);
 });
 
-QUnit.test("Check swnl changed: change swnl for middle element in row", function(assert) {
+QUnit.test("Check swnl changed: change swnl for middle element in row", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2392,7 +2391,7 @@ QUnit.test("Check swnl changed: change swnl for middle element in row", function
   assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q7"]);
 });
 
-QUnit.test("Check swnl changed: change swnl for single element in row", function(assert) {
+QUnit.test("Check swnl changed: change swnl for single element in row", function (assert) {
   const survey = new SurveyModel();
   survey.fromJSON({
     pages: [
@@ -2836,7 +2835,7 @@ QUnit.test("Check if errors disappered in the closest questions on changing the 
   q2.value = 6;
   assert.equal(q1.errors.length, 0, "q1.errors #1");
   assert.equal(q2.errors.length, 0, "q2.errors #1");
-  assert.equal(survey.completeLastPage(), false, "Could not complete");
+  assert.equal(survey.tryComplete(), false, "Could not complete");
   assert.equal(q1.errors.length, 1, "q1.errors #2");
   assert.equal(q2.errors.length, 1, "q2.errors #2");
   q1.value = 1;
@@ -2902,7 +2901,7 @@ QUnit.test("row.isNeedRender for panels", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page1: PageModel = survey.pages[0];
     assert.equal(page1.rows.length, 2, "There are 2 rows");
     assert.equal(page1.rows[0].isNeedRender, true, "isNeedRender page1 rows[0]");
@@ -2950,7 +2949,7 @@ QUnit.test("getAllRows for page", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();
 
@@ -2998,7 +2997,7 @@ QUnit.test("forceRenderRows for page", async function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     survey.getAllQuestions().forEach(q => {
       q.supportOnElementRerenderedEvent = true;
       q.onElementRerenderedEventEnabled = true;
@@ -3059,7 +3058,7 @@ QUnit.test("forceRenderElement for page the exact element, gap = 0", async funct
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     survey.getAllQuestions().forEach(q => {
       q.supportOnElementRerenderedEvent = true;
       q.onElementRerenderedEventEnabled = true;
@@ -3119,7 +3118,7 @@ QUnit.test("forceRenderElement for page with one prev element, gap = 1", async f
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     survey.getAllQuestions().forEach(q => {
       q.supportOnElementRerenderedEvent = true;
       q.onElementRerenderedEventEnabled = true;
@@ -3195,7 +3194,7 @@ QUnit.test("row.isNeedRender for nested panels", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();
     assert.equal(allPageRows.length, 7, "7 rows with panels");
@@ -3279,7 +3278,7 @@ QUnit.test("row.isNeedRender for nested panels - complex", function (assert) {
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page1: PageModel = survey.pages[0];
     const allPageRows = page1.getAllRows();
     assert.equal(allPageRows.length, 7, "7 rows with panels");
@@ -3343,7 +3342,7 @@ QUnit.test("row.isNeedRender panel dynamic different modes - ordinary and design
   settings.lazyRowsRenderingStartRow = 0;
   try {
     const survey = new SurveyModel(json);
-    survey.lazyRendering = true;
+    survey.lazyRenderEnabled = true;
     const page1: PageModel = survey.pages[0];
 
     let allPageRows = page1.getAllRows();
@@ -3371,4 +3370,114 @@ QUnit.test("row.isNeedRender panel dynamic different modes - ordinary and design
   } finally {
     settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
   }
+});
+QUnit.test("Nested pages", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1" }] },
+      { name: "page2", elements: [{ type: "text", name: "q2" }] }
+    ]
+  });
+  const page1 = survey.pages[0];
+  assert.equal(page1.isPage, true, "isPage #1");
+  assert.equal(page1.isPanel, false, "isPanel #1");
+  assert.equal(page1.getTemplate(), "page", "template #1");
+  assert.equal(page1.survey.state, "running", "survey state #1");
+  const rootPage = new PageModel("p1");
+  rootPage.isPageContainer = true;
+  rootPage.addElement(page1);
+  assert.equal(page1.isPage, false, "isPage #2");
+  assert.equal(page1.isPanel, true, "isPanel #2");
+  assert.equal(page1.getTemplate(), "panel", "template #2");
+  assert.equal(page1.survey.state, "running", "survey state #2");
+  page1.parent = null;
+  assert.equal(page1.isPage, true, "isPage #3");
+  assert.equal(page1.isPanel, false, "isPanel #3");
+  assert.equal(page1.getTemplate(), "page", "template #3");
+  assert.equal(page1.survey.state, "running", "survey state #3");
+  assert.equal(page1.isDisposed, false, "The page is not disposed");
+});
+QUnit.test("survey.onGetPanelNumber", function (assert) {
+  const survey = new SurveyModel({
+    showQuestionNumbers: "on",
+    elements: [
+      {
+        type: "panel", name: "panel1", title: "Panel 1",
+        showNumber: true, showQuestionNumbers: "onpanel",
+        elements: [
+          {
+            type: "panel", name: "panel2",
+            showNumber: true, showQuestionNumbers: "onpanel", title: "Panel 2",
+            elements: [
+              { type: "text", name: "q1" },
+              { type: "text", name: "q2" }
+            ]
+          },
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" }
+        ]
+      },
+      {
+        type: "panel", name: "panel3",
+        showNumber: true, showQuestionNumbers: "onpanel", title: "Panel 3",
+        elements: [
+          { type: "text", name: "q5" },
+          { type: "text", name: "q6" }
+        ]
+      },
+      { type: "text", name: "q7" }
+    ]
+  });
+  survey.onGetQuestionNumber.add((sender, options) => {
+    const parent: any = options.question.parent;
+    if (!!parent && parent.no) {
+      options.number = parent.no + options.number;
+    }
+  });
+  survey.onGetPanelNumber.add((sender, options) => {
+    const parent: any = options.panel.parent;
+    if (!!parent && parent.no) {
+      options.number = parent.no + options.number;
+    }
+  });
+  assert.equal(survey.getPanelByName("panel1").no, "1.", "panel1.no");
+  assert.equal(survey.getPanelByName("panel2").no, "1.1.", "panel2.no");
+  assert.equal(survey.getPanelByName("panel3").no, "2.", "panel3.no");
+  assert.equal(survey.getQuestionByName("q1").no, "1.1.1.", "q1.no");
+  assert.equal(survey.getQuestionByName("q2").no, "1.1.2.", "q2.no");
+  assert.equal(survey.getQuestionByName("q3").no, "1.2.", "q3.no");
+  assert.equal(survey.getQuestionByName("q4").no, "1.3.", "q4.no");
+  assert.equal(survey.getQuestionByName("q5").no, "2.1.", "q5.no");
+  assert.equal(survey.getQuestionByName("q6").no, "2.2.", "q6.no");
+  assert.equal(survey.getQuestionByName("q7").no, "3.", "q7.no");
+});
+
+QUnit.test("Check that startWithNewLine doesn't trigger animation", (assert) => {
+  settings.animationEnabled = true;
+  const survey = new SurveyModel({
+    "logoPosition": "right",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      }
+    ]
+  });
+  const question2 = survey.getQuestionByName("question2");
+  const page = survey.getPageByName("page1");
+  page.enableOnElementRerenderedEvent();
+  assert.ok(page.animationAllowed, "check that animation is enabled");
+  assert.equal(page.visibleRows.length, 2);
+  question2.startWithNewLine = false;
+  assert.equal(page.visibleRows.length, 1);
+  settings.animationEnabled = false;
 });

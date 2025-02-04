@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var macedonianSurveyStrings = {
   pagePrevText: "Претходна",
@@ -59,7 +59,7 @@ export var macedonianSurveyStrings = {
   addColumn: "Додај колона",
   addRow: "Додади ред",
   removeRow: "Отстрани",
-  emptyRowsText: "Нема редови.",
+  noRowsText: "Нема редови.",
   addPanel: "Додади ново",
   removePanel: "Отстрани",
   showDetails: "Прикажување на деталите",
@@ -110,7 +110,7 @@ export var macedonianSurveyStrings = {
   cancel: "Откажи"
 };
 
-surveyLocalization.setupLocale("mk", macedonianSurveyStrings, "македонски", "Macedonian");
+setupLocale({ localeCode: "mk", strings: macedonianSurveyStrings, nativeName: "македонски", englishName: "Macedonian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

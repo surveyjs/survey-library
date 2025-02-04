@@ -1,13 +1,11 @@
 import React from "react";
-import { Base, PopupModel, PopupBaseViewModel, PopupDropdownViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, createPopupViewModel, CssClassBuilder, settings } from "survey-core";
+import { Base, PopupModel, PopupBaseViewModel, PopupDropdownViewModel, createPopupViewModel, CssClassBuilder } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyActionBar } from "../action-bar/action-bar";
 
 interface IPopupProps {
   model: PopupModel;
-  getTarget?: (container: HTMLElement) => HTMLElement;
-  getArea?: (container: HTMLElement) => HTMLElement;
 }
 
 export class Popup extends SurveyElementBase<IPopupProps, any> {
@@ -25,15 +23,11 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     return this.model;
   }
   private createModel(): void {
-    this.popup = createPopupViewModel(this.props.model, undefined as any);
+    this.popup = createPopupViewModel(this.props.model);
   }
   private setTargetElement(): void {
     const container = this.containerRef.current as HTMLElement;
-    this.popup.setComponentElement(
-      container,
-      this.props.getTarget ? this.props.getTarget(container) : undefined,
-      this.props.getArea ? this.props.getArea(container) : undefined
-    );
+    this.popup.setComponentElement(container);
   }
   componentDidMount(): void {
     super.componentDidMount();
@@ -50,16 +44,16 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   shouldComponentUpdate(nextProps: IPopupProps, nextState: any) {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     const isNeedUpdate = nextProps.model !== this.popup.model;
-    if(isNeedUpdate) {
+    if (isNeedUpdate) {
       this.popup?.dispose();
       this.createModel();
     }
     return isNeedUpdate;
   }
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     this.popup.model = this.model;
     let popupContainer;
-    if(this.model.isModal) {
+    if (this.model.isModal) {
       popupContainer = <PopupContainer model={this.popup}></PopupContainer>;
     } else {
       popupContainer = <PopupDropdownContainer model={this.popup}></PopupDropdownContainer>;
@@ -97,7 +91,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
       this.model.updateOnShowing();
     }
   }
-  renderContainer(popupBaseViewModel: PopupBaseViewModel): JSX.Element {
+  renderContainer(popupBaseViewModel: PopupBaseViewModel): React.JSX.Element {
     const headerPopup = popupBaseViewModel.showHeader ? this.renderHeaderPopup(popupBaseViewModel) : null;
     const headerContent = !!popupBaseViewModel.title ? this.renderHeaderContent() : null;
     const content = this.renderContent();
@@ -127,10 +121,10 @@ export class PopupContainer extends SurveyElementBase<any, any> {
       </div>
     );
   }
-  renderHeaderContent(): JSX.Element {
+  renderHeaderContent(): React.JSX.Element {
     return <div className="sv-popup__body-header">{this.model.title}</div>;
   }
-  renderContent(): JSX.Element {
+  renderContent(): React.JSX.Element {
     const contentComponent = ReactElementFactory.Instance.createElement(
       this.model.contentComponentName,
       this.model.contentComponentData
@@ -138,17 +132,17 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     return <div className="sv-popup__content">{contentComponent}</div>;
   }
 
-  protected renderHeaderPopup(popupModel: PopupBaseViewModel): JSX.Element | null {
+  protected renderHeaderPopup(popupModel: PopupBaseViewModel): React.JSX.Element | null {
     return null;
   }
-  protected renderFooter(popuModel: PopupBaseViewModel): JSX.Element | null {
+  protected renderFooter(popuModel: PopupBaseViewModel): React.JSX.Element | null {
     return (
       <div className="sv-popup__body-footer">
         <SurveyActionBar model={popuModel.footerToolbar}></SurveyActionBar>
       </div>
     );
   }
-  render(): JSX.Element {
+  render(): React.JSX.Element {
     const container = this.renderContainer(this.model);
     const className = new CssClassBuilder()
       .append("sv-popup")
@@ -171,16 +165,16 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
   componentDidMount(): void {
     super.componentDidMount();
-    if(this.model.isVisible) {
+    if (this.model.isVisible) {
       this.model.updateOnShowing();
     }
   }
 }
 export class PopupDropdownContainer extends PopupContainer {
 
-  protected renderHeaderPopup(popupModel: PopupBaseViewModel): JSX.Element | null {
+  protected renderHeaderPopup(popupModel: PopupBaseViewModel): React.JSX.Element | null {
     const popupDropdownModel = popupModel as PopupDropdownViewModel;
-    if(!popupDropdownModel) return null;
+    if (!popupDropdownModel) return null;
 
     return (
       <span

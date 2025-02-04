@@ -4,7 +4,7 @@ import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject, Serializer } from "./jsonobject";
 import { Base } from "./base";
 import { SurveyError } from "./survey-error";
-import { surveyLocalization } from "./surveyStrings";
+import { getLocaleString } from "./surveyStrings";
 import { RequiredInAllRowsError, EachRowUniqueError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
@@ -46,7 +46,7 @@ export class MatrixRowModel extends Base {
     this.registerPropertyChangedHandlers(["value"], () => {
       if (this.data) this.data.onMatrixRowChanged(this);
     });
-    if(this.data && this.data.hasErrorInRow(this)) {
+    if (this.data && this.data.hasErrorInRow(this)) {
       this.hasError = true;
     }
   }
@@ -63,7 +63,7 @@ export class MatrixRowModel extends Base {
     return this.getPropertyValue("value");
   }
   public set value(val: any) {
-    if(!this.isReadOnly) {
+    if (!this.isReadOnly) {
       this.setValueDirectly(this.data.getCorrectedRowValue(val));
     }
   }
@@ -110,7 +110,7 @@ export class MatrixCells extends Base {
   public onValuesChanged: () => void;
   private locNotification: boolean;
   private valuesChanged(): void {
-    if(!this.locNotification && !!this.onValuesChanged) {
+    if (!this.locNotification && !!this.onValuesChanged) {
       this.onValuesChanged();
     }
   }
@@ -132,9 +132,9 @@ export class MatrixCells extends Base {
       res = this.createString();
       res.setJson(this.getCellLocData(row, col));
       res.onGetTextCallback = (str: string): string => {
-        if(!str) {
+        if (!str) {
           const column = ItemValue.getItemByValue(this.columns, col);
-          if(column) {
+          if (column) {
             return column.locText.getJson() || column.value;
           }
         }
@@ -150,7 +150,7 @@ export class MatrixCells extends Base {
   private get defaultRowValue() { return settings.matrix.defaultRowName; }
   private getCellLocData(row: any, col: any): any {
     let data = this.getCellLocDataFromValue(row, col);
-    if(data) return data;
+    if (data) return data;
     return this.getCellLocDataFromValue(this.defaultRowValue, col);
   }
   private getCellLocDataFromValue(row: any, column: any): any {
@@ -164,7 +164,7 @@ export class MatrixCells extends Base {
   }
   public setCellText(row: any, column: any, val: string): void {
     const loc = this.getCellLocCore(row, column);
-    if(loc) {
+    if (loc) {
       loc.text = val;
     }
   }
@@ -217,7 +217,7 @@ export class MatrixCells extends Base {
       const resRow: { [index: string]: any } = {};
       const rowValues = this.values[row];
       for (let col in rowValues) {
-        if(row === this.defaultRowValue || !defaultRow || defaultRow[col] !== rowValues[col]) {
+        if (row === this.defaultRowValue || !defaultRow || defaultRow[col] !== rowValues[col]) {
           resRow[col] = rowValues[col];
         }
       }
@@ -309,15 +309,24 @@ export class QuestionMatrixModel
    * @see eachRowUnique
    * @see validators
    */
+  public get eachRowRequired(): boolean {
+    return this.getPropertyValue("eachRowRequired");
+  }
+  public set eachRowRequired(val: boolean) {
+    this.setPropertyValue("eachRowRequired", val);
+  }
+  /**
+   * @deprecated Use the [`eachRowRequired`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#eachRowRequired) property instead.
+   */
   public get isAllRowRequired(): boolean {
-    return this.getPropertyValue("isAllRowRequired");
+    return this.eachRowRequired;
   }
   public set isAllRowRequired(val: boolean) {
-    this.setPropertyValue("isAllRowRequired", val);
+    this.eachRowRequired = val;
   }
   /**
    * Specifies whether answers in all rows should be unique. If any answers duplicate, the question displays a validation error.
-   * @see isAllRowRequired
+   * @see eachRowRequired
    * @see validators
    */
   public get eachRowUnique(): boolean {
@@ -338,14 +347,23 @@ export class QuestionMatrixModel
    * - `"random"` - Arranges matrix rows in random order each time the question is displayed.
    * @see rows
    */
+  public get rowOrder(): string {
+    return this.getPropertyValue("rowOrder");
+  }
+  public set rowOrder(val: string) {
+    val = val.toLowerCase();
+    if (val == this.rowOrder) return;
+    this.setPropertyValue("rowOrder", val);
+    this.onRowsChanged();
+  }
+  /**
+   * @deprecated Use the [`rowOrder`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#rowOrder) property instead.
+   */
   public get rowsOrder(): string {
-    return this.getPropertyValue("rowsOrder");
+    return this.rowOrder;
   }
   public set rowsOrder(val: string) {
-    val = val.toLowerCase();
-    if (val == this.rowsOrder) return;
-    this.setPropertyValue("rowsOrder", val);
-    this.onRowsChanged();
+    this.rowOrder = val;
   }
   /**
    * Specifies whether to hide the question when the matrix has no visible rows.
@@ -377,7 +395,7 @@ export class QuestionMatrixModel
     return new CssClassBuilder()
       .append(css.cell, hasCellText)
       .append(hasCellText ? css.cellText : css.label)
-      .append(css.itemOnError, !hasCellText && (this.isAllRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()))
+      .append(css.itemOnError, !hasCellText && (this.eachRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()))
       .append(hasCellText ? css.cellTextSelected : css.itemChecked, isChecked)
       .append(hasCellText ? css.cellTextDisabled : css.itemDisabled, this.isDisabledStyle)
       .append(hasCellText ? css.cellTextReadOnly : css.itemReadOnly, this.isReadOnlyStyle)
@@ -415,9 +433,9 @@ export class QuestionMatrixModel
     }
     return res;
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
     ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
-    super.runCondition(values, properties);
+    super.runConditionCore(values, properties);
   }
   protected createRowsVisibleIfRunner(): ConditionRunner {
     return !!this.rowsVisibleIf ? new ConditionRunner(this.rowsVisibleIf) : null;
@@ -427,7 +445,7 @@ export class QuestionMatrixModel
     super.onRowsChanged();
   }
   protected getVisibleRows(): Array<MatrixRowModel> {
-    if(!!this.generatedVisibleRows) return this.generatedVisibleRows;
+    if (!!this.generatedVisibleRows) return this.generatedVisibleRows;
     const result = new Array<MatrixRowModel>();
     let val = this.value;
     if (!val) val = {};
@@ -446,7 +464,7 @@ export class QuestionMatrixModel
   ): Array<MatrixRowModel> {
     if (!!this.survey && this.survey.isDesignMode)
       return array;
-    var order = this.rowsOrder.toLowerCase();
+    var order = this.rowOrder.toLowerCase();
     if (order === "random")
       return Helpers.randomizeArray<MatrixRowModel>(array);
     return array;
@@ -503,7 +521,7 @@ export class QuestionMatrixModel
     var loc = this.cells.getCellDisplayLocText(row, column);
     return loc ? loc : this.emptyLocalizableString;
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     return this.isMouseDown === true && this.hasValuesInAllRows();
   }
   private errorsInRow: HashTable<boolean>;
@@ -512,10 +530,10 @@ export class QuestionMatrixModel
     if (!isOnValueChanged || this.hasCssError()) {
       const rowsErrors = { noValue: false, isNotUnique: false };
       this.checkErrorsAllRows(fireCallback, rowsErrors);
-      if(rowsErrors.noValue) {
+      if (rowsErrors.noValue) {
         errors.push(new RequiredInAllRowsError(null, this));
       }
-      if(rowsErrors.isNotUnique) {
+      if (rowsErrors.isNotUnique) {
         errors.push(new EachRowUniqueError(null, this));
       }
     }
@@ -529,42 +547,42 @@ export class QuestionMatrixModel
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (!rows) return;
-    const rowsRequired = this.isAllRowRequired || allRowsRequired;
+    const rowsRequired = this.eachRowRequired || allRowsRequired;
     const rowsUnique = this.eachRowUnique;
     res.noValue = false;
     res.isNotUnique = false;
-    if(modifyErrors) {
+    if (modifyErrors) {
       this.errorsInRow = undefined;
     }
-    if(!rowsRequired && !rowsUnique) return;
+    if (!rowsRequired && !rowsUnique) return;
     const hash: HashTable<any> = {};
     for (var i = 0; i < rows.length; i++) {
       const val = rows[i].value;
       let isEmpty = this.isValueEmpty(val);
       const isNotUnique = rowsUnique && (!isEmpty && hash[val] === true);
       isEmpty = isEmpty && rowsRequired;
-      if(modifyErrors && (isEmpty || isNotUnique)) {
+      if (modifyErrors && (isEmpty || isNotUnique)) {
         this.addErrorIntoRow(rows[i]);
       }
-      if(!isEmpty) {
+      if (!isEmpty) {
         hash[val] = true;
       }
       res.noValue = res.noValue || isEmpty;
       res.isNotUnique = res.isNotUnique || isNotUnique;
     }
-    if(modifyErrors) {
+    if (modifyErrors) {
       rows.forEach(row => {
         row.hasError = this.hasErrorInRow(row);
       });
     }
   }
   private addErrorIntoRow(row: MatrixRowModel): void {
-    if(!this.errorsInRow) this.errorsInRow = {};
+    if (!this.errorsInRow) this.errorsInRow = {};
     this.errorsInRow[row.name] = true;
     row.hasError = true;
   }
   private refreshRowsErrors(): void {
-    if(!this.errorsInRow) return;
+    if (!this.errorsInRow) return;
     this.checkErrorsAllRows(true, { noValue: false, isNotUnique: false });
   }
   protected getIsAnswered(): boolean {
@@ -579,7 +597,7 @@ export class QuestionMatrixModel
     this.onMatrixRowCreated(row);
     return row;
   }
-  protected onMatrixRowCreated(row: MatrixRowModel) {}
+  protected onMatrixRowCreated(row: MatrixRowModel) { }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, this.isRowChanging || updateIsAnswered);
     if (!this.generatedVisibleRows || this.generatedVisibleRows.length == 0)
@@ -699,14 +717,14 @@ export class QuestionMatrixModel
     for (var i = 0; i < rows.length; i++) {
       var key = rows[i].value;
       if (!!updatedData[key]) {
-        if(inRows && !rows[i].isVisible || inColumns && !this.getVisibleColumnByValue(updatedData[key])) {
+        if (inRows && !rows[i].isVisible || inColumns && !this.getVisibleColumnByValue(updatedData[key])) {
           delete updatedData[key];
         } else {
           newData[key] = updatedData[key];
         }
       }
     }
-    if(inCorrectRows) {
+    if (inCorrectRows) {
       updatedData = newData;
     }
     if (this.isTwoValueEquals(updatedData, this.value)) return;
@@ -793,28 +811,28 @@ Serializer.addClass(
     "rowTitleWidth",
     {
       name: "columns:itemvalue[]", uniqueProperty: "value",
-      baseValue: function() {
-        return surveyLocalization.getString("matrix_column");
+      baseValue: function () {
+        return getLocaleString("matrix_column");
       },
     },
     {
       name: "rows:itemvalue[]", uniqueProperty: "value",
-      baseValue: function() {
-        return surveyLocalization.getString("matrix_row");
+      baseValue: function () {
+        return getLocaleString("matrix_row");
       },
     },
     { name: "cells:cells", serializationProperty: "cells" },
     {
-      name: "rowsOrder",
+      name: "rowOrder", alternativeName: "rowsOrder",
       default: "initial",
       choices: ["initial", "random"],
     },
-    "isAllRowRequired:boolean",
+    { name: "eachRowRequired:boolean", alternativeName: "isAllRowRequired" },
     { name: "eachRowUnique:boolean", category: "validation" },
     "hideIfRowsEmpty:boolean",
     { name: "cellComponent", visible: false, default: "survey-matrix-cell" }
   ],
-  function() {
+  function () {
     return new QuestionMatrixModel("");
   },
   "matrixbase"

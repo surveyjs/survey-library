@@ -127,8 +127,6 @@ registerMarkupTests(
       },
       removeIds: true,
       initSurvey: (survey) => survey.setDesignMode(true),
-      before: () => { settings.supportCreatorV2 = true; },
-      after: () => { settings.supportCreatorV2 = false; },
       snapshot: "tagbox-disabled-with-value"
     }, {
       name: "Test Tagbox question without clear button markup",

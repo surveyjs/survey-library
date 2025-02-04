@@ -18,7 +18,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   protected get question(): QuestionFileModel {
     return this.questionBase as QuestionFileModel;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const preview = this.question.allowShowPreview ? this.renderPreview() : null;
     const loadingIndicator = this.question.showLoadingIndicator ? this.renderLoadingIndicator() : null;
     const video = this.question.isPlayingVideo ? this.renderVideo() : null;
@@ -28,8 +28,8 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     ) : null;
     const clearButtonBottom = this.question.showRemoveButtonBottom ? this.renderClearButton(
       this.question.cssClasses.removeButtonBottom
-    ): null;
-    const fileNavigator = this.question.fileNavigatorVisible?(<SurveyActionBar model = {this.question.fileNavigator}></SurveyActionBar>) : null;
+    ) : null;
+    const fileNavigator = this.question.fileNavigatorVisible ? (<SurveyActionBar model={this.question.fileNavigator}></SurveyActionBar>) : null;
     let fileInput;
     if (this.question.isReadOnlyAttr) {
       fileInput = <input
@@ -71,7 +71,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         multiple={this.question.allowMultiple}
         title={this.question.inputTitle}
         accept={this.question.acceptedTypes}
-        capture={this.question.renderCapture}
+        capture={this.question.renderCapture as "user" | "environment"}
       />;
     } else {
       fileInput = null;
@@ -98,7 +98,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       </div>
     );
   }
-  protected renderFileDecorator(): JSX.Element {
+  protected renderFileDecorator(): React.JSX.Element {
     const chooseButton = this.question.showChooseButton ? this.renderChooseButton() : null;
     const actionsContainer = this.question.actionsContainerVisible ? <SurveyActionBar model={this.question.actionsContainer}></SurveyActionBar> : null;
     const noFileChosen = this.question.isEmpty() ? (
@@ -118,24 +118,24 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       </div>
     );
   }
-  protected renderChooseButton(): JSX.Element {
+  protected renderChooseButton(): React.JSX.Element {
     return <SurveyFileChooseButton data={{ question: this.question }}></SurveyFileChooseButton>;
   }
-  protected renderClearButton(className: string): JSX.Element | null {
+  protected renderClearButton(className: string): React.JSX.Element | null {
     return !this.question.isUploading ? (
       <button type="button" onClick={this.question.doClean} className={className}>
         <span>{this.question.clearButtonCaption}</span>
-        {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"} title={this.question.clearButtonCaption}></SvgIcon>: null }
+        {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"} title={this.question.clearButtonCaption}></SvgIcon> : null}
       </button>
     ) : null;
   }
-  protected renderPreview(): JSX.Element {
+  protected renderPreview(): React.JSX.Element {
     return ReactElementFactory.Instance.createElement("sv-file-preview", { question: this.question });
   }
-  protected renderLoadingIndicator(): JSX.Element {
+  protected renderLoadingIndicator(): React.JSX.Element {
     return <div className={this.question.cssClasses.loadingIndicator}><LoadingIndicatorComponent></LoadingIndicatorComponent></div>;
   }
-  protected renderVideo(): JSX.Element {
+  protected renderVideo(): React.JSX.Element {
     return (<div className={this.question.cssClasses.videoContainer}>
       <SurveyAction item={this.question.changeCameraAction}></SurveyAction>
       <SurveyAction item={this.question.closeCameraAction}></SurveyAction>

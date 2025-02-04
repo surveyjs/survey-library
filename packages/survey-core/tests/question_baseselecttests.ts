@@ -6,11 +6,13 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { setOldTheme } from "./oldTheme";
+import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("baseselect");
 
@@ -19,7 +21,7 @@ function getValuesInColumns(question: QuestionSelectBase) {
 }
 
 QUnit.test("Check QuestionSelectBase columns property", function (assert) {
-  var json = {
+  const json = {
     questions: [
       {
         type: "checkbox",
@@ -29,16 +31,17 @@ QUnit.test("Check QuestionSelectBase columns property", function (assert) {
       },
     ],
   };
-  var survey = new SurveyModel(json);
+  const survey = new SurveyModel(json);
 
-  var question = <QuestionSelectBase>survey.getAllQuestions()[0];
-  var columns = getValuesInColumns(question);
+  settings.itemFlowDirection = "row";
+  const question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  let columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
     [["Item1", "Item4"], ["Item2", "Item5"], ["Item3"]],
     "check showItemsBy row"
   );
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
@@ -56,7 +59,7 @@ QUnit.test("Check QuestionSelectBase columns property and creator V2", function 
       },
     ],
   };
-  settings.supportCreatorV2 = true;
+
   var survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON(json);
@@ -80,7 +83,6 @@ QUnit.test("Check QuestionSelectBase columns property and creator V2", function 
     ["newitem", "none", "other"],
     "check foot items"
   );
-  settings.supportCreatorV2 = false;
 });
 
 QUnit.test("Check QuestionSelectBase head and foot items property", function (assert) {
@@ -100,7 +102,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
   assert.notOk(question.hasHeadItems);
   assert.notOk(question.hasFootItems);
 
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   let columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
@@ -109,7 +111,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
   );
 
   survey.setDesignMode(true);
-  settings.supportCreatorV2 = true;
+
   (<any>question).updateVisibleChoices();
   assert.ok(question.hasHeadItems);
   assert.ok(question.hasFootItems);
@@ -132,8 +134,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
     ["newitem", "none", "other"],
     "check foot items"
   );
-  settings.showItemsInOrder = "row";
-  settings.supportCreatorV2 = false;
+  settings.itemFlowDirection = "row";
 });
 
 QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and dontknow properties", function (assert) {
@@ -157,7 +158,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
   assert.notOk(question.hasHeadItems);
   assert.notOk(question.hasFootItems);
 
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   let columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
@@ -166,7 +167,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
   );
 
   survey.setDesignMode(true);
-  settings.supportCreatorV2 = true;
+
   (<any>question).updateVisibleChoices();
   assert.ok(question.hasHeadItems);
   assert.ok(question.hasFootItems);
@@ -189,8 +190,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
     ["newitem", "none", "refused", "dontknow", "other"],
     "check foot items"
   );
-  settings.showItemsInOrder = "row";
-  settings.supportCreatorV2 = false;
+  settings.itemFlowDirection = "row";
   refuseProp.visible = false;
   dontKnowProp.visible = false;
 });
@@ -217,7 +217,7 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
   assert.notOk(question.hasFootItems);
 
   let columns = getValuesInColumns(question);
-  settings.showItemsInOrder = "column";
+  settings.itemFlowDirection = "column";
   assert.deepEqual(
     columns,
     [["selectall", "Item2", "other"], ["Item1", "none"]],
@@ -247,8 +247,7 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
     ["none", "other"],
     "check foot items"
   );
-  settings.showItemsInOrder = "row";
-  settings.supportCreatorV2 = false;
+  settings.itemFlowDirection = "row";
 });
 QUnit.test("settings.noneItemValue", function (assert) {
   settings.noneItemValue = "n/a";
@@ -678,10 +677,11 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther", (assert) => {
     ]
   });
   const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.getStoreOthersAsComment(), false, "It becomes false because of valuePropertyName");
   q.renderedValue = ["other"];
   assert.deepEqual(q.value, [{ fruit: "other" }], "#1");
   q.comment = "text1";
-  assert.deepEqual(survey.data, { q1: [{ fruit: "other" }], "q1-Comment": "text1" }, "2");
+  assert.deepEqual(survey.data, { q1: [{ fruit: "text1" }] }, "2");
 });
 QUnit.test("checkbox vs valuePropertyName, getDisplayValue", (assert) => {
   const survey = new SurveyModel({
@@ -719,6 +719,39 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsCommen
   q.comment = "text1";
   assert.deepEqual(q.value, [{ fruit: "text1" }], "#2");
   assert.deepEqual(survey.data, { q1: [{ fruit: "text1" }] }, "#3");
+});
+QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsComment & matrix", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit",
+        hasOther: true
+      },
+      {
+        type: "matrixdynamic",
+        name: "q2",
+        valueName: "q1",
+        columns: [
+          { cellType: "text", name: "col1" },
+          { cellType: "expression", name: "col2", expression: "{row.fruit}" }
+        ]
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.getStoreOthersAsComment(), false, "it is false valuePropertyName is not empty");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  q.renderedValue = ["apple", "other"];
+  const rows = matrix.visibleRows;
+  assert.equal(rows.length, 2, "matrix rows");
+  q.comment = "text1";
+  assert.equal(rows.length, 2, "matrix rows");
+  assert.equal(rows[0].cells[1].question.value, "apple", "rows[0]");
+  assert.equal(rows[1].cells[1].question.value, "text1", "rows[1]");
+  assert.deepEqual(survey.data, { q1: [{ fruit: "apple", col2: "apple" }, { fruit: "text1", col2: "text1" }] }, "survey.data");
 });
 QUnit.test("checkbox vs valuePropertyName, use in expression", (assert) => {
   const survey = new SurveyModel({
@@ -825,9 +858,10 @@ QUnit.test("check radiogroup title actions", (assert) => {
         type: "radiogroup",
         name: "q1",
         choices: ["Item 1"],
-        showClearButton: true
+        allowClear: true
       }]
   });
+  setOldTheme(survey);
   let question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
   assert.deepEqual(question.getTitleActions(), []);
   assert.ok(question.showClearButtonInContent);
@@ -841,14 +875,14 @@ QUnit.test("check radiogroup title actions", (assert) => {
         showClearButton: true
       }]
   });
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
   const action = <IAction>question.getTitleActions()[0];
   assert.notOk(question.showClearButtonInContent);
   assert.equal(action.title, "Clear");
   assert.ok(action.visible);
 
-  question.showClearButton = false;
+  question.allowClear = false;
   assert.notOk(action.visible);
 });
 
@@ -1172,7 +1206,7 @@ QUnit.test("selectbase, showOtherItem & checkErrorsMode: 'onValueChanged'", (ass
   const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
   q1.renderedValue = "other";
   assert.equal(q1.errors.length, 0, "We do not have errors yet");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(q1.errors.length, 1, "There is an error");
   assert.equal(survey.state, "running", "Still running");
 });
@@ -1218,7 +1252,7 @@ QUnit.test("SelectBase visibleChoices order", function (assert) {
     { type: "dropdown", name: "q1", choicesOrder: "asc", choices: ["B", "A", "D", "C"] }
   ] });
   const question = <QuestionSelectBase>survey.getQuestionByName("q1");
-  assert.equal(question.visibleChoices.length, 4, "There are 4 items");
+  assert.equal(question.visibleChoices.length, 7, "There are 4 items");
   assert.equal(question.visibleChoices[0].value, "B", "the first item");
   assert.equal(question.visibleChoices[3].value, "C", "the last item");
 });
@@ -1401,7 +1435,7 @@ QUnit.test("Check isUsingCarryForward on deleting question", function (assert) {
 QUnit.test("Do not notify survey on changing newItem.value", function (
   assert
 ) {
-  settings.supportCreatorV2 = true;
+
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
@@ -1426,12 +1460,11 @@ QUnit.test("Do not notify survey on changing newItem.value", function (
   assert.equal(counter, 2, "#3");
   q.newItem.text = "item 2";
   assert.equal(counter, 2, "Do not react on newItem properties changes, #4");
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("Remove newItem from the list if it is false", function (
   assert
 ) {
-  settings.supportCreatorV2 = true;
+
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
@@ -1916,8 +1949,7 @@ QUnit.test("Select all and clickItemHandler", function (assert) {
   question.clickItemHandler(question.selectAllItem);
   assert.equal(question.isAllSelected, false, "#5");
 });
-QUnit.test("Test dropdown in CreatorV2 & restful", function(assert) {
-  settings.supportCreatorV2 = true;
+QUnit.test("Test dropdown in CreatorV2 & restful", function (assert) {
   const json = { elements: [
     { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] }
   ] };
@@ -1933,7 +1965,6 @@ QUnit.test("Test dropdown in CreatorV2 & restful", function(assert) {
   question.choicesByUrl.url = "";
   assert.equal(question.isUsingRestful, false, "isUsingRestful #3");
   assert.equal(question.visibleChoices.length, 3 + 5 + 1, "3 built-in + 5 choices + 1 add item, #3");
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("isUsingRestful & loading", function(assert) {
   const json = { elements: [
@@ -1999,8 +2030,7 @@ QUnit.test("checkbox, selectAll & survey.data, bug#7657", (assert) => {
   assert.deepEqual(q.value, ["One", "Two"], "q.value, #2");
   assert.deepEqual(survey.data, { q1: ["One", "Two"] }, "survey.data, #2");
 });
-QUnit.test("Do not show show choices in designer", function(assert) {
-  settings.supportCreatorV2 = true;
+QUnit.test("Do not show show choices in designer", function (assert) {
   const json = { elements: [
     { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] }
   ] };
@@ -2013,7 +2043,6 @@ QUnit.test("Do not show show choices in designer", function(assert) {
   assert.equal(question.visibleChoices.length, 3, "Hide choices in designer, #2");
   question.isMessagePanelVisible = false;
   assert.equal(question.visibleChoices.length, 5 + 1 + 3, "Show choices in designer, #1");
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("question checkbox displayValue() with other and comment", (assert) => {
   const q1 = new QuestionCheckboxModel("q1");
@@ -2146,7 +2175,7 @@ QUnit.test("maxSelectedChoices & getItemClass, bug#8159", (assert) => {
 QUnit.test("radiogroup.getConditionJson, bug#8226", (assert) => {
   var json = {
     questions: [
-      { type: "radiogroup", name: "q1", showClearButton: true, choices: ["Item1"] },
+      { type: "radiogroup", name: "q1", allowClear: true, choices: ["Item1"] },
       { type: "radiogroup", name: "q2", choices: ["Item1"] }
     ],
   };
@@ -2295,4 +2324,28 @@ QUnit.test("question checkbox add a custom property into choicesByUrl, Bug#8783"
   q1.choicesByUrl["jsonpath"] = "newpath";
   assert.deepEqual(q1.toJSON(), { name: "q1", choicesByUrl: { valueName: "name", jsonpath: "newpath" } }, "#2");
   Serializer.removeProperty("choicesByUrl", "jsonpath");
+});
+QUnit.test("Clear action in locale & survey.locale change, Bug#9113", (assert) => {
+  const survey = new SurveyModel();
+  survey.css =survey.css = { root: "sd-root-modern" };
+  survey.fromJSON({
+    elements: [{ type: "radiogroup", name: "q1", showClearButton: true }]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(q1.isDefaultV2Theme, true, "V2 theme");
+  assert.ok(q1.getTitleToolbar());
+  assert.equal(q1.titleActions.length, 1, "one action");
+  const item = q1.titleActions[0];
+  assert.equal(item.locTitle.localizationName, "clearCaption", "locName");
+  assert.equal(item.locTitle.locale, "", "locale #1");
+  survey.locale = "de";
+  assert.equal(item.locTitle.locale, "de", "locale #2");
+});
+QUnit.test("ItemValue tooltip, #9269", (assert) => {
+  const item = new ItemValue(1);
+  assert.equal(item.getTooltip(), "1", "#1");
+  item.text = "abc";
+  assert.equal(item.getTooltip(), "abc", "#2");
+  item.tooltip = "edf";
+  assert.equal(item.getTooltip(), "edf", "#3");
 });

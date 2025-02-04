@@ -11,7 +11,7 @@ import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
-import { surveyLocalization } from "./surveyStrings";
+import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
 
 interface IExpressionRunnerInfo {
@@ -47,7 +47,7 @@ export class Bindings {
   public setBinding(propertyName: string, valueName: string) {
     if (!this.values) this.values = {};
     const oldValue = this.getJson();
-    if(oldValue === valueName) return;
+    if (oldValue === valueName) return;
     if (!!valueName) {
       this.values[propertyName] = valueName;
     } else {
@@ -62,8 +62,8 @@ export class Bindings {
     this.setBinding(propertyName, "");
   }
   public isEmpty(): boolean {
-    if(!this.values) return true;
-    for(var key in this.values) return false;
+    if (!this.values) return true;
+    for (var key in this.values) return false;
     return true;
   }
   public getValueNameByPropertyName(propertyName: string): string {
@@ -97,7 +97,7 @@ export class Bindings {
         this.values[key] = value[key];
       }
     }
-    if(!isLoading) {
+    if (!isLoading) {
       this.onChangedJSON(oldValue);
     }
   }
@@ -112,7 +112,7 @@ export class Bindings {
     }
   }
   private onChangedJSON(oldValue: any): void {
-    if(this.obj) {
+    if (this.obj) {
       this.obj.onBindingChanged(oldValue, this.getJson());
     }
   }
@@ -194,7 +194,7 @@ export class Base {
     if (Base.currentDependencis === undefined) return;
     Base.currentDependencis.addDependency(target, property);
   }
-  public dependencies: {[key: string]: ComputedUpdater } = {};
+  public dependencies: { [key: string]: ComputedUpdater } = {};
   public static get commentSuffix(): string {
     return settings.commentSuffix;
   }
@@ -222,13 +222,13 @@ export class Base {
     return Helpers.isValueEmpty(value);
   }
   public equals(obj: Base): boolean {
-    if(!obj) return false;
+    if (!obj) return false;
     if (this.isDisposed || obj.isDisposed) return false;
-    if(this.getType() != obj.getType()) return false;
+    if (this.getType() != obj.getType()) return false;
     return this.equalsCore(obj);
   }
   protected equalsCore(obj: Base): boolean {
-    if((<any>this).name !== (<any>obj).name) return false;
+    if ((<any>this).name !== (<any>obj).name) return false;
     return Helpers.isTwoValueEquals(this.toJSON(), obj.toJSON(), false, true, false);
   }
   protected trimValue(value: any): any {
@@ -367,9 +367,6 @@ export class Base {
     const survey = this.getSurvey();
     return !!survey && survey.isDesignMode;
   }
-  public get isDesignModeV2(): boolean {
-    return settings.supportCreatorV2 && this.isDesignMode;
-  }
   /**
    * Returns `true` if the object is included in a survey.
    *
@@ -448,7 +445,7 @@ export class Base {
    */
   public getPropertyByName(propName: string): JsonObjectProperty {
     const type = this.getType();
-    if(!this.classMetaData || this.classMetaData.name !== type) {
+    if (!this.classMetaData || this.classMetaData.name !== type) {
       this.classMetaData = Serializer.findClass(type);
     }
     return !!this.classMetaData ? this.classMetaData.findProperty(propName) : null;
@@ -468,8 +465,8 @@ export class Base {
   public getProgressInfo(): IProgressInfo {
     return Base.createProgressInfo();
   }
-  public localeChanged() { }
-  public locStrsChanged() {
+  public localeChanged(): void { }
+  public locStrsChanged(): void {
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
         let item = this.arraysInfo[key];
@@ -495,25 +492,38 @@ export class Base {
    * @param name A property name.
    * @param defaultValue *(Optional)* A value to return if the property is not found or does not have a value.
    */
-  public getPropertyValue(name: string, defaultValue: any = null): any {
+  public getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
     const res = this.getPropertyValueWithoutDefault(name);
     if (this.isPropertyEmpty(res)) {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
-      if(locStr) return locStr.text;
+      if (locStr) return locStr.text;
       if (defaultValue !== null && defaultValue !== undefined) return defaultValue;
+      if(!!calcFunc) {
+        const newVal = calcFunc();
+        if(newVal !== undefined) {
+          if(Array.isArray(newVal)) {
+            const array = this.createNewArray(name);
+            array.splice(0, 0, ...newVal);
+            return array;
+          } else {
+            this.setPropertyValueDirectly(name, newVal);
+            return newVal;
+          }
+        }
+      }
       const propDefaultValue = this.getDefaultPropertyValue(name);
-      if(propDefaultValue !== undefined) return propDefaultValue;
+      if (propDefaultValue !== undefined) return propDefaultValue;
     }
     return res;
   }
   public getDefaultPropertyValue(name: string): any {
     const prop = this.getPropertyByName(name);
-    if(!prop || prop.isCustom && this.isCreating) return undefined;
-    const dValue = prop.defaultValue;
-    if (!!prop.defaultValueFunc) return dValue;
+    if (!prop || prop.isCustom && this.isCreating) return undefined;
+    if (!!prop.defaultValueFunc) return prop.defaultValueFunc(this);
+    const dValue = prop.getDefaultValue(this);
     if (!this.isPropertyEmpty(dValue) && !Array.isArray(dValue)) return dValue;
     const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
-    if(locStr && locStr.localizationName) return this.getLocalizationString(locStr.localizationName);
+    if (locStr && locStr.localizationName) return this.getLocalizationString(locStr.localizationName);
     if (prop.type == "boolean" || prop.type == "switch") return false;
     if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
     return undefined;
@@ -523,7 +533,7 @@ export class Base {
   }
   public resetPropertyValue(name: string): void {
     const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
-    if(locStr) {
+    if (locStr) {
       this.setLocalizableStringText(name, undefined);
       locStr.clear();
     }
@@ -535,7 +545,7 @@ export class Base {
     return this.getPropertyValueCore(this.propertyHash, name);
   }
   protected getPropertyValueCore(propertiesHash: any, name: string): any {
-    if(!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson) {
       Base.collectDependency(this, name);
     }
     if (this.getPropertyValueCoreHandler)
@@ -579,9 +589,10 @@ export class Base {
    * @param val A new value for the property.
    */
   public setPropertyValue(name: string, val: any): void {
-    if(!this.isLoadingFromJson) {
+    if (this.isDisposedValue) return;
+    if (!this.isLoadingFromJson) {
       const prop = this.getPropertyByName(name);
-      if(!!prop) {
+      if (!!prop) {
         val = prop.settingValue(this, val);
       }
     }
@@ -596,9 +607,11 @@ export class Base {
         this.setArrayPropertyDirectly(name, val);
       }
     } else {
-      this.setPropertyValueDirectly(name, val);
-      if (!this.isDisposedValue && !this.isTwoValueEquals(oldValue, val)) {
-        this.propertyValueChanged(name, oldValue, val);
+      if (val !== oldValue) {
+        this.setPropertyValueDirectly(name, val);
+        if (!this.isTwoValueEquals(oldValue, val)) {
+          this.propertyValueChanged(name, oldValue, val);
+        }
       }
     }
   }
@@ -612,7 +625,7 @@ export class Base {
       arrayInfo ? sendNotification && arrayInfo.onPush : null
     );
   }
-  protected setPropertyValueDirectly(name: string, val: any) : void {
+  protected setPropertyValueDirectly(name: string, val: any): void {
     this.setPropertyValueCore(this.propertyHash, name, val);
   }
   protected clearPropertyValue(name: string) {
@@ -667,7 +680,7 @@ export class Base {
     }
   }
   public onBindingChanged(oldValue: any, newValue: any): void {
-    if(this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson) return;
     this.doPropertyValueChangedCallback("bindings", oldValue, newValue);
   }
   protected get isInternal(): boolean {
@@ -698,7 +711,7 @@ export class Base {
     }
   }
   public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean): void {
-    if(!this.expressionInfo) {
+    if (!this.expressionInfo) {
       this.expressionInfo = {};
     }
     this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
@@ -710,8 +723,8 @@ export class Base {
     return {};
   }
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    if(!this.expressionInfo) return;
-    for(var key in this.expressionInfo) {
+    if (!this.expressionInfo) return;
+    for (var key in this.expressionInfo) {
       this.runConditionItemCore(key, values, properties);
     }
   }
@@ -719,16 +732,16 @@ export class Base {
     return !this.isDesignMode;
   }
   private checkConditionPropertyChanged(propName: string): void {
-    if(!this.expressionInfo || !this.expressionInfo[propName]) return;
-    if(!this.canRunConditions()) return;
+    if (!this.expressionInfo || !this.expressionInfo[propName]) return;
+    if (!this.canRunConditions()) return;
     this.runConditionItemCore(propName, this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
   private runConditionItemCore(propName: string, values: HashTable<any>, properties: HashTable<any>): void {
     const info = this.expressionInfo[propName];
     const expression = this.getPropertyValue(propName);
-    if(!expression) return;
-    if(!!info.canRun && !info.canRun(this)) return;
-    if(!info.runner) {
+    if (!expression) return;
+    if (!!info.canRun && !info.canRun(this)) return;
+    if (!info.runner) {
       info.runner = this.createExpressionRunner(expression);
       info.runner.onRunComplete = (res: any) => {
         info.onExecute(this, res);
@@ -739,22 +752,22 @@ export class Base {
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {
-    if(!this.asynExpressionHash) this.asynExpressionHash = {};
+    if (!this.asynExpressionHash) this.asynExpressionHash = {};
     const isChanged = !this.isAsyncExpressionRunning;
     this.asynExpressionHash[id] = true;
-    if(isChanged) {
+    if (isChanged) {
       this.onAsyncRunningChanged();
     }
   }
   private doAfterAsynRun(id: number): void {
-    if(!!this.asynExpressionHash) {
+    if (!!this.asynExpressionHash) {
       delete this.asynExpressionHash[id];
-      if(!this.isAsyncExpressionRunning) {
+      if (!this.isAsyncExpressionRunning) {
         this.onAsyncRunningChanged();
       }
     }
   }
-  protected onAsyncRunningChanged(): void {}
+  protected onAsyncRunningChanged(): void { }
   public get isAsyncExpressionRunning(): boolean {
     return !!this.asynExpressionHash && Object.keys(this.asynExpressionHash).length > 0;
   }
@@ -822,26 +835,26 @@ export class Base {
   }
   public createCustomLocalizableObj(name: string): LocalizableString {
     const locStr = this.getLocalizableString(name);
-    if(locStr) return locStr;
+    if (locStr) return locStr;
     return this.createLocalizableString(name, <ILocalizableOwner>(<any>this), false, true);
   }
   public getLocale(): string {
     const locOwner = this.getSurvey();
-    return !!locOwner ? locOwner.getLocale(): "";
+    return !!locOwner ? locOwner.getLocale() : "";
   }
   public getLocalizationString(strName: string): string {
-    return surveyLocalization.getString(strName, this.getLocale());
+    return getLocaleString(strName, this.getLocale());
   }
   public getLocalizationFormatString(strName: string, ...args: any[]): string {
     const str: any = this.getLocalizationString(strName);
-    if(!str || !str.format) return "";
+    if (!str || !str.format) return "";
     return str.format(...args);
   }
   protected createLocalizableString(
     name: string,
     owner: ILocalizableOwner,
     useMarkDown: boolean = false,
-    defaultStr: boolean|string = false
+    defaultStr: boolean | string = false
   ): LocalizableString {
     let locName = undefined;
     if (defaultStr) {
@@ -876,7 +889,7 @@ export class Base {
     let locStr = this.getLocalizableString(name);
     if (!locStr) return;
     let oldValue = locStr.text;
-    if(oldValue != value) {
+    if (oldValue != value) {
       locStr.text = value;
       // this.propertyValueChanged(name, oldValue, value);
     }
@@ -891,7 +904,7 @@ export class Base {
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
         const prop = this.getPropertyByName(key);
-        if(!prop || !prop.isSerializable) continue;
+        if (!prop || !prop.isSerializable) continue;
         let items = this.getPropertyValue(key);
         if (!items || !items.length) continue;
         for (let i = 0; i < items.length; i++) {

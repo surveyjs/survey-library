@@ -96,7 +96,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public getType(): string {
     return "imagepicker";
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     return !this.multiSelect;
   }
   public get hasSingleInput(): boolean {
@@ -107,6 +107,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public get isCompositeQuestion(): boolean {
     return true;
+  }
+  protected get itemFlowDirection() {
+    return "row";
   }
   public supportOther(): boolean { return false; }
   public supportNone(): boolean { return false; }
@@ -228,10 +231,13 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public set imageHeight(val: number) {
     this.setPropertyValue("imageHeight", val);
   }
+  public get imageScale() {
+    return this.survey ? (this.survey as any)["widthScale"] / 100 : 1;
+  }
   @property({}) private responsiveImageHeight: number;
   public get renderedImageHeight(): number {
-    const height = this.isResponsive ? Math.floor(this.responsiveImageHeight) : this.imageHeight;
-    return (height ? height : 150);
+    const height = this.isResponsive ? Math.floor(this.responsiveImageHeight) : this.imageHeight * this.imageScale;
+    return (height ? height : 150 * this.imageScale);
   }
   /**
    * Specifies the width of containers for images or videos. Accepts positive numbers and CSS values.
@@ -252,8 +258,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
 
   @property({}) private responsiveImageWidth: number;
   public get renderedImageWidth(): number {
-    const width = this.isResponsive ? Math.floor(this.responsiveImageWidth) : this.imageWidth;
-    return (width ? width : 200);
+    const width = this.isResponsive ? Math.floor(this.responsiveImageWidth) : this.imageWidth * this.imageScale;
+    return (width ? width : 200 * this.imageScale);
   }
   /**
    * Specifies how to resize images or videos to fit them into their containers.
@@ -307,7 +313,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   /**
    * Specifies a maximum width for image or video containers. Accepts positive numbers and CSS values.
    *
-   * Default value: 400
+   * Default value: 3000
    *
    * The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
    */
@@ -323,7 +329,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   /**
    * Specifies a maximum height for image or video containers. Accepts positive numbers and CSS values.
    *
-   * Default value: 266
+   * Default value: 3000
    *
    * The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
    */
@@ -391,11 +397,11 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     };
     if (this.isResponsive) {
       const itemsCount = this.choices.length + (this.isDesignMode ? 1 : 0);
-      const gap = this.gapBetweenItems || 0;
-      const minWidth = this.minImageWidth;
-      const maxWidth = this.maxImageWidth;
-      const maxHeight = this.maxImageHeight;
-      const minHeight = this.minImageHeight;
+      const gap = (this.gapBetweenItems || 0) * this.imageScale;
+      const minWidth = this.minImageWidth * this.imageScale;
+      const maxWidth = this.maxImageWidth * this.imageScale;
+      const maxHeight = this.maxImageHeight * this.imageScale;
+      const minHeight = this.minImageHeight * this.imageScale;
       let colCount = this.colCount;
       let width: number;
       if (colCount === 0) {
@@ -492,10 +498,10 @@ Serializer.addClass(
     },
     { name: "imageHeight:number", minValue: 0 },
     { name: "imageWidth:number", minValue: 0 },
-    { name: "minImageWidth:responsiveImageSize", default: 200, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
-    { name: "minImageHeight:responsiveImageSize", default: 133, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
-    { name: "maxImageWidth:responsiveImageSize", default: 400, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
-    { name: "maxImageHeight:responsiveImageSize", default: 266, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
+    { name: "minImageWidth:responsiveImageSize", default: 200, minValue: 0 },
+    { name: "minImageHeight:responsiveImageSize", default: 133, minValue: 0 },
+    { name: "maxImageWidth:responsiveImageSize", default: 3000, minValue: 0 },
+    { name: "maxImageHeight:responsiveImageSize", default: 3000, minValue: 0 },
 
   ],
   function () {

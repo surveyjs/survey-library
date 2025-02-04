@@ -1,6 +1,6 @@
 {
   "name": "survey-angular-ui",
-  "version": "1.12.9",
+  "version": "2.0.0-rc.2",
   "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
   "keywords": [
     "Survey",
@@ -39,8 +39,11 @@
     "@angular/router": "~12.2.0",
     "@types/jasmine": "~3.8.0",
     "@types/node": "^12.11.1",
+    "@babel/core": "7.25.9",
+    "@babel/traverse": "7.25.9",
     "jasmine-core": "~3.8.0",
     "karma": "~6.3.0",
+    "karma-webpack": "5.0.0",
     "karma-chrome-launcher": "~3.1.0",
     "karma-coverage": "~2.0.3",
     "karma-jasmine": "~4.0.0",
@@ -53,15 +56,27 @@
     "rxjs": "~6.6.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4",
-    "copyfiles": "~2.4.1",
-    "survey-core": "../../build/survey-core"
+    "survey-core": "../survey-core/build",
+    "http-server": "^14.1.1"
   },
   "scripts": {
-    "build": "ng build && npx copyfiles -u 1 \"build/**/*\" ../../build/survey-angular-ui && node ./update-version.js",
-    "serve:example": "ng serve",
-    "build:example": "ng build --aot --output-hashing=none angular-ui",
-    "test": "ng test survey-angular-ui",
-    "test:single": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui",
-    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
+    "build": "ng build && node ./update-version.js",
+    "serve:example:dev": "ng serve",
+    "serve:example:prod": "http-server ./example/dist --proxy http://localhost:8080? -p 8080",
+    "build:example:prod": "ng build --aot --output-hashing=none angular-ui",
+    "test": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui",
+    "test:watch": "ng test survey-angular-ui",
+    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
+    "testcafe": "testcafe ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=angular --config-file ../../.testcaferc.dev.js",
+    "testcafe:ci": "testcafe ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=angular --config-file ../../.testcaferc.js",
+    "vrt": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=angular --config-file ../../.testcaferc.dev.js",
+    "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=angular --config-file ../../.testcaferc.js",
+    "accessibility-tests:": "testcafe ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --env=angular --config-file ../../.testcaferc.dev.js",
+    "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=angular --config-file ../../.testcaferc.js"
+  },
+  "commit-and-tag-version": {
+    "bumpFiles": [
+      "package.json"
+    ]
   }
 }

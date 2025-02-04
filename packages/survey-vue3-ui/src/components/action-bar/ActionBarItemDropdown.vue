@@ -33,7 +33,6 @@
   <SvComponent
     :is="'sv-popup'"
     :model="item.popupModel"
-    :getTarget="getTarget"
   ></SvComponent>
 </template>
 <script lang="ts">
@@ -51,7 +50,6 @@ import {
   getActionDropdownButtonTarget,
 } from "survey-core";
 const props = defineProps<{ item: Action }>();
-const getTarget = getActionDropdownButtonTarget;
 let viewModel = undefined as any as ActionDropdownViewModel;
 
 useBase(

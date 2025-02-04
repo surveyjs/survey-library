@@ -13,7 +13,7 @@ export class HeaderMobile extends React.Component<any, any> {
   get model(): Cover {
     return this.props.model;
   }
-  private renderLogoImage(): JSX.Element | null {
+  private renderLogoImage(): React.JSX.Element | null {
     const componentName: string = this.model.survey.getElementWrapperComponentName(
       this.model.survey,
       "logo-image"
@@ -27,16 +27,17 @@ export class HeaderMobile extends React.Component<any, any> {
     });
   }
 
-  render(): JSX.Element | null {
+  render(): React.JSX.Element | null {
     return (<div className="sv-header--mobile">
       {this.model.survey.hasLogo ? (<div className="sv-header__logo">
         {this.renderLogoImage()}
       </div>) : null}
-      {this.model.survey.hasTitle ? (<div className="sv-header__title" style={{ maxWidth: this.model.renderedtextAreaWidth }}>
+      {this.model.survey.hasTitle ? (<div className="sv-header__title" style={{ maxWidth: this.model.renderedTextAreaWidth }}>
+
         {/* {ReactElementFactory.Instance.createElement("survey-element-title", { element: this.model.survey })} */}
-        <TitleElement element={this.model.survey}/>
+        <TitleElement element={this.model.survey} />
       </div>) : null}
-      {this.model.survey.renderedHasDescription ? (<div className="sv-header__description" style={{ maxWidth: this.model.renderedtextAreaWidth }}>
+      {this.model.survey.renderedHasDescription ? (<div className="sv-header__description" style={{ maxWidth: this.model.renderedTextAreaWidth }}>
         <div className={this.model.survey.css.description}>
           {SurveyElementBase.renderLocString(this.model.survey.locDescription)}
         </div>
@@ -49,7 +50,7 @@ export class HeaderCell extends React.Component<any, any> {
   get model(): CoverCell {
     return this.props.model;
   }
-  private renderLogoImage(): JSX.Element | null {
+  private renderLogoImage(): React.JSX.Element | null {
     const componentName: string = this.model.survey.getElementWrapperComponentName(
       this.model.survey,
       "logo-image"
@@ -63,7 +64,7 @@ export class HeaderCell extends React.Component<any, any> {
     });
   }
 
-  render(): JSX.Element | null {
+  render(): React.JSX.Element | null {
     return (<div className={this.model.css} style={this.model.style}>
       <div className="sv-header__cell-content" style={this.model.contentStyle}>
         {this.model.showLogo ? (<div className="sv-header__logo">
@@ -71,7 +72,7 @@ export class HeaderCell extends React.Component<any, any> {
         </div>) : null}
         {this.model.showTitle ? (<div className="sv-header__title" style={{ maxWidth: this.model.renderedtextAreaWidth }}>
           {/* {ReactElementFactory.Instance.createElement("survey-element-title", { element: this.model.survey })} */}
-          <TitleElement element={this.model.survey}/>
+          <TitleElement element={this.model.survey} />
         </div>) : null}
         {this.model.showDescription ? (<div className="sv-header__description" style={{ maxWidth: this.model.renderedtextAreaWidth }}>
           <div className={this.model.survey.css.description}>
@@ -91,19 +92,19 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
     return this.model;
   }
 
-  renderElement(): JSX.Element | null {
+  renderElement(): React.JSX.Element | null {
     this.model.survey = this.props.survey;
 
-    if(!(this.props.survey.headerView === "advanced")) {
+    if (!(this.props.survey.headerView === "advanced") || this.model.isEmpty) {
       return null;
     }
 
-    let headerContent: JSX.Element | null = null;
-    if(this.props.survey.isMobile) {
-      headerContent = <HeaderMobile model={this.model}/>;
+    let headerContent: React.JSX.Element | null = null;
+    if (this.props.survey.isMobile) {
+      headerContent = <HeaderMobile model={this.model} />;
     } else {
       headerContent = (<div className={this.model.contentClasses} style={{ maxWidth: this.model.maxWidth }}>
-        {this.model.cells.map((cell, index) => <HeaderCell key={index} model={cell}/>)}
+        {this.model.cells.map((cell, index) => <HeaderCell key={index} model={cell} />)}
       </div>);
     }
 

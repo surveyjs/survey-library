@@ -12,8 +12,17 @@ import { Helpers } from "./helpers";
  */
 export class QuestionCommentModel extends QuestionTextBase {
   private element: HTMLElement;
-  public textAreaModel: TextAreaModel;
+  private textAreaModelValue: TextAreaModel;
 
+  constructor(name: string) {
+    super(name);
+  }
+  public get textAreaModel(): TextAreaModel {
+    if(!this.textAreaModelValue) {
+      this.textAreaModelValue = new TextAreaModel(this.getTextAreaOptions());
+    }
+    return this.textAreaModelValue;
+  }
   private getTextAreaOptions(): ITextArea {
     const _this = this;
     const updateQuestionValue = (newValue: any) => {
@@ -48,12 +57,6 @@ export class QuestionCommentModel extends QuestionTextBase {
       onTextAreaBlur: (event) => { this.onBlur(event); }
     };
     return options;
-  }
-
-  constructor(name: string) {
-    super(name);
-
-    this.textAreaModel = new TextAreaModel(this.getTextAreaOptions());
   }
   /**
    * Specifies the visible height of the comment area, measured in lines.
@@ -100,6 +103,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     return autoGrow === undefined && this.survey ? this.survey.autoGrowComment : !!autoGrow;
   }
   /**
+   * Specifies whether to display a resize handle for the comment area.
    *
    * Default value: `true` (inherited from `SurveyModel`'s [`allowResizeComment`](https://surveyjs.io/form-library/documentation/surveymodel#allowResizeComment) property)
    * @see autoGrow
@@ -156,7 +160,13 @@ export class QuestionCommentModel extends QuestionTextBase {
     super.setNewValue(newValue);
   }
   protected getValueSeparator(): string { return "\n"; }
-  public get className() {
+  protected notifyStateChanged(prevState: string): void {
+    super.notifyStateChanged(prevState);
+    if (!this.isCollapsed) {
+      this.textAreaModel.updateElement();
+    }
+  }
+  public get className(): string {
     return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
   }
 }

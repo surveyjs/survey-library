@@ -62,7 +62,11 @@ export interface GetTitleActionsEventMixin {
   /**
    * An array of [actions](https://surveyjs.io/form-library/documentation/iaction) associated with the processed element.
    */
-  titleActions: Array<IAction>;
+  actions: Array<IAction>;
+  /**
+   * @deprecated Use `options.actions` instead.
+   */
+  titleActions?: Array<IAction>;
 }
 export interface GetActionsEventMixin {
   /**
@@ -112,7 +116,7 @@ export interface CompletingEvent extends CompleteBaseEvent {
    */
   allow: boolean;
   /**
-   * Obsolete. Use `options.allow` instead.
+   * @deprecated Use `options.allow` instead.
    */
   allowComplete: boolean;
 }
@@ -134,19 +138,19 @@ export interface CompleteEvent extends CompleteBaseEvent {
    */
   showSaveInProgress: (text?: string) => void;
   /**
-   * Obsolete. Use `options.showSaveInProgress` instead.
+   * @deprecated Use `options.showSaveInProgress` instead.
    */
   showDataSaving: (text?: string) => void;
   /**
-   * Obsolete. Use `options.showSaveError` instead.
+   * @deprecated Use `options.showSaveError` instead.
    */
   showDataSavingError: (text?: string) => void;
   /**
-   * Obsolete. Use `options.showSaveSuccess` instead.
+   * @deprecated Use `options.showSaveSuccess` instead.
    */
   showDataSavingSuccess: (text?: string) => void;
   /**
-   * Obsolete. Use `options.clearSaveMessages` instead.
+   * @deprecated Use `options.clearSaveMessages` instead.
    */
   showDataSavingClear: (text?: string) => void;
 }
@@ -156,7 +160,7 @@ export interface ShowingPreviewEvent {
    */
   allow: boolean;
   /**
-   * Obsolete. Use `options.allow` instead.
+   * @deprecated Use `options.allow` instead.
    */
   allowShowPreview: boolean;
 }
@@ -180,7 +184,7 @@ export interface CurrentPageChangedEvent {
    */
   isNextPage: boolean;
   /**
-   * Returns `true` if the respondent is going backward, that is, `newCurrentPage` is earlier in the survey than `oldCurrentPage`.
+   * Returns `true` if the respondent is going backward, that is, `newCurrentPage` or `newCurrentQuestion` is earlier in the survey than `oldCurrentPage`  or `oldCurrentQuestion`.
    */
   isGoingBackward: boolean;
   /**
@@ -196,9 +200,20 @@ export interface CurrentPageChangedEvent {
    */
   newCurrentPage: PageModel;
   /**
-   * A page that used to be current.
+   * A page that used to be current.\
+   * In [question-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode), the `oldCurrentPage` and `newCurrentPage` parameters may contain the same `PageModel` instance. This is because the survey doesn't create artificial pages to display only one question per page. If both the previous and current questions belong to the same page in the survey JSON schema, they have the same parent `PageModel` instance.
    */
   oldCurrentPage: PageModel;
+  /**
+   * The current question.\
+   * This parameter has a value only in [question-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
+   */
+  oldCurrentQuestion?: Question;
+  /**
+   * A question that used to be current.\
+   * This parameter has a value only in [question-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
+   */
+  newCurrentQuestion?: Question;
 }
 export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
   /**
@@ -206,16 +221,19 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    */
   allow: boolean;
   /**
-   * Obsolete. Use `options.allow` instead.
+   * @deprecated Use `options.allow` instead.
    */
   allowChanging: boolean;
 }
-
 export interface ValueChangeBaseEvent extends QuestionEventMixin {
   /**
    * The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
    */
   name: string;
+  /**
+   * A value that indicates what caused the value change: an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) evaluation or a run of a [trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers). If the value is changed for other reasons, this parameter is `undefined`.
+   */
+  reason: "trigger" | "expression" | undefined;
 }
 export interface ValueChangedEvent extends ValueChangeBaseEvent {
   /**
@@ -263,11 +281,11 @@ export interface ElementAddedEvent {
    */
   parent: PanelModelBase;
   /**
-   * Obsolete. Use `options.page` instead.
+   * @deprecated Use `options.page` instead.
    */
   rootPanel: any;
   /**
-   * Obsolete. Use `options.parent` instead.
+   * @deprecated Use `options.parent` instead.
    */
   parentPanel: any;
   /**
@@ -292,10 +310,6 @@ export interface PanelRemovedEvent extends PanelEventMixin, ElementRemovedEvent 
 export interface PageAddedEvent extends PageEventMixin { }
 export interface ValidateQuestionEvent extends QuestionEventMixin {
   /**
-   * An error message that you should specify if validation fails.
-   */
-  error: string;
-  /**
    * A question value being validated.
    */
   value: any;
@@ -303,6 +317,14 @@ export interface ValidateQuestionEvent extends QuestionEventMixin {
    * The question's name.
    */
   name: string;
+  /**
+   * An error message that you should specify if custom validation fails.
+   */
+  error: string;
+  /**
+   * An array of other validation errors that you can modify. The array is empty if the validated question satisfies all validation rules.
+   */
+  errors: Array<SurveyError>;
 }
 export interface SettingQuestionErrorsEvent extends QuestionEventMixin {
   /**
@@ -326,13 +348,17 @@ export interface ServerValidateQuestionsEvent {
 }
 export interface ValidatePanelEvent extends PanelEventMixin {
   /**
-   * An error message that you should specify if validation fails.
-   */
-  error: string;
-  /**
    * The panel's name.
    */
   name: string;
+  /**
+   * An error message that you should specify if custom validation fails.
+   */
+  error: string;
+  /**
+   * An array of other validation errors that you can modify.
+   */
+  errors: Array<SurveyError>;
 }
 export interface ErrorCustomTextEvent {
   /**
@@ -352,7 +378,7 @@ export interface ErrorCustomTextEvent {
    */
   text: string;
 }
-export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
+export interface ValidatePageEvent extends PageEventMixin {
   /**
    * An array of questions with validation errors.
    */
@@ -361,6 +387,8 @@ export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
    * An array of validation errors.
    */
   errors: Array<SurveyError>;
+}
+export interface ValidatedErrorsOnCurrentPageEvent extends ValidatePageEvent {
 }
 export interface ProcessHtmlEvent {
   /**
@@ -390,7 +418,7 @@ export interface GetTitleTagNameEvent {
 }
 export interface GetQuestionNoEvent extends QuestionEventMixin {
   /**
-   * Obsolete. Use `options.number` instead.
+   * @deprecated Use `options.number` instead.
    */
   no: string;
 }
@@ -406,7 +434,13 @@ export interface GetPageNumberEvent extends PageEventMixin {
    */
   number: string;
 }
-export interface ProgressTextEvent {
+export interface GetPanelNumberEvent extends PanelEventMixin {
+  /**
+   * A panel number. Note that this is a string value that contains not only the number itself but also the characters that separate the number from the panel title: `"1. "`, `"2. "`, etc. You can change this parameter's value.
+   */
+  number: string;
+}
+export interface GetProgressTextEvent {
   /**
    * The number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are not counted.
    */
@@ -428,6 +462,7 @@ export interface ProgressTextEvent {
    */
   text: string;
 }
+export interface ProgressTextEvent extends GetProgressTextEvent { }
 
 export interface TextProcessingEvent {
   /**
@@ -522,16 +557,16 @@ export interface OpenFileChooserEvent {
    */
   input: HTMLInputElement;
   /**
-   * A survey element (question, panel, page, or survey) or a theme JSON schema for which this event is raised.
+   * A question for which this event is raised.
    */
   element: Base;
   /**
    * The type of the element passed as the `options.element` parameter.\
-   * Possible values: `"theme"`, `"header"`, or any value returned from the [`getType()`](https://surveyjs.io/form-library/documentation/api-reference/question#getType) method.
+   * Possible values: any value returned from the [`getType()`](https://surveyjs.io/form-library/documentation/api-reference/question#getType) method.
    */
   elementType: String;
   /**
-   * The name of the survey element property or theme property for which files are being selected.
+   * The name of the survey element property for which files are being selected.
    */
   propertyName: String;
   /**
@@ -572,7 +607,7 @@ export interface ClearFilesEvent extends LoadFilesEvent {
    */
   value: any;
 }
-export interface LoadChoicesFromServerEvent extends QuestionEventMixin {
+export interface ChoicesLoadedEvent extends QuestionEventMixin {
   /**
    * A query result as it came from the server.
    */
@@ -582,7 +617,8 @@ export interface LoadChoicesFromServerEvent extends QuestionEventMixin {
    */
   choices: Array<ItemValue>;
 }
-export interface ProcessTextValueEvent {
+export interface LoadChoicesFromServerEvent extends ChoicesLoadedEvent { }
+export interface ProcessDynamicTextEvent {
   /**
    * The name of the value being processed (the text in curly brackets).
    */
@@ -595,6 +631,7 @@ export interface ProcessTextValueEvent {
   canProcess: boolean;
   returnDisplayValue: boolean;
 }
+export interface ProcessTextValueEvent extends ProcessDynamicTextEvent { }
 export interface UpdateQuestionCssClassesEvent extends QuestionEventMixin, UpdateElementCssClassesEventMixin { }
 export interface UpdatePanelCssClassesEvent extends PanelEventMixin, UpdateElementCssClassesEventMixin { }
 export interface UpdatePageCssClassesEvent extends PageEventMixin, UpdateElementCssClassesEventMixin { }
@@ -610,7 +647,7 @@ export interface UpdateChoiceItemCssEvent extends QuestionEventMixin {
 }
 export interface AfterRenderSurveyEvent extends AfterRenderElementEventMixin {
   /**
-   * Obsolete. Use the `sender` parameter instead.
+   * @deprecated Use the `sender` parameter instead.
    */
   survey: SurveyModel;
 }
@@ -688,7 +725,7 @@ export interface MatrixBeforeRowAddedEvent extends MatrixDynamicQuestionEventMix
    */
   allow: boolean;
   /**
-   * Obsolete. Use `options.allow` instead.
+   * @deprecated Use `options.allow` instead.
    */
   canAddRow: boolean;
 }
@@ -862,7 +899,7 @@ export interface TimerPanelInfoTextEvent {
    */
   text: string;
 }
-export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionEventMixin {
+export interface DynamicPanelValueChangedEvent extends PanelDynamicQuestionEventMixin {
   /**
    * The panel's data object that includes all item values.
    */
@@ -872,10 +909,6 @@ export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionE
    */
   panelIndex: number;
   /**
-   * The item's new value.
-   */
-  value: any;
-  /**
    * The item's name.
    */
   name: string;
@@ -883,6 +916,19 @@ export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionE
    * A panel that nests the item with a changed value.
    */
   panel: PanelModel;
+  /**
+   * The item's new value.
+   */
+  value: any;
+}
+export interface DynamicPanelValueChangingEvent extends DynamicPanelValueChangedEvent {
+  /**
+   * The item's old value.
+   */
+  oldValue: any;
+}
+
+export interface DynamicPanelItemValueChangedEvent extends DynamicPanelValueChangedEvent {
 }
 export interface DynamicPanelCurrentIndexChangedEvent extends PanelDynamicQuestionEventMixin {
   /**
@@ -902,17 +948,27 @@ export interface DynamicPanelGetTabTitleEvent extends DynamicPanelCurrentIndexCh
 }
 export interface IsAnswerCorrectEvent extends QuestionEventMixin {
   /**
-   * The number of correct answers in a matrix where each row is considered as one quiz question.
-   */
-  correctAnswers: number;
-  /**
-   * The number of incorrect answers in a matrix where each row is considered as one quiz question.
-   */
-  incorrectAnswers: number;
-  /**
    * A Boolean property that specifies whether the answer is correct (`true`) or incorrect (`false`). Use the `options.question.value` and `options.question.correctAnswer` properties to check the answer.
    */
   result: boolean;
+  /**
+   * @deprecated Use `options.correctAnswerCount` instead.
+   */
+  correctAnswers?: number;
+  /**
+   * @deprecated Use `options.incorrectAnswerCount` instead.
+   */
+  incorrectAnswers?: number;
+}
+export interface CheckAnswerCorrectEvent extends IsAnswerCorrectEvent {
+  /**
+   * The number of correct answers in a matrix where each row is considered as one quiz question.
+   */
+  correctAnswerCount: number;
+  /**
+   * The number of incorrect answers in a matrix where each row is considered as one quiz question.
+   */
+  incorrectAnswerCount: number;
 }
 export interface DragDropAllowEvent {
   /**
@@ -945,11 +1001,11 @@ export interface DragDropAllowEvent {
   allow: boolean;
   allowDropNextToAnother?: boolean;
   /**
-   * Obsolete. Use `options.draggedElement` instead.
+   * @deprecated Use `options.draggedElement` instead.
    */
   target: IElement;
   /**
-   * Obsolete. Use `options.toElement` instead.
+   * @deprecated Use `options.toElement` instead.
    */
   source: IElement;
 }
@@ -963,17 +1019,23 @@ export interface ScrollingElementToTopEvent {
    */
   elementId: string;
   /**
-   * A Boolean property that you can set to `true` if you want to cancel the scroll operation.
+   * @deprecated Use `options.allow` instead.
    */
-  cancel: boolean;
+  cancel?: boolean;
   /**
-   * Obsolete. Use `options.element` instead.
+   * @deprecated Use `options.element` instead.
    */
   question?: Question;
   /**
-   * Obsolete. Use `options.element` instead.
+   * @deprecated Use `options.element` instead.
    */
   page?: PageModel;
+}
+export interface ScrollToTopEvent extends ScrollingElementToTopEvent {
+  /**
+   * A Boolean property that you can set to `false` if you want to cancel the scroll operation.
+   */
+  allow: boolean;
 }
 export interface GetQuestionTitleActionsEvent extends QuestionEventMixin, GetTitleActionsEventMixin { }
 export interface GetPanelTitleActionsEvent extends PanelEventMixin, GetTitleActionsEventMixin { }

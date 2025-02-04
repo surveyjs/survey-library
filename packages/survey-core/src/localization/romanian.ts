@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var romanianSurveyStrings: any = {
   pagePrevText: "Precedent",
@@ -59,7 +59,7 @@ export var romanianSurveyStrings: any = {
   addColumn: "Adăugați coloană",
   addRow: "Adăugare rând",
   removeRow: "Ștergere",
-  emptyRowsText: "Nu există rânduri.",
+  noRowsText: "Nu există rânduri.",
   addPanel: "Adăugare",
   removePanel: "Ștergere",
   showDetails: "Arată detalii",
@@ -110,7 +110,7 @@ export var romanianSurveyStrings: any = {
   cancel: "Anula"
 };
 
-surveyLocalization.setupLocale("ro", romanianSurveyStrings, "română", "Romanian");
+setupLocale({ localeCode: "ro", strings: romanianSurveyStrings, nativeName: "română", englishName: "Romanian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -120,7 +120,7 @@ surveyLocalization.setupLocale("ro", romanianSurveyStrings, "română", "Romania
 // minError: "The value should not be less than {0}" => "Valoarea nu trebuie să fie mai mică de {0}"
 // maxError: "The value should not be greater than {0}" => "Valoarea nu trebuie să fie mai mare de {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Glisați și fixați un fișier aici sau faceți clic pe butonul de mai jos și alegeți un fișier de încărcat."
-// emptyRowsText: "There are no rows." => "Nu există rânduri."
+// noRowsText: "There are no rows." => "Nu există rânduri."
 // multipletext_itemname: "text" => "Text"
 // signaturePlaceHolder: "Sign here" => "Semnează aici"
 // modalCancelButtonText: "Cancel" => "Anula"

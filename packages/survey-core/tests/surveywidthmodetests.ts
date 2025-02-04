@@ -122,9 +122,9 @@ QUnit.test("Survey widthMode - css", function (assert) {
     ]
   });
   survey.widthMode = "static";
-  assert.equal(survey.bodyCss, survey.css.body+" "+survey.css.body+"--static", "calculate body css for static width mode");
+  assert.equal(survey.bodyCss, survey.css.body + " " + survey.css.body + "--static", "calculate body css for static width mode");
   survey.widthMode = "responsive";
-  assert.equal(survey.bodyCss, survey.css.body+" "+survey.css.body+"--responsive", "calculate body css for responsive width mode");
+  assert.equal(survey.bodyCss, survey.css.body + " " + survey.css.body + "--responsive", "calculate body css for responsive width mode");
 });
 
 QUnit.test("Survey widthMode property for rating questions", function (assert) {
@@ -184,4 +184,58 @@ QUnit.test("Survey widthMode property for rating questions", function (assert) {
     ]
   });
   assert.equal(survey3.calculateWidthMode(), "static", "rating with rate values widthMode is static");
+});
+
+QUnit.test("Survey width scaling", function (assert) {
+  var survey = new SurveyModel({
+    "elements": [
+      {
+        "name": "question1",
+      },
+    ]
+  });
+  assert.equal(survey.widthMode, "auto");
+  assert.equal(survey.width, undefined);
+  assert.equal(survey.widthScale, 100);
+  assert.equal(survey.isScaled, false);
+  assert.equal(survey.renderedWidth, undefined);
+
+  survey.responsiveStartWidth = 1000;
+  survey.widthMode = "static";
+  assert.equal(survey.isScaled, false);
+  assert.equal(survey.renderedWidth, undefined);
+
+  survey.width = "500px";
+  assert.equal(survey.isScaled, false);
+  assert.equal(survey.renderedWidth, "500px");
+
+  survey.widthScale = 75;
+  assert.equal(survey.isScaled, true);
+  assert.equal(survey.renderedWidth, "375px");
+
+  survey.widthMode = "responsive";
+  assert.equal(survey.isScaled, true);
+  assert.equal(survey.renderedWidth, "750px");
+
+  survey.setResponsiveStartWidth(1200);
+  assert.equal(survey.isScaled, true);
+  assert.equal(survey.renderedWidth, "900px");
+});
+
+QUnit.test("Question min width scaling", function (assert) {
+  var survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1",
+      },
+    ]
+  });
+  const q = survey.getAllQuestions()[0];
+  assert.equal(survey.widthScale, 100);
+  assert.equal(q.rootStyle["minWidth"], "min(100%, 300px)");
+
+  survey.widthScale = 50;
+  assert.equal(survey.widthScale, 50);
+  assert.equal(q.rootStyle["minWidth"], "min(100%, 150px)");
 });

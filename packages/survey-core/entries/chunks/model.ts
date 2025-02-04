@@ -3,10 +3,12 @@
 //import "../../src/modern.scss";
 
 import { DomWindowHelper } from "../../src/global_variables_utils";
+import { settings } from "../../src/settings";
 
 export var Version: string;
 export var ReleaseDate: string;
 Version = `${process.env.VERSION}`;
+settings.version = Version;
 ReleaseDate = `${process.env.RELEASE_DATE}`;
 
 export function checkLibraryVersion(ver: string, libraryName: string): void {
@@ -243,7 +245,7 @@ export { Cover, CoverCell } from "../../src/header";
 
 export { dxSurveyService } from "../../src/dxSurveyService";
 export { englishStrings } from "../../src/localization/english";
-export { surveyLocalization, surveyStrings } from "../../src/surveyStrings";
+export { surveyLocalization, surveyStrings, getLocaleString, getLocaleStrings, setupLocale } from "../../src/surveyStrings";
 // export { cultureInfo } from "../../src/cultureInfo";
 export {
   QuestionCustomWidget,
@@ -259,7 +261,7 @@ export {
 
 export { ListModel } from "../../src/list";
 export { MultiSelectListModel } from "../../src/multiSelectListModel";
-export { PopupModel, createDialogOptions, IDialogOptions } from "../../src/popup";
+export { PopupModel, IDialogOptions } from "../../src/popup";
 export { PopupBaseViewModel } from "../../src/popup-view-model";
 export { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 export { PopupModalViewModel } from "../../src/popup-modal-view-model";
@@ -299,7 +301,7 @@ export { InputMaskCurrency } from "../../src/mask/mask_currency";
 export * from "../../src/utils/cssClassBuilder";
 export * from "../../src/utils/text-area";
 
-export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../src/defaultCss/defaultV2Css";
+export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../src/plugins/question_date";

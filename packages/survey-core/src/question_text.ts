@@ -1,7 +1,7 @@
 import { QuestionFactory } from "./questionfactory";
 import { Serializer, property } from "./jsonobject";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
-import { Helpers, HashTable } from "./helpers";
+import { Helpers, HashTable, createDate } from "./helpers";
 import { EmailValidator } from "./validator";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
@@ -132,9 +132,9 @@ export class QuestionTextModel extends QuestionTextBase {
         this.setRenderedMinMax();
       }
     );
-    this.registerPropertyChangedHandlers(["inputType", "size"], () => {
-      this.updateInputSize();
-      this.calcRenderedPlaceholder();
+    this.registerPropertyChangedHandlers(["inputType", "inputSize"], () => {
+      this.resetInputSize();
+      this.resetRenderedPlaceholder();
     });
   }
   protected isTextValue(): boolean {
@@ -146,7 +146,6 @@ export class QuestionTextModel extends QuestionTextBase {
   public onSurveyLoad(): void {
     super.onSurveyLoad();
     this.setRenderedMinMax();
-    this.updateInputSize();
   }
   /**
    * A value passed on to the [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) attribute of the underlying `<input>` element.
@@ -171,53 +170,66 @@ export class QuestionTextModel extends QuestionTextBase {
     if(!this.isTextInput) return null;
     return super.getMaxLength();
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     if (!!this.minValueExpression || !!this.maxValueExpression) {
       this.setRenderedMinMax(values, properties);
     }
   }
-
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if (!this.maskTypeIsEmpty && !Helpers.isValueEmpty(value)) return this.maskInstance.getMaskedValue(value);
+    return super.getDisplayValueCore(keysAsText, value);
+  }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
   /**
    * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
    */
+  public get inputSize(): number {
+    return this.getPropertyValue("inputSize");
+  }
+  public set inputSize(val: number) {
+    this.setPropertyValue("inputSize", val);
+  }
+  /**
+   * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputSize) property instead.
+   */
   public get size(): number {
-    return this.getPropertyValue("size");
+    return this.inputSize;
   }
   public set size(val: number) {
-    this.setPropertyValue("size", val);
+    this.inputSize = val;
   }
-  public get isTextInput() {
+  public get isTextInput(): boolean {
     return (
       ["text", "search", "tel", "url", "email", "password"].indexOf(
         this.inputType
       ) > -1
     );
   }
-  public get inputSize(): number {
-    return this.getPropertyValue("inputSize", 0);
-  }
   public get renderedInputSize(): number {
-    return this.getPropertyValue("inputSize") || null;
+    return this.getPropertyValue("renderedInputSize", undefined, () => {
+      const size = this.calInputSize();
+      return size > 0 ? size : undefined;
+    });
   }
   public get inputWidth(): string {
-    return this.getPropertyValue("inputWidth");
+    return this.getPropertyValue("inputWidth", undefined, () => {
+      return this.calInputSize() > 0 ? "auto" : "";
+    });
   }
-  public updateInputSize() {
-    var size = this.isTextInput && this.size > 0 ? this.size : 0;
-    if (
-      this.isTextInput &&
-      size < 1 &&
-      this.parent &&
-      !!(<any>this.parent)["itemSize"]
-    ) {
-      size = (<any>this.parent)["itemSize"];
+  private calInputSize(): number {
+    if(!this.isTextInput) return 0;
+    let size = this.inputSize > 0 ? this.inputSize : 0;
+    if (size < 1 && this.parent && !!(<any>this.parent)["inputSize"]) {
+      size = (<any>this.parent)["inputSize"];
     }
-    this.setPropertyValue("inputSize", size);
-    this.setPropertyValue("inputWidth", size > 0 ? "auto" : "");
+    return size;
+  }
+  public resetInputSize(): void {
+    this.resetPropertyValue("renderedInputSize");
+    this.resetPropertyValue("inputWidth");
   }
   /**
    * A value passed on to the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute of the underlying `<input>` element.
@@ -326,6 +338,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.maskSettings;
   }
   public get inputValue(): string {
+    if (!this._inputValue && !this.maskTypeIsEmpty) return this.maskInstance.getMaskedValue("");
     return this._inputValue;
   }
   public set inputValue(val: string) {
@@ -358,16 +371,19 @@ export class QuestionTextModel extends QuestionTextBase {
   private hasToConvertToUTC(val: any): boolean {
     return settings.storeUtcDates && this.isDateTimeLocaleType() && !!val;
   }
+  private createDate(val?: number | string | Date): Date {
+    return createDate("question-text", val);
+  }
   protected valueForSurveyCore(val: any): any {
     if(this.hasToConvertToUTC(val)) {
-      val = new Date(val).toISOString();
+      val = this.createDate(val).toISOString();
     }
     return super.valueForSurveyCore(val);
   }
   protected valueFromDataCore(val: any): any {
     if(this.hasToConvertToUTC(val)) {
-      const d = new Date(val);
-      const locale_d = new Date(d.getTime() - d.getTimezoneOffset() * 60 * 1000);
+      const d = this.createDate(val);
+      const locale_d = this.createDate(d.getTime() - d.getTimezoneOffset() * 60 * 1000);
       let res = locale_d.toISOString();
       val = res.substring(0, res.length - 2);
     }
@@ -467,7 +483,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   private getCalculatedMinMax(minMax: any): any {
     if (this.isValueEmpty(minMax)) return minMax;
-    return this.isDateInputType ? new Date(minMax) : minMax;
+    return this.isDateInputType ? this.createDate(minMax) : minMax;
   }
   private setRenderedMinMax(
     values: HashTable<any> = null,
@@ -519,7 +535,7 @@ export class QuestionTextModel extends QuestionTextBase {
   protected getIsInputTextUpdate(): boolean {
     return this.maskTypeIsEmpty ? super.getIsInputTextUpdate() : false;
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     return !this.getIsInputTextUpdate() && !this.isDateInputType;
   }
   public supportGoNextPageError(): boolean {
@@ -553,7 +569,7 @@ export class QuestionTextModel extends QuestionTextBase {
       return Helpers.isNumber(newValue) ? Helpers.getNumber(newValue) : "";
     }
     if(this.inputType === "month") {
-      const d = new Date(newValue);
+      const d = this.createDate(newValue);
       const isUtc = d.toISOString().indexOf(newValue) == 0 && newValue.indexOf("T") == -1;
       const month = isUtc ? d.getUTCMonth() : d.getMonth();
       const year = isUtc ? d.getUTCFullYear() : d.getFullYear();
@@ -659,6 +675,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public beforeDestroyQuestionElement(el: HTMLElement) {
     this.deleteMaskAdapter();
+    this.input = undefined;
   }
 }
 
@@ -695,8 +712,9 @@ function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: bool
   if(Helpers.isValueEmpty(min) || Helpers.isValueEmpty(max)) return val;
   if(obj.inputType.indexOf("date") === 0 || obj.inputType === "month") {
     const isMonth = obj.inputType === "month";
-    const dMin = new Date(isMonth ? min + "-01" : min);
-    const dMax = new Date(isMonth ? max + "-01" : max);
+    const reason = "question-text-minmax";
+    const dMin = createDate(reason, isMonth ? min + "-01" : min);
+    const dMax = createDate(reason, isMonth ? max + "-01" : max);
     if(!dMin || !dMax) return val;
     if(dMin > dMax) return isMax ? min : max;
   }
@@ -730,13 +748,11 @@ Serializer.addClass(
       choices: settings.questions.inputTypes,
     },
     {
-      name: "size:number",
-      minValue: 0,
-      dependsOn: "inputType",
+      name: "inputSize:number", alternativeName: "size", minValue: 0, dependsOn: "inputType",
       visibleIf: function(obj: any) {
         if (!obj) return false;
         return obj.isTextInput;
-      },
+      }
     },
     {
       name: "textUpdateMode",

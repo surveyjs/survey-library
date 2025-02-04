@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var germanSurveyStrings = {
   pagePrevText: "Zurück",
@@ -59,7 +59,7 @@ export var germanSurveyStrings = {
   addColumn: "Spalte hinzufügen",
   addRow: "Zeile hinzufügen",
   removeRow: "Entfernen",
-  emptyRowsText: "Es gibt keine Reihen.",
+  noRowsText: "Es gibt keine Reihen.",
   addPanel: "Neu hinzufügen",
   removePanel: "Entfernen",
   showDetails: "Details anzeigen",
@@ -110,7 +110,7 @@ export var germanSurveyStrings = {
   cancel: "Abbrechen"
 };
 
-surveyLocalization.setupLocale("de", germanSurveyStrings, "deutsch", "German");
+setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deutsch", englishName: "German" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

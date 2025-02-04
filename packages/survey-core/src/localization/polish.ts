@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var polishSurveyStrings = {
   pagePrevText: "Wstecz",
@@ -59,7 +59,7 @@ export var polishSurveyStrings = {
   addColumn: "Dodaj kolumnę",
   addRow: "Dodaj wiersz",
   removeRow: "Usuń",
-  emptyRowsText: "Nie ma rzędów.",
+  noRowsText: "Nie ma rzędów.",
   addPanel: "Dodaj panel",
   removePanel: "Usuń",
   showDetails: "Pokaż szczegóły",
@@ -110,7 +110,7 @@ export var polishSurveyStrings = {
   cancel: "Anuluj"
 };
 
-surveyLocalization.setupLocale("pl", polishSurveyStrings, "polski", "Polish");
+setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

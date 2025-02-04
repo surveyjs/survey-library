@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var italianSurveyStrings = {
   pagePrevText: "Precedente",
@@ -59,7 +59,7 @@ export var italianSurveyStrings = {
   addColumn: "Aggiungi colonna",
   addRow: "Aggiungi riga",
   removeRow: "Rimuovi riga",
-  emptyRowsText: "Non ci sono righe.",
+  noRowsText: "Non ci sono righe.",
   addPanel: "Aggiungi riga",
   removePanel: "Elimina",
   showDetails: "Mostra dettagli",
@@ -110,7 +110,7 @@ export var italianSurveyStrings = {
   cancel: "Annulla"
 };
 
-surveyLocalization.setupLocale("it", italianSurveyStrings, "italiano", "Italian");
+setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

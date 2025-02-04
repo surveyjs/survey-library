@@ -8,7 +8,11 @@
       <ng-template [component]="{ name: panelComponentName, data: panelComponentData }"></ng-template>
     </ng-container>
     <div *ngIf="cell.isErrorsCell && cell.question?.hasVisibleErrors" [element]="cell.question" sv-ng-errors></div>
-    <span *ngIf="cell.showResponsiveTitle" [class]="cell.responsiveTitleCss" [model]="cell.responsiveLocTitle" sv-ng-string></span>
+    <span *ngIf="cell.showResponsiveTitle" [class]="cell.responsiveTitleCss">
+      <sv-ng-string [model]="cell.responsiveLocTitle"></sv-ng-string>
+      <sv-ng-matrixheaderrequired [column]="cell.column" [question]="cell.matrix">
+      </sv-ng-matrixheaderrequired>
+    </span>
     <div *ngIf="cell.hasQuestion" [class]="cell.cellQuestionWrapperClassName"
       [visible]="cell.question.isVisible">
       <ng-container *ngIf="!cell.isChoice && cell.question.isDefaultRendering()">
@@ -35,7 +39,7 @@
       <ng-template
         [component]="{ name: question.getCellWrapperComponentName($any(cell)), data: { componentData: question.getCellWrapperComponentData($any(cell))} }">
         <sv-ng-string [model]="cell.locTitle"></sv-ng-string>
-        <span *ngIf="isRequiredCell" [class]="question.cssClasses.cellRequiredText">{{ cell.requiredText }}</span>
+        <span *ngIf="isRequiredCell" [class]="question.cssClasses.cellRequiredMark">{{ cell.requiredMark }}</span>
       </ng-template>
     </ng-container>
   </td>

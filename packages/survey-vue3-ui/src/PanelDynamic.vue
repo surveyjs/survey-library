@@ -43,11 +43,7 @@
           ></SvComponent>
           <SvComponent
             :is="'sv-paneldynamic-remove-btn'"
-            v-if="
-              question.panelRemoveButtonLocation === 'right' &&
-              question.canRemovePanel &&
-              panel.state !== 'collapsed'
-            "
+            v-if="question.canRenderRemovePanelOnRight(panel)"
             :data="{ question, panel }"
           />
         </div>
@@ -107,9 +103,9 @@ useQuestion(
     };
   },
   (value) => {
-    value.panelCountChangedCallback = () => {};
-    value.currentIndexChangedCallback = () => {};
-    value.renderModeChangedCallback = () => {};
+    value.panelCountChangedCallback = undefined as any;
+    value.currentIndexChangedCallback = undefined as any;
+    value.renderModeChangedCallback = undefined as any;
   }
 );
 

@@ -18,22 +18,22 @@ export class SurveyTimerPanel extends ReactSurveyElement {
   private get progress(): number {
     return -this.timerModel.progress * this.circleLength;
   }
-  render(): JSX.Element | null {
-    if(!this.timerModel.isRunning) {
+  render(): React.JSX.Element | null {
+    if (!this.timerModel.isRunning) {
       return null;
     }
     let result = <div className={this.timerModel.survey.getCss().timerRoot}>{this.timerModel.text}</div>;
-    if(this.timerModel.showTimerAsClock) {
+    if (this.timerModel.showTimerAsClock) {
       let style = { strokeDasharray: this.circleLength, strokeDashoffset: this.progress };
-      const progress = (this.timerModel.showProgress ? <SvgIcon className={this.timerModel.getProgressCss()} style={style} iconName={"icon-timercircle"} size={"auto"}></SvgIcon>: null);
+      const progress = (this.timerModel.showProgress ? <SvgIcon className={this.timerModel.getProgressCss()} style={style} iconName={"icon-timercircle"} size={"auto"}></SvgIcon> : null);
       result =
-      (<div className={this.timerModel.rootCss}>
-        {progress}
-        <div className={this.timerModel.textContainerCss}>
-          <span className={this.timerModel.majorTextCss}>{this.timerModel.clockMajorText }</span>
-          {(this.timerModel.clockMinorText ? <span className={this.timerModel.minorTextCss}>{this.timerModel.clockMinorText }</span> : null)}
-        </div>
-      </div>);
+        (<div className={this.timerModel.rootCss}>
+          {progress}
+          <div className={this.timerModel.textContainerCss}>
+            <span className={this.timerModel.majorTextCss}>{this.timerModel.clockMajorText}</span>
+            {(this.timerModel.clockMinorText ? <span className={this.timerModel.minorTextCss}>{this.timerModel.clockMinorText}</span> : null)}
+          </div>
+        </div>);
     }
     return result;
   }

@@ -22,7 +22,7 @@ You can use the following values as placeholders:
 
 ### Question Values
 
-To use a question value as a placeholder, specify the question's [`name`](https://surveyjs.io/Documentation/Library?id=Question#name) in curly brackets. The name will be replaced with the question value. For instance, the following example defines two [Text](https://surveyjs.io/Documentation/Library?id=questiontextmodel) questions: First Name and Last Name. An [Html](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel) question uses their `name` property to reference them and display their values:
+To use a question value as a placeholder, specify the question's [`name`](https://surveyjs.io/Documentation/Library?id=Question#name) in curly brackets. The name will be replaced with the question value. For instance, the following example defines two [Single-Line Input](https://surveyjs.io/Documentation/Library?id=questiontextmodel) questions: First Name and Last Name. An [HTML](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel) question uses their `name` property to reference them and display their values:
 
 ```js
 const surveyJson = {
@@ -40,7 +40,7 @@ const surveyJson = {
 
 > For questions with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName) property, use its value instead of the `name` value.
 
-In single- and multiple-selection question types (Dropdown, Checkbox, Radiogroup, Tag Box, Image Picker), items can contain a display value in addition to a question value. In this case, placeholders are replaced with display values. If you want to use question values instead, disable the [`useDisplayValuesInDynamicTexts`](https://surveyjs.io/form-library/documentation/api-reference/question#useDisplayValuesInDynamicTexts) property.
+In single- and multiple-selection question types (Dropdown, Checkbox, Radio Button Group, Tag Box, Image Picker), items can contain a display value in addition to a question value. In this case, placeholders are replaced with display values. If you want to use question values instead, disable the [`useDisplayValuesInDynamicTexts`](https://surveyjs.io/form-library/documentation/api-reference/question#useDisplayValuesInDynamicTexts) property.
 
 Certain question types can contain multiple values. Use a dot symbol to access a specific value (item or cell):
 
@@ -72,14 +72,34 @@ Certain question types can contain multiple values. Use a dot symbol to access a
   </table>
 </div>
 
-[View Demo](/Examples/Library?id=condition-complexquestions (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/use-and-represent-complex-questions-in-expressions/ (linkStyle))
 
-In dynamic questions, use a zero-based index to access a specific value (question or cell):
+In question types whose value is an array, you can use zero-based indexes to access a specific item, question, or cell:
 
-| Question Type                                                          | Syntax                                     |
-| ---------------------------------------------------------------------- | ------------------------------------------ |
-| [Dynamic Panel](/Documentation/Library?id=questionpaneldynamicmodel)   | `{dynamicpanelname[index].questionname}`   |
-| [Dynamic Matrix](/Documentation/Library?id=questionmatrixdynamicmodel) | `{dynamicmatrixname[rowindex].columnname}` |
+<div class="v2-class---doc-table-container">
+  <table class="v2-class---doc-table-container__table">
+    <thead>
+      <tr>
+        <th>Question Type</th>
+        <th>Syntax</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model" class="v2-class---paragraph-link">Checkboxes</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/image-picker-question-model" class="v2-class---paragraph-link">Image Picker</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model" class="v2-class---paragraph-link">Multiple Textboxes</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model" class="v2-class---paragraph-link">Ranking</a></td>
+        <td style="vertical-align:middle"><code>{questionname[index]}</code></td>
+      </tr>
+      <tr>
+        <td><a href="/Documentation/Library?id=questionpaneldynamicmodel" class="v2-class---paragraph-link">Dynamic Panel</a></td>
+        <td style="vertical-align:middle"><code>{dynamicpanelname[index].questionname}</code></td>
+      </tr>
+      <tr>
+        <td><a href="/Documentation/Library?id=questionmatrixdynamicmodel" class="v2-class---paragraph-link">Dynamic Matrix</a></td>
+        <td style="vertical-align:middle"><code>{dynamicmatrixname[rowindex].columnname}</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 You can also use prefixes, such as `row`, `panel`, and `parentPanel`, to access a specific question or cell relative to the question you configure: 
 
@@ -191,7 +211,7 @@ Variables and calculated values are both used to perform custom calculations wit
 |--------- | --------- | ----------------- |
 | Configuration | Configured using JavaScript code | Configured using an expression in the survey JSON schema |
 | Evaluation / Re-evaluation | Evaluated only once&mdash;when set | Evaluated when the survey model is instantiated and re-evaluated each time dynamic values within the expression are changed |
-| Inclusion in survey results | Aren't saved in survey results, but can be (see below) | Saved in survey results if the `includeIntoResult` property is enabled |
+| Inclusion in survey results | Aren't saved in survey results but can be (see below) | Saved in survey results if the `includeIntoResult` property is enabled |
 
 If you need to save a variable in survey results, create an intermediary calculated value that references the variable. Enable the calculated value's `includeIntoResult` property to save the value in survey results. The following code shows how to save a `currentyear-var` variable value in survey results via a `currentyear` calculated value:
 
@@ -249,25 +269,26 @@ The SurveyJS expression engine is built upon the <a href="https://github.com/peg
 | -------- | ----------- | ------------------ |
 | `empty` | Returns `true` if the value is `undefined` or `null`. | `"{q1} empty"` | 
 | `notempty` | Returns `true` if the value is different from `undefined` and `null`. | `"{q1} notempty"` | 
-| <code>"&#124;&#124;"</code> / `"or"` | Combines two or more conditions and returns `true` if *any* of them is `true`. | `"{q1} empty or {q2} empty"` |
-| `"&&"` / `"and"`  | Combines two or more conditions and returns `true` if *all* of them are `true`. | `"{q1} empty and {q2} empty"` |
-| `"!"` / `"negate"` | Returns `true` if the condition returns `false`, and vice versa. | `!{q1}` |
-| `"<="` / `"lessorequal"`  | Compares two values and returns `true` if the first is less or equal to the second. | `"{q1} <= 10"` |
-| `">="` / `"greaterorequal"`  | Compares two values and returns `true` if the first is greater or equal to the second. | `"{q1} >= 10"` |
-| `"="` / `"=="` / `"equal"`  | Compares two values and returns `true` if they are loosely equal (that is, their type is disregarded). | `"{q1} = 10"` |
-| `"!="` / `"notequal"`  | Compares two values and returns `true` if they are not loosely equal. | `"{q1} != 10"` |
-| `"<"` / `"less"`  | Compares two values and returns `true` if the first is less than the second. | `"{q1} < 10"` |
-| `">"` / `"greater"`  | Compares two values and returns `true` if the first is greater than the second. | `"{q1} > 10"` |
-| `"+"`  | Adds up two values. | `"{q1} + {q2}"` |
-| `"-"`  | Subtracts the second value from the first. | `"{q1} - {q2}"` |
-| `"*"`  | Multiplies two values. | `"{q1} * {q2}"` |
-| `"/"`  | Divides the first value by the second. | `"{q1} / {q2}"` |
-| `"%"`  | Returns the remainder of the division of the first value by the second. | `"{q1} % {q2}"` |
-| `"^"` / `"power"`  | Raises the first value to the power of the second. | `"{q1} ^ {q2}"` |
-| `"*="` / `"contains"` / `"contain"`  | Compares two values and returns `true` if the first value contains the second value within it. | `"{q1} contains 'abc'"` |
-| `"notcontains"` / `"notcontain"` | Compares two values and returns `true` if the first value doesn't contain the second value within it. | `"{q1} notcontains 'abc'"` |
-| `"anyof"` | Compares a value with an array of values and returns `true` if the value is present in the array. | `"{q1} anyof [ 'value1', 'value2', 'value3' ]"` |
-| `"allof"` | Compares two arrays and returns `true` if the first array includes all values from the second. | `"{q1} allof [ 'value1', 'value2', 'value3' ]"` |
+| <code>&#124;&#124;</code> / `or` | Combines two or more conditions and returns `true` if *any* of them is `true`. | `"{q1} empty or {q2} empty"` |
+| `&&"` / `and`  | Combines two or more conditions and returns `true` if *all* of them are `true`. | `"{q1} empty and {q2} empty"` |
+| `!` / `negate` | Returns `true` if the condition returns `false`, and vice versa. | `!{q1}` |
+| `<=` / `lessorequal`  | Compares two values and returns `true` if the first is less or equal to the second. | `"{q1} <= 10"` |
+| `>=` / `greaterorequal`  | Compares two values and returns `true` if the first is greater or equal to the second. | `"{q1} >= 10"` |
+| `=` / `==` / `equal`  | Compares two values and returns `true` if they are loosely equal (that is, their type is disregarded). | `"{q1} = 10"` |
+| `!=` / `<>` / `notequal`  | Compares two values and returns `true` if they are not loosely equal. | `"{q1} != 10"` |
+| `<` / `less`  | Compares two values and returns `true` if the first is less than the second. | `"{q1} < 10"` |
+| `>` / `greater`  | Compares two values and returns `true` if the first is greater than the second. | `"{q1} > 10"` |
+| `+`  | Adds up two values. | `"{q1} + {q2}"` |
+| `-`  | Subtracts the second value from the first. | `"{q1} - {q2}"` |
+| `*`  | Multiplies two values. | `"{q1} * {q2}"` |
+| `/`  | Divides the first value by the second. | `"{q1} / {q2}"` |
+| `%`  | Returns the remainder of the division of the first value by the second. | `"{q1} % {q2}"` |
+| `^` / `power`  | Raises the first value to the power of the second. | `"{q1} ^ {q2}"` |
+| `*=` / `contains` / `contain`  | Compares two values and returns `true` if the first value contains the second value within it. | `"{q1} contains 'abc'"` |
+| `notcontains` / `notcontain` | Compares two values and returns `true` if the first value doesn't contain the second value within it. | `"{q1} notcontains 'abc'"` |
+| `anyof` | Compares a value with an array of values and returns `true` if the value is present in the array. | `"{q1} anyof [ 'value1', 'value2', 'value3' ]"` |
+| `allof` | Compares two arrays and returns `true` if the first array includes all values from the second. | `"{q1} allof [ 'value1', 'value2', 'value3' ]"` |
+| `#` | Disables type conversion for a referenced value (e.g., string values `"true"`, `"false"`, `"123"` won't be converted to corresponding Boolean and numeric values). | `"{#q1}"` |
 
 ### Built-In Functions
 
@@ -292,7 +313,8 @@ The following built-in functions are available:
 - [`day`](#day)
 - [`weekday`](#weekday)
 - [`getDate`](#getdate)
-- [`diffDays`](#diffdays)
+- [`dateAdd`](#dateadd)
+- [`dateDiff`](#datediff)
 - [`sum`](#sum)
 - [`max`](#max)
 - [`min`](#min)
@@ -434,7 +456,7 @@ Returns the day of the week for a given date as a value from 0 (Sunday) to 6 (Sa
 
 #### `getDate`
 
-*Definition*: `getDate(questionName: expression): Date`
+*Definition*: `getDate(question: expression): Date`
 
 Returns a Date value converted from a given question's value.
 
@@ -444,29 +466,27 @@ Returns a Date value converted from a given question's value.
 
 ---
 
+#### `dateAdd`
+
+*Definition*: `dateAdd(date: any, numberToAdd: number, interval: "days" | "months" | "years"): Date`
+
+Adds or subtracts a specified number of full days (default), months, or years to or from a date value.
+
+*Example*: `"expression": "dateAdd({startDate}, 14, "days")"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/665a7457d79a0b5d7a8f9c0993fab24bce4167a0/packages/survey-core/src/functionsfactory.ts#L269-L286 (linkStyle))
+
+---
+
 #### `dateDiff`
 
-*Definition*: `dateDiff(fromDate: any, toDate: any, "days" | "months" | "years"): number`
+*Definition*: `dateDiff(fromDate: any, toDate: any, interval: "days" | "months" | "years"): number`
 
 Returns a difference between two given dates in full days (default), months, or years.
 
 *Example*: `"expression": "dateDiff({birthdate}, today(), "months")"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/1b94692b94bd219a5620e9da647ce0953bf2fba4/src/functionsfactory.ts#L263-L267 (linkStyle))
-
----
-
-#### `diffDays`
-
-> This function is obsolete. Use the [`dateDiff`](#datediff) function instead.
-
-*Definition*: `diffDays(fromDate: any, toDate: any): number`
- 
-Returns the number of days between two given dates.
-
-*Example*: `"expression": "diffDays({startDate}, {endDate}) < 7"`
-
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L266-L274 (linkStyle))
 
 ---
 
@@ -520,11 +540,11 @@ Returns the average of passed numbers.
 
 #### `sumInArray`
 
-*Definition*: `sumInArray(questionName: expression, dataFieldName: string, filter?: expression): number`
+*Definition*: `sumInArray(question: expression, dataFieldName: string, filter?: expression): number`
 
 Returns the sum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
 
-The following code sums up values from a `"total"` matrix column but includes only the rows with a `"categoryId"` column equaling 1:
+The following code sums up values from a `"total"` matrix column but includes only the rows where a `"categoryId"` column equals 1:
 
 *Example*: `"expression": "sumInArray({matrixdynamic}, 'total', {categoryId} = 1)"`
 
@@ -534,7 +554,7 @@ The following code sums up values from a `"total"` matrix column but includes on
 
 #### `maxInArray`
 
-*Definition*: `maxInArray(questionName: expression, dataFieldName: string, filter?: expression): number`
+*Definition*: `maxInArray(question: expression, dataFieldName: string, filter?: expression): number`
 
 Returns the maximum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
 
@@ -548,11 +568,11 @@ The following code finds a maximum value within a `"quantity"` matrix column, bu
 
 #### `minInArray`
 
-*Definition*: `minInArray(questionName: expression, dataFieldName: string, filter?: expression): number`
+*Definition*: `minInArray(question: expression, dataFieldName: string, filter?: expression): number`
  
 Returns the minimum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
 
-The following code finds a minimum value within a `"quantity"` matrix column but searches for it only in the rows with a `"categoryId"` column equaling 1 and includes only positive values:
+The following code finds a minimum value within a `"quantity"` matrix column but searches for it only in the rows where a `"categoryId"` column equals 1 and the values are positive:
 
 *Example*: `"expression": "minInArray({matrixdynamic}, 'quantity', {quantity} > 0 and {categoryId} = 1)"`
 
@@ -562,7 +582,7 @@ The following code finds a minimum value within a `"quantity"` matrix column but
 
 #### `avgInArray`
 
-*Definition*: `avgInArray(questionName: expression, dataFieldName: string, filter?: expression): number`
+*Definition*: `avgInArray(question: expression, dataFieldName: string, filter?: expression): number`
 
 Returns the average of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
 
@@ -576,11 +596,11 @@ The following code finds an average of values within a `"quantity"` matrix colum
 
 #### `countInArray`
 
-*Definition*: `countInArray(questionName: expression, dataFieldName: string, filter?: expression): number`
+*Definition*: `countInArray(question: expression, dataFieldName: string, filter?: expression): number`
 
 Returns the total number of array items in which a specified data field has a value other than `null` or `undefined`. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question.
 
-The following code finds the total number of matrix rows with a `"quantity"` column value greater than zero but includes only the rows with a `"categoryId"` column equaling 1:
+The following code finds the total number of matrix rows with a `"quantity"` column value greater than zero but includes only the rows where a `"categoryId"` column equals 1.:
 
 *Example*: `"expression": "countInArray({matrixdynamic}, 'quantity', {quantity} > 0 and {categoryId} = 1)"`
 
@@ -599,6 +619,13 @@ The second parameter allows you to get a display text associated with a specific
 *Example*: `"expression": "displayValue('my-dropdown-question', 5)"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/54b8acc0b19fcad282d5306e3124cf89e9ab4fa9/src/functionsfactory.ts#L390-L396 (linkStyle))
+
+> When using the `displayValue` function within a [`setValueExpression`](https://surveyjs.io/form-library/documentation/api-reference/question#setValueExpression), specify the [`setValueIf`](https://surveyjs.io/form-library/documentation/api-reference/question#setValueIf) expression as well. This requirement stems from the fact that the `setValueExpression` is reevaluated only when `setValueIf` is `true` or once the value of a referenced question is changed. Although you do pass a question name to the `displayValue` function, this name is only used to access the question within JavaScript code and doesn't directly reference it. To trigger the reevaluation in this case, define the `setValueIf` expression as follows:
+>
+> ```js
+> "setValueExpression": "displayValue('my-dropdown-question')",
+> "setValueIf": "{my-dropdown-question} notempty"
+> ```
 
 ---
 
@@ -781,7 +808,7 @@ This technique has one drawback: if a question contains many items, you have to 
 
 You can specify one expression that will run against every item (choice, row, column). If the expression evaluates to `true`, the item becomes visible. Assign your expression to the [`choicesVisibleIf`](/Documentation/Library?id=QuestionSelectBase#choicesVisibleIf), [`rowsVisibleIf`](/Documentation/Library?id=questionmatrixmodel#rowsVisibleIf), or [`columnsVisibleIf`](/Documentation/Library?id=questionmatrixmodel#columnsVisibleIf) property. To access the current item, use the `{item}` operand.
 
-The following code shows how to specify the `choicesVisibleIf` property. The `"default"` question includes selected choices from the `"installed"` question. The `"secondChoice"` question also includes selected choices from the `"installed"` question, but uses the `choiceVisibleIf` property to filter out the choice selected in the `"default"` question.
+The following code shows how to specify the `choicesVisibleIf` property. The `"default"` question includes selected choices from the `"installed"` question. The `"secondChoice"` question also includes selected choices from the `"installed"` question but uses the `choiceVisibleIf` property to filter out the choice selected in the `"default"` question.
 
 ```js
 const surveyJson = {

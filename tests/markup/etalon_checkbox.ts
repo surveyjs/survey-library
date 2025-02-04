@@ -1,4 +1,4 @@
-import { StylesManager, settings } from "survey-core";
+import { settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -45,7 +45,7 @@ registerMarkupTests(
       snapshot: "checkbox-other",
     },
     {
-      name: "Test checkbox question markup Other option with maxOthersLength",
+      name: "Test checkbox question markup Other option with maxCommentLength",
       json: {
         "maxOthersLength": 15,
         questions: [
@@ -79,10 +79,10 @@ registerMarkupTests(
         ]
       },
       before() {
-        StylesManager.applyTheme("defaultV2");
+
       },
       after() {
-        StylesManager.applyTheme("default");
+
       },
       snapshot: "checkbox-other-V2",
     },
@@ -103,10 +103,10 @@ registerMarkupTests(
         ]
       },
       before() {
-        StylesManager.applyTheme("defaultV2");
+
       },
       after() {
-        StylesManager.applyTheme("default");
+
       },
       snapshot: "checkbox-comment-V2",
     },
@@ -148,8 +148,6 @@ registerMarkupTests(
         ]
       },
       initSurvey: (survey) => survey.setDesignMode(true),
-      before: () => { settings.supportCreatorV2 = true; },
-      after: () => { settings.supportCreatorV2 = false; },
       snapshot: "checkbox-disabled",
     },
     {
@@ -189,8 +187,7 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
+
       snapshot: "checkbox-v2",
     },
     {
@@ -209,8 +206,6 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("modern"),
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "checkbox-modern",
     },
     {
@@ -303,6 +298,8 @@ registerMarkupTests(
         ]
       },
       snapshot: "checkbox-columns-no-head-foot",
+      before: () => { settings.itemFlowDirection = "row"; },
+      after: () => { settings.itemFlowDirection = "column"; }
     },
     {
       name: "Test checkbox row layout with no header and footer",

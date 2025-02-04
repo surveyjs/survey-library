@@ -1,4 +1,4 @@
-import { StylesManager, DropdownListModel, settings } from "survey-core";
+import { DropdownListModel, settings } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -47,8 +47,6 @@ registerMarkupTests(
       ]
     },
     initSurvey: (survey) => survey.setDesignMode(true),
-    before: () => { settings.supportCreatorV2 = true; StylesManager.applyTheme("defaultV2"); },
-    after: () => { settings.supportCreatorV2 = false; StylesManager.applyTheme("default"); },
     snapshot: "rating-simple-disabled",
   },
   {
@@ -100,8 +98,7 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     snapshot: "rating-as-dropdown",
   },
   {
@@ -132,8 +129,7 @@ registerMarkupTests(
       dropdownListModel["popupModel"].isVisible = true;
     },
     removeIds: true,
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     snapshot: "rating-as-dropdown-description",
   },
   {
@@ -151,8 +147,7 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     snapshot: "rating-as-dropdown-readonly",
   },
   {
@@ -171,8 +166,7 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     snapshot: "rating-as-dropdown-readonly-with-value",
   },
   {
@@ -191,8 +185,6 @@ registerMarkupTests(
       ]
     },
     initSurvey: (survey) => survey.setDesignMode(true),
-    before: () => { settings.supportCreatorV2 = true; StylesManager.applyTheme("defaultV2"); },
-    after: () => { settings.supportCreatorV2 = false; StylesManager.applyTheme("default"); },
     snapshot: "rating-as-dropdown-disabled-with-value",
   },
   {
@@ -235,8 +227,7 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     snapshot: "rating-as-wrappable"
   },
   {
@@ -288,8 +279,6 @@ registerMarkupTests(
     },
     snapshot: "rating-stars-disabled",
     initSurvey: (survey) => survey.setDesignMode(true),
-    before: () => { settings.supportCreatorV2 = true; },
-    after: () => { settings.supportCreatorV2 = false; },
   },
   {
     name: "Test Rating question as smileys",
@@ -339,8 +328,6 @@ registerMarkupTests(
       ]
     },
     initSurvey: (survey) => survey.setDesignMode(true),
-    before: () => { settings.supportCreatorV2 = true; },
-    after: () => { settings.supportCreatorV2 = false; },
     snapshot: "rating-smileys-disabled",
   },
   {

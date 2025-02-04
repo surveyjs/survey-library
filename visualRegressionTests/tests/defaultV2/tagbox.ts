@@ -1,22 +1,15 @@
 import { Selector, ClientFunction, t } from "testcafe";
-import { getListItemByText, setOptions } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
+import { getListItemByText, setOptions } from "../../../functionalTests/helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Tagbox Screenshot";
 
 fixture`${title}`.page`${url}`;
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(async framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`
     .beforeEach(async t => {
-      await applyTheme(theme);
     });
 
   test("Check tagbox select question popup", async (t) => {
@@ -387,6 +380,7 @@ frameworks.forEach(async framework => {
       })();
       await initSurvey(framework,
         {
+          showQuestionNumbers: "on",
           "elements": [{
             "type": "tagbox",
             "name": "q1",

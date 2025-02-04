@@ -452,7 +452,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return isVisible && visible;
   }
   protected setVisible(val: boolean): void {
-    this._visible = val;
+    if(this.visible !== val) {
+      this._visible = val;
+    }
   }
   protected getLocTitle(): LocalizableString {
     return this.locText;
@@ -496,10 +498,9 @@ Serializer.addClass(
       name: "text",
       serializationProperty: "locText",
     },
-    { name: "visibleIf:condition", showMode: "form" },
+    { name: "visibleIf:condition", locationInTable: "detail" },
     {
-      name: "enableIf:condition",
-      showMode: "form",
+      name: "enableIf:condition", locationInTable: "detail",
       visibleIf: (obj: ItemValue): boolean => {
         return !obj || obj.ownerPropertyName !== "rateValues";
       },

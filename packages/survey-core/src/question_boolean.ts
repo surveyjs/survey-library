@@ -2,7 +2,6 @@ import { QuestionFactory } from "./questionfactory";
 import { property, Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
-import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/utils";
 import { ActionContainer } from "./actions/container";
@@ -25,7 +24,7 @@ export class QuestionBooleanModel extends Question {
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     return this.renderAs !== "checkbox";
   }
   public get isIndeterminate(): boolean {
@@ -80,7 +79,7 @@ export class QuestionBooleanModel extends Question {
   }
   public get locTitle(): LocalizableString {
     const original = this.getLocalizableString("title");
-    if (!this.isValueEmpty(this.locLabel.text) && (this.isValueEmpty(original.text) || this.isLabelRendered && !this.showTitle)) return this.locLabel;
+    if ((this.isLabelRendered && !this.showTitle || this.isValueEmpty(original.text)) && !this.isValueEmpty(this.locLabel.text)) return this.locLabel;
     return original;
   }
   public get labelRenderedAriaID(): string {
@@ -92,12 +91,15 @@ export class QuestionBooleanModel extends Question {
     this.leftAnswerElement = undefined;
   }
 
-  //Obsolete
+  // Obsolete
   @property() showTitle: boolean;
-  //Obsolete, use title
+  /**
+   * @deprecated Use the [`title`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#title) property instead.
+   */
   @property({ localizable: true }) label: string;
+  @property({ defaultValue: true }) useTitleAsLabel: boolean;
   get isLabelRendered(): boolean {
-    return this.titleLocation === "hidden";
+    return this.titleLocation === "hidden" && this.useTitleAsLabel;
   }
   get canRenderLabelDescription(): boolean {
     return this.isLabelRendered && this.hasDescription && (this.hasDescriptionUnderTitle || this.hasDescriptionUnderInput);

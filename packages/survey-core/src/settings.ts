@@ -1,6 +1,6 @@
 import { DomDocumentHelper } from "./global_variables_utils";
 import { IDialogOptions } from "./popup";
-import { showConfirmDialog } from "./utils/utils";
+import { IConfirmDialogOptions, showConfirmDialog } from "./utils/utils";
 
 export type ISurveyEnvironment = {
   root: Document | ShadowRoot,
@@ -49,6 +49,7 @@ const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string
  */
 
 export var settings = {
+  version: "",
   /**
    * An object that configures survey appearance when the survey is being designed in Survey Creator.
    *
@@ -187,33 +188,23 @@ export var settings = {
    * Nested properties:
    *
    * - `itemValueSerializeAsObject`: `boolean`\
-   * Enable this property if you want to serialize [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) instances as objects even when they include only the `value` property. Default value: `false`. View an example below.
+   * Enable this property if you want to serialize [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) instances (choice options, matrix rows, columns in a [Single-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model)) as objects even when they include only the `value` property. Default value: `false`.
    *
    * - `itemValueSerializeDisplayText`: `boolean`\
-   * Enable this property if you want to serialize the `text` property of [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) objects even when it is empty or equal to the `value` property. Default value: `false`. View an example below.
+   * Enable this property if you want to serialize the `text` property of [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) objects even when it is empty or equal to the `value` property. Default value: `false`.
    *
    * - `localizableStringSerializeAsObject`: `boolean`\
    * Enable this property if you want to serialize [`LocalizableString`](https://surveyjs.io/form-library/documentation/api-reference/localizablestring) instances as objects even when they include only a translation string for the default locale. For example, `"Custom String"` will be serialized as `{ default: "Custom String" }`. Default value: `false`.
    *
-   * ```js
-   * import { ItemValue, settings } from "survey-core";
-   *
-   * // `itemValueSerializeAsObject` example
-   * settings.serialization.itemValueSerializeAsObject = true;
-   * const item = new ItemValue(5);
-   * const itemString = item.toJSON(); // Produces { value: 5 } instead of 5
-   *
-   * // `itemValueSerializeDisplayText` example
-   * settings.serialization.itemValueSerializeDisplayText = true;
-   * const item = new ItemValue("item1");
-   * const itemString = item.toJSON(); // Produces { value: "item1", text: "item1" } instead of "item1"
-   * ```
+   * - `matrixDropdownColumnSerializeTitle`: `boolean`\
+   * Enable this property if you want to serialize the `title` property of [`MatrixDropdownColumn`](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) objects even when it is empty or equal to the `name` property. Default value: `false`.
    * @see [settings.parseNumber](https://surveyjs.io/form-library/documentation/api-reference/settings#parseNumber)
    */
   serialization: {
     itemValueSerializeAsObject: false,
     itemValueSerializeDisplayText: false,
-    localizableStringSerializeAsObject: false
+    localizableStringSerializeAsObject: false,
+    matrixDropdownColumnSerializeTitle: false
   },
 
   //#region serialization section, Obsolete properties
@@ -234,7 +225,7 @@ export var settings = {
    * Specifies whether to add questions to the DOM only when they get into the viewport. Default value: `false`.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
-   * @see [SurveyModel.lazyRendering](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#lazyRendering)
+   * @see [SurveyModel.lazyRenderEnabled](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#lazyRenderEnabled)
    */
   lazyRender: {
     enabled: false,
@@ -362,7 +353,7 @@ export var settings = {
    * Nested properties:
    *
    * - `includeQuestionsWithHiddenNumber`: `boolean`\
-   * Specifies whether to number questions whose [`hideNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#hideNumber) property is enabled. Default value: `false`.
+   * Specifies whether to number questions whose [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property is disabled. Default value: `false`.
    *
    * - `includeQuestionsWithHiddenTitle`: `boolean`\
    * Specifies whether to number questions whose [`titleLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#titleLocation) property is set to `"hidden"`. Default value: `false`.
@@ -486,8 +477,8 @@ export var settings = {
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsync: function (message: string, callback: (res: boolean) => void, applyTitle?: string, locale?: string, rootElement?: HTMLElement): boolean {
-    return showConfirmDialog(message, callback, applyTitle, locale, rootElement);
+  confirmActionAsync: function (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): boolean {
+    return showConfirmDialog(message, callback, options);
   },
   /**
    * A minimum width value for all survey elements.
@@ -523,20 +514,25 @@ export var settings = {
     lifetime: 2000
   },
   /**
-   * Specifies how many milliseconds a survey should wait before it automatically switches to the next page. Applies only when [auto-advance](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) is enabled.
+   * Specifies how many milliseconds a survey should wait before it automatically switches to the next page. Applies only when [auto-advance](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) is enabled.
    *
    * Default value: 300
    */
   autoAdvanceDelay: 300,
   /**
-   * Specifies the direction in which to lay out Checkbox and Radiogroup items. This setting affects the resulting UI when items are arranged in [more than one column](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#colCount).
+   * Specifies the direction in which to lay out Checkbox and Radio Button Group items. This setting affects the resulting UI when items are arranged in [more than one column](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#colCount).
    *
    * Possible values:
    *
-   * - `"row"` (default) - Items fill the current row, then move on to the next row.
-   * - `"column"` - Items fill the current column, then move on to the next column.
+   * - `"column"` (default) - Items fill the current column, then move on to the next column.
+   * - `"row"` - Items fill the current row, then move on to the next row.
    */
-  showItemsInOrder: "default",
+  itemFlowDirection: "column",
+  /**
+   * @deprecated Use the [`itemFlowDirection`](https://surveyjs.io/form-library/documentation/api-reference/settings#itemFlowDirection) property instead.
+   */
+  get showItemsInOrder(): string { return settings.itemFlowDirection; },
+  set showItemsInOrder(val: string) { settings.itemFlowDirection = val; },
   /**
    * A value to save in survey results when respondents select the "None" choice item.
    *
@@ -608,20 +604,8 @@ export var settings = {
    * Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   maxDate: "",
-  showModal: <
-    (
-      componentName: string,
-      data: any,
-      onApply: () => boolean,
-      onCancel?: () => void,
-      cssClass?: string,
-      title?: string,
-      displayMode?: "popup" | "overlay"
-    ) => any
-    >undefined,
   showDialog: <(options: IDialogOptions, rootElement?: HTMLElement) => any>undefined,
-  supportCreatorV2: false,
-  showDefaultItemsInCreatorV2: true,
+  showDefaultItemsInCreator: true,
   /**
    * An object that specifies icon replacements. Object keys are built-in icon names. To use a custom icon, assign its name to the key of the icon you want to replace:
    *
@@ -663,11 +647,11 @@ export var settings = {
   animationEnabled: true,
 
   /**
-   * An object that specifies heading levels (`<h1>`, `<h2>`, etc.) to use when rendering survey, page, panel, and question titles.
+   * An object that specifies HTML tags to use when rendering survey, page, panel, and question titles.
    *
    * Default value: `{ survey: "h3", page: "h4", panel: "h4", question: "h5" }`
    *
-   * If you want to modify heading levels for individual titles, handle `SurveyModel`'s [`onGetTitleTagName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetTitleTagName) event.
+   * If you want to modify HTML tags for individual titles, handle `SurveyModel`'s [`onGetTitleTagName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetTitleTagName) event.
    */
   titleTags: {
     survey: "h3",
@@ -802,6 +786,10 @@ export var settings = {
    * ```
    */
   storeUtcDates: false,
+  // @param reason "function-[functionname]", "question-[questionname]", "expression-operand"
+  onDateCreated: (newDate: Date, reason: string, val?: number | string | Date): Date => {
+    return newDate;
+  },
   /**
    * A function that allows you to define custom parsing rules for numbers represented as string values.
    *
@@ -826,5 +814,4 @@ export var settings = {
    * @see [settings.serialization](https://surveyjs.io/form-library/documentation/api-reference/settings#serialization)
    */
   parseNumber: (stringValue: any, numericValue: number): number => { return numericValue; },
-  useLegacyIcons: true
 };

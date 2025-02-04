@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var portugueseSurveyStrings = {
   pagePrevText: "Anterior",
@@ -59,7 +59,7 @@ export var portugueseSurveyStrings = {
   addColumn: "Adicionar coluna",
   addRow: "Adicionar linha",
   removeRow: "Remover linha",
-  emptyRowsText: "Não existem linhas.",
+  noRowsText: "Não existem linhas.",
   addPanel: "Adicionar novo",
   removePanel: "Remover",
   showDetails: "Mostrar detalhes",
@@ -110,7 +110,7 @@ export var portugueseSurveyStrings = {
   cancel: "Cancelar"
 };
 
-surveyLocalization.setupLocale("pt", portugueseSurveyStrings, "português", "Portuguese");
+setupLocale({ localeCode: "pt", strings: portugueseSurveyStrings, nativeName: "português", englishName: "Portuguese" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

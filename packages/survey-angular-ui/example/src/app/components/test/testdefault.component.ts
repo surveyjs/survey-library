@@ -1,5 +1,4 @@
-import {  ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
-import {  StylesManager } from "survey-core";
+import { ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
 import { TestComponent } from "./test.component";
 
 @Component({
@@ -11,6 +10,5 @@ import { TestComponent } from "./test.component";
 export class TestDefaultComponent extends TestComponent {
   constructor(changeDetectorRef: ChangeDetectorRef) {
     super(changeDetectorRef);
-    StylesManager.applyTheme("default");
   }
 }

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var greekSurveyStrings = {
   pagePrevText: "Προηγούμενο",
@@ -59,7 +59,7 @@ export var greekSurveyStrings = {
   addColumn: "Προσθήκη στήλης",
   addRow: "Προσθήκη γραμμής",
   removeRow: "Αφαίρεση",
-  emptyRowsText: "Δεν υπάρχουν εγγραφές.",
+  noRowsText: "Δεν υπάρχουν εγγραφές.",
   addPanel: "Προσθέστε νέο",
   removePanel: "Αφαίρεση",
   showDetails: "Εμφάνιση λεπτομερειών",
@@ -110,7 +110,7 @@ export var greekSurveyStrings = {
   cancel: "Ακυρώνω"
 };
 
-surveyLocalization.setupLocale("gr", greekSurveyStrings, "ελληνικά", "Greek");
+setupLocale({ localeCode: "gr", strings: greekSurveyStrings, nativeName: "ελληνικά", englishName: "Greek" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

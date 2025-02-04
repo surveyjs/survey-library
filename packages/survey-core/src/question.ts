@@ -59,7 +59,7 @@ export class Question extends SurveyElement<Question>
   [index: string]: any;
   private static TextPreprocessorValuesMap = {
     title: "processedTitle",
-    require: "requiredText",
+    require: "requiredMark",
   };
   private static questionCounter = 100;
   private static getQuestionId(): string {
@@ -91,27 +91,7 @@ export class Question extends SurveyElement<Question>
   private isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
   private dependedQuestions: Array<Question> = [];
-  public commentTextAreaModel: TextAreaModel;
-
-  private getCommentTextAreaOptions(): ITextArea {
-    const options: ITextArea = {
-      question: this,
-      id: () => this.commentId,
-      propertyName: "comment",
-      className: () => this.cssClasses.comment,
-      placeholder: () => this.renderedCommentPlaceholder,
-      isDisabledAttr: () => this.isInputReadOnly || false,
-      rows: () => this.commentAreaRows,
-      autoGrow: () => this.autoGrowComment,
-      maxLength: () => this.getOthersMaxLength(),
-      ariaRequired: () => this.a11y_input_ariaRequired,
-      ariaLabel: () => this.a11y_input_ariaLabel,
-      getTextValue: () => { return this.comment; },
-      onTextAreaChange: (e) => { this.onCommentChange(e); },
-      onTextAreaInput: (e) => { this.onCommentInput(e); },
-    };
-    return options;
-  }
+  private commentTextAreaModelValue: TextAreaModel;
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
@@ -162,7 +142,6 @@ export class Question extends SurveyElement<Question>
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
-    this.commentTextAreaModel = new TextAreaModel(this.getCommentTextAreaOptions());
 
     this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; });
     this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
@@ -171,8 +150,10 @@ export class Question extends SurveyElement<Question>
     this.createLocalizableString("commentText", this, true, "otherItemText");
     this.createLocalizableString("requiredErrorText", this);
     this.addTriggerInfo("resetValueIf", (): boolean => !this.isEmpty(), (): void => {
+      this.startSetValueOnExpression();
       this.clearValue();
       this.updateValueWithDefaults();
+      this.finishSetValueOnExpression();
     });
     const setValueIfInfo = this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
     setValueIfInfo.runSecondCheck = (keys: any): boolean => this.checkExpressionIf(keys);
@@ -192,7 +173,7 @@ export class Question extends SurveyElement<Question>
     this.registerPropertyChangedHandlers(
       ["indent", "rightIndent"],
       () => {
-        this.onIndentChanged();
+        this.resetIndents();
       }
     );
 
@@ -223,7 +204,31 @@ export class Question extends SurveyElement<Question>
     this.locProcessedTitle.sharedData = locTitleValue;
     return locTitleValue;
   }
-
+  public get commentTextAreaModel(): TextAreaModel {
+    if(!this.commentTextAreaModelValue) {
+      this.commentTextAreaModelValue = new TextAreaModel(this.getCommentTextAreaOptions());
+    }
+    return this.commentTextAreaModelValue;
+  }
+  private getCommentTextAreaOptions(): ITextArea {
+    const options: ITextArea = {
+      question: this,
+      id: () => this.commentId,
+      propertyName: "comment",
+      className: () => this.cssClasses.comment,
+      placeholder: () => this.renderedCommentPlaceholder,
+      isDisabledAttr: () => this.isInputReadOnly || false,
+      rows: () => this.commentAreaRows,
+      autoGrow: () => this.autoGrowComment,
+      maxLength: () => this.getOthersMaxLength(),
+      ariaRequired: () => this.a11y_input_ariaRequired,
+      ariaLabel: () => this.a11y_input_ariaLabel,
+      getTextValue: () => { return this.comment; },
+      onTextAreaChange: (e) => { this.onCommentChange(e); },
+      onTextAreaInput: (e) => { this.onCommentInput(e); },
+    };
+    return options;
+  }
   public getSurvey(live: boolean = false): ISurvey {
     if (live) {
       return !!this.parent ? (<Base>(<any>this.parent)).getSurvey(live) : null;
@@ -489,26 +494,35 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Returns the visible index of the question in the survey. It can be from 0 to all visible questions count - 1
-   * The visibleIndex is -1 if the title is 'hidden' or hideNumber is true
+   * The visibleIndex is -1 if the title is 'hidden' or showNumber is false
    * @see titleLocation
-   * @see hideNumber
+   * @see showNumber
    */
   public get visibleIndex(): number {
     return this.getPropertyValue("visibleIndex", -1);
   }
   public onHidingContent(): void { }
   /**
-   * Hides the question number from the title and excludes the question from numbering.
+   * Specifies whether to show a number for this question. Setting this property to `false` hides the question number from the title and excludes the question from numbering.
    *
-   * If you want to disable question numbering in the entire survey, set `SurveyModel`'s `showQuestionNumbers` property to `false`.
-   * @see SurveyModel.showQuestionNumbers
+   * Default value: `false` (inherited from the `SurveyModel`'s [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers) property)
+   * @see no
+   */
+  public get showNumber(): boolean {
+    return this.getPropertyValue("showNumber");
+  }
+  public set showNumber(val: boolean) {
+    this.setPropertyValue("showNumber", val);
+    this.notifySurveyVisibilityChanged();
+  }
+  /**
+   * @deprecated Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
    */
   public get hideNumber(): boolean {
-    return this.getPropertyValue("hideNumber");
+    return !this.showNumber;
   }
   public set hideNumber(val: boolean) {
-    this.setPropertyValue("hideNumber", val);
-    this.notifySurveyVisibilityChanged();
+    this.showNumber = !val;
   }
   /**
    * Returns `true` if the question can display its title to the left of the input field.
@@ -584,7 +598,7 @@ export class Question extends SurveyElement<Question>
   private checkExpressionIf(keys: any): boolean {
     this.ensureSetValueExpressionRunner();
     if (!this.setValueExpressionRunner) return false;
-    return new ProcessValue().isAnyKeyChanged(keys, this.setValueExpressionRunner.getVariables());
+    return this.canExecuteTriggerByKeys(keys, this.setValueExpressionRunner);
   }
   private triggersInfo: Array<TriggerExpressionInfo> = [];
   private addTriggerInfo(name: string, canRun: () => boolean, doComplete: () => void): TriggerExpressionInfo {
@@ -592,10 +606,8 @@ export class Question extends SurveyElement<Question>
     this.triggersInfo.push(info);
     return info;
   }
-  private runTriggerInfo(info: TriggerExpressionInfo, name: string, value: any): void {
+  private runTriggerInfo(info: TriggerExpressionInfo, keys: any): void {
     const expression = this[info.name];
-    const keys: any = {};
-    keys[name] = value;
     if (!expression || info.isRunning || !info.canRun()) {
       if (info.runSecondCheck(keys)) {
         info.doComplete();
@@ -613,14 +625,23 @@ export class Question extends SurveyElement<Question>
     } else {
       info.runner.expression = expression;
     }
-    if (!new ProcessValue().isAnyKeyChanged(keys, info.runner.getVariables()) && !info.runSecondCheck(keys)) return;
+    if (!this.canExecuteTriggerByKeys(keys, info.runner) && !info.runSecondCheck(keys)) return;
     info.isRunning = true;
     info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
-  public runTriggers(name: string, value: any): void {
+  private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner): boolean {
+    const vars = runner.getVariables();
+    if((!vars || vars.length === 0) && runner.hasFunction()) return true;
+    return new ProcessValue().isAnyKeyChanged(keys, vars);
+  }
+  public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
+    if(!keys) {
+      keys = {};
+      keys[name] = value;
+    }
     this.triggersInfo.forEach(info => {
-      this.runTriggerInfo(info, name, value);
+      this.runTriggerInfo(info, keys);
     });
   }
   private runConditions() {
@@ -641,7 +662,6 @@ export class Question extends SurveyElement<Question>
     if (isLight !== true) {
       this.runConditions();
     }
-    this.calcRenderedCommentPlaceholder();
     if (!this.visible) {
       this.updateIsVisibleProp();
     }
@@ -657,7 +677,9 @@ export class Question extends SurveyElement<Question>
     if (this.parent === val) return;
     this.removeFromParent();
     this.setPropertyValue("parent", val);
-    this.updateQuestionCss();
+    if(!!val) {
+      this.updateQuestionCss();
+    }
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
@@ -893,7 +915,7 @@ export class Question extends SurveyElement<Question>
    * @see comment
    * @see commentText
    */
-  @property({ localizable: true, onSet: (val, target) => target.calcRenderedCommentPlaceholder() }) commentPlaceholder: string;
+  @property({ localizable: true, onSet: (val, target) => target.resetRenderedCommentPlaceholder() }) commentPlaceholder: string;
 
   public get commentPlaceHolder(): string {
     return this.commentPlaceholder;
@@ -902,11 +924,13 @@ export class Question extends SurveyElement<Question>
     this.commentPlaceholder = newValue;
   }
   public get renderedCommentPlaceholder(): string {
-    return this.getPropertyValue("renderedCommentPlaceholder");
+    const func = (): any => {
+      return !this.isReadOnly ? this.commentPlaceHolder : undefined;
+    };
+    return this.getPropertyValue("renderedCommentPlaceholder", undefined, func);
   }
-  private calcRenderedCommentPlaceholder() {
-    const res = !this.isReadOnly ? this.commentPlaceHolder : undefined;
-    this.setPropertyValue("renderedCommentPlaceholder", res);
+  private resetRenderedCommentPlaceholder() {
+    this.resetPropertyValue("renderedCommentPlaceholder");
   }
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
@@ -929,7 +953,7 @@ export class Question extends SurveyElement<Question>
   }
   public localeChanged(): void {
     super.localeChanged();
-    this.calcRenderedCommentPlaceholder();
+    this.resetRenderedCommentPlaceholder();
     if (!!this.localeChangedCallback) {
       this.localeChangedCallback();
     }
@@ -1002,10 +1026,10 @@ export class Question extends SurveyElement<Question>
     return this.isRequired && this.titlePattern == "requireNumTitle";
   }
   public get isRequireTextBeforeTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredText !== "";
+    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredMark !== "";
   }
   public get isRequireTextAfterTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredText !== "";
+    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredMark !== "";
   }
   /**
    * Disable this property if you want to render the current question on the same line or row with the previous question or panel.
@@ -1022,13 +1046,16 @@ export class Question extends SurveyElement<Question>
     this.copyCssClasses(classes, css.question);
     this.copyCssClasses(classes.error, css.error);
     this.updateCssClasses(classes, css);
+    return classes;
+  }
+  protected onCalcCssClasses(classes: any): void {
+    super.onCalcCssClasses(classes);
     if (this.survey) {
       this.survey.updateQuestionCssClasses(this, classes);
     }
     if (this.onUpdateCssClassesCallback) {
       this.onUpdateCssClassesCallback(classes);
     }
-    return classes;
   }
   public get cssRoot(): string {
     this.ensureElementCss();
@@ -1111,8 +1138,8 @@ export class Question extends SurveyElement<Question>
   }
   protected getCssDescription(cssClasses: any): string {
     return new CssClassBuilder()
-      .append(cssClasses.description, this.hasDescriptionUnderTitle)
-      .append(cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
+      .append(cssClasses.description)
+      .append(cssClasses.descriptionUnderInput, this.getDescriptionLocation() == "underInput")
       .toString();
   }
   public showErrorOnCore(location: string): boolean {
@@ -1172,21 +1199,32 @@ export class Question extends SurveyElement<Question>
       .append(this.cssClasses.rootMobile, this.isMobile)
       .toString();
   }
+  private isRequireUpdateElements: boolean;
   public updateElementCss(reNew?: boolean): void {
-    super.updateElementCss(reNew);
-    if (reNew) {
-      this.updateQuestionCss(true);
+    if(this.wasRendered) {
+      super.updateElementCss(reNew);
+      if (reNew) {
+        this.updateQuestionCss(true);
+      }
+    } else {
+      this.isRequireUpdateElements = true;
     }
-    this.onIndentChanged();
+    this.resetIndents();
+  }
+  protected onFirstRenderingCore(): void {
+    if(this.isRequireUpdateElements) {
+      this.isRequireUpdateElements = false;
+      this.updateElementCss(true);
+    }
+    super.onFirstRenderingCore();
   }
   protected updateQuestionCss(reNew?: boolean): void {
-    if (
-      this.isLoadingFromJson ||
-      !this.survey ||
-      (reNew !== true && !this.cssClassesValue)
-    )
-      return;
-    this.updateElementCssCore(this.cssClasses);
+    if (this.isLoadingFromJson || !this.survey) return;
+    if(this.wasRendered) {
+      this.updateElementCssCore(this.cssClasses);
+    } else {
+      this.isRequireUpdateElements = true;
+    }
   }
   private ensureElementCss() {
     if (!this.cssClassesValue) {
@@ -1229,9 +1267,11 @@ export class Question extends SurveyElement<Question>
   public get renderCssRoot(): string {
     return this.cssClasses.root || undefined;
   }
-  private onIndentChanged() {
-    this.paddingLeft = this.getIndentSize(this.indent);
-    this.paddingRight = this.getIndentSize(this.rightIndent);
+  protected calcPaddingLeft(): string {
+    return this.getIndentSize(this.indent);
+  }
+  protected calcPaddingRight(): string {
+    return this.getIndentSize(this.rightIndent);
   }
   private getIndentSize(indent: number): string {
     if (indent < 1 || !this.getSurvey() || !this.cssClasses || !this.cssClasses.indent) return "";
@@ -1305,7 +1345,7 @@ export class Question extends SurveyElement<Question>
   }
   public getOthersMaxLength(): any {
     if (!this.survey) return null;
-    return this.survey.maxOthersLength > 0 ? this.survey.maxOthersLength : null;
+    return this.survey.maxCommentLength > 0 ? this.survey.maxCommentLength : null;
   }
   protected onCreating(): void { }
   public getFirstQuestionToFocus(withError: boolean): Question {
@@ -1438,7 +1478,7 @@ export class Question extends SurveyElement<Question>
     if (this.forceIsInputReadOnly !== undefined) {
       return this.forceIsInputReadOnly;
     }
-    return this.isReadOnly || this.isDesignModeV2;
+    return this.isReadOnly || this.isDesignMode;
   }
   public get renderedInputReadOnly(): string {
     return this.isInputReadOnly ? "" : undefined;
@@ -1450,7 +1490,7 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly;
   }
   public get isDisabledAttr(): boolean {
-    return this.isDesignModeV2 || (!!this.readOnlyCallback && this.readOnlyCallback());
+    return this.isDesignMode || (!!this.readOnlyCallback && this.readOnlyCallback());
   }
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
@@ -1459,7 +1499,7 @@ export class Question extends SurveyElement<Question>
       this.clearErrors();
     }
     this.updateQuestionCss();
-    this.calcRenderedCommentPlaceholder();
+    this.resetRenderedCommentPlaceholder();
   }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes read-only.
@@ -1492,15 +1532,12 @@ export class Question extends SurveyElement<Question>
   public get isInDesignMode(): boolean {
     return !this.isContentElement && this.isDesignMode;
   }
-  public get isInDesignModeV2(): boolean {
-    return !this.isContentElement && this.isDesignModeV2;
-  }
   /**
    * A question number or letter (depends on the `questionStartIndex` property of the question container (panel, page, or survey)).
    *
    * When the question number, title, or the entire question is invisible, this property returns an empty string.
    * @see SurveyModel.questionStartIndex
-   * @see hideNumber
+   * @see showNumber
    * @see titleLocation
    * @see visibleIf
    */
@@ -1508,7 +1545,7 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("no");
   }
   private calcNo(): string {
-    if (!this.hasTitle || this.hideNumber) return "";
+    if (!this.hasTitle || !this.showNumber) return "";
     const parentIndex: number | undefined = (<any>this.parent)?.visibleIndex;
     var no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex(), parentIndex);
     if (!!this.survey) {
@@ -1528,14 +1565,10 @@ export class Question extends SurveyElement<Question>
     if (this.isEmpty()) {
       this.initDataFromSurvey();
     }
-    this.calcRenderedCommentPlaceholder();
-    this.onIndentChanged();
   }
   protected onSetData(): void {
     super.onSetData();
-    if (!this.survey) return;
-    this.onIndentChanged();
-    if(!this.isDesignMode) {
+    if(!this.isDesignMode && !!this.survey && !this.isLoadingFromJson) {
       this.initDataFromSurvey();
       this.onSurveyValueChanged(this.value);
       this.updateValueWithDefaults();
@@ -1701,7 +1734,6 @@ export class Question extends SurveyElement<Question>
   protected clearValueIfInvisibleCore(reason: string): void {
     if (this.canClearValueAsInvisible(reason)) {
       this.clearValue();
-      this.setValueChangedDirectly(undefined);
     }
   }
   /**
@@ -1904,7 +1936,7 @@ export class Question extends SurveyElement<Question>
   /**
    * A correct answer to this question. Specify this property if you want to [create a quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see SurveyModel.getCorrectAnswerCount
-   * @see SurveyModel.getInCorrectAnswerCount
+   * @see SurveyModel.getIncorrectAnswerCount
    */
   public get correctAnswer(): any {
     return this.getPropertyValue("correctAnswer");
@@ -1944,7 +1976,14 @@ export class Question extends SurveyElement<Question>
   protected checkIfAnswerCorrect(): boolean {
     const isEqual = Helpers.isTwoValueEquals(this.value, this.correctAnswer, this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
     const correct = isEqual ? 1 : 0;
-    const options = { result: isEqual, correctAnswer: correct, correctAnswers: correct, incorrectAnswers: this.quizQuestionCount - correct };
+    const incorrect = this.quizQuestionCount - correct;
+    const options = {
+      result: isEqual,
+      correctAnswers: correct,
+      correctAnswerCount: correct,
+      incorrectAnswers: incorrect,
+      incorrectAnswerCount: incorrect,
+    };
     if (!!this.survey) {
       this.survey.onCorrectQuestionAnswer(this, options);
     }
@@ -2036,9 +2075,17 @@ export class Question extends SurveyElement<Question>
   private runExpressionSetValue(val: any): void {
     this.runExpressionSetValueCore(val, (val: any): void => {
       if (!this.isTwoValueEquals(this.value, val)) {
+        this.startSetValueOnExpression();
         this.value = val;
+        this.finishSetValueOnExpression();
       }
     });
+  }
+  protected startSetValueOnExpression(): void {
+    this.survey?.startSetValueOnExpression();
+  }
+  protected finishSetValueOnExpression(): void {
+    this.survey?.finishSetValueOnExpression();
   }
   private runDefaultValueExpression(runner: ExpressionRunner, values: HashTable<any> = null,
     properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
@@ -2182,9 +2229,6 @@ export class Question extends SurveyElement<Question>
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     const errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true, fireCallback);
     if (fireCallback) {
-      if (!!this.survey) {
-        this.survey.beforeSettingQuestionErrors(this, errors);
-      }
       this.errors = errors;
       if (this.errors !== errors) {
         this.errors.forEach(er => er.locText.strChanged());
@@ -2214,13 +2258,19 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Returns a character or text string that indicates a required question.
-   * @see SurveyModel.requiredText
+   * @see SurveyModel.requiredMark
    * @see isRequired
    */
-  public get requiredText(): string {
+  public get requiredMark(): string {
     return this.survey != null && this.isRequired
-      ? this.survey.requiredText
+      ? this.survey.requiredMark
       : "";
+  }
+  /**
+   * @deprecated Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
+   */
+  public get requiredText(): string {
+    return this.requiredMark;
   }
   public addError(error: SurveyError | string): void {
     if (!error) return;
@@ -2247,6 +2297,15 @@ export class Question extends SurveyElement<Question>
     if (this.isVisible && this.canCollectErrors()) {
       this.collectErrors(qErrors, isOnValueChanged, fireCallback);
     }
+    if (!!this.survey) {
+      if(this.validateValueCallback && qErrors.length === 0) {
+        const error = this.validateValueCallback();
+        if (error) {
+          qErrors.push(error);
+        }
+      }
+      this.survey.validateQuestion(this, qErrors, fireCallback);
+    }
     return qErrors;
   }
   protected canCollectErrors(): boolean {
@@ -2263,19 +2322,9 @@ export class Question extends SurveyElement<Question>
         qErrors.push(errors[i]);
       }
     }
-    if (this.survey && qErrors.length == 0) {
-      var error = this.fireSurveyValidation();
-      if (error) {
-        qErrors.push(error);
-      }
-    }
   }
   protected canRunValidators(isOnValueChanged: boolean): boolean {
     return true;
-  }
-  private fireSurveyValidation(): SurveyError {
-    if (this.validateValueCallback) return this.validateValueCallback();
-    return this.survey ? this.survey.validateQuestion(this) : null;
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     if ((!isOnValueChanged || this.isOldAnswered) && this.hasRequiredError()) {
@@ -2483,7 +2532,7 @@ export class Question extends SurveyElement<Question>
     if (
       !this.isVisible ||
       (!this.hasTitle && !settings.numbering.includeQuestionsWithHiddenTitle) ||
-      (this.hideNumber && !settings.numbering.includeQuestionsWithHiddenNumber)
+      (!this.showNumber && !settings.numbering.includeQuestionsWithHiddenNumber)
     ) {
       val = -1;
     }
@@ -2494,7 +2543,9 @@ export class Question extends SurveyElement<Question>
   public removeElement(element: IElement): boolean {
     return false;
   }
-  public supportGoNextPageAutomatic(): boolean {
+  // Obsolete
+  supportGoNextPageAutomatic(): boolean { return this.supportAutoAdvance(); }
+  public supportAutoAdvance(): boolean {
     return false;
   }
   public supportGoNextPageError(): boolean {
@@ -2755,7 +2806,7 @@ export class Question extends SurveyElement<Question>
   public get ariaDescribedBy(): string {
     if (this.isNewA11yStructure) return null;
 
-    if (this.hasTitle) {
+    if (this.hasTitle && this.hasDescription) {
       return this.ariaDescriptionId;
     } else {
       return null;
@@ -2794,7 +2845,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
-    if (this.hasTitle && !this.parentQuestion) {
+    if (this.hasTitle && !this.parentQuestion && this.hasDescription) {
       return this.ariaDescriptionId;
     } else {
       return null;
@@ -2878,8 +2929,9 @@ Serializer.addClass("question", [
     choices: ["default", "underInput", "underTitle"],
   },
   {
-    name: "hideNumber:boolean",
+    name: "showNumber:boolean",
     dependsOn: "titleLocation",
+    default: true,
     visibleIf: function (obj: any) {
       if (!obj) {
         return true;
@@ -2901,6 +2953,7 @@ Serializer.addClass("question", [
       );
     },
   },
+  { name: "hideNumber:boolean", visible: false, isSerializable: false },
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
   "resetValueIf:condition",

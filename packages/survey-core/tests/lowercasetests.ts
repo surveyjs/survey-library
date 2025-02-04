@@ -30,8 +30,14 @@ QUnit.test("navigationButtonsVisibility value is always lower-case", function (
   assert
 ) {
   var question = new PageModel("base");
+  assert.strictEqual(question.navigationButtonsVisibility, "inherit");
+  assert.strictEqual(question.showNavigationButtons, undefined);
   question.navigationButtonsVisibility = "HIDE";
   assert.strictEqual(question.navigationButtonsVisibility, "hide");
+  assert.strictEqual(question.showNavigationButtons, false);
+  question.navigationButtonsVisibility = "Inherit";
+  assert.strictEqual(question.navigationButtonsVisibility, "inherit");
+  assert.strictEqual(question.showNavigationButtons, undefined);
 });
 
 QUnit.test(
@@ -106,12 +112,13 @@ QUnit.test(
   }
 );
 
-QUnit.test("SurveyModel showProgressBar value is always lower-case", function (
-  assert
-) {
+QUnit.test("SurveyModel showProgressBar value is always lower-case", function (assert) {
   var survey = new SurveyModel();
+  assert.equal(survey.showProgressBar, false);
+  assert.strictEqual(survey.progressBarLocation, "auto");
+  assert.equal(survey.isShowProgressBarOnTop, false);
   survey.showProgressBar = "TOP";
-  assert.strictEqual(survey.showProgressBar, "top");
+  assert.strictEqual(survey.progressBarLocation, "top");
   assert.equal(survey.isShowProgressBarOnTop, true);
 });
 

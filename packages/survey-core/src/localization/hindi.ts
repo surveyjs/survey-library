@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var hindiStrings = {
   pagePrevText: "पिछला",
@@ -59,7 +59,7 @@ export var hindiStrings = {
   addColumn: "कॉलम जोड़ें",
   addRow: "पंक्ति जोड़ें",
   removeRow: "हटाए",
-  emptyRowsText: "कोई पंक्तियाँ नहीं हैं.",
+  noRowsText: "कोई पंक्तियाँ नहीं हैं.",
   addPanel: "नया जोड़ें",
   removePanel: "हटाए",
   showDetails: "विवरण दिखाएँ",
@@ -110,7 +110,7 @@ export var hindiStrings = {
   cancel: "रद्द करना"
 };
 
-surveyLocalization.setupLocale("hi", hindiStrings, "hindi", "Hindi");
+setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "hindi", englishName: "Hindi" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -121,7 +121,7 @@ surveyLocalization.setupLocale("hi", hindiStrings, "hindi", "Hindi");
 // minError: "The value should not be less than {0}" => "मान {0} से कम नहीं होना चाहिए"
 // maxError: "The value should not be greater than {0}" => "मान {0} से अधिक नहीं होना चाहिए"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "यहां एक फ़ाइल खींचें और छोड़ें या नीचे दिए गए बटन पर क्लिक करें और अपलोड करने के लिए एक फ़ाइल चुनें।"
-// emptyRowsText: "There are no rows." => "कोई पंक्तियाँ नहीं हैं."
+// noRowsText: "There are no rows." => "कोई पंक्तियाँ नहीं हैं."
 // multipletext_itemname: "text" => "टेक्स्ट"
 // signaturePlaceHolder: "Sign here" => "यहां साइन करें"
 // modalCancelButtonText: "Cancel" => "रद्द करना"

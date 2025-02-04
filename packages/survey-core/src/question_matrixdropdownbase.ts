@@ -916,7 +916,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
   }
   private detailPanelValue: PanelModel;
-  private isUniqueCaseSensitiveValue: boolean;
+  private useCaseSensitiveComparisonValue: boolean;
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
   onRenderedTableResetCallback: () => void;
@@ -974,7 +974,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.registerPropertyChangedHandlers(
       [
         "transposeData",
-        "addRowLocation",
+        "addRowButtonLocation",
         "hideColumnsIfEmpty",
         "showHeader",
         "minRowCount",
@@ -1042,7 +1042,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.setPropertyValue("transposeData", val);
   }
   /**
-   * This property is obsolete. Use the [`transposeData`](#transposeData) property instead.
+   * @deprecated Use the [`transposeData`](#transposeData) property instead.
    */
   public get columnLayout(): string {
     return this.transposeData ? "vertical" : "horizontal";
@@ -1110,11 +1110,20 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * Default value: `false`
    * @see keyDuplicationError
    */
+  public get useCaseSensitiveComparison(): boolean {
+    return this.useCaseSensitiveComparisonValue !== undefined ? this.useCaseSensitiveComparisonValue : settings.comparator.caseSensitive;
+  }
+  public set useCaseSensitiveComparison(val: boolean) {
+    this.useCaseSensitiveComparisonValue = val;
+  }
+  /**
+   * @deprecated Use the [`useCaseSensitiveComparison`](#useCaseSensitiveComparison) property instead.
+   */
   public get isUniqueCaseSensitive(): boolean {
-    return this.isUniqueCaseSensitiveValue !== undefined ? this.isUniqueCaseSensitiveValue : settings.comparator.caseSensitive;
+    return this.useCaseSensitiveComparison;
   }
   public set isUniqueCaseSensitive(val: boolean) {
-    this.isUniqueCaseSensitiveValue = val;
+    this.useCaseSensitiveComparison = val;
   }
   /**
    * Specifies the location of detail sections.
@@ -1336,9 +1345,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.detailPanel.allowAdaptiveActions = val;
     }
   }
-  public getRequiredText(): string {
-    return this.survey ? this.survey.requiredText : "";
-  }
   public hasChoices(): boolean {
     return this.choices.length > 0;
   }
@@ -1476,8 +1482,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    const oldRowVariables = values[MatrixDropdownRowModelBase.RowVariableName];
+    super.runConditionCore(values, properties);
     var counter = 0;
     var prevTotalValue;
     do {
@@ -1490,10 +1497,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       counter < 3
     );
     this.updateVisibilityBasedOnRows();
+    values[MatrixDropdownRowModelBase.RowVariableName] = oldRowVariables;
   }
-  public runTriggers(name: string, value: any): void {
-    super.runTriggers(name, value);
-    this.runFuncForCellQuestions((q: Question) => { q.runTriggers(name, value); });
+  public runTriggers(name: string, value: any, keys?: any): void {
+    super.runTriggers(name, value, keys);
+    this.runFuncForCellQuestions((q: Question) => { q.runTriggers(name, value, keys); });
   }
   public updateElementVisibility(): void {
     super.updateElementVisibility();
@@ -1506,6 +1514,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return false;
   }
   protected runCellsCondition(values: HashTable<any>, properties: HashTable<any>): void {
+    if(this.isDesignMode) return;
     const rows = this.generatedVisibleRows;
     if (!!rows) {
       const newValues = this.getRowConditionValues(values);
@@ -1700,8 +1709,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   /**
    * An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
    *
-   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
-   * @see isUniqueCaseSensitive
+   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
+   * @see useCaseSensitiveComparison
    */
   public get keyDuplicationError(): string {
     return this.getLocalizableStringText("keyDuplicationError");
@@ -1715,8 +1724,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get storeOthersAsComment(): boolean {
     return !!this.survey ? this.survey.storeOthersAsComment : false;
   }
-  public addColumn(name: string, title: string = null): MatrixDropdownColumn {
-    var column = new MatrixDropdownColumn(name, title);
+  public addColumn(name: string, title?: string): MatrixDropdownColumn {
+    var column = new MatrixDropdownColumn(name, title, this);
     this.columns.push(column);
     return column;
   }
@@ -2055,7 +2064,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.onSetQuestionValue();
     this.updateIsAnswered();
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;
@@ -2066,7 +2075,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         var question = cells[colIndex].question;
         if (
           question &&
-          (!question.supportGoNextPageAutomatic() || !question.value)
+          (!question.supportAutoAdvance() || !question.value)
         )
           return false;
       }
@@ -2208,7 +2217,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         val = !!rowVal ? rowVal[columnName] : undefined;
       }
       if(!this.isValueEmpty(val)) {
-        if(!this.isUniqueCaseSensitive && typeof val === "string") {
+        if(!this.useCaseSensitiveComparison && typeof val === "string") {
           val = val.toLocaleLowerCase();
         }
         if(!keyValues[val]) {
@@ -2445,21 +2454,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.isValueInColumnDuplicated(columnName, !!rowObj);
     }
   }
-  private getNewValueOnRowChanged(
-    row: MatrixDropdownRowModelBase,
-    columnName: string,
-    newRowValue: any,
-    isDeletingValue: boolean,
-    newValue: any
-  ): any {
-    var rowValue = this.getRowValueCore(row, newValue, true);
+  private getNewValueOnRowChanged(row: MatrixDropdownRowModelBase,
+    columnName: string, newRowValue: any, isDeletingValue: boolean, newValue: any): any {
+    const rowValue = this.getRowValueCore(row, newValue, true);
     if (isDeletingValue) {
       delete rowValue[columnName];
     }
-    for (var i = 0; i < row.cells.length; i++) {
-      var key = row.cells[i].question.getValueName();
-      delete rowValue[key];
-    }
+    row.questions.forEach(q => {
+      delete rowValue[q.getValueName()];
+    });
     if (newRowValue) {
       newRowValue = JSON.parse(JSON.stringify(newRowValue));
       for (var key in newRowValue) {

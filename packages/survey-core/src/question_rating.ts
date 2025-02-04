@@ -4,16 +4,17 @@ import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
-import { surveyLocalization } from "./surveyStrings";
+import { getLocaleString } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Base } from "./base";
-import { mergeValues } from "./utils/utils";
+import { updateListCssValues } from "./utils/utils";
 import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
 import { ITheme } from "./themes";
 import { DomDocumentHelper } from "./global_variables_utils";
+import { HashTable } from "./helpers";
 
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
@@ -52,27 +53,26 @@ export class QuestionRatingModel extends Question {
     super(name);
 
     this.createItemValues("rateValues");
-    this.createRenderedRateItems();
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
     this.registerFunctionOnPropertiesValueChanged(["rateMin", "rateMax",
       "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
-    () => this.createRenderedRateItems());
+    () => this.resetRenderedItems());
     this.registerFunctionOnPropertiesValueChanged(["rateType"],
       () => {
         this.setIconsToRateValues();
-        this.createRenderedRateItems();
+        this.resetRenderedItems();
         this.updateRateCount();
       });
     this.registerFunctionOnPropertiesValueChanged(["rateValues"],
       () => {
         this.setIconsToRateValues();
-        this.createRenderedRateItems();
+        this.resetRenderedItems();
       });
     this.registerSychProperties(["rateValues"],
       () => {
         this.autoGenerate = this.rateValues.length == 0;
         this.setIconsToRateValues();
-        this.createRenderedRateItems();
+        this.resetRenderedItems();
       });
     this.registerFunctionOnPropertiesValueChanged(["rateColorMode", "scaleColorMode"],
       () => {
@@ -90,7 +90,7 @@ export class QuestionRatingModel extends Question {
           this.rateValues.splice(0, this.rateValues.length);
           this.updateRateMax();
         }
-        this.createRenderedRateItems();
+        this.resetRenderedItems();
       });
     this.createLocalizableString("minRateDescription", this, true)
       .onStringChanged.add((sender, options) => {
@@ -121,9 +121,7 @@ export class QuestionRatingModel extends Question {
     if (this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined) this.autoGenerate = !this.jsonObj.rateValues.length;
     this.updateRateCount();
     this.setIconsToRateValues();
-    this.createRenderedRateItems();
   }
-
   private _syncPropertiesChanging: boolean = false;
   private registerSychProperties(names: Array<string>, func: any) {
     this.registerFunctionOnPropertiesValueChanged(names,
@@ -169,7 +167,7 @@ export class QuestionRatingModel extends Question {
             this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
           } else {
             for (let i = this.rateValues.length; i < this.rateCount; i++) {
-              this.rateValues.push(new ItemValue(surveyLocalization.getString("choices_Item") + (i + 1)));
+              this.rateValues.push(new ItemValue(getLocaleString("choices_Item") + (i + 1)));
             }
           }
         }
@@ -219,7 +217,6 @@ export class QuestionRatingModel extends Question {
   }
   public set rateValues(val: Array<any>) {
     this.setPropertyValue("rateValues", val);
-    this.createRenderedRateItems();
   }
   /**
    * Specifies the first rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
@@ -331,6 +328,7 @@ export class QuestionRatingModel extends Question {
     QuestionRatingModel.goodColorLight = getRGBColor("--sjs-special-green-light", "--sd-rating-good-color-light");
 
     this.colorsCalculated = true;
+    this.resetRenderedItems();
   }
 
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -342,32 +340,54 @@ export class QuestionRatingModel extends Question {
     return this.renderedRateItems.map(i => i.itemValue);
   }
   protected supportEmptyValidation(): boolean { return this.renderAs === "dropdown"; }
-  public itemValuePropertyChanged(
-    item: ItemValue,
-    name: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
     if (!this.useRateValues() && newValue !== undefined) this.autoGenerate = false;
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
-  private createRenderedRateItems() {
-    let rateValues = [];
-    if (this.useRateValues()) {
-      rateValues = this.rateValues;
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
+    this.runRateItesmCondition(values, properties);
+  }
+  protected runRateItesmCondition(values: HashTable<any>, properties: HashTable<any>): void {
+    if(!this.useRateValues()) return;
+    let isChanged = false;
+    if(this.survey?.areInvisibleElementsShowing) {
+      this.rateValues.forEach(item => {
+        isChanged = isChanged || !item.isVisible;
+        item.setIsVisible(item, true);
+      });
+    } else {
+      isChanged = ItemValue.runConditionsForItems(this.rateValues, undefined, undefined, values, properties, true);
     }
-    else {
-      rateValues = this.createRateValues();
+    if(isChanged) {
+      this.resetRenderedItems();
+      if(!this.isEmpty() && !this.isReadOnly) {
+        const item = ItemValue.getItemByValue(this.rateValues, this.value);
+        if(item && !item.isVisible) {
+          this.clearValue();
+        }
+      }
     }
-
-    if (this.autoGenerate) {
-      this.rateMax = rateValues[rateValues.length - 1].value;
-    }
+  }
+  private getRateValuesCore(): Array<ItemValue> {
+    if(!this.useRateValues()) return this.createRateValues();
+    const items = new Array<ItemValue>();
+    this.rateValues.forEach(item => {
+      if(item.isVisible) {
+        items.push(item);
+      }
+    });
+    return items;
+  }
+  private calculateRateValues(): Array<ItemValue> {
+    let rateValues = this.getRateValuesCore();
     if (this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
-
-    this.visibleChoicesValue = rateValues.map((i, idx) => this.getRatingItemValue(i, idx));
-    this.renderedRateItems = rateValues.map((v, i) => {
-      let renderedItem = null;
+    return rateValues;
+  }
+  private calculateRenderedRateItems() : Array<RenderedRatingItem> {
+    const rateValues = this.calculateRateValues();
+    return rateValues.map((v, i) => {
+      let renderedItem: RenderedRatingItem = null;
       if (this.displayRateDescriptionsAsExtremeItems) {
         if (i == 0) renderedItem = new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);
         if (i == rateValues.length - 1) renderedItem = new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
@@ -376,7 +396,29 @@ export class QuestionRatingModel extends Question {
       return renderedItem;
     });
   }
-  @propertyArray() renderedRateItems: Array<RenderedRatingItem>;
+  private calculateVisibleChoices(): Array<ItemValue> {
+    const rateValues = this.calculateRateValues();
+    return rateValues.map((i, idx) => this.getRatingItemValue(i, idx));
+  }
+  private iCounter = 0;
+  private resetRenderedItems() {
+    if (this.autoGenerate) {
+      const rateValues = this.getRateValuesCore();
+      this.rateMax = rateValues[rateValues.length - 1].value;
+    }
+    if(Array.isArray(this.getPropertyValueWithoutDefault("renderedRateItems"))) {
+      this.setArrayPropertyDirectly("renderedRateItems", this.calculateRenderedRateItems());
+    }
+    if(Array.isArray(this.getPropertyValueWithoutDefault("visibleChoices"))) {
+      this.setArrayPropertyDirectly("visibleChoices", this.calculateVisibleChoices);
+    }
+  }
+  public get renderedRateItems(): Array<RenderedRatingItem> {
+    return this.getPropertyValue("renderedRateItems", undefined, () => this.calculateRenderedRateItems());
+  }
+  public get visibleChoices(): ItemValue[] {
+    return this.getPropertyValue("visibleChoices", undefined, () => this.calculateVisibleChoices());
+  }
 
   private createRateValues() {
     var res = [];
@@ -431,7 +473,7 @@ export class QuestionRatingModel extends Question {
   public get questionName() {
     return this.name + "_" + this.id;
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     return this.isMouseDown === true || this.renderAs === "dropdown";
   }
   public supportOther(): boolean {
@@ -844,10 +886,6 @@ export class QuestionRatingModel extends Question {
   public isItemSelected(item: ItemValue): boolean {
     return item.value == this.value;
   }
-  private visibleChoicesValue: ItemValue[];
-  public get visibleChoices(): ItemValue[] {
-    return this.visibleChoicesValue;
-  }
   public get readOnlyText() {
     if (this.readOnly) return (this.displayValue || this.placeholder);
     return this.isEmpty() ? this.placeholder : "";
@@ -869,7 +907,8 @@ export class QuestionRatingModel extends Question {
   }
   protected onBeforeSetCompactRenderer(): void {
     if (!this.dropdownListModelValue) {
-      this.dropdownListModel = new DropdownListModel(this);
+      this.dropdownListModelValue = new DropdownListModel(this);
+      this.ariaExpanded = "false";
     }
   }
   protected getCompactRenderAs(): string {
@@ -882,6 +921,7 @@ export class QuestionRatingModel extends Question {
   private dropdownListModelValue: DropdownListModel;
   public set dropdownListModel(val: DropdownListModel) {
     this.dropdownListModelValue = val;
+    this.ariaExpanded = !!val ? "false" : undefined;
     this.updateElementCss();
   }
   public get dropdownListModel(): DropdownListModel {
@@ -896,24 +936,18 @@ export class QuestionRatingModel extends Question {
   }
   protected updateCssClasses(res: any, css: any) {
     super.updateCssClasses(res, css);
-    if(!!this.dropdownListModel) {
-      const listCssClasses = {};
-      mergeValues(css.list, listCssClasses);
-      mergeValues(res.list, listCssClasses);
-      res["list"] = listCssClasses;
-    }
+    updateListCssValues(res, css);
   }
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
-    if(this.dropdownListModel) {
-      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
+    if(this.dropdownListModelValue) {
+      this.dropdownListModelValue.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
   }
   public themeChanged(theme: ITheme): void {
     this.colorsCalculated = false;
     this.updateColors(theme.cssVariables);
-    this.createRenderedRateItems();
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
@@ -925,6 +959,7 @@ export class QuestionRatingModel extends Question {
     super.dispose();
     if(!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
+      this.dropdownListModelValue = undefined;
     }
   }
 }
@@ -982,7 +1017,7 @@ Serializer.addClass(
     {
       name: "rateValues:itemvalue[]",
       baseValue: function () {
-        return surveyLocalization.getString("choices_Item");
+        return getLocaleString("choices_Item");
       },
       category: "rateValues",
       visibleIf: function (obj: any) {

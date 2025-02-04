@@ -12,15 +12,15 @@ export class TitleElement extends React.Component<any, any> {
   }
   renderTitleExpandableSvg() {
     if (!this.element.getCssTitleExpandableSvg()) return null;
-    let iconName = this.element.isExpanded ? "icon-collapse-16x16": "icon-expand-16x16";
+    let iconName = this.element.isExpanded ? "icon-collapse-16x16" : "icon-expand-16x16";
 
     return <SvgIcon
-      className={this.element.getCssTitleExpandableSvg() }
+      className={this.element.getCssTitleExpandableSvg()}
       iconName={iconName}
-      size={16}
+      size={"auto"}
     ></SvgIcon>;
   }
-  render(): JSX.Element | any {
+  render(): React.JSX.Element | any {
     const element = this.element;
     if (!element || !element.hasTitle) return null;
     const ariaLabel = element.titleAriaLabel || undefined;

@@ -1,12 +1,11 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionFileModel } from "../src/question_file";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { surveyLocalization } from "../src/surveyStrings";
+import { getLocaleString } from "../src/surveyStrings";
 import { settings } from "../src/settings";
-import { StylesManager } from "@legacy/stylesmanager";
 import { Serializer } from "../src/jsonobject";
 import { Camera } from "../src/utils/camera";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 export * from "../src/localization/german";
 export default QUnit.module("Survey_QuestionFile");
@@ -605,51 +604,51 @@ QUnit.test("Writable captions", function (assert) {
   /**
    * The remove file confirmation message template.
    */
-  assert.equal(q.confirmRemoveMessage, surveyLocalization.getString("confirmRemoveFile"), "The remove file confirmation message template default");
+  assert.equal(q.confirmRemoveMessage, getLocaleString("confirmRemoveFile"), "The remove file confirmation message template default");
   q.confirmRemoveMessage += "_new";
-  assert.equal(q.confirmRemoveMessage, surveyLocalization.getString("confirmRemoveFile") + "_new", "The remove file confirmation message template new");
+  assert.equal(q.confirmRemoveMessage, getLocaleString("confirmRemoveFile") + "_new", "The remove file confirmation message template new");
   /**
     * The remove all files confirmation message.
     */
-  assert.equal(q.confirmRemoveAllMessage, surveyLocalization.getString("confirmRemoveAllFiles"), "The remove all files confirmation message default");
+  assert.equal(q.confirmRemoveAllMessage, getLocaleString("confirmRemoveAllFiles"), "The remove all files confirmation message default");
   q.confirmRemoveAllMessage += "_new";
-  assert.equal(q.confirmRemoveAllMessage, surveyLocalization.getString("confirmRemoveAllFiles") + "_new", "The remove all files confirmation message new");
+  assert.equal(q.confirmRemoveAllMessage, getLocaleString("confirmRemoveAllFiles") + "_new", "The remove all files confirmation message new");
   /**
     * The no file chosen caption for modern theme.
     */
-  assert.equal(q.noFileChosenCaption, surveyLocalization.getString("noFileChosen"), "The no file chosen caption for modern theme default");
+  assert.equal(q.noFileChosenCaption, getLocaleString("noFileChosen"), "The no file chosen caption for modern theme default");
   q.noFileChosenCaption += "_new";
-  assert.equal(q.noFileChosenCaption, surveyLocalization.getString("noFileChosen") + "_new", "The no file chosen caption for modern theme new");
+  assert.equal(q.noFileChosenCaption, getLocaleString("noFileChosen") + "_new", "The no file chosen caption for modern theme new");
   /**
     * The choose files button caption for modern theme.
     */
-  assert.equal(q.chooseButtonCaption, surveyLocalization.getString("chooseFileCaption"), "The choose files button caption for modern theme default");
+  assert.equal(q.chooseButtonCaption, getLocaleString("chooseFileCaption"), "The choose files button caption for modern theme default");
   q.chooseButtonCaption += "_new";
-  assert.equal(q.chooseButtonCaption, surveyLocalization.getString("chooseFileCaption") + "_new", "The choose files button caption for modern theme new");
+  assert.equal(q.chooseButtonCaption, getLocaleString("chooseFileCaption") + "_new", "The choose files button caption for modern theme new");
   /**
     * The clean files button caption.
     */
-  assert.equal(q.clearButtonCaption, surveyLocalization.getString("clearCaption"), "The clean files button caption default");
+  assert.equal(q.clearButtonCaption, getLocaleString("clearCaption"), "The clean files button caption default");
   q.clearButtonCaption += "_new";
-  assert.equal(q.clearButtonCaption, surveyLocalization.getString("clearCaption") + "_new", "The clean files button caption new");
+  assert.equal(q.clearButtonCaption, getLocaleString("clearCaption") + "_new", "The clean files button caption new");
   /**
     * The remove file button caption.
     */
-  assert.equal(q.removeFileCaption, surveyLocalization.getString("removeFileCaption"), "The remove file button caption default");
+  assert.equal(q.removeFileCaption, getLocaleString("removeFileCaption"), "The remove file button caption default");
   q.removeFileCaption += "_new";
-  assert.equal(q.removeFileCaption, surveyLocalization.getString("removeFileCaption") + "_new", "The remove file button caption new");
+  assert.equal(q.removeFileCaption, getLocaleString("removeFileCaption") + "_new", "The remove file button caption new");
   /**
     * The loading file input title.
     */
-  assert.equal(q.loadingFileTitle, surveyLocalization.getString("loadingFile"), "The loading file input title default");
+  assert.equal(q.loadingFileTitle, getLocaleString("loadingFile"), "The loading file input title default");
   q.loadingFileTitle += "_new";
-  assert.equal(q.loadingFileTitle, surveyLocalization.getString("loadingFile") + "_new", "The loading file input title new");
+  assert.equal(q.loadingFileTitle, getLocaleString("loadingFile") + "_new", "The loading file input title new");
   /**
    * The choose file input title.
    */
-  assert.equal(q.chooseFileTitle, surveyLocalization.getString("chooseFile"), "The choose file input title default");
+  assert.equal(q.chooseFileTitle, getLocaleString("chooseFile"), "The choose file input title default");
   q.chooseFileTitle += "_new";
-  assert.equal(q.chooseFileTitle, surveyLocalization.getString("chooseFile") + "_new", "The choose file input title new");
+  assert.equal(q.chooseFileTitle, getLocaleString("chooseFile") + "_new", "The choose file input title new");
 
 });
 
@@ -762,7 +761,7 @@ QUnit.test("check file d&d readonly", (assert) => {
   };
   q.readOnly = true;
   checkDD();
-  settings.supportCreatorV2 = true;
+
   survey.setDesignMode(true);
   checkDD();
 });
@@ -794,7 +793,7 @@ QUnit.test("Question File responsive", (assert) => {
     ],
   };
   var survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   survey.locale = "";
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
 
@@ -1167,7 +1166,7 @@ QUnit.test("QuestionFile download file content on preview, #1", function (assert
   const q2: QuestionFileModel = <any>survey.getQuestionByName("file");
   assert.notOk(q2.storeDataAsText);
 
-  assert.equal(downloadLog, "->f1->f1");
+  assert.equal(downloadLog, "->f1");
 });
 
 QUnit.test("Check previewValue order is correct", (assert) => {
@@ -1217,7 +1216,7 @@ QUnit.test("File Question on Smaller Screens: navigation bar doesn't appear when
   };
   const survey = new SurveyModel(json);
   const question = <QuestionFileModel>survey.getAllQuestions()[0];
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   question.isMobile = true;
   question.pageSize = 1;
   assert.equal(question.indexToShow, 0);
@@ -1263,7 +1262,7 @@ QUnit.test("Check file question navigator with different items count visible", (
   };
   const survey = new SurveyModel(json);
   const question = <QuestionFileModel>survey.getAllQuestions()[0];
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   question.pageSize = 3;
   assert.equal(question.indexToShow, 0);
   assert.equal(question["fileIndexAction"].title, "1 of 0");
@@ -1362,7 +1361,7 @@ QUnit.test("Check file question processResponsiveness method", (assert) => {
   };
   const survey = new SurveyModel(json);
   const question = <QuestionFileModel>survey.getAllQuestions()[0];
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   question["calculatedGapBetweenItems"] = 32;
   question["calculatedItemWidth"] = 96;
   question["processResponsiveness"](0, 400);
@@ -1402,7 +1401,6 @@ QUnit.test("QuestionFile download file content on preview, #2", function (assert
 });
 
 QUnit.test("QuestionFile current mode property, camera is not available", function (assert) {
-  StylesManager.applyTheme("defaultV2");
   const callbacks = new Array<(devices: Array<MediaDeviceInfo>) => void>();
   Camera.mediaDevicesCallback = (cb: (devices: Array<MediaDeviceInfo>) => void): void => {
     callbacks.push(cb);
@@ -1416,10 +1414,10 @@ QUnit.test("QuestionFile current mode property, camera is not available", functi
       { type: "file", name: "q4", sourceType: "file-camera" },
     ]
   });
-  assert.equal(survey.getQuestionByName("q1").currentMode, "file");
-  assert.equal(survey.getQuestionByName("q2").currentMode, "file");
-  assert.equal(survey.getQuestionByName("q3").currentMode, "camera");
-  assert.equal(survey.getQuestionByName("q4").currentMode, "file-camera");
+  assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#1.1");
+  assert.equal(survey.getQuestionByName("q2").currentMode, "file", "#1.2");
+  assert.equal(survey.getQuestionByName("q3").currentMode, "camera", "#1.3");
+  assert.equal(survey.getQuestionByName("q4").currentMode, "file-camera", "#1.4");
   assert.ok(callbacks.length > 0, "callbacks are set");
   callbacks.forEach(cb => cb([]));
   assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#1");
@@ -1432,7 +1430,6 @@ QUnit.test("QuestionFile current mode property, camera is not available", functi
   callbacks.forEach(cb => cb([]));
   assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#6");
   Camera.mediaDevicesCallback = undefined;
-  StylesManager.applyTheme("default");
 });
 function createDevices(info: Array<any>): Array<MediaDeviceInfo> {
   const res = new Array<MediaDeviceInfo>();
@@ -1444,7 +1441,6 @@ function createDevices(info: Array<any>): Array<MediaDeviceInfo> {
   return res;
 }
 QUnit.test("QuestionFile current mode property, camera is available", function (assert) {
-  StylesManager.applyTheme("defaultV2");
   const callbacks = new Array<(devices: Array<MediaDeviceInfo>) => void>();
   Camera.mediaDevicesCallback = (cb: (devices: Array<MediaDeviceInfo>) => void): void => {
     callbacks.push(cb);
@@ -1459,10 +1455,10 @@ QUnit.test("QuestionFile current mode property, camera is available", function (
       { type: "file", name: "q4", sourceType: "file-camera" },
     ]
   });
-  assert.equal(survey.getQuestionByName("q1").currentMode, "file");
-  assert.equal(survey.getQuestionByName("q2").currentMode, "file");
-  assert.equal(survey.getQuestionByName("q3").currentMode, "camera");
-  assert.equal(survey.getQuestionByName("q4").currentMode, "file-camera");
+  assert.equal(survey.getQuestionByName("q1").currentMode, "file", "1.1");
+  assert.equal(survey.getQuestionByName("q2").currentMode, "file", "1.2");
+  assert.equal(survey.getQuestionByName("q3").currentMode, "camera", "1.3");
+  assert.equal(survey.getQuestionByName("q4").currentMode, "file-camera", "1.4");
   assert.ok(callbacks.length > 0, "callbacks are set");
 
   callbacks.forEach(cb => cb(devices));
@@ -1476,10 +1472,8 @@ QUnit.test("QuestionFile current mode property, camera is available", function (
   callbacks.forEach(cb => cb(devices));
   assert.equal(survey.getQuestionByName("q1").currentMode, "camera", "#6");
   Camera.mediaDevicesCallback = undefined;
-  StylesManager.applyTheme("default");
 });
 QUnit.test("QuestionFile check file actions visibility when camera is available from start point", function (assert) {
-  StylesManager.applyTheme("defaultV2");
   Camera.setCameraList(<any>[{ label: "test" }]);
   let survey = new SurveyModel({
     elements: [
@@ -1500,16 +1494,15 @@ QUnit.test("QuestionFile check file actions visibility when camera is available 
   assert.ok(survey.getQuestionByName("q3").actionsContainer.actions[0].visible);
   assert.ok(survey.getQuestionByName("q3").actionsContainer.actions[1].visible);
   Camera.clear();
-  StylesManager.applyTheme("default");
 });
 QUnit.test("new Camera().getMediaConstraints", function (assert) {
   Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "user" }]));
   let mConst: any = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 2, "Device is correct");
-  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "enviroment" }, { label: "user" }]));
+  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
   mConst = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 3, "Device is correct");
-  Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "enviroment" }]));
+  Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "environment" }]));
   mConst = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 2, "Device is correct");
   Camera.clear();
@@ -1518,7 +1511,7 @@ QUnit.test("new Camera().flip", function (assert) {
   assert.equal(new Camera().canFlip(), false, "There is no devices");
   Camera.setCameraList(createDevices([{ label: "abd" }]));
   assert.equal(new Camera().canFlip(), false, "There is one device");
-  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "enviroment" }, { label: "user" }]));
+  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
   assert.equal(new Camera().canFlip(), true, "There are 3 devices");
   let mConst: any = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 3, "Device is correct");
@@ -1541,7 +1534,7 @@ QUnit.test("Check file question change camera action", function (assert) {
   const changeCameraAction = q1.changeCameraAction;
   q1.setPropertyValue("isPlayingVideo", true);
   assert.notOk(changeCameraAction.visible);
-  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "enviroment" }, { label: "user" }]));
+  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "environment" }, { label: "user" }]));
   assert.notOk(changeCameraAction.visible);
   q1["camera"]["updateCanFlipValue"]();
   assert.ok(changeCameraAction.visible);
@@ -1553,7 +1546,7 @@ QUnit.test("Check file question change camera action", function (assert) {
   q1["camera"].flip();
   assert.equal(Camera["cameraIndex"], 0);
 
-  Camera.setCameraList(createDevices([{ label: "enviroment" }]));
+  Camera.setCameraList(createDevices([{ label: "environment" }]));
   q1["camera"]["updateCanFlipValue"]();
   assert.notOk(changeCameraAction.visible);
   Camera["canSwitchFacingMode"] = true;
@@ -1658,7 +1651,7 @@ QUnit.test("QuestionFile check actions container", function (assert) {
   q1.chooseButtonCaption = "choose_test";
   q1.takePhotoCaption = "take_picture_test";
   q1.clearButtonCaption = "clear_test";
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   assert.ok(q1.actionsContainerVisible);
   q1.isUploading = true;
   assert.notOk(q1.actionsContainerVisible);
@@ -1909,7 +1902,7 @@ QUnit.test("Choose file action should have disabled class", function (assert) {
       { type: "file", name: "q1", maxSize: 3 },
     ]
   });
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const question = <QuestionFileModel>survey.getAllQuestions()[0];
   assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled", "Disabled");
   survey.mode = "edit";
@@ -1941,7 +1934,7 @@ QUnit.test("Bug #8242: currentMode is set incorrectly when file question is loca
       }
     ]
   });
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const getFileQuestionFromRow = (rowIndex: number) => {
     return <QuestionFileModel>question.renderedTable.rows[rowIndex * 2 + 1].cells[0].cell.question;
   };
@@ -1980,7 +1973,7 @@ QUnit.test("Bug #8242: currentMode is set incorrectly when file question is loca
       }
     ]
   });
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const getFileQuestionFromRow = (rowIndex: number) => {
     return <QuestionFileModel>question.renderedTable.rows[rowIndex * 2 + 1].cells[0].cell.question;
   };
@@ -2199,7 +2192,7 @@ QUnit.test("Check pageAnimationOptions", (assert) => {
   };
 
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
   const fpNavigationOptions = q1["getPagesAnimationOptions"]();
   settings.animationEnabled = true;

@@ -2496,16 +2496,8 @@ QUnit.test("Serializer.getAllClasses() function", function (assert) {
 });
 QUnit.test("Serializer.getAllPropertiesByName() function", function (assert) {
   var properties = Serializer.getAllPropertiesByName("description");
-  assert.equal(
-    properties.length,
-    6,
-    "survey, panelbase, page, question, customtruck, nonvalue"
-  );
-  assert.equal(
-    properties[0].name,
-    "description",
-    "Find property with the correct name"
-  );
+  assert.equal(properties.length, 6, "survey, panel, page, question, customtruck, nonvalue");
+  assert.equal(properties[0].name, "description", "Find property with the correct name");
 });
 QUnit.test("nextToProperty attribute", function (assert) {
   var prop = Serializer.addProperty("truck", {
@@ -2594,23 +2586,12 @@ QUnit.test("itemvalue enableIf property visibility test", function (assert) {
     "We show enableIf for all other properties"
   );
 });
-QUnit.test("Change default value for question.hideNumber", function (assert) {
-  assert.equal(
-    new Question("q1").hideNumber,
-    false,
-    "By default hideNumber returns false"
-  );
-  Serializer.findProperty("question", "hideNumber").defaultValue = true;
-  assert.equal(
-    new Question("q1").hideNumber,
-    true,
-    "We have override hide number"
-  );
-  Serializer.findProperty("question", "hideNumber").defaultValue = undefined;
-  assert.equal(
-    new Question("q1").hideNumber,
-    false,
-    "We made hideNumber false by default again"
+QUnit.test("Change default value for question.showNumber", function (assert) {
+  assert.equal(new Question("q1").showNumber, true, "By default showNumber returns true");
+  Serializer.findProperty("question", "showNumber").defaultValue = false;
+  assert.equal(new Question("q1").showNumber, false, "We have override showNumber");
+  Serializer.findProperty("question", "showNumber").defaultValue = true;
+  assert.equal(new Question("q1").showNumber, true, "We made showNumber true by default again"
   );
 });
 QUnit.test("Serializer.getProperty()", function (assert) {
@@ -3442,4 +3423,84 @@ QUnit.test("Add availableInMatrixColumn attribute", function (assert) {
   Serializer.removeProperty("question", "prop1");
   Serializer.removeProperty("question", "prop2");
   Serializer.removeProperty("question", "prop3");
+});
+QUnit.test("Add defaultFunc attribute based on another property & obj parameter, Bug#9108", function (assert) {
+  Serializer.addProperty("question", { name: "secondName", defaultFunc: (obj: any) => { return obj.name + "_second"; } });
+  const obj: any = new QuestionTextModel("q1");
+  assert.equal(obj.secondName, "q1_second", "secondName #1");
+  obj.name = "q2";
+  assert.equal(obj.secondName, "q2_second", "secondName #2");
+  assert.deepEqual(obj.toJSON(), { name: "q2" }, "toJSON #1");
+
+  obj.secondName = "q3_s";
+  assert.equal(obj.secondName, "q3_s", "secondName #3");
+  assert.deepEqual(obj.toJSON(), { name: "q2", secondName: "q3_s" }, "toJSON #2");
+
+  obj.resetPropertyValue("secondName");
+  assert.equal(obj.secondName, "q2_second", "secondName #4");
+  assert.deepEqual(obj.toJSON(), { name: "q2" }, "toJSON #3");
+
+  Serializer.removeProperty("question", "secondName");
+});
+QUnit.test("Page & Panel should have different title&description properties", function (assert) {
+  const pageTitle = Serializer.findProperty("page", "title");
+  const pageDescription = Serializer.findProperty("page", "description");
+  const panelTitle = Serializer.findProperty("panel", "title");
+  const panelDescription = Serializer.findProperty("panel", "description");
+  pageTitle.placeholder = "pageT";
+  pageDescription.placeholder = "pageD";
+  panelTitle.placeholder = "panelT";
+  panelDescription.placeholder = "panelD";
+  assert.equal(pageTitle.placeholder, "pageT", "page title unique");
+  assert.equal(pageDescription.placeholder, "pageD", "page description unique");
+  assert.equal(panelTitle.placeholder, "panelT", "panel title unique");
+  assert.equal(panelDescription.placeholder, "panelD", "panel description unique");
+});
+QUnit.test("property showMode -> displayMode, #9291", function (assert) {
+  const prop1 = Serializer.addProperty("question", { name: "prop1", showMode: "form" });
+  const prop2 = Serializer.addProperty("question", { name: "prop2", locationInTable: "detail" });
+  const prop3 = Serializer.addProperty("question", { name: "prop3" });
+  const prop4 = Serializer.addProperty("question", { name: "prop4", showMode: "list" });
+  const prop5 = Serializer.addProperty("question", { name: "prop5", locationInTable: "column" });
+  const prop6 = Serializer.addProperty("question", { name: "prop6", locationInTable: "both" });
+
+  assert.equal(prop1.showMode, "form", "prop1.showMode");
+  assert.equal(prop1.locationInTable, "detail", "prop1.locationInTable");
+  assert.equal(prop2.showMode, "form", "prop2.showMode");
+  assert.equal(prop2.locationInTable, "detail", "prop2.locationInTable");
+  assert.equal(prop3.showMode, "", "prop3.showMode");
+  assert.equal(prop3.locationInTable, "both", "prop3.locationInTable");
+  assert.equal(prop4.showMode, "list", "prop4.showMode");
+  assert.equal(prop4.locationInTable, "column", "prop4.locationInTable");
+  assert.equal(prop5.showMode, "list", "prop5.showMode");
+  assert.equal(prop5.locationInTable, "column", "prop5.locationInTable");
+  assert.equal(prop6.showMode, "", "prop6.showMode");
+  assert.equal(prop6.locationInTable, "both", "prop6.locationInTable");
+
+  prop1.showMode = "";
+  assert.equal(prop1.showMode, "", "prop1.showMode, #2");
+  assert.equal(prop1.locationInTable, "both", "prop1.locationInTable, #2");
+  prop1.showMode = "list";
+  assert.equal(prop1.showMode, "list", "prop1.showMode, #3");
+  assert.equal(prop1.locationInTable, "column", "prop1.locationInTable, #3");
+  prop1.showMode = "form";
+  assert.equal(prop1.showMode, "form", "prop1.showMode, #4");
+  assert.equal(prop1.locationInTable, "detail", "prop1.locationInTable, #4");
+
+  prop1.locationInTable = "both";
+  assert.equal(prop1.showMode, "", "prop1.showMode, #5");
+  assert.equal(prop1.locationInTable, "both", "prop1.locationInTable, #5");
+  prop1.locationInTable = "column";
+  assert.equal(prop1.showMode, "list", "prop1.showMode, #6");
+  assert.equal(prop1.locationInTable, "column", "prop1.locationInTable, #6");
+  prop1.locationInTable = "detail";
+  assert.equal(prop1.showMode, "form", "prop1.showMode, #7");
+  assert.equal(prop1.locationInTable, "detail", "prop1.locationInTable, #7");
+
+  Serializer.removeProperty("question", "prop1");
+  Serializer.removeProperty("question", "prop2");
+  Serializer.removeProperty("question", "prop3");
+  Serializer.removeProperty("question", "prop4");
+  Serializer.removeProperty("question", "prop5");
+  Serializer.removeProperty("question", "prop6");
 });

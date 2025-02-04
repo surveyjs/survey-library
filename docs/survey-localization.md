@@ -17,7 +17,7 @@ This article describes how to localize UI elements and contents of your survey.
 
 ### Available Languages
 
-Survey UI is translated into over 50 languages. We ship translated strings as [dictionary files](https://github.com/surveyjs/survey-library/tree/master/src/localization). They are supported by the community and may contain untranslated strings. To fill the gap, these strings are translated by <a href="https://learn.microsoft.com/en-us/azure/ai-services/translator/" target="_blank">Azure AI Translator by Microsoft</a>. Each dictionary file contains a log of machine translations at the end. You can use it to find individual machine-translated strings and revise them if required. Delete revised strings from the log to exclude them from machine translation.
+Survey UI is translated into over 50 languages. We ship translated strings as [dictionary files](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). They are supported by the community and may contain untranslated strings. To fill the gap, these strings are translated by <a href="https://learn.microsoft.com/en-us/azure/ai-services/translator/" target="_blank">Azure AI Translator by Microsoft</a>. Each dictionary file contains a log of machine translations at the end. You can use it to find individual machine-translated strings and revise them if required. Delete revised strings from the log to exclude them from machine translation.
 
 You can also create new dictionaries for unsupported languages. Use English as a base dictionary: copy the file, replace English translations in it, and submit a pull request with the resulting file to the [survey-library](https://github.com/surveyjs/survey-library) repository.
 
@@ -63,20 +63,20 @@ survey.locale = "fr";
 If you want to change individual translation strings, get an object with all translation strings for a specific locale and override the required properties in this object. Refer to the [English dictionary](https://github.com/surveyjs/survey-library/blob/master/packages/survey-core/src/localization/english.ts) for a full list of available properties.
 
 ```js
-import { surveyLocalization } from 'survey-core';
+import { getLocaleStrings } from 'survey-core';
 
 // Get the English locale. To get the default locale, pass an empty string.
-const engLocale = surveyLocalization.locales["en"];
+const engLocale = getLocaleStrings("en");
 // Override individual translations
 engLocale.pagePrevText = "Back";
 engLocale.pageNextText = "Forward";
 ```
 
-You can also create a custom locale to apply multiple translations in a batch. Declare an object with your translations and assign it to the `locales["localeName"]` property. The following code shows how to do it in a separate TypeScript translation file (dictionary):
+You can also create a custom locale to apply multiple translations in a batch. The following code shows how to do it in a separate TypeScript translation file (dictionary):
 
 ```js
 // custom-locale.ts
-import { surveyLocalization } from 'survey-core';
+import { setupLocale } from 'survey-core';
 
 const customLocaleStrings = {
   pagePrevText: "Back",
@@ -84,7 +84,13 @@ const customLocaleStrings = {
   completeText: "Send"
 };
 
-surveyLocalization.locales["customlocale"] = customLocaleStrings;
+setupLocale({
+  localeCode: "customlocale",   // A short code used as a locale identifier (for example, "en", "de", "fr")
+  strings: customLocaleStrings, // An array with custom translations
+  nativeName: "Custom Locale",  // The locale name in native language
+  englishName: "Custom Locale", // The locale name in English 
+  rtl: false                    // A flag that indicates whether the language is right-to-left
+});
 ```
 
 ```js
@@ -94,7 +100,7 @@ import './localization/custom-locale.ts'
 survey.locale = "customlocale";
 ```
 
-If any translation strings are missing in your custom locale, they will be taken from the default English locale. You can specify the `defaultLocale` property to use another locale as default:
+If any translation strings or other settings are missing in your custom locale, they will be taken from the English locale. You can specify the `defaultLocale` property to use another fallback locale:
 
 ```js
 import { Model, surveyLocalization } from "survey-core";

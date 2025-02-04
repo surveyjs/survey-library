@@ -22,7 +22,7 @@ export class SurveyLocStringEditor extends React.Component<any, any> {
   }
   componentWillUnmount() {
     if (!this.locStr) return;
-    this.locStr.onChanged = function () {};
+    this.locStr.onChanged = function () { };
   }
   onInput = (event: any) => {
     this.locStr.text = event.target.innerText;
@@ -31,7 +31,7 @@ export class SurveyLocStringEditor extends React.Component<any, any> {
     event.preventDefault();
     event.stopPropagation();
   };
-  render(): JSX.Element | null {
+  render(): React.JSX.Element | null {
     if (!this.locStr) {
       return null;
     }

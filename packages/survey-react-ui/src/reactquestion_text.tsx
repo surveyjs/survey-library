@@ -57,13 +57,13 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
       </>
     );
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     return (
       this.question.dataListId ?
         <div>
-          { this.renderInput() }
-          { this.renderDataList() }
-        </div>:
+          {this.renderInput()}
+          {this.renderDataList()}
+        </div> :
         this.renderInput()
     );
   }
@@ -73,13 +73,13 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   protected getValueCore(): any {
     return this.question.inputValue;
   }
-  private renderDataList(): JSX.Element | null {
+  private renderDataList(): React.JSX.Element | null {
     if (!this.question.dataListId) return null;
     var items = this.question.dataList;
     if (items.length == 0) return null;
-    var options:Array<JSX.Element> = [];
+    var options: Array<React.JSX.Element> = [];
     for (var i = 0; i < items.length; i++) {
-      options.push(<option key={"item"+i} value={items[i]}></option>);
+      options.push(<option key={"item" + i} value={items[i]}></option>);
     }
     return <datalist id={this.question.dataListId}>{options}</datalist>;
   }

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var welshSurveyStrings = {
   pagePrevText: "Blaenorol",
@@ -59,7 +59,7 @@ export var welshSurveyStrings = {
   addColumn: "Ychwanegu colofn ",
   addRow: "Ychwanegu rhes",
   removeRow: "Tynnu",
-  emptyRowsText: "Nid oes unrhyw ffraeau.",
+  noRowsText: "Nid oes unrhyw ffraeau.",
   addPanel: "Ychwanegu o’r newydd",
   removePanel: "Tynnu",
   showDetails: "Dangos manylion",
@@ -110,7 +110,7 @@ export var welshSurveyStrings = {
   cancel: "Canslo"
 };
 
-surveyLocalization.setupLocale("cy", welshSurveyStrings, "cymraeg", "Welsh");
+setupLocale({ localeCode: "cy", strings: welshSurveyStrings, nativeName: "cymraeg", englishName: "Welsh" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -120,7 +120,7 @@ surveyLocalization.setupLocale("cy", welshSurveyStrings, "cymraeg", "Welsh");
 // minError: "The value should not be less than {0}" => "Ni ddylai'r gwerth fod yn llai na {0}"
 // maxError: "The value should not be greater than {0}" => "Ni ddylai'r gwerth fod yn fwy na {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Llusgwch a gollwng ffeil yma neu cliciwch y botwm isod a dewiswch ffeil i'w lanlwytho."
-// emptyRowsText: "There are no rows." => "Nid oes unrhyw ffraeau."
+// noRowsText: "There are no rows." => "Nid oes unrhyw ffraeau."
 // multipletext_itemname: "text" => "Testun"
 // signaturePlaceHolder: "Sign here" => "Arwydd yma"
 // modalCancelButtonText: "Cancel" => "Canslo"

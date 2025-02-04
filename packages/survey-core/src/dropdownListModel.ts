@@ -39,7 +39,6 @@ export class DropdownListModel extends Base {
   }
   private itemsSettings: { skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
   protected listModel: ListModel<ItemValue>;
-  protected popupCssClasses = "sv-single-select-list";
   protected listModelFilterStringChanged = (newValue: string) => {
     if (this.filterString !== newValue) {
       this.filterString = newValue;
@@ -78,17 +77,21 @@ export class DropdownListModel extends Base {
     const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
     if (!this.itemsSettings.skip || isUpdate) {
 
+      this.resetTimer();
       if (!!this.filterString && settings.dropdownSearchDelay > 0) {
-        if (!!this.timer) {
-          clearTimeout(this.timer);
-          this.timer = undefined;
-        }
         this.timer = setTimeout(() => {
           this.loadQuestionChoices(callbackAfterItemsLoaded);
         }, settings.dropdownSearchDelay);
       } else {
         this.loadQuestionChoices(callbackAfterItemsLoaded);
       }
+    }
+  }
+
+  private resetTimer(): void {
+    if (!!this.timer) {
+      clearTimeout(this.timer);
+      this.timer = undefined;
     }
   }
 
@@ -130,7 +133,6 @@ export class DropdownListModel extends Base {
     this.listModel.registerPropertyChangedHandlers(["showFilter"], () => {
       this.updatePopupFocusFirstInputSelector();
     });
-    this._popupModel.cssClass = this.popupCssClasses;
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       if (option.isVisible) {
         this.listModel.renderElements = true;
@@ -145,8 +147,12 @@ export class DropdownListModel extends Base {
         this.updatePopupFocusFirstInputSelector();
 
         const dropdownMenuOptions = this.getDropdownMenuOptions();
+        const prevMenuType = dropdownMenuOptions.menuType;
         this.question.processOpenDropdownMenu(dropdownMenuOptions);
-        this._popupModel.updateDisplayMode(dropdownMenuOptions.menuType);
+        if (prevMenuType !== dropdownMenuOptions.menuType) {
+          this._popupModel.updateDisplayMode(dropdownMenuOptions.menuType);
+          this.listModel.setSearchEnabled(this.searchEnabled && dropdownMenuOptions.menuType !== "dropdown");
+        }
 
         if (!!this.question.onOpenedCallBack) {
           this.question.onOpenedCallBack();
@@ -243,8 +249,9 @@ export class DropdownListModel extends Base {
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
     model.actions.forEach(a => a.disableTabStop = true);
   }
+  protected getPopupCssClasses(): string { return "sv-single-select-list"; }
   public updateCssClasses(popupCssClass: string, listCssClasses: any): void {
-    this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.popupCssClasses).toString();
+    this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.getPopupCssClasses()).toString();
     this.listModel.cssClasses = listCssClasses;
   }
   protected resetFilterString(): void {
@@ -405,7 +412,6 @@ export class DropdownListModel extends Base {
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
-    this.question.ariaExpanded = "false";
     question.onPropertyChanged.add(this.questionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
@@ -416,6 +422,8 @@ export class DropdownListModel extends Base {
     this.setTextWrapEnabled(this.question.textWrapEnabled);
     this.createPopup();
     this.resetItemsSettings();
+    const classes = question.cssClasses;
+    this.updateCssClasses(classes.popup, classes.list);
   }
 
   get popupModel(): PopupModel {
@@ -435,8 +443,7 @@ export class DropdownListModel extends Base {
   }
 
   public setSearchEnabled(newValue: boolean): void {
-    this.listModel.searchEnabled = IsTouch;
-    this.listModel.showSearchClearButton = IsTouch;
+    this.listModel.setSearchEnabled(IsTouch && newValue);
     this.searchEnabled = newValue;
   }
 
@@ -630,6 +637,7 @@ export class DropdownListModel extends Base {
     if (!!this.popupModel) {
       this.popupModel.dispose();
     }
+    this.htmlCleanerElement = undefined;
   }
 
   scrollToFocusedItem(): void {

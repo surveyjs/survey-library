@@ -10,7 +10,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
     super(props);
   }
 
-  protected renderItem(key: string, item: any): JSX.Element {
+  protected renderItem(key: string, item: any): React.JSX.Element {
     const renderedItem = (
       <SurveyQuestionTagboxItem
         key={key}
@@ -21,7 +21,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
     return renderedItem;
   }
 
-  protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
+  protected renderInput(dropdownListModel: DropdownListModel): React.JSX.Element {
     const dropdownMultiSelectListModel = dropdownListModel as DropdownMultiSelectListModel;
     const items = this.question.selectedChoices.map((choice, index) => { return this.renderItem("item" + index, choice); });
     return (
@@ -43,6 +43,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
         aria-expanded={this.question.ariaExpanded}
         aria-controls={dropdownListModel.listElementId}
         aria-activedescendant={dropdownListModel.ariaActivedescendant}
+        ref={(div) => (this.setControl(div))}
       >
         <div className={this.question.cssClasses.controlValue}>
           {items}
@@ -52,7 +53,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
       </div>);
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
     const comment = this.question.isOtherSelected ? this.renderOther(cssClasses) : null;
     const select = this.renderSelect(cssClasses);
@@ -64,8 +65,8 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
     );
   }
 
-  protected renderReadOnlyElement(): JSX.Element | null {
-    if(this.question.locReadOnlyText) {
+  protected renderReadOnlyElement(): React.JSX.Element | null {
+    if (this.question.locReadOnlyText) {
       return this.renderLocString(this.question.locReadOnlyText);
     } else {
       return null;

@@ -15,6 +15,10 @@ import { settings } from "./settings";
 import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/utils";
 
+function getId(id: string, isError: boolean, isDetail: boolean) {
+  return id + (isError ? "-error" : "") + (isDetail ? "-detail" : "");
+}
+
 export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
   private idValue: number;
@@ -42,8 +46,8 @@ export class QuestionMatrixDropdownRenderedCell {
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
   }
-  public get requiredText(): string {
-    return this.column && this.column.isRenderedRequired ? this.column.requiredText : undefined;
+  public get requiredMark(): string {
+    return this.column && this.column.isRenderedRequired ? this.column.requiredMark : undefined;
   }
   public get hasQuestion(): boolean {
     return !!this.question && !this.isErrorsCell;
@@ -54,8 +58,12 @@ export class QuestionMatrixDropdownRenderedCell {
   public get hasPanel(): boolean {
     return !!this.panel;
   }
-  public get id(): number {
-    return this.idValue;
+  public get id(): string {
+    let id = this.question ? this.question.id : this.idValue.toString();
+    if(this.isChoice) {
+      id += "-" + (Number.isInteger(this.choiceIndex) ? "index" + this.choiceIndex.toString() : this.item.id);
+    }
+    return getId(id, this.isErrorsCell, this.isDetailRowCell);
   }
   public get item(): ItemValue {
     return this.itemValue;
@@ -173,8 +181,8 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     super();
     this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
-  public get id(): number {
-    return this.idValue;
+  public get id(): string {
+    return getId(this.row?.id || this.idValue.toString(), this.isErrorsRow, this.isDetailRow);
   }
   public get attributes() {
     if (!this.row) return {};
@@ -277,6 +285,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       },
       getEnterOptions: (_, info) => {
         return { cssClass: this.cssClasses.rowEnter, onBeforeRunAnimation, onAfterRunAnimation };
+      },
+      getKey: (item) => {
+        return item.id;
       }
     };
   }
@@ -396,7 +407,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     let dataRowIndex = 0;
     for (var i = 0; i < this.rows.length; i++) {
       if (dataRowIndex === index) {
-        if (this.rows[i].isErrorsRow || this.rows[i].isDetailRow) res++;
+        if (this.rows[i].isErrorsRow || this.rows[i].isDetailRow) {
+          res++;
+          if(i + 1 < this.rows.length && this.rows[i + 1].isDetailRow) {
+            res ++;
+          }
+        }
         break;
       }
       res++;
@@ -494,7 +510,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!isShown) return;
     this.headerRowValue = this.createRenderedRow(this.cssClasses);
     if (this.isRowsDragAndDrop) {
-      this.headerRow.cells.push(this.createHeaderCell(null, "action"));
+      this.headerRow.cells.push(this.createHeaderCell(null, "action", this.cssClasses.actionsCellDrag));
     }
     if (this.hasActionCellInRows("start")) {
       this.headerRow.cells.push(this.createHeaderCell(null, "action"));
@@ -1023,6 +1039,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var res = new QuestionMatrixDropdownRenderedCell();
     res.cell = cell;
     res.row = cell.row;
+    res.column = cell.column;
     res.question = cell.question;
     res.matrix = this.matrix;
     res.item = choiceItem;
@@ -1072,23 +1089,25 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!choices || !Array.isArray(choices)) return null;
     return choices;
   }
-  private setHeaderCellCssClasses(cell: QuestionMatrixDropdownRenderedCell, cellType?: string): void {
+  private setHeaderCellCssClasses(cell: QuestionMatrixDropdownRenderedCell, cellType?: string, classMod?: string): void {
     cell.className = new CssClassBuilder()
       .append(this.cssClasses.headerCell)
       .append(this.cssClasses.columnTitleCell, this.matrix.isColumnLayoutHorizontal)
       .append(this.cssClasses.emptyCell, !!cell.isEmpty)
       .append(this.cssClasses.cell + "--" + cellType, !!cellType)
+      .append(classMod, !!classMod)
       .toString();
   }
   private createHeaderCell(
     column: MatrixDropdownColumn,
-    cellType: string = null
+    cellType: string = null,
+    classMod?: string
   ): QuestionMatrixDropdownRenderedCell {
     let cell = !!column ? this.createTextCell(column.locTitle) : this.createEmptyCell();
     cell.column = column;
     this.setHeaderCell(column, cell);
     if (!cellType) cellType = (!!column && column.cellType !== "default") ? column.cellType : this.matrix.cellType;
-    this.setHeaderCellCssClasses(cell, cellType);
+    this.setHeaderCellCssClasses(cell, cellType, classMod);
     return cell;
   }
   private setHeaderCell(

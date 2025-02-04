@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.0.0-rc.2](https://github.com/surveyjs/survey-library/compare/v2.0.0-rc.1...v2.0.0-rc.2) (2025-02-03)
+
+## [2.0.0-rc.1](https://github.com/surveyjs/survey-library/compare/v2.0.0-rc.0...v2.0.0-rc.1) (2025-02-03)
+
+## [2.0.0-rc.0](https://github.com/surveyjs/survey-library/compare/v1.12.17...v2.0.0-rc.0) (2025-01-29)
+
+
+### Features
+
+* **localization:** implement burmese translations ([#9265](https://github.com/surveyjs/survey-library/issues/9265)) ([efa628c](https://github.com/surveyjs/survey-library/commit/efa628c90e8e4dc47cf881c3099c75dde31c5988))
+
+## [1.12.17](https://github.com/surveyjs/survey-library/compare/v1.12.16...v1.12.17) (2024-12-30)
+
+## [1.12.16](https://github.com/surveyjs/survey-library/compare/v1.12.15...v1.12.16) (2024-12-24)
+
+## [1.12.15](https://github.com/surveyjs/survey-library/compare/v1.12.14...v1.12.15) (2024-12-17)
+
+## [1.12.14](https://github.com/surveyjs/survey-library/compare/v1.12.13...v1.12.14) (2024-12-10)
+
+## [1.12.13](https://github.com/surveyjs/survey-library/compare/v1.12.12...v1.12.13) (2024-12-04)
+
+## [1.12.12](https://github.com/surveyjs/survey-library/compare/v1.12.11...v1.12.12) (2024-11-27)
+
+## [1.12.11](https://github.com/surveyjs/survey-library/compare/v1.12.10...v1.12.11) (2024-11-20)
+
+## [1.12.10](https://github.com/surveyjs/survey-library/compare/v1.12.9...v1.12.10) (2024-11-13)
+
 ## [1.12.9](https://github.com/surveyjs/survey-library/compare/v1.12.8...v1.12.9) (2024-11-07)
 
 ## [1.12.8](https://github.com/surveyjs/survey-library/compare/v1.12.7...v1.12.8) (2024-10-31)

@@ -206,13 +206,13 @@ QUnit.test("Currency mask: value & inputValue", function (assert) {
 
 QUnit.test("Currency mask: text aligment", function (assert) {
   const q = new QuestionTextModel("q1");
-  assert.deepEqual(q.inputStyle, { width: undefined });
+  assert.deepEqual(q.inputStyle, { width: "" });
 
   q.maskType = "currency";
-  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "right" });
+  assert.deepEqual(q.inputStyle, { width: "", textAlign: "right" });
 
   q.inputTextAlignment = "left";
-  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "left" });
+  assert.deepEqual(q.inputStyle, { width: "", textAlign: "left" });
 });
 
 QUnit.test("Text aligment inputType is date, maskType is numeric", function (assert) {

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var bulgarianStrings = {
   pagePrevText: "Назад",
@@ -59,7 +59,7 @@ export var bulgarianStrings = {
   addColumn: "Добавяне на колона",
   addRow: "Добавяне на ред",
   removeRow: "Премахване на ред",
-  emptyRowsText: "Няма редове.",
+  noRowsText: "Няма редове.",
   addPanel: "Добавяне на панел",
   removePanel: "Премахване на панел",
   showDetails: "Показване на подробни данни",
@@ -110,7 +110,7 @@ export var bulgarianStrings = {
   cancel: "Отмени"
 };
 
-surveyLocalization.setupLocale("bg", bulgarianStrings, "български", "Bulgarian");
+setupLocale({ localeCode: "bg", strings: bulgarianStrings, nativeName: "български", englishName: "Bulgarian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -120,7 +120,7 @@ surveyLocalization.setupLocale("bg", bulgarianStrings, "български", "Bu
 // minError: "The value should not be less than {0}" => "Стойността не трябва да бъде по-малка от {0}"
 // maxError: "The value should not be greater than {0}" => "Стойността не трябва да бъде по-голяма от {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Плъзнете и пуснете файл тук или щракнете върху бутона по-долу и изберете файл за качване."
-// emptyRowsText: "There are no rows." => "Няма редове."
+// noRowsText: "There are no rows." => "Няма редове."
 // multipletext_itemname: "text" => "Текст"
 // signaturePlaceHolder: "Sign here" => "Подпишете тук"
 // modalCancelButtonText: "Cancel" => "Отмени"

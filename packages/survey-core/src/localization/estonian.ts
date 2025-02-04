@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var estonianSurveyStrings = {
   pagePrevText: "Tagasi",
@@ -59,7 +59,7 @@ export var estonianSurveyStrings = {
   addColumn: "Lisa veerg",
   addRow: "Lisa rida",
   removeRow: "Eemalda",
-  emptyRowsText: "Ridu pole.",
+  noRowsText: "Ridu pole.",
   addPanel: "Lisa uus",
   removePanel: "Eemalda",
   showDetails: "Näita detaile",
@@ -110,7 +110,7 @@ export var estonianSurveyStrings = {
   cancel: "Tühistama"
 };
 
-surveyLocalization.setupLocale("et", estonianSurveyStrings, "eesti keel", "Estonian");
+setupLocale({ localeCode: "et", strings: estonianSurveyStrings, nativeName: "eesti keel", englishName: "Estonian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -120,7 +120,7 @@ surveyLocalization.setupLocale("et", estonianSurveyStrings, "eesti keel", "Eston
 // minError: "The value should not be less than {0}" => "Väärtus ei tohiks olla väiksem kui {0}"
 // maxError: "The value should not be greater than {0}" => "Väärtus ei tohiks olla suurem kui {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Pukseerige fail siia või klõpsake allolevat nuppu ja valige üleslaaditav fail."
-// emptyRowsText: "There are no rows." => "Ridu pole."
+// noRowsText: "There are no rows." => "Ridu pole."
 // multipletext_itemname: "text" => "Tekst"
 // signaturePlaceHolder: "Sign here" => "Allkirjasta siin"
 // modalCancelButtonText: "Cancel" => "Tühistama"

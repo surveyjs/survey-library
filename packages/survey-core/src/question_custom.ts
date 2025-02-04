@@ -22,6 +22,7 @@ import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
+import { settings } from "./settings";
 
 /**
  * An interface used to create custom question types.
@@ -570,12 +571,12 @@ export abstract class QuestionCustomModelBase extends Question
       );
     }
   }
-  public onFirstRendering() {
+  protected onFirstRenderingCore(): void {
+    super.onFirstRenderingCore();
     const el = this.getElement();
     if (!!el) {
       el.onFirstRendering();
     }
-    super.onFirstRendering();
   }
   public onHidingContent(): void {
     super.onHidingContent();
@@ -920,8 +921,8 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.value = this.getContentQuestionValue();
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     if (!!this.contentQuestion) {
       this.contentQuestion.runCondition(values, properties);
     }
@@ -1196,8 +1197,8 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     return res;
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     if (!!this.contentPanel) {
       var oldComposite = values[QuestionCompositeModel.ItemVariableName];
       values[
@@ -1243,6 +1244,31 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
     this.runPanelTriggers(QuestionCompositeModel.ItemVariableName + "." + name, newValue);
+  }
+  setComment(name: string, newValue: string, locNotification: any): any {
+    let val = this.getUnbindValue(this.value);
+    const commentName = this.getCommentName(name);
+    if(!val && !newValue || !!newValue && !!val && val[commentName] === newValue) return;
+    if(!!newValue) {
+      if(!val) { val = {}; }
+      val[commentName] = newValue;
+    } else {
+      delete val[commentName];
+    }
+    const q = <Question>this.getQuestionByName(name);
+    if(!!q && q.comment !== newValue) {
+      q.comment = newValue;
+    }
+    this.value = val;
+  }
+  getComment(name: string): string {
+    const q = <Question>this.getQuestionByName(name);
+    if(!!q) return q.comment;
+    const val = this.value;
+    return !!val && val[this.getCommentName(name)] || "";
+  }
+  private getCommentName(name: string): string {
+    return name + settings.commentSuffix;
   }
   private runPanelTriggers(name: string, value: any): void {
     if(!!this.contentPanel) {
@@ -1321,17 +1347,22 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.setQuestionValue(newValue, updateIsAnswered);
   }
   private setValuesIntoQuestions(newValue: any): void {
-    if(!this.contentPanel) return;
+    if(!this.contentPanel || this.settingNewValue) return;
     newValue = this.getValueForContentPanel(newValue);
     const oldSettingNewValue = this.settingNewValue;
     this.settingNewValue = true;
     const questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
-      const key = questions[i].getValueName();
-      const val = !!newValue ? newValue[key] : undefined;
       const q = questions[i];
+      const key = q.getValueName();
+      const commentKey = this.getCommentName(key);
+      const val = !!newValue ? newValue[key] : undefined;
+      const commentVal = !!newValue && newValue[commentKey] || "";
       if(!this.isTwoValueEquals(q.value, val) && (val !== undefined || !q.isEmpty())) {
         q.value = val;
+      }
+      if(q.comment !== commentVal) {
+        q.comment = commentVal;
       }
     }
     this.settingNewValue = oldSettingNewValue;

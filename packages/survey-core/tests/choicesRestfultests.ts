@@ -303,6 +303,28 @@ QUnit.test("Load countries", function(assert) {
   );
 });
 
+QUnit.test("Load countries, support dot '.' as path separator", function (assert) {
+  var test = new ChoicesRestfulTester();
+  var items: Array<ItemValue> = [];
+  test.getResultCallback = function (res: Array<ItemValue>) {
+    items = res;
+  };
+  test.url = "allcountries";
+  test.path = "RestResponse.result";
+  test.run();
+  assert.equal(items.length, 5, "there are 5 countries");
+  assert.equal(
+    items[0].value,
+    "Afghanistan",
+    "the first country is Afghanistan"
+  );
+  assert.equal(
+    items[4].value,
+    "American Samoa",
+    "the fifth country is American Samoa"
+  );
+});
+
 QUnit.test(
   "Check isRunning for restfull class that wait request from another restfull class, Bug#3039",
   function(assert) {
@@ -463,7 +485,7 @@ QUnit.test("encode parameters", function(assert) {
 
 QUnit.test("Process text in event", function(assert) {
   var survey = new SurveyModel();
-  survey.onProcessTextValue.add(function(sender, options) {
+  survey.onProcessDynamicText.add(function (sender, options) {
     if (options.name == "q1") {
       options.value = "R&D";
       //options.isExists = true;
@@ -533,8 +555,7 @@ QUnit.test("Test dropdown", function(assert) {
   assert.equal(question.visibleChoices.length, 5, "There are 5 countries now");
 });
 QUnit.test("Test dropdown in CreatorV2", function(assert) {
-  settings.supportCreatorV2 = true;
-  settings.showDefaultItemsInCreatorV2 = false;
+  settings.showDefaultItemsInCreator = false;
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   const page = survey.addNewPage("p1");
@@ -545,8 +566,7 @@ QUnit.test("Test dropdown in CreatorV2", function(assert) {
   page.addQuestion(question);
   assert.equal(question.choices.length, 0, "Choices do not used, #2");
   assert.equal(question.visibleChoices.length, 0, "Do not load countries, #2");
-  settings.showDefaultItemsInCreatorV2 = true;
-  settings.supportCreatorV2 = false;
+  settings.showDefaultItemsInCreator = true;
 });
 
 QUnit.test(
@@ -675,7 +695,7 @@ QUnit.test("onLoadItemsFromServer event", function(assert) {
   var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
   question.choicesByUrl.url = "{state}";
 
-  survey.onLoadChoicesFromServer.add(function(survey, options) {
+  survey.onChoicesLoaded.add(function (survey, options) {
     if (options.question.name != "q1") return;
     options.question.visible = options.choices.length > 0;
     if (options.choices.length > 1) {
@@ -712,7 +732,7 @@ QUnit.test(
     var question = new QuestionDropdownModelTester("q1");
     var isReadOnly = question.isReadOnly;
     assert.equal(isReadOnly, false, "It is not readOnly by default");
-    survey.onLoadChoicesFromServer.add(function(survey, options) {
+    survey.onChoicesLoaded.add(function (survey, options) {
       isReadOnly = question.isReadOnly;
     });
     question.choicesByUrl.url = "allcountries";
@@ -1656,7 +1676,7 @@ QUnit.test("Load localized itemvalue text, bug#2735", function(assert) {
   survey.addNewPage("1");
   var question = new QuestionDropdownModelTester("q1");
   question.choicesByUrl.url = "{state}";
-  survey.onLoadChoicesFromServer.add(function(survey, options) {
+  survey.onChoicesLoaded.add(function (survey, options) {
     if (options.question.name != "q1") return;
     var item = new ItemValue(1);
     item.locText.setJson({ default: "item en", de: "item de" });
@@ -1778,9 +1798,9 @@ QUnit.test("Single: execute choicesByUrl in design time", function (
     }
   };
   ComponentCollection.Instance.add(json);
-  settings.supportCreatorV2 = true;
+
   const survey = new SurveyModel();
-  survey.onLoadChoicesFromServer.add((sender, options) => {
+  survey.onChoicesLoaded.add((sender, options) => {
     options.choices = [new ItemValue(1), new ItemValue(2)];
   });
   survey.setDesignMode(true);
@@ -1791,7 +1811,6 @@ QUnit.test("Single: execute choicesByUrl in design time", function (
   assert.ok(q1.contentQuestion.survey, "survey is set");
   assert.equal(q1.contentQuestion.visibleChoices.length, 2, "event is executed");
   ComponentCollection.Instance.clear();
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("Composite: execute choicesByUrl in design time", function (
   assert
@@ -1805,9 +1824,9 @@ QUnit.test("Composite: execute choicesByUrl in design time", function (
     }]
   };
   ComponentCollection.Instance.add(json);
-  settings.supportCreatorV2 = true;
+
   const survey = new SurveyModel();
-  survey.onLoadChoicesFromServer.add((sender, options) => {
+  survey.onChoicesLoaded.add((sender, options) => {
     options.choices = [new ItemValue(1), new ItemValue(2)];
   });
   survey.setDesignMode(true);
@@ -1817,7 +1836,6 @@ QUnit.test("Composite: execute choicesByUrl in design time", function (
   const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
   assert.equal(q1.contentPanel.getQuestionByName("q1").visibleChoices.length, 2, "event is executed");
   ComponentCollection.Instance.clear();
-  settings.supportCreatorV2 = false;
 });
 
 function getCACities() {

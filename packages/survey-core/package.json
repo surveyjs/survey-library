@@ -1,14 +1,20 @@
 {
   "name": "survey-core",
-  "version": "1.8.33",
+  "version": "2.0.0",
   "scripts": {
     "build": "webpack --env buildType=dev && webpack --env buildType=prod",
     "build:esm": "webpack --config ./webpack.esm.config.mjs --env buildType=dev",
     "build:i18n": "webpack --config ./webpack.i18n.config.js --env buildType=dev && webpack --config ./webpack.i18n.config.js --env buildType=prod",
     "build:themes": "webpack --config ./webpack.themes.config.js --env buildType=dev && webpack --config ./webpack.themes.config.js --env buildType=prod",
-    "build:all": "npm run build && npm run build:i18n && npm run build:themes",
+    "build:icons": "webpack --config ./webpack.icons.config.js --env buildType=dev && webpack --config ./webpack.icons.config.js --env buildType=prod",
+    "watch:dev": "webpack --env buildType=dev --watch",
+    "build:all": "npm run build && npm run build:i18n && npm run build:themes && npm run build:icons",
     "test": "karma start ./karma.conf.js --single-run",
-    "test:watch": "karma start ./karma.conf.js"
+    "test:watch": "karma start ./karma.conf.js",
+    "test:postcss": "postcss build/default.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -o default.postcss.css && rimraf default.postcss.css",
+    "doc_gen": "node doc_generator/lib_docgenerator.js ./entries/chunks/model.ts",
+    "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
+    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "main": "survey.core.js",
   "repository": {
@@ -17,9 +23,10 @@
   },
   "devDependencies": {
     "@types/lodash": "4.14.186",
-    "@types/node": "7.0.4",
+    "@types/node": "18.11.12",
     "@types/papaparse": "^5.0.4",
     "@types/qunit": "2.0.31",
+    "@types/signature_pad": "^2.3.0",
     "ace-builds": "1.2.2",
     "ajv": "8.17.1",
     "async": "3.2.5",
@@ -46,8 +53,8 @@
     "replace-in-file": "^3.4.3",
     "rimraf": "2.5.4",
     "sass": "^1.62.1",
-    "sass-loader": "^8.0.2",
-    "standard-version": "^9.5.0",
+    "sass-loader": "^16.0.4",
+    "commit-and-tag-version": "^11.0.0",
     "style-loader": "^1.2.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
     "svg-inline-loader": "^0.8.2",
@@ -62,11 +69,13 @@
     "webpack-dev-server": "^5.0.4",
     "webpack-fix-style-only-entries": "^0.6.1",
     "webpack-merge": "^5.8.0",
-    "webpack-remove-empty-scripts": "^1.0.4"
+    "webpack-remove-empty-scripts": "^1.0.4",
+    "tsconfig-paths-webpack-plugin": "^3.3.0",
+    "signature_pad": "^4.1.5"
   },
-  "standard-version": {
-    "skip": {
-      "tag": true
-    }
+  "commit-and-tag-version": {
+    "bumpFiles": [
+      "package.json"
+    ]
   }
 }

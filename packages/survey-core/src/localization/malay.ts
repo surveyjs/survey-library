@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var malaySurveyStrings = {
   pagePrevText: "Sebelumnya",
@@ -59,7 +59,7 @@ export var malaySurveyStrings = {
   addColumn: "Tambahkan lajur",
   addRow: "Tambahkan baris",
   removeRow: "Alih keluar",
-  emptyRowsText: "Tiada baris.",
+  noRowsText: "Tiada baris.",
   addPanel: "Tambah baharu",
   removePanel: "Alih keluar",
   showDetails: "Tunjukkan Butiran",
@@ -110,7 +110,7 @@ export var malaySurveyStrings = {
   cancel: "Batal"
 };
 
-surveyLocalization.setupLocale("ms", malaySurveyStrings, "melayu", "Malay");
+setupLocale({ localeCode: "ms", strings: malaySurveyStrings, nativeName: "melayu", englishName: "Malay" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

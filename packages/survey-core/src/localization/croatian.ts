@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var croatianStrings = {
   pagePrevText: "Prethodni",
@@ -59,7 +59,7 @@ export var croatianStrings = {
   addColumn: "Dodavanje stupca",
   addRow: "Dodavanje redaka",
   removeRow: "Ukloniti",
-  emptyRowsText: "Nema redova.",
+  noRowsText: "Nema redova.",
   addPanel: "Dodavanje novih",
   removePanel: "Ukloniti",
   showDetails: "Pokaži detalje",
@@ -110,7 +110,7 @@ export var croatianStrings = {
   cancel: "Otkazati"
 };
 
-surveyLocalization.setupLocale("hr", croatianStrings, "hrvatski", "Croatian");
+setupLocale({ localeCode: "hr", strings: croatianStrings, nativeName: "hrvatski", englishName: "Croatian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -120,7 +120,7 @@ surveyLocalization.setupLocale("hr", croatianStrings, "hrvatski", "Croatian");
 // minError: "The value should not be less than {0}" => "Vrijednost ne smije biti manja od {0}"
 // maxError: "The value should not be greater than {0}" => "Vrijednost ne smije biti veća od {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Povucite i ispustite datoteku ovdje ili kliknite donji gumb i odaberite datoteku koju želite prenijeti."
-// emptyRowsText: "There are no rows." => "Nema redova."
+// noRowsText: "There are no rows." => "Nema redova."
 // multipletext_itemname: "text" => "Tekstualna poruka"
 // signaturePlaceHolder: "Sign here" => "Potpiši ovdje"
 // filterStringPlaceholder: "Type to search..." => "Upišite za pretraživanje..."

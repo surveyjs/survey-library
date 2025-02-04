@@ -1,6 +1,6 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base, ComputedUpdater } from "../base";
-import { surveyLocalization } from "../surveyStrings";
+import { getLocaleString } from "../surveyStrings";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
@@ -156,7 +156,6 @@ export interface IAction {
   elementId?: string;
   items?: Array<IAction>;
   markerIconName?: string;
-  markerIconSize?: number;
   showPopup?: () => void;
   hidePopup?: () => void;
 }
@@ -176,7 +175,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     }
   };
   const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
-
+  popupModel.getTargetCallback = getActionDropdownButtonTarget;
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
     popupModel: popupModel,
@@ -243,11 +242,9 @@ export abstract class BaseAction extends Base implements IAction {
   @property() ariaExpanded: boolean;
   @property({ defaultValue: "button" }) ariaRole: string;
   public id: string;
-  public removePriority: number;
   @property() iconName: string;
   @property({ defaultValue: 24 }) iconSize: number | string;
   @property() markerIconName: string;
-  @property() markerIconSize: number = 16;
   @property() css?: string
   minDimension: number;
   maxDimension: number;
@@ -323,10 +320,11 @@ export abstract class BaseAction extends Base implements IAction {
       .toString();
   }
   public getActionBarItemCss(): string {
+    const hasTitle = this.hasTitle;
     return new CssClassBuilder()
       .append(this.cssClasses.item)
-      .append(this.cssClasses.itemWithTitle, this.hasTitle)
-      .append(this.cssClasses.itemAsIcon, !this.hasTitle)
+      .append(this.cssClasses.itemWithTitle, hasTitle)
+      .append(this.cssClasses.itemAsIcon, !hasTitle)
       .append(this.cssClasses.itemActive, !!this.active)
       .append(this.cssClasses.itemPressed, !!this.pressed)
       .append(this.innerCss)
@@ -412,11 +410,14 @@ export abstract class BaseAction extends Base implements IAction {
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
   public updateCallback: (isResetInitialized: boolean) => void;
+  public innerItem: IAction;
   private raiseUpdate(isResetInitialized: boolean = false) {
     this.updateCallback && this.updateCallback(isResetInitialized);
   }
-  constructor(public innerItem: IAction) {
+  constructor(innerItemData: IAction) {
     super();
+    const innerItem: IAction = (innerItemData instanceof Action) ? innerItemData.innerItem : innerItemData;
+    this.innerItem = innerItem;
     this.locTitle = !!innerItem ? innerItem["locTitle"] : null;
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
@@ -429,7 +430,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       this.locTitleChanged();
     }
     this.registerFunctionOnPropertyValueChanged("_title", () => {
-      this.raiseUpdate(true);
+      this.needUpdateMaxDimension = true;
+      this.raiseUpdate();
     });
     this.locStrChangedInPopupModel();
   }
@@ -540,7 +542,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   private locTooltipChanged(): void {
     if (!this.locTooltipName) return;
-    this.tooltip = surveyLocalization.getString(this.locTooltipName, this.locTitle.locale);
+    this.tooltip = getLocaleString(this.locTooltipName, this.locTitle.locale);
   }
 
   //ILocalizableOwner
@@ -551,7 +553,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }
 
   public setVisible(val: boolean): void {
-    this._visible = val;
+    if (this.visible !== val) {
+      this._visible = val;
+    }
   }
   public getVisible(): boolean {
     return this._visible;
@@ -582,6 +586,51 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     if (this.popupModel) {
       this.popupModel.dispose();
     }
+  }
+  public updateDimension(mode: actionModeType, htmlElement: HTMLElement, calcDimension: (el: HTMLElement) => number): void {
+    const property = mode == "small" ? "minDimension" : "maxDimension";
+    if(htmlElement) {
+      const actionContainer = htmlElement;
+      if(actionContainer.classList.contains("sv-action--hidden")) {
+        actionContainer.classList.remove("sv-action--hidden");
+        this[property] = calcDimension(htmlElement);
+        actionContainer.classList.add("sv-action--hidden");
+      } else {
+        this[property] = calcDimension(htmlElement);
+      }
+    }
+  }
+
+  public needUpdateMaxDimension: boolean = false;
+  public needUpdateMinDimension: boolean = false;
+  public updateModeCallback: (mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void) => void;
+  public afterRenderCallback: () => void;
+  public afterRender(): void {
+    this.afterRenderCallback && this.afterRenderCallback();
+  }
+  public updateMode(mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void): void {
+    if(this.updateModeCallback) {
+      this.updateModeCallback(mode, callback);
+    } else {
+      this.afterRenderCallback = () => {
+        this.updateModeCallback(mode, callback);
+        this.afterRenderCallback = undefined;
+      };
+    }
+  }
+  public updateDimensions(calcDimension: (htmlElement: HTMLElement) => number, callback: () => void, modeToCalculate?: actionModeType): void {
+    const mode = !modeToCalculate || (modeToCalculate == "large" && this.mode !== "small") ? this.mode : modeToCalculate;
+    this.updateMode(mode, (mode, htmlElement) => {
+      this.updateDimension(mode, htmlElement, calcDimension);
+      if(!modeToCalculate) {
+        this.updateMode(mode !== "small" ? "small" : "large", (mode, htmlElement) => {
+          this.updateDimension(mode, htmlElement, calcDimension);
+          callback();
+        });
+      } else {
+        callback();
+      }
+    });
   }
 }
 

@@ -4,12 +4,27 @@ export interface HashTable<T = any> {
   [key: string]: T;
 }
 
+export function createDate(reason: string, val?: number | string | Date): Date {
+  if(!val) return new Date();
+  if(!settings.storeUtcDates && typeof val === "string" && isISODateOnly(val)) {
+    val += "T00:00:00";
+  }
+  const d = new Date(val);
+  return settings.onDateCreated(d, reason, val);
+}
+
+function isISODateOnly(str: string): boolean {
+  if(str.indexOf("T") > 0) return false;
+  if (!/\d{4}-\d{2}-\d{2}/.test(str)) return false;
+  return !isNaN(new Date(str).getTime());
+}
+
 export class Helpers {
   /**
    * A static methods that returns true if a value undefined, null, empty string or empty array.
    * @param value
    */
-  public static isValueEmpty(value: any) {
+  public static isValueEmpty(value: any): boolean {
     if (Array.isArray(value) && value.length === 0) return true;
     if (!!value && Helpers.isValueObject(value) && value.constructor === Object) {
       for (var key in value) {
@@ -200,11 +215,13 @@ export class Helpers {
   }
   private static getNumberCore(value: any): number {
     if (typeof value == "string") {
-      if(!value.trim()) return NaN;
+      value = value.trim();
+      if(!value) return NaN;
       if(value.indexOf("0x") == 0) {
         if(value.length > 32) return NaN;
         return parseInt(value);
       }
+      if(value.length > 15 && Helpers.isDigitsOnly(value)) return NaN;
       if(Helpers.isStringHasOperator(value)) return NaN;
     }
     value = this.prepareStringToNumber(value);
@@ -304,6 +321,13 @@ export class Helpers {
   }
   public static isCharDigit(ch: string): boolean {
     return ch >= "0" && ch <= "9";
+  }
+  public static isDigitsOnly(str: string): boolean {
+    if(!str) return false;
+    for(let i = 0; i < str.length; i ++) {
+      if(!Helpers.isCharDigit(str[i])) return false;
+    }
+    return true;
   }
   private static getNumberFromStr(str: string, index: number): number {
     if(!this.isCharDigit(str[index])) return NaN;

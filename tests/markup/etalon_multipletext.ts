@@ -1,5 +1,5 @@
 import { registerMarkupTests } from "./helper";
-import { StylesManager, settings } from "survey-core";
+import { settings } from "survey-core";
 
 registerMarkupTests(
   [
@@ -102,8 +102,6 @@ registerMarkupTests(
         ]
       },
       initSurvey: (survey) => survey.setDesignMode(true),
-      before: () => { settings.supportCreatorV2 = true; },
-      after: () => { settings.supportCreatorV2 = false; },
       snapshot: "multipletext-disabled",
     },
     {
@@ -126,11 +124,9 @@ registerMarkupTests(
           },
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "multipletext-error-top-v2",
     },
     {
@@ -154,11 +150,9 @@ registerMarkupTests(
           },
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "multipletext-error-bottom-v2",
     },
   ]

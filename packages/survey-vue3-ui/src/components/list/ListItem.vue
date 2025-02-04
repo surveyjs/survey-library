@@ -17,9 +17,9 @@
     ></div>
 
     <div
-      :style="{ paddingInlineStart: model.getItemIndent(item) }"
+      :style="model.getItemStyle(item)"
       v-bind:class="model.cssClasses.itemBody"
-      :title="item.locTitle.calculatedText"
+      :title="item.getTooltip()"
       @mouseover="(e) => model.onItemHover(item)"
       @mouseleave="(e) => model.onItemLeave(item)"
     >

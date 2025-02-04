@@ -1,5 +1,5 @@
 import { registerMarkupTests } from "./helper";
-import { StylesManager, settings } from "survey-core";
+import { settings } from "survey-core";
 
 registerMarkupTests(
   [
@@ -22,8 +22,6 @@ registerMarkupTests(
       }
       ,
 
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdropdown"
     },
     {
@@ -45,8 +43,6 @@ registerMarkupTests(
         ]
       },
 
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdropdown-readonly"
     },
     {
@@ -68,8 +64,6 @@ registerMarkupTests(
       }
       ,
       initSurvey: (survey) => survey.setDesignMode(true),
-      before: () => { settings.supportCreatorV2 = true; StylesManager.applyTheme("defaultV2"); },
-      after: () => { settings.supportCreatorV2 = false; StylesManager.applyTheme("default"); },
       snapshot: "matrixdropdown-disabled"
     },
     {
@@ -91,8 +85,6 @@ registerMarkupTests(
         ]
       },
 
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdropdown-vertical"
     },
     {
@@ -128,8 +120,7 @@ registerMarkupTests(
           },
         ],
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
+
       snapshot: "matrixdynamic-show-in-multiple-columns"
     },
     {
@@ -165,11 +156,9 @@ registerMarkupTests(
           },
         ],
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
       initSurvey(survey) {
         survey.setIsMobile(true);
       },
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdynamic-show-in-multiple-columns-mobile"
     },
     {
@@ -191,11 +180,9 @@ registerMarkupTests(
           },
         ],
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdropdown-cell-errors-top"
     },
     {
@@ -218,11 +205,9 @@ registerMarkupTests(
           },
         ],
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
       initSurvey(survey) {
-        survey.completeLastPage();
+        survey.tryComplete();
       },
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdropdown-cell-errors-bottom"
     },
     {
@@ -251,12 +236,10 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
       initSurvey(survey) {
         survey.data = { matrix: { row1: { col1: 1 } } };
         survey.setIsMobile(true);
       },
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdropdown-hidden-question-mobile"
     },
   ],

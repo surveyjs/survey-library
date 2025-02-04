@@ -1,5 +1,5 @@
 import { registerMarkupTests } from "./helper";
-import { StylesManager, settings } from "survey-core";
+import { settings } from "survey-core";
 
 registerMarkupTests(
   [
@@ -28,8 +28,6 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("modern"),
-      after: () => StylesManager.applyTheme("default"),
       snapshot: "matrix-modern",
       excludePlatform: "Vue"
     },
@@ -58,8 +56,7 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
+
       snapshot: "matrix-v2",
       excludePlatform: "Vue"
     },
@@ -89,8 +86,7 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
+
       snapshot: "matrix-v2-readonly",
       excludePlatform: "Vue"
     },
@@ -120,8 +116,6 @@ registerMarkupTests(
         ]
       },
       initSurvey: (survey) => survey.setDesignMode(true),
-      before: () => { settings.supportCreatorV2 = true; StylesManager.applyTheme("defaultV2"); },
-      after: () => { settings.supportCreatorV2 = false; StylesManager.applyTheme("default"); },
       snapshot: "matrix-v2-disabled",
       excludePlatform: "Vue"
     },
@@ -136,6 +130,7 @@ registerMarkupTests(
             "columns": [
               {
                 "value": "col_1",
+                "isRequired": true,
               }, {
                 "value": "col_2",
               },
@@ -150,8 +145,7 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
+
       initSurvey: survey => survey.setIsMobile(true),
       snapshot: "matrix-mobile-v2",
       excludePlatform: "Vue"

@@ -280,10 +280,10 @@ export class QuestionPanelDynamicModel extends Question
 
     this.createLocalizableString("confirmDeleteText", this, false, "confirmDelete");
     this.createLocalizableString("keyDuplicationError", this, false, true);
-    this.createLocalizableString("panelAddText", this, false, "addPanel");
-    this.createLocalizableString("panelRemoveText", this, false, "removePanel");
-    this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
-    this.createLocalizableString("panelNextText", this, false, "pageNextText");
+    this.createLocalizableString("addPanelText", this, false, "addPanel");
+    this.createLocalizableString("removePanelText", this, false, "removePanel");
+    this.createLocalizableString("prevPanelText", this, false, "pagePrevText");
+    this.createLocalizableString("nextPanelText", this, false, "pageNextText");
     this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
     this.createLocalizableString("templateTabTitle", this, true, "panelDynamicTabTextFormat");
     this.createLocalizableString("tabTitlePlaceholder", this, true, "tabTitlePlaceholder");
@@ -439,7 +439,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * A placeholder for tab titles that applies when the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) expression doesn't produce a meaningful value.
    *
-   * Default value: `"New Panel"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization))
+   * Default value: `"New Panel"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization))
    */
   public get tabTitlePlaceholder(): string {
     return this.locTabTitlePlaceholder.text;
@@ -784,7 +784,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * An error message displayed when users enter a duplicate value into a question that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
    *
-   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
+   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
    * @see keyName
    */
   public get keyDuplicationError() {
@@ -801,54 +801,54 @@ export class QuestionPanelDynamicModel extends Question
    * @see displayMode
    * @see isPrevButtonVisible
    */
-  public get panelPrevText(): string {
-    return this.getLocalizableStringText("panelPrevText");
-  }
-  public set panelPrevText(val: string) {
-    this.setLocalizableStringText("panelPrevText", val);
-  }
-  get locPanelPrevText(): LocalizableString {
-    return this.getLocalizableString("panelPrevText");
-  }
+  public get prevPanelText(): string { return this.getLocalizableStringText("prevPanelText"); }
+  public set prevPanelText(val: string) { this.setLocalizableStringText("prevPanelText", val); }
+  get locPrevPanelText(): LocalizableString { return this.getLocalizableString("prevPanelText"); }
+  /**
+   * @deprecated Use the [`prevPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#prevPanelText) property instead.
+   */
+  public get panelPrevText(): string { return this.prevPanelText; }
+  public set panelPrevText(val: string) { this.prevPanelText = val; }
+  get locPanelPrevText(): LocalizableString { return this.locPrevPanelText; }
   /**
    * A caption for the Next button. Applies only if `displayMode` is different from `"list"`.
    * @see displayMode
    * @see isNextButtonVisible
    */
-  public get panelNextText(): string {
-    return this.getLocalizableStringText("panelNextText");
-  }
-  public set panelNextText(val: string) {
-    this.setLocalizableStringText("panelNextText", val);
-  }
-  get locPanelNextText(): LocalizableString {
-    return this.getLocalizableString("panelNextText");
-  }
+  public get nextPanelText(): string { return this.getLocalizableStringText("nextPanelText"); }
+  public set nextPanelText(val: string) { this.setLocalizableStringText("nextPanelText", val); }
+  get locNextPanelText(): LocalizableString { return this.getLocalizableString("nextPanelText"); }
+  /**
+   * @deprecated Use the [`nextPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#nextPanelText) property instead.
+   */
+  public get panelNextText(): string { return this.nextPanelText; }
+  public set panelNextText(val: string) { this.nextPanelText = val; }
+  get locPanelNextText(): LocalizableString { return this.locNextPanelText; }
   /**
    * A caption for the Add Panel button.
    */
-  public get panelAddText() {
-    return this.getLocalizableStringText("panelAddText");
-  }
-  public set panelAddText(value: string) {
-    this.setLocalizableStringText("panelAddText", value);
-  }
-  get locPanelAddText(): LocalizableString {
-    return this.getLocalizableString("panelAddText");
-  }
+  public get addPanelText(): string { return this.getLocalizableStringText("addPanelText"); }
+  public set addPanelText(value: string) { this.setLocalizableStringText("addPanelText", value); }
+  get locAddPanelText(): LocalizableString { return this.getLocalizableString("addPanelText"); }
   /**
-   * A caption for the Delete Panel button.
-   * @see panelRemoveButtonLocation
+   * @deprecated Use the [`addPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanelText) property instead.
    */
-  public get panelRemoveText() {
-    return this.getLocalizableStringText("panelRemoveText");
-  }
-  public set panelRemoveText(val: string) {
-    this.setLocalizableStringText("panelRemoveText", val);
-  }
-  get locPanelRemoveText(): LocalizableString {
-    return this.getLocalizableString("panelRemoveText");
-  }
+  public get panelAddText(): string { return this.addPanelText; }
+  public set panelAddText(value: string) { this.addPanelText = value; }
+  get locPanelAddText(): LocalizableString { return this.locAddPanelText; }
+  /**
+   * A caption for the Remove Panel button.
+   * @see removePanelButtonLocation
+   */
+  public get removePanelText(): string { return this.getLocalizableStringText("removePanelText"); }
+  public set removePanelText(val: string) { this.setLocalizableStringText("removePanelText", val); }
+  get locRemovePanelText(): LocalizableString { return this.getLocalizableString("removePanelText"); }
+  /**
+   * @deprecated Use the [`removePanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanelText) property instead.
+   */
+  public get panelRemoveText(): string { return this.removePanelText; }
+  public set panelRemoveText(val: string) { this.removePanelText = val; }
+  get locPanelRemoveText(): LocalizableString { return this.locRemovePanelText; }
   public get isProgressTopShowing(): boolean {
     return this.displayMode == "carousel" && (this.progressBarLocation === "top" || this.progressBarLocation === "topBottom");
   }
@@ -859,7 +859,7 @@ export class QuestionPanelDynamicModel extends Question
    * Indicates whether the Previous button is visible.
    * @see currentIndex
    * @see currentPanel
-   * @see panelPrevText
+   * @see prevPanelText
    */
   public get isPrevButtonVisible(): boolean { return this.currentIndex > 0; }
   public get isPrevButtonShowing(): boolean { return this.isPrevButtonVisible; }
@@ -867,7 +867,7 @@ export class QuestionPanelDynamicModel extends Question
    * Indicates whether the Next button is visible.
    * @see currentIndex
    * @see currentPanel
-   * @see panelNextText
+   * @see nextPanelText
    */
   public get isNextButtonVisible(): boolean {
     return this.currentIndex >= 0 && this.currentIndex < this.visiblePanelCount - 1;
@@ -875,7 +875,7 @@ export class QuestionPanelDynamicModel extends Question
   public get isNextButtonShowing(): boolean { return this.isNextButtonVisible; }
   public get isRangeShowing(): boolean {
     return (
-      this.showRangeInProgress && this.currentIndex >= 0 && this.visiblePanelCount > 1
+      this.showProgressBar && this.currentIndex >= 0 && this.visiblePanelCount > 1
     );
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
@@ -1133,11 +1133,20 @@ export class QuestionPanelDynamicModel extends Question
    * - `"hidden"` - Hides question titles.
    * @see titleLocation
    */
-  public get templateTitleLocation(): string {
-    return this.getPropertyValue("templateTitleLocation");
+  public get templateQuestionTitleLocation(): string {
+    return this.getPropertyValue("templateQuestionTitleLocation");
   }
-  public set templateTitleLocation(value: string) {
-    this.setPropertyValue("templateTitleLocation", value.toLowerCase());
+  public set templateQuestionTitleLocation(val: string) {
+    this.setPropertyValue("templateQuestionTitleLocation", val);
+  }
+  /**
+   * @deprecated Use the [`templateQuestionTitleLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateQuestionTitleLocation) property instead.
+   */
+  public get templateTitleLocation(): string {
+    return this.templateQuestionTitleLocation;
+  }
+  public set templateTitleLocation(val: string) {
+    this.templateQuestionTitleLocation = val;
   }
   /**
    * Specifies the error message position.
@@ -1169,35 +1178,36 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected notifySurveyOnChildrenVisibilityChanged(): boolean { return this.showQuestionNumbers === "onSurvey"; }
   /**
-   * Specifies the location of the Delete Panel button relative to panel content.
+   * Specifies the location of the Remove Panel button relative to panel content.
    *
    * Possible values:
    *
-   * - `"bottom"` (default) - Displays the Delete Panel button below panel content.
-   * - `"right"` - Displays the Delete Panel button to the right of panel content.
-   * @see panelRemoveText
+   * - `"bottom"` (default) - Displays the Remove Panel button below panel content.
+   * - `"right"` - Displays the Remove Panel button to the right of panel content.
+   * @see removePanelText
    */
-  public get panelRemoveButtonLocation(): string {
-    return this.getPropertyValue("panelRemoveButtonLocation");
+  public get removePanelButtonLocation(): string {
+    return this.getPropertyValue("removePanelButtonLocation");
   }
-  public set panelRemoveButtonLocation(val: string) {
-    this.setPropertyValue("panelRemoveButtonLocation", val);
+  public set removePanelButtonLocation(val: string) {
+    this.setPropertyValue("removePanelButtonLocation", val);
   }
   /**
-   * Obsolete. Use the [`showProgressBar`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#showProgressBar) property instead.
-   * @deprecated
+   * @deprecated Use the [`removePanelButtonLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanelButtonLocation) property instead.
+   */
+  public get panelRemoveButtonLocation(): string { return this.removePanelButtonLocation; }
+  public set panelRemoveButtonLocation(val: string) { this.removePanelButtonLocation = val; }
+  /**
+   * @deprecated Use the [`showProgressBar`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#showProgressBar) property instead.
    */
   public get showRangeInProgress(): boolean {
     return this.showProgressBar;
-    // return this.getPropertyValue("showRangeInProgress");
   }
   public set showRangeInProgress(val: boolean) {
     this.showProgressBar = val;
-    // this.setPropertyValue("showRangeInProgress", val);
   }
   /**
-   * Obsolete. Use the [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) property instead.
-   * @deprecated
+   * @deprecated Use the [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) property instead.
    */
   public get renderMode(): string {
     let displayMode = this.displayMode;
@@ -1396,7 +1406,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * If it is not empty, then this value is set to every new panel, including panels created initially, unless the defaultValue is not empty
    * @see defaultValue
-   * @see defaultValueFromLastPanel
+   * @see copyDefaultValueFromLastEntry
    */
   public get defaultPanelValue(): any {
     return this.getPropertyValue("defaultPanelValue");
@@ -1410,11 +1420,20 @@ export class QuestionPanelDynamicModel extends Question
    * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
    */
+  public get copyDefaultValueFromLastEntry(): boolean {
+    return this.getPropertyValue("copyDefaultValueFromLastEntry");
+  }
+  public set copyDefaultValueFromLastEntry(val: boolean) {
+    this.setPropertyValue("copyDefaultValueFromLastEntry", val);
+  }
+  /**
+   * @deprecated Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#copyDefaultValueFromLastEntry) property instead.
+   */
   public get defaultValueFromLastPanel(): boolean {
-    return this.getPropertyValue("defaultValueFromLastPanel");
+    return this.copyDefaultValueFromLastEntry;
   }
   public set defaultValueFromLastPanel(val: boolean) {
-    this.setPropertyValue("defaultValueFromLastPanel", val);
+    this.copyDefaultValueFromLastEntry = val;
   }
   protected isDefaultValueEmpty(): boolean {
     return (
@@ -1459,44 +1478,41 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   /**
-   * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
-   *
-   * Unlike the [`addPanel()`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanel) method, `addPanelUI()` performs additional actions: checks whether a new panel [can be added](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canAddPanel), expands and focuses the new panel, and runs animated effects.
-   * @see panelCount
-   * @see panels
+   * @deprecated Call the [`addPanel(undefined, true)`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanel) method instead.
    */
   public addPanelUI(): PanelModel {
-    if (!this.canAddPanel) return null;
-    if (!this.canLeaveCurrentPanel()) return null;
-    const newPanel = this.addPanel();
-    if (this.displayMode === "list" && this.panelsState !== "default") {
-      newPanel.expand();
-    }
-    this.focusNewPanelCallback = () => {
-      newPanel.focusFirstQuestion();
-    };
-    if (!this.isPanelsAnimationRunning) {
-      this.focusNewPanel();
-    }
-    return newPanel;
+    return this.addPanel(undefined, true);
   }
-  private focusNewPanelCallback: () => void;
-  private focusNewPanel() {
-    if (this.focusNewPanelCallback) {
-      this.focusNewPanelCallback();
-      this.focusNewPanelCallback = undefined;
-    }
-  }
-
   /**
    * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
    * @param index *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `displayMode` value.
+   * @param runAdditionalActions *(Optional)* Pass `true` if you want to perform additional actions: check whether a new panel [can be added](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canAddPanel), expand and focus the new panel, and run animated effects. Default value: `false` (the listed actions are skipped).
    * @see panelCount
    * @see panels
    * @see allowAddPanel
    * @see newPanelPosition
    */
-  public addPanel(index?: number): PanelModel {
+  public addPanel(index?: number, runAdditionalActions?: boolean): PanelModel {
+    const isUI = runAdditionalActions === true;
+    if(isUI) {
+      if (!this.canAddPanel) return null;
+      if (!this.canLeaveCurrentPanel()) return null;
+    }
+    const newPanel = this.addPanelCore(index);
+    if(isUI) {
+      if (this.displayMode === "list" && this.panelsState !== "default") {
+        newPanel.expand();
+      }
+      this.focusNewPanelCallback = () => {
+        newPanel.focusFirstQuestion();
+      };
+      if (!this.isPanelsAnimationRunning) {
+        this.focusNewPanel();
+      }
+    }
+    return newPanel;
+  }
+  private addPanelCore(index: number): PanelModel {
     const curIndex = this.currentIndex;
     if (index === undefined) {
       index = curIndex < 0 ? this.panelCount : curIndex + 1;
@@ -1510,6 +1526,13 @@ export class QuestionPanelDynamicModel extends Question
     }
     if (this.survey) this.survey.dynamicPanelAdded(this);
     return this.panelsCore[index];
+  }
+  private focusNewPanelCallback: () => void;
+  private focusNewPanel() {
+    if (this.focusNewPanelCallback) {
+      this.focusNewPanelCallback();
+      this.focusNewPanelCallback = undefined;
+    }
   }
   private updateValueOnAddingPanel(prevIndex: number, index: number): void {
     this.panelCount++;
@@ -1527,7 +1550,7 @@ export class QuestionPanelDynamicModel extends Question
       hasModified = true;
       this.copyValue(newValue[index], this.defaultPanelValue);
     }
-    if (this.defaultValueFromLastPanel && newValue.length > 1) {
+    if (this.copyDefaultValueFromLastEntry && newValue.length > 1) {
       const fromIndex = prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex;
       hasModified = true;
       this.copyValue(newValue[index], newValue[fromIndex]);
@@ -1542,32 +1565,6 @@ export class QuestionPanelDynamicModel extends Question
   private copyValue(dest: any, src: any) {
     for (var key in src) {
       dest[key] = src[key];
-    }
-  }
-  /**
-   * Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
-   *
-   * Unlike the [`removePanel()`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanel) method, `removePanelUI()` performs additional actions: checks whether the panel [can be removed](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canRemovePanel) and displays a confirmation dialog (if the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#confirmDelete) property is enabled).
-   * @param value A `PanelModel` instance or zero-based panel index.
-   * @see addPanelUI
-   */
-  public removePanelUI(value: any): void {
-    const visIndex = this.getVisualPanelIndex(value);
-    if(visIndex < 0 || visIndex >= this.visiblePanelCount) return;
-    if (!this.canRemovePanel) return;
-    const removePanel = () => {
-      this.removePanel(visIndex);
-      const pnlCount = this.visiblePanelCount;
-      const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
-      let id = pnlCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getPanelRemoveButtonId(this.visiblePanels[nextIndex]) : "");
-      if(!!id) {
-        SurveyElement.FocusElement(id, true, this.survey?.rootElement);
-      }
-    };
-    if (this.isRequireConfirmOnDelete(value)) {
-      confirmActionAsync(this.confirmDeleteText, () => { removePanel(); }, undefined, this.getLocale(), this.survey.rootElement);
-    } else {
-      removePanel();
     }
   }
   public getPanelRemoveButtonId(panel: PanelModel): string {
@@ -1598,15 +1595,50 @@ export class QuestionPanelDynamicModel extends Question
     if (this.currentIndex < 0) return;
     this.currentIndex--;
   }
-  private removedPanelIndex: number;
+  /**
+   * @deprecated Call the [`removePanel(value, true)`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanel) method instead.
+   */
+  public removePanelUI(value: any): void {
+    this.removePanel(value, this.isRequireConfirmOnDelete(value));
+  }
   /**
    * Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
    * @param value A `PanelModel` instance or zero-based panel index.
+   * @param confirmDelete *(Optional)* Pass `true` if you want to perform additional actions: check whether the panel [can be removed](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canRemovePanel) and display a confirmation dialog.
    * @see addPanel
    */
-  public removePanel(value: any): void {
+  public removePanel(value: any, confirmDelete?: boolean): void {
     const visIndex = this.getVisualPanelIndex(value);
     if (visIndex < 0 || visIndex >= this.visiblePanelCount) return;
+    const isUI = confirmDelete !== undefined;
+    if(isUI) {
+      if(!this.canRemovePanel) return;
+      const removePanel = () => {
+        this.removePanelCore(visIndex);
+        const pnlCount = this.visiblePanelCount;
+        const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
+        let id = pnlCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getPanelRemoveButtonId(this.visiblePanels[nextIndex]) : "");
+        if(!!id) {
+          SurveyElement.FocusElement(id, true, this.survey?.rootElement);
+        }
+      };
+      if (confirmDelete) {
+        confirmActionAsync({
+          message: this.confirmDeleteText,
+          funcOnYes: () => { removePanel(); },
+          locale: this.getLocale(),
+          rootElement: this.survey.rootElement,
+          cssClass: this.cssClasses.confirmDialog
+        });
+      } else {
+        removePanel();
+      }
+    } else {
+      this.removePanelCore(visIndex);
+    }
+  }
+  private removedPanelIndex: number;
+  private removePanelCore(visIndex: number): void {
     this.removedPanelIndex = visIndex;
     const panel = this.visiblePanelsCore[visIndex];
     const index = this.panelsCore.indexOf(panel);
@@ -1837,28 +1869,28 @@ export class QuestionPanelDynamicModel extends Question
   private get canBuildPanels(): boolean {
     return !this.isLoadingFromJson && !this.useTemplatePanel;
   }
-  public onFirstRendering(): void {
-    super.onFirstRendering();
+  protected onFirstRenderingCore(): void {
+    super.onFirstRenderingCore();
     this.buildPanelsFirstTime();
     this.template.onFirstRendering();
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.panelsCore[i].onFirstRendering();
     }
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.panelsCore[i].localeChanged();
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     this.runPanelsCondition(this.panelsCore, values, properties);
   }
-  public runTriggers(name: string, value: any): void {
-    super.runTriggers(name, value);
+  public runTriggers(name: string, value: any, keys?: any): void {
+    super.runTriggers(name, value, keys);
     this.visiblePanelsCore.forEach(p => {
-      p.questions.forEach(q => q.runTriggers(name, value));
+      p.questions.forEach(q => q.runTriggers(name, value, keys));
     });
   }
   private reRunCondition() {
@@ -2096,11 +2128,11 @@ export class QuestionPanelDynamicModel extends Question
   }
   public getPanelActions(panel: PanelModel): Array<IAction> {
     let actions = panel.footerActions;
-    if (this.panelRemoveButtonLocation !== "right") {
+    if (this.removePanelButtonLocation !== "right") {
       actions.push(new Action({
         id: `remove-panel-${panel.id}`,
         component: "sv-paneldynamic-remove-btn",
-        visible: <any>new ComputedUpdater(() => [this.canRemovePanel, panel.state !== "collapsed", this.panelRemoveButtonLocation !== "right"].every((val: boolean) => val === true)),
+        visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel, "bottom")].every((val: boolean) => val === true)),
         data: { question: this, panel: panel }
       }));
     }
@@ -2108,6 +2140,14 @@ export class QuestionPanelDynamicModel extends Question
       actions = this.survey.getUpdatedPanelFooterActions(panel, actions, this);
     }
     return actions;
+  }
+  public canRenderRemovePanelOnRight(panel: PanelModel): boolean {
+    return this.canRenderRemovePanel(panel, "right");
+  }
+  private canRenderRemovePanel(panel: PanelModel, side: string): boolean {
+    const canRemove = this.canRemovePanel;
+    const notCollpased = panel.state !== "collapsed";
+    return this.removePanelButtonLocation === side && canRemove && notCollpased;
   }
   protected createNewPanel(): PanelModel {
     var panel = this.createAndSetupNewPanelObject();
@@ -2119,12 +2159,14 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isDesignMode && !this.isReadOnly && !this.isValueEmpty(panel.getValue())) {
       this.runPanelsCondition([panel], this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
-    panel.onFirstRendering();
     var questions = panel.questions;
     for (var i = 0; i < questions.length; i++) {
       questions[i].setParentQuestion(this);
     }
-    panel.locStrsChanged();
+    if(this.wasRendered) {
+      panel.onFirstRendering();
+      panel.locStrsChanged();
+    }
     panel.onGetFooterActionsCallback = () => {
       return this.getPanelActions(panel);
     };
@@ -2144,8 +2186,8 @@ export class QuestionPanelDynamicModel extends Question
     return panel;
   }
   private getTemplateQuestionTitleLocation(): string {
-    return this.templateTitleLocation != "default"
-      ? this.templateTitleLocation
+    return this.templateQuestionTitleLocation != "default"
+      ? this.templateQuestionTitleLocation
       : this.getTitleLocationCore();
   }
   public getChildErrorLocation(child: Question): string {
@@ -2216,7 +2258,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected onSetData(): void {
     super.onSetData();
-    if (this.useTemplatePanel) {
+    if(!this.isLoadingFromJson && this.useTemplatePanel) {
       this.setTemplatePanelSurveyImpl();
       this.rebuildPanels();
     }
@@ -2269,6 +2311,7 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     if (!qValue[index]) qValue[index] = {};
+    const oldVal = qValue[index][name];
     if (!this.isValueEmpty(val)) {
       qValue[index][name] = val;
     } else {
@@ -2279,17 +2322,20 @@ export class QuestionPanelDynamicModel extends Question
         name
       );
     }
+    const options = {
+      panel: (<QuestionPanelDynamicItem>item).panel,
+      name: name,
+      panelIndex: index,
+      panelData: qValue[index],
+      value: val,
+      oldValue: oldVal
+    };
+    if (this.survey) {
+      this.survey.dynamicPanelItemValueChanging(this, options);
+    }
     this.value = qValue;
     this.changingValueQuestion = null;
     if (this.survey) {
-      var options = {
-        question: this,
-        panel: (<QuestionPanelDynamicItem>item).panel,
-        name: name,
-        itemIndex: index,
-        itemValue: qValue[index],
-        value: val,
-      };
       this.survey.dynamicPanelItemValueChanged(this, options);
     }
     this.isSetPanelItemData[name]--;
@@ -2360,14 +2406,14 @@ export class QuestionPanelDynamicModel extends Question
     return new CssClassBuilder()
       .append(this.cssClasses.panelWrapper, !panel || panel.visible)
       .append(this.cssClasses.panelWrapperList, this.isRenderModeList)
-      .append(this.cssClasses.panelWrapperInRow, this.panelRemoveButtonLocation === "right")
+      .append(this.cssClasses.panelWrapperInRow, this.removePanelButtonLocation === "right")
       .toString();
   }
   public getPanelRemoveButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.button)
       .append(this.cssClasses.buttonRemove)
-      .append(this.cssClasses.buttonRemoveRight, this.panelRemoveButtonLocation === "right")
+      .append(this.cssClasses.buttonRemoveRight, this.removePanelButtonLocation === "right")
       .toString();
   }
   public getAddButtonCss(): string {
@@ -2445,14 +2491,14 @@ export class QuestionPanelDynamicModel extends Question
     const items = [];
     const prevTextBtn = new Action({
       id: "sv-pd-prev-btn",
-      title: this.panelPrevText,
+      title: this.prevPanelText,
       action: () => {
         this.goToPrevPanel();
       }
     });
     const nextTextBtn = new Action({
       id: "sv-pd-next-btn",
-      title: this.panelNextText,
+      title: this.nextPanelText,
       action: () => {
         this.goToNextPanel();
       }
@@ -2646,7 +2692,7 @@ Serializer.addClass(
       defaultFunc: () => settings.panel.maxPanelCount,
     },
     "defaultPanelValue:panelvalue",
-    "defaultValueFromLastPanel:boolean",
+    { name: "copyDefaultValueFromLastEntry:boolean", alternativeName: "defaultValueFromLastPanel" },
     {
       name: "panelsState",
       default: "default",
@@ -2665,23 +2711,23 @@ Serializer.addClass(
       visibleIf: (obj: any) => { return obj.confirmDelete; }
     },
     {
-      name: "panelAddText",
-      serializationProperty: "locPanelAddText",
+      name: "addPanelText", alternativeName: "panelAddText",
+      serializationProperty: "locAddPanelText",
       visibleIf: (obj: any) => { return obj.allowAddPanel; }
     },
     {
-      name: "panelRemoveText",
-      serializationProperty: "locPanelRemoveText",
+      name: "removePanelText", alternativeName: "panelRemoveText",
+      serializationProperty: "locRemovePanelText",
       visibleIf: (obj: any) => { return obj.allowRemovePanel; }
     },
     {
-      name: "panelPrevText",
-      serializationProperty: "locPanelPrevText",
+      name: "prevPanelText", alternativeName: "panelPrevText",
+      serializationProperty: "locPrevPanelText",
       visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
     },
     {
-      name: "panelNextText",
-      serializationProperty: "locPanelNextText",
+      name: "nextPanelText", alternativeName: "panelNextText",
+      serializationProperty: "locNextPanelText",
       visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
     },
     {
@@ -2689,21 +2735,10 @@ Serializer.addClass(
       default: "off",
       choices: ["off", "onPanel", "onSurvey"],
     },
-    {
-      name: "showRangeInProgress:boolean",
-      default: true,
-      visible: false
-      // visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
-    },
-    {
-      name: "renderMode",
-      default: "list",
-      choices: ["list", "progressTop", "progressBottom", "progressTopBottom", "tab"],
-      visible: false,
-    },
+    { name: "renderMode", visible: false, isSerializable: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
-      name: "showProgressBar:boolean",
+      name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",
       default: true,
       visibleIf: (obj: any) => { return obj.displayMode === "carousel"; }
     },
@@ -2711,14 +2746,14 @@ Serializer.addClass(
       name: "progressBarLocation",
       default: "top",
       choices: ["top", "bottom", "topBottom"],
-      visibleIf: (obj: any) => { return obj.showProgressBar; }
+      visibleIf: (obj: any) => { return obj.showProgressBar && obj.displayMode === "carousel"; }
     },
     {
       name: "tabAlign", default: "center", choices: ["left", "center", "right"],
       visibleIf: (obj: any) => { return obj.displayMode === "tab"; }
     },
     {
-      name: "templateTitleLocation",
+      name: "templateQuestionTitleLocation", alternativeName: "questionTitleLocation",
       default: "default",
       choices: ["default", "top", "bottom", "left"],
     },
@@ -2728,7 +2763,7 @@ Serializer.addClass(
       category: "logic"
     },
     {
-      name: "panelRemoveButtonLocation",
+      name: "removePanelButtonLocation", alternativeName: "panelRemoveButtonLocation",
       default: "bottom",
       choices: ["bottom", "right"],
       visibleIf: (obj: any) => { return obj.allowRemovePanel; }

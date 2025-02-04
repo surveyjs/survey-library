@@ -1,22 +1,15 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest } from "../../helper";
-import { getListItemByText } from "../../../testCafe/helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { getListItemByText } from "../../../functionalTests/helper";
 
 const title = "Survey themes Screenshot";
 
 fixture`${title}`.page`${url}`;
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`
     .beforeEach(async t => {
-      await applyTheme(theme);
     });
 
   test("Check question title font size", async (t) => {
@@ -247,6 +240,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 1600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         "logoPosition": "right",
         "pages": [
@@ -298,6 +292,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 1600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "elements": [
           {
             "type": "dropdown",
@@ -328,6 +323,7 @@ frameworks.forEach(framework => {
   });
 
   const jsonWithInputs = {
+    showQuestionNumbers: "on",
     "logoPosition": "right",
     "pages": [
       {
@@ -462,7 +458,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-theme-mobile-input-size.png", Selector(".sd-root-modern"), t, comparer);
 
       await t.resizeWindow(400, 1000);
-      await t.click(questionDropdownSelect);
+      await t.click(questionDropdownSelect.nth(1));
       await takeElementScreenshot("survey-theme-mobile-popup-input-size.png", popupContainer, t, comparer);
     });
   });
@@ -471,6 +467,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 3000);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "pages": [
           {
             "name": "page1",
@@ -514,6 +511,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "focusFirstQuestionAutomatic": false,
         "pages": [
@@ -584,4 +582,35 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Question scaling", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+      });
+
+      await ClientFunction(() => {
+        (<any>window).survey.isCompact = true;
+        (<any>window).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-font-size": "3.2px",
+            "--sjs-base-unit": "1.6px",
+          }
+        });
+      })();
+      const question = Selector(".sd-question");
+      await takeElementScreenshot("question-scaling.png", question, t, comparer);
+    });
+  });
 });

@@ -46,6 +46,17 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "Create Action from Action",
+  (assert) => {
+    const action = new Action(<any>{ title: "action" });
+    const newAction = new Action(action);
+    newAction.title = "new action";
+    assert.equal(newAction.title, "new action");
+    assert.equal(action.title, "action");
+  }
+);
+
 QUnit.test("AdaptiveActionContainer.css",
   (assert) => {
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();
@@ -153,6 +164,7 @@ QUnit.test("Action title", (assert) => {
   assert.equal(action1.title, "Select All", "Update action title en localization");
   assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");
   survey.locale = "de";
+  assert.equal(action1.getLocale(), "de", "locale de");
   assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization");
   assert.equal(action1.title, "Alles auswählen", "Update action title de localization");
   assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");
@@ -167,11 +179,12 @@ QUnit.test("Action title in list model", (assert) => {
   });
   const list = new ListModel({ items: [action1], onSelectionChanged: () => { }, allowSelection: true } as any);
   const popupModel = new PopupModel("sv-list", list, { verticalPosition: "bottom", horizontalPosition: "center" });
-  survey.addNavigationItem({ id: "action1", title: "test", popupModel: popupModel });
+  survey.addNavigationItem({ id: "action2", title: "test", popupModel: popupModel });
   assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
   assert.equal(action1.title, "Select All", "Update action title en localization");
   assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");
   survey.locale = "de";
+  assert.equal(action1.getLocale(), "de");
   assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization");
   assert.equal(action1.title, "Alles auswählen", "Update action title de localization");
   assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");

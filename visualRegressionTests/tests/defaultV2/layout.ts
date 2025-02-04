@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, resetFocusToBody, wrapVisualTest, takeElementScreenshot, resetHoverToBody } from "../../helper";
+import { url, frameworks, initSurvey, resetFocusToBody, wrapVisualTest, takeElementScreenshot, resetHoverToBody } from "../../helper";
 
 const title = "Survey Layout (paddings, positioning and so on)";
 
@@ -7,22 +7,18 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
 const pageTitle = "Animals";
 const pageDescription = "Animals are multicellular, eukaryotic organisms in the biological kingdom Animalia. With few exceptions, animals consume organic material, breathe oxygen, are able to move, can reproduce sexually, and grow from a hollow sphere of cells, the blastula, during embryonic development.";
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => { await applyTheme(theme); });
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`;
 
   test("Static - with panels", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1800, 1000);
       await initSurvey(framework, {
+        headerView: "basic",
         "title": "Static",
         "description": "",
         "showQuestionNumbers": false,
@@ -77,6 +73,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1800, 1000);
       await initSurvey(framework, {
+        headerView: "basic",
         "title": "Static",
         "description": "",
         "showQuestionNumbers": false,
@@ -131,6 +128,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1800, 1000);
       await initSurvey(framework, {
+        headerView: "basic",
         "title": "Responsive",
         "description": "",
         "showQuestionNumbers": false,
@@ -185,6 +183,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1800, 1000);
       await initSurvey(framework, {
+        headerView: "basic",
         "title": "Responsive",
         "description": "",
         "showQuestionNumbers": false,

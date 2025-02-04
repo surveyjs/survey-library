@@ -6,9 +6,9 @@ import { CharacterCounterComponent } from "./components/character-counter";
 import { TextAreaComponent } from "./components/text-area";
 
 export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<QuestionCommentModel> {
-  private renderCharacterCounter() : JSX.Element | null {
-    let counter: JSX.Element | null = null;
-    if(!!this.question.getMaxLength()) {
+  private renderCharacterCounter(): React.JSX.Element | null {
+    let counter: React.JSX.Element | null = null;
+    if (!!this.question.getMaxLength()) {
       counter = <CharacterCounterComponent
         counter={this.question.characterCounter}
         remainingCharacterCounter={this.question.cssClasses.remainingCharacterCounter}>
@@ -19,7 +19,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
   constructor(props: any) {
     super(props);
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.value}</div>;
     }
@@ -51,7 +51,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     return this.props.question.commentTextAreaModel;
   }
 
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const question = this.props.question;
     if (question.isReadOnlyRenderDiv()) {
       const comment = this.textAreaModel.getTextValue() || "";

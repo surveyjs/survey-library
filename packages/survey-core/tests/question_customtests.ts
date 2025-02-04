@@ -14,10 +14,10 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
 import { LocalizableString } from "../src/localizablestring";
 import { PanelModel } from "../src/panel";
-import { StylesManager } from "@legacy/stylesmanager";
 import { ArrayChanges, Base } from "../src/base";
 import { QuestionFileModel } from "../src/question_file";
 import { ConsoleWarnings } from "../src/console-warnings";
+import { setOldTheme } from "./oldTheme";
 
 export default QUnit.module("custom questions");
 
@@ -400,7 +400,7 @@ QUnit.test("Composite: create from code", function (assert) {
   assert.equal(firstName.isRequired, true, "first name is required");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: onPropertyChanged", function (assert) {
+QUnit.test("Composite: content questions numbering", function (assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -417,6 +417,7 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
   };
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
+    showQuestionNumbers: "on",
     elements: [
       { type: "text", name: "q1" },
       { type: "customerinfo", name: "q2" },
@@ -435,8 +436,8 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Custom, get css from contentQuestion", function (assert) {
-  StylesManager.applyTheme("default");
   var survey = new SurveyModel();
+  setOldTheme(survey);
   survey.css.dropdown.small = "small";
   survey.css.dropdown.title = "title";
   survey.css.question.titleOnAnswer = "onAnswer";
@@ -483,8 +484,8 @@ QUnit.test("Custom, get css from contentQuestion", function (assert) {
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite, update panel css", function (assert) {
-  StylesManager.applyTheme("default");
   var survey = new SurveyModel();
+  setOldTheme(survey);
   survey.css.question.small = "small";
   survey.css.question.title = "title";
   survey.css.question.titleOnAnswer = "onAnswer";
@@ -849,7 +850,7 @@ QUnit.test("Composite: remove invisible values", function (assert) {
   lastName.value = "last";
   assert.equal(lastName.value, "last", "value set correctly");
   firstName.value = "Jon";
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.deepEqual(
     survey.data,
     { q1: { firstName: "Jon" } },
@@ -1896,15 +1897,18 @@ QUnit.test("Check updateElementCss for custom question", function (assert) {
     name: "newquestion",
     questionJSON: { type: "text" },
   };
-  StylesManager.applyTheme("default");
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1" }],
   });
   const question = <QuestionCustomModel>survey.getAllQuestions()[0];
+  const css1 = question.cssClassesValue;
+  const css2 = question.contentQuestion.cssClassesValue;
+  assert.ok(css1);
+  assert.ok(css2);
   question.updateElementCss();
-  assert.equal(question.cssClassesValue, undefined);
-  assert.equal(question.contentQuestion.cssClassesValue, undefined);
+  assert.notStrictEqual(question.cssClassesValue, css1);
+  assert.notStrictEqual(question.contentQuestion.cssClassesValue, css2);
   ComponentCollection.Instance.clear();
 });
 QUnit.test("onvalueChanging/Changed events", function (assert) {
@@ -3075,7 +3079,7 @@ QUnit.test("Single: showPreviewBeforeComplete Bug#8005", function (assert) {
   survey.getQuestionByName("question1").value = 1;
   survey.showPreview();
   assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.deepEqual(survey.data, { question1: 1 }, "survey.data #2");
   ComponentCollection.Instance.clear();
 });
@@ -3433,6 +3437,57 @@ QUnit.test("Dynamic serializable properties, bug#8852", function (assert) {
     ]
   });
   assert.notOk(survey.jsonErrors, "There is not errors");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: clearIfInvisible='onHidden'", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3] },
+      { type: "text", name: "q3", clearIfInvisible: "onHidden", visibleIf: "{composite.q2}=2" }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  q1.contentPanel.getQuestionByName("q1").value = "test1";
+  q1.contentPanel.getQuestionByName("q2").value = 2;
+  q1.contentPanel.getQuestionByName("q3").value = "abc";
+  assert.deepEqual(q1.value, { q1: "test1", q2: 2, q3: "abc" }, "test #1");
+  q1.contentPanel.getQuestionByName("q2").value = 3;
+  assert.deepEqual(q1.value, { q1: "test1", q2: 3 }, "test #1");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: with dropdown & showOtherItem, Bug#9378", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3], showOtherItem: true }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "question1" }
+    ]
+  });
+  const q = <QuestionCompositeModel>survey.getQuestionByName("question1");
+  const q1 = q.contentPanel.getQuestionByName("q1");
+  const q2 = q.contentPanel.getQuestionByName("q2");
+  q1.value = "test1";
+  q2.value = "other";
+  q2.comment = "abc";
+  assert.deepEqual(q.value, { q1: "test1", q2: "other", "q2-Comment": "abc" }, "q.value #1");
+  survey.data = {};
+  assert.ok(q.isEmpty(), "q.value #2");
+  survey.data = { question1: { q1: "test2", q2: "other", "q2-Comment": "def" } };
+  assert.deepEqual(q.value, { q1: "test2", q2: "other", "q2-Comment": "def" }, "q.value #3");
 
   ComponentCollection.Instance.clear();
 });

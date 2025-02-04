@@ -20,7 +20,7 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
   handleOnRowRemoveClick(event: any) {
     this.question.removeRowUI(this.row);
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var removeRowText = this.renderLocString(this.question.locRemoveRowText);
     return (
       <button

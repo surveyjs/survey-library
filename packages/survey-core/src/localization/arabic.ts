@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var arabicSurveyStrings = {
   pagePrevText: "السابق",
@@ -59,7 +59,7 @@ export var arabicSurveyStrings = {
   addColumn: "أضف العمود",
   addRow: "اضافة صف",
   removeRow: "إزالة صف",
-  emptyRowsText: "لا توجد صفوف.",
+  noRowsText: "لا توجد صفوف.",
   addPanel: "اضف جديد",
   removePanel: "إزالة",
   showDetails: "اظهر التفاصيل",
@@ -110,7 +110,7 @@ export var arabicSurveyStrings = {
   cancel: "إلغاء الأمر"
 };
 
-surveyLocalization.setupLocale("ar", arabicSurveyStrings, "العربية", "Arabic", "rtl");
+setupLocale({ localeCode: "ar", strings: arabicSurveyStrings, nativeName: "العربية", englishName: "Arabic", rtl: true });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -120,7 +120,7 @@ surveyLocalization.setupLocale("ar", arabicSurveyStrings, "العربية", "Ara
 // minError: "The value should not be less than {0}" => "يجب ألا تقل القيمة عن {0}"
 // maxError: "The value should not be greater than {0}" => "يجب ألا تزيد القيمة عن {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "اسحب ملفا وأفلته هنا أو انقر فوق الزر أدناه واختر ملفا لتحميله."
-// emptyRowsText: "There are no rows." => "لا توجد صفوف."
+// noRowsText: "There are no rows." => "لا توجد صفوف."
 // multipletext_itemname: "text" => "نص"
 // signaturePlaceHolder: "Sign here" => "وقع هنا"
 // modalCancelButtonText: "Cancel" => "إلغاء الأمر"

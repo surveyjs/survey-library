@@ -3,7 +3,7 @@ import { ActionContainer } from "./actions/container";
 import { Action, BaseAction, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
-import { getFirstVisibleChild } from "./utils/utils";
+import { classesToSelector, getFirstVisibleChild } from "./utils/utils";
 import { settings } from "./settings";
 import { ILocalizableOwner } from "./localizablestring";
 
@@ -14,6 +14,7 @@ export let defaultListCss = {
   loadingIndicator: "sv-list__loading-indicator",
   itemSelected: "sv-list__item--selected",
   itemGroup: "sv-list__item--group",
+  itemGroupSelected: "sv-list__item--group-selected",
   itemWithIcon: "sv-list__item--with-icon",
   itemDisabled: "sv-list__item--disabled",
   itemFocused: "sv-list__item--focused",
@@ -39,6 +40,7 @@ export interface IListModel {
   selectedItem?: IAction;
   elementId?: string;
   locOwner?: ILocalizableOwner;
+  cssClasses?: any;
   onFilterStringChangedCallback?: (text: string) => void;
   onTextSearchCallback?: (item: IAction, textToSearch: string) => boolean;
 }
@@ -118,13 +120,16 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if (!!this.onFilterStringChangedCallback) {
       this.onFilterStringChangedCallback(text);
     }
+    this.updateIsEmpty();
+  }
+  private updateIsEmpty(): void {
     this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
   }
-  private scrollToItem(selector: string, ms = 0): void {
+  private scrollToItem(classes: string, ms = 0): void {
     setTimeout(() => {
       if (!this.listContainerHtmlElement) return;
 
-      const item = this.listContainerHtmlElement.querySelector("." + selector);
+      const item = this.listContainerHtmlElement.querySelector(classesToSelector(classes));
       if (item) {
         setTimeout(() => {
           item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
@@ -158,6 +163,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
             (this as any)[key] = options[key];
         }
       });
+      this.updateActionsIds();
     } else {
       this.setItems(items as Array<IAction>);
       this.selectedItem = selectedItem;
@@ -171,12 +177,19 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     super.setItems(items, sortByVisibleIndex);
-    if (this.elementId) {
-      this.renderedActions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
-    }
+    this.updateActionsIds();
     if (!this.isAllDataLoaded && !!this.actions.length) {
       this.actions.push(this.loadingIndicator);
     }
+  }
+  private updateActionsIds(): void {
+    if (this.elementId) {
+      this.renderedActions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
+    }
+  }
+  public setSearchEnabled(newValue: boolean): void {
+    this.searchEnabled = newValue;
+    this.showSearchClearButton = newValue;
   }
   protected onSet(): void {
     this.showFilter = this.searchEnabled && (this.forceShowFilter || (this.actions || []).length > ListModel.MINELEMENTCOUNT);
@@ -239,22 +252,32 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       .toString();
   }
   public getItemClass: (itemValue: T) => string = (itemValue: T) => {
+    const isSelected = this.isItemSelected(itemValue);
     return new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemWithIcon, !!itemValue.iconName)
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
       .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
-      .append(this.cssClasses.itemSelected, this.isItemSelected(itemValue))
+      .append(this.cssClasses.itemSelected, !itemValue.hasSubItems && isSelected)
       .append(this.cssClasses.itemGroup, itemValue.hasSubItems)
+      .append(this.cssClasses.itemGroupSelected, itemValue.hasSubItems && isSelected)
+
       .append(this.cssClasses.itemHovered, itemValue.isHovered)
       .append(this.cssClasses.itemTextWrap, this.textWrapEnabled)
       .append(itemValue.css)
       .toString();
   };
 
-  public getItemIndent = (itemValue: any) => {
+  // public getItemIndent = (itemValue: any) => {
+  //   const level: number = itemValue.level || 0;
+  //   return (level + 1) * ListModel.INDENT + "px";
+  // };
+
+  public getItemStyle = (itemValue: any) => {
     const level: number = itemValue.level || 0;
-    return (level + 1) * ListModel.INDENT + "px";
+    return {
+      "--sjs-list-item-level": level + 1
+    };
   };
 
   public get filterStringPlaceholder(): string {
@@ -264,7 +287,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return this.isAllDataLoaded ? this.getLocalizationString("emptyMessage") : this.loadingText;
   }
   public get scrollableContainer(): HTMLElement {
-    return this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemsContainer);
+    return this.listContainerHtmlElement.querySelector(classesToSelector(this.cssClasses.itemsContainer));
   }
   public get loadingText(): string {
     return this.getLocalizationString("loadingFile");
@@ -307,7 +330,11 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public onPointerDown(event: PointerEvent, item: any) { }
   public refresh(): void { // used in popup
-    this.filterString = "";
+    if(this.filterString !== "") {
+      this.filterString = "";
+    } else {
+      this.updateIsEmpty();
+    }
     this.resetFocusedItem();
   }
   public onClickSearchClearButton(event: any) {
@@ -371,10 +398,14 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   }
   public scrollToFocusedItem(): void {
-    this.scrollToItem(this.getDefaultCssClasses().itemFocused);
+    this.scrollToItem(this.cssClasses.itemFocused);
   }
   public scrollToSelectedItem(): void {
-    this.scrollToItem(this.getDefaultCssClasses().itemSelected, 110);
+    if (!!this.selectedItem && this.selectedItem.items && this.selectedItem.items.length > 0) {
+      this.scrollToItem(this.cssClasses.itemGroupSelected, 110);
+    } else {
+      this.scrollToItem(this.cssClasses.itemSelected, 110);
+    }
   }
 
   public addScrollEventListener(handler: (e?: any) => void): void {

@@ -9,6 +9,8 @@ export interface IPopupOptionsBase {
   onShow?: () => void;
   onCancel?: () => void;
   onDispose?: () => void;
+  getTargetCallback?: (container: HTMLElement) => HTMLElement;
+  getAreaCallback?: (container: HTMLElement) => HTMLElement;
   cssClass?: string;
   title?: string;
   verticalPosition?: VerticalPosition;
@@ -34,6 +36,8 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   public onHide: () => void = () => { };
   public onShow: () => void = () => { };
   public onDispose: () => void = () => { };
+  public getTargetCallback?: (container: HTMLElement) => HTMLElement;
+  public getAreaCallback?: (container: HTMLElement) => HTMLElement;
 
   @property() contentComponentName: string;
   @property() contentComponentData: T;
@@ -62,19 +66,14 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   constructor(
     contentComponentName: string,
     contentComponentData: T,
-    option1?: IPopupOptionsBase | any,
-    option2?: any
+    options?: IPopupOptionsBase
   ) {
     super();
     this.contentComponentName = contentComponentName;
     this.contentComponentData = contentComponentData;
-    if (!!option1 && typeof option1 === "string") {
-      this.verticalPosition = option1 as VerticalPosition;
-      this.horizontalPosition = option2;
-    } else if (!!option1) {
-      const popupOptions = option1 as IPopupOptionsBase;
-      for (var key in popupOptions) {
-        (<any>this)[key] = (<any>popupOptions)[key];
+    if (!!options) {
+      for (var key in options) {
+        (<any>this)[key] = (<any>options)[key];
       }
     }
   }
@@ -108,6 +107,9 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     return options.actions;
   }
   public updateDisplayMode(menuType: "dropdown" | "popup" | "overlay"): void {
+    if(this.displayMode !== menuType) {
+      this.setWidthByTarget = menuType === "dropdown";
+    }
     switch (menuType) {
       case "dropdown": {
         this.displayMode = "popup";
@@ -133,29 +135,4 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     super.dispose();
     this.onDispose();
   }
-}
-
-export function createDialogOptions(
-  componentName: string,
-  data: any,
-  onApply: () => boolean,
-  onCancel?: () => void,
-  onHide = () => { },
-  onShow = () => { },
-  cssClass?: string,
-  title?: string,
-  displayMode: "popup" | "overlay" = "popup"): IDialogOptions {
-  ConsoleWarnings.warn("The `showModal()` and `createDialogOptions()` methods are obsolete. Use the `showDialog()` method instead.");
-
-  return <IDialogOptions>{
-    componentName: componentName,
-    data: data,
-    onApply: onApply,
-    onCancel: onCancel,
-    onHide: onHide,
-    onShow: onShow,
-    cssClass: cssClass,
-    title: title,
-    displayMode: displayMode
-  };
 }

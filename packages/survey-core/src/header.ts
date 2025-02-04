@@ -30,7 +30,13 @@ export class CoverCell {
     return this.cover.survey;
   }
   get css(): string {
-    const result = `${CoverCell.CLASSNAME} ${CoverCell.CLASSNAME}--${this.positionX} ${CoverCell.CLASSNAME}--${this.positionY}`;
+    const result = new CssClassBuilder()
+      .append(CoverCell.CLASSNAME)
+      .append(`${CoverCell.CLASSNAME}--${this.positionX}`)
+      .append(`${CoverCell.CLASSNAME}--${this.positionY}`)
+      .append(CoverCell.CLASSNAME + "--empty", this.isEmpty)
+      .toString();
+
     return result;
   }
   get style(): any {
@@ -55,14 +61,14 @@ export class CoverCell {
   get showDescription(): boolean {
     return this.survey.renderedHasDescription && this.positionX === this.cover.descriptionPositionX && this.positionY === this.cover.descriptionPositionY;
   }
+  get isEmpty(): boolean {
+    return !this.showLogo && !this.showTitle && !this.showDescription;
+  }
   get textAreaWidth(): string {
-    if (!this.cover.textAreaWidth) {
-      return "";
-    }
-    return "" + this.cover.textAreaWidth + "px";
+    return this.cover.renderedTextAreaWidth;
   }
   get renderedtextAreaWidth(): string {
-    return this.cover.renderedtextAreaWidth;
+    return this.cover.renderedTextAreaWidth;
   }
 }
 
@@ -79,12 +85,16 @@ export class Cover extends Base {
     return backgroundImageFit;
   }
   private updateHeaderClasses(): void {
+    const backgroundColorNone = !this.backgroundColor || this.backgroundColor === "transparent";
+    const backgroundColorAccent = this.backgroundColor === "var(--sjs-primary-backcolor)";
+    const backgroundColorCustom = !backgroundColorNone && !backgroundColorAccent;
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")
-      .append("sv-header__without-background", (this.backgroundColor === "transparent") && !this.backgroundImage)
-      .append("sv-header__background-color--none", this.backgroundColor === "transparent" && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__background-color--accent", !this.backgroundColor && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__background-color--custom", !!this.backgroundColor && this.backgroundColor !== "transparent" && !this.titleColor && !this.descriptionColor)
+      .append("sv-header--height-auto", !this.renderedHeight)
+      .append("sv-header__without-background", backgroundColorNone && !this.backgroundImage)
+      .append("sv-header__background-color--none", backgroundColorNone && !this.titleColor && !this.descriptionColor)
+      .append("sv-header__background-color--accent", backgroundColorAccent && !this.titleColor && !this.descriptionColor)
+      .append("sv-header__background-color--custom", backgroundColorCustom && !this.titleColor && !this.descriptionColor)
       .append("sv-header__overlap", this.overlapEnabled)
       .toString();
   }
@@ -140,7 +150,7 @@ export class Cover extends Base {
   @property() public textAreaWidth: number;
   @property() public textGlowEnabled: boolean;
   @property() public overlapEnabled: boolean;
-  @property() public backgroundColor: string;
+  @property({ defaultValue: "transparent" }) public backgroundColor: string;
   @property() public titleColor: string;
   @property() public descriptionColor: string;
   @property({
@@ -174,7 +184,8 @@ export class Cover extends Base {
     }
     return undefined;
   }
-  public get renderedtextAreaWidth(): string {
+
+  public get renderedTextAreaWidth(): string {
     if (this.textAreaWidth) {
       return this.textAreaWidth + "px";
     }
@@ -182,6 +193,9 @@ export class Cover extends Base {
       return this.survey.width;
     }
     return "100%";
+  }
+  public get isEmpty(): boolean {
+    return !this.survey.hasLogo && !this.survey.hasTitle && !this.survey.renderedHasDescription;
   }
   public get survey(): SurveyModel {
     return this._survey;
@@ -210,7 +224,7 @@ export class Cover extends Base {
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     super.propertyValueChanged(name, oldValue, newValue);
-    if (name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
+    if (name === "height" || name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
       this.updateHeaderClasses();
     }
     if (name === "inheritWidthFrom") {
@@ -265,17 +279,17 @@ export class Cover extends Base {
 Serializer.addClass(
   "cover",
   [
-    { name: "height:number", minValue: 0, default: 256 },
+    { name: "height:number", minValue: 0, default: 0 },
     { name: "mobileHeight:number", minValue: 0, default: 0 },
-    { name: "inheritWidthFrom", default: "container" },
-    { name: "textAreaWidth:number", minValue: 0, default: 512 },
+    { name: "inheritWidthFrom", default: "survey" },
+    { name: "textAreaWidth:number", minValue: 0, default: 0 },
     { name: "textGlowEnabled:boolean" },
     { name: "overlapEnabled:boolean" },
     { name: "backgroundImage:file" },
     { name: "backgroundImageOpacity:number", minValue: 0, maxValue: 1, default: 1 },
     { name: "backgroundImageFit", default: "cover", choices: ["cover", "fill", "contain"] },
-    { name: "logoPositionX", default: "right" },
-    { name: "logoPositionY", default: "top" },
+    { name: "logoPositionX", default: "left" },
+    { name: "logoPositionY", default: "bottom" },
     { name: "titlePositionX", default: "left" },
     { name: "titlePositionY", default: "bottom" },
     { name: "descriptionPositionX", default: "left" },

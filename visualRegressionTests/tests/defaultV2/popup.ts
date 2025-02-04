@@ -1,6 +1,6 @@
 import { Selector } from "testcafe";
-import { frameworks, initSurvey, url, url_test, takeElementScreenshot, applyTheme, wrapVisualTest, resetHoverToBody } from "../../helper";
-import { getListItemByText } from "../../../testCafe/helper";
+import { frameworks, initSurvey, url, takeElementScreenshot, wrapVisualTest, resetHoverToBody } from "../../helper";
+import { getListItemByText } from "../../../functionalTests/helper";
 
 const title = "Popup Screenshot";
 fixture`${title}`.page`${url}`;
@@ -16,8 +16,6 @@ const json = {
     }
   ]
 };
-
-const theme = "defaultV2";
 
 const clickButton = Selector(".sv-action").filterVisible();
 const popupSelector = Selector(".sv-popup .sv-popup__container").filterVisible();
@@ -66,8 +64,8 @@ function addDropdownActionsWithIcons(_, opt) {
   const getItemWithIconList = () => {
     return [new window["Survey"].Action({ title: "item1", iconName: "icon-search" }), new window["Survey"].Action({ title: "item2", iconName: "icon-search" })];
   };
-  const itemPopupModel1 = new window["Survey"].PopupModel("sv-list",
-    { model: new window["Survey"].ListModel(getItemWithIconList()) }, "bottom", "left", true);
+  const listModel = new window["Survey"].ListModel(getItemWithIconList());
+  const itemPopupModel1 = new window["Survey"].PopupModel("sv-list", { model: listModel });
   const dropDownWithIcons = new window["Survey"].Action({
     component: "sv-action-bar-item-dropdown",
     title: "List Icons",
@@ -253,11 +251,8 @@ function addDropdownActionWithSubItemsAndSelectedItems(_, opt) {
 }
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`
-    .beforeEach(async t => {
-      await applyTheme(theme);
-    });
+  fixture`${framework} ${title}`
+    .page`${url}${framework}`;
 
   test("Dropdown popup styles", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
@@ -406,6 +401,7 @@ frameworks.forEach(framework => {
       await initSurvey(framework, json, {
         onGetQuestionTitleActions: (_, opt) => {
           const json = {
+            showQuestionNumbers: "on",
             elements: [
               {
                 type: "dropdown",
@@ -473,7 +469,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, {
-
+        showQuestionNumbers: "on",
         "pages": [
           {
             "name": "page1",

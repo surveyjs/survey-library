@@ -3,9 +3,18 @@
 </template>
 <script setup lang="ts">
 import { SvgRegistry } from "survey-core";
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 const root = ref();
+const onIconsChanged = () => {
+  if (root.value) {
+    root.value.innerHTML = SvgRegistry.iconsRenderedHtml();
+  }
+};
 onMounted(() => {
-  root.value.innerHTML = SvgRegistry.iconsRenderedHtml();
+  onIconsChanged();
+  SvgRegistry.onIconsChanged.add(onIconsChanged);
+});
+onUnmounted(() => {
+  SvgRegistry.onIconsChanged.remove(onIconsChanged);
 });
 </script>

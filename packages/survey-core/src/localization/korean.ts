@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var koreanStrings = {
   pagePrevText: "이전",
@@ -59,7 +59,7 @@ export var koreanStrings = {
   addColumn: "열 추가",
   addRow: "행 추가",
   removeRow: "제거",
-  emptyRowsText: "행이 없습니다.",
+  noRowsText: "행이 없습니다.",
   addPanel: "추가",
   removePanel: "제거",
   showDetails: "세부 정보 표시",
@@ -110,7 +110,7 @@ export var koreanStrings = {
   cancel: "취소"
 };
 
-surveyLocalization.setupLocale("ko", koreanStrings, "한국어", "Korean");
+setupLocale({ localeCode: "ko", strings: koreanStrings, nativeName: "한국어", englishName: "Korean" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

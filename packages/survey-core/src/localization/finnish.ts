@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var finnishSurveyStrings = {
   pagePrevText: "Edellinen",
@@ -59,7 +59,7 @@ export var finnishSurveyStrings = {
   addColumn: "Lisää sarake",
   addRow: "Lisää rivi",
   removeRow: "Poista",
-  emptyRowsText: "Ei rivejä",
+  noRowsText: "Ei rivejä",
   addPanel: "Lisää uusi",
   removePanel: "Poista",
   showDetails: "Näytä tiedot",
@@ -110,7 +110,7 @@ export var finnishSurveyStrings = {
   cancel: "Perua"
 };
 
-surveyLocalization.setupLocale("fi", finnishSurveyStrings, "suomi", "Finnish");
+setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suomi", englishName: "Finnish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

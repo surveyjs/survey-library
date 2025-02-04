@@ -370,6 +370,36 @@ QUnit.test("Run dateDiff by days", function(assert) {
   (<any>values).d1 = undefined;
   assert.equal(runner.run(values), null, "a value is undefined");
 });
+QUnit.test("Run dateAdd() for days", function(assert) {
+  const d1 = new Date("2021-01-01");
+  const values = { d1: d1 };
+  var runner = new ExpressionRunner("dateAdd({d1}, 32)");
+  assert.deepEqual(runner.run(values), new Date("2021-02-02"), "February 2, 2021");
+  runner = new ExpressionRunner("dateAdd({d1}, -10)");
+  assert.deepEqual(runner.run(values), new Date("2020-12-22"), "December 22, 2020");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.run(values), null, "a value is undefined");
+});
+QUnit.test("Run dateAdd() for months", function(assert) {
+  const d1 = new Date("2021-01-01");
+  const values = { d1: d1 };
+  var runner = new ExpressionRunner("dateAdd({d1}, 13, 'months')");
+  assert.deepEqual(runner.run(values), new Date("2022-02-01"), "February 1, 2022");
+  runner = new ExpressionRunner("dateAdd({d1}, -2, 'months')");
+  assert.deepEqual(runner.run(values), new Date("2020-11-01"), "November 1, 2020");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.run(values), null, "a value is undefined");
+});
+QUnit.test("Run dateAdd() for years", function(assert) {
+  const d1 = new Date("2020-02-29");
+  const values = { d1: d1 };
+  var runner = new ExpressionRunner("dateAdd({d1}, 2, 'years')");
+  assert.deepEqual(runner.run(values), new Date("2022-03-01"), "March 1, 2022");
+  runner = new ExpressionRunner("dateAdd({d1}, -2, 'years')");
+  assert.deepEqual(runner.run(values), new Date("2018-03-01"), "March 1, 2018");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.run(values), null, "a value is undefined");
+});
 QUnit.test("Run getYear() function", function(assert) {
   var runner = new ExpressionRunner("getYear({birthday})");
   var values = { birthday: new Date(1974, 1, 1) };
@@ -1682,4 +1712,11 @@ QUnit.test("ExpressionRunner: apply custom converter, #8634", function(assert) {
   assert.equal(runner.run(values), 110000, "apply custom convertr");
 
   settings.parseNumber = oldCallback;
+});
+QUnit.test("ExpressionRunner: do not convert to number extreme large strings", function(assert) {
+  const runner = new ExpressionRunner("{a} + 2");
+  const values: any = { a: "999999999999999" };
+  assert.strictEqual(runner.run(values), 1000000000000001, "it is a number");
+  values.a = "9999999999999999";
+  assert.strictEqual(runner.run(values), "99999999999999992", "it is a string");
 });

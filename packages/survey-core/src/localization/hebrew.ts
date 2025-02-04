@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var hebrewSurveyStrings = {
   pagePrevText: "אחורה",
@@ -59,7 +59,7 @@ export var hebrewSurveyStrings = {
   addColumn: "הוסף עמודה",
   addRow: "להוסיף שורה",
   removeRow: "לְהַסִיר",
-  emptyRowsText: "אין שורות.",
+  noRowsText: "אין שורות.",
   addPanel: "הוסף חדש",
   removePanel: "לְהַסִיר",
   showDetails: "הראה פרטים",
@@ -110,7 +110,7 @@ export var hebrewSurveyStrings = {
   cancel: "ביטל"
 };
 
-surveyLocalization.setupLocale("he", hebrewSurveyStrings, "עברית", "Hebrew");
+setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עברית", englishName: "Hebrew", rtl: true });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -120,7 +120,7 @@ surveyLocalization.setupLocale("he", hebrewSurveyStrings, "עברית", "Hebrew"
 // minError: "The value should not be less than {0}" => "הערך לא צריך להיות קטן מ {0}"
 // maxError: "The value should not be greater than {0}" => "הערך לא צריך להיות גדול מ- {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "גרור ושחרר קובץ לכאן או לחץ על הלחצן למטה ובחר קובץ להעלאה."
-// emptyRowsText: "There are no rows." => "אין שורות."
+// noRowsText: "There are no rows." => "אין שורות."
 // multipletext_itemname: "text" => "טקסט"
 // signaturePlaceHolder: "Sign here" => "חתום כאן"
 // modalCancelButtonText: "Cancel" => "ביטל"

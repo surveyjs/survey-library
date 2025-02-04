@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, resetFocusToBody, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, resetFocusToBody, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
 const title = "Matrixdynamic Screenshot";
 
@@ -7,16 +7,8 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`.page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-  });
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Matrix single-select", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
@@ -88,6 +80,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1200);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "focusFirstQuestionAutomatic": true,
         "pages": [
           {
@@ -262,6 +255,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1200, 1200);
       await initSurvey(framework,
         {
+          showQuestionNumbers: "on",
           pages: [
             {
               name: "page1",
@@ -783,6 +777,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "focusFirstQuestionAutomatic": false,
         "pages": [
@@ -830,6 +825,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         elements: [
           {
             type: "matrixdynamic",
@@ -865,6 +861,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         elements: [
           {
             type: "matrixdynamic",
@@ -892,6 +889,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "focusFirstQuestionAutomatic": false,
         "pages": [
@@ -958,6 +956,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "focusFirstQuestionAutomatic": false,
         "pages": [
@@ -995,6 +994,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "focusFirstQuestionAutomatic": false,
         "pages": [
@@ -1032,12 +1032,9 @@ frameworks.forEach(framework => {
       await t.click(Selector(".sd-navigation__complete-btn"));
       await resetFocusToBody();
       await takeElementScreenshot("question-matrix-alternate-rows-invalid-value.png", rowElement, t, comparer);
-
-      await ClientFunction(() => {
-        (window as any).survey.getAllQuestions()[0].value = { "Row 1": "Column 1" };
-        document.body.focus();
-      })();
-
+      await t.click(Selector("input"));
+      await takeElementScreenshot("question-matrix-alternate-rows-selected-focused.png", rowElement, t, comparer);
+      await resetFocusToBody();
       await takeElementScreenshot("question-matrix-alternate-rows-selected-value.png", rowElement, t, comparer);
     });
   });
@@ -1046,6 +1043,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "focusFirstQuestionAutomatic": false,
         "pages": [
@@ -1096,6 +1094,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "pages": [
           {
@@ -1130,6 +1129,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "focusFirstQuestionAutomatic": false,
         "pages": [
@@ -1160,6 +1160,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "focusFirstQuestionAutomatic": false,
         "pages": [
           {
@@ -1189,6 +1190,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         "elements": [
           {
@@ -1221,6 +1223,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         "elements": [
           {
@@ -1260,6 +1263,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "pages": [
           {
             "name": "page1",
@@ -1309,6 +1313,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "pages": [
           {
             "name": "page1",
@@ -1408,6 +1413,7 @@ frameworks.forEach(framework => {
     await t.resizeWindow(600, 1080);
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         elements: [
           {
             "type": "matrixdropdown",
@@ -1458,6 +1464,7 @@ frameworks.forEach(framework => {
     await t.resizeWindow(1200, 1080);
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "pages": [
           {
             "name": "page1",

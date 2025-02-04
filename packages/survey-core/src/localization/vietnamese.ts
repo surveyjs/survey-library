@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var vietnameseSurveyStrings = {
   pagePrevText: "Trở về",
@@ -59,7 +59,7 @@ export var vietnameseSurveyStrings = {
   addColumn: "Thêm cột",
   addRow: "Thêm dòng",
   removeRow: "Xóa",
-  emptyRowsText: "Không có hàng.",
+  noRowsText: "Không có hàng.",
   addPanel: "Thêm mới",
   removePanel: "Xóa",
   showDetails: "Hiển thị chi tiết",
@@ -110,8 +110,7 @@ export var vietnameseSurveyStrings = {
   cancel: "Hủy"
 };
 
-//Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
-surveyLocalization.setupLocale("vi", vietnameseSurveyStrings, "việt nam", "Vietnamese");
+setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "việt nam", englishName: "Vietnamese" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -121,7 +120,7 @@ surveyLocalization.setupLocale("vi", vietnameseSurveyStrings, "việt nam", "Vie
 // minError: "The value should not be less than {0}" => "Giá trị không được nhỏ hơn {0}"
 // maxError: "The value should not be greater than {0}" => "Giá trị không được lớn hơn {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Kéo và thả tệp vào đây hoặc nhấp vào nút bên dưới và chọn tệp để tải lên."
-// emptyRowsText: "There are no rows." => "Không có hàng."
+// noRowsText: "There are no rows." => "Không có hàng."
 // multipletext_itemname: "text" => "Nhắn tin"
 // signaturePlaceHolder: "Sign here" => "Ký tên tại đây"
 // modalCancelButtonText: "Cancel" => "Hủy"

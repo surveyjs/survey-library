@@ -1,6 +1,6 @@
 import { QuestionRatingModel } from "../src/question_rating";
 import { SurveyModel } from "../src/survey";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { CustomResizeObserver } from "./questionImagepicker";
 import { RendererFactory } from "../src/rendererFactory";
 import { DropdownListModel } from "../src/dropdownListModel";
@@ -9,11 +9,10 @@ import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { settings } from "../src/settings";
 import { _setIsTouch } from "../src/utils/devices";
-import { StylesManager } from "@legacy/stylesmanager";
 import { PopupModel } from "../src/popup";
+import { setOldTheme } from "./oldTheme";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
-  // StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -77,7 +76,7 @@ QUnit.test("check rating initResponsiveness", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.afterRender(rootElement);
   assert.ok(q1["resizeObserver"]);
@@ -124,7 +123,7 @@ QUnit.test("check rating resize observer behavior", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.afterRender(rootElement);
   assert.ok(q1["resizeObserver"]);
@@ -171,7 +170,7 @@ QUnit.test("check rating in case of state 'collapsed'", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.state = "collapsed";
   q1.afterRender(rootElement);
@@ -258,7 +257,6 @@ QUnit.test("Do not process responsiveness if displayMode: 'dropdown' and set ren
   container.remove();
 });
 QUnit.test("check getItemClass in display mode", (assert) => {
-  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -306,10 +304,13 @@ QUnit.test("Check rateValues on text change", (assert) => {
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   assert.equal(q1.rateValues.length, 0);
-  var oldRendered = q1.renderedRateValues;
+  let oldRendered = q1.renderedRateItems;
   q1.visibleRateValues[0].text = "abc";
   assert.equal(q1.rateValues.length, 5);
-  assert.equal(q1.renderedRateValues, oldRendered, "renderedRateValues is not cloned");
+  assert.strictEqual(q1.renderedRateItems, oldRendered, "renderedRateItems is cloned");
+  oldRendered = q1.renderedRateItems;
+  q1.visibleRateValues[1].text = "abc";
+  assert.strictEqual(q1.renderedRateItems, oldRendered, "renderedRateItems is not cloned");
 });
 QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => {
   var json = {
@@ -343,7 +344,6 @@ QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => 
   const dropdownListModel = new DropdownListModel(q1);
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   q1.dropdownListModel = dropdownListModel;
-  q1.cssClasses;
   assert.ok(dropdownListModel.popupModel.cssClass.includes("custom-popup-class"));
   assert.equal(list.cssClasses.item, "original-class custom-class");
   assert.equal(list.cssClasses.itemSelected, "original-class-selected custom-class-selected");
@@ -379,7 +379,6 @@ QUnit.test("Check dropdownListModel isItemSelected works correctly", (assert) =>
 
 });
 QUnit.test("check stars highlighting", (assert) => {
-  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -390,6 +389,7 @@ QUnit.test("check stars highlighting", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
+  setOldTheme(survey);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.cssClasses.itemStar = "";
   q1.cssClasses.itemStarHighlighted = "sv_q_high";
@@ -435,7 +435,6 @@ QUnit.test("check stars highlighting", (assert) => {
 });
 
 QUnit.test("check stars highlighting design mode", (assert) => {
-  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -467,7 +466,6 @@ QUnit.test("check stars highlighting design mode", (assert) => {
 });
 
 QUnit.test("check stars highlighting on touch device", (assert) => {
-  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -501,7 +499,6 @@ QUnit.test("check stars highlighting on touch device", (assert) => {
 });
 
 QUnit.test("check stars styles", (assert) => {
-  StylesManager.applyTheme("default");
   var json = {
     questions: [
       {
@@ -512,6 +509,7 @@ QUnit.test("check stars styles", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
+  setOldTheme(survey);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.cssClasses.itemStar = "";
   q1.cssClasses.itemStarHighlighted = "sv_q_high";
@@ -535,7 +533,7 @@ QUnit.test("check stars styles", (assert) => {
 });
 
 QUnit.test("check smiley styles", (assert) => {
-  StylesManager.applyTheme("default");
+
   var json = {
     questions: [
       {
@@ -583,7 +581,6 @@ QUnit.test("check smiley styles", (assert) => {
 });
 
 QUnit.test("check stars for rateValues", (assert) => {
-  StylesManager.applyTheme("default");
   var json = {
     elements: [
       {
@@ -600,6 +597,7 @@ QUnit.test("check stars for rateValues", (assert) => {
       }]
   };
   const survey = new SurveyModel(json);
+  setOldTheme(survey);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.cssClasses.itemStar = "";
   q1.cssClasses.itemStarHighlighted = "sv_q_high";
@@ -683,7 +681,7 @@ QUnit.test("check smileys for min/max", (assert) => {
 });
 
 QUnit.test("check smileys styles", (assert) => {
-  StylesManager.applyTheme("default");
+
   var json = {
     questions: [
       {
@@ -694,6 +692,7 @@ QUnit.test("check smileys styles", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
+  setOldTheme(survey);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.cssClasses.itemSmiley = "";
   q1.cssClasses.itemSmileySelected = "sv_q_selected";
@@ -743,7 +742,7 @@ QUnit.test("rating smileys max item count", (assert) => {
 });
 
 QUnit.test("check fixed width styles", (assert) => {
-  StylesManager.applyTheme("default");
+
   var json = {
     questions: [
       {
@@ -771,7 +770,7 @@ QUnit.test("check fixed width styles", (assert) => {
 });
 
 QUnit.test("check fixed width styles - rate values", (assert) => {
-  StylesManager.applyTheme("default");
+
   var json = {
     questions: [
       {
@@ -1370,7 +1369,7 @@ QUnit.test("rating colors when vars used", (assert) => {
 });
 
 QUnit.test("check rating in-matrix mode styles", (assert) => {
-  StylesManager.applyTheme("default");
+
   var json = {
     elements: [
       {
@@ -1432,7 +1431,7 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
 });
 
 QUnit.test("check rating in-matrix mode styles", (assert) => {
-  StylesManager.applyTheme("default");
+
   const survey = new SurveyModel({ questions: [{ type: "rating", name: "q1" }] });
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
   q1.cssClasses.root = "sv_q";
@@ -1445,7 +1444,7 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
 });
 
 QUnit.test("check rating display-mode styles", (assert) => {
-  StylesManager.applyTheme("default");
+
   const survey = new SurveyModel({ questions: [{ type: "rating", name: "q1" }] });
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
   q1.cssClasses.root = "sv_q-root";
@@ -1487,7 +1486,7 @@ QUnit.test("check rating triggerResponsiveness method", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
 
@@ -1712,16 +1711,16 @@ QUnit.test("Generate empty rating in column", (assert) => {
   assert.equal(col1.itemComponent, "sv-rating-item");
   assert.equal(col2.itemComponent, "sv-rating-item-star");
 });
-QUnit.test("supportGoNextPageAutomatic", (assert) => {
+QUnit.test("supportAutoAdvance", (assert) => {
   const q1 = new QuestionRatingModel("q1");
   q1.value = 1;
-  assert.equal(q1.supportGoNextPageAutomatic(), false, "#1");
+  assert.equal(q1.supportAutoAdvance(), false, "#1");
   q1.onMouseDown();
-  assert.equal(q1.supportGoNextPageAutomatic(), true, "#2");
+  assert.equal(q1.supportAutoAdvance(), true, "#2");
   q1.value = 2;
-  assert.equal(q1.supportGoNextPageAutomatic(), false, "#3");
+  assert.equal(q1.supportAutoAdvance(), false, "#3");
   q1.displayMode = "dropdown";
-  assert.equal(q1.supportGoNextPageAutomatic(), true, "#4");
+  assert.equal(q1.supportAutoAdvance(), true, "#4");
 });
 QUnit.test("Check hasMin/MaxRateDescription properties on loading", (assert) => {
   const survey = new SurveyModel({
@@ -1767,4 +1766,49 @@ QUnit.test("Check dropdown rating text, #8953", function (assert) {
   });
   const question = <QuestionRatingModel>survey.getAllQuestions()[0];
   assert.deepEqual(question.visibleChoices.map(c => c.text), ["Label0", "Label1"]);
+});
+QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2] },
+      {
+        type: "rating",
+        name: "q2",
+        rateValues: [
+          { value: "a", visibleIf: "{q1} contains 1" },
+          { value: "b", visibleIf: "{q1} contains 1" },
+          { value: "c", visibleIf: "{q1} contains 2" },
+          { value: "d", visibleIf: "{q1} contains 2" },
+          { value: "e", visibleIf: "{q1} contains 1" },
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionRatingModel>survey.getQuestionByName("q2");
+  assert.equal(q2.visibleRateValues.length, 0, "visibleRateValues #1");
+  assert.equal(q2.renderedRateItems.length, 0, "renderedRateItems #1");
+  q1.value = [1];
+  assert.equal(q2.visibleRateValues.length, 3, "visibleRateValues #2");
+  assert.equal(q2.renderedRateItems.length, 3, "renderedRateItems #2");
+  q1.value = [2];
+  assert.equal(q2.visibleRateValues.length, 2, "visibleRateValues #3");
+  assert.equal(q2.renderedRateItems.length, 2, "renderedRateItems #3");
+  q1.value = [1, 2];
+  assert.equal(q2.visibleRateValues.length, 5, "visibleRateValues #4");
+  assert.equal(q2.renderedRateItems.length, 5, "renderedRateItems #4");
+  q1.value = [];
+  assert.equal(q2.visibleRateValues.length, 0, "visibleRateValues #5");
+  assert.equal(q2.renderedRateItems.length, 0, "renderedRateItems #5 ");
+  survey.showInvisibleElements = true;
+  assert.equal(q2.renderedRateItems.length, 5, "renderedRateItems #6");
+  survey.showInvisibleElements = false;
+  assert.equal(q2.renderedRateItems.length, 0, "renderedRateItems #7");
+  q1.value = [1];
+  assert.equal(q2.renderedRateItems.length, 3, "renderedRateItems #8");
+  q2.value = "b";
+  assert.deepEqual(q2.value, "b", "value set correctly, #8");
+  q1.value = [2];
+  assert.equal(q2.renderedRateItems.length, 2, "renderedRateItems #9");
+  assert.deepEqual(q2.isEmpty(), true, "value is reset, #9");
 });

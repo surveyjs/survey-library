@@ -834,3 +834,32 @@ QUnit.test("check afterRerender function", (assert) => {
   survey.afterRerender();
   assert.equal(log, "");
 });
+
+QUnit.test("check default value doesn't exist on getPropertyValueDirectly", (assert) => {
+  Serializer.addProperty("itemvalue", {
+    name: "score:number",
+    category: "general",
+    displayName: "Score",
+    default: 1,
+    visibleIndex: 5,
+  });
+  const itemValue = new ItemValue("item1");
+  assert.equal(itemValue.getPropertyValue("score"), 1, "default value should be returned");
+  itemValue.setPropertyValue("score", 1);
+  assert.equal((itemValue as any).getPropertyValueWithoutDefault("score"), undefined, "default value shouldn't be set");
+  Serializer.removeProperty("itemvalue", "score");
+});
+QUnit.test("check default 0 value doesn't exist on getPropertyValueDirectly", (assert) => {
+  Serializer.addProperty("itemvalue", {
+    name: "score:number",
+    category: "general",
+    displayName: "Score",
+    default: 0,
+    visibleIndex: 5,
+  });
+  const itemValue = new ItemValue("item1");
+  assert.equal(itemValue.getPropertyValue("score"), 0, "default value should be returned");
+  itemValue.setPropertyValue("score", 0);
+  assert.equal((itemValue as any).getPropertyValueWithoutDefault("score"), undefined, "default value shouldn't be set");
+  Serializer.removeProperty("itemvalue", "score");
+});

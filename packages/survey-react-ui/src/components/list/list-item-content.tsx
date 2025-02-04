@@ -19,37 +19,29 @@ export class ListItemContent extends SurveyElementBase<IListItemProps, any> {
   getStateElement() {
     return this.item;
   }
-  render(): JSX.Element | null {
+  render(): React.JSX.Element | null {
     if (!this.item) return null;
 
-    const content: Array<JSX.Element> = [];
     const text = this.renderLocString(this.item.locTitle, undefined, "locString");
-    if(this.item.iconName) {
-      const icon = <SvgIcon
-        key={"icon"}
+    const icon = (this.item.iconName) ?
+      <SvgIcon
         className={this.model.cssClasses.itemIcon}
         iconName={this.item.iconName}
         size={this.item.iconSize}
         aria-label={this.item.title}
-      ></SvgIcon>;
-      content.push(icon);
-      content.push(<span key={"text"}>{text}</span>);
-    } else {
-      content.push(text);
-    }
+      ></SvgIcon> : null;
 
-    if(this.item.markerIconName) {
-      const icon = <SvgIcon
-        key={"marker"}
+    const markerIcon = (this.item.markerIconName) ?
+      <SvgIcon
         className={this.item.cssClasses.itemMarkerIcon}
         iconName={this.item.markerIconName}
-        size={this.item.markerIconSize}
-      ></SvgIcon>;
-      content.push(icon);
-    }
+        size={"auto"}
+      ></SvgIcon> : null;
 
     return <>
-      {content}
+      {icon}
+      {text}
+      {markerIcon}
     </>;
   }
 }

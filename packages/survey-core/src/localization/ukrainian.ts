@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var ukrainianSurveyStrings = {
   pagePrevText: "Назад",
@@ -59,7 +59,7 @@ export var ukrainianSurveyStrings = {
   addColumn: "Додати колонку",
   addRow: "Додати рядок",
   removeRow: "Видалити",
-  emptyRowsText: "Рядів немає.",
+  noRowsText: "Рядів немає.",
   addPanel: "Додати нову",
   removePanel: "Видалити",
   showDetails: "Показати подробиці",
@@ -110,7 +110,7 @@ export var ukrainianSurveyStrings = {
   cancel: "Скасувати"
 };
 
-surveyLocalization.setupLocale("ua", ukrainianSurveyStrings, "українська", "Ukrainian");
+setupLocale({ localeCode: "ua", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -120,7 +120,7 @@ surveyLocalization.setupLocale("ua", ukrainianSurveyStrings, "українськ
 // minError: "The value should not be less than {0}" => "Значення не повинно бути менше {0}"
 // maxError: "The value should not be greater than {0}" => "Значення не повинно бути більше {0}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Перетягніть файл сюди або натисніть кнопку нижче та виберіть файл для завантаження."
-// emptyRowsText: "There are no rows." => "Рядів немає."
+// noRowsText: "There are no rows." => "Рядів немає."
 // multipletext_itemname: "text" => "Текст"
 // signaturePlaceHolder: "Sign here" => "Підпишіться тут"
 // modalCancelButtonText: "Cancel" => "Скасувати"

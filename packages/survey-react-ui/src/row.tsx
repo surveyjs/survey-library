@@ -34,7 +34,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   protected canRender(): boolean {
     return !!this.row && !!this.survey && !!this.creator;
   }
-  protected renderElementContent(): JSX.Element {
+  protected renderElementContent(): React.JSX.Element {
     const elements = this.row.visibleElements.map((element, elementIndex) => {
       const index = elementIndex ? "-" + elementIndex : 0;
       const key = element.name + index;
@@ -58,7 +58,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
       </div>
     );
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     const survey: SurveyModel = this.survey as SurveyModel;
     const content = this.renderElementContent();
     const wrapper = ReactSurveyElementsWrapper.wrapRow(survey, content, this.row);
@@ -67,7 +67,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   componentDidMount() {
     super.componentDidMount();
     var el = this.rootRef.current;
-    if(this.rootRef.current) {
+    if (this.rootRef.current) {
       this.row.setRootElement(this.rootRef.current);
     }
     if (!!el && !this.row.isNeedRender) {
@@ -98,7 +98,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     this.stopLazyRendering();
   }
 
-  protected createElement(element: IElement, elementIndex?: number): JSX.Element {
+  protected createElement(element: IElement, elementIndex?: number): React.JSX.Element {
     const index = elementIndex ? "-" + elementIndex : 0;
     var elementType = element.getType();
     if (!ReactElementFactory.Instance.isElementRegistered(elementType)) {

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var latvianSurveyStrings = {
   pagePrevText: "Iepriekšēja lapa",
@@ -59,7 +59,7 @@ export var latvianSurveyStrings = {
   addColumn: "Pievienot kolonnu",
   addRow: "Pievienot rindu",
   removeRow: "Noņemt",
-  emptyRowsText: "Nav rindu.",
+  noRowsText: "Nav rindu.",
   addPanel: "Pievieno jaunu",
   removePanel: "Noņemt",
   showDetails: "Rādīt detalizētu informāciju",
@@ -110,7 +110,7 @@ export var latvianSurveyStrings = {
   cancel: "Atcelt"
 };
 
-surveyLocalization.setupLocale("lv", latvianSurveyStrings, "latviešu", "Latvian");
+setupLocale({ localeCode: "lv", strings: latvianSurveyStrings, nativeName: "latviešu", englishName: "Latvian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

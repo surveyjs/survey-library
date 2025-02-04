@@ -11,7 +11,6 @@ import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
-  getRequiredText(): string;
   hasChoices(): boolean;
   onColumnPropertyChanged(
     column: MatrixDropdownColumn,
@@ -111,24 +110,19 @@ export class MatrixDropdownColumn extends Base
     return res;
   }
   private templateQuestionValue: Question;
-  private colOwnerValue: IMatrixColumnOwner = null;
+  private colOwnerValue: IMatrixColumnOwner;
   private indexValue = -1;
   private _hasVisibleCell = true;
   private _visiblechoices: Array<any>;
 
-  constructor(name: string, title: string = null) {
+  constructor(name: string, title?: string, colOwner?: IMatrixColumnOwner) {
     super();
+    this.colOwnerValue = colOwner;
     this.createLocalizableString("totalFormat", this);
     this.createLocalizableString("cellHint", this);
     this.registerPropertyChangedHandlers(["showInMultipleColumns"], () => { this.doShowInMultipleColumnsChanged(); });
     this.registerPropertyChangedHandlers(["visible"], () => { this.doColumnVisibilityChanged(); });
-    this.updateTemplateQuestion();
-    this.name = name;
-    if (title) {
-      this.title = title;
-    } else {
-      this.templateQuestion.locTitle.strChanged();
-    }
+    this.updateTemplateQuestion(undefined, name, title);
   }
   public getOriginalObj(): Base {
     return this.templateQuestion;
@@ -321,8 +315,8 @@ export class MatrixDropdownColumn extends Base
   public updateIsRenderedRequired(val: boolean): void {
     this.isRenderedRequired = val || this.isRequired;
   }
-  public get requiredText(): string {
-    return this.isRenderedRequired && this.getSurvey() ? this.getSurvey().requiredText : this.templateQuestion.requiredText;
+  public get requiredMark(): string {
+    return this.isRenderedRequired && this.getSurvey() ? this.getSurvey().requiredMark : this.templateQuestion.requiredMark;
   }
   /**
    * Specifies a custom error message for a required column.
@@ -697,7 +691,7 @@ export class MatrixDropdownColumn extends Base
       );
     }
   }
-  defaultCellTypeChanged() {
+  defaultCellTypeChanged(): void {
     this.updateTemplateQuestion();
   }
   protected calcCellQuestionType(row: MatrixDropdownRowModelBase): string {
@@ -713,7 +707,7 @@ export class MatrixDropdownColumn extends Base
     if (this.colOwner) return this.colOwner.getCellType();
     return settings.matrix.defaultCellType;
   }
-  protected updateTemplateQuestion(newCellType?: string): void {
+  protected updateTemplateQuestion(newCellType?: string, name?: string, title?: string): void {
     const curCellType = this.getDefaultCellQuestionType(newCellType);
     const prevCellType = this.templateQuestion
       ? this.templateQuestion.getType()
@@ -725,6 +719,17 @@ export class MatrixDropdownColumn extends Base
     this.templateQuestionValue = this.createNewQuestion(curCellType);
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
+    if(!!name) {
+      this.name = name;
+    }
+    if(!!title) {
+      this.title = title;
+    } else {
+      this.templateQuestion.locTitle.strChanged();
+    }
+    if(settings.serialization.matrixDropdownColumnSerializeTitle) {
+      this.templateQuestion.locTitle.serializeCallBackText = true;
+    }
     this.templateQuestion.onPropertyChanged.add((sender, options) => {
       this.propertyValueChanged(
         options.name,

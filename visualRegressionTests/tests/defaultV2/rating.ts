@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, resetFocusToBody, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, takeElementScreenshot, resetFocusToBody, wrapVisualTest } from "../../helper";
 
 const title = "Rating Screenshot";
 
@@ -7,17 +7,9 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-  });
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+
   test("Check rating question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
@@ -182,6 +174,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "pages": [
           {
@@ -247,6 +240,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1000, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         locale: "de",
         pages: [{
           name: "page1", elements: [
@@ -679,39 +673,38 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const focusBody = ClientFunction(() => { document.body.focus(); });
-      await initSurvey(framework,
-
-        {
-          widthMode: "static",
-          questions: [
-            {
-              "type": "matrixdropdown",
-              "name": "question7",
-              "columns": [
-                {
-                  "name": "Column 1",
-                  "cellType": "rating",
-                  "rateType": "stars"
-                },
-                {
-                  "name": "Column 2",
-                  "cellType": "rating",
-                  "rateType": "smileys"
-                }
-              ],
-              "choices": [
-                1,
-                2,
-                3,
-                4,
-                5
-              ],
-              "rows": [
-                "Row 1"
-              ]
-            }
-          ]
-        }
+      await initSurvey(framework, {
+        showQuestionNumbers: "on",
+        widthMode: "static",
+        questions: [
+          {
+            "type": "matrixdropdown",
+            "name": "question7",
+            "columns": [
+              {
+                "name": "Column 1",
+                "cellType": "rating",
+                "rateType": "stars"
+              },
+              {
+                "name": "Column 2",
+                "cellType": "rating",
+                "rateType": "smileys"
+              }
+            ],
+            "choices": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "rows": [
+              "Row 1"
+            ]
+          }
+        ]
+      }
       );
 
       const questionRoot = Selector(".sd-question--table");

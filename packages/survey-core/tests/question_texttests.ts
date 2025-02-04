@@ -3,7 +3,6 @@ import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
 import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
 import { settings } from "../src/settings";
-import { StylesManager } from "@legacy/stylesmanager";
 import { InputMaskPattern } from "../src/mask/mask_pattern";
 import { FunctionFactory } from "../src/functionsfactory";
 export * from "../src/localization/german";
@@ -380,7 +379,6 @@ QUnit.test("CharacterCounter + settings.showMaxLengthIndicator", function(assert
   assert.equal(ch.remainingCharacterCounter, "4/7", "#4");
 });
 QUnit.test("getControlClass with characterCounter", function(assert) {
-  StylesManager.applyTheme("defaultV2");
   const inputClasses = "sd-input sd-text";
   const constrolWithCharacterCounter = "sd-text__character-counter";
   const characterCounterBig = "sd-text__character-counter--big";
@@ -394,7 +392,6 @@ QUnit.test("getControlClass with characterCounter", function(assert) {
 
   q.maxLength = 100;
   assert.equal(q.getControlClass(), inputClasses + " " + constrolWithCharacterCounter + " " + characterCounterBig, "#3");
-  StylesManager.applyTheme("default");
 });
 
 QUnit.test("Set empty text", function(assert) {
@@ -493,7 +490,7 @@ QUnit.test("inputType='date' invalid value, #8617", function(assert) {
   q1.onKeyUp(event);
   q1.value = undefined;
   assert.equal(q1.errors.length, 0, "errors #2");
-  survey.completeLastPage();
+  survey.tryComplete();
   assert.equal(q1.errors.length, 1, "errors #3");
   assert.equal(q1.errors[0].text, "Invalid date", "errors #4");
   assert.equal(survey.state, "running", "survey.state #1");
@@ -556,4 +553,48 @@ QUnit.test("Mask datetime with defaultValue as date", function (assert) {
   q1.validate(true, true);
   assert.equal(q1.errors.length, 1, "There is an error");
   assert.equal(q1.errors[0].text, "Bitte geben Sie eine gültige E-Mail-Adresse ein.", "Error in Deutsch");
+});
+QUnit.test("Mask pattern default inputValue", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1",
+        "maskType": "pattern",
+        "maskSettings": {
+          "pattern": "9"
+        }
+      },
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(q1.inputValue, "_");
+});
+QUnit.test("Support mask in displayValue, #9268", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        maskType: "numeric",
+        maskSettings: {
+          decimalSeparator: ",",
+          thousandsSeparator: " ",
+        },
+      },
+      { type: "text", name: "q2", title: "Title: {q1}" }
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.displayValue, "", "displayValue #1");
+  assert.equal(q2.locTitle.textOrHtml, "Title: ", "title #1");
+  q1.value = 1234567.3;
+  assert.equal(q1.displayValue, "1 234 567,3", "displayValue #2");
+  assert.equal(q2.locTitle.textOrHtml, "Title: 1 234 567,3", "title #2");
+  assert.equal(q1.getDisplayValue(false, 1234), "1 234", "getDisplayValue with value #1");
+  q1.maskSettings.saveMaskedValue = true;
+  assert.equal(q1.getDisplayValue(false, 1234), "1 234", "getDisplayValue with value #2");
+  assert.equal(q1.value, 1234567.3, "Have the same value");
+  assert.equal(q1.inputValue, "1 234 567,3", "Have the same input value");
 });

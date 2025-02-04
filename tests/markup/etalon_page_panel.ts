@@ -1,4 +1,3 @@
-import { StylesManager } from "survey-core";
 import { registerMarkupTest } from "./helper";
 
 registerMarkupTest(
@@ -17,6 +16,13 @@ registerMarkupTest(
               html: "HTML content here",
               title: "Question title",
               titleLocation: "hidden"
+            },
+            {
+              "type": "image",
+              "name": "banner",
+              "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+              "imageWidth": "500px",
+              "imageHeight": "300px"
             }
           ]
         }
@@ -79,8 +85,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPanel",
     snapshot: "panel-swnl-v2",
   });
@@ -115,8 +120,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "panel-page-swnl-v2",
   });
@@ -144,8 +148,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "page-swnl-v2",
   });
@@ -155,6 +158,7 @@ registerMarkupTest(
     name: "Test Page - start with new line with panel and titles",
     json: {
       gridLayoutEnabled: false,
+      showQuestionNumbers: "on",
       "elements": [
         {
           type: "text",
@@ -176,8 +180,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "panel-page-swnl-title-v2",
   });
@@ -185,6 +188,7 @@ registerMarkupTest(
   {
     name: "Test Page - Text and Title",
     json: {
+      showQuestionNumbers: "on",
       "elements": [
         {
           type: "text",
@@ -193,8 +197,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "page-title-v2",
   });
@@ -204,6 +207,7 @@ registerMarkupTest(
     name: "Test Page - start with new line Title",
     json: {
       gridLayoutEnabled: false,
+      showQuestionNumbers: "on",
       "elements": [
         {
           type: "text",
@@ -218,8 +222,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "page-swnl-title-v2",
   });
@@ -227,6 +230,7 @@ registerMarkupTest(
 registerMarkupTest({
   name: "Test Page - questionTitleWidth",
   json: {
+    showQuestionNumbers: "on",
     "pages": [
       {
         "name": "page1",
@@ -241,8 +245,7 @@ registerMarkupTest({
         ]
       }]
   },
-  before: () => StylesManager.applyTheme("defaultV2"),
-  after: () => StylesManager.applyTheme("default"),
+
   event: "onAfterRenderPage",
   snapshot: "page-questionTitleWidth",
 });
@@ -270,8 +273,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "panel-question-headers",
   }
@@ -298,8 +300,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "panel-required-header",
   }
@@ -308,6 +309,7 @@ registerMarkupTest(
   {
     name: "Test Panel - Panel title with number",
     json: {
+      showQuestionNumbers: "on",
       "elements": [
         {
           type: "panel",
@@ -325,8 +327,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPanel",
     snapshot: "panel-number",
   });

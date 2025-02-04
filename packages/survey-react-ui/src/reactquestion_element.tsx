@@ -9,14 +9,14 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     locStr: LocalizableString,
     style: any = null,
     key?: string
-  ): JSX.Element {
+  ): React.JSX.Element {
     return ReactElementFactory.Instance.createElement(locStr.renderAs, {
       locStr: locStr.renderAsData,
       style: style,
       key: key,
     });
   }
-  public static renderQuestionDescription(question: Question | PanelModel): JSX.Element {
+  public static renderQuestionDescription(question: Question | PanelModel): React.JSX.Element {
     var descriptionText = SurveyElementBase.renderLocString(question.locDescription);
     return <div style={question.hasDescription ? undefined : { display: "none" }} id={question.ariaDescriptionId} className={question.cssDescription}>{descriptionText}</div>;
   }
@@ -34,7 +34,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   componentDidUpdate(prevProps: any, prevState: any) {
     this.makeBaseElementsReact();
     const stateElements = this.getStateElements();
-    this.disableStateElementsRerenderEvent((this.prevStateElements ?? []).filter(el => !stateElements.includes(el)));
+    this.disableStateElementsRerenderEvent((this.prevStateElements ?? []).filter(el => !stateElements.find(stateElement => stateElement == el)));
     this.prevStateElements = [];
     this.getStateElements().forEach((el) => {
       el.afterRerender();
@@ -56,7 +56,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     }
     return this._allowComponentUpdate;
   }
-  render(): JSX.Element | null {
+  render(): React.JSX.Element | null {
     if (!this.canRender()) {
       return null;
     }
@@ -72,7 +72,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     this.changedStatePropNameValue = undefined;
     return res;
   }
-  protected wrapElement(element: JSX.Element): JSX.Element {
+  protected wrapElement(element: React.JSX.Element): React.JSX.Element {
     return element;
   }
   protected get isRendering(): boolean {
@@ -95,7 +95,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   protected canRender(): boolean {
     return true;
   }
-  protected renderElement(): JSX.Element | null {
+  protected renderElement(): React.JSX.Element | null {
     return null;
   }
   protected get changedStatePropName(): string | undefined {
@@ -134,7 +134,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     locStr: LocalizableString,
     style: any = null,
     key?: string
-  ): JSX.Element {
+  ): React.JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style, key);
   }
   private canMakeReact(stateElement: Base): boolean {
@@ -266,15 +266,15 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
   }
   protected wrapCell(
     cell: any,
-    element: JSX.Element,
+    element: React.JSX.Element,
     reason: string
-  ): JSX.Element {
+  ): React.JSX.Element {
     if (!reason) {
       return element;
     }
     const survey: SurveyModel = this.questionBase
       .survey as SurveyModel;
-    let wrapper: JSX.Element | null = null;
+    let wrapper: React.JSX.Element | null = null;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, reason);
     }
@@ -286,7 +286,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
     }
   }
   public setContent(element: HTMLElement | null): void {
-    if(!!element) {
+    if (!!element) {
       this.content = element;
     }
   }

@@ -37,7 +37,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     if (!this.model.hasActions) return;
     const container: HTMLDivElement | null = this.rootRef.current;
     if(!!container) {
-      this.model.initResponsivityManager(container, (callback) => { setTimeout(callback); });
+      this.model.initResponsivityManager(container, (callback) => { setTimeout(callback, 100); });
     }
   }
   componentWillUnmount() {
@@ -46,14 +46,13 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
   componentDidUpdate(prevProps: IActionBarProps, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
-    if(prevProps.model == this.props.model) {
-      return;
+    if(prevProps.model != this.props.model) {
+      prevProps.model.resetResponsivityManager();
     }
-    this.model.resetResponsivityManager();
     if (!!this.model.hasActions) {
       const container: HTMLDivElement | null = this.rootRef.current;
       if(!!container) {
-        this.model.initResponsivityManager(container, (callback) => { setTimeout(callback); });
+        this.model.initResponsivityManager(container, (callback) => { setTimeout(callback, 100); });
       }
     }
   }
@@ -77,12 +76,11 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
       </div>
     );
   }
-
   renderItems() {
-    return this.model.renderedActions.map(
+    return this.model.renderedActions.concat([]).map(
       (item: Action, itemIndex: number) => {
         return (
-          <SurveyAction item={item} key={"item" + itemIndex}></SurveyAction>
+          <SurveyAction item={item} key={item.renderedId}></SurveyAction>
         );
       }
     );

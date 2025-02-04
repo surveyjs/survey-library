@@ -170,8 +170,6 @@ registerMarkupTests(
         ]
       },
       initSurvey: (survey) => survey.setDesignMode(true),
-      before: () => { settings.supportCreatorV2 = true; },
-      after: () => { settings.supportCreatorV2 = false; },
       snapshot: "dropdown-disabled-with-value"
     },
     {
@@ -335,7 +333,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       getElement: el => {
-        return <HTMLElement>el?.querySelector(".sv_q.sv_qstn > div") as HTMLElement;
+        return <HTMLElement>el?.querySelector(".sd-question > div") as HTMLElement;
       },
       timeout: 300,
       removeIds: true,
@@ -368,7 +366,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       getElement: el => {
-        return <HTMLElement>el?.querySelector(".sv_q.sv_qstn > div") as HTMLElement;
+        return <HTMLElement>el?.querySelector(".sd-question > div") as HTMLElement;
       },
       timeout: 300,
       removeIds: true,

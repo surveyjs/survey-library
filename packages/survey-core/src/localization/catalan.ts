@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var catalanSurveyStrings = {
   pagePrevText: "Anterior",
@@ -59,7 +59,7 @@ export var catalanSurveyStrings = {
   addColumn: "Afegeix una columna",
   addRow: "Afegiu una filera",
   removeRow: "Eliminar una filera",
-  emptyRowsText: "No hi ha files.",
+  noRowsText: "No hi ha files.",
   addPanel: "Afegeix un nou",
   removePanel: "Treure",
   showDetails: "Mostra els detalls",
@@ -110,7 +110,8 @@ export var catalanSurveyStrings = {
   cancel: "Cancel·lar"
 };
 
-surveyLocalization.setupLocale("ca", catalanSurveyStrings, "català", "Catalan");
+setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "català", englishName: "Catalan" });
+
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
 // previewText: "Preview" => "Preestrena"
@@ -136,7 +137,7 @@ surveyLocalization.setupLocale("ca", catalanSurveyStrings, "català", "Catalan")
 // confirmDelete: "Do you want to delete the record?" => "Vols eliminar el registre?"
 // keyDuplicationError: "This value should be unique." => "Aquest valor ha de ser únic."
 // addColumn: "Add Column" => "Afegeix una columna"
-// emptyRowsText: "There are no rows." => "No hi ha files."
+// noRowsText: "There are no rows." => "No hi ha files."
 // addPanel: "Add new" => "Afegeix un nou"
 // removePanel: "Remove" => "Treure"
 // choices_Item: "item" => "ítem"

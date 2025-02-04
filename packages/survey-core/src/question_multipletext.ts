@@ -31,7 +31,6 @@ export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getMultipleTextValue(name: string): any;
   setMultipleTextValue(name: string, value: any): any;
   getItemDefaultValue(name: string): any;
-  getIsRequiredText(): string;
 }
 
 export class MultipleTextEditorModel extends QuestionTextModel {
@@ -70,6 +69,9 @@ export class MultipleTextItemModel extends Base
     if (title) {
       this.title = title;
     }
+    this.editor.onPropertyChanged.add((sender, options) => {
+      this.onPropertyChanged.fire(this, options);
+    });
   }
   public getType(): string {
     return "multipletextitem";
@@ -214,14 +216,15 @@ export class MultipleTextItemModel extends Base
   /**
    * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
    *
-   * If you want to set a uniform `size` for all text box items, use the [`itemSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#itemSize) within the Multiple Textboxes configuration.
+   * If you want to set a uniform `inputSize` for all text box items, use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#inputSize) property within the Multiple Textboxes configuration.
    */
-  public get size(): number {
-    return this.editor.size;
-  }
-  public set size(val: number) {
-    this.editor.size = val;
-  }
+  public get inputSize(): number { return this.editor.inputSize; }
+  public set inputSize(val: number) { this.editor.inputSize = val; }
+  /**
+   * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel#inputSize) property instead.
+   */
+  public get size(): number { return this.inputSize; }
+  public set size(val: number) { this.inputSize = val; }
   /**
    * An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the default item value.
    * @see minValueExpression
@@ -430,7 +433,7 @@ export class QuestionMultipleTextModel extends Question
     this.registerPropertyChangedHandlers(["items", "colCount", "itemErrorLocation"], () => {
       this.calcVisibleRows();
     });
-    this.registerPropertyChangedHandlers(["itemSize"], () => { this.updateItemsSize(); });
+    this.registerPropertyChangedHandlers(["inputSize"], () => { this.resetItemsSize(); });
   }
   public getType(): string {
     return "multipletext";
@@ -470,9 +473,9 @@ export class QuestionMultipleTextModel extends Question
       item.editor.onSurveyValueChanged(item.value);
     });
   }
-  private updateItemsSize() {
+  private resetItemsSize() {
     this.performForEveryEditor((item: MultipleTextItemModel): void => {
-      item.editor.updateInputSize();
+      item.editor.resetInputSize();
     });
   }
   private editorsOnSurveyLoad() {
@@ -596,7 +599,7 @@ export class QuestionMultipleTextModel extends Question
   protected isNewValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
   }
-  supportGoNextPageAutomatic(): boolean {
+  supportAutoAdvance(): boolean {
     for (var i = 0; i < this.items.length; i++) {
       if (this.items[i].isEmpty()) return false;
     }
@@ -615,14 +618,19 @@ export class QuestionMultipleTextModel extends Question
     this.setPropertyValue("colCount", val);
   }
   /**
-   * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` elements.
+   * A value passed on to the [`inputSize`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` elements.
    */
-  public get itemSize(): number {
-    return this.getPropertyValue("itemSize");
+  public get inputSize(): number {
+    return this.getPropertyValue("inputSize");
   }
-  public set itemSize(val: number) {
-    this.setPropertyValue("itemSize", val);
+  public set inputSize(val: number) {
+    this.setPropertyValue("inputSize", val);
   }
+  /**
+   * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#inputSize) property instead.
+   */
+  public get itemSize(): number { return this.inputSize; }
+  public set itemSize(val: number) { this.inputSize = val; }
   /**
    * Specifies a uniform width for all text box titles. Accepts CSS values.
    *
@@ -697,8 +705,8 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].onValueChanged(itemValue);
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     this.items.forEach(item => item.editor.runCondition(values, properties));
   }
   protected getIsRunningValidators(): boolean {
@@ -810,9 +818,6 @@ export class QuestionMultipleTextModel extends Question
   }
   getAllValues() {
     return this.data ? this.data.getAllValues() : null;
-  }
-  getIsRequiredText(): string {
-    return this.survey ? this.survey.requiredText : "";
   }
   //IPanel
   addElement(element: IElement, index: number) { }
@@ -953,7 +958,7 @@ Serializer.addClass(
     { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"] },
     { name: "title", serializationProperty: "locTitle" },
     { name: "maxLength:number", default: -1 },
-    { name: "size:number", minValue: 0 },
+    { name: "inputSize:number", alternativeName: "size", minValue: 0 },
     {
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",
@@ -990,7 +995,7 @@ Serializer.addClass(
   "multipletext",
   [
     { name: "!items:textitems", className: "multipletextitem", isArray: true },
-    { name: "itemSize:number", minValue: 0, visible: false },
+    { name: "inputSize:number", minValue: 0, visible: false, alternativeName: "itemSize" },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
     { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false },
     { name: "itemTitleWidth", category: "layout" }

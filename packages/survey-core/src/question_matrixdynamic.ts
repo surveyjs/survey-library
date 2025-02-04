@@ -17,6 +17,7 @@ import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
+import { LocalizableString } from "./localizablestring";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   private dragOrClickHelper: DragOrClickHelper;
@@ -79,9 +80,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return !!text ? text : this.defaultAddRowText;
     };
     this.createLocalizableString("removeRowText", this, false, "removeRow");
-    this.createLocalizableString("emptyRowsText", this, false, true);
+    this.createLocalizableString("noRowsText", this, false, true);
     this.registerPropertyChangedHandlers(["hideColumnsIfEmpty", "allowAddRows"], () => { this.updateShowTableAndAddRow(); });
-    this.registerPropertyChangedHandlers(["allowRowsDragAndDrop", "isReadOnly", "lockedRowCount"], () => { this.resetRenderedTable(); });
+    this.registerPropertyChangedHandlers(["allowRowReorder", "isReadOnly", "lockedRowCount"], () => { this.resetRenderedTable(); });
     this.registerPropertyChangedHandlers(["minRowCount"], () => { this.onMinRowCountChanged(); });
     this.registerPropertyChangedHandlers(["maxRowCount"], () => { this.onMaxRowCountChanged(); });
     this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
@@ -105,7 +106,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return true;
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {
-    if (!row || !this.isRowsDragAndDrop) return;
+    if (!row || !this.isRowsDragAndDrop || this.isDesignMode) return;
     if (this.isBanStartDrag(pointerDownEvent)) return;
     if (row.isDetailPanelShowing) return;
     this.draggedRow = row;
@@ -149,7 +150,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * If it is not empty, then this value is set to every new row, including rows created initially, unless the defaultValue is not empty
    * @see defaultValue
-   * @see defaultValueFromLastRow
+   * @see copyDefaultValueFromLastEntry
    */
   public get defaultRowValue(): any {
     return this.getPropertyValue("defaultRowValue");
@@ -163,11 +164,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
    */
+  public get copyDefaultValueFromLastEntry(): boolean {
+    return this.getPropertyValue("copyDefaultValueFromLastEntry");
+  }
+  public set copyDefaultValueFromLastEntry(val: boolean) {
+    this.setPropertyValue("copyDefaultValueFromLastEntry", val);
+  }
+  /**
+   * @deprecated Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#copyDefaultValueFromLastEntry) property instead.
+   */
   public get defaultValueFromLastRow(): boolean {
-    return this.getPropertyValue("defaultValueFromLastRow");
+    return this.copyDefaultValueFromLastEntry;
   }
   public set defaultValueFromLastRow(val: boolean) {
-    this.setPropertyValue("defaultValueFromLastRow", val);
+    this.copyDefaultValueFromLastEntry = val;
   }
   protected isDefaultValueEmpty(): boolean {
     return (
@@ -291,14 +301,23 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    *
    * Default value: `false`
    */
+  public get allowRowReorder(): boolean {
+    return this.getPropertyValue("allowRowReorder");
+  }
+  public set allowRowReorder(val: boolean) {
+    this.setPropertyValue("allowRowReorder", val);
+  }
+  /**
+   * @deprecated Use the [`allowRowReorder`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#allowRowReorder) property instead.
+   */
   public get allowRowsDragAndDrop(): boolean {
-    return this.getPropertyValue("allowRowsDragAndDrop");
+    return this.allowRowReorder;
   }
   public set allowRowsDragAndDrop(val: boolean) {
-    this.setPropertyValue("allowRowsDragAndDrop", val);
+    this.allowRowReorder = val;
   }
   public get isRowsDragAndDrop(): boolean {
-    return this.allowRowsDragAndDrop && !this.isReadOnly;
+    return this.allowRowReorder && !this.isReadOnly;
   }
   public get lockedRowCount(): number {
     return this.getPropertyValue("lockedRowCount", 0);
@@ -562,7 +581,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         (<any>res)[key] = this.defaultRowValue[key];
       }
     }
-    if (isRowAdded && this.defaultValueFromLastRow) {
+    if (isRowAdded && this.copyDefaultValueFromLastEntry) {
       var val = this.value;
       if (!!val && Array.isArray(val) && val.length >= this.rowCount - 1) {
         var rowValue = val[this.rowCount - 2];
@@ -631,10 +650,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
     if (confirmDelete) {
-      confirmActionAsync(this.confirmDeleteText, () => {
-        this.removeRowAsync(index, row);
-        onRowRemoved && onRowRemoved();
-      }, undefined, this.getLocale(), this.survey.rootElement);
+      confirmActionAsync({
+        message: this.confirmDeleteText,
+        funcOnYes: () => {
+          this.removeRowAsync(index, row);
+          onRowRemoved && onRowRemoved();
+        },
+        locale: this.getLocale(),
+        rootElement: this.survey.rootElement,
+        cssClass: this.cssClasses.confirmDialog
+      });
       return;
     }
     this.removeRowAsync(index, row);
@@ -687,7 +712,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * A caption for the Add Row button.
-   * @see addRowLocation
+   * @see addRowButtonLocation
    */
   public get addRowText() {
     return this.getLocalizableStringText("addRowText", this.defaultAddRowText);
@@ -715,20 +740,29 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Default value: `"top"` if [`transposeData`](#transposeData) is `true`; `"bottom"` if `transposeData` is `false` or the matrix is in compact mode.
    * @see addRowText
    */
-  public get addRowLocation(): string {
-    return this.getPropertyValue("addRowLocation");
+  public get addRowButtonLocation(): string {
+    return this.getPropertyValue("addRowButtonLocation");
   }
-  public set addRowLocation(val: string) {
-    this.setPropertyValue("addRowLocation", val);
-  }
-  public getAddRowLocation(): string {
-    return this.addRowLocation;
+  public set addRowButtonLocation(val: string) {
+    this.setPropertyValue("addRowButtonLocation", val);
   }
   /**
-   * Specifies whether to hide columns when the matrix does not contain any rows. If you enable this property, the matrix displays the `emptyRowsText` message and the Add Row button.
+   * @deprecated Use the [`addRowButtonLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#addRowButtonLocation) property instead.
+   */
+  public get addRowLocation(): string {
+    return this.addRowButtonLocation;
+  }
+  public set addRowLocation(val: string) {
+    this.addRowButtonLocation = val;
+  }
+  public getAddRowLocation(): string {
+    return this.addRowButtonLocation;
+  }
+  /**
+   * Specifies whether to hide columns when the matrix does not contain any rows. If you enable this property, the matrix displays the `noRowsText` message and the Add Row button.
    *
    * Default value: `false`
-   * @see emptyRowsText
+   * @see noRowsText
    */
   public get hideColumnsIfEmpty(): boolean {
     return this.getPropertyValue("hideColumnsIfEmpty");
@@ -755,14 +789,26 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * A message displayed when the matrix does not contain any rows. Applies only if `hideColumnsIfEmpty` is enabled.
    * @see hideColumnsIfEmpty
    */
-  public get emptyRowsText() {
-    return this.getLocalizableStringText("emptyRowsText");
+  public get noRowsText(): string {
+    return this.getLocalizableStringText("noRowsText");
+  }
+  public set noRowsText(val: string) {
+    this.setLocalizableStringText("noRowsText", val);
+  }
+  public get locNoRowsText(): LocalizableString {
+    return this.getLocalizableString("noRowsText");
+  }
+  /**
+   * @deprecated Use the [`noRowsText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#noRowsText) property instead.
+   */
+  public get emptyRowsText(): string {
+    return this.noRowsText;
   }
   public set emptyRowsText(val: string) {
-    this.setLocalizableStringText("emptyRowsText", val);
+    this.noRowsText = val;
   }
-  get locEmptyRowsText() {
-    return this.getLocalizableString("emptyRowsText");
+  get locEmptyRowsText(): LocalizableString {
+    return this.locNoRowsText;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value || !Array.isArray(value)) return value;
@@ -786,7 +832,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return res;
   }
-  public supportGoNextPageAutomatic(): boolean {
+  public supportAutoAdvance(): boolean {
     return false;
   }
   public get hasRowText(): boolean {
@@ -1008,7 +1054,7 @@ Serializer.addClass(
     },
     { name: "keyName" },
     "defaultRowValue:rowvalue",
-    "defaultValueFromLastRow:boolean",
+    { name: "copyDefaultValueFromLastEntry:boolean", alternativeName: "defaultValueFromLastRow" },
     { name: "confirmDelete:boolean" },
     {
       name: "confirmDeleteText",
@@ -1019,7 +1065,7 @@ Serializer.addClass(
       serializationProperty: "locConfirmDeleteText",
     },
     {
-      name: "addRowLocation",
+      name: "addRowButtonLocation", alternativeName: "addRowLocation",
       default: "default",
       choices: ["default", "top", "bottom", "topBottom"],
     },
@@ -1027,8 +1073,8 @@ Serializer.addClass(
     { name: "removeRowText", serializationProperty: "locRemoveRowText" },
     "hideColumnsIfEmpty:boolean",
     {
-      name: "emptyRowsText:text",
-      serializationProperty: "locEmptyRowsText",
+      name: "noRowsText:text", alternativeName: "emptyRowsText",
+      serializationProperty: "locNoRowsText",
       dependsOn: "hideColumnsIfEmpty",
       visibleIf: function(obj: any): boolean {
         return !obj || obj.hideColumnsIfEmpty;
@@ -1041,7 +1087,7 @@ Serializer.addClass(
         return obj.detailPanelMode !== "none";
       },
     },
-    "allowRowsDragAndDrop:switch"
+    { name: "allowRowReorder:switch", alternativeName: "allowRowsDragAndDrop" },
   ],
   function() {
     return new QuestionMatrixDynamicModel("");

@@ -1,4 +1,3 @@
-import { StylesManager } from "survey-core";
 import { registerMarkupTest } from "./helper";
 
 registerMarkupTest(
@@ -31,8 +30,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "layout-panel-page-swnl-v2",
   });
@@ -60,8 +58,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "layout-page-swnl-v2",
   });
@@ -71,6 +68,7 @@ registerMarkupTest(
     name: "Layout mode - start with new line with panel and titles",
     json: {
       gridLayoutEnabled: true,
+      showQuestionNumbers: "on",
       "elements": [
         {
           type: "text",
@@ -92,8 +90,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "layout-panel-page-swnl-title-v2",
   });
@@ -103,6 +100,7 @@ registerMarkupTest(
     name: "Layout mode - start with new line Title",
     json: {
       gridLayoutEnabled: true,
+      showQuestionNumbers: "on",
       "elements": [
         {
           type: "text",
@@ -117,8 +115,7 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+
     event: "onAfterRenderPage",
     snapshot: "layout-page-swnl-title-v2",
   });

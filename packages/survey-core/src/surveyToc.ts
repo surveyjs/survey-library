@@ -1,12 +1,12 @@
-import { Action } from "./actions/action";
+import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { IListModel, ListModel } from "./list";
 import { PageModel } from "./page";
 import { PanelModelBase } from "./panel";
 import { PopupModel } from "./popup";
+import { Question } from "./question";
 import { SurveyModel } from "./survey";
-import { IsTouch } from "./utils/devices";
 
 export function tryFocusPage(survey: SurveyModel, panel: PanelModelBase): boolean {
   if (survey.isDesignMode) return true;
@@ -14,25 +14,38 @@ export function tryFocusPage(survey: SurveyModel, panel: PanelModelBase): boolea
   return true;
 }
 
+function getPage(question: Question): PageModel {
+  if (!!question.parentQuestion) {
+    return getPage(question.parentQuestion);
+  }
+  let parent = question.parent;
+  while (parent && parent.getType() !== "page" && parent.parent) {
+    parent = parent.parent;
+  }
+  if (parent && parent.getType() === "page") {
+    return <PageModel>(<any>parent);
+  }
+  return null;
+}
+
 export function createTOCListModel(survey: SurveyModel, onAction?: () => void): ListModel<Action> {
   var items: Action[] = getTOCItems(survey, onAction);
-  const selectedItem = items.filter(i => !!survey.currentPage && i.id === survey.currentPage.name)[0] || items[0];
   const listOptions: IListModel = {
     items: items,
-    onSelectionChanged: item => {
-      if (!!<any>item.action()) {
-        listModel.selectedItem = item;
-      }
-    },
-    allowSelection: true,
     searchEnabled: false,
     locOwner: survey,
-    selectedItem: selectedItem
   };
   var listModel = new ListModel(listOptions as any);
   listModel.allowSelection = false;
+  const updateSelectedItem = (currentPage: PageModel, defaultSelection?: IAction) => {
+    listModel.selectedItem = !!currentPage && listModel.actions.filter(i => i.id === currentPage.name)[0] || defaultSelection;
+  };
+  updateSelectedItem(survey.currentPage, items[0]);
   survey.onCurrentPageChanged.add((s, o) => {
-    listModel.selectedItem = listModel.actions.filter(i => !!survey.currentPage && i.id === survey.currentPage.name)[0];
+    updateSelectedItem(survey.currentPage);
+  });
+  survey.onFocusInQuestion.add((s, o) => {
+    updateSelectedItem(getPage(o.question));
   });
   survey.registerFunctionOnPropertyValueChanged("pages", () => {
     listModel.setItems(getTOCItems(survey, onAction));
@@ -41,7 +54,7 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
 }
 
 function getTOCItems(survey: SurveyModel, onAction: () => void) {
-  const pagesSource: PanelModelBase[] = survey.questionsOnPageMode === "singlePage" ? (survey.pages[0]?.elements as any) : survey.pages;
+  const pagesSource: PanelModelBase[] = survey.pages;
   var items = (pagesSource || []).map(page => {
     return new Action({
       id: page.name,
@@ -49,10 +62,9 @@ function getTOCItems(survey: SurveyModel, onAction: () => void) {
       action: () => {
         DomDocumentHelper.activeElementBlur();
         !!onAction && onAction();
-        if (page instanceof PageModel) {
-          return survey.tryNavigateToPage(page);
+        if (page.isPage) {
+          return survey.tryNavigateToPage(page as PageModel);
         }
-        return tryFocusPage(survey, page);
       },
       visible: <any>new ComputedUpdater(() => {
         return page.isVisible && !((<any>page)["isStartPage"]);

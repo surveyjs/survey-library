@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var frenchSurveyStrings = {
   pagePrevText: "Précédent",
@@ -59,7 +59,7 @@ export var frenchSurveyStrings = {
   addColumn: "Ajouter une colonne",
   addRow: "Ajouter une ligne",
   removeRow: "Supprimer",
-  emptyRowsText: "Il n'y a pas de lignes.",
+  noRowsText: "Il n'y a pas de lignes.",
   addPanel: "Ajouter",
   removePanel: "Supprimer",
   showDetails: "Afficher les détails",
@@ -110,7 +110,7 @@ export var frenchSurveyStrings = {
   cancel: "Annuler"
 };
 
-surveyLocalization.setupLocale("fr", frenchSurveyStrings, "français", "French");
+setupLocale({ localeCode: "fr", strings: frenchSurveyStrings, nativeName: "français", englishName: "French" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

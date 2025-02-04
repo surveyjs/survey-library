@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var spanishSurveyStrings = {
   pagePrevText: "Anterior",
@@ -59,7 +59,7 @@ export var spanishSurveyStrings = {
   addColumn: "Añadir columna",
   addRow: "Agregue una hilera",
   removeRow: "Eliminar una hilera",
-  emptyRowsText: "No hay hileras.",
+  noRowsText: "No hay hileras.",
   addPanel: "Añadir nuevo",
   removePanel: "Retire",
   showDetails: "Mostrar detalles",
@@ -110,7 +110,7 @@ export var spanishSurveyStrings = {
   cancel: "Cancelar"
 };
 
-surveyLocalization.setupLocale("es", spanishSurveyStrings, "español", "Spanish");
+setupLocale({ localeCode: "es", strings: spanishSurveyStrings, nativeName: "español", englishName: "Spanish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

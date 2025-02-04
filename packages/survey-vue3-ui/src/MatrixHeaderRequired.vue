@@ -3,8 +3,8 @@
     <span>&nbsp;</span>
     <span
       v-if="column.isRenderedRequired"
-      :class="question.cssClasses.cellRequiredText"
-      >{{ column.requiredText }}</span
+      :class="question.cssClasses.cellRequiredMark"
+      >{{ column.requiredMark }}</span
     >
   </template>
 </template>

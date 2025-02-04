@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var swedishSurveyStrings = {
   pagePrevText: "Föregående",
@@ -59,7 +59,7 @@ export var swedishSurveyStrings = {
   addColumn: "Lägg till kolumn",
   addRow: "Lägg till rad",
   removeRow: "Ta bort",
-  emptyRowsText: "Det finns inga rader.",
+  noRowsText: "Det finns inga rader.",
   addPanel: "Lägg till ny",
   removePanel: "Ta bort",
   showDetails: "Detaljer",
@@ -110,13 +110,13 @@ export var swedishSurveyStrings = {
   cancel: "Annullera"
 };
 
-surveyLocalization.setupLocale("sv", swedishSurveyStrings, "svenska", "Swedish");
+setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "svenska", englishName: "Swedish" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
 // panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dra och släpp en fil här eller klicka på knappen nedan och välj en fil att ladda upp."
-// emptyRowsText: "There are no rows." => "Det finns inga rader."
+// noRowsText: "There are no rows." => "Det finns inga rader."
 // noEntriesReadonlyText: "There are no entries." => "Det finns inga poster."
 // tagboxDoneButtonCaption: "OK" => "OKEJ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alla val rangordnas"

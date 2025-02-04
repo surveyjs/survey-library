@@ -18,7 +18,7 @@ export class PopupSurvey extends Survey {
   protected canRender(): boolean {
     return super.canRender() && this.popup.isShowing;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): React.JSX.Element {
     var header = this.renderWindowHeader();
     var body = this.renderBody();
     let style: React.CSSProperties = {};
@@ -35,13 +35,13 @@ export class PopupSurvey extends Survey {
       </div>
     );
   }
-  protected renderWindowHeader(): JSX.Element {
+  protected renderWindowHeader(): React.JSX.Element {
     var popup = this.popup;
     var headerCss = popup.cssHeaderRoot;
-    var titleCollapsed: JSX.Element | null = null;
+    var titleCollapsed: React.JSX.Element | null = null;
     var expandCollapseIcon;
-    var closeButton: JSX.Element | null = null;
-    var allowFullScreenButon: JSX.Element | null = null;
+    var closeButton: React.JSX.Element | null = null;
+    var allowFullScreenButon: React.JSX.Element | null = null;
 
     if (popup.isCollapsed) {
       headerCss += " " + popup.cssRootCollapsedMod;
@@ -72,21 +72,21 @@ export class PopupSurvey extends Survey {
       </div>
     );
   }
-  protected renderTitleCollapsed(popup: PopupSurveyModel): JSX.Element | null {
+  protected renderTitleCollapsed(popup: PopupSurveyModel): React.JSX.Element | null {
     if (!popup.locTitle) return null;
     return <div className={popup.cssHeaderTitleCollapsed}>{popup.locTitle.renderedHtml}</div>;
   }
-  protected renderExpandIcon(): JSX.Element {
+  protected renderExpandIcon(): React.JSX.Element {
     return <SvgIcon iconName={"icon-restore_16x16"} size={16}></SvgIcon>;
   }
-  protected renderCollapseIcon(): JSX.Element {
+  protected renderCollapseIcon(): React.JSX.Element {
     return <SvgIcon iconName={"icon-minimize_16x16"} size={16}></SvgIcon>;
   }
-  protected renderCloseButton(popup: PopupSurveyModel): JSX.Element {
+  protected renderCloseButton(popup: PopupSurveyModel): React.JSX.Element {
     return (
       <div className={popup.cssHeaderCloseButton} onClick={() => {
         popup.hide();
-        if(typeof this.props.onClose == "function") {
+        if (typeof this.props.onClose == "function") {
           this.props.onClose();
         }
       }}>
@@ -94,7 +94,7 @@ export class PopupSurvey extends Survey {
       </div>
     );
   }
-  protected renderAllowFullScreenButon(popup: PopupSurveyModel): JSX.Element {
+  protected renderAllowFullScreenButon(popup: PopupSurveyModel): React.JSX.Element {
     let Icon;
 
     if (popup.isFullScreen) {
@@ -109,7 +109,7 @@ export class PopupSurvey extends Survey {
       </div>
     );
   }
-  protected renderBody(): JSX.Element {
+  protected renderBody(): React.JSX.Element {
     return <div className={this.popup.cssBody}>{this.doRender()}</div>;
   }
   protected createSurvey(newProps: any) {
@@ -127,6 +127,6 @@ export class PopupSurvey extends Survey {
   }
 }
 /**
- * Obsolete. Please use PopupSurvey
+ * @deprecated Use `PopupSurvey` instead.
  */
-export class SurveyWindow extends PopupSurvey {}
+export class SurveyWindow extends PopupSurvey { }

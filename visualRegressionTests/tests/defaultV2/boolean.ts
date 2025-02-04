@@ -1,6 +1,6 @@
 /* eslint-disable indent */
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, setOptions, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, setOptions, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Boolean Screenshot";
 
@@ -8,22 +8,14 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
 });
 
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
-
-const theme = "defaultV2";
-
 frameworks.forEach(framework => {
-  fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-      await applyTheme(theme);
-    });
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Check boolean question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "boolean",
@@ -58,6 +50,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1600, 800);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         questions: [
           {
             type: "boolean",
@@ -93,6 +86,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         width: "900px",
         questions: [
           {
@@ -124,6 +118,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         questions: [
           {
@@ -145,6 +140,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1400, 800);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "logoPosition": "right",
         "pages": [
           {
@@ -179,6 +175,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1400, 800);
       await initSurvey(framework, {
+        showQuestionNumbers: "on",
         "elements": [
           {
             type: "boolean",
@@ -195,6 +192,38 @@ frameworks.forEach(framework => {
       await t.click(Selector(".sv-string-viewer").withText("Yes"));
       await takeElementScreenshot("boolean-switch-thumb-swapped-yes.png", questionRoot.nth(0), t, comparer);
     });
+  });
+
+  test("Check boolean rtl", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "rtl");
+      })();
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "on",
+        "elements": [
+          {
+            "type": "boolean",
+            "name": "slider",
+            "title": "Are you 21 or older?",
+            "description": "Display mode = Default (Slider)",
+            "valueTrue": "Yes",
+            "valueFalse": "No",
+            "defaultValue": "No"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question--boolean");
+      await takeElementScreenshot("boolean-question-rtl.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "ltr");
+      })();
+    });
+
   });
 });
 

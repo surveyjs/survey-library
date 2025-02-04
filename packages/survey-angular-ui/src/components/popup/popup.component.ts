@@ -9,8 +9,6 @@ import { PopupBaseViewModel, PopupModel, createPopupViewModel } from "survey-cor
 
 export class PopupComponent extends BaseAngular<PopupModel> {
   @Input() popupModel!: PopupModel;
-  @Input() getTarget?: (container: HTMLElement) => HTMLElement;
-  @Input() getArea?: (container: HTMLElement) => HTMLElement;
   @ViewChild("containerRef") containerRef!: ElementRef<HTMLDivElement>;
 
   public model!: PopupBaseViewModel;
@@ -27,16 +25,14 @@ export class PopupComponent extends BaseAngular<PopupModel> {
       this.model.resetComponentElement();
       this.model.dispose();
     }
-    this.model = createPopupViewModel(this.popupModel, this.viewContainerRef?.element.nativeElement);
+    this.model = createPopupViewModel(this.popupModel);
     this.setContainerElement();
   }
 
   private setContainerElement(): void {
     if (!!this.containerRef?.nativeElement) {
       const container = this.containerRef.nativeElement as HTMLElement;
-      this.model.setComponentElement(container,
-        this.getTarget ? this.getTarget(container.parentElement as HTMLElement) : container?.parentElement?.parentElement,
-        this.getArea ? this.getArea(container.parentElement as HTMLElement) : undefined);
+      this.model.setComponentElement(container.parentElement as HTMLElement);
     }
   }
   ngAfterViewInit(): void {

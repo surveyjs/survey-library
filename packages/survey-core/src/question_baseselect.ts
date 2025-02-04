@@ -4,7 +4,7 @@ import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomP
 import { SurveyModel } from "./survey";
 import { IQuestionPlainData, Question } from "./question";
 import { ItemValue } from "./itemvalue";
-import { surveyLocalization } from "./surveyStrings";
+import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
 import { ChoicesRestful } from "./choicesRestful";
 import { LocalizableString } from "./localizablestring";
@@ -14,7 +14,7 @@ import { settings } from "./settings";
 import { SurveyElement } from "./survey-element";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
-import { cleanHtmlElementAfterAnimation, mergeValues, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
+import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 
 /**
@@ -23,8 +23,8 @@ import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
-  public otherTextAreaModel: TextAreaModel;
   public renderedChoicesChangedCallback: () => void;
+  private otherTextAreaModelValue: TextAreaModel;
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -49,26 +49,6 @@ export class QuestionSelectBase extends Question {
     }
   }) protected selectedItemValues: any;
 
-  private getOtherTextAreaOptions(): ITextArea {
-    const options: ITextArea = {
-      question: this,
-      id: () => this.otherId,
-      propertyName: "otherValue",
-      className: () => this.cssClasses.other,
-      placeholder: () => this.otherPlaceholder,
-      isDisabledAttr: () => this.isInputReadOnly || false,
-      rows: () => this.commentAreaRows,
-      maxLength: () => this.getOthersMaxLength(),
-      autoGrow: () => this.survey && this.survey.autoGrowComment,
-      ariaRequired: () => this.ariaRequired || this.a11y_input_ariaRequired,
-      ariaLabel: () => this.ariaLabel || this.a11y_input_ariaLabel,
-      getTextValue: () => { return this.otherValue; },
-      onTextAreaChange: (e) => { this.onOtherValueChange(e); },
-      onTextAreaInput: (e) => { this.onOtherValueInput(e); },
-    };
-    return options;
-  }
-
   constructor(name: string) {
     super(name);
     this.noneItemValue = this.createDefaultItem(settings.noneItemValue, "noneText", "noneItemText");
@@ -90,7 +70,6 @@ export class QuestionSelectBase extends Question {
     this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
       this.onVisibleChanged();
     });
-    this.otherTextAreaModel = new TextAreaModel(this.getOtherTextAreaOptions());
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
     this.setNewRestfulProperty();
     var locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
@@ -125,6 +104,31 @@ export class QuestionSelectBase extends Question {
     if (!!q) {
       q.removeDependedQuestion(this);
     }
+  }
+  public get otherTextAreaModel(): TextAreaModel {
+    if(!this.otherTextAreaModelValue) {
+      this.otherTextAreaModelValue = new TextAreaModel(this.getOtherTextAreaOptions());
+    }
+    return this.otherTextAreaModelValue;
+  }
+  private getOtherTextAreaOptions(): ITextArea {
+    const options: ITextArea = {
+      question: this,
+      id: () => this.otherId,
+      propertyName: "otherValue",
+      className: () => this.cssClasses.other,
+      placeholder: () => this.otherPlaceholder,
+      isDisabledAttr: () => this.isInputReadOnly || false,
+      rows: () => this.commentAreaRows,
+      maxLength: () => this.getOthersMaxLength(),
+      autoGrow: () => this.survey && this.survey.autoGrowComment,
+      ariaRequired: () => this.ariaRequired || this.a11y_input_ariaRequired,
+      ariaLabel: () => this.ariaLabel || this.a11y_input_ariaLabel,
+      getTextValue: () => { return this.otherValue; },
+      onTextAreaChange: (e) => { this.onOtherValueChange(e); },
+      onTextAreaInput: (e) => { this.onOtherValueInput(e); },
+    };
+    return options;
   }
   protected resetDependedQuestion(): void {
     this.choicesFromQuestion = "";
@@ -382,8 +386,8 @@ export class QuestionSelectBase extends Question {
   public surveyChoiceItemVisibilityChange(): void {
     this.filterItems();
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runCondition(values, properties);
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
     this.choices.forEach(item => {
@@ -1136,7 +1140,7 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems(): boolean {
-    return settings.showDefaultItemsInCreatorV2 && this.isInDesignModeV2 &&
+    return settings.showDefaultItemsInCreator && this.isInDesignMode &&
       !this.customWidget;
   }
   public getPlainData(
@@ -1252,7 +1256,7 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("isMessagePanelVisible", val);
   }
   private get isEmptyActiveChoicesInDesign(): boolean {
-    return this.isInDesignModeV2 && (this.hasChoicesUrl || this.isMessagePanelVisible);
+    return this.isInDesignMode && (this.hasChoicesUrl || this.isMessagePanelVisible);
   }
   getCarryForwardQuestion(data?: ISurveyData): Question {
     const question = this.findCarryForwardQuestion(data);
@@ -1481,7 +1485,7 @@ export class QuestionSelectBase extends Question {
   private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
     this.updateIsUsingRestful();
-    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isInDesignModeV2)
+    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isInDesignMode)
       return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()
@@ -1714,7 +1718,7 @@ export class QuestionSelectBase extends Question {
     return item.value === this.value;
   }
   private clearDisabledValues() {
-    if (!this.survey || !this.survey.clearValueOnDisableItems) return;
+    if (!this.survey || !this.survey.clearDisabledChoices) return;
     this.clearDisabledValuesCore();
   }
   protected clearIncorrectValuesCore() {
@@ -1912,13 +1916,16 @@ export class QuestionSelectBase extends Question {
   get hasFootItems(): boolean {
     return this.footItems.length > 0;
   }
+  protected get itemFlowDirection() {
+    return settings.itemFlowDirection;
+  }
   get columns() {
     var columns = [];
     var colCount = this.getCurrentColCount();
     if (this.hasColumns && this.renderedChoices.length > 0) {
       let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isInDesignMode) ?
         this.renderedChoices : this.dataChoices;
-      if (settings.showItemsInOrder == "column") {
+      if (this.itemFlowDirection === "column") {
         var prevIndex = 0;
         var leftElementsCount = choicesToBuildColumns.length % colCount;
         for (var i = 0; i < colCount; i++) {
@@ -2019,7 +2026,7 @@ export class QuestionSelectBase extends Question {
   public get questionName() {
     return this.name + "_" + this.id;
   }
-  public getItemEnabled(item: ItemValue) {
+  public getItemEnabled(item: ItemValue): boolean {
     return !this.isDisabledAttr && item.isEnabled;
   }
   private focusOtherComment() {
@@ -2048,22 +2055,6 @@ export class QuestionSelectBase extends Question {
   }
   public set itemComponent(value: string) {
     this.setPropertyValue("itemComponent", value);
-  }
-  protected updateCssClasses(res: any, css: any) {
-    super.updateCssClasses(res, css);
-    if (!!this.dropdownListModel) {
-      const listCssClasses = {};
-      mergeValues(css.list, listCssClasses);
-      mergeValues(res.list, listCssClasses);
-      res["list"] = listCssClasses;
-    }
-  }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    if (this.dropdownListModel) {
-      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
-    }
-    return classes;
   }
 }
 /**
@@ -2119,7 +2110,7 @@ Serializer.addClass(
     {
       name: "choices:itemvalue[]", uniqueProperty: "value",
       baseValue: function () {
-        return surveyLocalization.getString("choices_Item");
+        return getLocaleString("choices_Item");
       },
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {

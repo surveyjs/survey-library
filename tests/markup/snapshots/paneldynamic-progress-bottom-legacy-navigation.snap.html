@@ -1,34 +1,60 @@
-<div class="sv_panel_dynamic">
-	<div>
-		<div class="sv_p_wrapper">
+<div class="sd-paneldynamic">
+	<div class="sd-paneldynamic__panels-container">
+		<div class="sd-paneldynamic__panel-wrapper">
 		</div>
 	</div>
-	<div>
-		<div style="clear:both;">
-			<div class="sv-paneldynamic__progress-container">
-				<div class="sv-paneldynamic__prev-btn sv-paneldynamic__prev-btn--disabled" title="Previous">
-					<svg class="sv-svg-icon" role="img">
-						<use xlink:href="#icon-progressbutton" class="">
-						</use>
-					</svg>
-				</div>
-				<div class="sv-progress">
-					<div class="sv-progress__bar" role="progressbar" style="width:50%;">
-					</div>
-				</div>
-				<div class="sv-paneldynamic__next-btn" title="Next">
-					<svg class="sv-svg-icon" role="img">
-						<use xlink:href="#icon-progressbutton" class="">
-						</use>
-					</svg>
+	<div class="sd-paneldynamic__footer">
+		<hr class="sd-paneldynamic__separator">
+			<div class="sd-progress">
+				<div class="sd-progress__bar" role="progressbar" style="width:50%;">
 				</div>
 			</div>
-			<button class="sv-paneldynamic__add-btn" type="button">
-				<span>
-					<span class="sv-string-viewer">Add new</span>
-				</span>
-			</button>
-			<div class="sv-paneldynamic__progress-text">1 of 2</div>
+			<div class="sd-paneldynamic__buttons-container">
+				<div class="sd-action-bar">
+					<div class="sv-action sv-action--hidden">
+						<div class="sv-action__content">
+							<button class="sd-action" role="button" tabindex="0" title="Previous" type="button">
+								<span class="sd-action__title">Previous</span>
+							</button>
+						</div>
+					</div>
+					<div class="sv-action">
+						<div class="sv-action__content">
+							<button class="sd-action" role="button" tabindex="0" title="Next" type="button">
+								<span class="sd-action__title">Next</span>
+							</button>
+						</div>
+					</div>
+					<div class="sv-action sv-action--hidden">
+						<div class="sv-action__content">
+						</div>
+					</div>
+					<div class="sv-action sv-action--hidden">
+						<div class="sv-action__content">
+							<div class="sd-action sd-action--disabled sd-action--icon sd-paneldynamic__prev-btn" title="Previous">
+								<svg class="sv-svg-icon" role="img">
+									<use xlink:href="#icon-arrowleft-16x16" class="">
+									</use>
+								</svg>
+							</div>
+						</div>
+					</div>
+					<div class="sv-action sv-action--space">
+						<div class="sv-action__content">
+							<div class="sd-paneldynamic__progress-text">1 of 2</div>
+						</div>
+					</div>
+					<div class="sv-action sv-action--hidden">
+						<div class="sv-action__content">
+							<div class="sd-action sd-action--icon sd-paneldynamic__next-btn" title="Next">
+								<svg class="sv-svg-icon" role="img">
+									<use xlink:href="#icon-arrowleft-16x16" class="">
+									</use>
+								</svg>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
-</div>

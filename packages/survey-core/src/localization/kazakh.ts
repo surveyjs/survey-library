@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var kazakhStrings = {
   pagePrevText: "Артқа",
@@ -59,7 +59,7 @@ export var kazakhStrings = {
   addColumn: "Бағана қосу",
   addRow: "Жолды қосу",
   removeRow: "Өшіру",
-  emptyRowsText: "Қатарлар жоқ.",
+  noRowsText: "Қатарлар жоқ.",
   addPanel: "Жаңа қосу",
   removePanel: "Өшіру",
   showDetails: "Егжей-тегжейін көрсету",
@@ -110,7 +110,8 @@ export var kazakhStrings = {
   cancel: "Болдырмау"
 };
 
-surveyLocalization.setupLocale("kk", kazakhStrings, "kazakh", "Kazakh");
+setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", englishName: "Kazakh" });
+
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
 // indexText: "{0} of {1}" => "{1} {0}"
@@ -119,7 +120,7 @@ surveyLocalization.setupLocale("kk", kazakhStrings, "kazakh", "Kazakh");
 // minError: "The value should not be less than {0}" => "Мәні {0} кем болмауы тиіс"
 // maxError: "The value should not be greater than {0}" => "Мән {0} артық болмауы тиіс"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Файлды осы жерге апарып тастаңыз немесе төмендегі түймені басыңыз және кері жүктеу үшін файлды таңдаңыз."
-// emptyRowsText: "There are no rows." => "Қатарлар жоқ."
+// noRowsText: "There are no rows." => "Қатарлар жоқ."
 // multipletext_itemname: "text" => "мәтін"
 // signaturePlaceHolder: "Sign here" => "Осында кіру"
 // modalCancelButtonText: "Cancel" => "Болдырмау"

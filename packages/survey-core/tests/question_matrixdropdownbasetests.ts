@@ -9,6 +9,8 @@ import { Helpers } from "../src/helpers";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { ItemValue } from "../src/itemvalue";
+import { settings } from "../src/settings";
+import { setOldTheme } from "./oldTheme";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -83,6 +85,7 @@ QUnit.test("table vertical align and alternate rows", function (assert) {
       },
     ],
   });
+  setOldTheme(survey);
 
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
 
@@ -228,7 +231,7 @@ QUnit.test("column cell css classes by column cellType test", function (assert) 
       }
     ]
   });
-
+  setOldTheme(survey);
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   assert.equal(matrix.renderedTable.headerRow.cells.length, 6);
   assert.equal(matrix.renderedTable.headerRow.cells[0].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "empty column");
@@ -349,7 +352,7 @@ QUnit.test("column cell css classes by matrix cellType test", function (assert) 
       }
     ]
   });
-
+  setOldTheme(survey);
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   assert.equal(matrix.renderedTable.headerRow.cells.length, 6);
   assert.equal(matrix.renderedTable.headerRow.cells[0].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "empty column");
@@ -451,6 +454,7 @@ QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", f
       },
     ],
   });
+  setOldTheme(survey);
   survey.css = {
     matrixdropdown: {
       headerCell: "custom-header-cell",
@@ -1841,4 +1845,17 @@ QUnit.test("isQuestion answered & design time", function (assert) {
   assert.strictEqual(rows[0].cells[1].question.isAnswered, false, "[0, 1]");
   assert.strictEqual(rows[1].cells[0].question.isAnswered, false, "[1, 0]");
   assert.strictEqual(rows[1].cells[1].question.isAnswered, false, "[1, 1]");
+});
+QUnit.test("Serialize empty column title, #9007", function (assert) {
+  settings.serialization.matrixDropdownColumnSerializeTitle = true;
+
+  const matrix = new QuestionMatrixDropdownModel("q1");
+  matrix.addColumn("col1");
+  matrix.addColumn("col2", "Column2");
+  assert.deepEqual(matrix.toJSON(), {
+    name: "q1",
+    columns: [{ name: "col1", title: "col1" }, { name: "col2", title: "Column2" }]
+  }, "Serialize empty title");
+
+  settings.serialization.matrixDropdownColumnSerializeTitle = false;
 });

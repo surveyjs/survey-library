@@ -16,6 +16,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       initSurvey: (survey) => {
+        survey.headerView = "basic";
         survey.navigationBar.setItems([]);
         survey.addNavigationItem({
           id: "custom-action",
@@ -101,6 +102,7 @@ registerMarkupTests(
     {
       name: "Test survey logo (attribute sizes)",
       json: {
+        headerView: "basic",
         "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
         "logoPosition": "right",
         "logoWidth": "200px",
@@ -121,12 +123,13 @@ registerMarkupTests(
       event: "onAfterRenderHeader",
       snapshot: "survey-logo-attribute-sizes",
       getElement: (el) => {
-        return <HTMLElement>el?.querySelector(".sv_logo");
+        return <HTMLElement>el?.querySelector(".sd-logo");
       }
     },
     {
       name: "Test survey logo (style sizes)",
       json: {
+        headerView: "basic",
         "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
         "logoPosition": "right",
         "logoWidth": "30%",
@@ -147,12 +150,13 @@ registerMarkupTests(
       event: "onAfterRenderHeader",
       snapshot: "survey-logo-style-sizes",
       getElement: (el) => {
-        return <HTMLElement>el?.querySelector(".sv_logo");
+        return <HTMLElement>el?.querySelector(".sd-logo");
       }
     },
     {
       name: "Test survey description",
       json: {
+        headerView: "basic",
         "title": "Test",
         "description": "Description",
         "pages": [
@@ -190,7 +194,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       getElement: el => {
-        return <HTMLElement>el?.querySelector(".sv-header__cell.sv-header__cell--middle.sv-header__cell--right") as HTMLElement;
+        return <HTMLElement>el?.querySelector(".sv-header__cell.sv-header__cell--bottom.sv-header__cell--left") as HTMLElement;
       },
       snapshot: "survey-header-advanced"
     },

@@ -1,6 +1,7 @@
 import { Action } from "../src/actions/action";
 import { PageModel } from "../src/page";
 import { SurveyModel } from "../src/survey";
+import { ServerValidateQuestionsEvent } from "../src/survey-events-api";
 import { TOCModel, createTOCListModel, getTocRootCss } from "../src/surveyToc";
 
 export default QUnit.module("TOC");
@@ -148,14 +149,14 @@ QUnit.test("pages visibility, do not include start page into TOC, bug #6192", fu
 
   assert.equal(tocListModel.visibleItems.length, 2, "First page is not visible");
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[1].name, "Page 1 is invisible, page 2 is the first");
-  survey.firstPageIsStarted = false;
+  survey.firstPageIsStartPage = false;
   assert.equal(tocListModel.visibleItems.length, 3, "First page is visible");
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible, page 1 is the first");
 });
 
 QUnit.test("pages navigation with start page, bug #6327", function (assert) {
   let json: any = {
-    "firstPageIsStarted": true,
+    "firstPageIsStartPage": true,
     "pages": [
       {
         "name": "page1",
@@ -235,13 +236,54 @@ QUnit.test("questionsOnPageMode singlePage", function (assert) {
       }
     ]
   };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
-
+  const survey: SurveyModel = new SurveyModel(json);
+  const tocListModel = createTOCListModel(survey);
+  const page = survey.currentPage;
+  assert.equal(page.elements.length, 3, "There are two elements in the root");
   assert.equal(tocListModel.visibleItems.length, 3, "3 items is TOC");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].elements[0].name, "Page 1");
-  assert.equal(tocListModel.visibleItems[1].id, survey.pages[0].elements[1].name, "Page 2");
-  assert.equal(tocListModel.visibleItems[2].id, survey.pages[0].elements[2].name, "Page 3");
+  assert.equal(tocListModel.visibleItems[0].id, page.elements[0].name, "Page 1");
+  assert.equal(tocListModel.visibleItems[1].id, page.elements[1].name, "Page 2");
+  assert.equal(tocListModel.visibleItems[2].id, page.elements[2].name, "Page 3");
+});
+
+QUnit.test("questionsOnPageMode singlePage selectedItem tracks focused question", function (assert) {
+  let json: any = {
+    "questionsOnPageMode": "singlePage",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "html",
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      }
+    ]
+  };
+  const survey: SurveyModel = new SurveyModel(json);
+  const tocListModel = createTOCListModel(survey);
+  assert.equal(tocListModel.visibleItems.length, 3, "3 items is TOC");
+  assert.equal(tocListModel.selectedItem.id, "page1", "first page is active");
+  survey.getQuestionByName("question3").focusIn();
+  assert.equal(tocListModel.selectedItem.id, "page3", "3rd page is active after question3 focused");
 });
 
 QUnit.test("respects markup", function (assert) {
@@ -435,6 +477,7 @@ QUnit.test("should be created for survey with no current page", function (assert
 QUnit.test("updateStickyTOCSize", function (assert) {
   TOCModel.StickyPosition = true;
   const survey: SurveyModel = new SurveyModel({});
+  survey.headerView = "basic";
   const tocModel = new TOCModel(survey);
   const rootElementWithTitle = document.createElement("div");
 
@@ -525,4 +568,231 @@ QUnit.test("TOC navigation shows page numbers", function (assert) {
   assert.equal(tocListModel.actions.length, 1);
   assert.equal(tocListModel.actions[0].visible, true);
   assert.equal(tocListModel.actions[0].title, "1. page1");
+});
+
+QUnit.test("survey.tryNavigateToPage respects validationAllowSwitchPages and validationAllowComplete", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2",
+            "isRequired": true,
+            "requiredErrorText": "You SSN must be a 9-digit number.",
+            "validators": [
+              {
+                "type": "regex",
+                "text": "Your SSN must be a 9-digit number",
+                "regex": "^(?!0{3})(?!6{3})[0-8]\\d{2}-?(?!0{2})\\d{2}-?(?!0{4})\\d{4}$"
+              }
+            ],
+            "maxLength": 9
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3",
+          }
+        ]
+      },
+    ]
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.validationAllowSwitchPages, false);
+  assert.equal(survey.validationAllowComplete, false);
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), false, "navigate #1");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #2");
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "navigate #3");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #1");
+
+  survey.validationAllowSwitchPages = true;
+  assert.equal(survey.validationAllowSwitchPages, true);
+  assert.equal(survey.validationAllowComplete, false);
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), true, "navigate #4");
+  assert.equal(survey.currentPageNo, 2, "currentPageNo #3");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #5");
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "navigate #6");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
+
+  survey.validationAllowComplete = true;
+  assert.equal(survey.validationAllowSwitchPages, true);
+  assert.equal(survey.validationAllowComplete, true);
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), true, "navigate #7");
+  assert.equal(survey.currentPageNo, 2, "currentPageNo #3");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #8");
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "navigate #9");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
+});
+QUnit.test("survey.tryNavigateToPage & survey.onValidatedErrorsOnCurrentPage, Bug#9241", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1",
+            "isRequired": true
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2",
+            "isRequired": true
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3",
+            "isRequired": true
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const logs = new Array<string>();
+  survey.onValidatedErrorsOnCurrentPage.add((sender, options) => {
+    logs.push(options.page.name);
+  });
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #1");
+  assert.deepEqual(logs, ["page1"], "logs #1");
+  survey.setValue("question1", "val1");
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "try #2");
+  assert.deepEqual(logs, ["page1", "page1"], "logs #2");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "try #3");
+  assert.deepEqual(logs, ["page1", "page1"], "logs #3");
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), false, "try #4");
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #4");
+  assert.deepEqual(logs, ["page1", "page1", "page1"], "logs #4");
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #5");
+  assert.deepEqual(logs, ["page1", "page1", "page1"], "logs #5");
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), false, "try #6");
+  assert.deepEqual(logs, ["page1", "page1", "page1", "page2"], "logs #6");
+  survey.setValue("question2", "val2");
+  assert.equal(survey.tryNavigateToPage(survey.pages[2]), true, "try #7");
+  assert.deepEqual(logs, ["page1", "page1", "page1", "page2", "page2"], "logs #7");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "try #8");
+  assert.deepEqual(logs, ["page1", "page1", "page1", "page2", "page2"], "logs #8");
+});
+QUnit.test("survey.tryNavigateToPage & survey.validationEnabled = false, Bug#9363", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1",
+            "isRequired": true
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2",
+            "isRequired": true
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3",
+            "isRequired": true
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const logs = new Array<string>();
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #1");
+  survey.validationEnabled = false;
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "try #2");
+});
+QUnit.test("The survey.onServerValidateQuestions function is not invoked when a user navigates between pages using the progress bar #9332", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1",
+            "isRequired": true
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2",
+            "isRequired": true
+          }
+        ]
+      }
+    ]
+  });
+  let opt: ServerValidateQuestionsEvent = <any>undefined;
+  let counter = 0;
+  survey.onServerValidateQuestions.add(function (sender, options) {
+    opt = options;
+    counter++;
+  });
+
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #1");
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
+  assert.equal(counter, 0, "server validation counter, try #1");
+  survey.setValue("question1", 101);
+
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #2");
+  assert.equal(counter, 1, "server validation counter, try #2");
+  opt.errors["question1"] = "Error";
+  opt.complete();
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #2");
+
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #3");
+  assert.equal(counter, 2, "server validation counter, try #3");
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #3.1");
+  opt.complete();
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #3.2");
+  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "try #4");
+  assert.equal(counter, 2, "server validation counter, try #4");
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #4");
 });

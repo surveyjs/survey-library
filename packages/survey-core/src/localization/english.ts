@@ -1,5 +1,5 @@
 // Uncomment the line below if you create a custom dictionary
-// import { surveyLocalization } from "survey-core";
+// import { setupLocale } from "survey-core";
 
 export var englishStrings = {
   pagePrevText: "Previous",
@@ -60,7 +60,7 @@ export var englishStrings = {
   addColumn: "Add Column",
   addRow: "Add Row",
   removeRow: "Remove",
-  emptyRowsText: "There are no rows.",
+  noRowsText: "There are no rows.",
   addPanel: "Add new",
   removePanel: "Remove",
   showDetails: "Show Details",
@@ -114,4 +114,4 @@ export var englishStrings = {
 // Uncomment the lines below if you create a custom dictionary.
 // Replace "en" with a custom locale code (for example, "fr" or "de"),
 // Replace `englishStrings` with the name of the variable that contains the custom dictionary.
-//surveyLocalization.setupLocale("en", englishStrings, "English", "English");
+//setupLocale({ localeCode: "en", strings: englishStrings, nativeName: "English", englishName: "English" });

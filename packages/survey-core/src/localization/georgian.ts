@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 
 export var georgianSurveyStrings = {
   pagePrevText: "უკან",
@@ -59,7 +59,7 @@ export var georgianSurveyStrings = {
   addColumn: "სვეტის დამატება",
   addRow: "რიგის დამატება",
   removeRow: "წაშლა",
-  emptyRowsText: "რიგები არ არის.",
+  noRowsText: "რიგები არ არის.",
   addPanel: "ახალი დამატება",
   removePanel: "წაშლა",
   showDetails: "დეტალების ჩვენება",
@@ -110,7 +110,7 @@ export var georgianSurveyStrings = {
   cancel: "გაუქმება"
 };
 
-surveyLocalization.setupLocale("ka", georgianSurveyStrings, "ქართული", "Georgian");
+setupLocale({ localeCode: "ka", strings: georgianSurveyStrings, nativeName: "ქართული", englishName: "Georgian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -148,7 +148,7 @@ surveyLocalization.setupLocale("ka", georgianSurveyStrings, "ქართულ�
 // addColumn: "Add Column" => "სვეტის დამატება"
 // addRow: "Add Row" => "რიგის დამატება"
 // removeRow: "Remove" => "წაშლა"
-// emptyRowsText: "There are no rows." => "რიგები არ არის."
+// noRowsText: "There are no rows." => "რიგები არ არის."
 // addPanel: "Add new" => "ახალი დამატება"
 // removePanel: "Remove" => "წაშლა"
 // choices_Item: "item" => "ნივთი"

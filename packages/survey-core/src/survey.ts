@@ -4555,7 +4555,7 @@ export class SurveyModel extends SurveyElementCore
         if(page !== this.currentPage) {
           this.currentPage = page;
         } else {
-          if(this.autoFocusFirstQuestion) {
+          if(this.focusFirstQuestionAutomatic) {
             val.focus();
           }
         }

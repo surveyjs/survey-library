@@ -2401,8 +2401,7 @@ export class QuestionPanelDynamicModel extends Question
   public get cssHeader(): string {
     const showTab = this.isRenderModeTab && !!this.visiblePanelCount;
     return new CssClassBuilder()
-      .append(this.cssClasses.header)
-      .append(this.cssClasses.headerTop, this.hasTitleOnTop)
+      .append(super.getCssHeader(this.cssClasses))
       .append(this.cssClasses.headerTab, this.hasTitleOnTop && showTab)
       .toString();
   }
@@ -2623,7 +2622,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private removeTabFromToolbar(panel: PanelModel) {
     if (!this.isRenderModeTab) return;
-    const removedItem = this.tabbedMenu.getActionById(panel.id);
+    const removedItem = this.tabbedMenu.actions.find(a => a.panelId == panel.id);
     if (!removedItem) return;
     this.tabbedMenu.actions.splice(this.tabbedMenu.actions.indexOf(removedItem), 1);
     this.updateTabToolbarItemsPressedState();

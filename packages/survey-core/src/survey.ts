@@ -5491,7 +5491,7 @@ export class SurveyModel extends SurveyElementCore
     return options.error ? new CustomError(options.error, this) : null;
   }
   dynamicPanelAdded(question: QuestionPanelDynamicModel, panelIndex?: number, panel?: PanelModel): void {
-    if (!this.isLoadingFromJson && this.hasQuestionVisibleIndeces(question, true)) {
+    if (!this.isLoadingFromJson && this.hasQuestionVisibleIndeces(question)) {
       this.updateVisibleIndexes(question.page);
     }
     if (this.onDynamicPanelAdded.isEmpty) return;
@@ -5507,7 +5507,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearOnDeletingContainer();
     }
-    if(this.hasQuestionVisibleIndeces(question, false)) {
+    if(this.hasQuestionVisibleIndeces(question)) {
       this.updateVisibleIndexes(question.page);
     }
     this.onDynamicPanelRemoved.fire(this, {
@@ -5516,10 +5516,7 @@ export class SurveyModel extends SurveyElementCore
       panel: panel,
     });
   }
-  private hasQuestionVisibleIndeces(question: Question, checkIndex: boolean): boolean {
-    if(checkIndex) {
-      question.setVisibleIndex(this.getStartVisibleIndex());
-    }
+  private hasQuestionVisibleIndeces(question: Question): boolean {
     const qList = question.getNestedQuestions(true);
     for(let i = 0; i < qList.length; i ++) {
       if(qList[i].visibleIndex > -1) return true;

@@ -303,6 +303,28 @@ QUnit.test("Load countries", function(assert) {
   );
 });
 
+QUnit.test("Load countries, support dot '.' as path separator", function (assert) {
+  var test = new ChoicesRestfulTester();
+  var items: Array<ItemValue> = [];
+  test.getResultCallback = function (res: Array<ItemValue>) {
+    items = res;
+  };
+  test.url = "allcountries";
+  test.path = "RestResponse.result";
+  test.run();
+  assert.equal(items.length, 5, "there are 5 countries");
+  assert.equal(
+    items[0].value,
+    "Afghanistan",
+    "the first country is Afghanistan"
+  );
+  assert.equal(
+    items[4].value,
+    "American Samoa",
+    "the fifth country is American Samoa"
+  );
+});
+
 QUnit.test(
   "Check isRunning for restfull class that wait request from another restfull class, Bug#3039",
   function(assert) {

@@ -3555,7 +3555,7 @@ export class SurveyModel extends SurveyElementCore
     if (newPage != null && vPages.indexOf(newPage) < 0) return;
     if (newPage == this.currentPage) return;
     var oldValue = this.currentPage;
-    if (!this.isShowingPreview && !this.currentPageChanging(newPage, oldValue)) return;
+    if (!this.isShowingPreview && !this.currentSingleQuestion && !this.currentPageChanging(newPage, oldValue)) return;
     this.setPropertyValue("currentPage", newPage);
     if (!!newPage) {
       newPage.onFirstRendering();
@@ -3871,20 +3871,22 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return;
     page.updateCustomWidgets();
   }
-  protected currentPageChanging(newValue: PageModel, oldValue: PageModel): boolean {
-    const options = this.createPageChangeEventOptions(newValue, oldValue);
+  protected currentPageChanging(newValue: PageModel, oldValue: PageModel, newQuestion?: Question, oldQuestion?: Question): boolean {
+    const options = this.createPageChangeEventOptions(newValue, oldValue, newQuestion, oldQuestion);
+    return this.currentPageChangingFromOptions(options);
+  }
+  private currentPageChangingFromOptions(options: any): boolean {
     options.allow = true;
     options.allowChanging = true;
     this.onCurrentPageChanging.fire(this, options);
     const allow = options.allowChanging && options.allow;
-    if (allow) {
+    if (allow && options.newCurrentPage !== options.oldCurrentPage) {
       this.isCurrentPageRendering = true;
     }
     return allow;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.notifyQuestionsOnHidingContent(oldValue);
-    const options = this.createPageChangeEventOptions(newValue, oldValue);
     if (oldValue && !oldValue.isDisposed && !oldValue.passed) {
       if (oldValue.validate(false)) {
         oldValue.passed = true;
@@ -3893,22 +3895,31 @@ export class SurveyModel extends SurveyElementCore
     if (this.isCurrentPageRendered === true) {
       this.isCurrentPageRendered = false;
     }
-    this.onCurrentPageChanged.fire(this, options);
+    if(!this.currentSingleQuestion) {
+      const options = this.createPageChangeEventOptions(newValue, oldValue);
+      this.onCurrentPageChanged.fire(this, options);
+    }
   }
   private notifyQuestionsOnHidingContent(page: PageModel): void {
     if (page && !page.isDisposed) {
       page.questions.forEach(q => q.onHidingContent());
     }
   }
-  private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel): any {
+  private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel, newQuestion?: Question, oldQuestion?: Question): CurrentPageChangedEvent {
     const diff = !!newValue && !!oldValue ? newValue.visibleIndex - oldValue.visibleIndex : 0;
+    let qDiff = diff;
+    if (qDiff === 0 && !!oldQuestion && !!newQuestion) {
+      qDiff = newValue.elements.indexOf(newQuestion) - newValue.elements.indexOf(oldQuestion);
+    }
     return {
+      oldCurrentQuestion: oldQuestion,
+      newCurrentQuestion: newQuestion,
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
       isNextPage: diff === 1,
       isPrevPage: diff === -1,
-      isGoingForward: diff > 0,
-      isGoingBackward: diff < 0,
+      isGoingForward: qDiff > 0,
+      isGoingBackward: qDiff < 0,
       isAfterPreview: this.changeCurrentPageFromPreview === true
     };
   }
@@ -4544,7 +4555,7 @@ export class SurveyModel extends SurveyElementCore
    * Possible values:
    *
    * - `"singlePage"` - Combines all survey pages into a single page.
-   * - `"questionPerPage"` - Creates a separate page for every question.
+   * - `"questionPerPage"` - Displays each question on a separate page.
    * - `"standard"` (default) - Retains the original structure specified in the JSON schema.
    */
   public get questionsOnPageMode(): string {
@@ -4698,7 +4709,10 @@ export class SurveyModel extends SurveyElementCore
   private currentSingleQuestionValue: Question;
   public get currentSingleQuestion(): Question { return this.currentSingleQuestionValue; }
   public set currentSingleQuestion(val: Question) {
-    if(val !== this.currentSingleQuestion) {
+    const oldVal = this.currentSingleQuestion;
+    if(val !== oldVal) {
+      const options: any = !!val && !!oldVal ? this.createPageChangeEventOptions(<PageModel>val.page, <PageModel>oldVal.page, val, oldVal) : undefined;
+      if(!!options && !this.currentPageChangingFromOptions(options)) return;
       this.currentSingleQuestionValue = val;
       if(!!val) {
         const page = <PageModel>val.page;
@@ -4706,11 +4720,14 @@ export class SurveyModel extends SurveyElementCore
         if(page !== this.currentPage) {
           this.currentPage = page;
         } else {
-          if(this.focusFirstQuestionAutomatic) {
+          if(this.autoFocusFirstQuestion) {
             val.focus();
           }
         }
         this.updateButtonsVisibility();
+        if(!!options) {
+          this.onCurrentPageChanged.fire(this, options);
+        }
       } else {
         this.visiblePages.forEach(page => page.updateRows());
       }

@@ -174,8 +174,12 @@
         margin-bottom: calcSize(-1);
     }
 }
-.sd-paneldynamic__tabs-container {
+.sd-question--title-top > .sd-question__content > .sd-paneldynamic > .sd-paneldynamic__tabs-container {
     padding-top: calcSize(3);
+}
+
+.sd-paneldynamic__tabs-container {
+    padding-top: var(--sd-base-padding);
     .sd-tabs-toolbar {
         margin: 0 0 -1px calcSize(-2);
         width: calc(100% + 4 * #{$base-unit});

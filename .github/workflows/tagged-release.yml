@@ -44,6 +44,28 @@ jobs:
         with:
           args: zip -qq -r build.zip ./packages/survey-react-ui/build
         
+      - name: Build Angular UI
+        run: |
+          cd ./packages/survey-angular-ui
+          npm install
+          npm run build
+          
+      - name: Zip Build
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r build.zip ./packages/survey-angular-ui/build
+        
+      - name: Build Vue3 UI
+        run: |
+          cd ./packages/survey-vue3-ui
+          npm install
+          npm run build
+          
+      - name: Zip Build
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r build.zip ./packages/survey-vue3-ui/build
+        
       - name: Create Release
         uses: "marvinpinto/action-automatic-releases@v1.2.0"
         with:

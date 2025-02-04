@@ -192,6 +192,9 @@ export class Cover extends Base {
     if (this.survey && this.survey.width) {
       return this.survey.width;
     }
+    // if (this.survey.responsiveStartWidth) {
+    //   return this.survey.responsiveStartWidth + "px";
+    // }
     return "100%";
   }
   public get isEmpty(): boolean {

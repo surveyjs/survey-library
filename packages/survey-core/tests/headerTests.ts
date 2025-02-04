@@ -212,8 +212,8 @@ QUnit.test("cell calculations - test width",
   function (assert) {
     const cover = new Cover();
 
-    assert.equal(cover.cells[0].textAreaWidth, undefined, "default");
-    assert.equal(cover.cells[0].textAreaWidth, undefined, "equal to cover + px");
+    assert.equal(cover.textAreaWidth, 0, "default");
+    assert.equal(cover.cells[0].textAreaWidth, "100%", "equal to cover textAreaWidth");
 
     cover.textAreaWidth = 120;
     assert.equal(cover.textAreaWidth, 120, "cover text width");
@@ -314,7 +314,7 @@ QUnit.test("renderedTextAreaWidth",
       onPropertyChanged: { add: () => { } },
       calculateWidthMode: () => { }
     } as any;
-    assert.equal(cover.renderedTextAreaWidth, "512px", "default text area width");
+    assert.equal(cover.renderedTextAreaWidth, "100%", "default text area width");
     cover.textAreaWidth = 300;
     assert.equal(cover.renderedTextAreaWidth, "300px", "given text area width");
     cover.textAreaWidth = 0;

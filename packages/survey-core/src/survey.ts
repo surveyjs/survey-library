@@ -473,11 +473,11 @@ export class SurveyModel extends SurveyElementCore
 
   public onTextRenderAs: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
   /**
-   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
+   * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
   public onSendResult: EventBase<SurveyModel, SendResultEvent> = this.addEvent<SurveyModel, SendResultEvent>();
   /**
-   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
+   * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
   public onGetResult: EventBase<SurveyModel, GetResultEvent> = this.addEvent<SurveyModel, GetResultEvent>();
   /**
@@ -528,7 +528,7 @@ export class SurveyModel extends SurveyElementCore
   public onLoadChoicesFromServer: EventBase<SurveyModel, LoadChoicesFromServerEvent> = this.onChoicesLoaded;
 
   /**
-   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
+   * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
   public onLoadedSurveyFromService: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
 
@@ -1438,7 +1438,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("calculatedValues", val);
   }
   /**
-   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
+   * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
   public get surveyId(): string {
     return this.getPropertyValue("surveyId", "");
@@ -1447,11 +1447,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("surveyId", val);
   }
   /**
-   * An identifier used to save survey results to [SurveyJS Service](https://api.surveyjs.io).
-   *
-   * Refer to the following help topic for more information: [Store Survey Results in the SurveyJS Service](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-the-surveyjs-service).
-   * @see onComplete
-   * @see surveyShowDataSaving
+   * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
   public get surveyPostId(): string {
     return this.getPropertyValue("surveyPostId", "");
@@ -1460,7 +1456,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("surveyPostId", val);
   }
   /**
-   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
+   * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
   public get clientId(): string {
     return this.getPropertyValue("clientId", "");
@@ -1501,7 +1497,7 @@ export class SurveyModel extends SurveyElementCore
     this.partialSendEnabled = val;
   }
   /**
-   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
+   * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
   public get surveyShowDataSaving(): boolean {
     return this.getPropertyValue("surveyShowDataSaving");
@@ -4860,7 +4856,6 @@ export class SurveyModel extends SurveyElementCore
    * @param isCompleteOnTrigger For internal use.
    * @param completeTrigger For internal use.
    * @returns `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
-   * @see surveyPostId
    */
   public doComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger): boolean {
     if (this.isCompleted) return;
@@ -6384,7 +6379,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
+   * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
   public sendResult(postId: string = null, clientId: string = null, isPartial: boolean = false): void {
     if (!this.isEditMode) return;
@@ -6403,13 +6398,13 @@ export class SurveyModel extends SurveyElementCore
     this.reportWarningOnUsingService();
   }
   /**
-   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
+   * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
   public getResult(resultId: string, questionName: string): void {
     this.reportWarningOnUsingService();
   }
   /**
-   * @deprecated Self-hosted Form Library no longer supports integration with SurveyJS Demo Service.
+   * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
   public loadSurveyFromService(surveyId: string = null, clientId: string = null): void {
     if (surveyId) {
@@ -6421,7 +6416,7 @@ export class SurveyModel extends SurveyElementCore
     this.reportWarningOnUsingService();
   }
   private reportWarningOnUsingService(): void {
-    ConsoleWarnings.warn("Self-hosted Form Library no longer supports integration with SurveyJS Demo Service. Learn more: TODO");
+    ConsoleWarnings.warn("Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service). Learn more: TODO");
   }
   private loadSurveyFromServiceJson(json: any) {
     if (!json) return;

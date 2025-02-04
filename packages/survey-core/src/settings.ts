@@ -116,13 +116,16 @@ export var settings = {
    * - `disableQuestionWhileLoadingChoices`: `boolean`\
    * Disables a question while its choices are being loaded from a web service. Default value: `false`.
    *
+   * - `surveyServiceUrl`: `string`\
+   * Obsolete. Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
+   *
    * - `onBeforeRequestChoices`: `(sender: ChoicesRestful, options: { request: XMLHttpRequest })`\
    * An event that is raised before a request for choices is send. Applies to questions with a specified [`choiceByUrl`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl) property. Use the `options.request` parameter to access and modify the `XMLHttpRequest` object. For instance, you can add authentication headers to it:
    *
    *     ```js
    *     import { settings } from "survey-core";
    *
-   *     settings.web.onBeforeSendRequest = (sender, options) => {
+   *     settings.web.onBeforeRequestChoices = (sender, options) => {
    *       options.request.setRequestHeader('RequestVerificationToken', requestVerificationToken);
    *     };
    *     ```

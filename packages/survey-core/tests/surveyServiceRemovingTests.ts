@@ -3,7 +3,7 @@ import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("SurveySerialization");
 
-const errorText = "Self-hosted Form Library no longer supports integration with SurveyJS Demo Service. Learn more: TODO";
+const errorText = "Self-hosted Form Library no longer supports integration with SurveyJS Demo Service. Learn more: https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service";
 
 QUnit.test("survey.beginLoading()/survey.endLoading()", function (assert) {
   const survey = new SurveyModel();

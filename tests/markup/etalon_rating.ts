@@ -47,8 +47,6 @@ registerMarkupTests(
       ]
     },
     initSurvey: (survey) => survey.setDesignMode(true),
-    before: () => { settings.supportCreatorV2 = true; },
-    after: () => { settings.supportCreatorV2 = false; },
     snapshot: "rating-simple-disabled",
   },
   {
@@ -187,8 +185,6 @@ registerMarkupTests(
       ]
     },
     initSurvey: (survey) => survey.setDesignMode(true),
-    before: () => { settings.supportCreatorV2 = true; },
-    after: () => { settings.supportCreatorV2 = false; },
     snapshot: "rating-as-dropdown-disabled-with-value",
   },
   {
@@ -283,8 +279,6 @@ registerMarkupTests(
     },
     snapshot: "rating-stars-disabled",
     initSurvey: (survey) => survey.setDesignMode(true),
-    before: () => { settings.supportCreatorV2 = true; },
-    after: () => { settings.supportCreatorV2 = false; },
   },
   {
     name: "Test Rating question as smileys",
@@ -334,8 +328,6 @@ registerMarkupTests(
       ]
     },
     initSurvey: (survey) => survey.setDesignMode(true),
-    before: () => { settings.supportCreatorV2 = true; },
-    after: () => { settings.supportCreatorV2 = false; },
     snapshot: "rating-smileys-disabled",
   },
   {

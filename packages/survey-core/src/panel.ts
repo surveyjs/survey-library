@@ -27,8 +27,6 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
-import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
-import { DragDropInfo } from "./drag-drop-helper-v1";
 import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PageModel } from "./page";
@@ -296,7 +294,7 @@ export class QuestionRowModel extends Base {
 }
 
 /**
- * A base class for the [PanelModel](https://surveyjs.io/form-library/documentation/panelmodel) and [PageModel](https://surveyjs.io/form-library/documentation/pagemodel) classes.
+ * A base class for the [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) and [`PageModel`](https://surveyjs.io/form-library/documentation/pagemodel) classes.
  */
 export class PanelModelBase extends SurveyElement<Question>
   implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner {
@@ -311,13 +309,24 @@ export class PanelModelBase extends SurveyElement<Question>
   private _columns: Array<PanelLayoutColumnModel> = undefined;
   private _columnsReady = false;
 
+  /**
+   * An array of columns used to arrange survey elements within this page or panel. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true`.
+   *
+   * Each object in this array configures a single layout column and has the following properties:
+   *
+   * - `width`: `number`\
+   * Column width, in percentage.
+   *
+   * - `questionTitleWidth`: `string`\
+   * The width of question titles, in pixels.
+   *
+   * The `gridLayoutColumns` array is generated automatically based on the maximum number of questions and panels in the same row. To arrange the survey elements in one or several rows, disable the [`startWithNewLine`](https://surveyjs.io/form-library/documentation/api-reference/question#startWithNewLine) property for those elements that should occupy the same row as the previous question or panel. You can also set the [`colSpan`](https://surveyjs.io/form-library/documentation/api-reference/question#colSpan) property for individual questions and panels to specify how many layout columns they span.
+   */
   @propertyArray() gridLayoutColumns: Array<PanelLayoutColumnModel>;
 
   addElementCallback: (element: IElement) => void;
   removeElementCallback: (element: IElement) => void;
   onGetQuestionTitleLocation: () => string;
-
-  private dragDropPanelHelper: DragDropPanelHelperV1;
 
   public onAddRow(row: QuestionRowModel): void {
     this.onRowVisibleChanged();
@@ -399,8 +408,6 @@ export class PanelModelBase extends SurveyElement<Question>
     this.registerPropertyChangedHandlers(["title"], () => {
       this.resetHasTextInTitle();
     });
-
-    this.dragDropPanelHelper = new DragDropPanelHelperV1(this);
   }
   public getType(): string {
     return "panelbase";
@@ -436,7 +443,7 @@ export class PanelModelBase extends SurveyElement<Question>
   get hasTitle(): boolean {
     return (
       (this.canShowTitle(this.survey) && (this.hasTextInTitle || this.locTitle.textOrHtml.length > 0)) ||
-      (this.isDesignMode && !(settings.supportCreatorV2 && this.isPanel) && this.showTitle && settings.designMode.showEmptyTitles)
+      (this.isDesignMode && !this.isPanel && this.showTitle && settings.designMode.showEmptyTitles)
     );
   }
   public delete(doDispose: boolean = true): void {
@@ -560,8 +567,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return isRandom && (this.questionOrder !== "initial") || this.questionOrder === "random";
   }
   protected isRandomizing = false;
-  randomizeElements(isRandom: boolean): void {
-    if (!this.canRandomize(isRandom) || this.isRandomizing) return;
+  randomizeElements(isRandom: boolean): boolean {
+    if (!this.canRandomize(isRandom) || this.isRandomizing) return false;
     this.isRandomizing = true;
     var oldElements = [];
     var elements = this.elements;
@@ -573,6 +580,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.updateRows();
     this.updateVisibleIndexes();
     this.isRandomizing = false;
+    return true;
   }
   /**
    * Returns `true` if elements in this panel/page are arranged in random order.
@@ -1060,6 +1068,13 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return null;
   }
+  getFirstVisibleQuestion(): Question {
+    const qs = this.questions;
+    for (let i = 0; i < qs.length; i++) {
+      if (qs[i].isVisible) return qs[i];
+    }
+    return null;
+  }
   /**
    * Focuses the first question in this panel/page.
    * @see focusFirstErrorQuestion
@@ -1366,13 +1381,12 @@ export class PanelModelBase extends SurveyElement<Question>
       !this.canRenderFirstRows()
     );
   }
-  public createRowAndSetLazy(index: number): QuestionRowModel {
+  private createRowAndSetLazy(index: number): QuestionRowModel {
     const row = this.createRow();
     row.setIsLazyRendering(this.isLazyRenderInRow(index));
     return row;
   }
-  // TODO V2: make all createRow API private (at least protected) after removing DragDropPanelHelperV1
-  public createRow(): QuestionRowModel {
+  protected createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
   public onSurveyLoad(): void {
@@ -1443,7 +1457,7 @@ export class PanelModelBase extends SurveyElement<Question>
     const targetElement = this.elements[index + 1];
     const createRowAtIndex = (index: number) => {
       const row = this.createRowAndSetLazy(index);
-      if(this.isDesignModeV2) {
+      if (this.isDesignMode) {
         row.setIsLazyRendering(false);
       }
       this.rows.splice(index, 0, row);
@@ -1594,7 +1608,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.updateRowsRemoveElementFromRow(element, this.findRowByElement(element));
     this.updateColumns();
   }
-  public updateRowsRemoveElementFromRow(element: IElement, row: QuestionRowModel): void {
+  private updateRowsRemoveElementFromRow(element: IElement, row: QuestionRowModel): void {
     if (!row || !row.panel) return;
     var elIndex = row.elements.indexOf(element);
     if (elIndex < 0) return;
@@ -1978,14 +1992,22 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
 
-  public dragDropAddTarget(dragDropInfo: DragDropInfo) {
-    this.dragDropPanelHelper.dragDropAddTarget(dragDropInfo);
-  }
+  // TODO: remove it or not?
   public dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
-    return this.dragDropPanelHelper.dragDropFindRow(findElement);
-  }
-  public dragDropMoveElement(src: IElement, target: IElement, targetIndex: number) {
-    this.dragDropPanelHelper.dragDropMoveElement(src, target, targetIndex);
+    if (!findElement || findElement.isPage) return null;
+    var element = <IElement>findElement;
+    var rows = this.rows;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].elements.indexOf(element) > -1) return rows[i];
+    }
+    for (var i = 0; i < this.elements.length; i++) {
+      var pnl = this.elements[i].getPanel();
+      if (!pnl) continue;
+      var row = (<PanelModelBase>pnl).dragDropFindRow(element);
+      if (!!row) return row;
+    }
+    return null;
+
   }
 
   public needResponsiveWidth() {

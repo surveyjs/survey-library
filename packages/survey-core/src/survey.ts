@@ -64,7 +64,8 @@ import {
   AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
   MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
-  MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent,
+  MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent,
+  DynamicPanelItemValueChangedEvent, DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent,
   DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, CheckAnswerCorrectEvent, DragDropAllowEvent, ScrollToTopEvent, GetQuestionTitleActionsEvent,
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
@@ -235,7 +236,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * To handle value changes in matrix cells or panels within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), use the [`onMatrixCellValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixCellValueChanged) or [`onDynamicPanelItemValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelItemValueChanged) event.
+   * To handle value changes in matrix cells or panels within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), use the [`onMatrixCellValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixCellValueChanged) or [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event.
    * @see setValue
    */
   public onValueChanged: EventBase<SurveyModel, ValueChangedEvent> = this.addEvent<SurveyModel, ValueChangedEvent>();
@@ -801,9 +802,17 @@ export class SurveyModel extends SurveyElementCore
   public onTimerPanelInfoText: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
 
   /**
-   * An event that is raised after an item value is changed in a panel within a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
+   * An event that is raised after a value is changed in a panel within a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
    */
-  public onDynamicPanelItemValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.addEvent<SurveyModel, DynamicPanelItemValueChangedEvent>();
+  public onDynamicPanelValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.addEvent<SurveyModel, DynamicPanelValueChangedEvent>();
+  /**
+   * @deprecated Use the [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event instead.
+   */
+  public onDynamicPanelItemValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.onDynamicPanelValueChanged;
+  /**
+   * An event that is raised before a value is changed in a panel within a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
+   */
+  public onDynamicPanelValueChanging: EventBase<SurveyModel, DynamicPanelValueChangingEvent> = this.addEvent<SurveyModel, DynamicPanelValueChangingEvent>();
 
   /**
    * An event that is raised before a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) renders [tab titles](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle). Use this event to change individual tab titles.
@@ -1065,6 +1074,9 @@ export class SurveyModel extends SurveyElementCore
 
     this.progressBarValue = new ProgressButtons(this);
 
+    if (this.headerView === "advanced") {
+      this.insertAdvancedHeader(new Cover());
+    }
     this.layoutElements.push({
       id: "timerpanel",
       template: "survey-timerpanel",
@@ -2418,16 +2430,6 @@ export class SurveyModel extends SurveyElementCore
     return this.locLogo.renderedHtml;
   }
   public get titleMaxWidth(): string {
-    if (
-      !(isMobile() || this.isMobile) &&
-      !this.isValueEmpty(this.isLogoImageChoosen()) &&
-      !settings.supportCreatorV2
-    ) {
-      var logoWidth = this.logoWidth;
-      if (this.logoPosition === "left" || this.logoPosition === "right") {
-        return "calc(100% - 5px - 2em - " + logoWidth + ")";
-      }
-    }
     return "";
   }
   /**
@@ -3560,7 +3562,7 @@ export class SurveyModel extends SurveyElementCore
     if (newPage != null && vPages.indexOf(newPage) < 0) return;
     if (newPage == this.currentPage) return;
     var oldValue = this.currentPage;
-    if (!this.isShowingPreview && !this.currentPageChanging(newPage, oldValue)) return;
+    if (!this.isShowingPreview && !this.currentSingleQuestion && !this.currentPageChanging(newPage, oldValue)) return;
     this.setPropertyValue("currentPage", newPage);
     if (!!newPage) {
       newPage.onFirstRendering();
@@ -3583,6 +3585,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private performValidationOnPageChanging(page: PageModel): boolean {
     if (this.isDesignMode) return false;
+    if(this.canGoTroughValidation()) return true;
     const index = this.visiblePages.indexOf(page);
     if (index < 0 || index >= this.visiblePageCount) return false;
     if (index === this.currentPageNo) return false;
@@ -3875,20 +3878,22 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return;
     page.updateCustomWidgets();
   }
-  protected currentPageChanging(newValue: PageModel, oldValue: PageModel): boolean {
-    const options = this.createPageChangeEventOptions(newValue, oldValue);
+  protected currentPageChanging(newValue: PageModel, oldValue: PageModel, newQuestion?: Question, oldQuestion?: Question): boolean {
+    const options = this.createPageChangeEventOptions(newValue, oldValue, newQuestion, oldQuestion);
+    return this.currentPageChangingFromOptions(options);
+  }
+  private currentPageChangingFromOptions(options: any): boolean {
     options.allow = true;
     options.allowChanging = true;
     this.onCurrentPageChanging.fire(this, options);
     const allow = options.allowChanging && options.allow;
-    if (allow) {
+    if (allow && options.newCurrentPage !== options.oldCurrentPage) {
       this.isCurrentPageRendering = true;
     }
     return allow;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.notifyQuestionsOnHidingContent(oldValue);
-    const options = this.createPageChangeEventOptions(newValue, oldValue);
     if (oldValue && !oldValue.isDisposed && !oldValue.passed) {
       if (oldValue.validate(false)) {
         oldValue.passed = true;
@@ -3897,22 +3902,31 @@ export class SurveyModel extends SurveyElementCore
     if (this.isCurrentPageRendered === true) {
       this.isCurrentPageRendered = false;
     }
-    this.onCurrentPageChanged.fire(this, options);
+    if(!this.currentSingleQuestion) {
+      const options = this.createPageChangeEventOptions(newValue, oldValue);
+      this.onCurrentPageChanged.fire(this, options);
+    }
   }
   private notifyQuestionsOnHidingContent(page: PageModel): void {
     if (page && !page.isDisposed) {
       page.questions.forEach(q => q.onHidingContent());
     }
   }
-  private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel): any {
+  private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel, newQuestion?: Question, oldQuestion?: Question): CurrentPageChangedEvent {
     const diff = !!newValue && !!oldValue ? newValue.visibleIndex - oldValue.visibleIndex : 0;
+    let qDiff = diff;
+    if (qDiff === 0 && !!oldQuestion && !!newQuestion) {
+      qDiff = newValue.elements.indexOf(newQuestion) - newValue.elements.indexOf(oldQuestion);
+    }
     return {
+      oldCurrentQuestion: oldQuestion,
+      newCurrentQuestion: newQuestion,
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
       isNextPage: diff === 1,
       isPrevPage: diff === -1,
-      isGoingForward: diff > 0,
-      isGoingBackward: diff < 0,
+      isGoingForward: qDiff > 0,
+      isGoingBackward: qDiff < 0,
       isAfterPreview: this.changeCurrentPageFromPreview === true
     };
   }
@@ -4097,6 +4111,7 @@ export class SurveyModel extends SurveyElementCore
    * @see completeLastPage
    */
   public nextPage(): boolean {
+    if(this.currentSingleQuestion) return this.performNext();
     if (this.isLastPage) return false;
     return this.doCurrentPageComplete(false);
   }
@@ -4133,7 +4148,7 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
-    if (!this.isEditMode || this.ignoreValidation) return false;
+    if (this.canGoTroughValidation()) return false;
     const skipValidation = doComplete && this.validationAllowComplete || !doComplete && this.validationAllowSwitchPages;
     const func = (hasErrors: boolean) => {
       if (!hasErrors || skipValidation) {
@@ -4146,6 +4161,7 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.validateCurrentPage(func) !== true && !skipValidation;
   }
+  private canGoTroughValidation(): boolean { return !this.isEditMode || !this.validationEnabled; }
   private asyncValidationQuesitons: Array<Question>;
   private checkForAsyncQuestionValidation(
     questions: Array<Question>,
@@ -4434,6 +4450,7 @@ export class SurveyModel extends SurveyElementCore
    * @see nextPage
    */
   public prevPage(): boolean {
+    if(this.currentSingleQuestion) return this.performPrevious();
     if (this.isFirstPage || this.state === "starting") return false;
     this.resetNavigationButton();
 
@@ -4563,7 +4580,7 @@ export class SurveyModel extends SurveyElementCore
    * Possible values:
    *
    * - `"singlePage"` - Combines all survey pages into a single page.
-   * - `"questionPerPage"` - Creates a separate page for every question.
+   * - `"questionPerPage"` - Displays each question on a separate page.
    * - `"standard"` (default) - Retains the original structure specified in the JSON schema.
    */
   public get questionsOnPageMode(): string {
@@ -4717,7 +4734,10 @@ export class SurveyModel extends SurveyElementCore
   private currentSingleQuestionValue: Question;
   public get currentSingleQuestion(): Question { return this.currentSingleQuestionValue; }
   public set currentSingleQuestion(val: Question) {
-    if(val !== this.currentSingleQuestion) {
+    const oldVal = this.currentSingleQuestion;
+    if(val !== oldVal) {
+      const options: any = !!val && !!oldVal ? this.createPageChangeEventOptions(<PageModel>val.page, <PageModel>oldVal.page, val, oldVal) : undefined;
+      if(!!options && !this.currentPageChangingFromOptions(options)) return;
       this.currentSingleQuestionValue = val;
       if(!!val) {
         const page = <PageModel>val.page;
@@ -4725,11 +4745,14 @@ export class SurveyModel extends SurveyElementCore
         if(page !== this.currentPage) {
           this.currentPage = page;
         } else {
-          if(this.focusFirstQuestionAutomatic) {
+          if(this.autoFocusFirstQuestion) {
             val.focus();
           }
         }
         this.updateButtonsVisibility();
+        if(!!options) {
+          this.onCurrentPageChanged.fire(this, options);
+        }
       } else {
         this.visiblePages.forEach(page => page.updateRows());
       }
@@ -5405,7 +5428,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.onAfterRenderQuestionInput.isEmpty) return;
     let id = (<Question>question).inputId;
     const { root } = settings.environment;
-    if (!!id && htmlElement.id !== id && typeof root !== "undefined") {
+    if (!!id && (!htmlElement || htmlElement.id !== id) && typeof root !== "undefined") {
       let el = root.getElementById(id);
       if (!!el) {
         htmlElement = el;
@@ -5590,9 +5613,11 @@ export class SurveyModel extends SurveyElementCore
   }
   dynamicPanelItemValueChanged(question: IQuestion, options: any): void {
     options.question = question;
-    options.panelIndex = options.itemIndex;
-    options.panelData = options.itemValue;
-    this.onDynamicPanelItemValueChanged.fire(this, options);
+    this.onDynamicPanelValueChanged.fire(this, options);
+  }
+  dynamicPanelItemValueChanging(question: IQuestion, options: any): void {
+    options.question = question;
+    this.onDynamicPanelValueChanging.fire(this, options);
   }
   dynamicPanelGetTabTitle(question: IQuestion, options: any): void {
     options.question = question;
@@ -7298,7 +7323,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private canFireAddElement(): boolean {
-    return !this.isMovingQuestion || this.isDesignMode && !settings.supportCreatorV2;
+    return !this.isMovingQuestion;
   }
   questionRemoved(question: Question): void {
     this.questionHashesRemoved(
@@ -7668,6 +7693,13 @@ export class SurveyModel extends SurveyElementCore
   public set showTimerPanelMode(val: string) {
     this.timerInfoMode = this.getTimerInfoVal(val);
   }
+  /**
+   * Enables the grid layout, which structures form elements using a column-based system.
+   *
+   * Default value: `false`
+   *
+   * Specify the [`gridLayoutColumns`](https://surveyjs.io/form-library/documentation/api-reference/page-model#gridLayoutColumns) property for pages and panels to configure layout columns. Set the [`colSpan`](https://surveyjs.io/form-library/documentation/api-reference/question#colSpan) property for an individual question or panel to adjust how many columns this survey element spans.
+   */
   @property({
     onSet: (newValue: boolean, target: SurveyModel) => {
       target.updateGridColumns();
@@ -8728,7 +8760,7 @@ Serializer.addClass("survey", [
   { name: "gridLayoutEnabled:boolean", default: false },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: true, visible: false },
-  { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
+  { name: "headerView", default: "advanced", choices: ["basic", "advanced"], visible: false },
   { name: "backgroundImage:file", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },

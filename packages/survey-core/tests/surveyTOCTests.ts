@@ -477,6 +477,7 @@ QUnit.test("should be created for survey with no current page", function (assert
 QUnit.test("updateStickyTOCSize", function (assert) {
   TOCModel.StickyPosition = true;
   const survey: SurveyModel = new SurveyModel({});
+  survey.headerView = "basic";
   const tocModel = new TOCModel(survey);
   const rootElementWithTitle = document.createElement("div");
 
@@ -701,6 +702,47 @@ QUnit.test("survey.tryNavigateToPage & survey.onValidatedErrorsOnCurrentPage, Bu
   assert.deepEqual(logs, ["page1", "page1", "page1", "page2", "page2"], "logs #7");
   assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "try #8");
   assert.deepEqual(logs, ["page1", "page1", "page1", "page2", "page2"], "logs #8");
+});
+QUnit.test("survey.tryNavigateToPage & survey.validationEnabled = false, Bug#9363", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1",
+            "isRequired": true
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2",
+            "isRequired": true
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3",
+            "isRequired": true
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const logs = new Array<string>();
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #1");
+  survey.validationEnabled = false;
+  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "try #2");
 });
 QUnit.test("The survey.onServerValidateQuestions function is not invoked when a user navigates between pages using the progress bar #9332", function (assert) {
   const survey = new SurveyModel({

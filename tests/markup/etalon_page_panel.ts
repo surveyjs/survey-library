@@ -16,6 +16,13 @@ registerMarkupTest(
               html: "HTML content here",
               title: "Question title",
               titleLocation: "hidden"
+            },
+            {
+              "type": "image",
+              "name": "banner",
+              "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+              "imageWidth": "500px",
+              "imageHeight": "300px"
             }
           ]
         }

@@ -52,50 +52,30 @@ To get started with SurveyJS Angular Form Library, refer to the following tutori
 
 ## Build SurveyJS Angular Form Library from Sources
 
-1. **Clone the repo**
+1. [**Build the platform-independent part**](../survey-core/README.md#survey-model-platform-independent-part)
 
-    ```cmd
-    git clone https://github.com/surveyjs/survey-library.git
-    cd survey-library
-    ```
-
-1. **Install dependencies common for all SurveyJS libraries**          
-Make sure that you have Node.js v14 or later and a compatible npm version installed.
-
-    ```cmd
-    npm install -g karma-cli
-    npm install
-    ```
-
-1. **Build the [platform-independent part](https://github.com/surveyjs/survey-library/blob/master/build-scripts/survey-core/README.md#survey-model-platform-independent-part) and plugins**
+2. **Install SurveyJS Angular Form Library dependencies and build this library**
 
     ```
-    npm run build_core
-    npm run build-plugins
-    ```
-
-1. **Install SurveyJS Angular Form Library dependencies and build this library**
-
-    ```
-    cd packages/survey-angular-ui 
+    cd ../survey-angular-ui
     npm i
     npm run build
     ```
 
-    You can find the built scripts and style sheets in folders under the `build` directory.
+    You can find the built scripts in folders under the `build` directory.
 
-1. **Run a test application**
+3. **Run a test application**
 
     ```
     cd example
     npm i
-    cd packages/survey-angular-ui 
-    npm run serve:example
+    cd ../ 
+    npm run serve:example:dev
     ```
 
     This command runs a local HTTP server at http://localhost:4200/.
 
-1. **Run unit tests**
+4. **Run unit tests**
 
     ```
     npm run test

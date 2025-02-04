@@ -877,7 +877,7 @@ export class QuestionPanelDynamicModel extends Question
   public get isNextButtonShowing(): boolean { return this.isNextButtonVisible; }
   public get isRangeShowing(): boolean {
     return (
-      this.showRangeInProgress && this.currentIndex >= 0 && this.visiblePanelCount > 1
+      this.showProgressBar && this.currentIndex >= 0 && this.visiblePanelCount > 1
     );
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
@@ -1292,11 +1292,9 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get showRangeInProgress(): boolean {
     return this.showProgressBar;
-    // return this.getPropertyValue("showRangeInProgress");
   }
   public set showRangeInProgress(val: boolean) {
     this.showProgressBar = val;
-    // this.setPropertyValue("showRangeInProgress", val);
   }
   /**
    * @deprecated Use the [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) property instead.
@@ -2407,6 +2405,7 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     if (!qValue[index]) qValue[index] = {};
+    const oldVal = qValue[index][name];
     if (!this.isValueEmpty(val)) {
       qValue[index][name] = val;
     } else {
@@ -2417,17 +2416,20 @@ export class QuestionPanelDynamicModel extends Question
         name
       );
     }
+    const options = {
+      panel: (<QuestionPanelDynamicItem>item).panel,
+      name: name,
+      panelIndex: index,
+      panelData: qValue[index],
+      value: val,
+      oldValue: oldVal
+    };
+    if (this.survey) {
+      this.survey.dynamicPanelItemValueChanging(this, options);
+    }
     this.value = qValue;
     this.changingValueQuestion = null;
     if (this.survey) {
-      var options = {
-        question: this,
-        panel: (<QuestionPanelDynamicItem>item).panel,
-        name: name,
-        itemIndex: index,
-        itemValue: qValue[index],
-        value: val,
-      };
       this.survey.dynamicPanelItemValueChanged(this, options);
     }
     this.isSetPanelItemData[name]--;
@@ -2827,21 +2829,10 @@ Serializer.addClass(
       default: "off",
       choices: ["off", "onPanel", "onSurvey"],
     },
-    {
-      name: "showRangeInProgress:boolean",
-      default: true,
-      visible: false
-      // visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
-    },
-    {
-      name: "renderMode",
-      default: "list",
-      choices: ["list", "progressTop", "progressBottom", "progressTopBottom", "tab"],
-      visible: false,
-    },
+    { name: "renderMode", visible: false, isSerializable: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
-      name: "showProgressBar:boolean",
+      name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",
       default: true,
       visibleIf: (obj: any) => { return obj.displayMode === "carousel"; }
     },

@@ -32,7 +32,42 @@ A platform-independent survey model for SurveyJS Form Library. This package shou
 
 ## Build Survey Model from Sources
 
-Refer to instructions in the root README file: [Build the SurveyJS Form Library from Sources](https://github.com/surveyjs/survey-library#build-the-surveyjs-form-library-from-sources).
+1. **Clone the repo**
+
+    ```
+    git clone https://github.com/surveyjs/survey-library.git
+    cd survey-library/packages/survey-core
+    ```
+
+2. **Install dependencies**          
+Make sure that you have Node.js v16 or later and a compatible npm version installed.
+
+    ```
+    npm install
+    ```
+
+3. **Build the library**
+
+    ```
+    npm run build:all
+    ```
+
+    You can find the built scripts and style sheets in folders under the `build` directory.
+
+4. **Run unit tests**
+
+    ```
+    npm run test
+    ```
+
+    The unit tests use [Karma](https://karma-runner.github.io/6.3/index.html).
+
+After that, you can build one of the UI packages:
+
+- [Angular Form Library](../survey-angular-ui/README.md#build-surveyjs-angular-form-library-from-sources)
+- [React Form Library](../survey-react-ui/README.md#build-surveyjs-react-form-library-from-sources)
+- [Vue Form Library](../survey-vue3-ui/README.md#build-surveyjs-vue-form-library-from-sources)
+- [HTML/CSS/JS Form Library](../survey-js-ui/README.md#build-surveyjs-form-library-ui-from-sources)
 
 ## Licensing
 

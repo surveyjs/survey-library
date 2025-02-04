@@ -367,9 +367,6 @@ export class Base {
     const survey = this.getSurvey();
     return !!survey && survey.isDesignMode;
   }
-  public get isDesignModeV2(): boolean {
-    return settings.supportCreatorV2 && this.isDesignMode;
-  }
   /**
    * Returns `true` if the object is included in a survey.
    *
@@ -504,8 +501,14 @@ export class Base {
       if(!!calcFunc) {
         const newVal = calcFunc();
         if(newVal !== undefined) {
-          this.setPropertyValueDirectly(name, newVal);
-          return newVal;
+          if(Array.isArray(newVal)) {
+            const array = this.createNewArray(name);
+            array.splice(0, 0, ...newVal);
+            return array;
+          } else {
+            this.setPropertyValueDirectly(name, newVal);
+            return newVal;
+          }
         }
       }
       const propDefaultValue = this.getDefaultPropertyValue(name);
@@ -586,6 +589,7 @@ export class Base {
    * @param val A new value for the property.
    */
   public setPropertyValue(name: string, val: any): void {
+    if (this.isDisposedValue) return;
     if (!this.isLoadingFromJson) {
       const prop = this.getPropertyByName(name);
       if (!!prop) {
@@ -603,9 +607,11 @@ export class Base {
         this.setArrayPropertyDirectly(name, val);
       }
     } else {
-      this.setPropertyValueDirectly(name, val);
-      if (!this.isDisposedValue && !this.isTwoValueEquals(oldValue, val)) {
-        this.propertyValueChanged(name, oldValue, val);
+      if (val !== oldValue) {
+        this.setPropertyValueDirectly(name, val);
+        if (!this.isTwoValueEquals(oldValue, val)) {
+          this.propertyValueChanged(name, oldValue, val);
+        }
       }
     }
   }

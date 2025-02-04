@@ -19,6 +19,7 @@ import { QuestionMatrixModel } from "../src/question_matrix";
 import { AnimationGroup, AnimationTab } from "../src/utils/animation";
 import { SurveyElement } from "../src/survey-element";
 import { setOldTheme } from "./oldTheme";
+import { DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
 QUnit.test("Create panels based on template on setting value", function(
@@ -4425,6 +4426,35 @@ QUnit.test("Avoid stack-overflow", function(assert) {
   );
 });
 
+QUnit.test("survey.onDynamicPanelValueChanging event", function(assert) {
+  const survey = new SurveyModel({ elements: [{
+    type: "paneldynamic",
+    name: "panel",
+    templateElements: [
+      { type: "text", name: "q1", isRequired: true },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" },
+    ]
+  }] });
+  const opt = new Array<any>();
+  survey.onDynamicPanelValueChanging.add((sender, options: DynamicPanelValueChangingEvent) => {
+    opt.push({ name: options.name, value: options.value, oldValue: options.oldValue, panelIndex: options.panelIndex });
+  });
+
+  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  question.panelCount = 2;
+  question.panels[0].getQuestionByName("q1").value = "1";
+  question.panels[1].getQuestionByName("q2").value = "2";
+  question.panels[0].getQuestionByName("q1").value = "3";
+  question.panels[1].getQuestionByName("q2").value = "4";
+  assert.deepEqual(opt,
+    [{ name: "q1", panelIndex: 0, value: "1", oldValue: undefined },
+      { name: "q2", panelIndex: 1, value: "2", oldValue: undefined },
+      { name: "q1", panelIndex: 0, value: "3", oldValue: "1" },
+      { name: "q2", panelIndex: 1, value: "4", oldValue: "2" }],
+    "Check event calls");
+});
+
 QUnit.test("getPanelWrapperCss", function(assert) {
   var survey = new SurveyModel({
     elements: [
@@ -7692,4 +7722,19 @@ QUnit.test("default value for maxPanelCount, Bug#9000", function (assert) {
   assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 300, "updated default value");
   settings.panel.maxPanelCount = 100;
   assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 100, "default value again");
+});
+QUnit.test("Do not serialize renderMode & showRangeInProgress", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "paneldynamic", name: "panel1", renderMode: "progressTop", showRangeInProgress: false }]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.equal(panel.renderMode, "progressTop", "renderMode is set");
+  assert.equal(panel.displayMode, "carousel", "displayMode is set");
+  assert.equal(panel.showRangeInProgress, false, "showRangeInProgress is set");
+  assert.equal(panel.showProgressBar, false, "showProgressBar is set");
+  const json = panel.toJSON();
+  assert.notOk(json.renderMode, "renderMode on json");
+  assert.equal(json.displayMode, "carousel", "displayMode is json");
+  assert.notOk(json.showRangeInProgress, "showRangeInProgress is json");
+  assert.equal(json.showProgressBar, false, "showProgressBar is json");
 });

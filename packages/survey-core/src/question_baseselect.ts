@@ -1140,7 +1140,7 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems(): boolean {
-    return settings.showDefaultItemsInCreatorV2 && this.isInDesignModeV2 &&
+    return settings.showDefaultItemsInCreator && this.isInDesignMode &&
       !this.customWidget;
   }
   public getPlainData(
@@ -1256,7 +1256,7 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("isMessagePanelVisible", val);
   }
   private get isEmptyActiveChoicesInDesign(): boolean {
-    return this.isInDesignModeV2 && (this.hasChoicesUrl || this.isMessagePanelVisible);
+    return this.isInDesignMode && (this.hasChoicesUrl || this.isMessagePanelVisible);
   }
   getCarryForwardQuestion(data?: ISurveyData): Question {
     const question = this.findCarryForwardQuestion(data);
@@ -1485,7 +1485,7 @@ export class QuestionSelectBase extends Question {
   private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
     this.updateIsUsingRestful();
-    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isInDesignModeV2)
+    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isInDesignMode)
       return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()

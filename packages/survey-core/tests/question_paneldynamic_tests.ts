@@ -7684,3 +7684,33 @@ QUnit.test("default value for maxPanelCount, Bug#9000", function (assert) {
   settings.panel.maxPanelCount = 100;
   assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 100, "default value again");
 });
+QUnit.test("Do not serialize renderMode & showRangeInProgress", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "paneldynamic", name: "panel1", renderMode: "progressTop", showRangeInProgress: false }]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.equal(panel.renderMode, "progressTop", "renderMode is set");
+  assert.equal(panel.displayMode, "carousel", "displayMode is set");
+  assert.equal(panel.showRangeInProgress, false, "showRangeInProgress is set");
+  assert.equal(panel.showProgressBar, false, "showProgressBar is set");
+  const json = panel.toJSON();
+  assert.notOk(json.renderMode, "renderMode on json");
+  assert.equal(json.displayMode, "carousel", "displayMode is json");
+  assert.notOk(json.showRangeInProgress, "showRangeInProgress is json");
+  assert.equal(json.showProgressBar, false, "showProgressBar is json");
+});
+QUnit.test("A Dynamic Panel question number is updated when adding a new panel Bug#9401", function (assert) {
+  const survey = new SurveyModel({
+    showQuestionNumbers: "on",
+    elements: [
+      { type: "text", name: "question1" },
+      { type: "paneldynamic", name: "panel1",
+        templateElements: [{ type: "text", name: "question3" }]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.equal(panel.no, "2.", "no #1");
+  panel.addPanel();
+  assert.equal(panel.no, "2.", "no #2");
+});

@@ -1433,6 +1433,7 @@ export class QuestionSelectBase extends Question {
     const chQuestion = this.choicesFromQuestion;
     if (!!name && chQuestion && (name === chQuestion || questionName === chQuestion)) {
       this.onVisibleChoicesChanged();
+      this.clearIncorrectValues();
     }
   }
   updateValueFromSurvey(newValue: any, clearData: boolean): void {
@@ -1721,7 +1722,7 @@ export class QuestionSelectBase extends Question {
     if (!this.survey || !this.survey.clearValueOnDisableItems) return;
     this.clearDisabledValuesCore();
   }
-  protected clearIncorrectValuesCore() {
+  protected clearIncorrectValuesCore(): void {
     var val = this.value;
     if (this.canClearValueAnUnknown(val)) {
       this.clearValue(true);

@@ -1758,6 +1758,27 @@ QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + val
   assert.equal(q2.visibleChoices[1].value, "bbb", "the second value is correct");
 });
 
+QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + removing the value, Bug#9399", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "paneldynamic", name: "q1", valueName: "sharedData",
+      templateElements: [{ name: "q1-q1", type: "text" }]
+    },
+    { type: "dropdown", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q1" }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.addPanel();
+  q1.panels[0].getQuestionByName("q1-q1").value = "aaa";
+  q1.addPanel();
+  q1.panels[1].getQuestionByName("q1-q1").value = "bbb";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choices");
+  q2.value = "bbb";
+  assert.equal(q2.isEmpty(), false, "q2 is not empty");
+  q1.removePanel(1);
+  assert.equal(q2.visibleChoices.length, 1, "There is one choice");
+  assert.equal(q2.isEmpty(), true, "q2 is empty");
+});
+
 QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-2", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "paneldynamic", name: "q1", valueName: "sharedData",

@@ -459,6 +459,9 @@ export class QuestionMultipleTextModel extends Question
   onSurveyLoad() {
     this.editorsOnSurveyLoad();
     super.onSurveyLoad();
+    if(!Helpers.isValueEmpty(this.rows)) {
+      this.calcVisibleRows();
+    }
   }
   setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
@@ -644,7 +647,6 @@ export class QuestionMultipleTextModel extends Question
   protected onRowCreated(row: MutlipleTextRow) {
     return row;
   }
-
   private calcVisibleRows() {
     const colCount = this.colCount;
     const items = this.items;

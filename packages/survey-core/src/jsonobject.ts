@@ -1528,6 +1528,7 @@ export class JsonMetadata {
     }
     for (let i = 0; i < classInfo.properties.length; i++) {
       const prop = classInfo.properties[i];
+      if(prop.isSerializable === false) continue;
       if (!!classInfo.parentName && !!Serializer.findProperty(classInfo.parentName, prop.name)) continue;
       schemaProperties[prop.name] = this.generateSchemaProperty(prop, schemaDef, isRoot);
       if (prop.isRequired) requiredProps.push(prop.name);

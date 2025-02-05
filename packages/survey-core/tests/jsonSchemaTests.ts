@@ -12,6 +12,7 @@ QUnit.test("generate survey schema", function (assert) {
   const schema = Serializer.generateSchema();
   assert.equal(schema.title, "SurveyJS Library json schema");
   assert.equal(schema.properties.surveyId.type, "string", "surveyId is string");
+  assert.notOk(schema.properties.isSinglePage, "isSinglePage is not seriazable");
   assert.equal(
     schema.properties.partialSendEnabled.type,
     "boolean",

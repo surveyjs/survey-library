@@ -1,5 +1,5 @@
 <div [class]="model.cssClasses.root" #contentElement>
-  <div *ngIf="model.hasTabbedMenu" [class]="model.cssClasses.tabsContainer">
+  <div *ngIf="model.hasTabbedMenu" [class]="model.getTabsContainerCss()">
     <sv-action-bar [model]="model.tabbedMenu"></sv-action-bar>
   </div>
   <div *ngIf="model.getShowNoEntriesPlaceholder()" [class]="model.cssClasses.noEntriesPlaceholder">

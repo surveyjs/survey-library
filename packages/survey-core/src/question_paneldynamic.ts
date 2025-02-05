@@ -2405,6 +2405,9 @@ export class QuestionPanelDynamicModel extends Question
       .append(this.cssClasses.headerTab, this.hasTitleOnTop && showTab)
       .toString();
   }
+  public getTabsContainerCss(): string {
+    return new CssClassBuilder().append(this.cssClasses.tabsContainer).append(this.cssClasses.tabsContainerWithHeader, this.hasTitleOnTop).toString();
+  }
   public getPanelWrapperCss(panel: PanelModel): string {
     return new CssClassBuilder()
       .append(this.cssClasses.panelWrapper, !panel || panel.visible)

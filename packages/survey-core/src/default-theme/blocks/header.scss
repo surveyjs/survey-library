@@ -64,6 +64,7 @@
   // grid-auto-rows: min-content;
   grid-template-columns: auto auto auto;
   grid-template-rows: auto auto auto;
+  // row-gap: calcSize(1);
 }
 
 .sv-header__content--static {
@@ -105,6 +106,7 @@
   position: static;
   transform: unset;
   width: 100%;
+  min-height: 100%;
 }
 
 .sv-header__cell--left {

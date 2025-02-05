@@ -123,16 +123,6 @@ class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
   }
 }
 
-interface IPanelDynamicTabbedMenuItem extends IAction {
-  panelId: string;
-}
-class PanelDynamicTabbedMenuItem extends Action {
-  public panelId: string;
-  constructor(innerItem: IPanelDynamicTabbedMenuItem) {
-    super(innerItem);
-  }
-}
-
 export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   public static ItemVariableName = "panel";
   public static ParentItemVariableName = "parentpanel";
@@ -1302,7 +1292,7 @@ export class QuestionPanelDynamicModel extends Question
   public set tabAlign(val: "center" | "left" | "right") {
     this.setPropertyValue("tabAlign", val);
     if (this.isRenderModeTab) {
-      this.tabbedMenu.containerCss = this.getTabbedMenuCss();
+      this.additionalTitleToolbar.containerCss = this.getAdditionalTitleToolbarCss();
     }
   }
   public get isRenderModeList(): boolean {
@@ -1310,6 +1300,12 @@ export class QuestionPanelDynamicModel extends Question
   }
   public get isRenderModeTab(): boolean {
     return this.displayMode === "tab";
+  }
+  get hasTitleOnLeftTop(): boolean {
+    if (this.isRenderModeTab && this.visiblePanelCount > 0) return true;
+    if (!this.hasTitle) return false;
+    const location = this.getTitleLocation();
+    return location === "left" || location === "top";
   }
   public setVisibleIndex(value: number): number {
     if (!this.isVisible) return 0;
@@ -1681,8 +1677,8 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < panels.length; i++) {
       panels[i].locStrsChanged();
     }
-    if (this.tabbedMenu) {
-      this.tabbedMenu.locStrsChanged();
+    if (this.additionalTitleToolbar) {
+      this.additionalTitleToolbar.locStrsChanged();
     }
   }
   public clearIncorrectValues() {
@@ -2401,12 +2397,10 @@ export class QuestionPanelDynamicModel extends Question
   public get cssHeader(): string {
     const showTab = this.isRenderModeTab && !!this.visiblePanelCount;
     return new CssClassBuilder()
-      .append(super.getCssHeader(this.cssClasses))
-      .append(this.cssClasses.headerTab, this.hasTitleOnTop && showTab)
+      .append(this.cssClasses.header)
+      .append(this.cssClasses.headerTop, this.hasTitleOnTop || showTab)
+      .append(this.cssClasses.headerTab, showTab)
       .toString();
-  }
-  public getTabsContainerCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.tabsContainer).append(this.cssClasses.tabsContainerWithHeader, this.hasTitleOnTop).toString();
   }
   public getPanelWrapperCss(panel: PanelModel): string {
     return new CssClassBuilder()
@@ -2461,20 +2455,20 @@ export class QuestionPanelDynamicModel extends Question
     if (!!panel && panel.needResponsiveWidth()) return true;
     return false;
   }
-  private tabbedMenuValue: AdaptiveActionContainer<PanelDynamicTabbedMenuItem>;
-  public get hasTabbedMenu(): boolean {
+  private additionalTitleToolbarValue: AdaptiveActionContainer;
+  public get hasAdditionalTitleToolbar(): boolean {
     return this.isRenderModeTab && this.visiblePanels.length > 0;
   }
-  public get tabbedMenu(): AdaptiveActionContainer<PanelDynamicTabbedMenuItem> | null {
+  protected getAdditionalTitleToolbar(): AdaptiveActionContainer | null {
     if (!this.isRenderModeTab) return null;
-    if (!this.tabbedMenuValue) {
-      this.tabbedMenuValue = new AdaptiveActionContainer<PanelDynamicTabbedMenuItem>();
-      this.tabbedMenuValue.dotsItem.popupModel.showPointer = false;
-      this.tabbedMenuValue.dotsItem.popupModel.verticalPosition = "bottom";
-      this.tabbedMenuValue.dotsItem.popupModel.horizontalPosition = "center";
+    if (!this.additionalTitleToolbarValue) {
+      this.additionalTitleToolbarValue = new AdaptiveActionContainer();
+      this.additionalTitleToolbarValue.dotsItem.popupModel.showPointer = false;
+      this.additionalTitleToolbarValue.dotsItem.popupModel.verticalPosition = "bottom";
+      this.additionalTitleToolbarValue.dotsItem.popupModel.horizontalPosition = "center";
       this.updateElementCss(false);
     }
-    return this.tabbedMenuValue;
+    return this.additionalTitleToolbarValue;
   }
 
   private footerToolbarValue: ActionContainer;
@@ -2569,21 +2563,19 @@ export class QuestionPanelDynamicModel extends Question
       return options.title;
     };
     locTitle.sharedData = this.locTemplateTabTitle;
-    const panelId = panel.id;
-    const isActive = this.getPanelVisibleIndexById(panelId) === this.currentIndex;
-    const newItem = new PanelDynamicTabbedMenuItem({
-      id: `${this.id}_tab_${panelId}`,
-      panelId: panelId,
+    const isActive = this.getPanelVisibleIndexById(panel.id) === this.currentIndex;
+    const newItem = new Action({
+      id: panel.id,
       pressed: isActive,
       locTitle: locTitle,
       disableHide: isActive,
       action: () => {
-        this.currentIndex = this.getPanelVisibleIndexById(panelId);
+        this.currentIndex = this.getPanelVisibleIndexById(newItem.id);
       }
     });
     return newItem;
   }
-  private getTabbedMenuCss(cssClasses?: any): string {
+  private getAdditionalTitleToolbarCss(cssClasses?: any): string {
     const css = cssClasses ?? this.cssClasses;
     return new CssClassBuilder()
       .append(css.tabsRoot)
@@ -2596,8 +2588,8 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isRenderModeTab) return;
     if (this.currentIndex < 0 || this.currentIndex >= this.visiblePanelCount) return;
     const panel = this.visiblePanelsCore[this.currentIndex];
-    this.tabbedMenu.renderedActions.forEach(action => {
-      const isActive = action.panelId === panel.id;
+    this.additionalTitleToolbar.renderedActions.forEach(action => {
+      const isActive = action.id === panel.id;
       action.pressed = isActive;
       action.disableHide = isActive;
       //should raise update if dimensions are not changed but action is active now
@@ -2614,20 +2606,20 @@ export class QuestionPanelDynamicModel extends Question
     for (let i = 0; i < visPanels.length; i++) {
       this.visiblePanelsCore.forEach(panel => items.push(this.createTabByPanel(visPanels[i], i)));
     }
-    this.tabbedMenu.setItems(items);
+    this.additionalTitleToolbar.setItems(items);
   }
   private addTabFromToolbar(panel: PanelModel, index: number) {
     if (!this.isRenderModeTab) return;
 
     const newItem = this.createTabByPanel(panel, index);
-    this.tabbedMenu.actions.splice(index, 0, newItem);
+    this.additionalTitleToolbar.actions.splice(index, 0, newItem);
     this.updateTabToolbarItemsPressedState();
   }
   private removeTabFromToolbar(panel: PanelModel) {
     if (!this.isRenderModeTab) return;
-    const removedItem = this.tabbedMenu.actions.find(a => a.panelId == panel.id);
+    const removedItem = this.additionalTitleToolbar.getActionById(panel.id);
     if (!removedItem) return;
-    this.tabbedMenu.actions.splice(this.tabbedMenu.actions.indexOf(removedItem), 1);
+    this.additionalTitleToolbar.actions.splice(this.additionalTitleToolbar.actions.indexOf(removedItem), 1);
     this.updateTabToolbarItemsPressedState();
   }
   get showLegacyNavigation(): boolean {
@@ -2644,12 +2636,12 @@ export class QuestionPanelDynamicModel extends Question
 
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
-    const tabbedMenu = <AdaptiveActionContainer>this.tabbedMenu;
-    if (!!tabbedMenu) {
-      tabbedMenu.containerCss = this.getTabbedMenuCss(classes);
-      tabbedMenu.cssClasses = classes.tabs;
-      tabbedMenu.dotsItem.cssClasses = classes.tabs;
-      tabbedMenu.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
+    const additionalTitleToolbar = <AdaptiveActionContainer>this.additionalTitleToolbar;
+    if (!!additionalTitleToolbar) {
+      additionalTitleToolbar.containerCss = this.getAdditionalTitleToolbarCss(classes);
+      additionalTitleToolbar.cssClasses = classes.tabs;
+      additionalTitleToolbar.dotsItem.cssClasses = classes.tabs;
+      additionalTitleToolbar.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
     }
     return classes;
   }

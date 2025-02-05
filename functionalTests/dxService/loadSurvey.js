@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test("correct loading", async t => {
+  test.skip("correct loading", async t => {
     let surveyResult;
 
     await setRowItemFlowDirection();

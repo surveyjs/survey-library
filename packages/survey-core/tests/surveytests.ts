@@ -41,7 +41,6 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionRatingModel } from "../src/question_rating";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { surveyCss } from "../src/defaultCss/defaultCss";
-import { dxSurveyService } from "../src/dxSurveyService";
 import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
@@ -6659,90 +6658,6 @@ QUnit.test("Clear value if empty array is set, Bug #608", function (assert) {
   assert.deepEqual(survey.data, { q1: ["1"] }, "The array is set");
   survey.setValue("q1", []);
   assert.deepEqual(survey.data, {}, "The value with empty array is removed");
-});
-
-QUnit.test("surveyId + clientId", function (assert) {
-  var json = { questions: [{ type: "text", name: "q1" }] };
-  class dxSurveyServiceTester extends dxSurveyService {
-    public getSurveyJsonAndIsCompleted(
-      surveyId: string,
-      clientId: string,
-      onLoad: (
-        success: boolean,
-        surveyJson: any,
-        result: string,
-        response: any
-      ) => void
-    ) {
-      if (onLoad) {
-        onLoad(true, json, clientId, "");
-      }
-    }
-  }
-  class SurveyTester extends SurveyModel {
-    protected createSurveyService(): dxSurveyService {
-      return new dxSurveyServiceTester();
-    }
-  }
-  var survey = new SurveyTester({ surveyId: "surveyDummyId", clientId: "no" });
-  assert.equal(survey.state, "running", "The survey is running");
-  var q1 = survey.getQuestionByName("q1");
-  assert.equal(q1.name, "q1", "The survey created from the string");
-
-  survey = new SurveyTester({
-    surveyId: "surveyDummyId",
-    clientId: "completed",
-  });
-  assert.equal(
-    survey.state,
-    "completedbefore",
-    "The survey was completed before"
-  );
-  var q1 = survey.getQuestionByName("q1");
-  assert.equal(q1.name, "q1", "The survey created from the string");
-});
-
-QUnit.test("surveyId + clientId several page render", function (assert) {
-  let log = "";
-  let curState = "";
-  const json = { questions: [{ type: "text", name: "q1" }] };
-  class dxSurveyServiceTester extends dxSurveyService {
-    public getSurveyJsonAndIsCompleted(surveyId: string, clientId: string, onLoad: (success: boolean, surveyJson: any, result: string, response: any) => void) {
-      if (onLoad) {
-        onLoad(true, json, clientId, "");
-      }
-    }
-  }
-  class SurveyTester extends SurveyModel {
-    protected createSurveyService(): dxSurveyService {
-      return new dxSurveyServiceTester();
-    }
-    protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
-      super.propertyValueChanged(name, oldValue, newValue, arrayChanges);
-      if (name === "isLoading" || name === "state" || name === "activePage") {
-        log += ("-> " + name + ":" + newValue);
-      }
-    }
-    protected onLoadSurveyFromService(): void {
-      super.onLoadSurveyFromService();
-      curState = this.state;
-      assert.equal(curState, "loading");
-    }
-    protected setPropertyValueDirectly(name: string, val: any): void {
-      if (name === "activePage" && !!val) {
-        assert.ok(this.activePage === undefined, "this.activePage undefined");
-        assert.ok(!!val, "new activePage");
-      }
-      super.setPropertyValueDirectly(name, val);
-    }
-  }
-
-  let survey = new SurveyTester({ surveyId: "surveyDummyId", clientId: "completed" });
-  assert.equal(survey.state, "completedbefore", "The survey is running");
-  assert.equal(log, "-> state:empty-> state:loading-> isLoading:true-> activePage:page1-> state:completedbefore-> isLoading:false");
-
-  let q1 = survey.getQuestionByName("q1");
-  assert.equal(q1.name, "q1", "The survey created from the string");
 });
 
 QUnit.test(

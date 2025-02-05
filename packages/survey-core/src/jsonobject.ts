@@ -1522,7 +1522,7 @@ export class JsonMetadata {
     if (!classInfo) return;
     const schemaProperties = classSchema.properties;
     const requiredProps = [];
-    if (classInfo.name === "question" || classInfo.name === "panel") {
+    if (classInfo.name === "question") {
       schemaProperties.type = { type: "string" };
       requiredProps.push("type");
     }

@@ -6,11 +6,11 @@ var path = require("path");
 
 const config = {
   output: {
-    path: __dirname + "/build/icons"
+    path: __dirname + "/build"
   },
   entry: {
-    "iconsV1": path.resolve(__dirname, "./src/iconsV1.ts"),
-    "iconsV2": path.resolve(__dirname, "./src/iconsV2.ts"),
+    "icons/iconsV1": path.resolve(__dirname, "./src/iconsV1.ts"),
+    "icons/iconsV2": path.resolve(__dirname, "./src/iconsV2.ts"),
   },
   plugins: [new FixStyleOnlyEntriesPlugin()],
 };

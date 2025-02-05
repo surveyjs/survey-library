@@ -12,6 +12,7 @@ QUnit.test("generate survey schema", function (assert) {
   const schema = Serializer.generateSchema();
   assert.equal(schema.title, "SurveyJS Library json schema");
   assert.equal(schema.properties.surveyId.type, "string", "surveyId is string");
+  assert.notOk(schema.properties.isSinglePage, "isSinglePage is not seriazable");
   assert.equal(
     schema.properties.sendResultOnPageNext.type,
     "boolean",
@@ -82,6 +83,9 @@ QUnit.test("generate survey schema", function (assert) {
     schema.definitions.page.allOf[1].properties,
     "page.allOf has properties"
   );
+  assert.notOk(schema.definitions.page.allOf[1].properties.type, "there is no type in page");
+  assert.notOk(schema.definitions.panel.allOf[1].properties.type, "there is no type in panel");
+  assert.notOk(schema.definitions.panelbase.properties.type, "there is no type in panelbase");
 
   assert.ok(schema.definitions.panelbase, "panelbase object is here");
   assert.equal(

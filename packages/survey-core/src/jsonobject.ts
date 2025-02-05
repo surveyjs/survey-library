@@ -1503,12 +1503,13 @@ export class JsonMetadata {
     if (!classInfo) return;
     const schemaProperties = classSchema.properties;
     const requiredProps = [];
-    if (classInfo.name === "question" || classInfo.name === "panel") {
+    if (classInfo.name === "question") {
       schemaProperties.type = { type: "string" };
       requiredProps.push("type");
     }
     for (let i = 0; i < classInfo.properties.length; i++) {
       const prop = classInfo.properties[i];
+      if(prop.isSerializable === false) continue;
       if (!!classInfo.parentName && !!Serializer.findProperty(classInfo.parentName, prop.name)) continue;
       schemaProperties[prop.name] = this.generateSchemaProperty(prop, schemaDef, isRoot);
       if (prop.isRequired) requiredProps.push(prop.name);

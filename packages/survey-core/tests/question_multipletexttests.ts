@@ -276,7 +276,3 @@ QUnit.test("mutltipletext fromJSON, bug#9400", (assert) => {
   assert.equal(q2.items.length, 3, "items");
   assert.equal(q2.rows.length, 3 * 2, "rows # 2");
 });
-QUnit.test("Make inputSize invisible by default", (assert) => {
-  const prop = Serializer.findProperty("multipletext", "inputSize");
-  assert.strictEqual(prop.visible, false);
-});

@@ -2701,21 +2701,10 @@ Serializer.addClass(
       default: "off",
       choices: ["off", "onPanel", "onSurvey"],
     },
-    {
-      name: "showRangeInProgress:boolean",
-      default: true,
-      visible: false
-      // visibleIf: (obj: any) => { return obj.displayMode !== "list"; }
-    },
-    {
-      name: "renderMode",
-      default: "list",
-      choices: ["list", "progressTop", "progressBottom", "progressTopBottom", "tab"],
-      visible: false,
-    },
+    { name: "renderMode", visible: false, isSerializable: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
-      name: "showProgressBar:boolean",
+      name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",
       default: true,
       visibleIf: (obj: any) => { return obj.displayMode === "carousel"; }
     },

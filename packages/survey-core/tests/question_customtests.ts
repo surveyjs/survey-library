@@ -3491,3 +3491,28 @@ QUnit.test("Composite: with dropdown & showOtherItem, Bug#9378", function (asser
 
   ComponentCollection.Instance.clear();
 });
+
+QUnit.test("Composite: checkErrorsMode: `onComplete` with several elements, Bug#9361", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1", isRequired: true },
+      { type: "text", name: "q2", isRequired: true }
+    ]
+  });
+  const survey = new SurveyModel({
+    checkErrorsMode: "onComplete",
+    pages: [{ name: "page1", elements: [{ type: "test", name: "question1" }] },
+      { name: "page2", elements: [{ type: "test", name: "question2" }] }]
+  });
+  const question1 = <QuestionCompositeModel>survey.getQuestionByName("question1");
+  const q1 = question1.contentPanel.getQuestionByName("q1");
+  assert.equal(q1.parentQuestion?.name, "question1", "q1.parentQuestion");
+  assert.equal(q1.page?.name, "page1", "q1.page");
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #1");
+  survey.tryComplete();
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #2");
+
+  ComponentCollection.Instance.clear();
+});

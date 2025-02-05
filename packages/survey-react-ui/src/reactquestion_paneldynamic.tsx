@@ -68,7 +68,6 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     const noEntriesPlaceholder = this.renderPlaceholder();
     return (
       <div className={this.question.cssClasses.root}>
-        {this.question.hasTabbedMenu ? <div className={this.question.getTabsContainerCss()}><SurveyActionBar model={this.question.tabbedMenu}></SurveyActionBar></div> : null }
         {noEntriesPlaceholder}
         {navTop}
         <div className={this.question.cssClasses.panelsContainer}>

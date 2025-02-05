@@ -20,7 +20,6 @@ import { AnimationGroup, AnimationTab } from "../src/utils/animation";
 import { SurveyElement } from "../src/survey-element";
 import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangingEvent } from "../src/survey-events-api";
-import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
 QUnit.test("Create panels based on template on setting value", function(
@@ -5783,8 +5782,8 @@ QUnit.test("renderMode: tab, issue#5829", function (assert) {
     ],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-  assert.ok(!!panel["tabbedMenuValue"], "tabbedMenuValue exist");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.ok(!!panel["additionalTitleToolbarValue"], "additionalTitleToolbarValue exist");
   assert.ok(panel.isRenderModeTab, "isRenderModeTab");
   assert.equal(panel.currentIndex, 0, "currentIndex is 0");
   assert.equal(panelTabToolbar.actions.length, 2, "2 panels");
@@ -5829,7 +5828,7 @@ QUnit.test("renderMode: tab, check panelTabToolbar containerCss issue#5829", fun
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
   survey.css = defaultCss;
   panel.cssClasses;
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+  const panelTabToolbar = panel.additionalTitleToolbar;
   assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--left", "tabAlign value is left");
 
   panel.tabAlign = "right";
@@ -5861,7 +5860,7 @@ QUnit.test("renderMode: tab check disableHide property", function (assert) {
     ],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+  const panelTabToolbar = panel.additionalTitleToolbar;
   assert.equal(panelTabToolbar.actions[0].disableHide, true);
   assert.equal(panelTabToolbar.actions[1].disableHide, false);
 
@@ -5892,7 +5891,7 @@ QUnit.test("renderMode: tab check disableHide property", function (assert) {
   assert.equal(log, "->raised->raised");
 });
 
-QUnit.test("renderMode: tab check hasTabbedMenu property", function (assert) {
+QUnit.test("renderMode: tab check hasAdditionalTitleToolbar property", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -5909,11 +5908,11 @@ QUnit.test("renderMode: tab check hasTabbedMenu property", function (assert) {
     ],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-  assert.notOk(panel.hasTabbedMenu);
+  assert.notOk(panel.hasAdditionalTitleToolbar);
   panel.addPanel(1);
-  assert.ok(panel.hasTabbedMenu);
+  assert.ok(panel.hasAdditionalTitleToolbar);
   panel.addPanel(2);
-  assert.ok(panel.hasTabbedMenu);
+  assert.ok(panel.hasAdditionalTitleToolbar);
 });
 
 QUnit.test("question.cssHeader class", function (assert) {
@@ -5942,7 +5941,6 @@ QUnit.test("question.cssHeader class", function (assert) {
   assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
 
   panel.renderMode = "tab";
-  panel.titleLocation = "top";
   assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
 
   panel.removePanelUI(0);
@@ -5999,18 +5997,10 @@ QUnit.test("question.hasTitleOnLeftTop class", function (assert) {
   assert.equal(panel.panels.length, 1, "There is one panel");
   assert.equal(panel.panels[0].visible, true, "There is one visiblePanel");
   assert.equal(panel.visiblePanelCount, 1, "There is one visible panel count");
-  assert.equal(panel.hasTitleOnLeftTop, false, "title location should be independent on tabs visibility - tabs are visible and title location is hidden");
+  assert.equal(panel.hasTitleOnLeftTop, true, "panelCount is 1");
 
-  panel.titleLocation = "top";
-  assert.equal(panel.hasTitleOnLeftTop, true, "title location should be independent on tabs visibility - tabs are visible and title location is top");
-
-  panel.titleLocation = "hidden";
   panel.renderMode = undefined;
-  assert.equal(panel.hasTitleOnLeftTop, false, "title location should be independent on tabs visibility - tabs are invisible and title location is hidden");
-
-  panel.titleLocation = "top";
-  assert.equal(panel.hasTitleOnLeftTop, true, "title location should be independent on tabs visibility - tabs are invisible and title location top");
-
+  assert.equal(panel.hasTitleOnLeftTop, false, "renderMode is default");
 });
 QUnit.test("Pass isMobile to the nested questions", function (assert) {
   const survey = new SurveyModel({
@@ -6133,7 +6123,7 @@ QUnit.test("Pass isMobile to the nested questions", function (assert) {
   const innerMatrix = dynPanel.panels[0].elements[0] as QuestionMatrixModel;
   assert.equal(innerMatrix.isMobile, true, "innerMatrix is mobile");
 });
-QUnit.test("renderMode: tab, tabbedMenu&titles", function (assert) {
+QUnit.test("renderMode: tab, additionalTitleToolbar&titles", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",
@@ -6147,7 +6137,7 @@ QUnit.test("renderMode: tab, tabbedMenu&titles", function (assert) {
       }],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+  const panelTabToolbar = panel.additionalTitleToolbar;
   assert.ok(panelTabToolbar.actions[0].locTitle.owner, "Owner is set");
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2");
@@ -6158,7 +6148,7 @@ QUnit.test("renderMode: tab, tabbedMenu&titles", function (assert) {
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
 });
-QUnit.test("renderMode: tab, tabbedMenu&templateTabTitle in JSON", function (assert) {
+QUnit.test("renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",
@@ -6173,7 +6163,7 @@ QUnit.test("renderMode: tab, tabbedMenu&templateTabTitle in JSON", function (ass
       }],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+  const panelTabToolbar = panel.additionalTitleToolbar;
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 ");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
   let counter = 0;
@@ -6198,7 +6188,7 @@ QUnit.test("renderMode: tab, tabbedMenu&templateTabTitle in JSON", function (ass
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 q3-value!");
 });
-QUnit.test("renderMode: tab, tabbedMenu&titles&survey.onGetPanelDynamicTabTitle", function (assert) {
+QUnit.test("renderMode: tab, additionalTitleToolbar&titles&survey.onGetPanelDynamicTabTitle", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",
@@ -6218,7 +6208,7 @@ QUnit.test("renderMode: tab, tabbedMenu&titles&survey.onGetPanelDynamicTabTitle"
     }
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+  const panelTabToolbar = panel.additionalTitleToolbar;
   assert.ok(panelTabToolbar.actions[0].locTitle.owner, "Owner is set");
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2");
@@ -6330,7 +6320,7 @@ QUnit.test("survey.onDynamicPanelCurrentIndexChanged", function (assert) {
   assert.equal(panelIndex, 2, "panelIndex #4");
   assert.equal(panelIndexOf, 2, "panelIndexOf #4");
 });
-QUnit.test("templateVisibleIf & renderMode: tab, tabbedMenu&templateTabTitle in JSON", function (assert) {
+QUnit.test("templateVisibleIf & renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",
@@ -6346,7 +6336,7 @@ QUnit.test("templateVisibleIf & renderMode: tab, tabbedMenu&templateTabTitle in 
       }],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+  const panelTabToolbar = panel.additionalTitleToolbar;
   assert.equal(panelTabToolbar.actions.length, 0, "All tabs are invisible");
   panel.value = [{ q1: "b" }, { q1: "c" }, { q1: "a" }];
   assert.equal(panelTabToolbar.actions.length, 1, "One tab is visible");
@@ -6379,7 +6369,7 @@ QUnit.test("templateVisibleIf & renderMode: tab, templateTabTitle&tabTitlePlaceh
       }],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+  const panelTabToolbar = panel.additionalTitleToolbar;
   assert.equal(panelTabToolbar.actions.length, 2, "There are two panels");
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Empty value", "#1");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Empty value", "#2");
@@ -6396,7 +6386,7 @@ QUnit.test("templateVisibleIf & renderMode: tab, templateTabTitle&tabTitlePlaceh
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "item1", "#9");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "New Panel", "#10");
 });
-QUnit.test("templateVisibleIf & tabbedMenu", function (assert) {
+QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",
@@ -6461,13 +6451,12 @@ QUnit.test("templateVisibleIf & tabs action click, bug#8430", function (assert) 
       }],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const tabbedMenu = panel.tabbedMenu as AdaptiveActionContainer;
-  assert.equal(tabbedMenu.visibleActions.length, 4, "There are 4 visible tabs");
+  assert.equal(panel.additionalTitleToolbar.visibleActions.length, 4, "There are 4 visible tabs");
   panel.panels[1].getQuestionByName("q1").value = "a";
   assert.equal(panel.currentIndex, 0, "Current Index 0");
   const panelId = panel.panels[2].id;
-  assert.equal(tabbedMenu.visibleActions.length, 3, "There are 3 visible tabs");
-  tabbedMenu.visibleActions[1].action();
+  assert.equal(panel.additionalTitleToolbar.visibleActions.length, 3, "There are 3 visible tabs");
+  panel.additionalTitleToolbar.visibleActions[1].action();
   assert.equal(panel.currentIndex, 1, "Current Index 1");
   assert.equal(panel.currentPanel.id, panelId, "Select the correct panel");
 });

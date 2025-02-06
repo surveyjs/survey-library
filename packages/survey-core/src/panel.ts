@@ -1226,18 +1226,17 @@ export class PanelModelBase extends SurveyElement<Question>
   /**
    * Sets a title location relative to the input field for questions that belong to this panel/page.
    *
-   * Use this property to override the `questionTitleLocation` property specified for the survey. You can also set the `titleLocation` property for individual questions.
+   * Use this property to override the [`questionTitleLocation`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionTitleLocation) property specified for the survey or parent page. You can also set the [`titleLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#titleLocation) property for individual questions.
    *
    * Possible values:
    *
-   * - `"default"` (default) - Inherits the setting from the `questionTitleLocation` property specified for the survey.
+   * - `"default"` (default) - Inherits the setting from the `questionTitleLocation` property specified for the survey or parent page.
    * - `"top"` - Displays the title above the input field.
    * - `"bottom"` - Displays the title below the input field.
    * - `"left"` - Displays the title to the left of the input field.
    * - `"hidden"` - Hides the question title.
    *
    * > Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
-   * @see SurveyModel.questionTitleLocation
    */
   public get questionTitleLocation(): string {
     return this.getPropertyValue("questionTitleLocation");

@@ -7738,3 +7738,18 @@ QUnit.test("Do not serialize renderMode & showRangeInProgress", function (assert
   assert.notOk(json.showRangeInProgress, "showRangeInProgress is json");
   assert.equal(json.showProgressBar, false, "showProgressBar is json");
 });
+QUnit.test("A Dynamic Panel question number is updated when adding a new panel Bug#9401", function (assert) {
+  const survey = new SurveyModel({
+    showQuestionNumbers: "on",
+    elements: [
+      { type: "text", name: "question1" },
+      { type: "paneldynamic", name: "panel1",
+        templateElements: [{ type: "text", name: "question3" }]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.equal(panel.no, "2.", "no #1");
+  panel.addPanel();
+  assert.equal(panel.no, "2.", "no #2");
+});

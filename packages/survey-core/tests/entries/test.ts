@@ -17,7 +17,6 @@ export * from "../question_matrixdropdownbasetests";
 export * from "../question_paneldynamic_tests";
 export * from "../surveyserializationtests"; //
 export * from "../surveytests"; //
-export * from "../surveyServiceTests"; //
 export * from "../surveyWindowTests"; //
 export * from "../surveywidthmodetests"; //
 export * from "../surveytriggertests"; //
@@ -80,6 +79,7 @@ export * from "../mask/multipletext_mask_settings_tests";
 export * from "../headerTests";
 export * from "../layout_tests";
 export * from "../inputPerPageTests";
+export * from "../surveyServiceRemovingTests";
 
 // localization
 import "../../src/localization/russian";

@@ -1050,7 +1050,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       QuestionCompositeModel.ItemVariableName
     );
   }
-  protected createWrapper() {
+  protected createWrapper(): void {
     this.panelWrapper = this.createPanel();
   }
   public getTemplate(): string {
@@ -1147,8 +1147,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     this.initElement(res);
     res.readOnly = this.isReadOnly;
-    res.questions.forEach(q => q.onUpdateCssClassesCallback = (css: any): void => {
-      this.onUpdateQuestionCssClasses(q, css);
+    res.questions.forEach(q => {
+      q.setParentQuestion(this);
+      q.onUpdateCssClassesCallback = (css: any): void => { this.onUpdateQuestionCssClasses(q, css); };
     });
     this.setAfterRenderCallbacks(res);
     return res;

@@ -715,11 +715,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if(!this.canAddRow) return undefined;
     return this.addRowText;
   }
-  protected getSingleInputRemoveTextCore(question: Question): string {
-    if(!this.canRemoveRows) return undefined;
-    const row = this.getRowByQuestion(question);
-    return this.canRemoveRow(row) ? this.removeRowText : undefined;
-  }
   protected singleInputAddItemCore(): void {
     this.addRowUI();
   }

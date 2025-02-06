@@ -216,7 +216,7 @@ QUnit.test("singleInput and panel dynamic with templateTitle", assert => {
   q1.value = "edf";
   assert.equal(panel.singleInputLocTitle.textOrHtml, "Item: 2 - edf", "wrapper panel title, #2.2");
 });
-QUnit.test("singleInput and panel dynamic & add/remove panels in navigation bar", assert => {
+QUnit.test("singleInput and panel dynamic & add panels in navigation bar", assert => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -232,38 +232,27 @@ QUnit.test("singleInput and panel dynamic & add/remove panels in navigation bar"
   const panel1 = survey.getQuestionByName("panel1");
   const bar = survey.navigationBar;
   assert.ok(bar.getActionById("sv-singleinput-add"), "addBtn exists, #1");
-  assert.ok(bar.getActionById("sv-singleinput-remove"), "removeBtn exists, #1");
   assert.equal(panel1.singleInputQuestion.name, "q1", "singleInputQuestion, #1");
   survey.questionsOnPageMode = "standard";
   assert.notOk(bar.getActionById("sv-singleinput-add"), "addBtn exists, #2");
-  assert.notOk(bar.getActionById("sv-singleinput-remove"), "removeBtn exists, #2");
   assert.equal(survey.currentSingleQuestion?.name, undefined, "currentSingleQuestion #2");
   assert.equal(panel1.singleInputQuestion?.name, undefined, "singleInputQuestion, #2");
   survey.questionsOnPageMode = "inputPerPage";
   assert.equal(panel1.singleInputQuestion.name, "q1", "singleInputQuestion, #3");
   const addBtn = bar.getActionById("sv-singleinput-add");
-  const removeBtn = bar.getActionById("sv-singleinput-remove");
   assert.ok(addBtn, "addBtn exists, #3");
-  assert.ok(removeBtn, "removeBtn exists, #3");
   assert.equal(addBtn.visible, false, "addBtn visible #1");
-  assert.equal(removeBtn.visible, true, "removeBtn visible #1");
-  assert.equal(removeBtn.title, "Remove", "removeBtn text #1");
   survey.performNext();
   assert.equal(addBtn.visible, false, "addBtn visible #2");
-  assert.equal(removeBtn.visible, true, "removeBtn visible #2");
-  assert.equal(removeBtn.title, "Remove", "removeBtn text #2");
   survey.performNext();
   addBtn.action();
   assert.equal(panel1.panelCount, 3, "New panel is added, #3");
   assert.equal(addBtn.visible, false, "addBtn visible #3");
-  assert.equal(removeBtn.visible, true, "removeBtn visible #3");
-  removeBtn.action();
+  panel1.singleInputRemoveItem();
   assert.equal(panel1.panelCount, 2, "Last panel is removed");
   assert.equal(addBtn.visible, false, "addBtn visible #4");
-  assert.equal(removeBtn.visible, true, "removeBtn visible #4");
   survey.performNext();
   assert.equal(addBtn.visible, true, "addBtn visible #5");
-  assert.equal(removeBtn.visible, false, "removeBtn visible #5");
 });
 QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel", assert => {
   const survey = new SurveyModel({
@@ -282,10 +271,8 @@ QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel",
   assert.equal(panel1.panelCount, 0, "panelCount #1");
   const bar = survey.navigationBar;
   const addBtn = bar.getActionById("sv-singleinput-add");
-  const removeBtn = bar.getActionById("sv-singleinput-remove");
   const page: PageModel = survey.currentPage;
   assert.equal(addBtn.visible, true, "addBtn visible #1");
-  assert.equal(removeBtn.visible, false, "removeBtn visible #1");
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #1");
   assert.equal(page.visibleRows.length, 1, "Just one visible row, #1");
   assert.equal(page.visibleRows[0].elements[0].name, "panel1", "visible question in row, #1");
@@ -295,15 +282,13 @@ QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel",
   panel1.addPanelUI();
   assert.equal(panel1.panelCount, 1, "panelCount #2");
   assert.equal(addBtn.visible, false, "addBtn visible #2");
-  assert.equal(removeBtn.visible, true, "removeBtn visible #2");
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #2");
   assert.equal(panel1.singleInputQuestion.name, "q1", "singleInputQuestion, #2");
   assert.equal(survey.isShowPrevButton, false, "prev buttton, #2");
   assert.equal(survey.isShowNextButton, true, "next buttton, #2");
-  removeBtn.action();
+  panel1.singleInputRemoveItem();
   assert.equal(panel1.panelCount, 0, "panelCount #3");
   assert.equal(addBtn.visible, true, "addBtn visible #3");
-  assert.equal(removeBtn.visible, false, "removeBtn visible #3");
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #3");
   assert.equal(page.visibleRows.length, 1, "Just one visible row, #3");
   assert.equal(page.visibleRows[0].elements[0].name, "panel1", "visible question in row, #3");
@@ -447,10 +432,8 @@ QUnit.test("singleInput and matrix dynamic & add/remove rows in navigation bar",
   matrix1.addRow();
   assert.equal(matrix1.singleInputQuestion.name, "col1", "singleInputQuestion, #1");
   assert.ok(bar.getActionById("sv-singleinput-add"), "addBtn exists, #1");
-  assert.ok(bar.getActionById("sv-singleinput-remove"), "removeBtn exists, #1");
   survey.questionsOnPageMode = "standard";
   assert.notOk(bar.getActionById("sv-singleinput-add"), "addBtn exists, #2");
-  assert.notOk(bar.getActionById("sv-singleinput-remove"), "removeBtn exists, #2");
   assert.equal(survey.currentSingleQuestion?.name, undefined, "currentSingleQuestion #2");
   assert.equal(matrix1.singleInputQuestion?.name, undefined, "singleInputQuestion, #2");
   matrix1.rowCount = 0;
@@ -459,24 +442,17 @@ QUnit.test("singleInput and matrix dynamic & add/remove rows in navigation bar",
   matrix1.addRow();
   assert.equal(matrix1.singleInputQuestion.name, "col1", "singleInputQuestion, #3.2");
   const addBtn = bar.getActionById("sv-singleinput-add");
-  const removeBtn = bar.getActionById("sv-singleinput-remove");
   assert.ok(addBtn, "addBtn exists, #3");
-  assert.ok(removeBtn, "removeBtn exists, #3");
   assert.equal(addBtn.visible, false, "addBtn visible #1");
-  assert.equal(removeBtn.visible, true, "removeBtn visible #1");
-  assert.equal(removeBtn.title, "Remove", "removeBtn text #1");
   survey.performNext();
   assert.equal(addBtn.visible, true, "addBtn visible #2");
   assert.equal(addBtn.title, "Add Row", "addBtn text #2");
-  assert.equal(removeBtn.visible, false, "removeBtn visible #2");
   addBtn.action();
   assert.equal(matrix1.rowCount, 2, "New row is added");
   assert.equal(addBtn.visible, false, "addBtn visible #3");
-  assert.equal(removeBtn.visible, true, "removeBtn visible #3");
-  removeBtn.action();
+  matrix1.singleInputRemoveItem();
   assert.equal(matrix1.rowCount, 1, "Last row is removed");
   assert.equal(addBtn.visible, false, "addBtn visible #4");
-  assert.equal(removeBtn.visible, true, "removeBtn visible #4");
   survey.performNext();
   assert.equal(addBtn.visible, true, "addBtn visible #5");
   assert.equal(addBtn.title, "Add Row", "addBtn text #5");
@@ -795,7 +771,6 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     questionsOnPageMode: "inputPerPage"
   });
   const addBtn = survey.navigationBar.getActionById("sv-singleinput-add");
-  const removeBtn = survey.navigationBar.getActionById("sv-singleinput-remove");
   const panel = survey.getQuestionByName("panel1");
   let move = " forward";
   const checkStep1 = () => {
@@ -805,7 +780,6 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     assert.equal(survey.isShowPrevButton, false, "prev buttton, #1" + move);
     assert.equal(survey.isShowNextButton, true, "next buttton, #1" + move);
     assert.equal(addBtn.visible, false, "addBtn visible #1" + move);
-    assert.equal(removeBtn.visible, true, "removeBtn visible #1" + move);
   };
   checkStep1();
 
@@ -820,7 +794,6 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     assert.equal(matrix.showSingleInputTitle, false, "matrix.input loc title #2" + move);
     assert.equal(matrix.singleInputSummary?.items.length, 0, "matrix.singleInputSummary exists, #2" + move);
     assert.equal(addBtn.visible, true, "addBtn visible #2" + move);
-    assert.equal(removeBtn.visible, false, "removeBtn visible #2" + move);
     assert.equal(matrix.visibleRows.length, 0, "matrix.visibleRows.length, #2" + move);
   };
   checkStep2();
@@ -836,7 +809,6 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 1", "matrix.input loc title #3" + move);
     assert.equal(matrix.singleInputSummary?.items.length, undefined, "matrix.singleInputSummary exists, #3" + move);
     assert.equal(addBtn.visible, false, "addBtn visible #3" + move);
-    assert.equal(removeBtn.visible, true, "removeBtn visible #3" + move);
   };
   checkStep3();
 
@@ -850,7 +822,6 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 1", "matrix.input loc title #4" + move);
     assert.equal(matrix.singleInputSummary?.items.length, undefined, "matrix.singleInputSummary exists, #4" + move);
     assert.equal(addBtn.visible, false, "addBtn visible #4" + move);
-    assert.equal(removeBtn.visible, true, "removeBtn visible #4" + move);
   };
   checkStep4();
   survey.performNext();
@@ -863,7 +834,6 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     assert.equal(matrix.showSingleInputTitle, false, "matrix.input loc title #5" + move);
     assert.equal(matrix.singleInputSummary?.items.length, 1, "matrix.singleInputSummary exists, #5" + move);
     assert.equal(addBtn.visible, true, "addBtn visible #5" + move);
-    assert.equal(removeBtn.visible, false, "removeBtn visible #5" + move);
   };
   checkStep5();
 
@@ -876,7 +846,6 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     assert.equal(survey.isCompleteButtonVisible, true, "complete buttton, #6");
     assert.equal(panel.singleInputSummary.items.length, 1, "panel.singleInputSummary exists, #6");
     assert.equal(addBtn.visible, true, "addBtn visible #6");
-    assert.equal(removeBtn.visible, false, "removeBtn visible #6");
   };
   checkStep6();
   move = " backward";

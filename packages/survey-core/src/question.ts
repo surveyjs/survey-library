@@ -799,10 +799,6 @@ export class Question extends SurveyElement<Question>
     const q = this.currentSingleInputQuestion;
     return !!q && !!q.singleInputSummary ? q.getSingleInputAddTextCore() : undefined;
   }
-  public getSingleInputRemoveText(): string {
-    const q = this.currentSingleInputQuestion;
-    return !!q && !q.singleInputSummary ? this.currentSingleInputParentQuestion.getSingleInputRemoveTextCore(q) : undefined;
-  }
   public singleInputAddItem(): void {
     this.currentSingleInputQuestion.singleInputAddItemCore();
   }
@@ -831,7 +827,6 @@ export class Question extends SurveyElement<Question>
     return this.getNestedQuestions(true, false);
   }
   protected getSingleInputAddTextCore(): string { return undefined; }
-  protected getSingleInputRemoveTextCore(question: Question): string { return undefined; }
   protected singleInputAddItemCore(): void {}
   protected singleInputRemoveItemCore(question: Question): void {}
   protected setSingleInputQuestion(question: Question): void {

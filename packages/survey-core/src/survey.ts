@@ -4774,7 +4774,6 @@ export class SurveyModel extends SurveyElementCore
   }
   private setupSingleInputNavigationActions(): void {
     const actionAddId = "sv-singleinput-add";
-    const actionRemoveId = "sv-singleinput-remove";
     if(this.isSingleVisibleInput) {
       const addItem = (): void => {
         const q = this.currentSingleQuestion;
@@ -4786,10 +4785,8 @@ export class SurveyModel extends SurveyElementCore
         this.currentSingleQuestion.singleInputRemoveItem();
       };
       this.addNavigationItem({ id: actionAddId, visible: false, action: (): void => addItem() });
-      this.addNavigationItem({ id: actionRemoveId, visible: false, action: (): void => removeItem() });
     } else {
       this.removeNavigationItem(actionAddId);
-      this.removeNavigationItem(actionRemoveId);
     }
   }
   private getPageStartIndex(): number {
@@ -4826,14 +4823,9 @@ export class SurveyModel extends SurveyElementCore
     const q = this.currentSingleQuestion;
     if(!q) return;
     const addBtn = this.navigationBar.getActionById("sv-singleinput-add");
-    const removeBtn = this.navigationBar.getActionById("sv-singleinput-remove");
     if(addBtn) {
       addBtn.title = q.getSingleInputAddText();
       addBtn.visible = !!addBtn.title;
-    }
-    if(removeBtn) {
-      removeBtn.title = q.getSingleInputRemoveText();
-      removeBtn.visible = !!removeBtn.title;
     }
   }
   public get isShowPrevButton(): boolean {

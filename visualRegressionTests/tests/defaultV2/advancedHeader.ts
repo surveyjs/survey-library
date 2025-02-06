@@ -214,4 +214,227 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-advanced-header-text-alignment.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
+
+  test("Check survey advanced header with height 300px", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      const headerSelector = Selector(".sv-header");
+
+      await t.resizeWindow(1200, 1000);
+      await initSurvey(framework, {
+        title: "Building your own form management system has never been easier.",
+        description: "With SurveyJS, you can finally avoid using third-party black box SaaS platforms and create a secure and self-hosted form management system, retaining all sensitive data on your own servers.",
+        logo: upArrowImageLink,
+        logoHeight: "200",
+        headerView: "advanced",
+        "widthMode": "static",
+        "width": "1000",
+        "pages": [{ "name": "page1", "elements": [{ "type": "text", "name": "question1" }] }],
+      });
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "middle",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-fixed-height-1-one-row.png", headerSelector, t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "left",
+            "logoPositionY": "top",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "bottom"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-fixed-height-2-one-first-column.png", headerSelector, t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "top",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-fixed-height-3-different-rows-1.png", headerSelector, t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "top",
+            "titlePositionX": "center",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "center",
+            "descriptionPositionY": "middle"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-fixed-height-4-different-rows-2.png", headerSelector, t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "left",
+            "logoPositionY": "middle",
+            "titlePositionX": "center",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "center",
+            "descriptionPositionY": "middle"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-fixed-height-5-one-row-close-columns-1.png", headerSelector, t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "center",
+            "logoPositionY": "middle",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-fixed-height-6-one-row-close-columns-2.png", headerSelector, t, comparer);
+    });
+  });
+
+  test("Check survey advanced header with auto height", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      const headerSelector = Selector(".sv-header");
+
+      await t.resizeWindow(1200, 800);
+      await initSurvey(framework, {
+        title: "Building your own form management system has never been easier.",
+        description: "With SurveyJS, you can finally avoid using third-party black box SaaS platforms and create a secure and self-hosted form management system, retaining all sensitive data on your own servers.",
+        logo: upArrowImageLink,
+        logoHeight: "200",
+        headerView: "advanced",
+        "widthMode": "static",
+        "width": "1000",
+        "pages": [{ "name": "page1", "elements": [{ "type": "text", "name": "question1" }] }],
+      });
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "middle",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-auto-height-1-one-row.png", headerSelector, t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "left",
+            "logoPositionY": "top",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "bottom"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-auto-height-2-one-first-column.png", headerSelector, t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "top",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-auto-height-3-different-rows-1.png", headerSelector, t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "top",
+            "titlePositionX": "center",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "center",
+            "descriptionPositionY": "middle"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-auto-height-4-different-rows-2.png", headerSelector, t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "left",
+            "logoPositionY": "middle",
+            "titlePositionX": "center",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "center",
+            "descriptionPositionY": "middle"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-auto-height-5-one-row-close-columns-1.png", headerSelector, t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "center",
+            "logoPositionY": "middle",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-advanced-header-auto-height-6-one-row-close-columns-2.png", headerSelector, t, comparer);
+    });
+  });
+
 });

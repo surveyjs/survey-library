@@ -25,6 +25,7 @@ QUnit.test("cell calculations",
     assert.deepEqual(cover.cells[0].style, {
       gridColumn: 1,
       gridRow: 1,
+      "width": undefined
     }, "top left");
     assert.deepEqual(cover.cells[0].contentStyle, {
       justifyContent: "flex-start",
@@ -34,6 +35,7 @@ QUnit.test("cell calculations",
     assert.deepEqual(cover.cells[1].style, {
       gridColumn: 2,
       gridRow: 1,
+      "width": undefined
     }, "top center");
     assert.deepEqual(cover.cells[1].contentStyle, {
       justifyContent: "flex-start",
@@ -43,6 +45,7 @@ QUnit.test("cell calculations",
     assert.deepEqual(cover.cells[2].style, {
       gridColumn: 3,
       gridRow: 1,
+      "width": undefined
     }, "top right");
     assert.deepEqual(cover.cells[2].contentStyle, {
       justifyContent: "flex-start",
@@ -138,7 +141,8 @@ QUnit.test("grid cells - defaults", function (assert) {
   assert.equal(cover.cells[6].css, "sv-header__cell sv-header__cell--left sv-header__cell--bottom", "bottom left cell css");
   assert.deepEqual(cover.cells[6].style, {
     "gridColumn": 1,
-    "gridRow": 3
+    "gridRow": 3,
+    "width": undefined
   }, "bottom left cell style");
   assert.deepEqual(cover.cells[6].contentStyle, {
     "alignItems": "flex-start",
@@ -167,7 +171,8 @@ QUnit.test("grid cells - all elements center+middle", function (assert) {
   assert.equal(cover.cells[4].css, "sv-header__cell sv-header__cell--center sv-header__cell--middle", "middle center cell css");
   assert.deepEqual(cover.cells[4].style, {
     "gridColumn": 2,
-    "gridRow": 2
+    "gridRow": 2,
+    "width": undefined
   }, "middle center cell style");
   assert.deepEqual(cover.cells[4].contentStyle, {
     "alignItems": "center",

@@ -43,6 +43,7 @@ export class CoverCell {
     const result: any = {};
     result["gridColumn"] = this.calcColumn(this.positionX);
     result["gridRow"] = this.calcRow(this.positionY);
+    result["width"] = !!this.width ? this.width + "px" : undefined;
     return result;
   }
   get contentStyle(): any {
@@ -66,6 +67,12 @@ export class CoverCell {
   }
   get textAreaWidth(): string {
     return this.cover.renderedTextAreaWidth;
+  }
+  get width(): number {
+    if (this.cover.width) {
+      return Math.ceil((this.cover.width - 80) / 3);
+    }
+    return undefined;
   }
 }
 
@@ -169,6 +176,7 @@ export class Cover extends Base {
   @property() descriptionStyle: { gridColumn: number, gridRow: number };
   @property() headerClasses: string;
   @property() contentClasses: string;
+  @property() width: number;
   @property() maxWidth: string;
   @property() backgroundImageClasses: string;
 
@@ -244,7 +252,7 @@ export class Cover extends Base {
     heights[descriptionIndex][descriptionIndexX] += descriptionHeight;
     return heights.reduce((total, rowArr) => total + Math.max(...rowArr), 0);
   }
-  public processResponsiveness(width: number): void {
+  public processResponsiveness(): void {
     if (this.survey && this.survey.rootElement) {
       if (!this.survey.isMobile) {
         const logoEl = this.survey.rootElement.querySelectorAll(".sv-header__logo")[0];

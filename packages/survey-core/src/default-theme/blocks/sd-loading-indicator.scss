@@ -20,5 +20,8 @@
     animation-timing-function: linear;
     animation-iteration-count: infinite;
     animation-duration: 1s;
+    use {
+      fill: var(--lbr-placeholder-loading-circle-color-spin, $primary)
+    }
   }
 }

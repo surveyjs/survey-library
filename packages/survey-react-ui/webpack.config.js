@@ -32,6 +32,7 @@ const buildPlatformJson = {
     "**/*"
   ],
   "main": "survey-react-ui.js",
+  "module": "fesm/survey-react-ui.js",
   typings: "./typings/entries/index.d.ts",
 
   "peerDependencies": {
@@ -85,6 +86,7 @@ module.exports = function (options) {
           test: /\.(ts|tsx)$/,
           loader: "ts-loader",
           options: {
+            configFile: options.tsConfigFile || "tsconfig.json",
             transpileOnly: isProductionBuild
           }
         },
@@ -120,8 +122,8 @@ module.exports = function (options) {
       filename: "[name]" + (isProductionBuild ? ".min" : "") + ".js",
       library: {
         root: options.libraryName || "SurveyReact",
-        amd: '[dashedname]',
-        commonjs: '[dashedname]',
+        amd: "[dashedname]",
+        commonjs: "[dashedname]",
       },
       libraryTarget: "umd",
       globalObject: "this",
@@ -176,7 +178,7 @@ module.exports = function (options) {
     ]);
     config.devServer = {
       static: {
-        directory: path.join(__dirname, '.'),
+        directory: path.join(__dirname, "."),
       },
       //host: "0.0.0.0",
       compress: false,

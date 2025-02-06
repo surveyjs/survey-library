@@ -7,8 +7,12 @@ import { settings } from "../../src/settings";
 
 export var Version: string;
 export var ReleaseDate: string;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
 Version = `${process.env.VERSION}`;
 settings.version = Version;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
 ReleaseDate = `${process.env.RELEASE_DATE}`;
 
 export function checkLibraryVersion(ver: string, libraryName: string): void {
@@ -243,7 +247,6 @@ export { TextPreProcessor } from "../../src/textPreProcessor";
 export { Notifier } from "../../src/notifier";
 export { Cover, CoverCell } from "../../src/header";
 
-export { dxSurveyService } from "../../src/dxSurveyService";
 export { englishStrings } from "../../src/localization/english";
 export { surveyLocalization, surveyStrings, getLocaleString, getLocaleStrings, setupLocale } from "../../src/surveyStrings";
 // export { cultureInfo } from "../../src/cultureInfo";

@@ -36,47 +36,53 @@ var buildPlatformJson = {
   files: [
     "**/*"
   ],
+  "module": "fesm/survey-core.js",
   "main": "survey.core.js",
+  "exports": {
+    ".": {
+      "types": "./typings/entries/index.d.ts",
+      "import": "./fesm/survey-core.js",
+      "require": "./survey.core.js"
+    },
+    "./*.css": "./*.css",
+    "./survey.i18n": {
+      "import": "./fesm/survey.i18n.js",
+      "require": "./survey.i18n.js"
+    },
+    "./i18n": {
+      "import": "./fesm/i18n/index.js",
+      "require": "./i18n/index.js"
+    },
+    "./i18n/*": {
+      "import": "./fesm/i18n/*.js",
+      "require": "./i18n/*.js"
+    },
+    "./themes": {
+      "types": "./themes/index.d.ts",
+      "import": "./fesm/themes/index.js",
+      "require": "./themes/index.js"
+    },
+    "./themes/*": {
+      "types": "./themes/*.d.ts",
+      "import": "./fesm/themes/*.js",
+      "require": "./themes/*.js"
+    },
+    "./icons/*": {
+      "types": "./icons/*.d.ts",
+      "import": "./fesm/icons/*.js",
+      "require": "./icons/*.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
-  typings: "./typings/entries/index.d.ts",
-  "typesVersions": {
-    "<4.2": {
-      "*": [
-        "ts3.4/*"
-      ]
-    }
-  }
+  typings: "./typings/entries/index.d.ts"
 };
 
 module.exports = function (options) {
   var buildPath = __dirname + "/build/";
   var isProductionBuild = options.buildType === "prod";
-
-  // function createStylesBundleWithFonts() {
-  //   const getdir = (filename) => {
-  //     return buildPath + filename;
-  //   };
-
-  //   if (isProductionBuild) {
-  //     let outputPath = getdir("survey-creator-core.min.css");
-  //     let inputPathList = [
-  //       getdir("fonts.fontless.min.css"),
-  //       getdir("survey-creator-core.fontless.min.css")
-  //     ];
-  //     return mergeFiles(inputPathList, outputPath);
-  //   } else {
-  //     let outputPath = getdir("survey-creator-core.css");
-  //     let inputPathList = [
-  //       getdir("fonts.fontless.css"),
-  //       getdir("survey-creator-core.fontless.css")
-  //     ];
-  //     return mergeFiles(inputPathList, outputPath);
-  //   }
-
-  // }
 
   var percentage_handler = function handler(percentage, msg) {
     if (0 == percentage) {
@@ -109,10 +115,6 @@ module.exports = function (options) {
     },
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
-      //plugins: [new TsconfigPathsPlugin(/*{ configFile: "./tsconfig.json" }*/)],
-      // alias: {
-      //   tslib: path.join(__dirname, "./src/entries/helpers.ts"),
-      // },
     },
     optimization: {
       minimize: isProductionBuild,

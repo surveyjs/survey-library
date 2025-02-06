@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [vue()],
     build: {
+      emptyOutDir: false,
       sourcemap: mode == "development",
       // Output compiled files to /dist.
       outDir: "./build",
@@ -31,7 +32,6 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         // Vue is provided by the parent project, don't compile Vue source-code inside our library.
         external: ["vue", "survey-core"],
-
         plugins: [
           copy({
             targets: [{ src: "./README.md", dest: "./build" }],
@@ -46,7 +46,6 @@ export default defineConfig(({ mode }) => {
       },
     },
     resolve: {
-      preserveSymlinks: true,
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
       },

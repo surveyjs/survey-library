@@ -89,12 +89,17 @@ export class TextPreProcessor {
           var item = new TextPreProcessorItem();
           item.start = start;
           item.end = i;
-          items.push(item);
+          if(this.isValidItemName(text.substring(start + 1, i - 1))) {
+            items.push(item);
+          }
         }
         start = -1;
       }
     }
     return items;
+  }
+  private isValidItemName(name: string): boolean {
+    return !!name && name.indexOf(":") < 0;
   }
   private getName(name: string): string {
     if (!name) return;

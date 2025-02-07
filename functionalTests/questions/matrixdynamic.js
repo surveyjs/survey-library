@@ -325,7 +325,58 @@ frameworks.forEach((framework) => {
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.matrix.length).eql(1);
   });
+
+  test("show/hide details mobile", async (t) => {
+    await ClientFunction(() => window.survey.setIsMobile(true))();
+    await initSurvey(framework, {
+      "title": "TEST",
+      "description": "TEST",
+      "logoPosition": "right",
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "matrixdynamic",
+              "name": "matrix",
+              "titleLocation": "hidden",
+              "verticalAlign": "top",
+              "columns": [
+                {
+                  "name": "header",
+                  "cellType": "text",
+                },
+              ],
+              "detailElements": [
+                {
+                  "name": "detail",
+                  "type": "text",
+                },
+              ],
+              "detailPanelMode": "underRowSingle",
+              "cellType": "text",
+              "rowCount": 1,
+              "addRowLocation": "top",
+              "hideColumnsIfEmpty": true,
+              "detailPanelShowOnAdding": true
+            }
+          ]
+        }
+      ],
+      "showNavigationButtons": "none",
+      "showQuestionNumbers": "off"
+    });
+    await t.resizeWindow(600, 1080);
+    await t.click(Selector("button").withText("Add Row"));
+    await t.expect(Selector("#show-detail-mobile").filterVisible().nth(0).innerText).contains("Show Details");
+    await t.expect(Selector("#show-detail-mobile").filterVisible().nth(1).innerText).contains("Hide Details");
+
+    await t.click(Selector("#show-detail-mobile button").filterVisible().nth(0));
+    await t.expect(Selector("#show-detail-mobile").filterVisible().nth(0).innerText).contains("Hide Details");
+    await t.expect(Selector("#show-detail-mobile").filterVisible().nth(1).innerText).contains("Show Details");
+  });
 });
+
 const json4 = {
   "textUpdateMode": "onTyping",
   "focusFirstQuestionAutomatic": true,

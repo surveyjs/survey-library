@@ -1244,7 +1244,7 @@ export class QuestionPanelDynamicModel extends Question
     res.items = items;
     return res;
   }
-  protected singleInputMoveToFirst(): void {
+  protected singleInputMoveToFirstCore(): void {
     let panel = this.singleInputQuestion?.parent;
     while(!!panel && !!panel.parent) {
       panel = panel.parent;

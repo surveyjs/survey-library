@@ -919,7 +919,8 @@ const nestedJSON = {
           templateElements: [
             { type: "text", name: "storeName", title: "Store Name", isRequired: true },
             { type: "matrixdynamic", name: "products", cellType: "text",
-              title: "Products", description: "Add all products you want to deliver to {panel.storeName}", singleInputRowTitle: "Product {row.productName}",
+              title: "Products", description: "Add all products you want to deliver to {panel.storeName}",
+              singleInputRowTitle: "Product {row.productName}",
               columns: [{ name: "productName", title: "Product Name", isRequired: true }, { name: "productCount", title: "Count", isRequired: true }]
             },
             { type: "text", name: "address", title: "Place Address" }
@@ -1011,21 +1012,25 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
     assert.equal(panel.singleInputActions.length, 1, "singleInputActions.length" + postFix);
     assert.equal(panel.singleInputActions[0].title, "Order #1", "singleInputActions[0].title" + postFix);
   };
-  const check4TwoActions = (num: number) => {
-    const postFix = ", #" + num.toString();
-    assert.equal(panel.singleInputHasActions, true, "singleInputHasActions" + postFix);
-    assert.equal(panel.singleInputActions.length, 2, "singleInputActions.length" + postFix);
-    assert.equal(panel.singleInputActions[0].title, "Order #1", "singleInputActions[0].title" + postFix);
-    assert.equal(panel.singleInputActions[1].title, "Delivery #1", "singleInputActions[1].title" + postFix);
-  };
   assert.equal(panel.singleInputQuestion.name, "buyerName", "root.singleInputQuestion.name, #1");
+  assert.equal(panel.singleInputHideHeader, false, "root.singleInputHideHeader, #1");
   panel.singleInputQuestion.value = "John";
 
   survey.performNext();
   assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #2");
   check4OneActions(2);
   const storesPanel = panel.singleInputQuestion;
+  assert.equal(storesPanel.singleInputQuestion.name, "storeName", "storesPanel.singleInputQuestion.name, #2");
   storesPanel.singleInputQuestion.value = "Store 1";
+  const check4TwoActions = (num: number) => {
+    const postFix = ", #" + num.toString();
+    assert.equal(panel.singleInputHasActions, true, "singleInputHasActions" + postFix);
+    assert.equal(panel.singleInputHideHeader, true, "root.singleInputHideHeader" + postFix);
+    assert.equal(storesPanel.singleInputHideHeader, true, "storesPanel.singleInputHideHeader" + postFix);
+    assert.equal(panel.singleInputActions.length, 2, "singleInputActions.length" + postFix);
+    assert.equal(panel.singleInputActions[0].title, "Order #1", "singleInputActions[0].title" + postFix);
+    assert.equal(panel.singleInputActions[1].title, "Delivery #1", "singleInputActions[1].title" + postFix);
+  };
 
   survey.performNext();
   const productsMatrix = storesPanel.singleInputQuestion;
@@ -1066,5 +1071,16 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
 
   panel.singleInputActions[1].action();
   assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #11");
+  assert.equal(storesPanel.singleInputQuestion.name, "storeName", "storesPanel.singleInputQuestion.name, #11");
   check4OneActions(11);
+
+  survey.performNext();
+  assert.equal(storesPanel.singleInputQuestion.name, "products", "storesPanel.singleInputQuestion.name, #12");
+
+  panel.singleInputActions[0].action();
+  assert.equal(panel.singleInputQuestion.name, "buyerName", "root.singleInputQuestion.name, #13");
+
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #14");
+  assert.equal(storesPanel.singleInputQuestion.name, "storeName", "storesPanel.singleInputQuestion.name, #14");
 });

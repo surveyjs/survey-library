@@ -828,6 +828,10 @@ export class Question extends SurveyElement<Question>
   public get singleInputHasActions(): boolean {
     return this.getPropertyValue("singleInputHasActions");
   }
+  public get singleInputHideHeader(): boolean {
+    const childQ = this.singleInputQuestion?.singleInputQuestion;
+    return !!childQ && this.singleInputQuestion !== this;
+  }
   private set sinleInputHasActions(val: boolean) {
     this.setPropertyValue("singleInputHasActions", val);
   }
@@ -865,7 +869,14 @@ export class Question extends SurveyElement<Question>
     }
     return res;
   }
-  protected singleInputMoveToFirst(): void {}
+  protected singleInputMoveToFirst(): void {
+    const q = this.singleInputQuestion;
+    if(!!q && q !== this) {
+      q.singleInputMoveToFirst();
+    }
+    this.singleInputMoveToFirstCore();
+  }
+  protected singleInputMoveToFirstCore(): void {}
   protected getSingleQuestionLocTitle(): LocalizableString {
     return undefined;
   }

@@ -1763,14 +1763,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return "";
   }
-  protected singleInputMoveToFirst(): void {
+  protected singleInputMoveToFirstCore(): void {
     const data: any = this.singleInputQuestion?.data;
-    this.singInputEditRow(data);
+    this.singleInputEditRow(data);
   }
-  protected singInputEditRow(row: MatrixDropdownRowModelBase): void {
+  protected singleInputEditRow(row: MatrixDropdownRowModelBase): void {
     if(!row) return;
     const qs = row.visibleQuestions;
-    if(qs.length > 0) {
+    if(Array.isArray(qs) && qs.length > 0) {
       this.setSingleInputQuestion(qs[0]);
     }
   }

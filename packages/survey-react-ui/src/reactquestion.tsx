@@ -14,6 +14,7 @@ import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyCustomWidget } from "./custom-widget";
 import { SurveyElementHeader } from "./element-header";
 import { SurveyQuestionSigleInputSummary } from "./reactquestion_singleinputsummary";
+import { SurveyAction } from "./components/action-bar/action-bar-item";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): React.JSX.Element | null;
@@ -131,7 +132,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   protected renderElement(): React.JSX.Element {
     var question = this.question;
     var cssClasses = question.cssClasses;
-    var header = this.renderHeader(question);
+    var header = this.renderSingleInputActions(question) || this.renderHeader(question);
     var headerTop = question.hasTitleOnLeftTop ? header : null;
     var headerBottom = question.hasTitleOnBottom ? header : null;
 
@@ -145,7 +146,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
 
     const rootStyle = question.getRootStyle();
     const singleSummary = question.singleInputSummary ? this.renderSingleInputSummary(question, cssClasses) : undefined;
-    const singleInput = singleSummary || (question.singleInputQuestion ? this.createSingleInputQuestion(question, cssClasses) : undefined);
+    const singleInput = singleSummary || (question.singleInputQuestion ? this.renderSingleInputQuestion(question, cssClasses) : undefined);
     const questionContent = singleInput || this.wrapQuestionContent(this.renderQuestionContent());
 
     return (
@@ -171,9 +172,9 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       </>
     );
   }
-  private createSingleInputQuestion(question: Question, cssClasses: any): React.JSX.Element {
+  private renderSingleInputQuestion(question: Question, cssClasses: any): React.JSX.Element {
     const singleQuestion = question.singleInputQuestion;
-    const locTitle = question.singleInputLocTitle;
+    const locTitle = !question.singleInputHideHeader ? question.singleInputLocTitle : undefined;
     const key = singleQuestion.id;
     const rEl = <SurveyQuestion key={key} element={singleQuestion} creator={this.creator} css={cssClasses} />;
 
@@ -224,7 +225,16 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       </div>
     );
   }
+  protected renderSingleInputActions(question: Question): React.JSX.Element {
+    if(!question.singleInputHasActions) return null;
+    const actions = [];
+    question.singleInputActions.forEach(action => {
+      actions.push(<SurveyAction item={action}></SurveyAction>);
+    });
+    return <div>{actions}</div>;
+  }
   protected renderHeader(question: Question): React.JSX.Element {
+    if(question.singleInputHideHeader) return null;
     return <SurveyElementHeader element={question}></SurveyElementHeader>;
   }
   protected renderErrors(cssClasses: any, location: string): React.JSX.Element {

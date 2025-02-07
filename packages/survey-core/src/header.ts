@@ -1,5 +1,6 @@
 import { Base, ArrayChanges } from "./base";
 import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
+import { DomDocumentHelper } from "./global_variables_utils";
 import { Serializer, property } from "./jsonobject";
 import { SurveyModel } from "./survey";
 import { ITheme } from "./themes";
@@ -70,7 +71,7 @@ export class CoverCell {
   }
   get width(): number {
     if (this.cover.width) {
-      return Math.ceil((this.cover.width - 80) / 3);
+      return Math.ceil(this.cover.width / 3);
     }
     return undefined;
   }
@@ -258,7 +259,11 @@ export class Cover extends Base {
         const headerEl = this.survey.rootElement.querySelectorAll(".sv-header__content")[0];
         const logoEl = this.survey.rootElement.querySelectorAll(".sv-header__logo")[0];
         const titleEl = this.survey.rootElement.querySelectorAll(".sv-header__title")[0];
-        this.width = headerEl ? headerEl.getBoundingClientRect().width : 0;
+        let elWidth = headerEl ? headerEl.getBoundingClientRect().width : 0;
+        const popupComputedStyle = DomDocumentHelper.getComputedStyle(headerEl);
+        const paddingLeft = (parseFloat(popupComputedStyle.paddingLeft) || 0);
+        const paddingRight = (parseFloat(popupComputedStyle.paddingRight) || 0);
+        this.width = elWidth - paddingLeft - paddingRight;
         const descriptionEl = this.survey.rootElement.querySelectorAll(".sv-header__description")[0];
         const logoHeight = logoEl ? logoEl.getBoundingClientRect().height : 0;
         const titleHeight = titleEl ? titleEl.getBoundingClientRect().height : 0;

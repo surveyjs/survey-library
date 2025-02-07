@@ -836,10 +836,11 @@ export class Question extends SurveyElement<Question>
     }
   }
   private nextPrevSingleInput(skip: number): boolean {
-    const pQ = this.currentSingleInputParentQuestion;
-    if(!!pQ && pQ !== this) {
+    let pQ = this.currentSingleInputParentQuestion;
+    while(!!pQ && pQ !== this) {
       const res = pQ.nextPrevSingleInput(skip);
       if(res) return true;
+      pQ = pQ.parentQuestion;
     }
     const q = this.singleInputQuestion;
     if(!q) return false;

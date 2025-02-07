@@ -231,6 +231,15 @@ frameworks.forEach(framework => {
         "pages": [{ "name": "page1", "elements": [{ "type": "text", "name": "question1" }] }],
       });
 
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       |T,D|   | I |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {
@@ -247,6 +256,15 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-advanced-header-fixed-height-1-one-row.png", headerSelector, t, comparer);
 
+      /**
+       +---+---+---+
+       | I |   |   |
+       +---+---+---+
+       | T |   |   |
+       +---+---+---+
+       | D |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {
@@ -263,6 +281,15 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-advanced-header-fixed-height-2-one-first-column.png", headerSelector, t, comparer);
 
+      /**
+       +---+---+---+
+       |   |   | I |
+       +---+---+---+
+       |T,D|   |   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {
@@ -279,6 +306,15 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-advanced-header-fixed-height-3-different-rows-1.png", headerSelector, t, comparer);
 
+      /**
+       +---+---+---+
+       |   |   | I |
+       +---+---+---+
+       |   |T,D|   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {
@@ -295,6 +331,15 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-advanced-header-fixed-height-4-different-rows-2.png", headerSelector, t, comparer);
 
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       | I |T,D|   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {
@@ -311,6 +356,15 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-advanced-header-fixed-height-5-one-row-close-columns-1.png", headerSelector, t, comparer);
 
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       |T,D| I |   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {
@@ -345,6 +399,15 @@ frameworks.forEach(framework => {
         "pages": [{ "name": "page1", "elements": [{ "type": "text", "name": "question1" }] }],
       });
 
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       |T,D|   | I |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {
@@ -360,6 +423,15 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-advanced-header-auto-height-1-one-row.png", headerSelector, t, comparer);
 
+      /**
+       +---+---+---+
+       | I |   |   |
+       +---+---+---+
+       | T |   |   |
+       +---+---+---+
+       | D |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {
@@ -375,6 +447,15 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-advanced-header-auto-height-2-one-first-column.png", headerSelector, t, comparer);
 
+      /**
+       +---+---+---+
+       |   |   | I |
+       +---+---+---+
+       |T,D|   |   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {
@@ -390,6 +471,15 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-advanced-header-auto-height-3-different-rows-1.png", headerSelector, t, comparer);
 
+      /**
+       +---+---+---+
+       |   |   | I |
+       +---+---+---+
+       |   |T,D|   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {
@@ -405,6 +495,15 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-advanced-header-auto-height-4-different-rows-2.png", headerSelector, t, comparer);
 
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       | I |T,D|   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {
@@ -420,6 +519,15 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-advanced-header-auto-height-5-one-row-close-columns-1.png", headerSelector, t, comparer);
 
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       |T,D| I |   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({
           "header": {

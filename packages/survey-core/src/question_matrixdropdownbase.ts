@@ -1763,6 +1763,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return "";
   }
+  protected singleInputMoveToFirst(): void {
+    const data: any = this.singleInputQuestion?.data;
+    this.singInputEditRow(data);
+  }
+  protected singInputEditRow(row: MatrixDropdownRowModelBase): void {
+    if(!row) return;
+    const qs = row.visibleQuestions;
+    if(qs.length > 0) {
+      this.setSingleInputQuestion(qs[0]);
+    }
+  }
   public get storeOthersAsComment(): boolean {
     return !!this.survey ? this.survey.storeOthersAsComment : false;
   }

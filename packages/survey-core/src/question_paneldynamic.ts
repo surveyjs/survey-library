@@ -1244,7 +1244,15 @@ export class QuestionPanelDynamicModel extends Question
     res.items = items;
     return res;
   }
+  protected singleInputMoveToFirst(): void {
+    let panel = this.singleInputQuestion?.parent;
+    while(!!panel && !!panel.parent) {
+      panel = panel.parent;
+    }
+    this.singInputEditPanel(<PanelModel>panel);
+  }
   private singInputEditPanel(panel: PanelModel): void {
+    if(!panel) return;
     const qs = panel.visibleQuestions;
     if(qs.length > 0) {
       this.setSingleInputQuestion(qs[0]);

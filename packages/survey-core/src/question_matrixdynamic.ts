@@ -750,12 +750,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     res.items = items;
     return res;
   }
-  private singInputEditRow(row: MatrixDropdownRowModelBase): void {
-    const qs = row.visibleQuestions;
-    if(qs.length > 0) {
-      this.setSingleInputQuestion(qs[0]);
-    }
-  }
   /**
    * A message displayed in a confirmation dialog that appears when a respondent wants to delete a row.
    * @see confirmDelete

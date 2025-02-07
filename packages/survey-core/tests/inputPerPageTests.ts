@@ -2,10 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
-import { IElement } from "../src/base-interfaces";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { template } from "lodash";
-import { title } from "process";
 
 export default QUnit.module("Input Per Page Tests");
 
@@ -907,33 +904,34 @@ QUnit.test("singleInput & singleInputSummary, showRemove", assert => {
   assert.equal(panel.singleInputSummary.items.length, 1, "singleInputSummary.items.length, #2");
   assert.equal(panel.singleInputSummary.items[0].showRemove, false, "singleInputSummary.items[0].showRemove, #1");
 });
+const nestedJSON = {
+  elements: [
+    {
+      type: "paneldynamic", name: "order",
+      title: "Order", description: "Fill all fields to make an order",
+      panelCount: 1,
+      templateTitle: "Order #{panelIndex}",
+      templateElements: [
+        { type: "text", name: "buyerName", title: "Buyer name", isRequired: true },
+        { type: "paneldynamic", name: "stores", title: "Place to Deliver", description: "Add all places you want to deliver",
+          panelCount: 1,
+          templateTitle: "Delivery #{panelIndex}",
+          templateElements: [
+            { type: "text", name: "storeName", title: "Store Name", isRequired: true },
+            { type: "matrixdynamic", name: "products", cellType: "text",
+              title: "Products", description: "Add all products you want to deliver to {panel.storeName}", singleInputRowTitle: "Product {row.productName}",
+              columns: [{ name: "productName", title: "Product Name", isRequired: true }, { name: "productCount", title: "Count", isRequired: true }]
+            },
+            { type: "text", name: "address", title: "Place Address" }
+          ]
+        }
+      ]
+    }
+  ],
+  questionsOnPageMode: "inputPerPage"
+};
 QUnit.test("singleInput & two nested elements", assert => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic", name: "order",
-        title: "Order", description: "Fill all fields to make an order",
-        panelCount: 1,
-        templateTitle: "Order {panelIndex}",
-        templateElements: [
-          { type: "text", name: "buyerName", title: "Buyer name", isRequired: true },
-          { type: "paneldynamic", name: "stores", title: "Place to Deliver", description: "Add all places you want to deliver",
-            panelCount: 1,
-            templateTitle: "Deliver #{panelIndex}",
-            templateElements: [
-              { type: "text", name: "storeName", title: "Store Name", isRequired: true },
-              { type: "matrixdynamic", name: "products", cellType: "text",
-                title: "Products", description: "Add all products you want to deliver to {panel.storeName}", singleInputRowTitle: "Product {row.productName}",
-                columns: [{ name: "productName", title: "Product Name", isRequired: true }, { name: "productCount", title: "Count", isRequired: true }]
-              },
-              { type: "text", name: "address", title: "Place Address" }
-            ]
-          }
-        ]
-      }
-    ],
-    questionsOnPageMode: "inputPerPage"
-  });
+  const survey = new SurveyModel(nestedJSON);
   const addBtn = survey.navigationBar.getActionById("sv-singleinput-add");
   const panel = survey.getQuestionByName("order");
   assert.equal(panel.singleInputQuestion.name, "buyerName", "root.singleInputQuestion.name, #1");
@@ -1002,4 +1000,71 @@ QUnit.test("singleInput & two nested elements", assert => {
   assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #14");
   assert.equal(storesPanel.singleInputQuestion.name, "stores", "storesPanel.singleInputQuestion.name, #14");
   assert.equal(addBtn.visible, true, "addBtn visible #14");
+});
+QUnit.test("singleInput & two nested elements & actions", assert => {
+  const survey = new SurveyModel(nestedJSON);
+  const addBtn = survey.navigationBar.getActionById("sv-singleinput-add");
+  const panel = survey.getQuestionByName("order");
+  const check4OneActions = (num: number) => {
+    const postFix = ", #" + num.toString();
+    assert.equal(panel.singleInputHasActions, true, "singleInputHasActions" + postFix);
+    assert.equal(panel.singleInputActions.length, 1, "singleInputActions.length" + postFix);
+    assert.equal(panel.singleInputActions[0].title, "Order #1", "singleInputActions[0].title" + postFix);
+  };
+  const check4TwoActions = (num: number) => {
+    const postFix = ", #" + num.toString();
+    assert.equal(panel.singleInputHasActions, true, "singleInputHasActions" + postFix);
+    assert.equal(panel.singleInputActions.length, 2, "singleInputActions.length" + postFix);
+    assert.equal(panel.singleInputActions[0].title, "Order #1", "singleInputActions[0].title" + postFix);
+    assert.equal(panel.singleInputActions[1].title, "Delivery #1", "singleInputActions[1].title" + postFix);
+  };
+  assert.equal(panel.singleInputQuestion.name, "buyerName", "root.singleInputQuestion.name, #1");
+  panel.singleInputQuestion.value = "John";
+
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #2");
+  check4OneActions(2);
+  const storesPanel = panel.singleInputQuestion;
+  storesPanel.singleInputQuestion.value = "Store 1";
+
+  survey.performNext();
+  const productsMatrix = storesPanel.singleInputQuestion;
+  assert.equal(productsMatrix.singleInputQuestion.name, "products", "productsMatrix.singleInputQuestion.name, #3");
+  check4TwoActions(3);
+
+  addBtn.action();
+  assert.equal(productsMatrix.singleInputQuestion.name, "productName", "productsMatrix.singleInputQuestion.name, #4");
+  check4TwoActions(4);
+  productsMatrix.singleInputQuestion.value = "Product 1";
+
+  survey.performNext();
+  assert.equal(productsMatrix.singleInputQuestion.name, "productCount", "productsMatrix.singleInputQuestion.name, #5");
+  check4TwoActions(5);
+  productsMatrix.singleInputQuestion.value = 2;
+
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #6");
+  check4TwoActions(6);
+
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #7");
+  assert.equal(storesPanel.singleInputQuestion.name, "address", "storesPanel.singleInputQuestion.name, #7");
+  check4OneActions(7);
+
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #8");
+  check4OneActions(8);
+
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "order", "root.singleInputQuestion.name, #9");
+  assert.equal(panel.singleInputActions.length, 0, "singleInputActions.length, #9");
+
+  survey.performPrevious();
+  survey.performPrevious();
+  survey.performPrevious();
+  check4TwoActions(10);
+
+  panel.singleInputActions[1].action();
+  assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #11");
+  check4OneActions(11);
 });

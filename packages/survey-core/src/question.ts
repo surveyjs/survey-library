@@ -23,6 +23,7 @@ import { ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
+import { Action } from "./actions/action";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 
 export interface IConditionObject {
@@ -740,6 +741,7 @@ export class Question extends SurveyElement<Question>
   private onSingleInputChanged(): void {
     this.resetPropertyValue("showSingleInputTitle");
     this.resetSingleInputSummary();
+    this.calcSingleInputActions();
     this.survey?.updateNavigationElements();
   }
   private resetSingleInputSummary(): void {
@@ -817,9 +819,53 @@ export class Question extends SurveyElement<Question>
       return this.getSingleQuestionLocTitle();
     });
   }
+  public get singleInputActions(): Array<Action> {
+    return this.getPropertyValue("singleInputActions", undefined, () => this.createSingleInputActions());
+  }
+  private set singleInputActions(val: Array<Action>) {
+    this.setPropertyValue("singleInputActions", val);
+  }
+  public get singleInputHasActions(): boolean {
+    return this.getPropertyValue("singleInputHasActions");
+  }
+  private set sinleInputHasActions(val: boolean) {
+    this.setPropertyValue("singleInputHasActions", val);
+  }
   private get singleInputParentQuestion(): Question {
     return this.singleInputQuestion?.parentQuestion || this;
   }
+  private createSingleInputActions(): Array<Action> {
+    if(this.survey?.currentSingleQuestion !== this) return undefined;
+    const res = this.createNewArray("singleInputActions");
+    const actions = this.getSingleQuestionActions();
+    res.splice(0, 0, ...actions);
+    this.sinleInputHasActions = actions.length > 0 ? true : undefined;
+    return res;
+  }
+  private calcSingleInputActions(): void {
+    if(!!this.parentQuestion) {
+      this.parentQuestion.calcSingleInputActions();
+    } else {
+      const actions = this.getSingleQuestionActions();
+      this.singleInputActions = actions;
+      this.sinleInputHasActions = actions.length > 0 ? true : undefined;
+    }
+  }
+  private getSingleQuestionActions(): Array<Action> {
+    const qs = new Array<Question>();
+    let pQ = this.currentSingleInputParentQuestion?.parentQuestion;
+    while(!!pQ) {
+      qs.push(pQ);
+      pQ = pQ.parentQuestion;
+    }
+    const res = new Array<Action>();
+    for(let i = qs.length - 1; i >= 0; i--) {
+      const q = qs[i];
+      res.push(new Action({ id: "single-action" + q.id, locTitle: q.singleInputLocTitle, action: () => { q.singleInputMoveToFirst(); } }));
+    }
+    return res;
+  }
+  protected singleInputMoveToFirst(): void {}
   protected getSingleQuestionLocTitle(): LocalizableString {
     return undefined;
   }

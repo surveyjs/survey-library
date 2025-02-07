@@ -255,8 +255,10 @@ export class Cover extends Base {
   public processResponsiveness(): void {
     if (this.survey && this.survey.rootElement) {
       if (!this.survey.isMobile) {
+        const headerEl = this.survey.rootElement.querySelectorAll(".sv-header__content")[0];
         const logoEl = this.survey.rootElement.querySelectorAll(".sv-header__logo")[0];
         const titleEl = this.survey.rootElement.querySelectorAll(".sv-header__title")[0];
+        this.width = headerEl ? headerEl.getBoundingClientRect().width : 0;
         const descriptionEl = this.survey.rootElement.querySelectorAll(".sv-header__description")[0];
         const logoHeight = logoEl ? logoEl.getBoundingClientRect().height : 0;
         const titleHeight = titleEl ? titleEl.getBoundingClientRect().height : 0;

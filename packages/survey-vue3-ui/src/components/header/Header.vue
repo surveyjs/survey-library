@@ -31,6 +31,7 @@
 import SvComponent from "@/SvComponent.vue";
 import type { SurveyModel, Cover } from "survey-core";
 import { useBase } from "@/base";
+import { onMounted, onUpdated } from "vue";
 
 const props = defineProps<{
   model: Cover;
@@ -41,5 +42,12 @@ useBase(() => {
   const model = props.model;
   model.survey = props.survey;
   return props.model;
+});
+
+onMounted(() => {
+  props.model.processResponsiveness();
+});
+onUpdated(() => {
+  props.model.processResponsiveness();
 });
 </script>

@@ -545,6 +545,7 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Focus remove or add button removing", async (t) => {
+    await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
       focusFirstQuestionAutomatic: true,
       elements: [
@@ -577,6 +578,7 @@ frameworks.forEach((framework) => {
     await t.expect(await getSurveyResult()).eql({ matrix: [{ name: "abc123" }] });
   });
   test("Focus remove or add button removing for horizontal columns layout", async (t) => {
+    await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
       focusFirstQuestionAutomatic: true,
       elements: [
@@ -610,6 +612,7 @@ frameworks.forEach((framework) => {
     await t.expect(await getSurveyResult()).eql({ matrix: [{ name: "abc123" }] });
   });
   test("Editing cell loses focus when a dependent column appears, Bug#9233", async (t) => {
+    await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
       textUpdateMode: "onTyping",
       elements: [

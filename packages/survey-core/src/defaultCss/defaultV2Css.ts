@@ -127,6 +127,8 @@ export var defaultV2Css = {
     progressBtnIcon: "icon-progressbuttonv2",
     noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder",
     compact: "sd-element--with-frame sd-element--compact",
+    tabsContainer: "sd-paneldynamic__tabs-container",
+    tabsContainerWithHeader: "sd-paneldynamic__tabs-container--with-header",
     tabsRoot: "sd-tabs-toolbar",
     tabsLeft: "sd-tabs-toolbar--left",
     tabsRight: "sd-tabs-toolbar--right",

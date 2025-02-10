@@ -1179,7 +1179,7 @@ export class QuestionPanelDynamicModel extends Question
     res.push(this);
     return res;
   }
-  protected getSingleQuestionLocTitle(): LocalizableString {
+  protected getSingleQuestionLocTitleCore(): LocalizableString {
     const res = this.locTemplateTitle;
     res.onGetTextCallback = (text: string): string => {
       const q = this.singleInputQuestion;

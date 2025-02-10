@@ -196,6 +196,9 @@ export class Question extends SurveyElement<Question>
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.storeDefaultText = true;
     locTitleValue.onGetTextCallback = (text: string): string => {
+      if(this.isSingleInputActive && !!this.singleInputLocTitle) {
+        return this.singleInputLocTitle.textOrHtml;
+      }
       if (!text) {
         text = this.getDefaultTitle();
       }
@@ -741,6 +744,7 @@ export class Question extends SurveyElement<Question>
   private onSingleInputChanged(): void {
     this.resetPropertyValue("showSingleInputTitle");
     this.resetSingleInputSummary();
+    this.resetPropertyValue("singleInputLocTitle");
     this.calcSingleInputActions();
     this.survey?.updateNavigationElements();
   }
@@ -766,7 +770,8 @@ export class Question extends SurveyElement<Question>
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
   protected get isSingleInputActive(): boolean {
-    return this.survey?.currentSingleQuestion === this.rootParentQuestion;
+    const ssQ = this.survey?.currentSingleQuestion;
+    return !!ssQ && ssQ === this.rootParentQuestion;
   }
   protected singleInputOnAddItem(): void {
     if(this.isSingleInputActive) {
@@ -877,7 +882,10 @@ export class Question extends SurveyElement<Question>
     this.singleInputMoveToFirstCore();
   }
   protected singleInputMoveToFirstCore(): void {}
-  protected getSingleQuestionLocTitle(): LocalizableString {
+  private getSingleQuestionLocTitle(): LocalizableString {
+    return !this.singleInputSummary ? this.getSingleQuestionLocTitleCore() : undefined;
+  }
+  protected getSingleQuestionLocTitleCore(): LocalizableString {
     return undefined;
   }
   protected getSingleInputQuestions(): Array<Question> {

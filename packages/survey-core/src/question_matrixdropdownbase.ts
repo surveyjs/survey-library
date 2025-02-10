@@ -1752,7 +1752,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   get locSingleInputRowTitle(): LocalizableString {
     return this.getLocalizableString("singleInputRowTitle");
   }
-  protected getSingleQuestionLocTitle(): LocalizableString {
+  protected getSingleQuestionLocTitleCore(): LocalizableString {
     return this.locSingleInputRowTitle;
   }
   protected getSingleInputRowLocalizationTitle(): string { return ""; }

@@ -77,7 +77,8 @@ QUnit.test("singleInput for panel dynamic", assert => {
   const rootCss = panel.singleInputQuestion.getRootCss();
   assert.equal(rootCss.indexOf("q-frame") > -1, true, "rootCss has frame, #1");
   assert.equal(rootCss.indexOf("q-nested") > -1, false, "rootCss has frame, #1");
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "wrapper panel title, #1");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "wrapper panel single title, #1");
+  assert.equal(panel.locTitle.textOrHtml, "Panel 1", "wrapper panel title, #1");
 
   survey.performNext();
   el = <PanelModel>page.visibleRows[0].elements[0];
@@ -203,16 +204,20 @@ QUnit.test("singleInput and panel dynamic with templateTitle", assert => {
   const page: PageModel = survey.currentPage;
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion is panel1, #1");
   assert.equal(panel.singleInputQuestion.name, "q1", "The q1 is in the row, #1");
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Item: 1 - ", "wrapper panel title, #1.1");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Item: 1 - ", "wrapper panel single title, #1.1");
+  assert.equal(panel.locTitle.textOrHtml, "Item: 1 - ", "wrapper panel title, #1.1");
   let q1 = panel.singleInputQuestion;
   q1.value = "abc";
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Item: 1 - abc", "wrapper panel title, #1.2");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Item: 1 - abc", "wrapper panel single title, #1.2");
+  assert.equal(panel.locTitle.textOrHtml, "Item: 1 - abc", "wrapper panel title, #1.2");
 
   survey.performNext();
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Item: 2 - ", "wrapper panel title, #2.2");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Item: 2 - ", "wrapper panel single title, #2.2");
+  assert.equal(panel.locTitle.textOrHtml, "Item: 2 - ", "wrapper panel title, #2.2");
   q1 = panel.singleInputQuestion;
   q1.value = "edf";
-  assert.equal(panel.singleInputLocTitle.textOrHtml, "Item: 2 - edf", "wrapper panel title, #2.2");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Item: 2 - edf", "wrapper panel single title, #2.2");
+  assert.equal(panel.locTitle.textOrHtml, "Item: 2 - edf", "wrapper panel title, #2.2");
 });
 QUnit.test("singleInput and panel dynamic & add panels in navigation bar", assert => {
   const survey = new SurveyModel({
@@ -686,14 +691,23 @@ QUnit.test("singleInput & singleInputSummary for dynamic matrix", assert => {
   assert.equal(matrix.singleInputQuestion.name, "matrix1", "singleInputQuestion.name, #1");
   assert.ok(matrix.singleInputSummary, "singleInputSummary exists, #1");
   assert.equal(matrix.singleInputSummary.items.length, 0, "singleInputSummary.items.length, #1");
+  assert.notOk(matrix.singleInputLocTitle?.textOrHtml, "singleInputLocTitle, #1");
+  assert.equal(matrix.locTitle.textOrHtml, "matrix1", "locTitle, #1");
   matrix.singleInputSummary.bntAdd.action();
   assert.equal(matrix.rowCount, 1, "row count, #2");
   assert.notOk(matrix.singleInputSummary, "singleInputSummary exists, #2");
+  assert.equal(matrix.singleInputLocTitle?.textOrHtml, "Row 1", "singleInputLocTitle, #2");
+  assert.equal(matrix.locTitle.textOrHtml, "Row 1", "locTitle, #2");
   survey.performNext();
   assert.notOk(matrix.singleInputSummary, "singleInputSummary exists, #3");
+  assert.equal(matrix.singleInputLocTitle?.textOrHtml, "Row 1", "singleInputLocTitle, #3");
+  assert.equal(matrix.locTitle.textOrHtml, "Row 1", "locTitle, #3");
   survey.performNext();
   assert.ok(matrix.singleInputSummary, "singleInputSummary exists, #4");
   assert.equal(matrix.singleInputSummary.items.length, 1, "singleInputSummary.items.length, #4");
+  assert.notOk(matrix.singleInputLocTitle?.textOrHtml, "singleInputLocTitle, #1");
+  assert.equal(matrix.locTitle.textOrHtml, "matrix1", "locTitle, #1");
+
   matrix.addRow();
   survey.performNext();
   survey.performNext();

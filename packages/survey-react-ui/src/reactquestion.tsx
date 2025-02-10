@@ -174,15 +174,9 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
   private renderSingleInputQuestion(question: Question, cssClasses: any): React.JSX.Element {
     const singleQuestion = question.singleInputQuestion;
-    const locTitle = !question.singleInputHideHeader ? question.singleInputLocTitle : undefined;
     const key = singleQuestion.id;
-    const rEl = <SurveyQuestion key={key} element={singleQuestion} creator={this.creator} css={cssClasses} />;
+    return <SurveyQuestion key={key} element={singleQuestion} creator={this.creator} css={cssClasses} />;
 
-    const title = locTitle ? <div className={cssClasses.singleInputTitle}>{this.renderLocString(locTitle, cssClasses, key + "_title")}</div> : undefined;
-    return <>
-      {title}
-      {rEl}
-    </>;
   }
   protected renderSingleInputSummary(question: Question, cssClasses: any): React.JSX.Element {
     return <SurveyQuestionSigleInputSummary summary={question.singleInputSummary} creator={this.creator} css={cssClasses} />;

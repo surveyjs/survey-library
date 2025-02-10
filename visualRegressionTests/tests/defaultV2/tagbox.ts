@@ -583,8 +583,9 @@ frameworks.forEach(async framework => {
             ]
           }
         ],
+        "showQuestionNumbers": "off",
         "widthMode": "static",
-        "width": "800px"
+        "width": "800px",
       });
       await t.click(Selector(".sd-question"));
       await takeElementScreenshot("tagbox-long-item-max-width.png", Selector(".sd-question"), t, comparer);

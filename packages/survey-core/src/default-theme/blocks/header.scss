@@ -60,11 +60,11 @@
   height: 100%;
   position: relative;
   display: grid;
-  gap: 0;
   // grid-auto-rows: min-content;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
-  // row-gap: calcSize(1);
+  row-gap: var(--lbr-cover-row-gap, var(--lbr-spacing-x150, calcSize(1.5)));
+  column-gap: var(--lbr-cover-column-gap, var(--lbr-spacing-x6, calcSize(6)));
 }
 
 .sv-header--height-auto {

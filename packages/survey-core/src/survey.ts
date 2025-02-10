@@ -1331,7 +1331,7 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-header",
       index: -100,
       data: advHeader,
-      processResponsiveness: width => advHeader.processResponsiveness(width)
+      processResponsiveness: width => advHeader.processResponsiveness()
     });
   }
 

@@ -114,6 +114,15 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
       </div>
     );
   }
+
+  componentDidMount() {
+    super.componentDidMount();
+    this.model.processResponsiveness();
+  }
+  componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    this.model.processResponsiveness();
+  }
 }
 
 ReactElementFactory.Instance.registerElement("sv-header", (props) => {

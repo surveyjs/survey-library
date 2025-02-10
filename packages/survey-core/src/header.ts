@@ -1,5 +1,6 @@
 import { Base, ArrayChanges } from "./base";
 import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
+import { DomDocumentHelper } from "./global_variables_utils";
 import { Serializer, property } from "./jsonobject";
 import { SurveyModel } from "./survey";
 import { ITheme } from "./themes";
@@ -43,6 +44,7 @@ export class CoverCell {
     const result: any = {};
     result["gridColumn"] = this.calcColumn(this.positionX);
     result["gridRow"] = this.calcRow(this.positionY);
+    result["width"] = !!this.width ? this.width + "px" : undefined;
     return result;
   }
   get contentStyle(): any {
@@ -66,6 +68,12 @@ export class CoverCell {
   }
   get textAreaWidth(): string {
     return this.cover.renderedTextAreaWidth;
+  }
+  get width(): number {
+    if (this.cover.width) {
+      return Math.ceil(this.cover.width / 3);
+    }
+    return undefined;
   }
 }
 
@@ -140,7 +148,6 @@ export class Cover extends Base {
   }
 
   public cells: CoverCell[] = [];
-  @property({ defaultValue: 0 }) public actualHeight: number;
   @property() public height: number;
   @property() public mobileHeight: number;
   @property() public inheritWidthFrom: "survey" | "container";
@@ -169,15 +176,16 @@ export class Cover extends Base {
   @property() descriptionStyle: { gridColumn: number, gridRow: number };
   @property() headerClasses: string;
   @property() contentClasses: string;
+  @property() width: number;
   @property() maxWidth: string;
   @property() backgroundImageClasses: string;
 
   public get renderedHeight(): string {
     if (this.survey && !this.survey.isMobile || !this.survey) {
-      return this.height ? Math.max(this.height, this.actualHeight + 40) + "px" : undefined;
+      return this.height ? this.height + "px" : undefined;
     }
     if (this.survey && this.survey.isMobile) {
-      return this.mobileHeight ? Math.max(this.mobileHeight, this.actualHeight) + "px" : undefined;
+      return this.mobileHeight ? this.mobileHeight + "px" : undefined;
     }
     return undefined;
   }
@@ -244,19 +252,17 @@ export class Cover extends Base {
     heights[descriptionIndex][descriptionIndexX] += descriptionHeight;
     return heights.reduce((total, rowArr) => total + Math.max(...rowArr), 0);
   }
-  public processResponsiveness(width: number): void {
+  public processResponsiveness(): void {
     if (this.survey && this.survey.rootElement) {
       if (!this.survey.isMobile) {
-        const logoEl = this.survey.rootElement.querySelectorAll(".sv-header__logo")[0];
-        const titleEl = this.survey.rootElement.querySelectorAll(".sv-header__title")[0];
-        const descriptionEl = this.survey.rootElement.querySelectorAll(".sv-header__description")[0];
-        const logoHeight = logoEl ? logoEl.getBoundingClientRect().height : 0;
-        const titleHeight = titleEl ? titleEl.getBoundingClientRect().height : 0;
-        const descriptionHeight = descriptionEl ? descriptionEl.getBoundingClientRect().height : 0;
-        this.actualHeight = this.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
-      } else {
-        const headerContainer = this.survey.rootElement.querySelectorAll(".sv-header > div")[0];
-        this.actualHeight = headerContainer ? headerContainer.getBoundingClientRect().height : 0;
+        const headerEl = this.survey.rootElement.querySelectorAll(".sv-header__content")[0];
+        if (!headerEl) return;
+
+        let elWidth = headerEl.getBoundingClientRect().width;
+        const headerComputedStyle = DomDocumentHelper.getComputedStyle(headerEl);
+        const paddingLeft = (parseFloat(headerComputedStyle.paddingLeft) || 0);
+        const paddingRight = (parseFloat(headerComputedStyle.paddingRight) || 0);
+        this.width = elWidth - paddingLeft - paddingRight;
       }
     }
   }

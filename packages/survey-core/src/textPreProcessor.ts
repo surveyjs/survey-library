@@ -183,9 +183,6 @@ export class QuestionTextProcessor implements ITextProcessor {
     for (let i = 0; i < processors.length; i++) {
       const processor = processors[i];
       params.text = res.text;
-      if(i === processors.length - 1 && params.replaceUndefinedValues === undefined) {
-        params.replaceUndefinedValues = true;
-      }
       const processorRes = processor.processTextEx(params);
       res.text = processorRes.text;
       res.hasAllValuesOnLastRun = res.hasAllValuesOnLastRun && processorRes.hasAllValuesOnLastRun;

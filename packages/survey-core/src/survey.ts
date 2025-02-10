@@ -7245,7 +7245,7 @@ export class SurveyModel extends SurveyElementCore
     return this.processText(options.html, true);
   }
   processText(text: string, returnDisplayValue: boolean): string {
-    return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false, replaceUndefinedValues: true }).text;
+    return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false }).text;
   }
   processTextEx(params: ITextProcessorProp): ITextProcessorResult {
     const doEncoding = params.doEncoding === undefined ? settings.web.encodeUrlParams : params.doEncoding;

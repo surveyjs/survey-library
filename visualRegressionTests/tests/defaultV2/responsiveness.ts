@@ -267,12 +267,35 @@ frameworks.forEach(framework => {
             addRowText: "Add a New Record",
             rowCount: 2,
           },
+          {
+            type: "matrixdynamic",
+            name: "frameworks1",
+            title: "Please tells us your opinion about JavaScript MVVM frameworks.",
+            columns: [
+              {
+                "name": "Column 1",
+                "title": "Framework"
+              },
+              {
+                "name": "Column 2",
+                "title": "How long do you use it?"
+              },
+              {
+                "name": "Column 3",
+                "title": "What is main strength?"
+              }
+            ],
+            addRowText: "Add a New Record",
+            rowCount: 2,
+            "addRowLocation": "top"
+          },
         ]
       });
       await ClientFunction(() => {
         document.body.focus();
       })();
-      await takeElementScreenshot("responsiveness-matrixdynamic.png", Selector(".sd-question"), t, comparer);
+      await takeElementScreenshot("responsiveness-matrixdynamic.png", Selector(".sd-question").nth(0), t, comparer);
+      await takeElementScreenshot("responsiveness-matrixdynamic-add-top.png", Selector(".sd-question").nth(1), t, comparer);
     });
   });
   test("Check matrixdynamic on small screen with errors", async (t) => {

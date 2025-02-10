@@ -9,6 +9,7 @@ import { wrapUrlForBackgroundImage } from "./utils/utils";
 
 export class CoverCell {
   static CLASSNAME = "sv-header__cell";
+
   private calcRow(positionY: VerticalAlignment): any {
     return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
   }
@@ -52,6 +53,7 @@ export class CoverCell {
     result["textAlign"] = this.calcAlignText(this.positionX);
     result["alignItems"] = this.calcAlignItems(this.positionX);
     result["justifyContent"] = this.calcJustifyContent(this.positionY);
+    result["maxWidth"] = this.contentMaxWidth;
     return result;
   }
   get showLogo(): boolean {
@@ -74,6 +76,9 @@ export class CoverCell {
       return Math.ceil(this.cover.width / 3);
     }
     return undefined;
+  }
+  get contentMaxWidth(): string {
+    return this.cover.getContentMaxWidth(this);
   }
 }
 
@@ -233,25 +238,61 @@ export class Cover extends Base {
     }
   }
 
-  public calculateActualHeight(logoHeight: number, titleHeight: number, descriptionHeight: number): number {
-    const positionsY = ["top", "middle", "bottom"];
-    const logoIndex = positionsY.indexOf(this.logoPositionY);
-    const titleIndex = positionsY.indexOf(this.titlePositionY);
-    const descriptionIndex = positionsY.indexOf(this.descriptionPositionY);
-    const positionsX = ["left", "center", "right"];
-    const logoIndexX = positionsX.indexOf(this.logoPositionX);
-    const titleIndexX = positionsX.indexOf(this.titlePositionX);
-    const descriptionIndexX = positionsX.indexOf(this.descriptionPositionX);
-    const heights = [
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0]
-    ];
-    heights[logoIndex][logoIndexX] = logoHeight;
-    heights[titleIndex][titleIndexX] += titleHeight;
-    heights[descriptionIndex][descriptionIndexX] += descriptionHeight;
-    return heights.reduce((total, rowArr) => total + Math.max(...rowArr), 0);
+  // public calculateActualHeight(logoHeight: number, titleHeight: number, descriptionHeight: number): number {
+  //   const positionsY = ["top", "middle", "bottom"];
+  //   const logoIndex = positionsY.indexOf(this.logoPositionY);
+  //   const titleIndex = positionsY.indexOf(this.titlePositionY);
+  //   const descriptionIndex = positionsY.indexOf(this.descriptionPositionY);
+  //   const positionsX = ["left", "center", "right"];
+  //   const logoIndexX = positionsX.indexOf(this.logoPositionX);
+  //   const titleIndexX = positionsX.indexOf(this.titlePositionX);
+  //   const descriptionIndexX = positionsX.indexOf(this.descriptionPositionX);
+  //   const heights = [
+  //     [0, 0, 0],
+  //     [0, 0, 0],
+  //     [0, 0, 0]
+  //   ];
+  //   heights[logoIndex][logoIndexX] = logoHeight;
+  //   heights[titleIndex][titleIndexX] += titleHeight;
+  //   heights[descriptionIndex][descriptionIndexX] += descriptionHeight;
+  //   return heights.reduce((total, rowArr) => total + Math.max(...rowArr), 0);
+  // }
+
+  public getContentMaxWidth(cell: CoverCell): string {
+    if (cell.isEmpty || cell.showLogo) {
+      return undefined;
+    }
+    const cellIndex = this.cells.indexOf(cell);
+    const rowIndex = Math.floor(cellIndex / 3);
+    const colIndex = cellIndex % 3;
+    if (colIndex == 1) {
+      if (!this.cells[rowIndex * 3].isEmpty || !this.cells[rowIndex * 3 + 2].isEmpty) {
+        return "100%";
+      }
+    } else if (colIndex == 0) {
+      let rightFreeCells = 0;
+      let index = colIndex + 1;
+      while (index < 3 && this.cells[rowIndex * 3 + index].isEmpty) {
+        if (this.cells[rowIndex * 3 + index].isEmpty) {
+          rightFreeCells++;
+        }
+        index++;
+      }
+      return (100 * (rightFreeCells + 1)) + "%";
+    } else if (colIndex == 2) {
+      let leftFreeCells = 0;
+      let index = colIndex - 1;
+      while (index > 0 && this.cells[rowIndex * 3 + index].isEmpty) {
+        if (this.cells[rowIndex * 3 + index].isEmpty) {
+          leftFreeCells++;
+        }
+        index--;
+      }
+      return (100 * (leftFreeCells + 1)) + "%";
+    }
+    return undefined;
   }
+
   public processResponsiveness(): void {
     if (this.survey && this.survey.rootElement) {
       if (!this.survey.isMobile) {

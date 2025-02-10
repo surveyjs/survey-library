@@ -5,8 +5,25 @@
   z-index: 12;
 }
 
+.sd-question--mobile .sd-matrixdynamic__footer::before
+{
+  z-index: 12;
+  content: " ";
+  display: block;
+  position: relative;
+  height: 1px;
+  background-color: $border-light;
+  left: calcSize(-3);
+  top: calcSize(-1);
+  width: calc(100% + 6 * #{$base-unit});
+  z-index: 12;
+}
+
 .sd-matrixdynamic__footer:first-child {
   padding-bottom: calcSize(2);
+  &::before {
+    display: none;
+  }
 }
 
 .sd-matrixdynamic__footer {

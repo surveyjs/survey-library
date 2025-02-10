@@ -613,6 +613,9 @@
     tr:not(.sd-table__row--expanded)::after {
       bottom: 0;
     }
+    tr:last-of-type::after {
+      display: none
+    }
 
     tfoot tr {
       padding-top: calcSize(5);

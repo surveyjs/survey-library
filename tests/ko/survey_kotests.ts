@@ -778,7 +778,7 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function (assert) {
   );
 });
 
-QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (
+QUnit.test("PanelDynamic and koRenderedHtml on text processing, #1", function (
   assert
 ) {
   var json = {
@@ -807,8 +807,8 @@ QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (
   var qLocTitle = (<Question>panel.questions[1]).locTitle;
   assert.equal(
     qLocTitle["koRenderedHtml"](),
-    "q2",
-    "q2 title show q2 name by default"
+    "",
+    "q2 title show empty string"
   );
   assert.equal(pLocTitle["koRenderedHtml"](), "", "np1 title is empty");
   panel.getQuestionByName("q1").value = "val1";
@@ -2444,7 +2444,7 @@ QUnit.test("Initial Text Processing in panel title and ko", function (assert) {
     "Text processing on setting value"
   );
 });
-QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (
+QUnit.test("PanelDynamic and koRenderedHtml on text processing, #2", function (
   assert
 ) {
   var json = {

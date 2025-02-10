@@ -38,6 +38,7 @@ export interface ITextProcessorProp {
   returnDisplayValue?: boolean;
   doEncoding?: boolean;
   runAtDesign?: boolean;
+  replaceUndefinedValues?: boolean;
 }
 export interface ITextProcessorResult {
   text: string;

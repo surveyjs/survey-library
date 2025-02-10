@@ -601,7 +601,7 @@ QUnit.test("Text Processing design mode - https://github.com/surveyjs/survey-cre
   assert.equal(
     q2.locTitle.renderedHtml,
     "How are you {panel.question3}? How are you {question4}?",
-    "no text processing in desaign mode"
+    "no text processing in design mode"
   );
 });
 

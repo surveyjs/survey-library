@@ -193,8 +193,8 @@ export class Question extends SurveyElement<Question>
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.storeDefaultText = true;
-    locTitleValue.onGetTextCallback = (text: string): string => {
-      if (!text) {
+    locTitleValue.onGetTextCallback = (text: string, nonProcessedText?: string): string => {
+      if (!text && !nonProcessedText) {
         text = this.getDefaultTitle();
       }
       if (!this.survey) return text;

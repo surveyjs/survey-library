@@ -8024,3 +8024,23 @@ QUnit.test("Recursive changes setValueExpression #9132", function (assert) {
   survey.setValue("question3", "Item 3");
   assert.equal(q6.value, "High Risk", "#5");
 });
+QUnit.test("defautlValueExpression & custom function & properties.question #9422", function (assert) {
+  const logs = new Array<string>();
+  FunctionFactory.Instance.register("customFunc1", function () {
+    logs.push(this.question?.name);
+    return 10;
+  }
+  );
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "expression",
+        name: "q1",
+        defaultValueExpression: "customFunc1()"
+      }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.value, 10, "expression value is correct");
+  assert.deepEqual(logs, ["q1", "q1"], "custom function is called");
+  FunctionFactory.Instance.unregister("customFunc1");
+});

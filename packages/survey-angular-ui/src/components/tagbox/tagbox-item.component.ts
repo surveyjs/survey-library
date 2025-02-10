@@ -1,13 +1,14 @@
 import { Component, Input } from "@angular/core";
 import { ItemValue, QuestionTagboxModel } from "survey-core";
-import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
+import { EmbeddedViewContentComponent } from "../../embedded-view-content.component";
 
 @Component({
   selector: "sv-ng-tagbox-item, '[sv-ng-tagbox-item]'",
   templateUrl: "./tagbox-item.component.html",
+  styleUrls: ["../../hide-host.scss"]
 })
-export class TagboxItemComponent extends BaseAngular {
+export class TagboxItemComponent extends EmbeddedViewContentComponent {
   @Input() item!: ItemValue;
   @Input() question!: QuestionTagboxModel;
 

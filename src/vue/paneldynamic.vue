@@ -1,5 +1,8 @@
 <template>
   <div :class="question.cssClasses.root">
+    <div :class="question.getTabsContainerCss()" v-if="question.hasTabbedMenu">
+      <sv-action-bar :model="question.tabbedMenu"></sv-action-bar>
+    </div>
     <div v-if="question.getShowNoEntriesPlaceholder()" :class="question.cssClasses.noEntriesPlaceholder">
       <span>
         <survey-string :locString="question.locNoEntriesText"></survey-string>

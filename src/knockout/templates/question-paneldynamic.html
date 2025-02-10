@@ -1,5 +1,11 @@
 <script type="text/html" id="survey-question-paneldynamic">
   <div data-bind="css: question.cssClasses.root">
+    <!-- ko if: question.hasTabbedMenu -->
+    <div data-bind="css: question.getTabsContainerCss()">
+        <!-- ko component: { name: "sv-action-bar", params: { model: question.tabbedMenu } } -->
+        <!-- /ko -->
+    </div>
+    <!-- /ko -->
     <!-- ko if: question.getShowNoEntriesPlaceholder() -->
       <div data-bind="css: question.cssClasses.noEntriesPlaceholder">
         <span>

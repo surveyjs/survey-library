@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getListItemByText, completeButton } from "../helper";
+import { frameworks, url, urlV2, applyTheme, initSurvey, getSurveyResult, getListItemByText, completeButton } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "matrixdynamic";
 
@@ -595,6 +595,14 @@ frameworks.forEach((framework) => {
 
     await t.expect(await getSurveyResult()).eql({ matrix: [{ col2: "abc" }] });
   });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
+    async (ctx) => {
+      await applyTheme("defaultV2");
+    }
+  );
   test("show/hide details mobile", async (t) => {
     await initSurvey(framework, {
       "title": "TEST",
@@ -634,7 +642,7 @@ frameworks.forEach((framework) => {
       "showNavigationButtons": "none",
       "showQuestionNumbers": "off"
     });
-    await t.resizeWindow(600, 1080);
+    await t.resizeWindow(600, 800);
     await t.click(Selector("button").withText("Add Row"));
     await t.expect(Selector("#show-detail-mobile").filterVisible().nth(0).innerText).contains("Show Details");
     await t.expect(Selector("#show-detail-mobile").filterVisible().nth(1).innerText).contains("Hide Details");

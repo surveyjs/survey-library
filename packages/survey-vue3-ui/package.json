@@ -28,6 +28,7 @@
   "devDependencies": {
     "@babel/types": "^7.20.2",
     "@rushstack/eslint-patch": "^1.1.4",
+    "@tsconfig/node16": "^16.1.3",
     "@types/node": "^16.11.68",
     "@vitejs/plugin-vue": "^4.6.2",
     "@vue/eslint-config-prettier": "^7.0.0",

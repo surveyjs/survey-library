@@ -37,6 +37,5 @@ module.exports = function (options) {
   patchEntries();
   const mainConfig = webpackCommonConfig(options);
   mainConfig.entry = {};
-  mainConfig.plugins.shift();
   return merge(mainConfig, config);
 };

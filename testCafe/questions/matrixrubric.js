@@ -139,6 +139,7 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json, undefined, true);
+      await t.resizeWindow(1000, 1000);
     }
   );
 

@@ -16,6 +16,9 @@
       "@/*": [
         "./src/*"
       ],
+      "survey-core": [
+        "./node_modules/survey-core"
+      ],
       "vue": [
         "../node_modules/vue"
       ],

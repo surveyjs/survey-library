@@ -303,7 +303,8 @@ export class Cover extends Base {
         const headerComputedStyle = DomDocumentHelper.getComputedStyle(headerEl);
         const paddingLeft = (parseFloat(headerComputedStyle.paddingLeft) || 0);
         const paddingRight = (parseFloat(headerComputedStyle.paddingRight) || 0);
-        this.width = elWidth - paddingLeft - paddingRight;
+        const columnGap = (parseFloat(headerComputedStyle.columnGap) || 0);
+        this.width = elWidth - paddingLeft - paddingRight - 2 * columnGap;
       }
     }
   }

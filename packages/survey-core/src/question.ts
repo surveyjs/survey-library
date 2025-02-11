@@ -195,11 +195,9 @@ export class Question extends SurveyElement<Question>
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.storeDefaultText = true;
-    locTitleValue.onGetTextCallback = (text: string): string => {
-      if(this.isSingleInputActive && !!this.singleInputLocTitle) {
-        return this.singleInputLocTitle.textOrHtml;
-      }
-      if (!text) {
+    locTitleValue.onGetTextCallback = (text: string, nonProcessedText?: string): string => {
+      if(this.isSingleInputActive && !!this.singleInputLocTitle) return this.singleInputLocTitle.textOrHtml;
+      if (!text && !nonProcessedText) {
         text = this.getDefaultTitle();
       }
       if (!this.survey) return text;
@@ -2341,7 +2339,10 @@ export class Question extends SurveyElement<Question>
       };
     }
     if (!values) values = this.defaultValueExpression ? this.data.getFilteredValues() : {};
-    if (!properties) properties = this.defaultValueExpression ? this.data.getFilteredProperties() : {};
+    if (!properties) {
+      properties = this.defaultValueExpression ? this.data.getFilteredProperties() : {};
+      properties["question"] = this;
+    }
     if (!!runner && runner.canRun) {
       runner.onRunComplete = (res) => {
         if (res == undefined) res = this.defaultValue;

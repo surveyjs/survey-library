@@ -8557,6 +8557,53 @@ QUnit.test("ProcessTextEx & nessted obj, Bug#9390", function (assert) {
   assert.equal(survey.processTextEx({ text: "inputs={\"car_make\": \"abc\"}" }).text, "inputs={\"car_make\": \"abc\"}", "#7.1");
   assert.equal(survey.processTextEx({ text: "inputs={\"car_make\": \"abc\"}" }).hasAllValuesOnLastRun, true, "#7.2");
 });
+QUnit.test("ProcessTextEx replaceUndefinedValues is true, Bug#9417", function (assert) {
+  const survey = new SurveyModel();
+  survey.setVariable("a1", "abc");
+  assert.equal(survey.processTextEx({ text: "test: {a1},{a2}" }).text, "test: abc,{a2}", "#1");
+  assert.equal(survey.processTextEx({ text: "test: {a1},{a2}", replaceUndefinedValues: true }).text, "test: abc,", "#2");
+  assert.equal(survey.processText("test: {a1},{a2}", false), "test: abc,{a2}", "#3");
+});
+QUnit.test("Empty question value in text processing, Bug#9417", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "first-name", title: "Hi {first-name}" },
+      { type: "text", name: "last-name", title: "{last-name}" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("first-name");
+  const q2 = survey.getQuestionByName("last-name");
+  assert.equal(q1.locTitle.renderedHtml, "Hi ", "q1.title #1");
+  assert.equal(q2.locTitle.renderedHtml, "", "q2.title #1");
+  q1.value = "John";
+  q2.value = "Doe";
+  assert.equal(q1.locTitle.renderedHtml, "Hi John", "q1.title #2");
+  assert.equal(q2.locTitle.renderedHtml, "Doe", "q2.title #3");
+  q1.clearValue();
+  q2.clearValue();
+  assert.equal(q1.locTitle.renderedHtml, "Hi ", "q1.title #3");
+  assert.equal(q2.locTitle.renderedHtml, "", "q2.title #3");
+});
+QUnit.test("Undefined variables in text processing, Bug#9417", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", title: "Hi {var1}" },
+      { type: "text", name: "q2", title: "{var2}" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.locTitle.renderedHtml, "Hi {var1}", "q1.title #1");
+  assert.equal(q2.locTitle.renderedHtml, "{var2}", "q2.title #1");
+  survey.setVariable("var1", "John");
+  survey.setVariable("var2", "Doe");
+  assert.equal(q1.locTitle.renderedHtml, "Hi John", "q1.title #2");
+  assert.equal(q2.locTitle.renderedHtml, "Doe", "q2.title #3");
+  survey.setVariable("var1", "");
+  survey.setVariable("var2", "");
+  assert.equal(q1.locTitle.renderedHtml, "Hi ", "q1.title #3");
+  assert.equal(q2.locTitle.renderedHtml, "", "q2.title #3");
+});
 
 QUnit.test("Do not add invisible Panel Dynamic to the data, Bug#1258", function (
   assert

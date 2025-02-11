@@ -1,5 +1,6 @@
 import { Base, ArrayChanges } from "./base";
 import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
+import { DomDocumentHelper } from "./global_variables_utils";
 import { Serializer, property } from "./jsonobject";
 import { SurveyModel } from "./survey";
 import { ITheme } from "./themes";
@@ -8,6 +9,7 @@ import { wrapUrlForBackgroundImage } from "./utils/utils";
 
 export class CoverCell {
   static CLASSNAME = "sv-header__cell";
+
   private calcRow(positionY: VerticalAlignment): any {
     return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
   }
@@ -43,6 +45,7 @@ export class CoverCell {
     const result: any = {};
     result["gridColumn"] = this.calcColumn(this.positionX);
     result["gridRow"] = this.calcRow(this.positionY);
+    result["width"] = !!this.width ? this.width + "px" : undefined;
     return result;
   }
   get contentStyle(): any {
@@ -50,6 +53,7 @@ export class CoverCell {
     result["textAlign"] = this.calcAlignText(this.positionX);
     result["alignItems"] = this.calcAlignItems(this.positionX);
     result["justifyContent"] = this.calcJustifyContent(this.positionY);
+    result["maxWidth"] = this.contentMaxWidth;
     return result;
   }
   get showLogo(): boolean {
@@ -66,6 +70,15 @@ export class CoverCell {
   }
   get textAreaWidth(): string {
     return this.cover.renderedTextAreaWidth;
+  }
+  get width(): number {
+    if (this.cover.width) {
+      return Math.ceil(this.cover.width / 3);
+    }
+    return undefined;
+  }
+  get contentMaxWidth(): string {
+    return this.cover.getContentMaxWidth(this);
   }
 }
 
@@ -140,7 +153,6 @@ export class Cover extends Base {
   }
 
   public cells: CoverCell[] = [];
-  @property({ defaultValue: 0 }) public actualHeight: number;
   @property() public height: number;
   @property() public mobileHeight: number;
   @property() public inheritWidthFrom: "survey" | "container";
@@ -169,15 +181,16 @@ export class Cover extends Base {
   @property() descriptionStyle: { gridColumn: number, gridRow: number };
   @property() headerClasses: string;
   @property() contentClasses: string;
+  @property() width: number;
   @property() maxWidth: string;
   @property() backgroundImageClasses: string;
 
   public get renderedHeight(): string {
     if (this.survey && !this.survey.isMobile || !this.survey) {
-      return this.height ? Math.max(this.height, this.actualHeight + 40) + "px" : undefined;
+      return this.height ? this.height + "px" : undefined;
     }
     if (this.survey && this.survey.isMobile) {
-      return this.mobileHeight ? Math.max(this.mobileHeight, this.actualHeight) + "px" : undefined;
+      return this.mobileHeight ? this.mobileHeight + "px" : undefined;
     }
     return undefined;
   }
@@ -225,38 +238,73 @@ export class Cover extends Base {
     }
   }
 
-  public calculateActualHeight(logoHeight: number, titleHeight: number, descriptionHeight: number): number {
-    const positionsY = ["top", "middle", "bottom"];
-    const logoIndex = positionsY.indexOf(this.logoPositionY);
-    const titleIndex = positionsY.indexOf(this.titlePositionY);
-    const descriptionIndex = positionsY.indexOf(this.descriptionPositionY);
-    const positionsX = ["left", "center", "right"];
-    const logoIndexX = positionsX.indexOf(this.logoPositionX);
-    const titleIndexX = positionsX.indexOf(this.titlePositionX);
-    const descriptionIndexX = positionsX.indexOf(this.descriptionPositionX);
-    const heights = [
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0]
-    ];
-    heights[logoIndex][logoIndexX] = logoHeight;
-    heights[titleIndex][titleIndexX] += titleHeight;
-    heights[descriptionIndex][descriptionIndexX] += descriptionHeight;
-    return heights.reduce((total, rowArr) => total + Math.max(...rowArr), 0);
+  // public calculateActualHeight(logoHeight: number, titleHeight: number, descriptionHeight: number): number {
+  //   const positionsY = ["top", "middle", "bottom"];
+  //   const logoIndex = positionsY.indexOf(this.logoPositionY);
+  //   const titleIndex = positionsY.indexOf(this.titlePositionY);
+  //   const descriptionIndex = positionsY.indexOf(this.descriptionPositionY);
+  //   const positionsX = ["left", "center", "right"];
+  //   const logoIndexX = positionsX.indexOf(this.logoPositionX);
+  //   const titleIndexX = positionsX.indexOf(this.titlePositionX);
+  //   const descriptionIndexX = positionsX.indexOf(this.descriptionPositionX);
+  //   const heights = [
+  //     [0, 0, 0],
+  //     [0, 0, 0],
+  //     [0, 0, 0]
+  //   ];
+  //   heights[logoIndex][logoIndexX] = logoHeight;
+  //   heights[titleIndex][titleIndexX] += titleHeight;
+  //   heights[descriptionIndex][descriptionIndexX] += descriptionHeight;
+  //   return heights.reduce((total, rowArr) => total + Math.max(...rowArr), 0);
+  // }
+
+  public getContentMaxWidth(cell: CoverCell): string {
+    if (cell.isEmpty || cell.showLogo) {
+      return undefined;
+    }
+    const cellIndex = this.cells.indexOf(cell);
+    const rowIndex = Math.floor(cellIndex / 3);
+    const colIndex = cellIndex % 3;
+    if (colIndex == 1) {
+      if (!this.cells[rowIndex * 3].isEmpty || !this.cells[rowIndex * 3 + 2].isEmpty) {
+        return "100%";
+      }
+    } else if (colIndex == 0) {
+      let rightFreeCells = 0;
+      let index = colIndex + 1;
+      while (index < 3 && this.cells[rowIndex * 3 + index].isEmpty) {
+        if (this.cells[rowIndex * 3 + index].isEmpty) {
+          rightFreeCells++;
+        }
+        index++;
+      }
+      return (100 * (rightFreeCells + 1)) + "%";
+    } else if (colIndex == 2) {
+      let leftFreeCells = 0;
+      let index = colIndex - 1;
+      while (index > 0 && this.cells[rowIndex * 3 + index].isEmpty) {
+        if (this.cells[rowIndex * 3 + index].isEmpty) {
+          leftFreeCells++;
+        }
+        index--;
+      }
+      return (100 * (leftFreeCells + 1)) + "%";
+    }
+    return undefined;
   }
-  public processResponsiveness(width: number): void {
+
+  public processResponsiveness(): void {
     if (this.survey && this.survey.rootElement) {
       if (!this.survey.isMobile) {
-        const logoEl = this.survey.rootElement.querySelectorAll(".sv-header__logo")[0];
-        const titleEl = this.survey.rootElement.querySelectorAll(".sv-header__title")[0];
-        const descriptionEl = this.survey.rootElement.querySelectorAll(".sv-header__description")[0];
-        const logoHeight = logoEl ? logoEl.getBoundingClientRect().height : 0;
-        const titleHeight = titleEl ? titleEl.getBoundingClientRect().height : 0;
-        const descriptionHeight = descriptionEl ? descriptionEl.getBoundingClientRect().height : 0;
-        this.actualHeight = this.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
-      } else {
-        const headerContainer = this.survey.rootElement.querySelectorAll(".sv-header > div")[0];
-        this.actualHeight = headerContainer ? headerContainer.getBoundingClientRect().height : 0;
+        const headerEl = this.survey.rootElement.querySelectorAll(".sv-header__content")[0];
+        if (!headerEl) return;
+
+        let elWidth = headerEl.getBoundingClientRect().width;
+        const headerComputedStyle = DomDocumentHelper.getComputedStyle(headerEl);
+        const paddingLeft = (parseFloat(headerComputedStyle.paddingLeft) || 0);
+        const paddingRight = (parseFloat(headerComputedStyle.paddingRight) || 0);
+        const columnGap = (parseFloat(headerComputedStyle.columnGap) || 0);
+        this.width = elWidth - paddingLeft - paddingRight - 2 * columnGap;
       }
     }
   }

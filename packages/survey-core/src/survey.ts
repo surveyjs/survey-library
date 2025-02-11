@@ -1331,7 +1331,7 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-header",
       index: -100,
       data: advHeader,
-      processResponsiveness: width => advHeader.processResponsiveness(width)
+      processResponsiveness: width => advHeader.processResponsiveness()
     });
   }
 
@@ -7391,7 +7391,7 @@ export class SurveyModel extends SurveyElementCore
     const doEncoding = params.doEncoding === undefined ? settings.web.encodeUrlParams : params.doEncoding;
     let text = params.text;
     if(params.runAtDesign || !this.isDesignMode) {
-      text = this.textPreProcessor.process(text, params.returnDisplayValue === true, doEncoding);
+      text = this.textPreProcessor.process(text, params.returnDisplayValue === true, doEncoding, params.replaceUndefinedValues);
     }
     const res = { text: text, hasAllValuesOnLastRun: true };
     res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;

@@ -549,4 +549,41 @@ frameworks.forEach(async framework => {
       await takeElementScreenshot("tagbox-question-popup-direction-top-and-resize-input.png", Selector(".sd-body"), t, comparer);
     });
   });
+
+  test("Check tagbox long label width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "tagbox",
+                "name": "question6",
+                "defaultValue": ["Item 1"],
+                "choices": [
+                  {
+                    "value": "Item 1",
+                    "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                  },
+                  {
+                    "value": "Item 2",
+                    "text": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "widthMode": "static",
+        "width": "800px"
+      });
+      await t.click(Selector(".sd-question"));
+      await takeElementScreenshot("tagbox-long-item-max-width.png", Selector(".sd-question"), t, comparer);
+      await t.pressKey("s e d");
+      await takeElementScreenshot("tagbox-long-item-hint-max-width.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 });

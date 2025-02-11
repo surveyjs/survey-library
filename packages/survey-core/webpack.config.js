@@ -84,7 +84,7 @@ function getPercentageHandler(emitNonSourceFiles, buildPath) {
   return function handler(percentage, msg) {
     if (0 == percentage) {
       console.log("Build started... good luck!");
-    } else if (1 == percentage) {
+    } else if (1 == percentage && emitNonSourceFiles) {
       fs.createReadStream("./README.md").pipe(
         fs.createWriteStream(buildPath + "README.md")
       );
@@ -93,9 +93,6 @@ function getPercentageHandler(emitNonSourceFiles, buildPath) {
         JSON.stringify(buildPlatformJson, null, 2),
         "utf8"
       );
-
-
-      // return createStylesBundleWithFonts();
     }
   };
 

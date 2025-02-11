@@ -1,5 +1,4 @@
 import webpackCommonConfigCreator from "./webpack.themes.config.js";
-import path from "path";
 export default function (options) {
   const config = webpackCommonConfigCreator(options);
   config.optimization.minimize = false;

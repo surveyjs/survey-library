@@ -80,38 +80,39 @@ var buildPlatformJson = {
   typings: "./typings/entries/index.d.ts"
 };
 
-module.exports = function (options) {
-  var buildPath = __dirname + "/build/";
-  var isProductionBuild = options.buildType === "prod";
-
-  var percentage_handler = function handler(percentage, msg) {
+function getPercentageHandler(emitNonSourceFiles, buildPath) {
+  return function handler(percentage, msg) {
     if (0 == percentage) {
       console.log("Build started... good luck!");
-    } else if (1 == percentage) {
-      if (isProductionBuild) {
-        fs.createReadStream("./README.md").pipe(
-          fs.createWriteStream(buildPath + "README.md")
-        );
-      }
-
-      if (isProductionBuild) {
-        fs.writeFileSync(
-          buildPath + "package.json",
-          JSON.stringify(buildPlatformJson, null, 2),
-          "utf8"
-        );
-      }
-
-      // return createStylesBundleWithFonts();
+    } else if (1 == percentage && emitNonSourceFiles) {
+      fs.createReadStream("./README.md").pipe(
+        fs.createWriteStream(buildPath + "README.md")
+      );
+      fs.writeFileSync(
+        buildPath + "package.json",
+        JSON.stringify(buildPlatformJson, null, 2),
+        "utf8"
+      );
     }
   };
 
+}
+
+module.exports = function (options) {
+  const emitDeclarations = !!options.emitDeclarations;
+  const emitNonSourceFiles = !!options.emitNonSourceFiles;
+  var buildPath = __dirname + "/build/";
+  var isProductionBuild = options.buildType === "prod";
+  const compilerOptions = emitDeclarations ? {} : {
+    declaration: false,
+    declarationDir: null
+  };
   var config = {
     mode: isProductionBuild ? "production" : "development",
     entry: {
       "survey.core": path.resolve(__dirname, "./entries/index.ts"),
-      default: path.resolve(__dirname, "./src/default-theme/default.scss"),
-      "default.fontless": path.resolve(__dirname, "./src/default-theme/default.fontless.scss")
+      "survey-core": path.resolve(__dirname, "./src/default-theme/default.scss"),
+      "survey-core.fontless": path.resolve(__dirname, "./src/default-theme/default.fontless.scss")
     },
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
@@ -126,6 +127,7 @@ module.exports = function (options) {
           loader: "ts-loader",
           options: {
             configFile: options.tsConfigFile || "tsconfig.json",
+            compilerOptions
           }
         },
         {
@@ -171,7 +173,7 @@ module.exports = function (options) {
       umdNamedDefine: true
     },
     plugins: [
-      new webpack.ProgressPlugin(percentage_handler),
+      new webpack.ProgressPlugin(getPercentageHandler(emitNonSourceFiles, buildPath)),
       new DashedNamePlugin(),
       new webpack.DefinePlugin({
         "process.env.RELEASE_DATE": JSON.stringify(new Date().toISOString().slice(0, 10)),
@@ -180,9 +182,8 @@ module.exports = function (options) {
       new RemoveCoreFromName(),
       new RemoveEmptyScriptsPlugin(),
       new MiniCssExtractPlugin({
-        filename: isProductionBuild ? "[rc-name].min.css" : "[rc-name].css",
+        filename: isProductionBuild ? "[name].min.css" : "[name].css",
       }),
-      new webpack.WatchIgnorePlugin({ paths: [/svgbundle\.html/] }),
       new webpack.BannerPlugin({
         banner: banner,
       }),

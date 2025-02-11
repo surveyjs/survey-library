@@ -42,30 +42,32 @@ const buildPlatformJson = {
   }
 };
 
-module.exports = function (options) {
-  const buildPath = __dirname + "/build/";
-  const isProductionBuild = options.buildType === "prod";
-
-  const percentage_handler = function handler(percentage, msg) {
+function getPercentageHandler(emitNonSourceFiles, buildPath) {
+  return function handler(percentage, msg) {
     if (0 == percentage) {
       console.log("Build started... good luck!");
-    } else if (1 == percentage) {
-      if (isProductionBuild) {
-        fs.createReadStream("./README.md").pipe(
-          fs.createWriteStream(buildPath + "README.md")
-        );
-      }
-
-      if (isProductionBuild) {
-        fs.writeFileSync(
-          buildPath + "package.json",
-          JSON.stringify(buildPlatformJson, null, 2),
-          "utf8"
-        );
-      }
+    } else if (1 == percentage && emitNonSourceFiles) {
+      fs.createReadStream("./README.md").pipe(
+        fs.createWriteStream(buildPath + "README.md")
+      );
+      fs.writeFileSync(
+        buildPath + "package.json",
+        JSON.stringify(buildPlatformJson, null, 2),
+        "utf8"
+      );
     }
   };
+}
 
+module.exports = function (options) {
+  const emitDeclarations = !!options.emitDeclarations;
+  const emitNonSourceFiles = !!options.emitNonSourceFiles;
+  const buildPath = __dirname + "/build/";
+  const isProductionBuild = options.buildType === "prod";
+  const compilerOptions = emitDeclarations ? {} : {
+    declaration: false,
+    declarationDir: null
+  };
   const config = {
     mode: isProductionBuild ? "production" : "development",
     entry: {
@@ -73,9 +75,6 @@ module.exports = function (options) {
     },
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
-      // alias: {
-      //   tslib: path.join(__dirname, "./src/entries/helpers.ts")
-      // }
     },
     optimization: {
       minimize: isProductionBuild
@@ -87,7 +86,7 @@ module.exports = function (options) {
           loader: "ts-loader",
           options: {
             configFile: options.tsConfigFile || "tsconfig.json",
-            transpileOnly: isProductionBuild
+            compilerOptions
           }
         },
         {
@@ -151,7 +150,7 @@ module.exports = function (options) {
     },
     plugins: [
       new DashedNamePlugin(),
-      new webpack.ProgressPlugin(percentage_handler),
+      new webpack.ProgressPlugin(getPercentageHandler(emitNonSourceFiles, buildPath)),
       new webpack.DefinePlugin({
         "process.env.VERSION": JSON.stringify(packageJson.version)
       }),

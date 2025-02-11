@@ -7,7 +7,7 @@ import ("icheck/skins/flat/green.css");
 import ("icheck/skins/square/blue.css");
 widgets.sortablejs(SurveyCore);
 widgets.icheck(SurveyCore, (window as any).jQuery);
-import("survey-core/default.css");
+import("survey-core/survey-core.css");
 </script>
 <template>
 <TestCommon></TestCommon>

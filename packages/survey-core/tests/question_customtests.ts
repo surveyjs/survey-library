@@ -3464,3 +3464,55 @@ QUnit.test("Composite: clearIfInvisible='onHidden'", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: with dropdown & showOtherItem, Bug#9378", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3], showOtherItem: true }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "question1" }
+    ]
+  });
+  const q = <QuestionCompositeModel>survey.getQuestionByName("question1");
+  const q1 = q.contentPanel.getQuestionByName("q1");
+  const q2 = q.contentPanel.getQuestionByName("q2");
+  q1.value = "test1";
+  q2.value = "other";
+  q2.comment = "abc";
+  assert.deepEqual(q.value, { q1: "test1", q2: "other", "q2-Comment": "abc" }, "q.value #1");
+  survey.data = {};
+  assert.ok(q.isEmpty(), "q.value #2");
+  survey.data = { question1: { q1: "test2", q2: "other", "q2-Comment": "def" } };
+  assert.deepEqual(q.value, { q1: "test2", q2: "other", "q2-Comment": "def" }, "q.value #3");
+
+  ComponentCollection.Instance.clear();
+});
+
+QUnit.test("Composite: checkErrorsMode: `onComplete` with several elements, Bug#9361", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1", isRequired: true },
+      { type: "text", name: "q2", isRequired: true }
+    ]
+  });
+  const survey = new SurveyModel({
+    checkErrorsMode: "onComplete",
+    pages: [{ name: "page1", elements: [{ type: "test", name: "question1" }] },
+      { name: "page2", elements: [{ type: "test", name: "question2" }] }]
+  });
+  const question1 = <QuestionCompositeModel>survey.getQuestionByName("question1");
+  const q1 = question1.contentPanel.getQuestionByName("q1");
+  assert.equal(q1.parentQuestion?.name, "question1", "q1.parentQuestion");
+  assert.equal(q1.page?.name, "page1", "q1.page");
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "currentPageNo #1");
+  survey.tryComplete();
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #2");
+
+  ComponentCollection.Instance.clear();
+});

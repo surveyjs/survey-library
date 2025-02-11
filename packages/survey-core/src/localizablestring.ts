@@ -58,7 +58,7 @@ export class LocalizableString implements ILocalizableString {
     }
     return this._allowLineBreaks;
   }
-  public onGetTextCallback: (str: string) => string;
+  public onGetTextCallback: (str: string, nonProcessedText?: string) => string;
   public storeDefaultText: boolean;
   public serializeCallBackText: boolean;
   public onGetLocalizationTextCallback: (str: string) => string;
@@ -111,16 +111,12 @@ export class LocalizableString implements ILocalizableString {
     return this.renderedText;
   }
   private calcText(): string {
-    var res = this.pureText;
-    if (
-      res &&
-      this.owner &&
-      this.owner.getProcessedText &&
-      res.indexOf("{") > -1
-    ) {
+    const pureText = this.pureText;
+    let res = pureText;
+    if (res && this.owner && this.owner.getProcessedText && res.indexOf("{") > -1) {
       res = this.owner.getProcessedText(res);
     }
-    if (this.onGetTextCallback) res = this.onGetTextCallback(res);
+    if (this.onGetTextCallback) res = this.onGetTextCallback(res, pureText);
     return res;
   }
   private isTextRequested: boolean;

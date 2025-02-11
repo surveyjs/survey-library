@@ -41,7 +41,6 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionRatingModel } from "../src/question_rating";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { surveyCss } from "../src/defaultCss/defaultCss";
-import { dxSurveyService } from "../src/dxSurveyService";
 import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
@@ -6661,90 +6660,6 @@ QUnit.test("Clear value if empty array is set, Bug #608", function (assert) {
   assert.deepEqual(survey.data, {}, "The value with empty array is removed");
 });
 
-QUnit.test("surveyId + clientId", function (assert) {
-  var json = { questions: [{ type: "text", name: "q1" }] };
-  class dxSurveyServiceTester extends dxSurveyService {
-    public getSurveyJsonAndIsCompleted(
-      surveyId: string,
-      clientId: string,
-      onLoad: (
-        success: boolean,
-        surveyJson: any,
-        result: string,
-        response: any
-      ) => void
-    ) {
-      if (onLoad) {
-        onLoad(true, json, clientId, "");
-      }
-    }
-  }
-  class SurveyTester extends SurveyModel {
-    protected createSurveyService(): dxSurveyService {
-      return new dxSurveyServiceTester();
-    }
-  }
-  var survey = new SurveyTester({ surveyId: "surveyDummyId", clientId: "no" });
-  assert.equal(survey.state, "running", "The survey is running");
-  var q1 = survey.getQuestionByName("q1");
-  assert.equal(q1.name, "q1", "The survey created from the string");
-
-  survey = new SurveyTester({
-    surveyId: "surveyDummyId",
-    clientId: "completed",
-  });
-  assert.equal(
-    survey.state,
-    "completedbefore",
-    "The survey was completed before"
-  );
-  var q1 = survey.getQuestionByName("q1");
-  assert.equal(q1.name, "q1", "The survey created from the string");
-});
-
-QUnit.test("surveyId + clientId several page render", function (assert) {
-  let log = "";
-  let curState = "";
-  const json = { questions: [{ type: "text", name: "q1" }] };
-  class dxSurveyServiceTester extends dxSurveyService {
-    public getSurveyJsonAndIsCompleted(surveyId: string, clientId: string, onLoad: (success: boolean, surveyJson: any, result: string, response: any) => void) {
-      if (onLoad) {
-        onLoad(true, json, clientId, "");
-      }
-    }
-  }
-  class SurveyTester extends SurveyModel {
-    protected createSurveyService(): dxSurveyService {
-      return new dxSurveyServiceTester();
-    }
-    protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
-      super.propertyValueChanged(name, oldValue, newValue, arrayChanges);
-      if (name === "isLoading" || name === "state" || name === "activePage") {
-        log += ("-> " + name + ":" + newValue);
-      }
-    }
-    protected onLoadSurveyFromService(): void {
-      super.onLoadSurveyFromService();
-      curState = this.state;
-      assert.equal(curState, "loading");
-    }
-    protected setPropertyValueDirectly(name: string, val: any): void {
-      if (name === "activePage" && !!val) {
-        assert.ok(this.activePage === undefined, "this.activePage undefined");
-        assert.ok(!!val, "new activePage");
-      }
-      super.setPropertyValueDirectly(name, val);
-    }
-  }
-
-  let survey = new SurveyTester({ surveyId: "surveyDummyId", clientId: "completed" });
-  assert.equal(survey.state, "completedbefore", "The survey is running");
-  assert.equal(log, "-> state:empty-> state:loading-> isLoading:true-> activePage:page1-> state:completedbefore-> isLoading:false");
-
-  let q1 = survey.getQuestionByName("q1");
-  assert.equal(q1.name, "q1", "The survey created from the string");
-});
-
 QUnit.test(
   "Question description and text processing, variable, Bug #632",
   function (assert) {
@@ -7812,6 +7727,51 @@ QUnit.test("Randomize questions in page and panels", function (assert) {
 
   Helpers.randomizeArray = oldFunc;
 });
+QUnit.test("Randomize questions in page and panels & single question per page", function (assert) {
+  const oldFunc = Helpers.randomizeArray;
+  Helpers.randomizeArray = HelpTest.randomizeArray;
+
+  const survey = new SurveyModel({
+    questionsOnPageMode: "questionPerPage",
+    questionOrder: "random",
+    pages: [
+      { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }, { type: "text", name: "q3" }] },
+      { elements: [{ type: "text", name: "q4" }, { type: "text", name: "q5" }, { type: "text", name: "q6" }] },
+    ]
+  });
+  const page = survey.pages[0];
+  assert.equal(page.elements[0].name, "q3");
+  assert.equal(page.elements[2].name, "q1");
+  assert.equal(survey.currentSingleQuestion.name, "q3", "The first question is q3");
+  survey.performNext();
+  survey.performNext();
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "q6", "The current question is q6");
+
+  Helpers.randomizeArray = oldFunc;
+});
+QUnit.test("questionPerPage vs nextPage&prevPage", function (assert) {
+  const survey = new SurveyModel({
+    questionsOnPageMode: "questionPerPage",
+    pages: [
+      { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+      { elements: [{ type: "text", name: "q3" }, { type: "text", name: "q4" }] },
+    ]
+  });
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #1");
+  survey.nextPage();
+  assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion #2");
+  survey.nextPage();
+  assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion #3");
+  survey.nextPage();
+  assert.equal(survey.currentSingleQuestion.name, "q4", "currentSingleQuestion #4");
+  survey.prevPage();
+  assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion #5");
+  survey.prevPage();
+  assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion #6");
+  survey.prevPage();
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #7");
+});
 
 QUnit.test("Quiz, correct, incorrect answers", function (assert) {
   var survey = new SurveyModel({
@@ -8582,6 +8542,67 @@ QUnit.test("ProcessTextEx returnedDisplayValue is false, Bug#1243", function (
   q.value = 1;
   res = survey.processTextEx({ text: "{region}" });
   assert.ok(res.hasAllValuesOnLastRun === true, "region exists");
+});
+QUnit.test("ProcessTextEx & nessted obj, Bug#9390", function (assert) {
+  const survey = new SurveyModel();
+  survey.setVariable("a1", { b2: "abc" });
+  assert.equal(survey.processTextEx({ text: "test: {a1.b2}" }).text, "test: abc", "#1");
+  assert.equal(survey.processTextEx({ text: "test: {c: {a1.b2}}" }).text, "test: {c: abc}", "#2");
+  assert.equal(survey.processTextEx({ text: "test: { c: {a1.b2} }" }).text, "test: { c: abc }", "#3");
+  assert.equal(survey.processTextEx({ text: "test: {c: \"{a1.b2}\"}" }).text, "test: {c: \"abc\"}", "#4");
+  assert.equal(survey.processTextEx({ text: "test: { c: \"{a1.b2}\" }" }).text, "test: { c: \"abc\" }", "#5.1");
+  assert.equal(survey.processTextEx({ text: "test: { c: \"{a1.b2}\" }" }).hasAllValuesOnLastRun, true, "#5.2");
+  assert.equal(survey.processTextEx({ text: "inputs={\"car_make\": \"{a1.b2}\"}" }).text, "inputs={\"car_make\": \"abc\"}", "#6.1");
+  assert.equal(survey.processTextEx({ text: "inputs={\"car_make\": \"{a1.b2}\"}" }).hasAllValuesOnLastRun, true, "#6.2");
+  assert.equal(survey.processTextEx({ text: "inputs={\"car_make\": \"abc\"}" }).text, "inputs={\"car_make\": \"abc\"}", "#7.1");
+  assert.equal(survey.processTextEx({ text: "inputs={\"car_make\": \"abc\"}" }).hasAllValuesOnLastRun, true, "#7.2");
+});
+QUnit.test("ProcessTextEx replaceUndefinedValues is true, Bug#9417", function (assert) {
+  const survey = new SurveyModel();
+  survey.setVariable("a1", "abc");
+  assert.equal(survey.processTextEx({ text: "test: {a1},{a2}" }).text, "test: abc,{a2}", "#1");
+  assert.equal(survey.processTextEx({ text: "test: {a1},{a2}", replaceUndefinedValues: true }).text, "test: abc,", "#2");
+  assert.equal(survey.processText("test: {a1},{a2}", false), "test: abc,{a2}", "#3");
+});
+QUnit.test("Empty question value in text processing, Bug#9417", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "first-name", title: "Hi {first-name}" },
+      { type: "text", name: "last-name", title: "{last-name}" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("first-name");
+  const q2 = survey.getQuestionByName("last-name");
+  assert.equal(q1.locTitle.renderedHtml, "Hi ", "q1.title #1");
+  assert.equal(q2.locTitle.renderedHtml, "", "q2.title #1");
+  q1.value = "John";
+  q2.value = "Doe";
+  assert.equal(q1.locTitle.renderedHtml, "Hi John", "q1.title #2");
+  assert.equal(q2.locTitle.renderedHtml, "Doe", "q2.title #3");
+  q1.clearValue();
+  q2.clearValue();
+  assert.equal(q1.locTitle.renderedHtml, "Hi ", "q1.title #3");
+  assert.equal(q2.locTitle.renderedHtml, "", "q2.title #3");
+});
+QUnit.test("Undefined variables in text processing, Bug#9417", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", title: "Hi {var1}" },
+      { type: "text", name: "q2", title: "{var2}" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.locTitle.renderedHtml, "Hi {var1}", "q1.title #1");
+  assert.equal(q2.locTitle.renderedHtml, "{var2}", "q2.title #1");
+  survey.setVariable("var1", "John");
+  survey.setVariable("var2", "Doe");
+  assert.equal(q1.locTitle.renderedHtml, "Hi John", "q1.title #2");
+  assert.equal(q2.locTitle.renderedHtml, "Doe", "q2.title #3");
+  survey.setVariable("var1", "");
+  survey.setVariable("var2", "");
+  assert.equal(q1.locTitle.renderedHtml, "Hi ", "q1.title #3");
+  assert.equal(q2.locTitle.renderedHtml, "", "q2.title #3");
 });
 
 QUnit.test("Do not add invisible Panel Dynamic to the data, Bug#1258", function (
@@ -21014,6 +21035,68 @@ QUnit.test("Do not use questionsOnPageMode in design-mode, Bug#9274", function (
   survey.fromJSON(json);
   assert.equal(survey.questionsOnPageMode, "questionPerPage", "the property set correctly");
   assert.equal(survey.currentSingleQuestion?.name, undefined, "It is the design mode");
+});
+QUnit.test("survey.currentSingleQuestion & Page events, Bug#9381", function (assert) {
+  const json = {
+    "pages": [{
+      "elements": [
+        { "type": "text", "name": "q1" },
+        { "type": "text", "name": "q2" }
+      ]
+    },
+    {
+      "elements": [
+        { "type": "text", "name": "q3" },
+        { "type": "text", "name": "q4" }
+      ]
+    }],
+    "questionsOnPageMode": "questionPerPage",
+  };
+  const survey = new SurveyModel(json);
+  const onPageChanged = new Array<any>();
+  const onPageChanging = new Array<any>();
+  const addToOnPages = (array, options: any) => {
+    array.push({ newPage: options.newCurrentPage.name, oldPage: options.oldCurrentPage?.name,
+      newQuestion: options.newCurrentQuestion?.name, oldQuestion: options.oldCurrentQuestion?.name,
+      forward: options.isGoingForward, backward: options.isGoingBackward });
+  };
+  survey.onCurrentPageChanged.add((sender, options) => {
+    addToOnPages(onPageChanged, options);
+  });
+  let doAllow = true;
+  survey.onCurrentPageChanging.add((sender, options) => {
+    options.allow = doAllow;
+    addToOnPages(onPageChanging, options);
+  });
+  assert.equal(survey.currentSingleQuestion?.name, "q1", "currentSingleQuestion #1");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion?.name, "q2", "currentSingleQuestion #2");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion?.name, "q3", "currentSingleQuestion #3");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion?.name, "q4", "currentSingleQuestion #4");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion?.name, "q3", "currentSingleQuestion #5");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion?.name, "q2", "currentSingleQuestion #6");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion?.name, "q1", "currentSingleQuestion #7");
+  const result = [{ newPage: "page1", oldPage: "page1", newQuestion: "q2", oldQuestion: "q1", forward: true, backward: false },
+    { newPage: "page2", oldPage: "page1", newQuestion: "q3", oldQuestion: "q2", forward: true, backward: false },
+    { newPage: "page2", oldPage: "page2", newQuestion: "q4", oldQuestion: "q3", forward: true, backward: false },
+    { newPage: "page2", oldPage: "page2", newQuestion: "q3", oldQuestion: "q4", forward: false, backward: true },
+    { newPage: "page1", oldPage: "page2", newQuestion: "q2", oldQuestion: "q3", forward: false, backward: true },
+    { newPage: "page1", oldPage: "page1", newQuestion: "q1", oldQuestion: "q2", forward: false, backward: true },
+  ];
+  assert.deepEqual(onPageChanging, result, "onChanged #1");
+  assert.deepEqual(onPageChanged, result, "onChanging #1");
+  onPageChanging.splice(0, onPageChanging.length);
+  onPageChanged.splice(0, onPageChanged.length);
+  doAllow = false;
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion?.name, "q1", "currentSingleQuestion #8");
+  assert.deepEqual(onPageChanged, [], "onChanged #2");
+  assert.deepEqual(onPageChanging, [{ newPage: "page1", oldPage: "page1", newQuestion: "q2", oldQuestion: "q1", forward: true, backward: false }], "onChanging #2");
 });
 
 QUnit.test("Question is not in the hash with it is on the first page & questionsOnPageMode is 'singlePage', Bug#8583", function (assert) {

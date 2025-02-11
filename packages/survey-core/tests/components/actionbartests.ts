@@ -165,17 +165,26 @@ QUnit.test("Action title set title updater later", (assert) => {
   assert.equal(action.title, "page2", "title: get from page name #2");
   assert.equal(action.locTitle.textOrHtml, "page2", "locTitle.textOrHtml: get from page name #2");
 });
-QUnit.test("Action title with inner text", (assert) => {
+QUnit.test("Action title set title updater later and depends on page visibility", (assert) => {
+  const page = new PageModel("page1");
   const actionInner: IAction = {
-    id: "test",
-    title: "text1"
+    id: page.id,
   };
   const action = new Action(actionInner);
-  assert.equal(action.title, "text1", "title #1");
-  action.title = "text2";
-  assert.equal(action.title, "text2", "title #2");
-  (<any>action).locTitle = undefined;
-  assert.equal(action.title, "text2", "title #3");
+  assert.equal(action.title, undefined, "title: undefined");
+  action.title = <any>new ComputedUpdater<string>(() => page.visible ? page.name : "hidden");
+  assert.equal(action.title, "page1", "title: get from page name #1");
+  assert.equal(action.locTitle.textOrHtml, "page1", "locTitle.textOrHtml: get from page name #1");
+  page.visible = false;
+  assert.equal(action.title, "hidden", "title: hidden #2");
+  assert.equal(action.locTitle.textOrHtml, "hidden", "locTitle.textOrHtml: hidden #2");
+  action.title = <any>undefined;
+  action.title = <any>new ComputedUpdater<string>(() => page.visible ? page.name : "hidden");
+  assert.equal(action.title, "hidden", "title: hidden #3");
+  assert.equal(action.locTitle.textOrHtml, "hidden", "locTitle.textOrHtml: hidden #3");
+  page.visible = true;
+  assert.equal(action.title, "page1", "title: get from page name #4");
+  assert.equal(action.locTitle.textOrHtml, "page1", "locTitle.textOrHtml: get from page name #4");
 });
 QUnit.test("Empty action title", (assert) => {
   const action = new Action({ id: "1" });

@@ -409,7 +409,6 @@ export abstract class BaseAction extends Base implements IAction {
 
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
-  private compTitle: ComputedUpdater<string>;
   public updateCallback: (isResetInitialized: boolean) => void;
   public innerItem: IAction;
   private raiseUpdate(isResetInitialized: boolean = false) {
@@ -420,22 +419,24 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     const innerItem: IAction = (innerItemData instanceof Action) ? innerItemData.innerItem : innerItemData;
     this.innerItem = innerItem;
     this.locTitle = !!innerItem ? innerItem["locTitle"] : null;
+    //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
-        if (key !== "locTitle") {
-          (<any>this)[key] = (<any>innerItem)[key];
-        }
+        if (key === "locTitle" || key === "title" && !!this.locTitle && !!this.title) continue;
+        (<any>this)[key] = (<any>innerItem)[key];
       }
     }
+    if (!!this.locTitleName) {
+      this.locTitleChanged();
+    }
+    this.registerFunctionOnPropertyValueChanged("_title", () => {
+      this.needUpdateMaxDimension = true;
+      this.raiseUpdate();
+    });
+    this.locStrChangedInPopupModel();
   }
   private createLocTitle(): LocalizableString {
-    const res = this.createLocalizableString("title", this, true);
-    if(this.compTitle) {
-      res.onGetTextCallback = (str: string): string => {
-        return str || this.compTitle?.updater() || "";
-      };
-    }
-    return res;
+    return this.createLocalizableString("title", this, true);
   }
   public setSubItems(options: IListModel): void {
     this.markerIconName = "icon-next_16x16";
@@ -468,65 +469,31 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() onFocus: (isMouse: boolean, event: any) => void;
   @property() _component: string;
   @property() items: any;
+  @property({
+    onSet: (val, target) => {
+      if (target.locTitleValue.text === val) return;
+      target.locTitleValue.text = val;
+    }
+  }) _title: string;
   protected getLocTitle(): LocalizableString {
     return this.locTitleValue;
   }
-  private locTitleChanged = () => {
-    this.needUpdateMaxDimension = true;
-    this.raiseUpdate();
-    this.resetTitle();
-  }
-  private get isInternalLocTitle() : boolean {
-    return this.locTitleValue?.owner === this;
-  }
   protected setLocTitle(val: LocalizableString): void {
-    if(!val && this.isInternalLocTitle) return;
     if (!val && !this.locTitleValue) {
       val = this.createLocTitle();
-    } else {
-      this.removeLocalizableString("title");
     }
     if (!!this.locTitleValue) {
       this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
     }
     this.locTitleValue = val;
     this.locTitleValue.onStringChanged.add(this.locTitleChanged);
-    this.resetTitle();
+    this.locTitleChanged();
   }
   protected getTitle(): string {
-    if(this.compTitle) return this.compTitle.updater();
-    if(this.isInternalLocTitle) return this.getTitleValue();
-    return this.getPropertyValue("title", undefined, () => {
-      return this.getTitleValue();
-    });
-  }
-  private getTitleValue(): string {
-    const res = this.locTitleValue?.renderedHtml;
-    return res === "" ? undefined : res;
+    return this._title;
   }
   protected setTitle(val: string): void {
-    const valChecker = <any>val;
-    let compTitle = undefined;
-    if(!!valChecker && typeof valChecker === "object" && valChecker.type === ComputedUpdater.ComputedUpdaterType) {
-      compTitle = valChecker;
-    }
-    if(compTitle) {
-      this.compTitle = compTitle;
-      this.locTitleValue.onGetTextCallback = (str: string): string => {
-        return str || this.compTitle?.updater() || "";
-      };
-    } else {
-      if(this.compTitle) {
-        this.compTitle = undefined;
-        this.setLocTitle(null);
-      }
-      this.locTitleValue.text = val;
-    }
-  }
-  private resetTitle(): void {
-    if(this.locTitleValue && !this.isInternalLocTitle && this.getPropertyValueWithoutDefault("title") !== undefined) {
-      this.setPropertyValueDirectly("title", this.locTitleValue.renderedHtml);
-    }
+    this._title = val;
   }
   public get locTitleName(): string {
     return this.locTitle.localizationName;
@@ -536,9 +503,6 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
-    if(this.isInternalLocTitle) {
-      this.locTitleValue.strChanged();
-    }
     this.locTooltipChanged();
     this.locStrChangedInPopupModel();
   }
@@ -571,6 +535,10 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
         }
       });
     }
+  }
+  private locTitleChanged = () => {
+    const val = this.locTitle.renderedHtml;
+    this.setPropertyValue("_title", !!val ? val : undefined);
   }
   private locTooltipChanged(): void {
     if (!this.locTooltipName) return;

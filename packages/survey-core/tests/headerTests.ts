@@ -21,6 +21,7 @@ const getSurveyWithLogoTitleAndDescription = () => new SurveyModel({
 QUnit.test("cell calculations",
   function (assert) {
     const cover = new Cover();
+    cover.survey = new SurveyModel();
 
     assert.deepEqual(cover.cells[0].style, {
       gridColumn: 1,
@@ -30,7 +31,8 @@ QUnit.test("cell calculations",
     assert.deepEqual(cover.cells[0].contentStyle, {
       justifyContent: "flex-start",
       alignItems: "flex-start",
-      textAlign: "start"
+      textAlign: "start",
+      "maxWidth": undefined,
     }, "top left");
     assert.deepEqual(cover.cells[1].style, {
       gridColumn: 2,
@@ -40,7 +42,8 @@ QUnit.test("cell calculations",
     assert.deepEqual(cover.cells[1].contentStyle, {
       justifyContent: "flex-start",
       alignItems: "center",
-      textAlign: "center"
+      textAlign: "center",
+      "maxWidth": undefined,
     }, "top center");
     assert.deepEqual(cover.cells[2].style, {
       gridColumn: 3,
@@ -50,7 +53,8 @@ QUnit.test("cell calculations",
     assert.deepEqual(cover.cells[2].contentStyle, {
       justifyContent: "flex-start",
       alignItems: "flex-end",
-      textAlign: "end"
+      textAlign: "end",
+      "maxWidth": undefined,
     }, "top right");
   }
 );
@@ -147,7 +151,8 @@ QUnit.test("grid cells - defaults", function (assert) {
   assert.deepEqual(cover.cells[6].contentStyle, {
     "alignItems": "flex-start",
     "justifyContent": "flex-end",
-    "textAlign": "start"
+    "textAlign": "start",
+    "maxWidth": undefined,
   }, "bottom left cell content style");
 });
 
@@ -177,7 +182,8 @@ QUnit.test("grid cells - all elements center+middle", function (assert) {
   assert.deepEqual(cover.cells[4].contentStyle, {
     "alignItems": "center",
     "justifyContent": "center",
-    "textAlign": "center"
+    "textAlign": "center",
+    "maxWidth": undefined,
   }, "middle center cell content style");
 });
 
@@ -216,6 +222,7 @@ QUnit.test("grid cells - empty survey", function (assert) {
 QUnit.test("cell calculations - test width",
   function (assert) {
     const cover = new Cover();
+    cover.survey = new SurveyModel();
 
     assert.equal(cover.cells[0].textAreaWidth, undefined, "default");
     assert.equal(cover.cells[0].textAreaWidth, undefined, "equal to cover + px");
@@ -225,3 +232,34 @@ QUnit.test("cell calculations - test width",
     assert.equal(cover.cells[0].textAreaWidth, "120px", "cell text width");
   }
 );
+
+QUnit.test("grid cells - calculate cell maxWidth", function (assert) {
+  const cover = new Cover();
+  cover.survey = getSurveyWithLogoTitleAndDescription();
+
+  cover.logoPositionX = "right";
+  cover.logoPositionY = "middle";
+  cover.titlePositionX = "left";
+  cover.titlePositionY = "middle";
+  cover.descriptionPositionX = "left";
+  cover.descriptionPositionY = "middle";
+
+  assert.equal(cover.cells[3].contentStyle["maxWidth"], "200%", "title + description #1");
+  assert.equal(cover.cells[5].contentStyle["maxWidth"], undefined, "logo #1");
+
+  cover.descriptionPositionX = "center";
+  cover.descriptionPositionY = "middle";
+
+  assert.equal(cover.cells[3].contentStyle["maxWidth"], "100%", "title #2");
+  assert.equal(cover.cells[4].contentStyle["maxWidth"], "100%", "description #2");
+  assert.equal(cover.cells[5].contentStyle["maxWidth"], undefined, "logo #2");
+
+  cover.logoPositionX = "right";
+  cover.logoPositionY = "top";
+  cover.descriptionPositionX = "center";
+  cover.descriptionPositionY = "bottom";
+
+  assert.equal(cover.cells[2].contentStyle["maxWidth"], undefined, "logo #3");
+  assert.equal(cover.cells[3].contentStyle["maxWidth"], "300%", "title #3");
+  assert.equal(cover.cells[7].contentStyle["maxWidth"], undefined, "description #3");
+});

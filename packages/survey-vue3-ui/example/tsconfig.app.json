@@ -20,7 +20,7 @@
         "./node_modules/survey-core"
       ],
       "vue": [
-        "../node_modules/vue"
+        "./node_modules/vue"
       ],
     }
   }

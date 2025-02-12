@@ -193,9 +193,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     super();
     this.locTextValue = new LocalizableString(this, true, "text");
     this.locTextValue.onStrChanged = (oldValue: string, newValue: string) => {
-      if (newValue == this.value) {
-        newValue = undefined;
-      }
       this.propertyValueChanged("text", oldValue, newValue);
     };
     this.locTextValue.onGetTextCallback = (txt) => {

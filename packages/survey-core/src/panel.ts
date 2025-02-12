@@ -383,7 +383,7 @@ export class PanelModelBase extends SurveyElement<Question>
       this.onAddElement.bind(this),
       this.onRemoveElement.bind(this)
     );
-    this.id = PanelModelBase.getPanelId();
+    this.setPropertyValueDirectly("id", PanelModelBase.getPanelId());
 
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },
@@ -424,7 +424,6 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
-    this.updateDescriptionVisibility(this.description);
     this.markQuestionListDirty();
     this.onRowsChanged();
     this.gridLayoutColumns.forEach(col => {

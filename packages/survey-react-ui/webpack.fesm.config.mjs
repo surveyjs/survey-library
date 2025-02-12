@@ -2,7 +2,7 @@ import webpackCommonConfigCreator from "./webpack.config.js";
 export default function (options) {
   options.tsConfigFile = "tsconfig.fesm.json";
   const config = webpackCommonConfigCreator(options);
-  config.mode = "production";
+  config.optimization.minimize = false;
   config.experiments = {
     outputModule: true,
   };

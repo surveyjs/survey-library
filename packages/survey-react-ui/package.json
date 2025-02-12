@@ -20,9 +20,8 @@
         "url": "https://github.com/surveyjs/surveyjs.git"
     },
     "scripts": {
-        "build": "webpack --env buildType=dev && npm run build:fesm && webpack --env buildType=prod",
-        "build:fesm": "webpack --config ./webpack.fesm.config.mjs --env buildType=dev",
-        "watch:dev": "concurrently \"webpack --env buildType=dev --watch\" \"webpack --config ./webpack.fesm.config.mjs --env buildType=dev --watch\" ",
+        "build": "webpack --env buildType=dev --env emitDeclarations --env emitNonSourceFiles && webpack --env buildType=prod && webpack --config ./webpack.fesm.config.mjs --env buildType=prod",
+        "watch:dev": "concurrently \"webpack --env buildType=dev --watch --env emitDeclarations\" \"webpack --config ./webpack.fesm.config.mjs --env buildType=prod --watch\" ",
         "start": "webpack-dev-server --env buildType=dev --open",
         "test": "karma start ./karma.conf.js --single-run",
         "test:watch": "karma start ./karma.conf.js",

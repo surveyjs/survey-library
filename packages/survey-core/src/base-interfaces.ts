@@ -416,6 +416,7 @@ export interface ISurveyLayoutElement {
   template?: string;
   data?: any;
   index?: number;
+  getData?: () => any;
   processResponsiveness?: (width: number) => void;
 }
 export interface IPlainDataOptions {

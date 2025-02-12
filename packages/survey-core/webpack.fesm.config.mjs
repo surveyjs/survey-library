@@ -1,5 +1,4 @@
 import webpackCommonConfigCreator from "./webpack.config.js";
-import path from "path";
 export default function (options) {
   options.tsConfigFile = "tsconfig.fesm.json";
   const config = webpackCommonConfigCreator(options);

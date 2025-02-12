@@ -68,6 +68,10 @@ export class SvgIconRegistry {
     }
     this.updateMarkup();
   }
+  public registerIcon(iconId: string, iconSvg: string, iconSetName: string = "v2"): void {
+    this.registerIconFromSvg(iconId, iconSvg);
+    addIconsToThemeSet(iconSetName, { [iconId]: iconSvg });
+  }
   public iconsRenderedHtml(): string {
     return Object.keys(this.icons).map(icon => this.icons[icon]).join("");
   }

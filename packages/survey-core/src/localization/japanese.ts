@@ -65,6 +65,7 @@ export var japaneseSurveyStrings = {
   showDetails: "詳細を表示",
   hideDetails: "詳細を非表示",
   choices_Item: "項目",
+  choices_Choice: "選択オプション",
   matrix_column: "列",
   matrix_row: "行",
   multipletext_itemname: "テキスト",
@@ -132,17 +133,22 @@ setupLocale({ localeCode: "ja", strings: japaneseSurveyStrings, nativeName: "日
 // more: "More" => "もっとその"
 // tagboxDoneButtonCaption: "OK" => "わかりました"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "すべての選択肢がランク付けされます"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ここに選択肢をドラッグアンドドロップしてランク付けします"// takePhotoCaption: "Take Photo" => "写真を撮る"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ここに選択肢をドラッグアンドドロップしてランク付けします"
+// takePhotoCaption: "Take Photo" => "写真を撮る"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "下のボタンをクリックして、カメラを使用して写真を撮ります。"
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "アップロードするファイルをドラッグアンドドロップまたは選択するか、カメラを使用して写真を撮ります。"
-// replaceFileCaption: "Replace file" => "ファイルの置換"// eachRowUniqueError: "Each row must have a unique value." => "各行には一意の値が必要です。"
+// replaceFileCaption: "Replace file" => "ファイルの置換"
+// eachRowUniqueError: "Each row must have a unique value." => "各行には一意の値が必要です。"
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "ファイルはアップロードできません。「onUploadFiles」イベントのハンドラーを追加してください。"
 // showDetails: "Show Details" => "詳細を表示"
 // hideDetails: "Hide Details" => "詳細を隠す"
 // ok: "OK" => "わかりました"
 // cancel: "Cancel" => "キャンセル"
 // refuseItemText: "Refuse to answer" => "回答を拒否する"
-// dontKnowItemText: "Don't know" => "わかりません"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "回答は 64 KB を超えています。ファイルのサイズを小さくしてもう一度お試しいただくか、アンケートの所有者にお問い合わせください。"
-// signaturePlaceHolderReadOnly: "No signature" => "署名なし"// tabTitlePlaceholder: "New Panel" => "新規パネル"
+// dontKnowItemText: "Don't know" => "わかりません"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "回答は 64 KB を超えています。ファイルのサイズを小さくしてもう一度お試しいただくか、アンケートの所有者にお問い合わせください。"
+// signaturePlaceHolderReadOnly: "No signature" => "署名なし"
+// tabTitlePlaceholder: "New Panel" => "新規パネル"
 // deselectAllItemText: "Deselect all" => "すべて選択解除"
 // textNoDigitsAllow: "Numbers are not allowed." => "数字は使用できません。"
+// choices_Choice: "Choice option" => "選択オプション"

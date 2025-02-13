@@ -65,6 +65,7 @@ export var hindiStrings = {
   showDetails: "विवरण दिखाएँ",
   hideDetails: "विवरण छुपाएँ",
   choices_Item: "मद",
+  choices_Choice: "पसंद विकल्प",
   matrix_column: "कॉलम",
   matrix_row: "पंक्ति",
   multipletext_itemname: "टेक्स्ट",
@@ -133,15 +134,22 @@ setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "hindi", engl
 // more: "More" => "अधिक"
 // tagboxDoneButtonCaption: "OK" => "ठीक है"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "सभी विकल्पों को रैंक किया गया है"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "विकल्पों को रैंक करने के लिए उन्हें यहां खींचें और छोड़ दें"// takePhotoCaption: "Take Photo" => "फोटो ले लो"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "विकल्पों को रैंक करने के लिए उन्हें यहां खींचें और छोड़ दें"
+// takePhotoCaption: "Take Photo" => "फोटो ले लो"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "कैमरे का उपयोग करके फोटो लेने के लिए नीचे दिए गए बटन पर क्लिक करें।"
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "कैमरे का उपयोग करके फ़ोटो अपलोड करने या फ़ोटो लेने के लिए किसी फ़ाइल को खींचें और छोड़ें या चुनें."
-// replaceFileCaption: "Replace file" => "फ़ाइल बदलें"// eachRowUniqueError: "Each row must have a unique value." => "प्रत्येक पंक्ति का एक अद्वितीय मान होना चाहिए."
+// replaceFileCaption: "Replace file" => "फ़ाइल बदलें"
+// eachRowUniqueError: "Each row must have a unique value." => "प्रत्येक पंक्ति का एक अद्वितीय मान होना चाहिए."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "फ़ाइलें अपलोड नहीं की जा सकती. कृपया 'onloadFiles' ईवेंट के लिए एक हैंडलर जोड़ें."
 // showDetails: "Show Details" => "विवरण दिखाएँ"
 // hideDetails: "Hide Details" => "विवरण छुपाएँ"
 // ok: "OK" => "ठीक है"
-// cancel: "Cancel" => "रद्द करना"// refuseItemText: "Refuse to answer" => "जवाब देने से इनकार"
-// dontKnowItemText: "Don't know" => "नहीं मालूम"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "आपकी प्रतिक्रिया 64KB से अधिक है। कृपया अपनी फ़ाइल(फ़ाइलों) का आकार घटाएँ और पुन: प्रयास करें या सर्वेक्षण स्वामी से संपर्क करें."
-// signaturePlaceHolderReadOnly: "No signature" => "कोई हस्ताक्षर नहीं"// tabTitlePlaceholder: "New Panel" => "नया पैनल"// deselectAllItemText: "Deselect all" => "सभी को अचयनित करें"
+// cancel: "Cancel" => "रद्द करना"
+// refuseItemText: "Refuse to answer" => "जवाब देने से इनकार"
+// dontKnowItemText: "Don't know" => "नहीं मालूम"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "आपकी प्रतिक्रिया 64KB से अधिक है। कृपया अपनी फ़ाइल(फ़ाइलों) का आकार घटाएँ और पुन: प्रयास करें या सर्वेक्षण स्वामी से संपर्क करें."
+// signaturePlaceHolderReadOnly: "No signature" => "कोई हस्ताक्षर नहीं"
+// tabTitlePlaceholder: "New Panel" => "नया पैनल"
+// deselectAllItemText: "Deselect all" => "सभी को अचयनित करें"
 // textNoDigitsAllow: "Numbers are not allowed." => "संख्या की अनुमति नहीं है।"
+// choices_Choice: "Choice option" => "पसंद विकल्प"

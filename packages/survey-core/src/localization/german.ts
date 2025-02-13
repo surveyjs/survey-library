@@ -65,7 +65,7 @@ export var germanSurveyStrings = {
   showDetails: "Details anzeigen",
   hideDetails: "Details ausblenden",
   choices_Item: "Element",
-  choices_Choice: "Auswahl",
+  choices_Choice: "Wahlmöglichkeit",
   matrix_column: "Spalte",
   matrix_row: "Zeile",
   multipletext_itemname: "Text",
@@ -115,5 +115,7 @@ setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deuts
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
-// tabTitlePlaceholder: "New Panel" => "Neues Panel"// deselectAllItemText: "Deselect all" => "Alle abwählen"
+// tabTitlePlaceholder: "New Panel" => "Neues Panel"
+// deselectAllItemText: "Deselect all" => "Alle abwählen"
 // textNoDigitsAllow: "Numbers are not allowed." => "Zahlen sind nicht erlaubt."
+// choices_Choice: "Choice option" => "Wahlmöglichkeit"

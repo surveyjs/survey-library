@@ -65,6 +65,7 @@ export var serbianStrings = {
   showDetails: "Prikaži detalje",
   hideDetails: "Sakrij detalje",
   choices_Item: "stavka",
+  choices_Choice: "Opcija izbora",
   matrix_column: "Kolona",
   matrix_row: "Red",
   multipletext_itemname: "tekst",
@@ -126,16 +127,22 @@ setupLocale({ localeCode: "rs", strings: serbianStrings, nativeName: "srpski", e
 // more: "More" => "Viљe"
 // tagboxDoneButtonCaption: "OK" => "U redu"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Svi izbori su rangirani"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Prevucite i otpustite izbor ovde da biste ih rangirali"// takePhotoCaption: "Take Photo" => "Fotografisanje"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Prevucite i otpustite izbor ovde da biste ih rangirali"
+// takePhotoCaption: "Take Photo" => "Fotografisanje"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Kliknite na dugme ispod da biste snimili fotografiju pomoću fotoaparata."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Prevucite i otpustite ili izaberite datoteku za otpremanje ili snimanje fotografije pomoću fotoaparata."
-// replaceFileCaption: "Replace file" => "Zameni datoteku"// eachRowUniqueError: "Each row must have a unique value." => "Svaki red mora imati jedinstvenu vrednost."
+// replaceFileCaption: "Replace file" => "Zameni datoteku"
+// eachRowUniqueError: "Each row must have a unique value." => "Svaki red mora imati jedinstvenu vrednost."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Nije moguće otpremiti datoteke. Dodajte rukovaoca za događaj \"onUploadFiles\"."
 // showDetails: "Show Details" => "Prikaži detalje"
 // hideDetails: "Hide Details" => "Sakrij detalje"
 // ok: "OK" => "U redu"
 // cancel: "Cancel" => "Otkaži"
 // refuseItemText: "Refuse to answer" => "Odbijanje odgovora"
-// dontKnowItemText: "Don't know" => "Ne znam"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaš odgovor premašuje 64KB. Smanjite veličinu datoteka i pokušajte ponovo ili se obratite vlasniku ankete."
-// signaturePlaceHolderReadOnly: "No signature" => "Bez potpisa"// tabTitlePlaceholder: "New Panel" => "Nova tabla"// deselectAllItemText: "Deselect all" => "Poništi izbor svih"
+// dontKnowItemText: "Don't know" => "Ne znam"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaš odgovor premašuje 64KB. Smanjite veličinu datoteka i pokušajte ponovo ili se obratite vlasniku ankete."
+// signaturePlaceHolderReadOnly: "No signature" => "Bez potpisa"
+// tabTitlePlaceholder: "New Panel" => "Nova tabla"
+// deselectAllItemText: "Deselect all" => "Poništi izbor svih"
 // textNoDigitsAllow: "Numbers are not allowed." => "Brojevi nisu dozvoljeni."
+// choices_Choice: "Choice option" => "Opcija izbora"

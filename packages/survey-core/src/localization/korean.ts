@@ -65,6 +65,7 @@ export var koreanStrings = {
   showDetails: "세부 정보 표시",
   hideDetails: "세부 정보 숨기기",
   choices_Item: "항목",
+  choices_Choice: "선택 옵션",
   matrix_column: "열",
   matrix_row: "행",
   multipletext_itemname: "텍스트",
@@ -119,16 +120,22 @@ setupLocale({ localeCode: "ko", strings: koreanStrings, nativeName: "한국어",
 // noEntriesReadonlyText: "There are no entries." => "항목이 없습니다."
 // tagboxDoneButtonCaption: "OK" => "그래"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "모든 선택 항목이 순위가 매겨집니다."
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다."// takePhotoCaption: "Take Photo" => "사진 찍기"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다."
+// takePhotoCaption: "Take Photo" => "사진 찍기"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "아래 버튼을 클릭하여 카메라로 사진을 찍습니다."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "업로드할 파일을 드래그 앤 드롭하거나 선택하거나 카메라를 사용하여 사진을 찍습니다."
-// replaceFileCaption: "Replace file" => "파일 바꾸기"// eachRowUniqueError: "Each row must have a unique value." => "각 행에는 고유한 값이 있어야 합니다."
+// replaceFileCaption: "Replace file" => "파일 바꾸기"
+// eachRowUniqueError: "Each row must have a unique value." => "각 행에는 고유한 값이 있어야 합니다."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "파일을 업로드할 수 없습니다. 'onUploadFiles'이벤트에 대한 핸들러를 추가하십시오."
 // showDetails: "Show Details" => "세부 정보 표시"
 // hideDetails: "Hide Details" => "세부 정보 숨기기"
 // ok: "OK" => "그래"
 // cancel: "Cancel" => "취소"
 // refuseItemText: "Refuse to answer" => "대답 거부"
-// dontKnowItemText: "Don't know" => "모르다"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "응답이 64KB를 초과합니다. 파일 크기를 줄인 후 다시 시도하거나 설문조사 소유자에게 문의하세요."
-// signaturePlaceHolderReadOnly: "No signature" => "서명 없음"// tabTitlePlaceholder: "New Panel" => "새 패널"// deselectAllItemText: "Deselect all" => "모두 선택 해제"
+// dontKnowItemText: "Don't know" => "모르다"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "응답이 64KB를 초과합니다. 파일 크기를 줄인 후 다시 시도하거나 설문조사 소유자에게 문의하세요."
+// signaturePlaceHolderReadOnly: "No signature" => "서명 없음"
+// tabTitlePlaceholder: "New Panel" => "새 패널"
+// deselectAllItemText: "Deselect all" => "모두 선택 해제"
 // textNoDigitsAllow: "Numbers are not allowed." => "숫자는 허용되지 않습니다."
+// choices_Choice: "Choice option" => "선택 옵션"

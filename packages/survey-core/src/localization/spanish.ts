@@ -65,6 +65,7 @@ export var spanishSurveyStrings = {
   showDetails: "Mostrar detalles",
   hideDetails: "Ocultar detalles",
   choices_Item: "artículo",
+  choices_Choice: "Opción de elección",
   matrix_column: "Columna",
   matrix_row: "Hilera",
   multipletext_itemname: "texto",
@@ -120,16 +121,22 @@ setupLocale({ localeCode: "es", strings: spanishSurveyStrings, nativeName: "espa
 // more: "More" => "Más"
 // tagboxDoneButtonCaption: "OK" => "De acuerdo"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Todas las opciones están clasificadas"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrastra y suelta opciones aquí para clasificarlas"// takePhotoCaption: "Take Photo" => "Tomar foto"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrastra y suelta opciones aquí para clasificarlas"
+// takePhotoCaption: "Take Photo" => "Tomar foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Haga clic en el botón de abajo para tomar una foto con la cámara."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrastre y suelte o seleccione un archivo para cargar o tomar una foto con la cámara."
-// replaceFileCaption: "Replace file" => "Reemplazar archivo"// eachRowUniqueError: "Each row must have a unique value." => "Cada fila debe tener un valor único."
+// replaceFileCaption: "Replace file" => "Reemplazar archivo"
+// eachRowUniqueError: "Each row must have a unique value." => "Cada fila debe tener un valor único."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Los archivos no se pueden cargar. Agregue un controlador para el evento 'onUploadFiles'."
 // showDetails: "Show Details" => "Mostrar detalles"
 // hideDetails: "Hide Details" => "Ocultar detalles"
 // ok: "OK" => "De acuerdo"
 // cancel: "Cancel" => "Cancelar"
 // refuseItemText: "Refuse to answer" => "Negarse a responder"
-// dontKnowItemText: "Don't know" => "No sé"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Su respuesta supera los 64 KB. Reduzca el tamaño de su(s) archivo(s) e inténtelo de nuevo o póngase en contacto con el propietario de una encuesta."
-// signaturePlaceHolderReadOnly: "No signature" => "Sin firma"// tabTitlePlaceholder: "New Panel" => "Nuevo panel"// deselectAllItemText: "Deselect all" => "Anular la selección de todo"
+// dontKnowItemText: "Don't know" => "No sé"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Su respuesta supera los 64 KB. Reduzca el tamaño de su(s) archivo(s) e inténtelo de nuevo o póngase en contacto con el propietario de una encuesta."
+// signaturePlaceHolderReadOnly: "No signature" => "Sin firma"
+// tabTitlePlaceholder: "New Panel" => "Nuevo panel"
+// deselectAllItemText: "Deselect all" => "Anular la selección de todo"
 // textNoDigitsAllow: "Numbers are not allowed." => "No se permiten números."
+// choices_Choice: "Choice option" => "Opción de elección"

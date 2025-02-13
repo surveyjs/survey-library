@@ -65,6 +65,7 @@ export var czechSurveyStrings = {
   showDetails: "Zobrazit podrobnosti",
   hideDetails: "Skrýt podrobnosti",
   choices_Item: "položka",
+  choices_Choice: "Možnost volby",
   matrix_column: "Sloupec",
   matrix_row: "Řádek",
   multipletext_itemname: "Text",
@@ -132,16 +133,22 @@ setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "češt
 // more: "More" => "Více"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Všechny možnosti jsou seřazeny"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Přetáhněte volby zde a seřaďte je"// takePhotoCaption: "Take Photo" => "Pořídit fotografii"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Přetáhněte volby zde a seřaďte je"
+// takePhotoCaption: "Take Photo" => "Pořídit fotografii"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Kliknutím na tlačítko níže pořídíte fotografii pomocí fotoaparátu."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Přetáhněte nebo vyberte soubor, který chcete nahrát nebo pořiďte fotografii pomocí fotoaparátu."
-// replaceFileCaption: "Replace file" => "Nahradit soubor"// eachRowUniqueError: "Each row must have a unique value." => "Každý řádek musí mít jedinečnou hodnotu."
+// replaceFileCaption: "Replace file" => "Nahradit soubor"
+// eachRowUniqueError: "Each row must have a unique value." => "Každý řádek musí mít jedinečnou hodnotu."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Soubory nelze nahrát. Přidejte obslužnou rutinu pro událost 'onUploadFiles'."
 // showDetails: "Show Details" => "Zobrazit podrobnosti"
 // hideDetails: "Hide Details" => "Skrýt podrobnosti"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Zrušit"
 // refuseItemText: "Refuse to answer" => "Odmítnout odpovědět"
-// dontKnowItemText: "Don't know" => "Nevím"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaše odpověď překračuje 64 kB. Zmenšete prosím velikost svých souborů a zkuste to znovu nebo kontaktujte vlastníka průzkumu."
-// signaturePlaceHolderReadOnly: "No signature" => "Bez podpisu"// tabTitlePlaceholder: "New Panel" => "Nový panel"// deselectAllItemText: "Deselect all" => "Zrušit výběr všech"
+// dontKnowItemText: "Don't know" => "Nevím"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vaše odpověď překračuje 64 kB. Zmenšete prosím velikost svých souborů a zkuste to znovu nebo kontaktujte vlastníka průzkumu."
+// signaturePlaceHolderReadOnly: "No signature" => "Bez podpisu"
+// tabTitlePlaceholder: "New Panel" => "Nový panel"
+// deselectAllItemText: "Deselect all" => "Zrušit výběr všech"
 // textNoDigitsAllow: "Numbers are not allowed." => "Čísla nejsou povolena."
+// choices_Choice: "Choice option" => "Možnost volby"

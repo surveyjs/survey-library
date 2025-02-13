@@ -65,6 +65,7 @@ export var malaySurveyStrings = {
   showDetails: "Tunjukkan Butiran",
   hideDetails: "Sembunyikan Butiran",
   choices_Item: "item",
+  choices_Choice: "Pilihan pilihan",
   matrix_column: "Lajur",
   matrix_row: "Baris",
   multipletext_itemname: "teks",
@@ -122,16 +123,22 @@ setupLocale({ localeCode: "ms", strings: malaySurveyStrings, nativeName: "melayu
 // more: "More" => "Lebih banyak"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Semua pilihan disenaraikan"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepaskan pilihan di sini untuk meletakkannya"// takePhotoCaption: "Take Photo" => "Ambil gambar"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepaskan pilihan di sini untuk meletakkannya"
+// takePhotoCaption: "Take Photo" => "Ambil gambar"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Klik butang di bawah untuk mengambil gambar menggunakan kamera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Seret dan lepas atau pilih fail untuk memuat naik atau mengambil foto menggunakan kamera."
-// replaceFileCaption: "Replace file" => "Gantikan fail"// eachRowUniqueError: "Each row must have a unique value." => "Setiap baris mesti mempunyai nilai yang unik."
+// replaceFileCaption: "Replace file" => "Gantikan fail"
+// eachRowUniqueError: "Each row must have a unique value." => "Setiap baris mesti mempunyai nilai yang unik."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Fail tidak boleh dimuat naik. Sila tambah pengendali untuk acara 'onUploadFiles'."
 // showDetails: "Show Details" => "Tunjukkan Butiran"
 // hideDetails: "Hide Details" => "Sembunyikan Butiran"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Batal"
 // refuseItemText: "Refuse to answer" => "Enggan menjawab"
-// dontKnowItemText: "Don't know" => "Tak tahu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jawapan anda melebihi 64KB. Sila kurangkan saiz fail anda dan cuba lagi atau hubungi pemilik tinjauan."
-// signaturePlaceHolderReadOnly: "No signature" => "Tiada tandatangan"// tabTitlePlaceholder: "New Panel" => "Panel Baru"// deselectAllItemText: "Deselect all" => "Nyahpilih semua"
+// dontKnowItemText: "Don't know" => "Tak tahu"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jawapan anda melebihi 64KB. Sila kurangkan saiz fail anda dan cuba lagi atau hubungi pemilik tinjauan."
+// signaturePlaceHolderReadOnly: "No signature" => "Tiada tandatangan"
+// tabTitlePlaceholder: "New Panel" => "Panel Baru"
+// deselectAllItemText: "Deselect all" => "Nyahpilih semua"
 // textNoDigitsAllow: "Numbers are not allowed." => "Nombor tidak dibenarkan."
+// choices_Choice: "Choice option" => "Pilihan pilihan"

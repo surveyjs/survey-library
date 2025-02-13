@@ -65,6 +65,7 @@ export var traditionalChineseSurveyStrings = {
   showDetails: "顯示詳細資訊",
   hideDetails: "隱藏詳細資訊",
   choices_Item: "選項",
+  choices_Choice: "Choice 選項",
   matrix_column: "列",
   matrix_row: "行",
   multipletext_itemname: "發簡訊",
@@ -167,15 +168,22 @@ setupLocale({ localeCode: "zh-tw", strings: traditionalChineseSurveyStrings, nat
 // more: "More" => "更多"
 // tagboxDoneButtonCaption: "OK" => "還行"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "所有選擇均已排名"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "將選項拖放到此處進行排名"// takePhotoCaption: "Take Photo" => "拍照"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "將選項拖放到此處進行排名"
+// takePhotoCaption: "Take Photo" => "拍照"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "按下下面的按鈕使用相機拍照。"
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "拖放或選擇要上傳的檔或使用相機拍攝照片。"
-// replaceFileCaption: "Replace file" => "替換檔"// eachRowUniqueError: "Each row must have a unique value." => "每行必須具有唯一值。"
+// replaceFileCaption: "Replace file" => "替換檔"
+// eachRowUniqueError: "Each row must have a unique value." => "每行必須具有唯一值。"
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "無法上傳檔。請為「onUploadFiles」事件添加處理程式。"
 // showDetails: "Show Details" => "顯示詳細資訊"
 // hideDetails: "Hide Details" => "隱藏詳細資訊"
 // ok: "OK" => "還行"
-// cancel: "Cancel" => "取消"// refuseItemText: "Refuse to answer" => "拒絕回答"
-// dontKnowItemText: "Don't know" => "不知道"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "您的回復超過 64KB。請減小檔的大小，然後重試或聯繫調查擁有者。"
-// signaturePlaceHolderReadOnly: "No signature" => "無簽名"// tabTitlePlaceholder: "New Panel" => "新面板"// deselectAllItemText: "Deselect all" => "取消全選"
+// cancel: "Cancel" => "取消"
+// refuseItemText: "Refuse to answer" => "拒絕回答"
+// dontKnowItemText: "Don't know" => "不知道"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "您的回復超過 64KB。請減小檔的大小，然後重試或聯繫調查擁有者。"
+// signaturePlaceHolderReadOnly: "No signature" => "無簽名"
+// tabTitlePlaceholder: "New Panel" => "新面板"
+// deselectAllItemText: "Deselect all" => "取消全選"
 // textNoDigitsAllow: "Numbers are not allowed." => "不允許使用數位。"
+// choices_Choice: "Choice option" => "Choice 選項"

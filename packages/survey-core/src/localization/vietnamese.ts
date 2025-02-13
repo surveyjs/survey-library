@@ -65,6 +65,7 @@ export var vietnameseSurveyStrings = {
   showDetails: "Hiển thị chi tiết",
   hideDetails: "Ẩn chi tiết",
   choices_Item: "mục",
+  choices_Choice: "Tùy chọn lựa chọn",
   matrix_column: "Cột",
   matrix_row: "Dòng",
   multipletext_itemname: "Nhắn tin",
@@ -132,15 +133,22 @@ setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "v
 // more: "More" => "Nhiều hơn"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Tất cả các lựa chọn được xếp hạng"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Kéo và thả các lựa chọn vào đây để xếp hạng chúng"// takePhotoCaption: "Take Photo" => "Chụp ảnh"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Kéo và thả các lựa chọn vào đây để xếp hạng chúng"
+// takePhotoCaption: "Take Photo" => "Chụp ảnh"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Nhấp vào nút bên dưới để chụp ảnh bằng máy ảnh."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Kéo và thả hoặc chọn tệp để tải lên hoặc chụp ảnh bằng máy ảnh."
-// replaceFileCaption: "Replace file" => "Thay thế tập tin"// eachRowUniqueError: "Each row must have a unique value." => "Mỗi hàng phải có một giá trị duy nhất."
+// replaceFileCaption: "Replace file" => "Thay thế tập tin"
+// eachRowUniqueError: "Each row must have a unique value." => "Mỗi hàng phải có một giá trị duy nhất."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Không thể tải tệp lên. Vui lòng thêm trình xử lý cho sự kiện 'onUploadFiles'."
 // showDetails: "Show Details" => "Hiển thị chi tiết"
 // hideDetails: "Hide Details" => "Ẩn chi tiết"
 // ok: "OK" => "OK"
-// cancel: "Cancel" => "Hủy"// refuseItemText: "Refuse to answer" => "Từ chối trả lời"
-// dontKnowItemText: "Don't know" => "Không biết"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Phản hồi của bạn vượt quá 64KB. Vui lòng giảm kích thước (các) tệp của bạn và thử lại hoặc liên hệ với chủ sở hữu khảo sát."
-// signaturePlaceHolderReadOnly: "No signature" => "Không có chữ ký"// tabTitlePlaceholder: "New Panel" => "Bảng điều khiển mới"// deselectAllItemText: "Deselect all" => "Bỏ chọn tất cả"
+// cancel: "Cancel" => "Hủy"
+// refuseItemText: "Refuse to answer" => "Từ chối trả lời"
+// dontKnowItemText: "Don't know" => "Không biết"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Phản hồi của bạn vượt quá 64KB. Vui lòng giảm kích thước (các) tệp của bạn và thử lại hoặc liên hệ với chủ sở hữu khảo sát."
+// signaturePlaceHolderReadOnly: "No signature" => "Không có chữ ký"
+// tabTitlePlaceholder: "New Panel" => "Bảng điều khiển mới"
+// deselectAllItemText: "Deselect all" => "Bỏ chọn tất cả"
 // textNoDigitsAllow: "Numbers are not allowed." => "Số không được phép."
+// choices_Choice: "Choice option" => "Tùy chọn lựa chọn"

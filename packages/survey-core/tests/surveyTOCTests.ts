@@ -795,3 +795,89 @@ QUnit.test("The survey.onServerValidateQuestions function is not invoked when a 
   assert.equal(counter, 2, "server validation counter, try #4");
   assert.equal(survey.currentPageNo, 0, "currentPageNo #4");
 });
+
+QUnit.test("pages visibility from visibleIf", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+        ]
+      },
+      {
+        "name": "page2",
+        "visibleIf": "{question1} notempty",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3",
+          }
+        ]
+      }
+    ],
+    "showTOC": true
+  };
+  let survey: SurveyModel = new SurveyModel(json);
+  let tocListModel = createTOCListModel(survey);
+
+  assert.equal(tocListModel.visibleItems.length, 1, "One page is visible");
+  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
+  survey.data = {
+    question1: "val1"
+  };
+  assert.equal(tocListModel.visibleItems.length, 2, "All pages are visible");
+  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
+  assert.equal(tocListModel.visibleItems[1].id, survey.pages[1].name, "Page 2 is visible in TOC");
+});
+QUnit.test("pages visibility on value changed", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "visibleIf": "{question1} notempty",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3",
+            "visibleIf": "{question2} notempty"
+          }
+        ]
+      }
+    ],
+    "showTOC": true
+  };
+  let survey: SurveyModel = new SurveyModel(json);
+  let tocListModel = createTOCListModel(survey);
+
+  assert.equal(tocListModel.visibleItems.length, 1, "One page is visible");
+  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
+  survey.data = {
+    question1: "val1",
+  };
+  assert.equal(tocListModel.visibleItems.length, 1, "One page is visible - page2 is empty");
+  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC - page2 is empty");
+  survey.data = {
+    question1: "val1",
+    question2: "val2"
+  };
+  assert.equal(tocListModel.visibleItems.length, 2, "All pages are visible");
+  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
+  assert.equal(tocListModel.visibleItems[1].id, survey.pages[1].name, "Page 2 is visible in TOC");
+});

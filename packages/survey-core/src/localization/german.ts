@@ -65,6 +65,7 @@ export var germanSurveyStrings = {
   showDetails: "Details anzeigen",
   hideDetails: "Details ausblenden",
   choices_Item: "Element",
+  choices_Choice: "Auswahl",
   matrix_column: "Spalte",
   matrix_row: "Zeile",
   multipletext_itemname: "Text",

@@ -37,8 +37,8 @@ const buildPlatformJson = {
 
   "peerDependencies": {
     "survey-core": packageJson.version,
-    "react": "^16.5.0 || ^17.0.1 || ^18.2.0",
-    "react-dom": "^16.5.0 || ^17.0.1 || ^18.2.0"
+    "react": "^16.5.0 || ^17.0.1 || ^18.1.0 || ^19.0.0",
+    "react-dom": "^16.5.0 || ^17.0.1 || ^18.1.0 || ^19.0.0",
   }
 };
 

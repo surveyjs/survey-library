@@ -656,11 +656,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return res;
   }
-  private ensureCssClassesValue(): void {
-    if (!this.cssClassesValue) {
-      this.createCssClassesValue();
-    }
-  }
   private createCssClassesValue(): any {
     const res = this.calcCssClasses(this.css);
     this.setPropertyValue("cssClassesValue", res);
@@ -682,7 +677,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get cssClasses(): any {
     const _dummy = this.cssClassesValue;
     if (!this.survey) return this.calcCssClasses(this.css);
-    this.ensureCssClassesValue();
+    if (!this.cssClassesValue) {
+      this.createCssClassesValue();
+    }
     return this.cssClassesValue;
   }
   public get cssTitleNumber(): any {
@@ -788,9 +785,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.onFirstRenderingCore();
     }
   }
-  protected onFirstRenderingCore(): void {
-    this.ensureCssClassesValue();
-  }
+  protected onFirstRenderingCore(): void {}
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     if (!this.survey) {

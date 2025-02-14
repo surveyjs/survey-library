@@ -1,6 +1,5 @@
 // Uncomment the line below if you create a custom dictionary
 import { setupLocale } from "survey-core";
-import {swahiliStrings} from "./swahili";
 
 export var slStrings = {
   // survey templates

@@ -65,6 +65,7 @@ export var thaiStrings = {
   showDetails: "แสดงรายละเอียด",
   hideDetails: "ซ่อนรายละเอียด",
   choices_Item: "ชิ้น",
+  choices_Choice: "ตัวเลือกตัวเลือก",
   matrix_column: "คอลัมน์",
   matrix_row: "แถว",
   multipletext_itemname: "ข้อความ",
@@ -132,15 +133,22 @@ setupLocale({ localeCode: "th", strings: thaiStrings, nativeName: "ไทย", e
 // more: "More" => "อีก"
 // tagboxDoneButtonCaption: "OK" => "ตกลง, ได้"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "ตัวเลือกทั้งหมดจะถูกจัดอันดับ"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ลากและวางตัวเลือกที่นี่เพื่อจัดอันดับ"// takePhotoCaption: "Take Photo" => "ถ่ายรูป"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ลากและวางตัวเลือกที่นี่เพื่อจัดอันดับ"
+// takePhotoCaption: "Take Photo" => "ถ่ายรูป"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "คลิกปุ่มด้านล่างเพื่อถ่ายภาพโดยใช้กล้อง"
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "ลากและวางหรือเลือกไฟล์ที่จะอัปโหลดหรือถ่ายภาพโดยใช้กล้อง"
-// replaceFileCaption: "Replace file" => "แทนที่ไฟล์"// eachRowUniqueError: "Each row must have a unique value." => "แต่ละแถวต้องมีค่าที่ไม่ซ้ํากัน"
+// replaceFileCaption: "Replace file" => "แทนที่ไฟล์"
+// eachRowUniqueError: "Each row must have a unique value." => "แต่ละแถวต้องมีค่าที่ไม่ซ้ํากัน"
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "ไม่สามารถอัปโหลดไฟล์ได้ โปรดเพิ่มตัวจัดการสําหรับเหตุการณ์ 'onUploadFiles'"
 // showDetails: "Show Details" => "แสดงรายละเอียด"
 // hideDetails: "Hide Details" => "ซ่อนรายละเอียด"
 // ok: "OK" => "ตกลง, ได้"
-// cancel: "Cancel" => "ยกเลิก"// refuseItemText: "Refuse to answer" => "ปฏิเสธที่จะตอบ"
-// dontKnowItemText: "Don't know" => "ไม่ทราบ"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "คําตอบของคุณเกิน 64KB โปรดลดขนาดไฟล์ของคุณแล้วลองอีกครั้งหรือติดต่อเจ้าของแบบสํารวจ"
-// signaturePlaceHolderReadOnly: "No signature" => "ไม่มีลายเซ็น"// tabTitlePlaceholder: "New Panel" => "แผงใหม่"// deselectAllItemText: "Deselect all" => "ยกเลิกการเลือกทั้งหมด"
+// cancel: "Cancel" => "ยกเลิก"
+// refuseItemText: "Refuse to answer" => "ปฏิเสธที่จะตอบ"
+// dontKnowItemText: "Don't know" => "ไม่ทราบ"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "คําตอบของคุณเกิน 64KB โปรดลดขนาดไฟล์ของคุณแล้วลองอีกครั้งหรือติดต่อเจ้าของแบบสํารวจ"
+// signaturePlaceHolderReadOnly: "No signature" => "ไม่มีลายเซ็น"
+// tabTitlePlaceholder: "New Panel" => "แผงใหม่"
+// deselectAllItemText: "Deselect all" => "ยกเลิกการเลือกทั้งหมด"
 // textNoDigitsAllow: "Numbers are not allowed." => "ไม่อนุญาตให้ใช้หมายเลข"
+// choices_Choice: "Choice option" => "ตัวเลือกตัวเลือก"

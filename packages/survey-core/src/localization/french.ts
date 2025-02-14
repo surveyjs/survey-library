@@ -65,6 +65,7 @@ export var frenchSurveyStrings = {
   showDetails: "Afficher les détails",
   hideDetails: "Masquer les détails",
   choices_Item: "item",
+  choices_Choice: "Option au choix",
   matrix_column: "Colonne",
   matrix_row: "Ligne",
   multipletext_itemname: "texte",
@@ -120,16 +121,22 @@ setupLocale({ localeCode: "fr", strings: frenchSurveyStrings, nativeName: "fran�
 // more: "More" => "Plus"
 // tagboxDoneButtonCaption: "OK" => "D’ACCORD"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Tous les choix sont classés"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Faites glisser et déposez les choix ici pour les classer"// takePhotoCaption: "Take Photo" => "Prendre une photo"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Faites glisser et déposez les choix ici pour les classer"
+// takePhotoCaption: "Take Photo" => "Prendre une photo"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Cliquez sur le bouton ci-dessous pour prendre une photo à l’aide de l’appareil photo."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Faites glisser et déposez ou sélectionnez un fichier à télécharger ou à prendre une photo à l’aide de l’appareil photo."
-// replaceFileCaption: "Replace file" => "Remplacer le fichier"// eachRowUniqueError: "Each row must have a unique value." => "Chaque ligne doit avoir une valeur unique."
+// replaceFileCaption: "Replace file" => "Remplacer le fichier"
+// eachRowUniqueError: "Each row must have a unique value." => "Chaque ligne doit avoir une valeur unique."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Les fichiers ne peuvent pas être téléchargés. Veuillez ajouter un gestionnaire pour l’événement 'onUploadFiles'."
 // showDetails: "Show Details" => "Afficher les détails"
 // hideDetails: "Hide Details" => "Masquer les détails"
 // ok: "OK" => "D’ACCORD"
 // cancel: "Cancel" => "Annuler"
 // refuseItemText: "Refuse to answer" => "Refuser de répondre"
-// dontKnowItemText: "Don't know" => "Sais pas"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Votre réponse dépasse 64 Ko. Veuillez réduire la taille de votre ou vos fichiers et réessayer ou contacter un propriétaire de sondage."
-// signaturePlaceHolderReadOnly: "No signature" => "Pas de signature"// tabTitlePlaceholder: "New Panel" => "Nouveau panneau"// deselectAllItemText: "Deselect all" => "Désélectionner tout"
+// dontKnowItemText: "Don't know" => "Sais pas"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Votre réponse dépasse 64 Ko. Veuillez réduire la taille de votre ou vos fichiers et réessayer ou contacter un propriétaire de sondage."
+// signaturePlaceHolderReadOnly: "No signature" => "Pas de signature"
+// tabTitlePlaceholder: "New Panel" => "Nouveau panneau"
+// deselectAllItemText: "Deselect all" => "Désélectionner tout"
 // textNoDigitsAllow: "Numbers are not allowed." => "Les numéros ne sont pas autorisés."
+// choices_Choice: "Choice option" => "Option au choix"

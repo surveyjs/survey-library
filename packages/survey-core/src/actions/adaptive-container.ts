@@ -102,7 +102,10 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
         return availableSpace -= (this.getActionMinDimension(action) + gap);
       });
     const actionsToHide = this.getActionsToHide();
-    for(let i = 0; i < actionsToHide.length; i++) {
+    if (actionsToHide.length === 1 && !!actionsToHide[0].iconName) {
+      return 1;
+    }
+    for (let i = 0; i < actionsToHide.length; i++) {
       currentItemsSize += this.getActionMinDimension(actionsToHide[i]) + gap;
       if (currentItemsSize > availableSpace) {
         return i;

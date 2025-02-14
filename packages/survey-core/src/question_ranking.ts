@@ -409,7 +409,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   };
 
   public startDrag = (event: PointerEvent): void => {
-    const choice = ItemValue.getItemByValue(this.activeChoices, this.draggedChoiceValue);
+    const choice = ItemValue.getItemByValue(this.visibleChoices, this.draggedChoiceValue);
     this.dragDropRankingChoices.startDrag(event, choice, this, this.draggedTargetNode);
   }
 

@@ -7,11 +7,11 @@ import { icons as iconsV2 } from "survey-core/icons/iconsV2";
 addIconsToThemeSet("v1", iconsV1);
 addIconsToThemeSet("v2", iconsV2);
 
-SvgRegistry.registerIcons(iconsV1);
+SvgRegistry.registerIcons(iconsV2);
 @Component({
   selector: "survey",
   template: "<sv-ng-modal-container></sv-ng-modal-container><survey-content [model]='model'></survey-content>"
-  })
+})
 export class SurveyComponent extends BaseAngular<SurveyModel> {
   @Input() model!: SurveyModel;
   protected getModel(): SurveyModel {

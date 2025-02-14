@@ -1,5 +1,6 @@
 // Uncomment the line below if you create a custom dictionary
-import { setupLocale } from "survey-creator-core";
+import { setupLocale } from "survey-core";
+import {swahiliStrings} from "./swahili";
 
 export var slStrings = {
   // survey templates
@@ -1899,4 +1900,4 @@ export var slStrings = {
 // Uncomment the line below if you create a custom dictionary.
 // Replace "en" with a custom locale code (for example, "fr" or "de"),
 // Replace `enStrings` with the name of the variable that contains the custom dictionary.
-setupLocale({ localeCode: "sl", strings: slStrings });
+setupLocale({ localeCode: "sl", strings: slStrings, nativeName: "slovenščina", englishName: "Slovenian" });

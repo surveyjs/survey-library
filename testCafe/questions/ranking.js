@@ -410,3 +410,44 @@ frameworks.forEach((framework) => {
     await t.expect(value).eql(["Item1", "Item3", "other"]);
   });
 });
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
+    async (ctx) => {
+      const json = {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "ranking",
+                "name": "q1",
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ]
+              },
+              {
+                "type": "ranking",
+                "name": "q2",
+                "choicesFromQuestion": "q1",
+                "maxSelectedChoices": 3,
+                "minSelectedChoices": 1,
+                "selectToRankEnabled": true,
+                "defaultValue": "Item 2"
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+    }
+  );
+
+  test("Uncaught TypeError Bug#9438", async (t) => {
+    const item2 = Selector("span").withText("q2").parent("[data-name]").find("span").withText("Item 2");
+    await t.hover(item2);
+    await t.drag(item2, 5, 40, { speed: 0.1 });
+  });
+});

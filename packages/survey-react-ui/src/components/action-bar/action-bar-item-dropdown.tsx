@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { ActionDropdownViewModel, getActionDropdownButtonTarget } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { Popup } from "../popup/popup";

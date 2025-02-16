@@ -1,5 +1,4 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import * as React from "react";
 import { QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownModelBase } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
@@ -29,7 +28,7 @@ export class MatrixRow extends SurveyElementBase<IMatrixRowProps, any> {
 
   componentDidMount(): void {
     super.componentDidMount();
-    if(this.root.current) {
+    if (this.root.current) {
       this.model.setRootElement(this.root.current);
     }
   }
@@ -42,10 +41,10 @@ export class MatrixRow extends SurveyElementBase<IMatrixRowProps, any> {
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     if (nextProps.model !== this.model) {
-      if(nextProps.element) {
+      if (nextProps.element) {
         nextProps.element.setRootElement(this.root.current);
       }
-      if(this.model) {
+      if (this.model) {
         this.model.setRootElement(undefined as any);
       }
     }
@@ -54,7 +53,7 @@ export class MatrixRow extends SurveyElementBase<IMatrixRowProps, any> {
 
   render() {
     const model = this.model;
-    if(!model.visible) return null;
+    if (!model.visible) return null;
     return (
       <tr
         ref={this.root}

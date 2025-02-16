@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import {
   Base,
   Action,
@@ -36,7 +36,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     super.componentDidMount();
     if (!this.model.hasActions) return;
     const container: HTMLDivElement | null = this.rootRef.current;
-    if(!!container) {
+    if (!!container) {
       this.model.initResponsivityManager(container, (callback) => { setTimeout(callback, 100); });
     }
   }
@@ -46,12 +46,12 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   }
   componentDidUpdate(prevProps: IActionBarProps, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
-    if(prevProps.model != this.props.model) {
+    if (prevProps.model != this.props.model) {
       prevProps.model.resetResponsivityManager();
     }
     if (!!this.model.hasActions) {
       const container: HTMLDivElement | null = this.rootRef.current;
-      if(!!container) {
+      if (!!container) {
         this.model.initResponsivityManager(container, (callback) => { setTimeout(callback, 100); });
       }
     }
@@ -68,7 +68,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
       <div
         ref={this.rootRef}
         className={this.model.getRootCss()}
-        onClick={this.handleClick ? function(event) {
+        onClick={this.handleClick ? function (event) {
           event.stopPropagation();
         } : undefined}
       >

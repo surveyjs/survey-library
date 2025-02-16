@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyQuestionPanelDynamicAction } from "./paneldynamic-add-btn";
 

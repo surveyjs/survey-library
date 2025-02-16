@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Base, SurveyModel, Cover, CoverCell } from "survey-core";
 import { SurveyElementBase } from "../reactquestion_element";
 import { ReactElementFactory } from "../element-factory";

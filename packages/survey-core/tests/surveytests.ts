@@ -81,7 +81,7 @@ function getContainerContentFunction(survey: SurveyModel) {
     content.forEach(item => {
       const resItem: any = {};
       Object.keys(item).forEach(key => {
-        if (["data", "processResponsiveness"].indexOf(key) === -1) {
+        if (["data", "getData", "processResponsiveness"].indexOf(key) === -1) {
           resItem[key] = item[key];
         }
       });
@@ -10300,7 +10300,7 @@ QUnit.test("question.getPlainData - matrixdropdown, fixed bug#3097", function (
 
   assert.equal(plainData.data[0].data[0].data[0].score, 1);
   assert.equal(plainData.data[0].data[0].data[0].name, 0);
-  assert.equal(plainData.data[0].data[0].data[0].title, "Choice");
+  assert.equal(plainData.data[0].data[0].data[0].title, "Choice option");
   assert.equal(plainData.data[0].data[0].data[0].value, 1);
   assert.equal(plainData.data[0].data[0].data[0].displayValue, "1");
 
@@ -10313,7 +10313,7 @@ QUnit.test("question.getPlainData - matrixdropdown, fixed bug#3097", function (
 
   assert.equal(plainData.data[0].data[1].data[0].score, 2);
   assert.equal(plainData.data[0].data[1].data[0].name, 0);
-  assert.equal(plainData.data[0].data[1].data[0].title, "Choice");
+  assert.equal(plainData.data[0].data[1].data[0].title, "Choice option");
   assert.equal(plainData.data[0].data[1].data[0].value, 2);
   assert.equal(plainData.data[0].data[1].data[0].displayValue, "2");
 
@@ -10823,11 +10823,11 @@ QUnit.test(
     assert.deepEqual(plainData.data[0].isNode, false);
     assert.deepEqual(plainData.data[0].isOther, true);
     assert.deepEqual(plainData.data[0].value, "other");
-    assert.deepEqual(plainData.data[0].title, "Choice");
+    assert.deepEqual(plainData.data[0].title, "Choice option");
     assert.deepEqual(plainData.data[0].displayValue, "Other value text");
     assert.deepEqual(plainData.data[1].isNode, false);
     assert.deepEqual(plainData.data[1].value, "giraffe");
-    assert.deepEqual(plainData.data[1].title, "Choice");
+    assert.deepEqual(plainData.data[1].title, "Choice option");
   }
 );
 
@@ -10871,7 +10871,7 @@ QUnit.test(
     assert.deepEqual(plainData.data[0].value, "-Comment");
     assert.deepEqual(plainData.data[0].displayValue, "Comment text");
     assert.deepEqual(plainData.data[1].value, "giraffe");
-    assert.deepEqual(plainData.data[1].title, "Choice");
+    assert.deepEqual(plainData.data[1].title, "Choice option");
   }
 );
 
@@ -10912,7 +10912,7 @@ QUnit.test(
     assert.deepEqual(plainData.data[0].isNode, false);
     assert.deepEqual(plainData.data[0].isOther, true);
     assert.deepEqual(plainData.data[0].value, "other");
-    assert.deepEqual(plainData.data[0].title, "Choice");
+    assert.deepEqual(plainData.data[0].title, "Choice option");
     assert.deepEqual(plainData.data[0].displayValue, "Other value text");
   }
 );
@@ -10957,7 +10957,7 @@ QUnit.test(
     assert.deepEqual(plainData.data[0].value, "-Comment");
     assert.deepEqual(plainData.data[0].displayValue, "Comment text");
     assert.deepEqual(plainData.data[1].value, "giraffe");
-    assert.deepEqual(plainData.data[1].title, "Choice");
+    assert.deepEqual(plainData.data[1].title, "Choice option");
   }
 );
 
@@ -18266,6 +18266,7 @@ QUnit.test("getContainerContent - do not show advanced header on completed page"
     let result = survey.getContainerContent(container);
     result.forEach(item => {
       delete item["data"];
+      delete item["getData"];
       delete item["processResponsiveness"];
     });
     return result;
@@ -18317,6 +18318,7 @@ QUnit.test("getContainerContent - do show advanced header on completed page if s
     let result = survey.getContainerContent(container);
     result.forEach(item => {
       delete item["data"];
+      delete item["getData"];
       delete item["processResponsiveness"];
     });
     return result;
@@ -18645,7 +18647,10 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   survey.headerView = "basic";
   function getContainerContent(container: LayoutElementContainer) {
     let result = survey.getContainerContent(container);
-    result.forEach(item => delete item["data"]);
+    result.forEach(item => {
+      delete item["data"];
+      delete item["getData"];
+    });
     return result;
   }
 
@@ -18757,6 +18762,36 @@ QUnit.test("getContainerContent - header elements order", function (assert) {
       "id": "custom"
     }
   ], "advanved header first, progress next");
+});
+QUnit.test("Do not set data in LayoutElement by default", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "rating",
+            "name": "satisfaction",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+        ]
+      },
+    ]
+  });
+  const el = survey.findLayoutElement("toc-navigation");
+  assert.ok(el, "toc-navigation is found");
+  assert.notOk(el.data, "data is not set");
+  survey.showTOC = true;
+  const els: Array<any> = survey.getContainerContent("left");
+  assert.equal(els.length, 1, "There is one element");
+  assert.equal(els[0].id, "toc-navigation", "This element is toc");
+  assert.ok(els[0].data, "data is set");
 });
 
 QUnit.test("restore header css variable if header is default", function (assert) {
@@ -20680,6 +20715,7 @@ QUnit.test("showPreview & updateProgress & updateVisibleIndexes", function (
     visibleChangedCounter++;
   });
   survey.showPreview();
+  assert.equal(survey.progressText, "Page 1 of 1", "progressText");
   assert.equal(progressCounter, 1, "progressCounter");
   assert.equal(visibleChangedCounter, 0, "visibleChangedCounter");
 });
@@ -21368,9 +21404,10 @@ QUnit.test("Reduce the number of calls of setVisibleIndexes function", function 
       ]
     }]
   });
-  assert.equal(counter, 3, "On loading");
+  assert.equal(survey.progressText, "Page 1 of 2", "progressText");
+  assert.equal(counter, 1, "On loading");
   survey.pages[1].onFirstRendering();
-  assert.equal(counter, 3, "page[1].onFirstRendering(), do nothing");
+  assert.equal(counter, 1, "page[1].onFirstRendering(), do nothing");
 });
 QUnit.test("Do not include questions.values into survey.getFilteredValue in design time", function (assert) {
   const survey = new SurveyModel({

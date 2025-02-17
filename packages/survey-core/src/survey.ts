@@ -993,10 +993,10 @@ export class SurveyModel extends SurveyElementCore
       () => { this.updateState(); });
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
-    this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.updateHasLogo(); });
-    this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.updateRenderBackgroundImage(); });
-    this.registerPropertyChangedHandlers(["renderBackgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
-      this.updateBackgroundImageStyle();
+    this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.resetHasLogo(); });
+    this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.resetPropertyValue("renderBackgroundImage"); });
+    this.registerPropertyChangedHandlers(["backgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
+      this.resetPropertyValue("backgroundImageStyle");
     });
     this.registerPropertyChangedHandlers(
       ["showPrevButton", "showCompleteButton"],
@@ -1032,8 +1032,7 @@ export class SurveyModel extends SurveyElementCore
     this.onShowingChoiceItem.onCallbacksChanged = () => {
       this.rebuildQuestionChoices();
     };
-    this.navigationBarValue = this.createNavigationBar();
-    this.navigationBar.locOwner = this;
+    this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -1067,8 +1066,6 @@ export class SurveyModel extends SurveyElementCore
       }
     });
 
-    this.progressBarValue = new ProgressButtons(this);
-
     if (this.headerView === "advanced") {
       this.insertAdvancedHeader(new Cover());
     }
@@ -1081,7 +1078,7 @@ export class SurveyModel extends SurveyElementCore
     this.layoutElements.push({
       id: "progress-buttons",
       component: "sv-progress-buttons",
-      data: this.progressBar,
+      getData: () => this.progressBar,
       processResponsiveness: width => this.progressBar.processResponsiveness && this.progressBar.processResponsiveness(width)
     });
     this.layoutElements.push({
@@ -1104,20 +1101,25 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-progress-requiredquestions",
       data: this
     });
-    const tocModel = new TOCModel(this);
     this.addLayoutElement({
       id: "toc-navigation",
       component: "sv-navigation-toc",
-      data: tocModel,
-      processResponsiveness: width => tocModel.updateStickyTOCSize(this.rootElement)
+      getData: () => this.tocModel,
+      processResponsiveness: width => this.tocModel.updateStickyTOCSize(this.rootElement)
     });
     this.layoutElements.push({
       id: "buttons-navigation",
       component: "sv-action-bar",
-      data: this.navigationBar
+      getData: () => this.navigationBar
     });
 
-    this.locTitle.onStringChanged.add(() => this.titleIsEmpty = this.locTitle.isEmpty);
+  }
+  private tocModelValue: TOCModel;
+  private get tocModel(): TOCModel {
+    if (!this.tocModelValue) {
+      this.tocModelValue = new TOCModel(this);
+    }
+    return this.tocModelValue;
   }
   public get sjsVersion(): string {
     return this.getPropertyValue("sjsVersion");
@@ -2151,7 +2153,9 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isStartPageActive) {
       this.updateProgressText();
     }
-    this.navigationBar.locStrsChanged();
+    if(!!this.navigationBarValue) {
+      this.navigationBar.locStrsChanged();
+    }
   }
   public getMarkdownHtml(text: string, name: string): string {
     return this.getSurveyMarkdownHtml(this, text, name);
@@ -2308,10 +2312,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("logoPosition", value);
   }
   public get hasLogo(): boolean {
-    return this.getPropertyValue("hasLogo", false);
+    return this.getPropertyValue("hasLogo", undefined, () => !!this.logo && this.logoPosition !== "none");
   }
-  private updateHasLogo(): void {
-    this.setPropertyValue("hasLogo", !!this.logo && this.logoPosition !== "none");
+  private resetHasLogo(): void {
+    this.resetPropertyValue("hasLogo");
   }
   public get isLogoBefore(): boolean {
     if (this.isDesignMode) return false;
@@ -2337,7 +2341,9 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(this.css.logo)
       .append(logoClasses[this.logoPosition]).toString();
   }
-  @property({ defaultValue: true }) private titleIsEmpty: boolean;
+  public get titleIsEmpty(): boolean {
+    return this.getPropertyValue("titleIsEmpty", undefined, () => this.locTitle.isEmpty);
+  }
   public get renderedHasTitle(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("title");
     return !this.titleIsEmpty && this.showTitle;
@@ -2422,10 +2428,8 @@ export class SurveyModel extends SurveyElementCore
       target.updateCss();
     }
   }) backgroundImage: string;
-  @property() renderBackgroundImage: string;
-  private updateRenderBackgroundImage(): void {
-    const path = this.backgroundImage;
-    this.renderBackgroundImage = wrapUrlForBackgroundImage(path);
+  public get renderBackgroundImage(): string {
+    return this.getPropertyValue("renderBackgroundImage", undefined, () => wrapUrlForBackgroundImage(this.backgroundImage));
   }
   @property() backgroundImageFit: ImageFit;
   @property({
@@ -2442,9 +2446,11 @@ export class SurveyModel extends SurveyElementCore
   public set backgroundOpacity(val: number) {
     this.setPropertyValue("backgroundOpacity", val);
   }
-  @property() backgroundImageStyle: any;
-  public updateBackgroundImageStyle() {
-    this.backgroundImageStyle = {
+  public get backgroundImageStyle(): any {
+    return this.getPropertyValue("backgroundImageStyle", undefined, () => this.calcBackgroundImageStyle());
+  }
+  private calcBackgroundImageStyle() {
+    return {
       opacity: this.backgroundOpacity,
       backgroundImage: this.renderBackgroundImage,
       backgroundSize: this.backgroundImageFit,
@@ -2582,6 +2588,10 @@ export class SurveyModel extends SurveyElementCore
     return "<h3>" + this.getLocalizationString("loadingSurvey") + "</h3>";
   }
   public get navigationBar(): ActionContainer {
+    if(!this.navigationBarValue) {
+      this.navigationBarValue = this.createNavigationBar();
+      this.updateNavigationCss();
+    }
     return this.navigationBarValue;
   }
   /**
@@ -2877,6 +2887,9 @@ export class SurveyModel extends SurveyElementCore
   }
   private progressBarValue: any;
   public get progressBar(): any {
+    if(!this.progressBarValue) {
+      this.progressBarValue = new ProgressButtons(this);
+    }
     return this.progressBarValue;
   }
   /**
@@ -3935,15 +3948,6 @@ export class SurveyModel extends SurveyElementCore
     const visPages = this.visiblePages;
     var index = visPages.indexOf(this.currentPage);
     return Math.ceil((index * 100) / visPages.length);
-  }
-  /**
-   * Returns a percentage value that indicates user progress in the survey.
-   * @see showProgressBar
-   * @see progressBarType
-   * @see progressText
-   */
-  public get progressValue(): number {
-    return this.getPropertyValue("progressValue", 0);
   }
   public get isNavigationButtonsShowing(): string {
     if (this.isDesignMode) return "none";
@@ -5138,26 +5142,24 @@ export class SurveyModel extends SurveyElementCore
    * @see progressBarType
    */
   public get progressText(): string {
-    var res = this.getPropertyValue("progressText", "");
-    if (!res) {
-      this.updateProgressText();
-      res = this.getPropertyValue("progressText", "");
-    }
-    return res;
+    return this.progressBar.progressText;
   }
-  private isCalculatingProgressText = false;
+  /**
+   * Returns a percentage value that indicates user progress in the survey.
+   * @see showProgressBar
+   * @see progressBarType
+   * @see progressText
+   */
+  public get progressValue(): number {
+    return this.getPropertyValue("progressValue", undefined, () => this.getProgress());
+  }
   public updateProgressText(onValueChanged: boolean = false): void {
-    if (this.isCalculatingProgressText || this.isShowingPreview) return;
-    if (
-      onValueChanged &&
-      this.progressBarType == "pages" &&
-      this.onGetProgressText.isEmpty
-    )
-      return;
-    this.isCalculatingProgressText = true;
-    this.setPropertyValue("progressText", this.getProgressText());
-    this.setPropertyValue("progressValue", this.getProgress());
-    this.isCalculatingProgressText = false;
+    if (this.isShowingPreview) return;
+    if (onValueChanged && this.progressBarType == "pages" && this.onGetProgressText.isEmpty) return;
+    if(this.progressBarValue) {
+      this.progressBarValue.resetProgressText();
+    }
+    this.resetPropertyValue("progressValue");
   }
   public getProgressText(): string {
     if (!this.isDesignMode && this.currentPage == null) return "";
@@ -6526,7 +6528,7 @@ export class SurveyModel extends SurveyElementCore
     this.fromJSON(jsonObj);
   }
   private isEndLoadingFromJson: string = null;
-  endLoadingFromJson() {
+  endLoadingFromJson(): void {
     this.isEndLoadingFromJson = "processing";
     this.onFirstPageIsStartedChanged();
     super.endLoadingFromJson();
@@ -6540,31 +6542,25 @@ export class SurveyModel extends SurveyElementCore
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
-    this.updateHasLogo();
-    this.updateRenderBackgroundImage();
     this.updateCurrentPage();
-    this.hasDescription = !!this.description;
-    this.titleIsEmpty = this.locTitle.isEmpty;
     this.setCalculatedWidthModeUpdater();
   }
 
   private updateNavigationCss() {
-    if (!!this.navigationBar) {
-      this.updateNavigationBarCss();
+    const val = this.navigationBarValue;
+    if (!!val) {
+      val.cssClasses = this.css.actionBar;
+      val.containerCss = this.css.footer;
       !!this.updateNavigationItemCssCallback && this.updateNavigationItemCssCallback();
     }
   }
 
   private updateNavigationItemCssCallback: (strName?: string) => void;
 
-  private updateNavigationBarCss() {
-    const val = this.navigationBar;
-    val.cssClasses = this.css.actionBar;
-    val.containerCss = this.css.footer;
-  }
   protected createNavigationBar(): ActionContainer {
     const res = new ActionContainer();
     res.setItems(this.createNavigationActions());
+    res.locOwner = this;
     return res;
   }
   protected createNavigationActions(): Array<IAction> {
@@ -8059,8 +8055,8 @@ export class SurveyModel extends SurveyElementCore
     return layoutElement;
   }
 
-  public getContainerContent(container: LayoutElementContainer) {
-    const containerLayoutElements = [];
+  public getContainerContent(container: LayoutElementContainer): Array<ISurveyLayoutElement> {
+    const containerLayoutElements = new Array<ISurveyLayoutElement>();
     for (let layoutElement of this.layoutElements) {
       if (this.mode !== "display" && isStrCiEqual(layoutElement.id, "timerpanel")) {
         if (container === "header") {
@@ -8137,6 +8133,11 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     containerLayoutElements.sort((a, b) => (a.index || 0) - (b.index || 0));
+    containerLayoutElements.forEach(el => {
+      if(!!el.getData) {
+        el.data = el.getData();
+      }
+    });
     return containerLayoutElements;
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {

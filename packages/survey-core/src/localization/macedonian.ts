@@ -65,6 +65,7 @@ export var macedonianSurveyStrings = {
   showDetails: "Прикажување на деталите",
   hideDetails: "Сокриј ги деталите.",
   choices_Item: "ставка",
+  choices_Choice: "Опција за избор",
   matrix_column: "Колона",
   matrix_row: "Ред",
   multipletext_itemname: "текст.",
@@ -126,16 +127,22 @@ setupLocale({ localeCode: "mk", strings: macedonianSurveyStrings, nativeName: "�
 // more: "More" => "Повеќе"
 // tagboxDoneButtonCaption: "OK" => "ДОБРО"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Сите избори се рангирани"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Влечете и фрлете го изборот овде за да ги рангирате"// takePhotoCaption: "Take Photo" => "Фотографирајте"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Влечете и фрлете го изборот овде за да ги рангирате"
+// takePhotoCaption: "Take Photo" => "Фотографирајте"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Кликнете на копчето подолу за да фотографирате користејќи ја камерата."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Влечете и фрлајте или изберете датотека за качување или фотографирање користејќи ја камерата."
-// replaceFileCaption: "Replace file" => "Заменете го фајлот."// eachRowUniqueError: "Each row must have a unique value." => "Секој ред мора да има уникатна вредност."
+// replaceFileCaption: "Replace file" => "Заменете го фајлот."
+// eachRowUniqueError: "Each row must have a unique value." => "Секој ред мора да има уникатна вредност."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Фајловите не можат да се качуваат. Ве молиме додадете раководител за настанот 'onUploadFiles'."
 // showDetails: "Show Details" => "Прикажување на деталите"
 // hideDetails: "Hide Details" => "Сокриј ги деталите."
 // ok: "OK" => "ДОБРО"
 // cancel: "Cancel" => "Откажи"
 // refuseItemText: "Refuse to answer" => "Одбиј да одговориш."
-// dontKnowItemText: "Don't know" => "Не знам"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Вашиот одговор надминува 64KB. Ве молиме да ја намалите големината на вашата(ите) датотека(и) и обидете се повторно или контактирајте го сопственикот на истражувањето."
-// signaturePlaceHolderReadOnly: "No signature" => "Нема потпис"// tabTitlePlaceholder: "New Panel" => "Нов панел"// deselectAllItemText: "Deselect all" => "Отстранете селекција на сите"
+// dontKnowItemText: "Don't know" => "Не знам"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Вашиот одговор надминува 64KB. Ве молиме да ја намалите големината на вашата(ите) датотека(и) и обидете се повторно или контактирајте го сопственикот на истражувањето."
+// signaturePlaceHolderReadOnly: "No signature" => "Нема потпис"
+// tabTitlePlaceholder: "New Panel" => "Нов панел"
+// deselectAllItemText: "Deselect all" => "Отстранете селекција на сите"
 // textNoDigitsAllow: "Numbers are not allowed." => "Броевите не се дозволени."
+// choices_Choice: "Choice option" => "Опција за избор"

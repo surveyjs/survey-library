@@ -65,6 +65,7 @@ export var persianSurveyStrings = {
   showDetails: "نمایش جزئیات",
   hideDetails: "مخفی کردن جزئیات",
   choices_Item: "آیتم",
+  choices_Choice: "گزینه انتخاب",
   matrix_column: "ستون",
   matrix_row: "سطر",
   multipletext_itemname: "پیامک",
@@ -132,16 +133,22 @@ setupLocale({ localeCode: "fa", strings: persianSurveyStrings, nativeName: "فا
 // more: "More" => "بیشتر"
 // tagboxDoneButtonCaption: "OK" => "باشه"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "همه انتخاب ها رتبه بندی می شوند"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "انتخاب های کشیدن و رها کردن در اینجا برای رتبه بندی انها"// takePhotoCaption: "Take Photo" => "گرفتن عکس"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "انتخاب های کشیدن و رها کردن در اینجا برای رتبه بندی انها"
+// takePhotoCaption: "Take Photo" => "گرفتن عکس"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "روی دکمه زیر کلیک کنید تا با استفاده از دوربین عکس بگیرید."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "کشیدن و رها کردن یا انتخاب یک فایل برای اپلود یا گرفتن عکس با استفاده از دوربین."
-// replaceFileCaption: "Replace file" => "جایگزینی پرونده"// eachRowUniqueError: "Each row must have a unique value." => "هر سطر باید یک مقدار منحصر به فرد داشته باشد."
+// replaceFileCaption: "Replace file" => "جایگزینی پرونده"
+// eachRowUniqueError: "Each row must have a unique value." => "هر سطر باید یک مقدار منحصر به فرد داشته باشد."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "پروندهها را نمیتوان بارگذاری کرد. لطفا یک گرداننده برای رویداد \"onUploadFiles\" اضافه کنید."
 // showDetails: "Show Details" => "نمایش جزئیات"
 // hideDetails: "Hide Details" => "مخفی کردن جزئیات"
 // ok: "OK" => "باشه"
 // cancel: "Cancel" => "لغو"
 // refuseItemText: "Refuse to answer" => "امتناع از پاسخ دادن"
-// dontKnowItemText: "Don't know" => "نمی دانم"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "پاسخ شما بیش از 64KB است. لطفا اندازه فایل(های) خود را کاهش دهید و دوباره تلاش کنید یا با صاحب نظرسنجی تماس بگیرید."
-// signaturePlaceHolderReadOnly: "No signature" => "بدون امضا"// tabTitlePlaceholder: "New Panel" => "پنل جدید"// deselectAllItemText: "Deselect all" => "لغو انتخاب همه"
+// dontKnowItemText: "Don't know" => "نمی دانم"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "پاسخ شما بیش از 64KB است. لطفا اندازه فایل(های) خود را کاهش دهید و دوباره تلاش کنید یا با صاحب نظرسنجی تماس بگیرید."
+// signaturePlaceHolderReadOnly: "No signature" => "بدون امضا"
+// tabTitlePlaceholder: "New Panel" => "پنل جدید"
+// deselectAllItemText: "Deselect all" => "لغو انتخاب همه"
 // textNoDigitsAllow: "Numbers are not allowed." => "شماره ها مجاز نیستند."
+// choices_Choice: "Choice option" => "گزینه انتخاب"

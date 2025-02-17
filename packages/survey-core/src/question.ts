@@ -131,13 +131,16 @@ export class Question extends SurveyElement<Question>
     this._isMobile = val;
   }
   public themeChanged(theme: ITheme): void { }
-  @property({ defaultValue: false }) private _isMobile: boolean;
-  @property() forceIsInputReadOnly: boolean;
-  @property() ariaExpanded: "true" | "false";
+  private get _isMobile(): boolean { return this.getPropertyValue("_isMobile", false); }
+  private set _isMobile(val: boolean) { this.setPropertyValue("_isMobile", val); }
+  public get forceIsInputReadOnly(): boolean { return this.getPropertyValue("forceIsInputReadOnly"); }
+  public set forceIsInputReadOnly(val: boolean) { this.setPropertyValue("forceIsInputReadOnly", val); }
+  public get ariaExpanded(): "true" | "false" { return this.getPropertyValue("ariaExpanded"); }
+  public set ariaExpanded(val: "true" | "false") { this.setPropertyValue("ariaExpanded", val); }
 
   constructor(name: string) {
     super(name);
-    this.id = Question.getQuestionId();
+    this.setPropertyValueDirectly("id", Question.getQuestionId());
     this.onCreating();
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
@@ -149,6 +152,7 @@ export class Question extends SurveyElement<Question>
 
     this.createLocalizableString("commentText", this, true, "otherItemText");
     this.createLocalizableString("requiredErrorText", this);
+    this.createLocalizableString("commentPlaceholder", this);
     this.addTriggerInfo("resetValueIf", (): boolean => !this.isEmpty(), (): void => {
       this.startSetValueOnExpression();
       this.clearValue();
@@ -183,6 +187,9 @@ export class Question extends SurveyElement<Question>
         this.initCommentFromSurvey();
       }
     );
+    this.registerPropertyChangedHandlers(["commentPlaceholder"], () => {
+      this.resetRenderedCommentPlaceholder();
+    });
     this.registerFunctionOnPropertiesValueChanged(["no", "readOnly", "hasVisibleErrors", "containsErrors"], () => {
       this.updateQuestionCss();
     });
@@ -915,7 +922,9 @@ export class Question extends SurveyElement<Question>
    * @see comment
    * @see commentText
    */
-  @property({ localizable: true, onSet: (val, target) => target.resetRenderedCommentPlaceholder() }) commentPlaceholder: string;
+  public get commentPlaceholder(): string { return this.getLocalizableStringText("commentPlaceholder"); }
+  public set commentPlaceholder(val: string) { this.setLocalizableStringText("commentPlaceholder", val); }
+  public get locCommentPlaceholder(): LocalizableString { return this.getLocalizableString("commentPlaceholder"); }
 
   public get commentPlaceHolder(): string {
     return this.commentPlaceholder;
@@ -1703,7 +1712,7 @@ export class Question extends SurveyElement<Question>
     if (!val) return false;
     if (Array.isArray(val))
       return val.length > 0 ? this.isValueSurveyElement(val[0]) : false;
-    return !!val.getType && !!val.onPropertyChanged;
+    return val.isSurveyObj === true;
   }
   private canClearValueAsInvisible(reason: string): boolean {
     if (reason === "onHiddenContainer" && !this.isParentVisible) return true;
@@ -2598,10 +2607,11 @@ export class Question extends SurveyElement<Question>
       this.getComponentName() === "default"
     );
   }
+  public get renderAs(): string { return this.getPropertyValue("renderAs"); }
+  public set renderAs(val: string) { this.setPropertyValue("renderAs", val); }
 
-  @property() renderAs: string;
-
-  @property({ defaultValue: false }) inMatrixMode: boolean;
+  public get inMatrixMode(): boolean { return this.getPropertyValue("inMatrixMode", false); }
+  public set inMatrixMode(val: boolean) { this.setPropertyValue("inMatrixMode", val); }
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
@@ -2989,6 +2999,7 @@ Serializer.addClass("question", [
   {
     name: "bindings:bindings",
     serializationProperty: "bindings",
+    isSerializableFunc: (obj: any) => !obj.isBindingEmpty(),
     visibleIf: function (obj: any) {
       return obj.bindings.getNames().length > 0;
     },

@@ -43,11 +43,8 @@ export class QuestionSelectBase extends Question {
   private get waitingChoicesByURL(): boolean {
     return !this.isChoicesLoaded && this.hasChoicesUrl;
   }
-  @property({
-    onSet: (newVal: any, target: QuestionSelectBase) => {
-      target.onSelectedItemValuesChangedHandler(newVal);
-    }
-  }) protected selectedItemValues: any;
+  protected get selectedItemValues(): any { return this.getPropertyValue("selectedItemValues"); }
+  protected set selectedItemValues(val: any) { this.setPropertyValue("selectedItemValues", val); }
 
   constructor(name: string) {
     super(name);
@@ -70,10 +67,14 @@ export class QuestionSelectBase extends Question {
     this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
       this.onVisibleChanged();
     });
+    this.registerPropertyChangedHandlers(["selecteditemValues"], (newVal: any) => {
+      this.onSelectedItemValuesChangedHandler(newVal);
+    });
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
     this.setNewRestfulProperty();
     var locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
     this.createLocalizableString("otherErrorText", this, true, "otherRequiredError");
+    this.createLocalizableString("otherPlaceholder", this, false, true);
     this.otherItemValue.locOwner = this;
     this.otherItemValue.setLocText(locOtherText);
     this.choicesByUrl.createItemValue = (value: any): ItemValue => {
@@ -974,13 +975,16 @@ export class QuestionSelectBase extends Question {
    * @see showOtherItem
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
-  @property() separateSpecialChoices: boolean;
+  public get separateSpecialChoices(): boolean { return this.getPropertyValue("separateSpecialChoices"); }
+  public set separateSpecialChoices(val: boolean) { this.setPropertyValue("separateSpecialChoices", val); }
   /**
    * A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
    * @see showOtherItem
    * @see showCommentArea
    */
-  @property({ localizable: true }) otherPlaceholder: string;
+  public get otherPlaceholder(): string { return this.getLocalizableStringText("otherPlaceholder"); }
+  public set otherPlaceholder(val: string) { this.setLocalizableStringText("otherPlaceholder", val); }
+  public get locOtherPlaceholder(): LocalizableString { return this.getLocalizableString("otherPlaceholder"); }
 
   public get otherPlaceHolder(): string {
     return this.otherPlaceholder;
@@ -1158,7 +1162,7 @@ export class QuestionSelectBase extends Question {
           var choice = ItemValue.getItemByValue(this.visibleChoices, dataValue);
           var choiceDataItem = <any>{
             name: index,
-            title: "Choice",
+            title: this.getLocalizationString("choices_Choice"),
             value: dataValue,
             displayValue: this.getChoicesDisplayValue(
               this.visibleChoices,

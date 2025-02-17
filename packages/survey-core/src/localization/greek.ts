@@ -65,6 +65,7 @@ export var greekSurveyStrings = {
   showDetails: "Εμφάνιση λεπτομερειών",
   hideDetails: "Απόκρυψη λεπτομερειών",
   choices_Item: "είδος",
+  choices_Choice: "Επιλογή επιλογής",
   matrix_column: "Στήλη",
   matrix_row: "Γραμμή",
   multipletext_itemname: "κείμενο",
@@ -117,16 +118,22 @@ setupLocale({ localeCode: "gr", strings: greekSurveyStrings, nativeName: "ελλ
 // panelDynamicTabTextFormat: "Panel {panelIndex}" => "Πίνακας {panelIndex}"
 // noEntriesReadonlyText: "There are no entries." => "Δεν υπάρχουν καταχωρήσεις."
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Όλες οι επιλογές κατατάσσονται"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Σύρετε και αποθέστε επιλογές εδώ για να τις κατατάξετε"// takePhotoCaption: "Take Photo" => "Λήψη φωτογραφίας"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Σύρετε και αποθέστε επιλογές εδώ για να τις κατατάξετε"
+// takePhotoCaption: "Take Photo" => "Λήψη φωτογραφίας"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Κάντε κλικ στο παρακάτω κουμπί για να τραβήξετε μια φωτογραφία χρησιμοποιώντας την κάμερα."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Σύρετε και αποθέστε ή επιλέξτε ένα αρχείο για αποστολή ή λήψη φωτογραφίας χρησιμοποιώντας την κάμερα."
-// replaceFileCaption: "Replace file" => "Αντικατάσταση αρχείου"// eachRowUniqueError: "Each row must have a unique value." => "Κάθε γραμμή πρέπει να έχει μια μοναδική τιμή."
+// replaceFileCaption: "Replace file" => "Αντικατάσταση αρχείου"
+// eachRowUniqueError: "Each row must have a unique value." => "Κάθε γραμμή πρέπει να έχει μια μοναδική τιμή."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Δεν είναι δυνατή η αποστολή αρχείων. Προσθέστε ένα πρόγραμμα χειρισμού για το συμβάν 'onUploadFiles'."
 // showDetails: "Show Details" => "Εμφάνιση λεπτομερειών"
 // hideDetails: "Hide Details" => "Απόκρυψη λεπτομερειών"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Ακυρώνω"
 // refuseItemText: "Refuse to answer" => "Αρνηθείτε να απαντήσετε"
-// dontKnowItemText: "Don't know" => "Δεν ξέρω"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Η απάντησή σας υπερβαίνει τα 64KB. Μειώστε το μέγεθος των αρχείων σας και προσπαθήστε ξανά ή επικοινωνήστε με έναν κάτοχο έρευνας."
-// signaturePlaceHolderReadOnly: "No signature" => "Χωρίς υπογραφή"// tabTitlePlaceholder: "New Panel" => "Νέο πάνελ"// deselectAllItemText: "Deselect all" => "Αποεπιλογή όλων"
+// dontKnowItemText: "Don't know" => "Δεν ξέρω"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Η απάντησή σας υπερβαίνει τα 64KB. Μειώστε το μέγεθος των αρχείων σας και προσπαθήστε ξανά ή επικοινωνήστε με έναν κάτοχο έρευνας."
+// signaturePlaceHolderReadOnly: "No signature" => "Χωρίς υπογραφή"
+// tabTitlePlaceholder: "New Panel" => "Νέο πάνελ"
+// deselectAllItemText: "Deselect all" => "Αποεπιλογή όλων"
 // textNoDigitsAllow: "Numbers are not allowed." => "Οι αριθμοί δεν επιτρέπονται."
+// choices_Choice: "Choice option" => "Επιλογή επιλογής"

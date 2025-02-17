@@ -671,11 +671,7 @@ QUnit.test("Edit choices in matrix", function (assert) {
     "Update text accordingly"
   );
   question.choices[0].locText.text = "item1";
-  assert.equal(
-    matrix.visibleRows[0].cells[1].question.isEmpty(),
-    true,
-    "text is equal to value"
-  );
+  assert.equal(matrix.visibleRows[0].cells[1].question.value, "item1", "Do not reset tedt");
 });
 
 QUnit.test("Edit choices in matrix with custom property", function (assert) {

@@ -84,6 +84,7 @@ export class LocalizableString implements ILocalizableString {
     return "";
   }
   public strChanged(): void {
+    if(!this.isTextRequested) return;
     this.searchableText = undefined;
     if (this.renderedText === undefined && this.isEmpty && !this.onGetTextCallback && !this.localizationName) return;
     this.calculatedTextValue = this.calcText();
@@ -118,7 +119,9 @@ export class LocalizableString implements ILocalizableString {
     if (this.onGetTextCallback) res = this.onGetTextCallback(res, pureText);
     return res;
   }
+  private isTextRequested: boolean;
   public get pureText(): string {
+    this.isTextRequested = true;
     var loc = this.locale;
     if (!loc) loc = this.defaultLoc;
     var res = this.getValue(loc);

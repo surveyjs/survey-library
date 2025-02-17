@@ -65,6 +65,7 @@ export var bulgarianStrings = {
   showDetails: "Показване на подробни данни",
   hideDetails: "Скрий подробните данни",
   choices_Item: "елемент",
+  choices_Choice: "Опция за избор",
   matrix_column: "Колона",
   matrix_row: "Ред",
   multipletext_itemname: "Текст",
@@ -132,16 +133,22 @@ setupLocale({ localeCode: "bg", strings: bulgarianStrings, nativeName: "бълг
 // more: "More" => "Още"
 // tagboxDoneButtonCaption: "OK" => "Добре"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Всички възможности за избор са класирани"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Плъзнете и пуснете опции тук, за да ги класирате"// takePhotoCaption: "Take Photo" => "Направете снимка"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Плъзнете и пуснете опции тук, за да ги класирате"
+// takePhotoCaption: "Take Photo" => "Направете снимка"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Кликнете върху бутона по-долу, за да направите снимка с помощта на камерата."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Плъзнете и пуснете или изберете файл за качване или правене на снимка с помощта на камерата."
-// replaceFileCaption: "Replace file" => "Заместване на файл"// eachRowUniqueError: "Each row must have a unique value." => "Всеки ред трябва да има уникална стойност."
+// replaceFileCaption: "Replace file" => "Заместване на файл"
+// eachRowUniqueError: "Each row must have a unique value." => "Всеки ред трябва да има уникална стойност."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Файловете не могат да бъдат качени. Моля, добавете манипулатор за събитието \"onUploadFiles\"."
 // showDetails: "Show Details" => "Показване на подробни данни"
 // hideDetails: "Hide Details" => "Скрий подробните данни"
 // ok: "OK" => "Добре"
 // cancel: "Cancel" => "Отмени"
 // refuseItemText: "Refuse to answer" => "Отказва да отговори"
-// dontKnowItemText: "Don't know" => "Не знам"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Вашият отговор надхвърля 64KB. Намалете размера на вашите файлове и опитайте отново или се свържете със собственика на проучването."
-// signaturePlaceHolderReadOnly: "No signature" => "Няма подпис"// tabTitlePlaceholder: "New Panel" => "Нов панел"// deselectAllItemText: "Deselect all" => "Премахване на избора на всички"
+// dontKnowItemText: "Don't know" => "Не знам"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Вашият отговор надхвърля 64KB. Намалете размера на вашите файлове и опитайте отново или се свържете със собственика на проучването."
+// signaturePlaceHolderReadOnly: "No signature" => "Няма подпис"
+// tabTitlePlaceholder: "New Panel" => "Нов панел"
+// deselectAllItemText: "Deselect all" => "Премахване на избора на всички"
 // textNoDigitsAllow: "Numbers are not allowed." => "Номерата не са позволени."
+// choices_Choice: "Choice option" => "Опция за избор"

@@ -65,6 +65,7 @@ export var finnishSurveyStrings = {
   showDetails: "Näytä tiedot",
   hideDetails: "Piilota tiedot",
   choices_Item: "kohde",
+  choices_Choice: "Valinta-vaihtoehto",
   matrix_column: "Sarake",
   matrix_row: "Rivi",
   multipletext_itemname: "teksti",
@@ -120,16 +121,22 @@ setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suom
 // more: "More" => "Enemmän"
 // tagboxDoneButtonCaption: "OK" => "OKEI"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Kaikki valinnat asetetaan paremmuusjärjestykseen"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne"// takePhotoCaption: "Take Photo" => "Ota valokuva"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne"
+// takePhotoCaption: "Take Photo" => "Ota valokuva"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Napsauta alla olevaa painiketta ottaaksesi valokuvan kameralla."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Vedä ja pudota tai valitse ladattava tiedosto tai ota valokuva kameralla."
-// replaceFileCaption: "Replace file" => "Korvaa tiedosto"// eachRowUniqueError: "Each row must have a unique value." => "Jokaisella rivillä on oltava yksilöllinen arvo."
+// replaceFileCaption: "Replace file" => "Korvaa tiedosto"
+// eachRowUniqueError: "Each row must have a unique value." => "Jokaisella rivillä on oltava yksilöllinen arvo."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Tiedostoja ei voi ladata. Lisää käsittelijä onUploadFiles-tapahtumalle."
 // showDetails: "Show Details" => "Näytä tiedot"
 // hideDetails: "Hide Details" => "Piilota tiedot"
 // ok: "OK" => "OKEI"
 // cancel: "Cancel" => "Perua"
 // refuseItemText: "Refuse to answer" => "Kieltäydy vastaamasta"
-// dontKnowItemText: "Don't know" => "Ei tiedä"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vastauksesi ylittää 64 kt. Pienennä tiedostojesi kokoa ja yritä uudelleen tai ota yhteyttä kyselyn omistajaan."
-// signaturePlaceHolderReadOnly: "No signature" => "Ei allekirjoitusta"// tabTitlePlaceholder: "New Panel" => "Uusi paneeli"// deselectAllItemText: "Deselect all" => "Poista kaikkien valinta"
+// dontKnowItemText: "Don't know" => "Ei tiedä"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Vastauksesi ylittää 64 kt. Pienennä tiedostojesi kokoa ja yritä uudelleen tai ota yhteyttä kyselyn omistajaan."
+// signaturePlaceHolderReadOnly: "No signature" => "Ei allekirjoitusta"
+// tabTitlePlaceholder: "New Panel" => "Uusi paneeli"
+// deselectAllItemText: "Deselect all" => "Poista kaikkien valinta"
 // textNoDigitsAllow: "Numbers are not allowed." => "Numerot eivät ole sallittuja."
+// choices_Choice: "Choice option" => "Valinta-vaihtoehto"

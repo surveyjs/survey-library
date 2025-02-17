@@ -65,6 +65,7 @@ export var indonesianStrings = {
   showDetails: "Tampilkan Detail",
   hideDetails: "Sembunyikan Detail",
   choices_Item: "item",
+  choices_Choice: "Opsi pilihan",
   matrix_column: "Kolom",
   matrix_row: "Baris",
   multipletext_itemname: "Teks",
@@ -132,16 +133,22 @@ setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa 
 // more: "More" => "Lebih"
 // tagboxDoneButtonCaption: "OK" => "OKE"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Semua pilihan diberi peringkat"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepas pilihan di sini untuk memberi peringkat"// takePhotoCaption: "Take Photo" => "Ambil Foto"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepas pilihan di sini untuk memberi peringkat"
+// takePhotoCaption: "Take Photo" => "Ambil Foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Klik tombol di bawah ini untuk mengambil foto menggunakan kamera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Seret dan lepas atau pilih file untuk diunggah atau mengambil foto menggunakan kamera."
-// replaceFileCaption: "Replace file" => "Ganti file"// eachRowUniqueError: "Each row must have a unique value." => "Setiap baris harus memiliki nilai unik."
+// replaceFileCaption: "Replace file" => "Ganti file"
+// eachRowUniqueError: "Each row must have a unique value." => "Setiap baris harus memiliki nilai unik."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "File tidak dapat diunggah. Harap tambahkan handler untuk acara 'onUploadFiles'."
 // showDetails: "Show Details" => "Tampilkan Detail"
 // hideDetails: "Hide Details" => "Sembunyikan Detail"
 // ok: "OK" => "OKE"
 // cancel: "Cancel" => "Membatalkan"
 // refuseItemText: "Refuse to answer" => "Menolak untuk menjawab"
-// dontKnowItemText: "Don't know" => "Tidak tahu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Respons Anda melebihi 64 KB. Harap kurangi ukuran file Anda dan coba lagi atau hubungi pemilik survei."
-// signaturePlaceHolderReadOnly: "No signature" => "Tidak ada tanda tangan"// tabTitlePlaceholder: "New Panel" => "Panel Baru"// deselectAllItemText: "Deselect all" => "Batalkan pilihan semua"
+// dontKnowItemText: "Don't know" => "Tidak tahu"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Respons Anda melebihi 64 KB. Harap kurangi ukuran file Anda dan coba lagi atau hubungi pemilik survei."
+// signaturePlaceHolderReadOnly: "No signature" => "Tidak ada tanda tangan"
+// tabTitlePlaceholder: "New Panel" => "Panel Baru"
+// deselectAllItemText: "Deselect all" => "Batalkan pilihan semua"
 // textNoDigitsAllow: "Numbers are not allowed." => "Nomor tidak diperbolehkan."
+// choices_Choice: "Choice option" => "Opsi pilihan"

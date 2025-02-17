@@ -137,10 +137,23 @@ QUnit.test("grid cells - defaults", function (assert) {
   cover.survey = getSurveyWithLogoTitleAndDescription();
 
   cover.cells.forEach(cell => {
-    assert.equal(cell.showLogo, cell["positionX"] === "left" && cell["positionY"] === "bottom", "logo in bottom left");
+    assert.equal(cell.showLogo, cell["positionX"] === "left" && cell["positionY"] === "top", "logo in top left");
     assert.equal(cell.showTitle, cell["positionX"] === "left" && cell["positionY"] === "bottom", "title in bottom left");
     assert.equal(cell.showDescription, cell["positionX"] === "left" && cell["positionY"] === "bottom", "description in bottom left");
   });
+
+  assert.equal(cover.cells[0].css, "sv-header__cell sv-header__cell--left sv-header__cell--top", "top left cell css");
+  assert.deepEqual(cover.cells[0].style, {
+    "gridColumn": 1,
+    "gridRow": 1,
+    "width": undefined
+  }, "top left cell style");
+  assert.deepEqual(cover.cells[0].contentStyle, {
+    "alignItems": "flex-start",
+    "justifyContent": "flex-start",
+    "textAlign": "start",
+    "maxWidth": undefined,
+  }, "top left cell content style");
 
   assert.equal(cover.cells[6].css, "sv-header__cell sv-header__cell--left sv-header__cell--bottom", "bottom left cell css");
   assert.deepEqual(cover.cells[6].style, {
@@ -152,7 +165,7 @@ QUnit.test("grid cells - defaults", function (assert) {
     "alignItems": "flex-start",
     "justifyContent": "flex-end",
     "textAlign": "start",
-    "maxWidth": undefined,
+    "maxWidth": "300%",
   }, "bottom left cell content style");
 });
 
@@ -213,7 +226,7 @@ QUnit.test("grid cells - empty survey", function (assert) {
 
   cover.survey.logo = "logoURL";
   cover.cells.forEach((cell, index) => {
-    assert.equal(cell.showLogo, index === 6, "logo, title and description: logo");
+    assert.equal(cell.showLogo, index === 0, "logo, title and description: logo");
     assert.equal(cell.showTitle, index === 6, "logo, title and description: title");
     assert.equal(cell.showDescription, index === 6, "logo, title and description: description");
   });

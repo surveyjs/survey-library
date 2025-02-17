@@ -10301,7 +10301,7 @@ QUnit.test("question.getPlainData - matrixdropdown, fixed bug#3097", function (
 
   assert.equal(plainData.data[0].data[0].data[0].score, 1);
   assert.equal(plainData.data[0].data[0].data[0].name, 0);
-  assert.equal(plainData.data[0].data[0].data[0].title, "Choice");
+  assert.equal(plainData.data[0].data[0].data[0].title, "Choice option");
   assert.equal(plainData.data[0].data[0].data[0].value, 1);
   assert.equal(plainData.data[0].data[0].data[0].displayValue, "1");
 
@@ -10314,7 +10314,7 @@ QUnit.test("question.getPlainData - matrixdropdown, fixed bug#3097", function (
 
   assert.equal(plainData.data[0].data[1].data[0].score, 2);
   assert.equal(plainData.data[0].data[1].data[0].name, 0);
-  assert.equal(plainData.data[0].data[1].data[0].title, "Choice");
+  assert.equal(plainData.data[0].data[1].data[0].title, "Choice option");
   assert.equal(plainData.data[0].data[1].data[0].value, 2);
   assert.equal(plainData.data[0].data[1].data[0].displayValue, "2");
 
@@ -10824,11 +10824,11 @@ QUnit.test(
     assert.deepEqual(plainData.data[0].isNode, false);
     assert.deepEqual(plainData.data[0].isOther, true);
     assert.deepEqual(plainData.data[0].value, "other");
-    assert.deepEqual(plainData.data[0].title, "Choice");
+    assert.deepEqual(plainData.data[0].title, "Choice option");
     assert.deepEqual(plainData.data[0].displayValue, "Other value text");
     assert.deepEqual(plainData.data[1].isNode, false);
     assert.deepEqual(plainData.data[1].value, "giraffe");
-    assert.deepEqual(plainData.data[1].title, "Choice");
+    assert.deepEqual(plainData.data[1].title, "Choice option");
   }
 );
 
@@ -10872,7 +10872,7 @@ QUnit.test(
     assert.deepEqual(plainData.data[0].value, "-Comment");
     assert.deepEqual(plainData.data[0].displayValue, "Comment text");
     assert.deepEqual(plainData.data[1].value, "giraffe");
-    assert.deepEqual(plainData.data[1].title, "Choice");
+    assert.deepEqual(plainData.data[1].title, "Choice option");
   }
 );
 
@@ -10913,7 +10913,7 @@ QUnit.test(
     assert.deepEqual(plainData.data[0].isNode, false);
     assert.deepEqual(plainData.data[0].isOther, true);
     assert.deepEqual(plainData.data[0].value, "other");
-    assert.deepEqual(plainData.data[0].title, "Choice");
+    assert.deepEqual(plainData.data[0].title, "Choice option");
     assert.deepEqual(plainData.data[0].displayValue, "Other value text");
   }
 );
@@ -10958,7 +10958,7 @@ QUnit.test(
     assert.deepEqual(plainData.data[0].value, "-Comment");
     assert.deepEqual(plainData.data[0].displayValue, "Comment text");
     assert.deepEqual(plainData.data[1].value, "giraffe");
-    assert.deepEqual(plainData.data[1].title, "Choice");
+    assert.deepEqual(plainData.data[1].title, "Choice option");
   }
 );
 

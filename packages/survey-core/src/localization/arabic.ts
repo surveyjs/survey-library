@@ -65,6 +65,7 @@ export var arabicSurveyStrings = {
   showDetails: "اظهر التفاصيل",
   hideDetails: "إخفاء التفاصيل",
   choices_Item: "بند",
+  choices_Choice: "خيار الاختيار",
   matrix_column: "عمود",
   matrix_row: "صف",
   multipletext_itemname: "نص",
@@ -132,16 +133,22 @@ setupLocale({ localeCode: "ar", strings: arabicSurveyStrings, nativeName: "ال�
 // more: "More" => "أكثر"
 // tagboxDoneButtonCaption: "OK" => "موافق"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "يتم ترتيب جميع الخيارات"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "قم بسحب وإسقاط الخيارات هنا لترتيبها"// takePhotoCaption: "Take Photo" => "التقاط صورة"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "قم بسحب وإسقاط الخيارات هنا لترتيبها"
+// takePhotoCaption: "Take Photo" => "التقاط صورة"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "انقر فوق الزر أدناه لالتقاط صورة باستخدام الكاميرا."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "قم بسحب ملف وإفلاته أو تحديده لتحميله أو التقاط صورة باستخدام الكاميرا."
-// replaceFileCaption: "Replace file" => "استبدال الملف"// eachRowUniqueError: "Each row must have a unique value." => "يجب أن يكون لكل صف قيمة فريدة."
+// replaceFileCaption: "Replace file" => "استبدال الملف"
+// eachRowUniqueError: "Each row must have a unique value." => "يجب أن يكون لكل صف قيمة فريدة."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "لا يمكن تحميل الملفات. يرجى إضافة معالج لحدث \"onUploadFiles\"."
 // showDetails: "Show Details" => "اظهر التفاصيل"
 // hideDetails: "Hide Details" => "إخفاء التفاصيل"
 // ok: "OK" => "موافق"
 // cancel: "Cancel" => "إلغاء الأمر"
 // refuseItemText: "Refuse to answer" => "رفض الإجابة"
-// dontKnowItemText: "Don't know" => "لا أعرف"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "ردك يتجاوز 64 كيلوبايت. يرجى تقليل حجم الملف (الملفات) والمحاولة مرة أخرى أو الاتصال بمالك الاستطلاع."
-// signaturePlaceHolderReadOnly: "No signature" => "لا يوجد توقيع"// tabTitlePlaceholder: "New Panel" => "لوحة جديدة"// deselectAllItemText: "Deselect all" => "إلغاء تحديد الكل"
+// dontKnowItemText: "Don't know" => "لا أعرف"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "ردك يتجاوز 64 كيلوبايت. يرجى تقليل حجم الملف (الملفات) والمحاولة مرة أخرى أو الاتصال بمالك الاستطلاع."
+// signaturePlaceHolderReadOnly: "No signature" => "لا يوجد توقيع"
+// tabTitlePlaceholder: "New Panel" => "لوحة جديدة"
+// deselectAllItemText: "Deselect all" => "إلغاء تحديد الكل"
 // textNoDigitsAllow: "Numbers are not allowed." => "الأرقام غير مسموح بها."
+// choices_Choice: "Choice option" => "خيار الاختيار"

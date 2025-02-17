@@ -1774,7 +1774,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return false;
   }
   getIsPageVisible(exceptionQuestion?: IQuestion): boolean {
-    return this.visible && this.getIsContentVisible(exceptionQuestion);
+    const isContentVisible = this.getIsContentVisible(exceptionQuestion);
+    return this.visible && isContentVisible;
   }
   private lastVisibleIndex: number;
   public setVisibleIndex(index: number): number {

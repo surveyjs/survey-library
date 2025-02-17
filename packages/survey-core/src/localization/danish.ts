@@ -65,6 +65,7 @@ export var danishSurveyStrings = {
   showDetails: "Vis detaljer",
   hideDetails: "Skjul detaljer",
   choices_Item: "valg",
+  choices_Choice: "Valgmulighed",
   matrix_column: "Kolonne",
   matrix_row: "Række",
   multipletext_itemname: "Tekst",
@@ -132,16 +133,22 @@ setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk
 // more: "More" => "Mere"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alle valg er rangeret"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Træk og slip valg her for at rangere dem"// takePhotoCaption: "Take Photo" => "Tag billede"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Træk og slip valg her for at rangere dem"
+// takePhotoCaption: "Take Photo" => "Tag billede"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Klik på knappen nedenfor for at tage et billede med kameraet."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Træk og slip, eller vælg en fil, der skal uploades, eller tag et billede med kameraet."
-// replaceFileCaption: "Replace file" => "Erstat fil"// eachRowUniqueError: "Each row must have a unique value." => "Hver række skal have en entydig værdi."
+// replaceFileCaption: "Replace file" => "Erstat fil"
+// eachRowUniqueError: "Each row must have a unique value." => "Hver række skal have en entydig værdi."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Filer kan ikke uploades. Tilføj en handler for hændelsen 'onUploadFiles'."
 // showDetails: "Show Details" => "Vis detaljer"
 // hideDetails: "Hide Details" => "Skjul detaljer"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Aflyse"
 // refuseItemText: "Refuse to answer" => "Nægt at svare"
-// dontKnowItemText: "Don't know" => "Ved ikke"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Dit svar overstiger 64 KB. Reducer størrelsen på din(e) fil(er), og prøv igen, eller kontakt en undersøgelsesejer."
-// signaturePlaceHolderReadOnly: "No signature" => "Ingen underskrift"// tabTitlePlaceholder: "New Panel" => "Nyt panel"// deselectAllItemText: "Deselect all" => "Fravælg alle"
+// dontKnowItemText: "Don't know" => "Ved ikke"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Dit svar overstiger 64 KB. Reducer størrelsen på din(e) fil(er), og prøv igen, eller kontakt en undersøgelsesejer."
+// signaturePlaceHolderReadOnly: "No signature" => "Ingen underskrift"
+// tabTitlePlaceholder: "New Panel" => "Nyt panel"
+// deselectAllItemText: "Deselect all" => "Fravælg alle"
 // textNoDigitsAllow: "Numbers are not allowed." => "Numre er ikke tilladt."
+// choices_Choice: "Choice option" => "Valgmulighed"

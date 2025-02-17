@@ -65,6 +65,7 @@ export var hebrewSurveyStrings = {
   showDetails: "הראה פרטים",
   hideDetails: "הסתר פרטים",
   choices_Item: "פריט",
+  choices_Choice: "אפשרות בחירה",
   matrix_column: "טור",
   matrix_row: "שׁוּרָה",
   multipletext_itemname: "טקסט",
@@ -132,10 +133,12 @@ setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עב�
 // more: "More" => "עוד"
 // tagboxDoneButtonCaption: "OK" => "אוקיי"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "כל האפשרויות מדורגות"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "גרור ושחרר אפשרויות לכאן כדי לדרג אותן"// takePhotoCaption: "Take Photo" => "צלם תמונה"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "גרור ושחרר אפשרויות לכאן כדי לדרג אותן"
+// takePhotoCaption: "Take Photo" => "צלם תמונה"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "לחץ על הלחצן למטה כדי לצלם תמונה באמצעות המצלמה."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "גרור ושחרר או בחר קובץ כדי להעלות או לצלם תמונה באמצעות המצלמה."
-// replaceFileCaption: "Replace file" => "החלפת קובץ"// eachRowUniqueError: "Each row must have a unique value." => "לכל שורה חייב להיות ערך ייחודי."
+// replaceFileCaption: "Replace file" => "החלפת קובץ"
+// eachRowUniqueError: "Each row must have a unique value." => "לכל שורה חייב להיות ערך ייחודי."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "לא ניתן להעלות קבצים. אנא הוסף מטפל לאירוע 'onUploadFiles'."
 // showDetails: "Show Details" => "הראה פרטים"
 // hideDetails: "Hide Details" => "הסתר פרטים"
@@ -144,5 +147,8 @@ setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עב�
 // refuseItemText: "Refuse to answer" => "מסרבים לענות"
 // dontKnowItemText: "Don't know" => "לא יודע"
 // savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "תגובתך עולה על 64KB. הקטן את גודל הקבצים שלך ונסה שוב או פנה לבעלים של סקר."
-// signaturePlaceHolderReadOnly: "No signature" => "אין חתימה"// tabTitlePlaceholder: "New Panel" => "פאנל חדש"// deselectAllItemText: "Deselect all" => "בטל את הבחירה בהכל"
+// signaturePlaceHolderReadOnly: "No signature" => "אין חתימה"
+// tabTitlePlaceholder: "New Panel" => "פאנל חדש"
+// deselectAllItemText: "Deselect all" => "בטל את הבחירה בהכל"
 // textNoDigitsAllow: "Numbers are not allowed." => "מספרים אינם מותרים."
+// choices_Choice: "Choice option" => "אפשרות בחירה"

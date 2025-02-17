@@ -65,6 +65,7 @@ export var teluguStrings = {
   showDetails: "వివరాలు చూపించు",
   hideDetails: "వివరాలను దాచండి",
   choices_Item: "వస్తువులు",
+  choices_Choice: "ఛాయిస్ ఆప్షన్",
   matrix_column: "కాలం ",
   matrix_row: "వరుస",
   multipletext_itemname: "వచనం",
@@ -133,15 +134,22 @@ setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "telugu", e
 // more: "More" => "ఎక్కువ"
 // tagboxDoneButtonCaption: "OK" => "సరే"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "అన్ని ఎంపికలు ర్యాంక్ చేయబడతాయి"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి"// takePhotoCaption: "Take Photo" => "ఫోటో తీసుకోండి"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి"
+// takePhotoCaption: "Take Photo" => "ఫోటో తీసుకోండి"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "కెమెరాను ఉపయోగించి ఫోటో తీయడానికి దిగువ బటన్ మీద క్లిక్ చేయండి."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "కెమెరాను ఉపయోగించి ఫోటోను అప్ లోడ్ చేయడానికి లేదా తీయడానికి ఫైల్ ను డ్రాగ్ మరియు డ్రాప్ చేయండి లేదా ఎంచుకోండి."
-// replaceFileCaption: "Replace file" => "ఫైలు మార్చండి"// eachRowUniqueError: "Each row must have a unique value." => "ప్రతి వరుసకు ఒక ప్రత్యేకమైన విలువ ఉండాలి."
+// replaceFileCaption: "Replace file" => "ఫైలు మార్చండి"
+// eachRowUniqueError: "Each row must have a unique value." => "ప్రతి వరుసకు ఒక ప్రత్యేకమైన విలువ ఉండాలి."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "ఫైళ్లను అప్ లోడ్ చేయలేం. దయచేసి 'ఆన్ అప్ లోడ్ ఫైల్స్' ఈవెంట్ కొరకు ఒక హ్యాండ్లర్ ని జోడించండి."
 // showDetails: "Show Details" => "వివరాలు చూపించు"
 // hideDetails: "Hide Details" => "వివరాలను దాచండి"
 // ok: "OK" => "సరే"
-// cancel: "Cancel" => "రద్దు"// refuseItemText: "Refuse to answer" => "సమాధానం ఇవ్వడానికి నిరాకరించండి"
-// dontKnowItemText: "Don't know" => "తెలియదు"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "మీ ప్రతిస్పందన 64KBని మించిపోయింది. దయచేసి మీ ఫైల్(లు) పరిమాణాన్ని తగ్గించండి మరియు మళ్లీ ప్రయత్నించండి లేదా సర్వే యజమానిని సంప్రదించండి."
-// signaturePlaceHolderReadOnly: "No signature" => "సంతకం లేదు"// tabTitlePlaceholder: "New Panel" => "కొత్త ప్యానెల్"// deselectAllItemText: "Deselect all" => "Deselect all"
+// cancel: "Cancel" => "రద్దు"
+// refuseItemText: "Refuse to answer" => "సమాధానం ఇవ్వడానికి నిరాకరించండి"
+// dontKnowItemText: "Don't know" => "తెలియదు"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "మీ ప్రతిస్పందన 64KBని మించిపోయింది. దయచేసి మీ ఫైల్(లు) పరిమాణాన్ని తగ్గించండి మరియు మళ్లీ ప్రయత్నించండి లేదా సర్వే యజమానిని సంప్రదించండి."
+// signaturePlaceHolderReadOnly: "No signature" => "సంతకం లేదు"
+// tabTitlePlaceholder: "New Panel" => "కొత్త ప్యానెల్"
+// deselectAllItemText: "Deselect all" => "Deselect all"
 // textNoDigitsAllow: "Numbers are not allowed." => "అంకెలు అనుమతించబడవు."
+// choices_Choice: "Choice option" => "ఛాయిస్ ఆప్షన్"

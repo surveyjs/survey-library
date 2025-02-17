@@ -65,6 +65,7 @@ export var portugueseSurveyStrings = {
   showDetails: "Mostrar detalhes",
   hideDetails: "Ocultar detalhes",
   choices_Item: "item",
+  choices_Choice: "Opção de escolha",
   matrix_column: "Coluna",
   matrix_row: "Linha",
   multipletext_itemname: "texto",
@@ -117,16 +118,22 @@ setupLocale({ localeCode: "pt", strings: portugueseSurveyStrings, nativeName: "p
 // panelDynamicTabTextFormat: "Panel {panelIndex}" => "Painel {panelIndex}"
 // noEntriesReadonlyText: "There are no entries." => "Não há entradas."
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Todas as opções são classificadas"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arraste e solte as opções aqui para classificá-las"// takePhotoCaption: "Take Photo" => "Tirar foto"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arraste e solte as opções aqui para classificá-las"
+// takePhotoCaption: "Take Photo" => "Tirar foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Clique no botão abaixo para tirar uma foto usando a câmera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arraste e solte ou selecione um arquivo para carregar ou tirar uma foto usando a câmera."
-// replaceFileCaption: "Replace file" => "Substituir arquivo"// eachRowUniqueError: "Each row must have a unique value." => "Cada linha deve ter um valor exclusivo."
+// replaceFileCaption: "Replace file" => "Substituir arquivo"
+// eachRowUniqueError: "Each row must have a unique value." => "Cada linha deve ter um valor exclusivo."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Os arquivos não podem ser carregados. Adicione um manipulador para o evento 'onUploadFiles'."
 // showDetails: "Show Details" => "Mostrar detalhes"
 // hideDetails: "Hide Details" => "Ocultar detalhes"
 // ok: "OK" => "OKEY"
 // cancel: "Cancel" => "Cancelar"
 // refuseItemText: "Refuse to answer" => "Recusar-se a responder"
-// dontKnowItemText: "Don't know" => "Não sei"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Sua resposta excede 64KB. Reduza o tamanho do(s) seu(s) arquivo(s) e tente novamente ou entre em contato com o proprietário do questionário."
-// signaturePlaceHolderReadOnly: "No signature" => "Sem assinatura"// tabTitlePlaceholder: "New Panel" => "Novo Painel"// deselectAllItemText: "Deselect all" => "Desmarcar tudo"
+// dontKnowItemText: "Don't know" => "Não sei"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Sua resposta excede 64KB. Reduza o tamanho do(s) seu(s) arquivo(s) e tente novamente ou entre em contato com o proprietário do questionário."
+// signaturePlaceHolderReadOnly: "No signature" => "Sem assinatura"
+// tabTitlePlaceholder: "New Panel" => "Novo Painel"
+// deselectAllItemText: "Deselect all" => "Desmarcar tudo"
 // textNoDigitsAllow: "Numbers are not allowed." => "Números não são permitidos."
+// choices_Choice: "Choice option" => "Opção de escolha"

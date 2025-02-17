@@ -49,3 +49,4 @@ import "../../src/localization/vietnamese";
 import "../../src/localization/welsh";
 import "../../src/localization/telugu";
 import "../../src/localization/philippines";
+import "../../src/localization/slovenian";

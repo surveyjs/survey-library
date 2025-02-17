@@ -65,6 +65,7 @@ export var welshSurveyStrings = {
   showDetails: "Dangos manylion",
   hideDetails: "Manylion Cuddio",
   choices_Item: "eitem",
+  choices_Choice: "Dewis opsiwn",
   matrix_column: "Colofn",
   matrix_row: "Rhes",
   multipletext_itemname: "Testun",
@@ -132,15 +133,22 @@ setupLocale({ localeCode: "cy", strings: welshSurveyStrings, nativeName: "cymrae
 // more: "More" => "Rhagor"
 // tagboxDoneButtonCaption: "OK" => "OCÊ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Mae'r holl ddewisiadau yn cael eu rhestru"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dewisiadau llusgo a gollwng yma i'w graddio"// takePhotoCaption: "Take Photo" => "Tynnu Llun"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dewisiadau llusgo a gollwng yma i'w graddio"
+// takePhotoCaption: "Take Photo" => "Tynnu Llun"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Cliciwch y botwm isod i dynnu llun gan ddefnyddio'r camera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Llusgwch a gollwng neu dewiswch ffeil i lanlwytho neu dynnu llun gan ddefnyddio'r camera."
-// replaceFileCaption: "Replace file" => "Amnewid ffeil"// eachRowUniqueError: "Each row must have a unique value." => "Rhaid i bob rhes fod â gwerth unigryw."
+// replaceFileCaption: "Replace file" => "Amnewid ffeil"
+// eachRowUniqueError: "Each row must have a unique value." => "Rhaid i bob rhes fod â gwerth unigryw."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Ni ellir llwytho ffeiliau i fyny. Ychwanegwch handler ar gyfer y digwyddiad 'onUploadFiles'."
 // showDetails: "Show Details" => "Dangos manylion"
 // hideDetails: "Hide Details" => "Manylion Cuddio"
 // ok: "OK" => "OCÊ"
-// cancel: "Cancel" => "Canslo"// refuseItemText: "Refuse to answer" => "Gwrthod ateb"
-// dontKnowItemText: "Don't know" => "Ddim yn gwybod"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Mae eich ymateb yn fwy na 64KB. Lleihau maint eich ffeil(au) a cheisiwch eto neu cysylltwch â pherchennog yr arolwg."
-// signaturePlaceHolderReadOnly: "No signature" => "Dim llofnod"// tabTitlePlaceholder: "New Panel" => "Panel newydd"// deselectAllItemText: "Deselect all" => "Dad-ddethol yr holl"
+// cancel: "Cancel" => "Canslo"
+// refuseItemText: "Refuse to answer" => "Gwrthod ateb"
+// dontKnowItemText: "Don't know" => "Ddim yn gwybod"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Mae eich ymateb yn fwy na 64KB. Lleihau maint eich ffeil(au) a cheisiwch eto neu cysylltwch â pherchennog yr arolwg."
+// signaturePlaceHolderReadOnly: "No signature" => "Dim llofnod"
+// tabTitlePlaceholder: "New Panel" => "Panel newydd"
+// deselectAllItemText: "Deselect all" => "Dad-ddethol yr holl"
 // textNoDigitsAllow: "Numbers are not allowed." => "Ni chaniateir rhifau."
+// choices_Choice: "Choice option" => "Dewis opsiwn"

@@ -235,6 +235,8 @@ QUnit.test("apply columns from gridLayoutColumns #1", function (assert) {
   const page = surveyModel.pages[0];
   const q1 = surveyModel.getQuestionByName("q1");
   const q2 = surveyModel.getQuestionByName("q2");
+  assert.equal(page.getPropertyValue("gridLayoutColumns").length, 1, "Do not do calculation");
+  assert.equal(page.gridLayoutColumns.length, 2, "Do calculation");
 
   assert.deepEqual(page.columns.length, 2);
   assert.deepEqual(page.columns[0].width, 40);

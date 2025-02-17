@@ -327,7 +327,7 @@ Serializer.addClass(
     { name: "backgroundImageOpacity:number", minValue: 0, maxValue: 1, default: 1 },
     { name: "backgroundImageFit", default: "cover", choices: ["cover", "fill", "contain"] },
     { name: "logoPositionX", default: "left" },
-    { name: "logoPositionY", default: "bottom" },
+    { name: "logoPositionY", default: "top" },
     { name: "titlePositionX", default: "left" },
     { name: "titlePositionY", default: "bottom" },
     { name: "descriptionPositionX", default: "left" },

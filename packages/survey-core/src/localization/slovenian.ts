@@ -1,3 +1,4 @@
+
 import { setupLocale } from "survey-core";
 
 export var slovenianStrings = {

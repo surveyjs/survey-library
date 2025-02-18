@@ -198,7 +198,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     if (this.getType() != "itemvalue") {
       CustomPropertiesCollection.createProperties(this);
     }
-    this.setPropertyValueDirectly("data", this);
+    this.data = this;
     this.onCreating();
   }
 

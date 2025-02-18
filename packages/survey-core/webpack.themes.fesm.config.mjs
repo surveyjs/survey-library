@@ -2,7 +2,7 @@ import webpackCommonConfigCreator from "./webpack.themes.config.js";
 export default function (options) {
   const config = webpackCommonConfigCreator(options);
   config.optimization.minimize = false;
-  config.devtool = "source-map",
+  config.devtool = "source-map";
   config.experiments = {
     outputModule: true,
   };
@@ -12,6 +12,10 @@ export default function (options) {
     library: {
       type: "module"
     }
+  };
+  config.externalsType = "module";
+  config.externals = {
+    "survey-core": "survey-core"
   };
   return config;
 }

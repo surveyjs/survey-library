@@ -33,6 +33,25 @@ QUnit.test("panel isExpanded and isCollapsed", function (assert) {
   assert.equal(stateChangedCounter, 4, "callback is called two time");
 });
 
+QUnit.test("panel renderedIsExpanded in design mode after duplicate", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  var p = new PanelModel("p1");
+  p.fromJSON({
+    "type": "panel",
+    "state": "collapsed",
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1",
+        "title": "Text"
+      }
+    ]
+  });
+  p.setSurveyImpl(survey);
+  assert.ok(p.renderedIsExpanded);
+});
+
 QUnit.test("question isExpanded and isCollapsed", function (assert) {
   var page = new PageModel();
   var q = page.addNewQuestion("text", "q1");

@@ -536,6 +536,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.updateDescriptionVisibility(this.description);
       this.clearCssClasses();
     }
+    this._renderedIsExpanded = !this.isCollapsed;
   }
   protected canRunConditions(): boolean {
     return super.canRunConditions() && !!this.data;

@@ -376,7 +376,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public set state(val: string) {
     this.setPropertyValue("state", val);
-    this.renderedIsExpanded = !(this.state === "collapsed" && !this.isDesignMode);
+    this.renderedIsExpanded = !this.isCollapsed;
   }
   protected notifyStateChanged(prevState: string): void {
     if (this.survey) {
@@ -536,7 +536,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.updateDescriptionVisibility(this.description);
       this.clearCssClasses();
     }
-    this._renderedIsExpanded = !this.isCollapsed;
+    this.blockAnimations();
+    this.renderedIsExpanded = !this.isCollapsed;
+    this.releaseAnimations();
   }
   protected canRunConditions(): boolean {
     return super.canRunConditions() && !!this.data;

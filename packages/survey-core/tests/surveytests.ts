@@ -6504,6 +6504,7 @@ QUnit.test("Question onUpdateQuestionCssClasses, modify question props", functio
     ],
   });
   const q1 = survey.getQuestionByName("q1");
+  assert.ok(q1.cssClasses, "cssClasses is created");
   assert.equal(q1.titleLocation, "left", "titleLocation is changed");
 });
 

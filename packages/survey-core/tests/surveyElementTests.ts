@@ -256,6 +256,18 @@ QUnit.test("allowRootStyle", function (assert) {
   survey.css = defaultCss;
   assert.deepEqual(q1.rootStyle, {});
 });
+QUnit.test("Do not create rootStyle by default", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "text",
+      name: "q1"
+    }]
+  });
+  assert.notOk(survey.pages[0].getPropertyValue("rootStyle"), "page rootStyle via property value");
+  assert.notOk(survey.getQuestionByName("q1").getPropertyValue("rootStyle"), "q1 rootStyle via property value");
+  assert.ok(survey.pages[0].rootStyle, "page rootStyle directly");
+  assert.ok(survey.getQuestionByName("q1").rootStyle, "q1 rootStyle directly");
+});
 QUnit.test("rootStyle on mobile", function (assert) {
   const survey = new SurveyModel({
     elements: [{

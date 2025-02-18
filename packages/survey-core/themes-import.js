@@ -190,7 +190,7 @@ function writeTheme(themeName, isPanelless, isDarkMode) {
   const result = `const Theme = ${themeJson};\nexport default Theme;\nexport const ${variableName} = Theme;`;
   fs.writeFileSync(_dirPath + fileName + ".ts", result);
 
-  return `import ${variableName}Theme from "./${fileName}";\nexport const ${variableName} = ${variableName}Theme;\nregisterTheme(${variableName}Theme.themeName, ${variableName}Theme)\n`;
+  return `import ${variableName}Theme from "./${fileName}";\nexport const ${variableName} = ${variableName}Theme;\nregisterDefaultTheme(${variableName}Theme.themeName, ${variableName}Theme)\n`;
 }
 
 let indexFileContent = "import { registerDefaultTheme } from \"survey-core\";\n";

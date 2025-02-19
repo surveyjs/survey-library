@@ -238,7 +238,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       this.updatePosition(true, false);
     }
 
-    if (this.model.displayMode == "overlay") this.switchFocus();
+    this.switchFocus();
     DomWindowHelper.addEventListener("resize", this.resizeWindowCallback);
     if (this.shouldCreateResizeCallback) {
       DomWindowHelper.getVisualViewport().addEventListener("resize", this.resizeEventCallback);

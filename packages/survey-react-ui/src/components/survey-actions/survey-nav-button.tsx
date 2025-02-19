@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Action } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { ReactSurveyElement } from "../../reactquestion_element";

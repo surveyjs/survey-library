@@ -65,6 +65,7 @@ export var hungarianSurveyStrings = {
   showDetails: "Mutasd a részleteket",
   hideDetails: "Részletek elrejtése",
   choices_Item: "elem",
+  choices_Choice: "Választási lehetőség",
   matrix_column: "Oszlop",
   matrix_row: "Sor",
   multipletext_itemname: "SMS",
@@ -131,16 +132,22 @@ setupLocale({ localeCode: "hu", strings: hungarianSurveyStrings, nativeName: "ma
 // more: "More" => "Több"
 // tagboxDoneButtonCaption: "OK" => "OKÉ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Minden választási lehetőség rangsorolva van"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Húzza ide a választási lehetőségeket a rangsoroláshoz"// takePhotoCaption: "Take Photo" => "Fotó készítése"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Húzza ide a választási lehetőségeket a rangsoroláshoz"
+// takePhotoCaption: "Take Photo" => "Fotó készítése"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Kattintson az alábbi gombra, hogy fényképet készítsen a fényképezőgéppel."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Húzzon át vagy válasszon ki egy fájlt, amelyet fel szeretne tölteni vagy fényképet szeretne készíteni a kamerával."
-// replaceFileCaption: "Replace file" => "Fájl cseréje"// eachRowUniqueError: "Each row must have a unique value." => "Minden sornak egyedi értékkel kell rendelkeznie."
+// replaceFileCaption: "Replace file" => "Fájl cseréje"
+// eachRowUniqueError: "Each row must have a unique value." => "Minden sornak egyedi értékkel kell rendelkeznie."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "A fájlok nem tölthetők fel. Adjon hozzá egy kezelőt az \"onUploadFiles\" eseményhez."
 // showDetails: "Show Details" => "Mutasd a részleteket"
 // hideDetails: "Hide Details" => "Részletek elrejtése"
 // ok: "OK" => "OKÉ"
 // cancel: "Cancel" => "Érvénytelenít"
 // refuseItemText: "Refuse to answer" => "A válaszadás megtagadása"
-// dontKnowItemText: "Don't know" => "Nem tudom"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "A válasz meghaladja a 64 KB-ot. Kérjük, csökkentse a fájl(ok) méretét, és próbálja újra, vagy lépjen kapcsolatba egy felmérés tulajdonosával."
-// signaturePlaceHolderReadOnly: "No signature" => "Nincs aláírás"// tabTitlePlaceholder: "New Panel" => "Új panel"// deselectAllItemText: "Deselect all" => "Az összes kijelölésének megszüntetése"
+// dontKnowItemText: "Don't know" => "Nem tudom"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "A válasz meghaladja a 64 KB-ot. Kérjük, csökkentse a fájl(ok) méretét, és próbálja újra, vagy lépjen kapcsolatba egy felmérés tulajdonosával."
+// signaturePlaceHolderReadOnly: "No signature" => "Nincs aláírás"
+// tabTitlePlaceholder: "New Panel" => "Új panel"
+// deselectAllItemText: "Deselect all" => "Az összes kijelölésének megszüntetése"
 // textNoDigitsAllow: "Numbers are not allowed." => "Számok nem engedélyezettek."
+// choices_Choice: "Choice option" => "Választási lehetőség"

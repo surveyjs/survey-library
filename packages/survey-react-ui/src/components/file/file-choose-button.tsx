@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { attachKey2click } from "../../reactSurvey";
 import { ReactSurveyElement } from "../../reactquestion_element";
 import { QuestionFileModel } from "survey-core";
@@ -21,7 +21,7 @@ export class SurveyFileChooseButton extends ReactSurveyElement {
         aria-label={this.question.chooseButtonText}
         onClick={(e) => this.question.chooseFile(e.nativeEvent)}
       >
-        {(!!this.question.cssClasses.chooseFileIconId) ? <SvgIcon title={this.question.chooseButtonText} iconName={this.question.cssClasses.chooseFileIconId} size={"auto"}></SvgIcon>: null }
+        {(!!this.question.cssClasses.chooseFileIconId) ? <SvgIcon title={this.question.chooseButtonText} iconName={this.question.cssClasses.chooseFileIconId} size={"auto"}></SvgIcon> : null}
         <span>{this.question.chooseButtonText}</span>
       </label>
     );

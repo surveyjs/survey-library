@@ -65,6 +65,7 @@ export var italianSurveyStrings = {
   showDetails: "Mostra dettagli",
   hideDetails: "Nascondi dettagli",
   choices_Item: "Elemento",
+  choices_Choice: "Opzione di scelta",
   matrix_column: "Colonna",
   matrix_row: "Riga",
   multipletext_itemname: "testo",
@@ -120,16 +121,22 @@ setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "ital
 // more: "More" => "Più"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Tutte le scelte sono classificate"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Trascina e rilascia le scelte qui per classificarle"// takePhotoCaption: "Take Photo" => "Scatta foto"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Trascina e rilascia le scelte qui per classificarle"
+// takePhotoCaption: "Take Photo" => "Scatta foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Fai clic sul pulsante qui sotto per scattare una foto utilizzando la fotocamera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Trascina e rilascia o seleziona un file da caricare o scattare una foto utilizzando la fotocamera."
-// replaceFileCaption: "Replace file" => "Sostituisci file"// eachRowUniqueError: "Each row must have a unique value." => "Ogni riga deve avere un valore univoco."
+// replaceFileCaption: "Replace file" => "Sostituisci file"
+// eachRowUniqueError: "Each row must have a unique value." => "Ogni riga deve avere un valore univoco."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "I file non possono essere caricati. Aggiungere un gestore per l'evento 'onUploadFiles'."
 // showDetails: "Show Details" => "Mostra dettagli"
 // hideDetails: "Hide Details" => "Nascondi dettagli"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Annulla"
 // refuseItemText: "Refuse to answer" => "Rifiuta di rispondere"
-// dontKnowItemText: "Don't know" => "Non lo so"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "La tua risposta supera i 64 KB. Riduci le dimensioni dei tuoi file e riprova o contatta il proprietario di un'indagine."
-// signaturePlaceHolderReadOnly: "No signature" => "Nessuna firma"// tabTitlePlaceholder: "New Panel" => "Nuovo pannello"// deselectAllItemText: "Deselect all" => "Deseleziona tutto"
+// dontKnowItemText: "Don't know" => "Non lo so"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "La tua risposta supera i 64 KB. Riduci le dimensioni dei tuoi file e riprova o contatta il proprietario di un'indagine."
+// signaturePlaceHolderReadOnly: "No signature" => "Nessuna firma"
+// tabTitlePlaceholder: "New Panel" => "Nuovo pannello"
+// deselectAllItemText: "Deselect all" => "Deseleziona tutto"
 // textNoDigitsAllow: "Numbers are not allowed." => "I numeri non sono ammessi."
+// choices_Choice: "Choice option" => "Opzione di scelta"

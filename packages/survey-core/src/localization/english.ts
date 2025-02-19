@@ -68,6 +68,7 @@ export var englishStrings = {
   showDetails: "Show Details",
   hideDetails: "Hide Details",
   choices_Item: "item",
+  choices_Choice: "Choice option",
   matrix_column: "Column",
   matrix_row: "Row",
   multipletext_itemname: "text",

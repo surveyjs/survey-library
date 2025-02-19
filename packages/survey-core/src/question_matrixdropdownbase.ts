@@ -1881,8 +1881,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (rowIndex < 0 || !Array.isArray(this.visibleRows)) return null;
     var rows = this.generatedVisibleRows;
     if (rowIndex >= rows.length) return null;
-    var newValue = this.createNewValue();
-    return this.getRowValueCore(rows[rowIndex], newValue);
+    const val = this.value;
+    const rowVal = this.getRowValueCore(rows[rowIndex], val);
+    if(this.isValueSurveyElement(val)) return rowVal;
+    return Helpers.getUnbindValue(rowVal);
   }
   public checkIfValueInRowDuplicated(
     checkedRow: MatrixDropdownRowModelBase,

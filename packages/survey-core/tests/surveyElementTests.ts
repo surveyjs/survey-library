@@ -33,6 +33,25 @@ QUnit.test("panel isExpanded and isCollapsed", function (assert) {
   assert.equal(stateChangedCounter, 4, "callback is called two time");
 });
 
+QUnit.test("panel renderedIsExpanded in design mode after duplicate", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  var p = new PanelModel("p1");
+  p.fromJSON({
+    "type": "panel",
+    "state": "collapsed",
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1",
+        "title": "Text"
+      }
+    ]
+  });
+  p.setSurveyImpl(survey);
+  assert.ok(p.renderedIsExpanded);
+});
+
 QUnit.test("question isExpanded and isCollapsed", function (assert) {
   var page = new PageModel();
   var q = page.addNewQuestion("text", "q1");
@@ -236,6 +255,18 @@ QUnit.test("allowRootStyle", function (assert) {
   q1.allowRootStyle = false;
   survey.css = defaultCss;
   assert.deepEqual(q1.rootStyle, {});
+});
+QUnit.test("Do not create rootStyle by default", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "text",
+      name: "q1"
+    }]
+  });
+  assert.notOk(survey.pages[0].getPropertyValue("rootStyle"), "page rootStyle via property value");
+  assert.notOk(survey.getQuestionByName("q1").getPropertyValue("rootStyle"), "q1 rootStyle via property value");
+  assert.ok(survey.pages[0].rootStyle, "page rootStyle directly");
+  assert.ok(survey.getQuestionByName("q1").rootStyle, "q1 rootStyle directly");
 });
 QUnit.test("rootStyle on mobile", function (assert) {
   const survey = new SurveyModel({

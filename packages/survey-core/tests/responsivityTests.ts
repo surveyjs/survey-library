@@ -62,12 +62,12 @@ QUnit.test("ActionContainer: renderedActions & visibleActions if only one elemen
 
   const adaptiveContainer: AdaptiveActionContainer = new AdaptiveActionContainer();
   adaptiveContainer.actions = actions;
-  assert.equal(adaptiveContainer.visibleActions.length, 1, "adaptiveContainer visibleActions");
-  assert.equal(adaptiveContainer.renderedActions.length, 2, "adaptiveContainer renderedActions");
+  assert.equal(adaptiveContainer.visibleActions.length, 1, "adaptiveContainer visibleAction without icon");
+  assert.equal(adaptiveContainer.renderedActions.length, 2, "adaptiveContainer renderedActions contains the dots item");
 
   actions[0].iconName = "icon-name";
-  assert.equal(adaptiveContainer.visibleActions.length, 1, "adaptiveContainer visibleActions");
-  assert.equal(adaptiveContainer.renderedActions.length, 1, "adaptiveContainer renderedActions");
+  assert.equal(adaptiveContainer.visibleActions.length, 1, "adaptiveContainer visibleActions with icon");
+  assert.equal(adaptiveContainer.renderedActions.length, 1, "adaptiveContainer renderedActions doesn't contain dots item");
 });
 
 QUnit.test("Fit items", function (assert) {
@@ -683,4 +683,40 @@ QUnit.test("Check fit with gap with disable hide on non-first action", function 
   assert.equal(item3.mode, "popup", "300 - 76 item3 popup");
   assert.equal(item4.mode, "small", "300 - 76 item4 small");
   assert.ok(model.dotsItem.isVisible, "300 - 76 dotsItem visible");
+});
+
+QUnit.test("Check fit for two actions: action with disableHide and action with icon", function (assert) {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.dotsItem.minDimension = 50;
+  model.dotsItem.maxDimension = 50;
+  const item1 = new Action(<any>{});
+  item1.minDimension = 50;
+  item1.maxDimension = 100;
+  item1.disableHide = true;
+  model.actions.push(item1);
+
+  const item2 = new Action(<any>{ iconName: "icon" });
+  item2.minDimension = 50;
+  item2.maxDimension = 100;
+  model.actions.push(item2);
+
+  model.fit({ availableSpace: 300 });
+  assert.equal(item1.mode, "large", "300 item1 large");
+  assert.equal(item2.mode, "large", "300 item2 large");
+  assert.ok(!model.dotsItem.isVisible, "300 dotsItem hidden");
+
+  model.fit({ availableSpace: 150 });
+  assert.equal(item1.mode, "large", "150 item1 large");
+  assert.equal(item2.mode, "small", "150 item2 small");
+  assert.ok(!model.dotsItem.isVisible, "150 dotsItem hidden");
+
+  model.fit({ availableSpace: 100 });
+  assert.equal(item1.mode, "small", "100 item1 small");
+  assert.equal(item2.mode, "small", "100 item2 small");
+  assert.ok(!model.dotsItem.isVisible, "100 dotsItem hidden");
+
+  model.fit({ availableSpace: 50 });
+  assert.equal(item1.mode, "small", "100 item1 small");
+  assert.equal(item2.mode, "small", "100 item2 small");
+  assert.ok(!model.dotsItem.isVisible, "100 dotsItem hidden");
 });

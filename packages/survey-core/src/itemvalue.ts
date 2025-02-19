@@ -221,9 +221,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   private createLocText(): LocalizableString {
     const res = new LocalizableString(this, true, "text");
     res.onStrChanged = (oldValue: string, newValue: string) => {
-      if (newValue == this.value) {
-        newValue = undefined;
-      }
       this.propertyValueChanged("text", oldValue, newValue);
     };
     res.onGetTextCallback = (txt) => {

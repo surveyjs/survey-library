@@ -1451,7 +1451,6 @@ export class Question extends SurveyElement<Question>
       .append(this.cssClasses.rootMobile, this.isMobile)
       .toString();
   }
-  private isRequireUpdateElements: boolean;
   public updateElementCss(reNew?: boolean): void {
     if(this.wasRendered) {
       super.updateElementCss(reNew);
@@ -1459,16 +1458,9 @@ export class Question extends SurveyElement<Question>
         this.updateQuestionCss(true);
       }
     } else {
-      this.isRequireUpdateElements = true;
+      this.clearCssClasses();
     }
     this.resetIndents();
-  }
-  protected onFirstRenderingCore(): void {
-    if(this.isRequireUpdateElements) {
-      this.isRequireUpdateElements = false;
-      this.updateElementCss(true);
-    }
-    super.onFirstRenderingCore();
   }
   protected updateQuestionCss(reNew?: boolean): void {
     if (this.isLoadingFromJson || !this.survey) return;

@@ -322,7 +322,18 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * The `gridLayoutColumns` array is generated automatically based on the maximum number of questions and panels in the same row. To arrange the survey elements in one or several rows, disable the [`startWithNewLine`](https://surveyjs.io/form-library/documentation/api-reference/question#startWithNewLine) property for those elements that should occupy the same row as the previous question or panel. You can also set the [`colSpan`](https://surveyjs.io/form-library/documentation/api-reference/question#colSpan) property for individual questions and panels to specify how many layout columns they span.
    */
-  @propertyArray() gridLayoutColumns: Array<PanelLayoutColumnModel>;
+  public get gridLayoutColumns(): Array<PanelLayoutColumnModel> {
+    let res = this.getPropertyValue("gridLayoutColumns");
+    if(!this._columns) {
+      this.generateColumns([].concat(res));
+      res = this._columns;
+      this.gridLayoutColumns = res;
+    }
+    return res;
+  }
+  public set gridLayoutColumns(val: Array<PanelLayoutColumnModel>) {
+    this.setPropertyValue("gridLayoutColumns", val);
+  }
 
   addElementCallback: (element: IElement) => void;
   removeElementCallback: (element: IElement) => void;
@@ -377,6 +388,9 @@ export class PanelModelBase extends SurveyElement<Question>
     super(name);
     this.createNewArray("rows", (el: QuestionRowModel, index: number) => { this.onAddRow(el); }, (el: QuestionRowModel) => { this.onRemoveRow(el); });
     this.createNewArray("visibleRows");
+    this.createNewArray("gridLayoutColumns", (col: PanelLayoutColumnModel) => {
+      col.onPropertyValueChangedCallback = this.onColumnPropertyValueChangedCallback;
+    });
 
     this.elementsValue = this.createNewArray(
       "elements",
@@ -426,9 +440,6 @@ export class PanelModelBase extends SurveyElement<Question>
     super.endLoadingFromJson();
     this.markQuestionListDirty();
     this.onRowsChanged();
-    this.gridLayoutColumns.forEach(col => {
-      col.onPropertyValueChangedCallback = this.onColumnPropertyValueChangedCallback;
-    });
   }
 
   @property({ defaultValue: true }) showTitle: boolean;
@@ -1277,20 +1288,24 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   public get columns(): Array<PanelLayoutColumnModel> {
     if (!this._columns) {
-      this.generateColumns();
+      this.generateColumns(this.gridLayoutColumns);
+      this.gridLayoutColumns = this._columns;
     }
     return this._columns || [];
   }
-  protected generateColumns(): void {
-    let maxRowColSpan = this.calcMaxRowColSpan();
-    let columns = [].concat(this.gridLayoutColumns);
-    if (maxRowColSpan <= this.gridLayoutColumns.length) {
-      columns = this.gridLayoutColumns.slice(0, maxRowColSpan);
-    } else {
-      for (let index = this.gridLayoutColumns.length; index < maxRowColSpan; index++) {
-        const newCol = new PanelLayoutColumnModel();
-        newCol.onPropertyValueChangedCallback = this.onColumnPropertyValueChangedCallback;
-        columns.push(newCol);
+
+  private generateColumns(gridColumns: Array<PanelLayoutColumnModel>): void {
+    const isEnabled = this.survey?.gridLayoutEnabled;
+    let columns = [].concat(gridColumns);
+    if(isEnabled) {
+      let maxRowColSpan = this.calcMaxRowColSpan();
+      if (maxRowColSpan <= gridColumns.length) {
+        columns = gridColumns.slice(0, maxRowColSpan);
+      } else {
+        for (let index = gridColumns.length; index < maxRowColSpan; index++) {
+          const newCol = new PanelLayoutColumnModel();
+          columns.push(newCol);
+        }
       }
     }
     this._columns = columns;
@@ -1301,7 +1316,10 @@ export class PanelModelBase extends SurveyElement<Question>
     finally {
       this._columnsReady = true;
     }
-    this.gridLayoutColumns = columns;
+  }
+  private createGridLayoutColumns(): Array<PanelLayoutColumnModel> {
+    this.generateColumns([]);
+    return this._columns;
   }
   public updateGridColumns(): void {
     this.updateColumns();
@@ -1337,7 +1355,7 @@ export class PanelModelBase extends SurveyElement<Question>
       currentColSpan = this.columns.length - usedSpans;
     }
     const result = this.columns.slice(startIndex, startIndex + (currentColSpan || 1));
-    (el as any).setPropertyValue("effectiveColSpan", result.length);
+    (el as any).setPropertyValueDirectly("effectiveColSpan", result.length);
     return result;
   }
   protected getStartIndex(): string {
@@ -1763,7 +1781,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return false;
   }
   getIsPageVisible(exceptionQuestion?: IQuestion): boolean {
-    return this.visible && this.getIsContentVisible(exceptionQuestion);
+    const isContentVisible = this.getIsContentVisible(exceptionQuestion);
+    return this.visible && isContentVisible;
   }
   private lastVisibleIndex: number;
   public setVisibleIndex(index: number): number {

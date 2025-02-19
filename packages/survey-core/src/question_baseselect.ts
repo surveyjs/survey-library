@@ -1162,7 +1162,7 @@ export class QuestionSelectBase extends Question {
           var choice = ItemValue.getItemByValue(this.visibleChoices, dataValue);
           var choiceDataItem = <any>{
             name: index,
-            title: "Choice",
+            title: this.getLocalizationString("choices_Choice"),
             value: dataValue,
             displayValue: this.getChoicesDisplayValue(
               this.visibleChoices,

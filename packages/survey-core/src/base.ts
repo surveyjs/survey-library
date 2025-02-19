@@ -502,7 +502,7 @@ export class Base {
    */
   public getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
     const res = this.getPropertyValueWithoutDefault(name);
-    if (!Array.isArray(res) && this.isPropertyEmpty(res)) {
+    if (res === undefined || res === null) {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
       if (locStr) return locStr.text;
       if (defaultValue !== null && defaultValue !== undefined) return defaultValue;

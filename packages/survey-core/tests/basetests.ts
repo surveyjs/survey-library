@@ -877,3 +877,18 @@ QUnit.test("check default 0 value doesn't exist on getPropertyValueDirectly", (a
   assert.equal((itemValue as any).getPropertyValueWithoutDefault("score"), undefined, "default value shouldn't be set");
   Serializer.removeProperty("itemvalue", "score");
 });
+QUnit.test("getPropertyValue & calcFunc & emtpy object {}", (assert) => {
+  let counter = 0;
+  function calcProp() {
+    counter ++;
+    return {};
+  }
+  class TestClass extends Base {
+    public get obj1(): any { return this.getPropertyValue("obj1", undefined, () => calcProp()); }
+  }
+  const obj = new TestClass();
+  assert.deepEqual(obj.obj1, {}, "Test #1");
+  assert.deepEqual(obj.obj1, {}, "Test #2");
+  assert.deepEqual(obj.obj1, {}, "Test #3");
+  assert.equal(counter, 1, "calcProp called one time");
+});

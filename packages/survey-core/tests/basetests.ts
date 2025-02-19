@@ -892,3 +892,16 @@ QUnit.test("getPropertyValue & calcFunc & emtpy object {}", (assert) => {
   assert.deepEqual(obj.obj1, {}, "Test #3");
   assert.equal(counter, 1, "calcProp called one time");
 });
+QUnit.test("getPropertyValue & NaN", (assert) => {
+  class TestClass extends Base {
+    @property({ defaultValue: 1 }) public pageSize: number;
+  }
+  const obj = new TestClass();
+  assert.equal(obj.pageSize, 1, "pageSize #1");
+  obj.pageSize = <any>undefined;
+  assert.equal(obj.pageSize, 1, "pageSize #2");
+  obj.pageSize = <any>null;
+  assert.equal(obj.pageSize, 1, "pageSize #3");
+  obj.pageSize = NaN;
+  assert.equal(obj.pageSize, 1, "pageSize #4");
+});

@@ -80,7 +80,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       var el = this.rootRef.current;
       if (el && el.getAttribute("data-rendered") !== "r") {
         el.setAttribute("data-rendered", "r");
-        el.setAttribute("data-name", this.question.name);
         if (this.question.afterRender) {
           this.question.afterRender(el);
         }
@@ -158,6 +157,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-labelledby={question.ariaLabelledBy}
           aria-describedby={question.ariaDescribedBy}
           aria-expanded={question.ariaExpanded}
+          data-name={question.name}
         >
           {errorsAboveQuestion}
           {headerTop}

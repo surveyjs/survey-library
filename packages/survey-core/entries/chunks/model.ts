@@ -250,6 +250,7 @@ export { Cover, CoverCell } from "../../src/header";
 export { englishStrings } from "../../src/localization/english";
 export { surveyLocalization, surveyStrings, getLocaleString, getLocaleStrings, setupLocale } from "../../src/surveyStrings";
 // export { cultureInfo } from "../../src/cultureInfo";
+export { surveyThemes, registerDefaultTheme } from "../../src/surveyThemes";
 export {
   QuestionCustomWidget,
   CustomWidgetCollection,

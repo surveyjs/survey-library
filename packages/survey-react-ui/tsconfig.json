@@ -10,7 +10,6 @@
     ],
     "sourceMap": true,
     "noImplicitAny": false,
-    "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "importHelpers": false,
     "moduleResolution": "node",

@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { QuestionRatingModel, RenderedRatingItem } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";

@@ -1,5 +1,5 @@
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import React from "react";
+import * as React from "react";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase } from "./reactquestion_element";
 import { SvgIcon } from "./components/svg-icon/svg-icon";

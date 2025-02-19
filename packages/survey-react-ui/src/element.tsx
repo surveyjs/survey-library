@@ -75,8 +75,7 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
       <div
         className={css.questionWrapper}
         style={(element as any).rootStyle}
-        data-key={innerElement.key}
-        key={innerElement.key}
+        data-key={element.name + this.index}
         onFocus={focusIn}
         ref={this.rootRef}
       >
@@ -86,16 +85,14 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
   }
 
   protected createElement(element: IElement, elementIndex?: number): React.JSX.Element {
-    const index = elementIndex ? "-" + elementIndex : 0;
     if (!this.row.isNeedRender) {
-      return ReactElementFactory.Instance.createElement(element.skeletonComponentName, { key: element.name + index, element: element, css: this.css, })
+      return ReactElementFactory.Instance.createElement(element.skeletonComponentName, { element: element, css: this.css, });
     }
     let elementType = (element as any).getTemplate();
     if (!ReactElementFactory.Instance.isElementRegistered(elementType)) {
       elementType = "question";
     }
     return ReactElementFactory.Instance.createElement(elementType, {
-      key: element.name + index,
       element: element,
       creator: this.creator,
       survey: this.survey,

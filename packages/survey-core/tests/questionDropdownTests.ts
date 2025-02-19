@@ -911,7 +911,7 @@ QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", a
   setTimeout(() => {
     assert.equal(requestCount, 1, "requestCount #2.1");
     assert.equal(responseCount, 0, "responseCount #2.1");
-    assert.equal(question.selectedItemLocText.calculatedText, "2");
+    assert.equal(question.selectedItemLocText.calculatedText, "2", "calculatedText #2.1");
 
     setTimeout(() => {
       assert.equal(requestCount, 1, "requestCount #3");
@@ -929,7 +929,7 @@ QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", a
       done2();
     }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
     done1();
-  }, onChoicesLazyLoadCallbackTimeOut);
+  }, 0);
 });
 
 QUnit.test("storeOthersAsComment is false", assert => {

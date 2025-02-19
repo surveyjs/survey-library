@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { SurveyError } from "survey-core";
 import { ReactElementFactory } from "../element-factory";
 import { SurveyLocStringViewer } from "../string-viewer";

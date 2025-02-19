@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { SurveyElement, SurveyElementCore, doKey2ClickUp } from "survey-core";
 import { TitleActions } from "./title-actions";
 import { SvgIcon } from "../svg-icon/svg-icon";

@@ -2,7 +2,6 @@
 
 const webpackCommonConfig = require("./webpack.config");
 const { merge } = require("webpack-merge");
-var FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
 var path = require("path");
 
 const config = {
@@ -52,7 +51,6 @@ const config = {
     "themes/contrast-dark-panelless": path.resolve(__dirname, "./src/themes/contrast-dark-panelless.ts"),
     "themes/index": path.resolve(__dirname, "./src/themes/index.ts"),
   },
-  plugins: [new FixStyleOnlyEntriesPlugin()],
 };
 
 module.exports = function (options) {

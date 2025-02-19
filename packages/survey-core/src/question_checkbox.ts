@@ -610,7 +610,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!Array.isArray(val)) return [super.valueFromData(val)];
     let value = [];
     for (let i = 0; i < val.length; i++) {
-      let choiceitem = ItemValue.getItemByValue(this.activeChoices, val[i]);
+      let choiceitem = ItemValue.getItemByValue(this.visibleChoices, val[i]);
       if (!!choiceitem) {
         value.push(choiceitem.value);
       } else {

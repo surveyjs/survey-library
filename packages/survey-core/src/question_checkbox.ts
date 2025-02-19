@@ -340,7 +340,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   private getSelectAllEnabled(): boolean {
     if (!this.hasSelectAll) return true;
-    const items = this.activeChoices;
     let visCount = this.getVisibleEnableItems().length;
     const max = this.maxSelectedChoices;
     if(max > 0 && max < visCount) return false;
@@ -348,10 +347,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   private getVisibleEnableItems(): Array<ItemValue> {
     const res = new Array<ItemValue>();
-    const items = this.activeChoices;
+    const items = this.visibleChoices;
     for(let i = 0; i < items.length; i ++) {
       const item = items[i];
-      if(item.isEnabled && item.isVisible) {
+      if(item.isEnabled && !this.isBuiltInChoice(item)) {
         res.push(item);
       }
     }

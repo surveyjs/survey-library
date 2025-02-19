@@ -1240,7 +1240,7 @@ export class QuestionSelectBase extends Question {
       ? this.filteredChoicesValue
       : this.activeChoices;
   }
-  protected get activeChoices(): Array<ItemValue> {
+  private get activeChoices(): Array<ItemValue> {
     const question = this.getCarryForwardQuestion();
     if (this.carryForwardQuestionType === "select") {
       (<QuestionSelectBase>question).addDependedQuestion(this);

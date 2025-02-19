@@ -1799,6 +1799,76 @@ QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + val
   assert.equal(q2_q2.visibleChoices[0].value, "aaa", "the first value is correct");
   assert.equal(q2_q2.visibleChoices[1].value, "bbb", "the second value is correct");
 });
+QUnit.test("Use carryForward with panel dynamic + incorrect values, Bug#9478", function (assert) {
+  const survey = new SurveyModel({ pages: [
+    {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          templateElements: [
+            {
+              type: "text",
+              name: "question2",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question4",
+          templateElements: [
+            {
+              type: "paneldynamic",
+              name: "question5",
+              templateElements: [
+                {
+                  type: "dropdown",
+                  name: "question3",
+                  isRequired: true,
+                  choicesFromQuestion: "question1",
+                  choiceValuesFromQuestion: "question2",
+                  choiceTextsFromQuestion: "question2",
+                },
+                {
+                  type: "text",
+                  name: "question11",
+                  defaultValueExpression: "{panel.question3} empty",
+                },
+              ],
+            },
+          ],
+          panelCount: 1,
+        },
+      ],
+    },
+  ] });
+  survey.data = {
+    "question1": [
+      {
+        "question2": "Item1*"
+      },
+      {
+        "question2": "Item2*"
+      }
+    ],
+    "question4": [
+      {
+        "question5": [
+          {
+            "question11": false,
+            "question3": "Item2"
+          }
+        ]
+      }
+    ]
+  };
+  survey.nextPage();
+  assert.equal(survey.tryComplete(), false, "The value is incorrect");
+});
 QUnit.test("SelectBase visibleChoices order & locale change", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "dropdown", name: "q1", choicesOrder: "asc",

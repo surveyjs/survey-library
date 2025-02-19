@@ -645,8 +645,8 @@ QUnit.test("Use timer to go next page", function (assert) {
   assert.equal(survey.goNextPageAutomatic, true, "The property set correctly");
   const question = survey.getQuestionByName("q1");
   question.onMouseDown();
-  assert.equal(question.supportGoNextPageAutomatic(), true, "questio support go next page automatic");
-  question.value = 1;
+  assert.equal(question.supportAutoAdvance(), true, "questio support go next page automatic");
+  question.value = "a";
   assert.equal(survey.currentPageNo, 1, "Go to the second page");
   assert.equal(checkDelay, 250, "setTimeout function is called");
   surveyTimerFunctions.safeTimeOut = prevFunc;
@@ -5933,7 +5933,7 @@ QUnit.test("Validate function for custom widget", function (assert) {
       {
         type: "radiogroup",
         name: "question1",
-        choices: [1, 2, 3]
+        choices: [1, 2, 3, 4, 5]
       },
     ],
   });

@@ -516,6 +516,8 @@ sv-popup {
 
   .sv-popup__body-content {
     max-height: calc(var(--sv-popup-overlay-height, 100vh) - var(--sjs-base-unit, var(--base-unit, 8px)) * 8);
+    min-height: min(var(--sv-popup-overlay-max-height), calcSize(30));
+    height: auto;
   }
 
   .sv-popup__content,

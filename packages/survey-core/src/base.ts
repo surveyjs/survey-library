@@ -236,9 +236,6 @@ export class Base {
       return value.trim();
     return value;
   }
-  protected isPropertyEmpty(value: any): boolean {
-    return value !== "" && this.isValueEmpty(value);
-  }
   public static createPropertiesHash() {
     return {};
   }
@@ -497,10 +494,10 @@ export class Base {
    */
   public getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
     const res = this.getPropertyValueWithoutDefault(name);
-    if (this.isPropertyEmpty(res)) {
+    if (this.isValueUndefined(res)) {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
       if (locStr) return locStr.text;
-      if (defaultValue !== null && defaultValue !== undefined) return defaultValue;
+      if (!this.isValueUndefined(defaultValue)) return defaultValue;
       if(!!calcFunc) {
         const newVal = calcFunc();
         if(newVal !== undefined) {
@@ -519,12 +516,15 @@ export class Base {
     }
     return res;
   }
+  protected isValueUndefined(value: any): boolean {
+    return Helpers.isValueUndefined(value);
+  }
   public getDefaultPropertyValue(name: string): any {
     const prop = this.getPropertyByName(name);
     if (!prop || prop.isCustom && this.isCreating) return undefined;
     if (!!prop.defaultValueFunc) return prop.defaultValueFunc(this);
     const dValue = prop.getDefaultValue(this);
-    if (!this.isPropertyEmpty(dValue) && !Array.isArray(dValue)) return dValue;
+    if (!this.isValueUndefined(dValue) && !Array.isArray(dValue)) return dValue;
     const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
     if (locStr && locStr.localizationName) return this.getLocalizationString(locStr.localizationName);
     if (prop.type == "boolean" || prop.type == "switch") return false;

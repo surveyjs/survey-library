@@ -337,10 +337,13 @@ sv-popup {
   }
 
   .sv-popup__container {
+    max-height: calc(var(--sv-popup-overlay-height, 100vh));
+    height: calc(var(--sv-popup-overlay-height, 100vh));
     padding-top: 0;
   }
 
   .sv-popup__body-content {
+    height: calc(var(--sv-popup-overlay-height, 100vh));
     gap: 0;
   }
 
@@ -509,6 +512,10 @@ sv-popup {
     border-radius: calcCornerRadius(1);
     overflow: hidden;
     box-shadow: $shadow-medium, $shadow-large;
+  }
+
+  .sv-popup__body-content {
+    max-height: calc(var(--sv-popup-overlay-height, 100vh) - var(--sjs-base-unit, var(--base-unit, 8px)) * 8);
   }
 
   .sv-popup__content,

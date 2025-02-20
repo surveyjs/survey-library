@@ -362,12 +362,16 @@ frameworks.forEach(async framework => {
         .typeText(Selector(".sv-list__input"), "item1");
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
 
+      await t.click(Selector(".sd-root-modern"), { offsetX: 10, offsetY: 10 });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .expect(Selector(".sv-list__input").visible).ok()
         .typeText(Selector(".sv-list__input"), "item", { replace: true });
 
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup-big.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
 
+      await t.click(Selector(".sd-root-modern"), { offsetX: 10, offsetY: 10 });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .expect(Selector(".sv-list__input").visible).ok()
         .typeText(Selector(".sv-list__input"), "item3", { replace: true });
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup-small.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });

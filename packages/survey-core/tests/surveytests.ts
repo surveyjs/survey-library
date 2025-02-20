@@ -4162,18 +4162,24 @@ QUnit.test("test goNextPageAutomatic after errors", function (assert) {
 });
 QUnit.test("goNextPageAutomatic: should not work for complex questions like matrix, checkbox, multiple text", function (assert) {
   var questions = new Array<any>();
+  const checkboxQuestion = new QuestionCheckboxModel("check");
+  checkboxQuestion.choices = [1, 2, 3];
   questions.push({
-    question: new QuestionCheckboxModel("check"),
+    question: checkboxQuestion,
     auto: false,
     value: [1],
   });
+  const radioQuestion = new QuestionRadiogroupModel("radio");
+  radioQuestion.choices = [1, 2, 3];
   questions.push({
-    question: new QuestionRadiogroupModel("radio"),
+    question: radioQuestion,
     auto: true,
     value: 1,
   });
+  const dropdownQuestion = new QuestionDropdownModel("dropdown");
+  dropdownQuestion.choices = [1, 2, 3];
   questions.push({
-    question: new QuestionDropdownModel("dropdown"),
+    question: dropdownQuestion,
     auto: true,
     value: 1,
   });
@@ -4204,6 +4210,7 @@ QUnit.test("goNextPageAutomatic: should not work for complex questions like matr
   });
 
   var dropDownMatrix = new QuestionMatrixDropdownModel("matrixdropdown");
+  dropDownMatrix.choices = [1, 2, 3];
   dropDownMatrix.addColumn("col1");
   dropDownMatrix.rows = ["row1", "row2"];
   questions.push({
@@ -4218,6 +4225,7 @@ QUnit.test("goNextPageAutomatic: should not work for complex questions like matr
   });
 
   var dynamicMatrix = new QuestionMatrixDynamicModel("matrixdynamic");
+  dynamicMatrix.choices = [1, 2, 3];
   dynamicMatrix.addColumn("col1");
   dynamicMatrix.rowCount = 2;
   questions.push({

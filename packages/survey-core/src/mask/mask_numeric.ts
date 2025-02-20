@@ -306,8 +306,8 @@ export class InputMaskNumeric extends InputMaskBase {
     return "numericmask";
   }
 
-  protected isPropertyEmpty(value: any): boolean {
-    return value === "" || value === undefined || value === null;
+  protected isValueUndefined(value: any): boolean {
+    return value === "" || super.isValueUndefined(value);
   }
 }
 

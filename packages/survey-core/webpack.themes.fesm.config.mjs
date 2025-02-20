@@ -1,8 +1,13 @@
 import webpackCommonConfigCreator from "./webpack.themes.config.js";
+import { fileURLToPath, URL } from "node:url";
 export default function (options) {
   const config = webpackCommonConfigCreator(options);
   config.optimization.minimize = false;
-  config.devtool = "source-map",
+  config.optimization.concatenateModules = true;
+  config.devtool = "source-map";
+  config.entry = {
+    "themes/index": fileURLToPath(new URL("./src/themes/index.ts", import.meta.url)),
+  };
   config.experiments = {
     outputModule: true,
   };
@@ -10,7 +15,7 @@ export default function (options) {
     filename: "[name]" + ".js",
     path: config.output.path += "/fesm",
     library: {
-      type: "module"
+      type: "modern-module"
     }
   };
   return config;

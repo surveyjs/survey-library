@@ -495,7 +495,8 @@ sv-popup {
 }
 
 .sv-popup--dropdown-overlay.sv-popup--tablet {
-  .sv-popup__body-content {
+  background: $background-semitransparent;
+  .sv-popup__container {
     --sv-popup-overlay-max-height: calc(var(--sv-popup-overlay-height, 100vh) - #{$base-unit} * 8);
     --sv-popup-overlay-max-width: calc(100% - #{$base-unit} * 8);
     position: absolute;
@@ -511,6 +512,12 @@ sv-popup {
     border-radius: calcCornerRadius(1);
     overflow: hidden;
     box-shadow: $shadow-medium, $shadow-large;
+  }
+
+  .sv-popup__body-content {
+    max-height: calc(var(--sv-popup-overlay-height, 100vh) - var(--sjs-base-unit, var(--base-unit, 8px)) * 8);
+    min-height: min(var(--sv-popup-overlay-max-height), calcSize(30));
+    height: auto;
   }
 
   .sv-popup__content,
@@ -566,7 +573,8 @@ sv-popup {
 }
 
 .sv-popup--modal {
-  &.sv-popup--leave, &.sv-popup--enter {
+  &.sv-popup--leave,
+  &.sv-popup--enter {
     .sv-popup__container {
       animation-name: modalMoveUp;
       animation-timing-function: $ease-out;

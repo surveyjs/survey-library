@@ -602,8 +602,7 @@ export class DropdownListModel extends Base {
   }
   onBlur(event: any): void {
     this.focused = false;
-    if (this.popupModel.isVisible && IsTouch) {
-      this._popupModel.show();
+    if (this.popupModel.isVisible && this.popupModel.displayMode == "overlay") {
       return;
     }
     doKey2ClickBlur(event);

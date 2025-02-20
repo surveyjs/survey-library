@@ -274,6 +274,80 @@ frameworks.forEach((framework) => {
       .expect(questionValueText.exists).notEql();
   });
 
+  test("open popup and click outside, tablet", async (t) => {
+    await ClientFunction(() => {
+      window["Survey"]._setIsTouch(true);
+    })();
+    await t.resizeWindow(750, 900);
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "car",
+          title: "What car are you driving?",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen",
+          ],
+        },
+      ],
+    };
+    await initSurvey(framework, json);
+
+    await t
+      .click(questionDropdownSelect)
+      .expect(Selector(".sv-popup--dropdown-overlay").visible).ok()
+      .click(Selector(".sv-popup--dropdown-overlay"), { offsetX: 10, offsetY: 10 })
+      .expect(Selector(".sv-popup--dropdown-overlay").visible).notOk();
+  });
+
+  test("open dropdown and click outside, tablet", async (t) => {
+    await ClientFunction(() => {
+      window["Survey"]._setIsTouch(true);
+    })();
+    await t.resizeWindow(750, 900);
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "car",
+          title: "What car are you driving?",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen",
+          ],
+        },
+      ],
+    };
+    await initSurvey(framework, json, {
+      onOpenDropdownMenu: ((_, options) => {
+        options.menuType = "dropdown";
+      })
+    });
+
+    await t
+      .click(questionDropdownSelect)
+      .expect(Selector(".sv-popup__container").visible).ok()
+      .click(Selector(".sd-root-modern"), { offsetX: 10, offsetY: 10 })
+      .expect(Selector(".sv-popup__container").visible).notOk();
+  });
+
   test("click on question title state editable", async (t) => {
     const json = {
       questions: [

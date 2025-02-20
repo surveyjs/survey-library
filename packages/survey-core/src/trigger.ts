@@ -113,17 +113,19 @@ export class Trigger extends Base {
     return false;
   }
   protected isExecutingOnNextPage: boolean;
-  public checkExpression(isOnNextPage: boolean, isOnComplete: boolean,
-    keys: any, values: HashTable<any>, properties: HashTable<any> = null): void {
-    this.isExecutingOnNextPage = isOnNextPage;
-    if(!this.canBeExecuted(isOnNextPage)) return;
-    if(isOnComplete && !this.canBeExecutedOnComplete()) return;
-    if (!this.isCheckRequired(keys)) return;
+  protected isExecutingOnNavigation: boolean;
+  public checkExpression(options: { isOnNextPage: boolean, isOnComplete: boolean, isOnNavigation: boolean,
+    keys: any, values: HashTable<any>, properties?: HashTable<any>, }): void {
+    this.isExecutingOnNextPage = options.isOnNextPage;
+    this.isExecutingOnNavigation = options.isOnNavigation || options.isOnNextPage;
+    if(!this.canBeExecuted(options.isOnNextPage)) return;
+    if(options.isOnComplete && !this.canBeExecutedOnComplete()) return;
+    if (!this.isCheckRequired(options.keys)) return;
     if (!!this.conditionRunner) {
-      this.perform(values, properties);
+      this.perform(options.values, options.properties || null);
     } else {
       if(this.canSuccessOnEmptyExpression()) {
-        this.triggerResult(true, values, properties);
+        this.triggerResult(true, options.values, options.properties || null);
       }
     }
   }

@@ -21023,6 +21023,41 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #
 
   Serializer.removeClass("screenouttrigger");
 });
+QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #9483", function (assert) {
+  class ScreenoutTrigger extends SurveyTriggerComplete {
+    getType() { return "screenouttrigger"; }
+
+    onSuccess(values: any, properties: any) {
+      if (this.isExecutingOnNavigation) {
+        this.owner.setCompleted(this);
+      }
+      // Parent call
+      super.onSuccess(values, properties);
+    }
+  }
+  Serializer.addClass("screenouttrigger", [], () => { return new ScreenoutTrigger(); }, "completetrigger");
+  settings.triggers.changeNavigationButtonsOnComplete = false;
+  const survey = new SurveyModel({
+    "elements": [
+      { "type": "text", "name": "q1", "isRequired": true },
+      { "type": "text", "name": "q2", "isRequired": true }
+    ],
+    "questionsOnPageMode": "questionPerPage",
+    "triggers": [
+      {
+        "type": "screenout",
+        "expression": "{q1} = 'a'"
+      }
+    ]
+  });
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion");
+  survey.currentSingleQuestion.value = "a";
+  survey.performNext();
+  assert.equal(survey.state, "completed", "Survey is completed");
+
+  settings.triggers.changeNavigationButtonsOnComplete = true;
+  Serializer.removeClass("screenouttrigger");
+});
 QUnit.test("Do not use questionsOnPageMode in design-mode, Bug#9274", function (assert) {
   const json = {
     "pages": [{

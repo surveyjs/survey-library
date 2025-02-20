@@ -21028,7 +21028,7 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #
     getType() { return "screenouttrigger"; }
 
     onSuccess(values: any, properties: any) {
-      if (this.isExecutingOnNavigation) {
+      if (this.isRealExecution()) {
         this.owner.setCompleted(this);
       }
       // Parent call

@@ -299,7 +299,7 @@ export class SurveyTriggerComplete extends SurveyTrigger {
   }
   public get requireValidQuestion(): boolean { return true; }
   protected isRealExecution(): boolean {
-    return !settings.triggers.executeCompleteOnValueChanged === this.isExecutingOnNextPage;
+    return !settings.triggers.executeCompleteOnValueChanged === this.isExecutingOnNavigation;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
     if (!this.owner) return;

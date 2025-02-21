@@ -4112,6 +4112,9 @@ export class SurveyModel extends SurveyElementCore
     const questions = this.getAllQuestions(true);
     const index = questions.indexOf(q);
     if(index < 0 || index === questions.length - 1) return false;
+    const key: any = {};
+    key[q.name] = q.value;
+    this.checkTriggers(key, false, false, true, q.name);
     this.currentSingleQuestion = questions[index + 1];
     return true;
   }
@@ -4709,7 +4712,7 @@ export class SurveyModel extends SurveyElementCore
   public get currentSingleQuestion(): Question { return this.currentSingleQuestionValue; }
   public set currentSingleQuestion(val: Question) {
     const oldVal = this.currentSingleQuestion;
-    if(val !== oldVal) {
+    if(val !== oldVal && !this.isCompleted) {
       const options: any = !!val && !!oldVal ? this.createPageChangeEventOptions(<PageModel>val.page, <PageModel>oldVal.page, val, oldVal) : undefined;
       if(!!options && !this.currentPageChangingFromOptions(options)) return;
       this.currentSingleQuestionValue = val;
@@ -6248,7 +6251,7 @@ export class SurveyModel extends SurveyElementCore
   private isTriggerIsRunning: boolean = false;
   private triggerValues: any = null;
   private triggerKeys: any = null;
-  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, name?: string): void {
+  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string): void {
     if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
     if (this.isTriggerIsRunning) {
       this.triggerValues = this.getFilteredValues();
@@ -6270,11 +6273,9 @@ export class SurveyModel extends SurveyElementCore
     for (let i = 0; i < this.triggers.length; i++) {
       const trigger = this.triggers[i];
       if (isQuestionInvalid && trigger.requireValidQuestion) continue;
-      trigger.checkExpression(isOnNextPage, isOnComplete,
-        this.triggerKeys,
-        this.triggerValues,
-        properties
-      );
+      const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
+        keys: this.triggerKeys, values: this.triggerValues, properties: properties };
+      trigger.checkExpression(options);
     }
     if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
       this.updateButtonsVisibility();
@@ -6285,7 +6286,7 @@ export class SurveyModel extends SurveyElementCore
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     this.runConditionOnValueChanged(name, newValue);
-    this.checkTriggers(triggerKeys, false, false, name);
+    this.checkTriggers(triggerKeys, false, false, false, name);
   }
   private get hasRequiredValidQuestionTrigger(): boolean {
     for (let i = 0; i < this.triggers.length; i++) {

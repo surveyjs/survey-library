@@ -12,7 +12,7 @@ const questionValueHint = Selector(".sv_q_dropdown__hint-suffix");
 const clearButton = Selector(".sv_q_dropdown_clean-button");
 
 const questionOffsetTopConst = 176;
-
+const theme = "defaultV2";
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
@@ -273,8 +273,8 @@ frameworks.forEach((framework) => {
       .expect(questionValueInput.getAttribute("placeholder")).eql("Select...")
       .expect(questionValueText.exists).notEql();
   });
-
-  test("open popup and click outside, tablet", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("open popup and click outside, tablet", async (t) => {
+    await applyTheme(theme);
     await ClientFunction(() => {
       window["Survey"]._setIsTouch(true);
     })();
@@ -303,13 +303,13 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, json);
 
     await t
-      .click(questionDropdownSelect)
+      .click(Selector(".sd-dropdown"))
       .expect(Selector(".sv-popup--dropdown-overlay").visible).ok()
       .click(Selector(".sv-popup--dropdown-overlay"), { offsetX: 10, offsetY: 10 })
       .expect(Selector(".sv-popup--dropdown-overlay").visible).notOk();
   });
-
-  test("open dropdown and click outside, tablet", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("open dropdown and click outside, tablet", async (t) => {
+    await applyTheme(theme);
     await ClientFunction(() => {
       window["Survey"]._setIsTouch(true);
     })();
@@ -342,7 +342,7 @@ frameworks.forEach((framework) => {
     });
 
     await t
-      .click(questionDropdownSelect)
+      .click(Selector(".sd-dropdown"))
       .expect(Selector(".sv-popup__container").visible).ok()
       .click(Selector(".sd-root-modern"), { offsetX: 10, offsetY: 10 })
       .expect(Selector(".sv-popup__container").visible).notOk();
@@ -1381,7 +1381,6 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  const theme = "defaultV2";
   test.page(`${url_test}${theme}/${framework}`)("Check rating as dropdown", async (t) => {
     await applyTheme(theme);
 

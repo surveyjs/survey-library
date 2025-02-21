@@ -1066,9 +1066,6 @@ export class SurveyModel extends SurveyElementCore
       }
     });
 
-    if (this.headerView === "advanced") {
-      this.insertAdvancedHeader(new Cover());
-    }
     this.layoutElements.push({
       id: "timerpanel",
       template: "survey-timerpanel",
@@ -8172,6 +8169,7 @@ export class SurveyModel extends SurveyElementCore
       }
     });
     if (this.headerView === "advanced" || "header" in theme) {
+      this.headerView = "advanced";
       this.removeLayoutElement("advanced-header");
       const advHeader = new Cover();
       advHeader.fromTheme(theme);
@@ -8576,7 +8574,7 @@ Serializer.addClass("survey", [
   { name: "gridLayoutEnabled:boolean", default: false },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: true, visible: false },
-  { name: "headerView", default: "advanced", choices: ["basic", "advanced"], visible: false },
+  { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
   { name: "backgroundImage:file", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },

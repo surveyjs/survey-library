@@ -49,7 +49,6 @@
     "rimraf": "2.5.4",
     "rollup": "^4.34.8",
     "rollup-plugin-license": "^3.6.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
     "sass": "^1.62.1",
     "sass-loader": "^16.0.4",
     "signature_pad": "^4.1.5",

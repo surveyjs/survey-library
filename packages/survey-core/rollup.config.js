@@ -31,8 +31,11 @@ module.exports = (options) => {
         declarationDir: null
       } }),
       replace({
-        "process.env.RELEASE_DATE": JSON.stringify(new Date().toISOString().slice(0, 10)),
-        "process.env.VERSION": JSON.stringify(VERSION),
+        preventAssignment: false,
+        values: {
+          "process.env.RELEASE_DATE": JSON.stringify(new Date().toISOString().slice(0, 10)),
+          "process.env.VERSION": JSON.stringify(VERSION),
+        }
       }),
       bannerPlugin({
         banner: {

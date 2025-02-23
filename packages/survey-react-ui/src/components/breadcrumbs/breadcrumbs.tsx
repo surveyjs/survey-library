@@ -9,7 +9,7 @@ import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyBreadcrumbsItem } from "./breadcrumbs-item";
 
 interface IBreadcrumbsProps {
-  model: ActionContainer;
+  items: Action[];
 }
 
 export class SurveyBreadcrumbs extends SurveyElementBase<IBreadcrumbsProps, any> {
@@ -17,16 +17,12 @@ export class SurveyBreadcrumbs extends SurveyElementBase<IBreadcrumbsProps, any>
     super(props);
   }
 
-  get model() {
-    return this.props.model;
-  }
-
-  protected getStateElement(): Base {
-    return this.model;
+  get items() {
+    return this.props.items;
   }
 
   renderElement(): any {
-    if (!this.model.hasActions) return null;
+    if (!this.items || !this.items.length) return null;
     const items = this.renderItems();
     return (
       <div>
@@ -35,7 +31,7 @@ export class SurveyBreadcrumbs extends SurveyElementBase<IBreadcrumbsProps, any>
     );
   }
   renderItems() {
-    return this.model.actions.concat([]).map(
+    return this.items.concat([]).map(
       (item: Action, itemIndex: number) => {
         return (
           <SurveyBreadcrumbsItem item={item} key={item.renderedId}></SurveyBreadcrumbsItem>

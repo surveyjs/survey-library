@@ -845,6 +845,11 @@ export var defaultCss = {
     itemIcon: "sd-action__icon",
     itemTitle: "sd-action__title",
   },
+  breadcrumbs: {
+    root: "sd-breadcrumbs",
+    item: "sd-breadcrumbs-item",
+    separator: "sd-breadcrumbs-separator"
+  },
   variables: {
     mobileWidth: "--sd-mobile-width",
     themeMark: "--sv-defaultV2-mark"

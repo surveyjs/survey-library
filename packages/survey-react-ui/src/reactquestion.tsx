@@ -14,6 +14,7 @@ import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyCustomWidget } from "./custom-widget";
 import { SurveyElementHeader } from "./element-header";
 import { SurveyQuestionSigleInputSummary } from "./reactquestion_singleinputsummary";
+import { SurveyBreadcrumbs } from "./components/breadcrumbs/breadcrumbs";
 import { SurveyAction } from "./components/action-bar/action-bar-item";
 
 export interface ISurveyCreator {
@@ -131,7 +132,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   protected renderElement(): React.JSX.Element {
     var question = this.question;
     var cssClasses = question.cssClasses;
-    var header = this.renderSingleInputActions(question) || this.renderHeader(question);
+    var header = this.renderHeader(question);
     var headerTop = question.hasTitleOnLeftTop ? header : null;
     var headerBottom = question.hasTitleOnBottom ? header : null;
 
@@ -144,6 +145,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       : null;
 
     const rootStyle = question.getRootStyle();
+    const singleBreadcrumbs = question.singleInputHasActions ? this.renderSingleInputBreadcrumbs(question, cssClasses) : undefined;
     const singleSummary = question.singleInputSummary ? this.renderSingleInputSummary(question, cssClasses) : undefined;
     const singleInput = singleSummary || (question.singleInputQuestion ? this.renderSingleInputQuestion(question, cssClasses) : undefined);
     const questionContent = singleInput || this.wrapQuestionContent(this.renderQuestionContent());
@@ -177,6 +179,9 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     const key = singleQuestion.id;
     return <SurveyQuestion key={key} element={singleQuestion} creator={this.creator} css={cssClasses} />;
 
+  }
+  protected renderSingleInputBreadcrumbs(question: Question, cssClasses: any): React.JSX.Element {
+    return <SurveyBreadcrumbs items={question.singleInputActions} />;
   }
   protected renderSingleInputSummary(question: Question, cssClasses: any): React.JSX.Element {
     return <SurveyQuestionSigleInputSummary summary={question.singleInputSummary} creator={this.creator} css={cssClasses} />;
@@ -218,14 +223,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         />
       </div>
     );
-  }
-  protected renderSingleInputActions(question: Question): React.JSX.Element {
-    if(!question.singleInputHasActions) return null;
-    const actions = [];
-    question.singleInputActions.forEach(action => {
-      actions.push(<SurveyAction item={action}></SurveyAction>);
-    });
-    return <div>{actions}</div>;
   }
   protected renderHeader(question: Question): React.JSX.Element {
     if(question.singleInputHideHeader) return null;

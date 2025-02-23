@@ -430,7 +430,8 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public isDefaultValueByObj(obj: Base, value: any): boolean {
     if (this.isLocalizable) return value === null || value === undefined;
     const dValue = this.getDefaultValue(obj);
-    if (!Helpers.isValueEmpty(dValue)) {
+    if (dValue !== undefined) {
+      if(typeof dValue !== "object") return dValue === value;
       return Helpers.isTwoValueEquals(value, dValue, false, true, false);
     }
     return (

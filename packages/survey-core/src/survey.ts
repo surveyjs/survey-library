@@ -6479,8 +6479,9 @@ export class SurveyModel extends SurveyElementCore
       }
     } else {
       let index = this.getStartVisibleIndex();
-      for (let i = 0; i < this.pages.length; i++) {
-        index += this.pages[i].setVisibleIndex(index);
+      const pages = this.pages;
+      for (let i = 0; i < pages.length; i++) {
+        index += pages[i].setVisibleIndex(index);
       }
     }
   }

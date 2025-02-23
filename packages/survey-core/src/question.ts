@@ -2533,10 +2533,9 @@ export class Question extends SurveyElement<Question>
   }
   onSurveyValueChanged(newValue: any): void { }
   public setVisibleIndex(val: number): number {
-    if (
-      !this.isVisible ||
+    if (val > -1 && (!this.isVisible ||
       (!this.hasTitle && !settings.numbering.includeQuestionsWithHiddenTitle) ||
-      (!this.showNumber && !settings.numbering.includeQuestionsWithHiddenNumber)
+      (!this.showNumber && !settings.numbering.includeQuestionsWithHiddenNumber))
     ) {
       val = -1;
     }

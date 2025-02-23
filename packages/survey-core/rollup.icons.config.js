@@ -1,6 +1,7 @@
 const defaultConfig = require("./rollup.config");
 const path = require("path");
 const fg = require("fast-glob");
+const svgLoader = require("svg-inline-loader");
 const readFile = require("fs").readFileSync;
 const input = {
   "iconsV1": path.resolve(__dirname, "./src/iconsV1-es.ts"),
@@ -27,7 +28,7 @@ module.exports = () => {
       if (Object.keys(iconsMap).includes(id)) {
         const icons = {};
         for (const iconPath of await fg.glob(iconsMap[id])) {
-          icons[path.basename(iconPath).replace(/\.svg$/, "").toLocaleLowerCase()] = readFile(iconPath).toString();
+          icons[path.basename(iconPath).replace(/\.svg$/, "").toLocaleLowerCase()] = svgLoader.getExtractedSVG(readFile(iconPath).toString());
         }
         return `export default ${JSON.stringify(icons, undefined, "\t")}`;
       }

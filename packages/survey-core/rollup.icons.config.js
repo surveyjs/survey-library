@@ -27,8 +27,7 @@ module.exports = () => {
       if (Object.keys(iconsMap).includes(id)) {
         const icons = {};
         for (const iconPath of await glob(iconsMap[id])) {
-          const [fname] = iconPath.split("/").slice(-1);
-          icons[fname.replace(/\.svg$/, "").toLocaleLowerCase()] = readFile(iconPath).toString();
+          icons[path.basename(iconPath).replace(/\.svg$/, "").toLocaleLowerCase()] = readFile(iconPath).toString();
         }
         return `export default ${JSON.stringify(icons, undefined, "\t")}`;
       }

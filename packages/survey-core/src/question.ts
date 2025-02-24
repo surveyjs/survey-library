@@ -875,7 +875,13 @@ export class Question extends SurveyElement<Question>
     const res = new Array<Action>();
     for(let i = qs.length - 1; i >= 0; i--) {
       const q = qs[i];
-      res.push(new Action({ id: "single-action" + q.id, locTitle: q.singleInputLocTitle, action: () => { q.singleInputMoveToFirst(); } }));
+      const action = new Action({ id: "single-action" + q.id, locTitle: q.singleInputLocTitle,
+        css: this.cssClasses.breadcrumbsItem,
+        innerCss: this.cssClasses.breadcrumbsItemButton,
+        action: () => { q.singleInputMoveToFirst(); } });
+
+      action.cssClasses = {};
+      res.push(action);
     }
     return res;
   }

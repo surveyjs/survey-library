@@ -7,9 +7,11 @@ import {
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyBreadcrumbsItem } from "./breadcrumbs-item";
+import { SvgIcon } from "../svg-icon/svg-icon";
 
 interface IBreadcrumbsProps {
   items: Action[];
+  css: any;
 }
 
 export class SurveyBreadcrumbs extends SurveyElementBase<IBreadcrumbsProps, any> {
@@ -21,23 +23,35 @@ export class SurveyBreadcrumbs extends SurveyElementBase<IBreadcrumbsProps, any>
     return this.props.items;
   }
 
+  get css() {
+    return this.props.css;
+  }
+
   renderElement(): any {
     if (!this.items || !this.items.length) return null;
     const items = this.renderItems();
     return (
-      <div>
+      <div className={this.css.breadcrumbsRoot}>
         {items}
       </div>
     );
   }
   renderItems() {
-    return this.items.concat([]).map(
+    const result = [];
+    this.items.concat([]).forEach(
       (item: Action, itemIndex: number) => {
-        return (
-          <SurveyBreadcrumbsItem item={item} key={item.renderedId}></SurveyBreadcrumbsItem>
-        );
+        if (itemIndex) {
+          result.push(<SvgIcon
+            key={item.renderedId + "_separator"}
+            className={this.css.breadcrumbsSeparator}
+            iconName={"arrowright-16x16"}
+            size={"auto"}
+          ></SvgIcon >);
+        }
+        result.push(<SurveyBreadcrumbsItem key={item.renderedId} item={item}></SurveyBreadcrumbsItem>);
       }
     );
+    return result;
   }
 }
 

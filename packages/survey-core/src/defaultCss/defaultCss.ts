@@ -253,7 +253,11 @@ export var defaultCss = {
     errorsContainerBottom: "sd-question__erbox--below-question",
     confirmDialog: "sd-popup--confirm sv-popup--confirm",
     singleInputTitle: "sd-title sd-singleinput__title",
-    singleInputWrapper: "sd-question__singleinput-wrapper"
+    singleInputWrapper: "sd-question__singleinput-wrapper",
+    breadcrumbsRoot: "sd-breadcrumbs",
+    breadcrumbsItem: "sd-breadcrumbs-item",
+    breadcrumbsItemButton: "sd-breadcrumbs-item__button",
+    breadcrumbsSeparator: "sd-breadcrumbs-separator"
   },
   image: {
     mainRoot: "sd-element sd-question sd-question--image",
@@ -844,11 +848,6 @@ export var defaultCss = {
     itemAsIcon: "sd-action--icon",
     itemIcon: "sd-action__icon",
     itemTitle: "sd-action__title",
-  },
-  breadcrumbs: {
-    root: "sd-breadcrumbs",
-    item: "sd-breadcrumbs-item",
-    separator: "sd-breadcrumbs-separator"
   },
   variables: {
     mobileWidth: "--sd-mobile-width",

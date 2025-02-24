@@ -387,6 +387,45 @@ QUnit.test("Do not show errors in display mode", function (assert) {
   assert.equal(survey.activePage.name, "p2", "active page page is p2, #2");
   assert.equal(survey.currentPage.name, "p2", "current page page is p2, #2");
 });
+QUnit.test("firstPageIsStarted & questionsOnPageMode, Bug#9510", function (assert) {
+  var survey = new SurveyModel({
+    pages: [
+      { name: "p1", elements: [{ type: "text", name: "info1" }, { type: "text", name: "info2" }] },
+      { name: "p2", elements: [{ type: "text", name: "q1" }] },
+      { name: "p3", elements: [{ type: "text", name: "q2" }, { type: "text", name: "q3" }] },
+    ],
+    firstPageIsStarted: true,
+    questionsOnPageMode: "questionPerPage"
+  });
+  assert.equal(survey.activePage.name, "p1", "active page #1");
+  assert.equal(survey.activePage.rows.length, 2, "rows #1");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #1");
+  survey.start();
+  assert.equal(survey.activePage.name, "p2", "active page #2");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #2");
+  assert.equal(survey.activePage.rows.length, 1, "rows #2");
+  assert.equal(survey.isShowPrevButton, false, "isShowPrevButton #2");
+  survey.performNext();
+  assert.equal(survey.activePage.name, "p3", "active page #3");
+  assert.equal(survey.activePage.rows.length, 1, "rows #3");
+  assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion #3");
+  assert.equal(survey.isShowPrevButton, true, "isShowPrevButton #3");
+  survey.performNext();
+  assert.equal(survey.activePage.name, "p3", "active page #4");
+  assert.equal(survey.activePage.rows.length, 1, "rows #4");
+  assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion #4");
+  assert.equal(survey.isShowPrevButton, true, "isShowPrevButton #4");
+  survey.performPrevious();
+  assert.equal(survey.activePage.name, "p3", "active page #5");
+  assert.equal(survey.activePage.rows.length, 1, "rows #5");
+  assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion #5");
+  assert.equal(survey.isShowPrevButton, true, "isShowPrevButton #5");
+  survey.performPrevious();
+  assert.equal(survey.activePage.name, "p2", "active page #6");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #6");
+  assert.equal(survey.activePage.rows.length, 1, "rows #6");
+  assert.equal(survey.isShowPrevButton, false, "isShowPrevButton #6");
+});
 QUnit.test("Check page num when first page is started", function (assert) {
   var survey = new SurveyModel({
     pages: [

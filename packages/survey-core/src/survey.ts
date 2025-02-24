@@ -3853,7 +3853,7 @@ export class SurveyModel extends SurveyElementCore
     if (goToFirstPage) {
       this.currentPage = this.firstVisiblePage;
       if(this.currentSingleQuestion) {
-        const questions = this.getAllQuestions(true);
+        const questions = this.getSingleQuestions();
         this.currentSingleQuestion = questions.length > 0 ? questions[0] : undefined;
       }
     }
@@ -4109,7 +4109,7 @@ export class SurveyModel extends SurveyElementCore
     const q = this.currentSingleQuestion;
     if(!q) return this.nextPage();
     if(!q.validate(true)) return false;
-    const questions = this.getAllQuestions(true);
+    const questions = this.getSingleQuestions();
     const index = questions.indexOf(q);
     if(index < 0 || index === questions.length - 1) return false;
     const key: any = {};
@@ -4121,7 +4121,7 @@ export class SurveyModel extends SurveyElementCore
   public performPrevious(): boolean {
     const q = this.currentSingleQuestion;
     if(!q) return this.prevPage();
-    const questions = this.getAllQuestions(true);
+    const questions = this.getSingleQuestions();
     const index = questions.indexOf(q);
     if(index === 0) return false;
     this.currentSingleQuestion = questions[index - 1];
@@ -4709,6 +4709,17 @@ export class SurveyModel extends SurveyElementCore
     this.updateButtonsVisibility();
   }
   private currentSingleQuestionValue: Question;
+  private getSingleQuestions(): Array<Question> {
+    const res = new Array<Question>();
+    const pages = this.pages;
+    for (var i: number = 0; i < pages.length; i++) {
+      const p = pages[i];
+      if(!p.isStartPage && p.isVisible) {
+        p.addQuestionsToList(res, true);
+      }
+    }
+    return res;
+  }
   public get currentSingleQuestion(): Question { return this.currentSingleQuestionValue; }
   public set currentSingleQuestion(val: Question) {
     const oldVal = this.currentSingleQuestion;
@@ -4746,7 +4757,7 @@ export class SurveyModel extends SurveyElementCore
       this.updatePagesContainer();
     }
     if(this.isSingleVisibleQuestion) {
-      const questions = this.getAllQuestions(true);
+      const questions = this.getSingleQuestions();
       if(questions.length > 0) {
         this.currentSingleQuestion = questions[0];
       }
@@ -4806,7 +4817,7 @@ export class SurveyModel extends SurveyElementCore
     let lVal: boolean | undefined = undefined;
     const q = this.currentSingleQuestion;
     if(!!q) {
-      const questions = this.getAllQuestions(true);
+      const questions = this.getSingleQuestions();
       const index = questions.indexOf(q);
       if(index >= 0) {
         fVal = index === 0;

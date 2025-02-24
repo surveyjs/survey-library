@@ -257,7 +257,14 @@ export var defaultCss = {
     breadcrumbsRoot: "sd-breadcrumbs",
     breadcrumbsItem: "sd-breadcrumbs-item",
     breadcrumbsItemButton: "sd-breadcrumbs-item__button",
-    breadcrumbsSeparator: "sd-breadcrumbs-separator"
+    breadcrumbsSeparator: "sd-breadcrumbs-separator",
+    summary: "sd-summary",
+    summaryRow: "sd-summary-row",
+    summaryRowContent: "sd-summary-row__content",
+    summaryRowActions: "sd-summary-row__actions",
+    summaryRowAction: "sd-summary-row-action",
+    summaryRowActionEdit: "sd-summary-row-action sd-summary-row-action--edit",
+    summaryRowActionDelete: "sd-summary-row-action sd-summary-row-action--delete",
   },
   image: {
     mainRoot: "sd-element sd-question sd-question--image",

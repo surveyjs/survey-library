@@ -48,10 +48,12 @@ export class PageModel extends PanelModel implements IPage {
      && !!this.parent && !this.parent.isPanel;
   }
   protected getElementsForRows(): Array<IElement> {
-    const q = this.survey?.currentSingleQuestion;
-    if(!!q) {
-      if((<any>q).page === this) return [q];
-      return [];
+    if(!this.isStartPage) {
+      const q = this.survey?.currentSingleQuestion;
+      if(!!q) {
+        if((<any>q).page === this) return [q];
+        return [];
+      }
     }
     return super.getElementsForRows();
   }

@@ -18297,6 +18297,7 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
 });
 QUnit.test("getContainerContent - do not show advanced header on completed page", function (assert) {
   const json = {
+    headerView: "advanced",
     pages: [
       {
         "elements": [
@@ -18349,6 +18350,7 @@ QUnit.test("getContainerContent - do not show advanced header on completed page"
 });
 QUnit.test("getContainerContent - do show advanced header on completed page if showHeaderOnCompletePage is set", function (assert) {
   const json = {
+    headerView: "advanced",
     pages: [
       {
         "elements": [
@@ -19212,7 +19214,7 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundImageAttachment, "scroll", "before applyTheme");
   assert.equal(survey.backgroundOpacity, 1, "before applyTheme");
   assert.equal(survey["isCompact"], false, "before applyTheme");
-  assert.equal(survey.headerView, "advanced", "before applyTheme");
+  assert.equal(survey.headerView, "basic", "before applyTheme");
 
   survey.applyTheme({
     "cssVariables": {
@@ -19235,7 +19237,7 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundImageAttachment, "fixed");
   assert.equal(survey.backgroundOpacity, 0.6);
   assert.equal(survey["isCompact"], true);
-  assert.equal(survey.headerView, "advanced", "after applyTheme");
+  assert.equal(survey.headerView, "basic", "after applyTheme");
 });
 QUnit.test("survey.applyTheme respects headerView", function (assert) {
   const survey = new SurveyModel({
@@ -19245,19 +19247,23 @@ QUnit.test("survey.applyTheme respects headerView", function (assert) {
     ]
   });
 
-  assert.equal(survey.headerView, "advanced", "before applyTheme");
-  survey.applyTheme({
-    "headerView": "basic"
-  });
-  assert.equal(survey.headerView, "basic", "apply basic header");
+  assert.equal(survey.headerView, "basic", "before applyTheme");
 
   survey.applyTheme({
     "headerView": "advanced"
   });
   assert.equal(survey.headerView, "advanced", "apply advanced header");
 
+  survey.applyTheme({
+    "headerView": "basic"
+  });
+  assert.equal(survey.headerView, "basic", "apply basic header");
+
   survey.applyTheme({});
-  assert.equal(survey.headerView, "advanced", "apply empty theme");
+  assert.equal(survey.headerView, "basic", "apply empty theme");
+
+  survey.applyTheme({ header: {} });
+  assert.equal(survey.headerView, "advanced", "apply theme with header");
 });
 QUnit.test("page/panel delete do it recursively", function (assert) {
   const survey = new SurveyModel({
@@ -19903,11 +19909,11 @@ QUnit.test("Do not run defaultValueExpression on survey.data, #7423", function (
   assert.deepEqual(q3.value, [], "q3.value #3");
   assert.notOk(q4.value, "q4.value #3");
 });
-QUnit.test("theme assignment doesn't affect headerView", function (assert) {
+QUnit.test("theme assignment affects headerView", function (assert) {
   let survey = new SurveyModel({});
-  assert.equal(survey.headerView, "advanced", "default value");
-  survey.theme = { header: {} } as any;
-  assert.equal(survey.headerView, "advanced", "keep default value");
+  assert.equal(survey.headerView, "basic", "default value");
+  survey.applyTheme({ header: {} } as any);
+  assert.equal(survey.headerView, "advanced", "changed to advanced");
 });
 QUnit.test("defaultValueExpression expression stops working after survey.clear(), #7448", function (assert) {
   const survey = new SurveyModel({
@@ -20436,6 +20442,7 @@ QUnit.test("getContainerContent - show advanced header on start page", function 
   const json = {
     showNavigationButtons: "none",
     "firstPageIsStartPage": true,
+    headerView: "advanced",
     title: "My title",
     pages: [
       {

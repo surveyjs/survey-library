@@ -28,6 +28,20 @@ function getNewQuestion(choices?: string[]) {
   return <QuestionSelectBase>survey.getAllQuestions()[0];
 }
 
+function getNewRankingQuestion() {
+  const json = {
+    questions: [
+      {
+        type: "ranking",
+        name: "Question 1",
+        choices: ["item1", "item2", "item3"],
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  return <QuestionSelectBase>survey.getAllQuestions()[0];
+}
+
 QUnit.test("drop", function (assert) {
   let ddHelper = new DragDropChoices(undefined);
   const dropTargetNode = document.createElement("div");
@@ -462,7 +476,7 @@ QUnit.test("ranking selectToRank for ChoicesDND(creator)", function (assert) {
 
   let ddHelper:any = new DragDropChoices(survey);
   ddHelper.parentElement = survey.getQuestionByName("q1");
-  assert.equal(ddHelper["getVisibleChoices"]().length, 4);
+  assert.equal(ddHelper["getChoices"]().length, 4);
 });
 
 QUnit.test("DragDropDOMAdapter: getNodeIndexInParent", function (assert) {
@@ -502,4 +516,28 @@ QUnit.test("check rootContainer", function (assert) {
   let dd: any = new DragDropChoices(survey);
   assert.equal(dd.getRootElement(survey), h1);
   assert.equal(dd.getRootElement(survey, creator), h2);
+});
+
+QUnit.test("getChoices", function (assert) {
+  let ddHelper = new DragDropChoices(undefined);
+
+  let questionSelectBase = getNewQuestion();
+  ddHelper["parentElement"] = <any>questionSelectBase;
+  assert.deepEqual(
+    ddHelper["getChoices"](),
+    questionSelectBase.visibleChoices
+  );
+
+  let questionRanking = getNewRankingQuestion();
+  ddHelper["parentElement"] = <any>questionRanking;
+  assert.deepEqual(
+    ddHelper["getChoices"](),
+    questionRanking.rankingChoices
+  );
+  questionRanking.selectToRankEnabled = true;
+  ddHelper["parentElement"] = <any>questionRanking;
+  assert.deepEqual(
+    ddHelper["getChoices"](),
+    questionRanking.unRankingChoices
+  );
 });

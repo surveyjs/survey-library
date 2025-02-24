@@ -26,7 +26,7 @@ module.exports = (options) => {
 
     plugins: [
       nodeResolve(),
-      typescript({ tsconfig: options.tsconfig, compilerOptions: {
+      typescript({ inlineSources: true, sourceMap: true, tsconfig: options.tsconfig, compilerOptions: {
         declaration: false,
         declarationDir: null
       } }),

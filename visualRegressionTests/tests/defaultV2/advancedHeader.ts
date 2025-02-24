@@ -574,6 +574,19 @@ frameworks.forEach(framework => {
         ],
       });
 
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "left",
+            "logoPositionY": "top",
+            "titlePositionX": "left",
+            "titlePositionY": "bottom",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "bottom"
+          }
+        });
+      })();
       await resetFocusToBody();
       await takeElementScreenshot("survey-advanced-header-correct-height.png", Selector(".sd-root-modern"), t, comparer);
     });

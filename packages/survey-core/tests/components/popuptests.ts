@@ -1816,7 +1816,7 @@ QUnit.test("PopupViewModel: check getShouldRunAnimation method", (assert) => {
   settings.animationEnabled = false;
 });
 
-QUnit.test("Сheck the sequence of method calls", assert => {
+QUnit.test("Check the sequence of method calls", assert => {
   const done1 = assert.async();
   const done2 = assert.async();
   const done3 = assert.async();

@@ -64,7 +64,7 @@ function patchEntries(config) {
         export: "default",
         umdNamedDefine: true,
         name: {
-          root: ["SurveyThemes", umdName],
+          root: ["SurveyTheme", umdName],
           amd: "[dashedname]",
           commonjs: "[dashedname]",
         },
@@ -74,7 +74,7 @@ function patchEntries(config) {
 }
 module.exports = function (options) {
   options.platform = "";
-  options.libraryName = "SurveyThemes";
+  options.libraryName = "SurveyTheme";
   options.tsConfigFile = path.resolve(__dirname, "./tsconfig.themes.json");
   const mainConfig = webpackCommonConfig(options);
   mainConfig.entry = {};

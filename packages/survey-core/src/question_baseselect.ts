@@ -1931,40 +1931,75 @@ export class QuestionSelectBase extends Question {
     return settings.itemFlowDirection;
   }
   get columns() {
-    var columns = [];
-    var colCount = this.getCurrentColCount();
-    if (this.hasColumns && this.renderedChoices.length > 0) {
-      let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isInDesignMode) ?
-        this.renderedChoices : this.dataChoices;
-      if (this.itemFlowDirection === "column") {
-        var prevIndex = 0;
-        var leftElementsCount = choicesToBuildColumns.length % colCount;
-        for (var i = 0; i < colCount; i++) {
-          var column = [];
-          for (
-            var j = prevIndex;
-            j < prevIndex + Math.floor(choicesToBuildColumns.length / colCount);
-            j++
-          ) {
-            column.push(choicesToBuildColumns[j]);
-          }
-          if (leftElementsCount > 0) {
-            leftElementsCount--;
-            column.push(choicesToBuildColumns[j]);
-            j++;
-          }
-          prevIndex = j;
-          columns.push(column);
+    if (!this.hasColumns || this.renderedChoices.length === 0) return [];
+
+    const colCount = this.getCurrentColCount();
+    let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isInDesignMode) ?
+      this.renderedChoices : this.dataChoices;
+
+    if (this.itemFlowDirection === "column") {
+      return this.getColumnsWithColumnItemFlow_Old(choicesToBuildColumns, colCount);
+      //return this.getColumnsWithColumnItemFlow(choicesToBuildColumns, colCount);
+    } else {
+      const columns = [];
+      for (let i = 0; i < colCount; i++) {
+        const column = [];
+        for (let j = i; j < choicesToBuildColumns.length; j += colCount) {
+          column.push(choicesToBuildColumns[j]);
         }
-      } else {
-        for (var i = 0; i < colCount; i++) {
-          var column = [];
-          for (var j = i; j < choicesToBuildColumns.length; j += colCount) {
-            column.push(choicesToBuildColumns[j]);
-          }
-          columns.push(column);
+        columns.push(column);
+      }
+      return columns;
+    }
+  }
+  getColumnsWithColumnItemFlow(choices, colCount) {
+    const columns =[];
+    const fullFilledColumnHeight = Math.floor(choices.length / colCount);
+    const maxColumnHeight = fullFilledColumnHeight + 1;
+
+    let reminder = choices.length % colCount;
+
+    for (let i = 0; i < colCount; i++) {
+      const column = [];
+      const choiceStartIndex = i * fullFilledColumnHeight;
+      for (let j = 0; j < fullFilledColumnHeight; j++) {
+        const choice = choices[j + choiceStartIndex];
+        if (choice) {
+          column.push(choice);
         }
       }
+      if (reminder > 0) {
+        reminder--;
+        const choice = choices[fullFilledColumnHeight + choiceStartIndex];
+        if (choice) {
+          column.push(choice);
+        }
+      }
+      columns.push(column);
+    }
+
+    return columns;
+  }
+  getColumnsWithColumnItemFlow_Old(choicesToBuildColumns, colCount) {
+    const columns = [];
+    let prevIndex = 0;
+    let leftElementsCount = choicesToBuildColumns.length % colCount;
+    for (let i = 0; i < colCount; i++) {
+      const column = [];
+      for (
+        var j = prevIndex;
+        j < prevIndex + Math.floor(choicesToBuildColumns.length / colCount);
+        j++
+      ) {
+        column.push(choicesToBuildColumns[j]);
+      }
+      if (leftElementsCount > 0) {
+        leftElementsCount--;
+        column.push(choicesToBuildColumns[j]);
+        j++;
+      }
+      prevIndex = j;
+      columns.push(column);
     }
     return columns;
   }

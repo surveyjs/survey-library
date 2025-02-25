@@ -7613,10 +7613,12 @@ export class SurveyModel extends SurveyElementCore
   public calculateWidthMode(): string {
     if (this.widthMode == "auto") {
       let isResponsive = false;
-      this.pages.forEach((page) => {
-        if (page.needResponsiveWidth())
-          isResponsive = true;
-      });
+      if (this.questionsOnPageMode != "inputPerPage") {
+        this.pages.forEach((page) => {
+          if (page.needResponsiveWidth())
+            isResponsive = true;
+        });
+      }
       return isResponsive ? "responsive" : "static";
     }
     return this.widthMode;

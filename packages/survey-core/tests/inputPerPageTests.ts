@@ -3,6 +3,7 @@ import { PageModel } from "../src/page";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionSingleInputSummary } from "../src/questionSingleInputSummary";
 
 export default QUnit.module("Input Per Page Tests");
 
@@ -761,6 +762,35 @@ QUnit.test("singleInput & singleInputSummary for dynamic panel", assert => {
   assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "singleInputLocTitle, #6");
   assert.equal(survey.isShowPrevButton, false, "prev buttton, #6");
   assert.equal(survey.isShowNextButton, true, "next buttton, #6");
+});
+QUnit.test("singleInput & singleInputSummary for nested dynamic panel", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "paneldynamic", name: "panel2", templateElements: [{ type: "text", name: "q2" }], templateTitle: "#{panelIndex}: {panel.q2}" }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  survey.data = { panel1: [{ q1: "a", panel2: [{ q2: "b" }, { q2: "c" }] }] };
+  const panel1 = survey.getQuestionByName("panel1");
+  survey.performNext();
+  survey.performNext();
+  assert.equal(panel1.singleInputQuestion.name, "panel2", "panel2.singleInputQuestion.name, #1");
+  const panel2 = panel1.panels[0].getQuestionByName("panel2");
+  assert.equal(panel2.singleInputQuestion.name, "q2", "panel2.singleInputQuestion.name, #1");
+  survey.performNext();
+  survey.performNext();
+  const summary: QuestionSingleInputSummary = panel2.singleInputSummary;
+  assert.ok(summary, "singleInputSummary exists, #2");
+  const items = summary.items;
+  assert.equal(items.length, 2, "singleInputSummary.items.length, #2");
+  assert.equal(items[0].locText.textOrHtml, "#1: b", "items[0].text, #2");
+  assert.equal(items[1].locText.textOrHtml, "#2: c", "items[1].text, #2");
 });
 QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert => {
   const survey = new SurveyModel({

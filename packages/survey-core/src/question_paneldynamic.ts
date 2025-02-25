@@ -1244,7 +1244,7 @@ export class QuestionPanelDynamicModel extends Question
       const locText = new LocalizableString(this, true, undefined, this.locTemplateTitle.localizationName);
       locText.setJson(this.locTemplateTitle.getJson());
       locText.onGetTextCallback = (text: string): string => {
-        return this.processSingleInputTitle(text, panel);
+        return this.processSingleInputTitle(this.templateTitle, panel);
       };
       const bntEdit = new Action({ locTitle: this.getLocalizableString("editPanelText"), action: () => { this.singInputEditPanel(panel); } });
       const btnRemove = this.canRemovePanel ? new Action({ locTitle: this.locPanelRemoveText, action: () => { this.removePanelUI(panel); } }) : undefined;

@@ -20,7 +20,7 @@ export class SurveyQuestionSigleInputSummary extends ReactSurveyElement {
   }
   private renderItems(): React.JSX.Element {
     return (
-      <div>
+      <div className={this.css.summary}>
         {this.summary.items.map((item, index) => this.renderItem(item, index))}
       </div>
     );

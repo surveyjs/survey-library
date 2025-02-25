@@ -332,8 +332,8 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     var jsoObj = new JsonObject();
     for (var i = 0; i < properties.length; i++) {
       const prop = properties[i];
-      if (prop.name === "text" && (!this.locTextValue || !this.locText.hasNonDefaultText() &&
-        Helpers.isTwoValueEquals(this.value, this.text, false, true, false))) continue;
+      if (prop.name === "text" && (!this.locTextValue || !this.locTextValue.hasNonDefaultText() &&
+        Helpers.isTwoValueEquals(this.value, this.locTextValue.getLocaleText(""), false, true, false))) continue;
       jsoObj.valueToJson(this, res, prop);
     }
     return res;

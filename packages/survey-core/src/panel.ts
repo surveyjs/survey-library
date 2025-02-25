@@ -1795,8 +1795,9 @@ export class PanelModelBase extends SurveyElement<Question>
     index += this.beforeSetVisibleIndex(index);
     var panelStartIndex = this.getPanelStartIndex(index);
     var panelIndex = panelStartIndex;
-    for (var i = 0; i < this.elements.length; i++) {
-      panelIndex += this.elements[i].setVisibleIndex(panelIndex);
+    const elements = this.elements;
+    for (var i = 0; i < elements.length; i++) {
+      panelIndex += elements[i].setVisibleIndex(panelIndex);
     }
     if (this.isContinueNumbering()) {
       index += panelIndex - panelStartIndex;
@@ -1809,8 +1810,9 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setVisibleIndex(this.lastVisibleIndex);
   }
   private resetVisibleIndexes() {
-    for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].setVisibleIndex(-1);
+    const elements = this.elements;
+    for (var i = 0; i < elements.length; i++) {
+      elements[i].setVisibleIndex(-1);
     }
   }
   protected beforeSetVisibleIndex(index: number): number {

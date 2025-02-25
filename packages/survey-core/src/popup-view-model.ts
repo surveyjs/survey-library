@@ -132,7 +132,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     this.footerToolbarValue.setItems(footerActions);
   }
   protected resetDimensionsAndPositionStyleProperties(): void {
-    const nullableValue = "inherit";
+    const nullableValue = "";
     this.top = nullableValue;
     this.left = nullableValue;
     this.height = nullableValue;

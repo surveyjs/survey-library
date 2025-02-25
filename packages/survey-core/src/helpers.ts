@@ -34,6 +34,9 @@ export class Helpers {
     }
     return !value && value !== 0 && value !== false;
   }
+  public static isValueUndefined(value: any): boolean {
+    return (value === undefined || value === null) || (typeof value === "number" && isNaN(value));
+  }
   public static isArrayContainsEqual(x: any, y: any): boolean {
     if (!Array.isArray(x) || !Array.isArray(y)) return false;
     if (x.length !== y.length) return false;

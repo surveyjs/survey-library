@@ -16,7 +16,7 @@ export class SurveyQuestionSigleInputSummary extends ReactSurveyElement {
   }
   protected renderElement(): React.JSX.Element {
     if (!this.summary) return null;
-    return this.summary.items.length > 0 ? this.renderItems() : this.renderNoItems();
+    return this.summary.isEmpty() ? this.renderNoItems() : this.renderItems();
   }
   private renderItems(): React.JSX.Element {
     return (
@@ -26,10 +26,9 @@ export class SurveyQuestionSigleInputSummary extends ReactSurveyElement {
     );
   }
   private renderNoItems(): React.JSX.Element {
-    return <div>
-      {this.renderLocString(this.summary.noEntry)}
-      <button onClick={() => this.summary.bntAdd.action()}>{this.renderLocString(this.summary.bntAdd.locTitle)}</button>
-    </div>;
+    const q = this.summary.question;
+    const placeholder = ReactElementFactory.Instance.createElement("sv-placeholder-" + q.getTemplate(), { cssClasses: this.css, question: q });
+    return placeholder || <div>{this.renderLocString(this.summary.noEntry)}</div>;
   }
   private renderItem(item: QuestionSingleInputSummaryItem, index: number): React.JSX.Element {
     return <div className={this.css.summaryRow} key={index}>

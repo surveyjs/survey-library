@@ -1238,8 +1238,7 @@ export class QuestionPanelDynamicModel extends Question
     return null;
   }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
-    const bntAdd = new Action({ locTitle: this.locPanelAddText, action: () => { this.addPanelUI(); } });
-    const res = new QuestionSingleInputSummary(this.locNoEntriesText, bntAdd);
+    const res = new QuestionSingleInputSummary(this, this.locNoEntriesText);
     const items = new Array<QuestionSingleInputSummaryItem>();
     this.visiblePanels.forEach((panel) => {
       const locText = new LocalizableString(this, true, undefined, this.locTemplateTitle.localizationName);

@@ -693,7 +693,7 @@ QUnit.test("singleInput & singleInputSummary for dynamic matrix", assert => {
   assert.equal(matrix.singleInputSummary.items.length, 0, "singleInputSummary.items.length, #1");
   assert.notOk(matrix.singleInputLocTitle?.textOrHtml, "singleInputLocTitle, #1");
   assert.equal(matrix.locTitle.textOrHtml, "matrix1", "locTitle, #1");
-  matrix.singleInputSummary.bntAdd.action();
+  matrix.addRow();
   assert.equal(matrix.rowCount, 1, "row count, #2");
   assert.notOk(matrix.singleInputSummary, "singleInputSummary exists, #2");
   assert.equal(matrix.singleInputLocTitle?.textOrHtml, "Row 1", "singleInputLocTitle, #2");
@@ -740,7 +740,7 @@ QUnit.test("singleInput & singleInputSummary for dynamic panel", assert => {
   assert.equal(panel.singleInputQuestion.name, "panel1", "singleInputQuestion.name, #1");
   assert.ok(panel.singleInputSummary, "singleInputSummary exists, #1");
   assert.equal(panel.singleInputSummary.items.length, 0, "singleInputSummary.items.length, #1");
-  panel.singleInputSummary.bntAdd.action();
+  panel.addPanel();
   assert.equal(panel.panelCount, 1, "row count, #2");
   assert.notOk(panel.singleInputSummary, "singleInputSummary exists, #2");
   survey.performNext();

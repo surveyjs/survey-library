@@ -149,6 +149,12 @@ export class QuestionSelectBase extends Question {
     if (!!text) res.text = text;
     return res;
   }
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+    if(!rec || rec.isOnValueChanged !== true) {
+      this.clearIncorrectValues();
+    }
+    return super.hasErrors(fireCallback, rec);
+  }
   public get isUsingCarryForward(): boolean {
     return !!this.carryForwardQuestionType;
   }
@@ -1240,7 +1246,7 @@ export class QuestionSelectBase extends Question {
       ? this.filteredChoicesValue
       : this.activeChoices;
   }
-  protected get activeChoices(): Array<ItemValue> {
+  private get activeChoices(): Array<ItemValue> {
     const question = this.getCarryForwardQuestion();
     if (this.carryForwardQuestionType === "select") {
       (<QuestionSelectBase>question).addDependedQuestion(this);

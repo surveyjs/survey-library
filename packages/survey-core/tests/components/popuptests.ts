@@ -1575,10 +1575,10 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
 
   assert.equal(trace, "->onShow");
   assert.equal(viewModel.isVisible, true);
-  assert.equal(viewModel.top, "inherit", "onShow top");
-  assert.equal(viewModel.left, "inherit", "onShow left");
-  assert.equal(viewModel.height, "inherit", "onShow height");
-  assert.equal(viewModel.width, "inherit", "onShow width");
+  assert.equal(viewModel.top, "", "onShow top");
+  assert.equal(viewModel.left, "", "onShow left");
+  assert.equal(viewModel.height, "", "onShow height");
+  assert.equal(viewModel.width, "", "onShow width");
   trace = "";
 
   model.toggleVisibility();
@@ -1816,7 +1816,7 @@ QUnit.test("PopupViewModel: check getShouldRunAnimation method", (assert) => {
   settings.animationEnabled = false;
 });
 
-QUnit.test("Сheck the sequence of method calls", assert => {
+QUnit.test("Check the sequence of method calls", assert => {
   const done1 = assert.async();
   const done2 = assert.async();
   const done3 = assert.async();

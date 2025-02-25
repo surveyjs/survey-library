@@ -87,6 +87,10 @@
   @include useEditorFontSize;
   width: multiply(1.5, $font-editorfont-size);
   height: multiply(1.5, $font-editorfont-size);
+
+  use {
+    pointer-events: none;
+  }
 }
 
 .sd-input.sd-dropdown:focus-within {

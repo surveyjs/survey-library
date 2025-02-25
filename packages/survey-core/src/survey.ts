@@ -1066,9 +1066,6 @@ export class SurveyModel extends SurveyElementCore
       }
     });
 
-    if (this.headerView === "advanced") {
-      this.insertAdvancedHeader(new Cover());
-    }
     this.layoutElements.push({
       id: "timerpanel",
       template: "survey-timerpanel",
@@ -3860,7 +3857,7 @@ export class SurveyModel extends SurveyElementCore
     if (goToFirstPage) {
       this.currentPage = this.firstVisiblePage;
       if(this.currentSingleQuestion) {
-        const questions = this.getAllQuestions(true);
+        const questions = this.getSingleQuestions();
         this.currentSingleQuestion = questions.length > 0 ? questions[0] : undefined;
       }
     }
@@ -4123,9 +4120,12 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if(!q.validate(true)) return false;
-    const questions = this.getAllQuestions(true);
+    const questions = this.getSingleQuestions();
     const index = questions.indexOf(q);
     if(index < 0 || index === questions.length - 1) return false;
+    const key: any = {};
+    key[q.name] = q.value;
+    this.checkTriggers(key, false, false, true, q.name);
     this.currentSingleQuestion = questions[index + 1];
     return true;
   }
@@ -4138,7 +4138,7 @@ export class SurveyModel extends SurveyElementCore
         return true;
       }
     }
-    const questions = this.getAllQuestions(true);
+    const questions = this.getSingleQuestions();
     const index = questions.indexOf(q);
     if(index === 0) return false;
     this.currentSingleQuestion = questions[index - 1];
@@ -4729,10 +4729,21 @@ export class SurveyModel extends SurveyElementCore
     this.updateButtonsVisibility();
   }
   private currentSingleQuestionValue: Question;
+  private getSingleQuestions(): Array<Question> {
+    const res = new Array<Question>();
+    const pages = this.pages;
+    for (var i: number = 0; i < pages.length; i++) {
+      const p = pages[i];
+      if(!p.isStartPage && p.isVisible) {
+        p.addQuestionsToList(res, true);
+      }
+    }
+    return res;
+  }
   public get currentSingleQuestion(): Question { return this.currentSingleQuestionValue; }
   public set currentSingleQuestion(val: Question) {
     const oldVal = this.currentSingleQuestion;
-    if(val !== oldVal) {
+    if(val !== oldVal && !this.isCompleted) {
       const options: any = !!val && !!oldVal ? this.createPageChangeEventOptions(<PageModel>val.page, <PageModel>oldVal.page, val, oldVal) : undefined;
       if(!!options && !this.currentPageChangingFromOptions(options)) return;
       this.currentSingleQuestionValue = val;
@@ -4770,7 +4781,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.setupSingleInputNavigationActions();
     if(this.isSingleVisibleQuestion) {
-      const questions = this.getAllQuestions(true);
+      const questions = this.getSingleQuestions();
       if(questions.length > 0) {
         this.currentSingleQuestion = questions[0];
       }
@@ -4870,7 +4881,7 @@ export class SurveyModel extends SurveyElementCore
           isLastInput = inputState === 1;
         }
       }
-      const questions = this.getAllQuestions(true);
+      const questions = this.getSingleQuestions();
       const index = questions.indexOf(q);
       if(index >= 0) {
         fVal = isFirstInput && index === 0;
@@ -6315,7 +6326,7 @@ export class SurveyModel extends SurveyElementCore
   private isTriggerIsRunning: boolean = false;
   private triggerValues: any = null;
   private triggerKeys: any = null;
-  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, name?: string): void {
+  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string): void {
     if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
     if (this.isTriggerIsRunning) {
       this.triggerValues = this.getFilteredValues();
@@ -6337,11 +6348,9 @@ export class SurveyModel extends SurveyElementCore
     for (let i = 0; i < this.triggers.length; i++) {
       const trigger = this.triggers[i];
       if (isQuestionInvalid && trigger.requireValidQuestion) continue;
-      trigger.checkExpression(isOnNextPage, isOnComplete,
-        this.triggerKeys,
-        this.triggerValues,
-        properties
-      );
+      const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
+        keys: this.triggerKeys, values: this.triggerValues, properties: properties };
+      trigger.checkExpression(options);
     }
     if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
       this.updateButtonsVisibility();
@@ -6352,7 +6361,7 @@ export class SurveyModel extends SurveyElementCore
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     this.runConditionOnValueChanged(name, newValue);
-    this.checkTriggers(triggerKeys, false, false, name);
+    this.checkTriggers(triggerKeys, false, false, false, name);
   }
   private get hasRequiredValidQuestionTrigger(): boolean {
     for (let i = 0; i < this.triggers.length; i++) {
@@ -6546,8 +6555,9 @@ export class SurveyModel extends SurveyElementCore
       }
     } else {
       let index = this.getStartVisibleIndex();
-      for (let i = 0; i < this.pages.length; i++) {
-        index += this.pages[i].setVisibleIndex(index);
+      const pages = this.pages;
+      for (let i = 0; i < pages.length; i++) {
+        index += pages[i].setVisibleIndex(index);
       }
     }
   }
@@ -8239,6 +8249,7 @@ export class SurveyModel extends SurveyElementCore
       }
     });
     if (this.headerView === "advanced" || "header" in theme) {
+      this.headerView = "advanced";
       this.removeLayoutElement("advanced-header");
       const advHeader = new Cover();
       advHeader.fromTheme(theme);
@@ -8643,7 +8654,7 @@ Serializer.addClass("survey", [
   { name: "gridLayoutEnabled:boolean", default: false },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: true, visible: false },
-  { name: "headerView", default: "advanced", choices: ["basic", "advanced"], visible: false },
+  { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
   { name: "backgroundImage:file", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },

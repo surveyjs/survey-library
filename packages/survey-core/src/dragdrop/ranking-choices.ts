@@ -1,7 +1,7 @@
 import { ItemValue } from "../itemvalue";
 import { DragDropChoices } from "./choices";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
-import { IsMobile } from "../utils/devices";
+import { IsMobile, IsTouch } from "../utils/devices";
 import { DomDocumentHelper } from "../global_variables_utils";
 import { QuestionRankingModel } from "../question_ranking";
 export class DragDropRankingChoices extends DragDropChoices {
@@ -153,6 +153,10 @@ export class DragDropRankingChoices extends DragDropChoices {
 
     const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".sv-ranking-item");
     node.style.cursor = "not-allowed";
+
+    if (IsTouch) {
+      this.parentElement.updateRankingChoices(true);
+    }
   };
 
   protected doDrop(): any {

@@ -1372,6 +1372,7 @@ export class Question extends SurveyElement<Question>
   protected getCssTitle(cssClasses: any): string {
     return new CssClassBuilder()
       .append(super.getCssTitle(cssClasses))
+      .append(cssClasses.singleInputTitle, !!this.singleInputQuestion)
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .append(cssClasses.titleEmpty, !this.title.trim())
       .toString();

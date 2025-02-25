@@ -252,7 +252,7 @@ export var defaultCss = {
     errorsContainerTop: "sd-element__erbox--above-element sd-question__erbox--above-question",
     errorsContainerBottom: "sd-question__erbox--below-question",
     confirmDialog: "sd-popup--confirm sv-popup--confirm",
-    singleInputTitle: "sd-title sd-singleinput__title",
+    singleInputTitle: "sd-element__title--singleinput",
     singleInputWrapper: "sd-question__singleinput-wrapper",
     breadcrumbsRoot: "sd-breadcrumbs",
     breadcrumbsItem: "sd-breadcrumbs-item",

@@ -20,8 +20,8 @@
         "url": "https://github.com/surveyjs/surveyjs.git"
     },
     "scripts": {
-        "build": "webpack --env buildType=dev --env emitDeclarations --env emitNonSourceFiles && webpack --env buildType=prod && webpack --config ./webpack.fesm.config.mjs --env buildType=prod",
-        "watch:dev": "concurrently \"webpack --env buildType=dev --watch --env emitDeclarations\" \"webpack --config ./webpack.fesm.config.mjs --env buildType=prod --watch\" ",
+        "build": "webpack --env buildType=dev --env emitDeclarations --env emitNonSourceFiles && webpack --env buildType=prod && rollup -c",
+        "watch:dev": "concurrently \"webpack --env buildType=dev --watch --env emitDeclarations\" \"rollup -c -w\" ",
         "start": "webpack-dev-server --env buildType=dev --open",
         "test": "karma start ./karma.conf.js --single-run",
         "test:watch": "karma start ./karma.conf.js",
@@ -35,6 +35,9 @@
     },
     "typings": "./typings/src/entries/react-ui.d.ts",
     "devDependencies": {
+        "@rollup/plugin-node-resolve": "^16.0.0",
+        "@rollup/plugin-replace": "^6.0.2",
+        "@rollup/plugin-typescript": "^12.1.2",
         "@types/qunit": "2.0.31",
         "@types/node": "7.0.4",
         "@types/react": "^17.0.83",
@@ -51,6 +54,8 @@
         "react-dom": "^17.0.1",
         "react-test-renderer": "^17.0.1",
         "rimraf": "2.5.4",
+        "rollup": "^4.34.8",
+        "rollup-plugin-license": "^3.6.0",
         "sass": "^1.62.1",
         "sass-loader": "^8.0.2",
         "commit-and-tag-version": "^11.0.0",

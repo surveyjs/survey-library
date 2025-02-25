@@ -8,11 +8,10 @@ export class QuestionSingleInputSummaryItem {
 }
 
 export class QuestionSingleInputSummary {
-  constructor(public noEntry: LocalizableString, public bntAdd: Action) {
+  constructor(public noEntry: LocalizableString) {
   }
   public items: Array<QuestionSingleInputSummaryItem> = [];
   public dispose(): void {
-    this.bntAdd?.dispose();
     this.items.forEach((item) => {
       item.btnEdit?.dispose();
       item.btnRemove?.dispose();

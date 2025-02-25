@@ -734,8 +734,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return null;
   }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
-    const bntAdd = new Action({ locTitle: this.locAddRowText, action: () => { this.addRowUI(); } });
-    const res = new QuestionSingleInputSummary(this.locNoRowsText, bntAdd);
+    const res = new QuestionSingleInputSummary(this.locNoRowsText);
     const items = new Array<QuestionSingleInputSummaryItem>();
     this.visibleRows.forEach((row) => {
       const locText = new LocalizableString(this, true, undefined, this.getSingleInputRowLocalizationTitle());

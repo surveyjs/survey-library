@@ -28,7 +28,6 @@ export class SurveyQuestionSigleInputSummary extends ReactSurveyElement {
   private renderNoItems(): React.JSX.Element {
     return <div>
       {this.renderLocString(this.summary.noEntry)}
-      <button onClick={() => this.summary.bntAdd.action()}>{this.renderLocString(this.summary.bntAdd.locTitle)}</button>
     </div>;
   }
   private renderItem(item: QuestionSingleInputSummaryItem, index: number): React.JSX.Element {

@@ -2441,7 +2441,7 @@ QUnit.test("ItemValue tooltip, #9269", (assert) => {
   assert.equal(item.getTooltip(), "edf", "#3");
 });
 
-QUnit.skip("Check QuestionSelectBase Columns Arragement", function (assert) {
+QUnit.test("Check QuestionSelectBase Columns Arragement", function (assert) {
   // https://github.com/surveyjs/survey-library/issues/9487
   const json = {
     elements: [
@@ -2474,7 +2474,6 @@ QUnit.skip("Check QuestionSelectBase Columns Arragement", function (assert) {
   //   [["Item1", "Item4", "Item7", "Item10"], ["Item2", "Item5", "Item8", "Item3"], ["Item6", "Item9"]],
   //   "check itemFlowDirection row"
   // );
-
   settings.itemFlowDirection = "column";
   columns = getValuesInColumns(question);
   assert.deepEqual(

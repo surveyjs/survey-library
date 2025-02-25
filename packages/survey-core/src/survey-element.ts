@@ -1014,8 +1014,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   /**
-   * Increases or decreases an indent of survey element content from the left edge. Accepts positive integer values and 0. Does not apply in the Default V2 theme.
-   * @see rightIndent
+   * Increases or decreases an indent of survey element content from the left edge. Accepts positive integer values and 0.
    */
   public get indent(): number {
     return this.getPropertyValue("indent");
@@ -1023,10 +1022,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public set indent(val: number) {
     this.setPropertyValue("indent", val);
   }
-  /**
-   * Increases or decreases an indent of survey element content from the right edge. Accepts positive integer values and 0. Does not apply in the Default V2 theme.
-   * @see indent
-   */
   public get rightIndent(): number {
     return this.getPropertyValue("rightIndent", 0);
   }

@@ -84,47 +84,47 @@ sv-popup {
     overflow: visible;
   }
 }
-.sv-popup--confirm {
-  .sv-popup__container {
-    border-radius: calcSize(1);
-  }
+// .sv-popup--confirm {
+//   .sv-popup__container {
+//     border-radius: calcSize(1);
+//   }
 
-  .sv-popup__body-content {
-    border-radius: calcSize(1);
-    max-width: min-content;
-    align-items: flex-end;
-    min-width: 452px;
-  }
+//   .sv-popup__body-content {
+//     border-radius: calcSize(1);
+//     max-width: min-content;
+//     align-items: flex-end;
+//     min-width: 452px;
+//   }
 
-  .sv-popup__body-header {
-    color: $font-editorfont-color;
-    align-self: self-start;
+//   .sv-popup__body-header {
+//     color: $font-editorfont-color;
+//     align-self: self-start;
 
-    /* UI/Default */
-    font-family: $font-family;
-    font-size: calcFontSize(1);
-    font-style: normal;
-    font-weight: 400;
-    line-height: calcLineHeight(1.5);
-    /* 150% */
-  }
+//     /* UI/Default */
+//     font-family: $font-family;
+//     font-size: calcFontSize(1);
+//     font-style: normal;
+//     font-weight: 400;
+//     line-height: calcLineHeight(1.5);
+//     /* 150% */
+//   }
 
-  .sv-popup__scrolling-content {
-    display: none;
-  }
+//   .sv-popup__scrolling-content {
+//     display: none;
+//   }
 
-  .sv-popup__body-footer {
-    max-width: max-content;
+//   .sv-popup__body-footer {
+//     max-width: max-content;
 
-    .sv-action-bar {
-      gap: calcSize(2);
-    }
-  }
-}
+//     .sv-action-bar {
+//       gap: calcSize(2);
+//     }
+//   }
+// }
 
-.sd-root-modern--mobile .sv-popup--confirm .sv-popup__body-content {
-  min-width: auto;
-}
+// .sd-root-modern--mobile .sv-popup--confirm .sv-popup__body-content {
+//   min-width: auto;
+// }
 
 .sv-popup--modal .sv-popup__scrolling-content {
   padding: 2px;

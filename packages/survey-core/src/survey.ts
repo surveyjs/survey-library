@@ -4968,6 +4968,7 @@ export class SurveyModel extends SurveyElementCore
     this.startTimerFromUI();
     this.onStarted.fire(this, {});
     this.updateVisibleIndexes();
+    this.currentPageNo = 0;
     if (!!this.currentPage) {
       this.currentPage.locStrsChanged();
     }

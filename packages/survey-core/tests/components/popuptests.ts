@@ -1129,7 +1129,7 @@ QUnit.test("PopupModel displayMode overlay and overlayDisplayMode", (assert) => 
   assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay", "overlayDisplayMode dropdown-overlay, isTablet false");
 
   model.overlayDisplayMode = "tablet-dropdown-overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--tablet", "overlayDisplayMode tablet-dropdown-overlay, isTablet false");
+  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--menu-tablet", "overlayDisplayMode tablet-dropdown-overlay, isTablet false");
 
   model.overlayDisplayMode = "plain";
   assert.equal(viewModel.styleClass, "sv-popup--overlay", "overlayDisplayMode plain, isTablet false");
@@ -1139,13 +1139,13 @@ QUnit.test("PopupModel displayMode overlay and overlayDisplayMode", (assert) => 
 
   viewModel["calculateIsTablet"](600, 600);
   assert.equal(viewModel["isTablet"], true, "isTablet true");
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--tablet", "overlayDisplayMode auto, isTablet true");
+  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--menu-tablet", "overlayDisplayMode auto, isTablet true");
 
   model.overlayDisplayMode = "dropdown-overlay";
   assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay", "overlayDisplayMode dropdown-overlay, isTablet true");
 
   model.overlayDisplayMode = "tablet-dropdown-overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--tablet", "overlayDisplayMode tablet-dropdown-overlay, isTablet true");
+  assert.equal(viewModel.styleClass, "sv-popup--overlay sv-popup--dropdown-overlay sv-popup--menu-tablet", "overlayDisplayMode tablet-dropdown-overlay, isTablet true");
 
   model.overlayDisplayMode = "plain";
   assert.equal(viewModel.styleClass, "sv-popup--overlay", "overlayDisplayMode plain, isTablet true");

@@ -2235,3 +2235,40 @@ QUnit.test("Check pageAnimationOptions", (assert) => {
 
   settings.animationEnabled = false;
 });
+
+QUnit.test("QuestionFile remove file by preview value with confirmation", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        name: "image1",
+        showPreview: true,
+        needConfirmRemoveFile: true
+      },
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+  survey.data = {
+    image1: [
+      { name: "f1", content: "data" },
+      { name: "f2", content: "data" },
+    ],
+  };
+
+  assert.deepEqual(q1.previewValue.length, 2);
+  const oldConfirmActionAsync = settings.confirmActionAsync;
+  settings.confirmActionAsync = (m, cb, o) => (cb(true), true);
+  try {
+    q1.doRemoveFile(q1.previewValue[1], { stopPropagation: () => { } });
+  } finally {
+    settings.confirmActionAsync = oldConfirmActionAsync;
+  }
+
+  assert.deepEqual(q1.previewValue.length, 1);
+  assert.deepEqual(survey.data, {
+    image1: [{ name: "f1", content: "data" }],
+  });
+});

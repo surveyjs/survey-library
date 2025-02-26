@@ -1167,7 +1167,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     if (this.needConfirmRemoveFile) {
       confirmActionAsync({
         message: this.getConfirmRemoveMessage(data.name),
-        funcOnYes: () => { this.clearFilesCore(); },
+        funcOnYes: () => { this.removeFileCore(data); },
         locale: this.getLocale(),
         rootElement: this.survey.rootElement,
         cssClass: this.cssClasses.confirmDialog

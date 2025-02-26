@@ -302,7 +302,7 @@ QUnit.test("PopupModalViewModel getActualHorizontalPosition", (assert) => {
   targetElement.remove();
 });
 
-QUnit.skip("PopupViewModel styleClass", (assert) => {
+QUnit.test("PopupViewModel styleClass", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
   const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
@@ -1093,7 +1093,7 @@ QUnit.test("Check updateHorizontalDimensions positionMode is fixed", (assert) =>
   assert.equal(newHorizontalDimensions.left, 100, "updateHorizontalDimensions - center+fixed - without margin");
 });
 
-QUnit.skip("PopupModel dropdown displayMode", (assert) => {
+QUnit.test("PopupModel dropdown displayMode", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
   const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
@@ -1109,7 +1109,7 @@ QUnit.skip("PopupModel dropdown displayMode", (assert) => {
   targetElement.remove();
 });
 
-QUnit.skip("PopupModel displayMode overlay and overlayDisplayMode", (assert) => {
+QUnit.test("PopupModel displayMode overlay and overlayDisplayMode", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
   const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
@@ -1154,7 +1154,7 @@ QUnit.skip("PopupModel displayMode overlay and overlayDisplayMode", (assert) => 
   targetElement.remove();
 });
 
-QUnit.skip("PopupModel isModal displayMode", (assert) => {
+QUnit.test("PopupModel isModal displayMode", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
   model.isModal = true;
@@ -1531,7 +1531,7 @@ QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
 
   targetElement.remove();
 });
-QUnit.skip("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
+QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
   const targetElement: HTMLElement = document.createElement("button");
 

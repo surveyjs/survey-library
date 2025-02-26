@@ -21286,7 +21286,20 @@ QUnit.test("Check questionsOnPageMode is 'singlePage' & showPreview", function (
   assert.equal(survey.visiblePages[0].name, "single-page", "The name is single-page, #2");
   assert.equal(survey.visiblePages[0].id, singlePageId, "We do not re-create the single-page, #2");
 });
-
+QUnit.test("The Start Page & changing the question visibility, Bug#9520", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      { name: "p1", visibleIf: "{q1}='a'", elements: [{ type: "text", name: "q2" }] },
+      { name: "p2", elements: [{ type: "text", name: "q1" }] }
+    ],
+    firstPageIsStarted: true,
+  });
+  assert.equal(survey.visiblePages.length, 1, "visiblePages #1");
+  survey.setValue("q1", "a");
+  survey.start();
+  assert.equal(survey.currentPage.name, "p1", "p1 is the current page");
+});
 QUnit.test("The Start Page has -1 index when enabling auto-numeration for survey pages, Bug#8983", function (assert) {
   const survey = new SurveyModel({
     "pages": [{

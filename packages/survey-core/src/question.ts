@@ -155,6 +155,7 @@ export class Question extends SurveyElement<Question>
     this.createLocalizableString("commentText", this, true, "otherItemText");
     this.createLocalizableString("requiredErrorText", this);
     this.createLocalizableString("commentPlaceholder", this);
+    this.createLocalizableString("defaultDisplayValue", this);
     this.addTriggerInfo("resetValueIf", (): boolean => !this.isEmpty(), (): void => {
       this.startSetValueOnExpression();
       this.clearValue();
@@ -1179,6 +1180,16 @@ export class Question extends SurveyElement<Question>
   private resetRenderedCommentPlaceholder() {
     this.resetPropertyValue("renderedCommentPlaceholder");
   }
+  /**
+   * A value to show in HTML questions and in the dynamic titles and descriptions of survey elements when the question value is [empty](#isValueEmpty).
+   *
+   * Default value: `""`
+   *
+   * [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
+   */
+  public get defaultDisplayValue(): string { return this.getLocalizableStringText("defaultDisplayValue"); }
+  public set defaultDisplayValue(val: string) { this.setLocalizableStringText("defaultDisplayValue", val); }
+  public get locDefaultDisplayValue(): LocalizableString { return this.getLocalizableString("defaultDisplayValue"); }
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
   }
@@ -2034,6 +2045,9 @@ export class Question extends SurveyElement<Question>
       if (res) return res;
     }
     value = value == undefined ? this.createValueCopy() : value;
+    if(this.isValueEmpty(value) && !this.locDefaultDisplayValue.isEmpty) {
+      value = this.defaultDisplayValue;
+    }
     if (this.isValueEmpty(value, !this.allowSpaceAsAnswer)) return this.getDisplayValueEmpty();
     return this.getDisplayValueCore(keysAsText, value);
   }
@@ -3272,6 +3286,7 @@ Serializer.addClass("question", [
     visibleIf: function (obj: any) {
       return obj.hasComment;
     }
-  }
+  },
+  { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" }
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

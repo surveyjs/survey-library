@@ -293,6 +293,13 @@ export class MatrixDropdownColumn extends Base
   public get fullTitle(): string {
     return this.locTitle.textOrHtml;
   }
+  /**
+   * A value to show in HTML questions and in the dynamic titles and descriptions of survey elements when the cell value is empty.
+   *
+   * Default value: `""`
+   *
+   * [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
+   */
   public get defaultDisplayValue(): string {
     return this.templateQuestion.defaultDisplayValue;
   }

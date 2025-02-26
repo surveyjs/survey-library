@@ -942,6 +942,13 @@ export class Question extends SurveyElement<Question>
   private resetRenderedCommentPlaceholder() {
     this.resetPropertyValue("renderedCommentPlaceholder");
   }
+  /**
+   * A value to show in HTML questions and in the dynamic titles and descriptions of survey elements when the question value is [empty](#isValueEmpty).
+   *
+   * Default value: `""`
+   *
+   * [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
+   */
   public get defaultDisplayValue(): string { return this.getLocalizableStringText("defaultDisplayValue"); }
   public set defaultDisplayValue(val: string) { this.setLocalizableStringText("defaultDisplayValue", val); }
   public get locDefaultDisplayValue(): LocalizableString { return this.getLocalizableString("defaultDisplayValue"); }

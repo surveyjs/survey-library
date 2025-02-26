@@ -3,7 +3,7 @@ import { PopupUtils, IPosition, Rect } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
-import { calculateIsTablet, IsTouch } from "./utils/devices";
+import { IsTouch } from "./utils/devices";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
@@ -18,9 +18,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       return;
     }
     this.hidePopup();
-  }
-  private calculateIsTablet(windowWidth?: number, windowHeight?: number) {
-    this.isTablet = calculateIsTablet(windowWidth, windowHeight, PopupDropdownViewModel.tabletSizeBreakpoint);
   }
   private resizeEventCallback = () => {
     if(!DomWindowHelper.isAvailable()) return;
@@ -37,7 +34,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
   };
   private clientY: number = 0;
-  @property() private isTablet = false;
+
   private touchStartEventCallback = (event: any) => {
     this.clientY = event.touches[0].clientY;
   }
@@ -272,7 +269,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         this.container.addEventListener("touchstart", this.touchStartEventCallback);
         this.container.addEventListener("touchmove", this.touchMoveEventCallback);
       }
-      this.calculateIsTablet();
       this.resizeEventCallback();
     }
     DomWindowHelper.addEventListener("scroll", this.scrollEventCallBack);

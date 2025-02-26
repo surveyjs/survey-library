@@ -241,7 +241,7 @@ sv-popup {
 
   .sv-popup__body-content {
     background-color: $background;
-    padding: calcSize(1) 0;
+    padding: calcSize(0.5) 0;
     height: 100%;
   }
 }

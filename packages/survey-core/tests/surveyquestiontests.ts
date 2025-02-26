@@ -262,6 +262,42 @@ QUnit.test("displayValue changed simultaniously with value", function (assert) {
   survey.setValue("dropdownQuestion", 2);
   assert.equal(question.displayValue, "Value 2", "value is 2");
 });
+QUnit.test("displayValue & defaultDisplayValue", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultDisplayValue: "UnsetQ1" },
+      { type: "text", name: "q2", title: "{q1}" },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.displayValue, "UnsetQ1", "q1.displayValue is correct, #1");
+  assert.equal(q2.locTitle.textOrHtml, "UnsetQ1", "q2.title is correct, #1");
+  q1.value = "Q1";
+  assert.equal(q1.displayValue, "Q1", "q1.displayValue is correct, #2");
+  assert.equal(q2.locTitle.textOrHtml, "Q1", "q2.title is correct, #2");
+  q1.clearValue();
+  assert.equal(q1.displayValue, "UnsetQ1", "q1.displayValue is correct, #3");
+  assert.equal(q2.locTitle.textOrHtml, "UnsetQ1", "q2.title is correct, #3");
+});
+QUnit.test("displayValue & defaultDisplayValue & multiple language", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultDisplayValue: { default: "UnsetQ1", de: "UnsetQ1-de" } },
+      { type: "text", name: "q2", title: "{q1}" },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.displayValue, "UnsetQ1", "q1.displayValue is correct, #1");
+  assert.equal(q2.locTitle.textOrHtml, "UnsetQ1", "q2.title is correct, #1");
+  survey.locale = "de";
+  assert.equal(q1.displayValue, "UnsetQ1-de", "q1.displayValue is correct, #2");
+  assert.equal(q2.locTitle.textOrHtml, "UnsetQ1-de", "q2.title is correct, #2");
+  survey.locale = "";
+  assert.equal(q1.displayValue, "UnsetQ1", "q1.displayValue is correct, #3");
+  assert.equal(q2.locTitle.textOrHtml, "UnsetQ1", "q2.title is correct, #3");
+});
 QUnit.test("displayValue function for rating question, issue #1094", function (
   assert
 ) {

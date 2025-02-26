@@ -293,6 +293,15 @@ export class MatrixDropdownColumn extends Base
   public get fullTitle(): string {
     return this.locTitle.textOrHtml;
   }
+  public get defaultDisplayValue(): string {
+    return this.templateQuestion.defaultDisplayValue;
+  }
+  public set defaultDisplayValue(val: string) {
+    this.templateQuestion.defaultDisplayValue = val;
+  }
+  public get locDefaultDisplayValue(): LocalizableString {
+    return this.templateQuestion.locDefaultDisplayValue;
+  }
   /**
    * Marks the column as required. If a respondent skips any cell in a required column, the matrix displays a [validation error](#requiredErrorText).
    *
@@ -967,6 +976,7 @@ Serializer.addClass(
     { name: "totalMaximumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
     { name: "totalMinimumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
     { name: "renderAs", default: "default", visible: false },
+    { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   ],
   function () {
     return new MatrixDropdownColumn("");

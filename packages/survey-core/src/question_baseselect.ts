@@ -1943,7 +1943,7 @@ export class QuestionSelectBase extends Question {
       return this.getColumnsWithRowItemFlow(choicesToBuildColumns, colCount);
     }
   }
-  getColumnsWithColumnItemFlow(choices, colCount) {
+  private getColumnsWithColumnItemFlow(choices, colCount) {
     const columns =[];
     let maxColumnHeight = Math.floor(choices.length / colCount);
 
@@ -1975,7 +1975,7 @@ export class QuestionSelectBase extends Question {
 
     return columns;
   }
-  getColumnsWithRowItemFlow(choices, colCount) {
+  private getColumnsWithRowItemFlow(choices, colCount) {
     const columns = [];
     for (let i = 0; i < colCount; i++) {
       const column = [];

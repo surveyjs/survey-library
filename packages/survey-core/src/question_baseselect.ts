@@ -1951,16 +1951,26 @@ export class QuestionSelectBase extends Question {
       maxColumnHeight += 1;
     }
 
+    let choicesLeft = choices.length;
+    let columnsLeft = colCount;
+    let indexShift = 0;
+
     for (let i = 0; i < colCount; i++) {
       const column = [];
-      const choiceStartIndex = i * maxColumnHeight;
+
       for (let j = 0; j < maxColumnHeight; j++) {
-        const choice = choices[j + choiceStartIndex];
+        if (choicesLeft <= columnsLeft) {
+          maxColumnHeight = 1;
+        }
+        const choice = choices[j + indexShift];
         if (choice) {
           column.push(choice);
+          choicesLeft--;
         }
       }
       columns.push(column);
+      columnsLeft--;
+      indexShift += column.length;
     }
 
     return columns;

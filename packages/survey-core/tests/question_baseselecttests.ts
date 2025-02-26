@@ -2443,7 +2443,7 @@ QUnit.test("ItemValue tooltip, #9269", (assert) => {
 
 QUnit.test("Check QuestionSelectBase Columns Arragement", function (assert) {
   // https://github.com/surveyjs/survey-library/issues/9487
-  const json = {
+  let json = {
     elements: [
       {
         "type": "radiogroup",
@@ -2464,14 +2464,36 @@ QUnit.test("Check QuestionSelectBase Columns Arragement", function (assert) {
       }
     ],
   };
-  const survey = new SurveyModel(json);
-
-  const question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  let survey = new SurveyModel(json);
+  let question = <QuestionSelectBase>survey.getAllQuestions()[0];
   settings.itemFlowDirection = "column";
   let columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
     [["Item1", "Item2", "Item3", "Item4"], ["Item5", "Item6", "Item7", "Item8"], ["Item9", "Item10"]],
     "check itemFlowDirection column"
+  );
+
+  json = {
+    elements: [{
+      "type": "radiogroup",
+      "name": "q2",
+      "choices": [
+        "Item1",
+        "Item2",
+        "Item3",
+        "Item4"
+      ],
+      "colCount": 3
+    }]
+  };
+  survey = new SurveyModel(json);
+  question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  settings.itemFlowDirection = "column";
+  columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [["Item1", "Item2"], ["Item3"], ["Item4"]],
+    "check itemFlowDirection column (2)"
   );
 });

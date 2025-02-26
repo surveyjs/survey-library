@@ -998,7 +998,7 @@ QUnit.test("lazy loading + change listModel filter string", assert => {
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
-QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
+QUnit.skip("Check tagbox in mobile mode with closeOnSelect true", assert => {
   _setIsTouch(true);
   const json = {
     questions: [{

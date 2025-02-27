@@ -6183,6 +6183,7 @@ export class SurveyModel extends SurveyElementCore
         question.onSurveyValueChanged(newValue);
       }
     }
+    this.updateProgressText(true);
     this.fireOnValueChanged(valueName, newValue, !!questionName ? this.getQuestionByName(questionName) : undefined);
     if (this.isDisposed) return;
     this.checkElementsBindings(valueName, newValue);

@@ -305,8 +305,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     const isResponsive = this.isResponsive;
     return new CssClassBuilder()
       .append(super.getSelectBaseRootCss())
-      .append("sd-imagepicker--responvive", isResponsive)
-      .append("sd-imagepicker--static", !isResponsive)
+      .append(this.cssClasses.rootResponsive, isResponsive)
+      .append(this.cssClasses.rootStatic, !isResponsive)
       .append(this.cssClasses.rootColumn, this.getCurrentColCount() == 1)
       .toString();
   }

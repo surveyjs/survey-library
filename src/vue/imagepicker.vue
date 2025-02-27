@@ -1,5 +1,5 @@
 <template>
-  <fieldset :class="question.getSelectBaseRootCss()">
+  <fieldset :class="question.getSelectBaseRootCss()" :style="question.getContainerStyle()">
     <legend class="sv-hidden">{{question.locTitle.renderedHtml}}</legend>
     <survey-imagepicker-item v-if="!question.hasColumns" v-for="(item) in question.visibleChoices" :key="item.value" :question="question" :item="item"></survey-imagepicker-item>
     <div

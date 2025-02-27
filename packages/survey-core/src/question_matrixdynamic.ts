@@ -493,7 +493,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.onStartRowAddingRemoving();
     this.addRowCore();
     this.onEndRowAdding();
-    this.singleInputOnAddItem();
+    this.singleInputOnAddItem(false);
     if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
       this.visibleRows[this.visibleRows.length - 1].showDetailPanel();
     }
@@ -707,10 +707,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.isSingleInputQuestionsRequested = true;
       this.rowCount = 0;
     }
-    const res = super.getSingleInputQuestions();
-    res.push(this);
-    return res;
+    return this.getSingleInputQuestionsForDynamic();
   }
+  protected fillSingleInputQuestionsInContainer(res: Array<Question>): void {
+    const q = this.getPropertyValue("singleInputQuestion");
+    if(!!q && q !== this) {
+      const row = this.getRowByQuestion(q);
+      if(row) {
+        row.questions.forEach(q => q.addNestedQuestion(res, true, false));
+      }
+    }
+  }
+
   protected getSingleInputAddTextCore(): string {
     if(!this.canAddRow) return undefined;
     return this.addRowText;

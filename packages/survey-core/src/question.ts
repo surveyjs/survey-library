@@ -779,9 +779,13 @@ export class Question extends SurveyElement<Question>
     const ssQ = this.survey?.currentSingleQuestion;
     return !!ssQ && ssQ === this.rootParentQuestion;
   }
-  protected singleInputOnAddItem(): void {
+  protected singleInputOnAddItem(isOnDataChanging: boolean): void {
     if(this.isSingleInputActive) {
-      this.setSingleQuestionOnChange(Number.MAX_VALUE);
+      if(isOnDataChanging && this.singleInputSummary) {
+        this.resetSingleInputSummary();
+      } else {
+        this.setSingleQuestionOnChange(Number.MAX_VALUE);
+      }
     }
   }
   protected singleInputOnRemoveItem(index: number): void {
@@ -902,6 +906,19 @@ export class Question extends SurveyElement<Question>
   }
   protected getSingleInputQuestions(): Array<Question> {
     return this.getNestedQuestions(true, false);
+  }
+  protected fillSingleInputQuestionsInContainer(res: Array<Question>): void {}
+  protected getSingleInputQuestionsForDynamic(): Array<Question> {
+    const res = new Array<Question>();
+    const q = this.getPropertyValue("singleInputQuestion");
+    if(!!q && q !== this) {
+      this.fillSingleInputQuestionsInContainer(res, q);
+    }
+    if(res.length > 0) {
+      res.unshift(this);
+    }
+    res.push(this);
+    return res;
   }
   protected getSingleInputAddTextCore(): string { return undefined; }
   protected singleInputAddItemCore(): void {}

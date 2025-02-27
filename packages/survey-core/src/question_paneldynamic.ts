@@ -971,7 +971,7 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     if(isAddingOnePanel) {
-      this.singleInputOnAddItem();
+      this.singleInputOnAddItem(this.settingPanelCountBasedOnValue);
     }
     if (val < this.panelCount) {
       this.panelsCore.splice(val, this.panelCount - val);
@@ -1185,9 +1185,16 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected getSingleInputQuestions(): Array<Question> {
     this.onFirstRendering();
-    const res = super.getSingleInputQuestions();
-    res.push(this);
-    return res;
+    return this.getSingleInputQuestionsForDynamic();
+  }
+  protected fillSingleInputQuestionsInContainer(res: Array<Question>): void {
+    const q = this.getPropertyValue("singleInputQuestion");
+    if(!!q && q !== this) {
+      const panel = this.getPanelByQuestion(q);
+      if(panel) {
+        panel.questions.forEach(q => q.addNestedQuestion(res, true, false));
+      }
+    }
   }
   protected getSingleQuestionLocTitleCore(): LocalizableString {
     const res = this.locTemplateTitle;

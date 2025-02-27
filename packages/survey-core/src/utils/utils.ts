@@ -634,9 +634,8 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   const applyBtn = toolbar.getActionById("apply");
   const cancelBtn = toolbar.getActionById("cancel");
   cancelBtn.title = getLocaleString("cancel", options.locale);
-  cancelBtn.innerCss = "sd-btn--small";
   applyBtn.title = options.applyTitle || getLocaleString("ok", options.locale);
-  applyBtn.innerCss = "sd-btn--small sd-btn--danger";
+  applyBtn.innerCss = "sd-btn--danger";
   configConfirmDialog(popupViewModel);
   return true;
 }

@@ -20,7 +20,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
 
     this.footerToolbar.updateCallback = (isResetInitialized: boolean) => {
       this.footerToolbarValue.actions.forEach(action => action.cssClasses = {
-        item: "sv-popup__body-footer-item sv-popup__button sv-modal-popup__button sd-btn"
+        item: "sv-popup__body-footer-item sv-popup__button sv-modal-popup__button sd-btn sd-btn--small"
       });
     };
 

@@ -709,13 +709,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return this.getSingleInputQuestionsForDynamic();
   }
-  protected fillSingleInputQuestionsInContainer(res: Array<Question>): void {
-    const q = this.getPropertyValue("singleInputQuestion");
-    if(!!q && q !== this) {
-      const row = this.getRowByQuestion(q);
-      if(row) {
-        row.questions.forEach(q => q.addNestedQuestion(res, true, false));
-      }
+  protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
+    const row = this.getRowByQuestion(innerQuestion);
+    if(row) {
+      row.questions.forEach(q => q.addNestedQuestion(res, true, false));
     }
   }
 

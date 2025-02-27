@@ -1187,13 +1187,10 @@ export class QuestionPanelDynamicModel extends Question
     this.onFirstRendering();
     return this.getSingleInputQuestionsForDynamic();
   }
-  protected fillSingleInputQuestionsInContainer(res: Array<Question>): void {
-    const q = this.getPropertyValue("singleInputQuestion");
-    if(!!q && q !== this) {
-      const panel = this.getPanelByQuestion(q);
-      if(panel) {
-        panel.questions.forEach(q => q.addNestedQuestion(res, true, false));
-      }
+  protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
+    const panel = this.getPanelByQuestion(innerQuestion);
+    if(panel) {
+      panel.questions.forEach(q => q.addNestedQuestion(res, true, false));
     }
   }
   protected getSingleQuestionLocTitleCore(): LocalizableString {

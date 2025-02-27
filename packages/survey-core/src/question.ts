@@ -907,7 +907,7 @@ export class Question extends SurveyElement<Question>
   protected getSingleInputQuestions(): Array<Question> {
     return this.getNestedQuestions(true, false);
   }
-  protected fillSingleInputQuestionsInContainer(res: Array<Question>): void {}
+  protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {}
   protected getSingleInputQuestionsForDynamic(): Array<Question> {
     const res = new Array<Question>();
     const q = this.getPropertyValue("singleInputQuestion");

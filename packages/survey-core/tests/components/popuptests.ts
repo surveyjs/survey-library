@@ -1147,7 +1147,7 @@ QUnit.test("PopupModel isModal displayMode", (assert) => {
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
-  assert.equal(viewModel.styleClass, "sv-popup--modal");
+  assert.equal(viewModel.styleClass, "sv-popup--modal-popup");
   model.displayMode = "overlay";
   assert.equal(viewModel.styleClass, "sv-popup--modal-overlay");
 

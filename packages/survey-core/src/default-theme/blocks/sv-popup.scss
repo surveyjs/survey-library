@@ -56,7 +56,7 @@ sv-popup {
   max-width: 100vw;
 }
 
-.sv-popup--modal {
+.sv-popup--modal-popup {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,7 +66,7 @@ sv-popup {
   box-sizing: border-box;
 }
 
-.sv-popup--modal {
+.sv-popup--modal-popup {
   & > .sv-popup__container {
     position: static;
     display: flex;
@@ -90,7 +90,7 @@ sv-popup {
   }
 }
 
-.sd-root-modern--mobile .sv-popup--modal .sv-popup__body-content {
+.sd-root-modern--mobile .sv-popup--modal-popup .sv-popup__body-content {
   min-width: auto;
 }
 
@@ -222,7 +222,7 @@ sv-popup {
   gap: calcSize(1.5);
 }
 
-.sv-popup--modal,
+.sv-popup--modal-popup,
 .sv-popup--menu-phone,
 .sv-popup--menu-tablet {
   .sv-list__filter {
@@ -432,7 +432,7 @@ sv-popup {
   animation-duration: 0.15s;
 }
 
-.sv-popup--modal.sv-popup--enter {
+.sv-popup--modal-popup.sv-popup--enter {
   animation-timing-function: $ease-out;
   animation-duration: 0.25s;
 }
@@ -444,7 +444,7 @@ sv-popup {
   animation-duration: 0.15s;
 }
 
-.sv-popup--modal.sv-popup--leave {
+.sv-popup--modal-popup.sv-popup--leave {
   animation-timing-function: $reverse-ease-out;
   animation-duration: 0.25s;
 }
@@ -463,7 +463,7 @@ sv-popup {
   }
 }
 
-.sv-popup--modal {
+.sv-popup--modal-popup {
   &.sv-popup--leave,
   &.sv-popup--enter {
     .sv-popup__container {

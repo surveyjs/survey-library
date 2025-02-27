@@ -36,17 +36,22 @@ sv-popup {
   margin-top: calcSize(-0.5);
 }
 
+.sv-popup--menu-phone,
+.sv-popup--menu-tablet,
+.sv-popup--menu-popup {
+  .sv-popup__container {
+    background-color: var(--lbr-popup-menu-background-color, $background);
+    border-radius: var(--lbr-popup-menu-corner-radius, calcCornerRadius(1));
+  }
+}
+
 .sv-popup__container {
-  background-color: $background-dim;
   box-shadow: $shadow-medium, $shadow-large;
-  border-radius: calcCornerRadius(1);
   position: absolute;
   padding: 0;
 }
 
 .sv-popup__body-content {
-  border-radius: calcCornerRadius(1);
-
   width: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -70,10 +75,11 @@ sv-popup {
   & > .sv-popup__container {
     position: static;
     display: flex;
+    background-color: var(--lbr-dialog-background-color, $background-dim-light);
+    border-radius: var(--lbr-dialog-corner-radius, calcCornerRadius(2));
   }
 
   & > .sv-popup__container > .sv-popup__body-content {
-    background-color: var(--lbr-dialog-background-color, $background-dim-light);
     padding: calcSize(4);
     height: auto;
     min-width: 452px;
@@ -94,43 +100,19 @@ sv-popup {
   min-width: auto;
 }
 
-// .sv-popup--confirm {
-//   .sv-popup__container {
-//     border-radius: calcSize(1);
-//   }
-
-//   .sv-popup__body-content {
-//     border-radius: calcSize(1);
-//     max-width: min-content;
-//     align-items: flex-end;
-//     min-width: 452px;
-//   }
-
-//   .sv-popup__body-header {
-//     color: $font-editorfont-color;
-//     align-self: self-start;
-
-//     /* UI/Default */
-//     font-family: $font-family;
-//     font-size: calcFontSize(1);
-//     font-style: normal;
-//     font-weight: 400;
-//     line-height: calcLineHeight(1.5);
-//     /* 150% */
-//   }
-
-//   .sv-popup__scrolling-content {
-//     display: none;
-//   }
-
-//   .sv-popup__body-footer {
-//     max-width: max-content;
-
-//     .sv-action-bar {
-//       gap: calcSize(2);
-//     }
-//   }
-// }
+.sv-popup--confirm {
+  .sv-popup__body-content .sv-string-viewer{
+    color: $font-editorfont-color;
+    align-self: self-start;
+    /* UI/Default */
+    font-family: $font-family;
+    font-size: calcFontSize(1);
+    font-style: normal;
+    font-weight: 400;
+    line-height: calcLineHeight(1.5);
+    /* 150% */
+  }
+}
 
 .sv-popup__scrolling-content {
   height: 100%;
@@ -240,7 +222,6 @@ sv-popup {
   }
 
   .sv-popup__body-content {
-    background-color: var(--lbr-popup-menu-background-color, $background);
     padding: calcSize(1) 0;
     height: 100%;
   }
@@ -255,7 +236,6 @@ sv-popup {
   height: $popup-overlay-height;
 
   .sv-popup__container {
-    background: $background-semitransparent;
     max-width: 100vw;
     max-height: calc(#{$popup-overlay-height} - 1 * #{$base-unit});
     height: calc(#{$popup-overlay-height} - 1 * #{$base-unit});

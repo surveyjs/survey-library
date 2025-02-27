@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-imagepicker">
-    <fieldset data-bind="css: question.getSelectBaseRootCss()">
+    <fieldset data-bind="css: question.getSelectBaseRootCss(), style: question.getContainerStyle()">
         <legend class="sv-hidden" data-bind="text: question.locTitle.renderedHtml"></legend>
         <!-- ko ifnot: question.hasColumns -->
         <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->

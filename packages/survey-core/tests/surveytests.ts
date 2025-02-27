@@ -1123,6 +1123,21 @@ QUnit.test("survey.progressBarType = 'pages', Bug #6563",
     assert.equal(survey.progressText, "Page 4 of 4", "page4, #3");
   }
 );
+QUnit.test("survey.progressBarType = 'value', Bug #9532", function (assert) {
+  const survey = new SurveyModel({
+    progressBarType: "questions",
+    elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+  });
+  let progressValue = 0;
+  assert.equal(survey.progressValue, 0, "progressValue #1");
+  survey.onValueChanged.add((sender, options) => {
+    progressValue = sender.progressValue;
+  });
+  survey.getQuestionByName("q1").value = "1";
+  assert.equal(progressValue, 50, "progressValue #2");
+  survey.getQuestionByName("q2").value = "2";
+  assert.equal(progressValue, 100, "progressValue #3");
+});
 QUnit.test("Next, Prev, Next", function (assert) {
   var survey = new SurveyModel();
   survey.addPage(createPageWithQuestion("Page 1"));

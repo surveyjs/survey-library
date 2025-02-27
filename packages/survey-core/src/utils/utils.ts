@@ -613,7 +613,9 @@ export interface IConfirmDialogOptions {
   cssClass?: string;
 }
 export function showConfirmDialog(message: string, callback: (res: boolean) => void, options: IConfirmDialogOptions): boolean {
-  const locStr = new LocalizableString(undefined);
+  const locStr = new LocalizableString(undefined, false);
+  locStr.defaultValue = message || options.message;
+
   const popupViewModel: PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
     componentName: "sv-string-viewer",
     data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
@@ -625,7 +627,6 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
       callback(false);
       return false;
     },
-    title: message || options.message,
     displayMode: "popup",
     isFocusedContent: false,
     cssClass: options.cssClass || "sv-popup--confirm"

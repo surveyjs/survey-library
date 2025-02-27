@@ -45,7 +45,6 @@ sv-popup {
 }
 
 .sv-popup__body-content {
-  background-color: $background;
   border-radius: calcCornerRadius(1);
 
   width: 100%;
@@ -74,7 +73,7 @@ sv-popup {
   }
 
   & > .sv-popup__container > .sv-popup__body-content {
-    background-color: $background-dim-light;
+    background-color: var(--lbr-dialog-background-color, $background-dim-light);
     padding: calcSize(4);
     height: auto;
     min-width: 452px;
@@ -224,8 +223,8 @@ sv-popup {
 }
 
 .sv-popup--modal,
-.sv-popup--menu-overlay,
-.sv-popup--overlay {
+.sv-popup--menu-phone,
+.sv-popup--menu-tablet {
   .sv-list__filter {
     padding-top: calcSize(1);
   }
@@ -247,7 +246,8 @@ sv-popup {
   }
 }
 
-.sv-popup--menu-overlay {
+.sv-popup--menu-phone,
+.sv-popup--menu-tablet {
   z-index: 2001;
   padding: 0;
 

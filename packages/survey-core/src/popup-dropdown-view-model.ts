@@ -215,7 +215,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     // const overlayMode = this.model.overlayDisplayMode;
     const displayMode = this.model.getDisplayMode();
     return super.getStyleClass()
-      .append("sv-popup--menu-overlay", displayMode === "menu-overlay" || displayMode === "menu-popup-overlay")
       .append("sv-popup--menu-phone", displayMode === "menu-overlay")
       .append("sv-popup--menu-tablet", displayMode === "menu-popup-overlay")
       .append("sv-popup--menu-popup", displayMode === "menu-popup")

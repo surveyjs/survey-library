@@ -304,9 +304,9 @@ frameworks.forEach((framework) => {
 
     await t
       .click(questionDropdownSelect)
-      .expect(Selector(".sv-popup--menu-overlay").visible).ok()
-      .click(Selector(".sv-popup--menu-overlay"), { offsetX: 10, offsetY: 10 })
-      .expect(Selector(".sv-popup--menu-overlay").visible).notOk();
+      .expect(Selector(".sv-popup--menu-tablet").visible).ok()
+      .click(Selector(".sv-popup--menu-tablet"), { offsetX: 10, offsetY: 10 })
+      .expect(Selector(".sv-popup--menu-tablet").visible).notOk();
   });
 
   test("open dropdown and click outside, tablet", async (t) => {

@@ -1124,10 +1124,10 @@ QUnit.test("PopupModel displayMode overlay and overlayDisplayMode", (assert) => 
   assert.equal(viewModel.styleClass, "sv-popup--menu-popup", "overlayDisplayMode auto");
 
   model.overlayDisplayMode = "dropdown-overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--menu-overlay sv-popup--menu-phone", "overlayDisplayMode dropdown-overlay");
+  assert.equal(viewModel.styleClass, "sv-popup--menu-phone", "overlayDisplayMode dropdown-overlay");
 
   model.overlayDisplayMode = "tablet-dropdown-overlay";
-  assert.equal(viewModel.styleClass, "sv-popup--menu-overlay sv-popup--menu-tablet", "overlayDisplayMode tablet-dropdown-overlay");
+  assert.equal(viewModel.styleClass, "sv-popup--menu-tablet", "overlayDisplayMode tablet-dropdown-overlay");
 
   model.overlayDisplayMode = "plain";
   assert.equal(viewModel.styleClass, "sv-popup--menu-popup", "overlayDisplayMode plain");

@@ -155,16 +155,12 @@ function addActionsWithOverlayPopupShortList(_, opt) {
     return list;
   };
   const items = getItems(3, 1);
-  const overlayPopupAction = window["Survey"].createDropdownActionModel(
-    { title: "Overlay", showTitle: true },
-    { items: items, isModal: true, displayMode: "overlay" }
-  );
   const overlayWithTypePopupAction = window["Survey"].createDropdownActionModel(
     { title: "Overlay with title", showTitle: true },
-    { items: items, displayMode: "overlay", title: "Title" }
+    { items: items, displayMode: "overlay" }
   );
-  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "plain";
-  opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
+  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "tablet-dropdown-overlay";
+  opt.titleActions = [overlayWithTypePopupAction];
 }
 
 function addActionsWithOverlayPopupLongList(_, opt) {
@@ -176,17 +172,13 @@ function addActionsWithOverlayPopupLongList(_, opt) {
     return list;
   };
   const items = getItems(40);
-  const overlayPopupAction = window["Survey"].createDropdownActionModel(
-    { title: "Overlay", showTitle: true },
-    { items: items, isModal: true, displayMode: "overlay" }
-  );
 
   const overlayWithTypePopupAction = window["Survey"].createDropdownActionModel(
     { title: "Overlay with title", showTitle: true, },
-    { items: items, displayMode: "overlay", title: "Title" }
+    { items: items, displayMode: "overlay" }
   );
-  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "plain";
-  opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
+  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "tablet-dropdown-overlay";
+  opt.titleActions = [overlayWithTypePopupAction];
 }
 
 function addDropdownActionWithSubItems(_, opt) {
@@ -367,15 +359,11 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupShortList });
-      await t.click(clickButton.withText("Overlay"));
-      await resetHoverToBody(t);
-      await takeElementScreenshot("popup-overlay-short-list.png", null, t, comparer);
-
       await t
         .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
         .click(clickButton.withText("Overlay with title"));
       await resetHoverToBody(t);
-      await takeElementScreenshot("popup-overlay-short-list-with-title.png", null, t, comparer);
+      await takeElementScreenshot("popup-overlay-short-list.png", null, t, comparer);
     });
   });
 
@@ -383,15 +371,12 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupLongList });
-      await t.click(clickButton.withText("Overlay"));
-      await resetHoverToBody(t);
-      await takeElementScreenshot("popup-overlay-long-list.png", null, t, comparer);
 
       await t
         .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
         .click(clickButton.withText("Overlay with title"));
       await resetHoverToBody(t);
-      await takeElementScreenshot("popup-overlay-long-list-with-title.png", null, t, comparer);
+      await takeElementScreenshot("popup-overlay-long-list.png", null, t, comparer);
     });
   });
 

@@ -215,11 +215,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     // const overlayMode = this.model.overlayDisplayMode;
     const displayMode = this.model.getDisplayMode();
     return super.getStyleClass()
-      .append("sv-popup--menu")
       .append("sv-popup--menu-overlay", displayMode === "menu-overlay" || displayMode === "menu-popup-overlay")
       .append("sv-popup--menu-phone", displayMode === "menu-overlay")
       .append("sv-popup--menu-tablet", displayMode === "menu-popup-overlay")
-      .append("sv-popup--dropdown", displayMode === "menu-popup")
+      .append("sv-popup--menu-popup", displayMode === "menu-popup")
       .append("sv-popup--show-pointer", displayMode === "menu-popup" && this.showHeader)
       .append(`sv-popup--${this.popupDirection}`, displayMode === "menu-popup" && (this.showHeader || this.popupDirection == "top" || this.popupDirection == "bottom"));
 

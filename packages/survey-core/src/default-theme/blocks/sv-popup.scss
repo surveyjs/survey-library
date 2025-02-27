@@ -77,13 +77,24 @@ sv-popup {
     background-color: $background-dim-light;
     padding: calcSize(4);
     height: auto;
+    min-width: 452px;
     gap: calcSize(4);
   }
 
   .sv-popup__body-footer .sv-footer-action-bar {
     overflow: visible;
   }
+
+  .sv-popup__scrolling-content {
+    padding: 2px;
+    margin: -2px;
+  }
 }
+
+.sd-root-modern--mobile .sv-popup--modal .sv-popup__body-content {
+  min-width: auto;
+}
+
 // .sv-popup--confirm {
 //   .sv-popup__container {
 //     border-radius: calcSize(1);
@@ -121,15 +132,6 @@ sv-popup {
 //     }
 //   }
 // }
-
-// .sd-root-modern--mobile .sv-popup--confirm .sv-popup__body-content {
-//   min-width: auto;
-// }
-
-.sv-popup--modal .sv-popup__scrolling-content {
-  padding: 2px;
-  margin: -2px;
-}
 
 .sv-popup__scrolling-content {
   height: 100%;
@@ -233,8 +235,7 @@ sv-popup {
   }
 }
 
-.sv-popup--menu,
-.sv-popup--dropdown {
+.sv-popup--menu-popup {
   .sv-list__filter {
     margin-bottom: calcSize(1);
   }
@@ -268,12 +269,6 @@ sv-popup {
   .sv-popup__body-content {
     max-height: $popup-overlay-height;
     max-width: 100vw;
-    border-radius: calcCornerRadius(4) calcCornerRadius(4) 0px 0px;
-    background: $background;
-    padding: calcSize(3) calcSize(2) calcSize(2);
-    height: calc(100% - calc(1 * #{$base-unit}));
-
-    background-color: $background-dim;
     height: calc(var(--sv-popup-overlay-height, 100vh));
     padding: 0;
     border-radius: 0;
@@ -286,9 +281,9 @@ sv-popup {
 
   .sv-popup__body-footer .sv-action-bar {
     width: 100%;
+    justify-content: flex-start;
 
     .sv-action {
-      flex: 1 0 0;
       flex: 0 0 auto;
     }
   }
@@ -299,10 +294,6 @@ sv-popup {
     border-top: var(--lbr-popup-menu-footer-border-width-top, 1px) solid
       var(--lbr-popup-menu-footer-border-color, $border-light);
     background: var(--lbr-popup-menu-footer-background-color, $background-dim-light);
-  }
-
-  .sv-popup__scrolling-content {
-    height: calc(100% - 6 * var(--base-unit, 8px));
   }
 
   .sv-list__filter {
@@ -378,10 +369,6 @@ sv-popup {
     }
   }
 
-  .sv-popup__body-footer .sv-action-bar {
-    justify-content: flex-start;
-  }
-
   &.sv-multi-select-list {
     .sv-list__item:hover,
     .sv-list__item:focus,
@@ -428,12 +415,6 @@ sv-popup {
   .sv-popup__scrolling-content,
   .sv-list__container {
     flex-grow: 1;
-  }
-}
-
-.sv-dropdown-popup {
-  .sv-popup__body-content {
-    padding: calcSize(0.5) 0;
   }
 }
 

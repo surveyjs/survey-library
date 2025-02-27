@@ -221,15 +221,19 @@
   }
 }
 
-.sv-dropdown-popup.sv-popup--menu.sv-popup--top,
-.sv-dropdown-popup.sv-popup--dropdown.sv-popup--top {
+.sv-dropdown-popup.sv-popup--menu-popup {
+  .sv-popup__body-content {
+    padding: calcSize(0.5) 0;
+  }
+}
+
+.sv-dropdown-popup.sv-popup--menu-popup.sv-popup--top {
   .sv-popup__container {
     transform: translateY(-2px);
   }
 }
 
-.sv-dropdown-popup.sv-popup--menu.sv-popup--bottom,
-.sv-dropdown-popup.sv-popup--dropdown.sv-popup--bottom {
+.sv-dropdown-popup.sv-popup--menu-popup.sv-popup--bottom {
   .sv-popup__container {
     transform: translateY(2px);
   }

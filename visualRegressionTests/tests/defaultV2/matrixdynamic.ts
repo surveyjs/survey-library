@@ -488,4 +488,38 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("matrixdropdown-with-totals-alignment.png", matrixdynamicRoot, t, comparer);
     });
   });
+  test("Check matrixdropdown mobile with rating", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 800);
+      await initSurvey(framework, {
+        logoPosition: "right",
+        pages: [
+
+          {
+            name: "page1",
+            elements: [
+              {
+                type: "matrixdropdown",
+                name: "q1",
+                columns: [
+                  {
+                    name: "rating",
+                    cellType: "rating",
+                    rateCount: 10,
+                    rateMax: 10,
+                    displayMode: "buttons"
+                  },
+                ],
+                rows: ["Row 1", "Row 2", "Row 3"],
+              },
+            ],
+          },
+        ],
+        widthMode: "responsive",
+      });
+      const matrixdynamicRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdropdown-rating-mobile.png", matrixdynamicRoot, t, comparer);
+    });
+  });
 });

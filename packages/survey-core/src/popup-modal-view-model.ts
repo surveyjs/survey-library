@@ -8,7 +8,6 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   protected getStyleClass(): CssClassBuilder {
     const displayMode = this.model.getDisplayMode();
     return super.getStyleClass()
-      // .append("sv-popup--modal", !this.isOverlay);
       .append("sv-popup--modal-popup", displayMode === "modal-popup")
       .append("sv-popup--modal-overlay", displayMode === "modal-overlay");
   }

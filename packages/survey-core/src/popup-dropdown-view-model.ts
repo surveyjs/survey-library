@@ -212,7 +212,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     return actualHorizontalPosition;
   }
   protected getStyleClass(): CssClassBuilder {
-    // const overlayMode = this.model.overlayDisplayMode;
     const displayMode = this.model.getDisplayMode();
     return super.getStyleClass()
       .append("sv-popup--menu-phone", displayMode === "menu-overlay")
@@ -220,12 +219,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       .append("sv-popup--menu-popup", displayMode === "menu-popup")
       .append("sv-popup--show-pointer", displayMode === "menu-popup" && this.showHeader)
       .append(`sv-popup--${this.popupDirection}`, displayMode === "menu-popup" && (this.showHeader || this.popupDirection == "top" || this.popupDirection == "bottom"));
-
-    // .append("sv-popup--dropdown", !this.isOverlay)
-    // .append("sv-popup--dropdown-overlay", this.isOverlay && overlayMode !== "plain")
-    // .append("sv-popup--menu-tablet", this.isOverlay && (overlayMode == "tablet-dropdown-overlay" || (overlayMode == "auto" && this.isTablet)))
-    // .append("sv-popup--show-pointer", !this.isOverlay && this.showHeader)
-    // .append(`sv-popup--${this.popupDirection}`, !this.isOverlay && (this.showHeader || this.popupDirection == "top" || this.popupDirection == "bottom"));
   }
   protected getShowHeader(): boolean {
     return this.model.showPointer && !this.isOverlay;

@@ -115,21 +115,6 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
   protected createFooterActionBar(): void {
     this.footerToolbarValue = new ActionContainer();
-    // this.footerToolbar.updateCallback = (isResetInitialized: boolean) => {
-    //   this.footerToolbarValue.actions.forEach(action => action.cssClasses = {
-    //     item: "sv-popup__body-footer-item sv-popup__button sd-btn"
-    //   });
-    // };
-    // let footerActions = [<IAction>{
-    //   id: "cancel",
-    //   visibleIndex: 10,
-    //   title: this.cancelButtonText,
-    //   innerCss: "sv-popup__button--cancel",
-    //   action: () => { this.cancel(); }
-    // }];
-
-    // footerActions = this.model.updateFooterActions(footerActions);
-    // this.footerToolbarValue.setItems(footerActions);
   }
   protected resetDimensionsAndPositionStyleProperties(): void {
     const nullableValue = "";

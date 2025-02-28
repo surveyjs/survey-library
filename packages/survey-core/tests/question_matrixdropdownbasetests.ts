@@ -1859,3 +1859,28 @@ QUnit.test("Serialize empty column title, #9007", function (assert) {
 
   settings.serialization.matrixDropdownColumnSerializeTitle = false;
 });
+QUnit.test("column.defaultDisplayValue", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        cellType: "text",
+        type: "matrixdropdown",
+        name: "q1",
+        "columns": [{ name: "col1", defaultDisplayValue: { default: "col1-default", de: "col1-de" } }],
+        rows: ["Row 1", "Row 2"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  const qCell1 = rows[0].cells[0].question;
+  const qCell2 = rows[1].cells[0].question;
+  assert.equal(qCell1.displayValue, "col1-default", "displayValue, #1");
+  assert.equal(qCell2.displayValue, "col1-default", "displayValue, #2");
+  qCell1.value = "col1-value";
+  survey.locale = "de";
+  assert.equal(qCell1.displayValue, "col1-value", "displayValue, #3");
+  assert.equal(qCell2.displayValue, "col1-de", "displayValue, #4");
+});

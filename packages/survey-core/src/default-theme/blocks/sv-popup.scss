@@ -238,8 +238,6 @@ sv-popup {
 
   .sv-popup__container {
     max-width: 100vw;
-    max-height: calc(#{$popup-overlay-height} - 1 * #{$base-unit});
-    height: calc(#{$popup-overlay-height} - 1 * #{$base-unit});
     width: 100%;
     padding-top: 0;
     border: unset;
@@ -362,6 +360,13 @@ sv-popup {
         }
       }
     }
+  }
+}
+
+.sv-popup--menu-phone {
+  .sv-popup__container {
+    max-height: calc(var(--sv-popup-overlay-height, 100vh));
+    height: calc(var(--sv-popup-overlay-height, 100vh));
   }
 }
 

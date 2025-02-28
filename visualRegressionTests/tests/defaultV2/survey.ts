@@ -1058,7 +1058,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-navigation-toc-mobile.png", Selector(".sd-root-modern"), t, comparer);
 
       await t.click(".sv_progress-toc--mobile > div");
-      await takeElementScreenshot("survey-navigation-toc-mobile-popup.png", Selector(".sd-root-modern"), t, comparer);
+      await takeElementScreenshot("survey-navigation-toc-mobile-popup.png", Selector(".sv-popup .sv-popup__container"), t, comparer);
 
       await t.resizeWindow(1920, 1080);
     });

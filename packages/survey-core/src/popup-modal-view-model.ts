@@ -24,7 +24,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
       });
     };
 
-    this.footerToolbar.containerCss = "sv-footer-action-bar";
+    this.footerToolbar.containerCss = "sv-modal-footer-action-bar";
     let footerActions = [
       <IAction>{
         id: "cancel",

@@ -42,17 +42,25 @@ mouseInfo.hasMouse = detectMouseSupport(matchMediaMethod);
 
 export let IsTouch = mouseInfo.isTouch;
 
+//for tests
+export function _setIsTouch(val: boolean): void {
+  IsTouch = val;
+}
+
+//for tests
+let _isTablet: boolean = undefined;
+export function _setIsTablet(val: boolean | undefined): void {
+  _isTablet = val;
+}
+
 export function calculateIsTablet(windowWidth?: number, windowHeight?: number, tabletSizeBreakpoint = 600): boolean {
+  if(_isTablet !== undefined) return _isTablet;
+
   const _windowWidth = windowWidth || DomWindowHelper.getInnerWidth();
   const _windowHeight = windowHeight || DomWindowHelper.getInnerHeight();
   const width = Math.min(_windowWidth, _windowHeight);
   const isTablet = width >= tabletSizeBreakpoint;
   return isTablet;
-}
-
-//for tests
-export function _setIsTouch(val: boolean): void {
-  IsTouch = val;
 }
 
 export type MatchMediaMethod = ((query:string) => {matches:boolean} | null) | null;

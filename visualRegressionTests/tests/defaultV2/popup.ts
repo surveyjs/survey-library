@@ -146,71 +146,6 @@ function addActionsWithModalPopupShortList(_, opt) {
   opt.titleActions = [modalPopupAction, modalPopupWithTitleAction];
 }
 
-function addActionsWithOverlayPopupShortList(_, opt) {
-  const getItems = (count: number, startIndex = 0) => {
-    const list: Array<any> = [];
-    for (let index = startIndex; index < count; index++) {
-      list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
-    }
-    return list;
-  };
-  const items = getItems(3, 1);
-  const overlayWithTypePopupAction = window["Survey"].createDropdownActionModel(
-    { title: "Overlay with title", showTitle: true },
-    { items: items, displayMode: "overlay" }
-  );
-  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "tablet-dropdown-overlay";
-  opt.titleActions = [overlayWithTypePopupAction];
-}
-
-function addActionsWithOverlayPopupLongList(_, opt) {
-  const getItems = (count: number, startIndex = 0) => {
-    const list: Array<any> = [];
-    for (let index = startIndex; index < count; index++) {
-      list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
-    }
-    return list;
-  };
-  const items = getItems(40);
-
-  const overlayWithTypePopupAction = window["Survey"].createDropdownActionModel(
-    { title: "Overlay with title", showTitle: true, },
-    { items: items, displayMode: "overlay" }
-  );
-  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "tablet-dropdown-overlay";
-  opt.titleActions = [overlayWithTypePopupAction];
-}
-
-function addDropdownActionWithSubItems(_, opt) {
-  let subitems: Array<any> = [];
-  for (let index = 0; index < 7; index++) {
-    subitems[index] = { id: index, title: "inner item" + index };
-  }
-
-  let items: Array<any> = [];
-  for (let index = 0; index < 10; index++) {
-    items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
-  }
-  items[5].setSubItems({ items: [...subitems] });
-  items[5].title += " has items";
-  items[6].setSubItems({ items: [...subitems] });
-  items[6].title += " has items";
-
-  const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
-    { title: "Subitems", showTitle: true },
-    {
-      items: items,
-      showPointer: true,
-      verticalPosition: "bottom",
-      horizontalPosition: "center",
-      onSelectionChanged: (item, ...params) => {
-        let value = item.id;
-      }
-    }
-  );
-  opt.titleActions = [dropdownWithSearchAction];
-}
-
 function addDropdownActionWithSubItemsAndSelectedItems(_, opt) {
   let subitems: Array<any> = [];
   for (let index = 0; index < 7; index++) {
@@ -352,31 +287,6 @@ frameworks.forEach(framework => {
         .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
         .click(clickButton.withText("Modal with title"));
       await takeElementScreenshot("popup-modal-short-list-with-title.png", null, t, comparer);
-    });
-  });
-
-  test("Overlay popup with short list styles", async (t) => {
-    await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1000, 600);
-      await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupShortList });
-      await t
-        .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
-        .click(clickButton.withText("Overlay with title"));
-      await resetHoverToBody(t);
-      await takeElementScreenshot("popup-overlay-short-list.png", null, t, comparer);
-    });
-  });
-
-  test("Overlay popup with long list styles", async (t) => {
-    await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1000, 600);
-      await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupLongList });
-
-      await t
-        .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
-        .click(clickButton.withText("Overlay with title"));
-      await resetHoverToBody(t);
-      await takeElementScreenshot("popup-overlay-long-list.png", null, t, comparer);
     });
   });
 

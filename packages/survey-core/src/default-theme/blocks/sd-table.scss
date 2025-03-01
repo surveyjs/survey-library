@@ -555,6 +555,7 @@
     border-bottom: none;
 
     .sd-matrix__responsive-title {
+      margin-left: calcSize(1);
       text-align: start;
     }
 

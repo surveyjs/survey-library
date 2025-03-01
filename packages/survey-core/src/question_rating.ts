@@ -700,18 +700,13 @@ export class QuestionRatingModel extends Question {
   }
 
   public get ratingRootCss(): string {
-    const baseClassModifier = ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
-      this.cssClasses.rootWrappable : "";
-    let rootClassModifier = "";
-    if(this.hasMaxLabel || this.hasMinLabel) {
-      if (this.rateDescriptionLocation == "top") rootClassModifier = this.cssClasses.rootLabelsTop;
-      if (this.rateDescriptionLocation == "bottom") rootClassModifier = this.cssClasses.rootLabelsBottom;
-      if (this.rateDescriptionLocation == "topBottom") rootClassModifier = this.cssClasses.rootLabelsDiagonal;
-    }
+    const hasLabel = this.hasMaxLabel || this.hasMinLabel;
     return new CssClassBuilder()
       .append(this.cssClasses.root)
-      .append(baseClassModifier)
-      .append(rootClassModifier)
+      .append(this.cssClasses.rootWrappable, this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode) || (this.displayMode == "auto" && !this.supportResponsiveness()))
+      .append(this.cssClasses.rootLabelsTop, hasLabel && this.rateDescriptionLocation == "top")
+      .append(this.cssClasses.rootLabelsBottom, hasLabel && this.rateDescriptionLocation == "bottom")
+      .append(this.cssClasses.rootLabelsDiagonal, hasLabel && this.rateDescriptionLocation == "topBottom")
       .append(this.cssClasses.itemSmall, this.itemSmallMode && this.rateType != "labels")
       .toString();
   }
@@ -906,7 +901,7 @@ export class QuestionRatingModel extends Question {
 
   // TODO: return responsiveness after design improvement
   protected supportResponsiveness(): boolean {
-    return true;
+    return this.inMatrixMode;
   }
   protected onBeforeSetCompactRenderer(): void {
     if (!this.dropdownListModelValue) {

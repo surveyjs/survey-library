@@ -901,7 +901,7 @@ export class QuestionRatingModel extends Question {
 
   // TODO: return responsiveness after design improvement
   protected supportResponsiveness(): boolean {
-    return this.inMatrixMode;
+    return !this.inMatrixMode;
   }
   protected onBeforeSetCompactRenderer(): void {
     if (!this.dropdownListModelValue) {

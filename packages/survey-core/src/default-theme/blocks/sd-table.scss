@@ -546,6 +546,9 @@
     & > tbody {
       display: block;
     }
+    & > tfoot {
+      display: block;
+    }
   }
 
   .sd-table__cell.sd-matrix__cell {

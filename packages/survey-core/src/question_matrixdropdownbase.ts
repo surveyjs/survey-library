@@ -1467,11 +1467,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.runFuncForCellQuestions((q: Question) => { q.localeChanged(); });
   }
   private runFuncForCellQuestions(func: (question: Question) => void): void {
-    if (!!this.generatedVisibleRows) {
-      for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-        var row = this.generatedVisibleRows[i];
-        for (var j = 0; j < row.cells.length; j++) {
-          func(row.cells[j].question);
+    const rows = this.generatedVisibleRows;
+    if (!!rows) {
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        if(row.isVisible) {
+          for (let j = 0; j < row.cells.length; j++) {
+            func(row.cells[j].question);
+          }
         }
       }
     }
@@ -2008,6 +2011,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return [];
   }
   public getProgressInfo(): IProgressInfo {
+    this.getIsRequireToGenerateRows() && this.generateVisibleRowsIfNeeded();
     if (!!this.generatedVisibleRows)
       return SurveyElement.getProgressInfoByElements(
         this.getCellQuestions(),
@@ -2020,6 +2024,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       res.requiredAnsweredQuestionCount = !this.isEmpty() ? 1 : 0;
     }
     return res;
+  }
+  protected getIsRequireToGenerateRows(): boolean {
+    return !!this.rowsVisibleIf;
   }
   protected updateProgressInfoByValues(res: IProgressInfo): void { }
   protected updateProgressInfoByRow(res: IProgressInfo, rowValue: any): void {

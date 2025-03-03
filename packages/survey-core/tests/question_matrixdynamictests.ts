@@ -6096,6 +6096,46 @@ QUnit.test("getProgressInfo, matrix dropdown without creating table", function (
   });
   assert.notOk(question["generatedVisibleRows"]);
 });
+QUnit.test("getProgressInfo, create rows if there is visibleIf in the row, Bug9539", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+          },
+          {
+            name: "col2",
+          },
+          {
+            name: "col3",
+          },
+        ],
+        rows: [
+          { value: "row1", visibleIf: "{q1} = 1" },
+          { value: "row2", visibleIf: "{q1} = 2" }, "row3"]
+      },
+    ],
+  });
+  survey.data = { matrix: { row1: { col1: "1" }, row2: { col2: "2" } } };
+  const question = survey.getQuestionByName("matrix");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 3,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  });
+  survey.setValue("q1", 1);
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 6,
+    answeredQuestionCount: 1,
+    requiredQuestionCount: 2,
+    requiredAnsweredQuestionCount: 1,
+  });
+});
 
 QUnit.test(
   "Change item value in column/templateQuestion and change it in row questions",

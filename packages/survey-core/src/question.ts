@@ -724,7 +724,12 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("singleInputSummary", undefined, () => {
       const q = this.singleInputQuestion;
       if(!q || q !== this) return undefined;
-      return this.createSingleInputSummary();
+      const res = this.createSingleInputSummary();
+      if(!!res) {
+        this.calcSingleInputActions();
+        this.resetPropertyValue("singleInputLocTitle");
+      }
+      return res;
     });
   }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
@@ -748,7 +753,6 @@ export class Question extends SurveyElement<Question>
     }
   }
   private onSingleInputChanged(): void {
-    this.resetPropertyValue("showSingleInputTitle");
     this.resetSingleInputSummary();
     this.resetPropertyValue("singleInputLocTitle");
     this.calcSingleInputActions();
@@ -825,10 +829,6 @@ export class Question extends SurveyElement<Question>
       this.singleInputRemoveItemCore(q);
     }
   }
-  public get showSingleInputTitle(): boolean {
-    return this.getPropertyValue("showSingleInputTitle", undefined,
-      (): boolean => !!this.singleInputLocTitle && this.singleInputQuestion !== this);
-  }
   public get singleInputLocTitle(): LocalizableString {
     return this.getPropertyValue("singleInputLocTitle", undefined, () => {
       return this.getSingleQuestionLocTitle();
@@ -871,16 +871,25 @@ export class Question extends SurveyElement<Question>
     }
   }
   private getSingleQuestionActions(): Array<Action> {
+    const res = new Array<Action>();
+    const p = this.currentSingleInputParentQuestion;
+    if(!p) return res;
+    const pSQs = p.getSingleInputQuestions();
     const qs = new Array<Question>();
-    let pQ = this.currentSingleInputParentQuestion?.parentQuestion;
+    let summaryQ = undefined;
+    if(pSQs.length > 1 && pSQs[0] === p) {
+      summaryQ = p;
+      qs.push(p);
+    }
+    let pQ = p.parentQuestion;
     while(!!pQ) {
       qs.push(pQ);
       pQ = pQ.parentQuestion;
     }
-    const res = new Array<Action>();
     for(let i = qs.length - 1; i >= 0; i--) {
       const q = qs[i];
-      const action = new Action({ id: "single-action" + q.id, locTitle: q.singleInputLocTitle,
+      const title = q == summaryQ ? q.locTitle : q.singleInputLocTitle;
+      const action = new Action({ id: "single-action" + q.id, locTitle: title,
         css: this.cssClasses.breadcrumbsItem,
         innerCss: this.cssClasses.breadcrumbsItemButton,
         action: () => { q.singleInputMoveToFirst(); } });

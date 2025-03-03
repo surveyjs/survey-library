@@ -662,24 +662,23 @@ QUnit.test("singleInput for matrix dynamic & singleInputLocTitle, cell question 
     questionsOnPageMode: "inputPerPage"
   });
   const matrix = survey.getQuestionByName("matrix1");
-  assert.equal(matrix.showSingleInputTitle, false, "showSingleInputTitle, #1");
+  assert.notOk(matrix.singleInputLocTitle, "singleInputLocTitle, #1");
   matrix.addRow();
-  assert.equal(matrix.showSingleInputTitle, true, "showSingleInputTitle, #2");
+  assert.ok(matrix.singleInputLocTitle, "singleInputLocTitle, #2");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 1", "singleInputLocTitle, #2");
   assert.equal(matrix.singleInputQuestion.locTitle.textOrHtml, "col1", "singleInputQuestion.title, #2");
   survey.performNext();
-  assert.equal(matrix.showSingleInputTitle, false, "showSingleInputTitle, #3");
+  assert.notOk(matrix.singleInputLocTitle, "singleInputLocTitle, #3");
   matrix.addRow();
-  assert.equal(matrix.showSingleInputTitle, true, "showSingleInputTitle, #4");
+  assert.ok(matrix.singleInputLocTitle, "singleInputLocTitle, #4");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 2", "singleInputLocTitle, #4");
   survey.performNext();
-  assert.equal(matrix.showSingleInputTitle, false, "showSingleInputTitle, #5");
+  assert.notOk(matrix.singleInputLocTitle, "singleInputLocTitle, #5");
   matrix.addRow();
-  assert.equal(matrix.showSingleInputTitle, true, "showSingleInputTitle, #6");
+  assert.ok(matrix.singleInputLocTitle, "singleInputLocTitle, #6");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 3", "singleInputLocTitle, #6");
   survey.performPrevious();
   matrix.singleInputSummary.items[1].btnEdit.action();
-  assert.equal(matrix.showSingleInputTitle, true, "showSingleInputTitle, #7");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 2", "singleInputLocTitle, #7");
 });
 QUnit.test("singleInput for matrix dynamic & cell question & css", assert => {
@@ -871,7 +870,7 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     assert.equal(survey.isShowPrevButton, true, "prev buttton, #2" + move);
     assert.equal(survey.isShowNextButton, true, "next buttton, #2" + move);
     assert.equal(matrix.singleInputQuestion.name, "matrix1", "matrix.singleInputQuestion.name, #2" + move);
-    assert.equal(matrix.showSingleInputTitle, false, "matrix.input loc title #2" + move);
+    assert.notOk(matrix.singleInputLocTitle, "matrix.input loc title #2" + move);
     assert.equal(matrix.singleInputSummary?.items.length, 0, "matrix.singleInputSummary exists, #2" + move);
     assert.equal(addBtn.visible, true, "addBtn visible #2" + move);
     assert.equal(matrix.visibleRows.length, 0, "matrix.visibleRows.length, #2" + move);
@@ -911,7 +910,7 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     assert.equal(survey.isShowPrevButton, true, "prev buttton, #5" + move);
     assert.equal(survey.isShowNextButton, true, "next buttton, #5" + move);
     assert.equal(matrix.singleInputQuestion.name, "matrix1", "matrix.singleInputQuestion.name, #5" + move);
-    assert.equal(matrix.showSingleInputTitle, false, "matrix.input loc title #5" + move);
+    assert.notOk(matrix.singleInputLocTitle, "matrix.input loc title #5" + move);
     assert.equal(matrix.singleInputSummary?.items.length, 1, "matrix.singleInputSummary exists, #5" + move);
     assert.equal(addBtn.visible, true, "addBtn visible #5" + move);
   };
@@ -920,7 +919,7 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
   survey.performNext();
   const checkStep6 = () => {
     assert.equal(panel.singleInputQuestion.name, "panel1", "singleInputQuestion.name, #6");
-    assert.equal(panel.showSingleInputTitle, false, "input loc title #6");
+    assert.notOk(panel.singleInputLocTitle, "input loc title #6");
     assert.equal(survey.isShowPrevButton, false, "prev buttton, #6");
     assert.equal(survey.isShowNextButton, false, "next buttton, #6");
     assert.equal(survey.isCompleteButtonVisible, true, "complete buttton, #6");
@@ -993,8 +992,8 @@ const nestedJSON = {
             { type: "text", name: "storeName", title: "Store Name", isRequired: true },
             { type: "matrixdynamic", name: "products", cellType: "text",
               title: "Products", description: "Add all products you want to deliver to {panel.storeName}",
-              singleInputRowTitle: "Product {row.productName}",
-              columns: [{ name: "productName", title: "Product Name", isRequired: true }, { name: "productCount", title: "Count", isRequired: true }]
+              singleInputRowTitle: "{row.productName}",
+              columns: [{ name: "productName", title: "Product Name", isRequired: true, defaultDisplayValue: "New Product" }, { name: "productCount", title: "Count", isRequired: true }]
             },
             { type: "text", name: "address", title: "Place Address" }
           ]
@@ -1088,11 +1087,23 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
     assert.equal(panel.singleInputActions.length, 1, "singleInputActions.length" + postFix);
     assert.equal(panel.singleInputActions[0].title, "Order #1", "singleInputActions[0].title" + postFix);
   };
+  const check4TwoActions = (num: number) => {
+    const postFix = ", #" + num.toString();
+    assert.equal(panel.singleInputHasActions, true, "singleInputHasActions" + postFix);
+    assert.equal(panel.singleInputActions.length, 2, "singleInputActions.length" + postFix);
+    assert.equal(panel.singleInputActions[0].title, "Order #1", "singleInputActions[0].title" + postFix);
+    assert.equal(panel.singleInputActions[1].title, "Delivery #1", "singleInputActions[1].title" + postFix);
+  };
   assert.equal(panel.singleInputQuestion.name, "order", "root.singleInputQuestion.name, #0");
+  assert.notOk(panel.singleInputHasActions, "singleInputHasActions, #0");
+  assert.equal(panel.singleInputActions.length, 0, "singleInputActions.length, #0");
+  assert.notOk(panel.singleInputLocTitle, "singleInputLocTitle, #0");
+  assert.equal(panel.locTitle.renderedHtml, "Order", "panel.title, #0");
   panel.singleInputSummary.items[0].btnEdit.action();
   assert.equal(panel.singleInputQuestion.name, "buyerName", "root.singleInputQuestion.name, #1");
   assert.equal(panel.singleInputHideHeader, false, "root.singleInputHideHeader, #1");
   panel.singleInputQuestion.value = "John";
+  check4OneActions(1);
 
   survey.performNext();
   assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #2");
@@ -1102,14 +1113,16 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
   storesPanel.singleInputSummary.items[0].btnEdit.action();
   assert.equal(storesPanel.singleInputQuestion.name, "storeName", "storesPanel.singleInputQuestion.name, #3");
   storesPanel.singleInputQuestion.value = "Store 1";
-  const check4TwoActions = (num: number) => {
+  const check4ThreeActions = (num: number, isNewProduct?: boolean) => {
     const postFix = ", #" + num.toString();
     assert.equal(panel.singleInputHasActions, true, "singleInputHasActions" + postFix);
     assert.equal(panel.singleInputHideHeader, true, "root.singleInputHideHeader" + postFix);
     assert.equal(storesPanel.singleInputHideHeader, true, "storesPanel.singleInputHideHeader" + postFix);
-    assert.equal(panel.singleInputActions.length, 2, "singleInputActions.length" + postFix);
+    assert.equal(panel.singleInputActions.length, 3, "singleInputActions.length" + postFix);
     assert.equal(panel.singleInputActions[0].title, "Order #1", "singleInputActions[0].title" + postFix);
     assert.equal(panel.singleInputActions[1].title, "Delivery #1", "singleInputActions[1].title" + postFix);
+    const prodTitle = isNewProduct ? "New Product" : "Product 1";
+    assert.equal(panel.singleInputActions[2].title, prodTitle, "singleInputActions[2].title" + postFix);
   };
 
   survey.performNext();
@@ -1119,12 +1132,12 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
 
   addBtn.action();
   assert.equal(productsMatrix.singleInputQuestion.name, "productName", "productsMatrix.singleInputQuestion.name, #4");
-  check4TwoActions(4);
+  check4ThreeActions(4, true);
   productsMatrix.singleInputQuestion.value = "Product 1";
 
   survey.performNext();
   assert.equal(productsMatrix.singleInputQuestion.name, "productCount", "productsMatrix.singleInputQuestion.name, #5");
-  check4TwoActions(5);
+  check4ThreeActions(5);
   productsMatrix.singleInputQuestion.value = 2;
 
   survey.performNext();
@@ -1134,7 +1147,7 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
   survey.performNext();
   assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #7");
   assert.equal(storesPanel.singleInputQuestion.name, "address", "storesPanel.singleInputQuestion.name, #7");
-  check4OneActions(7);
+  check4TwoActions(7);
 
   survey.performNext();
   assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #8");
@@ -1148,12 +1161,12 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
   storesPanel.singleInputSummary.items[0].btnEdit.action();
   survey.performNext();
   productsMatrix.singleInputSummary.items[0].btnEdit.action();
-  check4TwoActions(10);
+  check4ThreeActions(10);
 
   panel.singleInputActions[1].action();
   assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #11");
   assert.equal(storesPanel.singleInputQuestion.name, "storeName", "storesPanel.singleInputQuestion.name, #11");
-  check4OneActions(11);
+  check4TwoActions(11);
 
   survey.performNext();
   assert.equal(storesPanel.singleInputQuestion.name, "products", "storesPanel.singleInputQuestion.name, #12");

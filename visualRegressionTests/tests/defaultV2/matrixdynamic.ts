@@ -494,6 +494,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 800);
       await initSurvey(framework, {
+        showQuestionNumbers: "off",
         logoPosition: "right",
         pages: [
 

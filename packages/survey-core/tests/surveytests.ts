@@ -21695,3 +21695,21 @@ QUnit.test("Advanced header from theme", function (assert) {
   assert.equal(survey.headerView, "advanced", "After apply empty headerView is advanced");
   assert.ok(survey.findLayoutElement("advanced-header") != undefined, "After apply empty headerView advanced header is present");
 });
+QUnit.test("Don't rise onPageAdded when mooving question", function (assert) {
+  const survey = new SurveyModel({
+    pages: [{ name: "page1" }, { name: "page2" }]
+  });
+  let pageAddedRaisedCount = 0;
+  survey.onPageAdded.add((sender, options) => {
+    pageAddedRaisedCount++;
+  });
+  assert.equal(pageAddedRaisedCount, 0, "onPageAdded is not raised");
+  assert.equal(survey.pages[0].name, "page1", "page1 is the first page");
+  survey.startMovingPage();
+  const page = survey.pages[1];
+  survey.pages.splice(1, 1);
+  survey.pages.splice(0, 0, page);
+  survey.stopMovingPage();
+  assert.equal(pageAddedRaisedCount, 0, "onPageAdded is not raised");
+  assert.equal(survey.pages[0].name, "page2", "page2 is the first page");
+});

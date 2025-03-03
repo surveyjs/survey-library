@@ -6940,8 +6940,13 @@ export class SurveyModel extends SurveyElementCore
       this.updateProgressText();
       this.updateCurrentPage();
     }
+    if (this.canFireAddPage()) {
     var options = { page: page };
     this.onPageAdded.fire(this, options);
+    }
+  }
+  private canFireAddPage(): boolean {
+    return !this.isMovingPage;
   }
   protected doOnPageRemoved(page: PageModel): void {
     page.setSurveyImpl(null);
@@ -7920,6 +7925,15 @@ export class SurveyModel extends SurveyElementCore
     this.isMovingQuestion = false;
   }
   get isQuestionDragging(): boolean { return this.isMovingQuestion; }
+
+  private isMovingPage: boolean = false;
+  public startMovingPage(): void {
+    this.isMovingPage = true;
+  }
+  public stopMovingPage(): void {
+    this.isMovingPage = false;
+  }
+
   public needRenderIcons = true;
 
   private skippedPages: Array<{ from: any, to: any }> = [];

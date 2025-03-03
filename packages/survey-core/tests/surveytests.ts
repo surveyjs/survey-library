@@ -19133,6 +19133,37 @@ QUnit.test("Search disabled after change popup displayMode", function (assert) {
   _setIsTouch(false);
 });
 
+QUnit.test("Dropdown with the 'dropdown' popup style is closed immediatelly", function (assert) {
+  _setIsTouch(true);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "car",
+        choices: ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"],
+      },
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const popup = question.dropdownListModel.popupModel;
+  survey.onOpenDropdownMenu.add((_, options) => {
+    options.menuType = "dropdown";
+  });
+
+  assert.equal(popup.displayMode, "overlay", "#1");
+  assert.equal(popup.setWidthByTarget, false, "#2");
+  assert.equal(popup.isFocusedContent, true, "#3");
+  assert.equal(popup.isFocusedContainer, false, "#4");
+
+  popup.show();
+  assert.equal(popup.displayMode, "popup", "#1.1");
+  assert.equal(popup.setWidthByTarget, true, "#2.1");
+  assert.equal(popup.isFocusedContent, false, "#3.1");
+  assert.equal(popup.isFocusedContainer, false, "#4.1");
+
+  _setIsTouch(false);
+});
+
 QUnit.test("Shared data #6584", (assert) => {
   const json = {
     logoPosition: "right",

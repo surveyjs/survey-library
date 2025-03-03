@@ -379,6 +379,7 @@ export interface ITitleOwner {
   isRequireTextBeforeTitle: boolean;
   isRequireTextAfterTitle: boolean;
   locTitle: LocalizableString;
+  locRenderedTitle: LocalizableString;
 }
 export interface IProgressInfo {
   questionCount: number;

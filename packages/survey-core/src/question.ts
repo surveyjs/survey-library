@@ -204,7 +204,6 @@ export class Question extends SurveyElement<Question>
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.storeDefaultText = true;
     locTitleValue.onGetTextCallback = (text: string, nonProcessedText?: string): string => {
-      if(this.isSingleInputActive && !!this.singleInputLocTitle) return this.singleInputLocTitle.textOrHtml;
       if (!text && !nonProcessedText) {
         text = this.getDefaultTitle();
       }
@@ -214,6 +213,10 @@ export class Question extends SurveyElement<Question>
     this.locProcessedTitle = new LocalizableString(this, true);
     this.locProcessedTitle.sharedData = locTitleValue;
     return locTitleValue;
+  }
+  get locRenderedTitle(): LocalizableString {
+    if(this.isSingleInputActive && !!this.singleInputLocTitle) return this.singleInputLocTitle;
+    return this.locTitle;
   }
   public get commentTextAreaModel(): TextAreaModel {
     if(!this.commentTextAreaModelValue) {
@@ -892,7 +895,14 @@ export class Question extends SurveyElement<Question>
       const action = new Action({ id: "single-action" + q.id, locTitle: title,
         css: this.cssClasses.breadcrumbsItem,
         innerCss: this.cssClasses.breadcrumbsItemButton,
-        action: () => { q.singleInputMoveToFirst(); } });
+        action: () => {
+          if(q == summaryQ) {
+            q.setSingleInputQuestion(q);
+          } else {
+            q.singleInputMoveToFirst();
+          }
+        }
+      });
 
       action.cssClasses = {};
       res.push(action);

@@ -612,8 +612,10 @@ export interface IConfirmDialogOptions {
   rootElement?: HTMLElement;
   cssClass?: string;
 }
-export function showConfirmDialog(message: string, callback: (res: boolean) => void, options: IConfirmDialogOptions = {}): boolean {
-  const locStr = new LocalizableString(undefined);
+
+export function showConfirmDialog(message: string, callback: (res: boolean) => void, options: IConfirmDialogOptions= {}): boolean {
+  const locStr = new LocalizableString(undefined, false);
+  locStr.defaultValue = message || options.message;
   const popupViewModel: PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
     componentName: "sv-string-viewer",
     data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
@@ -625,7 +627,6 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
       callback(false);
       return false;
     },
-    title: message || options.message,
     displayMode: "popup",
     isFocusedContent: false,
     cssClass: options.cssClass || "sv-popup--confirm"
@@ -634,9 +635,8 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   const applyBtn = toolbar.getActionById("apply");
   const cancelBtn = toolbar.getActionById("cancel");
   cancelBtn.title = getLocaleString("cancel", options.locale);
-  cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
   applyBtn.title = options.applyTitle || getLocaleString("ok", options.locale);
-  applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
+  applyBtn.innerCss = "sd-btn--danger";
   configConfirmDialog(popupViewModel);
   return true;
 }

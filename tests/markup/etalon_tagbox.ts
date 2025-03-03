@@ -1,4 +1,4 @@
-import { _setIsTouch, settings } from "survey-core";
+import { _setIsTouch, _setIsTablet } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -42,9 +42,11 @@ registerMarkupTests(
       },
       before: () => {
         _setIsTouch(true);
+        _setIsTablet(true);
       },
       after: () => {
         _setIsTouch(false);
+        _setIsTablet(undefined);
       },
       removeIds: true,
       snapshot: "tagbox-mobile"

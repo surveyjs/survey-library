@@ -276,7 +276,7 @@ export {
   ButtonGroupItemModel,
   ButtonGroupItemValue
 } from "../../src/question_buttongroup";
-export { IsMobile, IsTouch, _setIsTouch } from "../../src/utils/devices";
+export { IsMobile, IsTouch, _setIsTouch, _setIsTablet } from "../../src/utils/devices";
 export {
   confirmAction,
   confirmActionAsync,

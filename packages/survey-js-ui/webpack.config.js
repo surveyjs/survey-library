@@ -120,7 +120,13 @@ module.exports = function (options) {
           commonjs2: "survey-core",
           commonjs: "survey-core",
           amd: "survey-core"
-        }
+        },
+        jquery: {
+          root: "jQuery",
+          commonjs2: "jquery",
+          commonjs: "jquery",
+          amd: "jquery"
+        },
       }
     ],
     plugins: [

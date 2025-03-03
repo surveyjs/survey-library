@@ -745,6 +745,15 @@ export class Question extends SurveyElement<Question>
     }
     return res;
   }
+  private getParentQuestions(): Array<Question> {
+    const res = new Array<Question>();
+    let q: Question = this;
+    while(!!q.parentQuestion) {
+      res.push(q.parentQuestion);
+      q = q.parentQuestion;
+    }
+    return res;
+  }
   public resetSingleInput(): void {
     this.resetSingleInputCore();
   }
@@ -1583,17 +1592,28 @@ export class Question extends SurveyElement<Question>
     if (this.isDesignMode || !this.isVisible || !this.survey) return;
     let page = this.page;
     const shouldChangePage = !!page && this.survey.activePage !== page;
-    if (shouldChangePage) {
+    const isSingleInput = this.survey.isSingleVisibleInput;
+    if (shouldChangePage && !isSingleInput) {
       this.survey.focusQuestionByInstance(this, onError);
     } else {
-      if (!!this.survey) {
+      if(isSingleInput) {
+        this.survey.currentSingleQuestion = this.rootParentQuestion;
+        const parents = this.getParentQuestions();
+        for(let i = parents.length - 1; i >= 1; i--) {
+          if(i === parents.length - 1) {
+            parents[i].setSingleInputQuestion(parents[i - 1]);
+          }
+        }
+        if(parents.length > 0) {
+          parents[0].setSingleInputQuestion(this);
+        }
+        this.focusInputElement(onError);
+      } else {
         this.expandAllParents();
         const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] ? { behavior: "smooth" } : undefined;
         this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible, scrollOptions, undefined, () => {
           this.focusInputElement(onError);
         });
-      } else {
-        this.focusInputElement(onError);
       }
     }
   }

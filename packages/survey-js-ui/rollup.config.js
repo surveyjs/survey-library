@@ -32,7 +32,13 @@ module.exports = (options) => {
           "react/jsx-runtime": "preact/jsx-runtime"
         }
       }),
-      nodeResolve(),
+      nodeResolve({ dedupe: [
+        "survey-core/icons/iconsV1",
+        "survey-core/icons/iconsV2",
+        "preact/compat",
+        "preact/jsx-runtime",
+        "preact/test-utils"
+      ] }),
       typescript({
         filterRoot: false,
         inlineSources: true,

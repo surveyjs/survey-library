@@ -1816,7 +1816,7 @@ QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
   assert.deepEqual(q2.isEmpty(), true, "value is reset, #9");
 });
 
-QUnit.only("Rating: check in matrix mode", (assert) => {
+QUnit.test("Rating: check in matrix mode", (assert) => {
   const survey = new SurveyModel(
     {
       elements: [

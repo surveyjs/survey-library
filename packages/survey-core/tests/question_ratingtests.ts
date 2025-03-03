@@ -1403,7 +1403,7 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   q1.cssClasses.itemStarHover = "";
   q1.cssClasses.itemSmileySmall = "sv_q_item-smiley--small";
   q1.cssClasses.itemStarSmall = "sv_q_item-star--small";
-
+  q1.cssClasses.rootWrappable = "";
   assert.equal(q1.ratingRootCss, "sv_q sv_q--small");
   assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-smiley sv_q_item-smiley--small");
 

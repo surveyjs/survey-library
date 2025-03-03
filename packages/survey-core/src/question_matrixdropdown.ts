@@ -202,6 +202,13 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("rows");
   }
+  protected getIsRequireToGenerateRows(): boolean {
+    if(super.getIsRequireToGenerateRows()) return true;
+    for(let i = 0; i < this.rows.length; i ++) {
+      if(!!this.rows[i].visibleIf) return true;
+    }
+    return false;
+  }
   protected updateProgressInfoByValues(res: IProgressInfo): void {
     let val = this.value;
     if(!val) val = {};

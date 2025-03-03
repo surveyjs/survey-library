@@ -166,7 +166,7 @@
           &.sd-item--checked .sd-item__decorator {
             background-color: $primary;
           }
-          &.sd-item--checked .sd-item__control:focus + .sd-item__decorator{
+          &.sd-item--checked .sd-item__control:focus + .sd-item__decorator {
             background-color: var(--sjs-general-backcolor, var(--background, #fff));
           }
           &.sd-item--readonly.sd-item--checked .sd-item__decorator {
@@ -531,6 +531,23 @@
   &.sd-question--scroll {
     overflow-x: visible;
   }
+  & > .sd-question__content {
+    min-width: auto;
+  }
+  .sd-table-wrapper {
+    width: auto;
+  }
+  .sd-table {
+    display: block;
+    width: calc(100% - 2 * var(--sd-base-padding) + 2 * #{$base-unit});
+
+    & > tbody {
+      display: block;
+    }
+    & > tfoot {
+      display: block;
+    }
+  }
 
   .sd-table__cell.sd-matrix__cell {
     display: flex;
@@ -614,7 +631,7 @@
       bottom: 0;
     }
     tr:last-of-type::after {
-      display: none
+      display: none;
     }
 
     tfoot tr {
@@ -784,7 +801,6 @@
     padding-top: calcSize(1);
   }
 }
-
 
 .sd-table__question-wrapper {
   .sd-boolean-root {

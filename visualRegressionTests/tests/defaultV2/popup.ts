@@ -146,6 +146,36 @@ function addActionsWithModalPopupShortList(_, opt) {
   opt.titleActions = [modalPopupAction, modalPopupWithTitleAction];
 }
 
+function addDropdownActionWithSubItems(_, opt) {
+  let subitems: Array<any> = [];
+  for (let index = 0; index < 7; index++) {
+    subitems[index] = { id: index, title: "inner item" + index };
+  }
+
+  let items: Array<any> = [];
+  for (let index = 0; index < 10; index++) {
+    items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
+  }
+  items[5].setSubItems({ items: [...subitems] });
+  items[5].title += " has items";
+  items[6].setSubItems({ items: [...subitems] });
+  items[6].title += " has items";
+
+  const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+    { title: "Subitems", showTitle: true },
+    {
+      items: items,
+      showPointer: true,
+      verticalPosition: "bottom",
+      horizontalPosition: "center",
+      onSelectionChanged: (item, ...params) => {
+        let value = item.id;
+      }
+    }
+  );
+  opt.titleActions = [dropdownWithSearchAction];
+}
+
 function addDropdownActionWithSubItemsAndSelectedItems(_, opt) {
   let subitems: Array<any> = [];
   for (let index = 0; index < 7; index++) {

@@ -466,6 +466,8 @@ export var defaultCss = {
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",
     root: "sd-selectbase sd-imagepicker",
+    rootResponsive: "sd-imagepicker--responsive",
+    rootStatic: "sd-imagepicker--static",
     rootColumn: "sd-imagepicker--column",
     item: "sd-imagepicker__item",
     itemOnError: "sd-imagepicker__item--error",

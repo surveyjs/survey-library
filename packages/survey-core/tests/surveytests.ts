@@ -1123,6 +1123,21 @@ QUnit.test("survey.progressBarType = 'pages', Bug #6563",
     assert.equal(survey.progressText, "Page 4 of 4", "page4, #3");
   }
 );
+QUnit.test("survey.progressBarType = 'value', Bug #9532", function (assert) {
+  const survey = new SurveyModel({
+    progressBarType: "questions",
+    elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+  });
+  let progressValue = 0;
+  assert.equal(survey.progressValue, 0, "progressValue #1");
+  survey.onValueChanged.add((sender, options) => {
+    progressValue = sender.progressValue;
+  });
+  survey.getQuestionByName("q1").value = "1";
+  assert.equal(progressValue, 50, "progressValue #2");
+  survey.getQuestionByName("q2").value = "2";
+  assert.equal(progressValue, 100, "progressValue #3");
+});
 QUnit.test("Next, Prev, Next", function (assert) {
   var survey = new SurveyModel();
   survey.addPage(createPageWithQuestion("Page 1"));
@@ -21627,4 +21642,25 @@ QUnit.test("Show warning on loadig JSON created in higher version of Creator", f
   checkFunc("2.0.3", "2.0.2", true);
   ConsoleWarnings.warn = prevWarn;
   settings.version = oldVersion;
+});
+QUnit.test("Advanced header from theme", function (assert) {
+  const survey = new SurveyModel();
+  const advancedHeaderTheme: any = { "cssVariables": {}, "header": {}, "headerView": "advanced" };
+  const basicHeaderTheme: any = { "cssVariables": {}, "header": {}, "headerView": "basic" };
+  const advancedHeaderThemeWithoutHeaderView: any = { "cssVariables": {}, "header": {} };
+
+  assert.equal(survey.headerView, "basic", "By default headerView is basic");
+  assert.ok(survey.findLayoutElement("advanced-header") == undefined, "By default header is absent");
+
+  survey.applyTheme(advancedHeaderTheme);
+  assert.equal(survey.headerView, "advanced", "After apply advanced headerView is advanced");
+  assert.ok(survey.findLayoutElement("advanced-header") != undefined, "After apply advanced header is present");
+
+  survey.applyTheme(basicHeaderTheme);
+  assert.equal(survey.headerView, "basic", "After apply basic headerView is advanced");
+  assert.ok(survey.findLayoutElement("advanced-header") == undefined, "After apply basic header is absent");
+
+  survey.applyTheme(advancedHeaderThemeWithoutHeaderView);
+  assert.equal(survey.headerView, "advanced", "After apply empty headerView is advanced");
+  assert.ok(survey.findLayoutElement("advanced-header") != undefined, "After apply empty headerView advanced header is present");
 });

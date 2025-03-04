@@ -1403,7 +1403,7 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   q1.cssClasses.itemStarHover = "";
   q1.cssClasses.itemSmileySmall = "sv_q_item-smiley--small";
   q1.cssClasses.itemStarSmall = "sv_q_item-star--small";
-
+  q1.cssClasses.rootWrappable = "";
   assert.equal(q1.ratingRootCss, "sv_q sv_q--small");
   assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-smiley sv_q_item-smiley--small");
 
@@ -1811,4 +1811,39 @@ QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
   q1.value = [2];
   assert.equal(q2.renderedRateItems.length, 2, "renderedRateItems #9");
   assert.deepEqual(q2.isEmpty(), true, "value is reset, #9");
+});
+
+QUnit.test("Rating: check in matrix mode", (assert) => {
+  const survey = new SurveyModel(
+    {
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "q1",
+          columns: [
+            {
+              name: "rating",
+              cellType: "rating",
+              rateCount: 10,
+              rateMax: 10,
+              displayMode: "buttons"
+            },
+          ],
+          rows: ["Row 1", "Row 2", "Row 3"],
+        },
+      ],
+    },
+  );
+  survey.css = {
+    rating: {
+      rootWrappable: "wrappble_test"
+    }
+  };
+  const matrix = survey.getAllQuestions()[0];
+  const rating = <QuestionRatingModel>matrix.getNestedQuestions()[0];
+  assert.ok(rating.ratingRootCss.includes("wrappble_test"));
+  rating.displayMode = "dropdown";
+  assert.notOk(rating.ratingRootCss.includes("wrappble_test"));
+  rating.displayMode = "buttons";
+  assert.ok(rating.ratingRootCss.includes("wrappble_test"));
 });

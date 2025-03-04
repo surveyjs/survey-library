@@ -186,7 +186,8 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     if (!this.canMakeReact(stateElement)) return;
     if (!this.isCurrentStateElement(stateElement)) {
       // eslint-disable-next-line no-console
-      console.warn("Looks like the component is bound to another survey element. It is not supported and can lead to issues.");
+      // console.warn("Looks like the component is bound to another survey element. It is not supported and can lead to issues.");
+      return;
     }
     stateElement.setPropertyValueCoreHandler = undefined as any;
     stateElement.iteratePropertiesHash((hash, key) => {

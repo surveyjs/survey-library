@@ -25,7 +25,7 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
   }
 
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-    if(this.item === nextProps.item) return false;
+    // if(this.item === nextProps.item) return false;
     return super.shouldComponentUpdate(nextProps, nextState);
   }
 

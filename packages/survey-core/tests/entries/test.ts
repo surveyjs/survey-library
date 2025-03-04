@@ -17,7 +17,6 @@ export * from "../question_matrixdropdownbasetests";
 export * from "../question_paneldynamic_tests";
 export * from "../surveyserializationtests"; //
 export * from "../surveytests"; //
-export * from "../surveyServiceTests"; //
 export * from "../surveyWindowTests"; //
 export * from "../surveywidthmodetests"; //
 export * from "../surveytriggertests"; //
@@ -31,7 +30,6 @@ export * from "../surveytimertests";
 export * from "../question_multipletexttests";
 export * from "../question_expressiontests";
 export * from "../questionFileTests";
-export * from "../dragdroptests";
 export * from "../dragdropcoretests";
 export * from "../dragdrophelpertests";
 export * from "../expressions/expressionsTest"; //
@@ -80,6 +78,7 @@ export * from "../mask/mask_settings_tests";
 export * from "../mask/multipletext_mask_settings_tests";
 export * from "../headerTests";
 export * from "../layout_tests";
+export * from "../surveyServiceRemovingTests";
 
 // localization
 import "../../src/localization/russian";

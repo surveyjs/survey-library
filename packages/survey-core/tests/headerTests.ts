@@ -21,33 +21,40 @@ const getSurveyWithLogoTitleAndDescription = () => new SurveyModel({
 QUnit.test("cell calculations",
   function (assert) {
     const cover = new Cover();
+    cover.survey = new SurveyModel();
 
     assert.deepEqual(cover.cells[0].style, {
       gridColumn: 1,
       gridRow: 1,
+      "width": undefined
     }, "top left");
     assert.deepEqual(cover.cells[0].contentStyle, {
       justifyContent: "flex-start",
       alignItems: "flex-start",
-      textAlign: "start"
+      textAlign: "start",
+      "maxWidth": undefined,
     }, "top left");
     assert.deepEqual(cover.cells[1].style, {
       gridColumn: 2,
       gridRow: 1,
+      "width": undefined
     }, "top center");
     assert.deepEqual(cover.cells[1].contentStyle, {
       justifyContent: "flex-start",
       alignItems: "center",
-      textAlign: "center"
+      textAlign: "center",
+      "maxWidth": undefined,
     }, "top center");
     assert.deepEqual(cover.cells[2].style, {
       gridColumn: 3,
       gridRow: 1,
+      "width": undefined
     }, "top right");
     assert.deepEqual(cover.cells[2].contentStyle, {
       justifyContent: "flex-start",
       alignItems: "flex-end",
-      textAlign: "end"
+      textAlign: "end",
+      "maxWidth": undefined,
     }, "top right");
   }
 );
@@ -56,7 +63,10 @@ QUnit.test("cover maxWidth",
   function (assert) {
     const cover = new Cover();
     cover.survey = new SurveyModel();
-    assert.equal(cover.inheritWidthFrom, "container", "default inheritWidthFrom");
+    assert.equal(cover.inheritWidthFrom, "survey", "default inheritWidthFrom");
+
+    cover.inheritWidthFrom = "container";
+    assert.equal(cover.inheritWidthFrom, "container", "inheritWidthFrom");
     assert.equal(cover.maxWidth, false, "inheritWidthFrom is container");
 
     cover.inheritWidthFrom = "survey";
@@ -77,7 +87,10 @@ QUnit.test("contentClasses",
     const cover = new Cover();
     cover.survey = new SurveyModel();
 
-    assert.equal(cover.inheritWidthFrom, "container", "default inheritWidthFrom");
+    assert.equal(cover.inheritWidthFrom, "survey", "default inheritWidthFrom");
+
+    cover.inheritWidthFrom = "container";
+    assert.equal(cover.inheritWidthFrom, "container", "inheritWidthFrom");
     assert.equal(cover.contentClasses, "sv-header__content sv-header__content--responsive", "inheritWidthFrom is container");
 
     cover.inheritWidthFrom = "survey";
@@ -124,31 +137,35 @@ QUnit.test("grid cells - defaults", function (assert) {
   cover.survey = getSurveyWithLogoTitleAndDescription();
 
   cover.cells.forEach(cell => {
-    assert.equal(cell.showLogo, cell["positionX"] === "right" && cell["positionY"] === "top", "logo in top right");
+    assert.equal(cell.showLogo, cell["positionX"] === "left" && cell["positionY"] === "top", "logo in top left");
     assert.equal(cell.showTitle, cell["positionX"] === "left" && cell["positionY"] === "bottom", "title in bottom left");
     assert.equal(cell.showDescription, cell["positionX"] === "left" && cell["positionY"] === "bottom", "description in bottom left");
   });
 
-  assert.equal(cover.cells[2].css, "sv-header__cell sv-header__cell--right sv-header__cell--top", "top right cell css");
-  assert.deepEqual(cover.cells[2].style, {
-    "gridColumn": 3,
-    "gridRow": 1
-  }, "top right cell style");
-  assert.deepEqual(cover.cells[2].contentStyle, {
-    "alignItems": "flex-end",
+  assert.equal(cover.cells[0].css, "sv-header__cell sv-header__cell--left sv-header__cell--top", "top left cell css");
+  assert.deepEqual(cover.cells[0].style, {
+    "gridColumn": 1,
+    "gridRow": 1,
+    "width": undefined
+  }, "top left cell style");
+  assert.deepEqual(cover.cells[0].contentStyle, {
+    "alignItems": "flex-start",
     "justifyContent": "flex-start",
-    "textAlign": "end"
-  }, "top right cell content style");
+    "textAlign": "start",
+    "maxWidth": undefined,
+  }, "top left cell content style");
 
   assert.equal(cover.cells[6].css, "sv-header__cell sv-header__cell--left sv-header__cell--bottom", "bottom left cell css");
   assert.deepEqual(cover.cells[6].style, {
     "gridColumn": 1,
-    "gridRow": 3
+    "gridRow": 3,
+    "width": undefined
   }, "bottom left cell style");
   assert.deepEqual(cover.cells[6].contentStyle, {
     "alignItems": "flex-start",
     "justifyContent": "flex-end",
-    "textAlign": "start"
+    "textAlign": "start",
+    "maxWidth": "300%",
   }, "bottom left cell content style");
 });
 
@@ -172,12 +189,14 @@ QUnit.test("grid cells - all elements center+middle", function (assert) {
   assert.equal(cover.cells[4].css, "sv-header__cell sv-header__cell--center sv-header__cell--middle", "middle center cell css");
   assert.deepEqual(cover.cells[4].style, {
     "gridColumn": 2,
-    "gridRow": 2
+    "gridRow": 2,
+    "width": undefined
   }, "middle center cell style");
   assert.deepEqual(cover.cells[4].contentStyle, {
     "alignItems": "center",
     "justifyContent": "center",
-    "textAlign": "center"
+    "textAlign": "center",
+    "maxWidth": undefined,
   }, "middle center cell content style");
 });
 
@@ -201,24 +220,25 @@ QUnit.test("grid cells - empty survey", function (assert) {
   cover.survey.description = "description";
   cover.cells.forEach((cell, index) => {
     assert.equal(cell.showLogo, false, "no logo");
-    assert.equal(cell.showTitle, index === 6, "title and description");
-    assert.equal(cell.showDescription, index === 6, "title and description");
+    assert.equal(cell.showTitle, index === 6, "title and description: title");
+    assert.equal(cell.showDescription, index === 6, "title and description: description");
   });
 
   cover.survey.logo = "logoURL";
   cover.cells.forEach((cell, index) => {
-    assert.equal(cell.showLogo, index === 2, "logo, title and description");
-    assert.equal(cell.showTitle, index === 6, "logo, title and description");
-    assert.equal(cell.showDescription, index === 6, "logo, title and description");
+    assert.equal(cell.showLogo, index === 0, "logo, title and description: logo");
+    assert.equal(cell.showTitle, index === 6, "logo, title and description: title");
+    assert.equal(cell.showDescription, index === 6, "logo, title and description: description");
   });
 });
 
 QUnit.test("cell calculations - test width",
   function (assert) {
     const cover = new Cover();
+    cover.survey = new SurveyModel();
 
-    assert.equal(cover.cells[0].textAreaWidth, "512px", "default");
-    assert.equal(cover.cells[0].textAreaWidth, cover.textAreaWidth + "px", "equal to cover + px");
+    assert.equal(cover.cells[0].textAreaWidth, undefined, "default");
+    assert.equal(cover.cells[0].textAreaWidth, undefined, "equal to cover + px");
 
     cover.textAreaWidth = 120;
     assert.equal(cover.textAreaWidth, 120, "cover text width");
@@ -226,84 +246,33 @@ QUnit.test("cell calculations - test width",
   }
 );
 
-QUnit.test("calculateActualHeight desktop",
-  function (assert) {
-    const cover = new Cover();
+QUnit.test("grid cells - calculate cell maxWidth", function (assert) {
+  const cover = new Cover();
+  cover.survey = getSurveyWithLogoTitleAndDescription();
 
-    cover.logoPositionX = "left";
-    cover.logoPositionY = "middle";
-    cover.titlePositionX = "right";
-    cover.titlePositionY = "middle";
-    cover.descriptionPositionX = "right";
-    cover.descriptionPositionY = "middle";
+  cover.logoPositionX = "right";
+  cover.logoPositionY = "middle";
+  cover.titlePositionX = "left";
+  cover.titlePositionY = "middle";
+  cover.descriptionPositionX = "left";
+  cover.descriptionPositionY = "middle";
 
-    let logoHeight = 201;
-    let titleHeight = 22;
-    let descriptionHeight = 303;
+  assert.equal(cover.cells[3].contentStyle["maxWidth"], "200%", "title + description #1");
+  assert.equal(cover.cells[5].contentStyle["maxWidth"], undefined, "logo #1");
 
-    let actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
-    assert.equal(actualHeight, titleHeight + descriptionHeight);
-    cover.actualHeight = actualHeight;
-    assert.equal(cover.renderedHeight, "365px", "title + description + 40");
+  cover.descriptionPositionX = "center";
+  cover.descriptionPositionY = "middle";
 
-    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
-    assert.equal(actualHeight, logoHeight);
-    cover.actualHeight = actualHeight;
-    assert.equal(cover.renderedHeight, "256px", "default height");
+  assert.equal(cover.cells[3].contentStyle["maxWidth"], "100%", "title #2");
+  assert.equal(cover.cells[4].contentStyle["maxWidth"], "100%", "description #2");
+  assert.equal(cover.cells[5].contentStyle["maxWidth"], undefined, "logo #2");
 
-    logoHeight = 271;
-    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
-    assert.equal(actualHeight, logoHeight);
-    cover.actualHeight = actualHeight;
-    assert.equal(cover.renderedHeight, "311px", "logo + 40");
-  }
-);
+  cover.logoPositionX = "right";
+  cover.logoPositionY = "top";
+  cover.descriptionPositionX = "center";
+  cover.descriptionPositionY = "bottom";
 
-QUnit.test("calculateActualHeight mobile",
-  function (assert) {
-    const cover = new Cover();
-    cover.survey = {
-      isMobile: true,
-      onPropertyChanged: { add: () => { } },
-      calculateWidthMode: () => { }
-    } as any;
-
-    cover.logoPositionX = "left";
-    cover.logoPositionY = "middle";
-    cover.titlePositionX = "right";
-    cover.titlePositionY = "middle";
-    cover.descriptionPositionX = "right";
-    cover.descriptionPositionY = "middle";
-
-    let logoHeight = 201;
-    let titleHeight = 22;
-    let descriptionHeight = 303;
-
-    let actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
-    assert.equal(actualHeight, titleHeight + descriptionHeight);
-    cover.actualHeight = actualHeight;
-    assert.equal(cover.renderedHeight, undefined, "title + description + 40 - no mobileHeight");
-
-    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
-    assert.equal(actualHeight, logoHeight);
-    cover.actualHeight = actualHeight;
-    assert.equal(cover.renderedHeight, undefined, "default height - no mobileHeight");
-
-    logoHeight = 271;
-    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
-    assert.equal(actualHeight, logoHeight);
-    cover.actualHeight = actualHeight;
-    assert.equal(cover.renderedHeight, undefined, "logo + 40 - no mobileHeight");
-
-    cover.mobileHeight = 100;
-
-    cover.actualHeight = 300;
-    assert.equal(cover.renderedHeight, "300px", "actual height");
-
-    cover.actualHeight = 40;
-    assert.equal(cover.renderedHeight, "100px", "mobile height");
-
-    cover.actualHeight = 0;
-    assert.equal(cover.renderedHeight, "100px", "mobile height, no title, no logo, no description");
-  }
-);
+  assert.equal(cover.cells[2].contentStyle["maxWidth"], undefined, "logo #3");
+  assert.equal(cover.cells[3].contentStyle["maxWidth"], "300%", "title #3");
+  assert.equal(cover.cells[7].contentStyle["maxWidth"], undefined, "description #3");
+});

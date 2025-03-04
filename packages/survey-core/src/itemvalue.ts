@@ -78,7 +78,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     val: any
   ): string {
     var item = ItemValue.getItemByValue(items, val);
-    return item !== null ? item.locText.textOrHtml : "";
+    return item !== null ? item.textOrHtml : "";
   }
   public static locStrsChanged(items: Array<ItemValue>) {
     for (var i = 0; i < items.length; i++) {
@@ -183,28 +183,12 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return hasChanded;
   }
   public ownerPropertyName: string = "";
-  //private itemValue: any;
-  @property({ defaultValue: true }) private _visible: boolean;
   private locTextValue: LocalizableString;
   private visibleConditionRunner: ConditionRunner;
   private enableConditionRunner: ConditionRunner;
 
   constructor(value: any, text: string = null, protected typeName = "itemvalue") {
     super();
-    this.locTextValue = new LocalizableString(this, true, "text");
-    this.locTextValue.onStrChanged = (oldValue: string, newValue: string) => {
-      if (newValue == this.value) {
-        newValue = undefined;
-      }
-      this.propertyValueChanged("text", oldValue, newValue);
-    };
-    this.locTextValue.onGetTextCallback = (txt) => {
-      return txt
-        ? txt
-        : !Helpers.isValueEmpty(this.value)
-          ? this.value.toString()
-          : null;
-    };
     if (text) this.locText.text = text;
     if (!!value && typeof value === "object") {
       this.setData(value, true);
@@ -234,7 +218,24 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   protected get isInternal(): boolean {
     return this.isGhost === true;
   }
+  private createLocText(): LocalizableString {
+    const res = new LocalizableString(this, true, "text");
+    res.onStrChanged = (oldValue: string, newValue: string) => {
+      this.propertyValueChanged("text", oldValue, newValue);
+    };
+    res.onGetTextCallback = (txt) => {
+      return txt || this.getValueText();
+    };
+    return res;
+  }
+  private getValueText(): string {
+    const val = this.value;
+    return !Helpers.isValueEmpty(val) ? val.toString() : null;
+  }
   public get locText(): LocalizableString {
+    if(!this.locTextValue) {
+      this.locTextValue = this.createLocText();
+    }
     return this.locTextValue;
   }
   setLocText(locText: LocalizableString): void {
@@ -277,22 +278,27 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     this.id = this.value;
   }
   public get hasText(): boolean {
-    return this.locText.pureText ? true : false;
+    return this.pureText ? true : false;
   }
   public get pureText(): string {
-    return this.locText.pureText;
+    return this.locTextValue?.pureText || "";
   }
   public set pureText(val: string) {
     this.text = val;
   }
   public get text(): string {
-    return this.locText.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewriting in Creator
+    return this.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewriting in Creator
   }
   public set text(newText: string) {
     this.locText.text = newText;
   }
+  public get textOrHtml(): string {
+    if(this.locTextValue) return this.locText.textOrHtml;
+    return this.getValueText();
+  }
   public get calculatedText(): string {
-    return this.locText.calculatedText;
+    if(this.locTextValue) return this.locText.calculatedText;
+    return this.getValueText();
   }
   public get shortcutText(): string {
     return this.text;
@@ -326,8 +332,8 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     var jsoObj = new JsonObject();
     for (var i = 0; i < properties.length; i++) {
       const prop = properties[i];
-      if (prop.name === "text" && !this.locText.hasNonDefaultText() &&
-        Helpers.isTwoValueEquals(this.value, this.text, false, true, false)) continue;
+      if (prop.name === "text" && (!this.locTextValue || !this.locTextValue.hasNonDefaultText() &&
+        Helpers.isTwoValueEquals(this.value, this.locTextValue.getLocaleText(""), false, true, false))) continue;
       jsoObj.valueToJson(this, res, prop);
     }
     return res;
@@ -349,7 +355,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       this.setValue(value, isNewItem);
     }
     if(!isNewItem) {
-      this.locText.strChanged();
+      this.locTextValue?.strChanged();
     }
   }
   public get visibleIf(): string {
@@ -379,15 +385,17 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     this.setPropertyValue("isEnabled", val);
   }
   public addUsedLocales(locales: Array<string>): void {
-    this.AddLocStringToUsedLocales(this.locTextValue, locales);
+    if(this.locTextValue) {
+      this.AddLocStringToUsedLocales(this.locTextValue, locales);
+    }
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
-    this.locText.strChanged();
+    this.locTextValue?.strChanged();
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     if (name === "value" && !this.hasText) {
-      this.locText.strChanged();
+      this.locTextValue?.strChanged();
     }
     var funcName = "itemValuePropertyChanged";
     if (!this.locOwner || !(<any>this.locOwner)[funcName]) return;
@@ -456,6 +464,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       this._visible = val;
     }
   }
+  private get _visible(): boolean { return this.getPropertyValue("visible", true); }
+  private set _visible(val: boolean) { this.setPropertyValue("visible", val); }
+
   protected getLocTitle(): LocalizableString {
     return this.locText;
   }
@@ -464,8 +475,8 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   protected setLocTitle(val: LocalizableString): void {}
   protected setTitle(val: string): void {}
-
-  @property() icon: string;
+  public get icon(): string { return this.getPropertyValue("icon", ""); }
+  public set icon(val: string) { this.setPropertyValue("icon", val); }
 }
 
 Base.createItemValue = function (source: any, type?: string): any {

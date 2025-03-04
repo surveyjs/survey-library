@@ -131,13 +131,16 @@ export class Question extends SurveyElement<Question>
     this._isMobile = val;
   }
   public themeChanged(theme: ITheme): void { }
-  @property({ defaultValue: false }) private _isMobile: boolean;
-  @property() forceIsInputReadOnly: boolean;
-  @property() ariaExpanded: "true" | "false";
+  private get _isMobile(): boolean { return this.getPropertyValue("_isMobile", false); }
+  private set _isMobile(val: boolean) { this.setPropertyValue("_isMobile", val); }
+  public get forceIsInputReadOnly(): boolean { return this.getPropertyValue("forceIsInputReadOnly"); }
+  public set forceIsInputReadOnly(val: boolean) { this.setPropertyValue("forceIsInputReadOnly", val); }
+  public get ariaExpanded(): "true" | "false" { return this.getPropertyValue("ariaExpanded"); }
+  public set ariaExpanded(val: "true" | "false") { this.setPropertyValue("ariaExpanded", val); }
 
   constructor(name: string) {
     super(name);
-    this.id = Question.getQuestionId();
+    this.setPropertyValueDirectly("id", Question.getQuestionId());
     this.onCreating();
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
@@ -149,6 +152,8 @@ export class Question extends SurveyElement<Question>
 
     this.createLocalizableString("commentText", this, true, "otherItemText");
     this.createLocalizableString("requiredErrorText", this);
+    this.createLocalizableString("commentPlaceholder", this);
+    this.createLocalizableString("defaultDisplayValue", this);
     this.addTriggerInfo("resetValueIf", (): boolean => !this.isEmpty(), (): void => {
       this.startSetValueOnExpression();
       this.clearValue();
@@ -183,6 +188,9 @@ export class Question extends SurveyElement<Question>
         this.initCommentFromSurvey();
       }
     );
+    this.registerPropertyChangedHandlers(["commentPlaceholder"], () => {
+      this.resetRenderedCommentPlaceholder();
+    });
     this.registerFunctionOnPropertiesValueChanged(["no", "readOnly", "hasVisibleErrors", "containsErrors"], () => {
       this.updateQuestionCss();
     });
@@ -193,8 +201,8 @@ export class Question extends SurveyElement<Question>
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
     locTitleValue.storeDefaultText = true;
-    locTitleValue.onGetTextCallback = (text: string): string => {
-      if (!text) {
+    locTitleValue.onGetTextCallback = (text: string, nonProcessedText?: string): string => {
+      if (!text && !nonProcessedText) {
         text = this.getDefaultTitle();
       }
       if (!this.survey) return text;
@@ -516,8 +524,7 @@ export class Question extends SurveyElement<Question>
     this.notifySurveyVisibilityChanged();
   }
   /**
-   * Obsolete. Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
-   * @deprecated
+   * @deprecated Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
    */
   public get hideNumber(): boolean {
     return !this.showNumber;
@@ -599,7 +606,7 @@ export class Question extends SurveyElement<Question>
   private checkExpressionIf(keys: any): boolean {
     this.ensureSetValueExpressionRunner();
     if (!this.setValueExpressionRunner) return false;
-    return new ProcessValue().isAnyKeyChanged(keys, this.setValueExpressionRunner.getVariables());
+    return this.canExecuteTriggerByKeys(keys, this.setValueExpressionRunner);
   }
   private triggersInfo: Array<TriggerExpressionInfo> = [];
   private addTriggerInfo(name: string, canRun: () => boolean, doComplete: () => void): TriggerExpressionInfo {
@@ -626,9 +633,14 @@ export class Question extends SurveyElement<Question>
     } else {
       info.runner.expression = expression;
     }
-    if (!new ProcessValue().isAnyKeyChanged(keys, info.runner.getVariables()) && !info.runSecondCheck(keys)) return;
+    if (!this.canExecuteTriggerByKeys(keys, info.runner) && !info.runSecondCheck(keys)) return;
     info.isRunning = true;
     info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+  }
+  private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner): boolean {
+    const vars = runner.getVariables();
+    if((!vars || vars.length === 0) && runner.hasFunction()) return true;
+    return new ProcessValue().isAnyKeyChanged(keys, vars);
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
@@ -911,7 +923,9 @@ export class Question extends SurveyElement<Question>
    * @see comment
    * @see commentText
    */
-  @property({ localizable: true, onSet: (val, target) => target.resetRenderedCommentPlaceholder() }) commentPlaceholder: string;
+  public get commentPlaceholder(): string { return this.getLocalizableStringText("commentPlaceholder"); }
+  public set commentPlaceholder(val: string) { this.setLocalizableStringText("commentPlaceholder", val); }
+  public get locCommentPlaceholder(): LocalizableString { return this.getLocalizableString("commentPlaceholder"); }
 
   public get commentPlaceHolder(): string {
     return this.commentPlaceholder;
@@ -928,6 +942,16 @@ export class Question extends SurveyElement<Question>
   private resetRenderedCommentPlaceholder() {
     this.resetPropertyValue("renderedCommentPlaceholder");
   }
+  /**
+   * A value to show in HTML questions and in the dynamic titles and descriptions of survey elements when the question value is [empty](#isValueEmpty).
+   *
+   * Default value: `""`
+   *
+   * [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
+   */
+  public get defaultDisplayValue(): string { return this.getLocalizableStringText("defaultDisplayValue"); }
+  public set defaultDisplayValue(val: string) { this.setLocalizableStringText("defaultDisplayValue", val); }
+  public get locDefaultDisplayValue(): LocalizableString { return this.getLocalizableString("defaultDisplayValue"); }
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
   }
@@ -1195,7 +1219,6 @@ export class Question extends SurveyElement<Question>
       .append(this.cssClasses.rootMobile, this.isMobile)
       .toString();
   }
-  private isRequireUpdateElements: boolean;
   public updateElementCss(reNew?: boolean): void {
     if(this.wasRendered) {
       super.updateElementCss(reNew);
@@ -1203,16 +1226,9 @@ export class Question extends SurveyElement<Question>
         this.updateQuestionCss(true);
       }
     } else {
-      this.isRequireUpdateElements = true;
+      this.clearCssClasses();
     }
     this.resetIndents();
-  }
-  protected onFirstRenderingCore(): void {
-    if(this.isRequireUpdateElements) {
-      this.isRequireUpdateElements = false;
-      this.updateElementCss(true);
-    }
-    super.onFirstRenderingCore();
   }
   protected updateQuestionCss(reNew?: boolean): void {
     if (this.isLoadingFromJson || !this.survey) return;
@@ -1474,7 +1490,7 @@ export class Question extends SurveyElement<Question>
     if (this.forceIsInputReadOnly !== undefined) {
       return this.forceIsInputReadOnly;
     }
-    return this.isReadOnly || this.isDesignModeV2;
+    return this.isReadOnly || this.isDesignMode;
   }
   public get renderedInputReadOnly(): string {
     return this.isInputReadOnly ? "" : undefined;
@@ -1486,7 +1502,7 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly;
   }
   public get isDisabledAttr(): boolean {
-    return this.isDesignModeV2 || (!!this.readOnlyCallback && this.readOnlyCallback());
+    return this.isDesignMode || (!!this.readOnlyCallback && this.readOnlyCallback());
   }
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
@@ -1527,9 +1543,6 @@ export class Question extends SurveyElement<Question>
   }
   public get isInDesignMode(): boolean {
     return !this.isContentElement && this.isDesignMode;
-  }
-  public get isInDesignModeV2(): boolean {
-    return !this.isContentElement && this.isDesignModeV2;
   }
   /**
    * A question number or letter (depends on the `questionStartIndex` property of the question container (panel, page, or survey)).
@@ -1702,7 +1715,7 @@ export class Question extends SurveyElement<Question>
     if (!val) return false;
     if (Array.isArray(val))
       return val.length > 0 ? this.isValueSurveyElement(val[0]) : false;
-    return !!val.getType && !!val.onPropertyChanged;
+    return val.isSurveyObj === true;
   }
   private canClearValueAsInvisible(reason: string): boolean {
     if (reason === "onHiddenContainer" && !this.isParentVisible) return true;
@@ -1782,6 +1795,9 @@ export class Question extends SurveyElement<Question>
       if (res) return res;
     }
     value = value == undefined ? this.createValueCopy() : value;
+    if(this.isValueEmpty(value) && !this.locDefaultDisplayValue.isEmpty) {
+      value = this.defaultDisplayValue;
+    }
     if (this.isValueEmpty(value, !this.allowSpaceAsAnswer)) return this.getDisplayValueEmpty();
     return this.getDisplayValueCore(keysAsText, value);
   }
@@ -2095,7 +2111,10 @@ export class Question extends SurveyElement<Question>
       };
     }
     if (!values) values = this.defaultValueExpression ? this.data.getFilteredValues() : {};
-    if (!properties) properties = this.defaultValueExpression ? this.data.getFilteredProperties() : {};
+    if (!properties) {
+      properties = this.defaultValueExpression ? this.data.getFilteredProperties() : {};
+      properties["question"] = this;
+    }
     if (!!runner && runner.canRun) {
       runner.onRunComplete = (res) => {
         if (res == undefined) res = this.defaultValue;
@@ -2266,8 +2285,7 @@ export class Question extends SurveyElement<Question>
       : "";
   }
   /**
-   * Obsolete. Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
-   * @deprecated
+   * @deprecated Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
    */
   public get requiredText(): string {
     return this.requiredMark;
@@ -2298,9 +2316,11 @@ export class Question extends SurveyElement<Question>
       this.collectErrors(qErrors, isOnValueChanged, fireCallback);
     }
     if (!!this.survey) {
-      var error = this.fireSurveyValidation();
-      if (error) {
-        qErrors.push(error);
+      if(this.validateValueCallback && qErrors.length === 0) {
+        const error = this.validateValueCallback();
+        if (error) {
+          qErrors.push(error);
+        }
       }
       this.survey.validateQuestion(this, qErrors, fireCallback);
     }
@@ -2323,9 +2343,6 @@ export class Question extends SurveyElement<Question>
   }
   protected canRunValidators(isOnValueChanged: boolean): boolean {
     return true;
-  }
-  private fireSurveyValidation(): SurveyError {
-    if (this.validateValueCallback) return this.validateValueCallback();
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     if ((!isOnValueChanged || this.isOldAnswered) && this.hasRequiredError()) {
@@ -2530,10 +2547,9 @@ export class Question extends SurveyElement<Question>
   }
   onSurveyValueChanged(newValue: any): void { }
   public setVisibleIndex(val: number): number {
-    if (
-      !this.isVisible ||
+    if (val > -1 && (!this.isVisible ||
       (!this.hasTitle && !settings.numbering.includeQuestionsWithHiddenTitle) ||
-      (!this.showNumber && !settings.numbering.includeQuestionsWithHiddenNumber)
+      (!this.showNumber && !settings.numbering.includeQuestionsWithHiddenNumber))
     ) {
       val = -1;
     }
@@ -2596,10 +2612,11 @@ export class Question extends SurveyElement<Question>
       this.getComponentName() === "default"
     );
   }
+  public get renderAs(): string { return this.getPropertyValue("renderAs"); }
+  public set renderAs(val: string) { this.setPropertyValue("renderAs", val); }
 
-  @property() renderAs: string;
-
-  @property({ defaultValue: false }) inMatrixMode: boolean;
+  public get inMatrixMode(): boolean { return this.getPropertyValue("inMatrixMode", false); }
+  public set inMatrixMode(val: boolean) { this.setPropertyValue("inMatrixMode", val); }
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
@@ -2987,6 +3004,7 @@ Serializer.addClass("question", [
   {
     name: "bindings:bindings",
     serializationProperty: "bindings",
+    isSerializableFunc: (obj: any) => !obj.isBindingEmpty(),
     visibleIf: function (obj: any) {
       return obj.bindings.getNames().length > 0;
     },
@@ -3009,6 +3027,7 @@ Serializer.addClass("question", [
     visibleIf: function (obj: any) {
       return obj.hasComment;
     }
-  }
+  },
+  { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" }
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.6.4/showdown.min.js"></script>
+    <style>
+        /*imitation of Tailwind CSS, bootstrap and other CSS frameworks (only for survey-js-ui)*/
+        *,
+        ::after,
+        ::before {
+            box-sizing: border-box;
+        }
+    </style>
+    <link rel="stylesheet" href="../../node_modules/survey-core/survey-core.min.css" />
+
+    <script src="../../node_modules/survey-core/survey.core.min.js"></script>
+    <script src="../../node_modules/survey-core/i18n/index.min.js"></script>
+    <script src="../../build/survey-js-ui.min.js"></script>
+</head>
+
+<body spellcheck="false">
+    <div id="surveyElement"></div>
+    <div id="surveyResultElement"></div>
+</body>

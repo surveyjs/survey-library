@@ -8,6 +8,8 @@
   "include": [
     "./src/iconsV1.ts",
     "./src/iconsV2.ts",
+    "./src/iconsV1-es.ts",
+    "./src/iconsV2-es.ts",
   ],
   "exclude": [],
 }

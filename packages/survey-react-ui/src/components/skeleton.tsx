@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { ReactElementFactory } from "../element-factory";
 
 export class Skeleton extends React.Component<any, any> {

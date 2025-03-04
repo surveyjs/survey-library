@@ -11,7 +11,6 @@ import {
 import { PanelModelBase, PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { DragDropPageHelperV1 } from "./drag-drop-page-helper-v1";
 
 /**
  * The `PageModel` object describes a survey page and contains properties and methods that allow you to control the page and access its elements (panels and questions).
@@ -20,13 +19,11 @@ import { DragDropPageHelperV1 } from "./drag-drop-page-helper-v1";
  */
 export class PageModel extends PanelModel implements IPage {
   private hasShownValue: boolean = false;
-  private dragDropPageHelper: DragDropPageHelperV1;
   public isPageContainer: boolean;
 
   constructor(name: string = "") {
     super(name);
     this.createLocalizableString("navigationDescription", this, true);
-    this.dragDropPageHelper = new DragDropPageHelperV1(this);
   }
   public getType(): string {
     return "page";
@@ -48,10 +45,12 @@ export class PageModel extends PanelModel implements IPage {
      && !!this.parent && !this.parent.isPanel;
   }
   protected getElementsForRows(): Array<IElement> {
-    const q = this.survey?.currentSingleQuestion;
-    if(!!q) {
-      if((<any>q).page === this) return [q];
-      return [];
+    if(!this.isStartPage) {
+      const q = this.survey?.currentSingleQuestion;
+      if(!!q) {
+        if((<any>q).page === this) return [q];
+        return [];
+      }
     }
     return super.getElementsForRows();
   }
@@ -229,8 +228,7 @@ export class PageModel extends PanelModel implements IPage {
   }
   @property({ defaultValue: -1, onSet: (val: number, target: PageModel) => target.onNumChanged(val) }) num: number;
   /**
-   * Obsolete. Use the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/page-model#showNavigationButtons) property instead.
-   * @deprecated
+   * @deprecated Use the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/page-model#showNavigationButtons) property instead.
    */
   public get navigationButtonsVisibility(): string {
     const result = this.showNavigationButtons;
@@ -283,7 +281,7 @@ export class PageModel extends PanelModel implements IPage {
   get hasShown(): boolean {
     return this.wasShown;
   }
-  public setWasShown(val: boolean) {
+  public setWasShown(val: boolean): void {
     if (val == this.hasShownValue) return;
     this.hasShownValue = val;
     if (this.isDesignMode || val !== true) return;
@@ -293,7 +291,12 @@ export class PageModel extends PanelModel implements IPage {
         (<PanelModelBase><any>els[i]).randomizeElements(this.areQuestionsRandomized);
       }
     }
-    this.randomizeElements(this.areQuestionsRandomized);
+    if(this.randomizeElements(this.areQuestionsRandomized)) {
+      const singleQuestion: any = this.survey?.currentSingleQuestion;
+      if(singleQuestion?.page === this) {
+        this.survey.currentSingleQuestion = this.getFirstVisibleQuestion();
+      }
+    }
   }
   /**
    * Scrolls this page to the top.
@@ -339,8 +342,7 @@ export class PageModel extends PanelModel implements IPage {
     this.setPropertyValue("timeLimit", val);
   }
   /**
-   * Obsolete. Use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeLimit) property instead.
-   * @deprecated
+   * @deprecated Use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeLimit) property instead.
    */
   public get maxTimeToFinish(): number {
     return this.timeLimit;
@@ -360,24 +362,6 @@ export class PageModel extends PanelModel implements IPage {
     if (this.survey != null) {
       this.survey.pageVisibilityChanged(this, this.isVisible);
     }
-  }
-  public getDragDropInfo(): any { return this.dragDropPageHelper.getDragDropInfo(); }
-  public dragDropStart(
-    src: IElement,
-    target: IElement,
-    nestedPanelDepth: number = -1
-  ): void {
-    this.dragDropPageHelper.dragDropStart(src, target, nestedPanelDepth);
-  }
-  public dragDropMoveTo(
-    destination: ISurveyElement,
-    isBottom: boolean = false,
-    isEdge: boolean = false
-  ): boolean {
-    return this.dragDropPageHelper.dragDropMoveTo(destination, isBottom, isEdge);
-  }
-  public dragDropFinish(isCancel: boolean = false): IElement {
-    return this.dragDropPageHelper.dragDropFinish(isCancel);
   }
 
   public ensureRowsVisibility() {
@@ -418,7 +402,15 @@ Serializer.addClass(
       },
       alternativeName: "navigationButtonsVisibility"
     },
-    { name: "timeLimit:number", alternativeName: "maxTimeToFinish", default: 0, minValue: 0 },
+    {
+      name: "timeLimit:number",
+      alternativeName: "maxTimeToFinish",
+      default: 0,
+      minValue: 0,
+      visibleIf: (obj: any) => {
+        return !!obj.survey && obj.survey.showTimer;
+      }
+    },
     {
       name: "navigationTitle",
       visibleIf: function (obj: any) {

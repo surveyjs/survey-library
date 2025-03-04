@@ -1167,7 +1167,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     if (this.needConfirmRemoveFile) {
       confirmActionAsync({
         message: this.getConfirmRemoveMessage(data.name),
-        funcOnYes: () => { this.clearFilesCore(); },
+        funcOnYes: () => { this.removeFileCore(data); },
         locale: this.getLocale(),
         rootElement: this.survey.rootElement,
         cssClass: this.cssClasses.confirmDialog
@@ -1226,10 +1226,10 @@ Serializer.addClass(
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
-    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true, visibleIf: () => settings.supportCreatorV2 },
-    { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
-    { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
-    { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
+    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true },
+    { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder", category: "general" },
+    { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder", category: "general" },
+    { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder", category: "general" },
     { name: "allowCameraAccess:switch", category: "general", visible: false },
   ],
   function () {

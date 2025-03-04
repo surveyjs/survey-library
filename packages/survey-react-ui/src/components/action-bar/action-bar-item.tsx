@@ -1,5 +1,5 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 import { Base, Action } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
@@ -59,7 +59,7 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
     super.componentDidMount();
     this.item.updateModeCallback = (mode, callback) => {
       queueMicrotask(() => {
-        if((ReactDOM as any)["flushSync"]) {
+        if ((ReactDOM as any)["flushSync"]) {
           (ReactDOM as any)["flushSync"](() => {
             this.item.mode = mode;
           });

@@ -41,6 +41,7 @@ import { surveyTimerFunctions } from "../src/surveytimer";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { setOldTheme } from "./oldTheme";
+import { SurveyError } from "../src/survey-error";
 export default QUnit.module("Survey_Questions");
 
 settings.autoAdvanceDelay = 0;
@@ -260,6 +261,42 @@ QUnit.test("displayValue changed simultaniously with value", function (assert) {
   assert.equal(question.displayValue, "Value 1", "value is 1");
   survey.setValue("dropdownQuestion", 2);
   assert.equal(question.displayValue, "Value 2", "value is 2");
+});
+QUnit.test("displayValue & defaultDisplayValue", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultDisplayValue: "UnsetQ1" },
+      { type: "text", name: "q2", title: "{q1}" },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.displayValue, "UnsetQ1", "q1.displayValue is correct, #1");
+  assert.equal(q2.locTitle.textOrHtml, "UnsetQ1", "q2.title is correct, #1");
+  q1.value = "Q1";
+  assert.equal(q1.displayValue, "Q1", "q1.displayValue is correct, #2");
+  assert.equal(q2.locTitle.textOrHtml, "Q1", "q2.title is correct, #2");
+  q1.clearValue();
+  assert.equal(q1.displayValue, "UnsetQ1", "q1.displayValue is correct, #3");
+  assert.equal(q2.locTitle.textOrHtml, "UnsetQ1", "q2.title is correct, #3");
+});
+QUnit.test("displayValue & defaultDisplayValue & multiple language", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultDisplayValue: { default: "UnsetQ1", de: "UnsetQ1-de" } },
+      { type: "text", name: "q2", title: "{q1}" },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.displayValue, "UnsetQ1", "q1.displayValue is correct, #1");
+  assert.equal(q2.locTitle.textOrHtml, "UnsetQ1", "q2.title is correct, #1");
+  survey.locale = "de";
+  assert.equal(q1.displayValue, "UnsetQ1-de", "q1.displayValue is correct, #2");
+  assert.equal(q2.locTitle.textOrHtml, "UnsetQ1-de", "q2.title is correct, #2");
+  survey.locale = "";
+  assert.equal(q1.displayValue, "UnsetQ1", "q1.displayValue is correct, #3");
+  assert.equal(q2.locTitle.textOrHtml, "UnsetQ1", "q2.title is correct, #3");
 });
 QUnit.test("displayValue function for rating question, issue #1094", function (
   assert
@@ -645,7 +682,7 @@ QUnit.test("Use timer to go next page", function (assert) {
   const question = survey.getQuestionByName("q1");
   question.onMouseDown();
   assert.equal(question.supportAutoAdvance(), true, "questio support go next page automatic");
-  question.value = 1;
+  question.value = "a";
   assert.equal(survey.currentPageNo, 1, "Go to the second page");
   assert.equal(checkDelay, 250, "setTimeout function is called");
   surveyTimerFunctions.safeTimeOut = prevFunc;
@@ -5555,7 +5592,7 @@ QUnit.test(
         },
       ],
     };
-    settings.supportCreatorV2 = true;
+
     var survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON(json);
@@ -5617,7 +5654,6 @@ QUnit.test(
       "selectall in list"
     );
 
-    settings.supportCreatorV2 = false;
   }
 );
 QUnit.test(
@@ -5632,7 +5668,7 @@ QUnit.test(
         },
       ],
     };
-    settings.supportCreatorV2 = true;
+
     var survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON(json);
@@ -5671,7 +5707,6 @@ QUnit.test(
       5,
       "Do not show SelectAll+None+hasOther are set: 2 + 3"
     );
-    settings.supportCreatorV2 = false;
   }
 );
 QUnit.test("Creator V2: do not add choices from carry-forward in design mode", function (assert) {
@@ -5694,7 +5729,7 @@ QUnit.test("Creator V2: do not add choices from carry-forward in design mode", f
       }
     ],
   };
-  settings.supportCreatorV2 = true;
+
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON(json);
@@ -5710,7 +5745,6 @@ QUnit.test("Creator V2: do not add choices from carry-forward in design mode", f
   q3.choicesFromQuestion = "";
   assert.equal(q2.visibleChoices.length, 6, "radiogroup = clear carry-forward");
   assert.equal(q3.visibleChoices.length, 7, "checkbox = clear carry-forward");
-  settings.supportCreatorV2 = false;
 });
 QUnit.test(
   "Creator V2: Hide selectAll, showNoneItem and hasOther if this properties are invisible",
@@ -5724,7 +5758,7 @@ QUnit.test(
         },
       ],
     };
-    settings.supportCreatorV2 = true;
+
     Serializer.findProperty("selectbase", "hasOther").visible = false;
     Serializer.findProperty("selectbase", "showNoneItem").visible = false;
     Serializer.findProperty("checkbox", "hasSelectAll").visible = false;
@@ -5740,7 +5774,6 @@ QUnit.test(
     Serializer.findProperty("selectbase", "hasOther").visible = true;
     Serializer.findProperty("selectbase", "showNoneItem").visible = true;
     Serializer.findProperty("checkbox", "hasSelectAll").visible = true;
-    settings.supportCreatorV2 = false;
   }
 );
 QUnit.test(
@@ -5754,7 +5787,7 @@ QUnit.test(
         },
       ],
     };
-    settings.supportCreatorV2 = true;
+
     var survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON(json);
@@ -5769,11 +5802,10 @@ QUnit.test(
       7,
       "Show SelectAll+None+hasOther+new: 3+4"
     );
-    settings.supportCreatorV2 = false;
   }
 );
 QUnit.test(
-  "Creator V2 + showDefaultItemsInCreatorV2: add into visibleChoices others/hasOther items in design mode, add new question",
+  "Creator V2 + showDefaultItemsInCreator: add into visibleChoices others/hasOther items in design mode, add new question",
   function (assert) {
     var json = {
       elements: [
@@ -5783,8 +5815,8 @@ QUnit.test(
         },
       ],
     };
-    settings.supportCreatorV2 = true;
-    settings.showDefaultItemsInCreatorV2 = false;
+
+    settings.showDefaultItemsInCreator = false;
     var survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON(json);
@@ -5799,8 +5831,7 @@ QUnit.test(
       3,
       "Show SelectAll+None+hasOther+new: 3"
     );
-    settings.showDefaultItemsInCreatorV2 = true;
-    settings.supportCreatorV2 = false;
+    settings.showDefaultItemsInCreator = true;
   }
 );
 QUnit.test(
@@ -5814,7 +5845,7 @@ QUnit.test(
         },
       ],
     };
-    settings.supportCreatorV2 = true;
+
     var survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON(json);
@@ -5822,7 +5853,6 @@ QUnit.test(
     q1.choices = ["item1", "item2", "item3"];
     assert.notOk(q1["supportSelectAll"]());
     assert.equal(q1.visibleChoices.length, 4, "Show new: 3+1");
-    settings.supportCreatorV2 = false;
   }
 );
 QUnit.test(
@@ -5843,7 +5873,7 @@ QUnit.test(
         },
       ],
     };
-    settings.supportCreatorV2 = true;
+
     var survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON(json);
@@ -5856,7 +5886,6 @@ QUnit.test(
       3,
       "Show only 3 choice items"
     );
-    settings.supportCreatorV2 = false;
   }
 );
 QUnit.test("Creator V2: do not add into visibleChoices items for custom widgets", function (assert) {
@@ -5876,7 +5905,7 @@ QUnit.test("Creator V2: do not add into visibleChoices items for custom widgets"
       },
     ],
   };
-  settings.supportCreatorV2 = true;
+
   var survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON(json);
@@ -5884,7 +5913,6 @@ QUnit.test("Creator V2: do not add into visibleChoices items for custom widgets"
     survey.getQuestionByName("question1")
   );
   assert.equal(q1.visibleChoices.length, 3, "Show only 3 choice items");
-  settings.supportCreatorV2 = false;
   CustomWidgetCollection.Instance.clear();
 });
 QUnit.test("isFit custom widgets on renderAs", function (assert) {
@@ -5930,7 +5958,7 @@ QUnit.test("Validate function for custom widget", function (assert) {
       {
         type: "radiogroup",
         name: "question1",
-        choices: [1, 2, 3]
+        choices: [1, 2, 3, 4, 5]
       },
     ],
   });
@@ -7406,6 +7434,37 @@ QUnit.test("question.resetValueIf and invisibleQuestions", function (assert) {
   q1.value = 1;
   assert.equal(q2.isEmpty(), true, "value is cleared");
 });
+QUnit.test("question.resetValueIf with one function, no question expression, Bug#9338", function (assert) {
+  let returnValue = false;
+  FunctionFactory.Instance.register("func1", (params: any) => {
+    return returnValue;
+  });
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "resetValueIf": "func1()"
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q2.value = "abc";
+  assert.equal(q2.value, "abc", "q2.value #1");
+  q1.value = 1;
+  assert.equal(q2.value, "abc", "q2.value #2");
+  returnValue = true;
+  q1.value = 2;
+  assert.equal(q2.isEmpty(), true, "q2.value #3");
+  q2.value = "abc";
+  assert.equal(q2.isEmpty(), false, "q2.value #4");
+  q1.value = 3;
+  assert.equal(q2.isEmpty(), true, "q2.value #5");
+  FunctionFactory.Instance.unregister("func1");
+});
 QUnit.test("question.setValueIf, basic functionality", function (assert) {
   const survey = new SurveyModel({
     elements: [
@@ -7989,4 +8048,47 @@ QUnit.test("Recursive changes setValueExpression #9132", function (assert) {
   assert.equal(q6.value, "Medium Risk", "#4");
   survey.setValue("question3", "Item 3");
   assert.equal(q6.value, "High Risk", "#5");
+});
+QUnit.test("defautlValueExpression & custom function & properties.question #9422", function (assert) {
+  const logs = new Array<string>();
+  FunctionFactory.Instance.register("customFunc1", function () {
+    logs.push(this.question?.name);
+    return 10;
+  }
+  );
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "expression",
+        name: "q1",
+        defaultValueExpression: "customFunc1()"
+      }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.value, 10, "expression value is correct");
+  assert.deepEqual(logs, ["q1", "q1"], "custom function is called");
+  FunctionFactory.Instance.unregister("customFunc1");
+});
+QUnit.test("question.validateValueCallback", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", isRequired: true },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  let counter = 0;
+  q1.validateValueCallback = (): SurveyError => {
+    counter ++;
+    if(q1.value === "a") return new SurveyError("Error");
+    return null;
+  };
+  q1.validate(true);
+  assert.equal(q1.errors.length, 1, "There is an error #1");
+  assert.equal(counter, 0, "validateValueCallback is not called #1");
+  q1.value = "a";
+  assert.equal(q1.errors.length, 1, "There is an error #2");
+  assert.equal(counter, 1, "validateValueCallback is called #2");
+  q1.value = "b";
+  assert.equal(q1.errors.length, 0, "There is no errors #3");
+  assert.equal(counter, 2, "validateValueCallback is called #3");
 });

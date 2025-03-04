@@ -90,25 +90,33 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
    * Returns `true` if the survey element has a description.
    * @see description
   */
-  @property({}) hasDescription: boolean;
+  public get hasDescription(): boolean {
+    return this.getPropertyValue("hasDescription", undefined, () => this.calcDescriptionVisibility());
+  }
+  public set hasDescription(val: boolean) {
+    this.setPropertyValue("hasDescription", val);
+  }
+  protected calcDescriptionVisibility(): boolean {
+    const newDescription = this.description;
+    let showPlaceholder = false;
+    if (this.isDesignMode) {
+      const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
+      showPlaceholder = !!(property?.placeholder);
+    }
+    return !!newDescription || (showPlaceholder && this.isDesignMode);
+  }
+  protected resetDescriptionVisibility(): void {
+    this.resetPropertyValue("hasDescription");
+  }
   /**
    * Explanatory text displayed under the title.
    * @see hasDescription
    */
   @property({
     localizable: true, onSet: (newDescription, self) => {
-      self.updateDescriptionVisibility(newDescription);
+      self.resetDescriptionVisibility();
     }
   }) description: string;
-  public updateDescriptionVisibility(newDescription: any) {
-    let showPlaceholder = false;
-    if (this.isDesignMode) {
-      const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
-      showPlaceholder = !!(property?.placeholder);
-    }
-    this.hasDescription = !!newDescription || (showPlaceholder && this.isDesignMode);
-  }
-
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
   }
@@ -296,13 +304,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public static CreateDisabledDesignElements: boolean = false;
   public disableDesignActions: boolean =
     SurveyElement.CreateDisabledDesignElements;
-
-  @property({
-    onSet: (newValue, target) => {
-      target.colSpan = newValue;
-    }
-  }) effectiveColSpan: number;
-
+  public get effectiveColSpan(): number {
+    const res = this.getPropertyValueWithoutDefault("effectiveColSpan");
+    if(res !== undefined) return res;
+    this.setRootStyle();
+    return this.getPropertyValue("effectiveColSpan");
+  }
+  /**
+   * Specifies how many columns this survey element spans in the grid layout. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true` and define the [`gridLayoutColumns`](https://surveyjs.io/form-library/documentation/api-reference/page-model#gridLayoutColumns) array for the parent page or panel.
+   *
+   * Default value: 1
+   */
   public get colSpan(): number {
     return this.getPropertyValue("colSpan", 1);
   }
@@ -312,13 +324,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   constructor(name: string) {
     super();
-    this.name = name;
+    this.setPropertyValueDirectly("name", this.getValidName(name));
     this.createNewArray("errors");
     this.createNewArray("titleActions");
     this.registerPropertyChangedHandlers(["isReadOnly"], () => { this.onReadOnlyChanged(); });
     this.registerPropertyChangedHandlers(["errors"], () => { this.updateVisibleErrors(); });
     this.registerPropertyChangedHandlers(["isSingleInRow"], () => { this.updateElementCss(false); });
     this.registerPropertyChangedHandlers(["minWidth", "maxWidth", "renderWidth", "allowRootStyle", "parent"], () => { this.updateRootStyle(); });
+    this.registerPropertyChangedHandlers(["effectiveColSpan"], (val: number) => { this.colSpan = val; });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -332,7 +345,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.survey) {
       return this.survey.getSkeletonComponentName(this);
     }
-    return "";
+    return "sv-skeleton";
   }
 
   private parentQuestionValue: E = null;
@@ -376,7 +389,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public set state(val: string) {
     this.setPropertyValue("state", val);
-    this.renderedIsExpanded = !(this.state === "collapsed" && !this.isDesignMode);
+    this.renderedIsExpanded = !this.isCollapsed;
   }
   protected notifyStateChanged(prevState: string): void {
     if (this.survey) {
@@ -532,10 +545,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.textProcessorValue = this.surveyImplValue.getTextProcessor();
       this.onSetData();
     }
-    if (!!this.survey/* && !this.isLoadingFromJson*/) {
-      this.updateDescriptionVisibility(this.description);
+    if (!!this.survey) {
+      this.resetDescriptionVisibility();
       this.clearCssClasses();
     }
+    this.blockAnimations();
+    this.renderedIsExpanded = !this.isCollapsed;
+    this.releaseAnimations();
   }
   protected canRunConditions(): boolean {
     return super.canRunConditions() && !!this.data;
@@ -553,9 +569,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   /* You shouldn't use this method ever */
   __setData(data: ISurveyData) {
-    if (settings.supportCreatorV2) {
-      this.surveyDataValue = data;
-    }
+    this.surveyDataValue = data;
   }
   public get data(): ISurveyData {
     return this.surveyDataValue;
@@ -645,11 +659,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return res;
   }
-  private ensureCssClassesValue(): void {
-    if (!this.cssClassesValue) {
-      this.createCssClassesValue();
-    }
-  }
   private createCssClassesValue(): any {
     const res = this.calcCssClasses(this.css);
     this.setPropertyValue("cssClassesValue", res);
@@ -671,7 +680,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get cssClasses(): any {
     const _dummy = this.cssClassesValue;
     if (!this.survey) return this.calcCssClasses(this.css);
-    this.ensureCssClassesValue();
+    if (!this.cssClassesValue) {
+      this.createCssClassesValue();
+    }
     return this.cssClassesValue;
   }
   public get cssTitleNumber(): any {
@@ -777,15 +788,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.onFirstRenderingCore();
     }
   }
-  protected onFirstRenderingCore(): void {
-    this.ensureCssClassesValue();
-  }
+  protected onFirstRenderingCore(): void {}
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     if (!this.survey) {
       this.onSurveyLoad();
     }
-    this.updateDescriptionVisibility(this.description);
   }
   public setVisibleIndex(index: number): number {
     return 0;
@@ -1006,8 +1014,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   /**
-   * Increases or decreases an indent of survey element content from the left edge. Accepts positive integer values and 0. Does not apply in the Default V2 theme.
-   * @see rightIndent
+   * Increases or decreases an indent of survey element content from the left edge. Accepts positive integer values and 0.
    */
   public get indent(): number {
     return this.getPropertyValue("indent");
@@ -1015,10 +1022,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public set indent(val: number) {
     this.setPropertyValue("indent", val);
   }
-  /**
-   * Increases or decreases an indent of survey element content from the right edge. Accepts positive integer values and 0. Does not apply in the Default V2 theme.
-   * @see indent
-   */
   public get rightIndent(): number {
     return this.getPropertyValue("rightIndent", 0);
   }
@@ -1052,10 +1055,22 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   @property({ defaultValue: true }) allowRootStyle: boolean;
-  @property() rootStyle: any;
-
+  public get rootStyle(): any {
+    return this.getPropertyValue("rootStyle", undefined, () => this.calcRootStyle());
+  }
+  public set rootStyle(val: any) { this.setPropertyValue("rootStyle", val); }
   public updateRootStyle(): void {
-    let style: { [index: string]: any } = {};
+    if(!this.getPropertyValueWithoutDefault("rootStyle")) {
+      this.resetPropertyValue("effectiveColSpan");
+    } else {
+      this.setRootStyle();
+    }
+  }
+  private setRootStyle() {
+    this.rootStyle = this.calcRootStyle();
+  }
+  protected calcRootStyle(): any {
+    const style: { [index: string]: any } = {};
     let _width;
     if (!!this.parent) {
       const columns = this.parent.getColumsForElement(this as any);
@@ -1082,7 +1097,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         minWidth = "min(100%, " + minWidth + ")";
       }
       if (this.allowRootStyle && this.renderWidth) {
-        // style["width"] = this.renderWidth;
         style["flexGrow"] = 1;
         style["flexShrink"] = 1;
         style["flexBasis"] = this.renderWidth;
@@ -1090,7 +1104,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         style["maxWidth"] = this.maxWidth;
       }
     }
-    this.rootStyle = style;
+    return style;
   }
   private isContainsSelection(el: any) {
     let elementWithSelection: any = undefined;
@@ -1167,9 +1181,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get isPreviewStyle(): boolean {
     return !!this.survey && this.survey.state === "preview";
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
-    this.updateDescriptionVisibility(this.description);
+    this.resetDescriptionVisibility();
     if (this.errors.length > 0) {
       this.errors.forEach(err => {
         err.updateText();

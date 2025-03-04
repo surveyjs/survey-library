@@ -26,6 +26,7 @@ export class Bindings {
   public getType(): string {
     return "bindings";
   }
+  public get isSurveyObj(): boolean { return true; }
   public getNames(): Array<string> {
     var res: Array<string> = [];
     this.fillProperties();
@@ -236,9 +237,6 @@ export class Base {
       return value.trim();
     return value;
   }
-  protected isPropertyEmpty(value: any): boolean {
-    return value !== "" && this.isValueEmpty(value);
-  }
   public static createPropertiesHash() {
     return {};
   }
@@ -248,7 +246,6 @@ export class Base {
   private arraysInfo: { [index: string]: any };
   private eventList: Array<EventBase<any>> = [];
   private expressionInfo: { [index: string]: IExpressionRunnerInfo };
-  private bindingsValue: Bindings;
   private isDisposedValue: boolean;
   private classMetaData: JsonMetadataClass;
   private onPropChangeFunctions: Array<{
@@ -312,7 +309,6 @@ export class Base {
   private isCreating = true;
 
   public constructor() {
-    this.bindingsValue = new Bindings(this);
     CustomPropertiesCollection.createProperties(this);
     this.onBaseCreating();
     this.isCreating = false;
@@ -332,15 +328,16 @@ export class Base {
       }
     });
   }
-  public get isDisposed() {
+  public get isDisposed(): boolean {
     return this.isDisposedValue === true;
   }
+  public get isSurveyObj(): boolean { return true; }
   protected addEvent<T, Options = any>(): EventBase<T, Options> {
     const res = new EventBase<T, Options>();
     this.eventList.push(res);
     return res;
   }
-  protected onBaseCreating() { }
+  protected onBaseCreating(): void { }
   /**
    * Returns the object type as it is used in the JSON schema.
    */
@@ -367,9 +364,6 @@ export class Base {
     const survey = this.getSurvey();
     return !!survey && survey.isDesignMode;
   }
-  public get isDesignModeV2(): boolean {
-    return settings.supportCreatorV2 && this.isDesignMode;
-  }
   /**
    * Returns `true` if the object is included in a survey.
    *
@@ -378,11 +372,19 @@ export class Base {
   public get inSurvey(): boolean {
     return !!this.getSurvey(true);
   }
+  private bindingsValue: Bindings;
   public get bindings(): Bindings {
+    if(!this.bindingsValue) {
+      this.bindingsValue = new Bindings(this);
+    }
     return this.bindingsValue;
   }
-  checkBindings(valueName: string, value: any) { }
-  protected updateBindings(propertyName: string, value: any) {
+  protected isBindingEmpty(): boolean {
+    return !this.bindingsValue || this.bindingsValue.isEmpty();
+  }
+  checkBindings(valueName: string, value: any): void { }
+  protected updateBindings(propertyName: string, value: any): void {
+    if(!this.bindingsValue) return;
     var valueName = this.bindings.getValueNameByPropertyName(propertyName);
     if (!!valueName) {
       this.updateBindingValue(valueName, value);
@@ -497,15 +499,21 @@ export class Base {
    */
   public getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
     const res = this.getPropertyValueWithoutDefault(name);
-    if (this.isPropertyEmpty(res)) {
+    if (this.isValueUndefined(res)) {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
       if (locStr) return locStr.text;
-      if (defaultValue !== null && defaultValue !== undefined) return defaultValue;
+      if (!this.isValueUndefined(defaultValue)) return defaultValue;
       if(!!calcFunc) {
         const newVal = calcFunc();
         if(newVal !== undefined) {
-          this.setPropertyValueDirectly(name, newVal);
-          return newVal;
+          if(Array.isArray(newVal)) {
+            const array = this.createNewArray(name);
+            array.splice(0, 0, ...newVal);
+            return array;
+          } else {
+            this.setPropertyValueDirectly(name, newVal);
+            return newVal;
+          }
         }
       }
       const propDefaultValue = this.getDefaultPropertyValue(name);
@@ -513,12 +521,15 @@ export class Base {
     }
     return res;
   }
+  protected isValueUndefined(value: any): boolean {
+    return Helpers.isValueUndefined(value);
+  }
   public getDefaultPropertyValue(name: string): any {
     const prop = this.getPropertyByName(name);
     if (!prop || prop.isCustom && this.isCreating) return undefined;
     if (!!prop.defaultValueFunc) return prop.defaultValueFunc(this);
     const dValue = prop.getDefaultValue(this);
-    if (!this.isPropertyEmpty(dValue) && !Array.isArray(dValue)) return dValue;
+    if (!this.isValueUndefined(dValue) && !Array.isArray(dValue)) return dValue;
     const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
     if (locStr && locStr.localizationName) return this.getLocalizationString(locStr.localizationName);
     if (prop.type == "boolean" || prop.type == "switch") return false;
@@ -586,6 +597,7 @@ export class Base {
    * @param val A new value for the property.
    */
   public setPropertyValue(name: string, val: any): void {
+    if (this.isDisposedValue) return;
     if (!this.isLoadingFromJson) {
       const prop = this.getPropertyByName(name);
       if (!!prop) {
@@ -603,9 +615,11 @@ export class Base {
         this.setArrayPropertyDirectly(name, val);
       }
     } else {
-      this.setPropertyValueDirectly(name, val);
-      if (!this.isDisposedValue && !this.isTwoValueEquals(oldValue, val)) {
-        this.propertyValueChanged(name, oldValue, val);
+      if (val !== oldValue) {
+        this.setPropertyValueDirectly(name, val);
+        if (!this.isTwoValueEquals(oldValue, val)) {
+          this.propertyValueChanged(name, oldValue, val);
+        }
       }
     }
   }
@@ -866,6 +880,11 @@ export class Base {
     locStr.disableLocalization = prop && prop.isLocalizable === false;
     return locStr;
   }
+  protected removeLocalizableString(name: string): void {
+    if(this.localizableStrings) {
+      delete this.localizableStrings[name];
+    }
+  }
   public getLocalizableString(name: string): LocalizableString {
     return !!this.localizableStrings ? this.localizableStrings[name] : null;
   }
@@ -898,7 +917,7 @@ export class Base {
     if (!!this.arraysInfo) {
       for (let key in this.arraysInfo) {
         const prop = this.getPropertyByName(key);
-        if (!prop || !prop.isSerializable) continue;
+        if (!prop || !prop.isPropertySerializable(this)) continue;
         let items = this.getPropertyValue(key);
         if (!items || !items.length) continue;
         for (let i = 0; i < items.length; i++) {

@@ -1,5 +1,6 @@
 import { Base, ArrayChanges } from "./base";
 import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
+import { DomDocumentHelper } from "./global_variables_utils";
 import { Serializer, property } from "./jsonobject";
 import { SurveyModel } from "./survey";
 import { ITheme } from "./themes";
@@ -8,6 +9,7 @@ import { wrapUrlForBackgroundImage } from "./utils/utils";
 
 export class CoverCell {
   static CLASSNAME = "sv-header__cell";
+
   private calcRow(positionY: VerticalAlignment): any {
     return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
   }
@@ -30,13 +32,20 @@ export class CoverCell {
     return this.cover.survey;
   }
   get css(): string {
-    const result = `${CoverCell.CLASSNAME} ${CoverCell.CLASSNAME}--${this.positionX} ${CoverCell.CLASSNAME}--${this.positionY}`;
+    const result = new CssClassBuilder()
+      .append(CoverCell.CLASSNAME)
+      .append(`${CoverCell.CLASSNAME}--${this.positionX}`)
+      .append(`${CoverCell.CLASSNAME}--${this.positionY}`)
+      .append(CoverCell.CLASSNAME + "--empty", this.isEmpty)
+      .toString();
+
     return result;
   }
   get style(): any {
     const result: any = {};
     result["gridColumn"] = this.calcColumn(this.positionX);
     result["gridRow"] = this.calcRow(this.positionY);
+    result["width"] = !!this.width ? this.width + "px" : undefined;
     return result;
   }
   get contentStyle(): any {
@@ -44,6 +53,7 @@ export class CoverCell {
     result["textAlign"] = this.calcAlignText(this.positionX);
     result["alignItems"] = this.calcAlignItems(this.positionX);
     result["justifyContent"] = this.calcJustifyContent(this.positionY);
+    result["maxWidth"] = this.contentMaxWidth;
     return result;
   }
   get showLogo(): boolean {
@@ -55,11 +65,20 @@ export class CoverCell {
   get showDescription(): boolean {
     return this.survey.renderedHasDescription && this.positionX === this.cover.descriptionPositionX && this.positionY === this.cover.descriptionPositionY;
   }
+  get isEmpty(): boolean {
+    return !this.showLogo && !this.showTitle && !this.showDescription;
+  }
   get textAreaWidth(): string {
-    if (!this.cover.textAreaWidth) {
-      return "";
+    return this.cover.renderedTextAreaWidth;
+  }
+  get width(): number {
+    if (this.cover.width) {
+      return Math.ceil(this.cover.width / 3);
     }
-    return "" + this.cover.textAreaWidth + "px";
+    return undefined;
+  }
+  get contentMaxWidth(): string {
+    return this.cover.getContentMaxWidth(this);
   }
 }
 
@@ -76,12 +95,16 @@ export class Cover extends Base {
     return backgroundImageFit;
   }
   private updateHeaderClasses(): void {
+    const backgroundColorNone = !this.backgroundColor || this.backgroundColor === "transparent";
+    const backgroundColorAccent = this.backgroundColor === "var(--sjs-primary-backcolor)";
+    const backgroundColorCustom = !backgroundColorNone && !backgroundColorAccent;
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")
-      .append("sv-header__without-background", (this.backgroundColor === "transparent") && !this.backgroundImage)
-      .append("sv-header__background-color--none", this.backgroundColor === "transparent" && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__background-color--accent", !this.backgroundColor && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__background-color--custom", !!this.backgroundColor && this.backgroundColor !== "transparent" && !this.titleColor && !this.descriptionColor)
+      .append("sv-header--height-auto", !this.renderedHeight)
+      .append("sv-header__without-background", backgroundColorNone && !this.backgroundImage)
+      .append("sv-header__background-color--none", backgroundColorNone && !this.titleColor && !this.descriptionColor)
+      .append("sv-header__background-color--accent", backgroundColorAccent && !this.titleColor && !this.descriptionColor)
+      .append("sv-header__background-color--custom", backgroundColorCustom && !this.titleColor && !this.descriptionColor)
       .append("sv-header__overlap", this.overlapEnabled)
       .toString();
   }
@@ -130,14 +153,13 @@ export class Cover extends Base {
   }
 
   public cells: CoverCell[] = [];
-  @property({ defaultValue: 0 }) public actualHeight: number;
   @property() public height: number;
   @property() public mobileHeight: number;
   @property() public inheritWidthFrom: "survey" | "container";
   @property() public textAreaWidth: number;
   @property() public textGlowEnabled: boolean;
   @property() public overlapEnabled: boolean;
-  @property() public backgroundColor: string;
+  @property({ defaultValue: "transparent" }) public backgroundColor: string;
   @property() public titleColor: string;
   @property() public descriptionColor: string;
   @property({
@@ -159,20 +181,24 @@ export class Cover extends Base {
   @property() descriptionStyle: { gridColumn: number, gridRow: number };
   @property() headerClasses: string;
   @property() contentClasses: string;
+  @property() width: number;
   @property() maxWidth: string;
   @property() backgroundImageClasses: string;
 
   public get renderedHeight(): string {
     if (this.survey && !this.survey.isMobile || !this.survey) {
-      return this.height ? Math.max(this.height, this.actualHeight + 40) + "px" : undefined;
+      return this.height ? this.height + "px" : undefined;
     }
     if (this.survey && this.survey.isMobile) {
-      return this.mobileHeight ? Math.max(this.mobileHeight, this.actualHeight) + "px" : undefined;
+      return this.mobileHeight ? this.mobileHeight + "px" : undefined;
     }
     return undefined;
   }
-  public get renderedtextAreaWidth(): string {
+  public get renderedTextAreaWidth(): string {
     return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
+  }
+  public get isEmpty(): boolean {
+    return !this.survey.hasLogo && !this.survey.hasTitle && !this.survey.renderedHasDescription;
   }
   public get survey(): SurveyModel {
     return this._survey;
@@ -201,7 +227,7 @@ export class Cover extends Base {
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     super.propertyValueChanged(name, oldValue, newValue);
-    if (name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
+    if (name === "height" || name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
       this.updateHeaderClasses();
     }
     if (name === "inheritWidthFrom") {
@@ -212,38 +238,73 @@ export class Cover extends Base {
     }
   }
 
-  public calculateActualHeight(logoHeight: number, titleHeight: number, descriptionHeight: number): number {
-    const positionsY = ["top", "middle", "bottom"];
-    const logoIndex = positionsY.indexOf(this.logoPositionY);
-    const titleIndex = positionsY.indexOf(this.titlePositionY);
-    const descriptionIndex = positionsY.indexOf(this.descriptionPositionY);
-    const positionsX = ["left", "center", "right"];
-    const logoIndexX = positionsX.indexOf(this.logoPositionX);
-    const titleIndexX = positionsX.indexOf(this.titlePositionX);
-    const descriptionIndexX = positionsX.indexOf(this.descriptionPositionX);
-    const heights = [
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0]
-    ];
-    heights[logoIndex][logoIndexX] = logoHeight;
-    heights[titleIndex][titleIndexX] += titleHeight;
-    heights[descriptionIndex][descriptionIndexX] += descriptionHeight;
-    return heights.reduce((total, rowArr) => total + Math.max(...rowArr), 0);
+  // public calculateActualHeight(logoHeight: number, titleHeight: number, descriptionHeight: number): number {
+  //   const positionsY = ["top", "middle", "bottom"];
+  //   const logoIndex = positionsY.indexOf(this.logoPositionY);
+  //   const titleIndex = positionsY.indexOf(this.titlePositionY);
+  //   const descriptionIndex = positionsY.indexOf(this.descriptionPositionY);
+  //   const positionsX = ["left", "center", "right"];
+  //   const logoIndexX = positionsX.indexOf(this.logoPositionX);
+  //   const titleIndexX = positionsX.indexOf(this.titlePositionX);
+  //   const descriptionIndexX = positionsX.indexOf(this.descriptionPositionX);
+  //   const heights = [
+  //     [0, 0, 0],
+  //     [0, 0, 0],
+  //     [0, 0, 0]
+  //   ];
+  //   heights[logoIndex][logoIndexX] = logoHeight;
+  //   heights[titleIndex][titleIndexX] += titleHeight;
+  //   heights[descriptionIndex][descriptionIndexX] += descriptionHeight;
+  //   return heights.reduce((total, rowArr) => total + Math.max(...rowArr), 0);
+  // }
+
+  public getContentMaxWidth(cell: CoverCell): string {
+    if (cell.isEmpty || cell.showLogo) {
+      return undefined;
+    }
+    const cellIndex = this.cells.indexOf(cell);
+    const rowIndex = Math.floor(cellIndex / 3);
+    const colIndex = cellIndex % 3;
+    if (colIndex == 1) {
+      if (!this.cells[rowIndex * 3].isEmpty || !this.cells[rowIndex * 3 + 2].isEmpty) {
+        return "100%";
+      }
+    } else if (colIndex == 0) {
+      let rightFreeCells = 0;
+      let index = colIndex + 1;
+      while (index < 3 && this.cells[rowIndex * 3 + index].isEmpty) {
+        if (this.cells[rowIndex * 3 + index].isEmpty) {
+          rightFreeCells++;
+        }
+        index++;
+      }
+      return (100 * (rightFreeCells + 1)) + "%";
+    } else if (colIndex == 2) {
+      let leftFreeCells = 0;
+      let index = colIndex - 1;
+      while (index > 0 && this.cells[rowIndex * 3 + index].isEmpty) {
+        if (this.cells[rowIndex * 3 + index].isEmpty) {
+          leftFreeCells++;
+        }
+        index--;
+      }
+      return (100 * (leftFreeCells + 1)) + "%";
+    }
+    return undefined;
   }
-  public processResponsiveness(width: number): void {
+
+  public processResponsiveness(): void {
     if (this.survey && this.survey.rootElement) {
       if (!this.survey.isMobile) {
-        const logoEl = this.survey.rootElement.querySelectorAll(".sv-header__logo")[0];
-        const titleEl = this.survey.rootElement.querySelectorAll(".sv-header__title")[0];
-        const descriptionEl = this.survey.rootElement.querySelectorAll(".sv-header__description")[0];
-        const logoHeight = logoEl ? logoEl.getBoundingClientRect().height : 0;
-        const titleHeight = titleEl ? titleEl.getBoundingClientRect().height : 0;
-        const descriptionHeight = descriptionEl ? descriptionEl.getBoundingClientRect().height : 0;
-        this.actualHeight = this.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
-      } else {
-        const headerContainer = this.survey.rootElement.querySelectorAll(".sv-header > div")[0];
-        this.actualHeight = headerContainer ? headerContainer.getBoundingClientRect().height : 0;
+        const headerEl = this.survey.rootElement.querySelectorAll(".sv-header__content")[0];
+        if (!headerEl) return;
+
+        let elWidth = headerEl.getBoundingClientRect().width;
+        const headerComputedStyle = DomDocumentHelper.getComputedStyle(headerEl);
+        const paddingLeft = (parseFloat(headerComputedStyle.paddingLeft) || 0);
+        const paddingRight = (parseFloat(headerComputedStyle.paddingRight) || 0);
+        const columnGap = (parseFloat(headerComputedStyle.columnGap) || 0);
+        this.width = elWidth - paddingLeft - paddingRight - 2 * columnGap;
       }
     }
   }
@@ -256,16 +317,16 @@ export class Cover extends Base {
 Serializer.addClass(
   "cover",
   [
-    { name: "height:number", minValue: 0, default: 256 },
+    { name: "height:number", minValue: 0, default: 0 },
     { name: "mobileHeight:number", minValue: 0, default: 0 },
-    { name: "inheritWidthFrom", default: "container" },
-    { name: "textAreaWidth:number", minValue: 0, default: 512 },
+    { name: "inheritWidthFrom", default: "survey" },
+    { name: "textAreaWidth:number", minValue: 0, default: 0 },
     { name: "textGlowEnabled:boolean" },
     { name: "overlapEnabled:boolean" },
     { name: "backgroundImage:file" },
     { name: "backgroundImageOpacity:number", minValue: 0, maxValue: 1, default: 1 },
     { name: "backgroundImageFit", default: "cover", choices: ["cover", "fill", "contain"] },
-    { name: "logoPositionX", default: "right" },
+    { name: "logoPositionX", default: "left" },
     { name: "logoPositionY", default: "top" },
     { name: "titlePositionX", default: "left" },
     { name: "titlePositionY", default: "bottom" },

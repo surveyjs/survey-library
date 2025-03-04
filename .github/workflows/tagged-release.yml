@@ -1,5 +1,7 @@
 on:
   push:
+    branches:
+      - master
     # Sequence of patterns matched against refs/tags
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
@@ -22,15 +24,49 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           
-      - name: Build
+      - name: Build Core
         run: |
+          cd ./packages/survey-core
+          npm install
+          npm run build:all
+
+      - name: Zip Build
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r build.zip ./packages/survey-core/build
+        
+      - name: Build React UI
+        run: |
+          cd ./packages/survey-react-ui
           npm install
           npm run build
           
       - name: Zip Build
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r build.zip build
+          args: zip -qq -r build.zip ./packages/survey-react-ui/build
+        
+      - name: Build Angular UI
+        run: |
+          cd ./packages/survey-angular-ui
+          npm install
+          npm run build
+          
+      - name: Zip Build
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r build.zip ./packages/survey-angular-ui/build
+        
+      - name: Build Vue3 UI
+        run: |
+          cd ./packages/survey-vue3-ui
+          npm install
+          npm run build
+          
+      - name: Zip Build
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r build.zip ./packages/survey-vue3-ui/build
         
       - name: Create Release
         uses: "marvinpinto/action-automatic-releases@v1.2.0"

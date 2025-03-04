@@ -65,6 +65,7 @@ export var catalanSurveyStrings = {
   showDetails: "Mostra els detalls",
   hideDetails: "Amaga els detalls",
   choices_Item: "ítem",
+  choices_Choice: "Opció d'elecció",
   matrix_column: "Columna",
   matrix_row: "Filera",
   multipletext_itemname: "SMS",
@@ -172,16 +173,22 @@ setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "cata
 // more: "More" => "Més"
 // tagboxDoneButtonCaption: "OK" => "D'ACORD"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Totes les opcions estan classificades"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrossegueu i deixeu anar les opcions aquí per classificar-les"// takePhotoCaption: "Take Photo" => "Fer foto"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrossegueu i deixeu anar les opcions aquí per classificar-les"
+// takePhotoCaption: "Take Photo" => "Fer foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Feu clic al botó següent per fer una foto amb la càmera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrossegueu i deixeu anar o seleccioneu un fitxer per penjar-lo o fer-ne una foto amb la càmera."
-// replaceFileCaption: "Replace file" => "Substitueix el fitxer"// eachRowUniqueError: "Each row must have a unique value." => "Cada fila ha de tenir un valor únic."
+// replaceFileCaption: "Replace file" => "Substitueix el fitxer"
+// eachRowUniqueError: "Each row must have a unique value." => "Cada fila ha de tenir un valor únic."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "No es poden carregar fitxers. Afegiu un controlador per a l'esdeveniment 'onUploadFiles'."
 // showDetails: "Show Details" => "Mostra els detalls"
 // hideDetails: "Hide Details" => "Amaga els detalls"
 // ok: "OK" => "D'ACORD"
 // cancel: "Cancel" => "Cancel·lar"
 // refuseItemText: "Refuse to answer" => "Negar-se a respondre"
-// dontKnowItemText: "Don't know" => "No sé"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "La teva resposta supera els 64KB. Reduïu la mida dels fitxers i torneu-ho a provar o poseu-vos en contacte amb el propietari de l'enquesta."
-// signaturePlaceHolderReadOnly: "No signature" => "Sense signatura"// tabTitlePlaceholder: "New Panel" => "Nou Panell"// deselectAllItemText: "Deselect all" => "Desselecciona-ho tot"
+// dontKnowItemText: "Don't know" => "No sé"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "La teva resposta supera els 64KB. Reduïu la mida dels fitxers i torneu-ho a provar o poseu-vos en contacte amb el propietari de l'enquesta."
+// signaturePlaceHolderReadOnly: "No signature" => "Sense signatura"
+// tabTitlePlaceholder: "New Panel" => "Nou Panell"
+// deselectAllItemText: "Deselect all" => "Desselecciona-ho tot"
 // textNoDigitsAllow: "Numbers are not allowed." => "No es permeten números."
+// choices_Choice: "Choice option" => "Opció d'elecció"

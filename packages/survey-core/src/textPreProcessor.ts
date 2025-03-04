@@ -28,53 +28,55 @@ export class TextPreProcessor {
     this._unObservableValues[0] = val;
   }
   public onProcess: (textValue: TextPreProcessorValue) => void;
-  public process(
-    text: string,
-    returnDisplayValue: boolean = false,
-    doEncoding: boolean = false
-  ): string {
+  public process(text: string, returnDisplayValue?: boolean, doEncoding?: boolean,
+    replaceUndefinedValues?: boolean): string {
     this.hasAllValuesOnLastRunValue = true;
     if (!text) return text;
     if (!this.onProcess) return text;
-    var items = this.getItems(text);
-    for (var i = items.length - 1; i >= 0; i--) {
-      var item = items[i];
-      var name = this.getName(text.substring(item.start + 1, item.end));
-      if (!name) continue;
-      var textValue = new TextPreProcessorValue(name, returnDisplayValue);
-      this.onProcess(textValue);
-      if (!textValue.isExists) {
-        if (textValue.canProcess) {
-          this.hasAllValuesOnLastRunValue = false;
+    const items = this.getItems(text);
+    for (let i = items.length - 1; i >= 0; i--) {
+      const item = items[i];
+      const name = this.getName(text.substring(item.start + 1, item.end));
+      if (!!name) {
+        const textValue = new TextPreProcessorValue(name, returnDisplayValue === true);
+        this.onProcess(textValue);
+        if (!textValue.isExists) {
+          if (textValue.canProcess) {
+            this.hasAllValuesOnLastRunValue = false;
+          }
         }
-        continue;
+        if(textValue.isExists || replaceUndefinedValues) {
+          if (Helpers.isValueEmpty(textValue.value)) {
+            this.hasAllValuesOnLastRunValue = false;
+          }
+          var replacedValue = !Helpers.isValueEmpty(textValue.value)
+            ? textValue.value
+            : "";
+          if (doEncoding) {
+            replacedValue = encodeURIComponent(replacedValue);
+          }
+          text = text.substring(0, item.start) + replacedValue + text.substring(item.end + 1);
+        }
       }
-      if (Helpers.isValueEmpty(textValue.value)) {
-        this.hasAllValuesOnLastRunValue = false;
-      }
-      var replacedValue = !Helpers.isValueEmpty(textValue.value)
-        ? textValue.value
-        : "";
-      if (doEncoding) {
-        replacedValue = encodeURIComponent(replacedValue);
-      }
-      text =
-        text.substring(0, item.start) + replacedValue + text.substring(item.end + 1);
     }
     return text;
   }
-  public processValue(
-    name: string,
-    returnDisplayValue: boolean
-  ): TextPreProcessorValue {
+  public processValue(name: string, returnDisplayValue: boolean): TextPreProcessorValue {
     var textValue = new TextPreProcessorValue(name, returnDisplayValue);
     if (!!this.onProcess) {
       this.onProcess(textValue);
     }
     return textValue;
   }
-  public get hasAllValuesOnLastRun() {
-    return !!this.hasAllValuesOnLastRunValue;
+  public get hasAllValuesOnLastRun() { return !!this.hasAllValuesOnLastRunValue; }
+  public processText(text: string, returnDisplayValue: boolean): string {
+    return this.process(text, returnDisplayValue);
+  }
+  public processTextEx(params: ITextProcessorProp): ITextProcessorResult {
+    const res = { hasAllValuesOnLastRun: true, text: params.text };
+    res.text = this.process(params.text, params.returnDisplayValue, params.doEncoding, params.replaceUndefinedValues);
+    res.hasAllValuesOnLastRun = this.hasAllValuesOnLastRun;
+    return res;
   }
   private getItems(text: string): Array<TextPreProcessorItem> {
     var items = [];
@@ -89,12 +91,17 @@ export class TextPreProcessor {
           var item = new TextPreProcessorItem();
           item.start = start;
           item.end = i;
-          items.push(item);
+          if(this.isValidItemName(text.substring(start + 1, i - 1))) {
+            items.push(item);
+          }
         }
         start = -1;
       }
     }
     return items;
+  }
+  private isValidItemName(name: string): boolean {
+    return !!name && name.indexOf(":") < 0;
   }
   private getName(name: string): string {
     if (!name) return;
@@ -163,24 +170,27 @@ export class QuestionTextProcessor implements ITextProcessor {
     textValue.value = new ProcessValue().getValue(textValue.name, values);
   }
   processText(text: string, returnDisplayValue: boolean): string {
-    if(this.survey && this.survey.isDesignMode) return text;
-    text = this.textPreProcessor.process(text, returnDisplayValue);
-    text = this.processTextCore(this.getParentTextProcessor(), text, returnDisplayValue);
-    return this.processTextCore(this.survey, text, returnDisplayValue);
+    const params = { text: text, returnDisplayValue: returnDisplayValue };
+    return this.processTextEx(params).text;
   }
   processTextEx(params: ITextProcessorProp): ITextProcessorResult {
-    params.text = this.processText(params.text, params.returnDisplayValue);
-    var hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
-    var res = { hasAllValuesOnLastRun: true, text: params.text };
-    if (this.survey) {
-      res = this.survey.processTextEx(params);
+    const res: ITextProcessorResult = { hasAllValuesOnLastRun: true, text: params.text };
+    if(!params.runAtDesign && this.survey?.isDesignMode) return res;
+    const processors = new Array<ITextProcessor>();
+    this.addTextPreProcessor(processors, this.textPreProcessor);
+    this.addTextPreProcessor(processors, this.getParentTextProcessor());
+    this.addTextPreProcessor(processors, this.survey);
+    for (let i = 0; i < processors.length; i++) {
+      const processor = processors[i];
+      params.text = res.text;
+      const processorRes = processor.processTextEx(params);
+      res.text = processorRes.text;
+      res.hasAllValuesOnLastRun = res.hasAllValuesOnLastRun && processorRes.hasAllValuesOnLastRun;
     }
-    res.hasAllValuesOnLastRun =
-      res.hasAllValuesOnLastRun && hasAllValuesOnLastRun;
     return res;
   }
-  private processTextCore(textProcessor: ITextProcessor, text: string, returnDisplayValue: boolean) {
-    if(!textProcessor) return text;
-    return textProcessor.processText(text, returnDisplayValue);
+  private addTextPreProcessor(list: Array<ITextProcessor>, textProcessor: ITextProcessor): void {
+    if(!textProcessor || list.indexOf(textProcessor) > -1) return;
+    list.push(textProcessor);
   }
 }

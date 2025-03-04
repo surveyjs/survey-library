@@ -65,6 +65,7 @@ export var lithuaniaSurveyStrings = {
   showDetails: "Rodyti išsamią informaciją",
   hideDetails: "Slėpti išsamią informaciją",
   choices_Item: "elementas",
+  choices_Choice: "Pasirinkimo galimybė",
   matrix_column: "Stulpelis",
   matrix_row: "Eilutė",
   multipletext_itemname: "SMS žinutė",
@@ -132,16 +133,22 @@ setupLocale({ localeCode: "lt", strings: lithuaniaSurveyStrings, nativeName: "li
 // more: "More" => "Daugiau"
 // tagboxDoneButtonCaption: "OK" => "GERAI"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Visi pasirinkimai yra reitinguojami"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Nuvilkite pasirinkimus čia, kad juos reitinguotumėte"// takePhotoCaption: "Take Photo" => "Fotografuoti"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Nuvilkite pasirinkimus čia, kad juos reitinguotumėte"
+// takePhotoCaption: "Take Photo" => "Fotografuoti"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Spustelėkite žemiau esantį mygtuką, kad nufotografuotumėte fotoaparatu."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Nuvilkite arba pasirinkite failą, kurį norite įkelti arba nufotografuoti naudodami fotoaparatą."
-// replaceFileCaption: "Replace file" => "Pakeiskite failą"// eachRowUniqueError: "Each row must have a unique value." => "Kiekviena eilutė turi turėti unikalią reikšmę."
+// replaceFileCaption: "Replace file" => "Pakeiskite failą"
+// eachRowUniqueError: "Each row must have a unique value." => "Kiekviena eilutė turi turėti unikalią reikšmę."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Failų įkelti negalima. Pridėkite įvykio \"onUploadFiles\" tvarkytoją."
 // showDetails: "Show Details" => "Rodyti išsamią informaciją"
 // hideDetails: "Hide Details" => "Slėpti išsamią informaciją"
 // ok: "OK" => "GERAI"
 // cancel: "Cancel" => "Atšaukti"
 // refuseItemText: "Refuse to answer" => "Atsisakyti atsakyti"
-// dontKnowItemText: "Don't know" => "Nežinau"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jūsų atsakymas viršija 64 KB. Sumažinkite failo (-ų) dydį ir bandykite dar kartą arba susisiekite su apklausos savininku."
-// signaturePlaceHolderReadOnly: "No signature" => "Nėra parašo"// tabTitlePlaceholder: "New Panel" => "Naujas skydelis"// deselectAllItemText: "Deselect all" => "Panaikinkite visų žymėjimą"
+// dontKnowItemText: "Don't know" => "Nežinau"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Jūsų atsakymas viršija 64 KB. Sumažinkite failo (-ų) dydį ir bandykite dar kartą arba susisiekite su apklausos savininku."
+// signaturePlaceHolderReadOnly: "No signature" => "Nėra parašo"
+// tabTitlePlaceholder: "New Panel" => "Naujas skydelis"
+// deselectAllItemText: "Deselect all" => "Panaikinkite visų žymėjimą"
 // textNoDigitsAllow: "Numbers are not allowed." => "Numeriai neleidžiami."
+// choices_Choice: "Choice option" => "Pasirinkimo galimybė"

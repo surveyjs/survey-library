@@ -2,7 +2,6 @@
 
 const webpackCommonConfig = require("./webpack.config");
 const { merge } = require("webpack-merge");
-var FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
 var path = require("path");
 
 const config = {
@@ -52,22 +51,33 @@ const config = {
     "contrast-dark-panelless": path.resolve(__dirname, "./src/themes/contrast-dark-panelless.ts"),
     "index": path.resolve(__dirname, "./src/themes/index.ts"),
   },
-  plugins: [new FixStyleOnlyEntriesPlugin()],
-  externals: {
-    "survey-core": {
-      root: "Survey",
-      commonjs2: "survey-core",
-      commonjs: "survey-core",
-      amd: "survey-core"
-    }
-  }
 };
-
+function patchEntries(config) {
+  Object.keys(config.entry).forEach(key => {
+    if (key == "index") return;
+    const importEntry = config.entry[key];
+    const umdName = key.replace(/([_-]\w|^\w)/g, k => (k[1] ?? k[0]).toUpperCase());
+    config.entry[key] = {
+      import: importEntry,
+      library: {
+        type: "umd",
+        export: "default",
+        umdNamedDefine: true,
+        name: {
+          root: ["SurveyTheme", umdName],
+          amd: "[dashedname]",
+          commonjs: "[dashedname]",
+        },
+      }
+    };
+  });
+}
 module.exports = function (options) {
   options.platform = "";
   options.libraryName = "SurveyTheme";
   options.tsConfigFile = path.resolve(__dirname, "./tsconfig.themes.json");
   const mainConfig = webpackCommonConfig(options);
   mainConfig.entry = {};
+  patchEntries(config);
   return merge(mainConfig, config);
 };

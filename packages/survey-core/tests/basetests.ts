@@ -234,6 +234,20 @@ QUnit.test("ItemValue.getItemByValue()", function (assert) {
   assert.equal(item.text, "empty", "returns empty value");
 });
 
+QUnit.test("ItemValue.locText property on demand", function (assert) {
+  const hasLocText = (item: ItemValue): boolean => {
+    return !!item["locTextValue"];
+  };
+  const item = new ItemValue(1);
+  assert.notOk(hasLocText(item), "locText is not created #1");
+  assert.equal(item.textOrHtml, "1", "textOrHtml is 1");
+  assert.equal(item.hasText, false, "has text is false");
+  assert.deepEqual(item.toJSON(), { value: 1 }, "toJSON is correct");
+  assert.notOk(hasLocText(item), "locText is not created #2");
+  item.text = "abc";
+  assert.ok(hasLocText(item), "locText is not created #3");
+});
+
 class BaseTester extends Base implements ILocalizableOwner {
   constructor() {
     super();
@@ -833,4 +847,61 @@ QUnit.test("check afterRerender function", (assert) => {
   log = "";
   survey.afterRerender();
   assert.equal(log, "");
+});
+
+QUnit.test("check default value doesn't exist on getPropertyValueDirectly", (assert) => {
+  Serializer.addProperty("itemvalue", {
+    name: "score:number",
+    category: "general",
+    displayName: "Score",
+    default: 1,
+    visibleIndex: 5,
+  });
+  const itemValue = new ItemValue("item1");
+  assert.equal(itemValue.getPropertyValue("score"), 1, "default value should be returned");
+  itemValue.setPropertyValue("score", 1);
+  assert.equal((itemValue as any).getPropertyValueWithoutDefault("score"), undefined, "default value shouldn't be set");
+  Serializer.removeProperty("itemvalue", "score");
+});
+QUnit.test("check default 0 value doesn't exist on getPropertyValueDirectly", (assert) => {
+  Serializer.addProperty("itemvalue", {
+    name: "score:number",
+    category: "general",
+    displayName: "Score",
+    default: 0,
+    visibleIndex: 5,
+  });
+  const itemValue = new ItemValue("item1");
+  assert.equal(itemValue.getPropertyValue("score"), 0, "default value should be returned");
+  itemValue.setPropertyValue("score", 0);
+  assert.equal((itemValue as any).getPropertyValueWithoutDefault("score"), undefined, "default value shouldn't be set");
+  Serializer.removeProperty("itemvalue", "score");
+});
+QUnit.test("getPropertyValue & calcFunc & emtpy object {}", (assert) => {
+  let counter = 0;
+  function calcProp() {
+    counter ++;
+    return {};
+  }
+  class TestClass extends Base {
+    public get obj1(): any { return this.getPropertyValue("obj1", undefined, () => calcProp()); }
+  }
+  const obj = new TestClass();
+  assert.deepEqual(obj.obj1, {}, "Test #1");
+  assert.deepEqual(obj.obj1, {}, "Test #2");
+  assert.deepEqual(obj.obj1, {}, "Test #3");
+  assert.equal(counter, 1, "calcProp called one time");
+});
+QUnit.test("getPropertyValue & NaN", (assert) => {
+  class TestClass extends Base {
+    @property({ defaultValue: 1 }) public pageSize: number;
+  }
+  const obj = new TestClass();
+  assert.equal(obj.pageSize, 1, "pageSize #1");
+  obj.pageSize = <any>undefined;
+  assert.equal(obj.pageSize, 1, "pageSize #2");
+  obj.pageSize = <any>null;
+  assert.equal(obj.pageSize, 1, "pageSize #3");
+  obj.pageSize = NaN;
+  assert.equal(obj.pageSize, 1, "pageSize #4");
 });

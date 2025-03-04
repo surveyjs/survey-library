@@ -249,6 +249,7 @@ QUnit.test("Matrixdynamic isRequireConfirmOnRowDelete", function (assert) {
 });
 QUnit.test("Matrixdynamic required column", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");
+  question.cellType = "text";
   question.rowCount = 2;
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
@@ -296,6 +297,7 @@ QUnit.test("Matrixdynamic required column", function (assert) {
 });
 QUnit.test("Matrixdynamic column.validators", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");
+  question.cellType = "text";
   question.rowCount = 2;
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
@@ -310,6 +312,7 @@ QUnit.test("Matrixdynamic column.validators", function (assert) {
 });
 QUnit.test("Matrixdynamic duplicationError", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");
+  question.cellType = "text";
   question.rowCount = 2;
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
@@ -342,6 +345,7 @@ QUnit.test("Matrixdynamic duplicationError", function (assert) {
 });
 QUnit.test("Matrixdynamic column.isUnique, matrixdynamic", function (assert) {
   var question = new QuestionMatrixDynamicModel("q1");
+  question.cellType = "text";
   question.rowCount = 2;
   question.addColumn("column1").isUnique = true;
   question.addColumn("column2");
@@ -398,6 +402,7 @@ QUnit.test("Matrixdynamic column.isUnique, matrixdynamic", function (assert) {
 });
 QUnit.test("Matrixdynamic column.isUnique, matrixdropdown", function (assert) {
   var question = new QuestionMatrixDropdownModel("q1");
+  question.cellType = "text";
   question.rows = ["row1", "row2"];
   question.addColumn("column1").isUnique = true;
   question.addColumn("column2");
@@ -426,6 +431,7 @@ QUnit.test("Matrixdynamic column.isUnique, matrixdropdown", function (assert) {
 });
 QUnit.test("column.isUnique, support settings.comparator.caseSensitive", function (assert) {
   var question = new QuestionMatrixDropdownModel("q1");
+  question.cellType = "text";
   question.rows = ["row1", "row2"];
   question.addColumn("column1").isUnique = true;
   assert.equal(question.hasErrors(), false, "No errors");
@@ -488,6 +494,7 @@ QUnit.test("Matrixdynamic duplicationError in detailPanel", function (assert) {
 });
 QUnit.test("Matrixdynamic duplicationError and no errors in detailPanel, do not expand panels", function (assert) {
   var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
+  matrix.cellType = "text";
   matrix.rowCount = 2;
   matrix.columns.push(new MatrixDropdownColumn("column1"));
   matrix.columns.push(new MatrixDropdownColumn("column2"));
@@ -516,6 +523,7 @@ QUnit.test("Matrixdynamic duplicationError and no errors in detailPanel, do not 
 
 QUnit.test("Matrixdynamic: remove duplicationError in cells and in detailPanels", function (assert) {
   var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
+  matrix.cellType = "text";
   const col = new MatrixDropdownColumn("col1");
   matrix.columns.push(col);
   col.isUnique = true;
@@ -776,6 +784,7 @@ QUnit.test(
   "Matrixdynamic validate cell values - onMatrixCellValueChanged",
   function (assert) {
     var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
+    matrix.cellType = "text";
     matrix.addColumn("col1");
     var survey = new SurveyModel();
     survey.addNewPage("p1");
@@ -815,6 +824,7 @@ QUnit.test(
   "Matrixdynamic validate cell values - do not allow to have the same value",
   function (assert) {
     var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
+    matrix.choices = [1, 2, 3];
     matrix.addColumn("col1");
     var survey = new SurveyModel();
     survey.addNewPage("p1");
@@ -1055,6 +1065,7 @@ QUnit.test("matrixdynamic.defaultValue - check the complex property", function (
 
 QUnit.test("Matrixdropdown minRowCount", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
+  question.cellType = "text";
   question.rowCount = 2;
   question.addColumn("column1");
   var rows = question.visibleRows;
@@ -6107,6 +6118,46 @@ QUnit.test("getProgressInfo, matrix dropdown without creating table", function (
   });
   assert.notOk(question["generatedVisibleRows"]);
 });
+QUnit.test("getProgressInfo, create rows if there is visibleIf in the row, Bug9539", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+          },
+          {
+            name: "col2",
+          },
+          {
+            name: "col3",
+          },
+        ],
+        rows: [
+          { value: "row1", visibleIf: "{q1} = 1" },
+          { value: "row2", visibleIf: "{q1} = 2" }, "row3"]
+      },
+    ],
+  });
+  survey.data = { matrix: { row1: { col1: "1" }, row2: { col2: "2" } } };
+  const question = survey.getQuestionByName("matrix");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 3,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  });
+  survey.setValue("q1", 1);
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 6,
+    answeredQuestionCount: 1,
+    requiredQuestionCount: 2,
+    requiredAnsweredQuestionCount: 1,
+  });
+});
 
 QUnit.test(
   "Change item value in column/templateQuestion and change it in row questions",
@@ -10105,6 +10156,11 @@ QUnit.test("table: check animation options", function (assert) {
   tableHtmlElement.appendChild(rowHtmlElement);
   document.body.appendChild(tableHtmlElement);
   questionHtmlElement.style.height = "20px";
+
+  assert.equal(renderedTable.rows[0].id, options.getKey(renderedTable.rows[0]));
+  assert.equal(renderedTable.rows[1].id, options.getKey(renderedTable.rows[1]));
+  assert.equal(renderedTable.rows[2].id, options.getKey(renderedTable.rows[2]));
+  assert.equal(renderedTable.rows[3].id, options.getKey(renderedTable.rows[3]));
 
   const enterOptions = options.getEnterOptions(renderedTable.rows[1]);
   enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(rowHtmlElement);

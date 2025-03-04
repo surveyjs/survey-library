@@ -687,6 +687,8 @@ QUnit.test("Update loc strings on changing values, Bug#8871 #2", function (
   assert.equal(cell0_0.textOrHtml, "col1", "0_0 #3");
   assert.equal(cell1_1.textOrHtml, "cells[11,11]", "1_1 #3");
   assert.equal((<any>matrix).isValueSurveyElement(matrix.cells), true, "cells is Survey element");
+  assert.equal((<any>matrix).isValueSurveyElement(matrix.bindings), true, "bindings is Survey element");
+  assert.equal((<any>matrix).isValueSurveyElement({ id: 5, text: "abc" }), false, "an object is not Survey element");
 });
 QUnit.test("Do not copy default rows value, Bug#8871 #3", function (
   assert

@@ -65,6 +65,7 @@ export var kazakhStrings = {
   showDetails: "Егжей-тегжейін көрсету",
   hideDetails: "Егжей- тегжейін жасы",
   choices_Item: "Нұсқа",
+  choices_Choice: "Таңдау параметрі",
   matrix_column: "Бағана",
   matrix_row: "Жол",
   multipletext_itemname: "мәтін",
@@ -132,16 +133,22 @@ setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", en
 // more: "More" => "Қосымша"
 // tagboxDoneButtonCaption: "OK" => "ЖАҚСЫ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Барлық таңдаулар ранжирленген"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Таңдауды рангтеу үшін осында апарып тастау"// takePhotoCaption: "Take Photo" => "Фотосуретке түсу"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Таңдауды рангтеу үшін осында апарып тастау"
+// takePhotoCaption: "Take Photo" => "Фотосуретке түсу"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Камераны пайдаланып суретке түсу үшін төмендегі түймені басыңыз."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Фотоаппаратты пайдаланып кері жүктеу немесе суретке түсіру үшін файлды апарып тастаыңыз немесе таңдаңыз."
-// replaceFileCaption: "Replace file" => "Файлды ауыстыру"// eachRowUniqueError: "Each row must have a unique value." => "Әр жолдың бірегей мәні болуы тиіс."
+// replaceFileCaption: "Replace file" => "Файлды ауыстыру"
+// eachRowUniqueError: "Each row must have a unique value." => "Әр жолдың бірегей мәні болуы тиіс."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Файлдарды кері жүктеу мүмкін емес. 'OnUploadFiles' оқиғасына өңдеушіні қосуыңызды сұраймыз."
 // showDetails: "Show Details" => "Егжей-тегжейін көрсету"
 // hideDetails: "Hide Details" => "Егжей- тегжейін жасы"
 // ok: "OK" => "ЖАҚСЫ"
 // cancel: "Cancel" => "Болдырмау"
 // refuseItemText: "Refuse to answer" => "Жауап беруден бас тарту"
-// dontKnowItemText: "Don't know" => "Білмеймін"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Сіздің жауабыңыз 64КБ-тан асады. Файлдың өлшемін азайтып, қайталап көріңіз немесе сауалнама иесіне хабарласыңыз."
-// signaturePlaceHolderReadOnly: "No signature" => "Қолдың No"// tabTitlePlaceholder: "New Panel" => "Жаңа панель"// deselectAllItemText: "Deselect all" => "Барлығын жоққа шығару"
+// dontKnowItemText: "Don't know" => "Білмеймін"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Сіздің жауабыңыз 64КБ-тан асады. Файлдың өлшемін азайтып, қайталап көріңіз немесе сауалнама иесіне хабарласыңыз."
+// signaturePlaceHolderReadOnly: "No signature" => "Қолдың No"
+// tabTitlePlaceholder: "New Panel" => "Жаңа панель"
+// deselectAllItemText: "Deselect all" => "Барлығын жоққа шығару"
 // textNoDigitsAllow: "Numbers are not allowed." => "Нөмірлерді беруге жол берілмейді."
+// choices_Choice: "Choice option" => "Таңдау параметрі"

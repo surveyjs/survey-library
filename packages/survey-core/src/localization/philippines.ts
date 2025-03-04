@@ -65,6 +65,7 @@ export var philippinesStrings = {
   showDetails: "Ipakita ang mga detalye",
   hideDetails: "Itago ang Mga Detalye",
   choices_Item: "aytem",
+  choices_Choice: "Pagpipilian sa pagpipilian",
   matrix_column: "Kolum",
   matrix_row: "hilera",
   multipletext_itemname: "text",
@@ -117,5 +118,7 @@ setupLocale({ localeCode: "fil", strings: philippinesStrings, nativeName: "filip
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
-// tabTitlePlaceholder: "New Panel" => "Bagong Panel"// deselectAllItemText: "Deselect all" => "Alisin ang pagpili ng lahat"
+// tabTitlePlaceholder: "New Panel" => "Bagong Panel"
+// deselectAllItemText: "Deselect all" => "Alisin ang pagpili ng lahat"
 // textNoDigitsAllow: "Numbers are not allowed." => "Bawal ang mga numero."
+// choices_Choice: "Choice option" => "Pagpipilian sa pagpipilian"

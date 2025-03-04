@@ -176,7 +176,10 @@ export class QuestionTextModel extends QuestionTextBase {
       this.setRenderedMinMax(values, properties);
     }
   }
-
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if (!this.maskTypeIsEmpty && !Helpers.isValueEmpty(value)) return this.maskInstance.getMaskedValue(value);
+    return super.getDisplayValueCore(keysAsText, value);
+  }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
@@ -190,8 +193,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("inputSize", val);
   }
   /**
-   * Obsolete. Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputSize) property instead.
-   * @deprecated
+   * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputSize) property instead.
    */
   public get size(): number {
     return this.inputSize;

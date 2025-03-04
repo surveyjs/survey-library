@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Base, SurveyModel, Cover, CoverCell } from "survey-core";
 import { SurveyElementBase } from "../reactquestion_element";
 import { ReactElementFactory } from "../element-factory";
@@ -32,11 +32,11 @@ export class HeaderMobile extends React.Component<any, any> {
       {this.model.survey.hasLogo ? (<div className="sv-header__logo">
         {this.renderLogoImage()}
       </div>) : null}
-      {this.model.survey.hasTitle ? (<div className="sv-header__title" style={{ maxWidth: this.model.textAreaWidth }}>
+      {this.model.survey.hasTitle ? (<div className="sv-header__title" style={{ maxWidth: this.model.renderedTextAreaWidth }}>
         {/* {ReactElementFactory.Instance.createElement("survey-element-title", { element: this.model.survey })} */}
         <TitleElement element={this.model.survey} />
       </div>) : null}
-      {this.model.survey.renderedHasDescription ? (<div className="sv-header__description" style={{ maxWidth: this.model.textAreaWidth }}>
+      {this.model.survey.renderedHasDescription ? (<div className="sv-header__description" style={{ maxWidth: this.model.renderedTextAreaWidth }}>
         <div className={this.model.survey.css.description}>
           {SurveyElementBase.renderLocString(this.model.survey.locDescription)}
         </div>
@@ -94,7 +94,7 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
   renderElement(): React.JSX.Element | null {
     this.model.survey = this.props.survey;
 
-    if (!(this.props.survey.headerView === "advanced")) {
+    if (!(this.props.survey.headerView === "advanced") || this.model.isEmpty) {
       return null;
     }
 
@@ -113,6 +113,15 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
         {headerContent}
       </div>
     );
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    this.model.processResponsiveness();
+  }
+  componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    this.model.processResponsiveness();
   }
 }
 

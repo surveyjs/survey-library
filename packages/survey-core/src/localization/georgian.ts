@@ -65,6 +65,7 @@ export var georgianSurveyStrings = {
   showDetails: "დეტალების ჩვენება",
   hideDetails: "დეტალების დამალვა",
   choices_Item: "ნივთი",
+  choices_Choice: "არჩევანის ვარიანტი",
   matrix_column: "სვეტი",
   matrix_row: "რიგი",
   multipletext_itemname: "ტექსტი",
@@ -185,16 +186,22 @@ setupLocale({ localeCode: "ka", strings: georgianSurveyStrings, nativeName: "ქ
 // more: "More" => "სრულად"
 // tagboxDoneButtonCaption: "OK" => "კარგი"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "ყველა არჩევანი რანჟირებულია"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "გადაიტანეთ და ჩამოაგდეთ არჩევანი აქ, რომ დაასახელოთ ისინი"// takePhotoCaption: "Take Photo" => "გადაიღეთ ფოტო"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "გადაიტანეთ და ჩამოაგდეთ არჩევანი აქ, რომ დაასახელოთ ისინი"
+// takePhotoCaption: "Take Photo" => "გადაიღეთ ფოტო"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "დააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ გადაიღოთ ფოტო კამერის გამოყენებით."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "გადაიტანეთ და ჩამოაგდეთ ან შეარჩიეთ ფაილი კამერის გამოყენებით ფოტოს ასატვირთად ან გადასაღებად."
-// replaceFileCaption: "Replace file" => "ფაილის შეცვლა"// eachRowUniqueError: "Each row must have a unique value." => "თითოეულ რიგს უნდა ჰქონდეს უნიკალური მნიშვნელობა."
+// replaceFileCaption: "Replace file" => "ფაილის შეცვლა"
+// eachRowUniqueError: "Each row must have a unique value." => "თითოეულ რიგს უნდა ჰქონდეს უნიკალური მნიშვნელობა."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "ფაილების ატვირთვა შეუძლებელია. გთხოვთ, დაამატოთ დამმუშავებელი 'onUploadFiles' ღონისძიებისთვის."
 // showDetails: "Show Details" => "დეტალების ჩვენება"
 // hideDetails: "Hide Details" => "დეტალების დამალვა"
 // ok: "OK" => "კარგი"
 // cancel: "Cancel" => "გაუქმება"
 // refuseItemText: "Refuse to answer" => "უარი პასუხზე"
-// dontKnowItemText: "Don't know" => "არ ვიცი"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "თქვენი პასუხი აღემატება 64KB. გთხოვთ, შეამციროთ თქვენი ფაილ(ებ)ის ზომა და სცადოთ ხელახლა ან დაუკავშირდეთ გამოკითხვის მფლობელს."
-// signaturePlaceHolderReadOnly: "No signature" => "ხელმოწერა არ არის"// tabTitlePlaceholder: "New Panel" => "ახალი პანელი"// deselectAllItemText: "Deselect all" => "ყველას არჩევა"
+// dontKnowItemText: "Don't know" => "არ ვიცი"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "თქვენი პასუხი აღემატება 64KB. გთხოვთ, შეამციროთ თქვენი ფაილ(ებ)ის ზომა და სცადოთ ხელახლა ან დაუკავშირდეთ გამოკითხვის მფლობელს."
+// signaturePlaceHolderReadOnly: "No signature" => "ხელმოწერა არ არის"
+// tabTitlePlaceholder: "New Panel" => "ახალი პანელი"
+// deselectAllItemText: "Deselect all" => "ყველას არჩევა"
 // textNoDigitsAllow: "Numbers are not allowed." => "ნომრები არ არის დაშვებული."
+// choices_Choice: "Choice option" => "არჩევანის ვარიანტი"

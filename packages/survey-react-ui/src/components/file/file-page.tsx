@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { QuestionFileModel, QuestionFilePage } from "survey-core";
 import { SurveyFileItem } from "./file-item";

@@ -65,6 +65,7 @@ export var romanianSurveyStrings: any = {
   showDetails: "Arată detalii",
   hideDetails: "Ascunde detalii",
   choices_Item: "opțiune",
+  choices_Choice: "Opțiune de alegere",
   matrix_column: "Coloană",
   matrix_row: "Rând",
   multipletext_itemname: "Text",
@@ -132,16 +133,22 @@ setupLocale({ localeCode: "ro", strings: romanianSurveyStrings, nativeName: "rom
 // more: "More" => "Mai mult"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Toate opțiunile sunt clasificate"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Glisați și fixați opțiunile aici pentru a le clasifica"// takePhotoCaption: "Take Photo" => "Faceți o fotografie"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Glisați și fixați opțiunile aici pentru a le clasifica"
+// takePhotoCaption: "Take Photo" => "Faceți o fotografie"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Faceți clic pe butonul de mai jos pentru a face o fotografie folosind camera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Glisați și fixați sau selectați un fișier pentru a încărca sau a face o fotografie folosind camera."
-// replaceFileCaption: "Replace file" => "Înlocuire fișier"// eachRowUniqueError: "Each row must have a unique value." => "Fiecare rând trebuie să aibă o valoare unică."
+// replaceFileCaption: "Replace file" => "Înlocuire fișier"
+// eachRowUniqueError: "Each row must have a unique value." => "Fiecare rând trebuie să aibă o valoare unică."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Fișierele nu pot fi încărcate. Vă rugăm să adăugați un handler pentru evenimentul \"onUploadFiles\"."
 // showDetails: "Show Details" => "Arată detalii"
 // hideDetails: "Hide Details" => "Ascunde detalii"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Anula"
 // refuseItemText: "Refuse to answer" => "Refuză să răspundă"
-// dontKnowItemText: "Don't know" => "Nu ştiu"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Răspunsul tău depășește 64KB. Reduceți dimensiunea fișierelor și încercați din nou sau contactați un proprietar de sondaj."
-// signaturePlaceHolderReadOnly: "No signature" => "Fără semnătură"// tabTitlePlaceholder: "New Panel" => "Panou nou"// deselectAllItemText: "Deselect all" => "Deselectează tot"
+// dontKnowItemText: "Don't know" => "Nu ştiu"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Răspunsul tău depășește 64KB. Reduceți dimensiunea fișierelor și încercați din nou sau contactați un proprietar de sondaj."
+// signaturePlaceHolderReadOnly: "No signature" => "Fără semnătură"
+// tabTitlePlaceholder: "New Panel" => "Panou nou"
+// deselectAllItemText: "Deselect all" => "Deselectează tot"
 // textNoDigitsAllow: "Numbers are not allowed." => "Numerele nu sunt permise."
+// choices_Choice: "Choice option" => "Opțiune de alegere"

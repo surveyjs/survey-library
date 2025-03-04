@@ -16,6 +16,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       initSurvey: (survey) => {
+        survey.headerView = "basic";
         survey.navigationBar.setItems([]);
         survey.addNavigationItem({
           id: "custom-action",
@@ -101,6 +102,7 @@ registerMarkupTests(
     {
       name: "Test survey logo (attribute sizes)",
       json: {
+        headerView: "basic",
         "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
         "logoPosition": "right",
         "logoWidth": "200px",
@@ -127,6 +129,7 @@ registerMarkupTests(
     {
       name: "Test survey logo (style sizes)",
       json: {
+        headerView: "basic",
         "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
         "logoPosition": "right",
         "logoWidth": "30%",
@@ -153,6 +156,7 @@ registerMarkupTests(
     {
       name: "Test survey description",
       json: {
+        headerView: "basic",
         "title": "Test",
         "description": "Description",
         "pages": [

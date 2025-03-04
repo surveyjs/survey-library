@@ -127,6 +127,6 @@ export class PopupSurvey extends Survey {
   }
 }
 /**
- * Obsolete. Please use PopupSurvey
+ * @deprecated Use `PopupSurvey` instead.
  */
 export class SurveyWindow extends PopupSurvey { }

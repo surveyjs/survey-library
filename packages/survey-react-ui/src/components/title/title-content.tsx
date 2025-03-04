@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { SurveyElementCore, ITitleOwner } from "survey-core";
 import { SurveyElementBase } from "../../reactquestion_element";
 

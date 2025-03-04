@@ -3504,3 +3504,13 @@ QUnit.test("property showMode -> displayMode, #9291", function (assert) {
   Serializer.removeProperty("question", "prop5");
   Serializer.removeProperty("question", "prop6");
 });
+QUnit.test("property.isSerializabeFunc", function (assert) {
+  let ser = true;
+  Serializer.addProperty("question", { name: "prop1", isSerializableFunc: (obj) => { return ser; } });
+  const q = new Question("q1");
+  q.prop1 = "abc";
+  assert.deepEqual(q.toJSON(), { name: "q1", prop1: "abc" }, "#1");
+  ser = false;
+  assert.deepEqual(q.toJSON(), { name: "q1" }, "#2");
+  Serializer.removeProperty("question", "prop1");
+});

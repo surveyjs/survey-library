@@ -131,7 +131,7 @@ Serializer.addClass(
   "my-custom-class",
   [{
     name: "myItemCollectionProperty",
-    type: "itemvalue",
+    type: "itemvalues",
     category: "general",
     visibleIndex: 3
   }],
@@ -235,7 +235,7 @@ A string value that specifies the property type. Accepts one of the values descr
 | `"file"` | Text input with a button that opens a Select File dialog window | Use this type to allow respondents to select a file or enter a file URL. |
 | `"color"` | Color picker | Use this type for color values. |
 | `"html"` | Multi-line text input | Use this type for HTML markup. |
-| [`"itemvalue"`](#define-a-custom-item-collection-property) | Customized text inputs for entering value-text pairs | Use this type for arrays of objects with the following structure: `{ value: any, text: string }`. For example, Dropdown, Checkboxes, and Radio Button Group questions use this type for the [`choices`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choices) property. |
+| [`"itemvalues"`](#define-a-custom-item-collection-property) | Customized text inputs for entering value-text pairs | Use this type for arrays of objects with the following structure: `{ value: any, text: string }`. For example, Dropdown, Checkboxes, and Radio Button Group questions use this type for the [`choices`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choices) property. |
 | `"value"` | Button that opens a dialog window  | The dialog window displays the survey element and allows users to set the element's default value. |
 | `"multiplevalues"` | A group of checkboxes with a Select All checkbox | Use this type to allow respondents to select more than one predefined option. Requires a defined [`choices`](#choices) array. |
 

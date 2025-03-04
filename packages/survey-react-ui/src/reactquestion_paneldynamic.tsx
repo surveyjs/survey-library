@@ -68,6 +68,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     const noEntriesPlaceholder = this.renderPlaceholder();
     return (
       <div className={this.question.cssClasses.root}>
+        {this.question.hasTabbedMenu ? <div className={this.question.getTabsContainerCss()}><SurveyActionBar model={this.question.tabbedMenu}></SurveyActionBar></div> : null }
         {noEntriesPlaceholder}
         {navTop}
         <div className={this.question.cssClasses.panelsContainer}>
@@ -195,13 +196,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
     );
   }
   protected renderButton(): React.JSX.Element | null {
-    if (
-      this.question.panelRemoveButtonLocation !== "right" ||
-      !this.question.canRemovePanel ||
-      (this.question.isRenderModeList && this.panel.isCollapsed)
-    ) {
-      return null;
-    }
+    if (!this.question.canRenderRemovePanelOnRight(this.panel)) return null;
     return ReactElementFactory.Instance.createElement("sv-paneldynamic-remove-btn", {
       data: { question: this.question, panel: this.panel }
     });

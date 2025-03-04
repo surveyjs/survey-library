@@ -6,7 +6,7 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
@@ -39,14 +39,14 @@ QUnit.test("Check QuestionSelectBase columns property", function (assert) {
   assert.deepEqual(
     columns,
     [["Item1", "Item4"], ["Item2", "Item5"], ["Item3"]],
-    "check showItemsBy row"
+    "check itemFlowDirection row"
   );
   settings.itemFlowDirection = "column";
   columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
-    "check showItemsBy column"
+    "check itemFlowDirection column"
   );
 });
 QUnit.test("Check QuestionSelectBase columns property and creator V2", function (assert) {
@@ -59,7 +59,7 @@ QUnit.test("Check QuestionSelectBase columns property and creator V2", function 
       },
     ],
   };
-  settings.supportCreatorV2 = true;
+
   var survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON(json);
@@ -83,7 +83,6 @@ QUnit.test("Check QuestionSelectBase columns property and creator V2", function 
     ["newitem", "none", "other"],
     "check foot items"
   );
-  settings.supportCreatorV2 = false;
 });
 
 QUnit.test("Check QuestionSelectBase head and foot items property", function (assert) {
@@ -108,11 +107,11 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
   assert.deepEqual(
     columns,
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
-    "check showItemsBy col - runtime"
+    "check itemFlowDirection col - runtime"
   );
 
   survey.setDesignMode(true);
-  settings.supportCreatorV2 = true;
+
   (<any>question).updateVisibleChoices();
   assert.ok(question.hasHeadItems);
   assert.ok(question.hasFootItems);
@@ -120,7 +119,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
   assert.deepEqual(
     columns,
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
-    "check showItemsBy col - design"
+    "check itemFlowDirection col - design"
   );
   let headItems = question.headItems.map((item) => item.id);
   let footItems = question.footItems.map((item) => item.id);
@@ -136,7 +135,6 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
     "check foot items"
   );
   settings.itemFlowDirection = "row";
-  settings.supportCreatorV2 = false;
 });
 
 QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and dontknow properties", function (assert) {
@@ -165,11 +163,11 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
   assert.deepEqual(
     columns,
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
-    "check showItemsBy col - runtime"
+    "check itemFlowDirection col - runtime"
   );
 
   survey.setDesignMode(true);
-  settings.supportCreatorV2 = true;
+
   (<any>question).updateVisibleChoices();
   assert.ok(question.hasHeadItems);
   assert.ok(question.hasFootItems);
@@ -177,7 +175,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
   assert.deepEqual(
     columns,
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
-    "check showItemsBy col - design"
+    "check itemFlowDirection col - design"
   );
   let headItems = question.headItems.map((item) => item.id);
   let footItems = question.footItems.map((item) => item.id);
@@ -193,7 +191,6 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
     "check foot items"
   );
   settings.itemFlowDirection = "row";
-  settings.supportCreatorV2 = false;
   refuseProp.visible = false;
   dontKnowProp.visible = false;
 });
@@ -251,7 +248,6 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
     "check foot items"
   );
   settings.itemFlowDirection = "row";
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("settings.noneItemValue", function (assert) {
   settings.noneItemValue = "n/a";
@@ -879,7 +875,7 @@ QUnit.test("check radiogroup title actions", (assert) => {
         showClearButton: true
       }]
   });
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
   const action = <IAction>question.getTitleActions()[0];
   assert.notOk(question.showClearButtonInContent);
@@ -1256,7 +1252,7 @@ QUnit.test("SelectBase visibleChoices order", function (assert) {
     { type: "dropdown", name: "q1", choicesOrder: "asc", choices: ["B", "A", "D", "C"] }
   ] });
   const question = <QuestionSelectBase>survey.getQuestionByName("q1");
-  assert.equal(question.visibleChoices.length, 4, "There are 4 items");
+  assert.equal(question.visibleChoices.length, 7, "There are 4 items");
   assert.equal(question.visibleChoices[0].value, "B", "the first item");
   assert.equal(question.visibleChoices[3].value, "C", "the last item");
 });
@@ -1439,7 +1435,7 @@ QUnit.test("Check isUsingCarryForward on deleting question", function (assert) {
 QUnit.test("Do not notify survey on changing newItem.value", function (
   assert
 ) {
-  settings.supportCreatorV2 = true;
+
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
@@ -1464,12 +1460,11 @@ QUnit.test("Do not notify survey on changing newItem.value", function (
   assert.equal(counter, 2, "#3");
   q.newItem.text = "item 2";
   assert.equal(counter, 2, "Do not react on newItem properties changes, #4");
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("Remove newItem from the list if it is false", function (
   assert
 ) {
-  settings.supportCreatorV2 = true;
+
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
@@ -1761,6 +1756,27 @@ QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + val
   assert.equal(q2.visibleChoices[1].value, "bbb", "the second value is correct");
 });
 
+QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + removing the value, Bug#9399", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "paneldynamic", name: "q1", valueName: "sharedData",
+      templateElements: [{ name: "q1-q1", type: "text" }]
+    },
+    { type: "dropdown", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q1" }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.addPanel();
+  q1.panels[0].getQuestionByName("q1-q1").value = "aaa";
+  q1.addPanel();
+  q1.panels[1].getQuestionByName("q1-q1").value = "bbb";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choices");
+  q2.value = "bbb";
+  assert.equal(q2.isEmpty(), false, "q2 is not empty");
+  q1.removePanel(1);
+  assert.equal(q2.visibleChoices.length, 1, "There is one choice");
+  assert.equal(q2.isEmpty(), true, "q2 is empty");
+});
+
 QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-2", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "paneldynamic", name: "q1", valueName: "sharedData",
@@ -1780,6 +1796,76 @@ QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + val
   assert.equal(q2_q2.visibleChoices.length, 2, "There are two choice");
   assert.equal(q2_q2.visibleChoices[0].value, "aaa", "the first value is correct");
   assert.equal(q2_q2.visibleChoices[1].value, "bbb", "the second value is correct");
+});
+QUnit.test("Use carryForward with panel dynamic + incorrect values, Bug#9478", function (assert) {
+  const survey = new SurveyModel({ pages: [
+    {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          templateElements: [
+            {
+              type: "text",
+              name: "question2",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question4",
+          templateElements: [
+            {
+              type: "paneldynamic",
+              name: "question5",
+              templateElements: [
+                {
+                  type: "dropdown",
+                  name: "question3",
+                  isRequired: true,
+                  choicesFromQuestion: "question1",
+                  choiceValuesFromQuestion: "question2",
+                  choiceTextsFromQuestion: "question2",
+                },
+                {
+                  type: "text",
+                  name: "question11",
+                  defaultValueExpression: "{panel.question3} empty",
+                },
+              ],
+            },
+          ],
+          panelCount: 1,
+        },
+      ],
+    },
+  ] });
+  survey.data = {
+    "question1": [
+      {
+        "question2": "Item1*"
+      },
+      {
+        "question2": "Item2*"
+      }
+    ],
+    "question4": [
+      {
+        "question5": [
+          {
+            "question11": false,
+            "question3": "Item2"
+          }
+        ]
+      }
+    ]
+  };
+  survey.nextPage();
+  assert.equal(survey.tryComplete(), false, "The value is incorrect");
 });
 QUnit.test("SelectBase visibleChoices order & locale change", function (assert) {
   const survey = new SurveyModel({ elements: [
@@ -1954,8 +2040,7 @@ QUnit.test("Select all and clickItemHandler", function (assert) {
   question.clickItemHandler(question.selectAllItem);
   assert.equal(question.isAllSelected, false, "#5");
 });
-QUnit.test("Test dropdown in CreatorV2 & restful", function(assert) {
-  settings.supportCreatorV2 = true;
+QUnit.test("Test dropdown in CreatorV2 & restful", function (assert) {
   const json = { elements: [
     { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] }
   ] };
@@ -1971,7 +2056,6 @@ QUnit.test("Test dropdown in CreatorV2 & restful", function(assert) {
   question.choicesByUrl.url = "";
   assert.equal(question.isUsingRestful, false, "isUsingRestful #3");
   assert.equal(question.visibleChoices.length, 3 + 5 + 1, "3 built-in + 5 choices + 1 add item, #3");
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("isUsingRestful & loading", function(assert) {
   const json = { elements: [
@@ -2037,8 +2121,7 @@ QUnit.test("checkbox, selectAll & survey.data, bug#7657", (assert) => {
   assert.deepEqual(q.value, ["One", "Two"], "q.value, #2");
   assert.deepEqual(survey.data, { q1: ["One", "Two"] }, "survey.data, #2");
 });
-QUnit.test("Do not show show choices in designer", function(assert) {
-  settings.supportCreatorV2 = true;
+QUnit.test("Do not show show choices in designer", function (assert) {
   const json = { elements: [
     { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] }
   ] };
@@ -2051,7 +2134,6 @@ QUnit.test("Do not show show choices in designer", function(assert) {
   assert.equal(question.visibleChoices.length, 3, "Hide choices in designer, #2");
   question.isMessagePanelVisible = false;
   assert.equal(question.visibleChoices.length, 5 + 1 + 3, "Show choices in designer, #1");
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("question checkbox displayValue() with other and comment", (assert) => {
   const q1 = new QuestionCheckboxModel("q1");
@@ -2357,4 +2439,61 @@ QUnit.test("ItemValue tooltip, #9269", (assert) => {
   assert.equal(item.getTooltip(), "abc", "#2");
   item.tooltip = "edf";
   assert.equal(item.getTooltip(), "edf", "#3");
+});
+
+QUnit.test("Check QuestionSelectBase Columns Arragement", function (assert) {
+  // https://github.com/surveyjs/survey-library/issues/9487
+  let json = {
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [
+          "Item1",
+          "Item2",
+          "Item3",
+          "Item4",
+          "Item5",
+          "Item6",
+          "Item7",
+          "Item8",
+          "Item9",
+          "Item10"
+        ],
+        "colCount": 3
+      }
+    ],
+  };
+  let survey = new SurveyModel(json);
+  let question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  settings.itemFlowDirection = "column";
+  let columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [["Item1", "Item2", "Item3", "Item4"], ["Item5", "Item6", "Item7", "Item8"], ["Item9", "Item10"]],
+    "check itemFlowDirection column"
+  );
+
+  json = {
+    elements: [{
+      "type": "radiogroup",
+      "name": "q2",
+      "choices": [
+        "Item1",
+        "Item2",
+        "Item3",
+        "Item4"
+      ],
+      "colCount": 3
+    }]
+  };
+  survey = new SurveyModel(json);
+  question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  settings.itemFlowDirection = "column";
+  columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [["Item1", "Item2"], ["Item3"], ["Item4"]],
+    "check itemFlowDirection column (2)"
+  );
 });

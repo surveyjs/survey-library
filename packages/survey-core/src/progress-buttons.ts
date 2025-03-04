@@ -1,5 +1,5 @@
 import { Base, EventBase } from "./base";
-import { surveyCss } from "./defaultCss/defaultV2Css";
+import { surveyCss } from "./defaultCss/defaultCss";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -91,7 +91,7 @@ export class ProgressButtons extends Base {
     }
   }
   public get isFitToSurveyWidth(): boolean {
-    if (surveyCss.currentType !== "defaultV2") {
+    if (surveyCss.currentType !== "default") {
       return false;
     }
     return this.survey.progressBarInheritWidthFrom === "survey" && this.survey.widthMode == "static";
@@ -103,13 +103,13 @@ export class ProgressButtons extends Base {
     return "";
   }
   public get showItemNumbers(): boolean {
-    if (surveyCss.currentType !== "defaultV2") {
+    if (surveyCss.currentType !== "default") {
       return false;
     }
     return this.survey.progressBarShowPageNumbers;
   }
   public get showItemTitles(): boolean {
-    if (surveyCss.currentType !== "defaultV2") {
+    if (surveyCss.currentType !== "default") {
       return true;
     }
     return this.survey.progressBarShowPageTitles;
@@ -125,7 +125,13 @@ export class ProgressButtons extends Base {
     return this.survey.currentPage ? this.survey.currentPage.renderedNavigationTitle : "";
   }
   public get footerText(): string {
-    return this.survey.progressText;
+    return this.progressText;
+  }
+  public get progressText(): string {
+    return this.getPropertyValue("progressText", undefined, () => this.survey.getProgressText());
+  }
+  public resetProgressText(): void {
+    this.resetPropertyValue("progressText");
   }
   public onResize: EventBase<ProgressButtons, any> = this.addEvent<ProgressButtons, any>();
   public processResponsiveness(width: number): void {

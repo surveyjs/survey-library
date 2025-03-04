@@ -43,11 +43,8 @@ export class QuestionSelectBase extends Question {
   private get waitingChoicesByURL(): boolean {
     return !this.isChoicesLoaded && this.hasChoicesUrl;
   }
-  @property({
-    onSet: (newVal: any, target: QuestionSelectBase) => {
-      target.onSelectedItemValuesChangedHandler(newVal);
-    }
-  }) protected selectedItemValues: any;
+  protected get selectedItemValues(): any { return this.getPropertyValue("selectedItemValues"); }
+  protected set selectedItemValues(val: any) { this.setPropertyValue("selectedItemValues", val); }
 
   constructor(name: string) {
     super(name);
@@ -70,10 +67,14 @@ export class QuestionSelectBase extends Question {
     this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
       this.onVisibleChanged();
     });
+    this.registerPropertyChangedHandlers(["selecteditemValues"], (newVal: any) => {
+      this.onSelectedItemValuesChangedHandler(newVal);
+    });
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
     this.setNewRestfulProperty();
     var locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
     this.createLocalizableString("otherErrorText", this, true, "otherRequiredError");
+    this.createLocalizableString("otherPlaceholder", this, false, true);
     this.otherItemValue.locOwner = this;
     this.otherItemValue.setLocText(locOtherText);
     this.choicesByUrl.createItemValue = (value: any): ItemValue => {
@@ -147,6 +148,12 @@ export class QuestionSelectBase extends Question {
     res.locOwner = this;
     if (!!text) res.text = text;
     return res;
+  }
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+    if(!rec || rec.isOnValueChanged !== true) {
+      this.clearIncorrectValues();
+    }
+    return super.hasErrors(fireCallback, rec);
   }
   public get isUsingCarryForward(): boolean {
     return !!this.carryForwardQuestionType;
@@ -974,13 +981,16 @@ export class QuestionSelectBase extends Question {
    * @see showOtherItem
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
-  @property() separateSpecialChoices: boolean;
+  public get separateSpecialChoices(): boolean { return this.getPropertyValue("separateSpecialChoices"); }
+  public set separateSpecialChoices(val: boolean) { this.setPropertyValue("separateSpecialChoices", val); }
   /**
    * A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
    * @see showOtherItem
    * @see showCommentArea
    */
-  @property({ localizable: true }) otherPlaceholder: string;
+  public get otherPlaceholder(): string { return this.getLocalizableStringText("otherPlaceholder"); }
+  public set otherPlaceholder(val: string) { this.setLocalizableStringText("otherPlaceholder", val); }
+  public get locOtherPlaceholder(): LocalizableString { return this.getLocalizableString("otherPlaceholder"); }
 
   public get otherPlaceHolder(): string {
     return this.otherPlaceholder;
@@ -1140,7 +1150,7 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems(): boolean {
-    return settings.showDefaultItemsInCreatorV2 && this.isInDesignModeV2 &&
+    return settings.showDefaultItemsInCreator && this.isInDesignMode &&
       !this.customWidget;
   }
   public getPlainData(
@@ -1158,7 +1168,7 @@ export class QuestionSelectBase extends Question {
           var choice = ItemValue.getItemByValue(this.visibleChoices, dataValue);
           var choiceDataItem = <any>{
             name: index,
-            title: "Choice",
+            title: this.getLocalizationString("choices_Choice"),
             value: dataValue,
             displayValue: this.getChoicesDisplayValue(
               this.visibleChoices,
@@ -1236,7 +1246,7 @@ export class QuestionSelectBase extends Question {
       ? this.filteredChoicesValue
       : this.activeChoices;
   }
-  protected get activeChoices(): Array<ItemValue> {
+  private get activeChoices(): Array<ItemValue> {
     const question = this.getCarryForwardQuestion();
     if (this.carryForwardQuestionType === "select") {
       (<QuestionSelectBase>question).addDependedQuestion(this);
@@ -1256,7 +1266,7 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("isMessagePanelVisible", val);
   }
   private get isEmptyActiveChoicesInDesign(): boolean {
-    return this.isInDesignModeV2 && (this.hasChoicesUrl || this.isMessagePanelVisible);
+    return this.isInDesignMode && (this.hasChoicesUrl || this.isMessagePanelVisible);
   }
   getCarryForwardQuestion(data?: ISurveyData): Question {
     const question = this.findCarryForwardQuestion(data);
@@ -1433,6 +1443,7 @@ export class QuestionSelectBase extends Question {
     const chQuestion = this.choicesFromQuestion;
     if (!!name && chQuestion && (name === chQuestion || questionName === chQuestion)) {
       this.onVisibleChoicesChanged();
+      this.clearIncorrectValues();
     }
   }
   updateValueFromSurvey(newValue: any, clearData: boolean): void {
@@ -1485,7 +1496,7 @@ export class QuestionSelectBase extends Question {
   private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
     this.updateIsUsingRestful();
-    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isInDesignModeV2)
+    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isInDesignMode)
       return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()
@@ -1721,7 +1732,7 @@ export class QuestionSelectBase extends Question {
     if (!this.survey || !this.survey.clearDisabledChoices) return;
     this.clearDisabledValuesCore();
   }
-  protected clearIncorrectValuesCore() {
+  protected clearIncorrectValuesCore(): void {
     var val = this.value;
     if (this.canClearValueAnUnknown(val)) {
       this.clearValue(true);
@@ -1920,40 +1931,58 @@ export class QuestionSelectBase extends Question {
     return settings.itemFlowDirection;
   }
   get columns() {
-    var columns = [];
-    var colCount = this.getCurrentColCount();
-    if (this.hasColumns && this.renderedChoices.length > 0) {
-      let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isInDesignMode) ?
-        this.renderedChoices : this.dataChoices;
-      if (this.itemFlowDirection === "column") {
-        var prevIndex = 0;
-        var leftElementsCount = choicesToBuildColumns.length % colCount;
-        for (var i = 0; i < colCount; i++) {
-          var column = [];
-          for (
-            var j = prevIndex;
-            j < prevIndex + Math.floor(choicesToBuildColumns.length / colCount);
-            j++
-          ) {
-            column.push(choicesToBuildColumns[j]);
-          }
-          if (leftElementsCount > 0) {
-            leftElementsCount--;
-            column.push(choicesToBuildColumns[j]);
-            j++;
-          }
-          prevIndex = j;
-          columns.push(column);
+    if (!this.hasColumns || this.renderedChoices.length === 0) return [];
+
+    const colCount = this.getCurrentColCount();
+    let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isInDesignMode) ?
+      this.renderedChoices : this.dataChoices;
+
+    if (this.itemFlowDirection === "column") {
+      return this.getColumnsWithColumnItemFlow(choicesToBuildColumns, colCount);
+    } else {
+      return this.getColumnsWithRowItemFlow(choicesToBuildColumns, colCount);
+    }
+  }
+  private getColumnsWithColumnItemFlow(choices, colCount) {
+    const columns =[];
+    let maxColumnHeight = Math.floor(choices.length / colCount);
+
+    if (choices.length % colCount) {
+      maxColumnHeight += 1;
+    }
+
+    let choicesLeft = choices.length;
+    let columnsLeft = colCount;
+    let indexShift = 0;
+
+    for (let i = 0; i < colCount; i++) {
+      const column = [];
+
+      for (let j = 0; j < maxColumnHeight; j++) {
+        if (choicesLeft <= columnsLeft) {
+          maxColumnHeight = 1;
         }
-      } else {
-        for (var i = 0; i < colCount; i++) {
-          var column = [];
-          for (var j = i; j < choicesToBuildColumns.length; j += colCount) {
-            column.push(choicesToBuildColumns[j]);
-          }
-          columns.push(column);
+        const choice = choices[j + indexShift];
+        if (choice) {
+          column.push(choice);
+          choicesLeft--;
         }
       }
+      columns.push(column);
+      columnsLeft--;
+      indexShift += column.length;
+    }
+
+    return columns;
+  }
+  private getColumnsWithRowItemFlow(choices, colCount) {
+    const columns = [];
+    for (let i = 0; i < colCount; i++) {
+      const column = [];
+      for (let j = i; j < choices.length; j += colCount) {
+        column.push(choices[j]);
+      }
+      columns.push(column);
     }
     return columns;
   }

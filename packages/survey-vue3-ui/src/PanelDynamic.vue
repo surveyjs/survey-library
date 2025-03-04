@@ -1,5 +1,11 @@
 <template>
   <div :class="question.cssClasses.root" ref="root">
+    <div :class="question.getTabsContainerCss()" v-if="question.hasTabbedMenu">
+      <SvComponent
+        :is="'sv-action-bar'"
+        :model="question.tabbedMenu"
+      ></SvComponent>
+    </div>
     <div
       v-if="question.getShowNoEntriesPlaceholder()"
       :class="question.cssClasses.noEntriesPlaceholder"
@@ -43,11 +49,7 @@
           ></SvComponent>
           <SvComponent
             :is="'sv-paneldynamic-remove-btn'"
-            v-if="
-              question.panelRemoveButtonLocation === 'right' &&
-              question.canRemovePanel &&
-              panel.state !== 'collapsed'
-            "
+            v-if="question.canRenderRemovePanelOnRight(panel)"
             :data="{ question, panel }"
           />
         </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { ReactElementFactory } from "../../element-factory";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { SurveyQuestionPanelDynamicAction } from "./paneldynamic-add-btn";

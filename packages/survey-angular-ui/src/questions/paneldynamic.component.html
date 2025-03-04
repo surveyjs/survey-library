@@ -1,4 +1,7 @@
 <div [class]="model.cssClasses.root" #contentElement>
+  <div *ngIf="model.hasTabbedMenu" [class]="model.getTabsContainerCss()">
+    <sv-action-bar [model]="model.tabbedMenu"></sv-action-bar>
+  </div>
   <div *ngIf="model.getShowNoEntriesPlaceholder()" [class]="model.cssClasses.noEntriesPlaceholder">
     <span [model]="model.locNoEntriesText" sv-ng-string></span>
     <sv-ng-paneldynamic-add-btn *ngIf="model.canAddPanel" [data]="{ question: model }"></sv-ng-paneldynamic-add-btn>
@@ -14,8 +17,7 @@
       <div [class]="model.getPanelWrapperCss(panel)">
         <ng-template
           [component]="{ name: getPanelComponentName(panel), data: getPanelComponentData(panel) }"></ng-template>
-        <ng-container
-          *ngIf="model.panelRemoveButtonLocation ==='right' && model.canRemovePanel && panel.state != 'collapsed'">
+        <ng-container *ngIf="model.canRenderRemovePanelOnRight(panel)">
           <ng-template
             [component]="{ name: 'sv-paneldynamic-remove-btn', data: { data: { panel, question: model }}}"></ng-template>
         </ng-container>

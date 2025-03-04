@@ -38,6 +38,7 @@ export interface ITextProcessorProp {
   returnDisplayValue?: boolean;
   doEncoding?: boolean;
   runAtDesign?: boolean;
+  replaceUndefinedValues?: boolean;
 }
 export interface ITextProcessorResult {
   text: string;
@@ -234,7 +235,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   dynamicPanelAdded(question: IQuestion, panelIndex?: number, panel?: IPanel): void;
   dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel): void;
   dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
-  dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
+  dynamicPanelItemValueChanged(question: IQuestion, options: any): void;
+  dynamicPanelItemValueChanging(question: IQuestion, options: any): void;
   dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
   dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void;
 
@@ -412,6 +414,7 @@ export interface ISurveyLayoutElement {
   template?: string;
   data?: any;
   index?: number;
+  getData?: () => any;
   processResponsiveness?: (width: number) => void;
 }
 export interface IPlainDataOptions {

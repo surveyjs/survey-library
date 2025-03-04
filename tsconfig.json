@@ -33,9 +33,6 @@
   ],
   "include": [
     "src/**/*.ts",
-    "packages/survey-core/src/drag-drop-panel-helper-v1.ts",
-    "packages/survey-core/src/drag-drop-page-helper-v1.ts",
-    "packages/survey-core/src/drag-drop-helper-v1.ts",
     "packages/survey-core/entries/chunks/core-wo-model.ts"
   ]
 }

@@ -65,6 +65,7 @@ export var ukrainianSurveyStrings = {
   showDetails: "Показати подробиці",
   hideDetails: "Сховати подробиці",
   choices_Item: "Варіант",
+  choices_Choice: "Варіант вибору",
   matrix_column: "Колонка",
   matrix_row: "Рядок",
   multipletext_itemname: "Текст",
@@ -132,15 +133,22 @@ setupLocale({ localeCode: "ua", strings: ukrainianSurveyStrings, nativeName: "у
 // more: "More" => "Більше"
 // tagboxDoneButtonCaption: "OK" => "ГАРАЗД"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Всі варіанти ранжуються"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетягніть варіанти тут, щоб оцінити їх"// takePhotoCaption: "Take Photo" => "Зробити фото"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетягніть варіанти тут, щоб оцінити їх"
+// takePhotoCaption: "Take Photo" => "Зробити фото"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Натисніть кнопку нижче, щоб зробити фото за допомогою камери."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Перетягніть або виберіть файл, щоб завантажити або зробити фотографію за допомогою камери."
-// replaceFileCaption: "Replace file" => "Замінити файл"// eachRowUniqueError: "Each row must have a unique value." => "Кожен рядок повинен мати унікальне значення."
+// replaceFileCaption: "Replace file" => "Замінити файл"
+// eachRowUniqueError: "Each row must have a unique value." => "Кожен рядок повинен мати унікальне значення."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Файли не можна завантажити. Будь ласка, додайте обробник для події 'onUploadFiles'."
 // showDetails: "Show Details" => "Показати подробиці"
 // hideDetails: "Hide Details" => "Сховати подробиці"
 // ok: "OK" => "ГАРАЗД"
-// cancel: "Cancel" => "Скасувати"// refuseItemText: "Refuse to answer" => "Відмовтеся відповідати"
-// dontKnowItemText: "Don't know" => "Не знаю"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ваша відповідь перевищує 64 КБ. Будь ласка, зменшіть розмір файлу (файлів) і повторіть спробу або зв'яжіться з власником опитування."
-// signaturePlaceHolderReadOnly: "No signature" => "Без підпису"// tabTitlePlaceholder: "New Panel" => "Нова панель"// deselectAllItemText: "Deselect all" => "Зніміть позначку з усіх"
+// cancel: "Cancel" => "Скасувати"
+// refuseItemText: "Refuse to answer" => "Відмовтеся відповідати"
+// dontKnowItemText: "Don't know" => "Не знаю"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ваша відповідь перевищує 64 КБ. Будь ласка, зменшіть розмір файлу (файлів) і повторіть спробу або зв'яжіться з власником опитування."
+// signaturePlaceHolderReadOnly: "No signature" => "Без підпису"
+// tabTitlePlaceholder: "New Panel" => "Нова панель"
+// deselectAllItemText: "Deselect all" => "Зніміть позначку з усіх"
 // textNoDigitsAllow: "Numbers are not allowed." => "Номери не допускаються."
+// choices_Choice: "Choice option" => "Варіант вибору"

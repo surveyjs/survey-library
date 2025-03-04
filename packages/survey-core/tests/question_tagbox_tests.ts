@@ -1353,7 +1353,6 @@ QUnit.test("TagBox readOnlyText property should be reactive, Bug#6830", (assert)
   assert.equal(q.dropdownListModel.filterStringPlaceholder, "en-sel", "dropdownlist en, #3");
 });
 QUnit.test("question.showClearButton", assert => {
-  settings.supportCreatorV2 = false;
   const json = {
     questions: [
       {
@@ -1376,10 +1375,7 @@ QUnit.test("question.showClearButton", assert => {
   assert.equal(q.showClearButton, false, "allowClear is false");
   q.allowClear = true;
   survey.setDesignMode(true);
-  assert.equal(q.showClearButton, false, "design mode");
-  settings.supportCreatorV2 = true;
   assert.equal(q.showClearButton, true, "Creator V2");
-  settings.supportCreatorV2 = false;
 });
 QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear the value", assert => {
   const done1 = assert.async();

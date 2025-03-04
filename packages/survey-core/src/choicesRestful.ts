@@ -530,8 +530,10 @@ export class ChoicesRestful extends Base {
     var pathes = [];
     if (this.processedPath.indexOf(";") > -1) {
       pathes = this.path.split(";");
-    } else {
+    } else if (this.processedPath.indexOf(",") > -1) {
       pathes = this.processedPath.split(",");
+    } else {
+      pathes = this.processedPath.split(".");
     }
     if (pathes.length == 0) pathes.push(this.processedPath);
     return pathes;
@@ -584,7 +586,7 @@ export class ChoicesRestful extends Base {
 }
 
 /**
- * Obsolete, please use ChoicesRestful
+ * @deprecated Use `ChoicesRestful` instead.
  */
 export class ChoicesRestfull extends ChoicesRestful {
   public static get EncodeParameters(): boolean {

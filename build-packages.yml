@@ -7,11 +7,12 @@ resources:
   repositories:
     - repository: Service # The name used to reference this repository in the checkout step
       type: github
-      endpoint: dmitrykurmanov:admin
+      endpoint: github.com_surveyjsdeveloper
       name: surveyjs/service
+      ref: V2
     - repository: EmptyRepo
       type: github
-      endpoint: dmitrykurmanov:admin
+      endpoint: github.com_surveyjsdeveloper
       name: surveyjs/azure-pipelines-repo-dont-remove-please
 
 variables:
@@ -141,8 +142,8 @@ jobs:
 
       - powershell: |
           $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "kurmanov.work@gmail.com"
-          git config --global user.name "dmitrykurmanov"
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
 
       - script: |
@@ -188,8 +189,8 @@ jobs:
       # - powershell: |
       #     cd $(Build.SourcesDirectory)/service
       #     $env:GIT_REDIRECT_STDERR = '2>&1'
-      #     git config --global user.email "kurmanov.work@gmail.com"
-      #     git config --global user.name "dmitrykurmanov"
+      #     git config --global user.email "surveyjs.org@gmail.com"
+      #     git config --global user.name "surveyjsdeveloper"
       #     git pull origin master
       #     git fetch origin master --tags --force
       #     git checkout master
@@ -198,6 +199,19 @@ jobs:
       #     git pull origin master
       #     git push origin master
       #   displayName: "git surveyjs/service push updated docs"
+      - powershell: |
+          cd $(Build.SourcesDirectory)/service
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
+          git pull origin V2
+          git fetch origin V2 --tags --force
+          git checkout V2
+          git add surveyjs.io/App_Data/DocsLibrary
+          git commit -m "updated survey-library V2 docs [azurepipelines skip]"
+          git pull origin V2
+          git push origin V2
+        displayName: "git surveyjs/service push updated V2 docs"
 
       - task: CopyFiles@2
         inputs:
@@ -309,8 +323,8 @@ jobs:
 
       - powershell: |
           $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "kurmanov.work@gmail.com"
-          git config --global user.name "dmitrykurmanov"
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
 
       - script: |
@@ -431,8 +445,8 @@ jobs:
 
       - powershell: |
           $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "kurmanov.work@gmail.com"
-          git config --global user.name "dmitrykurmanov"
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
 
       - script: |
@@ -563,8 +577,8 @@ jobs:
 
       - powershell: |
           $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "kurmanov.work@gmail.com"
-          git config --global user.name "dmitrykurmanov"
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
 
       - script: |
@@ -694,8 +708,8 @@ jobs:
 
       - powershell: |
           $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "kurmanov.work@gmail.com"
-          git config --global user.name "dmitrykurmanov"
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
 
       - script: |

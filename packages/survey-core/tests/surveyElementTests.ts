@@ -1,11 +1,12 @@
 import { PageModel } from "../src/page";
 import { SurveyModel } from "../src/survey";
-import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { defaultCss } from "../src/defaultCss/defaultCss";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Serializer } from "../src/jsonobject";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
 import { RenderingCompletedAwaiter } from "../src/survey-element";
+import { QuestionBooleanModel } from "../src/question_boolean";
 import { setOldTheme } from "./oldTheme";
 export default QUnit.module("SurveyElement");
 
@@ -30,6 +31,25 @@ QUnit.test("panel isExpanded and isCollapsed", function (assert) {
   panel.toggleState();
   assert.equal(panel.isExpanded, true, "Panel is expanded");
   assert.equal(stateChangedCounter, 4, "callback is called two time");
+});
+
+QUnit.test("panel renderedIsExpanded in design mode after duplicate", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  var p = new PanelModel("p1");
+  p.fromJSON({
+    "type": "panel",
+    "state": "collapsed",
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1",
+        "title": "Text"
+      }
+    ]
+  });
+  p.setSurveyImpl(survey);
+  assert.ok(p.renderedIsExpanded);
 });
 
 QUnit.test("question isExpanded and isCollapsed", function (assert) {
@@ -165,7 +185,7 @@ QUnit.test("Check errors location", function (assert) {
   assert.notOk(questionInMatrix.showErrorOnTop);
   assert.ok(questionInMatrix.showErrorOnBottom);
 
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   survey.questionErrorLocation = "top";
   assert.notOk(q1.showErrorOnTop);
   assert.notOk(q1.showErrorOnBottom);
@@ -203,7 +223,7 @@ QUnit.test("Check error location for questions in panel", function (assert) {
   assert.notOk(q1.showErrorsAboveQuestion);
   assert.ok(q1.showErrorOnBottom);
 
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   survey.questionErrorLocation = "top";
   assert.notOk(q1.showErrorOnBottom);
   assert.notOk(q1.showErrorOnTop);
@@ -233,8 +253,20 @@ QUnit.test("allowRootStyle", function (assert) {
     "minWidth": "min(100%, 300px)",
   });
   q1.allowRootStyle = false;
-  survey.css = defaultV2Css;
+  survey.css = defaultCss;
   assert.deepEqual(q1.rootStyle, {});
+});
+QUnit.test("Do not create rootStyle by default", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "text",
+      name: "q1"
+    }]
+  });
+  assert.notOk(survey.pages[0].getPropertyValue("rootStyle"), "page rootStyle via property value");
+  assert.notOk(survey.getQuestionByName("q1").getPropertyValue("rootStyle"), "q1 rootStyle via property value");
+  assert.ok(survey.pages[0].rootStyle, "page rootStyle directly");
+  assert.ok(survey.getQuestionByName("q1").rootStyle, "q1 rootStyle directly");
 });
 QUnit.test("rootStyle on mobile", function (assert) {
   const survey = new SurveyModel({
@@ -477,4 +509,10 @@ QUnit.test("description css under input", function (assert) {
   };
   const q = survey.getQuestionByName("q1");
   assert.equal(q.cssDescription, "sd-desc sd-desc--ui");
+});
+
+QUnit.test("boolean question with no survey returns valid skeletonComponentName", function (assert) {
+  var q1 = new QuestionBooleanModel("q1");
+  assert.equal(q1.survey, undefined, "Question is not lined to a survey");
+  assert.equal(q1.skeletonComponentName, "sv-skeleton", "Question returns valid skeletonComponentName");
 });

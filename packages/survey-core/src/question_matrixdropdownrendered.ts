@@ -1,6 +1,6 @@
 import { property, propertyArray } from "./jsonobject";
 import { Question } from "./question";
-import { Base } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { ItemValue } from "./itemvalue";
 import { LocalizableString } from "./localizablestring";
 import { PanelModel } from "./panel";
@@ -285,6 +285,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       },
       getEnterOptions: (_, info) => {
         return { cssClass: this.cssClasses.rowEnter, onBeforeRunAnimation, onAfterRunAnimation };
+      },
+      getKey: (item) => {
+        return item.id;
       }
     };
   }
@@ -760,11 +763,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         actions.unshift(
           new Action({
             id: "show-detail-mobile",
-            title: "Show Details",
+            title: <any>new ComputedUpdater(() => row.isDetailPanelShowing ? this.matrix.getLocalizationString("hideDetails") : this.matrix.getLocalizationString("showDetails")),
             showTitle: true,
             location: "end",
             action: (context) => {
-              context.title = row.isDetailPanelShowing ? this.matrix.getLocalizationString("showDetails") : this.matrix.getLocalizationString("hideDetails");
               row.showHideDetailPanelClick();
             },
           })

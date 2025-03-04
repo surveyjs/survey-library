@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ISurveyCreator } from "./reactquestion";
-import { SurveyModel, Question, QuestionRowModel, IElement, Base } from "survey-core";
+import { SurveyModel, Question, QuestionRowModel, IElement, Base, PanelModel } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
 import { SurveyRowElement } from "./element";
 import { ReactElementFactory } from "./element-factory";
@@ -36,8 +36,6 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
   protected renderElementContent(): React.JSX.Element {
     const elements = this.row.visibleElements.map((element, elementIndex) => {
-      const index = elementIndex ? "-" + elementIndex : 0;
-      const key = element.name + index;
       return (
         <SurveyRowElement
           element={element}
@@ -46,7 +44,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
           survey={this.survey}
           creator={this.creator}
           css={this.css}
-          key={key}
+          key={(element as PanelModel | Question).id}
         >
         </SurveyRowElement>
       );

@@ -171,8 +171,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("copyDefaultValueFromLastEntry", val);
   }
   /**
-   * Obsolete. Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#copyDefaultValueFromLastEntry) property instead.
-   * @deprecated
+   * @deprecated Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#copyDefaultValueFromLastEntry) property instead.
    */
   public get defaultValueFromLastRow(): boolean {
     return this.copyDefaultValueFromLastEntry;
@@ -309,8 +308,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("allowRowReorder", val);
   }
   /**
-   * Obsolete. Use the [`allowRowReorder`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#allowRowReorder) property instead.
-   * @deprecated
+   * @deprecated Use the [`allowRowReorder`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#allowRowReorder) property instead.
    */
   public get allowRowsDragAndDrop(): boolean {
     return this.allowRowReorder;
@@ -749,8 +747,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("addRowButtonLocation", val);
   }
   /**
-   * Obsolete. Use the [`addRowButtonLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#addRowButtonLocation) property instead.
-   * @deprecated
+   * @deprecated Use the [`addRowButtonLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#addRowButtonLocation) property instead.
    */
   public get addRowLocation(): string {
     return this.addRowButtonLocation;
@@ -802,8 +799,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.getLocalizableString("noRowsText");
   }
   /**
-   * Obsolete. Use the [`noRowsText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#noRowsText) property instead.
-   * @deprecated
+   * @deprecated Use the [`noRowsText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#noRowsText) property instead.
    */
   public get emptyRowsText(): string {
     return this.noRowsText;

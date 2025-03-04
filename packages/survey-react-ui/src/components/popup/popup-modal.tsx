@@ -1,5 +1,5 @@
 import { createPortal } from "react-dom";
-import React from "react";
+import * as React from "react";
 import { PopupContainer } from "./popup";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { createPopupModalViewModel, IDialogOptions, PopupBaseViewModel, settings } from "survey-core";

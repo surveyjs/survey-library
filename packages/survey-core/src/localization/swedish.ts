@@ -65,6 +65,7 @@ export var swedishSurveyStrings = {
   showDetails: "Detaljer",
   hideDetails: "Göm detaljer",
   choices_Item: "Artikel",
+  choices_Choice: "Alternativ för valmöjligheter",
   matrix_column: "Kolumn",
   matrix_row: "Rad",
   multipletext_itemname: "text",
@@ -120,16 +121,22 @@ setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "sven
 // noEntriesReadonlyText: "There are no entries." => "Det finns inga poster."
 // tagboxDoneButtonCaption: "OK" => "OKEJ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alla val rangordnas"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra och släpp val här för att rangordna dem"// takePhotoCaption: "Take Photo" => "Ta foto"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra och släpp val här för att rangordna dem"
+// takePhotoCaption: "Take Photo" => "Ta foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Klicka på knappen nedan för att ta ett foto med kameran."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dra och släpp eller välj en fil att ladda upp eller ta ett foto med kameran."
-// replaceFileCaption: "Replace file" => "Ersätt fil"// eachRowUniqueError: "Each row must have a unique value." => "Varje rad måste ha ett unikt värde."
+// replaceFileCaption: "Replace file" => "Ersätt fil"
+// eachRowUniqueError: "Each row must have a unique value." => "Varje rad måste ha ett unikt värde."
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Filer kan inte laddas upp. Lägg till en hanterare för händelsen 'onUploadFiles'."
 // showDetails: "Show Details" => "Detaljer"
 // hideDetails: "Hide Details" => "Göm detaljer"
 // ok: "OK" => "OKEJ"
 // cancel: "Cancel" => "Annullera"
 // refuseItemText: "Refuse to answer" => "Vägra svara"
-// dontKnowItemText: "Don't know" => "Vet inte"// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ditt svar överskrider 64 kB. Minska storleken på dina filer och försök igen eller kontakta en undersökningsägare."
-// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"// tabTitlePlaceholder: "New Panel" => "Ny panel"// deselectAllItemText: "Deselect all" => "Avmarkera alla"
+// dontKnowItemText: "Don't know" => "Vet inte"
+// savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner." => "Ditt svar överskrider 64 kB. Minska storleken på dina filer och försök igen eller kontakta en undersökningsägare."
+// signaturePlaceHolderReadOnly: "No signature" => "Ingen signatur"
+// tabTitlePlaceholder: "New Panel" => "Ny panel"
+// deselectAllItemText: "Deselect all" => "Avmarkera alla"
 // textNoDigitsAllow: "Numbers are not allowed." => "Nummer är inte tillåtna."
+// choices_Choice: "Choice option" => "Alternativ för valmöjligheter"

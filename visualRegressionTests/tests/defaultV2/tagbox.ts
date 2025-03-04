@@ -362,12 +362,16 @@ frameworks.forEach(async framework => {
         .typeText(Selector(".sv-list__input"), "item1");
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
 
+      await t.click(Selector(".sd-root-modern"), { offsetX: 10, offsetY: 10 });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .expect(Selector(".sv-list__input").visible).ok()
         .typeText(Selector(".sv-list__input"), "item", { replace: true });
 
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup-big.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
 
+      await t.click(Selector(".sd-root-modern"), { offsetX: 10, offsetY: 10 });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .expect(Selector(".sv-list__input").visible).ok()
         .typeText(Selector(".sv-list__input"), "item3", { replace: true });
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup-small.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });
@@ -547,6 +551,45 @@ frameworks.forEach(async framework => {
         .click(getListItemByText("item7"))
         .click(getListItemByText("item8"));
       await takeElementScreenshot("tagbox-question-popup-direction-top-and-resize-input.png", Selector(".sd-body"), t, comparer);
+    });
+  });
+
+  test("Check tagbox long label width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "tagbox",
+                "name": "question6",
+                "defaultValue": ["Item 1"],
+                "choices": [
+                  {
+                    "value": "Item 1",
+                    "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                  },
+                  {
+                    "value": "Item 2",
+                    "text": "text"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "widthMode": "static",
+        "width": "800px"
+      });
+      await t.click(Selector(".sd-question"));
+      await takeElementScreenshot("tagbox-long-item-max-width.png", Selector(".sd-question"), t, comparer);
+      await t.pressKey("s e d");
+      await takeElementScreenshot("tagbox-long-item-hint-max-width.png", Selector(".sd-question"), t, comparer);
+      await t.pressKey("a b c");
+      await takeElementScreenshot("tagbox-long-item-not-found.png", Selector(".sd-question"), t, comparer);
     });
   });
 });

@@ -58,7 +58,7 @@ export class LocalizableString implements ILocalizableString {
     }
     return this._allowLineBreaks;
   }
-  public onGetTextCallback: (str: string) => string;
+  public onGetTextCallback: (str: string, nonProcessedText?: string) => string;
   public storeDefaultText: boolean;
   public serializeCallBackText: boolean;
   public onGetLocalizationTextCallback: (str: string) => string;
@@ -84,6 +84,7 @@ export class LocalizableString implements ILocalizableString {
     return "";
   }
   public strChanged(): void {
+    if(!this.isTextRequested) return;
     this.searchableText = undefined;
     if (this.renderedText === undefined && this.isEmpty && !this.onGetTextCallback && !this.localizationName) return;
     this.calculatedTextValue = this.calcText();
@@ -110,19 +111,17 @@ export class LocalizableString implements ILocalizableString {
     return this.renderedText;
   }
   private calcText(): string {
-    var res = this.pureText;
-    if (
-      res &&
-      this.owner &&
-      this.owner.getProcessedText &&
-      res.indexOf("{") > -1
-    ) {
+    const pureText = this.pureText;
+    let res = pureText;
+    if (res && this.owner && this.owner.getProcessedText && res.indexOf("{") > -1) {
       res = this.owner.getProcessedText(res);
     }
-    if (this.onGetTextCallback) res = this.onGetTextCallback(res);
+    if (this.onGetTextCallback) res = this.onGetTextCallback(res, pureText);
     return res;
   }
+  private isTextRequested: boolean;
   public get pureText(): string {
+    this.isTextRequested = true;
     var loc = this.locale;
     if (!loc) loc = this.defaultLoc;
     var res = this.getValue(loc);

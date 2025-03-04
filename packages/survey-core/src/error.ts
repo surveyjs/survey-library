@@ -1,4 +1,3 @@
-import { getLocaleString } from "./surveyStrings";
 import { SurveyError } from "./survey-error";
 import { ISurveyErrorOwner } from "./base-interfaces";
 
@@ -53,7 +52,7 @@ export class ExceedSizeError extends SurveyError {
     return "exceedsize";
   }
   public getDefaultText(): string {
-    return (<any>getLocaleString("exceedMaxSize"))["format"](this.getTextSize());
+    return (<any>this.getLocalizationString("exceedMaxSize"))["format"](this.getTextSize());
   }
   private getTextSize() {
     var sizes = ["Bytes", "KB", "MB", "GB", "TB"];
@@ -148,7 +147,7 @@ export class MinRowCountError extends SurveyError {
     return "minrowcounterror";
   }
   protected getDefaultText(): string {
-    return (<any>getLocaleString("minRowCountError"))["format"](this.minRowCount);
+    return (<any>this.getLocalizationString("minRowCountError"))["format"](this.minRowCount);
   }
 }
 export class KeyDuplicationError extends SurveyError {

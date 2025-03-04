@@ -21,7 +21,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       return this.createImagePickerShortcut(this.draggedElement, text, draggedElementNode, event);
     }
     const draggedElementShortcut: any = DomDocumentHelper.createElement("div");
-    if(!draggedElementShortcut) return;
+    if (!draggedElementShortcut) return;
 
     // draggedElementShortcut.innerText = text;
     draggedElementShortcut.className = "sv-drag-drop-choices-shortcut";
@@ -64,17 +64,9 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   private createImagePickerShortcut(item: ImageItemValue, text: string, draggedElementNode: HTMLElement, event: PointerEvent) {
     const draggedElementShortcut: any = DomDocumentHelper.createElement("div");
-    if(!draggedElementShortcut) return;
+    if (!draggedElementShortcut) return;
 
-    draggedElementShortcut.style.cssText = ` 
-      cursor: grabbing;
-      position: absolute;
-      z-index: 10000;
-      box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
-      background-color: var(--sjs-general-backcolor, var(--background, #fff));
-      padding: calc(0.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
-      border-radius: calc(0.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
-    `;
+    draggedElementShortcut.classList.add("sv-drag-drop-image-picker-shortcut");
 
     const itemValueNode = draggedElementNode.closest("[data-sv-drop-target-item-value]");
     this.imagepickerControlsNode = itemValueNode.querySelector(".svc-image-item-value-controls");
@@ -107,11 +99,11 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return dragOverChoice;
   }
 
-  private getVisibleChoices() {
+  private getChoices() {
     const parent = this.parentElement;
     if (parent.getType() === "ranking") {
       if (parent.selectToRankEnabled) {
-        return parent.visibleChoices;
+        return parent.unRankingChoices;
       } else {
         return <QuestionRankingModel>parent.rankingChoices;
       }
@@ -129,7 +121,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     dropTarget: ItemValue,
     dropTargetNode?: HTMLElement
   ): boolean {
-    const choices = this.getVisibleChoices();
+    const choices = this.getChoices();
 
     if (this.parentElement.getType() !== "imagepicker") {
       const dropTargetIndex = choices.indexOf(this.dropTarget);
@@ -172,7 +164,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     //if (this.isDropTargetDoesntChanged(this.isBottom)) return;
 
-    const choices = this.getVisibleChoices();
+    const choices = this.getChoices();
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
@@ -209,7 +201,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   protected doDrop(): any {
     const choices = this.parentElement.choices;
-    const filteredChoices = this.getVisibleChoices().filter((item: any) => {
+    const filteredChoices = this.getChoices().filter((item: any) => {
       return choices.indexOf(item) !== -1;
     });
 
@@ -223,7 +215,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   public clear(): void {
-    if(!!this.parentElement) {
+    if (!!this.parentElement) {
       this.updateVisibleChoices(this.parentElement);
     }
     if (!!this.imagepickerControlsNode) {

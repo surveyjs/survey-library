@@ -1,14 +1,17 @@
-import React from "react";
-import { Question, PanelModel, QuestionPanelDynamicModel } from "survey-core";
+import * as React from "react";
+import { Question, PanelModel, Base } from "survey-core";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { TitleElement } from "./components/title/title-element";
 import { SurveyElementBase } from "./reactquestion_element";
 
-export class SurveyElementHeader extends React.Component<any, any> {
+export class SurveyElementHeader extends SurveyElementBase<any, any> {
   private get element(): Question | PanelModel {
     return this.props.element;
   }
-  public render(): React.JSX.Element {
+  protected getRenderedElements(): Base[] {
+    return [this.element];
+  }
+  protected renderElement(): React.JSX.Element {
     const element = this.element;
     const title = element.hasTitle ? (
       <TitleElement element={element}></TitleElement>

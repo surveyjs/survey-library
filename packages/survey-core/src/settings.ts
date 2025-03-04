@@ -117,7 +117,7 @@ export var settings = {
    * Disables a question while its choices are being loaded from a web service. Default value: `false`.
    *
    * - `surveyServiceUrl`: `string`\
-   * The URL of the SurveyJS Service API endpoint.
+   * Obsolete. Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    *
    * - `onBeforeRequestChoices`: `(sender: ChoicesRestful, options: { request: XMLHttpRequest })`\
    * An event that is raised before a request for choices is send. Applies to questions with a specified [`choiceByUrl`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl) property. Use the `options.request` parameter to access and modify the `XMLHttpRequest` object. For instance, you can add authentication headers to it:
@@ -125,7 +125,7 @@ export var settings = {
    *     ```js
    *     import { settings } from "survey-core";
    *
-   *     settings.web.onBeforeSendRequest = (sender, options) => {
+   *     settings.web.onBeforeRequestChoices = (sender, options) => {
    *       options.request.setRequestHeader('RequestVerificationToken', requestVerificationToken);
    *     };
    *     ```
@@ -134,8 +134,7 @@ export var settings = {
     onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => { },
     encodeUrlParams: true,
     cacheLoadedChoices: true,
-    disableQuestionWhileLoadingChoices: false,
-    surveyServiceUrl: "https://api.surveyjs.io/public/v1/Survey"
+    disableQuestionWhileLoadingChoices: false
   },
 
   //#region web section, obsolete properties
@@ -147,8 +146,6 @@ export var settings = {
   set useCachingForChoicesRestfull(val: boolean) { this.web.cacheLoadedChoices = val; },
   get disableOnGettingChoicesFromWeb(): boolean { return this.web.disableQuestionWhileLoadingChoices; },
   set disableOnGettingChoicesFromWeb(val: boolean) { this.web.disableQuestionWhileLoadingChoices = val; },
-  get surveyServiceUrl(): string { return this.web.surveyServiceUrl; },
-  set surveyServiceUrl(val: string) { this.web.surveyServiceUrl = val; },
   //#endregion
 
   /**
@@ -529,8 +526,7 @@ export var settings = {
    */
   itemFlowDirection: "column",
   /**
-   * Obsolete. Use the [`itemFlowDirection`](https://surveyjs.io/form-library/documentation/api-reference/settings#itemFlowDirection) property instead.
-   * @deprecated
+   * @deprecated Use the [`itemFlowDirection`](https://surveyjs.io/form-library/documentation/api-reference/settings#itemFlowDirection) property instead.
    */
   get showItemsInOrder(): string { return settings.itemFlowDirection; },
   set showItemsInOrder(val: string) { settings.itemFlowDirection = val; },
@@ -606,8 +602,7 @@ export var settings = {
    */
   maxDate: "",
   showDialog: <(options: IDialogOptions, rootElement?: HTMLElement) => any>undefined,
-  supportCreatorV2: false,
-  showDefaultItemsInCreatorV2: true,
+  showDefaultItemsInCreator: true,
   /**
    * An object that specifies icon replacements. Object keys are built-in icon names. To use a custom icon, assign its name to the key of the icon you want to replace:
    *

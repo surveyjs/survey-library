@@ -195,6 +195,7 @@ export interface IJsonPropertyInfo {
   dataList?: Array<string>;
   isLocalizable?: boolean;
   isSerializable?: boolean;
+  isSerializableFunc?: (obj: any) => boolean;
   isLightSerializable?: boolean;
   readOnly?: boolean;
   availableInMatrixColumn?: boolean;
@@ -297,6 +298,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   private choicesfunc: (obj: any, choicesCallback: any) => Array<any>;
   private dependedProperties: Array<string>;
   public isSerializable: boolean = true;
+  public isSerializableFunc: (obj: any) => boolean;
   public isLightSerializable: boolean = true;
   public isCustom: boolean = false;
   public isDynamicChoices: boolean = false; //TODO obsolete, use dependsOn attribute
@@ -402,8 +404,9 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public set uniquePropertyName(val: string) {
     this.uniquePropertyValue = val;
   }
-  public get hasToUseGetValue() {
-    return this.onGetValue || this.serializationProperty;
+  public isPropertySerializable(obj: any): boolean {
+    if(this.isSerializableFunc) return this.isSerializableFunc(obj);
+    return this.isSerializable;
   }
   public getDefaultValue(obj: Base): any {
     let result: any = !!this.defaultValueFunc ? this.defaultValueFunc(obj) : this.defaultValueValue;
@@ -427,7 +430,8 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public isDefaultValueByObj(obj: Base, value: any): boolean {
     if (this.isLocalizable) return value === null || value === undefined;
     const dValue = this.getDefaultValue(obj);
-    if (!Helpers.isValueEmpty(dValue)) {
+    if (dValue !== undefined) {
+      if(typeof dValue !== "object") return dValue === value;
       return Helpers.isTwoValueEquals(value, dValue, false, true, false);
     }
     return (
@@ -910,6 +914,9 @@ export class JsonMetadataClass {
       if (!Helpers.isValueEmpty(propInfo.isSerializable)) {
         prop.isSerializable = propInfo.isSerializable;
       }
+      if (!Helpers.isValueEmpty(propInfo.isSerializableFunc)) {
+        prop.isSerializableFunc = propInfo.isSerializableFunc;
+      }
       if (!Helpers.isValueEmpty(propInfo.isLightSerializable)) {
         prop.isLightSerializable = propInfo.isLightSerializable;
       }
@@ -1120,7 +1127,7 @@ export class JsonMetadata {
     }
   }
   private getObjPropertyValueCore(obj: any, prop: JsonObjectProperty): any {
-    if (!prop.isSerializable) return obj[prop.name];
+    if (!prop.isPropertySerializable(obj)) return obj[prop.name];
     if (prop.isLocalizable) {
       if (prop.isArray) return obj[prop.name];
       if (!!prop.serializationProperty)
@@ -1522,12 +1529,13 @@ export class JsonMetadata {
     if (!classInfo) return;
     const schemaProperties = classSchema.properties;
     const requiredProps = [];
-    if (classInfo.name === "question" || classInfo.name === "panel") {
+    if (classInfo.name === "question") {
       schemaProperties.type = { type: "string" };
       requiredProps.push("type");
     }
     for (let i = 0; i < classInfo.properties.length; i++) {
       const prop = classInfo.properties[i];
+      if(prop.isSerializable === false) continue;
       if (!!classInfo.parentName && !!Serializer.findProperty(classInfo.parentName, prop.name)) continue;
       schemaProperties[prop.name] = this.generateSchemaProperty(prop, schemaDef, isRoot);
       if (prop.isRequired) requiredProps.push(prop.name);
@@ -1833,7 +1841,7 @@ export class JsonObject {
   }
   public valueToJson(obj: any, result: any, prop: JsonObjectProperty, options?: ISaveToJSONOptions): void {
     if (!options) options = {};
-    if (prop.isSerializable === false || (prop.isLightSerializable === false && this.lightSerializing)) return;
+    if (!prop.isPropertySerializable(obj) || (prop.isLightSerializable === false && this.lightSerializing)) return;
     if (options.version && !prop.isAvailableInVersion(options.version)) return;
     this.valueToJsonCore(obj, result, prop, options);
   }

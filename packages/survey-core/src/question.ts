@@ -934,10 +934,7 @@ export class Question extends SurveyElement<Question>
     this.commentPlaceholder = newValue;
   }
   public get renderedCommentPlaceholder(): string {
-    const func = (): any => {
-      return !this.isReadOnly ? this.commentPlaceHolder : undefined;
-    };
-    return this.getPropertyValue("renderedCommentPlaceholder", undefined, func);
+    return this.getPropertyValue("renderedCommentPlaceholder") ?? (!this.isReadOnly ? this.commentPlaceHolder : undefined);
   }
   private resetRenderedCommentPlaceholder() {
     this.resetPropertyValue("renderedCommentPlaceholder");

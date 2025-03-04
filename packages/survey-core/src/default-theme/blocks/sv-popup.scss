@@ -42,9 +42,10 @@ sv-popup {
     border-radius: var(--lbr-popup-menu-corner-radius, calcCornerRadius(1));
     box-shadow: $shadow-medium, $shadow-large;
   }
-  
+
   & > .sv-popup__container > .sv-popup__body-content {
     background-color: var(--lbr-popup-menu-background-color, $background);
+    border-radius: var(--lbr-popup-menu-corner-radius, calcCornerRadius(1));
     padding: calcSize(1) 0;
     height: 100%;
   }
@@ -235,26 +236,6 @@ sv-popup {
   width: 100%;
   height: $popup-overlay-height;
 
-  & > .sv-popup__container {
-    max-width: 100vw;
-    width: 100%;
-    padding-top: 0;
-    border: unset;
-    box-shadow: unset;
-    box-sizing: content-box;
-    background: var(--lbr-popup-menu-background-color-global, $background-dim);
-  }
-  
-  & > .sv-popup__container > .sv-popup__body-content {
-    background-color: var(--lbr-popup-menu-background-color, $background);
-    max-height: $popup-overlay-height;
-    max-width: 100vw;
-    height: calc(var(--sv-popup-overlay-height, 100vh));
-    padding: 0;
-    border-radius: 0;
-    gap: 0;
-  }
-
   .sv-popup__body-footer-item {
     width: 100%;
   }
@@ -365,8 +346,22 @@ sv-popup {
 }
 
 .sv-popup--menu-phone {
-  .sv-popup__container {
+  & > .sv-popup__container {
+    width: 100%;
+    height: calc(var(--sv-popup-overlay-height, 100vh));
+    max-width: 100vw;
     max-height: calc(var(--sv-popup-overlay-height, 100vh));
+    padding-top: 0;
+    border: unset;
+    box-shadow: unset;
+    box-sizing: content-box;
+    background: var(--lbr-popup-menu-background-color-global, $background-dim);
+  }
+
+  & > .sv-popup__container > .sv-popup__body-content {
+    background-color: var(--lbr-popup-menu-background-color, $background);
+    max-height: $popup-overlay-height;
+    max-width: 100vw;
     height: calc(var(--sv-popup-overlay-height, 100vh));
   }
 }
@@ -375,6 +370,11 @@ sv-popup {
   background: $background-semitransparent;
 
   & > .sv-popup__container {
+    padding-top: 0;
+    border: unset;
+    box-sizing: content-box;
+    background: var(--lbr-popup-menu-background-color-global, $background-dim);
+
     --sv-popup-overlay-max-height: calc(var(--sv-popup-overlay-height, 100vh) - #{$base-unit} * 8);
     --sv-popup-overlay-max-width: calc(100% - #{$base-unit} * 8);
     position: absolute;
@@ -393,6 +393,8 @@ sv-popup {
   }
 
   & > .sv-popup__container > .sv-popup__body-content {
+    background-color: var(--lbr-popup-menu-background-color, $background);
+    max-width: 100vw;
     max-height: calc(var(--sv-popup-overlay-height, 100vh) - var(--sjs-base-unit, var(--base-unit, 8px)) * 8);
     min-height: min(var(--sv-popup-overlay-max-height), calcSize(30));
     height: auto;

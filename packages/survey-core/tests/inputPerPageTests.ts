@@ -418,6 +418,87 @@ QUnit.test("singleInput and focus on errors", assert => {
   assert.equal(survey.tryComplete(), true, "compete");
   assert.deepEqual(survey.data, { panel1: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] }, "survey.data");
 });
+QUnit.test("singleInput and focus on errors on singleInputAddItem & tryComplete", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1", isRequired: true },
+          { type: "text", name: "q2", isRequired: true }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const panel1 = survey.getQuestionByName("panel1");
+  assert.equal(panel1.panelCount, 1, "panelCount #1");
+  assert.equal(panel1.singleInputQuestion.name, "panel1", "singleInputQuestion, #0");
+  panel1.singleInputAddItem(true);
+  assert.equal(panel1.singleInputQuestion.name, "q1", "singleInputQuestion, #1");
+  panel1.singleInputQuestion.value = "a";
+  survey.performPrevious();
+  assert.equal(panel1.singleInputQuestion.name, "panel1", "singleInputQuestion, #2.1");
+  panel1.singleInputAddItem(true);
+  assert.equal(panel1.singleInputQuestion.name, "q2", "singleInputQuestion, #2");
+  panel1.singleInputQuestion.value = "b";
+  survey.performNext();
+  panel1.singleInputAddItem();
+  survey.performPrevious();
+  assert.equal(panel1.singleInputQuestion.name, "panel1", "singleInputQuestion, #3");
+  survey.tryComplete();
+  assert.equal(panel1.singleInputQuestion.name, "q1", "singleInputQuestion, #4");
+  panel1.singleInputQuestion.value = "c";
+  survey.tryComplete();
+  assert.equal(panel1.singleInputQuestion.name, "q2", "singleInputQuestion, #5");
+  panel1.singleInputQuestion.value = "d";
+  survey.performNext();
+  assert.equal(survey.tryComplete(), true, "compete");
+  assert.deepEqual(survey.data, { panel1: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] }, "survey.data");
+});
+QUnit.test("singleInput and focus on errors on singleInputAddItem & tryComplete for matrix dynamic", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic", name: "matrix",
+        columns: [
+          { cellType: "text", name: "q1", isRequired: true },
+          { cellType: "text", name: "q2", isRequired: true }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  matrix.singleInputAddItem(true);
+  survey.performPrevious();
+  assert.equal(matrix.rowCount, 1, "rowCount #1");
+  assert.equal(matrix.singleInputQuestion.name, "matrix", "singleInputQuestion, #0");
+  matrix.singleInputAddItem(true);
+  assert.equal(matrix.singleInputQuestion.name, "q1", "singleInputQuestion, #1");
+  matrix.singleInputQuestion.value = "a";
+  survey.performPrevious();
+  assert.equal(matrix.singleInputQuestion.name, "matrix", "singleInputQuestion, #2.1");
+  matrix.singleInputAddItem(true);
+  assert.equal(matrix.singleInputQuestion.name, "q2", "singleInputQuestion, #2");
+  matrix.singleInputQuestion.value = "b";
+  survey.performNext();
+  matrix.singleInputAddItem();
+  assert.equal(matrix.rowCount, 2, "rowCount #2");
+  survey.performPrevious();
+  assert.equal(matrix.rowCount, 2, "rowCount #3");
+  assert.equal(matrix.singleInputQuestion.name, "matrix", "singleInputQuestion, #3");
+  survey.tryComplete();
+  assert.equal(matrix.singleInputQuestion.name, "q1", "singleInputQuestion, #4");
+  matrix.singleInputQuestion.value = "c";
+  survey.tryComplete();
+  assert.equal(matrix.singleInputQuestion.name, "q2", "singleInputQuestion, #5");
+  matrix.singleInputQuestion.value = "d";
+  survey.performNext();
+  assert.equal(survey.tryComplete(), true, "compete");
+  assert.deepEqual(survey.data, { matrix: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] }, "survey.data");
+});
 QUnit.test("singleInput and matrix dropdown", assert => {
   const survey = new SurveyModel({
     elements: [

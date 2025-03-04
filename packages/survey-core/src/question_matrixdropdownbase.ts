@@ -763,6 +763,8 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     var cells = this.cells;
     if (!cells) return res;
     this.validationValues = rec.validationValues;
+    const focusOnFirstError = rec?.focusOnFirstError;
+    //firstErrorQuestion: <any>null,
     for (var colIndex = 0; colIndex < cells.length; colIndex++) {
       if (!cells[colIndex]) continue;
       var question = cells[colIndex].question;
@@ -773,6 +775,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       if (!!rec && rec.isOnValueChanged === true && question.isEmpty())
         continue;
       res = question.hasErrors(fireCallback, rec) || res;
+      if(res && focusOnFirstError && !rec.firstErrorQuestion) {
+        rec.firstErrorQuestion = question;
+      }
     }
     if (this.hasPanel) {
       this.ensureDetailPanel();

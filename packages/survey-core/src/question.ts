@@ -832,8 +832,15 @@ export class Question extends SurveyElement<Question>
     const q = this.currentSingleInputQuestion;
     return !!q && !!q.singleInputSummary ? q.getSingleInputAddTextCore() : undefined;
   }
-  public singleInputAddItem(): void {
-    this.currentSingleInputQuestion.singleInputAddItemCore();
+  public singleInputAddItem(checkErrors?: boolean): void {
+    const rec: any = { fireCallback: true, focusOnFirstError: true };
+    if(checkErrors && !this.validateSingleInput(true, rec)) {
+      if(rec.firstErrorQuestion) {
+        rec.firstErrorQuestion.focus(true);
+      }
+    } else {
+      this.currentSingleInputQuestion.singleInputAddItemCore();
+    }
   }
   public singleInputRemoveItem(): void {
     const q = this.singleInputQuestion;

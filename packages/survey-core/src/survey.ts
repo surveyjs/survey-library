@@ -4410,11 +4410,7 @@ export class SurveyModel extends SurveyElementCore
     }
     if (!page) return true;
     let res: boolean = false;
-    if(this.currentSingleQuestion) {
-      res = !this.currentSingleQuestion.validate(true);
-    } else {
-      res = !page.validate(true, isFocuseOnFirstError);
-    }
+    res = !page.validate(true, isFocuseOnFirstError);
     this.fireValidatedErrorsOnPage(page);
     return res;
   }
@@ -4791,13 +4787,7 @@ export class SurveyModel extends SurveyElementCore
     const actionAddId = "sv-singleinput-add";
     if(this.isSingleVisibleInput) {
       const addItem = (): void => {
-        const q = this.currentSingleQuestion;
-        if(q.validateSingleInput()) {
-          this.currentSingleQuestion.singleInputAddItem();
-        }
-      };
-      const removeItem = (): void => {
-        this.currentSingleQuestion.singleInputRemoveItem();
+        this.currentSingleQuestion.singleInputAddItem(true);
       };
       this.addNavigationItem({ id: actionAddId, visible: false, action: (): void => addItem() });
     } else {
@@ -8257,10 +8247,10 @@ export class SurveyModel extends SurveyElementCore
     }
     if (this.headerView !== "basic") {
       if ("header" in theme) {
-      this.removeLayoutElement("advanced-header");
-      const advHeader = new Cover();
-      advHeader.fromTheme(theme);
-      this.insertAdvancedHeader(advHeader);
+        this.removeLayoutElement("advanced-header");
+        const advHeader = new Cover();
+        advHeader.fromTheme(theme);
+        this.insertAdvancedHeader(advHeader);
       }
     }
     this.themeChanged(theme);

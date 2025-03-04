@@ -26,6 +26,9 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   public get rowName(): string {
     return this.name;
   }
+  public get rowText(): any {
+    return this.text;
+  }
   public get text(): string {
     return this.item.text;
   }

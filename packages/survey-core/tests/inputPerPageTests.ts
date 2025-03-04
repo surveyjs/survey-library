@@ -513,7 +513,7 @@ QUnit.test("singleInput and matrix dropdown", assert => {
           { cellType: "text", name: "col1", title: "Column 1" },
           { cellType: "text", name: "col2", title: "Column 2" }
         ],
-        rows: ["Row 1", "Row 2"]
+        rows: [{ value: "row1", text: "Row 1" }, "Row 2"]
       }
     ],
     questionsOnPageMode: "inputPerPage"

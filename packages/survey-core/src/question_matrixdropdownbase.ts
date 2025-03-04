@@ -224,6 +224,11 @@ class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
       textValue.value = this.row.rowName;
       return true;
     }
+    if (textValue.name == MatrixDropdownRowModelBase.RowTextVariableName) {
+      textValue.isExists = true;
+      textValue.value = this.row.rowText;
+      return true;
+    }
     return false;
   }
 }
@@ -234,6 +239,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public static IndexVariableName = "rowIndex";
   public static RowValueVariableName = "rowValue";
   public static RowNameVariableName = "rowName";
+  public static RowTextVariableName = "rowText";
 
   private static idCounter: number = 1;
   private static getId(): string {
@@ -269,6 +275,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   public get rowName(): any {
     return null;
+  }
+  public get rowText(): any {
+    return this.rowName;
   }
   public get dataName(): string {
     return this.rowName;
@@ -416,6 +425,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     res[MatrixDropdownRowModelBase.IndexVariableName] = rowIndex;
     res[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
     res[MatrixDropdownRowModelBase.RowNameVariableName] = this.rowName;
+    res[MatrixDropdownRowModelBase.RowTextVariableName] = this.rowText;
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>, rowsVisibleIf?: string): void {
     if(!this.data) return;

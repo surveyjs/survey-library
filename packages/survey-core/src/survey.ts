@@ -4112,6 +4112,7 @@ export class SurveyModel extends SurveyElementCore
   public performNext(): boolean {
     const q = this.currentSingleQuestion;
     if(!q) return this.nextPage();
+    this.resetNavigationButton();
     if(this.isSingleVisibleInput) {
       if(!q.validateSingleInput()) return false;
       if(q.nextSingleInput()) {
@@ -4132,6 +4133,7 @@ export class SurveyModel extends SurveyElementCore
   public performPrevious(): boolean {
     const q = this.currentSingleQuestion;
     if(!q) return this.prevPage();
+    this.resetNavigationButton();
     if(this.isSingleVisibleInput) {
       if(q.prevSingleInput()) {
         this.updateButtonsVisibility();
@@ -4788,6 +4790,7 @@ export class SurveyModel extends SurveyElementCore
     if(this.isSingleVisibleInput) {
       const addItem = (): void => {
         this.currentSingleQuestion.singleInputAddItem(true);
+        this.resetNavigationButton();
       };
       this.addNavigationItem({ id: actionAddId, visible: false, action: (): void => addItem() });
     } else {

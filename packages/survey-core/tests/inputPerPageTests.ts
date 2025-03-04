@@ -437,7 +437,10 @@ QUnit.test("singleInput and focus on errors on singleInputAddItem & tryComplete"
   assert.equal(panel1.singleInputQuestion.name, "panel1", "singleInputQuestion, #0");
   panel1.singleInputAddItem(true);
   assert.equal(panel1.singleInputQuestion.name, "q1", "singleInputQuestion, #1");
-  panel1.singleInputQuestion.value = "a";
+  const errQuestion = panel1.singleInputQuestion;
+  assert.equal(errQuestion.errors.length, 1, "singleInputQuestion.errors, #1.1");
+  errQuestion.value = "a";
+  assert.equal(errQuestion.errors.length, 0, "singleInputQuestion, #1.1");
   survey.performPrevious();
   assert.equal(panel1.singleInputQuestion.name, "panel1", "singleInputQuestion, #2.1");
   panel1.singleInputAddItem(true);
@@ -477,7 +480,9 @@ QUnit.test("singleInput and focus on errors on singleInputAddItem & tryComplete 
   assert.equal(matrix.singleInputQuestion.name, "matrix", "singleInputQuestion, #0");
   matrix.singleInputAddItem(true);
   assert.equal(matrix.singleInputQuestion.name, "q1", "singleInputQuestion, #1");
+  assert.equal(matrix.singleInputQuestion.errors.length, 1, "singleInputQuestion.errors, #1.1");
   matrix.singleInputQuestion.value = "a";
+  assert.equal(matrix.singleInputQuestion.errors.length, 0, "singleInputQuestion, #1.1");
   survey.performPrevious();
   assert.equal(matrix.singleInputQuestion.name, "matrix", "singleInputQuestion, #2.1");
   matrix.singleInputAddItem(true);

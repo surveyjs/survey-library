@@ -4,12 +4,18 @@ import { ITextInputParams } from "./mask_utils";
 export class InputElementAdapter {
   private prevUnmaskedValue: string = undefined;
 
+  private setInputValue(value: string) {
+    if (this.inputElement.maxLength >= 0 && this.inputElement.maxLength < value.length) {
+      value = value.slice(0, this.inputElement.maxLength);
+    }
+    this.inputElement.value = value;
+  }
   constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value?: any) {
     let _value: any = value;
     if (_value === null || _value === undefined) {
       _value = "";
     }
-    this.inputElement.value = inputMaskInstance.getMaskedValue(_value);
+    this.setInputValue(inputMaskInstance.getMaskedValue(_value));
     this.prevUnmaskedValue = _value;
 
     inputMaskInstance.onPropertyChanged.add(this.inputMaskInstancePropertyChangedHandler);
@@ -19,7 +25,7 @@ export class InputElementAdapter {
   inputMaskInstancePropertyChangedHandler = (sender: any, options: any) => {
     if (options.name !== "saveMaskedValue") {
       const maskedValue = this.inputMaskInstance.getMaskedValue(this.prevUnmaskedValue);
-      this.inputElement.value = maskedValue;
+      this.setInputValue(maskedValue);
     }
   }
 
@@ -32,7 +38,7 @@ export class InputElementAdapter {
   beforeInputHandler = (event: any) => {
     const args = this.createArgs(event);
     const result = this.inputMaskInstance.processInput(args);
-    this.inputElement.value = result.value;
+    this.setInputValue(result.value);
     this.inputElement.setSelectionRange(result.caretPosition, result.caretPosition);
     if (!result.cancelPreventDefault) {
       event.preventDefault();
@@ -41,7 +47,7 @@ export class InputElementAdapter {
 
   changeHandler = (event: any) => {
     const result = this.inputMaskInstance.processInput({ prevValue: "", insertedChars: event.target.value, selectionStart: 0, selectionEnd: 0 });
-    this.inputElement.value = result.value;
+    this.setInputValue(result.value);
   }
 
   public createArgs(event: any): ITextInputParams {

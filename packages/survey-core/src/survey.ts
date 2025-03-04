@@ -1304,20 +1304,14 @@ export class SurveyModel extends SurveyElementCore
    */
   @property({
     onSet: (newValue, target: SurveyModel) => {
-      if (newValue === "advanced") {
+      if (newValue === "basic") {
+        target.removeLayoutElement("advanced-header");
+      } else {
         const layoutElement = target.findLayoutElement("advanced-header");
         if (!layoutElement) {
-          var advHeader = new Cover();
-          advHeader.logoPositionX = target.logoPosition === "right" ? "right" : "left";
-          advHeader.logoPositionY = "middle";
-          advHeader.titlePositionX = target.logoPosition === "right" ? "left" : "right";
-          advHeader.titlePositionY = "middle";
-          advHeader.descriptionPositionX = target.logoPosition === "right" ? "left" : "right";
-          advHeader.descriptionPositionY = "middle";
+          const advHeader = new Cover();
           target.insertAdvancedHeader(advHeader);
         }
-      } else {
-        target.removeLayoutElement("advanced-header");
       }
     }
   }) headerView: "advanced" | "basic";
@@ -6940,8 +6934,13 @@ export class SurveyModel extends SurveyElementCore
       this.updateProgressText();
       this.updateCurrentPage();
     }
+    if (this.canFireAddPage()) {
     var options = { page: page };
     this.onPageAdded.fire(this, options);
+    }
+  }
+  private canFireAddPage(): boolean {
+    return !this.isMovingPage;
   }
   protected doOnPageRemoved(page: PageModel): void {
     page.setSurveyImpl(null);
@@ -7920,6 +7919,15 @@ export class SurveyModel extends SurveyElementCore
     this.isMovingQuestion = false;
   }
   get isQuestionDragging(): boolean { return this.isMovingQuestion; }
+
+  private isMovingPage: boolean = false;
+  public startMovingPage(): void {
+    this.isMovingPage = true;
+  }
+  public stopMovingPage(): void {
+    this.isMovingPage = false;
+  }
+
   public needRenderIcons = true;
 
   private skippedPages: Array<{ from: any, to: any }> = [];
@@ -8183,12 +8191,16 @@ export class SurveyModel extends SurveyElementCore
         (this as any)[key] = theme[key];
       }
     });
-    if (this.headerView === "advanced" || "header" in theme) {
+    if ("header" in theme && !theme.headerView) {
       this.headerView = "advanced";
-      this.removeLayoutElement("advanced-header");
-      const advHeader = new Cover();
-      advHeader.fromTheme(theme);
-      this.insertAdvancedHeader(advHeader);
+    }
+    if (this.headerView !== "basic") {
+      if ("header" in theme) {
+        this.removeLayoutElement("advanced-header");
+        const advHeader = new Cover();
+        advHeader.fromTheme(theme);
+        this.insertAdvancedHeader(advHeader);
+      }
     }
     this.themeChanged(theme);
   }

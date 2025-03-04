@@ -19133,6 +19133,37 @@ QUnit.test("Search disabled after change popup displayMode", function (assert) {
   _setIsTouch(false);
 });
 
+QUnit.test("Dropdown with the 'dropdown' popup style is closed immediatelly", function (assert) {
+  _setIsTouch(true);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "car",
+        choices: ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"],
+      },
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const popup = question.dropdownListModel.popupModel;
+  survey.onOpenDropdownMenu.add((_, options) => {
+    options.menuType = "dropdown";
+  });
+
+  assert.equal(popup.displayMode, "overlay", "#1");
+  assert.equal(popup.setWidthByTarget, false, "#2");
+  assert.equal(popup.isFocusedContent, true, "#3");
+  assert.equal(popup.isFocusedContainer, false, "#4");
+
+  popup.show();
+  assert.equal(popup.displayMode, "popup", "#1.1");
+  assert.equal(popup.setWidthByTarget, true, "#2.1");
+  assert.equal(popup.isFocusedContent, false, "#3.1");
+  assert.equal(popup.isFocusedContainer, false, "#4.1");
+
+  _setIsTouch(false);
+});
+
 QUnit.test("Shared data #6584", (assert) => {
   const json = {
     logoPosition: "right",
@@ -21642,4 +21673,43 @@ QUnit.test("Show warning on loadig JSON created in higher version of Creator", f
   checkFunc("2.0.3", "2.0.2", true);
   ConsoleWarnings.warn = prevWarn;
   settings.version = oldVersion;
+});
+QUnit.test("Advanced header from theme", function (assert) {
+  const survey = new SurveyModel();
+  const advancedHeaderTheme: any = { "cssVariables": {}, "header": {}, "headerView": "advanced" };
+  const basicHeaderTheme: any = { "cssVariables": {}, "header": {}, "headerView": "basic" };
+  const advancedHeaderThemeWithoutHeaderView: any = { "cssVariables": {}, "header": {} };
+
+  assert.equal(survey.headerView, "basic", "By default headerView is basic");
+  assert.ok(survey.findLayoutElement("advanced-header") == undefined, "By default header is absent");
+
+  survey.applyTheme(advancedHeaderTheme);
+  assert.equal(survey.headerView, "advanced", "After apply advanced headerView is advanced");
+  assert.ok(survey.findLayoutElement("advanced-header") != undefined, "After apply advanced header is present");
+
+  survey.applyTheme(basicHeaderTheme);
+  assert.equal(survey.headerView, "basic", "After apply basic headerView is advanced");
+  assert.ok(survey.findLayoutElement("advanced-header") == undefined, "After apply basic header is absent");
+
+  survey.applyTheme(advancedHeaderThemeWithoutHeaderView);
+  assert.equal(survey.headerView, "advanced", "After apply empty headerView is advanced");
+  assert.ok(survey.findLayoutElement("advanced-header") != undefined, "After apply empty headerView advanced header is present");
+});
+QUnit.test("Don't rise onPageAdded when mooving question", function (assert) {
+  const survey = new SurveyModel({
+    pages: [{ name: "page1" }, { name: "page2" }]
+  });
+  let pageAddedRaisedCount = 0;
+  survey.onPageAdded.add((sender, options) => {
+    pageAddedRaisedCount++;
+  });
+  assert.equal(pageAddedRaisedCount, 0, "onPageAdded is not raised");
+  assert.equal(survey.pages[0].name, "page1", "page1 is the first page");
+  survey.startMovingPage();
+  const page = survey.pages[1];
+  survey.pages.splice(1, 1);
+  survey.pages.splice(0, 0, page);
+  survey.stopMovingPage();
+  assert.equal(pageAddedRaisedCount, 0, "onPageAdded is not raised");
+  assert.equal(survey.pages[0].name, "page2", "page2 is the first page");
 });

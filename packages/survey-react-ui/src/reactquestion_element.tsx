@@ -51,6 +51,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private prevStateElements: Array<Base> = [];
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (this._allowComponentUpdate) {
+      this.unMakeBaseElementsReact();
       this.prevStateElements = this.getStateElements();
     }
     return this._allowComponentUpdate;

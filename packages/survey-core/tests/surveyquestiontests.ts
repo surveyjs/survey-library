@@ -7563,6 +7563,58 @@ QUnit.test("question.setValueIf is empty, setValueExpression is not empty", func
   assert.equal(q2.value, 3 + 5, "value is keep, #4");
 });
 
+QUnit.test("question.setValueIf is function, setValueExpression has one field, Bug#9549", function (assert) {
+  FunctionFactory.Instance.register("func1", (params: any) => {
+    return true;
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { "name": "q1", "type": "text" },
+      { "name": "q2", "type": "text", "setValueIf": "func1()", "setValueExpression": "{q1}" },
+      { "name": "q3", "type": "text" }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, 2, "value is set, #1");
+  q2.value = "edf";
+  q3.value = 4;
+  assert.equal(q2.value, "edf", "value is not set, #2");
+  q1.value = 5;
+  assert.equal(q2.value, 5, "value is set, #3");
+  FunctionFactory.Instance.unregister("func1");
+});
+QUnit.test("question.setValueIf is function, setValueExpression has two field, Bug#9549", function (assert) {
+  FunctionFactory.Instance.register("func1", (params: any) => {
+    return true;
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { "name": "q1", "type": "text" },
+      { "name": "q2", "type": "text", "setValueIf": "func1()", "setValueExpression": "{q1} + {q3}" },
+      { "name": "q3", "type": "text" },
+      { "name": "q4", "type": "text" }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, 2 + 0, "value is set, #1");
+  q2.value = "edf";
+  q3.value = 4;
+  assert.equal(q2.value, 2 + 4, "value is set, #3");
+  q2.value = "edf";
+  q4.value = 4;
+  assert.equal(q2.value, "edf", "value is not set, #3");
+  q1.value = 5;
+  assert.equal(q2.value, 5 + 4, "value is set, #4");
+  FunctionFactory.Instance.unregister("func1");
+});
+
 QUnit.test("question.isReady & async functions in expression", function (assert) {
   var returnResult1 = new Array<(res: any) => void>();
   var returnResult2 = new Array<(res: any) => void>();

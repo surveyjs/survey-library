@@ -32,11 +32,10 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     this.disableStateElementsRerenderEvent(this.getStateElements());
   }
   componentDidUpdate(prevProps: any, prevState: any) {
+    this.makeBaseElementsReact();
     const stateElements = this.getStateElements();
     this.disableStateElementsRerenderEvent((this.prevStateElements ?? []).filter(el => !stateElements.find(stateElement => stateElement == el)));
-    this.unMakeBaseElementsReactive(this.prevStateElements ?? []);
     this.prevStateElements = [];
-    this.makeBaseElementsReact();
     this.getStateElements().forEach((el) => {
       el.afterRerender();
     });
@@ -187,7 +186,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     if (!this.isCurrentStateElement(stateElement)) {
       // eslint-disable-next-line no-console
       // console.warn("Looks like the component is bound to another survey element. It is not supported and can lead to issues.");
-      return;
+      // return;
     }
     stateElement.setPropertyValueCoreHandler = undefined as any;
     stateElement.iteratePropertiesHash((hash, key) => {

@@ -2002,7 +2002,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
 
-  // TODO: remove it or not?
+  // creator dragdrop usage
   public dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
     if (!findElement || findElement.isPage) return null;
     var element = <IElement>findElement;

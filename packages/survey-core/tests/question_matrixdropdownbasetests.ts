@@ -1884,3 +1884,9 @@ QUnit.test("column.defaultDisplayValue", function (assert) {
   assert.equal(qCell1.displayValue, "col1-value", "displayValue, #3");
   assert.equal(qCell2.displayValue, "col1-de", "displayValue, #4");
 });
+
+QUnit.test("MatrixDropdownColumn has isInteractiveDesignElement property", function (assert) {
+  // need for scroll into column in creator https://github.com/surveyjs/survey-creator/issues/6685
+  const column = new MatrixDropdownColumn("col1");
+  assert.equal(column.isInteractiveDesignElement, true);
+});

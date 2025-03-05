@@ -2,9 +2,9 @@
 @use "../mixins.scss" as mixins;
 
 .sv-list {
-  padding: 0;
-  // margin: 0;
-  margin: var(--lbr-popup-menu-padding-top, 4px) var(--lbr-popup-menu-padding-right, 4px)
+  // padding: 0;
+  margin: 0;
+  padding: var(--lbr-popup-menu-padding-top, 4px) var(--lbr-popup-menu-padding-right, 4px)
     var(--lbr-popup-menu-padding-bottom, 4px) var(--lbr-popup-menu-padding-left, 4px);
   overflow-y: auto;
   // background: $background;

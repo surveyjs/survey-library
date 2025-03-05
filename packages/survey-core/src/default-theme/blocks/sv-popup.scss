@@ -254,12 +254,7 @@ sv-popup {
   }
 
   .sv-list {
-    // padding: calcSize(0.5);
     flex-grow: 1;
-  }
-
-  .sv-list__container {
-    padding: 0;
   }
 
   .sv-list__filter-icon {
@@ -272,8 +267,6 @@ sv-popup {
     flex-direction: column;
     justify-content: center;
     flex-grow: 1;
-    // padding: calcSize(1) calcSize(0.5);
-    // background-color: $background;
   }
 
   .sv-list__filter-clear-button {
@@ -291,6 +284,15 @@ sv-popup {
 
       use {
         fill: $foreground-light;
+      }
+    }
+
+    &:hover {
+      border-radius: var(--lbr-popup-menu-search-clear-button-corner-radius, 1024px);
+      background: var(--lbr-popup-menu-search-clear-button-background-color-hovered, var(--sjs-special-red-light, rgba(229, 10, 62, 0.1)));
+
+      use {
+        fill: var(--lbr-popup-menu-search-clear-button-icon-color-hovered, var(--sjs-special-red, #E50A3E));
       }
     }
   }

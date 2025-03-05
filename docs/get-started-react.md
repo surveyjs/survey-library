@@ -45,7 +45,7 @@ SurveyJS Form Library is shipped with several predefined themes illustrated belo
 To add SurveyJS themes to your application, open the React component that will render your form or survey and import the Form Library style sheet:
 
 ```js
-import 'survey-core/defaultV2.min.css';
+import 'survey-core/survey-core.min.css';
 ```
 
 This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
@@ -88,7 +88,7 @@ function App() {
     <summary>View Full Code</summary>  
 
 ```js
-import 'survey-core/defaultV2.min.css';
+import 'survey-core/survey-core.min.css';
 import { Model } from 'survey-core';
 
 const surveyJson = {
@@ -147,7 +147,7 @@ If you replicate the code correctly, you should see the following form:
 // Uncomment the following line if you are using Next.js:
 // 'use client'
 
-import 'survey-core/defaultV2.min.css';
+import 'survey-core/survey-core.min.css';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
@@ -255,7 +255,7 @@ To view the application, run `npm run start` in a command line and open [http://
 
 import { useCallback } from 'react';
 
-import 'survey-core/defaultV2.min.css';
+import 'survey-core/survey-core.min.css';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 

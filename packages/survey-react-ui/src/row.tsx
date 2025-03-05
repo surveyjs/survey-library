@@ -92,8 +92,10 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    this.row.setRootElement(undefined);
-    this.stopLazyRendering();
+    if (this.isCurrentStateElement(this.getStateElement())) {
+      this.row.setRootElement(undefined);
+      this.stopLazyRendering();
+    }
   }
 
   protected createElement(element: IElement, elementIndex?: number): React.JSX.Element {

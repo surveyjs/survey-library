@@ -46,18 +46,18 @@ settings.customIcons["icon-export"] = "icon-import";
 
 ### Use Custom SVG Icons
 
-If you want to replace a built-in icon with a custom SVG icon, call the `registerIconFromSvg` method on the `SvgRegistry` object. Pass the name of the built-in icon as the first argument and the custom icon markup converted to a string as the second argument. In the following code, a custom icon replaces the `icon-delete` icon:
+If you want to replace a built-in icon with a custom SVG icon, call the `registerIcon` method on the `SvgRegistry` object. Pass the name of the built-in icon as the first argument and the custom icon markup converted to a string as the second argument. In the following code, a custom icon replaces the `icon-delete` icon:
 
 ```js
 // Option 1: Embed an SVG icon in code:
 const customIcon = '<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="..."/></svg>';
-Survey.SvgRegistry.registerIconFromSvg("icon-delete", customIcon);
+Survey.SvgRegistry.registerIcon("icon-delete", customIcon);
 
 // Option 2: Fetch an icon from a file
 fetch("./my-icon.svg")
   .then(response => response.text())
   .then(svg => {
-    Survey.SvgRegistry.registerIconFromSvg("icon-delete", svg);
+    Survey.SvgRegistry.registerIcon("icon-delete", svg);
   });
 
 // Option 2 in React:
@@ -66,7 +66,7 @@ import { ReactComponent as MyIcon } from "./my-icon.svg";
 import ReactDOMServer from "react-dom/server";
 
 const svg = ReactDOMServer.renderToString(<MyIcon />);
-SvgRegistry.registerIconFromSvg("icon-delete", svg);
+SvgRegistry.registerIcon("icon-delete", svg);
 ```
 
 [View Demo](https://surveyjs.io/form-library/examples/custom-icons/ (linkStyle))

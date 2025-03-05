@@ -48,7 +48,7 @@ class TriggerExpressionInfo {
   runner: ExpressionRunner;
   isRunning: boolean;
   constructor(public name: string, public canRun: () => boolean, public doComplete: () => void) { }
-  runSecondCheck: (keys: any) => boolean = (keys: any): boolean => false;
+  getSecondRunner: () => ExpressionRunner = () => undefined;
 }
 
 /**
@@ -161,7 +161,7 @@ export class Question extends SurveyElement<Question>
       this.finishSetValueOnExpression();
     });
     const setValueIfInfo = this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
-    setValueIfInfo.runSecondCheck = (keys: any): boolean => this.checkExpressionIf(keys);
+    setValueIfInfo.getSecondRunner = () => this.getSetValueExpressionRunner();
     this.registerPropertyChangedHandlers(["width"], () => {
       this.updateQuestionCss();
       if (!!this.parent) {
@@ -603,10 +603,9 @@ export class Question extends SurveyElement<Question>
       this.setValueExpressionRunner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
   }
-  private checkExpressionIf(keys: any): boolean {
+  private getSetValueExpressionRunner(): ExpressionRunner {
     this.ensureSetValueExpressionRunner();
-    if (!this.setValueExpressionRunner) return false;
-    return this.canExecuteTriggerByKeys(keys, this.setValueExpressionRunner);
+    return this.setValueExpressionRunner;
   }
   private triggersInfo: Array<TriggerExpressionInfo> = [];
   private addTriggerInfo(name: string, canRun: () => boolean, doComplete: () => void): TriggerExpressionInfo {
@@ -616,10 +615,7 @@ export class Question extends SurveyElement<Question>
   }
   private runTriggerInfo(info: TriggerExpressionInfo, keys: any): void {
     const expression = this[info.name];
-    if (!expression || info.isRunning || !info.canRun()) {
-      if (info.runSecondCheck(keys)) {
-        info.doComplete();
-      }
+    if (!expression && !info.getSecondRunner() || info.isRunning || !info.canRun()) {
       return;
     }
     if (!info.runner) {
@@ -633,14 +629,30 @@ export class Question extends SurveyElement<Question>
     } else {
       info.runner.expression = expression;
     }
-    if (!this.canExecuteTriggerByKeys(keys, info.runner) && !info.runSecondCheck(keys)) return;
+    if (!this.canExecuteTriggerByKeys(keys, info.runner, info.getSecondRunner())) return;
     info.isRunning = true;
-    info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+    if(!expression && info.getSecondRunner()) {
+      info.doComplete();
+      info.isRunning = false;
+    } else {
+      info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+    }
   }
-  private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner): boolean {
+  private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner, secondRunner?: ExpressionRunner): boolean {
+    if(!runner && !!secondRunner) {
+      runner = secondRunner;
+      secondRunner = undefined;
+    }
+    const run1 = this.canExecuteTriggerByKeysCore(keys, runner);
+    if(run1 === "var") return true;
+    if(!secondRunner) return run1 === "func";
+    const run2 = this.canExecuteTriggerByKeysCore(keys, secondRunner);
+    return run2 !== "";
+  }
+  private canExecuteTriggerByKeysCore(keys: any, runner: ExpressionRunner): string {
     const vars = runner.getVariables();
-    if((!vars || vars.length === 0) && runner.hasFunction()) return true;
-    return new ProcessValue().isAnyKeyChanged(keys, vars);
+    if((!vars || vars.length === 0) && runner.hasFunction()) return "func";
+    return new ProcessValue().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
@@ -934,10 +946,7 @@ export class Question extends SurveyElement<Question>
     this.commentPlaceholder = newValue;
   }
   public get renderedCommentPlaceholder(): string {
-    const func = (): any => {
-      return !this.isReadOnly ? this.commentPlaceHolder : undefined;
-    };
-    return this.getPropertyValue("renderedCommentPlaceholder", undefined, func);
+    return this.getPropertyValue("renderedCommentPlaceholder") ?? (!this.isReadOnly ? this.commentPlaceHolder : undefined);
   }
   private resetRenderedCommentPlaceholder() {
     this.resetPropertyValue("renderedCommentPlaceholder");

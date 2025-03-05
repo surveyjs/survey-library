@@ -204,9 +204,9 @@ Serializer.addClass(
 You can specify a different default value for a property. To do this, call `Serializer`'s `getProperty(className, propertyName)` method and change the property's `defaultValue` setting:
 
 ```js
-// Override the default value of the `isAllRowRequired` property for Single-Select Matrix questions
+// Override the default value of the `eachRowRequired` property for Single-Select Matrix questions
 import { Serializer } from "survey-core";
-Serializer.getProperty("matrix", "isAllRowRequired").defaultValue = true;
+Serializer.getProperty("matrix", "eachRowRequired").defaultValue = true;
 ```
 
 ## Survey Element Property Settings

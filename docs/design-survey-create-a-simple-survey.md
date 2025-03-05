@@ -206,44 +206,7 @@ export class AppComponent implements OnInit {
 </details>
 
 <details>
-    <summary>Vue 2</summary> 
-
-```js
-<template>
-  <!-- Render the survey inside the page -->
-  <Survey :survey="survey" />
-
-  <!-- Render the survey in a pop-up window -->
-  <PopupSurvey :survey="survey" :isExpanded="true" />
-</template>
-
-<script>
-import { Model } from 'survey-core';
-import { Survey, PopupSurvey } from 'survey-vue-ui';
-
-const surveyJson = {
-  // ...
-};
-
-export default {
-  components: {
-    Survey,
-    PopupSurvey
-  },
-  data() {
-    const survey = new Model(surveyJson);
-
-    return {
-      survey
-    }
-  }
-}
-</script>
-```
-</details>
-
-<details>
-    <summary>Vue 3</summary> 
+    <summary>Vue.js</summary> 
 
 ```html
 <script setup lang="ts">
@@ -289,37 +252,6 @@ function App() {
 export default App;
 ```
 </details>
-
-
-<details>
-    <summary>Knockout</summary> 
-
-```html
-<survey params="survey: model"></survey>
-```
-
-```js
-const surveyJson = {
-    // ...
-};
-
-// Render the survey inside the page
-const survey = new Survey.Model(surveyJson);
-document.addEventListener("DOMContentLoaded", function() {
-    ko.applyBindings({
-        model: survey
-    });
-});
-
-// Render the survey in a pop-up window
-const survey = new Survey.PopupSurveyModel(survey);
-survey.isExpanded = true;
-document.addEventListener("DOMContentLoaded", function() {
-  survey.show();
-});
-```
-</details>
-
 
 <details>
     <summary>jQuery</summary> 

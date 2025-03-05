@@ -54,15 +54,15 @@ Certain question types can contain multiple values. Use a dot symbol to access a
     </thead>
     <tbody>
       <tr>
-        <td><a href="/Documentation/Library?id=questionmultipletextmodel" class="v2-class---paragraph-link">Multiple Textboxes</a></td>
+        <td><a href="/Documentation/Library?id=questionmultipletextmodel">Multiple Textboxes</a></td>
         <td><code>{questionname.itemname}</code></td>
       </tr>
       <tr>
-        <td><a href="/Documentation/Library?id=questionmatrixmodel" class="v2-class---paragraph-link">Single-Select Matrix</a></td>
+        <td><a href="/Documentation/Library?id=questionmatrixmodel">Single-Select Matrix</a></td>
         <td><code>{questionname.rowname}</code></td>
       </tr>
       <tr>
-        <td rowspan="2" style="vertical-align:middle"><a href="/Documentation/Library?id=questionmatrixdropdownmodel" class="v2-class---paragraph-link">Multi-Select Matrix</a></td>
+        <td rowspan="2" style="vertical-align:middle"><a href="/Documentation/Library?id=questionmatrixdropdownmodel">Multi-Select Matrix</a></td>
         <td><code>{questionname.rowname.columnname}</code></td>
       </tr>
       <tr>
@@ -86,15 +86,15 @@ In question types whose value is an array, you can use zero-based indexes to acc
     </thead>
     <tbody>
       <tr>
-        <td><a href="https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model" class="v2-class---paragraph-link">Checkboxes</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/image-picker-question-model" class="v2-class---paragraph-link">Image Picker</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model" class="v2-class---paragraph-link">Multiple Textboxes</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model" class="v2-class---paragraph-link">Ranking</a></td>
+        <td><a href="https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model">Checkboxes</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/image-picker-question-model">Image Picker</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model">Multiple Textboxes</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model">Ranking</a></td>
         <td style="vertical-align:middle"><code>{questionname[index]}</code></td>
       </tr>
       <tr>
-        <td><a href="/Documentation/Library?id=questionpaneldynamicmodel" class="v2-class---paragraph-link">Dynamic Panel</a></td>
+        <td><a href="/Documentation/Library?id=questionpaneldynamicmodel">Dynamic Panel</a></td>
         <td style="vertical-align:middle"><code>{dynamicpanelname[index].questionname}</code></td>
       </tr>
       <tr>
-        <td><a href="/Documentation/Library?id=questionmatrixdynamicmodel" class="v2-class---paragraph-link">Dynamic Matrix</a></td>
+        <td><a href="/Documentation/Library?id=questionmatrixdynamicmodel">Dynamic Matrix</a></td>
         <td style="vertical-align:middle"><code>{dynamicmatrixname[rowindex].columnname}</code></td>
       </tr>
     </tbody>
@@ -114,7 +114,7 @@ You can also use prefixes, such as `row`, `panel`, and `parentPanel`, to access 
     </thead>
     <tbody>
       <tr>
-        <td rowspan="2" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/matrix-table-question-model" class="v2-class---paragraph-link">Single-Select Matrix</a>, <a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list" class="v2-class---paragraph-link">Multi-Select Matrix</a>, <a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model" class="v2-class---paragraph-link">Dynamic Matrix</a></td>
+        <td rowspan="2" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/matrix-table-question-model">Single-Select Matrix</a>, <a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list">Multi-Select Matrix</a>, <a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model">Dynamic Matrix</a></td>
         <td><code>{row.columnname}</code></td>
         <td>Accesses a cell in the same row.</td>
       </tr>
@@ -123,7 +123,7 @@ You can also use prefixes, such as `row`, `panel`, and `parentPanel`, to access 
         <td>Accesses the row name (the <code>value</code> property within objects in the <a href="https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#rows"><code>rows</code></a> array). Use this placeholder if you need to distinguish between matrix rows.</td>
       </tr>
       <tr>
-        <td rowspan="2" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/dynamic-panel-model" class="v2-class---paragraph-link">Dynamic Panel</a></td>
+        <td rowspan="2" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/dynamic-panel-model">Dynamic Panel</a></td>
         <td><code>{panel.questionname}</code></td>
         <td>Accesses a question within the same panel.</td>
       </tr>

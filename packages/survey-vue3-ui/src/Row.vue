@@ -15,7 +15,7 @@
 import SvComponent from "@/SvComponent.vue";
 import type { QuestionRowModel, SurveyModel } from "survey-core";
 import { onMounted, ref } from "vue";
-import { useBase } from "./base";
+import { isBaseElementSubsribed, useBase } from "./base";
 
 const props = defineProps<{
   row: QuestionRowModel;
@@ -32,9 +32,11 @@ useBase(
     }
   },
   (value) => {
-    value.setRootElement(undefined);
-    value.stopLazyRendering();
-    value.isNeedRender = !value.isLazyRendering();
+    if (!isBaseElementSubsribed(value)) {
+      value.setRootElement(undefined);
+      value.stopLazyRendering();
+      value.isNeedRender = !value.isLazyRendering();
+    }
   }
 );
 

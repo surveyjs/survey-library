@@ -1309,13 +1309,7 @@ export class SurveyModel extends SurveyElementCore
       } else {
         const layoutElement = target.findLayoutElement("advanced-header");
         if (!layoutElement) {
-          var advHeader = new Cover();
-          advHeader.logoPositionX = target.logoPosition === "right" ? "right" : "left";
-          advHeader.logoPositionY = "middle";
-          advHeader.titlePositionX = target.logoPosition === "right" ? "left" : "right";
-          advHeader.titlePositionY = "middle";
-          advHeader.descriptionPositionX = target.logoPosition === "right" ? "left" : "right";
-          advHeader.descriptionPositionY = "middle";
+          const advHeader = new Cover();
           target.insertAdvancedHeader(advHeader);
         }
       }
@@ -8202,10 +8196,10 @@ export class SurveyModel extends SurveyElementCore
     }
     if (this.headerView !== "basic") {
       if ("header" in theme) {
-      this.removeLayoutElement("advanced-header");
-      const advHeader = new Cover();
-      advHeader.fromTheme(theme);
-      this.insertAdvancedHeader(advHeader);
+        this.removeLayoutElement("advanced-header");
+        const advHeader = new Cover();
+        advHeader.fromTheme(theme);
+        this.insertAdvancedHeader(advHeader);
       }
     }
     this.themeChanged(theme);

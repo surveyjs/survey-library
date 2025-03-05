@@ -80,8 +80,8 @@ Call the implemented function in the component that renders the Survey Creator t
 ```js
 import { SurveyCreator, SurveyCreatorComponent } from "survey-creator-react";
 import { registerColorPicker } from "./ColorPicker";
-import "survey-core/defaultV2.css";
-import "survey-creator-core/survey-creator-core.css";
+import "survey-core/survey-core.min.css";
+import "survey-creator-core/survey-creator-core.min.css";
 
 registerColorPicker();
 
@@ -243,7 +243,7 @@ import { SvgRegistry } from "survey-core"
 const CUSTOM_TYPE = "color-picker";
 
 const svg = ReactDOMServer.renderToString(<ColorPickerIcon />);
-SvgRegistry.registerIconFromSvg(CUSTOM_TYPE, svg);
+SvgRegistry.registerIcon(CUSTOM_TYPE, svg);
 ```
 
 Alternatively, you can use one of [built-in SurveyJS icons](https://surveyjs.io/form-library/documentation/icons#built-in-icons). The code below shows how to use the Text icon:
@@ -284,8 +284,8 @@ To try the functionality, you can add a custom property of the `"color"` type to
 import { SurveyCreator, SurveyCreatorComponent } from "survey-creator-react";
 import { Serializer } from "survey-core";
 import { registerColorPicker } from "./ColorPicker";
-import "survey-core/defaultV2.css";
-import "survey-creator-core/survey-creator-core.css";
+import "survey-core/survey-core.min.css";
+import "survey-creator-core/survey-creator-core.min.css";
 
 registerColorPicker();
 addBackgroundColorProperty();

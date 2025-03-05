@@ -451,17 +451,17 @@ Serializer.addClass(
     { name: "minimumFractionDigits:number", default: -1 },
     { name: "useGrouping:boolean", default: true },
     { name: "precision:number", default: -1, category: "data" },
-    { name: "enableIf", visible: false },
-    { name: "isRequired", visible: false },
-    { name: "readOnly", visible: false },
-    { name: "requiredErrorText", visible: false },
-    { name: "resetValueIf", visible: false },
-    { name: "setValueIf", visible: false },
-    { name: "setValueExpression", visible: false },
-    { name: "defaultValueExpression", visible: false },
-    { name: "defaultValue", visible: false },
-    { name: "correctAnswer", visible: false },
-    { name: "requiredIf", visible: false }
+    { name: "enableIf", visible: false, isSerializable: false },
+    { name: "isRequired", visible: false, isSerializable: false },
+    { name: "readOnly", visible: false, isSerializable: false },
+    { name: "requiredErrorText", visible: false, isSerializable: false },
+    { name: "resetValueIf", visible: false, isSerializable: false },
+    { name: "setValueIf", visible: false, isSerializable: false },
+    { name: "setValueExpression", visible: false, isSerializable: false },
+    { name: "defaultValueExpression", visible: false, isSerializable: false },
+    { name: "defaultValue", visible: false, isSerializable: false },
+    { name: "correctAnswer", visible: false, isSerializable: false },
+    { name: "requiredIf", visible: false, isSerializable: false }
   ],
   function() {
     return new QuestionExpressionModel("");

@@ -24,10 +24,6 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
     return this.item;
   }
 
-  shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-    return super.shouldComponentUpdate(nextProps, nextState);
-  }
-
   renderElement() {
     //refactor
     const itemClass = this.item.getActionRootCss();

@@ -12,7 +12,16 @@ You can specify the [`title`](https://surveyjs.io/Documentation/Library?id=Quest
 
 ## Question Numbers
 
-Questions are numbered starting with 1. If you want to start numbering with a different number or use letters instead, specify the Survey's [`questionStartIndex`](https://surveyjs.io/Documentation/Library/?id=surveymodel#questionStartIndex) property. You can include desired prefixes and postfixes in the property value:
+Questions are not numbered by default. If you want to show question numbers, set the [`showQuestionNumbers`](https://surveyjs.io/Documentation/Library/?id=surveymodel#showQuestionNumbers) to `true`:
+
+```js
+const surveyJson = {
+  // ...
+  "showQuestionNumbers": true
+}
+```
+
+When enabled, question numbering starts with 1. If you want to start numbering with a different number or use letters instead, specify the Survey's [`questionStartIndex`](https://surveyjs.io/Documentation/Library/?id=surveymodel#questionStartIndex) property. You can include desired prefixes and postfixes in the property value:
 
 ```js
 const surveyJson = {
@@ -23,7 +32,7 @@ const surveyJson = {
 }
 ```
 
-Surveys use continuous numbering across all pages. If you want to start numbering on each page from scratch, set the Survey's [`showQuestionNumbers`](https://surveyjs.io/Documentation/Library/?id=surveymodel#showQuestionNumbers) property to `"onpage"`:
+Surveys use continuous numbering across all pages. If you want to start numbering on each page from scratch, set the `showQuestionNumbers` property to `"onpage"`:
 
 ```js
 const surveyJson = {
@@ -32,23 +41,14 @@ const surveyJson = {
 }
 ```
 
-If you want to hide question numbers, set the same property to `"off"`:
-
-```js
-const surveyJson = {
-  // ...
-  "showQuestionNumbers": "off"
-}
-```
-
 ## Required Mark
 
-Questions that require an answer are marked with an asterisk `*`. You can use the Survey's [`requiredText`](https://surveyjs.io/Documentation/Library?id=surveymodel#requiredText) property to set another symbol or specify an explanatory text string:
+Questions that require an answer are marked with an asterisk `*`. You can use the Survey's [`requiredMark`](https://surveyjs.io/Documentation/Library?id=surveymodel#requiredMark) property to set another symbol or specify an explanatory text string:
 
 ```js
 const surveyJson = {
   // ...
-  "requiredText": "!"
+  "requiredMark": "!"
 }
 ```
 

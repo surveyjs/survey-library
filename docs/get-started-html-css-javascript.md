@@ -24,7 +24,7 @@ SurveyJS Form Library is composed of two key parts: `survey-core` (platform-inde
 ```html
 <head>
     <!-- ... -->
-    <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-core/survey-core.min.css" type="text/css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
     <!-- ... -->
@@ -72,7 +72,7 @@ const survey = new Survey.Model(surveyJson);
 <head>
     <title>My First Survey</title>
     <meta charset="utf-8">
-    <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-core/survey-core.min.css" type="text/css" rel="stylesheet">
 
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
@@ -141,7 +141,7 @@ As a result, you should see the following survey:
 <head>
     <title>My First Survey</title>
     <meta charset="utf-8">
-    <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-core/survey-core.min.css" type="text/css" rel="stylesheet">
 
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
@@ -242,7 +242,7 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 <head>
     <title>My First Survey</title>
     <meta charset="utf-8">
-    <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-core/survey-core.min.css" type="text/css" rel="stylesheet">
 
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>

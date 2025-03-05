@@ -67,7 +67,7 @@ To add SurveyJS themes to your Angular application, open the `angular.json` file
             // ...
             "styles": [
               "src/styles.css",
-              "node_modules/survey-core/defaultV2.min.css",
+              "node_modules/survey-core/survey-core.min.css",
             ],
             // ...
           }
@@ -82,7 +82,7 @@ When [using standalone components](https://github.com/surveyjs/code-examples/tre
 
 ```js
 // survey.component.ts
-import "survey-core/defaultV2.css";
+import "survey-core/survey-core.min.css";
 ```
 
 This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).

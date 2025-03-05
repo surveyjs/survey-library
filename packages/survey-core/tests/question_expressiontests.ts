@@ -313,3 +313,12 @@ QUnit.test("Default value and setValueExpression", function (assert) {
   assert.equal(q1.value, "", "var1 = 2");
   assert.equal(q1.formatedValue, "", "formatedValue, var1 = 2");
 });
+QUnit.test("Do not serialized required, resetValueIf, setValueIf, defaultValueExpression and other properties, Bug#9559", function (assert) {
+  const q1 = new QuestionExpressionModel("q1");
+  q1.expression = "{q2} + {q3}";
+  q1.setValueIf = "abc";
+  q1.setValueExpression = "def";
+  q1.resetValueIf = "ghi";
+  q1.isRequired = true;
+  assert.deepEqual(q1.toJSON(), { name: "q1", expression: "{q2} + {q3}" }, "Serialize only expression");
+});

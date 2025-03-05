@@ -46,7 +46,7 @@ sv-popup {
   & > .sv-popup__container > .sv-popup__body-content {
     background-color: var(--lbr-popup-menu-background-color, $background);
     border-radius: var(--lbr-popup-menu-corner-radius, calcCornerRadius(1));
-    padding: calcSize(1) 0;
+    // padding: calcSize(1) 0;
     height: 100%;
   }
 }
@@ -82,6 +82,13 @@ sv-popup {
     display: flex;
     background-color: var(--lbr-dialog-background-color, $background-dim-light);
     border-radius: var(--lbr-dialog-corner-radius, calcCornerRadius(2));
+    box-shadow:
+      var(--lbr-dialog-shadow-2-offset-x, 0px) var(--lbr-dialog-shadow-2-offset-y, 2px)
+        var(--lbr-dialog-shadow-2-blur, 6px) var(--lbr-dialog-shadow-2-spread, 0px)
+        var(--lbr-dialog-shadow-2-color, rgba(0, 0, 0, 0.1)),
+      var(--lbr-dialog-shadow-1-offset-x, 0px) var(--lbr-dialog-shadow-1-offset-y, 8px)
+        var(--lbr-dialog-shadow-1-blur, 16px) var(--lbr-dialog-shadow-1-spread, 0px)
+        var(--lbr-dialog-shadow-1-color, rgba(0, 0, 0, 0.1));
   }
 
   & > .sv-popup__container > .sv-popup__body-content {
@@ -210,9 +217,7 @@ sv-popup {
   overflow: visible;
 }
 
-.sv-popup--modal-popup,
-.sv-popup--menu-phone,
-.sv-popup--menu-tablet {
+.sv-popup--modal-popup {
   .sv-list__filter {
     padding-top: calcSize(1);
   }
@@ -265,7 +270,7 @@ sv-popup {
   }
 
   .sv-list {
-    padding: calcSize(0.5);
+    // padding: calcSize(0.5);
     flex-grow: 1;
   }
 
@@ -283,8 +288,8 @@ sv-popup {
     flex-direction: column;
     justify-content: center;
     flex-grow: 1;
-    padding: calcSize(1) calcSize(0.5);
-    background-color: $background;
+    // padding: calcSize(1) calcSize(0.5);
+    // background-color: $background;
   }
 
   .sv-list__filter-clear-button {
@@ -351,7 +356,7 @@ sv-popup {
     height: calc(var(--sv-popup-overlay-height, 100vh));
     max-width: 100vw;
     max-height: calc(var(--sv-popup-overlay-height, 100vh));
-    padding-top: 0;
+    // padding-top: 0;
     border: unset;
     box-shadow: unset;
     box-sizing: content-box;
@@ -370,7 +375,7 @@ sv-popup {
   background: $background-semitransparent;
 
   & > .sv-popup__container {
-    padding-top: 0;
+    // padding-top: 0;
     border: unset;
     box-sizing: content-box;
     background: var(--lbr-popup-menu-background-color-global, $background-dim);

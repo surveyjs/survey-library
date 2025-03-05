@@ -228,7 +228,7 @@ li:focus .sv-list__item.sv-list__item--selected {
 
 .sv-list__filter {
   border-bottom: 1px solid $border-inside;
-  padding-bottom: calcSize(1);
+  // padding-bottom: calcSize(1);
 }
 
 .sv-list__filter-icon {

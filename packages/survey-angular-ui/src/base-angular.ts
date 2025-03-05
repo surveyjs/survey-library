@@ -44,9 +44,16 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.unMakeBaseElementAngular(this.getModel());
     this.previousModel = undefined;
   }
-
+  private makeBaseElementAngularCallback?: () => void;
+  protected isBaseElementSubsribed(stateElement: Base) {
+    return !!(<any>stateElement).__ngImplemented;
+  }
+  private getBaseElementCallbacks(stateElement: Base): Array<() => void> {
+    (<any>stateElement).__ngSubscribers = (<any>stateElement).__ngSubscribers ?? [];
+    return ((<any>stateElement).__ngSubscribers);
+  }
   private makeBaseElementAngular(stateElement: T) {
-    if (!!stateElement && !(<any>stateElement).__ngImplemented) {
+    this.makeBaseElementAngularCallback = () => {
       this.isModelSubsribed = true;
       (<any>stateElement).__ngImplemented = true;
       stateElement.iteratePropertiesHash((hash, key) => {
@@ -69,21 +76,40 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
         }
       };
       stateElement.enableOnElementRerenderedEvent();
+    };
+    if (!!stateElement) {
+      if(!(<any>stateElement).__ngImplemented) {
+        this.makeBaseElementAngularCallback();
+      } else {
+        this.getBaseElementCallbacks(stateElement).push(this.makeBaseElementAngularCallback);
+      }
     }
   }
   private unMakeBaseElementAngular(stateElement?: Base) {
-    if (!!stateElement && this.isModelSubsribed) {
-      this.isModelSubsribed = false;
-      (<any>stateElement).__ngImplemented = false;
-      stateElement.setPropertyValueCoreHandler = <any>undefined;
-      stateElement.iteratePropertiesHash((hash, key) => {
-        var val: any = hash[key];
-        if (Array.isArray(val)) {
-          var val: any = val;
-          val["onArrayChanged"] = () => { };
+    if (!!stateElement) {
+      if(this.isModelSubsribed) {
+        this.isModelSubsribed = false;
+        (<any>stateElement).__ngImplemented = false;
+        stateElement.setPropertyValueCoreHandler = <any>undefined;
+        stateElement.iteratePropertiesHash((hash, key) => {
+          var val: any = hash[key];
+          if (Array.isArray(val)) {
+            var val: any = val;
+            val["onArrayChanged"] = () => { };
+          }
+        });
+        stateElement.disableOnElementRerenderedEvent();
+        const callbacks = this.getBaseElementCallbacks(stateElement);
+        const callback = callbacks.shift();
+        callback && callback();
+      }
+      else if(this.makeBaseElementAngularCallback) {
+        const callbacks = this.getBaseElementCallbacks(stateElement);
+        const index = callbacks.indexOf(this.makeBaseElementAngularCallback);
+        if(index > -1) {
+          callbacks.splice(index, 1);
         }
-      });
-      stateElement.disableOnElementRerenderedEvent();
+      }
     }
   }
 

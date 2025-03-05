@@ -63,6 +63,60 @@ it("check survey renderCallback destroy if model is not defined", () => {
   const component = fixture.componentInstance;
   expect(() => { component.ngOnDestroy(); }).not.toThrow();
 });
+it("check model is subsribed to next component after destroy current component", () => {
+  const fixture1 = TestBed.createComponent(TestBase);
+  const fixture2 = TestBed.createComponent(TestBase);
+  const fixture3 = TestBed.createComponent(TestBase);
+  const fixture4 = TestBed.createComponent(TestBase);
+  const q = new QuestionTextModel("q1");
+  fixture1.componentInstance.model = q;
+  fixture1.detectChanges(); 
+  fixture2.componentInstance.model = q;
+  fixture2.detectChanges();
+  fixture3.componentInstance.model = q;
+  fixture3.detectChanges();
+  fixture4.componentInstance.model = q;
+  fixture4.detectChanges();
+  
+  expect(!!q.setPropertyValueCoreHandler).toBe(true);
+  expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(true);
+  expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(3);
+  
+  fixture1.destroy();
+  expect(!!q.setPropertyValueCoreHandler).toBe(true);
+  expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(true);
+  expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(2);
+  
+  fixture2.destroy();
+  expect(!!q.setPropertyValueCoreHandler).toBe(true);
+  expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
+  expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(1);
+
+  fixture4.destroy();
+  expect(!!q.setPropertyValueCoreHandler).toBe(true);
+  expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
+  expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(0);
+
+  fixture3.destroy();
+  expect(!!q.setPropertyValueCoreHandler).toBe(false);
+  expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
+  expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(0);
+})
 // it("Check shouldReattachChangeDetector flag", (done: any) => {
 //   const fixture = TestBed.createComponent(TestBase);
 //   const component = fixture.componentInstance;

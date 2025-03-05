@@ -51,7 +51,9 @@ export class RowComponent extends BaseAngular<QuestionRowModel> implements After
   }
   public override ngOnDestroy(): void {
     super.ngOnDestroy();
-    this.row.setRootElement(undefined);
-    this.stopLazyRendering();
+    if(!this.isBaseElementSubsribed(this.row)) {
+      this.row.setRootElement(undefined);
+      this.stopLazyRendering();
+    }
   }
 }

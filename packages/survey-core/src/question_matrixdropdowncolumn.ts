@@ -110,7 +110,6 @@ export class MatrixDropdownColumn extends Base
     return res;
   }
   public isInteractiveDesignElement: boolean = true;
-  public id = "matrix-dropdown-column-id";
   private templateQuestionValue: Question;
   private colOwnerValue: IMatrixColumnOwner;
   private indexValue = -1;

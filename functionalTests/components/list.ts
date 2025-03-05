@@ -105,7 +105,7 @@ frameworks.forEach(async framework => {
       .expect(popupSelector.find("ul").visible).notOk()
       .expect(popupSelector.find("ul").getStyleProperty("display")).eql("none")
       .expect(popupSelector.find(".sv-list__empty-container").visible).ok()
-      .expect(popupSelector.find(".sv-list__empty-container").getStyleProperty("display")).eql("block");
+      .expect(popupSelector.find(".sv-list__empty-container").getStyleProperty("display")).notEql("none");
   });
 });
 

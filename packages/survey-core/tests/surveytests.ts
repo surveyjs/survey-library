@@ -21116,6 +21116,16 @@ QUnit.test("Do not use questionsOnPageMode in design-mode, Bug#9274", function (
   assert.equal(survey.questionsOnPageMode, "questionPerPage", "the property set correctly");
   assert.equal(survey.currentSingleQuestion?.name, undefined, "It is the design mode");
 });
+QUnit.test("question.canHaveFrameStyles should return true for questionsOnPageMode", function (assert) {
+  const json = {
+    "elements": [{ type: "panel", elements: [{ "type": "text", "name": "q1" }] }],
+    "questionsOnPageMode": "questionPerPage",
+  };
+  const survey = new SurveyModel(json);
+  const question = survey.currentSingleQuestion;
+  assert.equal(question.name, "q1", "currentSingleQuestion");
+  assert.equal(question["canHaveFrameStyles"](), true, "canHaveFrameStyles");
+});
 QUnit.test("survey.currentSingleQuestion & Page events, Bug#9381", function (assert) {
   const json = {
     "pages": [{

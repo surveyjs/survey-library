@@ -4364,7 +4364,7 @@ export class SurveyModel extends SurveyElementCore
       if (this.doServerValidation(true, true)) return false;
     }
     this.showPreviewCore();
-    return true;
+    return this.isShowingPreview;
   }
   private showPreviewCore(): void {
     var options = { allowShowPreview: true, allow: true };
@@ -4382,6 +4382,11 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isShowingPreview) return;
     this.gotoPageFromPreview = currentPage;
     this.isShowingPreview = false;
+    const q = this.currentSingleQuestion;
+    if(!!q?.page) {
+      (<PageModel>q.page).updateRows();
+      this.currentPage = q.page;
+    }
   }
   private gotoPageFromPreview: PageModel;
   public cancelPreviewByPage(panel: IPanel): any {
@@ -4520,6 +4525,9 @@ export class SurveyModel extends SurveyElementCore
       rootPage.setSurveyImpl(this);
       this.pageContainerValue = rootPage;
       this.currentPage = rootPage;
+      if(!!this.currentSingleQuestionValue) {
+        this.visiblePages.forEach(page => page.updateRows());
+      }
     }
     if(!this.isSinglePage && !this.isShowingPreview) {
       this.disposeContainerPage();
@@ -4556,7 +4564,9 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public get currentSingleQuestion(): Question { return this.currentSingleQuestionValue; }
+  public get currentSingleQuestion(): Question {
+    return !this.isShowingPreview ? this.currentSingleQuestionValue : undefined;
+  }
   public set currentSingleQuestion(val: Question) {
     const oldVal = this.currentSingleQuestion;
     if(val !== oldVal && !this.isCompleted) {

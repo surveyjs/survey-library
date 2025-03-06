@@ -1,4 +1,4 @@
-import { _setIsTouch, Question, settings } from "survey-core";
+import { _setIsTouch, _setIsTablet, Question } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -211,9 +211,11 @@ registerMarkupTests(
       },
       before: () => {
         _setIsTouch(true);
+        _setIsTablet(true);
       },
       after: () => {
         _setIsTouch(false);
+        _setIsTablet(undefined);
       },
       snapshot: "dropdown-select-mobile",
     },

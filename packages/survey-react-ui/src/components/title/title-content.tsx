@@ -16,7 +16,7 @@ export class TitleContent extends React.Component<any, any> {
   }
   render(): React.JSX.Element {
     if (this.element.isTitleRenderedAsString)
-      return SurveyElementBase.renderLocString(this.element.locTitle);
+      return SurveyElementBase.renderLocString(this.element.locRenderedTitle);
     var spans = this.renderTitleSpans(this.element.getTitleOwner(), this.cssClasses);
     return <>{spans}</>;
   }
@@ -53,7 +53,7 @@ export class TitleContent extends React.Component<any, any> {
       spans.push(getSpaceSpan("req-sp"));
     }
     spans.push(
-      SurveyElementBase.renderLocString(element.locTitle, null, "q_title")
+      SurveyElementBase.renderLocString(element.locRenderedTitle, null, "q_title")
     );
     if (element.isRequireTextAfterTitle) {
       spans.push(getSpaceSpan("req-sp"));

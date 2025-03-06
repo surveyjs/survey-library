@@ -21695,6 +21695,26 @@ QUnit.test("Advanced header from theme", function (assert) {
   assert.equal(survey.headerView, "advanced", "After apply empty headerView is advanced");
   assert.ok(survey.findLayoutElement("advanced-header") != undefined, "After apply empty headerView advanced header is present");
 });
+
+QUnit.test("Change advanced header properties by theme", function (assert) {
+  const survey = new SurveyModel();
+  const advancedHeaderThemeWithAccentBackgroundColor: any = { headerView: "advanced", "cssVariables": { "--sjs-header-backcolor": "var(--sjs-primary-backcolor)" } };
+  const advancedHeaderThemeWithOverlapEnabled: any = { headerView: "advanced", "cssVariables": {}, "header": { overlapEnabled: true } };
+  const advancedHeaderThemeWithoutOverlapEnabled: any = { headerView: "advanced", "cssVariables": {} };
+
+  survey.applyTheme(advancedHeaderThemeWithAccentBackgroundColor);
+  assert.equal(survey.findLayoutElement("advanced-header").data.backgroundColor, "var(--sjs-primary-backcolor)", "#1 backgroundColor accent");
+  assert.ok(survey.findLayoutElement("advanced-header").data.overlapEnabled === false, "#1 overlapEnabled false");
+
+  survey.applyTheme(advancedHeaderThemeWithOverlapEnabled);
+  assert.equal(survey.findLayoutElement("advanced-header").data.backgroundColor, "transparent", "#2 backgroundColor transparent");
+  assert.ok(survey.findLayoutElement("advanced-header").data.overlapEnabled === true, "#2 overlapEnabled true");
+
+  survey.applyTheme(advancedHeaderThemeWithoutOverlapEnabled);
+  assert.equal(survey.findLayoutElement("advanced-header").data.backgroundColor, "transparent", "#3 backgroundColor transparent");
+  assert.ok(survey.findLayoutElement("advanced-header").data.overlapEnabled === false, "#3 overlapEnabled false");
+});
+
 QUnit.test("Don't rise onPageAdded when mooving question", function (assert) {
   const survey = new SurveyModel({
     pages: [{ name: "page1" }, { name: "page2" }]

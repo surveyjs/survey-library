@@ -8195,12 +8195,10 @@ export class SurveyModel extends SurveyElementCore
       this.headerView = "advanced";
     }
     if (this.headerView !== "basic") {
-      if ("header" in theme) {
-        this.removeLayoutElement("advanced-header");
-        const advHeader = new Cover();
-        advHeader.fromTheme(theme);
-        this.insertAdvancedHeader(advHeader);
-      }
+      this.removeLayoutElement("advanced-header");
+      const advHeader = new Cover();
+      advHeader.fromTheme(theme);
+      this.insertAdvancedHeader(advHeader);
     }
     this.themeChanged(theme);
   }

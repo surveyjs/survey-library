@@ -62,24 +62,31 @@
 }
 
 .sd-dropdown_clean-button {
+  margin: calcSize(-1) 0;
+  align-self: center;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 calcSize(1);
-  margin: auto 0;
+  padding: calcSize(1);
+  &:hover {
+    background: var(--lbr-editor-button-background-color-hovered, var(--sjs-layer-2-background-400, #F3F3F3));
+  }
+  cursor: pointer;
 }
 
 .sd-dropdown_chevron-button {
   position: absolute;
-  width: calcSize(5);
-  top: 0;
-  bottom: 0;
-  inset-inline-end: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  inset-inline-end: calcSize(0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-inline-end: calcSize(0.5);
-  box-sizing: content-box;
+  padding: calcSize(1);
+  &:hover {
+    background: var(--lbr-editor-button-background-color-hovered, var(--sjs-layer-2-background-400, #F3F3F3));
+  }
+  cursor: pointer;
 }
 
 .sd-dropdown_chevron-button-svg,

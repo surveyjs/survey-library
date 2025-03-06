@@ -284,7 +284,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return this.getLocalizationString("filterStringPlaceholder");
   }
   public get emptyMessage(): string {
-    return this.isAllDataLoaded ? this.getLocalizationString("emptyMessage") : this.getLocalizationString("loadingDataText");
+    return this.isAllDataLoaded ? this.getLocalizationString("emptyMessage") : this.getLocalizationString("loadingData");
   }
   public get scrollableContainer(): HTMLElement {
     return this.listContainerHtmlElement.querySelector(classesToSelector(this.cssClasses.itemsContainer));
@@ -293,7 +293,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if (!this.loadingIndicatorValue) {
       this.loadingIndicatorValue = <T><any>(new Action({
         id: "loadingIndicator",
-        title: this.getLocalizationString("pageLoadingText"),
+        title: this.getLocalizationString("loadingPage"),
         action: () => { },
         css: this.cssClasses.loadingIndicator
       }));

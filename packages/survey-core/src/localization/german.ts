@@ -100,6 +100,8 @@ export var germanSurveyStrings = {
   modalApplyButtonText: "Anwenden",
   filterStringPlaceholder: "Tippen Sie, um zu suchen...",
   emptyMessage: "Es gibt noch keine Daten.",
+  pageLoadingText: "Wird hochgeladen...",
+  loadingDataText: "Wird hochgeladen...",
   noEntriesText: "Es gibt noch keine Einträge.\nKlicken Sie auf die Schaltfläche unten, um einen neuen Eintrag hinzuzufügen.",
   noEntriesReadonlyText: "Es gibt keine Einträge.",
   tabTitlePlaceholder: "Neues Panel",

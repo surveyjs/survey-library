@@ -10,7 +10,7 @@
     "build:all": "npm run build && npm run build:i18n && npm run build:themes && npm run build:icons",
     "test": "karma start ./karma.conf.js --single-run",
     "test:watch": "karma start ./karma.conf.js",
-    "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -o default.postcss.css && rimraf default.postcss.css",
+    "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",
     "doc_gen": "node doc_generator/lib_docgenerator.js ./entries/chunks/model.ts",
     "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
@@ -45,6 +45,7 @@
     "postcss-calc": "9.0.1",
     "postcss-cli": "10.1.0",
     "postcss-fail-on-warn": "0.2.1",
+    "postcss-import": "^16.1.0",
     "qunitjs": "2.2.0",
     "rimraf": "2.5.4",
     "rollup": "^4.34.8",

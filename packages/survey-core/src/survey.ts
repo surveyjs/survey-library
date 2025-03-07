@@ -4714,7 +4714,9 @@ export class SurveyModel extends SurveyElementCore
     for (var i: number = 0; i < pages.length; i++) {
       const p = pages[i];
       if(!p.isStartPage && p.isVisible) {
-        p.addQuestionsToList(res, true);
+        const qs: Array<any> = [];
+        p.addQuestionsToList(qs, true);
+        qs.forEach(q => { if(q.isVisible) res.push(q); });
       }
     }
     return res;

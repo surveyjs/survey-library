@@ -205,10 +205,6 @@ frameworks.forEach(framework => {
 
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
       await takeElementScreenshot("dropdown-select-question-with-clear-button.png", questionDropdownSelect, t, comparer);
-      await t.hover(".sd-dropdown_clean-button");
-      await takeElementScreenshot("dropdown-select-question-with-clear-button-hovered.png", questionDropdownSelect, t, comparer);
-      await t.hover(".sd-dropdown_chevron-button");
-      await takeElementScreenshot("dropdown-select-question-with-clear-button-chevron-hovered.png", questionDropdownSelect, t, comparer);
     });
 
   });

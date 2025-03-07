@@ -1986,7 +1986,7 @@ QUnit.test("Test dropdown string localization", function (assert) {
   const listModel = q1.dropdownListModel["listModel"];
   assert.equal(listModel.filterStringPlaceholder, "Tippen Sie, um zu suchen...", "filterStringPlaceholder");
   assert.equal(listModel.emptyMessage, "Es gibt noch keine Daten.", "emptyMessage");
-  assert.equal(listModel.loadingText, "Wird hochgeladen...", "loadingText");
+  assert.equal(listModel.loadingIndicator.title, "Wird hochgeladen...", "loadingText");
 
   let popupViewModel: PopupBaseViewModel = new PopupDropdownViewModel(q1.dropdownListModel.popupModel);
   assert.equal(popupViewModel.cancelButtonText, "Abbrechen", "cancelButtonText");

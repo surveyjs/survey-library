@@ -4,7 +4,9 @@ export class CssClassBuilder {
   public isEmpty(): boolean {
     return this.toString() === "";
   }
-  public append(value: string, condition: boolean = true): CssClassBuilder {
+  public append(value: string, ...params:boolean[]): CssClassBuilder {
+    let condition: boolean = params.length === 0 || params[0];
+
     if (!!value && condition) {
       if (typeof value === "string") {
         value = value.trim();

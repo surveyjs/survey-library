@@ -33,3 +33,13 @@ QUnit.test("Use calculated value in expression", function (assert) {
   assert.equal(builder.toString(), "class1 class2 class3 class4 class5", "Append of space ended class trimmed");
 
 });
+
+QUnit.test("condition parameter: undefined vs not passed", function (assert) {
+  let builder1 = new CssClassBuilder();
+  builder1.append("class1", undefined);
+  assert.equal(builder1.toString(), "", "Builder returns empty string if condition parameter 'undefined'");
+
+  let builder2 = new CssClassBuilder();
+  builder2.append("class1");
+  assert.equal(builder2.toString(), "class1", "Builder apply class if condition parameter not passed");
+});

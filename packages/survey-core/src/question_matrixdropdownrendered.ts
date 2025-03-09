@@ -189,11 +189,16 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     return { "data-sv-drop-target-matrix-row": this.row.id };
   }
   public get className(): string {
+    let isExpandedRow = this.row?.isDetailPanelShowing && !this.isDetailRow;
+    let isRowHasPanel = this.row?.hasPanel;
+    if (typeof isExpandedRow === "undefined") isExpandedRow = true;
+    if (typeof isRowHasPanel === "undefined") isRowHasPanel = true;
+
     return new CssClassBuilder()
       .append(this.cssClasses.row)
       .append(this.cssClasses.detailRow, this.isDetailRow)
-      .append(this.cssClasses.rowHasPanel, this.row?.hasPanel)
-      .append(this.cssClasses.expandedRow, this.row?.isDetailPanelShowing && !this.isDetailRow)
+      .append(this.cssClasses.rowHasPanel, isRowHasPanel)
+      .append(this.cssClasses.expandedRow, isExpandedRow)
       .append(this.cssClasses.rowHasEndActions, this.hasEndActions)
       .append(this.cssClasses.ghostRow, this.isGhostRow)
       .append(this.cssClasses.rowAdditional, this.isAdditionalClasses)

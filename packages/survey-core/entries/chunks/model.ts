@@ -110,7 +110,7 @@ export {
   VerticalAlignment
 } from "../../src/base-interfaces";
 export { SurveyError } from "../../src/survey-error";
-export { SurveyElementCore, SurveyElement, DragTypeOverMeEnum } from "../../src/survey-element";
+export { SurveyElementCore, SurveyElement } from "../../src/survey-element";
 export { CalculatedValue } from "../../src/calculatedValue";
 export {
   CustomError,

@@ -1,7 +1,6 @@
 import { SurveyModel } from "../survey";
-import { Base, EventBase } from "../base";
-import { IShortcutText, ISurvey, ISurveyElement } from "../base-interfaces";
-import { DragTypeOverMeEnum } from "../survey-element";
+import { EventBase } from "../base";
+import { IShortcutText, ISurvey } from "../base-interfaces";
 import { IDragDropEngine } from "./engine";
 import { DragDropDOMAdapter, IDragDropDOMAdapter } from "./dom-adapter";
 import { DomDocumentHelper } from "../global_variables_utils";

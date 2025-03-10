@@ -160,14 +160,6 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public abstract getProcessedText(text: string): string;
 }
 
-// TODO: rename
-export enum DragTypeOverMeEnum {
-  InsideEmptyPanel = 1,
-  MultilineRight,
-  MultilineLeft,
-  Top, Right, Bottom, Left
-}
-
 /**
  * A base class for all survey elements.
  */
@@ -200,9 +192,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private surveyValue: ISurvey;
   private textProcessorValue: ITextProcessor;
   private selectedElementInDesignValue: SurveyElement = this;
-
-  @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
-  @property({ defaultValue: false }) isDragMe: boolean;
 
   public readOnlyChangedCallback: () => void;
 

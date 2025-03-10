@@ -1,12 +1,18 @@
 @use "../variables.scss" as *;
 
 .sv_progress-toc {
-  padding: calcSize(1);
+  padding: var(--lbr-toc-padding-top, calcSize(1)) var(--lbr-toc-padding-right, calcSize(1))
+    var(--lbr-toc-padding-bottom, calcSize(1)) var(--lbr-toc-padding-left, calcSize(1));
+  background: var(--lbr-toc-background-color, $background);
+
+  min-width: calcSize(32);
   max-width: calcSize(42);
   height: 100%;
-  background: $background;
   box-sizing: border-box;
-  min-width: calcSize(32);
+
+  .sv-list {
+    padding: 0;
+  }
 
   .sv-list__item.sv-list__item--selected .sv-list__item-body {
     background: $primary-light;
@@ -32,11 +38,11 @@
 }
 
 .sv_progress-toc--left {
-  border-right: 1px solid $border;
+  border-right: var(--lbr-toc-border-width-right, 1px) solid var(--lbr-toc-border-color, $border);
 }
 
 .sv_progress-toc--right {
-  border-left: 1px solid $border;
+  border-left: var(--lbr-toc-border-width-right, 1px) solid var(--lbr-toc-border-color, $border);
 }
 
 .sv_progress-toc--mobile {

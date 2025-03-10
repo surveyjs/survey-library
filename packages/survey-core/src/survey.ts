@@ -4264,8 +4264,8 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   private fireValidatedErrorsOnPage(page: PageModel) {
-    if (this.onValidatedErrorsOnCurrentPage.isEmpty || !page) return;
-    var questionsOnPage = page.questions;
+    if (this.onValidatePage.isEmpty || !page) return;
+    const questionsOnPage = this.getNestedQuestionsByQuestionArray(page.questions, true);
     var questions = new Array<Question>();
     var errors = new Array<SurveyError>();
     for (var i = 0; i < questionsOnPage.length; i++) {
@@ -5895,6 +5895,9 @@ export class SurveyModel extends SurveyElementCore
       );
     }
     if (!includeNested) return res;
+    return this.getNestedQuestionsByQuestionArray(res, visibleOnly);
+  }
+  private getNestedQuestionsByQuestionArray(res: Array<Question>, visibleOnly: boolean): Array<Question> {
     const res2: Array<Question> = [];
     res.forEach(q => {
       res2.push(q);

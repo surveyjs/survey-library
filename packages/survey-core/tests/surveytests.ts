@@ -11509,6 +11509,45 @@ QUnit.test("Server validation - do no fire onValidatedErrorsOnCurrentPage  on ch
     assert.equal(counter, 2, "Do complete again");
   }
 );
+QUnit.test("onValidatedErrorsOnCurrentPage doesn't include internal question errors, Bug#9331", function (assert) {
+  const survey = new SurveyModel({ "elements": [{ name: "name", type: "matrixdynamic", columns: [{ name: "col1", cellType: "text", isRequired: true }], rowCount: 2 }] });
+  let counter = 0;
+  let errorCount = 0;
+  let questionCount = 0;
+  survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
+    errorCount = options.errors.length;
+    questionCount = options.questions.length;
+    counter++;
+  });
+  survey.tryComplete();
+  assert.equal(survey.state, "running");
+  assert.equal(counter, 1, "On complete");
+  assert.equal(errorCount, 2, "options.errors.length");
+  assert.equal(questionCount, 2, "options.questions.length");
+});
+QUnit.test("onValidatedErrorsOnCurrentPage doesn't include internal question errors, Bug#9565", function (assert) {
+  const survey = new SurveyModel({ "elements": [{
+    name: "q1",
+    type: "multipletext",
+    isRequired: true,
+    items: [{ name: "minvalue", isRequired: true }, { name: "maxvalue", isRequired: true }] }] });
+  let counter = 0;
+  let errorCount = 0;
+  let questions = undefined;
+  survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
+    errorCount = options.errors.length;
+    questions = options.questions;
+    counter++;
+  });
+  survey.tryComplete();
+  assert.equal(survey.state, "running");
+  assert.equal(counter, 1, "On complete");
+  assert.equal(errorCount, 3, "options.errors.length");
+  assert.equal(questions.length, 3, "options.questions.length");
+  assert.equal(questions[0].name, "q1", "questions[0].name");
+  assert.equal(questions[1].name, "minvalue", "questions[1].name");
+  assert.equal(questions[2].name, "maxvalue", "questions[2].name");
+});
 
 QUnit.test("survey.completedHtmlOnCondition", function (assert) {
   var survey = new SurveyModel();

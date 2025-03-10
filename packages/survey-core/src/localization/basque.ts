@@ -100,6 +100,8 @@ export var basqueSurveyStrings = {
   modalApplyButtonText: "Ezarri",
   filterStringPlaceholder: "Idatzi bila...",
   emptyMessage: "Ez daturik erakusteko",
+  loadingPage: "Karga...",
+  loadingData: "Karga...",
   noEntriesText: "Oraindik ez sarrerarik.\nKlik beheko botoian klik egin sarrera berri bat eransteko.",
   noEntriesReadonlyText: "Ez sarrerarik.",
   tabTitlePlaceholder: "Panel berria",
@@ -145,3 +147,5 @@ setupLocale({ localeCode: "eu", strings: basqueSurveyStrings, nativeName: "euska
 // deselectAllItemText: "Deselect all" => "Guztiaren aukeraketa bertan behera utzi"
 // textNoDigitsAllow: "Numbers are not allowed." => "Ezin da zenbakirik egin."
 // choices_Choice: "Choice option" => "Aukeratzeko aukera"
+// loadingPage: "Loading..." => "Karga..."
+// loadingData: "Loading..." => "Karga..."

@@ -100,6 +100,8 @@ export var finnishSurveyStrings = {
   modalApplyButtonText: "Käytä",
   filterStringPlaceholder: "Hae kirjoittamalla...",
   emptyMessage: "Ei näytettäviä tietoja",
+  loadingPage: "Lastaaminen...",
+  loadingData: "Lastaaminen...",
   noEntriesText: "Merkintöjä ei ole vielä.\nLisää uusi merkintä napsauttamalla alla olevaa painiketta.",
   noEntriesReadonlyText: "Merkintöjä ei ole.",
   tabTitlePlaceholder: "Uusi paneeli",
@@ -140,3 +142,5 @@ setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suom
 // deselectAllItemText: "Deselect all" => "Poista kaikkien valinta"
 // textNoDigitsAllow: "Numbers are not allowed." => "Numerot eivät ole sallittuja."
 // choices_Choice: "Choice option" => "Valinta-vaihtoehto"
+// loadingPage: "Loading..." => "Lastaaminen..."
+// loadingData: "Loading..." => "Lastaaminen..."

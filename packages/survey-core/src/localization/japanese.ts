@@ -100,6 +100,8 @@ export var japaneseSurveyStrings = {
   modalApplyButtonText: "申し込む",
   filterStringPlaceholder: "検索するタイプ...",
   emptyMessage: "表示するデータがありません",
+  loadingPage: "積載。。。",
+  loadingData: "積載。。。",
   noEntriesText: "エントリはまだありません。\n下のボタンをクリックして、新しいエントリを追加します。",
   noEntriesReadonlyText: "エントリはありません。",
   tabTitlePlaceholder: "新しいパネル",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "ja", strings: japaneseSurveyStrings, nativeName: "日
 // deselectAllItemText: "Deselect all" => "すべて選択解除"
 // textNoDigitsAllow: "Numbers are not allowed." => "数字は使用できません。"
 // choices_Choice: "Choice option" => "選択オプション"
+// loadingPage: "Loading..." => "積載。。。"
+// loadingData: "Loading..." => "積載。。。"

@@ -100,6 +100,8 @@ export var hungarianSurveyStrings = {
   modalApplyButtonText: "Alkalmaz",
   filterStringPlaceholder: "Írja be a kereséshez...",
   emptyMessage: "Nincs megjeleníthető adat",
+  loadingPage: "Berakás...",
+  loadingData: "Berakás...",
   noEntriesText: "Még nincsenek bejegyzések.\nKattintson az alábbi gombra egy új bejegyzés hozzáadásához.",
   noEntriesReadonlyText: "Nincsenek bejegyzések.",
   tabTitlePlaceholder: "Új panel",
@@ -151,3 +153,5 @@ setupLocale({ localeCode: "hu", strings: hungarianSurveyStrings, nativeName: "ma
 // deselectAllItemText: "Deselect all" => "Az összes kijelölésének megszüntetése"
 // textNoDigitsAllow: "Numbers are not allowed." => "Számok nem engedélyezettek."
 // choices_Choice: "Choice option" => "Választási lehetőség"
+// loadingPage: "Loading..." => "Berakás..."
+// loadingData: "Loading..." => "Berakás..."

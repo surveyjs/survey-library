@@ -100,6 +100,8 @@ export var simplifiedChineseSurveyStrings = {
   modalApplyButtonText: "确定",
   filterStringPlaceholder: "键入以搜索...",
   emptyMessage: "没有要显示的数据",
+  loadingPage: "装载。。。",
+  loadingData: "装载。。。",
   noEntriesText: "尚无条目。\n单击下面的按钮以添加新条目。",
   noEntriesReadonlyText: "没有条目。",
   tabTitlePlaceholder: "新面板",
@@ -146,3 +148,5 @@ setupLocale({ localeCode: "zh-cn", strings: simplifiedChineseSurveyStrings, nati
 // deselectAllItemText: "Deselect all" => "取消全选"
 // textNoDigitsAllow: "Numbers are not allowed." => "不允许使用数字。"
 // choices_Choice: "Choice option" => "Choice 选项"
+// loadingPage: "Loading..." => "装载。。。"
+// loadingData: "Loading..." => "装载。。。"

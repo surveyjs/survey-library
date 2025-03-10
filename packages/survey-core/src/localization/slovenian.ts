@@ -1,4 +1,3 @@
-
 import { setupLocale } from "survey-core";
 
 export var slovenianStrings = {
@@ -101,6 +100,8 @@ export var slovenianStrings = {
   modalApplyButtonText: "Uporabi",
   filterStringPlaceholder: "Vnesite za iskanje...",
   emptyMessage: "Ni podatkov za prikaz",
+  loadingPage: "Nakladanje...",
+  loadingData: "Nakladanje...",
   noEntriesText: "Ni še vnosov.\nKliknite spodnji gumb za dodajanje novega vnosa.",
   noEntriesReadonlyText: "Ni vnosov",
   tabTitlePlaceholder: "Nova plošča",
@@ -109,6 +110,11 @@ export var slovenianStrings = {
   selectToRankEmptyRankedAreaText: "Vse možnosti so izbrane za razvrščanje",
   selectToRankEmptyUnrankedAreaText: "Povlecite izbire sem, da jih razvrstite",
   ok: "V redu",
-  cancel: "Prekliči",
+  cancel: "Prekliči"
 };
 setupLocale({ localeCode: "sl", strings: slovenianStrings, nativeName: "slovenščina", englishName: "Slovenian" });
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// loadingPage: "Loading..." => "Nakladanje..."
+// loadingData: "Loading..." => "Nakladanje..."

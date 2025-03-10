@@ -121,3 +121,5 @@ setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deuts
 // deselectAllItemText: "Deselect all" => "Alle abwählen"
 // textNoDigitsAllow: "Numbers are not allowed." => "Zahlen sind nicht erlaubt."
 // choices_Choice: "Choice option" => "Wahlmöglichkeit"
+// loadingPage: "Loading..." => "Wird hochgeladen..."
+// loadingData: "Loading..." => "Wird hochgeladen..."

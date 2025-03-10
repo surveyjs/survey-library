@@ -100,6 +100,8 @@ export var greekSurveyStrings = {
   modalApplyButtonText: "Εφαρμογή",
   filterStringPlaceholder: "Πληκτρολογήστε για αναζήτηση...",
   emptyMessage: "Δεν υπάρχουν δεδομένα προς εμφάνιση",
+  loadingPage: "Φόρτωση...",
+  loadingData: "Φόρτωση...",
   noEntriesText: "Δεν υπάρχουν ακόμη εγγραφές.\nΚάντε κλικ στο κουμπί παρακάτω για να προσθέσετε μια νέα εγγραφή.",
   noEntriesReadonlyText: "Δεν υπάρχουν καταχωρήσεις.",
   tabTitlePlaceholder: "Νέο πάνελ",
@@ -137,3 +139,5 @@ setupLocale({ localeCode: "gr", strings: greekSurveyStrings, nativeName: "ελλ
 // deselectAllItemText: "Deselect all" => "Αποεπιλογή όλων"
 // textNoDigitsAllow: "Numbers are not allowed." => "Οι αριθμοί δεν επιτρέπονται."
 // choices_Choice: "Choice option" => "Επιλογή επιλογής"
+// loadingPage: "Loading..." => "Φόρτωση..."
+// loadingData: "Loading..." => "Φόρτωση..."

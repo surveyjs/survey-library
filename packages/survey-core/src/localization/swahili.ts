@@ -100,6 +100,8 @@ export var swahiliStrings = {
   modalApplyButtonText: "Tekeleza",
   filterStringPlaceholder: "Andika ili kutafuta...",
   emptyMessage: "Hakuna data ya kuonyesha",
+  loadingPage: "Kupakia...",
+  loadingData: "Kupakia...",
   noEntriesText: "Hakuna maingizo kwa sasa.\nBofya kitufe hapa chini ili kuongeza ingizo jipya.",
   noEntriesReadonlyText: "Hakuna viingilio.",
   tabTitlePlaceholder: "Jopo Jipya",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "sw", strings: swahiliStrings, nativeName: "swahili", 
 // deselectAllItemText: "Deselect all" => "Delete All"
 // textNoDigitsAllow: "Numbers are not allowed." => "Hesabu haziruhusiwi."
 // choices_Choice: "Choice option" => "Chaguo la uchaguzi"
+// loadingPage: "Loading..." => "Kupakia..."
+// loadingData: "Loading..." => "Kupakia..."

@@ -100,6 +100,8 @@ export var thaiStrings = {
   modalApplyButtonText: "ใช้",
   filterStringPlaceholder: "พิมพ์เพื่อค้นหา...",
   emptyMessage: "ไม่มีข้อมูลที่จะแสดง",
+  loadingPage: "การโหลด   ",
+  loadingData: "การโหลด   ",
   noEntriesText: "ยังไม่มีรายการ\nคลิกปุ่มด้านล่างเพื่อเพิ่มรายการใหม่",
   noEntriesReadonlyText: "ไม่มีรายการ",
   tabTitlePlaceholder: "แผงใหม่",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "th", strings: thaiStrings, nativeName: "ไทย", e
 // deselectAllItemText: "Deselect all" => "ยกเลิกการเลือกทั้งหมด"
 // textNoDigitsAllow: "Numbers are not allowed." => "ไม่อนุญาตให้ใช้หมายเลข"
 // choices_Choice: "Choice option" => "ตัวเลือกตัวเลือก"
+// loadingPage: "Loading..." => "การโหลด   "
+// loadingData: "Loading..." => "การโหลด   "

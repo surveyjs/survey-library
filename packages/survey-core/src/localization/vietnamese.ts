@@ -100,6 +100,8 @@ export var vietnameseSurveyStrings = {
   modalApplyButtonText: "Áp dụng",
   filterStringPlaceholder: "Nhập để tìm kiếm...",
   emptyMessage: "Không có dữ liệu để hiển thị",
+  loadingPage: "Tải...",
+  loadingData: "Tải...",
   noEntriesText: "Chưa có mục nào.\nNhấp vào nút bên dưới để thêm mục nhập mới.",
   noEntriesReadonlyText: "Không có mục.",
   tabTitlePlaceholder: "Bảng điều khiển mới",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "v
 // deselectAllItemText: "Deselect all" => "Bỏ chọn tất cả"
 // textNoDigitsAllow: "Numbers are not allowed." => "Số không được phép."
 // choices_Choice: "Choice option" => "Tùy chọn lựa chọn"
+// loadingPage: "Loading..." => "Tải..."
+// loadingData: "Loading..." => "Tải..."

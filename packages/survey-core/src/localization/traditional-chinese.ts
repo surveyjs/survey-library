@@ -100,6 +100,8 @@ export var traditionalChineseSurveyStrings = {
   modalApplyButtonText: "應用",
   filterStringPlaceholder: "鍵入以搜尋...",
   emptyMessage: "沒有要顯示的數據",
+  loadingPage: "裝載。。。",
+  loadingData: "裝載。。。",
   noEntriesText: "尚無條目。\n按下下面的按鈕以添加新條目。",
   noEntriesReadonlyText: "沒有條目。",
   tabTitlePlaceholder: "新面板",
@@ -187,3 +189,5 @@ setupLocale({ localeCode: "zh-tw", strings: traditionalChineseSurveyStrings, nat
 // deselectAllItemText: "Deselect all" => "取消全選"
 // textNoDigitsAllow: "Numbers are not allowed." => "不允許使用數位。"
 // choices_Choice: "Choice option" => "Choice 選項"
+// loadingPage: "Loading..." => "裝載。。。"
+// loadingData: "Loading..." => "裝載。。。"

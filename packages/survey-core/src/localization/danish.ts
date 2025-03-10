@@ -100,6 +100,8 @@ export var danishSurveyStrings = {
   modalApplyButtonText: "Anvende",
   filterStringPlaceholder: "Skriv for at søge...",
   emptyMessage: "Ingen data at vise",
+  loadingPage: "Pålæsning...",
+  loadingData: "Pålæsning...",
   noEntriesText: "Der er endnu ingen tilmeldinger.\nKlik på knappen nedenfor for at tilføje en ny post.",
   noEntriesReadonlyText: "Der er ingen poster.",
   tabTitlePlaceholder: "Nyt panel",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk
 // deselectAllItemText: "Deselect all" => "Fravælg alle"
 // textNoDigitsAllow: "Numbers are not allowed." => "Numre er ikke tilladt."
 // choices_Choice: "Choice option" => "Valgmulighed"
+// loadingPage: "Loading..." => "Pålæsning..."
+// loadingData: "Loading..." => "Pålæsning..."

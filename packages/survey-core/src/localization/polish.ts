@@ -100,6 +100,8 @@ export var polishSurveyStrings = {
   modalApplyButtonText: "Zastosować",
   filterStringPlaceholder: "Wpisz aby wyszukać...",
   emptyMessage: "Brak danych do wyświetlenia",
+  loadingPage: "Ładowania...",
+  loadingData: "Ładowania...",
   noEntriesText: "Nie ma jeszcze wpisów.\nKliknij przycisk poniżej, aby dodać nowy wpis.",
   noEntriesReadonlyText: "Brak wpisów.",
   tabTitlePlaceholder: "Nowy panel",
@@ -140,3 +142,5 @@ setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polsk
 // deselectAllItemText: "Deselect all" => "Odznacz wszystko"
 // textNoDigitsAllow: "Numbers are not allowed." => "Liczby są niedozwolone."
 // choices_Choice: "Choice option" => "Opcja wyboru"
+// loadingPage: "Loading..." => "Ładowania..."
+// loadingData: "Loading..." => "Ładowania..."

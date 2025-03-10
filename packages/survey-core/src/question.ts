@@ -405,10 +405,18 @@ export class Question extends SurveyElement<Question>
   public set visible(val: boolean) {
     if (val == this.visible) return;
     this.setPropertyValue("visible", val);
-    this.onVisibleChanged();
+    this.onVisibleChangedCore();
     this.notifySurveyVisibilityChanged();
   }
   protected onVisibleChanged(): void {
+    const prevVal = this.getPropertyValue("isVisible");
+    this.onVisibleChangedCore();
+    const newVal = this.getPropertyValue("isVisible");
+    if (prevVal !== undefined && prevVal !== newVal) {
+      this.notifySurveyVisibilityChanged();
+    }
+  }
+  private onVisibleChangedCore(): void {
     this.updateIsVisibleProp();
     if (!this.isVisible && this.errors && this.errors.length > 0) {
       this.errors = [];

@@ -21094,6 +21094,31 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #
   settings.triggers.changeNavigationButtonsOnComplete = true;
   Serializer.removeClass("screenouttrigger");
 });
+QUnit.test("questionsOnPageMode & question.isVisible", function (assert) {
+  const json = {
+    elements: [{ type: "panel", elements: [
+      { type: "radiogroup", "name": "q1", choices: [1, 2, 3] },
+      { type: "radiogroup", "name": "q2", choices: [1, 3, 5], hideIfChoicesEmpty: true, choicesVisibleIf: "{q1} contains {item}" },
+    ]
+    }],
+    questionsOnPageMode: "questionPerPage",
+  };
+  const survey = new SurveyModel(json);
+  const question = survey.currentSingleQuestion;
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(question.name, "q1", "currentSingleQuestion");
+  assert.equal(q2.isVisible, false, "q2.isVisible, #1");
+  assert.equal(survey.isShowNextButton, false, "Next button is hidden, #1");
+  assert.equal(survey.isCompleteButtonVisible, true, "Complete button is shown, #1");
+  question.value = 1;
+  assert.equal(q2.isVisible, true, "q2.isVisible, #2");
+  assert.equal(survey.isShowNextButton, true, "Next button is shown, #2");
+  assert.equal(survey.isCompleteButtonVisible, false, "Complete button is hidden, #2");
+  question.value = 2;
+  assert.equal(q2.isVisible, false, "q2.isVisible, #3");
+  assert.equal(survey.isShowNextButton, false, "Next button is hidden, #3");
+  assert.equal(survey.isCompleteButtonVisible, true, "Complete button is shown, #3");
+});
 QUnit.test("Do not use questionsOnPageMode in design-mode, Bug#9274", function (assert) {
   const json = {
     "pages": [{

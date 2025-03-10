@@ -21207,6 +21207,18 @@ QUnit.test("question.canHaveFrameStyles should return true for questionsOnPageMo
   assert.equal(question.name, "q1", "currentSingleQuestion");
   assert.equal(question["canHaveFrameStyles"](), true, "canHaveFrameStyles");
 });
+QUnit.test("question.canHaveFrameStyles should return false for questionsOnPageMode for question in dynamic panel, Bug#9572", function (assert) {
+  const json = {
+    elements: [{ type: "paneldynamic", name: "panel1", panelCount: 1, templateElements: [{ "type": "text", "name": "q1" }] }],
+    questionsOnPageMode: "questionPerPage",
+  };
+  const survey = new SurveyModel(json);
+  const question = survey.currentSingleQuestion;
+  assert.equal(question.name, "panel1", "currentSingleQuestion");
+  assert.equal(question["canHaveFrameStyles"](), true, "canHaveFrameStyles");
+  const q1 = question.panels[0].getQuestionByName("q1");
+  assert.equal(q1["canHaveFrameStyles"](), false, "canHaveFrameStyles");
+});
 QUnit.test("questionsOnPageMode & validationEnabled , Bug#9558", function (assert) {
   const json = {
     elements: [

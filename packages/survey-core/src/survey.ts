@@ -3970,7 +3970,7 @@ export class SurveyModel extends SurveyElementCore
   public performNext(): boolean {
     const q = this.currentSingleQuestion;
     if(!q) return this.nextPage();
-    if(!q.validate(true)) return false;
+    if(this.validationEnabled && !q.validate(true)) return false;
     const questions = this.getSingleQuestions();
     const index = questions.indexOf(q);
     if(index < 0 || index === questions.length - 1) return false;

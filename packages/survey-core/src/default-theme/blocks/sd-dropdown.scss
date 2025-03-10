@@ -67,6 +67,7 @@
   align-items: center;
   padding: 0 calcSize(1);
   margin: auto 0;
+  cursor: pointer;
 }
 
 .sd-dropdown_chevron-button {
@@ -80,6 +81,7 @@
   align-items: center;
   padding-inline-end: calcSize(0.5);
   box-sizing: content-box;
+  cursor: pointer;
 }
 
 .sd-dropdown_chevron-button-svg,

@@ -21182,6 +21182,21 @@ QUnit.test("question.canHaveFrameStyles should return true for questionsOnPageMo
   assert.equal(question.name, "q1", "currentSingleQuestion");
   assert.equal(question["canHaveFrameStyles"](), true, "canHaveFrameStyles");
 });
+QUnit.test("questionsOnPageMode & validationEnabled , Bug#9558", function (assert) {
+  const json = {
+    elements: [
+      { type: "text", name: "q1", isRequired: true },
+      { type: "text", name: "q2", isRequired: true }
+    ],
+    questionsOnPageMode: "questionPerPage"
+  };
+  const survey = new SurveyModel(json);
+  survey.validationEnabled = false;
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion");
+  assert.equal(survey.performNext(), true, "Can go futher");
+  assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion");
+  assert.equal(survey.tryComplete(), true, "Survey is completed");
+});
 QUnit.test("survey.currentSingleQuestion & Page events, Bug#9381", function (assert) {
   const json = {
     "pages": [{

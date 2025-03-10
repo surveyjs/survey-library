@@ -100,6 +100,8 @@ export var russianSurveyStrings = {
   modalApplyButtonText: "Применять",
   filterStringPlaceholder: "Введите для поиска...",
   emptyMessage: "Нет данных для отображения",
+  loadingPage: "Загрузка...",
+  loadingData: "Загрузка...",
   noEntriesText: "Пока нет записей.\nНажмите кнопку ниже, чтобы добавить новую запись.",
   noEntriesReadonlyText: "Записей нет.",
   tabTitlePlaceholder: "Новая панель",
@@ -136,3 +138,5 @@ setupLocale({ localeCode: "ru", strings: russianSurveyStrings, nativeName: "ру
 // deselectAllItemText: "Deselect all" => "Отмена выбора всех"
 // textNoDigitsAllow: "Numbers are not allowed." => "Номера не допускаются."
 // choices_Choice: "Choice option" => "Вариант выбора"
+// loadingPage: "Loading..." => "Загрузка..."
+// loadingData: "Loading..." => "Загрузка..."

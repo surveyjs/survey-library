@@ -100,6 +100,8 @@ export var philippinesStrings = {
   modalApplyButtonText: "Mag-apply",
   filterStringPlaceholder: "I-type para maghanap...",
   emptyMessage: "walang maipakitang datos",
+  loadingPage: "Naglo-load...",
+  loadingData: "Naglo-load...",
   noEntriesText: "Wala pang entry.\nI-click ang button sa ibaba para magdagdag ng bagong entry.",
   noEntriesReadonlyText: "Walang entry",
   tabTitlePlaceholder: "Bagong Panel",
@@ -122,3 +124,5 @@ setupLocale({ localeCode: "fil", strings: philippinesStrings, nativeName: "filip
 // deselectAllItemText: "Deselect all" => "Alisin ang pagpili ng lahat"
 // textNoDigitsAllow: "Numbers are not allowed." => "Bawal ang mga numero."
 // choices_Choice: "Choice option" => "Pagpipilian sa pagpipilian"
+// loadingPage: "Loading..." => "Naglo-load..."
+// loadingData: "Loading..." => "Naglo-load..."

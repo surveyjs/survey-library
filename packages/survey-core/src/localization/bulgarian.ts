@@ -100,6 +100,8 @@ export var bulgarianStrings = {
   modalApplyButtonText: "Прилагам",
   filterStringPlaceholder: "Въведете за търсене...",
   emptyMessage: "Няма данни за показване",
+  loadingPage: "Зареждане...",
+  loadingData: "Зареждане...",
   noEntriesText: "Все още няма записи.\nЩракнете върху бутона по-долу, за да добавите нов запис.",
   noEntriesReadonlyText: "Няма записи.",
   tabTitlePlaceholder: "Нов панел",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "bg", strings: bulgarianStrings, nativeName: "бълг
 // deselectAllItemText: "Deselect all" => "Премахване на избора на всички"
 // textNoDigitsAllow: "Numbers are not allowed." => "Номерата не са позволени."
 // choices_Choice: "Choice option" => "Опция за избор"
+// loadingPage: "Loading..." => "Зареждане..."
+// loadingData: "Loading..." => "Зареждане..."

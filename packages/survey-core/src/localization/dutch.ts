@@ -100,6 +100,8 @@ export var dutchSurveyStrings = {
   modalApplyButtonText: "Toepassen",
   filterStringPlaceholder: "Typ om te zoeken...",
   emptyMessage: "Geen gegevens om weer te geven",
+  loadingPage: "Laden...",
+  loadingData: "Laden...",
   noEntriesText: "Er zijn nog geen inzendingen.\nKlik op de onderstaande knop om een nieuw item toe te voegen.",
   noEntriesReadonlyText: "Er zijn geen inzendingen.",
   tabTitlePlaceholder: "Nieuw paneel",
@@ -150,3 +152,5 @@ setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederl
 // deselectAllItemText: "Deselect all" => "Alles deselecteren"
 // textNoDigitsAllow: "Numbers are not allowed." => "Nummers zijn niet toegestaan."
 // choices_Choice: "Choice option" => "Keuze optie"
+// loadingPage: "Loading..." => "Laden..."
+// loadingData: "Loading..." => "Laden..."

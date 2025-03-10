@@ -100,6 +100,8 @@ export var czechSurveyStrings = {
   modalApplyButtonText: "Použít",
   filterStringPlaceholder: "Zadejte hledaný text...",
   emptyMessage: "Žádná data k zobrazení",
+  loadingPage: "Nakládka...",
+  loadingData: "Nakládka...",
   noEntriesText: "Zatím nejsou žádné záznamy.\nKliknutím na tlačítko níže přidáte novou položku.",
   noEntriesReadonlyText: "Nejsou zde žádné položky.",
   tabTitlePlaceholder: "Nový panel",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "češt
 // deselectAllItemText: "Deselect all" => "Zrušit výběr všech"
 // textNoDigitsAllow: "Numbers are not allowed." => "Čísla nejsou povolena."
 // choices_Choice: "Choice option" => "Možnost volby"
+// loadingPage: "Loading..." => "Nakládka..."
+// loadingData: "Loading..." => "Nakládka..."

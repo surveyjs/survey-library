@@ -100,6 +100,8 @@ export var koreanStrings = {
   modalApplyButtonText: "적용",
   filterStringPlaceholder: "검색 유형...",
   emptyMessage: "표시할 데이터가 없습니다.",
+  loadingPage: "로드...",
+  loadingData: "로드...",
   noEntriesText: "아직 항목이 없습니다.\n새 항목을 추가하려면 아래 버튼을 클릭하세요.",
   noEntriesReadonlyText: "항목이 없습니다.",
   tabTitlePlaceholder: "새 패널",
@@ -139,3 +141,5 @@ setupLocale({ localeCode: "ko", strings: koreanStrings, nativeName: "한국어",
 // deselectAllItemText: "Deselect all" => "모두 선택 해제"
 // textNoDigitsAllow: "Numbers are not allowed." => "숫자는 허용되지 않습니다."
 // choices_Choice: "Choice option" => "선택 옵션"
+// loadingPage: "Loading..." => "로드..."
+// loadingData: "Loading..." => "로드..."

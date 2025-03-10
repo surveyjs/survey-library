@@ -100,6 +100,8 @@ export var icelandicSurveyStrings = {
   modalApplyButtonText: "Nota",
   filterStringPlaceholder: "Sláðu inn til að leita...",
   emptyMessage: "Engin gögn til að birta",
+  loadingPage: "Hleðsla...",
+  loadingData: "Hleðsla...",
   noEntriesText: "Það eru engar færslur ennþá.\nSmelltu á hnappinn hér að neðan til að bæta við nýrri færslu.",
   noEntriesReadonlyText: "Það eru engar færslur.",
   tabTitlePlaceholder: "Nýtt spjald",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "is", strings: icelandicSurveyStrings, nativeName: "í
 // deselectAllItemText: "Deselect all" => "Afveljið allt"
 // textNoDigitsAllow: "Numbers are not allowed." => "Tölur eru ekki leyfðar."
 // choices_Choice: "Choice option" => "Valmöguleiki"
+// loadingPage: "Loading..." => "Hleðsla..."
+// loadingData: "Loading..." => "Hleðsla..."

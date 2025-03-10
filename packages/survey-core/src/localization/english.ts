@@ -101,6 +101,8 @@ export var englishStrings = {
   modalApplyButtonText: "Apply",
   filterStringPlaceholder: "Type to search...",
   emptyMessage: "No data to display",
+  loadingPage: "Loading...",
+  loadingData: "Loading...",
   noEntriesText: "No entries yet.\nClick the button below to add a new entry.",
   noEntriesReadonlyText: "No entries",
   tabTitlePlaceholder: "New Panel",

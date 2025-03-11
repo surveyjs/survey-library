@@ -34,11 +34,18 @@ const buildPlatformJson = {
   ],
   "main": "survey-js-ui.js",
   "module": "fesm/survey-js-ui.js",
+  "typings": "./typings/survey-js-ui/entries/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./typings/survey-js-ui/entries/index.d.ts",
+      "import": "./fesm/survey-js-ui.js",
+      "require": "./survey-js-ui.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
-  "typings": "./typings/survey-js-ui/entries/index.d.ts",
   "dependencies": {},
   "peerDependencies": {
     "survey-core": packageJson.version,

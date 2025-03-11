@@ -4264,7 +4264,7 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   private fireValidatedErrorsOnPage(page: PageModel) {
-    if (this.onValidatePage.isEmpty || !page) return;
+    if (this.onValidatedErrorsOnCurrentPage.isEmpty || !page) return;
     const questionsOnPage = this.getNestedQuestionsByQuestionArray(page.questions, true);
     var questions = new Array<Question>();
     var errors = new Array<SurveyError>();

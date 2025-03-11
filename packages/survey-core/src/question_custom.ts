@@ -842,6 +842,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.setValue(this.name, this.value, false, this.allowNotifyValueChanged);
     }
   }
+  public supportOther(): boolean {
+    return true;
+  }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (!this.contentQuestion) return false;
     var res = this.contentQuestion.hasErrors(fireCallback, rec);
@@ -879,6 +882,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       let qType = json.questionJSON.type;
       if (!qType || !Serializer.findClass(qType))
         throw "type attribute in questionJSON is empty or incorrect";
+      if (json.questionJSON.showOtherItem !== undefined) {
+        this.showOtherItem = json.questionJSON.showOtherItem
+      }
       res = <Question>Serializer.createClass(qType);
       res.fromJSON(json.questionJSON);
       res = this.checkCreatedQuestion(res);

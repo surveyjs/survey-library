@@ -423,7 +423,9 @@ frameworks.forEach(framework => {
         .typeText(".sd-dropdown__filter-string-input", "test")
         .wait(100);
       await takeElementScreenshot("dropdown-empty-list.png", popupContainer, t, comparer);
+      await t.click(".sd-dropdown__filter-string-input");
       await t.resizeWindow(300, 500);
+      await t.typeText(".sd-dropdown__filter-string-input", "1");
       await takeElementScreenshot("dropdown-small-window-empty-list.png", popupContainer, t, comparer);
     });
   });

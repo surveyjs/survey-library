@@ -12,6 +12,7 @@ const questionValueHint = Selector(".sd-dropdown__hint-suffix");
 const clearButton = Selector(".sd-dropdown_clean-button");
 
 const questionOffsetTopConst = 176;
+const singleListItemHeight = 56;
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
@@ -304,9 +305,9 @@ frameworks.forEach((framework) => {
 
     await t
       .click(questionDropdownSelect)
-      .expect(Selector(".sv-popup--dropdown-overlay").visible).ok()
-      .click(Selector(".sv-popup--dropdown-overlay"), { offsetX: 10, offsetY: 10 })
-      .expect(Selector(".sv-popup--dropdown-overlay").visible).notOk();
+      .expect(Selector(".sv-popup--menu-tablet").visible).ok()
+      .click(Selector(".sv-popup--menu-tablet"), { offsetX: 10, offsetY: 10 })
+      .expect(Selector(".sv-popup--menu-tablet").visible).notOk();
   });
 
   test("open dropdown and click outside, tablet", async (t) => {
@@ -1504,7 +1505,7 @@ frameworks.forEach((framework) => {
 
       .pressKey("down")
       .expect(dropdown1.find(".sv-list__empty-container").visible).ok()
-      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(singleListItemHeight)
       .expect(listItems.filterVisible().count).eql(0)
 
       .wait(500)
@@ -1534,13 +1535,13 @@ frameworks.forEach((framework) => {
       .click(getListItemByText("55"))
       .click(Selector(".sd-dropdown").nth(1))
       .expect(dropdown2.find(".sv-list__empty-container").visible).ok()
-      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).eql(singleListItemHeight)
       .expect(listItems.filterVisible().count).eql(0)
 
       .wait(500)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown2.offsetTop).eql(0)
-      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(708, 718)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(716, 726)
       .expect(dropdown2.find(".sv-list").scrollTop).eql(0)
       .expect(dropdown2.find(".sv-list").scrollHeight).within(1358, 1508)
       .expect(listItems.filterVisible().count).eql(31)
@@ -1549,7 +1550,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown2.offsetTop).eql(0)
-      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(708, 718)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(716, 726)
       .expect(dropdown2.find(".sv-list").scrollTop).within(746, 846)
       .expect(dropdown2.find(".sv-list").scrollHeight).within(2608, 2658)
       .expect(listItems.filterVisible().count).eql(55)
@@ -1656,13 +1657,13 @@ frameworks.forEach((framework) => {
       .expect(listItems.filterVisible().count).eql(10)
       .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown1.offsetTop).eql(questionOffsetTopConst)
-      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(475, 485)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(485, 495)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown1.offsetTop).eql(questionOffsetTopConst)
-      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(singleListItemHeight)
 
       .pressKey("enter")
       .expect(dropdown1.visible).notOk()
@@ -1673,13 +1674,13 @@ frameworks.forEach((framework) => {
       .expect(listItems.filterVisible().count).eql(10)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown2.offsetTop).within(228, 238)
-      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(470, 480)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(480, 490)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown2.offsetTop).eql(768)
-      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).eql(singleListItemHeight)
 
       .pressKey("enter")
       .expect(dropdown2.visible).notOk()

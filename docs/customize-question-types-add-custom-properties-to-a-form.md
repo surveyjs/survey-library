@@ -209,6 +209,19 @@ import { Serializer } from "survey-core";
 Serializer.getProperty("matrix", "eachRowRequired").defaultValue = true;
 ```
 
+If you want to override the default value of a localizable property, do it using [localization capabilities](/form-library/documentation/survey-localization#override-individual-translations). In most cases, localizable properties are those that specify UI captions: [`completeText`](/form-library/documentation/api-reference/survey-data-model#completeText), [`pageNextText`](/form-library/documentation/api-reference/survey-data-model#pageNextText), [`pagePrevText`](/form-library/documentation/api-reference/survey-data-model#pagePrevText), etc.
+
+```js
+import { getLocaleStrings } from "survey-core";
+
+const engLocale = getLocaleStrings("en");
+engLocale.pagePrevText = "Back";
+engLocale.pageNextText = "Forward";
+engLocale.completeText = "Send";
+```
+
+[View Demo](/form-library/examples/survey-localization/ (linkStyle))
+
 ## Survey Element Property Settings
 
 This section describes settings that you can specify within a `propMeta` object when calling the `addProperty(className, propMeta)` or `addClass(name, propMeta[], constructor, baseClassName)` method on the `Serializer` object.

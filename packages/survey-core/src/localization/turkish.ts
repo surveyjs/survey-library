@@ -100,6 +100,8 @@ export var turkishSurveyStrings = {
   modalApplyButtonText: "Uygula",
   filterStringPlaceholder: "Aramak için yazın...",
   emptyMessage: "Görüntülenecek veri yok",
+  loadingPage: "Yükleme...",
+  loadingData: "Yükleme...",
   noEntriesText: "Henüz giriş yok.\nYeni bir giriş eklemek için aşağıdaki düğmeyi tıklayın.",
   noEntriesReadonlyText: "Giriş yok.",
   tabTitlePlaceholder: "Yeni Panel",
@@ -133,3 +135,5 @@ setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "tür
 // deselectAllItemText: "Deselect all" => "Tümünün seçimini kaldır"
 // textNoDigitsAllow: "Numbers are not allowed." => "Numaralara izin verilmez."
 // choices_Choice: "Choice option" => "Seçim seçeneği"
+// loadingPage: "Loading..." => "Yükleme..."
+// loadingData: "Loading..." => "Yükleme..."

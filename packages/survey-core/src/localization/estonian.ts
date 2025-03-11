@@ -100,6 +100,8 @@ export var estonianSurveyStrings = {
   modalApplyButtonText: "Kohaldata",
   filterStringPlaceholder: "Tippige otsimiseks...",
   emptyMessage: "Kuvatavaid andmeid pole",
+  loadingPage: "Laadimise...",
+  loadingData: "Laadimise...",
   noEntriesText: "Sissekandeid veel ei ole.\nUue kirje lisamiseks klõpsake allolevat nuppu.",
   noEntriesReadonlyText: "Kirjeid ei ole.",
   tabTitlePlaceholder: "Uus paneel",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "et", strings: estonianSurveyStrings, nativeName: "ees
 // deselectAllItemText: "Deselect all" => "Kõigi valiku tühistamine"
 // textNoDigitsAllow: "Numbers are not allowed." => "Numbrid ei ole lubatud."
 // choices_Choice: "Choice option" => "Valiku valik"
+// loadingPage: "Loading..." => "Laadimise..."
+// loadingData: "Loading..." => "Laadimise..."

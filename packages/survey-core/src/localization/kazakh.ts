@@ -100,6 +100,8 @@ export var kazakhStrings = {
   modalApplyButtonText: "Қолдану",
   filterStringPlaceholder: "Іздеу үшін теріңіз...",
   emptyMessage: "Көрсетілетін деректер жоқ",
+  loadingPage: "Жүктеу...",
+  loadingData: "Жүктеу...",
   noEntriesText: "Әзірге жазбалар жоқ.\nЖаңа жазбаны қосу үшін төмендегі түймешігіңді басыңыз.",
   noEntriesReadonlyText: "Жазбалар жоқ.",
   tabTitlePlaceholder: "Жаңа панель",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", en
 // deselectAllItemText: "Deselect all" => "Барлығын жоққа шығару"
 // textNoDigitsAllow: "Numbers are not allowed." => "Нөмірлерді беруге жол берілмейді."
 // choices_Choice: "Choice option" => "Таңдау параметрі"
+// loadingPage: "Loading..." => "Жүктеу..."
+// loadingData: "Loading..." => "Жүктеу..."

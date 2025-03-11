@@ -100,6 +100,8 @@ export var ukrainianSurveyStrings = {
   modalApplyButtonText: "Застосовувати",
   filterStringPlaceholder: "Введіть для пошуку...",
   emptyMessage: "Немає даних для відображення",
+  loadingPage: "Завантаження...",
+  loadingData: "Завантаження...",
   noEntriesText: "Записів поки немає.\nНатисніть кнопку нижче, щоб додати новий запис.",
   noEntriesReadonlyText: "Записів немає.",
   tabTitlePlaceholder: "Нова панель",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "ua", strings: ukrainianSurveyStrings, nativeName: "у
 // deselectAllItemText: "Deselect all" => "Зніміть позначку з усіх"
 // textNoDigitsAllow: "Numbers are not allowed." => "Номери не допускаються."
 // choices_Choice: "Choice option" => "Варіант вибору"
+// loadingPage: "Loading..." => "Завантаження..."
+// loadingData: "Loading..." => "Завантаження..."

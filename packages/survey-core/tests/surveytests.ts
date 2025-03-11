@@ -11474,6 +11474,45 @@ QUnit.test("Server validation - do no fire onValidatedErrorsOnCurrentPage  on ch
     assert.equal(counter, 2, "Do complete again");
   }
 );
+QUnit.test("onValidatedErrorsOnCurrentPage doesn't include internal question errors, Bug#9331", function (assert) {
+  const survey = new SurveyModel({ "elements": [{ name: "name", type: "matrixdynamic", columns: [{ name: "col1", cellType: "text", isRequired: true }], rowCount: 2 }] });
+  let counter = 0;
+  let errorCount = 0;
+  let questionCount = 0;
+  survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
+    errorCount = options.errors.length;
+    questionCount = options.questions.length;
+    counter++;
+  });
+  survey.tryComplete();
+  assert.equal(survey.state, "running");
+  assert.equal(counter, 1, "On complete");
+  assert.equal(errorCount, 2, "options.errors.length");
+  assert.equal(questionCount, 2, "options.questions.length");
+});
+QUnit.test("onValidatedErrorsOnCurrentPage doesn't include internal question errors, Bug#9565", function (assert) {
+  const survey = new SurveyModel({ "elements": [{
+    name: "q1",
+    type: "multipletext",
+    isRequired: true,
+    items: [{ name: "minvalue", isRequired: true }, { name: "maxvalue", isRequired: true }] }] });
+  let counter = 0;
+  let errorCount = 0;
+  let questions = undefined;
+  survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
+    errorCount = options.errors.length;
+    questions = options.questions;
+    counter++;
+  });
+  survey.tryComplete();
+  assert.equal(survey.state, "running");
+  assert.equal(counter, 1, "On complete");
+  assert.equal(errorCount, 3, "options.errors.length");
+  assert.equal(questions.length, 3, "options.questions.length");
+  assert.equal(questions[0].name, "q1", "questions[0].name");
+  assert.equal(questions[1].name, "minvalue", "questions[1].name");
+  assert.equal(questions[2].name, "maxvalue", "questions[2].name");
+});
 
 QUnit.test("survey.completedHtmlOnCondition", function (assert) {
   var survey = new SurveyModel();
@@ -21150,6 +21189,31 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #
   settings.triggers.changeNavigationButtonsOnComplete = true;
   Serializer.removeClass("screenouttrigger");
 });
+QUnit.test("questionsOnPageMode & question.isVisible", function (assert) {
+  const json = {
+    elements: [{ type: "panel", elements: [
+      { type: "radiogroup", "name": "q1", choices: [1, 2, 3] },
+      { type: "radiogroup", "name": "q2", choices: [1, 3, 5], hideIfChoicesEmpty: true, choicesVisibleIf: "{q1} contains {item}" },
+    ]
+    }],
+    questionsOnPageMode: "questionPerPage",
+  };
+  const survey = new SurveyModel(json);
+  const question = survey.currentSingleQuestion;
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(question.name, "q1", "currentSingleQuestion");
+  assert.equal(q2.isVisible, false, "q2.isVisible, #1");
+  assert.equal(survey.isShowNextButton, false, "Next button is hidden, #1");
+  assert.equal(survey.isCompleteButtonVisible, true, "Complete button is shown, #1");
+  question.value = 1;
+  assert.equal(q2.isVisible, true, "q2.isVisible, #2");
+  assert.equal(survey.isShowNextButton, true, "Next button is shown, #2");
+  assert.equal(survey.isCompleteButtonVisible, false, "Complete button is hidden, #2");
+  question.value = 2;
+  assert.equal(q2.isVisible, false, "q2.isVisible, #3");
+  assert.equal(survey.isShowNextButton, false, "Next button is hidden, #3");
+  assert.equal(survey.isCompleteButtonVisible, true, "Complete button is shown, #3");
+});
 QUnit.test("Do not use questionsOnPageMode in design-mode, Bug#9274", function (assert) {
   const json = {
     "pages": [{
@@ -21181,6 +21245,33 @@ QUnit.test("question.canHaveFrameStyles should return true for questionsOnPageMo
   const question = survey.currentSingleQuestion;
   assert.equal(question.name, "q1", "currentSingleQuestion");
   assert.equal(question["canHaveFrameStyles"](), true, "canHaveFrameStyles");
+});
+QUnit.test("question.canHaveFrameStyles should return false for questionsOnPageMode for question in dynamic panel, Bug#9572", function (assert) {
+  const json = {
+    elements: [{ type: "paneldynamic", name: "panel1", panelCount: 1, templateElements: [{ "type": "text", "name": "q1" }] }],
+    questionsOnPageMode: "questionPerPage",
+  };
+  const survey = new SurveyModel(json);
+  const question = survey.currentSingleQuestion;
+  assert.equal(question.name, "panel1", "currentSingleQuestion");
+  assert.equal(question["canHaveFrameStyles"](), true, "canHaveFrameStyles");
+  const q1 = question.panels[0].getQuestionByName("q1");
+  assert.equal(q1["canHaveFrameStyles"](), false, "canHaveFrameStyles");
+});
+QUnit.test("questionsOnPageMode & validationEnabled , Bug#9558", function (assert) {
+  const json = {
+    elements: [
+      { type: "text", name: "q1", isRequired: true },
+      { type: "text", name: "q2", isRequired: true }
+    ],
+    questionsOnPageMode: "questionPerPage"
+  };
+  const survey = new SurveyModel(json);
+  survey.validationEnabled = false;
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion");
+  assert.equal(survey.performNext(), true, "Can go futher");
+  assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion");
+  assert.equal(survey.tryComplete(), true, "Survey is completed");
 });
 QUnit.test("survey.currentSingleQuestion & Page events, Bug#9381", function (assert) {
   const json = {

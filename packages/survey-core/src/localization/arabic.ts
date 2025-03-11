@@ -100,6 +100,8 @@ export var arabicSurveyStrings = {
   modalApplyButtonText: "طبق",
   filterStringPlaceholder: "اكتب للبحث...",
   emptyMessage: "لا توجد بيانات للعرض",
+  loadingPage: "تحميل...",
+  loadingData: "تحميل...",
   noEntriesText: "لا توجد إدخالات حتى الآن.\nانقر فوق الزر أدناه لإضافة إدخال جديد.",
   noEntriesReadonlyText: "لا توجد إدخالات.",
   tabTitlePlaceholder: "لوحة جديدة",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "ar", strings: arabicSurveyStrings, nativeName: "ال�
 // deselectAllItemText: "Deselect all" => "إلغاء تحديد الكل"
 // textNoDigitsAllow: "Numbers are not allowed." => "الأرقام غير مسموح بها."
 // choices_Choice: "Choice option" => "خيار الاختيار"
+// loadingPage: "Loading..." => "تحميل..."
+// loadingData: "Loading..." => "تحميل..."

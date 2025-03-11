@@ -100,6 +100,8 @@ export var spanishSurveyStrings = {
   modalApplyButtonText: "Aplicar",
   filterStringPlaceholder: "Escribe para buscar...",
   emptyMessage: "No hay datos para mostrar",
+  loadingPage: "Carga...",
+  loadingData: "Carga...",
   noEntriesText: "Aún no hay entradas.\nHaga clic en el botón de abajo para agregar una nueva entrada.",
   noEntriesReadonlyText: "No hay entradas.",
   tabTitlePlaceholder: "Nuevo panel",
@@ -140,3 +142,5 @@ setupLocale({ localeCode: "es", strings: spanishSurveyStrings, nativeName: "espa
 // deselectAllItemText: "Deselect all" => "Anular la selección de todo"
 // textNoDigitsAllow: "Numbers are not allowed." => "No se permiten números."
 // choices_Choice: "Choice option" => "Opción de elección"
+// loadingPage: "Loading..." => "Carga..."
+// loadingData: "Loading..." => "Carga..."

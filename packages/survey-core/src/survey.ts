@@ -4099,7 +4099,7 @@ export class SurveyModel extends SurveyElementCore
   public performNext(): boolean {
     const q = this.currentSingleQuestion;
     if(!q) return this.nextPage();
-    if(!q.validate(true)) return false;
+    if(this.validationEnabled && !q.validate(true)) return false;
     const questions = this.getSingleQuestions();
     const index = questions.indexOf(q);
     if(index < 0 || index === questions.length - 1) return false;
@@ -4394,7 +4394,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private fireValidatedErrorsOnPage(page: PageModel) {
     if (this.onValidatePage.isEmpty || !page) return;
-    var questionsOnPage = page.questions;
+    const questionsOnPage = this.getNestedQuestionsByQuestionArray(page.questions, true);
     var questions = new Array<Question>();
     var errors = new Array<SurveyError>();
     for (var i = 0; i < questionsOnPage.length; i++) {
@@ -4714,7 +4714,9 @@ export class SurveyModel extends SurveyElementCore
     for (var i: number = 0; i < pages.length; i++) {
       const p = pages[i];
       if(!p.isStartPage && p.isVisible) {
-        p.addQuestionsToList(res, true);
+        const qs: Array<any> = [];
+        p.addQuestionsToList(qs, true);
+        qs.forEach(q => { if(q.isVisible) res.push(q); });
       }
     }
     return res;
@@ -6016,6 +6018,9 @@ export class SurveyModel extends SurveyElementCore
       );
     }
     if (!includeNested) return res;
+    return this.getNestedQuestionsByQuestionArray(res, visibleOnly);
+  }
+  private getNestedQuestionsByQuestionArray(res: Array<Question>, visibleOnly: boolean): Array<Question> {
     const res2: Array<Question> = [];
     res.forEach(q => {
       res2.push(q);

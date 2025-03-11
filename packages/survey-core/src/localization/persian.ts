@@ -100,6 +100,8 @@ export var persianSurveyStrings = {
   modalApplyButtonText: "درخواست",
   filterStringPlaceholder: "تایپ برای جستجو...",
   emptyMessage: "داده ای برای نمایش وجود ندارد",
+  loadingPage: "بارگذاری...",
+  loadingData: "بارگذاری...",
   noEntriesText: "هنوز هیچ ورودی وجود ندارد.\nروی دکمه زیر کلیک کنید تا یک ورودی جدید اضافه شود.",
   noEntriesReadonlyText: "هیچ ورودی وجود ندارد.",
   tabTitlePlaceholder: "پنل جدید",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "fa", strings: persianSurveyStrings, nativeName: "فا
 // deselectAllItemText: "Deselect all" => "لغو انتخاب همه"
 // textNoDigitsAllow: "Numbers are not allowed." => "شماره ها مجاز نیستند."
 // choices_Choice: "Choice option" => "گزینه انتخاب"
+// loadingPage: "Loading..." => "بارگذاری..."
+// loadingData: "Loading..." => "بارگذاری..."

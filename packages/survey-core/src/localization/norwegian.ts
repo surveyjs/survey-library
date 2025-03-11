@@ -100,6 +100,8 @@ export var norwegianSurveyStrings = {
   modalApplyButtonText: "Bruke",
   filterStringPlaceholder: "Skriv for å søke ...",
   emptyMessage: "Ingen data å vise",
+  loadingPage: "Lasting...",
+  loadingData: "Lasting...",
   noEntriesText: "Det er ingen oppføringer ennå.\nKlikk på knappen nedenfor for å legge til en ny oppføring.",
   noEntriesReadonlyText: "Det er ingen oppføringer.",
   tabTitlePlaceholder: "Nytt panel",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "no", strings: norwegianSurveyStrings, nativeName: "no
 // deselectAllItemText: "Deselect all" => "Fjern merket for alle"
 // textNoDigitsAllow: "Numbers are not allowed." => "Tall er ikke tillatt."
 // choices_Choice: "Choice option" => "Valg alternativ"
+// loadingPage: "Loading..." => "Lasting..."
+// loadingData: "Loading..." => "Lasting..."

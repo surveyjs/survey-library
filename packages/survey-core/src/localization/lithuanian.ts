@@ -100,6 +100,8 @@ export var lithuaniaSurveyStrings = {
   modalApplyButtonText: "Vartoti",
   filterStringPlaceholder: "Įveskite, kad ieškotumėte...",
   emptyMessage: "Nėra rodomų duomenų",
+  loadingPage: "Pakrovimo...",
+  loadingData: "Pakrovimo...",
   noEntriesText: "Įrašų dar nėra.\nSpustelėkite žemiau esantį mygtuką, kad pridėtumėte naują įrašą.",
   noEntriesReadonlyText: "Įrašų nėra.",
   tabTitlePlaceholder: "Naujas skydelis",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "lt", strings: lithuaniaSurveyStrings, nativeName: "li
 // deselectAllItemText: "Deselect all" => "Panaikinkite visų žymėjimą"
 // textNoDigitsAllow: "Numbers are not allowed." => "Numeriai neleidžiami."
 // choices_Choice: "Choice option" => "Pasirinkimo galimybė"
+// loadingPage: "Loading..." => "Pakrovimo..."
+// loadingData: "Loading..." => "Pakrovimo..."

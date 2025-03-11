@@ -100,6 +100,8 @@ export var indonesianStrings = {
   modalApplyButtonText: "Berlaku",
   filterStringPlaceholder: "Ketik untuk mencari...",
   emptyMessage: "Tidak ada data untuk ditampilkan",
+  loadingPage: "Loading...",
+  loadingData: "Loading...",
   noEntriesText: "Belum ada entri.\nKlik tombol di bawah ini untuk menambahkan entri baru.",
   noEntriesReadonlyText: "Tidak ada entri.",
   tabTitlePlaceholder: "Panel Baru",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa 
 // deselectAllItemText: "Deselect all" => "Batalkan pilihan semua"
 // textNoDigitsAllow: "Numbers are not allowed." => "Nomor tidak diperbolehkan."
 // choices_Choice: "Choice option" => "Opsi pilihan"
+// loadingPage: "Loading..." => "Loading..."
+// loadingData: "Loading..." => "Loading..."

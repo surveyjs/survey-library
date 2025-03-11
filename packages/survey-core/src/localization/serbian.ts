@@ -100,6 +100,8 @@ export var serbianStrings = {
   modalApplyButtonText: "Primeni",
   filterStringPlaceholder: "Otkucajte da biste pretražili...",
   emptyMessage: "Nema podataka za prikazivanje",
+  loadingPage: "Učitavanje...",
+  loadingData: "Učitavanje...",
   noEntriesText: "Još uvek nema stavki.\nKliknite na dugme ispod da biste dodali novu stavku.",
   noEntriesReadonlyText: "Nema stavki.",
   tabTitlePlaceholder: "Nova tabla",
@@ -146,3 +148,5 @@ setupLocale({ localeCode: "rs", strings: serbianStrings, nativeName: "srpski", e
 // deselectAllItemText: "Deselect all" => "Poništi izbor svih"
 // textNoDigitsAllow: "Numbers are not allowed." => "Brojevi nisu dozvoljeni."
 // choices_Choice: "Choice option" => "Opcija izbora"
+// loadingPage: "Loading..." => "Učitavanje..."
+// loadingData: "Loading..." => "Učitavanje..."

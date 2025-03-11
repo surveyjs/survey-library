@@ -100,6 +100,8 @@ export var latvianSurveyStrings = {
   modalApplyButtonText: "Pielietot",
   filterStringPlaceholder: "Ierakstiet, lai meklētu...",
   emptyMessage: "Nav datu, ko rādīt",
+  loadingPage: "Iekraušanas...",
+  loadingData: "Iekraušanas...",
   noEntriesText: "Vēl nav neviena ieraksta.\nNoklikšķiniet uz zemāk esošās pogas, lai pievienotu jaunu ierakstu.",
   noEntriesReadonlyText: "Ierakstu nav.",
   tabTitlePlaceholder: "Jauns panelis",
@@ -140,3 +142,5 @@ setupLocale({ localeCode: "lv", strings: latvianSurveyStrings, nativeName: "latv
 // deselectAllItemText: "Deselect all" => "Noņemt atlasi visiem"
 // textNoDigitsAllow: "Numbers are not allowed." => "Numuri nav atļauti."
 // choices_Choice: "Choice option" => "Izvēles iespēja"
+// loadingPage: "Loading..." => "Iekraušanas..."
+// loadingData: "Loading..." => "Iekraušanas..."

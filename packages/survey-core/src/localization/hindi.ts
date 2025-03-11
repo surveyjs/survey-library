@@ -100,6 +100,8 @@ export var hindiStrings = {
   modalApplyButtonText: "लागू करना",
   filterStringPlaceholder: "खोज करने के लिए टाइप करें...",
   emptyMessage: "प्रदर्शित करने के लिए कोई डेटा नहीं",
+  loadingPage: "लोड।।।",
+  loadingData: "लोड।।।",
   noEntriesText: "अभी तक कोई प्रविष्टियां नहीं हैं।\nनई प्रविष्टि जोड़ने के लिए नीचे दिए गए बटन पर क्लिक करें.",
   noEntriesReadonlyText: "कोई प्रविष्टियाँ नहीं हैं.",
   tabTitlePlaceholder: "नया पैनल",
@@ -153,3 +155,5 @@ setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "hindi", engl
 // deselectAllItemText: "Deselect all" => "सभी को अचयनित करें"
 // textNoDigitsAllow: "Numbers are not allowed." => "संख्या की अनुमति नहीं है।"
 // choices_Choice: "Choice option" => "पसंद विकल्प"
+// loadingPage: "Loading..." => "लोड।।।"
+// loadingData: "Loading..." => "लोड।।।"

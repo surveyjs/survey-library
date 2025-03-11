@@ -100,6 +100,8 @@ export var hebrewSurveyStrings = {
   modalApplyButtonText: "החל",
   filterStringPlaceholder: "הקלד כדי לחפש...",
   emptyMessage: "אין נתונים להצגה",
+  loadingPage: "טעינת...",
+  loadingData: "טעינת...",
   noEntriesText: "אין עדיין ערכים.\nלחץ על הלחצן למטה כדי להוסיף ערך חדש.",
   noEntriesReadonlyText: "אין ערכים.",
   tabTitlePlaceholder: "פאנל חדש",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עב�
 // deselectAllItemText: "Deselect all" => "בטל את הבחירה בהכל"
 // textNoDigitsAllow: "Numbers are not allowed." => "מספרים אינם מותרים."
 // choices_Choice: "Choice option" => "אפשרות בחירה"
+// loadingPage: "Loading..." => "טעינת..."
+// loadingData: "Loading..." => "טעינת..."

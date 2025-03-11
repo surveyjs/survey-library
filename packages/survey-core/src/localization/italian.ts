@@ -100,6 +100,8 @@ export var italianSurveyStrings = {
   modalApplyButtonText: "Applicare",
   filterStringPlaceholder: "Digita per cercare...",
   emptyMessage: "Nessun dato da visualizzare",
+  loadingPage: "Caricamento...",
+  loadingData: "Caricamento...",
   noEntriesText: "Non ci sono ancora voci.\nFai clic sul pulsante qui sotto per aggiungere una nuova voce.",
   noEntriesReadonlyText: "Non ci sono voci.",
   tabTitlePlaceholder: "Nuovo pannello",
@@ -140,3 +142,5 @@ setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "ital
 // deselectAllItemText: "Deselect all" => "Deseleziona tutto"
 // textNoDigitsAllow: "Numbers are not allowed." => "I numeri non sono ammessi."
 // choices_Choice: "Choice option" => "Opzione di scelta"
+// loadingPage: "Loading..." => "Caricamento..."
+// loadingData: "Loading..." => "Caricamento..."

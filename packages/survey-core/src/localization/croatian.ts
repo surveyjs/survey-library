@@ -100,6 +100,8 @@ export var croatianStrings = {
   modalApplyButtonText: "Primijeniti",
   filterStringPlaceholder: "Upišite za pretraživanje...",
   emptyMessage: "Nema podataka za prikaz",
+  loadingPage: "Učitavanje...",
+  loadingData: "Učitavanje...",
   noEntriesText: "Još nema unosa.\nKliknite donji gumb da biste dodali novi unos.",
   noEntriesReadonlyText: "Nema unosa.",
   tabTitlePlaceholder: "Nova ploča",
@@ -150,3 +152,5 @@ setupLocale({ localeCode: "hr", strings: croatianStrings, nativeName: "hrvatski"
 // deselectAllItemText: "Deselect all" => "Poništite odabir svega"
 // textNoDigitsAllow: "Numbers are not allowed." => "Brojevi nisu dopušteni."
 // choices_Choice: "Choice option" => "Opcija izbora"
+// loadingPage: "Loading..." => "Učitavanje..."
+// loadingData: "Loading..." => "Učitavanje..."

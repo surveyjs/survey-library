@@ -5,7 +5,7 @@ import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
-import { defaultActionBarCss } from "./container";
+import { ActionBarCssClasses, defaultActionBarCss } from "./container";
 
 export type actionModeType = "large" | "small" | "popup" | "removed";
 
@@ -287,10 +287,10 @@ export abstract class BaseAction extends Base implements IAction {
   public set title(val: string) {
     this.setTitle(val);
   }
-  public set cssClasses(val: any) {
+  public set cssClasses(val: ActionBarCssClasses) {
     this.cssClassesValue = val;
   }
-  public get cssClasses() {
+  public get cssClasses(): Readonly<ActionBarCssClasses> {
     return this.cssClassesValue || defaultActionBarCss;
   }
   public get isVisible() {

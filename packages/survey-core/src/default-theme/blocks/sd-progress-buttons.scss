@@ -183,6 +183,7 @@
   text-align: center;
   padding: 0 calcSize(2);
   margin-bottom: calcSize(2);
+  color: var(--lbr-step-progress-bar-step-title-text-color, $font-pagetitle-color);
 }
 
 .sd-progress-buttons__header {

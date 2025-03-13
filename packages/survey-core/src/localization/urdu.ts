@@ -100,6 +100,8 @@ export var urduSurveyStrings = {
   modalApplyButtonText: "درخواست دیں",
   filterStringPlaceholder: "تلاش کرنے کے لئے ٹائپ کریں...",
   emptyMessage: "ظاہر کرنے کے لئے کوئی ڈیٹا نہیں",
+  loadingPage: "لوڈنگ...",
+  loadingData: "لوڈنگ...",
   noEntriesText: "ابھی تک کوئی اندراج نہیں ہے.\nنیا اندراج شامل کرنے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔",
   noEntriesReadonlyText: "کوئی اندراج نہیں ہے.",
   tabTitlePlaceholder: "نیا پینل",
@@ -144,3 +146,5 @@ setupLocale({ localeCode: "ur", strings: urduSurveyStrings, nativeName: "urdu", 
 // deselectAllItemText: "Deselect all" => "Deselect all"
 // textNoDigitsAllow: "Numbers are not allowed." => "نمبروں کی اجازت نہیں ہے۔"
 // choices_Choice: "Choice option" => "انتخاب کا اختیار"
+// loadingPage: "Loading..." => "لوڈنگ..."
+// loadingData: "Loading..." => "لوڈنگ..."

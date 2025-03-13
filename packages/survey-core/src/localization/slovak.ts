@@ -100,6 +100,8 @@ export var slovakSurveyStrings = {
   modalApplyButtonText: "Použiť",
   filterStringPlaceholder: "Vyhľadávanie písaním...",
   emptyMessage: "Žiadne údaje na zobrazenie",
+  loadingPage: "Nakladanie...",
+  loadingData: "Nakladanie...",
   noEntriesText: "K dispozícii ešte nie sú žiadne zadania.\nKliknutím na nasledujúce tlačidlo pridajte nové zadanie.",
   noEntriesReadonlyText: "Nie sú k dispozícii žiadne záznamy.",
   tabTitlePlaceholder: "Nový panel",
@@ -142,3 +144,5 @@ setupLocale({ localeCode: "sk", strings: slovakSurveyStrings, nativeName: "slova
 // deselectAllItemText: "Deselect all" => "Zrušte výber všetkých"
 // textNoDigitsAllow: "Numbers are not allowed." => "Čísla nie sú povolené."
 // choices_Choice: "Choice option" => "Možnosť výberu"
+// loadingPage: "Loading..." => "Nakladanie..."
+// loadingData: "Loading..." => "Nakladanie..."

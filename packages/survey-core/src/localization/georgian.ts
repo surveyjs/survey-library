@@ -100,6 +100,8 @@ export var georgianSurveyStrings = {
   modalApplyButtonText: "მიღება",
   filterStringPlaceholder: "ჩაწერეთ ძებნა...",
   emptyMessage: "მონაცემები არ არის საჩვენებლად",
+  loadingPage: "იტვირთება...",
+  loadingData: "იტვირთება...",
   noEntriesText: "ჯერ არ არის ჩანაწერები.\nდააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ დაამატოთ ახალი ჩანაწერი.",
   noEntriesReadonlyText: "არ არსებობს ჩანაწერები.",
   tabTitlePlaceholder: "ახალი პანელი",
@@ -205,3 +207,5 @@ setupLocale({ localeCode: "ka", strings: georgianSurveyStrings, nativeName: "ქ
 // deselectAllItemText: "Deselect all" => "ყველას არჩევა"
 // textNoDigitsAllow: "Numbers are not allowed." => "ნომრები არ არის დაშვებული."
 // choices_Choice: "Choice option" => "არჩევანის ვარიანტი"
+// loadingPage: "Loading..." => "იტვირთება..."
+// loadingData: "Loading..." => "იტვირთება..."

@@ -100,6 +100,8 @@ export var frenchSurveyStrings = {
   modalApplyButtonText: "Appliquer",
   filterStringPlaceholder: "Tapez pour rechercher...",
   emptyMessage: "Aucune donnée à afficher",
+  loadingPage: "Chargement...",
+  loadingData: "Chargement...",
   noEntriesText: "Il n'y a pas encore d'entrées.\nCliquez sur le bouton ci-dessous pour ajouter une nouvelle entrée.",
   noEntriesReadonlyText: "Il n’y a pas d’entrées.",
   tabTitlePlaceholder: "Nouveau panneau",
@@ -140,3 +142,5 @@ setupLocale({ localeCode: "fr", strings: frenchSurveyStrings, nativeName: "fran�
 // deselectAllItemText: "Deselect all" => "Désélectionner tout"
 // textNoDigitsAllow: "Numbers are not allowed." => "Les numéros ne sont pas autorisés."
 // choices_Choice: "Choice option" => "Option au choix"
+// loadingPage: "Loading..." => "Chargement..."
+// loadingData: "Loading..." => "Chargement..."

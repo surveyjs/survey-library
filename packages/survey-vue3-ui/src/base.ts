@@ -77,6 +77,10 @@ export function makeReactive(surveyElement: Base) {
   (surveyElement as any).__vueImplemented++;
 }
 
+export function isBaseElementSubsribed(surveyElement: Base) {
+  return !!(surveyElement as any).__vueImplemented;
+}
+
 export function unMakeReactive(surveyElement?: Base) {
   if (!surveyElement) return;
   (surveyElement as any).__vueImplemented =

@@ -223,7 +223,7 @@ import { ..., SvgRegistry } from "survey-core"
 const CUSTOM_TYPE = "color-picker";
 // ...
 
-SvgRegistry.registerIconFromSvg(
+SvgRegistry.registerIcon(
   CUSTOM_TYPE,
   '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="..." /></svg>'
 );
@@ -275,7 +275,7 @@ To try the functionality, you can add a custom property of the `"color"` type to
 ```html
 <!-- src/components/SurveyCreator.vue -->
 <script setup lang="ts">
-import 'survey-core/defaultV2.min.css';
+import "survey-core/survey-core.min.css";
 import "survey-creator-core/survey-creator-core.min.css";
 
 import { Serializer } from "survey-core";
@@ -319,7 +319,7 @@ function handleActiveTabChange(sender: CreatorBase, { tabName }: { tabName: stri
   }
 }
 
-const creator = new SurveyCreatorModel({});
+const creator = new SurveyCreatorModel();
 creator.onActiveTabChanged.add(handleActiveTabChange);
 creator.JSON = surveyJson;
 </script>

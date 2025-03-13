@@ -100,6 +100,8 @@ export var teluguStrings = {
   modalApplyButtonText: "సరిపడు",
   filterStringPlaceholder: "శోధించడానికి టైప్ చేయండి...",
   emptyMessage: "డిస్ ప్లే చేయడానికి డేటా లేదు",
+  loadingPage: "లోడింగ్...",
+  loadingData: "లోడింగ్...",
   noEntriesText: "ఇంకా ఎలాంటి ఎంట్రీలు లేవు.\nకొత్త ఎంట్రీని జోడించడం కొరకు దిగువ బటన్ మీద క్లిక్ చేయండి.",
   noEntriesReadonlyText: "ఎలాంటి ఎంట్రీలు లేవు.",
   tabTitlePlaceholder: "కొత్త ప్యానెల్",
@@ -153,3 +155,5 @@ setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "telugu", e
 // deselectAllItemText: "Deselect all" => "Deselect all"
 // textNoDigitsAllow: "Numbers are not allowed." => "అంకెలు అనుమతించబడవు."
 // choices_Choice: "Choice option" => "ఛాయిస్ ఆప్షన్"
+// loadingPage: "Loading..." => "లోడింగ్..."
+// loadingData: "Loading..." => "లోడింగ్..."

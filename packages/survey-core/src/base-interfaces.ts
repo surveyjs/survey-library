@@ -112,6 +112,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   currentSingleQuestion: IQuestion;
   isSingleVisibleInput: boolean;
   updateNavigationElements(): void;
+  currentSingleElement: IElement;
   areEmptyElementsHidden: boolean;
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;
@@ -280,6 +281,7 @@ export interface ISurveyElement extends IShortcutText {
   isReadOnly: boolean;
   isPage: boolean;
   isPanel: boolean;
+  isQuestion: boolean;
   containsErrors: boolean;
   parent: IPanel;
   skeletonComponentName: string;

@@ -100,6 +100,8 @@ export var catalanSurveyStrings = {
   modalApplyButtonText: "Aplicar",
   filterStringPlaceholder: "Escriviu per cercar...",
   emptyMessage: "No hi ha dades per mostrar",
+  loadingPage: "Càrrega...",
+  loadingData: "Càrrega...",
   noEntriesText: "Encara no hi ha entrades.\nFeu clic al botó següent per afegir una entrada nova.",
   noEntriesReadonlyText: "No hi ha entrades.",
   tabTitlePlaceholder: "Nou Panell",
@@ -192,3 +194,5 @@ setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "cata
 // deselectAllItemText: "Deselect all" => "Desselecciona-ho tot"
 // textNoDigitsAllow: "Numbers are not allowed." => "No es permeten números."
 // choices_Choice: "Choice option" => "Opció d'elecció"
+// loadingPage: "Loading..." => "Càrrega..."
+// loadingData: "Loading..." => "Càrrega..."

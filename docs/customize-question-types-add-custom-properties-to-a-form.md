@@ -204,10 +204,23 @@ Serializer.addClass(
 You can specify a different default value for a property. To do this, call `Serializer`'s `getProperty(className, propertyName)` method and change the property's `defaultValue` setting:
 
 ```js
-// Override the default value of the `isAllRowRequired` property for Single-Select Matrix questions
+// Override the default value of the `eachRowRequired` property for Single-Select Matrix questions
 import { Serializer } from "survey-core";
-Serializer.getProperty("matrix", "isAllRowRequired").defaultValue = true;
+Serializer.getProperty("matrix", "eachRowRequired").defaultValue = true;
 ```
+
+If you want to override the default value of a localizable property, do it using [localization capabilities](/form-library/documentation/survey-localization#override-individual-translations). In most cases, localizable properties are those that specify UI captions: [`completeText`](/form-library/documentation/api-reference/survey-data-model#completeText), [`pageNextText`](/form-library/documentation/api-reference/survey-data-model#pageNextText), [`pagePrevText`](/form-library/documentation/api-reference/survey-data-model#pagePrevText), etc.
+
+```js
+import { getLocaleStrings } from "survey-core";
+
+const engLocale = getLocaleStrings("en");
+engLocale.pagePrevText = "Back";
+engLocale.pageNextText = "Forward";
+engLocale.completeText = "Send";
+```
+
+[View Demo](/form-library/examples/survey-localization/ (linkStyle))
 
 ## Survey Element Property Settings
 

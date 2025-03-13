@@ -100,6 +100,8 @@ export var romanianSurveyStrings: any = {
   modalApplyButtonText: "Aplica",
   filterStringPlaceholder: "Tastați pentru a căuta...",
   emptyMessage: "Nu există date de afișat",
+  loadingPage: "Încărcare...",
+  loadingData: "Încărcare...",
   noEntriesText: "Nu există încă intrări.\nFaceți clic pe butonul de mai jos pentru a adăuga o intrare nouă.",
   noEntriesReadonlyText: "Nu există intrări.",
   tabTitlePlaceholder: "Panou nou",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "ro", strings: romanianSurveyStrings, nativeName: "rom
 // deselectAllItemText: "Deselect all" => "Deselectează tot"
 // textNoDigitsAllow: "Numbers are not allowed." => "Numerele nu sunt permise."
 // choices_Choice: "Choice option" => "Opțiune de alegere"
+// loadingPage: "Loading..." => "Încărcare..."
+// loadingData: "Loading..." => "Încărcare..."

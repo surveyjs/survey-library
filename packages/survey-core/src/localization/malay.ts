@@ -100,6 +100,8 @@ export var malaySurveyStrings = {
   modalApplyButtonText: "Guna",
   filterStringPlaceholder: "Taip untuk membuat carian...",
   emptyMessage: "Tiada data untuk dipaparkan",
+  loadingPage: "Memuatkan...",
+  loadingData: "Memuatkan...",
   noEntriesText: "Belum ada entri.\nKlik butang di bawah untuk menambahkan entri.",
   noEntriesReadonlyText: "Tiada penyertaan.",
   tabTitlePlaceholder: "Panel Baru",
@@ -142,3 +144,5 @@ setupLocale({ localeCode: "ms", strings: malaySurveyStrings, nativeName: "melayu
 // deselectAllItemText: "Deselect all" => "Nyahpilih semua"
 // textNoDigitsAllow: "Numbers are not allowed." => "Nombor tidak dibenarkan."
 // choices_Choice: "Choice option" => "Pilihan pilihan"
+// loadingPage: "Loading..." => "Memuatkan..."
+// loadingData: "Loading..." => "Memuatkan..."

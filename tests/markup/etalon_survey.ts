@@ -194,7 +194,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       getElement: el => {
-        return <HTMLElement>el?.querySelector(".sv-header__cell.sv-header__cell--middle.sv-header__cell--right") as HTMLElement;
+        return <HTMLElement>el?.querySelector(".sv-header__cell.sv-header__cell--bottom.sv-header__cell--left") as HTMLElement;
       },
       snapshot: "survey-header-advanced"
     },

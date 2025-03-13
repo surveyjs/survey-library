@@ -1,6 +1,6 @@
 ---
 title: Form Library | SurveyJS
-description: SurveyJS Form Library is a free MIT-licensed client-side component that allows you to render dynamic JSON-based forms in any JS application and store all data in your database. It features over 20 accessible input fields, input validation, partial submits and auto-save, localization, and has native supports Angular, React, Vue 3, and Knockout.
+description: SurveyJS Form Library is a free MIT-licensed client-side component that allows you to render dynamic JSON-based forms in any JS application and store all data in your database. It features over 20 accessible input fields, input validation, partial submits and auto-save, localization, and has native supports Angular, React, Vue 3, and Vanilla JavaScript.
 ---
 # Form Library - Overview
 
@@ -22,8 +22,8 @@ SurveyJS Form Library is a free MIT-licensed UI component that allows you to ren
 - Unlimited forms, submissions and file uploads
 - [All data on your own servers](https://surveyjs.io/form-library/documentation/how-to-store-survey-results)
 - No watermarks/nag screens/referral badges
-- Native support for React, Angular, Knockout, and Vue 3
-- Integration of the Knockout version into jQuery applications
+- Native support for React, Angular, Vue, and Vanilla JavaScript
+- Integration of the Vanilla JavaScript version into jQuery applications
 - [Any server & database](https://surveyjs.io/documentation/backend-integration)
 - [Integration demos for PHP, ASP.NET Core, and NodeJS](https://surveyjs.io/backend-integration/examples)
 - TypeScript support
@@ -63,7 +63,7 @@ SurveyJS Form Library is a free MIT-licensed UI component that allows you to ren
 
 ## What's New
 
-Visit our [Major updates](https://surveyjs.io/stay-updated/major-updates/2023) compilation and [Roadmap](https://surveyjs.io/stay-updated/roadmap) for information on newly implemented features and features planned for 2024.
+Visit our [Major updates](https://surveyjs.io/stay-updated/major-updates/2024) compilation and [Roadmap](https://surveyjs.io/stay-updated/roadmap) for information on newly implemented features and features planned for 2024.
 
 ## Licensing
 

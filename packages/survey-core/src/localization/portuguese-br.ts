@@ -102,6 +102,8 @@ export var portugueseBrSurveyStrings = {
   modalApplyButtonText: "Aplicar",
   filterStringPlaceholder: "Digite para pesquisar...",
   emptyMessage: "Nenhum dado a ser exibido",
+  loadingPage: "Carregamento...",
+  loadingData: "Carregamento...",
   noEntriesText: "Ainda não há inscrições.\nClique no botão abaixo para adicionar uma nova entrada.",
   noEntriesReadonlyText: "Não há entradas.",
   tabTitlePlaceholder: "Novo Painel",
@@ -201,3 +203,5 @@ setupLocale({ localeCode: "pt-br", strings: portugueseBrSurveyStrings, nativeNam
 // deselectAllItemText: "Deselect all" => "Desmarcar tudo"
 // textNoDigitsAllow: "Numbers are not allowed." => "Números não são permitidos."
 // choices_Choice: "Choice option" => "Opção de escolha"
+// loadingPage: "Loading..." => "Carregamento..."
+// loadingData: "Loading..." => "Carregamento..."

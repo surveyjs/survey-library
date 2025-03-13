@@ -110,7 +110,7 @@ export {
   VerticalAlignment
 } from "../../src/base-interfaces";
 export { SurveyError } from "../../src/survey-error";
-export { SurveyElementCore, SurveyElement, DragTypeOverMeEnum } from "../../src/survey-element";
+export { SurveyElementCore, SurveyElement } from "../../src/survey-element";
 export { CalculatedValue } from "../../src/calculatedValue";
 export {
   CustomError,
@@ -277,7 +277,7 @@ export {
   ButtonGroupItemModel,
   ButtonGroupItemValue
 } from "../../src/question_buttongroup";
-export { IsMobile, IsTouch, _setIsTouch } from "../../src/utils/devices";
+export { IsMobile, IsTouch, _setIsTouch, _setIsTablet } from "../../src/utils/devices";
 export {
   confirmAction,
   confirmActionAsync,

@@ -309,7 +309,7 @@ export class InputMaskDateTime extends InputMaskPattern {
     let maxYear = dateTime.max.getFullYear();
     if (checkOnlyLeapYears) {
       minYear = Math.ceil(minYear / 4) * 4;
-      maxYear = Math.floor(minYear / 4) * 4;
+      maxYear = Math.floor(maxYear / 4) * 4;
       if (minYear > maxYear) {
         minYear = undefined;
         maxYear = undefined;
@@ -480,7 +480,7 @@ export class InputMaskDateTime extends InputMaskPattern {
 
     if(this.hasDatePart) {
       isoMin = this.min || "0001-01-01";
-      isoMax = this.max || "9999-12-31";
+      isoMax = this.max || "9996-12-31";
     } else {
       isoMin = this.defaultDate + (this.min || "00:00:00");
       isoMax = this.defaultDate + (this.max || "23:59:59");

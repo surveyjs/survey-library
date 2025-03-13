@@ -113,7 +113,8 @@ const surveyJson = {
 ```js
 const surveyJson = {
   title: "American History",
-  showProgressBar: "bottom",
+  showProgressBar: true,
+  progressBarLocation: "bottom",
   showTimer: true,
   timeLimitPerPage: 10,
   timeLimit: 25,
@@ -181,11 +182,11 @@ const surveyJson = {
 };
 ```
 
-Enable the [`firstPageIsStarted`](https://surveyjs.io/Documentation/Library?id=surveymodel#firstPageIsStarted) property to add a Start button to the start page markup. You can use the [`startSurveyText`](https://surveyjs.io/Documentation/Library?id=surveymodel#startSurveyText) property to change the button caption:
+Enable the [`firstPageIsStartPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#firstPageIsStartPage) property to add a Start button to the start page markup. You can use the [`startSurveyText`](https://surveyjs.io/Documentation/Library?id=surveymodel#startSurveyText) property to change the button caption:
 
 ```js
 const surveyJson = {
-  firstPageIsStarted: true,
+  firstPageIsStartPage: true,
   startSurveyText: "Start Quiz",
 };
 ```
@@ -196,11 +197,12 @@ const surveyJson = {
 ```js
 const surveyJson = {
   title: "American History",
-  showProgressBar: "bottom",
+  showProgressBar: true,
+  progressBarLocation: "bottom",
   showTimer: true,
   timeLimitPerPage: 10,
   timeLimit: 25,
-  firstPageIsStarted: true,
+  firstPageIsStartPage: true,
   startSurveyText: "Start Quiz",
   pages: [{
     elements: [{
@@ -288,11 +290,12 @@ The `completedHtml` and `completedHtmlOnCondition` properties can be used togeth
 ```js
 const surveyJson = {
   title: "American History",
-  showProgressBar: "bottom",
+  showProgressBar: true,
+  progressBarLocation: "bottom",
   showTimer: true,
   timeLimitPerPage: 10,
   timeLimit: 25,
-  firstPageIsStarted: true,
+  firstPageIsStartPage: true,
   startSurveyText: "Start Quiz",
   pages: [{
     elements: [{

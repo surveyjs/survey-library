@@ -34,7 +34,13 @@ const buildPlatformJson = {
   "main": "survey-react-ui.js",
   "module": "fesm/survey-react-ui.js",
   typings: "./typings/entries/index.d.ts",
-
+  "exports": {
+    ".": {
+      "types": "./typings/entries/index.d.ts",
+      "import": "./fesm/survey-react-ui.js",
+      "require": "./survey-react-ui.js"
+    }
+  },
   "peerDependencies": {
     "survey-core": packageJson.version,
     "react": "^16.5.0 || ^17.0.1 || ^18.1.0 || ^19.0.0",

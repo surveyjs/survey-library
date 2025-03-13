@@ -173,8 +173,7 @@ const surveyJson = {
             type: "comment"
         }],
         visibleIf: "{satisfaction-score} =< 2"
-    }],
-    showQuestionNumbers: "off",
+    }]
 };
 ```
 </details>
@@ -262,13 +261,13 @@ const surveyJson = {
 };
 ```
 
-If you want to hide the buttons, set the [`showNavigationButtons`](https://surveyjs.io/Documentation/Library?id=surveymodel#showNavigationButtons) property to `"none"`. In this case, you can use the API described in the [Switch Between Pages](#switch-between-pages) article to implement custom page navigation. Alternatively, you can enable the [`goNextPageAutomatic`](https://surveyjs.io/Documentation/Library?id=surveymodel#goNextPageAutomatic) and [`allowCompleteSurveyAutomatic`](https://surveyjs.io/Documentation/Library?id=surveymodel#allowCompleteSurveyAutomatic) properties to proceed to the next page or complete the survey automatically when all questions are answered.
+If you want to hide the buttons, set the [`showNavigationButtons`](https://surveyjs.io/Documentation/Library?id=surveymodel#showNavigationButtons) property to `false`. In this case, you can use the API described in the [Switch Between Pages](#switch-between-pages) article to implement custom page navigation. Alternatively, you can enable the [`autoAdvanceEnabled`](https://surveyjs.io/Documentation/Library?id=surveymodel#autoAdvanceEnabled) and [`autoAdvanceAllowComplete`](https://surveyjs.io/Documentation/Library?id=surveymodel#autoAdvanceAllowComplete) properties to proceed to the next page or complete the survey automatically when all questions are answered.
 
 ```js
 const surveyJson = {
-    showNavigationButtons: "none",
-    goNextPageAutomatic: true,
-    allowCompleteSurveyAutomatic: true
+    showNavigationButtons: false,
+    autoAdvanceEnabled: true,
+    autoAdvanceAllowComplete: true
 };
 ```
 
@@ -280,11 +279,12 @@ const surveyJson = {
 };
 ```
 
-You can also indicate survey progress on a progress bar. To display and position it on the page, set the `showProgressBar` property to `"top"`, `"bottom"`, or `"both"`.
+You can also indicate survey progress on a progress bar. To display and position it on the page, set the [`showProgressBar`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) property to `true` and specify the [`progressBarLocation`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarLocation) property:
 
 ```js
 const surveyJson = {
-    showProgressBar: "top"
+    showProgressBar: true,
+    progressBarLocation: "top"
 };
 ```
 
@@ -340,7 +340,6 @@ const surveyJson = {
         }],
         visibleIf: "{satisfaction-score} =< 2"
     }],
-    showQuestionNumbers: "off",
     pageNextText: "Forward",
     completeText: "Submit",
     showPrevButton: false,
@@ -369,21 +368,21 @@ const surveyJson = {
 };
 ```
 
-Enable the [`firstPageIsStarted`](https://surveyjs.io/Documentation/Library?id=surveymodel#firstPageIsStarted) property to let the survey know that the first page is a start page and add a Start button to the page markup. You can use the [`startSurveyText`](https://surveyjs.io/Documentation/Library?id=surveymodel#startSurveyText) property to change the button caption:
+Enable the [`firstPageIsStartPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#firstPageIsStartPage) property to let the survey know that the first page is a start page and add a Start button to the page markup. You can use the [`startSurveyText`](https://surveyjs.io/Documentation/Library?id=surveymodel#startSurveyText) property to change the button caption:
 
 ```js
 const surveyJson = {
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     startSurveyText: "Take the Survey",
 };
 ```
 
-If you need to access the start page in code, you can use the [`startedPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#startedPage) property:
+If you need to access the start page in code, you can use the [`startPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#startPage) property:
 
 ```js
 const survey = new Survey.Model(surveyJson);
 
-const startPage = survey.startedPage;
+const startPage = survey.startPage;
 ```
 
 <details>
@@ -439,11 +438,10 @@ const surveyJson = {
         }],
         visibleIf: "{satisfaction-score} =< 2"
     }],
-    showQuestionNumbers: "off",
     pageNextText: "Forward",
     completeText: "Submit",
     showPrevButton: false,
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     startSurveyText: "Take the Survey",
 };
 ```
@@ -481,7 +479,7 @@ An array that allows you to specify different complete page content based on con
 
     When none of the expressions evaluate to `true`, the complete page displays the HTML markup from the `completedHtml` property.
 
-If your survey should not display a complete page, disable the [`showCompletedPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#showCompletedPage) property.
+If your survey should not display a complete page, disable the [`showCompletePage`](https://surveyjs.io/Documentation/Library?id=surveymodel#showCompletePage) property.
 
 <details>
   <summary>View Full Survey Model</summary>
@@ -536,11 +534,10 @@ const surveyJson = {
         }],
         visibleIf: "{satisfaction-score} =< 2"
     }],
-    showQuestionNumbers: "off",
     pageNextText: "Forward",
     completeText: "Submit",
     showPrevButton: false,
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     startSurveyText: "Take the Survey",
     completedHtml: "Thank you for your feedback!",
 };
@@ -551,15 +548,16 @@ const surveyJson = {
 
 A preview page allows respondents to preview and correct their answers before the survey is completed. The preview page displays all visible survey pages as panels. Each panel has an Edit button that sends the respondent back to the corresponding page.
 
-To enable the preview page, specify whether it should display all visible questions or only those that have answers. Set the [`showPreviewBeforeComplete`](https://surveyjs.io/Documentation/Library?id=surveymodel#showPreviewBeforeComplete) property to `"showAllQuestions"` or `"showAnsweredQuestions"`:
+To enable the preview page, set the [`showPreviewBeforeComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showPreviewBeforeComplete) property to `true`. By default, the preview page displays all visible questions. If it should display only answered questions, change the [`previewMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#previewMode) property value to `"answeredQuestions"`.
 
 ```js
 const surveyJson = {
-    showPreviewBeforeComplete: "showAnsweredQuestions"
+    showPreviewBeforeComplete: true,
+    previewMode: "answeredQuestions"
 };
 ```
 
-[View Demo](https://surveyjs.io/form-library/examples/survey-showpreview/ (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/survey-preview/ (linkStyle))
 
 When the preview page is enabled, the last page in the survey displays a Preview button instead of a Complete button. Set the [`previewText`](https://surveyjs.io/Documentation/Library?id=surveymodel#previewText) property if you want to change the Preview button caption:
 
@@ -590,7 +588,7 @@ if (!previewShown) {
 survey.cancelPreview();
 ```
 
-The example in this tutorial uses only the `showPreviewBeforeComplete` property:
+The example in this tutorial uses only the `showPreviewBeforeComplete` and `previewMode` properties:
 
 <details>
   <summary>View Full Survey Model</summary>
@@ -645,14 +643,14 @@ const surveyJson = {
         }],
         visibleIf: "{satisfaction-score} =< 2"
     }],
-    showQuestionNumbers: "off",
     pageNextText: "Forward",
     completeText: "Submit",
     showPrevButton: false,
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     startSurveyText: "Take the Survey",
     completedHtml: "Thank you for your feedback!",
-    showPreviewBeforeComplete: "showAnsweredQuestions"
+    showPreviewBeforeComplete: true,
+    previewMode: "answeredQuestions"
 };
 ```
 </details>

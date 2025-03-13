@@ -100,6 +100,8 @@ export var swedishSurveyStrings = {
   modalApplyButtonText: "Spara",
   filterStringPlaceholder: "Skriv för att söka...",
   emptyMessage: "Ingen data finns",
+  loadingPage: "Lastning...",
+  loadingData: "Lastning...",
   noEntriesText: "Det finns inga värden än.\nKlicka på knappen nedan för att lägga till nytt värde.",
   noEntriesReadonlyText: "Det finns inga poster.",
   tabTitlePlaceholder: "Ny panel",
@@ -140,3 +142,5 @@ setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "sven
 // deselectAllItemText: "Deselect all" => "Avmarkera alla"
 // textNoDigitsAllow: "Numbers are not allowed." => "Nummer är inte tillåtna."
 // choices_Choice: "Choice option" => "Alternativ för valmöjligheter"
+// loadingPage: "Loading..." => "Lastning..."
+// loadingData: "Loading..." => "Lastning..."

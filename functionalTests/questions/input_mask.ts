@@ -105,6 +105,37 @@ frameworks.forEach((framework) => {
       .expect(Selector("input").value).eql(emptyValue);
   });
 
+  test("mask and maxlength", async (t) => {
+    await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1",
+              "maskType": "numeric",
+              "maxLength": 2
+            }
+          ]
+        }
+      ]
+    });
+
+    await t
+      .expect(Selector("input").value).eql("")
+
+      .pressKey("1")
+      .expect(Selector("input").value).eql("1")
+
+      .pressKey("2")
+      .expect(Selector("input").value).eql("12")
+
+      .pressKey("3")
+      .expect(Selector("input").value).eql("12");
+  });
+
   test("Test mask in western timezone", async (t) => {
     if (framework === "vue") return;
     const oldTimeZone = await getTimeZone();

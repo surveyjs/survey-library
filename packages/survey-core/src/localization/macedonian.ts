@@ -100,6 +100,8 @@ export var macedonianSurveyStrings = {
   modalApplyButtonText: "Аплицирај",
   filterStringPlaceholder: "Тип за пребарување...",
   emptyMessage: "Нема податоци за прикажување",
+  loadingPage: "Вчитување...",
+  loadingData: "Вчитување...",
   noEntriesText: "Сеуште нема влезници.\nКликнете на копчето подолу за да додадете нов влез.",
   noEntriesReadonlyText: "Нема влезници.",
   tabTitlePlaceholder: "Нов панел",
@@ -146,3 +148,5 @@ setupLocale({ localeCode: "mk", strings: macedonianSurveyStrings, nativeName: "�
 // deselectAllItemText: "Deselect all" => "Отстранете селекција на сите"
 // textNoDigitsAllow: "Numbers are not allowed." => "Броевите не се дозволени."
 // choices_Choice: "Choice option" => "Опција за избор"
+// loadingPage: "Loading..." => "Вчитување..."
+// loadingData: "Loading..." => "Вчитување..."

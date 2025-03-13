@@ -100,6 +100,8 @@ export var welshSurveyStrings = {
   modalApplyButtonText: "Cynnig",
   filterStringPlaceholder: "Teipiwch i chwilio...",
   emptyMessage: "Dim data i'w arddangos",
+  loadingPage: "Llwytho...",
+  loadingData: "Llwytho...",
   noEntriesText: "Nid oes unrhyw gofnodion hyd yn hyn.\nCliciwch y botwm isod i ychwanegu cofnod newydd.",
   noEntriesReadonlyText: "Nid oes unrhyw gofnodion.",
   tabTitlePlaceholder: "Panel newydd",
@@ -152,3 +154,5 @@ setupLocale({ localeCode: "cy", strings: welshSurveyStrings, nativeName: "cymrae
 // deselectAllItemText: "Deselect all" => "Dad-ddethol yr holl"
 // textNoDigitsAllow: "Numbers are not allowed." => "Ni chaniateir rhifau."
 // choices_Choice: "Choice option" => "Dewis opsiwn"
+// loadingPage: "Loading..." => "Llwytho..."
+// loadingData: "Loading..." => "Llwytho..."

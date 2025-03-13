@@ -103,7 +103,7 @@ function addDropdownActionWithSubItems(_, opt) {
 }
 
 const popupSelector = Selector(".sv-popup .sv-popup__container");
-const popupModalSelector = Selector(".sv-popup.sv-popup--modal");
+const popupModalSelector = Selector(".sv-popup.sv-popup--modal-popup");
 const clickButton = Selector(".sd-action");
 const popupButtonSelector = Selector(".sv-popup__button");
 
@@ -202,7 +202,7 @@ frameworks.forEach(async framework => {
       .expect(popupModalSelector.visible).ok()
       .expect(Selector(".sv-popup span").withText("modal_question").visible).ok()
       .wait(500);
-    const popupClientRect = await getElementClientRect(".sv-popup--modal .sv-popup__container");
+    const popupClientRect = await getElementClientRect(".sv-popup--modal-popup .sv-popup__container");
     const paddingDiff = 32; //padding top and bottom diff of sv-popup container
     const calcTop = Math.round((600/ 2 - paddingDiff / 2 - popupClientRect.height / 2) * 10) / 10;
     const calcLeft = Math.round((800 / 2 - popupClientRect.width / 2) * 10) / 10;

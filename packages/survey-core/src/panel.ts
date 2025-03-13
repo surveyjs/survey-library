@@ -1,4 +1,4 @@
-import { property, propertyArray, Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import { ArrayChanges, Base } from "./base";
 import {
@@ -15,7 +15,7 @@ import {
   ISurvey,
   IFindElement
 } from "./base-interfaces";
-import { DragTypeOverMeEnum, SurveyElement, RenderingCompletedAwaiter } from "./survey-element";
+import { SurveyElement, RenderingCompletedAwaiter } from "./survey-element";
 import { Question } from "./question";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -27,9 +27,8 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
-import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
+import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
-import { PageModel } from "./page";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 
 export class QuestionRowModel extends Base {
@@ -271,7 +270,6 @@ export class QuestionRowModel extends Base {
   private getRenderedWidthFromWidth(width: string): string {
     return Helpers.isNumber(width) ? width + "px" : width;
   }
-  @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
   public dispose(): void {
     super.dispose();
     this.stopLazyRendering();
@@ -2017,7 +2015,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
 
-  // TODO: remove it or not?
+  // creator dragdrop usage
   public dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
     if (!findElement || findElement.isPage) return null;
     var element = <IElement>findElement;

@@ -4135,7 +4135,7 @@ export class SurveyModel extends SurveyElementCore
     if(!q) return this.prevPage();
     this.resetNavigationButton();
     if(this.isSingleVisibleInput) {
-      if(q.prevSingleInput()) {
+      if((<Question>q).prevSingleInput()) {
         this.updateButtonsVisibility();
         return true;
       }
@@ -4411,12 +4411,7 @@ export class SurveyModel extends SurveyElementCore
       isFocuseOnFirstError = this.focusOnFirstError;
     }
     if (!page) return true;
-    let res: boolean = false;
-    if(this.currentSingleElement) {
-      res = !(<any>this.currentSingleElement).validate(true);
-    } else {
-      res = !page.validate(true, isFocuseOnFirstError);
-    }
+    const res = !page.validate(true, isFocuseOnFirstError);
     this.fireValidatedErrorsOnPage(page);
     return res;
   }
@@ -4742,12 +4737,16 @@ export class SurveyModel extends SurveyElementCore
   private getSingleQuestions(): Array<IElement> {
     const res = new Array<IElement>();
     const pages = this.pages;
+    const isSingleInput = this.isSingleVisibleInput;
     for (var i: number = 0; i < pages.length; i++) {
       const p = pages[i];
       if(!p.isStartPage && p.isVisible) {
         const qs: Array<any> = [];
-        //p.addQuestionsToList(qs, true);
-        p.elements.forEach(el => qs.push(el));
+        if(isSingleInput) {
+          p.addQuestionsToList(qs, true);
+        } else {
+          p.elements.forEach(el => qs.push(el));
+        }
         qs.forEach(q => { if(q.isVisible) res.push(q); });
       }
     }
@@ -4894,7 +4893,7 @@ export class SurveyModel extends SurveyElementCore
       let isFirstInput = true;
       let isLastInput = true;
       if(this.isSingleVisibleInput) {
-        const inputState = q.getSingleInputElementPos();
+        const inputState = (<Question>q).getSingleInputElementPos();
         if(inputState !== 0) {
           isFirstInput = inputState === -1;
           isLastInput = inputState === 1;

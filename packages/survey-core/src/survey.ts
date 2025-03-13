@@ -4607,7 +4607,7 @@ export class SurveyModel extends SurveyElementCore
     const res = this.currentSingleElement;
     return !!res && res.isQuestion ? <Question>res : undefined;
   }
-  public set currentSingleQuestion(val: IElement) {
+  public set currentSingleQuestion(val: Question) {
     this.currentSingleElement = val;
   }
   private changeCurrentPageFromPreview: boolean;

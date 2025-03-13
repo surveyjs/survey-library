@@ -708,3 +708,32 @@ QUnit.test("Do not copy default rows value, Bug#8871 #3", function (
   assert.deepEqual(matrix.cells.getJson(), { default: { col1: "col1_default", col2: "col2_default" },
     row1: { col1: "col1" }, row2: { col2: "col2" } });
 });
+QUnit.test("Support locales in matrix cells, Bug#9593", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1", "col2"],
+      rows: ["row1", "row2"]
+    }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  matrix.cells.setCellText(0, 0, "cell00");
+  matrix.cells.setCellText(1, 1, "cell11");
+  matrix.cells.getCellDisplayLocText(0, 0).setLocaleText("fr", "cell00_fr");
+  matrix.cells.getCellDisplayLocText(1, 1).setLocaleText("fr", "cell11_fr");
+  assert.deepEqual(matrix.cells.getJson(), {
+    row1: { col1: { default: "cell00", fr: "cell00_fr" } },
+    row2: { col2: { default: "cell11", fr: "cell11_fr" } } }, "#1");
+  matrix.cells.setJson({
+    row1: { col2: { default: "cell01", fr: "cell01_fr" } },
+    row2: { col1: { default: "cell10", fr: "cell10_fr" } } });
+  assert.equal(matrix.cells.getCellDisplayLocText(0, 1).getLocaleText("fr"), "cell01_fr", "getlocale text #2");
+  assert.equal(matrix.cells.getCellDisplayLocText(1, 0).getLocaleText("fr"), "cell10_fr", "getlocale text #2");
+  assert.equal(matrix.cells.getCellText(0, 0), "col1", "get text #0.0");
+  assert.equal(matrix.cells.getCellText(0, 1), "cell01", "get text #0.1");
+  assert.equal(matrix.cells.getCellText(1, 0), "cell10", "get text #1.0");
+  assert.equal(matrix.cells.getCellText(1, 1), "col2", "get text #1.1");
+});

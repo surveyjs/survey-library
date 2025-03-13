@@ -49,7 +49,7 @@ export class PageModel extends PanelModel implements IPage {
   }
   protected getElementsForRows(): Array<IElement> {
     if(!this.isStartPage) {
-      const q = this.survey?.currentSingleQuestion;
+      const q = this.survey?.currentSingleElement;
       if(!!q) {
         if((<any>q).page === this) return [q];
         return [];
@@ -267,9 +267,9 @@ export class PageModel extends PanelModel implements IPage {
       }
     }
     if(this.randomizeElements(this.areQuestionsRandomized)) {
-      const singleQuestion: any = this.survey?.currentSingleQuestion;
+      const singleQuestion: any = this.survey?.currentSingleElement;
       if(singleQuestion?.page === this) {
-        this.survey.currentSingleQuestion = this.getFirstVisibleQuestion();
+        this.survey.currentSingleElement = this.elements[0];
       }
     }
   }

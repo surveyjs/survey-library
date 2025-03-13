@@ -2002,24 +2002,6 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
 
-  // creator dragdrop usage
-  public dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
-    if (!findElement || findElement.isPage) return null;
-    var element = <IElement>findElement;
-    var rows = this.rows;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].elements.indexOf(element) > -1) return rows[i];
-    }
-    for (var i = 0; i < this.elements.length; i++) {
-      var pnl = this.elements[i].getPanel();
-      if (!pnl) continue;
-      var row = (<PanelModelBase>pnl).dragDropFindRow(element);
-      if (!!row) return row;
-    }
-    return null;
-
-  }
-
   public needResponsiveWidth() {
     let result = false;
     this.elements.forEach((e) => {

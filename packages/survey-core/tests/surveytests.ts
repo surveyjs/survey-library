@@ -21191,11 +21191,10 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #
 });
 QUnit.test("questionsOnPageMode & question.isVisible", function (assert) {
   const json = {
-    elements: [{ type: "panel", elements: [
+    elements: [
       { type: "radiogroup", "name": "q1", choices: [1, 2, 3] },
       { type: "radiogroup", "name": "q2", choices: [1, 3, 5], hideIfChoicesEmpty: true, choicesVisibleIf: "{q1} contains {item}" },
-    ]
-    }],
+    ],
     questionsOnPageMode: "questionPerPage",
   };
   const survey = new SurveyModel(json);
@@ -21236,15 +21235,36 @@ QUnit.test("Do not use questionsOnPageMode in design-mode, Bug#9274", function (
   assert.equal(survey.questionsOnPageMode, "questionPerPage", "the property set correctly");
   assert.equal(survey.currentSingleQuestion?.name, undefined, "It is the design mode");
 });
-QUnit.test("question.canHaveFrameStyles should return true for questionsOnPageMode", function (assert) {
+QUnit.test("questionsOnPageMode - panel should be displayed as a question", function (assert) {
   const json = {
-    "elements": [{ type: "panel", elements: [{ "type": "text", "name": "q1" }] }],
+    "elements": [
+      { type: "panel", name: "panel1", elements: [{ "type": "text", "name": "q1" }, { "type": "text", "name": "q2" }] },
+      { "type": "text", "name": "q3" },
+      { type: "panel", name: "panel2", elements: [{ "type": "text", "name": "q4" }, { "type": "text", "name": "q5" }] }
+    ],
     "questionsOnPageMode": "questionPerPage",
   };
   const survey = new SurveyModel(json);
-  const question = survey.currentSingleQuestion;
-  assert.equal(question.name, "q1", "currentSingleQuestion");
-  assert.equal(question["canHaveFrameStyles"](), true, "canHaveFrameStyles");
+  assert.equal(survey.currentSingleElement.name, "panel1", "currentSingleQuestion #1");
+  survey.performNext();
+  assert.equal(survey.currentSingleElement.name, "q3", "currentSingleQuestion #2");
+  survey.performNext();
+  assert.equal(survey.currentSingleElement.name, "panel2", "currentSingleQuestion #3");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleElement.name, "q3", "currentSingleQuestion #4");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleElement.name, "panel1", "currentSingleQuestion #5");
+});
+QUnit.test("question.canHaveFrameStyles should return true for questionsOnPageMode", function (assert) {
+  const json = {
+    "elements": [{ type: "panel", name: "panel1", elements: [{ "type": "text", "name": "q1" }] }],
+    "questionsOnPageMode": "questionPerPage",
+  };
+  const survey = new SurveyModel(json);
+  const question = survey.getQuestionByName("q1");
+  assert.equal(survey.currentSingleElement.name, "panel1", "currentSingleQuestion");
+  assert.equal(survey.currentSingleElement["canHaveFrameStyles"](), true, "canHaveFrameStyles - panel");
+  assert.equal(question["canHaveFrameStyles"](), false, "canHaveFrameStyles - question");
 });
 QUnit.test("question.canHaveFrameStyles should return false for questionsOnPageMode for question in dynamic panel, Bug#9572", function (assert) {
   const json = {

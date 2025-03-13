@@ -3539,7 +3539,7 @@ export class SurveyModel extends SurveyElementCore
     if (newPage != null && vPages.indexOf(newPage) < 0) return;
     if (newPage == this.currentPage) return;
     var oldValue = this.currentPage;
-    if (!this.isShowingPreview && !this.currentSingleQuestion && !this.currentPageChanging(newPage, oldValue)) return;
+    if (!this.isShowingPreview && !this.currentSingleElement && !this.currentPageChanging(newPage, oldValue)) return;
     this.setPropertyValue("currentPage", newPage);
     if (!!newPage) {
       newPage.onFirstRendering();
@@ -3843,9 +3843,9 @@ export class SurveyModel extends SurveyElementCore
     this.onFirstPageIsStartedChanged();
     if (goToFirstPage) {
       this.currentPage = this.firstVisiblePage;
-      if(this.currentSingleQuestion) {
+      if(this.currentSingleElement) {
         const questions = this.getSingleQuestions();
-        this.currentSingleQuestion = questions.length > 0 ? questions[0] : undefined;
+        this.currentSingleElement = questions.length > 0 ? questions[0] : undefined;
       }
     }
     if (clearData) {
@@ -3892,7 +3892,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isCurrentPageRendered === true) {
       this.isCurrentPageRendered = false;
     }
-    if(!this.currentSingleQuestion) {
+    if(!this.currentSingleElement) {
       const options = this.createPageChangeEventOptions(newValue, oldValue);
       this.onCurrentPageChanged.fire(this, options);
     }
@@ -4092,30 +4092,36 @@ export class SurveyModel extends SurveyElementCore
    * @see completeLastPage
    */
   public nextPage(): boolean {
-    if(this.currentSingleQuestion) return this.performNext();
+    if(this.currentSingleElement) return this.performNext();
     if (this.isLastPage) return false;
     return this.doCurrentPageComplete(false);
   }
   public performNext(): boolean {
-    const q = this.currentSingleQuestion;
+    const q: any = this.currentSingleElement;
     if(!q) return this.nextPage();
     if(this.validationEnabled && !q.validate(true)) return false;
     const questions = this.getSingleQuestions();
     const index = questions.indexOf(q);
     if(index < 0 || index === questions.length - 1) return false;
-    const key: any = {};
-    key[q.name] = q.value;
-    this.checkTriggers(key, false, false, true, q.name);
-    this.currentSingleQuestion = questions[index + 1];
+    let keys: any = {};
+    if(q.isQuestion) {
+      keys[q.name] = q.value;
+    } else {
+      if(q.isPanel) {
+        keys = q.getValue();
+      }
+    }
+    this.checkTriggers(keys, false, false, true, q.name);
+    this.currentSingleElement = questions[index + 1];
     return true;
   }
   public performPrevious(): boolean {
-    const q = this.currentSingleQuestion;
+    const q = this.currentSingleElement;
     if(!q) return this.prevPage();
     const questions = this.getSingleQuestions();
     const index = questions.indexOf(q);
     if(index === 0) return false;
-    this.currentSingleQuestion = questions[index - 1];
+    this.currentSingleElement = questions[index - 1];
     return true;
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
@@ -4384,8 +4390,8 @@ export class SurveyModel extends SurveyElementCore
     }
     if (!page) return true;
     let res: boolean = false;
-    if(this.currentSingleQuestion) {
-      res = !this.currentSingleQuestion.validate(true);
+    if(this.currentSingleElement) {
+      res = !(<any>this.currentSingleElement).validate(true);
     } else {
       res = !page.validate(true, isFocuseOnFirstError);
     }
@@ -4421,7 +4427,7 @@ export class SurveyModel extends SurveyElementCore
    * @see nextPage
    */
   public prevPage(): boolean {
-    if(this.currentSingleQuestion) return this.performPrevious();
+    if(this.currentSingleElement) return this.performPrevious();
     if (this.isFirstPage || this.state === "starting") return false;
     this.resetNavigationButton();
 
@@ -4510,10 +4516,10 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isShowingPreview) return;
     this.gotoPageFromPreview = currentPage;
     this.isShowingPreview = false;
-    const q = this.currentSingleQuestion;
-    if(!!q?.page) {
-      (<PageModel>q.page).updateRows();
-      this.currentPage = q.page;
+    const page = <PageModel>(<any>this.currentSingleElement)?.page;
+    if(!!page) {
+      page.updateRows();
+      this.currentPage = page;
     }
   }
   private gotoPageFromPreview: PageModel;
@@ -4680,7 +4686,7 @@ export class SurveyModel extends SurveyElementCore
       rootPage.setSurveyImpl(this);
       this.pageContainerValue = rootPage;
       this.currentPage = rootPage;
-      if(!!this.currentSingleQuestionValue) {
+      if(!!this.currentSingleElementValue) {
         this.visiblePages.forEach(page => page.updateRows());
       }
     }
@@ -4707,37 +4713,40 @@ export class SurveyModel extends SurveyElementCore
     });
     this.updateButtonsVisibility();
   }
-  private currentSingleQuestionValue: Question;
-  private getSingleQuestions(): Array<Question> {
-    const res = new Array<Question>();
+  private currentSingleElementValue: IElement;
+  private getSingleQuestions(): Array<IElement> {
+    const res = new Array<IElement>();
     const pages = this.pages;
     for (var i: number = 0; i < pages.length; i++) {
       const p = pages[i];
       if(!p.isStartPage && p.isVisible) {
         const qs: Array<any> = [];
-        p.addQuestionsToList(qs, true);
+        //p.addQuestionsToList(qs, true);
+        p.elements.forEach(el => qs.push(el));
         qs.forEach(q => { if(q.isVisible) res.push(q); });
       }
     }
     return res;
   }
-  public get currentSingleQuestion(): Question {
-    return !this.isShowingPreview ? this.currentSingleQuestionValue : undefined;
+  public get currentSingleElement(): IElement {
+    return !this.isShowingPreview ? this.currentSingleElementValue : undefined;
   }
-  public set currentSingleQuestion(val: Question) {
-    const oldVal = this.currentSingleQuestion;
+  public set currentSingleElement(val: IElement) {
+    const oldVal = this.currentSingleElement;
     if(val !== oldVal && !this.isCompleted) {
-      const options: any = !!val && !!oldVal ? this.createPageChangeEventOptions(<PageModel>val.page, <PageModel>oldVal.page, val, oldVal) : undefined;
+      const valQuestion = val?.isQuestion ? <Question>val : undefined;
+      const oldValQuestion = oldVal?.isQuestion ? <Question>oldVal : undefined;
+      const page = <PageModel>(<any>val)?.page;
+      const options: any = !!page && !!oldVal ? this.createPageChangeEventOptions(page, <PageModel>(<any>oldVal).page, valQuestion, oldValQuestion) : undefined;
       if(!!options && !this.currentPageChangingFromOptions(options)) return;
-      this.currentSingleQuestionValue = val;
+      this.currentSingleElementValue = val;
       if(!!val) {
-        const page = <PageModel>val.page;
         page.updateRows();
         if(page !== this.currentPage) {
           this.currentPage = page;
         } else {
-          if(this.autoFocusFirstQuestion) {
-            val.focus();
+          if(!!valQuestion && this.autoFocusFirstQuestion) {
+            valQuestion.focus();
           }
         }
         this.updateButtonsVisibility();
@@ -4749,10 +4758,17 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
+  public get currentSingleQuestion(): Question {
+    const res = this.currentSingleElement;
+    return !!res && res.isQuestion ? <Question>res : undefined;
+  }
+  public set currentSingleQuestion(val: IElement) {
+    this.currentSingleElement = val;
+  }
   private changeCurrentPageFromPreview: boolean;
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
     if (this.isShowingPreview || this.isDesignMode) return;
-    this.currentSingleQuestion = undefined;
+    this.currentSingleElement = undefined;
     if(oldValue === "singlePage") {
       this.updatePagesContainer();
     }
@@ -4762,7 +4778,7 @@ export class SurveyModel extends SurveyElementCore
     if(this.isSingleVisibleQuestion) {
       const questions = this.getSingleQuestions();
       if(questions.length > 0) {
-        this.currentSingleQuestion = questions[0];
+        this.currentSingleElement = questions[0];
       }
     }
   }
@@ -4818,7 +4834,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("isLastPage", !!curPage && curPage === this.lastVisiblePage);
     let fVal: boolean | undefined = undefined;
     let lVal: boolean | undefined = undefined;
-    const q = this.currentSingleQuestion;
+    const q = this.currentSingleElement;
     if(!!q) {
       const questions = this.getSingleQuestions();
       const index = questions.indexOf(q);
@@ -6979,10 +6995,10 @@ export class SurveyModel extends SurveyElementCore
     const question = <Question>this.getQuestionByValueName(name);
     if (!question || (!!question &&(!question.visible || !question.supportAutoAdvance()))) return;
     if (!question.validate(false) && !question.supportGoNextPageError()) return;
-    if(!!this.currentSingleQuestion) {
-      const curQuestion = this.currentSingleQuestion;
+    if(!!this.currentSingleElement) {
+      const curQuestion = this.currentSingleElement;
       const goNextQuestion = () => {
-        if (curQuestion !== this.currentSingleQuestion) return;
+        if (curQuestion !== this.currentSingleElement) return;
         if(!this.isLastElement) {
           this.performNext();
         } else {
@@ -7967,7 +7983,7 @@ export class SurveyModel extends SurveyElementCore
     if (isNeedWaitForPageRendered) {
       this.currentPage = <PageModel>question.page;
       if(this.isSingleVisibleQuestion && !this.isDesignMode) {
-        this.currentSingleQuestion = question;
+        this.currentSingleElement = question;
       }
     }
     if (!isNeedWaitForPageRendered) {

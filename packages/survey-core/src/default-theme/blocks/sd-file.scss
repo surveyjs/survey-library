@@ -130,7 +130,7 @@
 }
 
 .sd-file__choose-btn--icon {
-  & > span {
+  &>span {
     display: none;
   }
 }
@@ -283,13 +283,15 @@
     height: calcSize(9);
 
     use {
-      fill: $foreground-light;
+      fill: $font-questionplaceholder-color;
     }
   }
+
   &:hover {
     .sd-file__remove-file-button {
       opacity: 1;
     }
+
     .sd-file__sign a {
       text-decoration: underline;
     }
@@ -330,6 +332,7 @@
   transform: translate(-50%, -50%);
   transition: opacity $transition-duration;
 }
+
 .sd-file__image-wrapper--default-image {
   .sd-file__remove-file-button {
     left: 50%;
@@ -377,6 +380,7 @@
   .sd-file__page {
     height: 100%;
   }
+
   .sd-file__preview-item {
     width: 100%;
     margin: 0;
@@ -426,7 +430,7 @@
   background: transparent;
 }
 
-.sd-file > input:focus + .sd-file__decorator .sd-file__choose-btn {
+.sd-file>input:focus+.sd-file__decorator .sd-file__choose-btn {
   &.sd-file__choose-btn--icon {
     use {
       fill: $primary;

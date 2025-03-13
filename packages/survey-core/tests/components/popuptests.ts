@@ -463,6 +463,38 @@ QUnit.test("PopupModel PopupDropdownViewModel clickOutside", (assert) => {
   targetElement.remove();
 });
 
+QUnit.test("PopupDropdownViewModel pointerTarget", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, { horizontalPosition: "center", verticalPosition: "bottom" });
+  const areaElement: HTMLElement = document.createElement("div");
+  model.getAreaCallback = (container) => {
+    areaElement.getBoundingClientRect = () => { return <DOMRect>{ bottom: 963, height: 871, left: 9, right: 773, top: 92, width: 764, x: 9, y: 92 }; };
+    return areaElement;
+  };
+  const targetElement: HTMLElement = document.createElement("div");
+  targetElement.getBoundingClientRect = () => { return <DOMRect>{ bottom: 292, height: 40, left: 220, right: 310, top: 252, width: 90, x: 220, y: 252 }; };
+  const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = getPopupContainer(viewModel.container);
+  popupContainer.style.width = "268px";
+  popupContainer.style.height = "225px";
+
+  let fixedPopupContainer = viewModel.container.querySelector(".sv-popup") as HTMLElement;
+  fixedPopupContainer.getBoundingClientRect = () => { return <DOMRect>{ bottom: 953, height: 953, left: 0, right: 795, top: 0, width: 795, x: 0, y: 0 }; };
+
+  model.toggleVisibility();
+  viewModel.updatePosition(true, false);
+
+  assert.equal(viewModel.popupDirection, "bottom");
+  assert.equal(viewModel.top, "292px");
+  assert.equal(viewModel.left, "131px");
+  assert.deepEqual(viewModel.pointerTarget, { left: "134px", top: "0px" });
+
+  viewModel.dispose();
+  targetElement.remove();
+  areaElement.remove();
+});
+
 QUnit.test("PopupModel PopupModalViewModel clickOutside", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");

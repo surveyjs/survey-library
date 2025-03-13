@@ -74,7 +74,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     return new Rect(0, 0, DomWindowHelper.getInnerWidth(), DomWindowHelper.getInnerHeight());
   }
-  protected getTargetElementRect(): Rect {
+  protected getTargetElementRect(areaRect: Rect): Rect {
     const componentRoot = this.container;
     let targetElement: HTMLElement = this.model.getTargetCallback ? this.model.getTargetCallback(componentRoot) : undefined;
 
@@ -83,14 +83,13 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     if (!targetElement) return null;
     const rect = targetElement.getBoundingClientRect();
-    const areaRect = this.getAvailableAreaRect();
     return new Rect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
   }
 
   private _updatePosition() {
-    const targetElementRect = this.getTargetElementRect();
-    if (!targetElementRect) return;
     const area = this.getAvailableAreaRect();
+    const targetElementRect = this.getTargetElementRect(area);
+    if (!targetElementRect) return;
     const popupContainer = <HTMLElement>this.container?.querySelector(this.containerSelector);
     if (!popupContainer) return;
     const fixedPopupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer) as HTMLElement;
@@ -185,8 +184,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     if (this.showHeader) {
       this.pointerTarget = PopupUtils.calculatePointerTarget(
         targetElementRect,
-        pos.top,
-        pos.left,
+        pos.top - area.top,
+        pos.left - area.left,
         verticalPosition,
         actualHorizontalPosition,
         marginLeft,

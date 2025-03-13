@@ -99,3 +99,14 @@ svg.sd-action--icon {
   background-color: $background-dim;
   opacity: 0.5;
 }
+.sd-action-bar {
+  & > .sv-dots {
+    width: auto;
+  }
+  & > .sv-action--hidden {
+    width: 0;
+  }
+}
+.sd-action.sv-dots__item {
+  width: auto;
+}

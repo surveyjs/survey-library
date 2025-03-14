@@ -175,17 +175,11 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       pos.left -= rect.left;
     }
 
-    pos.left += area.left;
-    pos.top += area.top;
-
-    this.left = pos.left + "px";
-    this.top = pos.top + "px";
-
     if (this.showHeader) {
       this.pointerTarget = PopupUtils.calculatePointerTarget(
         targetElementRect,
-        pos.top - area.top,
-        pos.left - area.left,
+        pos.top,
+        pos.left,
         verticalPosition,
         actualHorizontalPosition,
         marginLeft,
@@ -194,6 +188,12 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       this.pointerTarget.top += "px";
       this.pointerTarget.left += "px";
     }
+
+    pos.left += area.left;
+    pos.top += area.top;
+
+    this.left = pos.left + "px";
+    this.top = pos.top + "px";
   }
 
   protected getActualHorizontalPosition(): "left" | "center" | "right" {

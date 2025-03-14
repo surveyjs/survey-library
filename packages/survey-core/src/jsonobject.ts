@@ -367,14 +367,13 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   }
   public get locationInTable(): string {
     const res = this.locationInTableValue;
-    return !!res ? res : "both";
+    return res || "column";
   }
   public set locationInTable(val: string) {
-    if(val === "both") val = undefined;
     this.locationInTableValue = val;
   }
   public get showMode(): string {
-    const res = this.locationInTable;
+    const res = this.locationInTableValue;
     return res === "detail" ? "form" : (res === "column" ? "list" : "");
   }
   public set showMode(val: string) {

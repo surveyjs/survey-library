@@ -74,7 +74,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     return new Rect(0, 0, DomWindowHelper.getInnerWidth(), DomWindowHelper.getInnerHeight());
   }
-  protected getTargetElementRect(): Rect {
+  protected getTargetElementRect(areaRect: Rect): Rect {
     const componentRoot = this.container;
     let targetElement: HTMLElement = this.model.getTargetCallback ? this.model.getTargetCallback(componentRoot) : undefined;
 
@@ -83,14 +83,13 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     if (!targetElement) return null;
     const rect = targetElement.getBoundingClientRect();
-    const areaRect = this.getAvailableAreaRect();
     return new Rect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
   }
 
   private _updatePosition() {
-    const targetElementRect = this.getTargetElementRect();
-    if (!targetElementRect) return;
     const area = this.getAvailableAreaRect();
+    const targetElementRect = this.getTargetElementRect(area);
+    if (!targetElementRect) return;
     const popupContainer = <HTMLElement>this.container?.querySelector(this.containerSelector);
     if (!popupContainer) return;
     const fixedPopupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer) as HTMLElement;
@@ -176,12 +175,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       pos.left -= rect.left;
     }
 
-    pos.left += area.left;
-    pos.top += area.top;
-
-    this.left = pos.left + "px";
-    this.top = pos.top + "px";
-
     if (this.showHeader) {
       this.pointerTarget = PopupUtils.calculatePointerTarget(
         targetElementRect,
@@ -195,6 +188,12 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       this.pointerTarget.top += "px";
       this.pointerTarget.left += "px";
     }
+
+    pos.left += area.left;
+    pos.top += area.top;
+
+    this.left = pos.left + "px";
+    this.top = pos.top + "px";
   }
 
   protected getActualHorizontalPosition(): "left" | "center" | "right" {

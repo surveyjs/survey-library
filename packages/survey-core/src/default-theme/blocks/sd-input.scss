@@ -121,7 +121,7 @@ textarea {
   font-family: $font-family;
   line-height: calcLineHeight(1.5);
   font-size: calcFontSize(1);
-  color: $foreground-light;
+  color: $font-editorfont-placeholdercolor;
   position: absolute;
   inset-inline-end: calcSize(2);
   inset-block-end: calcSize(1.5);

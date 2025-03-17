@@ -23,6 +23,13 @@
       }
     }
 
+    .sd-element__num {
+      padding: initial;
+      margin: initial;
+      float: initial;
+      width: initial;
+    }
+
     .sd-panel__description {
       @include page_description();
     }

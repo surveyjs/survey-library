@@ -671,6 +671,9 @@ export var defaultCss = {
     popup: "sv-dropdown-popup",
     onError: "sd-input--error",
   },
+  rangeslider: {
+    root: "sd-range-slider",
+  },
   comment: {
     root: "sd-input sd-comment",
     small: "sd-row__question--small",

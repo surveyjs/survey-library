@@ -22,8 +22,8 @@ export let defaultActionBarCss: ActionBarCssClasses = {
 };
 
 export class ActionContainer<T extends BaseAction = Action> extends Base implements ILocalizableOwner {
-  public getMarkdownHtml(text: string, name: string): string {
-    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : undefined;
+  public getMarkdownHtml(text: string, name: string, item?: any): string {
+    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item) : undefined;
   }
   public getRenderer(name: string): string {
     return !!this.locOwner ? this.locOwner.getRenderer(name) : null;

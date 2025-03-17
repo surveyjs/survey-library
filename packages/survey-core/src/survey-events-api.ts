@@ -483,6 +483,7 @@ export interface TextMarkdownEvent extends TextProcessingEvent {
    * A property to which you should assign HTML content.
    */
   html?: string;
+  item?: ItemValue;
 }
 export interface TextRenderAsEvent extends TextProcessingEvent {
   /**

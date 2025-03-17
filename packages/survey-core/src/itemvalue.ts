@@ -22,8 +22,8 @@ import { Question } from "./question";
 export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcutText {
   [index: string]: any;
 
-  public getMarkdownHtml(text: string, name: string): string {
-    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : undefined;
+  public getMarkdownHtml(text: string, name: string, item?: any): string {
+    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item || this) : undefined;
   }
   public getRenderer(name: string): string {
     return !!this.locOwner ? this.locOwner.getRenderer(name) : null;

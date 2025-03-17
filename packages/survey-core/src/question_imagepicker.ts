@@ -44,8 +44,8 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";
   }
-  getMarkdownHtml(text: string, name: string): string {
-    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : undefined;
+  getMarkdownHtml(text: string, name: string, item?: any): string {
+    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item) : undefined;
   }
   getRenderer(name: string): string {
     return !!this.locOwner ? this.locOwner.getRenderer(name) : null;

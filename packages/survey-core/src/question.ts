@@ -1664,7 +1664,7 @@ export class Question extends SurveyElement<Question>
    * | Image | (no value) |
    * | Image Picker | <code>Array&lt;string &#124; number&gt;</code> |
    * | Long Text | `string` |
-   * | Multi-Select Dropdown | `object` |
+   * | Multi-Select Dropdown | <code>Array&lt;string &#124; number&gt;</code> |
    * | Multi-Select Matrix | `object` |
    * | Multiple Textboxes | `Array<string>` |
    * | Panel | (no value) |

@@ -1129,6 +1129,11 @@ export class JsonMetadata {
     if (!prop.isPropertySerializable(obj)) return obj[prop.name];
     if (prop.isLocalizable) {
       if (prop.isArray) return obj[prop.name];
+      const locStr = obj.getLocalizableString(prop.name);
+      if(!!locStr) {
+        if(locStr.isDefautlLocale) return locStr.text;
+        return locStr.getValue(locStr.locale);
+      }
       if (!!prop.serializationProperty)
         return obj[prop.serializationProperty].text;
     }

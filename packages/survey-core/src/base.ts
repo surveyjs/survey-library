@@ -83,22 +83,26 @@ export class Bindings {
   }
   public getJson(): any {
     if (this.isEmpty()) return undefined;
-    var res: any = {};
-    for (var key in this.values) {
-      res[key] = this.values[key];
-    }
+    const res: any = {};
+    this.getNames().forEach(key => {
+      if(this.values[key] !== undefined) {
+        res[key] = this.values[key];
+      }
+    });
     return res;
   }
   public setJson(value: any, isLoading?: boolean): void {
     const oldValue = this.getJson();
     this.values = null;
     if (!!value) {
-      this.values = {};
-      for (var key in value) {
-        this.values[key] = value[key];
-      }
+      this.getNames().forEach(key => {
+        if(value[key] !== undefined) {
+          if(!this.values) this.values = {};
+          this.values[key] = value[key];
+        }
+      });
     }
-    if (!isLoading) {
+    if (!isLoading && !Helpers.isTwoValueEquals(oldValue, this.values)) {
       this.onChangedJSON(oldValue);
     }
   }

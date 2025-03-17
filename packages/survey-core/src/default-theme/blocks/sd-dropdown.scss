@@ -244,3 +244,8 @@
     background-position: left calcSize(1.5) top 50%, 0 0;
   }
 }
+
+.sv-custom-value .sv-list__item-body {
+  font-weight: bold;
+  color: $primary;
+}

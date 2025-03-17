@@ -206,6 +206,14 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property() searchMode: "contains" | "startsWith";
 
+  @property({
+    onSet: (newValue: boolean, target: QuestionDropdownModel) => {
+      if (!!target.dropdownListModelValue) {
+        target.dropdownListModel.setAcceptCustomValue(newValue);
+      }
+    }
+  }) acceptCustomValue: boolean;
+
   /**
    * Specifies whether to wrap long texts in choice options onto a new line.
    *
@@ -402,6 +410,7 @@ Serializer.addClass(
     { name: "textWrapEnabled:boolean", default: true },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
+    { name: "acceptCustomValue:boolean", default: false, visible: false },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },

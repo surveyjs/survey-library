@@ -466,15 +466,19 @@ export interface ProgressTextEvent extends GetProgressTextEvent { }
 
 export interface TextProcessingEvent {
   /**
+   * A survey element (question, panel, page, or survey) for which the event is raised.
+   */
+  element: Question | PanelModel | PageModel | SurveyModel;
+  /**
    * The name of the property that contains the text to process.
    */
   name: string;
-  /**
-   * A survey element (question, panel, page, or survey) in which the text will be rendered.
-   */
-  element: Question | PanelModel | PageModel | SurveyModel;
 }
 export interface TextMarkdownEvent extends TextProcessingEvent {
+  /**
+   * A choice item for which the event is raised. This parameter has a value only when `options.element` is a choice-based question, such as [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model) or [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model).
+   */
+  item?: ItemValue;
   /**
    * A string with Markdown content. Convert this content to HTML and assign the result to the `options.html` parameter.
    */
@@ -483,7 +487,6 @@ export interface TextMarkdownEvent extends TextProcessingEvent {
    * A property to which you should assign HTML content.
    */
   html?: string;
-  item?: ItemValue;
 }
 export interface TextRenderAsEvent extends TextProcessingEvent {
   /**

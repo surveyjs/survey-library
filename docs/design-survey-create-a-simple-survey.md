@@ -211,6 +211,7 @@ export class AppComponent implements OnInit {
 ```html
 <script setup lang="ts">
 import { Model } from 'survey-core';
+import { SurveyComponent, PopupSurveyComponent } from "survey-vue3-ui";
 
 const surveyJson = {
   // ...
@@ -232,6 +233,9 @@ const survey = new Model(surveyJson);
     <summary>React</summary> 
 
 ```js
+// components/Survey.tsx
+'use client'
+
 import { Model } from 'survey-core';
 import { Survey, PopupSurvey } from 'survey-react-ui';
 
@@ -239,7 +243,7 @@ const surveyJson = {
   // ...
 };
 
-function App() {
+export default function SurveyComponent() {
   const survey = new Model(surveyJson);
 
   // Render the survey inside the page
@@ -248,8 +252,21 @@ function App() {
   // Render the survey in a pop-up window
   return <PopupSurvey model={survey} isExpanded={true} />;
 }
+```
 
-export default App;
+```js
+// survey/page.tsx
+import dynamic from 'next/dynamic';
+
+const SurveyComponent = dynamic(() => import("@/components/Survey"), {
+  ssr: false
+});
+
+export default function Survey() {
+  return (
+    <SurveyComponent />
+  );
+}
 ```
 </details>
 
@@ -274,6 +291,35 @@ $(function() {
     // Render the survey in a pop-up window
     $("#surveyContainer").PopupSurvey({ model: survey, isExpanded: true });
 });
+```
+
+</details>
+
+<details>
+    <summary>HTML/JS/CSS</summary> 
+
+```html
+<div id="surveyContainer"></div>
+```
+
+```js
+const surveyJson = {
+  // ...
+};
+
+const survey = new Survey.Model(surveyJson);
+
+// Render the survey inside the page
+document.addEventListener("DOMContentLoaded", function() {
+  survey.render(document.getElementById("surveyContainer"));
+});
+
+// Render the survey in a pop-up window
+SurveyUI.renderPopupSurvey(
+  survey,
+  document.getElementById("surveyContainer"),
+  { isExpanded: true }
+);
 ```
 </details>
 

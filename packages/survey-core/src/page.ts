@@ -76,7 +76,7 @@ export class PageModel extends PanelModel implements IPage {
     return this.survey.getUpdatedPageNo(this, no);
   }
   public get cssTitleNumber(): string {
-    return this.cssClasses.page.number;
+    return this.isPanel ? this.cssClasses.panel.number : this.cssClasses.page.number;
   }
   public getCssTitleExpandableSvg(): string {
     return null;

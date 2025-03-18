@@ -571,6 +571,7 @@ export class PanelModelBase extends SurveyElement<Question>
   public set questionsOrder(val: string) {
     this.questionOrder = val;
   }
+  public addNoFromChild(no: string): string { return no; }
   private canRandomize(isRandom: boolean): boolean {
     return isRandom && (this.questionOrder !== "initial") || this.questionOrder === "random";
   }
@@ -2170,6 +2171,11 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("showNumber", val);
     this.notifySurveyOnVisibilityChanged();
   }
+  public addNoFromChild(no: string): string {
+    if(this.isQuestionIndexRecursive)
+      return this.calcNo() + no;
+    return super.addNoFromChild(no);
+  }
   /**
    * Gets or sets a value that specifies how the elements numbers inside panel are displayed.
    *
@@ -2224,6 +2230,9 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   private calcNo(): string {
     let no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
+    if(!!this.parent) {
+      no = (<any>this.parent).addNoFromChild(no);
+    }
     if(this.survey) {
       no = this.survey.getUpdatedPanelNo(this, no);
     }
@@ -2257,17 +2266,23 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   protected getPanelStartIndex(index: number): number {
     if (this.showQuestionNumbers === "off") return -1;
-    if (this.showQuestionNumbers === "onpanel") return 0;
+    if (this.isQuestionIndexOnPanel) return 0;
     return index;
   }
+  private get isQuestionIndexOnPanel(): boolean {
+    return this.showQuestionNumbers === "onpanel" || this.isQuestionIndexRecursive;
+  }
+  private get isQuestionIndexRecursive(): boolean {
+    return this.showQuestionNumbers === "onpanelrecursive";
+  }
   private hasParentInQuestionIndex(): boolean {
-    if(this.showQuestionNumbers !== "onpanel") return false;
+    if(!this.isQuestionIndexOnPanel) return false;
     const str = this.questionStartIndex;
     const index = str.indexOf(".");
     return index > -1 && index < str.length - 1;
   }
   protected isContinueNumbering(): boolean {
-    return this.showQuestionNumbers !== "off" && this.showQuestionNumbers !== "onpanel";
+    return this.showQuestionNumbers !== "off" && !this.isQuestionIndexOnPanel;
   }
   private notifySurveyOnVisibilityChanged() {
     if (this.survey != null && !this.isLoadingFromJson && !!this.page) {
@@ -2543,7 +2558,7 @@ Serializer.addClass(
       },
     },
     { name: "showNumber:boolean" },
-    { name: "showQuestionNumbers", default: "default", choices: ["default", "onpanel", "off"] },
+    { name: "showQuestionNumbers", default: "default", choices: ["default", "onpanel", "onpanelrecursive", "off"] },
     { name: "questionStartIndex", visibleIf: (obj: PanelModel): boolean => obj.isPanel },
     { name: "allowAdaptiveActions:boolean", default: true, visible: false },
   ],

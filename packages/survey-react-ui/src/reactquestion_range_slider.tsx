@@ -12,73 +12,125 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     return this.question;
   }
 
-  protected handleOnChange1 = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const newValue: number = +event.target.value;
-    this.question.value.splice(0, 1, newValue);
-
-    var input:any = event.target;
-    var otherInput:any = document.getElementById("input2");
-    input.value = Math.min(input.value, otherInput.value - 10);
-    let percent = (input.value/parseInt(input.max))*100;
-    document.getElementById("inverse-left").style.width = percent + "%";
-    document.getElementById("range").style.left = percent + "%";
-    document.getElementById("thumb-left").style.left = percent + "%";
-    document.getElementById("sign-left").style.left = percent + "%";
-    document.getElementById("sign-value-left").innerHTML = input.value;
-  }
-
-  protected handleOnChange2 = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const newValue: number = +event.target.value;
-    this.question.value.splice(1, 1, newValue);
-
-    var input:any = event.target;
-    var otherInput:any = document.getElementById("input1");
-    input.value = Math.max(input.value, otherInput.value-(-10));
-    let percent = (input.value/parseInt(input.max))*100;
-    document.getElementById("inverse-right").style.width = (100 - percent) + "%";
-    document.getElementById("range").style.right = (100 - percent) + "%";
-    document.getElementById("thumb-right").style.left = percent + "%";
-    document.getElementById("sign-right").style.left = percent + "%";
-    document.getElementById("sign-value-right").innerHTML = input.value;
-  }
-
-  private getValue1() {
-    const value = this.question.value[0];
-    return value ?? 0;
-  }
-
-  private getValue2() {
-    const value = this.question.value[1];
-    return value ?? 0;
-  }
-
   protected renderElement(): React.JSX.Element {
+    const inputs = this.getInputs();
+    const thumbs = this.getThumbs();
+
+    const value = this.getRenderedValue();
+    const leftPercent = this.getPercent(value[0]);
+    const rightPercent = this.getPercent(value[value.length - 1]);
+
+    const rangeLeftPercent = leftPercent + "%";
+    const rangeRightPercent = (100 - rightPercent) + "%";
+
     return (
       <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
-        {/* <input type="range" min="0" max="100" value={this.getValue1()} step="1" onInput={this.handleOnInput1}/> */}
         <div id="slider">
           <div>
-            <div id="inverse-left" style={{ width: "0%" }}></div>
-            <div id="inverse-right" style={{ width: "0%" }}></div>
-            <div id="range" style={{ left: "0%", right: "0%" }}></div>
-
-            <span id="thumb-left" style={{ left: "0%" }} ></span>
-            <span id="thumb-right" style={{ left: "100%" }} ></span>
-
-            <div id="sign-left" style={{ left: "0%" }}>
-              <span id="sign-value-left">0</span>
-            </div>
-            <div id="sign-right" style={{ left: "100%" }} >
-              <span id="sign-value-right">100</span>
-            </div>
+            <div id="inverse-left" style={{ width: rangeLeftPercent }}></div>
+            <div id="inverse-right" style={{ width: rangeRightPercent }}></div>
+            <div id="range" style={{ left: rangeLeftPercent, right: rangeRightPercent }}></div>
+            {thumbs}
           </div>
-
-          <input id="input1" type="range" value={this.getValue1()} min={0} max={100} step="1" onChange={this.handleOnChange1} />
-          <input id="input2" type="range" value={this.getValue2()} min={0} max={100} step="1" onChange={this.handleOnChange2} />
+          {inputs}
         </div>
 
       </div>
     );
+  }
+
+  private getInputs() {
+    let value:number[] = this.getRenderedValue();
+    const { max, min, step } = this.question;
+
+    const inputs = [];
+    for (let i = 0; i < value.length; i++) {
+      const input = <input id={"input"+i} key={"input"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } />;
+      inputs.push(input);
+    }
+    return inputs;
+  }
+
+  private getThumbs() {
+    let value:number[] = this.getRenderedValue();
+
+    const thumbs = [];
+    for (let i = 0; i < value.length; i++) {
+      let percent: string = this.getPercent(value[i]) + "%";
+
+      const thumb = <React.Fragment key={"thumb"+i}>
+        <span id={"thumb"+i} style={{ left: percent }} ></span>
+
+        <div id={"sign"+i} style={{ left: percent }}>
+          <span id={"sign-value-"+i}>{value[i]}</span>
+        </div>
+      </React.Fragment>;
+      thumbs.push(thumb);
+    }
+    return thumbs;
+  }
+
+  private getPercent(value:number):number {
+    const max = this.question.max;
+    return ((value/max)*100);
+  }
+
+  private getRenderedValue() {
+    const value = this.question.value;
+    if (value.length === 0) {
+      return [0, 100];
+    }
+    return value;
+  }
+
+  private handleOnChange = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
+    const minDiff = this.question.minDiff;
+    let value:number[] = this.getRenderedValue();
+
+    let newThumbValue: number;
+
+    if (inputNumber === 0) {
+      newThumbValue = Math.min(+event.target.value, value[inputNumber + 1] - minDiff);
+    } else if (inputNumber === value.length-1) {
+      newThumbValue = Math.max(+event.target.value, value[inputNumber - 1]-(-minDiff));
+    } else {
+      newThumbValue = Math.min(+event.target.value, value[inputNumber + 1] - minDiff);
+      newThumbValue = Math.max(newThumbValue, value[inputNumber - 1]-(-minDiff));
+    }
+
+    const renderedValue = this.getRenderedValue();
+    renderedValue.splice(inputNumber, 1, newThumbValue);
+    this.question.value = renderedValue;
+  }
+
+  private handleOnChange1 = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const newValue: number = +event.target.value;
+    // this.question.value.splice(0, 1, newValue);
+
+    var input:any = event.target;
+    var otherInput:any = document.getElementById("input1");
+    input.value = Math.min(input.value, otherInput.value - 10);
+    let percent = (input.value/parseInt(input.max))*100;
+    document.getElementById("inverse-left").style.width = percent + "%";
+    document.getElementById("range").style.left = percent + "%";
+    document.getElementById("thumb-0").style.left = percent + "%";
+    document.getElementById("sign-0").style.left = percent + "%";
+    document.getElementById("sign-value-0").innerHTML = input.value;
+  }
+
+  private handleOnChange2 = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const newValue: number = +event.target.value;
+    // this.question.value.splice(1, 1, newValue);
+
+    var input:any = event.target;
+    var otherInput:any = document.getElementById("input0");
+    input.value = Math.max(input.value, otherInput.value-(-10));
+    let percent = (input.value/parseInt(input.max))*100;
+    document.getElementById("inverse-right").style.width = (100 - percent) + "%";
+    document.getElementById("range").style.right = (100 - percent) + "%";
+    document.getElementById("thumb-1").style.left = percent + "%";
+    document.getElementById("sign-1").style.left = percent + "%";
+    document.getElementById("sign-value-1").innerHTML = input.value;
   }
 
 }

@@ -19,6 +19,22 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
       .toString();
   }
 
+  public get max(): number {
+    return 100;
+  }
+
+  public get min(): number {
+    return 0;
+  }
+
+  public get step(): number {
+    return 1;
+  }
+
+  public get minDiff(): number {
+    return 10;
+  }
+
   protected onCreating(): void {
     super.onCreating();
     this.createNewArray("value");

@@ -45,7 +45,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
     const inputs = [];
     for (let i = 0; i < value.length; i++) {
-      const input = <input id={"input"+i} key={"input"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } />;
+      const input = <input id={"input-"+i} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } />;
       inputs.push(input);
     }
     return inputs;
@@ -58,10 +58,10 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     for (let i = 0; i < value.length; i++) {
       let percent: string = this.getPercent(value[i]) + "%";
 
-      const thumb = <React.Fragment key={"thumb"+i}>
-        <span id={"thumb"+i} style={{ left: percent }} ></span>
+      const thumb = <React.Fragment key={"thumb-"+i}>
+        <span id={"thumb-"+i} style={{ left: percent }} ></span>
 
-        <div id={"sign"+i} style={{ left: percent }}>
+        <div id={"sign-"+i} style={{ left: percent }}>
           <span id={"sign-value-"+i}>{value[i]}</span>
         </div>
       </React.Fragment>;

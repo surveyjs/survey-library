@@ -102,37 +102,6 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     renderedValue.splice(inputNumber, 1, newThumbValue);
     this.question.value = renderedValue;
   }
-
-  private handleOnChange1 = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const newValue: number = +event.target.value;
-    // this.question.value.splice(0, 1, newValue);
-
-    var input:any = event.target;
-    var otherInput:any = document.getElementById("input1");
-    input.value = Math.min(input.value, otherInput.value - 10);
-    let percent = (input.value/parseInt(input.max))*100;
-    document.getElementById("inverse-left").style.width = percent + "%";
-    document.getElementById("range").style.left = percent + "%";
-    document.getElementById("thumb-0").style.left = percent + "%";
-    document.getElementById("sign-0").style.left = percent + "%";
-    document.getElementById("sign-value-0").innerHTML = input.value;
-  }
-
-  private handleOnChange2 = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const newValue: number = +event.target.value;
-    // this.question.value.splice(1, 1, newValue);
-
-    var input:any = event.target;
-    var otherInput:any = document.getElementById("input0");
-    input.value = Math.max(input.value, otherInput.value-(-10));
-    let percent = (input.value/parseInt(input.max))*100;
-    document.getElementById("inverse-right").style.width = (100 - percent) + "%";
-    document.getElementById("range").style.right = (100 - percent) + "%";
-    document.getElementById("thumb-1").style.left = percent + "%";
-    document.getElementById("sign-1").style.left = percent + "%";
-    document.getElementById("sign-value-1").innerHTML = input.value;
-  }
-
 }
 ReactQuestionFactory.Instance.registerQuestion("rangeslider", (props) => {
   return React.createElement(SurveyQuestionRangeSlider, props);

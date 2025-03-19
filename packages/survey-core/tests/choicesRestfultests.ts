@@ -19,6 +19,7 @@ import {
   QuestionCompositeModel,
   ComponentCollection,
 } from "../src/question_custom";
+import { ListModel } from "../src/list";
 
 export default QUnit.module("choicesRestful");
 
@@ -1836,6 +1837,51 @@ QUnit.test("Composite: execute choicesByUrl in design time", function (
   const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
   assert.equal(q1.contentPanel.getQuestionByName("q1").visibleChoices.length, 2, "event is executed");
   ComponentCollection.Instance.clear();
+});
+
+QUnit.test("AcceptCustomValue: Add custom value", function (assert) {
+  const question = new QuestionDropdownModelTester("q1");
+  const survey = new SurveyModel();
+  survey.addNewPage("1");
+  survey.pages[0].addQuestion(question);
+  const dropdownListModel = question.dropdownListModel;
+  const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  const testCustomValue = "cuba";
+
+  question.acceptCustomValue = true;
+  question.fromJSON({
+    choicesByUrl: {
+      url: "allcountries",
+      path: "RestResponse;result",
+      attachOriginalItems: true,
+    },
+  });
+  question.onSurveyLoad();
+  assert.equal(question.visibleChoices.length, 5, "Choices has been loaded");
+
+  dropdownListModel.inputStringRendered = testCustomValue;
+  assert.equal(dropdownListModel.customValue, testCustomValue, "#1 customValue");
+  assert.equal(listModel.actions.length, 6, "#1 listModel.actions");
+  assert.equal(listModel.actions[5].id, "newCustomItem", "#1 custom item id");
+  assert.equal(listModel.actions[5].visible, true, "#1 custom item visible");
+  assert.equal(question.value, undefined, "#1 question.value");
+  assert.equal(question.selectedItem, undefined, "#1 question.selectedItem");
+  assert.equal(question.visibleChoices.length, 5, "#1 question.visibleChoices");
+  assert.deepEqual(survey.data, {}, "#1 survey.data");
+
+  listModel.onItemClick(listModel.actions[5]);
+  assert.equal(dropdownListModel.inputStringRendered, testCustomValue, "#2 inputStringRendered");
+  assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
+  assert.equal(listModel.actions.length, 7, "#2 listModel.actions");
+  assert.equal(listModel.actions[5].id, testCustomValue, "#2 custom value add into list - id");
+  assert.equal(listModel.actions[5].title, testCustomValue, "#2 custom value add into list - title");
+  assert.equal(listModel.actions[6].id, "newCustomItem", "#2 custom item id");
+  assert.equal(listModel.actions[6].visible, false, "#2 custom item invisible");
+  assert.equal(question.value, testCustomValue, "#2 question.value");
+  assert.equal(question.selectedItem.id, testCustomValue, "#2 question.selectedItem");
+  assert.equal(question.visibleChoices.length, 6, "#2 question.visibleChoices");
+  assert.equal(question.visibleChoices[5].value, testCustomValue, "#2 question.visibleChoices[5]");
+  assert.deepEqual(survey.data, { q1: testCustomValue }, "#2 survey.data");
 });
 
 function getCACities() {

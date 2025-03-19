@@ -2,6 +2,7 @@ import { IAction } from "./actions/action";
 import { Base } from "./base";
 import { IDropdownMenuOptions } from "./base-interfaces";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { IListModel, ListModel } from "./list";
@@ -247,14 +248,14 @@ export class DropdownListModel extends Base {
   }
   private setQuestionValue(item: IAction) {
     if (this.acceptCustomValue && item.id === this.customItemValue.id) {
-      this.question.choices.push(new ItemValue(this.customValue));
+      this.question.customChoices.push(new ItemValue(this.customValue));
       this.question.value = this.customValue;
       this.customValue = undefined;
       this.updateItems();
     } else {
       this.question.value = item.id;
+      if (this.question.searchEnabled) this.applyInputString(item as ItemValue);
     }
-    if (this.question.searchEnabled) this.applyInputString(item as ItemValue);
   }
 
   protected updateAfterListModelCreated(model: ListModel<ItemValue>): void {
@@ -400,18 +401,20 @@ export class DropdownListModel extends Base {
   public set inputStringRendered(val: string) {
     this.inputString = val;
     this.filterString = val;
+
+    if (!val || !this.searchEnabled || this.listModel.focusedItem?.id === this.customItemValue.id) {
+      this.hintString = "";
+    } else {
+      this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
+    }
+
     if (this.acceptCustomValue) {
-      if (!!this.listModel.focusedItem && this.listModel.focusedItem.id === val) {
+      if (!!this.listModel.focusedItem && Helpers.isTwoValueEquals(this.listModel.focusedItem.text, val, false, false)) {
         this.customValue = undefined;
       } else {
         this.customValue = val;
         this.updateItems();
       }
-    }
-    if (!val) {
-      this.hintString = "";
-    } else {
-      this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
     }
   }
 
@@ -486,14 +489,17 @@ export class DropdownListModel extends Base {
   get popupModel(): PopupModel {
     return this._popupModel;
   }
+  public get inputAvailable(): boolean {
+    return this.searchEnabled || this.acceptCustomValue;
+  }
   public get noTabIndex(): boolean {
-    return this.question.isInputReadOnly || this.searchEnabled;
+    return this.question.isInputReadOnly || this.inputAvailable;
   }
   public get filterReadOnly(): boolean {
-    return this.question.isInputReadOnly || !this.searchEnabled || !this.focused;
+    return !this.filterStringEnabled || !this.focused;
   }
   public get filterStringEnabled(): boolean {
-    return !this.question.isInputReadOnly && this.searchEnabled;
+    return !this.question.isInputReadOnly && this.inputAvailable;
   }
   public get inputMode(): "none" | "text" {
     return IsTouch ? "none" : "text";
@@ -627,7 +633,7 @@ export class DropdownListModel extends Base {
       }
       isStopPropagation = true;
     } else if (char === 46 || char === 8) {
-      if (!this.searchEnabled) {
+      if (!this.inputAvailable) {
         this.onClear(event);
       }
     } else if (event.keyCode === 27) {

@@ -57,6 +57,10 @@ export class QuestionSelectBase extends Question {
         this.onVisibleChoicesChanged();
       }
     });
+    this.createItemValues("customChoices");
+    this.registerPropertyChangedHandlers(["customChoices"], () => {
+      this.onVisibleChoicesChanged();
+    });
     this.registerPropertyChangedHandlers(
       ["choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion",
         "choiceTextsFromQuestion", "showNoneItem", "showRefuseItem", "showDontKnowItem", "isUsingRestful", "isMessagePanelVisible"],
@@ -800,6 +804,12 @@ export class QuestionSelectBase extends Question {
     this.updateVisibleChoices();
   }
   public clearIncorrectValuesCallback: () => void;
+  public get customChoices(): Array<any> {
+    return this.getPropertyValue("customChoices");
+  }
+  public set customChoices(val: Array<any>) {
+    this.setPropertyValue("customChoices", val);
+  }
   /**
    * Configures access to a RESTful service that returns choice items. Refer to the [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information. You can also specify additional application-wide settings using the [`settings.web`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) object.
    *
@@ -1042,10 +1052,8 @@ export class QuestionSelectBase extends Question {
     if (this.isLoadingFromJson || this.isDisposed) return;
     var newValue = new Array<ItemValue>();
     var calcValue = this.calcVisibleChoices();
-    if (!calcValue) calcValue = [];
-    for (var i = 0; i < calcValue.length; i++) {
-      newValue.push(calcValue[i]);
-    }
+    (calcValue || []).forEach(choice => newValue.push(choice));
+    this.customChoices.forEach(choice => newValue.push(choice));
     const oldValue = this.visibleChoices;
     if (!this.isTwoValueEquals(oldValue, newValue) || this.choicesLazyLoadEnabled) {
       this.setArrayPropertyDirectly("visibleChoices", newValue);

@@ -350,7 +350,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
 
   protected getFirstInputElementId(): string {
-    return this.inputId + (this.searchEnabled ? "_0" : "");
+    return this.inputId + (this.searchEnabled || this.acceptCustomValue ? "_0" : "");
   }
   public getInputId() {
     return this.inputId + "_0";

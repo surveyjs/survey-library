@@ -7850,7 +7850,7 @@ QUnit.test("Randomize questions in page and panels & single question per page", 
 
   Helpers.randomizeArray = oldFunc;
 });
-QUnit.test("questionPerPage vs nextPage&prevPage", function (assert) {
+QUnit.test("questionPerPage vs nextPage&prevPage & Bug#9617 (isLastPage/isFirstPage)", function (assert) {
   const survey = new SurveyModel({
     questionsOnPageMode: "questionPerPage",
     pages: [
@@ -7859,18 +7859,32 @@ QUnit.test("questionPerPage vs nextPage&prevPage", function (assert) {
     ]
   });
   assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #1");
+  assert.equal(survey.isFirstPage, true, "isFirstPage #1");
+  assert.equal(survey.isLastPage, false, "isLastPage #1");
   survey.nextPage();
   assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion #2");
+  assert.equal(survey.isFirstPage, false, "isFirstPage #2");
+  assert.equal(survey.isLastPage, false, "isLastPage #2");
   survey.nextPage();
   assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion #3");
+  assert.equal(survey.isFirstPage, false, "isFirstPage #3");
+  assert.equal(survey.isLastPage, false, "isLastPage #3");
   survey.nextPage();
   assert.equal(survey.currentSingleQuestion.name, "q4", "currentSingleQuestion #4");
+  assert.equal(survey.isFirstPage, false, "isFirstPage #4");
+  assert.equal(survey.isLastPage, true, "isLastPage #4");
   survey.prevPage();
   assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion #5");
+  assert.equal(survey.isFirstPage, false, "isFirstPage #5");
+  assert.equal(survey.isLastPage, false, "isLastPage #5");
   survey.prevPage();
   assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion #6");
+  assert.equal(survey.isFirstPage, false, "isFirstPage #6");
+  assert.equal(survey.isLastPage, false, "isLastPage #6");
   survey.prevPage();
   assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #7");
+  assert.equal(survey.isFirstPage, true, "isFirstPage #7");
+  assert.equal(survey.isLastPage, false, "isLastPage #7");
 });
 
 QUnit.test("Quiz, correct, incorrect answers", function (assert) {

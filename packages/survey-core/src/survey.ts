@@ -4675,8 +4675,6 @@ export class SurveyModel extends SurveyElementCore
   }
   private updateIsFirstLastPageState() {
     const curPage = this.currentPage;
-    this.setPropertyValue("isFirstPage", !!curPage && curPage === this.firstVisiblePage);
-    this.setPropertyValue("isLastPage", !!curPage && curPage === this.lastVisiblePage);
     let fVal: boolean | undefined = undefined;
     let lVal: boolean | undefined = undefined;
     const q = this.currentSingleElement;
@@ -4688,6 +4686,8 @@ export class SurveyModel extends SurveyElementCore
         lVal = index === questions.length - 1;
       }
     }
+    this.setPropertyValue("isFirstPage", !!curPage && curPage === this.firstVisiblePage && (!q || fVal === true));
+    this.setPropertyValue("isLastPage", !!curPage && curPage === this.lastVisiblePage && (!q || lVal === true));
     this.setPropertyValue("isFirstElement", fVal);
     this.setPropertyValue("isLastElement", lVal);
   }

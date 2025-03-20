@@ -20,7 +20,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public get max(): number {
-    return 100;
+    return 50;
   }
 
   public get min(): number {
@@ -36,7 +36,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public get ticks(): number {
-    return 10;
+    return 6;
   }
 
   protected onCreating(): void {

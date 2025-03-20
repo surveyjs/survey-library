@@ -86,18 +86,13 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     const fullRange = max - min;
 
     for (let i = 0; i < ticksCount; i++) {
-      let position;
-      if (i === 0) {
-        position = 0;
-      } else if (i === ticksCount - 1) {
-        position = 100;
-      } else {
-        position = (fullRange/(ticksCount-1))*i;
-      }
+      let tickStep = i * fullRange / (ticksCount - 1);
+      let position = tickStep / fullRange * 100;
 
       const tick = <React.Fragment key={"tick-"+i}>
-        <div className={this.question.cssClasses.tick} style={{ left: position + "%" }}>{Math.round(position)}</div>
+        <div className={this.question.cssClasses.tick} style={{ left: position + "%" }}>{Math.round(tickStep)}</div>
       </React.Fragment>;
+
       ticks.push(tick);
     }
 

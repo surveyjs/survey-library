@@ -125,7 +125,7 @@ export {
   LocalizableString,
   LocalizableStrings
 } from "../../src/localizablestring";
-export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
+export * from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
 export { FunctionFactory, registerFunction } from "../../src/functionsfactory";
 export { ConditionRunner, ExpressionRunner, IExpresionExecutor, ExpressionExecutor } from "../../src/conditions";

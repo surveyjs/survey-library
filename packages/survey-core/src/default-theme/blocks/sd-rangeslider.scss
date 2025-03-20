@@ -2,8 +2,8 @@
 
 .sd-range-slider {
   position: relative;
-  height: 5px;
-  margin: 45px 0 10px 0;
+  height: 50px;
+  margin-top: 45px;
 
   &:hover {
     .sd-range-slider__tooltip {
@@ -12,10 +12,10 @@
   }
 }
 
-.sd-range-slider__visual-container {
+.sd-range-slider__visual-slider-container {
   position: absolute;
-  left: 13px;
-  right: 15px;
+  left: 0;
+  right: 0;
   height: 5px;
 }
 
@@ -74,6 +74,7 @@
   -webkit-justify-content: center;
   justify-content: center;
   text-align: center;
+  user-select: none;
 
   &::after {
     position: absolute;
@@ -93,6 +94,24 @@
   font-size: 12px;
   font-weight: 700;
   line-height: 28px;
+}
+
+.sd-range-slider__ticks-container {
+  position: absolute;
+  padding-top: 15px;
+  bottom: 0;
+  right: 0;
+  left: 0;
+
+  >div {
+    position: relative;
+    display: flex;
+  }
+}
+
+.sd-range-slider__tick {
+  color: $foreground;
+  position: absolute;
 }
 
 input[type=range].sd-range-slider__input {
@@ -123,6 +142,7 @@ input[type=range].sd-range-slider__input::-webkit-slider-thumb {
   border: 0 none;
   background: $primary;
   -webkit-appearance: none;
+  cursor: pointer;
 }
 
 input[type=range].sd-range-slider__input::-moz-range-thumb {
@@ -133,6 +153,7 @@ input[type=range].sd-range-slider__input::-moz-range-thumb {
   border: 0 none;
   background: $primary;
   -webkit-appearance: none;
+  cursor: pointer;
 }
 
 input[type=range].sd-range-slider__input::-ms-fill-lower {

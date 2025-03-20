@@ -17,6 +17,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
     const inputs = this.getInputs();
     const thumbs = this.getThumbs();
+    const ticks = this.getTicks();
 
     const value = this.getRenderedValue();
     const leftPercent = this.getPercent(value[0]);
@@ -27,11 +28,16 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
     return (
       <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
-        <div className={cssClasses.visualContainer}>
+        <div className={cssClasses.visualSliderContainer}>
           <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
           <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
           <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }}></div>
           {thumbs}
+        </div>
+        <div className={cssClasses.ticksContainer}>
+          <div>
+            {ticks}
+          </div>
         </div>
         {inputs}
       </div>
@@ -72,6 +78,30 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
       thumbs.push(thumb);
     }
     return thumbs;
+  }
+
+  private getTicks() {
+    const ticks = [];
+    const { max, min, ticks: ticksCount } = this.question;
+    const fullRange = max - min;
+
+    for (let i = 0; i < ticksCount; i++) {
+      let position;
+      if (i === 0) {
+        position = 0;
+      } else if (i === ticksCount - 1) {
+        position = 100;
+      } else {
+        position = (fullRange/(ticksCount-1))*i;
+      }
+
+      const tick = <React.Fragment key={"tick-"+i}>
+        <div className={this.question.cssClasses.tick} style={{ left: position + "%" }}>{Math.round(position)}</div>
+      </React.Fragment>;
+      ticks.push(tick);
+    }
+
+    return ticks;
   }
 
   private getPercent(value:number):number {

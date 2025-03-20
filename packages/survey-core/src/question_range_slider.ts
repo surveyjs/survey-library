@@ -35,6 +35,10 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
     return 10;
   }
 
+  public get ticks(): number {
+    return 10;
+  }
+
   protected onCreating(): void {
     super.onCreating();
     this.createNewArray("value");

@@ -673,14 +673,16 @@ export var defaultCss = {
   },
   rangeslider: {
     root: "sd-range-slider",
-    visualContainer: "sd-range-slider__visual-container",
+    visualSliderContainer: "sd-range-slider__visual-slider-container",
     rangeTrack: "sd-range-slider__range-track",
     inverseTrackLeft: "sd-range-slider__inverse-track sd-range-slider__inverse-track--left",
     inverseTrackRight: "sd-range-slider__inverse-track sd-range-slider__inverse-track--right",
     thumb: "sd-range-slider__thumb",
     tooltip: "sd-range-slider__tooltip",
     tooltipValue: "sd-range-slider__tooltip-value",
-    input: "sd-range-slider__input"
+    input: "sd-range-slider__input",
+    ticksContainer: "sd-range-slider__ticks-container",
+    tick: "sd-range-slider__tick",
   },
   comment: {
     root: "sd-input sd-comment",

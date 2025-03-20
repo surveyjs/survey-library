@@ -12,7 +12,6 @@ import { AngularItemContentTemplateComponent } from "./components/itemContentTem
 import { TestDefaultComponent } from "./components/test/testdefault.component";
 import { TestCustomWidgetComponent } from "./components/test/customwidget.component";
 import { CustomActionComponent } from "./components/test-custom-components/action-custom.component";
-import { EmptyComponent } from "./components/test/empty.component";
 
 @NgModule({
   declarations: [
@@ -20,7 +19,7 @@ import { EmptyComponent } from "./components/test/empty.component";
     TestCustomWidgetComponent,
     AngularItemTemplateComponent,
     AngularItemContentTemplateComponent,
-    CustomActionComponent, EmptyComponent
+    CustomActionComponent
   ],
   imports: [
     BrowserModule, SurveyModule, FormsModule, AppRoutingModule

@@ -1,6 +1,5 @@
-import { frameworks, urlV2, initSurvey } from "./helper";
-import { fixture, Selector, test } from "testcafe";
-import { axeCheck, createReport } from "axe-testcafe";
+import { frameworks, initSurvey, url } from "./helper";
+import { test, expect } from "@playwright/test";
 const title = "navigation";
 
 const json = {
@@ -68,18 +67,15 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} a11y:${title}`.page`${urlV2}${framework}`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, json);
-    }
-  );
-
-  test("progress bar", async (t) => {
-    await t
-      .expect(
-        await Selector("[role='progressbar']").hasAttribute(
-          "aria-label"
-        )
-      ).ok();
+  test.describe(`${framework} a11y:${title}`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await initSurvey(page, framework, json);
+    });
+    test("progress bar", async ({ page }) => {
+      await expect(page.locator("[role='progressbar']")).toHaveAttribute(
+        "aria-label"
+      );
+    });
   });
 });

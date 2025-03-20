@@ -22,8 +22,8 @@
     "testcafe:ci": "testcafe ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.js",
     "vrt": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --env=vue3 --config-file ../../.testcaferc.dev.js",
     "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.js",
-    "accessibility-tests": "testcafe ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.dev.js",
-    "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"npm run serve:example:prod\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.js"
+    "accessibility-tests": "cross-env env=vue3 playwright test --project a11y --ui",
+    "accessibility-tests:ci": "cross-env env=vue3 playwright test --project a11y --reporter dot --quiet"
   },
   "devDependencies": {
     "@babel/types": "^7.20.2",
@@ -36,6 +36,7 @@
     "@vue/test-utils": "2.4.4",
     "@vue/tsconfig": "^0.4.0",
     "commit-and-tag-version": "^11.0.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.22.0",
     "eslint-plugin-vue": "^9.3.0",
     "jsdom": "16.7.0",

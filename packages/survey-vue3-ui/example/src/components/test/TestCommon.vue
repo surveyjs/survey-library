@@ -1,6 +1,14 @@
+<script lang="ts">
+import { RouterView } from 'vue-router'
+import $ from 'jquery'
+import * as showdown from "showdown"
+import * as Survey from "survey-core";
+(window as any).jQuery = (window as any).$ = $;
+(window as any).showdown = showdown;
+(window as any).Survey = Object.assign({}, Survey);
+</script>
 <script setup lang="ts">
 import { SurveyModel } from "survey-core";
-import * as Survey from "survey-core"
 import "survey-core/survey.i18n";
 import { SurveyComponent, PopupSurveyComponent } from "survey-vue3-ui";
 import { shallowRef } from "vue";

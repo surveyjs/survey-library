@@ -624,10 +624,26 @@ export class QuestionSelectBase extends Question {
       this.isSettingComment = true;
       this.otherValueCore = newValue;
       if (this.isOtherSelected && !this.isRenderedValueSetting) {
-        this.value = this.rendredValueToData(this.renderedValue);
+        this.value = this.getValueOnSettingOther(newValue);
       }
       this.isSettingComment = false;
     }
+  }
+  private getValueOnSettingOther(otherValue: string): any {
+    const val = this.rendredValueToData(this.renderedValue);
+    if(this.showCommentArea || this.getStoreOthersAsComment()) return val;
+    const item = ItemValue.getItemByValue(this.visibleChoices, otherValue);
+    if(!item || item === this.otherItem) return val;
+    this.otherValueCore = "";
+    if(!Array.isArray(val)) return otherValue;
+    const index = val.indexOf(this.otherItem.value);
+    if(index > -1) {
+      val.splice(index, 1);
+    }
+    if(val.indexOf(otherValue) < 0) {
+      val.push(otherValue);
+    }
+    return val;
   }
   public clearValue(keepComment?: boolean) {
     super.clearValue(keepComment);

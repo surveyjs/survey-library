@@ -914,3 +914,19 @@ QUnit.test("Remove locale for en empty string", function (assert) {
   locStr.clearLocale("de");
   assert.deepEqual(locStr.getJson(), "str", "getJson #2");
 });
+QUnit.test("locString placeholder", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locStr = new LocalizableString(owner, true);
+  locStr.setJson({ default: "str", pt: "str-pt", "pt-BR": "str-br" }, true);
+  assert.equal(locStr.getPlaceholder(), "", "default placeholder");
+  owner.locale = "pt";
+  assert.equal(locStr.getPlaceholder(), "str", "pt placeholder");
+  owner.locale = "pt-BR";
+  assert.equal(locStr.getPlaceholder(), "str-pt", "pt-BR placeholder");
+  owner.locale = "";
+  locStr.onGetTextCallback = (text: string) => {
+    if(!text) return "empty";
+    return text;
+  };
+  assert.equal(locStr.getPlaceholder(), "empty", "default placeholder, onGetTextCallback");
+});

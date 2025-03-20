@@ -12,7 +12,7 @@ This step-by-step tutorial will help you get started with the SurveyJS Form Libr
     style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
 
-[View Full Code](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue3 (linkStyle))
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue3 (linkStyle))
 
 If you are looking for a quick-start application that includes all SurveyJS components, refer to the following GitHub repository: <a href="https://github.com/surveyjs/surveyjs_vue3_quickstart" target="_blank">SurveyJS + Vue 3 Quickstart Template</a>.
 
@@ -36,7 +36,7 @@ To add SurveyJS themes to your application, open the Vue component that will ren
 
 ```html
 <script setup lang="ts">
-import 'survey-core/survey-core.min.css';
+import 'survey-core/survey-core.css';
 </script>
 
 <template>
@@ -44,9 +44,9 @@ import 'survey-core/survey-core.min.css';
 </template>
 ```
 
-This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions:
 
-> Previous to v1.9.100, SurveyJS also supplied the Modern theme, which is now obsolete. Please migrate to one of the predefined themes or create a custom theme.
+[Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
 
 ## Create a Model
 
@@ -89,7 +89,7 @@ const survey = new Model(surveyJson);
 
 ```html
 <script setup lang="ts">
-import 'survey-core/survey-core.min.css';
+import 'survey-core/survey-core.css';
 import { Model } from 'survey-core';
 
 const surveyJson = {
@@ -150,7 +150,7 @@ If you replicate the code correctly, you should see the following survey:
 
 ```html
 <script setup lang="ts">
-import 'survey-core/survey-core.min.css';
+import 'survey-core/survey-core.css';
 import { Model } from 'survey-core';
 import { SurveyComponent } from 'survey-vue3-ui';
 
@@ -255,7 +255,7 @@ To view the application, run `npm run dev` in a command line and open [http://lo
 
 ```html
 <script setup lang="ts">
-import 'survey-core/survey-core.min.css';
+import 'survey-core/survey-core.css';
 import { Model } from 'survey-core';
 import { SurveyComponent } from 'survey-vue3-ui';
 

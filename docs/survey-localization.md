@@ -128,7 +128,20 @@ const surveyJson = {
 };
 ```
 
-To localize survey texts, specify the properties with objects instead of string values. Each object field should indicate a locale and the field value&mdash;a translation for this locale:
+To localize your survey to a single language, simply assign a translated string value to a property that accepts it and set the required [`locale`](/form-library/documentation/api-reference/survey-data-model#locale).
+
+```js
+const surveyJson = {
+  "locale": "fr",
+  "elements": [{
+    "type": "text",
+    "name": "firstname"
+    "title": "Entrez votre prénom"
+  }]
+};
+```
+
+If you want to create a survey that supports multiple languages, specify the properties with objects instead of string values. Each object field should indicate a locale and the field value&mdash;a translation for this locale, as shown below. You do not have to specify translations for all locales. If a translation is missing for the current locale, the survey takes the translation from the `default` field.
 
 ```js
 const surveyJson = {
@@ -144,15 +157,13 @@ const surveyJson = {
 };
 ```
 
-You do not have to specify translations for all locales. If a translation is missing for the current locale, the survey takes the translation from the `default` field.
-
 To apply your translations, set the current locale:
 
 ```js
-survey.locale = "de";
+survey.locale = "fr";
 ```
 
-[View Demo](https://surveyjs.io/Examples/Library/?id=survey-multilanguages/ (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
 
 ### Localize `choicesByUrl`
 
@@ -175,8 +186,6 @@ Checkbox, Dropdown, and Radiogroup questions can load choices from a RESTful ser
 // ...
 ]
 ```
-
-[View Plunker Example](https://plnkr.co/edit/vefTbkOtrY1mVS6D (linkStyle))
 
 ## See Also
 

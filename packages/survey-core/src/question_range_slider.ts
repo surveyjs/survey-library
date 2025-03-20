@@ -47,7 +47,7 @@ Serializer.addClass(
   function () {
     return new QuestionRangeSliderModel("");
   },
-  "question" // ? maybe rating ?
+  "question" // TODO maybe rating ?
 );
 QuestionFactory.Instance.registerQuestion("rangeslider", (name) => {
   return new QuestionRangeSliderModel(name);

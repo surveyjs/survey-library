@@ -13,6 +13,8 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   protected renderElement(): React.JSX.Element {
+    const cssClasses = this.question.cssClasses;
+
     const inputs = this.getInputs();
     const thumbs = this.getThumbs();
 
@@ -25,44 +27,46 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
     return (
       <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
-        <div id="slider">
-          <div>
-            <div id="inverse-left" style={{ width: rangeLeftPercent }}></div>
-            <div id="inverse-right" style={{ width: rangeRightPercent }}></div>
-            <div id="range" style={{ left: rangeLeftPercent, right: rangeRightPercent }}></div>
-            {thumbs}
-          </div>
-          {inputs}
+        <div className={cssClasses.visualContainer}>
+          <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
+          <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
+          <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }}></div>
+          {thumbs}
         </div>
-
+        {inputs}
       </div>
     );
   }
 
   private getInputs() {
-    let value:number[] = this.getRenderedValue();
+    const inputs = [];
+    const cssClasses = this.question.cssClasses;
     const { max, min, step } = this.question;
 
-    const inputs = [];
+    let value:number[] = this.getRenderedValue();
+
     for (let i = 0; i < value.length; i++) {
-      const input = <input id={"input-"+i} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } />;
+      const input = <input className={cssClasses.input} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } />;
       inputs.push(input);
     }
     return inputs;
   }
 
   private getThumbs() {
+    const thumbs = [];
+    const cssClasses = this.question.cssClasses;
+
     let value:number[] = this.getRenderedValue();
 
-    const thumbs = [];
     for (let i = 0; i < value.length; i++) {
       let percent: string = this.getPercent(value[i]) + "%";
 
+      // TODO all keys should be generated ids
       const thumb = <React.Fragment key={"thumb-"+i}>
-        <span id={"thumb-"+i} style={{ left: percent }} ></span>
+        <span className={cssClasses.thumb} style={{ left: percent }} ></span>
 
-        <div id={"sign-"+i} style={{ left: percent }}>
-          <span id={"sign-value-"+i}>{value[i]}</span>
+        <div className={cssClasses.tooltip} style={{ left: percent }}>
+          <span className={cssClasses.tooltipValue} id={"sign-value-"+i}>{value[i]}</span>
         </div>
       </React.Fragment>;
       thumbs.push(thumb);
@@ -76,9 +80,10 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   private getRenderedValue() {
+    const { max, min } = this.question;
     const value = this.question.value;
     if (value.length === 0) {
-      return [0, 100];
+      return [min, max];
     }
     return value;
   }

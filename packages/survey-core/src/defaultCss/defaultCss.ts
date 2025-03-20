@@ -673,6 +673,14 @@ export var defaultCss = {
   },
   rangeslider: {
     root: "sd-range-slider",
+    visualContainer: "sd-range-slider__visual-container",
+    rangeTrack: "sd-range-slider__range-track",
+    inverseTrackLeft: "sd-range-slider__inverse-track sd-range-slider__inverse-track--left",
+    inverseTrackRight: "sd-range-slider__inverse-track sd-range-slider__inverse-track--right",
+    thumb: "sd-range-slider__thumb",
+    tooltip: "sd-range-slider__tooltip",
+    tooltipValue: "sd-range-slider__tooltip-value",
+    input: "sd-range-slider__input"
   },
   comment: {
     root: "sd-input sd-comment",

@@ -75,8 +75,9 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   private getPercent(value:number):number {
-    const max = this.question.max;
-    return ((value/max)*100);
+    const { max, min } = this.question;
+    const fullRange = max - min;
+    return ((value - min)/fullRange)*100;
   }
 
   private getRenderedValue() {

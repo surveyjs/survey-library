@@ -2319,6 +2319,33 @@ QUnit.test("dropdown.clearValue(true) for showCommentArea & showOtherItem, bug#8
   assert.equal(q4.value, undefined, "q4.value");
   assert.notOk(q4.comment, "q4.comment");
 });
+QUnit.test("storeOthersAsComment & entering comment equals to the value in the choice, bug#9619", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "radiogroup", name: "q1", choices: ["red", "yellow", "green"], "showOtherItem": true },
+      { type: "checkbox", name: "q2", choices: ["red", "yellow", "green"], "showOtherItem": true }
+    ],
+    storeOthersAsComment: false
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.value = "other";
+  assert.equal(q1.isOtherSelected, true, "q1, isOther is selected");
+  q1.comment = "red";
+  assert.equal(q1.value, "red", "q1, value is red");
+  assert.equal(q1.selectedItem.value, "red", "q1, Make the red item seleted");
+  assert.equal(q1.isOtherSelected, false, "q1, isOther is not selected");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q2.value = ["green", "other"];
+  assert.equal(q2.isOtherSelected, true, "q2, isOther is selected, #1");
+  q2.comment = "red";
+  assert.deepEqual(q2.value, ["green", "red"], "q2, Make the red item seleted, #1");
+  assert.equal(q2.isOtherSelected, false, "q2, isOther is not selected, #1");
+  q2.value = ["green", "other"];
+  assert.equal(q2.isOtherSelected, true, "q2, isOther is selected, #2");
+  q2.comment = "green";
+  assert.deepEqual(q2.value, ["green"], "q2, Make the red item seleted, #2");
+  assert.equal(q2.isOtherSelected, false, "q2, isOther is not selected, #2");
+});
 QUnit.test("valuePropertyName & complete trigger, bug#8434", (assert) => {
   const survey = new SurveyModel({
     "pages": [

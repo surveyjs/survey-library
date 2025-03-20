@@ -69,9 +69,21 @@ export class DropdownListModel extends Base {
         if (!!callbackAfterItemsLoaded) {
           callbackAfterItemsLoaded();
         }
+        if (this.acceptCustomValue) {
+          this.processCustomValue(this.inputString);
+        }
       }
     });
     this.itemsSettings.skip += this.itemsSettings.take;
+  }
+  private processCustomValue(val: string) {
+    const item = this.listModel.visibleActions.filter(action => Helpers.isTwoValueEquals(action.text, val, false, false))[0];
+    if (!!item) {
+      this.customValue = undefined;
+    } else {
+      this.customValue = val;
+      this.updateItems();
+    }
   }
   private updateQuestionChoices(callbackAfterItemsLoaded?: () => void): void {
     const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
@@ -409,14 +421,8 @@ export class DropdownListModel extends Base {
     } else {
       this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
     }
-
-    if (this.acceptCustomValue) {
-      if (!!this.listModel.focusedItem && Helpers.isTwoValueEquals(this.listModel.focusedItem.text, val, false, false)) {
-        this.customValue = undefined;
-      } else {
-        this.customValue = val;
-        this.updateItems();
-      }
+    if (this.acceptCustomValue && !this.question.choicesLazyLoadEnabled) {
+      this.processCustomValue(val);
     }
   }
 

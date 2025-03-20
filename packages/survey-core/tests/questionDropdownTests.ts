@@ -2496,3 +2496,180 @@ QUnit.test("AcceptCustomValue: onChoiceCreated event.", function (assert) {
   assert.equal(question.selectedItem.text, testCustomValue.toUpperCase(), "#2 question.selectedItem.text");
   assert.deepEqual(survey.data, { q1: testCustomValue }, "#2 survey.data");
 });
+
+QUnit.test("AcceptCustomValue: Possibility of creating an element with custom value if choicesLazyLoadEnabled is true", function (assert) {
+  const done = assert.async(6);
+  const survey = new SurveyModel({
+    questions: [{
+      name: "q1", type: "dropdown", searchEnabled: "true",
+      "choicesLazyLoadEnabled": true, "choicesLazyLoadPageSize": 25
+    }]
+  });
+  survey.onChoicesLazyLoad.add((_, opt) => {
+    setTimeout(() => {
+      if (!!opt.filter && opt.filter !== "2") {
+        opt.setItems([], 0);
+      } else {
+        opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), 55);
+      }
+    }, onChoicesLazyLoadCallbackTimeOut);
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  const testExistValue = "2";
+  const testCustomValue1 = "customItem1";
+  const testCustomValue2 = "customItem2";
+
+  dropdownListModel.popupModel.show();
+  setTimeout(() => {
+    assert.equal(dropdownListModel.acceptCustomValue, false, "#1 acceptCustomValue");
+    assert.equal(dropdownListModel.inputStringRendered, "", "#1 inputStringRendered");
+    assert.equal(dropdownListModel.customValue, undefined, "#1 customValue");
+    assert.equal(listModel.isEmpty, false, "#1 listModel is not empty");
+    assert.equal(listModel.actions.length, 26, "#1 listModel.actions");
+
+    dropdownListModel.inputStringRendered = testCustomValue1;
+    setTimeout(() => {
+      assert.equal(dropdownListModel.acceptCustomValue, false, "#2 acceptCustomValue");
+      assert.equal(dropdownListModel.inputStringRendered, testCustomValue1, "#2 inputStringRendered");
+      assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
+      assert.equal(listModel.isEmpty, true, "#2 listModel is empty");
+      assert.equal(listModel.actions.length, 0, "#2 listModel.actions");
+
+      question.acceptCustomValue = true;
+      dropdownListModel.inputStringRendered = testCustomValue2;
+      setTimeout(() => {
+        assert.equal(dropdownListModel.acceptCustomValue, true, "#3 acceptCustomValue");
+        assert.equal(dropdownListModel.customValue, testCustomValue2, "#3 customValue");
+        assert.equal(listModel.isEmpty, false, "#3 listModel is not empty");
+        assert.equal(listModel.actions.length, 1, "#3 listModel.actions");
+        assert.equal(listModel.actions[0].id, "newCustomItem", "#3 custom item id");
+        assert.equal(listModel.actions[0].title, "Create \"customItem2\" item...", "#3 custom item text");
+        assert.equal(listModel.actions[0].visible, true, "#3 custom item visible");
+
+        dropdownListModel.inputStringRendered = testExistValue;
+        setTimeout(() => {
+          assert.equal(dropdownListModel.acceptCustomValue, true, "#4 acceptCustomValue");
+          assert.equal(dropdownListModel.customValue, undefined, "#4 customValue");
+          assert.equal(listModel.isEmpty, false, "#4 listModel is not empty");
+          assert.equal(listModel.actions.length, 27, "#4 listModel.actions");
+          assert.equal(listModel.actions[25].id, "newCustomItem", "#4 custom item id");
+          assert.equal(listModel.actions[25].title, "newCustomItem", "#4 custom item text");
+          assert.equal(listModel.actions[25].visible, false, "#4 custom item invisible");
+
+          dropdownListModel.inputStringRendered = testExistValue + "test";
+          setTimeout(() => {
+            assert.equal(dropdownListModel.acceptCustomValue, true, "#5 acceptCustomValue");
+            assert.equal(dropdownListModel.customValue, testExistValue + "test", "#5 customValue");
+            assert.equal(listModel.isEmpty, false, "#5 listModel is not empty");
+            assert.equal(listModel.actions.length, 1, "#5 listModel.actions");
+            assert.equal(listModel.actions[0].id, "newCustomItem", "#5 custom item id");
+            assert.equal(listModel.actions[0].title, "Create \"2test\" item...", "#5 custom item text");
+            assert.equal(listModel.actions[0].visible, true, "#5 custom item visible");
+            assert.equal(dropdownListModel.popupModel.isVisible, true, "#5 popupModel.isVisible");
+
+            dropdownListModel.popupModel.hide();
+            setTimeout(() => {
+              assert.equal(dropdownListModel.acceptCustomValue, true, "#6 acceptCustomValue");
+              assert.equal(dropdownListModel.customValue, undefined, "#6 customValue");
+              assert.equal(listModel.isEmpty, false, "#6 listModel is not empty");
+              assert.equal(listModel.actions.length, 1, "#6 listModel.actions");
+              assert.equal(listModel.actions[0].id, "newCustomItem", "#6 custom item id");
+              assert.equal(listModel.actions[0].title, "newCustomItem", "#6 custom item text");
+              assert.equal(listModel.actions[0].visible, false, "#6 custom item invisible");
+
+              done();
+            }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+            done();
+          }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+          done();
+        }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+        done();
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+      done();
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+    done();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});
+
+QUnit.test("AcceptCustomValue: Add custom value if choicesLazyLoadEnabled is true", function (assert) {
+  const done = assert.async(3);
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "dropdown",
+            "name": "country",
+            "title": "Select a country",
+            "choicesLazyLoadEnabled": true,
+            "choicesLazyLoadPageSize": 25,
+            "acceptCustomValue": true,
+          }
+        ]
+      }
+    ]
+  });
+  survey.onChoicesLazyLoad.add((_, opt) => {
+    setTimeout(() => {
+      if (!!opt.filter) {
+        opt.setItems([], 0);
+      } else {
+        opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), 55);
+      }
+    }, onChoicesLazyLoadCallbackTimeOut);
+  });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  const testCustomValue = "testCustomValue";
+
+  assert.equal(question.visibleChoices.length, 0);
+
+  question.dropdownListModel.popupModel.show();
+  setTimeout(() => {
+    assert.equal(question.visibleChoices.length, 25);
+
+    dropdownListModel.inputStringRendered = testCustomValue;
+    setTimeout(() => {
+      assert.equal(listModel.actions.length, 1, "#1 listModel.actions");
+      assert.equal(listModel.actions[0].id, "newCustomItem", "#1 custom item id");
+      assert.equal(listModel.actions[0].visible, true, "#1 custom item visible");
+      assert.equal(question.value, undefined, "#1 question.value");
+      assert.equal(question.selectedItem, undefined, "#1 question.selectedItem");
+      assert.equal(question.visibleChoices.length, 0, "#1 question.visibleChoices");
+      assert.deepEqual(survey.data, {}, "#1 survey.data");
+      assert.equal(dropdownListModel.popupModel.isVisible, true, "#1 popupModel.isVisible");
+
+      listModel.onItemClick(listModel.actions[0]);
+      assert.equal(dropdownListModel.popupModel.isVisible, false, "popupModel.isVisible false");
+
+      question.dropdownListModel.popupModel.show();
+      setTimeout(() => {
+        assert.equal(dropdownListModel.inputStringRendered, testCustomValue, "#2 inputStringRendered");
+        assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
+        assert.equal(listModel.actions.length, 28, "#2 listModel.actions");
+        assert.equal(listModel.actions[25].id, testCustomValue, "#2 custom value add into list - id");
+        assert.equal(listModel.actions[25].title, testCustomValue, "#2 custom value add into list - title");
+        assert.equal(listModel.actions[26].id, "newCustomItem", "#2 custom item id");
+        assert.equal(listModel.actions[26].visible, false, "#2 custom item invisible");
+        assert.equal(listModel.actions[27].id, "loadingIndicator", "#2 loadingIndicator id");
+        assert.equal(listModel.actions[27].visible, true, "#2 loadingIndicator invisible");
+        assert.equal(question.value, testCustomValue, "#2 question.value");
+        assert.equal(question.selectedItem.id, testCustomValue, "#2 question.selectedItem");
+        assert.equal(question.visibleChoices.length, 26, "#2 question.visibleChoices");
+        assert.equal(question.visibleChoices[25].value, testCustomValue, "#2 question.visibleChoices[4]");
+        assert.deepEqual(survey.data, { country: testCustomValue }, "#2 survey.data");
+
+        done();
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+      done();
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+    done();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});

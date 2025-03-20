@@ -547,7 +547,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
 
   //ILocalizableOwner
   getLocale(): string { return this.owner ? this.owner.getLocale() : ""; }
-  getMarkdownHtml(text: string, name: string): string { return this.owner ? this.owner.getMarkdownHtml(text, name) : undefined; }
+  getMarkdownHtml(text: string, name: string, item?: any): string { return this.owner ? this.owner.getMarkdownHtml(text, name, item) : undefined; }
   getProcessedText(text: string): string { return this.owner ? this.owner.getProcessedText(text) : text; }
   getRenderer(name: string): string { return this.owner ? this.owner.getRenderer(name) : null; }
   getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }

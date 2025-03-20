@@ -71,7 +71,8 @@ import {
   OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent,
   GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent, IsAnswerCorrectEvent,
   LoadChoicesFromServerEvent,
-  ProcessTextValueEvent
+  ProcessTextValueEvent,
+  ChoiceCreatedEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -912,6 +913,7 @@ export class SurveyModel extends SurveyElementCore
 
   public onElementWrapperComponentName: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
   public onElementWrapperComponentData: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
+  public onChoiceCreated: EventBase<SurveyModel, ChoiceCreatedEvent> = this.addEvent<SurveyModel, ChoiceCreatedEvent>();
   //#endregion
 
   constructor(jsonObj: any = null, renderedElement: any = null) {
@@ -8201,6 +8203,9 @@ export class SurveyModel extends SurveyElementCore
   }
   public getCssTitleExpandableSvg(): string {
     return null;
+  }
+  choiceCreated(choice: ItemValue): any {
+    this.onChoiceCreated.fire(this, { newChoice: choice });
   }
 
   /**

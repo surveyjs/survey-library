@@ -248,7 +248,9 @@ export class DropdownListModel extends Base {
   }
   private setQuestionValue(item: IAction) {
     if (this.acceptCustomValue && item.id === this.customItemValue.id) {
-      this.question.customChoices.push(new ItemValue(this.customValue));
+      const newChoice = new ItemValue(this.customValue);
+      this.question.survey.choiceCreated(newChoice);
+      this.question.customChoices.push(newChoice);
       this.question.value = this.customValue;
       this.customValue = undefined;
       this.updateItems();

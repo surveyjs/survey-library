@@ -1144,3 +1144,6 @@ export interface ResizeEvent {
    */
   height: number;
 }
+export interface ChoiceCreatedEvent {
+  newChoice: ItemValue;
+}

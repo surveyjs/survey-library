@@ -2469,3 +2469,30 @@ QUnit.test("AcceptCustomValue: Option to create item not available if item exist
   assert.equal(listModel.isEmpty, false, "#1 listModel is not empty");
   assert.equal(listModel.actions.length, 4, "#1 listModel.actions");
 });
+
+QUnit.test("AcceptCustomValue: onChoiceCreated event.", function (assert) {
+  const survey = new SurveyModel({
+    questions: [{
+      name: "q1", type: "dropdown", searchEnabled: true, acceptCustomValue: true,
+      "choices": ["item1", "item2", "item3", "item4"]
+    }]
+  });
+  survey.onChoiceCreated.add(((sender, options) => {
+    options.newChoice.text = options.newChoice.value.toUpperCase();
+  }));
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  const testCustomValue = "item10";
+
+  dropdownListModel.inputStringRendered = testCustomValue;
+  assert.equal(question.value, undefined, "#1 question.value");
+  assert.equal(question.selectedItem, undefined, "#1 question.selectedItem");
+  assert.deepEqual(survey.data, {}, "#1 survey.data");
+
+  listModel.onItemClick(listModel.actions[4]);
+  assert.equal(question.value, testCustomValue, "#2 question.value");
+  assert.equal(question.selectedItem.value, testCustomValue, "#2 question.selectedItem.id");
+  assert.equal(question.selectedItem.text, testCustomValue.toUpperCase(), "#2 question.selectedItem.text");
+  assert.deepEqual(survey.data, { q1: testCustomValue }, "#2 survey.data");
+});

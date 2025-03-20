@@ -20,13 +20,6 @@ As an example, we will integrate the [Vue 3 Color](https://lk77.github.io/vue3-c
 npm install @lk77/vue3-color --save
 ```
 
-<iframe src="https://codesandbox.io/embed/6qdsk5?view=preview&module=%2Fsrc%2Fcomponents%2Fcolorpicker.vue&hidenavigation=1&theme=light"
-  style="width:100%; height: 500px; border:0; border-radius: 4px; overflow:hidden;"
-  title="reverent-ramanujan-6qdsk5"
-  allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-  sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-></iframe>
-
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/integrate-third-party-vue-components (linkStyle))
 
 ## Create a Model
@@ -314,7 +307,7 @@ function applyBackground(color: string) {
 }
 
 function handleActiveTabChange(sender: CreatorBase, { tabName }: { tabName: string }) {
-  if (tabName === "test" || tabName === "designer") {
+  if (tabName === "preview" || tabName === "designer") {
     applyBackground(sender.survey.backgroundColor);
   }
 }
@@ -329,7 +322,7 @@ creator.JSON = surveyJson;
 </template>
 ```
 
-You might want to use a third-party component only as a property editor, without allowing survey editors to use it in questions. In this case, you need to hide the component from the Toolbox and the Add Question menu. To do this, pass `false` as a third argument to the `ElementFactory.Instance.registerElement` method when you register a [freshly created model](#create-a-model):
+You might want to use a third-party component only as a property editor, without allowing survey authors to use it in questions. In this case, you need to hide the component from the Toolbox and the Add Question menu. To do this, pass `false` as a third argument to the `ElementFactory.Instance.registerElement` method when you register a [freshly created model](#create-a-model):
 
 ```html
 <!-- src/components/ColorPicker.vue -->

@@ -75,6 +75,7 @@ body {
 
 .sd-root-modern {
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
   --sd-mobile-width: 600px;
   --sd-timer-size: calc(18 * #{$base-unit});
   width: 100%;

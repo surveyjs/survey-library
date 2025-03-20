@@ -1,7 +1,7 @@
 @use "../variables.scss" as *;
 
 .sd-context-btn {
-  background-color: $background;
+  background-color: $question-background;
   padding: calcSize(1.5);
   border-radius: calcSize(12.5);
   border: none;
@@ -52,7 +52,7 @@
 }
 
 .sd-context-btn--with-border {
-  --box-shadow-color: #{$border-inside};
+  --box-shadow-color: #{$border};
   box-shadow: 0 0 0 1px var(--box-shadow-color);
 }
 
@@ -63,17 +63,18 @@
 
   &.sd-context-btn--negative {
     use {
-      fill: red;
+      fill: #{$red};
     }
   }
 }
 
 .sd-context-btn--colorful:focus,
 .sd-context-btn--colorful:hover {
-  background: linear-gradient($primary-light, $primary-light), linear-gradient($background, $background);
+  background: linear-gradient($primary-light, $primary-light),
+    linear-gradient($question-background, $question-background);
 
   &.sd-context-btn--negative {
-    background: linear-gradient($red-light, $red-light), linear-gradient($background, $background);
+    background: linear-gradient($red-light, $red-light), linear-gradient($question-background, $question-background);
   }
 
   &.sd-context-btn--with-border {

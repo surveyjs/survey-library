@@ -122,10 +122,19 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.updateListState();
   }
   public selectItem(id: string): void {
-    let newValue = [].concat(this.question.renderedValue || []);
-    newValue.push(id);
-    this.question.renderedValue = newValue;
-    this.updateListState();
+    if (this.allowCustomChoices && id === this.customItemValue.id) {
+      const newChoice = this.createCustomItem();
+      if(!!newChoice) {
+        let newValue = [].concat(this.question.renderedValue || []);
+        newValue.push(newChoice.id);
+        this.question.renderedValue = newValue;
+      }
+    } else {
+      let newValue = [].concat(this.question.renderedValue || []);
+      newValue.push(id);
+      this.question.renderedValue = newValue;
+      this.updateListState();
+    }
   }
   public deselectItem(id: string): void {
     let newValue = [].concat(this.question.renderedValue || []);

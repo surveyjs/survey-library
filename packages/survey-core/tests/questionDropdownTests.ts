@@ -1125,7 +1125,9 @@ QUnit.test("min page size", assert => {
 });
 
 QUnit.test("selectedItem until all data is loaded", assert => {
-  const done = assert.async(3);
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
 
   const json = {
     questions: [{
@@ -1169,13 +1171,13 @@ QUnit.test("selectedItem until all data is loaded", assert => {
         question.clearValue();
         assert.equal(question.selectedItem, null);
 
-        done();
+        done3();
       }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
-      done();
+      done2();
     }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
-    done();
+    done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
 });
@@ -1680,7 +1682,8 @@ QUnit.test("ItemValue: check action fields", assert => {
 });
 
 QUnit.test("lazy loading placeholder", assert => {
-  const done = assert.async(2);
+  const done1 = assert.async();
+  const done2 = assert.async();
 
   const json = {
     questions: [{
@@ -1709,10 +1712,10 @@ QUnit.test("lazy loading placeholder", assert => {
 
     setTimeout(() => {
 
-      done();
+      done2();
     }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
-    done();
+    done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
@@ -1852,7 +1855,11 @@ QUnit.test("lazy loading: change choicesLazyLoadEnabled on runtime", assert => {
   assert.equal(question.dropdownListModel["listModel"].visibleItems[5].id, "loadingIndicator");
 });
 QUnit.test("lazy loading: duplication of elements after blur", assert => {
-  const done = assert.async(4);
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const done4 = assert.async();
+
   const json = {
     questions: [{
       "type": "dropdown",
@@ -1906,17 +1913,21 @@ QUnit.test("lazy loading: duplication of elements after blur", assert => {
           assert.equal(question.choices.length, 25, "question.choices.length #4");
           assert.equal(question.dropdownListModel.inputStringRendered, "", "question.dropdownListModel.inputStringRendered #4");
 
-          done();
+          done4();
         }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-        done();
+        done3();
       }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-      done();
+      done2();
     }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-    done();
+    done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 QUnit.test("lazy loading: check onChoicesLazyLoad callback count", assert => {
-  const done = assert.async(4);
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const done4 = assert.async();
+
   let callbackCount = 0;
   const json = {
     questions: [{
@@ -1962,13 +1973,13 @@ QUnit.test("lazy loading: check onChoicesLazyLoad callback count", assert => {
         setTimeout(() => {
           assert.equal(callbackCount, 3);
 
-          done();
+          done4();
         }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-        done();
+        done3();
       }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-      done();
+      done2();
     }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-    done();
+    done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
@@ -2498,7 +2509,13 @@ QUnit.test("AcceptCustomValue: onChoiceCreated event.", function (assert) {
 });
 
 QUnit.test("AcceptCustomValue: Possibility of creating an element with custom value if choicesLazyLoadEnabled is true", function (assert) {
-  const done = assert.async(6);
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const done4 = assert.async();
+  const done5 = assert.async();
+  const done6 = assert.async();
+
   const survey = new SurveyModel({
     questions: [{
       name: "q1", type: "dropdown", searchEnabled: "true",
@@ -2579,22 +2596,24 @@ QUnit.test("AcceptCustomValue: Possibility of creating an element with custom va
               assert.equal(listModel.actions[0].title, "newCustomItem", "#6 custom item text");
               assert.equal(listModel.actions[0].visible, false, "#6 custom item invisible");
 
-              done();
+              done6();
             }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-            done();
+            done5();
           }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-          done();
+          done4();
         }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-        done();
+        done3();
       }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-      done();
+      done2();
     }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-    done();
+    done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("AcceptCustomValue: Add custom value if choicesLazyLoadEnabled is true", function (assert) {
-  const done = assert.async(3);
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
   const survey = new SurveyModel({
     "pages": [
       {
@@ -2664,12 +2683,12 @@ QUnit.test("AcceptCustomValue: Add custom value if choicesLazyLoadEnabled is tru
         assert.equal(question.visibleChoices[25].value, testCustomValue, "#2 question.visibleChoices[4]");
         assert.deepEqual(survey.data, { country: testCustomValue }, "#2 survey.data");
 
-        done();
+        done1();
       }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
-      done();
+      done2();
     }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
-    done();
+    done3();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });

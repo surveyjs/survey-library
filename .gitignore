@@ -44,7 +44,7 @@ visualRegressionTests/artifacts
 packages/survey-angular-ui/src/**/*.js
 dist
 junit.xml
-/test-results/
+**/test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/

@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import Example from './components/example/Example.vue';
-import Test from "./components/test/Test.vue"
-
-const isTest = !!(window as any)["%hammerhead%"];
-
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <Example v-if="!isTest"></Example>
-  <Test v-if="isTest"></Test>
+  <RouterView></RouterView>
 </template>
 
 <style scoped>

@@ -3491,6 +3491,60 @@ QUnit.test("Composite: with dropdown & showOtherItem, Bug#9378", function (asser
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: with dropdown & showOtherItem, Bug#9374", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",  
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3],
+      showOtherItem: true
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "question1" }
+    ]
+  });
+  const q = <QuestionCompositeModel>survey.getQuestionByName("question1");
+  q.value = "other";
+  q.comment = "abc";
+  assert.equal(q.value, "other", "q.value #1");
+  assert.equal(q.comment, "abc", "q.comment #1");
+  survey.data = {};
+  assert.ok(q.isEmpty(), "q.value #2");
+  survey.data = { question1: "other", "question1-Comment": "def" };
+  assert.equal(q.value, "other", "q.value #3");
+  assert.equal(q.comment, "def", "q.comment #3");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: with dropdown & showOtherItem on definition, Bug#9374", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",  
+    inheritBaseProps: ["showOtherItem"],
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3]
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "question1", showOtherItem: true }
+    ]
+  });
+  const q = <QuestionCompositeModel>survey.getQuestionByName("question1");
+  q.value = "other";
+  q.comment = "abc";
+  assert.equal(q.value, "other", "q.value #1");
+  assert.equal(q.comment, "abc", "q.comment #1");
+  survey.data = {};
+  assert.ok(q.isEmpty(), "q.value #2");
+  survey.data = { question1: "other", "question1-Comment": "def" };
+  assert.equal(q.value, "other", "q.value #3");
+  assert.equal(q.comment, "def", "q.comment #3");
+
+  ComponentCollection.Instance.clear();
+});
 
 QUnit.test("Composite: checkErrorsMode: `onComplete` with several elements, Bug#9361", function (assert) {
   ComponentCollection.Instance.add({

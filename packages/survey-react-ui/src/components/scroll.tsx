@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, settings } from "survey-core";
+import { ReactElementFactory } from "src/element-factory";
 import { ScrollViewModel } from "survey-core";
 
 interface IScrollComponentProps {
@@ -37,3 +37,9 @@ export class Scroll extends React.Component<IScrollComponentProps, any> {
     </div>;
   }
 }
+ReactElementFactory.Instance.registerElement("svc-scroll", (props) => {
+  return React.createElement(
+    Scroll,
+    props as IScrollComponentProps
+  );
+});

@@ -1,5 +1,5 @@
 <template>
-  <svg ref="svgIconElement" class="sv-svg-icon" role="img">
+  <svg ref="svgIconElement" class="sv-svg-icon" role="presentation">
     <use></use>
   </svg>
 </template>

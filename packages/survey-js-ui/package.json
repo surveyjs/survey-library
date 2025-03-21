@@ -20,8 +20,8 @@
     "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"http-server --silent\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js",
     "testcafe": "testcafe ../../functionalTests/ --app \"http-server --silent\" --env=survey-js-ui --config-file ../../.testcaferc.dev.js",
     "testcafe:ci": "testcafe ../../functionalTests/ --app \"http-server --silent\" --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js",
-    "accessibility-tests": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --env=survey-js-ui --config-file ../../.testcaferc.dev.js",
-    "accessibility-tests:ci": "testcafe ../../accessibilityTests/ --app \"http-server --silent\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js",
+    "accessibility-tests": "cross-env env=survey-js-ui playwright test --project a11y --ui",
+    "accessibility-tests:ci": "cross-env env=survey-js-ui playwright test --project a11y --reporter dot --quiet",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "devDependencies": {
@@ -35,6 +35,7 @@
     "@types/react": "^17.0.83",
     "@types/react-dom": "^17.0.0",
     "commit-and-tag-version": "^11.0.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
     "eslint": "^7.32.0",
     "html-loader": "^5.0.0",

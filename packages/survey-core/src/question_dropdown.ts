@@ -209,10 +209,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
       if (!!target.dropdownListModelValue) {
-        target.dropdownListModel.setAcceptCustomValue(newValue);
+        target.dropdownListModel.setAllowCustomChoices(newValue);
       }
     }
-  }) acceptCustomValue: boolean;
+  }) allowCustomChoices: boolean;
 
   /**
    * Specifies whether to wrap long texts in choice options onto a new line.
@@ -350,7 +350,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
 
   protected getFirstInputElementId(): string {
-    return this.inputId + (this.searchEnabled || this.acceptCustomValue ? "_0" : "");
+    return this.inputId + (this.searchEnabled || this.allowCustomChoices ? "_0" : "");
   }
   public getInputId() {
     return this.inputId + "_0";
@@ -410,7 +410,7 @@ Serializer.addClass(
     { name: "textWrapEnabled:boolean", default: true },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
-    { name: "acceptCustomValue:boolean", default: false, visible: false },
+    { name: "allowCustomChoices:boolean", default: false, visible: false },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },

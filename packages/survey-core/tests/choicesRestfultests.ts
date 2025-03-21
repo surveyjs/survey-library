@@ -1839,7 +1839,7 @@ QUnit.test("Composite: execute choicesByUrl in design time", function (
   ComponentCollection.Instance.clear();
 });
 
-QUnit.test("AcceptCustomValue: Add custom value", function (assert) {
+QUnit.test("allowCustomChoices: Add custom value", function (assert) {
   const question = new QuestionDropdownModelTester("q1");
   const survey = new SurveyModel();
   survey.addNewPage("1");
@@ -1848,7 +1848,7 @@ QUnit.test("AcceptCustomValue: Add custom value", function (assert) {
   const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
   const testCustomValue = "cuba";
 
-  question.acceptCustomValue = true;
+  question.allowCustomChoices = true;
   question.fromJSON({
     choicesByUrl: {
       url: "allcountries",

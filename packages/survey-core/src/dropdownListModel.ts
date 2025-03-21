@@ -11,6 +11,7 @@ import { Question } from "./question";
 import { QuestionDropdownModel } from "./question_dropdown";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
+import { CreateCustomChoiceItemEvent } from "./survey-events-api";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch, calculateIsTablet } from "./utils/devices";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
@@ -69,7 +70,7 @@ export class DropdownListModel extends Base {
         if (!!callbackAfterItemsLoaded) {
           callbackAfterItemsLoaded();
         }
-        if (this.acceptCustomValue) {
+        if (this.allowCustomChoices) {
           this.processCustomValue(this.inputString);
         }
       }
@@ -219,7 +220,7 @@ export class DropdownListModel extends Base {
   }
 
   protected getAvailableItems(): Array<ItemValue> {
-    if (this.acceptCustomValue) {
+    if (this.allowCustomChoices) {
       return [].concat(this.question.visibleChoices, [this.customItemValue]);
     }
     return this.question.visibleChoices;
@@ -259,9 +260,16 @@ export class DropdownListModel extends Base {
     return res;
   }
   private setQuestionValue(item: IAction) {
-    if (this.acceptCustomValue && item.id === this.customItemValue.id) {
+    if (this.allowCustomChoices && item.id === this.customItemValue.id) {
       const newChoice = new ItemValue(this.customValue);
-      this.question.survey.choiceCreated(newChoice);
+      const options: CreateCustomChoiceItemEvent = {
+        item: newChoice,
+        question: this.question,
+        allow: true
+      };
+      this.question.survey.createCustomChoiceItem(options);
+      if(!options.allow) return;
+
       this.question.customChoices.push(newChoice);
       this.question.value = this.customValue;
       this.customValue = undefined;
@@ -350,7 +358,7 @@ export class DropdownListModel extends Base {
     return this._customItemValue;
   }
 
-  @property({ defaultValue: false }) acceptCustomValue: boolean;
+  @property({ defaultValue: false }) allowCustomChoices: boolean;
   @property({
     onSet: (newValue: string, target: DropdownListModel) => {
       target.onSetCustomValue(newValue);
@@ -421,7 +429,7 @@ export class DropdownListModel extends Base {
     } else {
       this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
     }
-    if (this.acceptCustomValue && !this.question.choicesLazyLoadEnabled) {
+    if (this.allowCustomChoices && !this.question.choicesLazyLoadEnabled) {
       this.processCustomValue(val);
     }
   }
@@ -486,7 +494,7 @@ export class DropdownListModel extends Base {
     this.updateAfterListModelCreated(this.listModel);
     this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
     this.setSearchEnabled(this.question.searchEnabled);
-    this.setAcceptCustomValue(this.question.acceptCustomValue);
+    this.setAllowCustomChoices(this.question.allowCustomChoices);
     this.setTextWrapEnabled(this.question.textWrapEnabled);
     this.createPopup();
     this.resetItemsSettings();
@@ -498,7 +506,7 @@ export class DropdownListModel extends Base {
     return this._popupModel;
   }
   public get inputAvailable(): boolean {
-    return this.searchEnabled || this.acceptCustomValue;
+    return this.searchEnabled || this.allowCustomChoices;
   }
   public get noTabIndex(): boolean {
     return this.question.isInputReadOnly || this.inputAvailable;
@@ -518,8 +526,8 @@ export class DropdownListModel extends Base {
     this.searchEnabled = newValue;
   }
 
-  public setAcceptCustomValue(newValue: boolean): void {
-    this.acceptCustomValue = newValue;
+  public setAllowCustomChoices(newValue: boolean): void {
+    this.allowCustomChoices = newValue;
   }
 
   public setChoicesLazyLoadEnabled(newValue: boolean): void {

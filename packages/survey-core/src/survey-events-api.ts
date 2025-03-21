@@ -1144,6 +1144,8 @@ export interface ResizeEvent {
    */
   height: number;
 }
-export interface ChoiceCreatedEvent {
-  newChoice: ItemValue;
+export interface CreateCustomChoiceItemEvent {
+  question: Question;
+  item: ItemValue;
+  allow: boolean;
 }

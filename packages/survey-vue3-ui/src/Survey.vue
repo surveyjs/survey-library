@@ -6,124 +6,126 @@
     :dir="vueSurvey.localeDir"
     ref="root"
   >
-    <SvComponent
-      :is="'sv-svg-bundle'"
-      v-if="vueSurvey.needRenderIcons"
-    ></SvComponent>
-    <div :class="vueSurvey.wrapperFormCss">
-      <SvComponent :is="'survey-popup-modal'" />
-      <div
-        v-if="vueSurvey.renderBackgroundImage"
-        :class="css.rootBackgroundImage"
-        :style="vueSurvey.backgroundImageStyle"
-      ></div>
-      <form onsubmit="return false;">
-        <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
-        <div :class="css.container">
-          <SvComponent
-            :is="'survey-header'"
-            v-if="vueSurvey.headerView === 'basic'"
-            :survey="vueSurvey"
-          />
-          <SvComponent
-            :is="'sv-components-container'"
-            :survey="vueSurvey"
-            :container="'header'"
-            :needRenderWrapper="false"
-          ></SvComponent>
-          <template v-if="vueSurvey.isShowingPage">
-            <div :class="vueSurvey.bodyContainerCss">
-              <SvComponent
-                :is="'sv-components-container'"
-                :survey="vueSurvey"
-                :container="'left'"
-                :needRenderWrapper="true"
-              ></SvComponent>
-              <div
-                class="sv-components-column sv-components-column--expandable"
-              >
+    <SvComponent :is="'sv-scroll'">
+      <SvComponent
+        :is="'sv-svg-bundle'"
+        v-if="vueSurvey.needRenderIcons"
+      ></SvComponent>
+      <div :class="vueSurvey.wrapperFormCss">
+        <SvComponent :is="'survey-popup-modal'" />
+        <div
+          v-if="vueSurvey.renderBackgroundImage"
+          :class="css.rootBackgroundImage"
+          :style="vueSurvey.backgroundImageStyle"
+        ></div>
+        <form onsubmit="return false;">
+          <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
+          <div :class="css.container">
+            <SvComponent
+              :is="'survey-header'"
+              v-if="vueSurvey.headerView === 'basic'"
+              :survey="vueSurvey"
+            />
+            <SvComponent
+              :is="'sv-components-container'"
+              :survey="vueSurvey"
+              :container="'header'"
+              :needRenderWrapper="false"
+            ></SvComponent>
+            <template v-if="vueSurvey.isShowingPage">
+              <div :class="vueSurvey.bodyContainerCss">
                 <SvComponent
                   :is="'sv-components-container'"
                   :survey="vueSurvey"
-                  :container="'center'"
+                  :container="'left'"
                   :needRenderWrapper="true"
                 ></SvComponent>
                 <div
-                  :class="vueSurvey.bodyCss"
-                  :style="{ maxWidth: vueSurvey.renderedWidth }"
-                  :id="pageId"
+                  class="sv-components-column sv-components-column--expandable"
                 >
                   <SvComponent
                     :is="'sv-components-container'"
                     :survey="vueSurvey"
-                    :container="'contentTop'"
+                    :container="'center'"
                     :needRenderWrapper="true"
                   ></SvComponent>
-                  <SvComponent
-                    :is="'survey-page'"
-                    :key="pageKey"
-                    :survey="vueSurvey"
-                    :page="vueSurvey.activePage"
-                    :css="css"
-                  />
-                  <SvComponent
-                    :is="'sv-components-container'"
-                    :survey="vueSurvey"
-                    :container="'contentBottom'"
-                    :needRenderWrapper="true"
-                  ></SvComponent>
-                  <SvComponent
-                    :is="'sv-brand-info'"
-                    v-if="vueSurvey.showBrandInfo"
-                  ></SvComponent>
+                  <div
+                    :class="vueSurvey.bodyCss"
+                    :style="{ maxWidth: vueSurvey.renderedWidth }"
+                    :id="pageId"
+                  >
+                    <SvComponent
+                      :is="'sv-components-container'"
+                      :survey="vueSurvey"
+                      :container="'contentTop'"
+                      :needRenderWrapper="true"
+                    ></SvComponent>
+                    <SvComponent
+                      :is="'survey-page'"
+                      :key="pageKey"
+                      :survey="vueSurvey"
+                      :page="vueSurvey.activePage"
+                      :css="css"
+                    />
+                    <SvComponent
+                      :is="'sv-components-container'"
+                      :survey="vueSurvey"
+                      :container="'contentBottom'"
+                      :needRenderWrapper="true"
+                    ></SvComponent>
+                    <SvComponent
+                      :is="'sv-brand-info'"
+                      v-if="vueSurvey.showBrandInfo"
+                    ></SvComponent>
+                  </div>
                 </div>
+                <SvComponent
+                  :is="'sv-components-container'"
+                  :survey="vueSurvey"
+                  :container="'right'"
+                  :needRenderWrapper="true"
+                ></SvComponent>
               </div>
-              <SvComponent
-                :is="'sv-components-container'"
-                :survey="vueSurvey"
-                :container="'right'"
-                :needRenderWrapper="true"
-              ></SvComponent>
-            </div>
-          </template>
-          <SvComponent
-            :is="'sv-components-container'"
-            :survey="vueSurvey"
-            :container="'footer'"
-            :needRenderWrapper="false"
-          ></SvComponent>
-          <div v-if="hasCompletedPage">
-            <div
-              v-html="getProcessedCompletedHtml()"
-              :class="vueSurvey.completedCss"
-            ></div>
+            </template>
             <SvComponent
               :is="'sv-components-container'"
               :survey="vueSurvey"
-              :container="'completePage'"
-              :needRenderWrapper="true"
+              :container="'footer'"
+              :needRenderWrapper="false"
             ></SvComponent>
+            <div v-if="hasCompletedPage">
+              <div
+                v-html="getProcessedCompletedHtml()"
+                :class="vueSurvey.completedCss"
+              ></div>
+              <SvComponent
+                :is="'sv-components-container'"
+                :survey="vueSurvey"
+                :container="'completePage'"
+                :needRenderWrapper="true"
+              ></SvComponent>
+            </div>
+            <div
+              v-if="vueSurvey.state === 'completedbefore'"
+              :class="vueSurvey.completedBeforeCss"
+              v-html="vueSurvey.processedCompletedBeforeHtml"
+            ></div>
+            <div
+              v-if="vueSurvey.state === 'loading'"
+              :class="vueSurvey.loadingBodyCss"
+              v-html="vueSurvey.processedLoadingHtml"
+            ></div>
+            <div v-if="vueSurvey.state === 'empty'" :class="css.bodyEmpty">
+              {{ vueSurvey.emptySurveyText }}
+            </div>
           </div>
-          <div
-            v-if="vueSurvey.state === 'completedbefore'"
-            :class="vueSurvey.completedBeforeCss"
-            v-html="vueSurvey.processedCompletedBeforeHtml"
-          ></div>
-          <div
-            v-if="vueSurvey.state === 'loading'"
-            :class="vueSurvey.loadingBodyCss"
-            v-html="vueSurvey.processedLoadingHtml"
-          ></div>
-          <div v-if="vueSurvey.state === 'empty'" :class="css.bodyEmpty">
-            {{ vueSurvey.emptySurveyText }}
-          </div>
-        </div>
-      </form>
-      <SvComponent
-        :is="'sv-notifier'"
-        :model="vueSurvey.notifier"
-      ></SvComponent>
-    </div>
+        </form>
+        <SvComponent
+          :is="'sv-notifier'"
+          :model="vueSurvey.notifier"
+        ></SvComponent>
+      </div>
+    </SvComponent>
   </div>
 </template>
 

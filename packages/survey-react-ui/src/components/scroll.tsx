@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ReactElementFactory } from "src/element-factory";
+import { ReactElementFactory } from "../element-factory";
 import { ScrollViewModel } from "survey-core";
 
 interface IScrollComponentProps {

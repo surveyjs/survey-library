@@ -1839,7 +1839,7 @@ QUnit.test("Composite: execute choicesByUrl in design time", function (
   ComponentCollection.Instance.clear();
 });
 
-QUnit.test("allowCustomChoices: Add custom value", function (assert) {
+QUnit.test("allowCustomChoices: Add custom value into dropdown", function (assert) {
   const question = new QuestionDropdownModelTester("q1");
   const survey = new SurveyModel();
   survey.addNewPage("1");

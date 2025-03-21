@@ -63,6 +63,14 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property() searchMode: "contains" | "startsWith";
 
+  @property({
+    onSet: (newValue: boolean, target: QuestionTagboxModel) => {
+      if (!!target.dropdownListModelValue) {
+        target.dropdownListModel.setAllowCustomChoices(newValue);
+      }
+    }
+  }) allowCustomChoices: boolean;
+
   /**
    * Specifies whether to display a button that clears the selected value.
    */
@@ -238,7 +246,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
 
   protected getFirstInputElementId(): string {
-    return this.inputId + (this.searchEnabled ? "_0" : "");
+    return this.inputId + (this.searchEnabled || this.allowCustomChoice? "_0" : "");
   }
   public getInputId(): string {
     return this.inputId + "_0";
@@ -289,6 +297,7 @@ Serializer.addClass(
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
+    { name: "allowCustomChoices:boolean", default: false, visible: false },
     { name: "textWrapEnabled:boolean", default: true },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },

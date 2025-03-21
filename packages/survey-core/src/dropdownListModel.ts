@@ -8,6 +8,7 @@ import { property } from "./jsonobject";
 import { IListModel, ListModel } from "./list";
 import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
+import { QuestionSelectBase } from "./question_baseselect";
 import { QuestionDropdownModel } from "./question_dropdown";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
@@ -259,21 +260,27 @@ export class DropdownListModel extends Base {
     };
     return res;
   }
+  protected createCustomItem(): ItemValue {
+    const newChoice = new ItemValue(this.customValue);
+    const options: CreateCustomChoiceItemEvent = {
+      item: newChoice,
+      question: this.question as QuestionSelectBase,
+      allow: true
+    };
+    this.question.survey.createCustomChoiceItem(options);
+    if(!options.allow) return null;
+
+    this.question.customChoices.push(newChoice);
+    this.customValue = undefined;
+    this.updateItems();
+    return newChoice;
+  }
   private setQuestionValue(item: IAction) {
     if (this.allowCustomChoices && item.id === this.customItemValue.id) {
-      const newChoice = new ItemValue(this.customValue);
-      const options: CreateCustomChoiceItemEvent = {
-        item: newChoice,
-        question: this.question,
-        allow: true
-      };
-      this.question.survey.createCustomChoiceItem(options);
-      if(!options.allow) return;
-
-      this.question.customChoices.push(newChoice);
-      this.question.value = this.customValue;
-      this.customValue = undefined;
-      this.updateItems();
+      const newChoice = this.createCustomItem();
+      if(!!newChoice) {
+        this.question.value = newChoice.id;
+      }
     } else {
       this.question.value = item.id;
       if (this.question.searchEnabled) this.applyInputString(item as ItemValue);

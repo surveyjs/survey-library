@@ -8,6 +8,7 @@ import String from "./String.vue";
 import StringViewer from "./StringViewer.vue";
 import StringEditor from "./StringEditor.vue";
 import Skeleton from "./components/Skeleton.vue";
+import Scroll from "./components/Scroll.vue";
 import QuestionText from "./Text.vue";
 import QuestionTextInput from "./TextInput.vue";
 import Checkbox from "./Checkbox.vue";
@@ -170,6 +171,7 @@ function registerComponents(
   registerComponent("sv-string-viewer", StringViewer);
   registerComponent("sv-string-editor", StringEditor);
   registerComponent("sv-skeleton", Skeleton);
+  registerComponent("sv-scroll", Scroll);
   registerComponent("survey-text", QuestionText);
   registerComponent("survey-text-input", QuestionTextInput);
   registerComponent("survey-checkbox", Checkbox);

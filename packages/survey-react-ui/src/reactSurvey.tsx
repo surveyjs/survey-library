@@ -14,6 +14,7 @@ import { PopupModal } from "./components/popup/popup-modal";
 
 import { icons as iconsV1 } from "survey-core/icons/iconsV1";
 import { icons as iconsV2 } from "survey-core/icons/iconsV2";
+import { Scroll } from "./components/scroll";
 addIconsToThemeSet("v1", iconsV1);
 addIconsToThemeSet("v2", iconsV2);
 SvgRegistry.registerIcons(iconsV2);
@@ -108,21 +109,23 @@ export class Survey extends SurveyElementBase<any, any>
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables} lang={this.survey.locale || "en"} dir={this.survey.localeDir}>
-        {this.survey.needRenderIcons ? <SvgBundleComponent></SvgBundleComponent> : null}
-        {<PopupModal></PopupModal>}
-        <div className={this.survey.wrapperFormCss}>
-          {backgroundImage}
-          <form onSubmit={onSubmit}>
-            {customHeader}
-            <div className={this.css.container}>
-              {header}
-              <ComponentsContainer survey={this.survey} container={"header"} needRenderWrapper={false}></ComponentsContainer>
-              {renderResult}
-              <ComponentsContainer survey={this.survey} container={"footer"} needRenderWrapper={false}></ComponentsContainer>
-            </div>
-          </form>
-          <NotifierComponent notifier={this.survey.notifier} ></NotifierComponent>
-        </div>
+        <Scroll>
+          {this.survey.needRenderIcons ? <SvgBundleComponent></SvgBundleComponent> : null}
+          {<PopupModal></PopupModal>}
+          <div className={this.survey.wrapperFormCss}>
+            {backgroundImage}
+            <form onSubmit={onSubmit}>
+              {customHeader}
+              <div className={this.css.container}>
+                {header}
+                <ComponentsContainer survey={this.survey} container={"header"} needRenderWrapper={false}></ComponentsContainer>
+                {renderResult}
+                <ComponentsContainer survey={this.survey} container={"footer"} needRenderWrapper={false}></ComponentsContainer>
+              </div>
+            </form>
+            <NotifierComponent notifier={this.survey.notifier} ></NotifierComponent>
+          </div>
+        </Scroll>
       </div>
     );
   }

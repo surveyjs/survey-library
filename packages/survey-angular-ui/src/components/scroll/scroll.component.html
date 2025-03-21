@@ -1,0 +1,13 @@
+<ng-template #template>
+    <div class="sv-scroll__wrapper" #container>
+        <div class="sv-scroll__scroller sv-drag-target-skipped" (scroll)="model.onScrollContainer()">
+            <div class="sv-scroll__container">
+                <ng-content></ng-content>
+            </div>
+        </div>
+        <div class="sv-scroll__scrollbar" (scroll)="model.onScrollScrollbar()">
+            <div class="sv-scroll__scrollbar-sizer">
+            </div>
+        </div>
+    </div>
+</ng-template>

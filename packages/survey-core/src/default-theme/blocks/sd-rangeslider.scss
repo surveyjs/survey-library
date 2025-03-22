@@ -12,6 +12,12 @@
   }
 }
 
+.sd-range-slider--single {
+  .sd-range-slider__inverse-track--left {
+    background-color: $primary;
+  }
+}
+
 .sd-range-slider__visual-slider-container {
   position: absolute;
   left: 0;

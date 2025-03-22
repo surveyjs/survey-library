@@ -16,6 +16,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   public get rootCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
+      .append(this.cssClasses.rootSingleMode)
       .toString();
   }
 

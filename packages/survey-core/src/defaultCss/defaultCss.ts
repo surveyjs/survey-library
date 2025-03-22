@@ -673,6 +673,7 @@ export var defaultCss = {
   },
   rangeslider: {
     root: "sd-range-slider",
+    rootSingleMode: "sd-range-slider--single",
     visualSliderContainer: "sd-range-slider__visual-slider-container",
     rangeTrack: "sd-range-slider__range-track",
     inverseTrackLeft: "sd-range-slider__inverse-track sd-range-slider__inverse-track--left",

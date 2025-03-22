@@ -29,7 +29,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public get step(): number {
-    return 1;
+    return 0;
   }
 
   public get minSelectedRange(): number {
@@ -37,7 +37,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public get maxSelectedRange(): number {
-    return 50;
+    return 80;
   }
 
   public get ticks(): number {
@@ -50,6 +50,10 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
 
   public get isShowMinMaxTicks(): boolean {
     return true;
+  }
+
+  public get valueFormat(): string {
+    return "%";
   }
 
   public isIndeterminate: boolean = false;

@@ -60,7 +60,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
   private getThumbs() {
     const thumbs = [];
-    const { isIndeterminate, cssClasses } = this.question;
+    const { isIndeterminate, cssClasses, valueFormat } = this.question;
 
     let value:number[] = this.getRenderedValue();
 
@@ -72,7 +72,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
         <span className={cssClasses.thumb} style={{ left: percent }} ></span>
 
         <div className={cssClasses.tooltip} style={{ left: percent }}>
-          <span className={cssClasses.tooltipValue} id={"sign-value-"+i}>{isIndeterminate? "—" : value[i]}</span>
+          <span className={cssClasses.tooltipValue} id={"sign-value-"+i}>{isIndeterminate? "—" : value[i] + valueFormat}</span>
         </div>
       </React.Fragment>;
       thumbs.push(thumb);
@@ -108,7 +108,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   private getRenderedValue() {
-    const { max, min } = this.question;
+    const { max, min, maxSelectedRange } = this.question;
     let value = this.question.value;
 
     if (!Array.isArray(value)) {
@@ -116,7 +116,9 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     }
 
     if (value.length === 0) {
+      const fullRange = max - min;
       this.question.isIndeterminate = true;
+      if (fullRange > maxSelectedRange) return [(fullRange - maxSelectedRange) / 2, (fullRange + maxSelectedRange) / 2];
       return [min, max];
     }
 

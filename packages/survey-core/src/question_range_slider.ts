@@ -40,8 +40,42 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
     return 80;
   }
 
-  public get ticks(): number {
+  public get ticksCount(): number {
+    if (this.customTicks) return this.customTicks.length;
+    if (this.tickSize) {
+      return Math.round(100 / this.tickSize) + 2;
+    }
     return 6;
+  }
+
+  public get tickSize(): number {
+    return 25;
+  }
+
+  public get customTicks(): {text: string, value: number}[] | null {
+    return null;
+    // return [
+    //   {
+    //     text: "min",
+    //     value: 0
+    //   },
+    //   {
+    //     text: "25%",
+    //     value: 25
+    //   },
+    //   {
+    //     text: "50%",
+    //     value: 50
+    //   },
+    //   {
+    //     text: "75%",
+    //     value: 75
+    //   },
+    //   {
+    //     text: "max",
+    //     value: 100
+    //   }
+    // ];
   }
 
   public get isShowTicks(): boolean {

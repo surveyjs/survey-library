@@ -124,27 +124,38 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   private handleOnChange = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
-    const minDiff = this.question.minDiff;
-    let value:number[] = this.getRenderedValue();
+    const value:number[] = this.getRenderedValue();
 
-    let newValue: number;
+    let newValue: number = +event.target.value;
 
     if (value.length > 1) {
-      if (inputNumber === 0) {
-        newValue = Math.min(+event.target.value, value[inputNumber + 1] - minDiff);
-      } else if (inputNumber === value.length-1) {
-        newValue = Math.max(+event.target.value, value[inputNumber - 1]-(-minDiff));
-      } else {
-        newValue = Math.min(+event.target.value, value[inputNumber + 1] - minDiff);
-        newValue = Math.max(newValue, value[inputNumber - 1]-(-minDiff));
-      }
-    } else {
-      newValue = +event.target.value;
+      newValue = this.ensureRightBorder(newValue, inputNumber);
+      newValue = this.ensureLeftBorder(newValue, inputNumber);
     }
 
     const renderedValue = this.getRenderedValue();
     renderedValue.splice(inputNumber, 1, newValue);
     this.question.value = renderedValue;
+  }
+
+  private ensureLeftBorder(newValue:number, inputNumber):number {
+    if (inputNumber <= 0) return newValue;
+
+    const { minSelectedRange, maxSelectedRange } = this.question;
+    const value:number[] = this.getRenderedValue();
+    const prevValueBorder = value[inputNumber - 1];
+
+    return Math.max(newValue, prevValueBorder + minSelectedRange);
+  }
+
+  private ensureRightBorder(newValue, inputNumber):number {
+    const value:number[] = this.getRenderedValue();
+    if (inputNumber === value.length-1) return newValue;
+
+    const { minSelectedRange, maxSelectedRange } = this.question;
+    const nextValueBorder = value[inputNumber + 1];
+
+    return Math.min(newValue, nextValueBorder - minSelectedRange);
   }
 }
 ReactQuestionFactory.Instance.registerQuestion("rangeslider", (props) => {

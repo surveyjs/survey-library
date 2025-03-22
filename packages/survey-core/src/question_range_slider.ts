@@ -32,8 +32,12 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
     return 1;
   }
 
-  public get minDiff(): number {
+  public get minSelectedRange(): number {
     return 10;
+  }
+
+  public get maxSelectedRange(): number {
+    return 50;
   }
 
   public get ticks(): number {

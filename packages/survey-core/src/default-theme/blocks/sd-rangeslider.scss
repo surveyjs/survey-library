@@ -120,6 +120,13 @@
   position: absolute;
 }
 
+.sd-range-slider__tick--long {
+  transform: rotate(-40deg);
+  white-space: break-spaces;
+  top: -30px;
+  max-width: 80px;
+}
+
 input[type=range].sd-range-slider__input {
   position: absolute;
   pointer-events: none;

@@ -64,7 +64,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
     //     value: 25
     //   },
     //   {
-    //     text: "50%",
+    //     text: "Very long label which has to be located well!",
     //     value: 50
     //   },
     //   {

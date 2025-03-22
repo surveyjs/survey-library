@@ -684,6 +684,7 @@ export var defaultCss = {
     input: "sd-range-slider__input",
     ticksContainer: "sd-range-slider__ticks-container",
     tick: "sd-range-slider__tick",
+    tickLong: "sd-range-slider__tick--long",
   },
   comment: {
     root: "sd-input sd-comment",

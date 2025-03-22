@@ -82,7 +82,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
   private getTicks() {
     const ticks = [];
-    const { max, min, ticksCount, isShowMinMaxTicks, customTicks } = this.question;
+    const { max, min, ticksCount, isShowMinMaxTicks, customTicks, cssClasses } = this.question;
     const fullRange = max - min;
 
     for (let i = 0; i < ticksCount; i++) {
@@ -91,10 +91,10 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
       if (!isShowMinMaxTicks && (i === 0 || i === ticksCount - 1)) continue;
 
-      const tickText = customTicks ? customTicks[i].text : Math.round(tickStep);
+      const tickText:string = customTicks ? customTicks[i].text : ""+Math.round(tickStep);
 
       const tick = <React.Fragment key={"tick-"+i}>
-        <div className={this.question.cssClasses.tick} style={{ left: position + "%" }}>{tickText}</div>
+        <div className={`${cssClasses.tick} ${tickText.length > 10 ? cssClasses.tickLong : ""}`} style={{ left: position + "%" }}>{tickText}</div>
       </React.Fragment>;
 
       ticks.push(tick);

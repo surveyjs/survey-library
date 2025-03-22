@@ -139,21 +139,25 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   private ensureLeftBorder(newValue:number, inputNumber):number {
-    if (inputNumber <= 0) return newValue;
-
     const { minSelectedRange, maxSelectedRange } = this.question;
     const value:number[] = this.getRenderedValue();
     const prevValueBorder = value[inputNumber - 1];
+    const nextValueBorder = value[inputNumber + 1];
+
+    if (nextValueBorder - newValue > maxSelectedRange) return value[inputNumber];
+    if (inputNumber <= 0) return newValue;
 
     return Math.max(newValue, prevValueBorder + minSelectedRange);
   }
 
   private ensureRightBorder(newValue, inputNumber):number {
     const value:number[] = this.getRenderedValue();
-    if (inputNumber === value.length-1) return newValue;
-
     const { minSelectedRange, maxSelectedRange } = this.question;
     const nextValueBorder = value[inputNumber + 1];
+    const prevValueBorder = value[inputNumber - 1];
+
+    if (newValue - prevValueBorder > maxSelectedRange) return value[inputNumber];
+    if (inputNumber === value.length-1) return newValue;
 
     return Math.min(newValue, nextValueBorder - minSelectedRange);
   }

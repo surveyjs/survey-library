@@ -20,7 +20,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public get max(): number {
-    return 50;
+    return 100;
   }
 
   public get min(): number {
@@ -39,9 +39,26 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
     return 6;
   }
 
+  public get isShowTicks(): boolean {
+    return true;
+  }
+
+  public get isShowMinMaxTicks(): boolean {
+    return true;
+  }
+
+  public isIndeterminate: boolean = false;
+
   protected onCreating(): void {
     super.onCreating();
     this.createNewArray("value");
+  }
+
+  protected setNewValue(newValue: any) {
+    super.setNewValue(newValue);
+    if (this.isIndeterminate) {
+      this.isIndeterminate = false;
+    }
   }
 }
 

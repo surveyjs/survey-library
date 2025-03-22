@@ -13,11 +13,11 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   protected renderElement(): React.JSX.Element {
-    const cssClasses = this.question.cssClasses;
+    const { cssClasses, isShowTicks } = this.question;
 
     const inputs = this.getInputs();
     const thumbs = this.getThumbs();
-    const ticks = this.getTicks();
+    const ticks = isShowTicks ? this.getTicks() : null;
 
     const value = this.getRenderedValue();
     const leftPercent = this.getPercent(value[0]);
@@ -60,7 +60,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
   private getThumbs() {
     const thumbs = [];
-    const cssClasses = this.question.cssClasses;
+    const { isIndeterminate, cssClasses } = this.question;
 
     let value:number[] = this.getRenderedValue();
 
@@ -72,7 +72,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
         <span className={cssClasses.thumb} style={{ left: percent }} ></span>
 
         <div className={cssClasses.tooltip} style={{ left: percent }}>
-          <span className={cssClasses.tooltipValue} id={"sign-value-"+i}>{value[i]}</span>
+          <span className={cssClasses.tooltipValue} id={"sign-value-"+i}>{isIndeterminate? "—" : value[i]}</span>
         </div>
       </React.Fragment>;
       thumbs.push(thumb);
@@ -82,12 +82,14 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
   private getTicks() {
     const ticks = [];
-    const { max, min, ticks: ticksCount } = this.question;
+    const { max, min, ticks: ticksCount, isShowMinMaxTicks } = this.question;
     const fullRange = max - min;
 
     for (let i = 0; i < ticksCount; i++) {
       let tickStep = i * fullRange / (ticksCount - 1);
       let position = tickStep / fullRange * 100;
+
+      if (!isShowMinMaxTicks && (i === 0 || i === ticksCount - 1)) continue;
 
       const tick = <React.Fragment key={"tick-"+i}>
         <div className={this.question.cssClasses.tick} style={{ left: position + "%" }}>{Math.round(tickStep)}</div>
@@ -107,10 +109,17 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
   private getRenderedValue() {
     const { max, min } = this.question;
-    const value = this.question.value;
+    let value = this.question.value;
+
+    if (!Array.isArray(value)) {
+      value = typeof value === "undefined" ? [] : [value];
+    }
+
     if (value.length === 0) {
+      this.question.isIndeterminate = true;
       return [min, max];
     }
+
     return value;
   }
 
@@ -118,19 +127,23 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     const minDiff = this.question.minDiff;
     let value:number[] = this.getRenderedValue();
 
-    let newThumbValue: number;
+    let newValue: number;
 
-    if (inputNumber === 0) {
-      newThumbValue = Math.min(+event.target.value, value[inputNumber + 1] - minDiff);
-    } else if (inputNumber === value.length-1) {
-      newThumbValue = Math.max(+event.target.value, value[inputNumber - 1]-(-minDiff));
+    if (value.length > 1) {
+      if (inputNumber === 0) {
+        newValue = Math.min(+event.target.value, value[inputNumber + 1] - minDiff);
+      } else if (inputNumber === value.length-1) {
+        newValue = Math.max(+event.target.value, value[inputNumber - 1]-(-minDiff));
+      } else {
+        newValue = Math.min(+event.target.value, value[inputNumber + 1] - minDiff);
+        newValue = Math.max(newValue, value[inputNumber - 1]-(-minDiff));
+      }
     } else {
-      newThumbValue = Math.min(+event.target.value, value[inputNumber + 1] - minDiff);
-      newThumbValue = Math.max(newThumbValue, value[inputNumber - 1]-(-minDiff));
+      newValue = +event.target.value;
     }
 
     const renderedValue = this.getRenderedValue();
-    renderedValue.splice(inputNumber, 1, newThumbValue);
+    renderedValue.splice(inputNumber, 1, newValue);
     this.question.value = renderedValue;
   }
 }

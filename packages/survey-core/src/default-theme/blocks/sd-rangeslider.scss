@@ -1,0 +1,177 @@
+@use "../variables.scss" as *;
+
+.sd-range-slider {
+  position: relative;
+  height: 50px;
+  margin-top: 45px;
+
+  &:hover {
+    .sd-range-slider__tooltip {
+      opacity: 1;
+    }
+  }
+}
+
+.sd-range-slider--single {
+  .sd-range-slider__inverse-track--left {
+    background-color: $primary;
+  }
+}
+
+.sd-range-slider__visual-slider-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 5px;
+}
+
+.sd-range-slider__inverse-track {
+  position: absolute;
+  height: 5px;
+  border-radius: 10px;
+  background-color: $foreground-light;
+  margin: 0 7px;
+}
+
+.sd-range-slider__inverse-track--left {
+  left: 0;
+}
+
+.sd-range-slider__inverse-track--right {
+  right: 0;
+}
+
+.sd-range-slider__range-track {
+  position: absolute;
+  left: 0;
+  height: 5px;
+  border-radius: 14px;
+  background-color: $primary;
+}
+
+.sd-range-slider__thumb {
+  position: absolute;
+  top: -7px;
+  z-index: 2;
+  height: 20px;
+  width: 20px;
+  text-align: left;
+  margin-left: -11px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+  background-color: $background;
+  border-radius: 50%;
+  outline: none;
+}
+
+.sd-range-slider__tooltip {
+  opacity: 1;
+  position: absolute;
+  margin-left: -15px;
+  top: -45px;
+  z-index: 3;
+  background-color: $primary;
+  color: $background;
+  width: 28px;
+  height: 28px;
+  border-radius: 28px;
+  -webkit-border-radius: 28px;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  text-align: center;
+  user-select: none;
+
+  &::after {
+    position: absolute;
+    content: '';
+    left: 0;
+    border-radius: 16px;
+    top: 19px;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top-width: 16px;
+    border-top-style: solid;
+    border-top-color: $primary;
+  }
+}
+
+.sd-range-slider__tooltip-value {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.sd-range-slider__ticks-container {
+  position: absolute;
+  padding-top: 15px;
+  bottom: 0;
+  right: 0;
+  left: 0;
+
+  >div {
+    position: relative;
+    display: flex;
+  }
+}
+
+.sd-range-slider__tick {
+  color: $foreground;
+  position: absolute;
+}
+
+input[type=range].sd-range-slider__input {
+  position: absolute;
+  pointer-events: none;
+  -webkit-appearance: none;
+  z-index: 3;
+  height: 14px;
+  top: -2px;
+  width: 100%;
+  opacity: 0;
+}
+
+input[type=range].sd-range-slider__input:focus::-webkit-slider-runnable-track {
+  background: transparent;
+  border: transparent;
+}
+
+input[type=range].sd-range-slider__input:focus {
+  outline: none;
+}
+
+input[type=range].sd-range-slider__input::-webkit-slider-thumb {
+  pointer-events: all;
+  width: 28px;
+  height: 28px;
+  border-radius: 0px;
+  border: 0 none;
+  background: $primary;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+input[type=range].sd-range-slider__input::-moz-range-thumb {
+  pointer-events: all;
+  width: 28px;
+  height: 28px;
+  border-radius: 0px;
+  border: 0 none;
+  background: $primary;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+input[type=range].sd-range-slider__input::-ms-fill-lower {
+  background: transparent;
+  border: 0 none;
+}
+
+input[type=range].sd-range-slider__input::-ms-fill-upper {
+  background: transparent;
+  border: 0 none;
+}
+
+input[type=range].sd-range-slider__input::-ms-tooltip {
+  display: none;
+}

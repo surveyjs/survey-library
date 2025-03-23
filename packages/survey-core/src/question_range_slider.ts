@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionRatingModel } from "./question_rating";
 import { QuestionFactory } from "./questionfactory";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -9,6 +9,8 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  * [View Demo](https://surveyjs.io/form-library/examples/... (linkStyle))
  */
 export class QuestionRangeSliderModel extends QuestionRatingModel {
+  @property({ defaultValue: null }) focusedThumb: number | null;
+
   public getType(): string {
     return "rangeslider";
   }

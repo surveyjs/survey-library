@@ -52,7 +52,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     let value:number[] = this.getRenderedValue();
 
     for (let i = 0; i < value.length; i++) {
-      const input = <input className={cssClasses.input} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } />;
+      const input = <input className={cssClasses.input} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } }/>;
       inputs.push(input);
     }
     return inputs;
@@ -60,7 +60,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
   private getThumbs() {
     const thumbs = [];
-    const { isIndeterminate, cssClasses, valueFormat } = this.question;
+    const { isIndeterminate, cssClasses, valueFormat, focusedThumb } = this.question;
 
     let value:number[] = this.getRenderedValue();
 
@@ -69,7 +69,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
       // TODO all keys should be generated ids
       const thumb = <React.Fragment key={"thumb-"+i}>
-        <span className={cssClasses.thumb} style={{ left: percent }} ></span>
+        <span className={`${cssClasses.thumb} ${i === focusedThumb ? cssClasses.thumbFocusedMode : ""}`} style={{ left: percent }}></span>
 
         <div className={cssClasses.tooltip} style={{ left: percent }}>
           <span className={cssClasses.tooltipValue} id={"sign-value-"+i}>{isIndeterminate? "—" : value[i] + valueFormat}</span>
@@ -140,6 +140,14 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     const renderedValue = this.getRenderedValue();
     renderedValue.splice(inputNumber, 1, newValue);
     this.question.value = renderedValue;
+  }
+
+  private handleOnFocus = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
+    this.question.focusedThumb = inputNumber;
+  }
+
+  private handleOnBlur = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
+    this.question.focusedThumb = null;
   }
 
   private ensureLeftBorder(newValue:number, inputNumber):number {

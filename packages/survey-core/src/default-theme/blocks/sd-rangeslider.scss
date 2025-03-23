@@ -3,6 +3,11 @@
 $range-slider-height: 5px;
 $range-slider-thumb-size: 20px;
 
+@mixin thumbFocusMixin {
+  outline: 2px solid $primary;
+  outline-offset: 5px;
+}
+
 .sd-range-slider {
   position: relative;
   height: 50px;
@@ -64,6 +69,15 @@ $range-slider-thumb-size: 20px;
   border-radius: 50%;
   outline: none;
   margin-left: calc($range-slider-thumb-size / -2);
+
+  &:hover {
+    @include thumbFocusMixin;
+  }
+}
+
+.sd-range-slider__thumb--focused {
+  @include thumbFocusMixin;
+
 }
 
 .sd-range-slider__tooltip {

@@ -679,6 +679,7 @@ export var defaultCss = {
     inverseTrackLeft: "sd-range-slider__inverse-track sd-range-slider__inverse-track--left",
     inverseTrackRight: "sd-range-slider__inverse-track sd-range-slider__inverse-track--right",
     thumb: "sd-range-slider__thumb",
+    thumbFocusedMode: "sd-range-slider__thumb--focused",
     tooltip: "sd-range-slider__tooltip",
     tooltipValue: "sd-range-slider__tooltip-value",
     input: "sd-range-slider__input",

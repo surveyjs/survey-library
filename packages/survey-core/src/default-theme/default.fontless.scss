@@ -99,21 +99,18 @@ body {
 }
 
 .sd-root-modern > .sv-scroll__wrapper {
-  height: initial;
+  height: auto;
 }
 
 .sd-root-modern--full-container > .sv-scroll__wrapper {
-  height: 0;
+  height: 100%;
 }
-
 
 .sd-root-modern.sd-root-modern--full-container {
   width: 100%;
   height: 100%;
   overflow: auto;
   position: relative;
-  display: flex;
-  flex-direction: column;
 }
 
 .sd-root-modern--mobile {

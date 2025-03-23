@@ -2,9 +2,7 @@
 
 .sv-scroll__wrapper {
   position: relative;
-  flex-grow: 1;
-  flex-shrink: 1;
-  height: 0;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }

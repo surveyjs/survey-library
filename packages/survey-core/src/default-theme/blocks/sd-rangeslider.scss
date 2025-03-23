@@ -1,5 +1,8 @@
 @use "../variables.scss" as *;
 
+$range-slider-height: 5px;
+$range-slider-thumb-size: 20px;
+
 .sd-range-slider {
   position: relative;
   height: 50px;
@@ -22,15 +25,14 @@
   position: absolute;
   left: 0;
   right: 0;
-  height: 5px;
+  height: $range-slider-height;
 }
 
 .sd-range-slider__inverse-track {
   position: absolute;
-  height: 5px;
+  height: $range-slider-height;
   border-radius: 10px;
   background-color: $foreground-light;
-  margin: 0 7px;
 }
 
 .sd-range-slider__inverse-track--left {
@@ -44,7 +46,7 @@
 .sd-range-slider__range-track {
   position: absolute;
   left: 0;
-  height: 5px;
+  height: $range-slider-height;
   border-radius: 14px;
   background-color: $primary;
 }
@@ -53,15 +55,15 @@
   position: absolute;
   top: -7px;
   z-index: 2;
-  height: 20px;
-  width: 20px;
+  height: $range-slider-thumb-size;
+  width: $range-slider-thumb-size;
   text-align: left;
-  margin-left: -11px;
   cursor: pointer;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
   background-color: $background;
   border-radius: 50%;
   outline: none;
+  margin-left: calc($range-slider-thumb-size / -2);
 }
 
 .sd-range-slider__tooltip {
@@ -136,11 +138,20 @@ input[type=range].sd-range-slider__input {
   top: -2px;
   width: 100%;
   opacity: 0;
+  margin: 0;
 }
 
 input[type=range].sd-range-slider__input:focus::-webkit-slider-runnable-track {
   background: transparent;
   border: transparent;
+}
+
+input[type="range"].sd-range-slider__input::-webkit-slider-runnable-track {
+  margin: 0 calc($range-slider-thumb-size / -2);
+}
+
+input[type="range"].sd-range-slider__input::-moz-range-track {
+  margin: 0 calc($range-slider-thumb-size / -2);
 }
 
 input[type=range].sd-range-slider__input:focus {
@@ -149,24 +160,28 @@ input[type=range].sd-range-slider__input:focus {
 
 input[type=range].sd-range-slider__input::-webkit-slider-thumb {
   pointer-events: all;
-  width: 28px;
-  height: 28px;
+  height: $range-slider-thumb-size;
+  width: $range-slider-thumb-size;
   border-radius: 0px;
   border: 0 none;
   background: $primary;
   -webkit-appearance: none;
   cursor: pointer;
+  top: -2px;
+  position: relative;
 }
 
 input[type=range].sd-range-slider__input::-moz-range-thumb {
   pointer-events: all;
-  width: 28px;
-  height: 28px;
+  height: $range-slider-thumb-size;
+  width: $range-slider-thumb-size;
   border-radius: 0px;
   border: 0 none;
   background: $primary;
   -webkit-appearance: none;
   cursor: pointer;
+  top: -2px;
+  position: relative;
 }
 
 input[type=range].sd-range-slider__input::-ms-fill-lower {

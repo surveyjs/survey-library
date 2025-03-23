@@ -37,7 +37,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public get maxSelectedRange(): number {
-    return 80;
+    return 100;
   }
 
   public get ticksCount(): number {

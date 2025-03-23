@@ -106,8 +106,7 @@ $range-slider-thumb-size: 20px;
 
 .sd-range-slider__ticks-container {
   position: absolute;
-  padding-top: 15px;
-  bottom: 0;
+  padding-top: 30px;
   right: 0;
   left: 0;
 
@@ -120,6 +119,11 @@ $range-slider-thumb-size: 20px;
 .sd-range-slider__tick {
   color: $foreground;
   position: absolute;
+  margin-left: calc($range-slider-thumb-size / -2);
+
+  &:first-child {
+    margin-left: 0;
+  }
 }
 
 .sd-range-slider__tick--long {

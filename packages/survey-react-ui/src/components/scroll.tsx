@@ -4,6 +4,7 @@ import { ScrollViewModel } from "survey-core";
 
 interface IScrollComponentProps {
   children: React.ReactNode;
+  disabled?: boolean;
 }
 export class Scroll extends React.Component<IScrollComponentProps, any> {
   private model: ScrollViewModel;
@@ -24,17 +25,19 @@ export class Scroll extends React.Component<IScrollComponentProps, any> {
   }
 
   render(): React.JSX.Element {
-    return <div ref={this.rootRef} className="sv-scroll__wrapper">
-      <div className="sv-scroll__scroller sv-drag-target-skipped" onScroll={() => this.model.onScrollContainer()}>
-        <div className="sv-scroll__container">
-          {this.props.children}
+    return this.props.disabled ?
+      <>{this.props.children}</> :
+      <div ref={this.rootRef} className="sv-scroll__wrapper">
+        <div className="sv-scroll__scroller sv-drag-target-skipped" onScroll={() => this.model.onScrollContainer()}>
+          <div className="sv-scroll__container">
+            {this.props.children}
+          </div>
         </div>
-      </div>
-      <div className="sv-scroll__scrollbar" onScroll={() => this.model.onScrollScrollbar()}>
-        <div className="sv-scroll__scrollbar-sizer">
+        <div className="sv-scroll__scrollbar" onScroll={() => this.model.onScrollScrollbar()}>
+          <div className="sv-scroll__scrollbar-sizer">
+          </div>
         </div>
-      </div>
-    </div>;
+      </div>;
   }
 }
 ReactElementFactory.Instance.registerElement("svc-scroll", (props) => {

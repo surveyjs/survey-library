@@ -1,5 +1,5 @@
 import { ScrollViewModel } from "survey-core";
-import { Component, ElementRef, OnDestroy, ViewChild, AfterViewInit, ViewContainerRef } from "@angular/core";
+import { Component, ElementRef, OnDestroy, ViewChild, AfterViewInit, ViewContainerRef, Input } from "@angular/core";
 import { EmbeddedViewContentComponent } from "../../embedded-view-content.component";
 import { AngularComponentFactory } from "./../../component-factory";
 
@@ -10,6 +10,7 @@ import { AngularComponentFactory } from "./../../component-factory";
 })
 export class ScrollComponent extends EmbeddedViewContentComponent implements AfterViewInit, OnDestroy {
   public model!: ScrollViewModel;
+  @Input() disabled?: boolean;
   @ViewChild("container") container!: ElementRef<HTMLElement>
   constructor(viewContainerRef?: ViewContainerRef) {
     super(viewContainerRef);

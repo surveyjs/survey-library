@@ -2453,7 +2453,7 @@ export class SurveyModel extends SurveyElementCore
     this.wrapperFormCss = new CssClassBuilder()
       .append(this.css.rootWrapper)
       .append(this.css.rootWrapperHasImage, !!this.backgroundImage)
-      .append(this.css.rootWrapperFixed, !!this.backgroundImage && this.backgroundImageAttachment === "fixed")
+      .append(this.css.rootWrapperFixed, !this.formScrollDisabled)
       .toString();
   }
   /**
@@ -5290,6 +5290,7 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
     this.rootElement = htmlElement;
+    this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
     this.addScrollEventListener();
   }
   beforeDestroySurveyElement() {
@@ -8280,10 +8281,18 @@ export class SurveyModel extends SurveyElementCore
     if (!!topStickyContainer) {
       // const scrollDirection = this.rootElement.scrollTop > this._lastScrollTop ? "down" : "up";
       // this._lastScrollTop = this.rootElement.scrollTop;
-      return this.rootElement.scrollTop > 0 && topStickyContainer.getBoundingClientRect().y <= this.rootElement.getBoundingClientRect().y;
+      return !!this.scrollerElement && this.scrollerElement.scrollTop > 0 && topStickyContainer.getBoundingClientRect().y <= this.scrollerElement.getBoundingClientRect().y;
     }
     return false;
   }
+
+  public get rootScrollDisabled() {
+    return !(this.fitToContainer && this.formScrollDisabled);
+  }
+  public get formScrollDisabled() {
+    return !this.backgroundImage || this.backgroundImageAttachment !== "fixed";
+  }
+
   public onScroll(): void {
     if (!!this.rootElement) {
       if (this._isElementShouldBeSticky(".sv-components-container-center")) {
@@ -8302,8 +8311,8 @@ export class SurveyModel extends SurveyElementCore
     if (!!this.rootElement.getElementsByTagName("form")[0]) {
       this.rootElement.getElementsByTagName("form")[0].addEventListener("scroll", this.scrollHandler);
     }
-    if (!!this.css.rootWrapper) {
-      this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.addEventListener("scroll", this.scrollHandler);
+    if (!!this.scrollerElement) {
+      this.scrollerElement.addEventListener("scroll", this.scrollHandler);
     }
   }
   public removeScrollEventListener(): void {
@@ -8312,8 +8321,8 @@ export class SurveyModel extends SurveyElementCore
       if (!!this.rootElement.getElementsByTagName("form")[0]) {
         this.rootElement.getElementsByTagName("form")[0].removeEventListener("scroll", this.scrollHandler);
       }
-      if (!!this.css.rootWrapper) {
-        this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.removeEventListener("scroll", this.scrollHandler);
+      if (!!this.scrollerElement) {
+        this.scrollerElement.removeEventListener("scroll", this.scrollHandler);
       }
     }
   }

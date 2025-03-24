@@ -167,12 +167,20 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
     if (Helpers.isTwoValueEquals(newValue, oldValue, false, true, false)) return;
     this.data.setPanelItemData(this, name, Helpers.getUnbindValue(newValue));
     const questions = this.panel.questions;
-    const triggerName = QuestionPanelDynamicItem.ItemVariableName + "." + name;
     for (var i = 0; i < questions.length; i++) {
       const q = questions[i];
       if (q.getValueName() !== name) {
         q.checkBindings(name, newValue);
       }
+      const suffix = settings.commentSuffix;
+      if(name.endsWith(suffix)) {
+        name = name.substring(0, name.length - suffix.length);
+        const cQ = this.panel.getQuestionByName(name);
+        if(!!cQ) {
+          newValue = cQ.value;
+        }
+      }
+      const triggerName = QuestionPanelDynamicItem.ItemVariableName + "." + name;
       q.runTriggers(triggerName, newValue);
     }
   }

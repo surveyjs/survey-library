@@ -21057,7 +21057,7 @@ QUnit.test("_isElementShouldBeSticky", (assert) => {
     querySelector: () => topStickyContainer,
     scrollTop: 0
   };
-  survey.rootElement = rootElement;
+  survey.scrollerElement = rootElement;
 
   assert.notOk(survey._isElementShouldBeSticky(".test"), "no scrolling");
 

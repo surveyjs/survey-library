@@ -8277,7 +8277,7 @@ export class SurveyModel extends SurveyElementCore
   // private _lastScrollTop = 0;
   public _isElementShouldBeSticky(selector: string): boolean {
     if (!selector) return false;
-    const topStickyContainer = this.rootElement.querySelector(selector);
+    const topStickyContainer = this.scrollerElement?.querySelector(selector);
     if (!!topStickyContainer) {
       // const scrollDirection = this.rootElement.scrollTop > this._lastScrollTop ? "down" : "up";
       // this._lastScrollTop = this.rootElement.scrollTop;

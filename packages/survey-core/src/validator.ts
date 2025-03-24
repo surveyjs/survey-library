@@ -67,9 +67,9 @@ export class SurveyValidator extends Base {
   getLocale(): string {
     return !!this.errorOwner ? this.errorOwner.getLocale() : "";
   }
-  getMarkdownHtml(text: string, name: string): string {
+  getMarkdownHtml(text: string, name: string, item?: any): string {
     return !!this.errorOwner
-      ? this.errorOwner.getMarkdownHtml(text, name)
+      ? this.errorOwner.getMarkdownHtml(text, name, item)
       : undefined;
   }
   getRenderer(name: string): string {

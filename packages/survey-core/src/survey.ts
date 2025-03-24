@@ -2150,8 +2150,8 @@ export class SurveyModel extends SurveyElementCore
       this.navigationBar.locStrsChanged();
     }
   }
-  public getMarkdownHtml(text: string, name: string): string {
-    return this.getSurveyMarkdownHtml(this, text, name);
+  public getMarkdownHtml(text: string, name: string, item?: any): string {
+    return this.getSurveyMarkdownHtml(this, text, name, item);
   }
   public getRenderer(name: string): string {
     return this.getRendererForString(this, name);
@@ -4832,8 +4832,6 @@ export class SurveyModel extends SurveyElementCore
   }
   private updateIsFirstLastPageState() {
     const curPage = this.currentPage;
-    this.setPropertyValue("isFirstPage", !!curPage && curPage === this.firstVisiblePage);
-    this.setPropertyValue("isLastPage", !!curPage && curPage === this.lastVisiblePage);
     let fVal: boolean | undefined = undefined;
     let lVal: boolean | undefined = undefined;
     const q = this.currentSingleElement;
@@ -4845,6 +4843,8 @@ export class SurveyModel extends SurveyElementCore
         lVal = index === questions.length - 1;
       }
     }
+    this.setPropertyValue("isFirstPage", !!curPage && curPage === this.firstVisiblePage && (!q || fVal === true));
+    this.setPropertyValue("isLastPage", !!curPage && curPage === this.lastVisiblePage && (!q || lVal === true));
     this.setPropertyValue("isFirstElement", fVal);
     this.setPropertyValue("isLastElement", lVal);
   }
@@ -7380,12 +7380,13 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.textPreProcessorValue;
   }
-  getSurveyMarkdownHtml(element: Question | PanelModel | PageModel | SurveyModel, text: string, name: string): string {
+  getSurveyMarkdownHtml(element: Question | PanelModel | PageModel | SurveyModel, text: string, name: string, item: any): string {
     const options: TextMarkdownEvent = {
       element: element,
       text: text,
       name: name,
-      html: null,
+      item: item,
+      html: null
     };
     this.onTextMarkdown.fire(this, options);
     return options.html;

@@ -76,7 +76,7 @@ export class PageModel extends PanelModel implements IPage {
     return this.survey.getUpdatedPageNo(this, no);
   }
   public get cssTitleNumber(): string {
-    return this.cssClasses.page.number;
+    return this.isPanel ? this.cssClasses.panel.number : this.cssClasses.page.number;
   }
   public getCssTitleExpandableSvg(): string {
     return null;
@@ -124,8 +124,8 @@ export class PageModel extends PanelModel implements IPage {
     this.locNavigationTitle.strChanged();
     this.locNavigationDescription.strChanged();
   }
-  getMarkdownHtml(text: string, name: string): string {
-    const result = super.getMarkdownHtml(text, name);
+  getMarkdownHtml(text: string, name: string, item?: any): string {
+    const result = super.getMarkdownHtml(text, name, item);
     if (name === "navigationTitle" && this.canShowPageNumber() && result) {
       return this.num + ". " + result;
     }

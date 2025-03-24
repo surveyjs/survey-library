@@ -24,7 +24,6 @@ As a result, you will create a form displayed below:
 
 If you are looking for a quick-start application that includes all SurveyJS components, refer to the following GitHub repositories:
 
-- <a href="https://github.com/surveyjs/surveyjs_react_quickstart" target="_blank">SurveyJS + React Quickstart Template</a>
 - <a href="https://github.com/surveyjs/surveyjs-nextjs" target="_blank">SurveyJS + Next.js Quickstart Template</a>
 - <a href="https://github.com/surveyjs/surveyjs-remix" target="_blank">SurveyJS + Remix Quickstart Template</a>
 
@@ -42,15 +41,16 @@ SurveyJS Form Library is shipped with several predefined themes illustrated belo
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-To add SurveyJS themes to your application, open the React component that will render your form or survey and import the Form Library style sheet:
+To add SurveyJS themes to your application, create a React component that will render your form or survey and import the Form Library style sheet:
 
 ```js
-import 'survey-core/survey-core.min.css';
+// components/Survey.tsx
+import 'survey-core/survey-core.css';
 ```
 
-This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions:
 
-> Previous to v1.9.100, SurveyJS also supplied the Modern theme, which is now obsolete. Please migrate to one of the predefined themes or create a custom theme.
+[Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
 
 ## Create a Model
 
@@ -69,18 +69,21 @@ const surveyJson = {
     title: "Enter your last name:",
     type: "text"
   }]
-};
+}
 ```
 
-To instantiate a model, pass the model schema to the [Model](https://surveyjs.io/Documentation/Library?id=surveymodel) constructor as shown in the code below. The model instance will be later used to render the survey.
+To instantiate a model, pass the model schema to the [`Model`](https://surveyjs.io/Documentation/Library?id=surveymodel) constructor as shown in the code below. The model instance will be later used to render the survey.
 
 ```js
-import { ..., Model } from 'survey-core';
-// ...
-function App() {
+// components/Survey.tsx
+import { Model } from 'survey-core';
+
+const surveyJson = { /* ... */ }
+
+export default function SurveyComponent() {
   const survey = new Model(surveyJson);
 
-  return ... ;
+  return "...";
 }
 ```
 
@@ -88,7 +91,8 @@ function App() {
     <summary>View Full Code</summary>  
 
 ```js
-import 'survey-core/survey-core.min.css';
+// components/Survey.tsx
+import 'survey-core/survey-core.css';
 import { Model } from 'survey-core';
 
 const surveyJson = {
@@ -103,13 +107,11 @@ const surveyJson = {
   }]
 };
 
-function App() {
+export default function SurveyComponent() {
   const survey = new Model(surveyJson);
 
-  return ...;
+  return "...";
 }
-
-export default App;
 ```
 </details>
 
@@ -119,20 +121,37 @@ export default App;
 
 To render a form, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute, as shown below.
 
-> If you are using [Next.js](https://nextjs.org) or another framework that [has adopted React Server Components](https://react.dev/learn/start-a-new-react-project#bleeding-edge-react-frameworks), you need to explicitly mark the React component that renders a SurveyJS component as client code using the ['use client'](https://react.dev/reference/react/use-client) directive.
+SurveyJS components do not support server-side rendering (SSR). If you are using [Next.js](https://nextjs.org) or another framework that has adopted React Server Components, you need to explicitly mark the React component that renders a SurveyJS component as client code using the ['use client'](https://react.dev/reference/react/use-client) directive.
 
 ```js
-// Uncomment the following line if you are using Next.js:
-// 'use client'
-
-import { Survey } from 'survey-react-ui';
+// components/Survey.tsx
+'use client'
 // ...
-const surveyJson = { ... };
+import { Survey } from 'survey-react-ui';
 
-function App() {
+const surveyJson = { /* ... */ }
+
+export default function SurveyComponent() {
   const survey = new Model(surveyJson);
 
   return <Survey model={survey} />;
+}
+```
+
+The lack of SSR support may cause hydration errors if a SurveyJS component is pre-rendered on the server. To ensure against those errors, use dynamic imports with `ssr: false` for React components that render SurveyJS components. The following code shows how to do this in Next.js:
+
+```js
+// survey/page.tsx
+import dynamic from 'next/dynamic';
+
+const SurveyComponent = dynamic(() => import("@/components/Survey"), {
+  ssr: false
+});
+
+export default function Survey() {
+  return (
+    <SurveyComponent />
+  );
 }
 ```
 
@@ -144,10 +163,10 @@ If you replicate the code correctly, you should see the following form:
     <summary>View Full Code</summary>  
 
 ```js
-// Uncomment the following line if you are using Next.js:
-// 'use client'
+// components/Survey.tsx
+'use client'
 
-import 'survey-core/survey-core.min.css';
+import 'survey-core/survey-core.css';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
@@ -163,14 +182,28 @@ const surveyJson = {
   }]
 };
 
-function App() {
+export default function SurveyComponent() {
   const survey = new Model(surveyJson);
 
   return <Survey model={survey} />;
 }
-
-export default App;
 ```
+
+```js
+// survey/page.tsx
+import dynamic from 'next/dynamic';
+
+const SurveyComponent = dynamic(() => import("@/components/Survey"), {
+  ssr: false
+});
+
+export default function Survey() {
+  return (
+    <SurveyComponent />
+  );
+}
+```
+
 </details>
 
 <a id="handle-survey-completion"></a>
@@ -180,13 +213,15 @@ export default App;
 After a respondent submits a form, the results are available within the [`onComplete`](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed. If your application has a user identification system, you can add the user ID to the survey results before sending them to the server:
 
 ```js
-import { useCallback } from 'react';
+// components/Survey.tsx
 // ...
+import { useCallback } from 'react';
+
 const SURVEY_ID = 1;
 
-function App() {
+export default function SurveyComponent() {
   const survey = new Model(surveyJson);
-  const surveyComplete = useCallback((survey) => {
+  const surveyComplete = useCallback((survey: Model) => {
     const userId = /* ... Getting the user ID ... */
     survey.setValue("userId", userId);
 
@@ -201,7 +236,7 @@ function App() {
   return <Survey model={survey} />;
 }
 
-function saveSurveyResults(url, json) {
+function saveSurveyResults(url: string, json: object) {
   fetch(url, {
     method: 'POST',
     headers: {
@@ -225,12 +260,14 @@ function saveSurveyResults(url, json) {
 In this tutorial, the results are simply output in an alert dialog:
 
 ```js
-import { useCallback } from 'react';
+// components/Survey.tsx
 // ...
-function App() {
+import { useCallback } from 'react';
+
+export default function SurveyComponent() {
   const survey = new Model(surveyJson);
-  const alertResults = useCallback((sender) => {
-    const results = JSON.stringify(sender.data);
+  const alertResults = useCallback((survey: Model) => {
+    const results = JSON.stringify(survey.data);
     alert(results);
   }, []);
 
@@ -244,18 +281,17 @@ function App() {
 
 As you can see, form results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 
-To view the application, run `npm run start` in a command line and open [http://localhost:3000/](http://localhost:3000/) in your browser.
+To view the application, run `npm run dev` in a command line and open [http://localhost:3000/](http://localhost:3000/) in your browser.
 
 <details>
     <summary>View Full Code</summary>  
 
 ```js
-// Uncomment the following line if you are using Next.js:
-// 'use client'
+// components/Survey.tsx
+'use client'
 
 import { useCallback } from 'react';
-
-import 'survey-core/survey-core.min.css';
+import 'survey-core/survey-core.css';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
@@ -271,10 +307,10 @@ const surveyJson = {
   }]
 };
 
-function App() {
+export default function SurveyComponent() {
   const survey = new Model(surveyJson);
-  const alertResults = useCallback((sender) => {
-    const results = JSON.stringify(sender.data);
+  const alertResults = useCallback((survey: Model) => {
+    const results = JSON.stringify(survey.data);
     alert(results);
   }, []);
 
@@ -282,9 +318,23 @@ function App() {
 
   return <Survey model={survey} />;
 }
-
-export default App;
 ```
+
+```js
+// survey/page.tsx
+import dynamic from 'next/dynamic';
+
+const SurveyComponent = dynamic(() => import("@/components/Survey"), {
+  ssr: false
+});
+
+export default function Survey() {
+  return (
+    <SurveyComponent />
+  );
+}
+```
+
 </details>
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/react (linkStyle))

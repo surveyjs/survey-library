@@ -35,7 +35,9 @@ The style sheet above applies the Default theme. SurveyJS Form Library also incl
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-If you wish to apply a predefined theme other than Default or create your own custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+If you wish to apply a predefined theme other than Default or create your own custom theme, refer to the following help topic for detailed instructions:
+
+[Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
 
 ## Create a Model
 

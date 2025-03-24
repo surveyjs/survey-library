@@ -22,8 +22,8 @@ import { Question } from "./question";
 export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcutText {
   [index: string]: any;
 
-  public getMarkdownHtml(text: string, name: string): string {
-    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : undefined;
+  public getMarkdownHtml(text: string, name: string, item?: any): string {
+    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item || this) : undefined;
   }
   public getRenderer(name: string): string {
     return !!this.locOwner ? this.locOwner.getRenderer(name) : null;
@@ -213,6 +213,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   public getLocale(): string {
     return !!this.locOwner && this.locOwner.getLocale ? this.locOwner.getLocale() : "";
+  }
+  public getLocalizableString(name: string): LocalizableString {
+    if(name === "text") return this.locText;
+    return super.getLocalizableString(name);
   }
   public isGhost: boolean;
   protected get isInternal(): boolean {

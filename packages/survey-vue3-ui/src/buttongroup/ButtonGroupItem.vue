@@ -1,16 +1,11 @@
 <template>
-  <label
-    role="radio"
-    :class="model.css.label"
-    :title="model.caption.renderedHtml"
-  >
+  <label :class="model.css.label" :title="model.caption.renderedHtml">
     <input
       type="radio"
       :name="model.name"
       :id="model.id"
       :aria-required="model.isRequired"
       :aria-label="model.caption.renderedHtml"
-      role="radio"
       :aria-invalid="model.hasErrors"
       :aria-errormessage="model.describedBy"
       :disabled="model.readOnly"

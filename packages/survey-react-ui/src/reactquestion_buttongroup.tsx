@@ -64,7 +64,6 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
     const caption = this.renderCaption();
     return (
       <label
-        role="radio"
         className={this.model.css.label}
         title={this.model.caption.renderedHtml}
       >
@@ -105,7 +104,6 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
         aria-label={this.model.caption.renderedHtml}
         aria-invalid={this.model.hasErrors}
         aria-errormessage={this.model.describedBy}
-        role="radio"
       />
     );
   }

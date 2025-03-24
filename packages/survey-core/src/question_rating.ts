@@ -442,7 +442,7 @@ export class QuestionRatingModel extends Question {
     if (index === 0) {
       description = this.minRateDescription && this.locMinRateDescription;
     }
-    if (index === (this.rateCount - 1) || index === settings.ratingMaximumRateValueCount) {
+    if (index === (this.rateCount - 1)) {
       description = this.maxRateDescription && this.locMaxRateDescription;
     }
     let newItem = new RatingItemValue(value, item.text, description);

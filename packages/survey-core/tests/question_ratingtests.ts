@@ -1859,26 +1859,11 @@ QUnit.test("Rating: minRateDescription and maxRateDescription labels do not appe
         "maxRateDescription": "Strongly Agree",
         "displayMode": "dropdown",
         "rateValues": [
-          {
-            "value": "A",
-            "text": "1"
-          },
-          {
-            "value": "B",
-            "text": "2"
-          },
-          {
-            "value": "C",
-            "text": "3"
-          },
-          {
-            "value": "D",
-            "text": "4"
-          },
-          {
-            "value": "E",
-            "text": "5"
-          }
+          { "value": "A", "text": "1" },
+          { "value": "B", "text": "2" },
+          { "value": "C", "text": "3" },
+          { "value": "D", "text": "4" },
+          { "value": "E", "text": "5" }
         ],
       }
     ],

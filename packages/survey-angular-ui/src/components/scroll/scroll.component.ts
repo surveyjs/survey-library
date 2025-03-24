@@ -1,7 +1,7 @@
 import { ScrollViewModel } from "survey-core";
 import { Component, ElementRef, OnDestroy, ViewChild, AfterViewInit, ViewContainerRef } from "@angular/core";
 import { EmbeddedViewContentComponent } from "../../embedded-view-content.component";
-import { AngularComponentFactory } from "src/component-factory";
+import { AngularComponentFactory } from "./../../component-factory";
 
 @Component({
   selector: "sv-scroll",

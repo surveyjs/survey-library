@@ -2810,7 +2810,7 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   public get ariaLabel(): string {
-    if (this.isNewA11yStructure) return null;
+    if (this.isNewA11yStructure || this.hasTitle) return null;
 
     return this.locTitle.renderedHtml;
   }
@@ -2830,13 +2830,8 @@ export class Question extends SurveyElement<Question>
     return this.hasCssError() ? "true" : "false";
   }
   public get ariaLabelledBy(): string {
-    if (this.isNewA11yStructure) return null;
-
-    if (this.hasTitle) {
-      return this.ariaTitleId;
-    } else {
-      return null;
-    }
+    if (this.isNewA11yStructure || !this.hasTitle) return null;
+    return this.ariaTitleId;
   }
   public get ariaDescribedBy(): string {
     if (this.isNewA11yStructure) return null;

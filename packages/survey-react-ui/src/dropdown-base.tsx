@@ -103,6 +103,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       role={this.question.ariaRole}
       aria-required={this.question.ariaRequired}
       aria-label={this.question.ariaLabel}
+      aria-labelledby={this.question.ariaLabelledBy}
       aria-invalid={this.question.ariaInvalid}
       aria-errormessage={this.question.ariaErrormessage}
       aria-expanded={this.question.ariaExpanded}

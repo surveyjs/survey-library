@@ -16,8 +16,10 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     super.locStrsChanged();
     this.syncFilterStringPlaceholder();
   }
+
   private updateListState() {
     (<MultiSelectListModel<ItemValue>>this.listModel).updateState();
+    this.updateCustomItemValue();
     this.syncFilterStringPlaceholder();
   }
 
@@ -122,16 +124,20 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.updateListState();
   }
   public selectItem(id: string): void {
+    let addedItem;
+
     if (this.allowCustomChoices && id === this.customItemValue.id) {
       const newChoice = this.createCustomItem();
-      if(!!newChoice) {
-        let newValue = [].concat(this.question.renderedValue || []);
-        newValue.push(newChoice.id);
-        this.question.renderedValue = newValue;
+      if (!!newChoice) {
+        addedItem = newChoice.id;
       }
     } else {
+      addedItem = id;
+    }
+
+    if (addedItem) {
       let newValue = [].concat(this.question.renderedValue || []);
-      newValue.push(id);
+      newValue.push(addedItem);
       this.question.renderedValue = newValue;
       this.updateListState();
     }

@@ -310,13 +310,14 @@ function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
   const result: Array<any> = [];
   let index = skip;
   while ((skip + result.length) < (skip + count)) {
+    const displayText = "DisplayText_" + index;
     if (!!filter) {
-      if (index.toString().toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1) {
-        result.push({ value: index, text: "DisplayText_" + index });
+      if (displayText.toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1) {
+        result.push({ value: index, text: displayText });
       }
     }
     else {
-      result.push({ value: index, text: "DisplayText_" + index });
+      result.push({ value: index, text: displayText });
     }
     index++;
   }
@@ -1952,11 +1953,27 @@ QUnit.test("allowCustomChoices: Add custom value if searchEnabled: false", funct
   assert.equal(listModel.actions[5].visible, false, "#2 custom item invisible");
   assert.equal(question.value.length, 1, "#2 question.value.length");
   assert.deepEqual(question.value, [testCustomValue], "#2 question.value");
-  assert.equal(question.selectedItems.length, 1, "#1 question.selectedItems.length");
+  assert.equal(question.selectedItems.length, 1, "#2 question.selectedItems.length");
   assert.equal(question.selectedItems[0].id, testCustomValue, "#2 question.selectedItems");
   assert.equal(question.visibleChoices.length, 5, "#2 question.visibleChoices");
   assert.equal(question.visibleChoices[4].value, testCustomValue, "#2 question.visibleChoices[4]");
   assert.deepEqual(survey.data, { q1: [testCustomValue] }, "#2 survey.data");
+
+  listModel.onItemClick(listModel.actions[0]);
+  assert.equal(dropdownListModel.inputStringRendered, "", "#3 inputStringRendered");
+  assert.equal(dropdownListModel.customValue, undefined, "#3 customValue");
+  assert.equal(listModel.actions.length, 6, "#3 listModel.actions");
+  assert.equal(listModel.actions[4].id, testCustomValue, "#3 custom value add into list - id");
+  assert.equal(listModel.actions[4].title, testCustomValue, "#3 custom value add into list - title");
+  assert.equal(listModel.actions[5].id, "newCustomItem", "#3 custom item id");
+  assert.equal(listModel.actions[5].visible, false, "#3 custom item invisible");
+  assert.equal(question.value.length, 2, "#3 question.value.length");
+  assert.deepEqual(question.value, [testCustomValue, "item1"], "#3 question.value");
+  assert.equal(question.selectedItems.length, 2, "#3 question.selectedItems.length");
+  assert.equal(question.selectedItems[0].id, testCustomValue, "#3 question.selectedItems");
+  assert.equal(question.visibleChoices.length, 5, "#3 question.visibleChoices");
+  assert.equal(question.visibleChoices[4].value, testCustomValue, "#3 question.visibleChoices[4]");
+  assert.deepEqual(survey.data, { q1: [testCustomValue, "item1"] }, "#3 survey.data");
 });
 
 QUnit.test("allowCustomChoices: inputStringRendered isn't reset after backspace, if searchEnabled: false", function (assert) {
@@ -2187,7 +2204,7 @@ QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (asse
   assert.deepEqual(survey.data, { q1: [testCustomValue] }, "#4 survey.data");
 });
 
-QUnit.skip("allowCustomChoices: Possibility of creating an element with custom value if choicesLazyLoadEnabled is true", function (assert) {
+QUnit.test("allowCustomChoices: Possibility of creating an element with custom value if choicesLazyLoadEnabled is true", function (assert) {
   const done1 = assert.async();
   const done2 = assert.async();
   const done3 = assert.async();
@@ -2203,7 +2220,7 @@ QUnit.skip("allowCustomChoices: Possibility of creating an element with custom v
   });
   survey.onChoicesLazyLoad.add((_, opt) => {
     setTimeout(() => {
-      if (!!opt.filter && opt.filter !== "2") {
+      if (!!opt.filter && opt.filter !== "DisplayText_2") {
         opt.setItems([], 0);
       } else {
         opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), 55);
@@ -2213,7 +2230,7 @@ QUnit.skip("allowCustomChoices: Possibility of creating an element with custom v
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
   const listModel: MultiSelectListModel = question.dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
-  const testExistValue = "2";
+  const testExistValue = "DisplayText_2";
   const testCustomValue1 = "customItem1";
   const testCustomValue2 = "customItem2";
 
@@ -2261,7 +2278,7 @@ QUnit.skip("allowCustomChoices: Possibility of creating an element with custom v
             assert.equal(listModel.isEmpty, false, "#5 listModel is not empty");
             assert.equal(listModel.actions.length, 1, "#5 listModel.actions");
             assert.equal(listModel.actions[0].id, "newCustomItem", "#5 custom item id");
-            assert.equal(listModel.actions[0].title, "Create \"2test\" item...", "#5 custom item text");
+            assert.equal(listModel.actions[0].title, "Create \"DisplayText_2test\" item...", "#5 custom item text");
             assert.equal(listModel.actions[0].visible, true, "#5 custom item visible");
             assert.equal(dropdownListModel.popupModel.isVisible, true, "#5 popupModel.isVisible");
 

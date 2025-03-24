@@ -260,6 +260,19 @@ export class DropdownListModel extends Base {
     };
     return res;
   }
+
+  private setQuestionValue(item: IAction) {
+    if (this.allowCustomChoices && item.id === this.customItemValue.id) {
+      const newChoice = this.createCustomItem();
+      if (!!newChoice) {
+        this.question.value = newChoice.id;
+      }
+    } else {
+      this.question.value = item.id;
+      if (this.question.searchEnabled) this.applyInputString(item as ItemValue);
+    }
+  }
+
   protected createCustomItem(): ItemValue {
     const newChoice = new ItemValue(this.customValue);
     const options: CreateCustomChoiceItemEvent = {
@@ -268,23 +281,12 @@ export class DropdownListModel extends Base {
       allow: true
     };
     this.question.survey.createCustomChoiceItem(options);
-    if(!options.allow) return null;
+    if (!options.allow) return null;
 
     this.question.customChoices.push(newChoice);
     this.customValue = undefined;
     this.updateItems();
     return newChoice;
-  }
-  private setQuestionValue(item: IAction) {
-    if (this.allowCustomChoices && item.id === this.customItemValue.id) {
-      const newChoice = this.createCustomItem();
-      if(!!newChoice) {
-        this.question.value = newChoice.id;
-      }
-    } else {
-      this.question.value = item.id;
-      if (this.question.searchEnabled) this.applyInputString(item as ItemValue);
-    }
   }
 
   protected updateAfterListModelCreated(model: ListModel<ItemValue>): void {
@@ -342,8 +344,8 @@ export class DropdownListModel extends Base {
     return !this.focused || this._markdownMode || !this.searchEnabled;
   }
 
-  public onSetCustomValue(newCustomValue: string): void {
-    if (newCustomValue) {
+  public updateCustomItemValue(): void {
+    if (this.customValue) {
       this.customItemValue.text = this.getLocalizationFormatString("createCustomItem", this.customValue);
       this.customItemValue.visible = true;
     } else {
@@ -368,7 +370,7 @@ export class DropdownListModel extends Base {
   @property({ defaultValue: false }) allowCustomChoices: boolean;
   @property({
     onSet: (newValue: string, target: DropdownListModel) => {
-      target.onSetCustomValue(newValue);
+      target.updateCustomItemValue();
     }
   }) customValue: string;
 

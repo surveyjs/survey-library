@@ -105,7 +105,7 @@ jobs:
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
       - script: |
-          npx puppeteer browsers install chrome
+          npm run postinstall
         displayName: "install chrome"
 
       - task: DownloadBuildArtifacts@0
@@ -168,7 +168,7 @@ jobs:
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
       - script: |
-          npx puppeteer browsers install chrome
+          npm run postinstall
         displayName: "install chrome"
 
       - task: DownloadBuildArtifacts@0
@@ -241,7 +241,7 @@ jobs:
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
       - script: |
-          npx puppeteer browsers install chrome
+          npm run postinstall
         displayName: "install chrome"
 
       - task: DownloadBuildArtifacts@0
@@ -314,7 +314,7 @@ jobs:
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
       - script: |
-          npx puppeteer browsers install chrome
+          npm run postinstall
         displayName: "install chrome"
 
       - task: DownloadBuildArtifacts@0

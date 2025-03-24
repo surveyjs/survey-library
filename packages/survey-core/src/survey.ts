@@ -2148,8 +2148,8 @@ export class SurveyModel extends SurveyElementCore
       this.navigationBar.locStrsChanged();
     }
   }
-  public getMarkdownHtml(text: string, name: string): string {
-    return this.getSurveyMarkdownHtml(this, text, name);
+  public getMarkdownHtml(text: string, name: string, item?: any): string {
+    return this.getSurveyMarkdownHtml(this, text, name, item);
   }
   public getRenderer(name: string): string {
     return this.getRendererForString(this, name);
@@ -7378,12 +7378,13 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.textPreProcessorValue;
   }
-  getSurveyMarkdownHtml(element: Question | PanelModel | PageModel | SurveyModel, text: string, name: string): string {
+  getSurveyMarkdownHtml(element: Question | PanelModel | PageModel | SurveyModel, text: string, name: string, item: any): string {
     const options: TextMarkdownEvent = {
       element: element,
       text: text,
       name: name,
-      html: null,
+      item: item,
+      html: null
     };
     this.onTextMarkdown.fire(this, options);
     return options.html;

@@ -37,7 +37,7 @@ export class SvgIconComponent implements OnChanges {
     return className;
   }
   @HostBinding("[attr.role]") get rootRole(): string {
-    return "img";
+    return "presentation";
   }
   ngOnChanges(): void {
     const el = this.viewContaierRef.element.nativeElement;

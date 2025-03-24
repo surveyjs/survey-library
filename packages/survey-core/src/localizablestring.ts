@@ -7,7 +7,7 @@ import { SurveyElementCore } from "./survey-element";
 
 export interface ILocalizableOwner {
   getLocale(): string;
-  getMarkdownHtml(text: string, name: string): string;
+  getMarkdownHtml(text: string, name: string, item?: any): string;
   getProcessedText(text: string): string;
   getRenderer(name: string): string;
   getRendererContext(locStr: LocalizableString): any;

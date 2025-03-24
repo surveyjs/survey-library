@@ -70,7 +70,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
     return 100;
   }
 
-  public get ticksCount(): number {
+  public get ticksCount(): number { // TODO interval
     if (this.customTicks) return this.customTicks.length;
     if (this.tickSize) {
       return Math.round(100 / this.tickSize) + 2;

@@ -2228,41 +2228,49 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(dropdownListModel.allowCustomChoices, false, "#2 allowCustomChoices");
   assert.equal(dropdownListModel.inputStringRendered, testCustomValue, "#2 inputStringRendered");
   assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
+  assert.equal(dropdownListModel.popupModel.isVisible, true, "#2 popupModel.isVisible");
   assert.equal(listModel.isEmpty, true, "#2 listModel is empty");
   assert.equal(listModel.actions.length, 4, "#2 listModel.actions");
+  assert.equal(listModel.focusedItem, undefined, "#2 focusedItem");
 
   question.allowCustomChoices = true;
   dropdownListModel.inputStringRendered = testCustomValue;
   assert.equal(dropdownListModel.allowCustomChoices, true, "#3 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, testCustomValue, "#3 customValue");
+  assert.equal(dropdownListModel.popupModel.isVisible, true, "#3 popupModel.isVisible");
   assert.equal(listModel.isEmpty, false, "#3 listModel is not empty");
   assert.equal(listModel.actions.length, 5, "#3 listModel.actions");
   assert.equal(listModel.actions[4].id, "newCustomItem", "#3 custom item id");
   assert.equal(listModel.actions[4].title, "Create \"item10\" item...", "#3 custom item text");
   assert.equal(listModel.actions[4].visible, true, "#3 custom item visible");
+  assert.equal(listModel.focusedItem.id, "newCustomItem", "#3 focusedItem");
 
   dropdownListModel.inputStringRendered = testExistValue;
   assert.equal(dropdownListModel.allowCustomChoices, true, "#4 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, undefined, "#4 customValue");
+  assert.equal(dropdownListModel.popupModel.isVisible, true, "#4 popupModel.isVisible");
   assert.equal(listModel.isEmpty, false, "#4 listModel is not empty");
   assert.equal(listModel.actions.length, 5, "#4 listModel.actions");
   assert.equal(listModel.actions[4].id, "newCustomItem", "#4 custom item id");
   assert.equal(listModel.actions[4].title, "newCustomItem", "#4 custom item text");
   assert.equal(listModel.actions[4].visible, false, "#4 custom item invisible");
+  assert.equal(listModel.focusedItem.id, "item2", "#4 focusedItem");
 
   dropdownListModel.inputStringRendered = testExistValue + "test";
   assert.equal(dropdownListModel.allowCustomChoices, true, "#5 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, testExistValue + "test", "#5 customValue");
+  assert.equal(dropdownListModel.popupModel.isVisible, true, "#5 popupModel.isVisible");
   assert.equal(listModel.isEmpty, false, "#5 listModel is not empty");
   assert.equal(listModel.actions.length, 5, "#5 listModel.actions");
   assert.equal(listModel.actions[4].id, "newCustomItem", "#5 custom item id");
   assert.equal(listModel.actions[4].title, "Create \"item2test\" item...", "#5 custom item text");
   assert.equal(listModel.actions[4].visible, true, "#5 custom item visible");
-  assert.equal(dropdownListModel.popupModel.isVisible, true, "#5 popupModel.isVisible");
+  assert.equal(listModel.focusedItem.id, "newCustomItem", "#5 focusedItem");
 
   dropdownListModel.popupModel.hide();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#6 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, undefined, "#6 customValue");
+  assert.equal(dropdownListModel.popupModel.isVisible, false, "#6 popupModel.isVisible");
   assert.equal(listModel.isEmpty, false, "#6 listModel is not empty");
   assert.equal(listModel.actions.length, 5, "#6 listModel.actions");
   assert.equal(listModel.actions[4].id, "newCustomItem", "#6 custom item id");

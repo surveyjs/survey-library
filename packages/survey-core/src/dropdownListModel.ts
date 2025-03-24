@@ -85,6 +85,7 @@ export class DropdownListModel extends Base {
     } else {
       this.customValue = val;
       this.updateItems();
+      this.listModel.focusFirstVisibleItem();
     }
   }
   private updateQuestionChoices(callbackAfterItemsLoaded?: () => void): void {
@@ -433,13 +434,13 @@ export class DropdownListModel extends Base {
     this.inputString = val;
     this.filterString = val;
 
+    if (this.allowCustomChoices && !this.question.choicesLazyLoadEnabled) {
+      this.processCustomValue(val);
+    }
     if (!val || !this.searchEnabled || this.listModel.focusedItem?.id === this.customItemValue.id) {
       this.hintString = "";
     } else {
       this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
-    }
-    if (this.allowCustomChoices && !this.question.choicesLazyLoadEnabled) {
-      this.processCustomValue(val);
     }
   }
 

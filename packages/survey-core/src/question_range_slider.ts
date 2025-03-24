@@ -1,3 +1,5 @@
+import { ExpressionRunner } from "./conditions";
+import { HashTable } from "./helpers";
 import { property, Serializer } from "./jsonobject";
 import { QuestionRatingModel } from "./question_rating";
 import { QuestionFactory } from "./questionfactory";
@@ -10,6 +12,8 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  */
 export class QuestionRangeSliderModel extends QuestionRatingModel {
   @property({ defaultValue: null }) focusedThumb: number | null;
+  @property({ defaultValue: 100 }) max: number;
+  @property({ defaultValue: 0 }) min: number;
 
   public getType(): string {
     return "rangeslider";
@@ -22,16 +26,40 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
       .toString();
   }
 
-  public get max(): number {
-    return 100;
+  public get maxValueExpression(): any {
+    return this.getPropertyValue("maxValueExpression");
   }
+  public set maxValueExpression(val: any) {
+    this.setPropertyValue("maxValueExpression", val);
+  }
+  public get minValueExpression(): any {
+    return this.getPropertyValue("minValueExpression");
+  }
+  public set minValueExpression(val: any) {
+    this.setPropertyValue("minValueExpression", val);
+  }
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
+    let maxRunner: ExpressionRunner = this.getDefaultRunner(this.defaultExpressionRunner, this.maxValueExpression);
+    let minRunner: ExpressionRunner = this.getDefaultRunner(this.defaultExpressionRunner, this.minValueExpression);
 
-  public get min(): number {
-    return 0;
+    if (!!maxRunner && maxRunner.canRun) {
+      maxRunner.onRunComplete = (res) => {
+        this.max = res ?? this.max;
+      };
+      maxRunner.run(values, properties);
+    }
+
+    if (!!minRunner && minRunner.canRun) {
+      minRunner.onRunComplete = (res) => {
+        this.min = res ?? this.min;
+      };
+      minRunner.run(values, properties);
+    }
   }
 
   public get step(): number {
-    return 0;
+    return 1;
   }
 
   public get minSelectedRange(): number {
@@ -51,7 +79,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public get tickSize(): number {
-    return 25;
+    return null;
   }
 
   public get customTicks(): {text: string, value: number}[] | null {
@@ -109,11 +137,20 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
 
 Serializer.addClass(
   "rangeslider",
-  [],
+  [
+    {
+      name: "maxValueExpression",
+      type: "condition"
+    },
+    {
+      name: "minValueExpression",
+      type: "condition"
+    }
+  ],
   function () {
     return new QuestionRangeSliderModel("");
   },
-  "question" // TODO maybe rating ?
+  "question", // TODO maybe rating ?
 );
 QuestionFactory.Instance.registerQuestion("rangeslider", (name) => {
   return new QuestionRangeSliderModel(name);

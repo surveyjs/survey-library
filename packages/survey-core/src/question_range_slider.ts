@@ -59,7 +59,14 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public get step(): number {
-    return 1;
+    if (this.isDiscreteValueByStep) {
+      return (this.max - this.min) / (this.ticksCount - 1);
+    }
+    return 10;
+  }
+
+  public get isDiscreteValueByStep(): boolean {
+    return true;
   }
 
   public get minSelectedRange(): number {
